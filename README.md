@@ -1,4 +1,4 @@
-rABM
-====
+# R-ABM
 
-An R package for agent based simulation models
+R package for agent based simulation models
+
