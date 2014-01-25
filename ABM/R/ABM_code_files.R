@@ -1,0 +1,271 @@
+# ABM files
+#setClass("agent",slots=list(name = "character", pos="SpatialPoints",last.pos="SpatialPoints",
+#  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
+
+setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
+  last.pos="SpatialPointsDataFrame",other = "list"))#,
+#  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
+
+setMethod("initialize", "agent", function(.Object, agentlocation = al, numagents=na, probinit=pri) {
+#  agent = as.agent()
+  if (!is.null(numagents)) {
+    if (!is.null(probinit)) {
+      nonNAs = !is.na(getValues(pri))
+      wh.nonNAs = which(nonNAs)
+      ProbInit.v = cumsum(getValues(pri)[nonNAs])
+      ran = runif(numagents,0,1)
+      fI = findInterval(ran, ProbInit.v)+1
+      fI2 = wh.nonNAs[fI]
+      pos = xyFromCell(hab,fI2,spatial = T)
+      ran = runif(numagents,0,1)
+      fI = findInterval(ran, ProbInit.v)+1
+      fI2 = wh.nonNAs[fI]
+      last.pos = xyFromCell(hab,fI2,spatial = T)
+    } else {
+      pos = SpatialPoints(sampleRandom(al, na, xy = T, sp = T))
+      last.pos = SpatialPoints(sampleRandom(al, na, xy = T, sp = T))
+    }
+  } else {
+    if (!is.null(probinit)) {
+      stop("you must declare NumAgents")
+    }
+  }
+#  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
+#    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
+#      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
+#        heading + 180-360,heading + 180  ),heading) %% 360
+
+  heading1 = heading(last.pos, pos)
+  distance = dis(last.pos, pos)
+  ids = 1:N
+  data = data.frame(ids,heading.to.here = heading1,dist.to.here = distance)
+  .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
+  data = data.frame(ids)
+  .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
+
+#  .Object@direction = deg(atan((.Object@pos@coords[,"x"] - .Object@last.pos@coords[,"x"]) / (.Object@pos@coords[,"y"] - .Object@last.pos@coords[,"y"])))
+#    .Object@direction = ifelse((.Object@pos@coords[,"y"] - .Object@last.pos@coords[,"y"])<0,
+#      ifelse((.Object@pos@coords[,"x"] - .Object@last.pos@coords[,"x"])<0,
+#        .Object@direction + 180-360,.Object@direction + 180  ),.Object@direction)
+#
+#  .Object@distance = sqrt((.Object@last.pos@coords[,"y"] - .Object@pos@coords[,"y"])^2 + (.Object@last.pos@coords[,"x"] - .Object@pos@coords[,"x"])^2)
+#  .Object@ids = 1:N
+
+
+  return(.Object)
+} )
+
+
+
+setMethod("show",
+ signature = "agent",
+ definition = function(object) {
+   show = list()
+   show[["N"]] = paste("There are",length(object@pos),"agents")
+   show[["First 5 agent coordinates"]] = head(coordinates(object)@coords,5)
+   show[["First 5 agent ids"]] = head(object@pos$ids,5)
+   print(show)
+ })
+
+setMethod("head",
+ signature = "agent",
+ definition = function(x,...) {
+   out = head(data.frame(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
+   print(out)
+ })
+
+setGeneric("dis", function(from,to,...) {
+    standardGeneric("dis")
+})
+
+setMethod("dis",
+ signature(from="SpatialPoints",to="SpatialPoints"),
+ definition = function(from,to,...) {
+   from = coordinates(from)
+   to = coordinates(to)
+   out = sqrt((from[,"y"] - to[,"y"])^2 + (from[,"x"] - to[,"x"])^2)
+   return(out)
+ })
+
+setGeneric("heading", function(from,to,...) {
+    standardGeneric("heading")
+})
+
+setMethod("heading",
+ signature(from="SpatialPoints",to="SpatialPoints"),
+ definition = function(from,to,...) {
+   lpos = coordinates(from)
+   pos = coordinates(to)
+  heading = deg(atan((pos[,"x"] - lpos[,"x"]) / (pos[,"y"] - lpos[,"y"])))
+    heading = ifelse((pos[,"y"] - lpos[,"y"])<0,
+      ifelse((pos[,"x"] - lpos[,"x"])<0,
+        heading + 180-360,heading + 180  ),heading) %% 360
+   return(heading)
+ })
+
+setMethod("points",
+  signature = "agent",
+  definition = function(x,which.to.plot=NULL,...) {
+    if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
+    points(x@pos@coords[sam,],...)
+    })
+    
+
+setGeneric("arrow", function(agent,...) {
+    standardGeneric("arrow")
+})
+
+
+
+setMethod("length",
+ signature="agent",
+ definition = function(x) {
+   len = length(x@pos)
+   return(len)
+ })
+
+setMethod("arrow",
+ signature="agent",
+ definition = function(agent,length = 0.1, ...) {
+   co.pos = coordinates(agent@pos)
+   co.lpos = coordinates(agent@last.pos)
+   arrows(co.lpos[,"x"],co.lpos[,"y"],co.pos[,"x"],co.pos[,"y"],length = length,...)
+ })
+ 
+setMethod("coordinates", signature = "agent",
+  definition = function(obj, ...) {
+    obj@pos
+  })
+    
+
+  
+setGeneric("agent", function(object) standardGeneric("agent"))
+ 
+ProbInit = function(p) { # currently, there is no ability to have Absolute ProbInit
+  if (length(p) == 1) ProbInit = p
+  else if (class(p) == "RasterLayer") {
+    ProbInit = p/cellStats(p, sum)
+  }
+  return(ProbInit)
+}
+
+
+Transitions = function(p, agent) {
+  agent@pos@coords[which(p==0),]=NA
+  return(agent)
+}
+
+NumAgents = function(N) {
+  if (length(N) == 1)  {NumAgents = N }
+  return(NumAgents)
+}
+
+move = function(hypothesis = NULL) {
+  if (hypothesis == "TwoDT") move = "TwoDT"
+  if (hypotehsis == "crw") move = "crw"
+}
+
+AgentLocation = function(fn=fun) {
+  fn[fn==0] = NA
+  return(fn)
+}
+
+crw = function(agent, step.len, dir.sd, hab = NULL) {
+  if (class(agent) != "agent") {stop("must be an agent class")}
+  n = length(agent@pos)
+  agent@last.pos = agent@pos
+
+  rand.dir = rnorm(n,agent@pos$heading.to.here,dir.sd)
+  rand.dir = ifelse(rand.dir>180,rand.dir-360,ifelse(rand.dir<(-180),360+rand.dir,rand.dir))
+  rand.len = step.len
+
+  agent@pos@coords[,"y"] = agent@last.pos@coords[,"y"] + cos(rad(rand.dir)) * rand.len
+  agent@pos@coords[,"x"] = agent@last.pos@coords[,"x"] + sin(rad(rand.dir)) * rand.len
+
+
+  agent@pos$heading.to.here = heading(agent@last.pos, agent@pos)# deg(atan((agent@pos@coords[,"x"] - agent@last.pos@coords[,"x"]) / (agent@pos@coords[,"y"] - agent@last.pos@coords[,"y"])))
+
+#  agent@pos$heading.to.here = ifelse((agent@pos@coords[,"y"] - agent@last.pos@coords[,"y"])<0,
+#    ifelse((agent@pos@coords[,"x"] - agent@last.pos@coords[,"x"])<0,
+#      agent@pos$heading.to.here + 180-360,agent@pos$heading.to.here + 180  ),agent@pos$heading.to.here)
+  agent@pos$dist.to.here = dis(agent@last.pos, agent@pos)#sqrt((agent@last.pos@coords[,"y"] - agent@pos@coords[,"y"])^2 + (agent@last.pos@coords[,"x"] - agent@pos@coords[,"x"])^2)
+
+  return(agent)
+}
+
+# identifies the xy coordinates of a circle around all live agents
+#  key function is draw.circles in the plotrix package
+
+cir = function (agent, radiuses, n.angles = 36)
+ {
+    n = length(agent@pos)
+    if (length(radiuses)==1) { #if radiuses is a single number
+      radiuses = rep(radiuses,n)
+    } 
+
+    # Begin creating vectors of each item, which will have a length of sum(n.angles), i.e., 
+    #    n.angles values for each of the agents
+    ids = rep(1:n,times=n.angles)
+    rads = rep(radiuses,times = n.angles)
+    xs = rep(coordinates(agent)$x, times = n.angles)
+    ys = rep(coordinates(agent)$y, times = n.angles)
+    nvs = rep(c(0,n.angles[-length(n.angles)]), times = n.angles) # To be used below to do calculation for angle increments
+    if (length(n.angles)==1) { # if n.angles is given as a single number of one number for each agent
+      angle.inc <- 2 * pi/n.angles
+    } else {
+      angle.inc <- rep(2 * pi, length(n.angles))/n.angles
+    }
+    angs = rep(angle.inc, times = n.angles)
+
+    #find the angles for each of the n.angles line segments around each agent
+    dnvs = c(0,diff(ids)) # determine the index that separates two caribous
+    nvs[dnvs==0] = 0 # make all values of the nvs = 0 
+    nvs2 = cumsum(nvs)
+    cum = 1:length(ids)
+    index = cum - nvs2 - 1 # This is the series of indices for each angle increment
+    angles = angs * index
+
+    # Calculate the x and y coordinates of the points in the rings
+    x = cos(angles)*rads+xs
+    y = sin(angles)*rads+ys
+
+    coords = data.frame(cbind(x,y))
+    est.circles = SpatialPointsDataFrame(coords,data.frame(ids,rads))
+    return(est.circles)
+}
+
+# determines value of habitat at ring cell values
+cir.values = function(agent, rings, hab) {
+#  alive = which(!is.na(agent@direction))
+  id = rings$ids
+  ring.hab.val = list()
+
+  coords1 = coordinates(rings) # convert x and y of agent to 1 matrix for faster computation
+  ring.hab.val = split(extract(hab,coords1),id)
+#  if (!is.null(alive)) { ring.hab.val[!alive] = NA }
+  return(ring.hab.val)
+}
+
+
+spread = function(maps, start.points, r=NULL, id.colour = T, 
+  ncells=NULL, fn=expression(!is.na(maps)), backwards = F, ...) {
+
+  spread = raster(maps)
+  spread[] = NA
+  start.cells = sort(cellFromXY(spread,start.points))
+  spread[start.cells] = 1
+  spread.start.id = raster(maps)
+  spread.start.id[] = NA
+  spread.start.id[start.cells] = start.cells
+  
+  for (i in 1:r) {
+    spreadadj = adjacent(spread,Which(spread==i,cells=T),sorted=T,...)
+    
+    
+    spread[spreadadj[,"to"][eval(fn)[spreadadj[,"to"]] & 
+      is.na(spread[spreadadj[,"to"]])]] = i+1
+    spread.start.id[spreadadj[,"to"]] = spread.start.id[spreadadj[,"from"]]
+  }
+  if (id.colour) { return(spread.start.id) }
+  else {return(spread)}
+}
