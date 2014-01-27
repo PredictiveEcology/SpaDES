@@ -1,8 +1,9 @@
+require(sp)
+
 # ABM files
 
 setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
   last.pos="SpatialPointsDataFrame",other = "list"))#,
-#  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
 
 setMethod("initialize", "agent", function(.Object, agentlocation = al, numagents=na, probinit=pri) {
   if (!is.null(numagents)) {
