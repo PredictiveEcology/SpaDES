@@ -2,6 +2,7 @@
 #setClass("agent",slots=list(name = "character", pos="SpatialPoints",last.pos="SpatialPoints",
 #  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
 
+
 setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
   last.pos="SpatialPointsDataFrame",other = "list"))#,
 #  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
@@ -35,12 +36,16 @@ setMethod("initialize", "agent", function(.Object, agentlocation = al, numagents
 #      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
 #        heading + 180-360,heading + 180  ),heading) %% 360
 
+  no.move = coordinates(pos)==coordinates(last.pos)
   heading1 = heading(last.pos, pos)
   distance = dis(last.pos, pos)
-  ids = 1:N
-  data = data.frame(ids,heading.to.here = heading1,dist.to.here = distance)
+  nas = is.na(heading1)
+  if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
+    
+  ids = 1:numagents
+  data = data.table(ids,heading.to.here = heading1,dist.to.here = distance)
   .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
-  data = data.frame(ids)
+  data = data.table(ids)
   .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
 
 #  .Object@direction = deg(atan((.Object@pos@coords[,"x"] - .Object@last.pos@coords[,"x"]) / (.Object@pos@coords[,"y"] - .Object@last.pos@coords[,"y"])))
@@ -70,7 +75,7 @@ setMethod("show",
 setMethod("head",
  signature = "agent",
  definition = function(x,...) {
-   out = head(data.frame(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
+   out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
    print(out)
  })
 
@@ -229,8 +234,8 @@ cir = function (agent, radiuses, n.angles = 36)
     x = cos(angles)*rads+xs
     y = sin(angles)*rads+ys
 
-    coords = data.frame(cbind(x,y))
-    est.circles = SpatialPointsDataFrame(coords,data.frame(ids,rads))
+    coords = data.table(cbind(x,y))
+    est.circles = SpatialPointsDataFrame(coords,data.table(ids,rads))
     return(est.circles)
 }
 
