@@ -5,7 +5,8 @@
 Determine coordinates of points in a circle around points in an agent object
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Takes an agent object, and for a given vector of radiuses and number of vertices, will return a SpatialPointsDataFrame with 
+points around each agent at their respective radiuses
 }
 \usage{
 cir(agent, radiuses, nv = 36)
@@ -13,19 +14,21 @@ cir(agent, radiuses, nv = 36)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{agent}{
-%%     ~~Describe \code{agent} here~~
+Object of class "agent"
 }
   \item{radiuses}{
-%%     ~~Describe \code{radiuses} here~~
+Numeric or numeric vector with same length as agent 
 }
   \item{nv}{
-%%     ~~Describe \code{nv} here~~
+Numeric or numeric vector with same length as agent
 }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
+Returns a SpatialPointsDataFrame with coordinates for each point around the agents. These will have an index column with value
+equal to the original agent row number
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
