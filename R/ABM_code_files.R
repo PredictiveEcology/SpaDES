@@ -8,7 +8,6 @@ setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
 #  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
 
 setMethod("initialize", "agent", function(.Object, agentlocation = al, numagents=na, probinit=pri) {
-#  agent = as.agent()
   if (!is.null(numagents)) {
     if (!is.null(probinit)) {
       nonNAs = !is.na(getValues(pri))
