@@ -13,4 +13,3 @@ install.packages("devtools")`
 library(devtools)`
 install_github("ABM", username="achubaty")
 ```
-hfvgk
