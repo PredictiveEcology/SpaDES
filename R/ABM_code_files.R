@@ -1,7 +1,4 @@
 # ABM files
-#setClass("agent",slots=list(name = "character", pos="SpatialPoints",last.pos="SpatialPoints",
-#  direction="numeric",distance="numeric",ids = "numeric", other="list"))#,
-
 
 setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
   last.pos="SpatialPointsDataFrame",other = "list"))#,
@@ -46,15 +43,6 @@ setMethod("initialize", "agent", function(.Object, agentlocation = al, numagents
   .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
   data = data.table(ids)
   .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
-
-#  .Object@direction = deg(atan((.Object@pos@coords[,"x"] - .Object@last.pos@coords[,"x"]) / (.Object@pos@coords[,"y"] - .Object@last.pos@coords[,"y"])))
-#    .Object@direction = ifelse((.Object@pos@coords[,"y"] - .Object@last.pos@coords[,"y"])<0,
-#      ifelse((.Object@pos@coords[,"x"] - .Object@last.pos@coords[,"x"])<0,
-#        .Object@direction + 180-360,.Object@direction + 180  ),.Object@direction)
-#
-#  .Object@distance = sqrt((.Object@last.pos@coords[,"y"] - .Object@pos@coords[,"y"])^2 + (.Object@last.pos@coords[,"x"] - .Object@pos@coords[,"x"])^2)
-#  .Object@ids = 1:N
-
 
   return(.Object)
 } )
@@ -187,12 +175,9 @@ crw = function(agent, step.len, dir.sd, hab = NULL) {
   agent@pos@coords[,"x"] = agent@last.pos@coords[,"x"] + sin(rad(rand.dir)) * rand.len
 
 
-  agent@pos$heading.to.here = heading(agent@last.pos, agent@pos)# deg(atan((agent@pos@coords[,"x"] - agent@last.pos@coords[,"x"]) / (agent@pos@coords[,"y"] - agent@last.pos@coords[,"y"])))
+  agent@pos$heading.to.here = heading(agent@last.pos, agent@pos)
 
-#  agent@pos$heading.to.here = ifelse((agent@pos@coords[,"y"] - agent@last.pos@coords[,"y"])<0,
-#    ifelse((agent@pos@coords[,"x"] - agent@last.pos@coords[,"x"])<0,
-#      agent@pos$heading.to.here + 180-360,agent@pos$heading.to.here + 180  ),agent@pos$heading.to.here)
-  agent@pos$dist.to.here = dis(agent@last.pos, agent@pos)#sqrt((agent@last.pos@coords[,"y"] - agent@pos@coords[,"y"])^2 + (agent@last.pos@coords[,"x"] - agent@pos@coords[,"x"])^2)
+  agent@pos$dist.to.here = dis(agent@last.pos, agent@pos)
 
   return(agent)
 }
@@ -240,13 +225,11 @@ cir = function (agent, radiuses, n.angles = 36)
 
 # determines value of habitat at ring cell values
 cir.values = function(agent, rings, hab) {
-#  alive = which(!is.na(agent@direction))
   id = rings$ids
   ring.hab.val = list()
 
   coords1 = coordinates(rings) # convert x and y of agent to 1 matrix for faster computation
   ring.hab.val = split(extract(hab,coords1),id)
-#  if (!is.null(alive)) { ring.hab.val[!alive] = NA }
   return(ring.hab.val)
 }
 
