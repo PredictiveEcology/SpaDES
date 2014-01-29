@@ -1,32 +1,43 @@
 require(sp)
+require(CircStats)
+require(data.table)
 
 # ABM files
 
 setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
   last.pos="SpatialPointsDataFrame",other = "list"))#,
 
-setMethod("initialize", "agent", function(.Object, agentlocation = al, numagents=na, probinit=pri) {
-  if (!is.null(numagents)) {
-    if (!is.null(probinit)) {
-      nonNAs = !is.na(getValues(pri))
-      wh.nonNAs = which(nonNAs)
-      ProbInit.v = cumsum(getValues(pri)[nonNAs])
+setMethod("initialize", "agent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
+  if (!is.null(probinit)) {
+    nonNAs = !is.na(getValues(probinit))
+    wh.nonNAs = which(nonNAs)
+    ProbInit.v = cumsum(getValues(probinit)[nonNAs])
+    if (!is.null(numagents)) {
       ran = runif(numagents,0,1)
       fI = findInterval(ran, ProbInit.v)+1
       fI2 = wh.nonNAs[fI]
-      pos = xyFromCell(hab,fI2,spatial = T)
-      ran = runif(numagents,0,1)
-      fI = findInterval(ran, ProbInit.v)+1
-      fI2 = wh.nonNAs[fI]
-      last.pos = xyFromCell(hab,fI2,spatial = T)
+      last.ran = runif(numagents,0,1)
+      last.fI = findInterval(last.ran, ProbInit.v)+1
+      last.fI2 = wh.nonNAs[last.fI]
     } else {
-      pos = SpatialPoints(sampleRandom(al, na, xy = T, sp = T))
-      last.pos = SpatialPoints(sampleRandom(al, na, xy = T, sp = T))
+      va = getValues(probinit)[nonNAs]
+      ran = runif(length(va),0,1)
+      fI2 = wh.nonNAs[ran<va]
+
+      last.ran = runif(length(fI2),0,1)
+      last.fI = findInterval(last.ran, ProbInit.v)+1
+      last.fI2 = wh.nonNAs[last.fI]
+
+#      last.ran = runif(length(fI2),0,1)
+#      last.fI2 = wh.nonNAs[last.ran<va]
     }
+    pos = xyFromCell(hab,fI2,spatial = T)
+    last.pos = xyFromCell(hab,last.fI2,spatial = T)
+    numagents = length(pos)
+
   } else {
-    if (!is.null(probinit)) {
-      stop("you must declare NumAgents")
-    }
+    pos = SpatialPoints(sampleRandom(al, na, xy = T, sp = T))
+    last.pos = SpatialPoints(sampleRandom(al, na, xy = T, sp = T))
   }
 #  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
 #    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
@@ -134,11 +145,16 @@ setMethod("coordinates", signature = "agent",
   
 setGeneric("agent", function(object) standardGeneric("agent"))
  
-ProbInit = function(p) { # currently, there is no ability to have Absolute ProbInit
-  if (length(p) == 1) ProbInit = p
-  else if (class(p) == "RasterLayer") {
-    ProbInit = p/cellStats(p, sum)
+ProbInit = function(map,p,absolute=F) { # currently, there is no ability to have Absolute ProbInit
+  if (length(p) == 1) { 
+    ProbInit = raster(extent(map),nrows=nrow(map),ncols=ncol(map),crs = crs(map))
+    ProbInit = setValues(ProbInit, rep(p,length(ProbInit)))
   }
+  else if (class(p) == "RasterLayer") {
+    ProbInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
+  }
+  if(absolute) print(paste("Using Absolute, Expected Number of Agents", 
+    sum(na.omit(getValues(ProbInit)))))
   return(ProbInit)
 }
 
