@@ -51,3 +51,37 @@ to_identify_patches_on_the_circle<-function(positions,buffers,raster_world,scale
   
   return(coord_unique_pixels) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
 }
+
+
+to_extract_unique_pixels_on_line<-function(positions,next_possible_locations,distances,raster_world,scale_raster){ ##extract the unique pixel on pathways (i.e., line between the current position and several others)
+  seq_num_ind<-seq_len(nrow(positions)) ##create an index sequence for the number of individuals
+  num_lines<-as.numeric(unlist(lapply(next_possible_locations,nrow))) ##number of lines for each individual
+  points_needed<-as.numeric(ceiling((distances/scale_raster)*3)+1) ##number of points to sample on each line per individual (at leat 3 points per pixel size (scale_raster) + 1 for the origin)
+  repeat_time<-num_lines*points_needed ##number of points per individual
+  rep_points_by_line<-rep(points_needed,num_lines) ##indices for numbers of points per lines for each individual, repeated the "number of lines" time per individual
+  
+  ids<-rep(seq_num_ind,repeat_time) ##individual IDs time number of lines times number of points per line
+  xs<-rep(positions[,1],repeat_time) ##individual position
+  ys<-rep(positions[,2],repeat_time) 
+  xe<-rep(as.data.frame(rbindlist(next_possible_locations))[,1],rep_points_by_line) ##ending line point position
+  ye<-rep(as.data.frame(rbindlist(next_possible_locations))[,2],rep_points_by_line) 
+  heading<-atan2(x=xe-xs,y=ye-ys) ##angle between the individual position and the ending points of their lines 
+  dist_line<-sqrt((as.data.frame(rbindlist(next_possible_locations))[,1]-rep(positions[,1],num_lines))^2+
+                    (as.data.frame(rbindlist(next_possible_locations))[,2]-rep(positions[,2],num_lines))^2) ##distance between the individual position and the ending points of their lines (because it can be different than the given distances)
+  
+  increments_by_one<-rep(dist_line/(rep_points_by_line-1),rep_points_by_line) ##calculate the distance between the points for the individual lines (-1 for the intervalles)
+  increments_time<-unlist(rep(lapply(points_needed, function(b) 0:(b-1)),num_lines)) ##repeat the "number of point needed" sequence for each line (0:b-1, for the origin until the last point)
+  increments<-increments_by_one*increments_time ##multiply them to have the distance of each points from the individual position
+  new_x<-cos(heading)*increments+xs ##calculate the coordinates of the points created on the lines
+  new_y<-sin(heading)*increments+ys
+  
+  coordinates_all_pts<-as.matrix(cbind(new_x,new_y)) ##put the coordinates of the points on the lines from all individuals in the same matrix
+  pixels_under_coordinates<-cellFromXY(raster_world,coordinates_all_pts) ##extract the pixel IDs under these points
+  pixels_per_ind<-split(pixels_under_coordinates,ids) ##split the results by individuals
+  lines_ids<-split(rep(unlist(lapply(num_lines, function(c) seq_len(c))),rep_points_by_line),ids) ##give a unique ids for the different lines of each individual
+  pixels_per_line_per_ind<-lapply(seq_num_ind, function(d) split(pixels_per_ind[[d]],lines_ids[[d]])) ##split the individual results by lines
+  
+  pixels<-lapply(seq_num_ind, function(e) lapply(pixels_per_line_per_ind[[e]],unique)) ##for each line of each individual keep only the unique pixel IDs
+  
+  return(pixels) ##one list of list (number of individuals) of vectors (one per line, pixels IDs composing the line)
+}
