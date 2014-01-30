@@ -85,3 +85,48 @@ to_extract_unique_pixels_on_line<-function(positions,next_possible_locations,dis
   
   return(pixels) ##one list of list (number of individuals) of vectors (one per line, pixels IDs composing the line)
 }
+
+
+to_extract_mean_raster_value<-function(pathways,raster_world){ ##extract the raster values on each pathway and calculate the mean value on it
+  seq_num_ind<-seq_len(length(pathways)) ##create an index sequence for the number of individuals
+  num_pathways<-unlist(lapply(pathways,length)) ##retrieve the number of pathways per individual
+  length_pathways<-as.vector(unlist(lapply(seq_num_ind, function(f) lapply(pathways[[f]],length)))) ##and the number of pixels per pathways
+  ids<-rep(seq_num_ind,num_pathways) ##repeat the individual IDs the number of pathways they have
+  ind_ids_per_pixels<-rep(ids,length_pathways) ##repeat the individual IDs for each of their pixels
+  ids_path<-unlist(lapply(num_pathways,seq_len)) ##create pathway IDs
+  pathway_ids_per_pixels<-rep(ids_path,length_pathways) ##create pathway IDs for each pixel
+  
+  all_pixels<-as.vector(unlist(pathways)) ##extract all the pixels IDs from all individuals/pathways
+  all_pixels_ids<-cbind.data.frame(ind_ids_per_pixels,pathway_ids_per_pixels,all_pixels) ##put the pixels with individual and pathways IDs
+  
+  all_unique_pixels<-unique(all_pixels) ##keep only the unique pixels
+  values_raster<-extract(raster_world,all_unique_pixels) ##extract the values from the raster only for the unique pixels
+  unique_pixels_and_values<-cbind.data.frame(all_unique_pixels,values_raster) ##put the pixels IDs with their value
+  
+  pixels_and_values<-merge(unique_pixels_and_values,all_pixels_ids,
+                           by.x="all_unique_pixels",by.y="all_pixels",all=TRUE) ##and merge it with the full list of all the (duplicated) pixels
+  pixels_and_values$ind_path_id<-as.factor(paste(pixels_and_values$ind_ids_per_pixels,pixels_and_values$pathway_ids_per_pixels,sep=".")) ##create a unique ID for the individual and pathways
+  mean_value<-tapply(pixels_and_values$values_raster,pixels_and_values$ind_path_id,mean) ##take the mean of the raster value per individual pathway
+  mean_value_df<-as.data.frame(mean_value) ##turn the mean value into a df
+  mean_value_df$ind_ids<-rownames(mean_value_df) ##and keep the rownames as the unique IDs
+  
+  full_ids<-cbind.data.frame(ids,ids_path,paste(ids,ids_path,sep=".")) ##create the same IDs as the one in mean_value_df
+  colnames(full_ids)[3]<-"ind_ids"
+  mean_value_ids<-merge(mean_value_df,full_ids) ##and merge the mean pathway values to the IDs
+  mean_value_ordered<-mean_value_ids[with(mean_value_ids,order(ids_path)),] ##order by pathway number
+  values_split_ind<-split(mean_value_ordered$mean_value,mean_value_ordered$ids) ##and split by individual
+  
+  return(values_split_ind) ##list of vectors (on for each individual) of the mean raster value for each pathway
+}
+
+
+to_scale_prob<-function(value_per_path){ ##scale the probability of each individual pathway based on some value per pathway so that the probabilities sum to 1 for each individual
+  seq_num_ind<-seq_len(length(value_per_path)) ##create an index sequence for the number of individuals
+  prob_scaled<-list()
+  prob_scaled[seq_num_ind]<-lapply(seq_num_ind, ##for each individual
+                                   function(g) ifelse(rep(sum(value_per_path[[g]]!=0),length(value_per_path[[g]])), ##check if the mean value_per_path of all the pathways is different from 0
+                                                      value_per_path[[g]]/sum(value_per_path[[g]]), ##if yes, the pathway probability scaled is = pathway value / sum of all pathway values
+                                                      rep(1,length(value_per_path[[g]]))/length(value_per_path[[g]]))) ##otherwise give an equal probability for each pathway
+  
+  return(prob_scaled) ##list of vector with the scaled probabilities (sum to 1) for each available pathway of each individual
+}
