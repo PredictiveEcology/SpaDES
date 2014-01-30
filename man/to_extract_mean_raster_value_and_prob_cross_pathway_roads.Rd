@@ -1,22 +1,28 @@
-\name{to_extract_mean_raster_value}
-\alias{to_extract_mean_raster_value}
+\name{to_extract_mean_raster_value_and_prob_cross_pathway_roads}
+\alias{to_extract_mean_raster_value_and_prob_cross_pathway_roads}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Extract mean pixel raster value on pathways
+Extract raster information under pathways
 }
 \description{
-Extract the mean value from a raster on each individual pathways. Pathways are unique pixels on the lines going from the individual current position to any of the unique pixels located on the circle the individual position as the center of the circle and a given distance for the radius.
+Extract mean value from one raster for the unique pixels composing the individual pathways. Also calculate the probability of crossing the pathway based on the road presence raster.
 }
 \usage{
-to_extract_mean_raster_value(pathways, raster_world)
+to_extract_mean_raster_value_and_prob_cross_pathway_roads(pathways, raster_world_mean, raster_world_cross, prob_cross_road)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{pathways}{
 %%     ~~Describe \code{pathways} here~~
 }
-  \item{raster_world}{
-%%     ~~Describe \code{raster_world} here~~
+  \item{raster_world_mean}{
+%%     ~~Describe \code{raster_world_mean} here~~
+}
+  \item{raster_world_cross}{
+%%     ~~Describe \code{raster_world_cross} here~~
+}
+  \item{prob_cross_road}{
+%%     ~~Describe \code{prob_cross_road} here~~
 }
 }
 \details{
@@ -50,7 +56,7 @@ to_extract_mean_raster_value(pathways, raster_world)
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (pathways, raster_world) 
+function (pathways, raster_world_mean, raster_world_cross, prob_cross_road) 
 {
     seq_num_ind <- seq_len(length(pathways))
     num_pathways <- unlist(lapply(pathways, length))
@@ -64,26 +70,32 @@ function (pathways, raster_world)
     all_pixels_ids <- cbind.data.frame(ind_ids_per_pixels, pathway_ids_per_pixels, 
         all_pixels)
     all_unique_pixels <- unique(all_pixels)
-    values_raster <- extract(raster_world, all_unique_pixels)
+    values_raster_mean <- extract(raster_world_mean, all_unique_pixels)
+    values_raster_cross <- extract(raster_world_cross, all_unique_pixels)
     unique_pixels_and_values <- cbind.data.frame(all_unique_pixels, 
-        values_raster)
+        values_raster_mean, values_raster_cross)
     pixels_and_values <- merge(unique_pixels_and_values, all_pixels_ids, 
         by.x = "all_unique_pixels", by.y = "all_pixels", all = TRUE)
     pixels_and_values$ind_path_id <- as.factor(paste(pixels_and_values$ind_ids_per_pixels, 
         pixels_and_values$pathway_ids_per_pixels, sep = "."))
-    mean_value <- tapply(pixels_and_values$values_raster, pixels_and_values$ind_path_id, 
-        mean)
-    mean_value_df <- as.data.frame(mean_value)
-    mean_value_df$ind_ids <- rownames(mean_value_df)
+    mean_value <- tapply(pixels_and_values$values_raster_mean, 
+        pixels_and_values$ind_path_id, mean)
+    sum_value <- tapply(pixels_and_values$values_raster_cross, 
+        pixels_and_values$ind_path_id, sum)
+    results_value_df <- cbind.data.frame(mean_value, sum_value)
+    results_value_df$prob_cross <- prob_cross_road^results_value_df$sum_value
+    results_value_df$ind_ids <- rownames(results_value_df)
     full_ids <- cbind.data.frame(ids, ids_path, paste(ids, ids_path, 
         sep = "."))
     colnames(full_ids)[3] <- "ind_ids"
-    mean_value_ids <- merge(mean_value_df, full_ids)
-    mean_value_ordered <- mean_value_ids[with(mean_value_ids, 
+    results_value_df_ids <- merge(results_value_df, full_ids)
+    results_value_df_ordered <- results_value_df_ids[with(results_value_df_ids, 
         order(ids_path)), ]
-    values_split_ind <- split(mean_value_ordered$mean_value, 
-        mean_value_ordered$ids)
-    return(values_split_ind)
+    mean_split_ind <- split(results_value_df_ordered$mean_value, 
+        results_value_df_ordered$ids)
+    cross_split_ind <- split(results_value_df_ordered$prob_cross, 
+        results_value_df_ordered$ids)
+    return(list(mean_value_raster = mean_split_ind, cross_value_raster = cross_split_ind))
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

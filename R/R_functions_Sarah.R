@@ -87,7 +87,7 @@ to_extract_unique_pixels_on_line<-function(positions,next_possible_locations,dis
 }
 
 
-to_extract_mean_raster_value<-function(pathways,raster_world){ ##extract the raster values on each pathway and calculate the mean value on it
+to_extract_mean_raster_value_and_prob_cross_pathway_roads<-function(pathways,raster_world_mean,raster_world_cross,prob_cross_road){ ##calculate the probability to take the pathway based on the mean value of one raster and road presence on the pathways
   seq_num_ind<-seq_len(length(pathways)) ##create an index sequence for the number of individuals
   num_pathways<-unlist(lapply(pathways,length)) ##retrieve the number of pathways per individual
   length_pathways<-as.vector(unlist(lapply(seq_num_ind, function(f) lapply(pathways[[f]],length)))) ##and the number of pixels per pathways
@@ -100,23 +100,30 @@ to_extract_mean_raster_value<-function(pathways,raster_world){ ##extract the ras
   all_pixels_ids<-cbind.data.frame(ind_ids_per_pixels,pathway_ids_per_pixels,all_pixels) ##put the pixels with individual and pathways IDs
   
   all_unique_pixels<-unique(all_pixels) ##keep only the unique pixels
-  values_raster<-extract(raster_world,all_unique_pixels) ##extract the values from the raster only for the unique pixels
-  unique_pixels_and_values<-cbind.data.frame(all_unique_pixels,values_raster) ##put the pixels IDs with their value
+  values_raster_mean<-extract(raster_world_mean,all_unique_pixels) ##extract the values from the raster only for the unique pixels to do the mean value
+  values_raster_cross<-extract(raster_world_cross,all_unique_pixels) ##extract the values from the raster only for the unique pixels to do the cross value 
+  unique_pixels_and_values<-cbind.data.frame(all_unique_pixels,values_raster_mean,values_raster_cross) ##put the pixels IDs with theirs values
   
   pixels_and_values<-merge(unique_pixels_and_values,all_pixels_ids,
                            by.x="all_unique_pixels",by.y="all_pixels",all=TRUE) ##and merge it with the full list of all the (duplicated) pixels
   pixels_and_values$ind_path_id<-as.factor(paste(pixels_and_values$ind_ids_per_pixels,pixels_and_values$pathway_ids_per_pixels,sep=".")) ##create a unique ID for the individual and pathways
-  mean_value<-tapply(pixels_and_values$values_raster,pixels_and_values$ind_path_id,mean) ##take the mean of the raster value per individual pathway
-  mean_value_df<-as.data.frame(mean_value) ##turn the mean value into a df
-  mean_value_df$ind_ids<-rownames(mean_value_df) ##and keep the rownames as the unique IDs
+
+  mean_value<-tapply(pixels_and_values$values_raster_mean,pixels_and_values$ind_path_id,mean) ##take the mean of the raster value per individual pathway
+  sum_value<-tapply(pixels_and_values$values_raster_cross,pixels_and_values$ind_path_id,sum) ##take the sum of the raster value per individual pathway
+  results_value_df<-cbind.data.frame(mean_value,sum_value) ##turn the mean and sum value into a df
+  results_value_df$prob_cross<-prob_cross_road^results_value_df$sum_value
+  results_value_df$ind_ids<-rownames(results_value_df) ##and keep the rownames as the unique IDs
   
   full_ids<-cbind.data.frame(ids,ids_path,paste(ids,ids_path,sep=".")) ##create the same IDs as the one in mean_value_df
   colnames(full_ids)[3]<-"ind_ids"
-  mean_value_ids<-merge(mean_value_df,full_ids) ##and merge the mean pathway values to the IDs
-  mean_value_ordered<-mean_value_ids[with(mean_value_ids,order(ids_path)),] ##order by pathway number
-  values_split_ind<-split(mean_value_ordered$mean_value,mean_value_ordered$ids) ##and split by individual
+  results_value_df_ids<-merge(results_value_df,full_ids) ##and merge the sum pathway values to the IDs
+  results_value_df_ordered<-results_value_df_ids[with(results_value_df_ids,order(ids_path)),] ##order by pathway number
   
-  return(values_split_ind) ##list of vectors (on for each individual) of the mean raster value for each pathway
+  mean_split_ind<-split(results_value_df_ordered$mean_value,results_value_df_ordered$ids) ##and split by individual
+  cross_split_ind<-split(results_value_df_ordered$prob_cross,results_value_df_ordered$ids) ##and split by individual
+  
+  return(list(mean_value_raster=mean_split_ind, ##list of vectors (on for each individual) of the mean raster value for each pathway
+              cross_value_raster=cross_split_ind)) ##list of vectors (on for each individual) of the prob_cross^(sum raster value) for each pathway
 }
 
 
