@@ -274,22 +274,22 @@ spread = function(maps, start.points, r=NULL, id.colour = T,
   else {return(spread)}
 }
 
-GaussMap = function(ext, cov.pairs = c(160,160), fast = T, n.unique.pixels = 100) {
+GaussMap = function(ext, cov.pars = c(5,100), speedup.index = 10){#, fast = T, n.unique.pixels = 100) {
   xmn = ext@xmin
   xmx = ext@xmax
   ymn = ext@ymin
   ymx = ext@ymax
-  nr = ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
-  nc = ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
+  nr = (xmx-xmn)/speedup.index # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
+  nc = (ymx-ymn)/speedup.index # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
   xfact = (xmx-xmn)/nr
   yfact = (ymx-ymn)/nc
   map <- raster(nrows=nr, ncols=nc, x=ext)
 
-  sim2 <- grf(nr*nc, grid = "reg", cov.pars = cov.pairs,
+  sim2 <- grf(nr*nc, grid = "reg", cov.pars = cov.pars,
      xlims = c(xmn, xmx), ylims = c(ymn, ymx)) 
   xy <- cbind(x=sim2$coords[,"x"],y=sim2$coords[,"y"])
   map2 <- rasterize(xy, map,field=sim2$data+abs(min(sim2$data)))
   map3 = map2
-  if(fast) map3 <- disaggregate(map2,c(xfact,yfact))
+  if(speedup.index>1) map3 <- disaggregate(map2,c(xfact,yfact))
   return(map3)
 }
