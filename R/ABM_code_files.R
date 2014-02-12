@@ -187,66 +187,151 @@ AgentLocation = function(fn=fun) {
   return(fn)
 }
 
-crw = function(agent, step.len, dir.sd, hab = NULL) {
-  if (class(agent) != "agent") {stop("must be an agent class")}
-  n = length(agent@pos)
-  agent@last.pos = agent@pos
+# This is a modified version found in CircStats to allow for multiple angles at once
+dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
+{
+    if (missing(rho)) {
+        rho <- exp(-sd^2/2)
+    }
+    if (rho < 0 | rho > 1)
+        stop("rho must be between 0 and 1")
+    var <- -2 * log(rho)
+    term <- function(theta, mu, var, k) {
+        1/sqrt(var * 2 * pi) * exp(-((theta - mu + 2 * pi * k)^2)/(2 *
+            var))
+    }
+    k <- 0
+    Next <- term(theta, mu, var, k)
+    Last <- Next
+    delta <- rep(1,length(Last))
+    while (any(delta > tol)) {
+        keep = delta>tol
+        k <- k + 1
+        Last[keep] <- Next[keep]
+        Next[keep] <- Last[keep] + term(theta[keep], mu[keep], var, k) + term(theta[keep],
+            mu[keep], var, -k)
+        delta[keep] <- abs(Next[keep] - Last[keep])
+    }
+    Next
+}
 
+crw = function(agent, step.len, dir.sd, hab = NULL) {
   rand.dir = rnorm(n,agent@pos$heading.to.here,dir.sd)
   rand.dir = ifelse(rand.dir>180,rand.dir-360,ifelse(rand.dir<(-180),360+rand.dir,rand.dir))
   rand.len = step.len
-
   agent@pos@coords[,"y"] = agent@last.pos@coords[,"y"] + cos(rad(rand.dir)) * rand.len
   agent@pos@coords[,"x"] = agent@last.pos@coords[,"x"] + sin(rad(rand.dir)) * rand.len
-
-
   agent@pos$heading.to.here = heading(agent@last.pos, agent@pos)
-
   agent@pos$dist.to.here = dis(agent@last.pos, agent@pos)
 
   return(agent)
 }
 
+ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
+  if (class(agent) != "agent") {stop("must be an agent class")}
+  n = length(agent@pos)
+  agent@last.pos = agent@pos
+
+  dt1 = data.table(data.frame(wolves@pos))
+  dt1$heading.rad = rad(dt1$heading.to.here)
+  setkey(dt1,ids)
+  setkey(rings, ids)
+  fromto = rings[dt1]
+
+  fromto[,headi:=heading(from=SpatialPoints(cbind(x=fromto$x.1,y=fromto$y.1)),
+           to = SpatialPoints(cbind(x=fromto$x,y=fromto$y)))]
+  fromto[,ProbTurn:=dwrpnorm(theta = rad(headi),mu= heading.rad,sd = dir.sd/50)]
+
+#  rand.dir = rnorm(n,agent@pos$heading.to.here,dir.sd)
+#  rand.dir = ifelse(rand.dir>180,rand.dir-360,ifelse(rand.dir<(-180),360+rand.dir,rand.dir))
+#  rand.len = step.len
+#
+#  y = agent@last.pos@coords[,"y"] + cos(rad(rand.dir)) * rand.len
+#  x = agent@last.pos@coords[,"x"] + sin(rad(rand.dir)) * rand.len
+#
+#  crw = SpatialPoints(cbind(x,y))
+  return(fromto)
+}
 # identifies the xy coordinates of a circle around all live agents
 #  key function is draw.circles in the plotrix package
 
-cir = function (agent, radiuses, n.angles = 36)
- {
-    n = length(agent@pos)
-    if (length(radiuses)==1) { #if radiuses is a single number
-      radiuses = rep(radiuses,n)
-    } 
+## Results double checked
+cir<-function(positions,radiuses,raster_world,scale_raster){ ##identify the pixels ("patches" in NetLogo) that are at a buffer distance of the individual location
 
-    # Begin creating vectors of each item, which will have a length of sum(n.angles), i.e., 
-    #    n.angles values for each of the agents
-    ids = rep(1:n,times=n.angles)
-    rads = rep(radiuses,times = n.angles)
-    xs = rep(coordinates(agent)$x, times = n.angles)
-    ys = rep(coordinates(agent)$y, times = n.angles)
-    nvs = rep(c(0,n.angles[-length(n.angles)]), times = n.angles) # To be used below to do calculation for angle increments
-    if (length(n.angles)==1) { # if n.angles is given as a single number of one number for each agent
-      angle.inc <- 2 * pi/n.angles
-    } else {
-      angle.inc <- rep(2 * pi, length(n.angles))/n.angles
-    }
-    angs = rep(angle.inc, times = n.angles)
+  seq_num_ind<-seq_len(nrow(positions)) ##create an index sequence for the number of individuals
+  n.angles<-(ceiling((radiuses/scale_raster)*2*pi)+1) ##n = optimum number of points to create the circle for a given individual
+  ##n=gross estimation (checked that it seems to be enough so that pixels extracted are almost always duplicated, which means there is small chances that we missed some on the circle)
 
-    #find the angles for each of the n.angles line segments around each agent
-    dnvs = c(0,diff(ids)) # determine the index that separates two caribous
-    nvs[dnvs==0] = 0 # make all values of the nvs = 0 
-    nvs2 = cumsum(nvs)
-    cum = 1:length(ids)
-    index = cum - nvs2 - 1 # This is the series of indices for each angle increment
-    angles = angs * index
+  ## Eliot's code to replace the createCircle of the package PlotRegionHighlighter
 
-    # Calculate the x and y coordinates of the points in the rings
-    x = cos(angles)*rads+xs
-    y = sin(angles)*rads+ys
+  ids<-rep.int(seq_num_ind,times=n.angles) ##create individual IDs for the number of points that will be done for their circle
+  rads<-rep.int(radiuses,times=n.angles) ##create vector of radius for the number of points that will be done for each individual circle
+  xs<-rep.int(positions[,1],times=n.angles) ##extract the individual current position
+  ys<-rep.int(positions[,2],times=n.angles)
+  nvs<-rep.int(c(0,n.angles[-length(n.angles)]),times=n.angles) ##to be used below to do calculation for angle increments
+  angle.inc<-rep.int(2*pi,length(n.angles))/n.angles ##calculate the angle increment that each individual needs to do to complete a circle (2 pi)
+  angs<-rep.int(angle.inc,times=n.angles) ##repeat this angle increment the number of times it needs to be done to complete the circles
 
-    coords = data.table(cbind(x,y))
-    est.circles = SpatialPointsDataFrame(coords,data.table(ids,rads))
-    return(est.circles)
+
+  # Eliot
+  a1 = Sys.time()
+  dt1 = data.table(ids,angs,xs,ys,rads)
+  dt1[,angles:=cumsum(angs),by=ids]
+  dt1[,x:=cos(angles)*rads+xs]
+  dt1[,y:=sin(angles)*rads+ys]
+
+  coordinates_all_ind<-dt1[,list(x,y,ids)]#cbind(x,y) ##put the coordinates of the points on the circles from all individuals in the same matrix
+  coordinates_all_ind[,pixels_under_coordinates:=cellFromXY(raster_world,coordinates_all_ind)] ##extract the pixel IDs under the points
+  coordinates_all_ind_unique=coordinates_all_ind[,list(pixels_under_coordinates=unique(pixels_under_coordinates)),by=ids]
+  coordinates_all_ind_unique=na.omit(coordinates_all_ind_unique)
+  coordinates_all_ind_unique[,unique_pixels_values:=extract(raster_world,pixels_under_coordinates)]
+  pixels=xyFromCell(raster_world,coordinates_all_ind_unique$pixels_under_coordinates) ##extract the coordinates for the pixel IDs
+  pixels_ind_ids_merged = cbind(coordinates_all_ind_unique,pixels)
+#  coord_unique_pixels<-split(pixels_ind_ids_merged[,list(x,y)],pixels_ind_ids_merged[,ids]) ##put the coordinates x and y back into a list according to the individual IDs
+  a2 = Sys.time()
+
+
+#  return(coord_unique_pixels) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
+  return(pixels_ind_ids_merged) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
 }
+#
+#cir = function (agent, radiuses, n.angles = 36)
+# {
+#    n = length(agent)
+#    if (length(radiuses)==1) { #if radiuses is a single number
+#      radiuses = rep(radiuses,n)
+#    }
+#
+#    # Begin creating vectors of each item, which will have a length of sum(n.angles), i.e.,
+#    #    n.angles values for each of the agents
+#    ids = rep(1:n,times=n.angles)
+#    rads = rep(radiuses,times = n.angles)
+#    xs = rep(coordinates(agent)$x, times = n.angles)
+#    ys = rep(coordinates(agent)$y, times = n.angles)
+#    nvs = rep(c(0,n.angles[-length(n.angles)]), times = n.angles) # To be used below to do calculation for angle increments
+#    if (length(n.angles)==1) { # if n.angles is given as a single number of one number for each agent
+#      angle.inc <- 2 * pi/n.angles
+#    } else {
+#      angle.inc <- rep(2 * pi, length(n.angles))/n.angles
+#    }
+#    angs = rep(angle.inc, times = n.angles)
+#
+#    #find the angles for each of the n.angles line segments around each agent
+#    dnvs = c(0,diff(ids)) # determine the index that separates two caribous
+#    nvs[dnvs==0] = 0 # make all values of the nvs = 0
+#    nvs2 = cumsum(nvs)
+#    cum = 1:length(ids)
+#    index = cum - nvs2 - 1 # This is the series of indices for each angle increment
+#    angles = angs * index
+#
+#    # Calculate the x and y coordinates of the points in the rings
+#    x = cos(angles)*rads+xs
+#    y = sin(angles)*rads+ys
+#
+#    coords = data.table(cbind(x,y))
+#    est.circles = SpatialPointsDataFrame(coords,data.table(ids,rads))
+#    return(est.circles)
+#}
 
 # determines value of habitat at ring cell values
 cir.values = function(agent, rings, hab) {
@@ -322,7 +407,8 @@ spec.num.per.patch = function(patches, num.per.patch.table = NULL, num.per.patch
     dt2 = data.table(wh,pops = patchids, num.in.pop = num.per.patch.table)
   }
 
-  dt3 = dt2[,list(cells=sample(wh,unique(num.in.pop))),by=pops]
+  resample <- function(x, ...) x[sample.int(length(x), ...)]
+  dt3 = dt2[,list(cells=resample(wh,unique(num.in.pop))),by=pops]
   dt3$ids = rownames(dt3)
 
   al = raster(patches)
