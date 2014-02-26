@@ -36,7 +36,11 @@ abm.react.event <- function(head) {
     # this makes things more modular, since we can add/remove modules without
     # having to worry about updating this (hardcoded) list.
     
-    get(head$module.name)(head$event.time, head$event.type)
+    module.call <- paste(head$module.name, "react.event", sep=".")
+    get(module.call)(head$event.time, head$event.type)
+    
+    # e.g., this would produce the following call to the fire module:
+    #   module.fire.react.event(TIME, TYPE)
 
 #     if (head$evnttype == "arrv") {  # arrival
 #       # if server free, start service, else add to queue (added to queue
