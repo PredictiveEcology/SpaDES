@@ -16,6 +16,7 @@ abm.globals.init <- function(params, modules) {
    
    # simulation modules
    abm.globals$modules <<- modules # this should be a list of module names
+   for (m in modules) source(paste(m, ".R", sep="")) # load each module from file
    
    # other simulation parameters (e.g., from modules)
    abm.globals$module1.param1 <<- params$param1 # do this for each module and each parameter
