@@ -2,95 +2,217 @@ require(sp)
 require(CircStats)
 require(data.table)
 
-# ABM files
+### agent class (this is an aspatial agent)
+setClass("agent", slots=list(ID="character", other = "list"))
 
-setClass("agent",slots=list(name = "character", pos="SpatialPointsDataFrame",
-  last.pos="SpatialPointsDataFrame",other = "list"))#,
+# define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "agent",
+          definition = function(.Object, numagents=NULL) {
+            
+})
 
-setMethod("initialize", "agent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
-  if (!is.null(probinit)) {
-    nonNAs = !is.na(getValues(probinit))
-    wh.nonNAs = which(nonNAs)
-    ProbInit.v = cumsum(getValues(probinit)[nonNAs])
-    if (!is.null(numagents)) {
-      ran = runif(numagents,0,1)
-      fI = findInterval(ran, ProbInit.v)+1
-      fI2 = wh.nonNAs[fI]
-      last.ran = runif(numagents,0,1)
-      last.fI = findInterval(last.ran, ProbInit.v)+1
-      last.fI2 = wh.nonNAs[last.fI]
-    } else {
-      va = getValues(probinit)[nonNAs]
-      ran = runif(length(va),0,1)
-      fI2 = wh.nonNAs[ran<va]
+setMethod("show",
+          signature = "agent",
+          definition = function(object) {
+              
+})
 
-      last.ran = runif(length(fI2),0,1)
-      last.fI = findInterval(last.ran, ProbInit.v)+1
-      last.fI2 = wh.nonNAs[last.fI]
+setGeneric("agent", function(object) standardGeneric("agent"))
 
-#      last.ran = runif(length(fI2),0,1)
-#      last.fI2 = wh.nonNAs[last.ran<va]
-    }
-    pos = xyFromCell(hab,fI2,spatial = T)
-    last.pos = xyFromCell(hab,last.fI2,spatial = T)
-    numagents = length(pos)
 
-  } else {
-    # probinit is NULL - start exactly the number of agents as there
-    # are pixels in agentlocation
-    if (!is.null(numagents)) {
-        pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-        last.pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-    } else { # for numagents also NULL
-        pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
-        last.pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
-        numagents = length(pos)
-    }
-  }
-#  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
-#    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
-#      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
-#        heading + 180-360,heading + 180  ),heading) %% 360
 
-  no.move = coordinates(pos)==coordinates(last.pos)
-  heading1 = heading(last.pos, pos)
-  distance = dis(last.pos, pos)
-  nas = is.na(heading1)
-  if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
-    
-  ids = 1:numagents
-  data = data.table(ids,heading.to.here = heading1,dist.to.here = distance)
-  .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
-  data = data.table(ids)
-  .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
 
-  return(.Object)
+
+
+
+### spatialAgent class extends agent by making it spatial
+setClass("spatialAgent", slots=list(position="SpatialPoints"), contains="agent")
+
+# define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "spatialAgent",
+          definition = function(.Object, numagents=NULL) {
+              
+          })
+
+setMethod("show",
+          signature = "spatialAgent",
+          definition = function(object) {
+              
+})
+
+setMethod("coordinates", signature = "spatialAgent",
+          definition = function(obj, ...) {
+              obj@position
+})
+
+setMethod("length",
+          signature="spatialAgent",
+          definition = function(x) {
+              len = length(x@position)
+              return(len)
+})
+
+
+
+setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
+
+
+### spreadAgent class extends spatialAgent by not only storing single position but also area
+setClass("spreadAgent", slots=list(area="I.DONT.KNOW"), contains="spatialAgent")
+
+
+# define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "agent",
+          definition = function(.Object, numagents=NULL) {
+              
+})
+
+
+setGeneric("spreadAgent", function(object) standardGeneric("spreadAgent"))
+
+
+### mobileAgent class extends spatialAgent by allowing movement
+setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), contains="spatialAgent")
+
+setGeneric("agent", function(object) standardGeneric("agent"))
+
+# define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "agent",
+          definition = function(.Object, numagents=NULL) {
+              
+ })
+
+setMethod("points",
+          signature = "spatialAgent",
+          definition = function(x, which.to.plot=NULL, ...) {
+              if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
+              points(x@position@coords[sam,],...)
+})
+
+
+
+# define our custom methods, which need to be prototyped
+setGeneric("arrow", function(agent,...) {
+    standardGeneric("arrow")
+})
+
+setMethod("arrow",
+          signature="mobileAgent",
+          definition = function(agent, length = 0.1, ...) {
+              co.pos = coordinates(agent@position)
+              co.lpos = calculate.last.position() #coordinates(agent@last.pos)
+              arrows(co.lpos[,"x"],co.lpos[,"y"],co.pos[,"x"],co.pos[,"y"],length = length,...)
+})
+
+setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
+
+
+
+
+
+#######################################################
+###
+### the methods below all need to be reworked to:
+###     - work on the appropriate agent (sub)class
+###     - update the slots as per above
+###
+#######################################################
+setMethod("initialize",
+          signature="mobileAgent",
+          definition=function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
+              if (!is.null(probinit)) {
+                nonNAs = !is.na(getValues(probinit))
+                wh.nonNAs = which(nonNAs)
+                ProbInit.v = cumsum(getValues(probinit)[nonNAs])
+                if (!is.null(numagents)) {
+                  ran = runif(numagents,0,1)
+                  fI = findInterval(ran, ProbInit.v)+1
+                  fI2 = wh.nonNAs[fI]
+                  last.ran = runif(numagents,0,1)
+                  last.fI = findInterval(last.ran, ProbInit.v)+1
+                  last.fI2 = wh.nonNAs[last.fI]
+                } else {
+                  va = getValues(probinit)[nonNAs]
+                  ran = runif(length(va),0,1)
+                  fI2 = wh.nonNAs[ran<va]
+            
+                  last.ran = runif(length(fI2),0,1)
+                  last.fI = findInterval(last.ran, ProbInit.v)+1
+                  last.fI2 = wh.nonNAs[last.fI]
+            
+            #      last.ran = runif(length(fI2),0,1)
+            #      last.fI2 = wh.nonNAs[last.ran<va]
+                }
+                pos = xyFromCell(hab,fI2,spatial = T)
+                last.pos = xyFromCell(hab,last.fI2,spatial = T)
+                numagents = length(pos)
+            
+              } else {
+                # probinit is NULL - start exactly the number of agents as there
+                # are pixels in agentlocation
+                if (!is.null(numagents)) {
+                    pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
+                    last.pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
+                } else { # for numagents also NULL
+                    pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
+                    last.pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
+                    numagents = length(pos)
+                }
+              }
+            #  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
+            #    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
+            #      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
+            #        heading + 180-360,heading + 180  ),heading) %% 360
+            
+              no.move = coordinates(pos)==coordinates(last.pos)
+              heading1 = heading(last.pos, pos)
+              distance = dis(last.pos, pos)
+              nas = is.na(heading1)
+              if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
+                
+              ids = 1:numagents
+              data = data.table(ids,heading.to.here = heading1,dist.to.here = distance)
+              .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
+              data = data.table(ids)
+              .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
+            
+              return(.Object)
 } )
 
 
 
 setMethod("show",
- signature = "agent",
- definition = function(object) {
-   show = list()
-   show[["N"]] = paste("There are",length(object@pos),"agents")
-   show[["First 5 agent coordinates"]] = head(coordinates(object)@coords,5)
-   show[["First 5 agent ids"]] = head(object@pos$ids,5)
-   print(show)
+    signature = "agent",
+    definition = function(object) {
+        show = list()
+        show[["N"]] = paste("There are",length(object@pos),"agents")
+        show[["First 5 agent coordinates"]] = head(coordinates(object)@coords,5)
+        show[["First 5 agent ids"]] = head(object@pos$ids,5)
+        print(show)
  })
 
 setMethod("head",
- signature = "agent",
- definition = function(x,...) {
-   out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
-   print(out)
+    signature = "agent",
+    definition = function(x,...) {
+        out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
+        print(out)
  })
 
-setGeneric("dis", function(from,to,...) {
-    standardGeneric("dis")
+
+###########################################################################
+###
+###     OTHER NON-AGENT CLASS METHODS/FUNCTIONS BELOW:
+###
+###########################################################################
+setGeneric("distance", definition = function(from,to,...) {
+    standardGeneric("distance")
 })
 
-setMethod("dis",
+setMethod("distance",
  signature(from="SpatialPoints",to="SpatialPoints"),
  definition = function(from,to,...) {
    from = coordinates(from)
@@ -115,43 +237,12 @@ setMethod("heading",
    return(heading)
  })
 
-setMethod("points",
-  signature = "agent",
-  definition = function(x,which.to.plot=NULL,...) {
-    if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-    points(x@pos@coords[sam,],...)
-    })
-    
 
-setGeneric("arrow", function(agent,...) {
-    standardGeneric("arrow")
-})
-
-
-
-setMethod("length",
- signature="agent",
- definition = function(x) {
-   len = length(x@pos)
-   return(len)
- })
-
-setMethod("arrow",
- signature="agent",
- definition = function(agent,length = 0.1, ...) {
-   co.pos = coordinates(agent@pos)
-   co.lpos = coordinates(agent@last.pos)
-   arrows(co.lpos[,"x"],co.lpos[,"y"],co.pos[,"x"],co.pos[,"y"],length = length,...)
- })
  
-setMethod("coordinates", signature = "agent",
-  definition = function(obj, ...) {
-    obj@pos
-  })
     
 
   
-setGeneric("agent", function(object) standardGeneric("agent"))
+
  
 ProbInit = function(map,p,absolute=F) { #
   if (length(p) == 1) { 
