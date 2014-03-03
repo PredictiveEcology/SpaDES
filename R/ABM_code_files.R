@@ -77,7 +77,6 @@ setGeneric("spreadAgent", function(object) standardGeneric("spreadAgent"))
 ### mobileAgent class extends spatialAgent by allowing movement
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), contains="spatialAgent")
 
-setGeneric("agent", function(object) standardGeneric("agent"))
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
@@ -244,7 +243,7 @@ setMethod("heading",
  })
 
 setMethod("points",
-  signature = "agent",
+  signature = "mobileAgent",
   definition = function(x,which.to.plot=NULL,...) {
     if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
     points(x@position@coords[sam,],...)
@@ -258,20 +257,20 @@ setGeneric("arrow", function(agent,...) {
 
 
 setMethod("length",
- signature="agent",
+ signature="mobileAgent",
  definition = function(x) {
    len = length(x@position)
    return(len)
  })
 
 setMethod("arrow",
- signature="agent",
+ signature="mobileAgent",
  definition = function(agent,length = 0.1, ...) {
    co.position = coordinates(agent@position)
    arrows(co.lpos[,"x"],co.lpos[,"y"],co.position[,"x"],co.position[,"y"],length = length,...)
  })
  
-setMethod("coordinates", signature = "agent",
+setMethod("coordinates", signature = "mobileAgent",
   definition = function(obj, ...) {
     coordinates = coordinates(obj@position)
     return(coordinates)
@@ -279,8 +278,7 @@ setMethod("coordinates", signature = "agent",
     
 
   
-setGeneric("agent", function(object) standardGeneric("agent"))
- 
+
 ProbInit = function(map,p=NULL,absolute=F) { #
   if (length(p) == 1) { 
     ProbInit = raster(extent(map),nrows=nrow(map),ncols=ncol(map),crs = crs(map))
