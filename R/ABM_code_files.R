@@ -9,6 +9,7 @@ setClass("agent", slots=list(ID="character", other = "list"))
 setMethod("initialize",
           signature = "agent",
           definition = function(.Object, numagents=NULL) {
+          return(.Object)
             
 })
 
@@ -33,6 +34,7 @@ setClass("spatialAgent", slots=list(position="SpatialPoints"), contains="agent")
 setMethod("initialize",
           signature = "spatialAgent",
           definition = function(.Object, numagents=NULL) {
+          return(.Object)
               
           })
 
@@ -64,26 +66,12 @@ setClass("spreadAgent", slots=list(area="I.DONT.KNOW"), contains="spatialAgent")
 
 
 # define methods that extend already-prototyped functions in R
-setMethod("initialize",
-          signature = "agent",
-          definition = function(.Object, numagents=NULL) {
-              
-})
-
-
-setGeneric("spreadAgent", function(object) standardGeneric("spreadAgent"))
 
 
 ### mobileAgent class extends spatialAgent by allowing movement
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), contains="spatialAgent")
 
 
-# define methods that extend already-prototyped functions in R
-setMethod("initialize",
-          signature = "agent",
-          definition = function(.Object, numagents=NULL) {
-              
- })
 
 setMethod("points",
           signature = "spatialAgent",
