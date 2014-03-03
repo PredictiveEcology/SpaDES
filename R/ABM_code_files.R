@@ -62,7 +62,7 @@ setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
 
 
 ### spreadAgent class extends spatialAgent by not only storing single position but also area
-setClass("mobileAgent", slots=list(NumPixels="numeric"), contains="spatialAgent")
+setClass("spreadAgent", slots=list(NumPixels="numeric"), contains="spatialAgent")
 
 
 # define methods that extend already-prototyped functions in R
