@@ -121,68 +121,143 @@ setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
 ###     - update the slots as per above
 ###
 #######################################################
-setMethod("initialize",
-          signature="mobileAgent",
-          definition=function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
-              if (!is.null(probinit)) {
-                nonNAs = !is.na(getValues(probinit))
-                wh.nonNAs = which(nonNAs)
-                ProbInit.v = cumsum(getValues(probinit)[nonNAs])
-                if (!is.null(numagents)) {
-                  ran = runif(numagents,0,1)
-                  fI = findInterval(ran, ProbInit.v)+1
-                  fI2 = wh.nonNAs[fI]
-                  last.ran = runif(numagents,0,1)
-                  last.fI = findInterval(last.ran, ProbInit.v)+1
-                  last.fI2 = wh.nonNAs[last.fI]
-                } else {
-                  va = getValues(probinit)[nonNAs]
-                  ran = runif(length(va),0,1)
-                  fI2 = wh.nonNAs[ran<va]
-            
-                  last.ran = runif(length(fI2),0,1)
-                  last.fI = findInterval(last.ran, ProbInit.v)+1
-                  last.fI2 = wh.nonNAs[last.fI]
-            
-            #      last.ran = runif(length(fI2),0,1)
-            #      last.fI2 = wh.nonNAs[last.ran<va]
-                }
-                pos = xyFromCell(hab,fI2,spatial = T)
-                last.pos = xyFromCell(hab,last.fI2,spatial = T)
-                numagents = length(pos)
-            
-              } else {
-                # probinit is NULL - start exactly the number of agents as there
-                # are pixels in agentlocation
-                if (!is.null(numagents)) {
-                    pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-                    last.pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-                } else { # for numagents also NULL
-                    pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
-                    last.pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
-                    numagents = length(pos)
-                }
-              }
-            #  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
-            #    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
-            #      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
-            #        heading + 180-360,heading + 180  ),heading) %% 360
-            
-              no.move = coordinates(pos)==coordinates(last.pos)
-              heading1 = heading(last.pos, pos)
-              distance = dis(last.pos, pos)
-              nas = is.na(heading1)
-              if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
-                
-              ids = 1:numagents
-              data = data.table(ids,heading.to.here = heading1,dist.to.here = distance)
-              .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
-              data = data.table(ids)
-              .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
-            
-              return(.Object)
-} )
+setMethod("initialize", "agent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
+  if (is(agentlocation, "Raster")){
+    if (!is.null(probinit)) {
+      nonNAs = !is.na(getValues(probinit))
+      wh.nonNAs = which(nonNAs)
+      ProbInit.v = cumsum(getValues(probinit)[nonNAs])
+      if (!is.null(numagents)) {
+        ran = runif(numagents,0,1)
+        fI = findInterval(ran, ProbInit.v)+1
+        fI2 = wh.nonNAs[fI]
+        last.ran = runif(numagents,0,1)
+        last.fI = findInterval(last.ran, ProbInit.v)+1
+        last.fI2 = wh.nonNAs[last.fI]
+      } else {
+        va = getValues(probinit)[nonNAs]
+        ran = runif(length(va),0,1)
+        fI2 = wh.nonNAs[ran<va]
+  
+        last.ran = runif(length(fI2),0,1)
+        last.fI = findInterval(last.ran, ProbInit.v)+1
+        last.fI2 = wh.nonNAs[last.fI]
+  
+  #      last.ran = runif(length(fI2),0,1)
+  #      last.fI2 = wh.nonNAs[last.ran<va]
+      }
+      if (length(grep(pattern="Raster",class(agentlocation)))==1) {
+        position = xyFromCell(agentlocation,fI2,spatial = T)
+      } else if (length(grep(pattern="SpatialPoints",class(agentlocation)))==1) {
+        position = coordinates(agentlocation)
+      } else { stop("need raster layer or Spatial Points object") }
+      numagents = length(position)
+  
+    } else {
+      # probinit is NULL - start exactly the number of agents as there
+      # are pixels in agentlocation
+      if (!is.null(numagents)) {
+          if (length(grep(pattern="Raster",class(agentlocation)))==1) {
+            position = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
+          } else if (length(grep(pattern="SpatialPoints",class(agentlocation)))==1) {
+            sam = sample(1:length(agentlocation),numagents)
+            position = SpatialPoints(agentlocation[sam,])
+          } else { stop("need raster layer or Spatial Points object") }
+      } else { # for numagents also NULL
+          if (length(grep(pattern="Raster",class(agentlocation)))==1) {
+            position = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
+          } else if (length(grep(pattern="SpatialPoints",class(agentlocation)))==1) {
+            position = SpatialPoints(agentlocation)
+          } else { stop("need raster layer or Spatial Points object") }
+          numagents = length(position)
+      }
+    }
+  } else if (is(agentlocation,"SpatialPolygonsDataFrame")){
+    if (!is.null(numagents)) {
+      if (!is.null(pri) ) {
+        position = SpatialPoints(dotsInPolys(agentlocation,as.integer(round(numagents*pri,0))))
+        numagents = length(position)
+      } else {stop("with SpatialPolygonsDataFrame, probinit is required")}
+    } else {stop("with SpatialPolygonsDataFrame, numagents is required")}
+  
+  
+  }
+  heading1 = runif(numagents,0,360)#heading(last.position, position)
+  distance = runif(numagents,0.1, 10)#dis(last.position, position)
+#  nas = is.na(heading1)
+#  if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
+#    
+  ids = 1:numagents
+  .Object@ID = ids
+  .Object@position = position
+  .Object@heading = heading1
+  .Object@distance = distance
 
+  return(.Object)
+} )
+#
+#setMethod("initialize",
+#          signature="mobileAgent",
+#          definition=function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
+#              if (!is.null(probinit)) {
+#                nonNAs = !is.na(getValues(probinit))
+#                wh.nonNAs = which(nonNAs)
+#                ProbInit.v = cumsum(getValues(probinit)[nonNAs])
+#                if (!is.null(numagents)) {
+#                  ran = runif(numagents,0,1)
+#                  fI = findInterval(ran, ProbInit.v)+1
+#                  fI2 = wh.nonNAs[fI]
+#                  last.ran = runif(numagents,0,1)
+#                  last.fI = findInterval(last.ran, ProbInit.v)+1
+#                  last.fI2 = wh.nonNAs[last.fI]
+#                } else {
+#                  va = getValues(probinit)[nonNAs]
+#                  ran = runif(length(va),0,1)
+#                  fI2 = wh.nonNAs[ran<va]
+#            
+#                  last.ran = runif(length(fI2),0,1)
+#                  last.fI = findInterval(last.ran, ProbInit.v)+1
+#                  last.fI2 = wh.nonNAs[last.fI]
+#            
+#            #      last.ran = runif(length(fI2),0,1)
+#            #      last.fI2 = wh.nonNAs[last.ran<va]
+#                }
+#                pos = xyFromCell(hab,fI2,spatial = T)
+#                last.pos = xyFromCell(hab,last.fI2,spatial = T)
+#                numagents = length(pos)
+#            
+#              } else {
+#                # probinit is NULL - start exactly the number of agents as there
+#                # are pixels in agentlocation
+#                if (!is.null(numagents)) {
+#                    pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
+#                    last.pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
+#                } else { # for numagents also NULL
+#                    pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
+#                    last.pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
+#                    numagents = length(pos)
+#                }
+#              }
+#            #  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
+#            #    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
+#            #      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
+#            #        heading + 180-360,heading + 180  ),heading) %% 360
+#            
+#              no.move = coordinates(pos)==coordinates(last.pos)
+#              heading1 = heading(last.pos, pos)
+#              distance = dis(last.pos, pos)
+#              nas = is.na(heading1)
+#              if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
+#                
+#              ids = 1:numagents
+#              data = data.table(ids,heading.to.here = heading1,dist.to.here = distance)
+#              .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
+#              data = data.table(ids)
+#              .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
+#            
+#              return(.Object)
+#} )
+#
 
 
 setMethod("show",
