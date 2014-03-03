@@ -121,7 +121,7 @@ setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
 ###     - update the slots as per above
 ###
 #######################################################
-setMethod("initialize", "agent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
+setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
   if (is(agentlocation, "Raster")){
     if (!is.null(probinit)) {
       nonNAs = !is.na(getValues(probinit))
@@ -195,73 +195,9 @@ setMethod("initialize", "agent", function(.Object, agentlocation = NULL, numagen
 
   return(.Object)
 } )
-#
-#setMethod("initialize",
-#          signature="mobileAgent",
-#          definition=function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
-#              if (!is.null(probinit)) {
-#                nonNAs = !is.na(getValues(probinit))
-#                wh.nonNAs = which(nonNAs)
-#                ProbInit.v = cumsum(getValues(probinit)[nonNAs])
-#                if (!is.null(numagents)) {
-#                  ran = runif(numagents,0,1)
-#                  fI = findInterval(ran, ProbInit.v)+1
-#                  fI2 = wh.nonNAs[fI]
-#                  last.ran = runif(numagents,0,1)
-#                  last.fI = findInterval(last.ran, ProbInit.v)+1
-#                  last.fI2 = wh.nonNAs[last.fI]
-#                } else {
-#                  va = getValues(probinit)[nonNAs]
-#                  ran = runif(length(va),0,1)
-#                  fI2 = wh.nonNAs[ran<va]
-#            
-#                  last.ran = runif(length(fI2),0,1)
-#                  last.fI = findInterval(last.ran, ProbInit.v)+1
-#                  last.fI2 = wh.nonNAs[last.fI]
-#            
-#            #      last.ran = runif(length(fI2),0,1)
-#            #      last.fI2 = wh.nonNAs[last.ran<va]
-#                }
-#                pos = xyFromCell(hab,fI2,spatial = T)
-#                last.pos = xyFromCell(hab,last.fI2,spatial = T)
-#                numagents = length(pos)
-#            
-#              } else {
-#                # probinit is NULL - start exactly the number of agents as there
-#                # are pixels in agentlocation
-#                if (!is.null(numagents)) {
-#                    pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-#                    last.pos = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-#                } else { # for numagents also NULL
-#                    pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
-#                    last.pos = SpatialPoints(xyFromCell(agentlocation,Which(agentlocation,cells=T)))
-#                    numagents = length(pos)
-#                }
-#              }
-#            #  heading = deg(atan((pos@coords[,"x"] - last.pos@coords[,"x"]) / (pos@coords[,"y"] - last.pos@coords[,"y"])))
-#            #    heading = ifelse((pos@coords[,"y"] - last.pos@coords[,"y"])<0,
-#            #      ifelse((pos@coords[,"x"] - last.pos@coords[,"x"])<0,
-#            #        heading + 180-360,heading + 180  ),heading) %% 360
-#            
-#              no.move = coordinates(pos)==coordinates(last.pos)
-#              heading1 = heading(last.pos, pos)
-#              distance = dis(last.pos, pos)
-#              nas = is.na(heading1)
-#              if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
-#                
-#              ids = 1:numagents
-#              data = data.table(ids,heading.to.here = heading1,dist.to.here = distance)
-#              .Object@pos = SpatialPointsDataFrame(coordinates(pos),data)
-#              data = data.table(ids)
-#              .Object@last.pos = SpatialPointsDataFrame(coordinates(last.pos),data)
-#            
-#              return(.Object)
-#} )
-#
-
 
 setMethod("show",
-    signature = "agent",
+    signature = "mobileAgent",
     definition = function(object) {
         show = list()
         show[["N"]] = paste("There are",length(object@pos),"agents")
@@ -271,28 +207,23 @@ setMethod("show",
  })
 
 setMethod("head",
-    signature = "agent",
+    signature = "mobileAgent",
     definition = function(x,...) {
         out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
         print(out)
  })
-
-
-###########################################################################
-###
-###     OTHER NON-AGENT CLASS METHODS/FUNCTIONS BELOW:
-###
-###########################################################################
-setGeneric("distance", definition = function(from,to,...) {
-    standardGeneric("distance")
+ 
+ 
+setGeneric("dis", function(from,to,...) {
+    standardGeneric("dis")
 })
 
-setMethod("distance",
+setMethod("dis",
  signature(from="SpatialPoints",to="SpatialPoints"),
  definition = function(from,to,...) {
    from = coordinates(from)
    to = coordinates(to)
-   out = sqrt((from[,"y"] - to[,"y"])^2 + (from[,"x"] - to[,"x"])^2)
+   out = sqrt((from[,2] - to[,2])^2 + (from[,1] - to[,1])^2)
    return(out)
  })
 
@@ -304,37 +235,69 @@ setMethod("heading",
  signature(from="SpatialPoints",to="SpatialPoints"),
  definition = function(from,to,...) {
    lpos = coordinates(from)
-   pos = coordinates(to)
-  heading = deg(atan((pos[,"x"] - lpos[,"x"]) / (pos[,"y"] - lpos[,"y"])))
-    heading = ifelse((pos[,"y"] - lpos[,"y"])<0,
-      ifelse((pos[,"x"] - lpos[,"x"])<0,
+   position = coordinates(to)
+  heading = deg(atan((position[,1] - lpos[,1]) / (position[,2] - lpos[,2])))
+    heading = ifelse((position[,2] - lpos[,2])<0,
+      ifelse((position[,1] - lpos[,1])<0,
         heading + 180-360,heading + 180  ),heading) %% 360
    return(heading)
  })
 
+setMethod("points",
+  signature = "agent",
+  definition = function(x,which.to.plot=NULL,...) {
+    if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
+    points(x@position@coords[sam,],...)
+    })
+    
 
+setGeneric("arrow", function(agent,...) {
+    standardGeneric("arrow")
+})
+
+
+
+setMethod("length",
+ signature="agent",
+ definition = function(x) {
+   len = length(x@position)
+   return(len)
+ })
+
+setMethod("arrow",
+ signature="agent",
+ definition = function(agent,length = 0.1, ...) {
+   co.position = coordinates(agent@position)
+   arrows(co.lpos[,"x"],co.lpos[,"y"],co.position[,"x"],co.position[,"y"],length = length,...)
+ })
  
+setMethod("coordinates", signature = "agent",
+  definition = function(obj, ...) {
+    coordinates = coordinates(obj@position)
+    return(coordinates)
+  })
     
 
   
-
+setGeneric("agent", function(object) standardGeneric("agent"))
  
-ProbInit = function(map,p,absolute=F) { #
+ProbInit = function(map,p=NULL,absolute=F) { #
   if (length(p) == 1) { 
     ProbInit = raster(extent(map),nrows=nrow(map),ncols=ncol(map),crs = crs(map))
     ProbInit = setValues(ProbInit, rep(p,length(ProbInit)))
-  }
-  else if (class(p) == "RasterLayer") {
+  } else if (is(p,"RasterLayer")) {
     ProbInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
+  } else if (is(map,"SpatialPolygonsDataFrame")) {
+    ProbInit = p/sum(p) 
+  } else if (is(p,"NULL"))  {
+    ProbInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
   }
-  if(absolute) print(paste("Using Absolute, Expected Number of Agents", 
-    sum(na.omit(getValues(ProbInit)))))
   return(ProbInit)
 }
 
 
 Transitions = function(p, agent) {
-  agent@pos@coords[which(p==0),]=NA
+  agent@position@coords[which(p==0),]=NA
   return(agent)
 }
 
@@ -348,9 +311,15 @@ move = function(hypothesis = NULL) {
   if (hypotehsis == "crw") move = "crw"
 }
 
-AgentLocation = function(fn=fun) {
-  fn[fn==0] = NA
-  return(fn)
+AgentLocation = function(map) {
+  if (length(grep(pattern = "Raster", class(map)))==1) {
+    map[map==0] = NA
+  } else if (length(grep(pattern = "SpatialPoints", class(map)))==1){
+    map
+  } else if (!is.na(pmatch("SpatialPolygon",class(map)))) {
+    map
+  } else { stop("only raster, spatialpoints or spatialPolygon implemented") }
+  return(map)
 }
 
 # This is a modified version found in CircStats to allow for multiple angles at once
@@ -382,24 +351,27 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
 }
 
 crw = function(agent, step.len, dir.sd, hab = NULL) {
-  rand.dir = rnorm(n,agent@pos$heading.to.here,dir.sd)
+  n = length(agent)
+  rand.dir = rnorm(n,agent@heading,dir.sd)
   rand.dir = ifelse(rand.dir>180,rand.dir-360,ifelse(rand.dir<(-180),360+rand.dir,rand.dir))
-  rand.len = step.len
-  agent@pos@coords[,"y"] = agent@last.pos@coords[,"y"] + cos(rad(rand.dir)) * rand.len
-  agent@pos@coords[,"x"] = agent@last.pos@coords[,"x"] + sin(rad(rand.dir)) * rand.len
-  agent@pos$heading.to.here = heading(agent@last.pos, agent@pos)
-  agent@pos$dist.to.here = dis(agent@last.pos, agent@pos)
+
+  last.position = agent@position
+
+  agent@position@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
+  agent@position@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
+
+  agent@heading = heading(last.position, agent@position)
+  agent@distance = dis(last.position, agent@position)
 
   return(agent)
 }
 
 ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
-  if (class(agent) != "agent") {stop("must be an agent class")}
-  n = length(agent@pos)
-  agent@last.pos = agent@pos
+  if (!is(agent,"agent")) {stop("must be an agent class")}
+  if (!is(rings,"NextPossiblePosition")) {stop("rings must be an NextPossiblePosition class")}
+  n = length(agent@position)
 
-  dt1 = data.table(data.frame(wolves@pos))
-  dt1$heading.rad = rad(dt1$heading.to.here)
+  dt1 = data.table(data.frame(agent@position,ids=agent@ID,heading.rad=rad(agent@heading)))
   setkey(dt1,ids)
   setkey(rings, ids)
   fromto = rings[dt1]
@@ -408,27 +380,20 @@ ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
            to = SpatialPoints(cbind(x=fromto$x,y=fromto$y)))]
   fromto[,ProbTurn:=dwrpnorm(theta = rad(headi),mu= heading.rad,sd = dir.sd/50)]
 
-#  rand.dir = rnorm(n,agent@pos$heading.to.here,dir.sd)
-#  rand.dir = ifelse(rand.dir>180,rand.dir-360,ifelse(rand.dir<(-180),360+rand.dir,rand.dir))
-#  rand.len = step.len
-#
-#  y = agent@last.pos@coords[,"y"] + cos(rad(rand.dir)) * rand.len
-#  x = agent@last.pos@coords[,"x"] + sin(rad(rand.dir)) * rand.len
-#
-#  crw = SpatialPoints(cbind(x,y))
   return(fromto)
 }
 # identifies the xy coordinates of a circle around all live agents
 #  key function is draw.circles in the plotrix package
 
 ## Results double checked
-cir<-function(positions,radiuses,raster_world,scale_raster){ ##identify the pixels ("patches" in NetLogo) that are at a buffer distance of the individual location
+cir<-function(agent,radiuses,raster_world,scale_raster){ ##identify the pixels ("patches" in NetLogo) that are at a buffer distance of the individual location
 
-  seq_num_ind<-seq_len(nrow(positions)) ##create an index sequence for the number of individuals
+  seq_num_ind<-seq_len(length(agent)) ##create an index sequence for the number of individuals
   n.angles<-(ceiling((radiuses/scale_raster)*2*pi)+1) ##n = optimum number of points to create the circle for a given individual
   ##n=gross estimation (checked that it seems to be enough so that pixels extracted are almost always duplicated, which means there is small chances that we missed some on the circle)
 
   ## Eliot's code to replace the createCircle of the package PlotRegionHighlighter
+  positions = coordinates(agent)
 
   ids<-rep.int(seq_num_ind,times=n.angles) ##create individual IDs for the number of points that will be done for their circle
   rads<-rep.int(radiuses,times=n.angles) ##create vector of radius for the number of points that will be done for each individual circle
@@ -458,7 +423,9 @@ cir<-function(positions,radiuses,raster_world,scale_raster){ ##identify the pixe
 
 
 #  return(coord_unique_pixels) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
+  
   return(pixels_ind_ids_merged) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
+  
 }
 #
 #cir = function (agent, radiuses, n.angles = 36)
@@ -482,7 +449,7 @@ cir<-function(positions,radiuses,raster_world,scale_raster){ ##identify the pixe
 #    }
 #    angs = rep(angle.inc, times = n.angles)
 #
-#    #find the angles for each of the n.angles line segments around each agent
+#    #find the angles for each of the n.angles line segments around each agent   
 #    dnvs = c(0,diff(ids)) # determine the index that separates two caribous
 #    nvs[dnvs==0] = 0 # make all values of the nvs = 0
 #    nvs2 = cumsum(nvs)
@@ -498,16 +465,6 @@ cir<-function(positions,radiuses,raster_world,scale_raster){ ##identify the pixe
 #    est.circles = SpatialPointsDataFrame(coords,data.table(ids,rads))
 #    return(est.circles)
 #}
-
-# determines value of habitat at ring cell values
-cir.values = function(agent, rings, hab) {
-  id = rings$ids
-  ring.hab.val = list()
-
-  coords1 = coordinates(rings) # convert x and y of agent to 1 matrix for faster computation
-  ring.hab.val = split(extract(hab,coords1),id)
-  return(ring.hab.val)
-}
 
 
 spread = function(maps, start.points, r=NULL, id.colour = T, 
