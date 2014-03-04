@@ -3,13 +3,13 @@ require(CircStats)
 require(data.table)
 
 ### agent class (this is an aspatial agent)
-setClass("agent", slots=list(ID="character", other = "list"))
+setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=NA_character_))
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "agent",
           definition = function(.Object, numagents=NULL) {
-          return(.Object)
+            return(.Object)
 })
 
 setMethod("show",
@@ -30,7 +30,7 @@ setClass("spatialAgent", slots=list(position="SpatialPoints"), contains="agent")
 setMethod("initialize",
           signature = "spatialAgent",
           definition = function(.Object, numagents=NULL) {
-          return(.Object)
+            return(.Object)
 })
 
 setMethod("show",
@@ -67,7 +67,7 @@ setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
 
 
 ### spreadAgent class extends spatialAgent by not only storing single position but also area
-setClass("spreadAgent", slots=list(NumPixels="numeric"), contains="spatialAgent")
+setClass("spreadAgent", slots=list(NumPixels="numeric"), prototype=list(NumPixels=NA_integer_), contains="spatialAgent")
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
@@ -86,7 +86,7 @@ setMethod("show",
 
 
 ### mobileAgent class extends spatialAgent by allowing movement
-setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), contains="spatialAgent")
+setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), prototype=list(heading=NA_real_, distance=NA_real_), contains="spatialAgent")
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
@@ -168,9 +168,9 @@ setMethod("show",
     signature = "mobileAgent",
     definition = function(object) {
         show = list()
-        show[["N"]] = paste("There are",length(object@pos),"agents")
+        show[["N"]] = paste("There are",length(object@position),"agents")
         show[["First 5 agent coordinates"]] = head(coordinates(object)@coords,5)
-        show[["First 5 agent ids"]] = head(object@pos$ids,5)
+        show[["First 5 agent ids"]] = head(object@position$ids,5)
         print(show)
  })
 
