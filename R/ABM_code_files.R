@@ -9,13 +9,26 @@ setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=
 setMethod("initialize",
           signature = "agent",
           definition = function(.Object, numagents=NULL) {
-            return(.Object)
+              # init agent IDs as integer increments by default
+              #  unless specified by user.
+              return(.Object)
 })
 
 setMethod("show",
           signature = "agent",
           definition = function(object) {
-              # put something useful here
+              show = list()
+              show[["N"]] = paste("There are", length(object@ID), "agents")
+              show[["First 5 agent IDs"]] = head(object@ID, 5)
+              # needs to print `other`
+              print(show)
+})
+
+setMethod("length",
+          signature="agent",
+          definition = function(object) {
+              len = length(object@ID)
+              return(len)
 })
 
 setGeneric("agent", function(object) standardGeneric("agent"))
@@ -24,38 +37,40 @@ setGeneric("agent", function(object) standardGeneric("agent"))
 
 
 ### spatialAgent class extends agent by making it spatial
-setClass("spatialAgent", slots=list(position="SpatialPoints"), contains="agent")
+setClass("spatialAgent", slots=list(position="SpatialPoints"), prototype=list(position=SpatialPoints(cbind(x=NA_real_, y=NA_real_))), contains="agent")
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "spatialAgent",
           definition = function(.Object, numagents=NULL) {
-            return(.Object)
+              # init agent IDs as integer increments by default
+              #  unless specified by user;
+              # init positions.
+              return(.Object)
 })
 
 setMethod("show",
           signature = "spatialAgent",
           definition = function(object) {
-              # put something useful here
+              show = list()
+              show[["N"]] = paste("There are", length(object@ID), "agents")
+              show[["First 5 agent IDs"]] = head(object@ID, 5)
+              show[["First 5 agent coordinates"]] = head(coordinates(object@position), 5)
+              # needs to print `other`
+              print(show)
 })
 
 setMethod("coordinates", signature = "spatialAgent",
           definition = function(object, ...) {
-              object@position
-})
-
-setMethod("length",
-          signature="spatialAgent",
-          definition = function(x) {
-              len = length(x@position)
-              return(len)
+              coords <- coordinates(object@position)
+              return(coords)
 })
 
 setMethod("points",
           signature = "spatialAgent",
           definition = function(x, which.to.plot=NULL, ...) {
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position@coords[sam,], ...)
+              points(x@position[sam,], ...)
           })
 
 setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
@@ -73,13 +88,21 @@ setClass("spreadAgent", slots=list(NumPixels="numeric"), prototype=list(NumPixel
 setMethod("initialize",
           signature = "spreadAgent",
           definition = function(.Object, numagents=NULL) {
+              # init agent IDs as integer increments by default
+              #  unless specified by user;
+              # init NumPixels.
               return(.Object)
 })
 
 setMethod("show",
           signature = "spreadAgent",
           definition = function(object) {
-              # put something useful here
+              show = list()
+              show[["N"]] = paste("There are", length(object@ID), "agents")
+              show[["First 5 agent IDs"]] = head(object@ID, 5)
+              # needs to print `NumPixels`
+              # needs to print `other`
+              print(show)
 })
 
 
@@ -140,7 +163,7 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
           numagents = length(position)
       }
     }
-  } else if (is(agentlocation,"SpatialPolygonsDataFrame")){
+  } else if (is(agentlocation,"SpatialPolygonsDataFrame")) {
     if (!is.null(numagents)) {
       if (!is.null(pri) ) {
         position = SpatialPoints(dotsInPolys(agentlocation,as.integer(round(numagents*pri,0))))
@@ -169,33 +192,16 @@ setMethod("show",
     definition = function(object) {
         show = list()
         show[["N"]] = paste("There are",length(object@position),"agents")
-        show[["First 5 agent coordinates"]] = head(coordinates(object)@coords,5)
-        show[["First 5 agent ids"]] = head(object@position$ids,5)
+        show[["First 5 agent coordinates"]] = head(coordinates(object@position), 5)
+        show[["First 5 agent ids"]] = head(object@ID, 5)
         print(show)
  })
 
 setMethod("head",
     signature = "mobileAgent",
     definition = function(x, ...) {
-        out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y), ...)
+        out = head(data.table(x@position), ...)
         print(out)
-})
-
-setMethod("coordinates", signature = "mobileAgent",
-          definition = function(object, ...) {
-            # identical to definition in `spatialAgent`
-            #  should be inherited from that class already
-              coordinates = coordinates(object@position)
-              return(coordinates)
-})
-
-setMethod("length",
-          signature="mobileAgent",
-          definition = function(x) {
-            # identical to definition in `spatialAgent`
-            #  should be inherited from that class already
-              len = length(x@position)
-              return(len)
 })
 
 setMethod("points",
@@ -256,13 +262,13 @@ setGeneric("heading", function(from, to, ...) {
 
 setMethod("heading",
  signature(from="SpatialPoints", to="SpatialPoints"),
- definition = function(from,to,...) {
+ definition = function(from, to, ...) {
    lpos = coordinates(from)
    position = coordinates(to)
   heading = deg(atan((position[,1] - lpos[,1]) / (position[,2] - lpos[,2])))
     heading = ifelse((position[,2] - lpos[,2])<0,
       ifelse((position[,1] - lpos[,1])<0,
-        heading + 180-360,heading + 180  ),heading) %% 360
+        heading + 180-360, heading + 180  ),heading) %% 360
    return(heading)
  })
 
@@ -282,12 +288,12 @@ ProbInit = function(map, p=NULL, absolute=FALSE) { #
 
 
 Transitions = function(p, agent) {
-  agent@position@coords[which(p==0),]=NA
+  agent@position[which(p==0),] = NA
   return(agent)
 }
 
 NumAgents = function(N) {
-  if (length(N) == 1)  {NumAgents = N }
+  if (length(N) == 1) { NumAgents = N }
   return(NumAgents)
 }
 
