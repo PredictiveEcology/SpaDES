@@ -11,7 +11,7 @@ setMethod("initialize",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
               #  unless specified by user.
-              if (is.null(numagents)) {
+              if (!is.null(numagents)) {
                   .Object@ID = 1:numagents
               }
               return(.Object)
@@ -96,7 +96,7 @@ setMethod("initialize",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
               #  unless specified by user;
-              if (is.null(numagents)) {
+              if (!is.null(numagents)) {
                   .Object@ID = 1:numagents
               }
               # init NumPixels.
