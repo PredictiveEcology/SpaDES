@@ -10,19 +10,15 @@ setMethod("initialize",
           signature = "agent",
           definition = function(.Object, numagents=NULL) {
           return(.Object)
-            
 })
 
 setMethod("show",
           signature = "agent",
           definition = function(object) {
-              
+              # put something useful here
 })
 
 setGeneric("agent", function(object) standardGeneric("agent"))
-
-
-
 
 
 
@@ -35,13 +31,12 @@ setMethod("initialize",
           signature = "spatialAgent",
           definition = function(.Object, numagents=NULL) {
           return(.Object)
-              
-          })
+})
 
 setMethod("show",
           signature = "spatialAgent",
           definition = function(object) {
-              
+              # put something useful here
 })
 
 setMethod("coordinates", signature = "spatialAgent",
@@ -56,23 +51,34 @@ setMethod("length",
               return(len)
 })
 
-
-
 setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
+
+
 
 
 ### spreadAgent class extends spatialAgent by not only storing single position but also area
 setClass("spreadAgent", slots=list(NumPixels="numeric"), contains="spatialAgent")
 
-
 # define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "spreadAgent",
+          definition = function(.Object, numagents=NULL) {
+              return(.Object)
+})
+
+setMethod("show",
+          signature = "spreadAgent",
+          definition = function(object) {
+              # put something useful here
+})
+
+
 
 
 ### mobileAgent class extends spatialAgent by allowing movement
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), contains="spatialAgent")
 
-
-
+# define methods that extend already-prototyped functions in R
 setMethod("points",
           signature = "spatialAgent",
           definition = function(x, which.to.plot=NULL, ...) {
