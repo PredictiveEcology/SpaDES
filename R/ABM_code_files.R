@@ -51,7 +51,17 @@ setMethod("length",
               return(len)
 })
 
+setMethod("points",
+          signature = "spatialAgent",
+          definition = function(x, which.to.plot=NULL, ...) {
+              if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
+              points(x@position@coords[sam,],...)
+          })
+
 setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
+
+
+
 
 
 
@@ -79,41 +89,6 @@ setMethod("show",
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), contains="spatialAgent")
 
 # define methods that extend already-prototyped functions in R
-setMethod("points",
-          signature = "spatialAgent",
-          definition = function(x, which.to.plot=NULL, ...) {
-              if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position@coords[sam,],...)
-})
-
-
-
-# define our custom methods, which need to be prototyped
-setGeneric("arrow", function(agent,...) {
-    standardGeneric("arrow")
-})
-
-setMethod("arrow",
-          signature="mobileAgent",
-          definition = function(agent, length = 0.1, ...) {
-              co.pos = coordinates(agent@position)
-              co.lpos = calculate.last.position() #coordinates(agent@last.pos)
-              arrows(co.lpos[,"x"],co.lpos[,"y"],co.pos[,"x"],co.pos[,"y"],length = length,...)
-})
-
-setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
-
-
-
-
-
-#######################################################
-###
-### the methods below all need to be reworked to:
-###     - work on the appropriate agent (sub)class
-###     - update the slots as per above
-###
-#######################################################
 setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
   if (is(agentlocation, "Raster")){
     if (!is.null(probinit)) {
@@ -204,14 +179,69 @@ setMethod("head",
     definition = function(x,...) {
         out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
         print(out)
- })
- 
- 
+})
+
+setMethod("coordinates", signature = "mobileAgent",
+          definition = function(obj, ...) {
+            # identical to definition in `spatialAgent`
+            #  should be inherited from that class already
+              coordinates = coordinates(obj@position)
+              return(coordinates)
+})
+
+setMethod("length",
+          signature="mobileAgent",
+          definition = function(x) {
+            # identical to definition in `spatialAgent`
+            #  should be inherited from that class already
+              len = length(x@position)
+              return(len)
+})
+
+setMethod("points",
+          signature = "mobileAgent",
+          definition = function(x,which.to.plot=NULL,...) {
+            # identical to definition in `spatialAgent`
+            #  should be inherited from that class already
+              if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
+              points(x@position@coords[sam,],...)
+})
+
+
+
+# define our custom methods, which need to be prototyped
+setGeneric("arrow", function(agent,...) {
+    standardGeneric("arrow")
+})
+
+setMethod("arrow",
+          signature="mobileAgent",
+          definition = function(agent, length = 0.1, ...) {
+              co.pos = coordinates(agent@position)
+              co.lpos = calculate.last.position() #coordinates(agent@last.pos)
+              arrows(co.lpos[,"x"],co.lpos[,"y"],co.pos[,"x"],co.pos[,"y"],length = length,...)
+})
+
+setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
+
+
+
+
+
+#######################################################
+###
+### the methods below all need to be reworked to:
+###     - work on the appropriate agent (sub)class
+###     - update the slots as per above
+###
+#######################################################
 setGeneric("dis", function(from,to,...) {
+    # rename as `distance`
     standardGeneric("dis")
 })
 
 setMethod("dis",
+# rename as `distance`
  signature(from="SpatialPoints",to="SpatialPoints"),
  definition = function(from,to,...) {
    from = coordinates(from)
@@ -235,43 +265,6 @@ setMethod("heading",
         heading + 180-360,heading + 180  ),heading) %% 360
    return(heading)
  })
-
-setMethod("points",
-  signature = "mobileAgent",
-  definition = function(x,which.to.plot=NULL,...) {
-    if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-    points(x@position@coords[sam,],...)
-    })
-    
-
-setGeneric("arrow", function(agent,...) {
-    standardGeneric("arrow")
-})
-
-
-
-setMethod("length",
- signature="mobileAgent",
- definition = function(x) {
-   len = length(x@position)
-   return(len)
- })
-
-setMethod("arrow",
- signature="mobileAgent",
- definition = function(agent,length = 0.1, ...) {
-   co.position = coordinates(agent@position)
-   arrows(co.lpos[,"x"],co.lpos[,"y"],co.position[,"x"],co.position[,"y"],length = length,...)
- })
- 
-setMethod("coordinates", signature = "mobileAgent",
-  definition = function(obj, ...) {
-    coordinates = coordinates(obj@position)
-    return(coordinates)
-  })
-    
-
-  
 
 ProbInit = function(map,p=NULL,absolute=F) { #
   if (length(p) == 1) { 
