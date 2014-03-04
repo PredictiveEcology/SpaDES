@@ -11,6 +11,9 @@ setMethod("initialize",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
               #  unless specified by user.
+              if (is.null(numagents)) {
+                  .Object@ID = 1:numagents
+              }
               return(.Object)
 })
 
@@ -44,8 +47,11 @@ setMethod("initialize",
           signature = "spatialAgent",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
-              #  unless specified by user;
-              # init positions.
+              #  unless specified by user
+              if (is.null(numagents)) {
+                  .Object@ID = 1:numagents
+              }
+              # init positions
               return(.Object)
 })
 
@@ -90,6 +96,9 @@ setMethod("initialize",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
               #  unless specified by user;
+              if (is.null(numagents)) {
+                  .Object@ID = 1:numagents
+              }
               # init NumPixels.
               return(.Object)
 })
@@ -177,9 +186,8 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
   distance = runif(numagents, 0.1, 10)#dis(last.position, position)
 #  nas = is.na(heading1)
 #  if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
-#    
-  ids = 1:numagents
-  .Object@ID = ids
+#  
+  .Object@ID = 1:numagents
   .Object@position = position
   .Object@heading = heading1
   .Object@distance = distance
