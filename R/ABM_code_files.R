@@ -40,8 +40,8 @@ setMethod("show",
 })
 
 setMethod("coordinates", signature = "spatialAgent",
-          definition = function(obj, ...) {
-              obj@position
+          definition = function(object, ...) {
+              object@position
 })
 
 setMethod("length",
@@ -55,7 +55,7 @@ setMethod("points",
           signature = "spatialAgent",
           definition = function(x, which.to.plot=NULL, ...) {
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position@coords[sam,],...)
+              points(x@position@coords[sam,], ...)
           })
 
 setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
@@ -150,8 +150,8 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
   
   
   }
-  heading1 = runif(numagents,0,360)#heading(last.position, position)
-  distance = runif(numagents,0.1, 10)#dis(last.position, position)
+  heading1 = runif(numagents, 0, 360)#heading(last.position, position)
+  distance = runif(numagents, 0.1, 10)#dis(last.position, position)
 #  nas = is.na(heading1)
 #  if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
 #    
@@ -176,16 +176,16 @@ setMethod("show",
 
 setMethod("head",
     signature = "mobileAgent",
-    definition = function(x,...) {
-        out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y),...)
+    definition = function(x, ...) {
+        out = head(data.table(x@pos,last.x = x@last.pos$x, last.y = x@last.pos$y), ...)
         print(out)
 })
 
 setMethod("coordinates", signature = "mobileAgent",
-          definition = function(obj, ...) {
+          definition = function(object, ...) {
             # identical to definition in `spatialAgent`
             #  should be inherited from that class already
-              coordinates = coordinates(obj@position)
+              coordinates = coordinates(object@position)
               return(coordinates)
 })
 
@@ -200,7 +200,7 @@ setMethod("length",
 
 setMethod("points",
           signature = "mobileAgent",
-          definition = function(x,which.to.plot=NULL,...) {
+          definition = function(x, which.to.plot=NULL, ...) {
             # identical to definition in `spatialAgent`
             #  should be inherited from that class already
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
@@ -210,7 +210,7 @@ setMethod("points",
 
 
 # define our custom methods, which need to be prototyped
-setGeneric("arrow", function(agent,...) {
+setGeneric("arrow", function(agent, ...) {
     standardGeneric("arrow")
 })
 
@@ -235,27 +235,27 @@ setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
 ###     - update the slots as per above
 ###
 #######################################################
-setGeneric("dis", function(from,to,...) {
+setGeneric("dis", function(from, to, ...) {
     # rename as `distance`
     standardGeneric("dis")
 })
 
 setMethod("dis",
 # rename as `distance`
- signature(from="SpatialPoints",to="SpatialPoints"),
- definition = function(from,to,...) {
+ signature(from="SpatialPoints", to="SpatialPoints"),
+ definition = function(from, to, ...) {
    from = coordinates(from)
    to = coordinates(to)
    out = sqrt((from[,2] - to[,2])^2 + (from[,1] - to[,1])^2)
    return(out)
  })
 
-setGeneric("heading", function(from,to,...) {
+setGeneric("heading", function(from, to, ...) {
     standardGeneric("heading")
 })
 
 setMethod("heading",
- signature(from="SpatialPoints",to="SpatialPoints"),
+ signature(from="SpatialPoints", to="SpatialPoints"),
  definition = function(from,to,...) {
    lpos = coordinates(from)
    position = coordinates(to)
@@ -266,7 +266,7 @@ setMethod("heading",
    return(heading)
  })
 
-ProbInit = function(map,p=NULL,absolute=F) { #
+ProbInit = function(map, p=NULL, absolute=FALSE) { #
   if (length(p) == 1) { 
     ProbInit = raster(extent(map),nrows=nrow(map),ncols=ncol(map),crs = crs(map))
     ProbInit = setValues(ProbInit, rep(p,length(ProbInit)))
@@ -452,8 +452,8 @@ cir<-function(agent,radiuses,raster_world,scale_raster){ ##identify the pixels (
 #}
 
 
-spread = function(maps, start.points, r=NULL, id.colour = T, 
-  ncells=NULL, fn=expression(!is.na(maps)), backwards = F, ...) {
+spread = function(maps, start.points, r=NULL, id.colour = TRUE, 
+  ncells=NULL, fn=expression(!is.na(maps)), backwards = FALSE, ...) {
 
   spread = raster(maps)
   spread[] = NA
