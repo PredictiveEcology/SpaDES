@@ -1,4 +1,4 @@
-
+setwd("c:/Eliot/Github/")
 read.in.raw.maps = F
 # Useful resource
 #http://www.nyu.edu/projects/politicsdatalab/workshops/GISwR.pdf
@@ -17,7 +17,7 @@ read.in.raw.maps = F
 
 # To read in raw maps, and save them as individual files
 if (read.in.raw.maps)  # This takes about 10 minutes
-  source("C:/Eliot/Dropbox/R/import.raw.maps.r")
+  source("./ABM/R/import.raw.maps.r")
 
 # Load the precollected R files instead
 setwd("c:/Rwork/MPB")
