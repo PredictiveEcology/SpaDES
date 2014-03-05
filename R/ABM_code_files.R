@@ -535,13 +535,13 @@ spec.num.per.patch = function(patches, num.per.patch.table = NULL, num.per.patch
   if (!is.null(num.per.patch.table)) {
     dt1 = data.table(wh,pops = patchids)
     setkey(dt1,pops)
-    if (any(class(num.by.patch.table)!="data.table")) num.by.patch.table = data.table(num.by.patch.table)
-    setkey(num.by.patch.table,pops)
+    if (is(num.per.patch.table,"data.table")) num.per.patch.table = data.table(num.per.patch.table)
+    setkey(num.per.patch.table,pops)
     dt2 = dt1[num.per.patch.table]
   } else if (!is.null(num.per.patch.map)) {
     num.per.patch.table = as.numeric(na.omit(getValues(num.per.patch.map)))
     dt2 = data.table(wh,pops = patchids, num.in.pop = num.per.patch.table)
-  }
+  } else { stop("need num.per.patch.map or num.per.patch.table") }
 
   resample <- function(x, ...) x[sample.int(length(x), ...)]
   dt3 = dt2[,list(cells=resample(wh,unique(num.in.pop))),by=pops]
