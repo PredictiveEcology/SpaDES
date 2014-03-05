@@ -40,18 +40,22 @@ setGeneric("agent", function(object) standardGeneric("agent"))
 
 
 ### spatialAgent class extends agent by making it spatial
-setClass("spatialAgent", slots=list(position="SpatialPoints"), prototype=list(position=SpatialPoints(cbind(x=NA_real_, y=NA_real_))), contains="agent")
+setClass("spatialAgent", slots=list(position="SpatialPoints"), contains="agent")
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "spatialAgent",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
-              #  unless specified by user
-              if (is.null(numagents)) {
+              #  unless specified by user;
+              # init posistions.
+              if (!is.null(numagents)) {
                   .Object@ID = as.character(1:numagents)
+                  # temporarily assign random positions
+                  tmp <- SpatialPoints(cbind(x=runif(n=numagents, min=-1000, max=1000),
+                                             y=runif(n=numagents, min=-1000, max=1000)))
+                  .Object@position = tmp
               }
-              # init positions
               return(.Object)
 })
 
@@ -66,9 +70,10 @@ setMethod("show",
               print(show)
 })
 
-setMethod("coordinates", signature = "spatialAgent",
+setMethod("coordinates",
+          signature = "spatialAgent",
           definition = function(object, ...) {
-              coords <- coordinates(object@position)
+              coords <- coordinates(object@position, ...)
               return(coords)
 })
 
@@ -76,8 +81,8 @@ setMethod("points",
           signature = "spatialAgent",
           definition = function(x, which.to.plot=NULL, ...) {
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position[sam,], ...)
-          })
+              points(x@position@coords[sam,], ...)
+})
 
 setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
 
@@ -96,10 +101,18 @@ setMethod("initialize",
           definition = function(.Object, numagents=NULL) {
               # init agent IDs as integer increments by default
               #  unless specified by user;
+              # init positions;
+              # init NumPixels.
               if (!is.null(numagents)) {
                   .Object@ID = as.character(1:numagents)
+                  # temporarily assign random positions
+                  tmp <- SpatialPoints(cbind(x=runif(n=numagents, min=-1000, max=1000),
+                                             y=runif(n=numagents, min=-1000, max=1000)))
+                  .Object@position = tmp
+                  # temporarily init random NumPixels
+                  tmp <- sample(1:10, replace=TRUE)
+                  .Object@NumPixels = tmp
               }
-              # init NumPixels.
               return(.Object)
 })
 
@@ -109,7 +122,8 @@ setMethod("show",
               show = list()
               show[["N"]] = paste("There are", length(object@ID), "agents")
               show[["First 5 agent IDs"]] = head(object@ID, 5)
-              # needs to print `NumPixels`
+              show[["First 5 agent coordinates"]] = head(coordinates(object@position), 5)
+              show[["First 5 agent sizes (pixels)"]] = head(object@NumPixels, 5)
               # needs to print `other`
               print(show)
 })
@@ -296,7 +310,7 @@ ProbInit = function(map, p=NULL, absolute=FALSE) { #
 
 
 Transitions = function(p, agent) {
-  agent@position[which(p==0),] = NA
+  agent@position@coords[which(p==0),] = NA
   return(agent)
 }
 
