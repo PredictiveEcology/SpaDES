@@ -33,6 +33,7 @@ lapply(objects2load,
     ben = benchmark(replications = 1,
     bc2009_buff2 = gBuffer(bc[["2009"]], width = 1000),
     execGRASS("v.buffer", flags = c("s","verbose","overwrite"),input="bc2009spot",output="bc2009_buff",distance=1000))
+    print(ben)
 
 
 
