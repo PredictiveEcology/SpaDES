@@ -1,15 +1,15 @@
+source("ABM_code_files.R")
 
-
-setwd("C:/Rwork/ABM")
-#library(geosphere) for doing it all with lat long over large distances
+#library(geosphere) # for doing it all with lat long over large distances
 library(CircStats)
 library(raster)
 library(plotrix)
 library(sp)
 library(data.table)
-source("C:/Eliot/GitHub/ABM/R/ABM_code_files.R")
 library(geoR)
-#
+# note that some objects are masked by certain packages above
+#   will this make a difference or cause problems?
+#   just in case we may need to be explicit with namespace.
 
 
 ############################################################################
