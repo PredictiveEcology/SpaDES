@@ -1,6 +1,15 @@
-require(sp)
-require(CircStats)
-require(data.table)
+# note that some objects are masked by certain packages above
+#   will this make a difference or cause problems?
+#   just in case we may need to be explicit with namespace.
+library(CircStats)
+library(data.table)
+library(geoR)
+#library(geosphere) # for doing it all with lat long over large distances
+library(igraph)
+library(plotrix)
+library(raster)
+library(sp)
+
 
 ### agent class (this is an aspatial agent)
 setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=NA_character_))
@@ -8,7 +17,7 @@ setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "agent",
-          definition = function(.Object, numagents=NULL) {
+          definition = function(.Object, numagents=NULL, ...) {
               # init agent IDs as integer increments by default
               #  unless specified by user.
               if (!is.null(numagents)) {
@@ -21,20 +30,35 @@ setMethod("show",
           signature = "agent",
           definition = function(object) {
               show = list()
-              show[["N"]] = paste("There are", length(object@ID), "agents")
-              show[["First 5 agent IDs"]] = head(object@ID, 5)
-              # needs to print `other`
+              show[["N"]] = paste("There are", length(object@ID), "agents.")
+              show[["First 5 agent IDs:"]] = head(object@ID, 5)
+              if (length(object@other)>0) {
+                  show[["Other agent properties:"]] = head(object@other, 5)
+              }
               print(show)
 })
 
 setMethod("length",
-          signature="agent",
-          definition = function(object) {
-              len = length(object@ID)
+          signature = "agent",
+          definition = function(x) {
+              len = length(x@ID)
               return(len)
 })
 
-setGeneric("agent", function(object) standardGeneric("agent"))
+#setGeneric("agent", function(object) standardGeneric("agent")) # remove?
+
+
+# define our custom methods, which need to be prototyped
+setGeneric("setOther", function(object, ...) {
+    standardGeneric("setOther")
+})
+
+setMethod("setOther",
+          signature = "agent",
+          definition = function(object, name, value) {
+              object@other[[as.character(name)]] = value
+              return(object)
+})
 
 
 
@@ -45,7 +69,7 @@ setClass("spatialAgent", slots=list(position="SpatialPoints"), contains="agent")
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "spatialAgent",
-          definition = function(.Object, numagents=NULL) {
+          definition = function(.Object, numagents=NULL, ...) {
               # init agent IDs as integer increments by default
               #  unless specified by user;
               # init posistions.
@@ -72,8 +96,8 @@ setMethod("show",
 
 setMethod("coordinates",
           signature = "spatialAgent",
-          definition = function(object, ...) {
-              coords <- coordinates(object@position, ...)
+          definition = function(obj, ...) {
+              coords <- coordinates(position(obj), ...)
               return(coords)
 })
 
@@ -84,10 +108,19 @@ setMethod("points",
               points(x@position@coords[sam,], ...)
 })
 
-setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent"))
+#setGeneric("spatialAgent", function(object) standardGeneric("spatialAgent")) # remove?
 
 
+# define our custom methods, which need to be prototyped
+setGeneric("position", function(obj, ...) {
+    standardGeneric("position")
+})
 
+setMethod("position",
+          signature = "spatialAgent",
+          definition = function(obj, ...) {
+              return(obj@position)
+})
 
 
 
@@ -98,7 +131,7 @@ setClass("spreadAgent", slots=list(NumPixels="numeric"), prototype=list(NumPixel
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "spreadAgent",
-          definition = function(.Object, numagents=NULL) {
+          definition = function(.Object, numagents=NULL, ...) {
               # init agent IDs as integer increments by default
               #  unless specified by user;
               # init positions;
@@ -135,7 +168,7 @@ setMethod("show",
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"), prototype=list(heading=NA_real_, distance=NA_real_), contains="spatialAgent")
 
 # define methods that extend already-prototyped functions in R
-setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL) {
+setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL, ...) {
   if (is(agentlocation, "Raster")){
     if (!is.null(probinit)) {
       nonNAs = !is.na(getValues(probinit))
@@ -197,7 +230,7 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
   
   }
   heading1 = runif(numagents, 0, 360)#heading(last.position, position)
-  distance = runif(numagents, 0.1, 10)#dis(last.position, position)
+  distance = runif(numagents, 0.1, 10)#distance(last.position, position)
 #  nas = is.na(heading1)
 #  if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
 #  
@@ -207,7 +240,7 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
   .Object@distance = distance
 
   return(.Object)
-} )
+})
 
 setMethod("show",
     signature = "mobileAgent",
@@ -217,7 +250,7 @@ setMethod("show",
         show[["First 5 agent coordinates"]] = head(coordinates(object@position), 5)
         show[["First 5 agent ids"]] = head(object@ID, 5)
         print(show)
- })
+})
 
 setMethod("head",
     signature = "mobileAgent",
@@ -232,7 +265,7 @@ setMethod("points",
             # identical to definition in `spatialAgent`
             #  should be inherited from that class already
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position@coords[sam,],...)
+              points(x@position@coords[sam,], ...)
 })
 
 
@@ -247,10 +280,10 @@ setMethod("arrow",
           definition = function(agent, length = 0.1, ...) {
               co.pos = coordinates(agent@position)
               co.lpos = calculate.last.position() #coordinates(agent@last.pos)
-              arrows(co.lpos[,"x"],co.lpos[,"y"],co.pos[,"x"],co.pos[,"y"],length = length,...)
+              arrows(co.lpos[,"x"], co.lpos[,"y"], co.pos[,"x"], co.pos[,"y"], length = length, ...)
 })
 
-setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
+#setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent")) # remove?
 
 
 
@@ -263,13 +296,14 @@ setGeneric("mobileAgent", function(object) standardGeneric("mobileAgent"))
 ###     - update the slots as per above
 ###
 #######################################################
-setGeneric("dis", function(from, to, ...) {
-    # rename as `distance`
-    standardGeneric("dis")
+
+
+### generic methods (lack class-specific methods)
+setGeneric("distance", function(from, to, ...) {
+    standardGeneric("distance")
 })
 
-setMethod("dis",
-# rename as `distance`
+setMethod("distance",
  signature(from="SpatialPoints", to="SpatialPoints"),
  definition = function(from, to, ...) {
    from = coordinates(from)
@@ -277,6 +311,8 @@ setMethod("dis",
    out = sqrt((from[,2] - to[,2])^2 + (from[,1] - to[,1])^2)
    return(out)
  })
+
+
 
 setGeneric("heading", function(from, to, ...) {
     standardGeneric("heading")
@@ -294,9 +330,11 @@ setMethod("heading",
    return(heading)
  })
 
-ProbInit = function(map, p=NULL, absolute=FALSE) { #
+
+### functions
+ProbInit = function(map, p=NULL, absolute=FALSE) {
   if (length(p) == 1) { 
-    ProbInit = raster(extent(map),nrows=nrow(map),ncols=ncol(map),crs = crs(map))
+    ProbInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
     ProbInit = setValues(ProbInit, rep(p,length(ProbInit)))
   } else if (is(p,"RasterLayer")) {
     ProbInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
@@ -304,10 +342,11 @@ ProbInit = function(map, p=NULL, absolute=FALSE) { #
     ProbInit = p/sum(p) 
   } else if (is(p,"NULL"))  {
     ProbInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
+  } else {
+      stop("error initializing probability map: bad inputs") # temp err msg (general)
   }
   return(ProbInit)
 }
-
 
 Transitions = function(p, agent) {
   agent@position@coords[which(p==0),] = NA
@@ -327,11 +366,13 @@ move = function(hypothesis = NULL) {
 AgentLocation = function(map) {
   if (length(grep(pattern = "Raster", class(map)))==1) {
     map[map==0] = NA
-  } else if (length(grep(pattern = "SpatialPoints", class(map)))==1){
+  } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
     map
   } else if (!is.na(pmatch("SpatialPolygon",class(map)))) {
     map
-  } else { stop("only raster, spatialpoints or spatialPolygon implemented") }
+  } else {
+      stop("only raster, spatialpoints or spatialPolygon implemented")
+  }
   return(map)
 }
 
@@ -364,83 +405,116 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
 }
 
 crw = function(agent, step.len, dir.sd, hab = NULL) {
-  n = length(agent)
-  rand.dir = rnorm(n,agent@heading,dir.sd)
-  rand.dir = ifelse(rand.dir>180,rand.dir-360,ifelse(rand.dir<(-180),360+rand.dir,rand.dir))
-
-  last.position = agent@position
-
-  agent@position@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
-  agent@position@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
-
-  agent@heading = heading(last.position, agent@position)
-  agent@distance = dis(last.position, agent@position)
-
-  return(agent)
+    n = length(agent)
+    rand.dir = rnorm(n, agent@heading, dir.sd)
+    rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
+    
+    last.position = agent@position
+    
+    # these should use `coordinates(agent) <-` or similar set methods
+    agent@position@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
+    agent@position@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
+    
+    agent@heading = heading(last.position, agent@position)
+    agent@distance = distance(last.position, agent@position)
+    
+    return(agent)
 }
 
 ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
-  if (!is(agent,"agent")) {stop("must be an agent class")}
-  if (!is(rings,"NextPossiblePosition")) {stop("rings must be an NextPossiblePosition class")}
-  n = length(agent@position)
-
-  dt1 = data.table(data.frame(agent@position,ids=agent@ID,heading.rad=rad(agent@heading)))
-  setkey(dt1,ids)
-  setkey(rings, ids)
-  fromto = rings[dt1]
-
-  fromto[,headi:=heading(from=SpatialPoints(cbind(x=fromto$x.1,y=fromto$y.1)),
-           to = SpatialPoints(cbind(x=fromto$x,y=fromto$y)))]
-  fromto[,ProbTurn:=dwrpnorm(theta = rad(headi),mu= heading.rad,sd = dir.sd/50)]
-
-  return(fromto)
+    if (!is(agent, "agent")) {
+        stop("must be an agent class")
+    }
+    if (!is(rings, "NextPossiblePosition")) {
+        stop("rings must be an NextPossiblePosition class")
+    }
+    n = length(agent)
+    
+    dt1 = data.table(data.frame(agent@position, ids=agent@ID, heading.rad=rad(agent@heading)))
+    setkey(dt1, ids)
+    setkey(rings, ids)
+    fromto = rings[dt1]
+    
+    fromto[, headi:=heading(from=SpatialPoints(cbind(x=fromto$x.1, y=fromto$y.1)),
+           to=SpatialPoints(cbind(x=fromto$x,y=fromto$y)))]
+    fromto[, ProbTurn:=dwrpnorm(theta=rad(headi), mu=heading.rad, sd=dir.sd/50)] # why 50?
+    
+    return(fromto)
 }
 # identifies the xy coordinates of a circle around all live agents
 #  key function is draw.circles in the plotrix package
 
 ## Results double checked
-cir<-function(agent,radiuses,raster_world,scale_raster){ ##identify the pixels ("patches" in NetLogo) that are at a buffer distance of the individual location
-
-  seq_num_ind<-seq_len(length(agent)) ##create an index sequence for the number of individuals
-  n.angles<-(ceiling((radiuses/scale_raster)*2*pi)+1) ##n = optimum number of points to create the circle for a given individual
-  ##n=gross estimation (checked that it seems to be enough so that pixels extracted are almost always duplicated, which means there is small chances that we missed some on the circle)
-
-  ## Eliot's code to replace the createCircle of the package PlotRegionHighlighter
-  positions = coordinates(agent)
-
-  ids<-rep.int(seq_num_ind,times=n.angles) ##create individual IDs for the number of points that will be done for their circle
-  rads<-rep.int(radiuses,times=n.angles) ##create vector of radius for the number of points that will be done for each individual circle
-  xs<-rep.int(positions[,1],times=n.angles) ##extract the individual current position
-  ys<-rep.int(positions[,2],times=n.angles)
-  nvs<-rep.int(c(0,n.angles[-length(n.angles)]),times=n.angles) ##to be used below to do calculation for angle increments
-  angle.inc<-rep.int(2*pi,length(n.angles))/n.angles ##calculate the angle increment that each individual needs to do to complete a circle (2 pi)
-  angs<-rep.int(angle.inc,times=n.angles) ##repeat this angle increment the number of times it needs to be done to complete the circles
-
-
-  # Eliot
-  a1 = Sys.time()
-  dt1 = data.table(ids,angs,xs,ys,rads)
-  dt1[,angles:=cumsum(angs),by=ids]
-  dt1[,x:=cos(angles)*rads+xs]
-  dt1[,y:=sin(angles)*rads+ys]
-
-  coordinates_all_ind<-dt1[,list(x,y,ids)]#cbind(x,y) ##put the coordinates of the points on the circles from all individuals in the same matrix
-  coordinates_all_ind[,pixels_under_coordinates:=cellFromXY(raster_world,coordinates_all_ind)] ##extract the pixel IDs under the points
-  coordinates_all_ind_unique=coordinates_all_ind[,list(pixels_under_coordinates=unique(pixels_under_coordinates)),by=ids]
-  coordinates_all_ind_unique=na.omit(coordinates_all_ind_unique)
-  coordinates_all_ind_unique[,unique_pixels_values:=extract(raster_world,pixels_under_coordinates)]
-  pixels=xyFromCell(raster_world,coordinates_all_ind_unique$pixels_under_coordinates) ##extract the coordinates for the pixel IDs
-  pixels_ind_ids_merged = cbind(coordinates_all_ind_unique,pixels)
-#  coord_unique_pixels<-split(pixels_ind_ids_merged[,list(x,y)],pixels_ind_ids_merged[,ids]) ##put the coordinates x and y back into a list according to the individual IDs
-  a2 = Sys.time()
-
-
-#  return(coord_unique_pixels) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
-  
-  return(pixels_ind_ids_merged) ##list of df with x and y coordinates of each unique pixel of the circle of each individual
-  
+cir = function(agent, radiuses, raster_world, scale_raster){
+    ### identify the pixels ("patches" in NetLogo) that are at
+    ###  a buffer distance of the individual location.
+    
+    # create an index sequence for the number of individuals
+    seq_num_ind<-seq_len(length(agent)) 
+    
+    # n = optimum number of points to create the circle for a given individual;
+    #       gross estimation (checked that it seems to be enough so that pixels
+    #       extracted are almost always duplicated, which means there is small
+    #       chance that we missed some on the circle).
+    n.angles<-(ceiling((radiuses/scale_raster)*2*pi)+1)
+    
+    ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
+    positions = coordinates(agent)
+    
+    # create individual IDs for the number of points that will be done for their circle
+    ids <- rep.int(seq_num_ind, times=n.angles)
+    
+    # create vector of radius for the number of points that will be done for each individual circle
+    rads <- rep.int(radiuses, times=n.angles)
+    
+    # extract the individuals' current positions
+    xs <- rep.int(positions[,1], times=n.angles)
+    ys <- rep.int(positions[,2], times=n.angles)
+    
+    # to be used below to do calculation for angle increments
+    nvs <- rep.int(c(0,n.angles[-length(n.angles)]), times=n.angles)
+    
+    # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
+    angle.inc <- rep.int(2*pi, length(n.angles)) / n.angles
+    
+    # repeat this angle increment the number of times it needs to be done to complete the circles
+    angs<-rep.int(angle.inc,times=n.angles)
+    
+    ### Eliot' added's code:
+    a1 = Sys.time()
+    dt1 = data.table(ids, angs, xs, ys, rads)
+    dt1[,angles:=cumsum(angs),by=ids]
+    dt1[,x:=cos(angles)*rads+xs]
+    dt1[,y:=sin(angles)*rads+ys]
+    
+    # put the coordinates of the points on the circles from all individuals in the same matrix
+    coordinates_all_ind <- dt1[,list(x,y,ids)]    #cbind(x,y)
+    
+    # extract the pixel IDs under the points
+    coordinates_all_ind[,pixels_under_coordinates := cellFromXY(raster_world,coordinates_all_ind)]
+    coordinates_all_ind_unique =
+        coordinates_all_ind[,list(pixels_under_coordinates = unique(pixels_under_coordinates)), by=ids]
+    coordinates_all_ind_unique = na.omit(coordinates_all_ind_unique)
+    coordinates_all_ind_unique[,unique_pixels_values := extract(raster_world,pixels_under_coordinates)]
+    
+    # extract the coordinates for the pixel IDs
+    pixels = xyFromCell(raster_world,coordinates_all_ind_unique$pixels_under_coordinates)
+    pixels_ind_ids_merged = cbind(coordinates_all_ind_unique,pixels)
+    
+    # put the coordinates x and y back into a list according to the individual IDs
+#    coord_unique_pixels <- split(pixels_ind_ids_merged[,list(x,y)],pixels_ind_ids_merged[,ids])
+    
+    a2 = Sys.time()
+    
+    # list of df with x and y coordinates of each unique pixel of the circle of each individual
+#    return(coord_unique_pixels) 
+    
+    # list of df with x and y coordinates of each unique pixel of the circle of each individual
+    return(pixels_ind_ids_merged)
 }
-#
+
+
+
 #cir = function (agent, radiuses, n.angles = 36)
 # {
 #    n = length(agent)
@@ -481,46 +555,48 @@ cir<-function(agent,radiuses,raster_world,scale_raster){ ##identify the pixels (
 
 
 spread = function(maps, start.points, r=NULL, id.colour = TRUE, 
-  ncells=NULL, fn=expression(!is.na(maps)), backwards = FALSE, ...) {
-
-  spread = raster(maps)
-  spread[] = NA
-  start.cells = sort(cellFromXY(spread,start.points))
-  spread[start.cells] = 1
-  spread.start.id = raster(maps)
-  spread.start.id[] = NA
-  spread.start.id[start.cells] = start.cells
-  
-  for (i in 1:r) {
-    spreadadj = adjacent(spread,Which(spread==i,cells=T),sorted=T,...)
+    ncells=NULL, fn=expression(!is.na(maps)), backwards = FALSE, ...) {
     
+    spread = raster(maps)
+    spread[] = NA
+    start.cells = sort(cellFromXY(spread,start.points))
+    spread[start.cells] = 1
+    spread.start.id = raster(maps)
+    spread.start.id[] = NA
+    spread.start.id[start.cells] = start.cells
     
-    spread[spreadadj[,"to"][eval(fn)[spreadadj[,"to"]] & 
-      is.na(spread[spreadadj[,"to"]])]] = i+1
-    spread.start.id[spreadadj[,"to"]] = spread.start.id[spreadadj[,"from"]]
-  }
-  if (id.colour) { return(spread.start.id) }
-  else {return(spread)}
+    for (i in 1:r) {
+        spreadadj = adjacent(spread, Which(spread==i, cells=TRUE), sorted=TRUE, ...)
+        
+        spread[spreadadj[,"to"][eval(fn)[spreadadj[,"to"]] & 
+          is.na(spread[spreadadj[,"to"]])]] = i+1
+        spread.start.id[spreadadj[,"to"]] = spread.start.id[spreadadj[,"from"]]
+    }
+    if (id.colour) { return(spread.start.id) }
+    else {return(spread)}
 }
 
-GaussMap = function(ext, cov.pars = c(5,100), speedup.index = 10){#, fast = T, n.unique.pixels = 100) {
-  xmn = ext@xmin
-  xmx = ext@xmax
-  ymn = ext@ymin
-  ymx = ext@ymax
-  nr = (xmx-xmn)/speedup.index # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
-  nc = (ymx-ymn)/speedup.index # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
-  xfact = (xmx-xmn)/nr
-  yfact = (ymx-ymn)/nc
-  map <- raster(nrows=nr, ncols=nc, x=ext)
-
-  sim2 <- grf(nr*nc, grid = "reg", cov.pars = cov.pars,
+GaussMap = function(ext, cov.pars = c(5,100), speedup.index = 10) {#, fast = T, n.unique.pixels = 100) {
+##   Warning message:
+##    In RandomFields::GaussRF(x = xpts, y = ypts, model = get("setRF",  :
+##    The function is obsolete. Use 'RFsimulate' instead.
+    xmn = ext@xmin
+    xmx = ext@xmax
+    ymn = ext@ymin
+    ymx = ext@ymax
+    nr = (xmx-xmn)/speedup.index # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
+    nc = (ymx-ymn)/speedup.index # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
+    xfact = (xmx-xmn)/nr
+    yfact = (ymx-ymn)/nc
+    map <- raster(nrows=nr, ncols=nc, x=ext)
+    
+    sim2 <- grf(nr*nc, grid = "reg", cov.pars = cov.pars,
      xlims = c(xmn, xmx), ylims = c(ymn, ymx)) 
-  xy <- cbind(x=sim2$coords[,"x"],y=sim2$coords[,"y"])
-  map2 <- rasterize(xy, map,field=sim2$data+abs(min(sim2$data)))
-  map3 = map2
-  if(speedup.index>1) map3 <- disaggregate(map2,c(xfact,yfact))
-  return(map3)
+    xy <- cbind(x=sim2$coords[,"x"], y=sim2$coords[,"y"])
+    map2 <- rasterize(xy, map, field=sim2$data+abs(min(sim2$data)))
+    map3 = map2
+    if(speedup.index>1) map3 <- disaggregate(map2, c(xfact, yfact))
+    return(map3)
 }
 
 # To initialize with a specific number per patch, which may come from
@@ -530,32 +606,34 @@ GaussMap = function(ext, cov.pars = c(5,100), speedup.index = 10){#, fast = T, n
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
 spec.num.per.patch = function(patches, num.per.patch.table = NULL, num.per.patch.map=NULL) {
-  patchids = as.numeric(na.omit(getValues(patches)))
-  wh = Which(patches, cells = T)
-  if (!is.null(num.per.patch.table)) {
-    dt1 = data.table(wh,pops = patchids)
-    setkey(dt1,pops)
-    if (is(num.per.patch.table,"data.table")) num.per.patch.table = data.table(num.per.patch.table)
-    setkey(num.per.patch.table,pops)
-    dt2 = dt1[num.per.patch.table]
-  } else if (!is.null(num.per.patch.map)) {
-    num.per.patch.table = as.numeric(na.omit(getValues(num.per.patch.map)))
-    dt2 = data.table(wh,pops = patchids, num.in.pop = num.per.patch.table)
-  } else { stop("need num.per.patch.map or num.per.patch.table") }
-
-  resample <- function(x, ...) x[sample.int(length(x), ...)]
-  dt3 = dt2[,list(cells=resample(wh,unique(num.in.pop))),by=pops]
-  dt3$ids = rownames(dt3)
-
-  al = raster(patches)
-  al[dt3$cells] = 1
-
-  return(al)
+    patchids = as.numeric(na.omit(getValues(patches)))
+    wh = Which(patches, cells = T)
+    if (!is.null(num.per.patch.table)) {
+        dt1 = data.table(wh, pops=patchids)
+        setkey(dt1, pops)
+        if (is(num.per.patch.table, "data.table")) {
+            num.per.patch.table = data.table(num.per.patch.table)
+        }
+        setkey(num.per.patch.table, pops)
+        dt2 = dt1[num.per.patch.table]
+    } else if (!is.null(num.per.patch.map)) {
+        num.per.patch.table = as.numeric(na.omit(getValues(num.per.patch.map)))
+        dt2 = data.table(wh,pops = patchids, num.in.pop = num.per.patch.table)
+    } else { stop("need num.per.patch.map or num.per.patch.table") }
+    
+    resample <- function(x, ...) x[sample.int(length(x), ...)]
+    dt3 = dt2[, list(cells=resample(wh, unique(num.in.pop))), by=pops]
+    dt3$ids = rownames(dt3)
+    
+    al = raster(patches)
+    al[dt3$cells] = 1
+    
+    return(al)
 }
+
 
 
 patch.size = function(patches) {
-  patch.size = freq(patches)
-  return(patch.size)
+    patch.size = freq(patches)
+    return(patch.size)
 }
-
