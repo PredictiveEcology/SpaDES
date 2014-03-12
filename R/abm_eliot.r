@@ -34,7 +34,7 @@ pri = ProbInit(hab, al)
 na = NumAgents(N)
 
 # initialize caribou agents
-caribou = new("mobileAgent", agentlocation=al, numagents = na, probinit = pri)
+caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
 
 plot(hab)
 points(caribou, pch=19, cex = 0.1)

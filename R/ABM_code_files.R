@@ -12,7 +12,7 @@ setMethod("load.package",
                   install.packages(package.name)
                   library(package.name, character.only=TRUE)
               }
-          })
+})
 
 # load a bunch of packages from a list
 setGeneric("load.required.pkgs", function(package.list, ...) {
@@ -23,7 +23,7 @@ setMethod("load.required.pkgs",
           signature(package.list="list"),
           definition = function(package.list, ...) {
               lapply(package.list, load.package)
-          })
+})
 
 ####################################################################################
 
