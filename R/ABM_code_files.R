@@ -1,15 +1,45 @@
-# note that some objects are masked by certain packages above
-#   will this make a difference or cause problems?
-#   just in case we may need to be explicit with namespace.
-library(CircStats)
-library(data.table)
-library(geoR)
-#library(geosphere) # for doing it all with lat long over large distances
-library(igraph)
-library(plotrix)
-library(raster)
-library(sp)
+### define generic methods to load packages as required
 
+# load a single package
+setGeneric("load.package", function(package.name, ...) {
+    standardGeneric("load.package")
+})
+
+setMethod("load.package",
+          signature(package.name="character"),
+          definition = function(package.name, ...) {
+              if (!require(package.name, character.only=TRUE)) {
+                  install.packages(package.name)
+                  library(package.name, character.only=TRUE)
+              }
+          })
+
+# load a bunch of packages from a list
+setGeneric("load.required.pkgs", function(package.list, ...) {
+    standardGeneric("load.required.pkgs")
+})
+
+setMethod("load.required.pkgs",
+          signature(package.list="list"),
+          definition = function(package.list, ...) {
+              lapply(package.list, load.package)
+          })
+
+####################################################################################
+
+### specify which packages need to be installed/loaded, and load them;
+###  the idea here is that this function can be called from each module
+###  to load packages upon initialization of the module
+pkgs <- list("CircStats",
+             "data.table",
+             "geoR",
+             "igraph",
+             "plotrix",
+             "raster",
+             "sp")
+load.required.pkgs(pkgs)
+
+####################################################################################
 
 ### agent class (this is an aspatial agent)
 setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=NA_character_))
@@ -33,8 +63,8 @@ setMethod("show",
               show[["N"]] = paste("There are", length(object@ID), "agents.")
               show[["First 5 agent IDs:"]] = head(object@ID, 5)
               if (length(object@other)>0) {
-                  show[["Other agent properties:"]] = head(object@other, 5)
-              }
+                  show[["Other agent properties:"]] = lapply(object@other, head, n=5)
+              } # show other output could be cleaner
               print(show)
 })
 
@@ -349,36 +379,36 @@ ProbInit = function(map, p=NULL, absolute=FALSE) {
 }
 
 Transitions = function(p, agent) {
-  agent@position@coords[which(p==0),] = NA
-  return(agent)
+    agent@position@coords[which(p==0),] = NA
+    return(agent)
 }
 
 NumAgents = function(N) {
-  if (length(N) == 1) { NumAgents = N }
-  return(NumAgents)
+    if ((length(N) == 1) && (is.numeric(N))) NumAgents = N
+    else stop("N must be a single integer value, not a vector.")
+    return(NumAgents)
 }
 
 move = function(hypothesis = NULL) {
-  if (hypothesis == "TwoDT") move = "TwoDT"
-  if (hypotehsis == "crw") move = "crw"
+    if (hypothesis == "TwoDT") move = "TwoDT"
+    if (hypotehsis == "crw") move = "crw"
 }
 
 AgentLocation = function(map) {
-  if (length(grep(pattern = "Raster", class(map)))==1) {
+if (length(grep(pattern = "Raster", class(map)))==1) {
     map[map==0] = NA
-  } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
+    } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
     map
-  } else if (!is.na(pmatch("SpatialPolygon",class(map)))) {
+    } else if (!is.na(pmatch("SpatialPolygon",class(map)))) {
     map
-  } else {
-      stop("only raster, spatialpoints or spatialPolygon implemented")
-  }
-  return(map)
+    } else {
+        stop("only raster, spatialpoints or spatialPolygon implemented")
+    }
+    return(map)
 }
 
 # This is a modified version found in CircStats to allow for multiple angles at once
-dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
-{
+dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
     if (missing(rho)) {
         rho <- exp(-sd^2/2)
     }
@@ -392,7 +422,7 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
     k <- 0
     Next <- term(theta, mu, var, k)
     Last <- Next
-    delta <- rep(1,length(Last))
+    delta <- rep(1, length(Last))
     while (any(delta > tol)) {
         keep = delta>tol
         k <- k + 1
@@ -409,24 +439,24 @@ crw = function(agent, step.len, dir.sd, hab = NULL) {
     rand.dir = rnorm(n, agent@heading, dir.sd)
     rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
     
-    last.position = agent@position
+    last.position = position(agent)
     
     # these should use `coordinates(agent) <-` or similar set methods
     agent@position@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
     agent@position@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
     
-    agent@heading = heading(last.position, agent@position)
-    agent@distance = distance(last.position, agent@position)
+    agent@heading = heading(last.position, position(agent))
+    agent@distance = distance(last.position, position(agent))
     
     return(agent)
 }
 
 ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
     if (!is(agent, "agent")) {
-        stop("must be an agent class")
+        stop("must be an agent class") # checking should be done using S4 signatures
     }
     if (!is(rings, "NextPossiblePosition")) {
-        stop("rings must be an NextPossiblePosition class")
+        stop("rings must be an NextPossiblePosition class") # checking should be done using S4 signatures
     }
     n = length(agent)
     

@@ -68,14 +68,18 @@ for(i in 1:ntimesteps) {
 ## Scenario 2 = a specific number of agents to start for specific patches
 
 # Arbitrarily pick places with good habitat and cluster them into discrete patches
-al = Which(hab > 2.2 )
+best = max(hab@data@values)
+worst = min(hab@data@values)
+good = Which(hab>0.8*best)
+al = good
+
 # create patches with patchid
 patches = clump(al)
 
 #start exactly n.p agents in each patch
 pops = as.numeric(na.omit(unique(getValues(patches))))
 num.pops =length(pops)
-init.per.pop = data.table(pops,num.in.pop = sample(1:(num.pops*3), num.pops, replace=TRUE))
+init.per.pop = data.table(pops, num.in.pop=sample(1:(num.pops*3), num.pops, replace=TRUE))
 setkey(init.per.pop, pops)
 # make map with patch id representing the number to start
 # NOT USED BELOW... IT WAS USED
@@ -98,9 +102,9 @@ points(caribou, col=extract(patches, position(caribou)), pch=19, cex=0.3)
 ## Scenario 3 = place 100 agents in proportion to the area of patches
 na = NumAgents(100)
 al = AgentLocation(al)
-caribou = new("mobileAgent", agentlocation=al, numagents = na)
+caribou = new("mobileAgent", agentlocation=al, numagents=na)
 plot(patches)
-points(caribou, col=extract(patches, caribou@position),pch=19,cex = 0.8)
+points(caribou, col=extract(patches, position(caribou)), pch=19, cex = 0.8)
 
 
 
