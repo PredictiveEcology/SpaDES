@@ -26,8 +26,13 @@ abm.globals.init <- function(params, modules) {
    abm.globals$globalstats <<- list()   # name and init these accordingly
    abm.globals$modulestats <<- list()   # name and init these accordingly for each module
    
-   # set up first event
-   schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS)) # modify this accordingly
+   # set up first event(s): all first events should be initialization events e.g. from modules
+   #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+   time.init = 1e-8
+   for (m in modules) {
+       schedule.event(time.init, m, "init")
+       time.init = time.init + 1e-8
+   }
 }
 
 # event processing function called by dosim() in the general DES library 
