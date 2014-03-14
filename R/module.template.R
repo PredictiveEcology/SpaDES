@@ -13,7 +13,7 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-template.react.event = function(event.time, event.type)
+react.event.template = function(event.time, event.type)
     if (event.type=="init") {
         # do stuff for this event
         module.template.init()
