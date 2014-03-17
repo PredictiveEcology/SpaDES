@@ -13,7 +13,7 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-react.event.template = function(event.time, event.type)
+react.event.template = function(event.time, event.type) {
     if (event.type=="init") {
         # do stuff for this event
         module.template.init()
@@ -55,7 +55,7 @@ react.event.template = function(event.time, event.type)
 #          schedule.event(srvdonetime,"srvdone",list(arrvtime=abm.globals$srvq[1]))
 #       }
 #    }
-)
+}
 
 module.template.init = function() {
     ### load any required packages
@@ -64,10 +64,10 @@ module.template.init = function() {
 
     ### module parameters
     #   - export module params to global list
-    abm.globals$params[[MODULE.NAME]] <<- list()
+    globals$params[[MODULE.NAME]] <<- list()
     
     #   -  export data structure for module stats
-    abm.globals$modulestats[[MODULE.NAME]] <<- list()
+    globals$modulestats[[MODULE.NAME]] <<- list()
 }
 
 

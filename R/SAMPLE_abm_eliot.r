@@ -9,7 +9,7 @@ nx = 5e2#2e3#1964#500
 
 hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
 hab <- round(GaussMap(extent(hab), speedup.index=10, cov.pars=c(0.3, 200)), 1)
-plot(hab,maxpixels = 1e4)
+plot(hab, maxpixels=1e4)
 
 best = max(hab@data@values)
 worst = min(hab@data@values)
@@ -31,13 +31,13 @@ ntimesteps = 10  #365 * 4
 
 al = AgentLocation(good) # good habitat, from above
 pri = ProbInit(hab, al)
-na = NumAgents(N)
+na = NumAgents(N) # why use this function instead of just N? error checking?
 
 # initialize caribou agents
 caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
 
 plot(hab)
-points(caribou, pch=19, cex = 0.1)
+points(caribou, pch=19, cex=0.1)
 for(i in 1:ntimesteps) {
     ex =  hab[position(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))

@@ -130,7 +130,7 @@ dosim <- function(globals.init, react.event, print.results, maxsimtime, params=N
     sim$events <<- NULL  # events data table (filled in by `schedule.event()`)
     sim$debug <<- debug
     
-    globals.init(params)
+    globals.init(params, modules)
     while(sim$currtime < maxsimtime) {  
         head <- get.next.event()
         sim$currtime <<- head$event.time  # update current simulated time
