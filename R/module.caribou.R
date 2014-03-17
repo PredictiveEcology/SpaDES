@@ -38,29 +38,38 @@ react.event.caribou = function(event.time, event.type) {
 }
 
 module.caribou.init = function() {
-    ### load any required packages
-    pkgs = list("raster") # list required packages here
-    load.required.pkgs(pkgs)
+    ### check for module dependencies
+    # if a required module isn't loaded yet,
+    # reschedule this module init for later
+    depends = c("habitat") # list package names here
     
-    hab = get.habitat.map() # from habitat module
-    best = max(hab@data@values)
-    worst = min(hab@data@values)
-    good = Which(hab>0.8*best)
-    
-    al = AgentLocation(good)    # good habitat, from above
-    pri = ProbInit(hab, al)
-    na = NumAgents(100)         # could be specified globally in params
-    
-    # initialize caribou agents
-    caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
-    points(caribou, pch=19, cex=0.1)
-    
-    ### module parameters
-    #   - export module params to global list
-    globals$params[["caribou"]] <<- list(population=caribou)
-    
-    #   -  export data structure for module stats
-#    globals$modulestats[["caribou"]] <<- list()
+    if (reload.module.later(depends)) {
+        schedule.event(1e-7, "caribou", "init")
+    } else {
+        ### load any required packages
+        pkgs = list("raster") # list required packages here
+        load.required.pkgs(pkgs)
+        
+        hab = get.habitat.map() # from habitat module
+        best = max(hab@data@values)
+        worst = min(hab@data@values)
+        good = Which(hab>0.8*best)
+        
+        al = AgentLocation(good)    # good habitat, from above
+        pri = ProbInit(hab, al)
+        na = NumAgents(100)         # could be specified globally in params
+        
+        # initialize caribou agents
+        caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
+        points(caribou, pch=19, cex=0.1)
+        
+        ### module parameters
+        #   - export module params to global list
+        globals$params[["caribou"]] <<- list(population=caribou)
+        
+        #   -  export data structure for module stats
+        #        globals$modulestats[["caribou"]] <<- list()
+    }
 }
 
 module.caribou.move = function() {

@@ -58,16 +58,25 @@ react.event.template = function(event.time, event.type) {
 }
 
 module.template.init = function() {
-    ### load any required packages
-    pkgs = list("raster") # list required packages here
-    load.required.pkgs(pkgs)
-
-    ### module parameters
-    #   - export module params to global list
-    globals$params[[MODULE.NAME]] <<- list()
-    
-    #   -  export data structure for module stats
-    globals$modulestats[[MODULE.NAME]] <<- list()
+    ### check for module dependencies
+    # if a required module isn't loaded yet,
+    # reschedule this module init for later
+    depends = c() # list package names here
+        
+    if (!reload.module.later(depends)) {
+        ### load any required packages
+        pkgs = list("raster") # list required packages here
+        load.required.pkgs(pkgs)
+        
+        ### module parameters
+        #   - export module params to global list
+        globals$params[["MODULE.NAME"]] <<- list()
+        
+        #   -  export data structure for module stats
+        globals$modulestats[["MODULE.NAME"]] <<- list()
+    } else {
+        schedule.event(1e-7, "MODULE.NAME", "init")
+    }
 }
 
 

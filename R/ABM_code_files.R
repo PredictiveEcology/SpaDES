@@ -25,6 +25,19 @@ setMethod("load.required.pkgs",
               lapply(package.list, load.package)
 })
 
+
+# check whether a module should be reloaded later
+setGeneric("reload.module.later", function(depends, ...) {
+    standardGeneric("reload.module.later")
+})
+
+setMethod("reload.module.later",
+           signature(depends="character"),
+           definition = function(depends, ...) {
+               f = all(depends %in% names(globals$params))
+               return(!f)
+})
+
 ####################################################################################
 
 ### specify which packages need to be installed/loaded, and load them;
