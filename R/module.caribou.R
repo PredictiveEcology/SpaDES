@@ -47,9 +47,9 @@ module.caribou.init = function() {
     worst = min(hab@data@values)
     good = Which(hab>0.8*best)
     
-    al = AgentLocation(good) # good habitat, from above
+    al = AgentLocation(good)    # good habitat, from above
     pri = ProbInit(hab, al)
-    na = NumAgents(100)
+    na = NumAgents(100)         # could be specified globally in params
     
     # initialize caribou agents
     caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
@@ -69,12 +69,12 @@ module.caribou.move = function() {
     
     ex =  hab[position(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
-    if (length(wh)==0) stop(paste("all agents off map at time",sim$currtime))
+    if (length(wh)==0) stop(paste("all agents off map at time", sim$currtime))
     sl = ex/10
     sl[-wh] = 1
     
     ln = rlnorm(length(ex), sl, 0.02) # log normal step length
-    dir.sd = 30
+    dir.sd = 30 # could be specified globally in params
     
     caribou = crw(caribou, step.len=ln , dir.sd=dir.sd)
     points(caribou, pch=19, cex = 0.1)

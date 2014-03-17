@@ -55,7 +55,7 @@ print.results <- function(modules, debug) {
     #  it should print all global and module-specific stats.
     #  it should print these to file unless in debug mode
     print(globals$globalstats, debug)
-    print.module.stats(debug) # should be done by each module
+#    print.module.stats(debug) # should be done by each module
 }
 
 # event processing function called by dosim() below

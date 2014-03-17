@@ -34,8 +34,8 @@ module.habitat.init = function() {
     load.required.pkgs(pkgs)
         
     ### initialize habitat
-    nx = 5e2
-    ny = 5e2
+    nx = 5e2 # could be specified globally in params
+    ny = 5e2 # could be specified globally in params
     hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
     hab <- round(GaussMap(extent(hab), speedup.index=10, cov.pars=c(0.3, 200)), 1)
     plot(hab)
