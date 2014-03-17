@@ -66,7 +66,7 @@ react.event <- function(head) {
     # having to worry about updating this (hardcoded) list.
     
     module.call <- paste("react.event", head$module.name, sep=".")
-    check.validity(module.call) # do it here, otherwise user must do it
+#    check.validity(module.call) # do it here, otherwise user must do it
     # per module in the react.event function?
     get(module.call)(head$event.time, head$event.type)
     
