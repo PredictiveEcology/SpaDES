@@ -33,7 +33,10 @@ globals.init <- function(params, modules) {
     globals$params <<- params
     
     # load simulation modules
-    globals$modules <<- modules # this should be a list of module names
+    globals$.loaded <<- list()  # this keeps track of already loaded modules;
+                                # add name of module to this list after loading.
+    
+    globals$modules <<- modules # this should be a list of module names that will be loaded
     for (m in modules) source(paste("module.", m, ".R", sep="")) # source each module from file
     
     # statistics
@@ -59,19 +62,19 @@ print.results <- function(modules, debug) {
 }
 
 # event processing function called by dosim() below
-react.event <- function(head) {
+do.event <- function(head) {
     # instead of having a massive list of ifelse cases for each event type,
     # we should have the cases processed by the submodule;
     # this makes things more modular, since we can add/remove modules without
     # having to worry about updating this (hardcoded) list.
     
-    module.call <- paste("react.event", head$module.name, sep=".")
+    module.call <- paste("do.event", head$module.name, sep=".")
 #    check.validity(module.call) # do it here, otherwise user must do it
-    # per module in the react.event function?
+    # per module in the do.event function?
     get(module.call)(head$event.time, head$event.type)
     
     # e.g., this would produce the following call to the fire module:
-    #   react.event.fire(TIME, "TYPE")
+    #   do.event.fire(TIME, "TYPE")
 }
 
 # insert event with time `time.event` and type `type.event` into event list;
@@ -102,7 +105,7 @@ schedule.event <- function(event.time, module.name, event.type, other.info=NULL)
 }
 
 # start to process next event;
-#  second half done by application programmer via call to `react.event()`
+#  second half done by application programmer via call to `do.event()`
 get.next.event <- function() {
     head <- sim$events[1,]
     # delete head
@@ -117,14 +120,14 @@ get.next.event <- function() {
 #                   inits globals to statistical totals for the app, etc.;
 #                   records params in globals;
 #                   schedules the first event.
-#   react.event:   application-specific event handling function, coding the
+#   do.event:       application-specific event handling function, coding the
 #                   proper action for each type of event.
 #   print.results: prints application-specific results.
 #   params:        list of application-specific parameters.
 #   modules:       list of module names used in the simulation.
 #   maxsimtime:    simulation will be run until this simulated time.
 #   debug:         logical flag determines whether sim debug info will be printed.
-dosim <- function(globals.init, react.event, print.results, maxsimtime, params=NULL, modules=NULL, debug=FALSE) {
+dosim <- function(globals.init, do.event, print.results, maxsimtime, params=NULL, modules=NULL, debug=FALSE) {
     sim <<- list()
     sim$currtime <<- 0.0  # current simulated time
     sim$events <<- NULL  # events data table (filled in by `schedule.event()`)
@@ -134,7 +137,7 @@ dosim <- function(globals.init, react.event, print.results, maxsimtime, params=N
     while(sim$currtime < maxsimtime) {  
         head <- get.next.event()
         sim$currtime <<- head$event.time  # update current simulated time
-        react.event(head)  # process this event 
+        do.event(head)  # process this event 
         
         # print debugging info
         #  this can, and should, be more sophisticated;
@@ -149,7 +152,7 @@ dosim <- function(globals.init, react.event, print.results, maxsimtime, params=N
 }
 
 # to run, use this function call:
-#   dosim(globals.init, react.event, print.results,
+#   dosim(globals.init, do.event, print.results,
 #       maxsimtime=10000.0,
 #       params=list(FILL.THIS.IN),
 #       modules=list(FILL.THIS.IN.TOO),

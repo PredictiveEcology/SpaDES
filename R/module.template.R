@@ -13,7 +13,7 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-react.event.template = function(event.time, event.type) {
+do.event.template = function(event.time, event.type) {
     if (event.type=="init") {
         # do stuff for this event
         module.template.init()
@@ -61,9 +61,11 @@ module.template.init = function() {
     ### check for module dependencies
     # if a required module isn't loaded yet,
     # reschedule this module init for later
-    depends = c() # list package names here
+    depends = c("NONE") # list package names here
         
-    if (!reload.module.later(depends)) {
+    if (reload.module.later(depends)) {
+        schedule.event(sim$currtime+1e-6, "MODULE.NAME", "init")
+    } else {
         ### load any required packages
         pkgs = list("raster") # list required packages here
         load.required.pkgs(pkgs)
@@ -74,8 +76,10 @@ module.template.init = function() {
         
         #   -  export data structure for module stats
         globals$modulestats[["MODULE.NAME"]] <<- list()
-    } else {
-        schedule.event(1e-7, "MODULE.NAME", "init")
+        
+        # last thing to do is add module name to the loaded list
+        len = length(globals$.loaded)
+        globals$.loaded[len+1] <<- "MODULE.NAME"
     }
 }
 
