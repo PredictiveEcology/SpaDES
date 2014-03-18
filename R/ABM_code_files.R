@@ -34,12 +34,8 @@ setGeneric("reload.module.later", function(depends, ...) {
 setMethod("reload.module.later",
            signature(depends="character"),
            definition = function(depends, ...) {
-               if (depends=="NONE") {
-                   return(FALSE)
-               } else {
-                   f = all(depends %in% names(globals$params))
-                   return(!f)
-               }
+               f = all(depends %in% names(globals$params))
+               return(!f)
 })
 
 ####################################################################################
