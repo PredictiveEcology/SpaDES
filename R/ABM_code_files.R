@@ -37,7 +37,7 @@ setMethod("reload.module.later",
                if (depends=="NONE") {
                    return(FALSE)
                } else {
-                   f = all(depends %in% names(globals$params))
+                   f = all(depends %in% names(globals$.loaded))
                    return(!f)
                }
 })
