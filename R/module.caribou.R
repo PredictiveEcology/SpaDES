@@ -66,7 +66,7 @@ caribou.init = function() {
     
     ### module parameters
     #   - export module params to global list
-    globals$params[["caribou"]] <<- list(population=caribou)
+    globals[["agents"]] <<- list(caribou=caribou)
     
     #   -  export data structure for module stats
 #    globals$modulestats[["caribou"]] <<- list()
@@ -95,12 +95,12 @@ caribou.move = function() {
     rings = cir(caribou, radiuses=rads, hab, 1)
     points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
     
-    globals$params$caribou$population <<- caribou
+    globals[["agents"]] <<- list(caribou=caribou)
 }
 
 ### user-defined subroutines
 
 get.caribou.population = function() {
-    pop = globals$params$caribou$population
+    pop = globals$agents$caribou
     return(pop)
 }

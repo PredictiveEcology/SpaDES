@@ -51,7 +51,7 @@ habitat.init = function() {
     
     ### module parameters
     #   - export module params to global list
-    globals$params[["habitat"]] <<- list(map=hab)
+    globals$maps[["habitat"]] <<- list(quality=hab)
     
     #   -  export data structure for module stats
 #    globals$modulestats[["habitat"]] <<- list()
@@ -64,6 +64,6 @@ habitat.init = function() {
 ### user-defined subroutines
 
 get.habitat.map = function() {
-    map = globals$params$habitat$map
+    map = globals$maps$habitat$quality
     return(map)
 }

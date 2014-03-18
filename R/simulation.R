@@ -39,6 +39,15 @@ globals.init <- function(params, modules) {
     globals$modules <<- modules # this should be a list of module names that will be loaded
     for (m in modules) source(paste("module.", m, ".R", sep="")) # source each module from file
     
+    # agents (loaded by modules)
+    globals$agents <<- list()
+    
+    # data (loaded by modules)
+    globals$data <<- list()
+    
+    # maps (loaded by modules)
+    globals$maps <<- list()
+
     # statistics
     #    some will be "hard coded" here as global stats (e.g., execution time)
     globals$globalstats <<- list()   # name and init these accordingly
