@@ -71,7 +71,7 @@ react.event <- function(head) {
     get(module.call)(head$event.time, head$event.type)
     
     # e.g., this would produce the following call to the fire module:
-    #   module.fire.react.event(TIME, "TYPE")
+    #   react.event.fire(TIME, "TYPE")
 }
 
 # insert event with time `time.event` and type `type.event` into event list;
