@@ -14,16 +14,16 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-react.event.caribou = function(event.time, event.type) {
+do.event.caribou = function(event.time, event.type) {
     if (event.type=="init") {
         # do stuff for this event
-        module.caribou.init()
+        caribou.init()
         
         # schedule the next event
         schedule.event(1.00, "caribou", "move")
     } else if (event.type=="move") {
         # do stuff for this event
-        module.caribou.move()
+        caribou.move()
         
         # schedule the next event
         time.next.move = sim$currtime + 1.00
@@ -37,14 +37,14 @@ react.event.caribou = function(event.time, event.type) {
     }
 }
 
-module.caribou.init = function() {
+caribou.init = function() {
     ### check for module dependencies
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     depends = c("habitat") # list package names here
     
     if (reload.module.later(depends)) {
-        schedule.event(1e-7, "caribou", "init")
+        schedule.event(sim$currtime+1e-6, "caribou", "init")
     } else {
         ### load any required packages
         pkgs = list("raster") # list required packages here
@@ -72,7 +72,7 @@ module.caribou.init = function() {
     }
 }
 
-module.caribou.move = function() {
+caribou.move = function() {
     hab = get.habitat.map() # from habitat module
     caribou = get.caribou.population() # see below
     

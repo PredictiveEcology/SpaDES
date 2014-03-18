@@ -12,10 +12,10 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-react.event.habitat = function(event.time, event.type) {
+do.event.habitat = function(event.time, event.type) {
     if (event.type=="init") {
         # do stuff for this event
-        module.habitat.init()
+        habitat.init()
         
         # schedule the next event
 #        schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
@@ -28,24 +28,37 @@ react.event.habitat = function(event.time, event.type) {
     }
 }
 
-module.habitat.init = function() {
-    ### load any required packages
-    pkgs = list("raster") # list required packages here
-    load.required.pkgs(pkgs)
+habitat.init = function() {
+    ### check for module dependencies
+    # if a required module isn't loaded yet,
+    # reschedule this module init for later
+    depends = "NONE" # list package names here
+    
+    if (reload.module.later(depends)) {
+        schedule.event(sim$currtime+1e-6, "habitat", "init")
+    } else {
+        ### load any required packages
+        pkgs = list("raster") # list required packages here
+        load.required.pkgs(pkgs)
+            
+        ### initialize habitat
+        nx = 5e2 # could be specified globally in params
+        ny = 5e2 # could be specified globally in params
+        hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
+        hab <- round(GaussMap(extent(hab), speedup.index=10, cov.pars=c(0.3, 200)), 1)
+        plot(hab)
         
-    ### initialize habitat
-    nx = 5e2 # could be specified globally in params
-    ny = 5e2 # could be specified globally in params
-    hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
-    hab <- round(GaussMap(extent(hab), speedup.index=10, cov.pars=c(0.3, 200)), 1)
-    plot(hab)
-    
-    ### module parameters
-    #   - export module params to global list
-    globals$params[["habitat"]] <<- list(map=hab)
-    
-    #   -  export data structure for module stats
-#    globals$modulestats[["habitat"]] <<- list()
+        ### module parameters
+        #   - export module params to global list
+        globals$params[["habitat"]] <<- list(map=hab)
+        
+        #   -  export data structure for module stats
+#        globals$modulestats[["habitat"]] <<- list()
+        
+        # last thing to do is add module name to the loaded list
+        len = length(globals$.loaded)
+        globals$.loaded[len+1] <<- "habitat"
+    }
 }
 
 
