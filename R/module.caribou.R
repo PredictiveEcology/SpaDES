@@ -34,6 +34,10 @@ do.event.caribou = function(event.time, event.type) {
         
         # schedule the next event
 #        schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+
+        # last thing to do is add module name to the loaded list
+        len = length(globals$.loaded)
+        globals$.loaded[len+1] <<- "habitat"
     }
 }
 
