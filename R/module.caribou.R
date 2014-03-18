@@ -16,11 +16,20 @@
 #       subroutines from section below.
 do.event.caribou = function(event.time, event.type) {
     if (event.type=="init") {
-        # do stuff for this event
-        caribou.init()
+        ### check for module dependencies
+        # if a required module isn't loaded yet,
+        # reschedule this module init for later
+        depends = c("habitat") # list package names here
         
-        # schedule the next event
-        schedule.event(1.00, "caribou", "move")
+        if (reload.module.later(depends)) {
+            schedule.event(sim$currtime+1e-6, "caribou", "init")
+        } else {
+            # do stuff for this event
+            caribou.init()
+
+            # schedule the next event
+            schedule.event(1.00, "caribou", "move")
+        }
     } else if (event.type=="move") {
         # do stuff for this event
         caribou.move()
@@ -38,42 +47,32 @@ do.event.caribou = function(event.time, event.type) {
 }
 
 caribou.init = function() {
-    ### check for module dependencies
-    # if a required module isn't loaded yet,
-    # reschedule this module init for later
-    depends = c("habitat") # list package names here
+    ### load any required packages
+    pkgs = list("raster") # list required packages here
+    load.required.pkgs(pkgs)
     
-    if (reload.module.later(depends)) {
-        schedule.event(sim$currtime+1e-6, "caribou", "init")
-    } else {
-        ### load any required packages
-        pkgs = list("raster") # list required packages here
-        load.required.pkgs(pkgs)
-        
-        hab = get.habitat.map() # from habitat module
-        best = max(hab@data@values)
-        worst = min(hab@data@values)
-        good = Which(hab>0.8*best)
-        
-        al = AgentLocation(good)    # good habitat, from above
-        pri = ProbInit(hab, al)
-        na = NumAgents(100)         # could be specified globally in params
-        
-        # initialize caribou agents
-        caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
-        points(caribou, pch=19, cex=0.1)
-        
-        ### module parameters
-        #   - export module params to global list
-        globals$params[["caribou"]] <<- list(population=caribou)
-        
-        #   -  export data structure for module stats
-        #        globals$modulestats[["caribou"]] <<- list()
-
-        # last thing to do is add module name to the loaded list
-        len = length(globals$.loaded)
-        globals$.loaded[len+1] <<- "caribou"
-    }
+    hab = get.habitat.map() # from habitat module
+    best = max(hab@data@values)
+    worst = min(hab@data@values)
+    good = Which(hab>0.8*best)
+    
+    al = AgentLocation(good)    # good habitat, from above
+    pri = ProbInit(hab, al)
+    na = NumAgents(100)         # could be specified globally in params
+    
+    # initialize caribou agents
+    caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
+    points(caribou, pch=19, cex=0.1)
+    
+    ### module parameters
+    #   - export module params to global list
+    globals$params[["caribou"]] <<- list(population=caribou)
+    
+    #   -  export data structure for module stats
+#    globals$modulestats[["caribou"]] <<- list()
+    
+    # last thing to do is add module name to the loaded list
+    globals$.loaded <<- append(globals$.loaded, "caribou")
 }
 
 caribou.move = function() {

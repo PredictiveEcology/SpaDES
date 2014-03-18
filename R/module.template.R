@@ -79,7 +79,7 @@ module.template.init = function() {
         
         # last thing to do is add module name to the loaded list
         len = length(globals$.loaded)
-        globals$.loaded[len+1] <<- "MODULE.NAME"
+        globals$.loaded <<- append(globals$.loaded, "MODULE.NAME")
     }
 }
 
