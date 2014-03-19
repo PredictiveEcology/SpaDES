@@ -20,7 +20,7 @@ do.event.habitat = function(event.time, event.type) {
         depends = "NONE" # list package names here
         
         if (reload.module.later(depends)) {
-            schedule.event(sim$currtime+1e-6, "habitat", "init")
+            schedule.event(sim$simtime+1e-6, "habitat", "init")
         } else {
             # do stuff for this event
             habitat.init()
@@ -48,6 +48,7 @@ habitat.init = function() {
     hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
     hab <- round(GaussMap(extent(hab), speedup.index=10, cov.pars=c(0.3, 200)), 1)
     plot(hab)
+    dev.flush()
     
     ### module parameters
     #   - export module params to global list

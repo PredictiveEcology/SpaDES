@@ -34,24 +34,24 @@ do.event.template = function(event.time, event.type) {
 #       # even if empty, for convenience)
 #       if (length(abm.globals$srvq) == 0) {
 #          abm.globals$srvq <<- head$arrvtime
-#          srvdonetime <- sim$currtime + rexp(1,abm.globals$srvrate)
+#          srvdonetime <- sim$simtime + rexp(1,abm.globals$srvrate)
 #          schedule.event(srvdonetime,"srvdone",list(arrvtime=head$arrvtime))
 #       } else abm.globals$srvq <<- c(abm.globals$srvq,head$arrvtime)
 #       # generate next arrival
-#       arrvtime <- sim$currtime + rexp(1,abm.globals$arrvrate)
+#       arrvtime <- sim$simtime + rexp(1,abm.globals$arrvrate)
 #       schedule.event(arrvtime,"arrv",list(arrvtime=arrvtime))
 #    } else {  # service done
 #       # process job that just finished
 #       # do accounting
 #       abm.globals$njobsdone <<- abm.globals$njobsdone + 1
 #       abm.globals$totwait <<- 
-#          abm.globals$totwait + sim$currtime - head$arrvtime
+#          abm.globals$totwait + sim$simtime - head$arrvtime
 #       # remove from queue
 #       abm.globals$srvq <<- abm.globals$srvq[-1]
 #       # more still in the queue?
 #       if (length(abm.globals$srvq) > 0) {
 #          # schedule new service
-#          srvdonetime <- sim$currtime + rexp(1,abm.globals$srvrate)
+#          srvdonetime <- sim$simtime + rexp(1,abm.globals$srvrate)
 #          schedule.event(srvdonetime,"srvdone",list(arrvtime=abm.globals$srvq[1]))
 #       }
 #    }
@@ -64,7 +64,7 @@ module.template.init = function() {
     depends = c("NONE") # list package names here
         
     if (reload.module.later(depends)) {
-        schedule.event(sim$currtime+1e-6, "MODULE.NAME", "init")
+        schedule.event(sim$simtime+1e-6, "MODULE.NAME", "init")
     } else {
         ### load any required packages
         pkgs = list("raster") # list required packages here

@@ -13,7 +13,7 @@ require(data.table)
 ##
 ##  A global list named "sim" holds:
 ##       events: the events data.table;
-##       currtime: the current simulated time;
+##       simtime: the current simulated time;
 ##       debug: indicates debugging mode
 ##
 ##  Each event is represented by a data.table row consisting of:
@@ -23,10 +23,106 @@ require(data.table)
 ##      : optional application-specific components.
 ##
 
+# we use standard S4 classes for the global sim lists
+setClass("SimList", slots=list(simtime="numeric", events="data.table", debug="logical",
+                                modules="list", params="list", .loaded="list"))
 
+# define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "SimList",
+          definition = function(.Object, ...) {
+              return(.Object)
+})
 
+setMethod("show",
+          signature = "SimList",
+          definition = function(object) {
+              show = list()
+              show[["Modules Required:"]] = sim.modules(object)
+              show[["Modules Loaded:"]] = sim.loaded(object)
+              show[["Simulation Parameters:"]] = sim.params(object)
+              show[["Current Simulation Time:"]] = sim.time(object)
+              show[["Next 5 scheduled events:"]] = head(sim.events(object), 5)
+              show[["Debugging Mode:"]] = sim.debug(object)
+              print(show)
+})
+
+# define our custom methods, which need to be prototyped
+setGeneric("sim.modules", function(object, ...) {
+    standardGeneric("sim.modules")
+})
+
+setMethod("sim.modules",
+          signature = "SimList",
+          definition = function(object) {
+              return(object@modules)
+})
+
+setGeneric("sim.loaded", function(object, ...) {
+    standardGeneric("sim.loaded")
+})
+
+setMethod("sim.loaded",
+          signature = "SimList",
+          definition = function(object) {
+              return(object@.loaded)
+})
+
+setGeneric("sim.params", function(object, ...) {
+    standardGeneric("sim.params")
+})
+
+setMethod("sim.params",
+          signature = "SimList",
+          definition = function(object) {
+              return(object@params)
+})
+
+setGeneric("sim.time", function(object, ...) {
+    standardGeneric("sim.time")
+})
+
+setMethod("sim.time",
+          signature = "SimList",
+          definition = function(object) {
+              return(object@simtime)
+})
+
+setGeneric("sim.events", function(object, ...) {
+    standardGeneric("sim.events")
+})
+
+setMethod("sim.time",
+          signature = "SimList",
+          definition = function(object) {
+              return(object@events)
+          })
+
+setGeneric("sim.debug", function(object, ...) {
+    standardGeneric("sim.debug")
+})
+
+setMethod("sim.debug",
+          signature = "SimList",
+          definition = function(object) {
+              return(object@debug)
+})
+
+# use Reference Classes (RC) for global sim data
+sim.data <- setRefClass("SimData",
+                       fields = list(agents=),
+                       methods = list(
+                           push = function(item) {
+                               'Adds an item to the stack.' # help documentation for this method
+                               it[[length(it)+1]] <<- item
+                           },
+                           
+))
+
+#####################################################################################
 # initializes global simulation variables
 globals.init <- function(params, modules) {
+    sim <<- new("SimList")
     globals <<- list()
     
     # simulation parameters (global)
@@ -138,14 +234,14 @@ get.next.event <- function() {
 #   debug:         logical flag determines whether sim debug info will be printed.
 dosim <- function(globals.init, do.event, print.results, maxsimtime, params=NULL, modules=NULL, debug=FALSE) {
     sim <<- list()
-    sim$currtime <<- 0.0  # current simulated time
+    sim$simtime <<- 0.0  # current simulated time
     sim$events <<- NULL  # events data table (filled in by `schedule.event()`)
     sim$debug <<- debug
     
     globals.init(params, modules)
-    while(sim$currtime < maxsimtime) {  
+    while(sim$simtime < maxsimtime) {  
         head <- get.next.event()
-        sim$currtime <<- head$event.time  # update current simulated time
+        sim$simtime <<- head$event.time  # update current simulated time
         do.event(head)  # process this event 
         
         # print debugging info

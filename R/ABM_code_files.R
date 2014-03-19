@@ -92,9 +92,6 @@ setMethod("length",
               return(len)
 })
 
-#setGeneric("agent", function(object) standardGeneric("agent")) # remove?
-
-
 # define our custom methods, which need to be prototyped
 setGeneric("setOther", function(object, ...) {
     standardGeneric("setOther")

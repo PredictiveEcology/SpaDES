@@ -22,7 +22,7 @@ do.event.caribou = function(event.time, event.type) {
         depends = c("habitat") # list package names here
         
         if (reload.module.later(depends)) {
-            schedule.event(sim$currtime+1e-6, "caribou", "init")
+            schedule.event(sim$simtime+1e-6, "caribou", "init")
         } else {
             # do stuff for this event
             caribou.init()
@@ -35,7 +35,7 @@ do.event.caribou = function(event.time, event.type) {
         caribou.move()
         
         # schedule the next event
-        time.next.move = sim$currtime + 1.00
+        time.next.move = sim$simtime + 1.00
         schedule.event(time.next.move, "caribou", "move")
     } else {
         # do stuff for this event
@@ -81,7 +81,7 @@ caribou.move = function() {
     
     ex =  hab[position(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
-    if (length(wh)==0) stop(paste("all agents off map at time", sim$currtime))
+    if (length(wh)==0) stop(paste("all agents off map at time", sim$simtime))
     sl = ex/10
     sl[-wh] = 1
     
@@ -94,6 +94,7 @@ caribou.move = function() {
     rads = sample(10:30, length(caribou), replace=TRUE)
     rings = cir(caribou, radiuses=rads, hab, 1)
     points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
+    dev.flush()
     
     globals[["agents"]] <<- list(caribou=caribou)
 }
