@@ -622,10 +622,12 @@ spread = function(maps, start.points, r=NULL, id.colour = TRUE,
     else {return(spread)}
 }
 
-GaussMap = function(ext, cov.pars = c(5,100), speedup.index = 10) {#, fast = T, n.unique.pixels = 100) {
+GaussMap = function(map, scale = 10, var = 1, speedup.index = 10) {#, fast = T, n.unique.pixels = 100) {
 ##   Warning message:
 ##    In RandomFields::GaussRF(x = xpts, y = ypts, model = get("setRF",  :
 ##    The function is obsolete. Use 'RFsimulate' instead.
+    require(RandomFields)
+    ext = extent(map)
     xmn = ext@xmin
     xmx = ext@xmax
     ymn = ext@ymin
@@ -634,14 +636,15 @@ GaussMap = function(ext, cov.pars = c(5,100), speedup.index = 10) {#, fast = T, 
     nc = (ymx-ymn)/speedup.index # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
     xfact = (xmx-xmn)/nr
     yfact = (ymx-ymn)/nc
-    map <- raster(nrows=nr, ncols=nc, x=ext)
+
+    model <- RMexp(scale=scale, var = var)
+    x.seq = 1:nc
+    y.seq = 1:nr
+    sim2 <- raster(RFsimulate(model, x = x.seq, y = y.seq, grid = T))
+    sim2 <- sim2 - cellStats(sim2, "min")
     
-    sim2 <- grf(nr*nc, grid = "reg", cov.pars = cov.pars,
-     xlims = c(xmn, xmx), ylims = c(ymn, ymx)) 
-    xy <- cbind(x=sim2$coords[,"x"], y=sim2$coords[,"y"])
-    map2 <- rasterize(xy, map, field=sim2$data+abs(min(sim2$data)))
-    map3 = map2
-    if(speedup.index>1) map3 <- disaggregate(map2, c(xfact, yfact))
+    if(speedup.index>1) map3 <- disaggregate(sim2, c(xfact, yfact))
+    extent(map3) <- ext
     return(map3)
 }
 
