@@ -622,30 +622,27 @@ spread = function(maps, start.points, r=NULL, id.colour = TRUE,
     else {return(spread)}
 }
 
-GaussMap = function(map, scale = 10, var = 1, speedup.index = 10) {#, fast = T, n.unique.pixels = 100) {
-##   Warning message:
-##    In RandomFields::GaussRF(x = xpts, y = ypts, model = get("setRF",  :
-##    The function is obsolete. Use 'RFsimulate' instead.
+GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
+
     require(RandomFields)
-    ext = extent(map)
     xmn = ext@xmin
     xmx = ext@xmax
     ymn = ext@ymin
     ymx = ext@ymax
-    nr = (xmx-xmn)/speedup.index # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
-    nc = (ymx-ymn)/speedup.index # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
+    nr = (xmx-xmn)/speedup # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
+    nc = (ymx-ymn)/speedup # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
     xfact = (xmx-xmn)/nr
     yfact = (ymx-ymn)/nc
 
     model <- RMexp(scale=scale, var = var)
     x.seq = 1:nc
     y.seq = 1:nr
-    sim2 <- raster(RFsimulate(model, x = x.seq, y = y.seq, grid = T))
-    sim2 <- sim2 - cellStats(sim2, "min")
+    sim <- raster(RFsimulate(model, x = x.seq, y = y.seq, grid = T))
+    sim <- sim - cellStats(sim, "min")
     
-    if(speedup.index>1) map3 <- disaggregate(sim2, c(xfact, yfact))
-    extent(map3) <- ext
-    return(map3)
+    if(speedup>1) GaussMap <- disaggregate(sim, c(xfact, yfact))
+    extent(GaussMap) <- ext
+    return(GaussMap)
 }
 
 # To initialize with a specific number per patch, which may come from
