@@ -140,7 +140,7 @@ setGeneric("sim.time", function(object) {
 setMethod("sim.time",
           signature = "SimList",
           definition = function(object) {
-              return(print(object@simtime, digits=8))
+              return(object@simtime)
 })
 
 setGeneric("sim.time<-",
