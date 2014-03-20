@@ -54,14 +54,24 @@ setMethod("show",
           signature = "SimList",
           definition = function(object) {
               show = list()
-              show[["Modules Required:"]] = as.character(sim.modules(object))
-              show[["Modules Loaded:"]] = as.character(sim.loaded(object))
-              show[["Simulation Parameters:"]] = as.data.frame(sim.params(object))
-              show[["Current Simulation Time:"]] = sim.time(object)
-              show[["Next 5 Scheduled Events:"]] = head(sim.events(object), 5)
-              show[["Debugging Mode:"]] = sim.debug(object)
+#              show[["Modules Required:"]] = as.character(sim.modules(object))
+#              show[["Modules Loaded:"]] = as.character(sim.loaded(object))
+#              show[["Simulation Parameters:"]] = as.data.frame(sim.params(object))
+#              show[["Current Simulation Time:"]] = sim.time(object)
+#              show[["Next 5 Scheduled Events:"]] = head(sim.events(object), 5)
+#              show[["Debugging Mode:"]] = sim.debug(object)
+
+              show[["Modules Required:"]] = as.character(slot(object, "modules"))
+              show[["Modules Loaded:"]] = as.character(slot(object, ".loaded"))
+              show[["Simulation Parameters:"]] = as.data.frame(slot(object, "params"))
+              show[["Current Simulation Time:"]] = slot(object, "simtime")
+              show[["Next 5 Scheduled Events:"]] = head(slot(object, "events"), 5)
+              show[["Debugging Mode:"]] = slot(object, "debug")
               print(show)
 })
+
+### get slot values using `slot(object, "slotname")`
+### set slot values using `slot(object, "slotname") <- value`
 
 # define our custom methods, which need to be prototyped
 setGeneric("sim.modules", function(object) {
@@ -201,27 +211,6 @@ setReplaceMethod("sim.debug",
                      validObject(object)
                      return(object)
 })
-
-
-###
-### we use standard S4 classes for the global sim data
-###
-
-# setClass("AgentsList", slots=list(agents="agent"))
-# 
-# setMethod("initialize",
-#           signature = "AgentsList",
-#           definition = function(.Object) {
-#               return(.Object)
-# })
-# 
-# setMethod("show",
-#           signature = "AgentsList",
-#           definition = function(object) {
-#               show = list()
-#               show[["Agents:"]] = get.fxn(object)
-#               print(show)
-# })
 
 
 
