@@ -37,7 +37,7 @@ setMethod("reload.module.later",
                if (depends=="NONE") {
                    return(FALSE)
                } else {
-                   f = all(depends %in% globals$.loaded)
+                   f = all(depends %in% sim.loaded(sim))
                    return(!f)
                }
 })

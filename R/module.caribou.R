@@ -22,7 +22,7 @@ do.event.caribou = function(event.time, event.type) {
         depends = c("habitat") # list package names here
         
         if (reload.module.later(depends)) {
-            schedule.event(sim$simtime+1e-6, "caribou", "init")
+            schedule.event(sim.time(sim)+1e-6, "caribou", "init")
         } else {
             # do stuff for this event
             caribou.init()
@@ -35,7 +35,7 @@ do.event.caribou = function(event.time, event.type) {
         caribou.move()
         
         # schedule the next event
-        time.next.move = sim$simtime + 1.00
+        time.next.move = sim.time(sim) + 1.00
         schedule.event(time.next.move, "caribou", "move")
     } else {
         # do stuff for this event
@@ -66,13 +66,13 @@ caribou.init = function() {
     
     ### module parameters
     #   - export module params to global list
-    globals[["agents"]] <<- list(caribou=caribou)
+    sim.agents(sim.data) <<- list(caribou=caribou)
     
     #   -  export data structure for module stats
-#    globals$modulestats[["caribou"]] <<- list()
+#    sim.stats(sim.data)[["caribou"]] <<- list()
     
     # last thing to do is add module name to the loaded list
-    globals$.loaded <<- append(globals$.loaded, "caribou")
+    sim.loaded(sim) <<- append(sim.loaded(sim), "caribou")
 }
 
 caribou.move = function() {
@@ -81,7 +81,7 @@ caribou.move = function() {
     
     ex =  hab[position(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
-    if (length(wh)==0) stop(paste("all agents off map at time", sim$simtime))
+    if (length(wh)==0) stop(paste("all agents off map at time", sim.time(sim)))
     sl = ex/10
     sl[-wh] = 1
     
@@ -96,12 +96,12 @@ caribou.move = function() {
     points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
     dev.flush()
     
-    globals[["agents"]] <<- list(caribou=caribou)
+    sim.agents(sim.data)["caribou"] <<- caribou
 }
 
 ### user-defined subroutines
 
 get.caribou.population = function() {
-    pop = globals$agents$caribou
+    pop = sim.agents(sim.data)$caribou
     return(pop)
 }

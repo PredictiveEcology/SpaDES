@@ -20,7 +20,7 @@ do.event.habitat = function(event.time, event.type) {
         depends = "NONE" # list package names here
         
         if (reload.module.later(depends)) {
-            schedule.event(sim$simtime+1e-6, "habitat", "init")
+            schedule.event(sim.time(sim)+1e-6, "habitat", "init")
         } else {
             # do stuff for this event
             habitat.init()
@@ -52,19 +52,19 @@ habitat.init = function() {
     
     ### module parameters
     #   - export module params to global list
-    globals$maps[["habitat"]] <<- list(quality=hab)
+    sim.maps(sim.data)[["habitat"]] <<- list(quality=hab)
     
     #   -  export data structure for module stats
-#    globals$modulestats[["habitat"]] <<- list()
+#    sim.stats(sim.data)[["habitat"]] <<- list()
     
     # last thing to do is add module name to the loaded list
-    globals$.loaded <<- append(globals$.loaded, "habitat")
+    sim.loaded(sim) <<- append(sim.loaded(sim), "habitat")
 }
 
 
 ### user-defined subroutines
 
 get.habitat.map = function() {
-    map = globals$maps$habitat$quality
+    map = sim.maps(sim.data)$habitat$quality
     return(map)
 }

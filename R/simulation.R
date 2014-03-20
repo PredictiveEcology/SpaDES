@@ -2,6 +2,7 @@
 ###     DES-ABM.R:  R routines for discrete-event simulation (DES)  ###
 ###                                                                 ###
 ###     Modified from Matloff (2009):                               ###
+###     - uses S4 classes for the sim objects                       ###
 ###     - uses `data.table` instead of `data.frame`                 ###
 ###     - implemented in a more modular fashion so it's easier      ###
 ###       to add submodules to the simulation                       ###
@@ -11,10 +12,13 @@ require(data.table)
 
 ##  OVERVIEW:
 ##
-##  A global list named "sim" holds:
-##       events: the events data.table;
-##       simtime: the current simulated time;
-##       debug: indicates debugging mode
+##  A global object named "sim" holds:
+##      events: the events data.table (see below);
+##      .loaded: list of already loaded modules;
+##      modules: list of required modules to load;
+##      params: list of simulation parameters;
+##      simtime: the current simulated time;
+##      debug: indicates debugging mode
 ##
 ##  Each event is represented by a data.table row consisting of:
 ##      event.time: the time the event is to occur;
@@ -22,15 +26,27 @@ require(data.table)
 ##      event.type: a character string for the programmer-defined event type;
 ##      : optional application-specific components.
 ##
+##  Additionally, a global object named "sim.data" holds:
+##      agents: custom list of agents used in simulation;
+##      maps: custom list of maps loaded and used by sim.
+##
 
-# we use standard S4 classes for the global sim lists
-setClass("SimList", slots=list(simtime="numeric", events="data.table", debug="logical",
-                                modules="list", params="list", .loaded="list"))
+
+###
+### we use standard S4 classes for the global sim lists
+###
+setClass("SimList",
+         slots=list(.loaded="list", modules="list", params="list",
+                    events="data.table", simtime="numeric", debug="logical"
+))
 
 # define methods that extend already-prototyped functions in R
 setMethod("initialize",
           signature = "SimList",
-          definition = function(.Object, ...) {
+          definition = function(.Object) {
+              sim.events(.Object) = as.data.table(NULL)
+              sim.time(.Object) = 0.0
+              sim.debug(.Object) = FALSE
               return(.Object)
 })
 
@@ -38,17 +54,17 @@ setMethod("show",
           signature = "SimList",
           definition = function(object) {
               show = list()
-              show[["Modules Required:"]] = sim.modules(object)
-              show[["Modules Loaded:"]] = sim.loaded(object)
-              show[["Simulation Parameters:"]] = sim.params(object)
+              show[["Modules Required:"]] = as.character(sim.modules(object))
+              show[["Modules Loaded:"]] = as.character(sim.loaded(object))
+              show[["Simulation Parameters:"]] = as.data.frame(sim.params(object))
               show[["Current Simulation Time:"]] = sim.time(object)
-              show[["Next 5 scheduled events:"]] = head(sim.events(object), 5)
+              show[["Next 5 Scheduled Events:"]] = head(sim.events(object), 5)
               show[["Debugging Mode:"]] = sim.debug(object)
               print(show)
 })
 
 # define our custom methods, which need to be prototyped
-setGeneric("sim.modules", function(object, ...) {
+setGeneric("sim.modules", function(object) {
     standardGeneric("sim.modules")
 })
 
@@ -58,7 +74,20 @@ setMethod("sim.modules",
               return(object@modules)
 })
 
-setGeneric("sim.loaded", function(object, ...) {
+setGeneric("sim.modules<-",
+           function(object, values) {
+               standardGeneric("sim.modules<-")
+})
+
+setReplaceMethod("sim.modules",
+                 signature="SimList",
+                 function(object, values) {
+                     object@modules <- values
+                     validObject(object)
+                     return(object)
+})
+
+setGeneric("sim.loaded", function(object) {
     standardGeneric("sim.loaded")
 })
 
@@ -68,7 +97,20 @@ setMethod("sim.loaded",
               return(object@.loaded)
 })
 
-setGeneric("sim.params", function(object, ...) {
+setGeneric("sim.loaded<-",
+           function(object, values) {
+               standardGeneric("sim.loaded<-")
+})
+
+setReplaceMethod("sim.loaded",
+                 signature="SimList",
+                 function(object, values) {
+                     object@.loaded <- values
+                     validObject(object)
+                     return(object)
+})
+
+setGeneric("sim.params", function(object) {
     standardGeneric("sim.params")
 })
 
@@ -78,27 +120,66 @@ setMethod("sim.params",
               return(object@params)
 })
 
-setGeneric("sim.time", function(object, ...) {
+setGeneric("sim.params<-",
+           function(object, values) {
+               standardGeneric("sim.params<-")
+})
+
+setReplaceMethod("sim.params",
+                 signature="SimList",
+                 function(object, values) {
+                     object@params <- values
+                     validObject(object)
+                     return(object)
+                 })
+
+setGeneric("sim.time", function(object) {
     standardGeneric("sim.time")
 })
 
 setMethod("sim.time",
           signature = "SimList",
           definition = function(object) {
-              return(object@simtime)
+              return(print(object@simtime, digits=8))
 })
 
-setGeneric("sim.events", function(object, ...) {
+setGeneric("sim.time<-",
+           function(object, value) {
+               standardGeneric("sim.time<-")
+})
+
+setReplaceMethod("sim.time",
+                 signature="SimList",
+                 function(object, value) {
+                     object@simtime <- value
+                     validObject(object)
+                     return(object)
+                 })
+
+setGeneric("sim.events", function(object) {
     standardGeneric("sim.events")
 })
 
-setMethod("sim.time",
+setMethod("sim.events",
           signature = "SimList",
           definition = function(object) {
               return(object@events)
-          })
+})
 
-setGeneric("sim.debug", function(object, ...) {
+setGeneric("sim.events<-",
+           function(object, value) {
+               standardGeneric("sim.events<-")
+})
+
+setReplaceMethod("sim.events",
+                 signature="SimList",
+                 function(object, value) {
+                     object@events <- value
+                     validObject(object)
+                     return(object)
+})
+
+setGeneric("sim.debug", function(object) {
     standardGeneric("sim.debug")
 })
 
@@ -108,46 +189,145 @@ setMethod("sim.debug",
               return(object@debug)
 })
 
-# use Reference Classes (RC) for global sim data
-sim.data <- setRefClass("SimData",
-                       fields = list(agents=),
-                       methods = list(
-                           push = function(item) {
-                               'Adds an item to the stack.' # help documentation for this method
-                               it[[length(it)+1]] <<- item
-                           },
-                           
-))
+setGeneric("sim.debug<-",
+           function(object, value) {
+               standardGeneric("sim.debug<-")
+})
 
-#####################################################################################
-# initializes global simulation variables
-globals.init <- function(params, modules) {
+setReplaceMethod("sim.debug",
+                 signature="SimList",
+                 function(object, value) {
+                     object@debug <- value
+                     validObject(object)
+                     return(object)
+})
+
+
+###
+### we use standard S4 classes for the global sim data
+###
+
+# setClass("AgentsList", slots=list(agents="agent"))
+# 
+# setMethod("initialize",
+#           signature = "AgentsList",
+#           definition = function(.Object) {
+#               return(.Object)
+# })
+# 
+# setMethod("show",
+#           signature = "AgentsList",
+#           definition = function(object) {
+#               show = list()
+#               show[["Agents:"]] = get.fxn(object)
+#               print(show)
+# })
+
+
+
+# setClass("SimData", slots=list(agents="AgentsList", maps="MapsList", stats="StatsList"))
+setClass("SimData", slots=list(agents="list", maps="list", stats="list"))
+
+# define methods that extend already-prototyped functions in R
+setMethod("initialize",
+          signature = "SimData",
+          definition = function(.Object) {
+              return(.Object)
+})
+
+setMethod("show",
+          signature = "SimData",
+          definition = function(object) {
+              show = list()
+              show[["Agents:"]] = sim.agents(object)
+              show[["Maps:"]] = sim.maps(object)
+              show[["Stats:"]] = sim.stats(object)
+              print(show)
+})
+
+# define our custom methods, which need to be prototyped
+setGeneric("sim.agents", function(object) {
+    standardGeneric("sim.agents")
+})
+
+setMethod("sim.agents",
+          signature = "SimData",
+          definition = function(object) {
+              return(object@agents)
+})
+
+setGeneric("sim.agents<-",
+           function(object, values) {
+               standardGeneric("sim.agents<-")
+})
+
+setReplaceMethod("sim.agents",
+                 signature="SimData",
+                 function(object, values) {
+                     object@agents <- values
+                     validObject(object)
+                     return(object)
+})
+
+setGeneric("sim.maps", function(object) {
+    standardGeneric("sim.maps")
+})
+
+setMethod("sim.maps",
+          signature = "SimData",
+          definition = function(object) {
+              return(object@maps)
+})
+
+setGeneric("sim.maps<-",
+           function(object, values) {
+               standardGeneric("sim.maps<-")
+})
+
+setReplaceMethod("sim.maps",
+                 signature="SimData",
+                 function(object, values) {
+                     object@maps <- values
+                     validObject(object)
+                     return(object)
+})
+
+setGeneric("sim.stats", function(object) {
+    standardGeneric("sim.stats")
+})
+
+setMethod("sim.stats",
+          signature = "SimData",
+          definition = function(object) {
+              return(object@stats)
+})
+
+setGeneric("sim.stats<-",
+           function(object, values) {
+               standardGeneric("sim.stats<-")
+})
+
+setReplaceMethod("sim.stats",
+                 signature="SimData",
+                 function(object, values) {
+                     object@stats <- values
+                     validObject(object)
+                     return(object)
+})
+
+
+###
+### initializes simulation variables
+###
+sim.init <- function(params, modules) {
     sim <<- new("SimList")
-    globals <<- list()
+    sim.data <<- new("SimData")
     
-    # simulation parameters (global)
-    globals$params <<- params
-    
-    # load simulation modules
-    globals$.loaded <<- list()  # this keeps track of already loaded modules;
-                                # add name of module to this list after loading.
-    
-    globals$modules <<- modules # this should be a list of module names that will be loaded
+    # load simulation parameters and modules
+    sim.params(sim) <<- params
+    sim.modules(sim) <<- modules # this should be a list of module names that will be loaded
     for (m in modules) source(paste("module.", m, ".R", sep="")) # source each module from file
-    
-    # agents (loaded by modules)
-    globals$agents <<- list()
-    
-    # data (loaded by modules)
-    globals$data <<- list()
-    
-    # maps (loaded by modules)
-    globals$maps <<- list()
-
-    # statistics
-    #    some will be "hard coded" here as global stats (e.g., execution time)
-    globals$globalstats <<- list()   # name and init these accordingly
-    
+        
     # set up first event(s): all first events should be initialization events e.g. from modules
     #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
     time.init = 1e-8
@@ -162,8 +342,14 @@ print.results <- function(modules, debug) {
     # THIS NEEDS ATTENTION!!
     #  it should print all global and module-specific stats.
     #  it should print these to file unless in debug mode
-    print(globals$globalstats, debug)
-#    print.module.stats(debug) # should be done by each module
+    print("Hi there, I don't do anything yet. Sorry!")
+
+    ### 
+    ### the way this is set up currently likely will (should) change:
+    ### - outputs are schedules events;
+    ### - all module outputs should be scheduled in the modules;
+    ### - need method defs for `print()` of class `SimData`.
+    ### 
 }
 
 # event processing function called by dosim() below
@@ -185,41 +371,36 @@ do.event <- function(head) {
 # insert event with time `time.event` and type `type.event` into event list;
 # other.info is an optional set of application-specific traits of this event,
 # specified in the form a list with named components
-schedule.event <- function(event.time, module.name, event.type, other.info=NULL) {
-    # forms a row for an event of type `type.event` from the module `name.module`
-    #  that will occur at time `time.event`;
-    # see comments in `schedule.event()` regarding `other.info`
-    new.event <- as.data.table(c(list(event.time=event.time,
-                                      module.name=module.name,
-                                      event.type=event.type),
-                                 other.info)) # `other.info` should be a named list
+schedule.event <- function(event.time, module.name, event.type) {
+    new.event <- as.data.table(list(event.time=event.time,
+                            module.name=module.name,
+                            event.type=event.type)) # `other.info` should be a named list
     setkey(new.event, event.time)
     
     # if the event list is empty, set it to consist of evnt and return
-    if (length(sim$events)==0) {
-        sim$events <<- new.event
+    if (length(sim.events(sim))==0) {
+        sim.events(sim) <<- new.event
         return()
     }
     
     # otherwise, "insert" by reconstructing the data frame;
     # find what portion of the current matrix should come before the new event,
     # and what portion should come after it, then bind everything together.
-    before <- sim$events[event.time<new.event$event.time[1]]
-    after <- sim$events[event.time>new.event$event.time[1]]
-    sim$events <<- setkey(rbind(before,new.event,after), event.time)
+    before <- sim.events(sim)[event.time<new.event$event.time[1]]
+    after <- sim.events(sim)[event.time>new.event$event.time[1]]
+    sim.events(sim) <<- setkey(rbindlist(list(before,new.event,after)), event.time)
 }
 
 # start to process next event;
 #  second half done by application programmer via call to `do.event()`
 get.next.event <- function() {
-    head <- sim$events[1,]
+    head <- sim.events(sim)[1,]
     # delete head
-    if (nrow(sim$events) == 1) {
-        sim$events <<- NULL
-    } else sim$events <<- sim$events[-1,]
+    sim.events(sim) <<- sim.events(sim)[-1,]
     return(head)
 }
 
+#####################################################################################
 # simulation body, takes the following arguments:
 #   globals.init:  application-specific initialization function;
 #                   inits globals to statistical totals for the app, etc.;
@@ -232,16 +413,14 @@ get.next.event <- function() {
 #   modules:       list of module names used in the simulation.
 #   maxsimtime:    simulation will be run until this simulated time.
 #   debug:         logical flag determines whether sim debug info will be printed.
-dosim <- function(globals.init, do.event, print.results, maxsimtime, params=NULL, modules=NULL, debug=FALSE) {
-    sim <<- list()
-    sim$simtime <<- 0.0  # current simulated time
-    sim$events <<- NULL  # events data table (filled in by `schedule.event()`)
-    sim$debug <<- debug
+dosim <- function(sim.init, do.event, print.results, maxsimtime, params=list(), modules=list(), debug=FALSE) {
+    # initialize the simulation
+    sim.init(params, modules)
     
-    globals.init(params, modules)
-    while(sim$simtime < maxsimtime) {  
+    # run the discrete event simulation
+    while(sim.time(sim) < maxsimtime) {  
         head <- get.next.event()
-        sim$simtime <<- head$event.time  # update current simulated time
+        sim.time(sim) <<- head$event.time  # update current simulated time
         do.event(head)  # process this event 
         
         # print debugging info
@@ -255,10 +434,3 @@ dosim <- function(globals.init, do.event, print.results, maxsimtime, params=NULL
     # print simulation results
     print.results(modules, debug)
 }
-
-# to run, use this function call:
-#   dosim(globals.init, do.event, print.results,
-#       maxsimtime=10000.0,
-#       params=list(FILL.THIS.IN),
-#       modules=list(FILL.THIS.IN.TOO),
-#       debug=FALSE)
