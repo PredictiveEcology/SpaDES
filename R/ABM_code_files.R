@@ -119,7 +119,7 @@ setClass("vectorAgent", slots=list(), contains="agent") # need init etc methods
 
 
 ### polygonAgent class extends agent by making it spatial
-setClass("polygonAgent", slots=list(spatial="SpatialPolygon"), contains="vectorAgent") # need init etc methods
+setClass("polygonAgent", slots=list(spatial="SpatialPolygons"), contains="vectorAgent") # need init etc methods
 
 
 
@@ -398,10 +398,10 @@ if (length(grep(pattern = "Raster", class(map)))==1) {
     map[map==0] = NA
     } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
     map
-    } else if (!is.na(pmatch("SpatialPolygon",class(map)))) {
+    } else if (!is.na(pmatch("SpatialPolygons",class(map)))) {
     map
     } else {
-        stop("only raster, spatialpoints or spatialPolygon implemented")
+        stop("only raster, Spatialpoints or SpatialPolygons implemented")
     }
     return(map)
 }
