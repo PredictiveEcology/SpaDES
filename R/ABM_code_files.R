@@ -166,7 +166,7 @@ setMethod("points",
           signature = "pointAgent",
           definition = function(x, which.to.plot=NULL, ...) {
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position@coords[sam,], ...)
+              points(x@spatial@coords[sam,], ...)
 })
 
 
@@ -267,7 +267,7 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
 #    nas = is.na(heading1)
 #    if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
     .Object@ID = as.character(1:numagents)
-    .object@spatial = position
+    .Object@spatial = position
     .Object@heading = heading1
     .Object@distance = distance
     
@@ -287,7 +287,7 @@ setMethod("show",
 setMethod("head",
     signature = "mobileAgent",
     definition = function(x, ...) {
-        out = head(data.table(x@position), ...)
+        out = head(data.table(x@spatial), ...)
         print(out)
 })
 
@@ -297,7 +297,7 @@ setMethod("points",
             # identical to definition in `pointAgent`
             #  should be inherited from that class already
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
-              points(x@position@coords[sam,], ...)
+              points(x@spatial@coords[sam,], ...)
 })
 
 # define our custom methods, which need to be prototyped
@@ -309,7 +309,7 @@ setGeneric("arrow", function(agent, ...) {
 setMethod("arrow",
           signature="mobileAgent",
           definition = function(agent, length = 0.1, ...) {
-              co.pos = coordinates(agent@position)
+              co.pos = coordinates(position(agent))
               co.lpos = calculate.last.position() #coordinates(agent@last.pos)
               arrows(co.lpos[,"x"], co.lpos[,"y"], co.pos[,"x"], co.pos[,"y"], length = length, ...)
 })
@@ -378,7 +378,7 @@ ProbInit = function(map, p=NULL, absolute=FALSE) {
 }
 
 Transitions = function(p, agent) {
-    agent@position@coords[which(p==0),] = NA
+    agent@spatial@coords[which(p==0),] = NA
     return(agent)
 }
 
@@ -441,8 +441,8 @@ crw = function(agent, step.len, dir.sd, hab = NULL) {
     last.position = position(agent)
     
     # these should use `coordinates(agent) <-` or similar set methods
-    agent@position@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
-    agent@position@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
+    agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
+    agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
     
     agent@heading = heading(last.position, position(agent))
     agent@distance = distance(last.position, position(agent))
@@ -459,7 +459,7 @@ ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
     }
     n = length(agent)
     
-    dt1 = data.table(data.frame(agent@position, ids=agent@ID, heading.rad=rad(agent@heading)))
+    dt1 = data.table(data.frame(position(agent), ids=agent@ID, heading.rad=rad(agent@heading)))
     setkey(dt1, ids)
     setkey(rings, ids)
     fromto = rings[dt1]
