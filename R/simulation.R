@@ -141,7 +141,7 @@ setReplaceMethod("sim.params",
                      object@params <- values
                      validObject(object)
                      return(object)
-                 })
+})
 
 setGeneric("sim.time", function(object) {
     standardGeneric("sim.time")
@@ -164,7 +164,7 @@ setReplaceMethod("sim.time",
                      object@simtime <- value
                      validObject(object)
                      return(object)
-                 })
+})
 
 setGeneric("sim.events", function(object) {
     standardGeneric("sim.events")
@@ -228,9 +228,9 @@ setMethod("show",
           signature = "SimData",
           definition = function(object) {
               show = list()
-              show[["Agents:"]] = sim.agents(object)
-              show[["Maps:"]] = sim.maps(object)
-              show[["Stats:"]] = sim.stats(object)
+              show[["Agents:"]] = slot(object, "agents")
+              show[["Maps:"]] = slot(object, "maps")
+              show[["Stats:"]] = slot(object, "stats")
               print(show)
 })
 

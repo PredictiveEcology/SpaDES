@@ -27,34 +27,6 @@ do.event.template = function(event.time, event.type) {
         # schedule the next event
         schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
     }
-
-
-#     if (head$evnttype == "arrv") {  # arrival
-#       # if server free, start service, else add to queue (added to queue
-#       # even if empty, for convenience)
-#       if (length(abm.globals$srvq) == 0) {
-#          abm.globals$srvq <<- head$arrvtime
-#          srvdonetime <- sim$simtime + rexp(1,abm.globals$srvrate)
-#          schedule.event(srvdonetime,"srvdone",list(arrvtime=head$arrvtime))
-#       } else abm.globals$srvq <<- c(abm.globals$srvq,head$arrvtime)
-#       # generate next arrival
-#       arrvtime <- sim$simtime + rexp(1,abm.globals$arrvrate)
-#       schedule.event(arrvtime,"arrv",list(arrvtime=arrvtime))
-#    } else {  # service done
-#       # process job that just finished
-#       # do accounting
-#       abm.globals$njobsdone <<- abm.globals$njobsdone + 1
-#       abm.globals$totwait <<- 
-#          abm.globals$totwait + sim$simtime - head$arrvtime
-#       # remove from queue
-#       abm.globals$srvq <<- abm.globals$srvq[-1]
-#       # more still in the queue?
-#       if (length(abm.globals$srvq) > 0) {
-#          # schedule new service
-#          srvdonetime <- sim$simtime + rexp(1,abm.globals$srvrate)
-#          schedule.event(srvdonetime,"srvdone",list(arrvtime=abm.globals$srvq[1]))
-#       }
-#    }
 }
 
 module.template.init = function() {
