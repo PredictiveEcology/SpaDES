@@ -29,6 +29,29 @@ AgentLocation = function(map) {
     return(map)
 }
 
+GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
+    
+    require(RandomFields)
+    xmn = ext@xmin
+    xmx = ext@xmax
+    ymn = ext@ymin
+    ymx = ext@ymax
+    nr = (xmx-xmn)/speedup # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
+    nc = (ymx-ymn)/speedup # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
+    xfact = (xmx-xmn)/nr
+    yfact = (ymx-ymn)/nc
+    
+    model <- RMexp(scale=scale, var = var)
+    x.seq = 1:nc
+    y.seq = 1:nr
+    sim <- raster(RFsimulate(model, x = x.seq, y = y.seq, grid = T))
+    sim <- sim - cellStats(sim, "min")
+    
+    if(speedup>1) GaussMap <- disaggregate(sim, c(xfact, yfact))
+    extent(GaussMap) <- ext
+    return(GaussMap)
+}
+
 # This is a modified version found in CircStats to allow for multiple angles at once
 dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
     if (missing(rho)) {

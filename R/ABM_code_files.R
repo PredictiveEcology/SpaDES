@@ -47,6 +47,7 @@ setMethod("reload.module.later",
 ### specify which packages need to be installed/loaded, and load them;
 ###  the idea here is that this function can be called from each module
 ###  to load packages upon initialization of the module
+
 pkgs <- list("CircStats",
              "data.table",
              "geoR",
@@ -107,13 +108,13 @@ setMethod("setOther",
 
 
 ### rasterAgent class extends agent by making it spatial
-setClass("rasterAgent", slots=list(), contains="agent") # need init etc methods
+setClass("rasterAgent", slots=list(ID="character", other = "list"), contains="agent") # need init etc methods
 
 
 
 
 ### vectorAgent class extends agent by making it spatial
-setClass("vectorAgent", slots=list(), contains="agent") # need init etc methods
+setClass("vectorAgent", slots=list(ID="character", other = "list"), contains="agent") # need init etc methods
 
 
 

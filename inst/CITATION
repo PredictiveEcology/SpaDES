@@ -1,0 +1,13 @@
+bibentry("Manual",
+   title = "ABM: Agent Based Simulation Modelling in R",
+   author = c(person("Eliot", "McIntire"), person("Alex", "Chubaty")),
+   organization = "Canadian Forest Service, Pacific Foresty Centre",
+   address      = "Victoria, Canada",
+   year   = version$year,
+   url    = "http://",
+
+   mheader = "To cite R in publications use:",
+
+   mfooter = 
+     paste("additional text here.")
+)

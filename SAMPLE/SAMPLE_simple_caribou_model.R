@@ -1,6 +1,6 @@
 ### install neccesarry packages to profile development code
 
-install.packages("devtools")
+install.packages("devtools", dependencies=TRUE)
 #   Windows also needs 'Rtools' from
 #   http://cran.r-project.org/bin/windows/Rtools/index.html
 #   (this is a seperate install of an .exe file)

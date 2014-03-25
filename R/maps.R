@@ -16,28 +16,6 @@ ProbInit = function(map, p=NULL, absolute=FALSE) {
     return(ProbInit)
 }
 
-GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
-    
-    require(RandomFields)
-    xmn = ext@xmin
-    xmx = ext@xmax
-    ymn = ext@ymin
-    ymx = ext@ymax
-    nr = (xmx-xmn)/speedup # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
-    nc = (ymx-ymn)/speedup # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
-    xfact = (xmx-xmn)/nr
-    yfact = (ymx-ymn)/nc
-    
-    model <- RMexp(scale=scale, var = var)
-    x.seq = 1:nc
-    y.seq = 1:nr
-    sim <- raster(RFsimulate(model, x = x.seq, y = y.seq, grid = T))
-    sim <- sim - cellStats(sim, "min")
-    
-    if(speedup>1) GaussMap <- disaggregate(sim, c(xfact, yfact))
-    extent(GaussMap) <- ext
-    return(GaussMap)
-}
 
 # To initialize with a specific number per patch, which may come from
 #  data or have been derived from patch size. Options include a combination of either
