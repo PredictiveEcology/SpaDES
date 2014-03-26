@@ -340,8 +340,9 @@ sim.init <- function(params, modules, path) {
     sim.params(sim) <<- params
     sim.modules(sim) <<- modules # this should be a list of module names that will be loaded
     path <- check.path(path)
-    for (m in modules) source(paste(path, m, ".R", sep="")) # source each module from file
-        
+    for (m in modules) {
+        source(paste(path, m, ".R", sep="")) # source each module from file
+    }
     # set up first event(s): all first events should be initialization events e.g. from modules
     #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
     time.init = 1e-8
@@ -388,8 +389,7 @@ do.event <- function(head) {
 schedule.event <- function(event.time, module.name, event.type) {
     new.event <- as.data.table(list(event.time=event.time,
                             module.name=module.name,
-                            event.type=event.type)) # `other.info` should be a named list
-    setkey(new.event, event.time)
+                            event.type=event.type))
     
     # if the event list is empty, set it to consist of evnt and return
     if (length(sim.events(sim))==0) {
@@ -400,9 +400,10 @@ schedule.event <- function(event.time, module.name, event.type) {
     # otherwise, "insert" by reconstructing the data frame;
     # find what portion of the current matrix should come before the new event,
     # and what portion should come after it, then bind everything together.
-    before <- sim.events(sim)[event.time<new.event$event.time[1]]
+    before <- sim.events(sim)[event.time<=new.event$event.time[1]]
     after <- sim.events(sim)[event.time>new.event$event.time[1]]
-    sim.events(sim) <<- setkey(rbindlist(list(before,new.event,after)), event.time)
+    revised.list <- rbindlist(list(before,new.event,after))
+    sim.events(sim) <<- setkey(revised.list, event.time)
 }
 
 # start to process next event;
@@ -416,18 +417,11 @@ get.next.event <- function() {
 
 #####################################################################################
 # simulation body, takes the following arguments:
-#   globals.init:  application-specific initialization function;
-#                   inits globals to statistical totals for the app, etc.;
-#                   records params in globals;
-#                   schedules the first event.
-#   do.event:       application-specific event handling function, coding the
-#                   proper action for each type of event.
-#   print.results: prints application-specific results.
 #   params:        list of application-specific parameters.
 #   modules:       list of module names used in the simulation.
 #   maxsimtime:    simulation will be run until this simulated time.
 #   debug:         logical flag determines whether sim debug info will be printed.
-dosim <- function(sim.init, do.event, print.results, maxsimtime, params=list(), modules=list(), path=char(), debug=FALSE) {
+dosim <- function(maxsimtime, params=list(), modules=list(), path=char(), debug=FALSE) {
     # initialize the simulation
     sim.init(params, modules, path=check.path(path))
     

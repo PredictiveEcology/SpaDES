@@ -17,11 +17,10 @@ devtools::load_all("ABM") # for development/testing
 #library(ABM)   # local installation from CRAN
 
 ## simulation code
-dosim(sim.init, do.event, print.results, maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE/")
-# THIS IS BROKEN RIGHT NOW BECAUSE I MOVED THE SAMPLE MODULES TO A DIFF DIR
+dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE/")
 
 ## profiling of development code
-prof <- lineprof(dosim(sim.init, do.event, print.results, maxsimtime=10.00, modules=list("habitat", "caribou")))
+prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE/"))
 shine(prof)
 c(address(sim), refs(sim))
 c(address(sim.data), refs(sim.data))
