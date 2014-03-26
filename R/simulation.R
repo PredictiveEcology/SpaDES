@@ -305,17 +305,42 @@ setReplaceMethod("sim.stats",
 })
 
 
+
+check.path = function(path) {
+    if (is.character(path)) {
+        if (file.exists(path)) {
+            # basically, do nothing if it exists
+            exists = TRUE
+        } else {
+            # warn the user before creating the directory
+            print("Warning: the path you specified doesn't exist.")
+            print(paste("Creating directory structure:", path))
+            dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+        }
+    } else {
+        stop("Error: `path` should be specified as a character string.")
+    }
+    # check to make sure path has a  trailing slash
+    # if not, add one
+    strlets <- strsplit(path, "")[[1]]
+    strlen <- length(strlets)
+    if (strlets[strlen]!="/") path <- paste(path, "/", sep="")
+    return(path)
+}
+
+
 ###
 ### initializes simulation variables
 ###
-sim.init <- function(params, modules) {
+sim.init <- function(params, modules, path) {
     sim <<- new("SimList")
     sim.data <<- new("SimData")
     
     # load simulation parameters and modules
     sim.params(sim) <<- params
     sim.modules(sim) <<- modules # this should be a list of module names that will be loaded
-    for (m in modules) source(paste("module.", m, ".R", sep="")) # source each module from file
+    path <- check.path(path)
+    for (m in modules) source(paste(path, m, ".R", sep="")) # source each module from file
         
     # set up first event(s): all first events should be initialization events e.g. from modules
     #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
@@ -402,9 +427,9 @@ get.next.event <- function() {
 #   modules:       list of module names used in the simulation.
 #   maxsimtime:    simulation will be run until this simulated time.
 #   debug:         logical flag determines whether sim debug info will be printed.
-dosim <- function(sim.init, do.event, print.results, maxsimtime, params=list(), modules=list(), debug=FALSE) {
+dosim <- function(sim.init, do.event, print.results, maxsimtime, params=list(), modules=list(), path=char(), debug=FALSE) {
     # initialize the simulation
-    sim.init(params, modules)
+    sim.init(params, modules, path=check.path(path))
     
     # run the discrete event simulation
     while(sim.time(sim) < maxsimtime) {  
