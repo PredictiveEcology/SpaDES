@@ -5,8 +5,23 @@ Description: More about what it does (maybe more than one line)
 URL: 
 Version: 0.0.1
 Date: 2014-03-25
-Authors@R: c(person("Eliot", "McIntire", email="WHICHEVER@EMAIL.YOU.USE", role = c("aut", "cre")), person("Alex", "Chubaty", email="alex.chubaty@gmail.com", role = c("aut", "cre")))
-Depends: R (>= 3.02.0)
-Suggests: 
-Imports: methods, CircStats, data.table, geoR, grid, igraph, plotrix, raster, sp
+Authors@R: c(person("Eliot", "McIntire",
+					email="WHICHEVER@EMAIL.YOU.USE",
+					role=c("aut", "cre")),
+			person("Alex", "Chubaty",
+					email="alex.chubaty@gmail.com",
+					role = c("aut", "cre")))
+Depends:
+    R (>= 3.0.2)
+Suggests:
+Imports:
+	CircStats,
+    data.table,
+    geoR,
+	grid,
+    igraph,
+    methods,
+    plotrix,
+	raster,
+    sp
 License: What license is it under?

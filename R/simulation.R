@@ -8,8 +8,6 @@
 ###       to add submodules to the simulation                       ###
 #######################################################################
 
-require(data.table)
-
 ##  OVERVIEW:
 ##
 ##  A global object named "sim" holds:
@@ -40,7 +38,7 @@ setClass("SimList",
                     events="data.table", simtime="numeric", debug="logical"
 ))
 
-# define methods that extend already-prototyped functions in R
+# initializes a SimList object
 setMethod("initialize",
           signature = "SimList",
           definition = function(.Object) {
@@ -50,6 +48,7 @@ setMethod("initialize",
               return(.Object)
 })
 
+# shows the attributes of a SimList object
 setMethod("show",
           signature = "SimList",
           definition = function(object) {
@@ -73,7 +72,7 @@ setMethod("show",
 ### get slot values using `slot(object, "slotname")`
 ### set slot values using `slot(object, "slotname") <- value`
 
-# define our custom methods, which need to be prototyped
+# accessor methods for SimList slots
 setGeneric("sim.modules", function(object) {
     standardGeneric("sim.modules")
 })
@@ -333,13 +332,15 @@ check.path = function(path) {
 ### initializes simulation variables
 ###
 sim.init <- function(params, modules, path) {
+    path <- check.path(path)
+    
     sim <<- new("SimList")
     sim.data <<- new("SimData")
     
     # load simulation parameters and modules
     sim.params(sim) <<- params
     sim.modules(sim) <<- modules # this should be a list of module names that will be loaded
-    path <- check.path(path)
+
     for (m in modules) {
         source(paste(path, m, ".R", sep="")) # source each module from file
     }
@@ -421,9 +422,9 @@ get.next.event <- function() {
 #   modules:       list of module names used in the simulation.
 #   maxsimtime:    simulation will be run until this simulated time.
 #   debug:         logical flag determines whether sim debug info will be printed.
-dosim <- function(maxsimtime, params=list(), modules=list(), path=char(), debug=FALSE) {
+dosim <- function(maxsimtime, params=list(), modules=list(), path="./", debug=FALSE) {
     # initialize the simulation
-    sim.init(params, modules, path=check.path(path))
+    sim.init(params, modules, path=path)
     
     # run the discrete event simulation
     while(sim.time(sim) < maxsimtime) {  

@@ -43,7 +43,6 @@ setMethod("reload.module.later",
 })
 
 ####################################################################################
-
 ### specify which packages need to be installed/loaded, and load them;
 ###  the idea here is that this function can be called from each module
 ###  to load packages upon initialization of the module
@@ -56,8 +55,6 @@ pkgs <- list("CircStats",
              "raster",
              "sp")
 load.required.pkgs(pkgs)
-
-####################################################################################
 
 ### agent class (this is an aspatial agent)
 setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=NA_character_))
@@ -93,8 +90,45 @@ setMethod("length",
               return(len)
 })
 
-# define our custom methods, which need to be prototyped
-setGeneric("setOther", function(object, ...) {
+# get agent id
+setGeneric("agentID", function(object) {
+    standardGeneric("agentID")
+})
+
+setMethod("agentID",
+          signature = "agent",
+          definition = function(object) {
+              object@ID = value
+              return(object)
+})
+
+# set agent id
+setGeneric("agentID<-",
+           function(object, values) {
+               standardGeneric("agentID<-")
+})
+
+setReplaceMethod("agentID",
+                 signature="agent",
+                 function(object, values) {
+                     object@ID <- values
+                     validObject(object)
+                     return(object)
+})
+
+# get other (non-default) attributes of agent
+setGeneric("getOther", function(object, name) {
+    standardGeneric("getOther")
+})
+
+setMethod("getOther",
+          signature = "agent",
+          definition = function(object, name) {
+              return(object@other[[as.character(name)]])
+})
+
+# set other (non-default) attributes of agent
+setGeneric("setOther", function(object, name, value) {
     standardGeneric("setOther")
 })
 
@@ -128,7 +162,7 @@ setClass("polygonAgent", slots=list(spatial="SpatialPolygons"), contains="vector
 ### pointAgent class extends vectorAgent
 setClass("pointAgent", slots=list(spatial="SpatialPoints"), contains="vectorAgent")
 
-# define methods that extend already-prototyped functions in R
+# initialize a pointAgent (extends method initialize to this class)
 setMethod("initialize",
           signature = "pointAgent",
           definition = function(.Object, numagents=NULL, ...) {
@@ -145,6 +179,7 @@ setMethod("initialize",
               return(.Object)
 })
 
+# show attributes of a pointAgent (extends method initialize to this class)
 setMethod("show",
           signature = "pointAgent",
           definition = function(object) {
@@ -156,6 +191,7 @@ setMethod("show",
               print(show)
 })
 
+# get coordinates of a pointAgent (extends method initialize to this class)
 setMethod("coordinates",
           signature = "pointAgent",
           definition = function(obj, ...) {
@@ -163,6 +199,7 @@ setMethod("coordinates",
               return(coords)
 })
 
+# plot location of a pointAgent (extends method initialize to this class)
 setMethod("points",
           signature = "pointAgent",
           definition = function(x, which.to.plot=NULL, ...) {
@@ -170,9 +207,7 @@ setMethod("points",
               points(x@spatial@coords[sam,], ...)
 })
 
-
-
-# define our custom methods, which need to be prototyped
+# get agent positions
 setGeneric("position", function(obj, ...) {
     standardGeneric("position")
 })
@@ -198,7 +233,7 @@ setClass("spreadAgent", slots=list(NumPixels="numeric"),
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"),
          prototype=list(heading=NA_real_, distance=NA_real_), contains="pointAgent")
 
-# define methods that extend already-prototyped functions in R
+# initialize a mobileAgent (extends method initialize to this class)
 setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL, ...) {
     if (is(agentlocation, "Raster")){
         if (!is.null(probinit)) {
@@ -263,10 +298,9 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
             } else {stop("with SpatialPolygonsDataFrame, probinit is required")}
         } else {stop("with SpatialPolygonsDataFrame, numagents is required")}
     }
-    heading1 = runif(numagents, 0, 360) #heading(last.position, position)
-    distance = runif(numagents, 0.1, 10) #distance(last.position, position)
-#    nas = is.na(heading1)
-#    if (sum(nas)>0) heading1[nas] = runif(sum(nas),0,360)
+    heading1 = runif(numagents, 0, 360)
+    distance = runif(numagents, 0.1, 10)
+
     .Object@ID = as.character(1:numagents)
     .Object@spatial = position
     .Object@heading = heading1
@@ -275,6 +309,7 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
     return(.Object)
 })
 
+# show attributes of a pointAgent (extends method initialize to this class)
 setMethod("show",
     signature = "mobileAgent",
     definition = function(object) {
@@ -285,6 +320,7 @@ setMethod("show",
         print(show)
 })
 
+# print the positions of the first n pointAgents (extends method initialize to this class)
 setMethod("head",
     signature = "mobileAgent",
     definition = function(x, ...) {
@@ -292,6 +328,7 @@ setMethod("head",
         print(out)
 })
 
+# plot locations of pointAgents (extends method initialize to this class)
 setMethod("points",
           signature = "mobileAgent",
           definition = function(x, which.to.plot=NULL, ...) {
@@ -301,8 +338,34 @@ setMethod("points",
               points(x@spatial@coords[sam,], ...)
 })
 
-# define our custom methods, which need to be prototyped
+# get mobileAgent heading
+setGeneric("agentHeading", function(object, ...) {
+    standardGeneric("agentHeading")
+})
 
+setMethod("agentHeading",
+          signature = "mobileAgent",
+          definition = function(object, ...) {
+              object@heading = value
+              return(object)
+})
+
+# set agent id
+setGeneric("agentHeading<-",
+           function(object, values) {
+               standardGeneric("agentHeading<-")
+           })
+
+setReplaceMethod("agentHeading",
+                 signature="mobileAgent",
+                 function(object, values) {
+                     object@heading <- values
+                     validObject(object)
+                     return(object)
+                 })
+
+
+# plot arrows showing direction of mobileAgent movement
 setGeneric("arrow", function(agent, ...) {
     standardGeneric("arrow")
 })
@@ -311,39 +374,34 @@ setMethod("arrow",
           signature="mobileAgent",
           definition = function(agent, length = 0.1, ...) {
               co.pos = coordinates(position(agent))
-              co.lpos = calculate.last.position() #coordinates(agent@last.pos)
+              co.lpos = calculate.last.position()
               arrows(co.lpos[,"x"], co.lpos[,"y"], co.pos[,"x"], co.pos[,"y"], length = length, ...)
 })
 
 
 
-
-
-#######################################################
-###
-### the methods below all need to be reworked to:
-###     - work on the appropriate agent (sub)class
-###     - update the slots as per above
-###
-#######################################################
-
-
+#################################################################
 ### generic methods (lack class-specific methods)
+
+# calculates the distance between spatial points
 setGeneric("distance", function(from, to, ...) {
     standardGeneric("distance")
 })
 
 setMethod("distance",
-          signature(from="SpatialPoints", to="SpatialPoints"),
+          signature("SpatialPoints"),
           definition = function(from, to, ...) {
-              from = coordinates(from)
-              to = coordinates(to)
-              out = sqrt((from[,2] - to[,2])^2 + (from[,1] - to[,1])^2)
-              return(out)
+              if ( (is(from)=="SpatialPoints") && (is(to)=="SpatialPoints") ) {
+                  from = coordinates(from)
+                  to = coordinates(to)
+                  out = sqrt((from[,2] - to[,2])^2 + (from[,1] - to[,1])^2)
+                  return(out)
+              } else {
+                  stop("Error: `from` and `to` must be SpatialPoints objects.")
+              }
 })
 
-
-
+# determine the heading between spatial points
 setGeneric("heading", function(from, to, ...) {
     standardGeneric("heading")
 })

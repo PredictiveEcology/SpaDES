@@ -79,7 +79,7 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
     Next
 }
 
-crw = function(agent, step.len, dir.sd, hab = NULL) {
+crw = function(agent, step.len, dir.sd, hab=NULL) {
     n = length(agent)
     rand.dir = rnorm(n, agent@heading, dir.sd)
     rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
@@ -105,10 +105,10 @@ ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
     }
     n = length(agent)
     
-    dt1 = data.table(data.frame(position(agent), ids=agent@ID, heading.rad=rad(agent@heading)))
-    setkey(dt1, ids)
+    DT = data.table(data.frame(position(agent), ids=agentID(agent), heading.rad=rad(agent@heading)))
+    setkey(DT, ids)
     setkey(rings, ids)
-    fromto = rings[dt1]
+    fromto = rings[DT]
     
     fromto[, headi:=heading(from=SpatialPoints(cbind(x=fromto$x.1, y=fromto$y.1)),
                             to=SpatialPoints(cbind(x=fromto$x,y=fromto$y)))]
@@ -131,7 +131,7 @@ cir = function(agent, radiuses, raster_world, scale_raster){
     #       gross estimation (checked that it seems to be enough so that pixels
     #       extracted are almost always duplicated, which means there is small
     #       chance that we missed some on the circle).
-    n.angles<-(ceiling((radiuses/scale_raster)*2*pi)+1)
+    n.angles <- ( ceiling((radiuses/scale_raster)*2*pi) + 1 )
     
     ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
     positions = coordinates(agent)
@@ -145,44 +145,33 @@ cir = function(agent, radiuses, raster_world, scale_raster){
     # extract the individuals' current positions
     xs <- rep.int(positions[,1], times=n.angles)
     ys <- rep.int(positions[,2], times=n.angles)
-    
-    # to be used below to do calculation for angle increments
-    nvs <- rep.int(c(0,n.angles[-length(n.angles)]), times=n.angles)
-    
+        
     # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
     angle.inc <- rep.int(2*pi, length(n.angles)) / n.angles
     
     # repeat this angle increment the number of times it needs to be done to complete the circles
-    angs<-rep.int(angle.inc,times=n.angles)
+    angs <- rep.int(angle.inc, times=n.angles)
     
     ### Eliot' added's code:
-    a1 = Sys.time()
-    dt1 = data.table(ids, angs, xs, ys, rads)
-    dt1[,angles:=cumsum(angs),by=ids]
-    dt1[,x:=cos(angles)*rads+xs]
-    dt1[,y:=sin(angles)*rads+ys]
+    DT = data.table(ids, angs, xs, ys, rads)
+    DT[, (angles):=cumsum(angs), by=ids] # adds new column `angles` to DT that is the cumsum of angs for each id
+    DT[, (x):=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
+    DT[, (y):=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
     
     # put the coordinates of the points on the circles from all individuals in the same matrix
-    coordinates_all_ind <- dt1[,list(x,y,ids)]    #cbind(x,y)
+    coords.all.ind <- DT[, list(x,y,ids)]
     
     # extract the pixel IDs under the points
-    coordinates_all_ind[,pixels_under_coordinates := cellFromXY(raster_world,coordinates_all_ind)]
-    coordinates_all_ind_unique =
-        coordinates_all_ind[,list(pixels_under_coordinates = unique(pixels_under_coordinates)), by=ids]
-    coordinates_all_ind_unique = na.omit(coordinates_all_ind_unique)
-    coordinates_all_ind_unique[,unique_pixels_values := extract(raster_world,pixels_under_coordinates)]
+    coords.all.ind[, (pixIDs):=cellFromXY(raster_world,coords.all.ind)]
+
+    # use only the unique pixels
+    coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by=ids]
+    coords.all.ind.unq = na.omit(coords.all.ind.unq)
+    coords.all.ind.unq[, (pixIDs.unq):=extract(raster_world,pixIDs)] # where is `pixIDs.unq` used???
     
     # extract the coordinates for the pixel IDs
-    pixels = xyFromCell(raster_world,coordinates_all_ind_unique$pixels_under_coordinates)
-    pixels_ind_ids_merged = cbind(coordinates_all_ind_unique,pixels)
-    
-    # put the coordinates x and y back into a list according to the individual IDs
-    #    coord_unique_pixels <- split(pixels_ind_ids_merged[,list(x,y)],pixels_ind_ids_merged[,ids])
-    
-    a2 = Sys.time()
-    
-    # list of df with x and y coordinates of each unique pixel of the circle of each individual
-    #    return(coord_unique_pixels) 
+    pixels = xyFromCell(raster_world, coords.all.ind.unq$pixIDs)
+    pixels_ind_ids_merged = cbind(coords.all.ind.unq, pixels)
     
     # list of df with x and y coordinates of each unique pixel of the circle of each individual
     return(pixels_ind_ids_merged)
