@@ -41,7 +41,7 @@ module.skeleton = function(name, path) {
 #         depends = c("NONE") # list package names here
 #             
 #         if (reload.module.later(depends)) {
-#             schedule.event(sim$simtime+1e-6, "MODULE.NAME", "init")
+#             schedule.event(sim$simtime, "MODULE.NAME", "init")
 #         } else {
 #             ### load any required packages
 #             pkgs = list("raster") # list required packages here

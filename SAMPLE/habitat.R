@@ -20,7 +20,7 @@ do.event.habitat = function(event.time, event.type) {
         depends = "NONE" # list package names here
         
         if (reload.module.later(depends)) {
-            schedule.event(sim.time(sim)+1e-6, "habitat", "init")
+            schedule.event(sim.time(sim), "habitat", "init")
         } else {
             # do stuff for this event
             habitat.init()

@@ -22,7 +22,7 @@ do.event.caribou = function(event.time, event.type) {
         depends = c("habitat") # list package names here
         
         if (reload.module.later(depends)) {
-            schedule.event(sim.time(sim)+1e-6, "caribou", "init")
+            schedule.event(sim.time(sim), "caribou", "init")
         } else {
             # do stuff for this event
             caribou.init()

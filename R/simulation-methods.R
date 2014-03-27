@@ -328,10 +328,10 @@ sim.init <- function(params, modules, path) {
     }
     # set up first event(s): all first events should be initialization events e.g. from modules
     #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
-    time.init = 1e-8
+    time.init = 1e-8 # Set to zero
     for (m in modules) {
         schedule.event(time.init, m, "init")
-        time.init = time.init + 1e-8
+        time.init = time.init + 1e-8 # Comment out... not needed 
     }
 }
 
