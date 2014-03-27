@@ -53,10 +53,10 @@ AgentLocation = function(map) {
 #' @import raster
 #' @export
 #' @docType methods
-#' @rdname GaussMap
+#' @rdname gaussmap
 #'
-#' #@examples
-#' #EXAMPLES NEEDED
+#@examples
+#EXAMPLES NEEDED
 GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
     xmn = ext@xmin
     xmx = ext@xmax
@@ -127,10 +127,10 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
 #' 
 #' @export
 #' @docType methods
-#' @rdname movement-methods
+#' @rdname crw
 #'
-#' #@examples
-#' # NEED EXAMPLES
+#@examples
+#NEED EXAMPLES
 crw = function(agent, step.len, dir.sd, hab=NULL) {
     ### should convert to S4 for a mobileAgent
     n = length(agent)
@@ -172,7 +172,7 @@ crw = function(agent, step.len, dir.sd, hab=NULL) {
 #' @import data.table
 #' @export
 #' @docType methods
-#' @rdname ring-probs
+#' @rdname ringprobs
 #'
 #' #@examples
 #' # NEED EXAMPLES

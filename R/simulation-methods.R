@@ -11,10 +11,7 @@
 ### SimList and SimData methods
 ###
 
-
-
-
-# initializes a SimList object
+# initialize methods
 setMethod("initialize",
           signature = "SimList",
           definition = function(.Object) {
@@ -24,7 +21,20 @@ setMethod("initialize",
               return(.Object)
 })
 
-# shows the attributes of a SimList object
+setMethod("initialize",
+          signature = "SimData",
+          definition = function(.Object) {
+              return(.Object)
+})
+
+### show is already defined in the methods package
+#' @title Show an Object
+#' @name show
+#' @rdname show-methods
+#' @aliases show,SimList
+#' @importMethodsFrom methods show
+#' @export
+#' 
 setMethod("show",
           signature = "SimList",
           definition = function(object) {
@@ -44,6 +54,22 @@ setMethod("show",
               show[["Debugging Mode:"]] = slot(object, "debug")
               print(show)
 })
+
+#' @rdname show-methods
+#' @aliases show,SimData
+#' @importMethodsFrom methods show
+#' @export
+setMethod("show",
+          signature = "SimData",
+          definition = function(object) {
+              show = list()
+              show[["Agents:"]] = slot(object, "agents")
+              show[["Maps:"]] = slot(object, "maps")
+              show[["Stats:"]] = slot(object, "stats")
+              print(show)
+})
+
+
 
 ### get slot values using `slot(object, "slotname")`
 ### set slot values using `slot(object, "slotname") <- value`
@@ -189,21 +215,6 @@ setReplaceMethod("sim.debug",
 
 
 
-setMethod("initialize",
-          signature = "SimData",
-          definition = function(.Object) {
-              return(.Object)
-})
-
-setMethod("show",
-          signature = "SimData",
-          definition = function(object) {
-              show = list()
-              show[["Agents:"]] = slot(object, "agents")
-              show[["Maps:"]] = slot(object, "maps")
-              show[["Stats:"]] = slot(object, "stats")
-              print(show)
-})
 
 setGeneric("sim.agents", function(object) {
     standardGeneric("sim.agents")

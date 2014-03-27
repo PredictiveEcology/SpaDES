@@ -99,17 +99,13 @@ setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NU
     return(.Object)
 })
 
-
-
-
-
-
-
-
-
-
-
-#' @import methods
+### show is already defined in the methods package
+#' @title Show an Object
+#' @name show
+#' @rdname show-methods
+#' @aliases show,agent
+#' @importMethodsFrom methods show
+#' @export
 setMethod("show",
           signature = "agent",
           definition = function(object) {
@@ -122,7 +118,10 @@ setMethod("show",
               print(show)
 })
 
-#' @import methods
+#' @rdname show-methods
+#' @aliases show,spreadAgent
+#' @importMethodsFrom methods show
+#' @export
 setMethod("show",
           signature = "spreadAgent",
           definition = function(object) {
@@ -136,7 +135,10 @@ setMethod("show",
               print(show)
 })
 
-#' @import methods
+#' @rdname show-methods
+#' @aliases show,pointAgent
+#' @importMethodsFrom methods show
+#' @export
 setMethod("show",
           signature = "pointAgent",
           definition = function(object) {
@@ -150,7 +152,10 @@ setMethod("show",
               print(show)
 })
 
-#' @import methods
+#' @rdname show-methods
+#' @aliases show,mobileAgent
+#' @importMethodsFrom methods show
+#' @export
 setMethod("show",
           signature = "mobileAgent",
           definition = function(object) {

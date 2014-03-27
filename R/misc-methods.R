@@ -18,10 +18,10 @@
 #' @docType methods
 #' @rdname loadpackages
 #'
-#' @examples
-#' pkgs <- list("ggplot2", "lme4") # these examples are already installed
-#' load.packages(pkgs) # loads packages if installed
-#' load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)
+# @examples
+# pkgs <- list("ggplot2", "lme4")
+# load.packages(pkgs) # loads packages if installed
+# load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)
 setGeneric("load.packages", function(package.list, install) {
     standardGeneric("load.packages")
 })
