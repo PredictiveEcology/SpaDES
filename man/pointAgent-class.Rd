@@ -6,31 +6,15 @@
 Extends the \code{vectorAgent} class. Describes spatial
 agents whose spatial components are characterized by points
 (i.e., in contrast to a polygon).
-
-Extends the \code{pointAgent} class. Describes
-non-stationary spatial agents whose spatial #' components
-are characterized by points (i.e., in contrast to a
-polygon).
 }
-\details{
-\describe{ \item{ID}{A character}
+\section{Slots}{
 
-\item{spatial}{A \code{SpatialPoints} object.}
+\describe{
+\item{\code{ID}}{A character string that identifies the individual agent.
+             By default, the numbers 1...n are used.}
 
-\item{other}{A list for storing other (user-specific) agent
-attributes.} }
+\item{\code{spatial}}{A \code{SpatialPoints} object.}
 
-\describe{ \item{ID}{A character}
-
-\item{spatial}{A \code{SpatialPoints} object.}
-
-\item{heading}{A \code{numeric} describing the agent's
-heading (in degrees) from it's previous position.}
-
-\item{distance}{A \code{numeric} describing the agent's
-distance from previous position.}
-
-\item{other}{A list for storing other (user-specific) agent
-attributes.} }
-}
+\item{\code{other}}{A list for storing other (user-specific) agent attributes.}
+}}
 

@@ -18,23 +18,22 @@ the module from which the event is taken; event.type: a
 character string for the programmer-defined event type; :
 optional application-specific components.
 }
-\note{
-You can still add notes
-}
 \section{Slots}{
-  \describe{ \item{\code{.loaded}:}{List of character names
-  specifying which modules are currently loaded.}
-  \item{\code{modules}:}{List of character names specifying
-  which modules to load.} \item{\code{params}:}{Named list
-  of potentially other lists specifying simulation
-  parameters.} \item{\code{events}:}{The list of scheduled
-  events, as a data.table class.}
-  \item{\code{simtime}:}{Numerical value describing the
-  current simulation time.} \item{\code{debug}:}{Logical
-  value specifying whether to run simulation in debugging
-  mode.} }
-}
-\author{
-Alex Chubaty
+
+\describe{
+\item{\code{.loaded}}{List of character names specifying which modules are currently loaded.}
+
+\item{\code{modules}}{List of character names specifying which modules to load.}
+
+\item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
+
+\item{\code{events}}{The list of scheduled events, as a data.table class.}
+
+\item{\code{simtime}}{Numerical value describing the current simulation time.}
+
+\item{\code{debug}}{Logical value specifying whether to run simulation in debugging mode.}
+}}
+\note{
+add additional notes here.
 }
 

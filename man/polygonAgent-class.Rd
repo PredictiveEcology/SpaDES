@@ -7,12 +7,14 @@ Extends the \code{vectorAgent} class. Describes spatial
 agents whose spatial components are characterized by
 polygons (i.e., in contrast to points or a raster).
 }
-\details{
-\describe{ \item{ID}{A character}
+\section{Slots}{
 
-\item{spatial}{A \code{SpatialPolygons} object.}
+\describe{
+\item{\code{ID}}{A character string that identifies the individual agent.
+             By default, the numbers 1...n are used.}
 
-\item{other}{A list for storing other (user-specific) agent
-attributes.} }
-}
+\item{\code{spatial}}{A \code{SpatialPolygons} object.}
+
+\item{\code{other}}{A list for storing other (user-specific) agent attributes.}
+}}
 

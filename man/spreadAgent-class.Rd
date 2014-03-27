@@ -7,13 +7,14 @@ Extends the \code{rasterAgent} class. Describes spatial
 agents whose spatial component ("area") is characterized by
 a raster and are capable of spreading (growing/shrinking).
 }
-\details{
-\describe{ \item{ID}{A character}
+\section{Slots}{
 
-\item{NumPix}{A numeric object describing the number of
-raster pixels occupied.}
+\describe{
+\item{\code{ID}}{A character string that identifies the individual agent.
+             By default, the numbers 1...n are used.}
 
-\item{other}{A list for storing other (user-specific) agent
-attributes.} }
-}
+\item{\code{NumPix}}{A numeric object describing the number of raster pixels occupied.}
+
+\item{\code{other}}{A list for storing other (user-specific) agent attributes.}
+}}
 

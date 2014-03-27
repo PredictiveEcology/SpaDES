@@ -9,10 +9,12 @@ characterized by points or a polygon (i.e., in contrast to
 a raster). This is a virtual class and not intended to be
 used directly.
 }
-\details{
-\describe{ \item{ID}{A character}
+\section{Slots}{
 
-\item{other}{A list for storing other (user-specific) agent
-attributes.} }
-}
+\describe{
+\item{\code{ID}}{A character string that identifies the individual agent.
+             By default, the numbers 1...n are used.}
+
+\item{\code{other}}{A list for storing other (user-specific) agent attributes.}
+}}
 
