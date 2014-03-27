@@ -20,8 +20,9 @@ Imports:
     geoR,
 	grid,
     igraph,
-    methods,
+	methods,
     plotrix,
+	RandomFields,
 	raster,
     sp
 License: What license is it under?

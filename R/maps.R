@@ -1,5 +1,28 @@
 ### MAPS LIBRARY
 
+##############################################################
+#' ProbInit
+#'
+#' Details here.
+#'
+#' @param map Description of this.
+#'
+#' @param p Description of this.
+#'
+#' @param absolute Description of this.
+#'
+#' @return Decribe what it returns: fromto.
+#' 
+#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' 
+#' @import raster
+#' @import sp
+#' @export
+#' @docType methods
+#' @rdname ring-probs
+#'
+#' #@examples
+#' # NEED EXAMPLES
 ProbInit = function(map, p=NULL, absolute=FALSE) {
     if (length(p) == 1) { 
         ProbInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
@@ -17,6 +40,10 @@ ProbInit = function(map, p=NULL, absolute=FALSE) {
 }
 
 
+
+###
+### make sure to @import raster and data.table (and sp?)
+###
 # To initialize with a specific number per patch, which may come from
 #  data or have been derived from patch size. Options include a combination of either
 #  a patchid map and a table with 2 columns, pops and num.in.pop,

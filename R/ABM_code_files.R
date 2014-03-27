@@ -1,30 +1,64 @@
-### define generic methods to load packages as required
-
-# load a single package
-setGeneric("load.package", function(package.name, ...) {
-    standardGeneric("load.package")
+##############################################################
+#' Load packages.
+#'
+#' Load and optionally install additional packages.
+#'
+#' @param package.list A list of character strings specifying
+#' the names of packages to be loaded.
+#'
+#' @param install Logical flag. If required packages are not
+#'  already installed, should they be installed?  
+#'
+#' @return Nothing is returned. Specified packages are loaded
+#'  and attached using \code{library()}.
+#' 
+#' @seealso \code{\link{library}}.
+#' 
+#' @export
+#' @docType methods
+#' @rdname loadpackages
+#'
+#' @examples
+#' pkgs <- list("ggplot2", "lme4") # these examples are already installed
+#' load.packages(pkgs) # loads packages if installed
+#' load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)
+setGeneric("load.packages", function(package.list, install) {
+    standardGeneric("load.packages")
 })
 
-setMethod("load.package",
-          signature(package.name="character"),
-          definition = function(package.name, ...) {
-              if (!require(package.name, character.only=TRUE)) {
-                  install.packages(package.name)
-                  library(package.name, character.only=TRUE)
+#' @rdname loadpackages
+setMethod("load.packages",
+          signature(package.list="list", install="logical"),
+          definition = function(package.list, install) {
+              load <- function(name, install) {
+                  if (!require(name, character.only=TRUE)) {
+                      if (install) {
+                          install.packages(name)
+                          library(name, character.only=TRUE)
+                      } else {
+                          print(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
+                      }
+                  }
               }
+              lapply(package.list, load, install)
 })
 
-# load a bunch of packages from a list
-setGeneric("load.required.pkgs", function(package.list, ...) {
-    standardGeneric("load.required.pkgs")
-})
-
-setMethod("load.required.pkgs",
+#' @rdname loadpackages
+setMethod("load.packages",
           signature(package.list="list"),
-          definition = function(package.list, ...) {
-              lapply(package.list, load.package)
+          definition = function(package.list) {
+              load <- function(name, install) {
+                  if (!require(name, character.only=TRUE)) {
+                      if (install) {
+                          install.packages(name)
+                          library(name, character.only=TRUE)
+                      } else {
+                          print(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
+                      }
+                  }
+              }
+              lapply(package.list, load, install=FALSE)
 })
-
 
 # check whether a module should be reloaded later
 setGeneric("reload.module.later", function(depends, ...) {
@@ -51,10 +85,12 @@ pkgs <- list("CircStats",
              "data.table",
              "geoR",
              "igraph",
+             "methods",
              "plotrix",
              "raster",
+             "RandomFields",
              "sp")
-load.required.pkgs(pkgs)
+load.packages(pkgs)
 
 ### agent class (this is an aspatial agent)
 setClass("agent", slots=list(ID="character", other = "list"), prototype=list(ID=NA_character_))
@@ -104,14 +140,14 @@ setMethod("agentID",
 
 # set agent id
 setGeneric("agentID<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("agentID<-")
 })
 
 setReplaceMethod("agentID",
                  signature="agent",
-                 function(object, values) {
-                     object@ID <- values
+                 function(object, value) {
+                     object@ID <- value
                      validObject(object)
                      return(object)
 })
@@ -191,6 +227,9 @@ setMethod("show",
               print(show)
 })
 
+###
+### be sure to @import sp
+###
 # get coordinates of a pointAgent (extends method initialize to this class)
 setMethod("coordinates",
           signature = "pointAgent",
@@ -237,9 +276,9 @@ setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"),
 setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, numagents=NULL, probinit=NULL, ...) {
     if (is(agentlocation, "Raster")){
         if (!is.null(probinit)) {
-            nonNAs = !is.na(getValues(probinit))
+            nonNAs = !is.na(getvalue(probinit))
             wh.nonNAs = which(nonNAs)
-            ProbInit.v = cumsum(getValues(probinit)[nonNAs])
+            ProbInit.v = cumsum(getvalue(probinit)[nonNAs])
             if (!is.null(numagents)) {
                 ran = runif(numagents,0,1)
                 fI = findInterval(ran, ProbInit.v)+1
@@ -248,7 +287,7 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
                 last.fI = findInterval(last.ran, ProbInit.v)+1
                 last.fI2 = wh.nonNAs[last.fI]
             } else {
-                va = getValues(probinit)[nonNAs]
+                va = getvalue(probinit)[nonNAs]
                 ran = runif(length(va), 0, 1)
                 fI2 = wh.nonNAs[ran<va]
                 
@@ -309,6 +348,9 @@ setMethod("initialize", "mobileAgent", function(.Object, agentlocation = NULL, n
     return(.Object)
 })
 
+###
+### be sure to @import sp
+###
 # show attributes of a pointAgent (extends method initialize to this class)
 setMethod("show",
     signature = "mobileAgent",
@@ -352,19 +394,22 @@ setMethod("agentHeading",
 
 # set agent id
 setGeneric("agentHeading<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("agentHeading<-")
-           })
+})
 
 setReplaceMethod("agentHeading",
                  signature="mobileAgent",
-                 function(object, values) {
-                     object@heading <- values
+                 function(object, value) {
+                     object@heading <- value
                      validObject(object)
                      return(object)
-                 })
+})
 
 
+###
+### be sure to @import sp
+###
 # plot arrows showing direction of mobileAgent movement
 setGeneric("arrow", function(agent, ...) {
     standardGeneric("arrow")
@@ -401,6 +446,9 @@ setMethod("distance",
               }
 })
 
+###
+### be sure to @import sp
+###
 # determine the heading between spatial points
 setGeneric("heading", function(from, to, ...) {
     standardGeneric("heading")

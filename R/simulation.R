@@ -1,6 +1,4 @@
 #######################################################################
-###     DES-ABM.R:  R routines for discrete-event simulation (DES)  ###
-###                                                                 ###
 ###     Modified from Matloff (2009):                               ###
 ###     - uses S4 classes for the sim objects                       ###
 ###     - uses `data.table` instead of `data.frame`                 ###
@@ -8,31 +6,42 @@
 ###       to add submodules to the simulation                       ###
 #######################################################################
 
-##  OVERVIEW:
-##
-##  A global object named "sim" holds:
-##      events: the events data.table (see below);
-##      .loaded: list of already loaded modules;
-##      modules: list of required modules to load;
-##      params: list of simulation parameters;
-##      simtime: the current simulated time;
-##      debug: indicates debugging mode
-##
-##  Each event is represented by a data.table row consisting of:
-##      event.time: the time the event is to occur;
-##      module.name: the module from which the event is taken;
-##      event.type: a character string for the programmer-defined event type;
-##      : optional application-specific components.
-##
-##  Additionally, a global object named "sim.data" holds:
-##      agents: custom list of agents used in simulation;
-##      maps: custom list of maps loaded and used by sim.
-##
 
 
-###
-### we use standard S4 classes for the global sim lists
-###
+#' The SimList class
+#'
+#' This class contains the minimum components of a simulation.
+#'
+#' An object of class SimList contains: 
+#'      events: the events data.table (see below);
+#'      .loaded: list of already loaded modules;
+#'      modules: list of required modules to load;
+#'      params: list of simulation parameters;
+#'      simtime: the current simulated time;
+#'      debug: indicates debugging mode.
+#'  Each event is represented by a data.table row consisting of:
+#'      event.time: the time the event is to occur;
+#'      module.name: the module from which the event is taken;
+#'      event.type: a character string for the programmer-defined event type;
+#'      : optional application-specific components.
+#'
+#'@section Slots: 
+#'  \describe{
+#'    \item{\code{.loaded}:}{List of character names specifying which modules are currently loaded.}
+#'    \item{\code{modules}:}{List of character names specifying which modules to load.}
+#'    \item{\code{params}:}{Named list of potentially other lists specifying simulation parameters.}
+#'    \item{\code{events}:}{The list of scheduled events, as a data.table class.}
+#'    \item{\code{simtime}:}{Numerical value describing the current simulation time.}
+#'    \item{\code{debug}:}{Logical value specifying whether to run simulation in debugging mode.}
+#'  }
+#'
+#' @note You can still add notes
+#' @name SimList 
+#' @rdname SimList
+#' @aliases SimList-class
+#' @exportClass SimList
+#' @author Alex Chubaty
+#' 
 setClass("SimList",
          slots=list(.loaded="list", modules="list", params="list",
                     events="data.table", simtime="numeric", debug="logical"
@@ -84,14 +93,14 @@ setMethod("sim.modules",
 })
 
 setGeneric("sim.modules<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("sim.modules<-")
 })
 
 setReplaceMethod("sim.modules",
                  signature="SimList",
-                 function(object, values) {
-                     object@modules <- values
+                 function(object, value) {
+                     object@modules <- value
                      validObject(object)
                      return(object)
 })
@@ -107,14 +116,14 @@ setMethod("sim.loaded",
 })
 
 setGeneric("sim.loaded<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("sim.loaded<-")
 })
 
 setReplaceMethod("sim.loaded",
                  signature="SimList",
-                 function(object, values) {
-                     object@.loaded <- values
+                 function(object, value) {
+                     object@.loaded <- value
                      validObject(object)
                      return(object)
 })
@@ -130,14 +139,14 @@ setMethod("sim.params",
 })
 
 setGeneric("sim.params<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("sim.params<-")
 })
 
 setReplaceMethod("sim.params",
                  signature="SimList",
-                 function(object, values) {
-                     object@params <- values
+                 function(object, value) {
+                     object@params <- value
                      validObject(object)
                      return(object)
 })
@@ -212,11 +221,38 @@ setReplaceMethod("sim.debug",
 })
 
 
-
-# setClass("SimData", slots=list(agents="AgentsList", maps="MapsList", stats="StatsList"))
+#' The SimData class
+#'
+#' This class store data used by and generated in a simulation.
+#'
+#' An object of class SimData contains: 
+#'      agents: custom list of agents used in the simulation;
+#'      maps: custom list of maps loaded or generated by the simulation;
+#'      stats: custom list of stats collected during the simulation.
+#'
+#'@section Slots: 
+#'  \describe{
+#'    \item{\code{agents}:}{The list of agents, as an agent class (or subclass).}
+#'    \item{\code{maps}:}{The list(s) of maps, as raster class (raster package) or Spatial class (sp package).}
+#'    \item{\code{stats}:}{The list(s) of statistics.}
+#'  }
+#'
+#' @note You can still add notes
+#' @name SimData 
+#' @rdname SimData
+#' @aliases SimData-class
+#' @exportClass SimData
+#' @author Alex Chubaty
+#' 
 setClass("SimData", slots=list(agents="list", maps="list", stats="list"))
+# setClass("SimData", slots=list(agents="AgentsList", maps="MapsList", stats="StatsList"))
 
-# define methods that extend already-prototyped functions in R
+
+##############
+###
+###     ALL METHODS NEED DOCUMENTATION
+###
+##############
 setMethod("initialize",
           signature = "SimData",
           definition = function(.Object) {
@@ -233,7 +269,6 @@ setMethod("show",
               print(show)
 })
 
-# define our custom methods, which need to be prototyped
 setGeneric("sim.agents", function(object) {
     standardGeneric("sim.agents")
 })
@@ -245,14 +280,14 @@ setMethod("sim.agents",
 })
 
 setGeneric("sim.agents<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("sim.agents<-")
 })
 
 setReplaceMethod("sim.agents",
                  signature="SimData",
-                 function(object, values) {
-                     object@agents <- values
+                 function(object, value) {
+                     object@agents <- value
                      validObject(object)
                      return(object)
 })
@@ -268,14 +303,14 @@ setMethod("sim.maps",
 })
 
 setGeneric("sim.maps<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("sim.maps<-")
 })
 
 setReplaceMethod("sim.maps",
                  signature="SimData",
-                 function(object, values) {
-                     object@maps <- values
+                 function(object, value) {
+                     object@maps <- value
                      validObject(object)
                      return(object)
 })
@@ -291,14 +326,14 @@ setMethod("sim.stats",
 })
 
 setGeneric("sim.stats<-",
-           function(object, values) {
+           function(object, value) {
                standardGeneric("sim.stats<-")
 })
 
 setReplaceMethod("sim.stats",
                  signature="SimData",
-                 function(object, values) {
-                     object@stats <- values
+                 function(object, value) {
+                     object@stats <- value
                      validObject(object)
                      return(object)
 })
@@ -319,7 +354,7 @@ check.path = function(path) {
     } else {
         stop("Error: `path` should be specified as a character string.")
     }
-    # check to make sure path has a  trailing slash
+    # check to make sure path has a trailing slash
     # if not, add one
     strlets <- strsplit(path, "")[[1]]
     strlen <- length(strlets)

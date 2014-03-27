@@ -45,7 +45,7 @@ module.skeleton = function(name, path) {
 #         } else {
 #             ### load any required packages
 #             pkgs = list("raster") # list required packages here
-#             load.required.pkgs(pkgs)
+#             load.required.pkgs(pkgs, install=FALSE)
 #             
 #             ### module parameters
 #             #   - export module params to global list

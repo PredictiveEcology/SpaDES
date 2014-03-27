@@ -29,9 +29,35 @@ AgentLocation = function(map) {
     return(map)
 }
 
+##############################################################
+#' GaussMap
+#'
+#' Some additional details about this S4 generic and its methods.
+#' The extra blank line between this section and the title is
+#' critical for roxygen2 to differentiate the title from the
+#' description section.
+#'
+#' @param ext Description of \code{ext}.
+#'
+#' @param scale Description of \code{scale}.
+#'
+#' @param var Description of \code{var}.
+#'
+#' @param speedup Description of \code{speedup}.
+#'
+#' @return A GaussMap thing, which needs an explanation.
+#' 
+#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' 
+#' @import RandomFields
+#' @import raster
+#' @export
+#' @docType methods
+#' @rdname GaussMap
+#'
+#' #@examples
+#' #EXAMPLES NEEDED
 GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
-    
-    require(RandomFields)
     xmn = ext@xmin
     xmx = ext@xmax
     ymn = ext@ymin
@@ -79,7 +105,34 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
     Next
 }
 
+##############################################################
+#' Correlated Random Walk
+#'
+#' Some additional details about this S4 generic and its methods.
+#' The extra blank line between this section and the title is
+#' critical for roxygen2 to differentiate the title from the
+#' description section.
+#'
+#' @param agent An object of class mobileAgent.
+#'
+#' @param step.len Description of this.
+#' 
+#' @param dir.sd Description of this.
+#' 
+#' @param hab Description of this.
+#'
+#' @return An agent object with updated spatial position.
+#' 
+#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' 
+#' @export
+#' @docType methods
+#' @rdname movement-methods
+#'
+#' #@examples
+#' # NEED EXAMPLES
 crw = function(agent, step.len, dir.sd, hab=NULL) {
+    ### should convert to S4 for a mobileAgent
     n = length(agent)
     rand.dir = rnorm(n, agent@heading, dir.sd)
     rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
@@ -96,6 +149,32 @@ crw = function(agent, step.len, dir.sd, hab=NULL) {
     return(agent)
 }
 
+##############################################################
+#' Ring Probabilities
+#'
+#' Details here.
+#'
+#' @param agent Description of this.
+#'
+#' @param rings Description of this.
+#'
+#' @param step.len Description of this.
+#'
+#' @param dir.sd Description of this.
+#'
+#' @param hab Description of this.
+#'
+#' @return Decribe what it returns: fromto.
+#' 
+#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' 
+#' @import data.table
+#' @export
+#' @docType methods
+#' @rdname ring-probs
+#'
+#' #@examples
+#' # NEED EXAMPLES
 ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
     if (!is(agent, "agent")) {
         stop("must be an agent class") # checking should be done using S4 signatures
@@ -110,17 +189,44 @@ ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
     setkey(rings, ids)
     fromto = rings[DT]
     
+    # the next lines aren't working:
+    #   possibly because R thinks `headi`, and `ProbTurn` are globals.
     fromto[, headi:=heading(from=SpatialPoints(cbind(x=fromto$x.1, y=fromto$y.1)),
                             to=SpatialPoints(cbind(x=fromto$x,y=fromto$y)))]
     fromto[, ProbTurn:=dwrpnorm(theta=rad(headi), mu=heading.rad, sd=dir.sd/50)] # why 50?
     
     return(fromto)
 }
-# identifies the xy coordinates of a circle around all live agents
-#  key function is draw.circles in the plotrix package
 
-## Results double checked
-cir = function(agent, radiuses, raster_world, scale_raster){
+##############################################################
+#' Circle around an agent.
+#'
+#' Identifies the xy coordinates of a circle around all live agents.
+#'
+#' @param agent Description of this.
+#'
+#' @param radiuses Description of this, including why it isn't called
+#' radii ;p
+#'
+#' @param raster_world Description of this.
+#'
+#' @param scale_raster Description of this.
+#'
+#' @return A list of data.frames with x and y coordinates of each 
+#' unique pixel of the circle around each individual.
+#' 
+#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' 
+#' @import data.table
+#' @import sp
+#' @import raster
+#' @export
+#' @docType methods
+#' @rdname cir
+#'
+#' #@examples
+#' # NEED EXAMPLES
+cir = function(agent, radiuses, raster_world, scale_raster) {
     ### identify the pixels ("patches" in NetLogo) that are at
     ###  a buffer distance of the individual location.
     
@@ -154,6 +260,8 @@ cir = function(agent, radiuses, raster_world, scale_raster){
     
     ### Eliot' added's code:
     DT = data.table(ids, angs, xs, ys, rads)
+    # the next three lines aren't working:
+    #   possibly because R thinks `angles`, `x`, and `y` are globals.
     DT[, (angles):=cumsum(angs), by=ids] # adds new column `angles` to DT that is the cumsum of angs for each id
     DT[, (x):=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
     DT[, (y):=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
@@ -162,6 +270,8 @@ cir = function(agent, radiuses, raster_world, scale_raster){
     coords.all.ind <- DT[, list(x,y,ids)]
     
     # extract the pixel IDs under the points
+    # the next line isn't working:
+    #   possibly because R thinks `pixIDs` is a global.
     coords.all.ind[, (pixIDs):=cellFromXY(raster_world,coords.all.ind)]
 
     # use only the unique pixels
