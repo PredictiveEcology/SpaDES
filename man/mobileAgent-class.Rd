@@ -1,5 +1,6 @@
 \docType{class}
-\name{mobileAgent-class}
+\name{mobileAgent}
+\alias{mobileAgent}
 \alias{mobileAgent-class}
 \title{The \code{mobileAgent} class.}
 \description{
@@ -22,4 +23,7 @@ polygon).
 
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}
+\note{
+add additional notes here.
+}
 

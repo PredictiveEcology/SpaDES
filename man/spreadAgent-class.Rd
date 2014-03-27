@@ -1,5 +1,6 @@
 \docType{class}
-\name{spreadAgent-class}
+\name{spreadAgent}
+\alias{spreadAgent}
 \alias{spreadAgent-class}
 \title{The \code{spreadAgent} class.}
 \description{
@@ -17,4 +18,7 @@ a raster and are capable of spreading (growing/shrinking).
 
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}
+\note{
+add additional notes here.
+}
 

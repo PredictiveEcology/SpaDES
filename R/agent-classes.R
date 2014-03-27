@@ -7,8 +7,9 @@
 #'              
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @note You can still add notes
-#' @name agent-class
+#' @note add additional notes here.
+#' 
+#' @name agent
 #' @rdname agent-class
 #' @aliases agent-class
 #' @exportClass agent
@@ -21,6 +22,7 @@ setClass("agent", slots=list(ID="character", other="list"),
 #' Extends the \code{agent} class by making it spatial.
 #' Describes spatial agents whose  spatial components are characterized by
 #' a raster (i.e., in contrast to points or a polygon).
+#' 
 #' This is a virtual class and not intended to be used directly.
 #'
 #' @slot ID     A character string that identifies the individual agent.
@@ -28,7 +30,9 @@ setClass("agent", slots=list(ID="character", other="list"),
 #'              
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @name rasterAgent-class
+#' @note This is a virtual class and not intended to be used directly.
+#' 
+#' @name rasterAgent
 #' @rdname rasterAgent-class
 #' @aliases rasterAgent-class
 #' @exportClass rasterAgent
@@ -41,6 +45,7 @@ setClass("rasterAgent", slots=list(ID="character", other = "list"), contains="ag
 #' Extends the \code{agent} class by making it spatial.
 #' Describes spatial agents whose  spatial components are characterized by
 #' points or a polygon (i.e., in contrast to a raster).
+#' 
 #' This is a virtual class and not intended to be used directly.
 #'
 #' @slot ID     A character string that identifies the individual agent.
@@ -48,7 +53,9 @@ setClass("rasterAgent", slots=list(ID="character", other = "list"), contains="ag
 #'              
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @name vectorAgent-class
+#' @note This is a virtual class and not intended to be used directly.
+#' 
+#' @name vectorAgent
 #' @rdname vectorAgent-class
 #' @aliases vectorAgent-class
 #' @exportClass vectorAgent
@@ -68,7 +75,9 @@ setClass("vectorAgent", slots=list(ID="character", other = "list"), contains="ag
 #'          
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @name polygonAgent-class
+#' @note add additional notes here.
+#' 
+#' @name polygonAgent
 #' @rdname polygonAgent-class
 #' @aliases polygonAgent-class
 #' @importClassesFrom sp SpatialPolygons
@@ -89,7 +98,9 @@ setClass("polygonAgent", slots=list(spatial="SpatialPolygons"), contains="vector
 #' 
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @name pointAgent-class
+#' @note add additional notes here.
+#' 
+#' @name pointAgent
 #' @rdname pointAgent-class
 #' @aliases pointAgent-class
 #' @importClassesFrom sp SpatialPoints
@@ -111,7 +122,9 @@ setClass("pointAgent", slots=list(spatial="SpatialPoints"), contains="vectorAgen
 #' 
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @name spreadAgent-class
+#' @note add additional notes here.
+#' 
+#' @name spreadAgent
 #' @rdname spreadAgent-class
 #' @aliases spreadAgent-class
 #' @exportClass spreadAgent
@@ -136,7 +149,9 @@ setClass("spreadAgent", slots=list(NumPix="numeric"),
 #' 
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 
-#' @name mobileAgent-class
+#' @note add additional notes here.
+#' 
+#' @name mobileAgent
 #' @rdname mobileAgent-class
 #' @aliases mobileAgent-class
 #' @importClassesFrom sp SpatialPoints

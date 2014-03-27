@@ -8,7 +8,7 @@
 
 
 
-#' The SimList class
+#' The \code{SimList} class
 #'
 #' This class contains the minimum components of a simulation.
 #'
@@ -52,7 +52,7 @@ setClass("SimList",
 
 
 
-#' The SimData class
+#' The \code{SimData} class
 #'
 #' This class store data used by and generated in a simulation.
 #'

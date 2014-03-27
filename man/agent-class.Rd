@@ -1,5 +1,6 @@
 \docType{class}
-\name{agent-class}
+\name{agent}
+\alias{agent}
 \alias{agent-class}
 \title{The \code{agent} class.}
 \description{
@@ -15,6 +16,6 @@ body.
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}
 \note{
-You can still add notes
+add additional notes here.
 }
 

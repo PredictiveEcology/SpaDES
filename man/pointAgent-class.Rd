@@ -1,5 +1,6 @@
 \docType{class}
-\name{pointAgent-class}
+\name{pointAgent}
+\alias{pointAgent}
 \alias{pointAgent-class}
 \title{The \code{pointAgent} class.}
 \description{
@@ -17,4 +18,7 @@ agents whose spatial components are characterized by points
 
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}
+\note{
+add additional notes here.
+}
 

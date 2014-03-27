@@ -1,13 +1,17 @@
 \docType{class}
-\name{vectorAgent-class}
+\name{vectorAgent}
+\alias{vectorAgent}
 \alias{vectorAgent-class}
 \title{The \code{vectorAgent} class.}
 \description{
 Extends the \code{agent} class by making it spatial.
 Describes spatial agents whose spatial components are
 characterized by points or a polygon (i.e., in contrast to
-a raster). This is a virtual class and not intended to be
-used directly.
+a raster).
+}
+\details{
+This is a virtual class and not intended to be used
+directly.
 }
 \section{Slots}{
 
@@ -17,4 +21,8 @@ used directly.
 
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}
+\note{
+This is a virtual class and not intended to be used
+directly.
+}
 

@@ -2,7 +2,7 @@
 \name{SimData}
 \alias{SimData}
 \alias{SimData-class}
-\title{The SimData class}
+\title{The \code{SimData} class}
 \description{
 This class store data used by and generated in a
 simulation.

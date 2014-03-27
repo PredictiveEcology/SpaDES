@@ -1,5 +1,6 @@
 \docType{class}
-\name{polygonAgent-class}
+\name{polygonAgent}
+\alias{polygonAgent}
 \alias{polygonAgent-class}
 \title{The \code{polygonAgent} class.}
 \description{
@@ -17,4 +18,7 @@ polygons (i.e., in contrast to points or a raster).
 
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}
+\note{
+add additional notes here.
+}
 

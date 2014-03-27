@@ -2,7 +2,7 @@
 \name{SimList}
 \alias{SimList}
 \alias{SimList-class}
-\title{The SimList class}
+\title{The \code{SimList} class}
 \description{
 This class contains the minimum components of a simulation.
 }
