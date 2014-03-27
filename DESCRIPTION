@@ -6,23 +6,23 @@ URL:
 Version: 0.0.1
 Date: 2014-03-25
 Authors@R: c(person("Eliot", "McIntire",
-					email="WHICHEVER@EMAIL.YOU.USE",
-					role=c("aut", "cre")),
-			person("Alex", "Chubaty",
-					email="alex.chubaty@gmail.com",
-					role = c("aut", "cre")))
+    email="WHICHEVER@EMAIL.YOU.USE",
+    role=c("aut", "cre")),
+    person("Alex", "Chubaty",
+    email="alex.chubaty@gmail.com",
+    role = c("aut", "cre")))
 Depends:
     R (>= 3.0.2)
 Suggests:
 Imports:
-	CircStats,
+    CircStats,
     data.table,
     geoR,
-	grid,
+    grid,
     igraph,
-	methods,
+    methods,
     plotrix,
-	RandomFields,
-	raster,
+    RandomFields,
+    raster,
     sp
 License: What license is it under?

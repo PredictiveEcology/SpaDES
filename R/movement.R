@@ -13,7 +13,7 @@ NumAgents = function(N) {
 
 move = function(hypothesis = NULL) {
     if (hypothesis == "TwoDT") move = "TwoDT"
-    if (hypotehsis == "crw") move = "crw"
+    if (hypothesis == "crw") move = "crw"
 }
 
 AgentLocation = function(map) {
@@ -168,6 +168,7 @@ crw = function(agent, step.len, dir.sd, hab=NULL) {
 #' 
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
 #' 
+#' @import CircStats
 #' @import data.table
 #' @export
 #' @docType methods

@@ -49,7 +49,7 @@ do.event.caribou = function(event.time, event.type) {
 caribou.init = function() {
     ### load any required packages
     pkgs = list("raster") # list required packages here
-    load.required.pkgs(pkgs)
+    load.packages(pkgs)
     
     hab = get.habitat.map() # from habitat module
     best = max(hab@data@values)

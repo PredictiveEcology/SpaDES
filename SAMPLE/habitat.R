@@ -40,7 +40,7 @@ do.event.habitat = function(event.time, event.type) {
 habitat.init = function() {
     ### load any required packages
     pkgs = list("raster") # list required packages here
-    load.required.pkgs(pkgs)
+    load.packages(pkgs)
         
     ### initialize habitat
     nx = 5e2 # could be specified globally in params
