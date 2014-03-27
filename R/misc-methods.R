@@ -45,7 +45,7 @@ setMethod("load.packages",
 
 #' @rdname loadpackages
 setMethod("load.packages",
-          signature(package.list="list"),
+          signature(package.list="list", install="missing"),
           definition = function(package.list) {
               load <- function(name, install) {
                   if (!require(name, character.only=TRUE)) {

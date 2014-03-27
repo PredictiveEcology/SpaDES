@@ -25,9 +25,6 @@ The heading between the points, in RADIANS or DEGREES?.
 \description{
 Determines the heading between spatial points.
 }
-\examples{
-# needs examples
-}
 \seealso{
 \code{\link{print}} and \code{\link{cat}}
 }

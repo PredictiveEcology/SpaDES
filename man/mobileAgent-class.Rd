@@ -5,9 +5,8 @@
 \title{The \code{mobileAgent} class.}
 \description{
 Extends the \code{pointAgent} class. Describes
-non-stationary spatial agents whose spatial #' components
-are characterized by points (i.e., in contrast to a
-polygon).
+non-stationary spatial agents whose spatial components are
+characterized by points (i.e., in contrast to a polygon).
 }
 \section{Slots}{
 
@@ -17,9 +16,9 @@ polygon).
 
 \item{\code{spatial}}{A \code{SpatialPoints} object.}
 
-\item{\code{distance}}{A numeric describing the agent's heading (in degrees) from it's previous position.}
+\item{\code{distance}}{A numeric describing the agent's distance from previous position.}
 
-\item{\code{heading}}{A numeric describing the agent's distance from previous position.}
+\item{\code{heading}}{A numeric describing the agent's heading (in degrees) from it's previous position.}
 
 \item{\code{other}}{A list for storing other (user-specific) agent attributes.}
 }}

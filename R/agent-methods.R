@@ -371,14 +371,15 @@ setMethod("distance",
 #' 
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
 #' 
-#' @import CircStats
-#' @import sp
+#' @importMethodsFrom CircStats deg
+#' @importClassesFrom sp SpatialPoints
+#' @importMethodsFrom sp coordinates
 #' @export
 #' @docType methods
 #' @rdname heading
 #'
-#' @examples
-#' # needs examples
+# @examples
+# needs examples
 setGeneric("heading", function(from, to, ...) {
     standardGeneric("heading")
 })

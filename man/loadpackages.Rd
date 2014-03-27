@@ -1,15 +1,15 @@
 \docType{methods}
 \name{load.packages}
 \alias{load.packages}
-\alias{load.packages,list,ANY-method}
 \alias{load.packages,list,logical-method}
+\alias{load.packages,list,missing-method}
 \title{Load packages.}
 \usage{
 load.packages(package.list, install)
 
 \S4method{load.packages}{list,logical}(package.list, install)
 
-\S4method{load.packages}{list,ANY}(package.list)
+\S4method{load.packages}{list,missing}(package.list)
 }
 \arguments{
   \item{package.list}{A list of character strings

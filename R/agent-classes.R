@@ -136,16 +136,16 @@ setClass("spreadAgent", slots=list(NumPix="numeric"),
 #' The \code{mobileAgent} class.
 #'
 #' Extends the \code{pointAgent} class. Describes non-stationary spatial agents whose
-#' spatial #' components are characterized by points (i.e., in contrast to a polygon).
+#' spatial components are characterized by points (i.e., in contrast to a polygon).
 #'
 #' @slot ID     A character string that identifies the individual agent.
 #'              By default, the numbers 1...n are used.
 #' 
 #' @slot spatial    A \code{SpatialPoints} object.
 #' 
-#' @slot distance   A numeric describing the agent's heading (in degrees) from it's previous position.
+#' @slot distance   A numeric describing the agent's distance from previous position.
 #' 
-#' @slot heading    A numeric describing the agent's distance from previous position.
+#' @slot heading    A numeric describing the agent's heading (in degrees) from it's previous position.
 #' 
 #' @slot other  A list for storing other (user-specific) agent attributes.
 #' 

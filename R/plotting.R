@@ -1,7 +1,8 @@
 # This creates a rasterList class, very general, no checking... and plot function
 setClass("rasterList", slots=c(maps="list"))
 
-
+# which functions are used from what packages
+# needs grid package for 10 functions
 setMethod("plot",
           signature = "rasterList",
           definition = function(x, y, which.to.plot = "all", speedup = 100, axes = "L", add = F, ...) {
