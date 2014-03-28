@@ -3,9 +3,43 @@ setClass("rasterList", slots=c(maps="list"))
 
 # which functions are used from what packages
 # needs grid package for 10 functions
+
+##############################################################
+#' Plot \code{rasterList} Class
+#'
+#' Extends \code{plot} function for use in simulations.
+#' 
+#' This method is designed to plot many rasters that are organized into a \code{rasterList}, which 
+#' is simply a list of rasters with a specified class. This method automatically plots individual 
+#' rasters in with an arrangement on the plotting window that is optimal for the size and shape of 
+#' the window. \code{Speedup} will make downsample the number of pixels, allowing for greater plotting
+#' speed, at a cost of more fuzzy plots.
+#'
+#' @param x rasterList object.
+#'
+#' @param which.to.plot numeric or character vector identifying which rasters in \code{rasterList} to plot.
+#' 
+#' @param speedup scalar indicating how much faster than normal to make plots (see Details).
+#' 
+#' @param axes string either "all", "L", or "none" (see Details). Default is "L".
+#' 
+#' @param add logical indicating whether to plot new maps (F) or update exising maps (T). Default is F.
+#'
+#' @return Creates a plot within the active plotting device.
+#' 
+#' #@seealso \code{\link{plot}} and \code{\link{rasterList}}
+#' 
+#' @import grid
+#' @import raster
+#' @export
+#' @docType methods
+#' @rdname plot
+#'
+# @examples
+# needs examples
 setMethod("plot",
           signature = "rasterList",
-          definition = function(x, y, which.to.plot = "all", speedup = 100, axes = "L", add = F, ...) {
+          definition = function(x, ..., which.to.plot = "all", speedup = 100, axes = "L", add = F) {
               map.list = x
               nam = names(map.list)
               

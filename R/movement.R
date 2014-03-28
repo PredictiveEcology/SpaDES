@@ -32,22 +32,25 @@ AgentLocation = function(map) {
 ##############################################################
 #' GaussMap
 #'
-#' Some additional details about this S4 generic and its methods.
-#' The extra blank line between this section and the title is
-#' critical for roxygen2 to differentiate the title from the
-#' description section.
-#'
-#' @param ext Description of \code{ext}.
-#'
-#' @param scale Description of \code{scale}.
-#'
-#' @param var Description of \code{var}.
-#'
-#' @param speedup Description of \code{speedup}.
-#'
-#' @return A GaussMap thing, which needs an explanation.
+#' Produces a raster of a random gaussian process. 
 #' 
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' This is a wrapper for #' \code{RFsimulate} function in the RandomFields 
+#' package. The main addition is the \code{speedup} argument which allows
+#' for faster map generation. A \code{speedup} of 1 is normal and will get
+#' progressively faster as the number increases, at the expense of coarser pixel
+#' resolution of the pattern generated
+#'
+#' @param ext An object of class \code{extent} giving the dimensions of output map.
+#'
+#' @param scale The spatial scale in map units of the Gaussian pattern.
+#'
+#' @param var Spatial variance.
+#'
+#' @param speedup An index of how much faster than normal to generate maps.
+#'
+#' @return A map of extent \code{ext} with a Gaussian random pattern.
+#' 
+#' #@seealso \code{\link{RandomFields::RFsimulate}} and \code{\link{raster::extent}}
 #' 
 #' @import RandomFields
 #' @import raster
