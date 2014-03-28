@@ -34,7 +34,7 @@ AgentLocation = function(map) {
 #'
 #' Produces a raster of a random gaussian process. 
 #' 
-#' This is a wrapper for #' \code{RFsimulate} function in the RandomFields 
+#' This is a wrapper for the \code{RFsimulate} function in the RandomFields 
 #' package. The main addition is the \code{speedup} argument which allows
 #' for faster map generation. A \code{speedup} of 1 is normal and will get
 #' progressively faster as the number increases, at the expense of coarser pixel
@@ -50,7 +50,7 @@ AgentLocation = function(map) {
 #'
 #' @return A map of extent \code{ext} with a Gaussian random pattern.
 #' 
-#' #@seealso \code{\link{RandomFields::RFsimulate}} and \code{\link{raster::extent}}
+#' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #' 
 #' @import RandomFields
 #' @import raster
@@ -109,32 +109,35 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
 }
 
 ##############################################################
-#' Correlated Random Walk
+#' Simple Correlated Random Walk
 #'
-#' Some additional details about this S4 generic and its methods.
-#' The extra blank line between this section and the title is
-#' critical for roxygen2 to differentiate the title from the
-#' description section.
+#' This version uses just turn angles and step lengths to define
+#' the correlated random walk.
+#' 
+#' This simple version of a correlated random walk is largely the version that 
+#' was presented in Turchin 1998, but it was also used with bias modifications 
+#' in McIntire, Schultz, Crone 2007.
 #'
 #' @param agent An object of class mobileAgent.
 #'
-#' @param step.len Description of this.
+#' @param step.len Numeric vector of length 1 or number of agents describing step length.
 #' 
-#' @param dir.sd Description of this.
+#' @param dir.sd Numeric vector of length 1 or number of agents describing sd of wrapped normal turn angles.
 #' 
-#' @param hab Description of this.
-#'
-#' @return An agent object with updated spatial position.
+#' @return An agent object with updated spatial position defined by a single occurrence
+#' of step length(s) and turn angle(s).
 #' 
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' @seealso \code{\link{mobileAgent}} 
 #' 
+#' @references Turchin, P. 1998. Quantitative analysis of movement: measuring and modeling population redistribution in animals and plants. Sinauer Associates, Sunderland, MA.
+#' @references McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network for butterfly habitat restoration: where individuals, populations and landscapes interact. Journal of Applied Ecology 44:725–736.
 #' @export
 #' @docType methods
 #' @rdname crw
 #'
 #@examples
 #NEED EXAMPLES
-crw = function(agent, step.len, dir.sd, hab=NULL) {
+crw = function(agent, step.len, dir.sd) {
     ### should convert to S4 for a mobileAgent
     n = length(agent)
     rand.dir = rnorm(n, agent@heading, dir.sd)
@@ -165,8 +168,6 @@ crw = function(agent, step.len, dir.sd, hab=NULL) {
 #'
 #' @param dir.sd Description of this.
 #'
-#' @param hab Description of this.
-#'
 #' @return Decribe what it returns: fromto.
 #' 
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
@@ -179,7 +180,7 @@ crw = function(agent, step.len, dir.sd, hab=NULL) {
 #'
 #' #@examples
 #' # NEED EXAMPLES
-ring.probs = function(agent, rings, step.len, dir.sd, hab = NULL) {
+ring.probs = function(agent, rings, step.len, dir.sd) {
     if (!is(agent, "agent")) {
         stop("must be an agent class") # checking should be done using S4 signatures
     }

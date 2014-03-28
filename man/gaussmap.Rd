@@ -19,14 +19,12 @@ GaussMap(ext, scale = 10, var = 1, speedup = 10)
 }
 \value{
 A map of extent \code{ext} with a Gaussian random pattern.
-
-#
 }
 \description{
 Produces a raster of a random gaussian process.
 }
 \details{
-This is a wrapper for #' \code{RFsimulate} function in the
+This is a wrapper for the \code{RFsimulate} function in the
 RandomFields package. The main addition is the
 \code{speedup} argument which allows for faster map
 generation. A \code{speedup} of 1 is normal and will get
@@ -35,7 +33,6 @@ expense of coarser pixel resolution of the pattern
 generated
 }
 \seealso{
-\code{\link{RandomFields::RFsimulate}} and
-\code{\link{raster::extent}}
+\code{\link{RFsimulate}} and \code{\link{extent}}
 }
 
