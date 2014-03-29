@@ -2,11 +2,15 @@
 \name{simplot}
 \alias{simplot}
 \alias{simplot,RasterStack-method}
+\alias{simplot,mobileAgent-method}
 \title{Ploting methods}
 \usage{
 simplot(x, ...)
 
 \S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 100,
+  axes = "L", add = F, ...)
+
+\S4method{simplot}{mobileAgent}(x, on.which.to.plot = 1, speedup = 100,
   axes = "L", add = F, ...)
 }
 \arguments{
@@ -23,6 +27,15 @@ simplot(x, ...)
 
   \item{add}{logical indicating whether to plot new maps
   (F) or update exising maps (T). Default is F.}
+
+  \item{...}{additional plotting functions passed to
+  grid.raster}
+
+  \item{...}{additional plotting functions passed to plot
+  or points}
+
+  \item{on.which.to.plot}{when add = T, which map to plot
+  on}
 }
 \value{
 Creates a plot within the active plotting device.

@@ -36,6 +36,8 @@ setGeneric("simplot", function(x,...) {
 #' @param axes string either "all", "L", or "none" (see Details). Default is "L".
 #' 
 #' @param add logical indicating whether to plot new maps (F) or update exising maps (T). Default is F.
+#' 
+#' @param ... additional plotting functions passed to grid.raster
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterStack",
@@ -126,5 +128,18 @@ setMethod("simplot",
               }
           })
 
+
+#' @param ... additional plotting functions passed to plot or points
+#' @param on.which.to.plot when add = T, which map to plot on
+#' @rdname simplot
+setMethod("simplot",
+          signature = "mobileAgent",
+          definition = function(x, on.which.to.plot = 1, speedup = 100, axes = "L", add = F, ...) {
+              if (add==F) {
+                plot(x,type = "p", ...)
+              } else {
+                points(x,...)  
+              }
+          })
 
 ###
