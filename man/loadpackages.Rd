@@ -25,6 +25,11 @@ attached using \code{library()}.
 \description{
 Load and optionally install additional packages.
 }
+\examples{
+\dontrun{pkgs <- list("ggplot2", "lme4")}
+\dontrun{load.packages(pkgs) # loads packages if installed}
+\dontrun{load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+}
 \seealso{
 \code{\link{library}}.
 }

@@ -21,8 +21,8 @@
 #' @docType methods
 #' @rdname ring-probs
 #'
-#' #@examples
-#' # NEED EXAMPLES
+# @examples
+# NEED EXAMPLES
 ProbInit = function(map, p=NULL, absolute=FALSE) {
     if (length(p) == 1) { 
         ProbInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
@@ -41,16 +41,36 @@ ProbInit = function(map, p=NULL, absolute=FALSE) {
 
 
 
-###
-### make sure to @import raster and data.table (and sp?)
-###
+##############################################################
+#' spec.num.per.patch
+#'
+#' Instantiate a specific number of agents per patch.
+#'
+#' @param patches Description of this.
+#'
+#' @param num.per.patch.table Description of this.
+#'
+#' @param num.per.patch.map Description of this.
+#'
+#' @return Decribe what it returns: \code{al}.
+#' 
+#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' 
+#' @import data.table raster sp
+#' @export
+#' @docType methods
+#' @rdname specnumperpatch-probs
+#'
+# @examples
+# NEED EXAMPLES
+# 
 # To initialize with a specific number per patch, which may come from
 #  data or have been derived from patch size. Options include a combination of either
 #  a patchid map and a table with 2 columns, pops and num.in.pop,
 #  or 2 maps, patchid and patchnumber. Returns a map with a single unique pixel
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
-spec.num.per.patch = function(patches, num.per.patch.table = NULL, num.per.patch.map=NULL) {
+spec.num.per.patch = function(patches, num.per.patch.table=NULL, num.per.patch.map=NULL) {
     patchids = as.numeric(na.omit(getValues(patches)))
     wh = Which(patches, cells = T)
     if (!is.null(num.per.patch.table)) {
@@ -75,6 +95,8 @@ spec.num.per.patch = function(patches, num.per.patch.table = NULL, num.per.patch
     
     return(al)
 }
+
+
 
 spread = function(maps, start.points, r=NULL, id.colour = TRUE, 
                   ncells=NULL, fn=expression(!is.na(maps)), backwards = FALSE, ...) {

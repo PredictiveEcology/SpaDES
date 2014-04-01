@@ -1,0 +1,27 @@
+\docType{methods}
+\name{spec.num.per.patch}
+\alias{spec.num.per.patch}
+\title{spec.num.per.patch}
+\usage{
+spec.num.per.patch(patches, num.per.patch.table = NULL,
+  num.per.patch.map = NULL)
+}
+\arguments{
+  \item{patches}{Description of this.}
+
+  \item{num.per.patch.table}{Description of this.}
+
+  \item{num.per.patch.map}{Description of this.}
+}
+\value{
+Decribe what it returns: \code{al}.
+
+#
+}
+\description{
+Instantiate a specific number of agents per patch.
+}
+\seealso{
+\code{\link{print}} and \code{\link{cat}}
+}
+

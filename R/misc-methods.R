@@ -18,10 +18,10 @@
 #' @docType methods
 #' @rdname loadpackages
 #'
-# @examples
-# pkgs <- list("ggplot2", "lme4")
-# load.packages(pkgs) # loads packages if installed
-# load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)
+#' @examples
+#' \dontrun{pkgs <- list("ggplot2", "lme4")}
+#' \dontrun{load.packages(pkgs) # loads packages if installed}
+#' \dontrun{load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)}
 setGeneric("load.packages", function(package.list, install) {
     standardGeneric("load.packages")
 })
@@ -77,15 +77,15 @@ setMethod("reload.module.later",
 })
 
 ##########################################################################
-# where should this go? at this point it needs to be run at package load
+# temporary
 ##########################################################################
-pkgs <- list("CircStats",
-             "data.table",
-             "geoR",
-             "igraph",
-             "methods",
-             "plotrix",
-             "raster",
-             "RandomFields",
-             "sp")
-load.packages(pkgs)
+# pkgs <- list("CircStats",
+#              "data.table",
+#              "geoR",
+#              "igraph",
+#              "methods",
+#              "plotrix",
+#              "raster",
+#              "RandomFields",
+#              "sp")
+# load.packages(pkgs)

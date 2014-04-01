@@ -222,15 +222,13 @@ ring.probs = function(agent, rings, step.len, dir.sd) {
 #' 
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
 #' 
-#' @import data.table
-#' @import sp
-#' @import raster
+#' @import data.table sp raster
 #' @export
 #' @docType methods
 #' @rdname cir
 #'
-#' #@examples
-#' # NEED EXAMPLES
+# @examples
+#  NEED EXAMPLES
 cir = function(agent, radiuses, raster_world, scale_raster) {
     ### identify the pixels ("patches" in NetLogo) that are at
     ###  a buffer distance of the individual location.
@@ -265,24 +263,20 @@ cir = function(agent, radiuses, raster_world, scale_raster) {
     
     ### Eliot' added's code:
     DT = data.table(ids, angs, xs, ys, rads)
-    # the next three lines aren't working:
-    #   possibly because R thinks `angles`, `x`, and `y` are globals.
-    DT[, (angles):=cumsum(angs), by=ids] # adds new column `angles` to DT that is the cumsum of angs for each id
-    DT[, (x):=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
-    DT[, (y):=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
+    DT[, angles:=cumsum(angs), by=ids] # adds new column `angles` to DT that is the cumsum of angs for each id
+    DT[, x:=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
+    DT[, y:=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
     
     # put the coordinates of the points on the circles from all individuals in the same matrix
     coords.all.ind <- DT[, list(x,y,ids)]
     
     # extract the pixel IDs under the points
-    # the next line isn't working:
-    #   possibly because R thinks `pixIDs` is a global.
-    coords.all.ind[, (pixIDs):=cellFromXY(raster_world,coords.all.ind)]
+    coords.all.ind[, pixIDs:=cellFromXY(raster_world,coords.all.ind)]
 
     # use only the unique pixels
     coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by=ids]
     coords.all.ind.unq = na.omit(coords.all.ind.unq)
-    coords.all.ind.unq[, (pixIDs.unq):=extract(raster_world,pixIDs)] # where is `pixIDs.unq` used???
+    coords.all.ind.unq[, pixIDs.unq:=extract(raster_world,pixIDs)] # where is `pixIDs.unq` used???
     
     # extract the coordinates for the pixel IDs
     pixels = xyFromCell(raster_world, coords.all.ind.unq$pixIDs)

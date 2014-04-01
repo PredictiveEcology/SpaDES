@@ -27,9 +27,11 @@ setMethod("initialize",
 setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NULL, numagents=NULL, probinit=NULL) {
     if (is(agentlocation, "Raster")){
         if (!is.null(probinit)) {
-            nonNAs = !is.na(getvalue(probinit))
+#            nonNAs = !is.na(getvalue(probinit))
+            nonNAs = !is.na(getValues(probinit))
             wh.nonNAs = which(nonNAs)
-            ProbInit.v = cumsum(getvalue(probinit)[nonNAs])
+#            ProbInit.v = cumsum(getvalue(probinit)[nonNAs])
+            ProbInit.v = cumsum(getValues(probinit)[nonNAs])
             if (!is.null(numagents)) {
                 ran = runif(numagents,0,1)
                 fI = findInterval(ran, ProbInit.v)+1
@@ -38,7 +40,8 @@ setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NU
                 last.fI = findInterval(last.ran, ProbInit.v)+1
                 last.fI2 = wh.nonNAs[last.fI]
             } else {
-                va = getvalue(probinit)[nonNAs]
+#                va = getvalue(probinit)[nonNAs]
+                va = getValues(probinit)[nonNAs]
                 ran = runif(length(va), 0, 1)
                 fI2 = wh.nonNAs[ran<va]
                 
