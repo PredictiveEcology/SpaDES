@@ -14,34 +14,34 @@
 #' 
 #' #@seealso \code{\link{grid.raster}}
 #' 
-#' @import grid
-#' @import raster
+#' @import grid raster
 #' @export
 #' @docType methods
 #' @rdname simplot
 #'
 # @examples
 # needs examples
-setGeneric("simplot", function(x,...) {
+setGeneric("simplot", function(x, ...) {
            standardGeneric("simplot")
 })
 
-# which functions are used from what packages
-# needs grid package for 10 functions
 
-#' @param which.to.plot numeric or character vector identifying which rasters in \code{rasterStack} to plot.
+
+#' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
 #' 
-#' @param speedup scalar indicating how much faster than normal to make plots (see Details).
+#' @param speedup Scalar indicating how much faster than normal to make plots (see Details).
 #' 
-#' @param axes string either "all", "L", or "none" (see Details). Default is "L".
+#' @param axes String either "all", "L", or "none" (see Details). Default is "L".
 #' 
-#' @param add logical indicating whether to plot new maps (F) or update exising maps (T). Default is F.
+#' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
+#' Default is \code{FALSE}.
 #' 
-#' @param ... additional plotting functions passed to grid.raster
+#' @param ... Additional plotting functions passed to grid.raster
+#' 
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterStack",
-          definition = function(x, which.to.plot = "all", speedup = 100, axes = "L", add = F,... ) {
+          definition = function(x, which.to.plot="all", speedup=100, axes="L", add=FALSE, ...) {
               nam = names(x)
               
               if (length(which.to.plot)==1) {
@@ -134,11 +134,11 @@ setMethod("simplot",
 #' @rdname simplot
 setMethod("simplot",
           signature = "mobileAgent",
-          definition = function(x, on.which.to.plot = 1, speedup = 100, axes = "L", add = F, ...) {
+          definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
               if (add==F) {
-                plot(x,type = "p", ...)
+                plot(x, type="p", ...)
               } else {
-                points(x,...)  
+                points(x, ...)  
               }
           })
 
