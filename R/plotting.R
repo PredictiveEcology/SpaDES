@@ -43,10 +43,11 @@ setGeneric("simplot", function(x, ...) {
 #' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
 #' Default is \code{FALSE}.
 #' 
+#' @aliases simplot,RasterStack
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterStack",
-          definition = function(x, which.to.plot="all", speedup=100, axes="L", add=FALSE, ...) {
+          definition = function(x, which.to.plot="all", speedup=10, axes="L", add=FALSE, ...) {
               nam = names(x)
               
               if (length(which.to.plot)==1) {
@@ -142,6 +143,7 @@ setMethod("simplot",
 
 
 #' @param on.which.to.plot when add = T, which map to plot on
+#' @aliases simplot,pointAgent
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",

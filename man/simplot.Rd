@@ -1,18 +1,20 @@
 \docType{methods}
 \name{simplot}
 \alias{simplot}
+\alias{simplot,RasterStack}
 \alias{simplot,RasterStack-method}
+\alias{simplot,pointAgent}
 \alias{simplot,pointAgent-method}
 \title{Ploting methods}
 \usage{
 simplot(x, ...)
 
-\S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 100,
+\S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 10,
   axes = "L", add = FALSE, ...)
 
 \S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, map.names = NULL,
-  maps = NULL, speedup = 1, axes = "L", max.agents = 10000,
-  add = FALSE, pch = 19, ..., cex = 0.2)
+  speedup = 1, axes = "L", max.agents = 10000, add = TRUE, pch = 19,
+  cex = 0.2, ...)
 }
 \arguments{
   \item{x}{rasterStack object.}
