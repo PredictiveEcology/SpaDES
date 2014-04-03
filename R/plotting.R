@@ -127,7 +127,10 @@ setMethod("simplot",
               } else if (add == T){
                   for (i in wh) {
                       vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
-                      vp.names= vp.names[1:30*2]
+                      vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+#                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
+# 
+#                       vp.names= vp.names[1:30*2]
 #                      vp.names = sapply(current.vpTree()$children, function(x) x$name)
                       if (is.numeric(i)) i = nam[i]#match(nam,vp.names)
                       seekViewport(i)
@@ -201,7 +204,7 @@ setMethod("simplot",
                 grid.yaxis(gp=gpar(cex=0.5),at = seq(ats[["y"]][1],ats[["y"]][2],length.out=length(prettys[["y"]])),label = prettys[["y"]])
                 upViewport()
 #                grid.yaxis(gp=gpar(cex=0.5),at = pretty(rangey/max(1,actual.ratio/ds.ratio)),label = pretty(rangey))
-              } else {
+              } else { #add=T
                 for (i in 1:length(on.which.to.plot)) {
                     if(is.numeric(on.which.to.plot[i])) {
                       seekViewport(vp.names[on.which.to.plot[i]])
