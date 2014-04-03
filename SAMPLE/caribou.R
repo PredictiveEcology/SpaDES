@@ -24,25 +24,12 @@ do.event.caribou = function(event.time, event.type) {
         if (reload.module.later(depends)) {
             schedule.event(sim.time(sim), "caribou", "init")
         } else {
-            # do stuff for this event
             caribou.init()
-
-            # schedule the next event
-            schedule.event(1.00, "caribou", "move")
         }
     } else if (event.type=="move") {
-        # do stuff for this event
         caribou.move()
-        
-        # schedule the next event
-        time.next.move = sim.time(sim) + 1.00
-        schedule.event(time.next.move, "caribou", "move")
     } else {
-        # do stuff for this event
-        print("polar bears. grr!")
-        
-        # schedule the next event
-#        schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+        print("polar bears. grr!") # need proper error handling
     }
 }
 
@@ -71,6 +58,10 @@ caribou.init = function() {
     #   -  export data structure for module stats
 #    sim.stats(sim.data)[["caribou"]] <<- list()
     
+    # schedule the first event(s):
+    schedule.event(sim.time(sim), "observer", "plot", other=list(obj="caribou"))
+    schedule.event(1.00, "caribou", "move")
+
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <<- append(sim.loaded(sim), "caribou")
 }
@@ -97,6 +88,10 @@ caribou.move = function() {
     dev.flush()
     
     sim.agents(sim.data)["caribou"] <<- caribou
+    
+    # schedule the next move event
+    time.next.move = sim.time(sim) + 1.00
+    schedule.event(time.next.move, "caribou", "move")
 }
 
 ### user-defined subroutines

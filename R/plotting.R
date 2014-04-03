@@ -1,3 +1,14 @@
+###################################################################
+###
+###     Methods for the ABM simulation: "observer" module:
+###
+###     All plotting and graphics (via event calls);
+###         - stats to file or to screen (toggle)
+###     
+###################################################################
+
+
+
 ##############################################################
 #' Ploting methods
 #'
@@ -62,7 +73,7 @@ setMethod("simplot",
               ds = dev.size()
               ds.ratio = ds[1]/ds[2]
               
-              if (add == F) {
+              if (add==FALSE) {
                   col.by.row = data.frame(matrix(ncol = 2, nrow = length(wh)))
                   
                   col.by.row[,1] = ceiling(length(wh)/(1:length(wh)))
@@ -77,7 +88,7 @@ setMethod("simplot",
                   col.row = min(cols/rows*ds[2]/ds[1] , 1)
                   
                   
-                  #            if (add == F) {
+                  #            if (add == FALSE) {
                   vp = list()
                   ats = list()
                   grid.newpage()
@@ -117,7 +128,7 @@ setMethod("simplot",
                       grid.text(names(x)[ma], y = 1.05, vjust = 0.5, gp = gpar(cex=1-0.015*length(wh)))
                       upViewport()
                   }
-              } else if (add == T){
+              } else if (add==TRUE){
                   for (i in wh) {
                       vp.names = sapply(current.vpTree()$children, function(x) x$name)
                       if (is.numeric(i)) i = nam[i]#match(nam,vp.names)
@@ -125,21 +136,36 @@ setMethod("simplot",
                       grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(ds)/speedup))
                       upViewport()
                   }
+              } else {
+                  stop("Error: Logical `add` should be TRUE or FALSE.")
               }
-          })
+})
 
 
 #' @param ... additional plotting functions passed to plot or points
 #' @param on.which.to.plot when add = T, which map to plot on
+#' @import graphics
 #' @rdname simplot
 setMethod("simplot",
           signature = "mobileAgent",
           definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
-              if (add==F) {
+              if (add==FALSE) {
                 plot(x, type="p", ...)
               } else {
-                points(x, ...)  
+                points(x, ...)  # pch=19, cex=0.1
               }
-          })
+})
 
-###
+#' @param ... additional plotting functions passed to plot or points
+#' @param on.which.to.plot when add = T, which map to plot on
+#' @import raster
+#' @rdname simplot
+setMethod("simplot",
+          signature = "raster",
+          definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
+              if (add==FALSE) {
+                  plot(x, type="p", ...)
+              } else {
+                  plot(x, ...)
+              }
+})
