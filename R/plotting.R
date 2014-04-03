@@ -1,3 +1,8 @@
+# Notes to self... 
+# 1. fix when rasters are not square... need equivalent to eqscplot
+# 2. raster and points are not sized exactly the same... still
+
+
 ##############################################################
 #' Ploting methods
 #'
@@ -137,11 +142,11 @@ setMethod("simplot",
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",
-          definition = function(x, on.which.to.plot=1, map.names=NULL,maps=NULL,speedup=1, 
-                                axes="L", max.agents = 1e4, add=FALSE,pch=19, ..., cex=0.2) {
+          definition = function(x, on.which.to.plot=1, map.names=NULL,speedup=1, 
+                                axes="L", max.agents = 1e4, add=TRUE,pch=19, cex=0.2, ... ) {
               len = length(x)
               if (len>max.agents) {
-                  sam = sample(1:len,size=max.agents,replace=F) 
+                  sam = sample.int(len,size=max.agents,replace=F) 
                   len = max.agents
               } else {
                   sam=1:len
@@ -161,16 +166,14 @@ setMethod("simplot",
               ds = dev.size()
               ds.ratio = ds[1]/ds[2]
               
-              if (add==T) {
-                  if(is.null(map.names)) {
-                      vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
-                      vp.names= vp.names[1:30*2]
-                  } else {
-                      vp.names = map.names
-                  }
-#                  vp.names = sapply(current.vpTree()$children, function(x) x$name)
-                  col.by.row = data.frame(matrix(ncol = 2, nrow = length(vp.names)))
+              if(is.null(map.names)) {
+                  vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
+                  vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+#                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
+              } else {
+                  vp.names = map.names
               }
+              col.by.row = data.frame(matrix(ncol = 2, nrow = length(vp.names)))
               
               col.by.row[,1] = ceiling(length(vp.names)/(1:length(vp.names)))
               col.by.row[,2] = ceiling(length(vp.names)/col.by.row[,1])
@@ -205,7 +208,7 @@ setMethod("simplot",
                     } else {
                       seekViewport(on.which.to.plot[i])
                     }
-                    grid.points(x1/max(1,ds.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),gp=gp1,...)  
+                    grid.points(x1/max(1,ds.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),gp=gpar(cex=0.4),pch=19)  
 #                    grid.points(x1,y1,gp = gpar(col = "green"))#,...)  
                     upViewport()
                 }
