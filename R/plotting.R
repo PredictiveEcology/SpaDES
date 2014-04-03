@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ###################################################################
 ###
 ###     Methods for the ABM simulation: "observer" module:
@@ -8,11 +7,11 @@
 ###     
 ###################################################################
 
-=======
+
 # Notes to self... 
 # 1. fix when rasters are not square... need equivalent to eqscplot
 # 2. raster and points are not sized exactly the same... still
->>>>>>> dc5679ad3296ed7a3328a612f6b89d6fc30ee385
+
 
 
 ##############################################################
@@ -80,7 +79,7 @@ setMethod("simplot",
               ds.ratio = ds[1]/ds[2]
               
               if (add==FALSE) {
-                  col.by.row = data.frame(matrix(ncol = 2, nrow = length(wh)))
+                  col.by.row = data.frame(matrix(ncol=2, nrow=length(wh)))
                   
                   col.by.row[,1] = ceiling(length(wh)/(1:length(wh)))
                   col.by.row[,2] = ceiling(length(wh)/col.by.row[,1])
@@ -114,7 +113,7 @@ setMethod("simplot",
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
                       
-                      vp[[i]] <- viewport(x = cr[i,"cols"], y = cr[i,"rows"], w = 1/cols*0.8, h = 1/rows*0.8,
+                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], w=1/cols*0.8, h=1/rows*0.8,
                                           just = c(0.5, 0.5),
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
@@ -123,22 +122,22 @@ setMethod("simplot",
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
                               if (cr$cols[i]==min(cr$cols)) {
-                                  grid.yaxis(gp=gpar(cex=0.5),at = ats[["y"]]/max(1,actual.ratio/ds.ratio), label = ats[["y"]])
+                                  grid.yaxis(gp=gpar(cex=0.5), at=ats[["y"]]/max(1,actual.ratio/ds.ratio), label=ats[["y"]])
                               }
                               if (cr$rows[i] == min(cr$rows)) {
-                                  grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]]/max(1,ds.ratio/actual.ratio), label = ats[["x"]])
+                                  grid.xaxis(gp=gpar(cex=0.5), at=ats[["x"]]/max(1,ds.ratio/actual.ratio), label=ats[["x"]])
                               }
                           } else {
-                              grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]], label = ats[["x"]])
-                              grid.yaxis(gp=gpar(cex=0.5),at = ats[["y"]], label = ats[["y"]])
+                              grid.xaxis(gp=gpar(cex=0.5), at=ats[["x"]], label=ats[["x"]])
+                              grid.yaxis(gp=gpar(cex=0.5), at=ats[["y"]], label=ats[["y"]])
                           }
                       }
-                      grid.text(names(x)[ma], y = 1.05, vjust = 0.5, gp = gpar(cex=1-0.015*length(wh)))
+                      grid.text(names(x)[ma], y=1.05, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)))
                       upViewport()
                   }
               } else if (add==TRUE){
                   for (i in wh) {
-                      vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
+                      vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
                       vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
 #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
 # 
@@ -155,20 +154,10 @@ setMethod("simplot",
 })
 
 
-#' @param on.which.to.plot when add = T, which map to plot on
+#' @param on.which.to.plot when add = TRUE, which map to plot on
 #' @import graphics
 #' @rdname simplot
 setMethod("simplot",
-<<<<<<< HEAD
-          signature = "mobileAgent",
-          definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
-              if (add==FALSE) {
-                plot(x, type="p", ...)
-              } else {
-                points(x, ...)  # pch=19, cex=0.1
-              }
-})
-=======
           signature = "pointAgent",
           definition = function(x, on.which.to.plot=1, map.names=NULL,speedup=1, 
                                 axes="L", max.agents = 1e4, add=TRUE,pch=19, cex=0.2, ... ) {
@@ -242,8 +231,8 @@ setMethod("simplot",
                 }
               }
 
-          })
->>>>>>> dc5679ad3296ed7a3328a612f6b89d6fc30ee385
+})
+
 
 #' @param ... additional plotting functions passed to plot or points
 #' @param on.which.to.plot when add = T, which map to plot on
