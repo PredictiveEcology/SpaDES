@@ -26,6 +26,7 @@ setMethod("initialize",
 
 setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NULL, numagents=NULL, probinit=NULL) {
     if (is(agentlocation, "Raster")){
+        ext = extent(agentlocation)
         if (!is.null(probinit)) {
 #            nonNAs = !is.na(getvalue(probinit))
             nonNAs = !is.na(getValues(probinit))
@@ -64,9 +65,12 @@ setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NU
             # probinit is NULL - start exactly the number of agents as there
             # are pixels in agentlocation
             if (!is.null(numagents)) {
-                if (length(grep(pattern="Raster",class(agentlocation)))==1) {
-                    position = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
-                } else if (length(grep(pattern="SpatialPoints",class(agentlocation)))==1) {
+                if (is(agentlocation,"Raster")) {
+                    xy=matrix(runif(numagents*2,c(xmin(ext),ymin(ext)),c(xmax(ext),ymax(ext))),ncol=2,byrow=T)
+                    colnames(xy)=c("x","y")
+                    position = SpatialPoints(xy)
+#                    position = SpatialPoints(sampleRandom(agentlocation, numagents, xy = T, sp = T))
+                } else if (is(agentlocation,"SpatialPoints")) {
                     sam = sample(1:length(agentlocation),numagents)
                     position = SpatialPoints(agentlocation[sam,])
                 } else {
@@ -90,6 +94,7 @@ setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NU
                 numagents = length(position)
             } else {stop("with SpatialPolygonsDataFrame, probinit is required")}
         } else {stop("with SpatialPolygonsDataFrame, numagents is required")}
+    } else if (is.null(agentlocation)) { stop("Need to provide agentlocation, which can be a map layer")
     }
     heading1 = runif(numagents, 0, 360)
     distance = runif(numagents, 0.1, 10)

@@ -2,37 +2,37 @@
 \name{simplot}
 \alias{simplot}
 \alias{simplot,RasterStack-method}
-\alias{simplot,mobileAgent-method}
+\alias{simplot,pointAgent-method}
 \title{Ploting methods}
 \usage{
 simplot(x, ...)
 
 \S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 100,
-  axes = "L", add = F, ...)
+  axes = "L", add = FALSE, ...)
 
-\S4method{simplot}{mobileAgent}(x, on.which.to.plot = 1, speedup = 100,
-  axes = "L", add = F, ...)
+\S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, map.names = NULL,
+  maps = NULL, speedup = 1, axes = "L", max.agents = 10000,
+  add = FALSE, pch = 19, ..., cex = 0.2)
 }
 \arguments{
   \item{x}{rasterStack object.}
 
-  \item{which.to.plot}{numeric or character vector
+  \item{...}{Additional plotting functions passed to
+  grid.raster (if rasterStack) or grid.points (if
+  pointAgent)}
+
+  \item{which.to.plot}{Numeric or character vector
   identifying which rasters in \code{rasterStack} to plot.}
 
-  \item{speedup}{scalar indicating how much faster than
+  \item{speedup}{Scalar indicating how much faster than
   normal to make plots (see Details).}
 
-  \item{axes}{string either "all", "L", or "none" (see
+  \item{axes}{String either "all", "L", or "none" (see
   Details). Default is "L".}
 
-  \item{add}{logical indicating whether to plot new maps
-  (F) or update exising maps (T). Default is F.}
-
-  \item{...}{additional plotting functions passed to
-  grid.raster}
-
-  \item{...}{additional plotting functions passed to plot
-  or points}
+  \item{add}{Logical indicating whether to plot new maps
+  (\code{FALSE}) or update exising maps (\code{TRUE}).
+  Default is \code{FALSE}.}
 
   \item{on.which.to.plot}{when add = T, which map to plot
   on}
