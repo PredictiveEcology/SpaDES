@@ -155,13 +155,9 @@ setMethod("simplot",
 })
 
 
-<<<<<<< HEAD
-#' @param on.which.to.plot when add = T, which map to plot on
-#' @aliases simplot,pointAgent
-=======
 #' @param on.which.to.plot when add = TRUE, which map to plot on
+#' @aliases simplot,pointAgent
 #' @import graphics
->>>>>>> 68f14f6b15a7e235b3bf1558c4564169d2e61084
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",
