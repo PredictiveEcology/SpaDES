@@ -1,6 +1,17 @@
+###################################################################
+###
+###     Methods for the ABM simulation: "observer" module:
+###
+###     All plotting and graphics (via event calls);
+###         - stats to file or to screen (toggle)
+###     
+###################################################################
+
+
 # Notes to self... 
 # 1. fix when rasters are not square... need equivalent to eqscplot
 # 2. raster and points are not sized exactly the same... still
+
 
 
 ##############################################################
@@ -68,8 +79,8 @@ setMethod("simplot",
               ds = dev.size()
               ds.ratio = ds[1]/ds[2]
               
-              if (add == F) {
-                  col.by.row = data.frame(matrix(ncol = 2, nrow = length(wh)))
+              if (add==FALSE) {
+                  col.by.row = data.frame(matrix(ncol=2, nrow=length(wh)))
                   
                   col.by.row[,1] = ceiling(length(wh)/(1:length(wh)))
                   col.by.row[,2] = ceiling(length(wh)/col.by.row[,1])
@@ -85,7 +96,7 @@ setMethod("simplot",
 #                   col.row = min(cols/rows*ds[2]/ds[1] , 1)
                   
                   
-                  #            if (add == F) {
+                  #            if (add == FALSE) {
                   vp = list()
                   ats = list()
                   grid.newpage()
@@ -103,7 +114,7 @@ setMethod("simplot",
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
                       
-                      vp[[i]] <- viewport(x = cr[i,"cols"], y = cr[i,"rows"], w = 1/cols*0.8, h = 1/rows*0.8,
+                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], w=1/cols*0.8, h=1/rows*0.8,
                                           just = c(0.5, 0.5),
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
@@ -112,22 +123,22 @@ setMethod("simplot",
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
                               if (cr$cols[i]==min(cr$cols)) {
-                                  grid.yaxis(gp=gpar(cex=0.5),at = ats[["y"]]/max(1,actual.ratio/ds.ratio), label = ats[["y"]])
+                                  grid.yaxis(gp=gpar(cex=0.5), at=ats[["y"]]/max(1,actual.ratio/ds.ratio), label=ats[["y"]])
                               }
                               if (cr$rows[i] == min(cr$rows)) {
-                                  grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]]/max(1,ds.ratio/actual.ratio), label = ats[["x"]])
+                                  grid.xaxis(gp=gpar(cex=0.5), at=ats[["x"]]/max(1,ds.ratio/actual.ratio), label=ats[["x"]])
                               }
                           } else {
-                              grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]], label = ats[["x"]])
-                              grid.yaxis(gp=gpar(cex=0.5),at = ats[["y"]], label = ats[["y"]])
+                              grid.xaxis(gp=gpar(cex=0.5), at=ats[["x"]], label=ats[["x"]])
+                              grid.yaxis(gp=gpar(cex=0.5), at=ats[["y"]], label=ats[["y"]])
                           }
                       }
-                      grid.text(names(x)[ma], y = 1.05, vjust = 0.5, gp = gpar(cex=1-0.015*length(wh)))
+                      grid.text(names(x)[ma], y=1.05, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)))
                       upViewport()
                   }
-              } else if (add == T){
+              } else if (add==TRUE){
                   for (i in wh) {
-                      vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
+                      vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
                       vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
 #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
 # 
@@ -138,12 +149,19 @@ setMethod("simplot",
                       grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(ds)/speedup),...)
                       upViewport()
                   }
+              } else {
+                  stop("Error: Logical `add` should be TRUE or FALSE.")
               }
-          })
+})
 
 
+<<<<<<< HEAD
 #' @param on.which.to.plot when add = T, which map to plot on
 #' @aliases simplot,pointAgent
+=======
+#' @param on.which.to.plot when add = TRUE, which map to plot on
+#' @import graphics
+>>>>>>> 68f14f6b15a7e235b3bf1558c4564169d2e61084
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",
@@ -219,6 +237,19 @@ setMethod("simplot",
                 }
               }
 
-          })
+})
 
-###
+
+#' @param ... additional plotting functions passed to plot or points
+#' @param on.which.to.plot when add = T, which map to plot on
+#' @import raster
+#' @rdname simplot
+setMethod("simplot",
+          signature = "raster",
+          definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
+              if (add==FALSE) {
+                  plot(x, type="p", ...)
+              } else {
+                  plot(x, ...)
+              }
+})

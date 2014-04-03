@@ -5,7 +5,7 @@ module.skeleton = function(name, path) {
 ###    
     ################################################
     ###
-    ### - MODULE.NAME: character
+    ### - moduleName: character
     ### - EVENT.TYPE: character
     ### - description: enter your description here
     ###
@@ -15,7 +15,7 @@ module.skeleton = function(name, path) {
     
     ### event functions:
     #   - follow the naming convention `moduleName.eventType()`;
-    #   - `module.NAME.init()` function is required for initiliazation;
+    #   - `moduleName.init()` function is required for initiliazation;
     #   - keep event functions short and clean, modularize by calling
     #       subroutines from section below.
 #     do.event.template = function(event.time, event.type) {
@@ -24,13 +24,13 @@ module.skeleton = function(name, path) {
 #             module.template.init()
 #             
 #             # schedule the next event
-#             schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+#             schedule.event(EVENT.TIME, "moduleName", "EVENT.TYPE", list(OPTIONAL.ITEMS))
 #         } else {
 #             # do stuff for this event
 #             print("polar bears. grr!")
 #             
 #             # schedule the next event
-#             schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+#             schedule.event(EVENT.TIME, "moduleName", "EVENT.TYPE", list(OPTIONAL.ITEMS))
 #         }
 #     }
 #     
@@ -41,7 +41,7 @@ module.skeleton = function(name, path) {
 #         depends = c("NONE") # list package names here
 #             
 #         if (reload.module.later(depends)) {
-#             schedule.event(sim$simtime, "MODULE.NAME", "init")
+#             schedule.event(sim.time(sim), "moduleName", "init")
 #         } else {
 #             ### load any required packages
 #             pkgs = list("raster") # list required packages here
@@ -49,14 +49,14 @@ module.skeleton = function(name, path) {
 #             
 #             ### module parameters
 #             #   - export module params to global list
-#             globals$params[["MODULE.NAME"]] <<- list()
+#             globals$params[["moduleName"]] <<- list()
 #             
 #             #   -  export data structure for module stats
-#             globals$modulestats[["MODULE.NAME"]] <<- list()
+#             globals$modulestats[["moduleName"]] <<- list()
 #             
 #             # last thing to do is add module name to the loaded list
 #             len = length(globals$.loaded)
-#             globals$.loaded <<- append(globals$.loaded, "MODULE.NAME")
+#             globals$.loaded <<- append(globals$.loaded, "moduleName")
 #         }
 #     }
 #     

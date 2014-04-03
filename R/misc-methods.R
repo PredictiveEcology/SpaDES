@@ -75,17 +75,3 @@ setMethod("reload.module.later",
                   return(!f)
               }
 })
-
-##########################################################################
-# temporary
-##########################################################################
-# pkgs <- list("CircStats",
-#              "data.table",
-#              "geoR",
-#              "igraph",
-#              "methods",
-#              "plotrix",
-#              "raster",
-#              "RandomFields",
-#              "sp")
-# load.packages(pkgs)
