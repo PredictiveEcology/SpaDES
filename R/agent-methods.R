@@ -90,6 +90,7 @@ setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NU
                 numagents = length(position)
             } else {stop("with SpatialPolygonsDataFrame, probinit is required")}
         } else {stop("with SpatialPolygonsDataFrame, numagents is required")}
+    } else if (is.null(agentlocation)) { stop("Need to provide agentlocation, which can be a map layer")
     }
     heading1 = runif(numagents, 0, 360)
     distance = runif(numagents, 0.1, 10)

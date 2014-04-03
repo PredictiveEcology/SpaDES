@@ -9,6 +9,8 @@
 #' speed, at a cost of more fuzzy plots. 
 #'
 #' @param x rasterStack object.
+#' 
+#' @param ... Additional plotting functions passed to grid.raster (if rasterStack) or grid.points (if pointAgent)
 #'
 #' @return Creates a plot within the active plotting device.
 #' 
@@ -35,8 +37,6 @@ setGeneric("simplot", function(x, ...) {
 #' 
 #' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
 #' Default is \code{FALSE}.
-#' 
-#' @param ... Additional plotting functions passed to grid.raster
 #' 
 #' @rdname simplot
 setMethod("simplot",
@@ -73,8 +73,10 @@ setMethod("simplot",
                   cols = col.by.row[wh.best,1]
                   rows = col.by.row[wh.best,2]
                   
-                  row.col = min(rows/cols*ds[1]/ds[2] , 1)
-                  col.row = min(cols/rows*ds[2]/ds[1] , 1)
+                  actual.ratio = cols/rows
+                  
+#                   row.col = min(rows/cols*ds[1]/ds[2] , 1)
+#                   col.row = min(cols/rows*ds[2]/ds[1] , 1)
                   
                   
                   #            if (add == F) {
@@ -104,10 +106,10 @@ setMethod("simplot",
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
                               if (cr$cols[i]==min(cr$cols)) {
-                                  grid.yaxis(gp=gpar(cex=0.5),at = ats[["y"]], label = ats[["y"]])
+                                  grid.yaxis(gp=gpar(cex=0.5),at = ats[["y"]]/max(1,actual.ratio/ds.ratio), label = ats[["y"]])
                               }
                               if (cr$rows[i] == min(cr$rows)) {
-                                  grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]], label = ats[["x"]])
+                                  grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]]/max(1,ds.ratio/actual.ratio), label = ats[["x"]])
                               }
                           } else {
                               grid.xaxis(gp=gpar(cex=0.5),at = ats[["x"]], label = ats[["x"]])
@@ -119,27 +121,96 @@ setMethod("simplot",
                   }
               } else if (add == T){
                   for (i in wh) {
-                      vp.names = sapply(current.vpTree()$children, function(x) x$name)
+                      vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
+                      vp.names= vp.names[1:30*2]
+#                      vp.names = sapply(current.vpTree()$children, function(x) x$name)
                       if (is.numeric(i)) i = nam[i]#match(nam,vp.names)
                       seekViewport(i)
-                      grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(ds)/speedup))
+                      grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(ds)/speedup),...)
                       upViewport()
                   }
               }
           })
 
 
-#' @param ... additional plotting functions passed to plot or points
 #' @param on.which.to.plot when add = T, which map to plot on
 #' @rdname simplot
 setMethod("simplot",
-          signature = "mobileAgent",
-          definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
-              if (add==F) {
-                plot(x, type="p", ...)
+          signature = "pointAgent",
+          definition = function(x, on.which.to.plot=1, map.names=NULL,maps=NULL,speedup=1, 
+                                axes="L", max.agents = 1e4, add=FALSE,pch=19, ..., cex=0.2) {
+              len = length(x)
+              if (len>max.agents) {
+                  sam = sample(1:len,size=max.agents,replace=F) 
+                  len = max.agents
               } else {
-                points(x, ...)  
+                  sam=1:len
               }
+              if(length(len)==1) speed.keep=1:len else speed.keep=sam
+              if(speedup != 1) {
+                  speed.keep = sample(sam,len/speedup,replace=F)
+              } 
+              
+              x1 = coordinates(x)[speed.keep,"x"]
+              y1 = coordinates(x)[speed.keep,"y"]
+              rangex = range(x1)
+              rangey = range(y1)
+
+              if(!exists("gp1")){if (exists("cex")) {gp1 = gpar(cex = cex);rm(cex)} else {gp1=gpar()}}
+
+              ds = dev.size()
+              ds.ratio = ds[1]/ds[2]
+              
+              if (add==T) {
+                  if(is.null(map.names)) {
+                      vp.names= grid.ls(grobs=F,viewports = T,recursive=T,print=F)$name
+                      vp.names= vp.names[1:30*2]
+                  } else {
+                      vp.names = map.names
+                  }
+#                  vp.names = sapply(current.vpTree()$children, function(x) x$name)
+                  col.by.row = data.frame(matrix(ncol = 2, nrow = length(vp.names)))
+              }
+              
+              col.by.row[,1] = ceiling(length(vp.names)/(1:length(vp.names)))
+              col.by.row[,2] = ceiling(length(vp.names)/col.by.row[,1])
+              
+              wh.best = which.min(abs(apply(col.by.row,1,function(x) x[1]/x[2]) - ds.ratio))
+              
+              cols = col.by.row[wh.best,1]
+              rows = col.by.row[wh.best,2]
+              
+              actual.ratio = cols/rows
+              
+              if (add==F) {
+                grid.newpage()
+                vp = viewport(xscale = rangex,yscale= rangey,w=0.8,h=0.8)
+                pushViewport(vp)
+                grid.points(x1/max(1,ds.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),gp=gp1,...)  
+                ats = list()
+                prettys = list()
+                ats[["x"]] = rangex/max(1,ds.ratio/actual.ratio)
+                ats[["y"]] = rangey/max(1,actual.ratio/ds.ratio)
+                prettys[["x"]] = pretty(ats[["x"]])
+                prettys[["y"]] = pretty(ats[["y"]])
+                
+                grid.xaxis(gp=gpar(cex=0.5),at = seq(ats[["x"]][1],ats[["x"]][2],length.out=length(prettys[["x"]])),label = prettys[["x"]])
+                grid.yaxis(gp=gpar(cex=0.5),at = seq(ats[["y"]][1],ats[["y"]][2],length.out=length(prettys[["y"]])),label = prettys[["y"]])
+                upViewport()
+#                grid.yaxis(gp=gpar(cex=0.5),at = pretty(rangey/max(1,actual.ratio/ds.ratio)),label = pretty(rangey))
+              } else {
+                for (i in 1:length(on.which.to.plot)) {
+                    if(is.numeric(on.which.to.plot[i])) {
+                      seekViewport(vp.names[on.which.to.plot[i]])
+                    } else {
+                      seekViewport(on.which.to.plot[i])
+                    }
+                    grid.points(x1/max(1,ds.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),gp=gp1,...)  
+#                    grid.points(x1,y1,gp = gpar(col = "green"))#,...)  
+                    upViewport()
+                }
+              }
+
           })
 
 ###

@@ -8,27 +8,28 @@
 simplot(x, ...)
 
 \S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 100,
-  axes = "L", add = F, ...)
+  axes = "L", add = FALSE, ...)
 
 \S4method{simplot}{mobileAgent}(x, on.which.to.plot = 1, speedup = 100,
-  axes = "L", add = F, ...)
+  axes = "L", add = FALSE, ...)
 }
 \arguments{
   \item{x}{rasterStack object.}
 
-  \item{which.to.plot}{numeric or character vector
+  \item{which.to.plot}{Numeric or character vector
   identifying which rasters in \code{rasterStack} to plot.}
 
-  \item{speedup}{scalar indicating how much faster than
+  \item{speedup}{Scalar indicating how much faster than
   normal to make plots (see Details).}
 
-  \item{axes}{string either "all", "L", or "none" (see
+  \item{axes}{String either "all", "L", or "none" (see
   Details). Default is "L".}
 
-  \item{add}{logical indicating whether to plot new maps
-  (F) or update exising maps (T). Default is F.}
+  \item{add}{Logical indicating whether to plot new maps
+  (\code{FALSE}) or update exising maps (\code{TRUE}).
+  Default is \code{FALSE}.}
 
-  \item{...}{additional plotting functions passed to
+  \item{...}{Additional plotting functions passed to
   grid.raster}
 
   \item{...}{additional plotting functions passed to plot
