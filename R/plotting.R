@@ -61,20 +61,21 @@ setMethod("simplot",
           definition = function(x, which.to.plot="all", speedup=10, axes="L", add=FALSE, ...) {
               nam = names(x)
               ext = extent(x)
+#              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
               dimx = dim(x)
               
               if (add==FALSE) {
-                 arr = arrange.simplots(ext,dimx,nam,which.to.plot)    
+                 arr = arrange.simplots(ext,dimx,nam,which.to.plot,axes,...)    
                  
                  vp = list()
                  grid.newpage()
                  
-                  for (w in wh) {
+                 with(arr, {
+                     for (w in wh) {
                       if (is.numeric(w)) w = nam[w]
                       ma = match(w,nam)
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
-                      with(arr, {
                       vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], w=1/cols*0.8, h=1/rows*0.8,
                                           just = c(0.5, 0.5),
                                           name = w,
@@ -84,9 +85,11 @@ setMethod("simplot",
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
                               if (cr$cols[i]==min(cr$cols)) {
+                                  #grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]])#/max(1,actual.ratio/ds.map.ratio), label=prettys[["y"]])
                                   grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), label=prettys[["y"]])
                               }
                               if (cr$rows[i] == min(cr$rows)) {
+                                  #grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), label=prettys[["x"]])
                                   grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), label=prettys[["x"]])
                               }
                           } else {
@@ -94,11 +97,11 @@ setMethod("simplot",
                               grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), label=prettys[["y"]])
                           }
                       }
-                      })
                       
                       grid.text(names(x)[ma], y=1.05, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)))
                       upViewport()
-                  }
+                    }
+                 })
               } else if (add==TRUE){
                   for (i in wh) {
                       vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
@@ -225,9 +228,10 @@ setMethod("simplot",
 #' @param dimx dimension of rasterStack
 #' @param nam names in rasterStack
 #' @param which.to.plot vector of numbers or names in rasterStack to plot
+#' @param axes passed from simplot 
 #' @rdname arrange.simplots
 # @importMethodsFrom Hmisc llist
-arrange.simplots = function(ext,dimx,nam,which.to.plot) {
+arrange.simplots = function(ext,dimx,nam,which.to.plot,axes,...) {
     
     if (length(which.to.plot)==1) {
         if(which.to.plot=="all")
@@ -264,17 +268,14 @@ arrange.simplots = function(ext,dimx,nam,which.to.plot) {
     actual.ratio = cols/rows
     
     if (axes != "none" & axes != FALSE) {
-        ranges = list()
-        ranges[["x"]] = c(xmax(ext),xmin(ext))
-        ranges[["y"]] = c(ymax(ext),ymin(ext))
         prettys = list()
-        prettys[["x"]] = pretty(ranges[["x"]])
-        prettys[["y"]] = pretty(ranges[["y"]])
-        prettys[["x"]] = prettys[["x"]][which(prettys[["x"]]>=min(ranges[["x"]]) & prettys[["x"]]<=max(ranges[["x"]]))]
-        prettys[["y"]] = prettys[["y"]][which(prettys[["y"]]>=min(ranges[["y"]]) & prettys[["y"]]<=max(ranges[["y"]]))]
+        prettys[["x"]] = pretty(c(xmin(ext),xmax(ext)))
+        prettys[["y"]] = pretty(c(ymin(ext),ymax(ext)))
+        prettys[["x"]] = prettys[["x"]][which(prettys[["x"]]>=xmin(ext) & prettys[["x"]]<=xmax(ext))]
+        prettys[["y"]] = prettys[["y"]][which(prettys[["y"]]>=ymin(ext) & prettys[["y"]]<=ymax(ext))]
     }
     
     cr = expand.grid(cols=((1:cols/cols - 1/cols/2)-0.55)*0.9+0.55,rows=((1:rows/rows - 1/rows/2)-0.55)*0.9+0.55)
-    out = llist(cr,rows,cols,actual.ratio,ds.map.ratio,ds,prettys)
+    out = llist(cr,rows,cols,actual.ratio,ds.map.ratio,ds,prettys,wh)
     return(out)
 }
