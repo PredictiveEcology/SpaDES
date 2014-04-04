@@ -5,6 +5,7 @@
 \alias{simplot,RasterStack-method}
 \alias{simplot,pointAgent}
 \alias{simplot,pointAgent-method}
+\alias{simplot,raster-method}
 \title{Ploting methods}
 \usage{
 simplot(x, ...)
@@ -15,6 +16,9 @@ simplot(x, ...)
 \S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, map.names = NULL,
   speedup = 1, axes = "L", max.agents = 10000, add = TRUE, pch = 19,
   cex = 0.2, ...)
+
+\S4method{simplot}{raster}(x, on.which.to.plot = 1, speedup = 100,
+  axes = "L", add = FALSE, ...)
 }
 \arguments{
   \item{x}{rasterStack object.}
@@ -35,6 +39,12 @@ simplot(x, ...)
   \item{add}{Logical indicating whether to plot new maps
   (\code{FALSE}) or update exising maps (\code{TRUE}).
   Default is \code{FALSE}.}
+
+  \item{on.which.to.plot}{when add = TRUE, which map to
+  plot on}
+
+  \item{...}{additional plotting functions passed to plot
+  or points}
 
   \item{on.which.to.plot}{when add = T, which map to plot
   on}

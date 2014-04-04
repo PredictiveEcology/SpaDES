@@ -65,10 +65,10 @@ GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.uniq
     xmx = ext@xmax
     ymn = ext@ymin
     ymx = ext@ymax
-    nr = (xmx-xmn)/speedup # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
-    nc = (ymx-ymn)/speedup # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
-    xfact = (xmx-xmn)/nr
-    yfact = (ymx-ymn)/nc
+    nc = (xmx-xmn)/speedup # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
+    nr = (ymx-ymn)/speedup # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
+    xfact = (xmx-xmn)/nc
+    yfact = (ymx-ymn)/nr
     
     model <- RMexp(scale=scale, var = var)
     x.seq = 1:nc

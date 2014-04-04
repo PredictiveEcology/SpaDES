@@ -4,40 +4,43 @@ devtools::load_all("c:/Eliot/GitHub/ABM")
 require(raster)
 require(geoR)
 require(grid)
-ny = 3e2#2e3#3332#1000
+ny = 4e2#2e3#3332#1000
 nx = 3e2#2e3#1964#500
-speed = 2
+speed = 3
 
+library(snowfall)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
 par(mfrow = c(1,1))
 habs.list = list()
 num.maps= 10
 a = function(x,y,z) (x^y - z)^2
 coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
-for (i in 1:num.maps) {
-  habs.list[[i]] <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
-  habs.list[[i]] <- GaussMap(extent(habs.list[[i]]),speedup = speed, scale = coarseness[i], var = 1)
-  names(habs.list)[i] = paste("hab",i,sep="")
-}
+sfExport(list=c("coarseness","ny","nx","speed"))
+sfLibrary(raster)
+sfLibrary(RandomFields)
+sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
+habs.list <- sfClusterApplyLB(1:num.maps,function(i) {
+#for (i in 1:num.maps) {
+  map <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
+  map <- GaussMap(extent(map),speedup = speed, scale = coarseness[i], var = 1)
+})
+#sfStop()
+names(habs.list) = paste("hab",1:num.maps,sep="")
 habs = stack(habs.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = habs[[1]], numagents = 1e5)
+caribou = new("mobileAgent", agentlocation = habs[[1]], numagents = 1e4)
 
 x11()
-simplot(habs, speedup = 10, axes = "L", which.to.plot = "all")
-sam = sample(1:length(names(habs)),5)
-#maxRas = stackApply(habs,1:dim(habs)[3],max)
-#calc(habs,max)
-maxRas = 5
-for(i in 1:40) {
-    habs[[sam[1]]]=(habs[[sam[1]]]+0.4)%%3
-    habs[[sam[2]]]=(habs[[sam[2]]]+0.4)%%3
-    habs[[sam[4]]]=(habs[[sam[4]]]+0.4)%%3
-    habs[[sam[5]]]=(habs[[sam[5]]]+0.4)%%3
-    #    simplot(habs,4,add=T,speedup=10);dev.flush()
-    simplot(habs,sam,add= T,speedup =10);
-    simplot(caribou,add=T,sam[3],speedup=100);
+simplot(habs, axes = "L", which.to.plot = "all")
+sam = sample(1:length(names(habs)),4)
+for(i in 1:200) {
+    dev.hold()
+    for (j in 1:3)
+      habs[[sam[j]]]=(habs[[sam[j]]]+0.4)%%(runif(1,1.5,2.5))
+    simplot(habs,sam,add= T);
+    simplot(caribou,add=T,sam[4],speedup=100);
     dev.flush()
 }
 
