@@ -11,6 +11,7 @@
 # Notes to self (Eliot)... 
 #DONE 1. fix when rasters are not square... need equivalent to eqscplot
 # 2. use arrange.simplot for pointAgent
+# 3. allow plotting of legends
 
 
 ##############################################################
@@ -79,7 +80,7 @@ setMethod("simplot",
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
                       pushViewport(vp[[i]])
-                      grid.raster(as.raster(x[[w]],maxpixels=1e4/(cols*rows)*prod(ds)/speedup))#,...)
+                      grid.raster(as.raster(x[[w]],maxpixels=1e4/(cols*rows)*prod(ds)/speedup),...)
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
                               if (cr$cols[i]==min(cr$cols)) {
