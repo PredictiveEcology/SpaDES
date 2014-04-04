@@ -19,7 +19,7 @@ Hidden function.
 }
 \details{
 This assesses the device geometry, the map geometry, and
-the number of rasters to plot and builts an object that
+the number of rasters to plot and builds an object that
 will be used by the simPlot functions to plot them
 efficiently
 }
