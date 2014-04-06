@@ -216,74 +216,6 @@ setReplaceMethod("sim.debug",
 
 
 
-setGeneric("sim.agents", function(object) {
-    standardGeneric("sim.agents")
-})
-
-setMethod("sim.agents",
-          signature = "SimData",
-          definition = function(object) {
-              return(object@agents)
-})
-
-setGeneric("sim.agents<-",
-           function(object, value) {
-               standardGeneric("sim.agents<-")
-})
-
-setReplaceMethod("sim.agents",
-                 signature="SimData",
-                 function(object, value) {
-                     object@agents <- value
-                     validObject(object)
-                     return(object)
-})
-
-setGeneric("sim.maps", function(object) {
-    standardGeneric("sim.maps")
-})
-
-setMethod("sim.maps",
-          signature = "SimData",
-          definition = function(object) {
-              return(object@maps)
-})
-
-setGeneric("sim.maps<-",
-           function(object, value) {
-               standardGeneric("sim.maps<-")
-})
-
-setReplaceMethod("sim.maps",
-                 signature="SimData",
-                 function(object, value) {
-                     object@maps <- value
-                     validObject(object)
-                     return(object)
-})
-
-setGeneric("sim.stats", function(object) {
-    standardGeneric("sim.stats")
-})
-
-setMethod("sim.stats",
-          signature = "SimData",
-          definition = function(object) {
-              return(object@stats)
-})
-
-setGeneric("sim.stats<-",
-           function(object, value) {
-               standardGeneric("sim.stats<-")
-})
-
-setReplaceMethod("sim.stats",
-                 signature="SimData",
-                 function(object, value) {
-                     object@stats <- value
-                     validObject(object)
-                     return(object)
-})
 
 
 
@@ -317,7 +249,6 @@ sim.init <- function(params, modules, path) {
     path <- check.path(path)
     
     sim <<- new("SimList")
-    sim.data <<- new("SimData")
     
     # load simulation parameters and modules
     sim.params(sim) <<- params
@@ -328,7 +259,6 @@ sim.init <- function(params, modules, path) {
     }
     # set up first event(s): all first events should be initialization events e.g. from modules
     #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
-    schedule.event(0.00, "observer", "init") # needs optional flags for plotting, etc.
     for (m in modules) {
         schedule.event(0.00, m, "init")
     }
