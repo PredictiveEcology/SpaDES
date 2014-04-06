@@ -51,7 +51,6 @@ caribou.init = function() {
     pkgs = list("raster") # list required packages here
     load.packages(pkgs)
     
-    hab = get.habitat.map() # from habitat module
     best = max(hab@data@values)
     worst = min(hab@data@values)
     good = Which(hab>0.8*best)
@@ -61,24 +60,14 @@ caribou.init = function() {
     na = NumAgents(100)         # could be specified globally in params
     
     # initialize caribou agents
-    caribou = new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
+    caribou <<- new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
     points(caribou, pch=19, cex=0.1)
-    
-    ### module parameters
-    #   - export module params to global list
-    sim.agents(sim.data) <<- list(caribou=caribou)
-    
-    #   -  export data structure for module stats
-#    sim.stats(sim.data)[["caribou"]] <<- list()
     
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <<- append(sim.loaded(sim), "caribou")
 }
 
 caribou.move = function() {
-    hab = get.habitat.map() # from habitat module
-    caribou = get.caribou.population() # see below
-    
     ex =  hab[position(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
     if (length(wh)==0) stop(paste("all agents off map at time", sim.time(sim)))
@@ -88,20 +77,13 @@ caribou.move = function() {
     ln = rlnorm(length(ex), sl, 0.02) # log normal step length
     dir.sd = 30 # could be specified globally in params
     
-    caribou = crw(caribou, step.len=ln , dir.sd=dir.sd)
+    caribou <<- crw(caribou, step.len=ln , dir.sd=dir.sd)
     points(caribou, pch=19, cex = 0.1)
     
     rads = sample(10:30, length(caribou), replace=TRUE)
     rings = cir(caribou, radiuses=rads, hab, 1)
     points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
     dev.flush()
-    
-    sim.agents(sim.data)["caribou"] <<- caribou
 }
 
 ### user-defined subroutines
-
-get.caribou.population = function() {
-    pop = sim.agents(sim.data)$caribou
-    return(pop)
-}

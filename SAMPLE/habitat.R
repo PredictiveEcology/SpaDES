@@ -45,17 +45,10 @@ habitat.init = function() {
     ### initialize habitat
     nx = 5e2 # could be specified globally in params
     ny = 5e2 # could be specified globally in params
-    hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
-    hab <- round(GaussMap(extent(hab), speedup=10), 1)
+    hab <<- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
+    hab <<- round(GaussMap(extent(hab), speedup=10), 1)
     plot(hab)
     dev.flush()
-    
-    ### module parameters
-    #   - export module params to global list
-    sim.maps(sim.data)[["habitat"]] <<- list(quality=hab)
-    
-    #   -  export data structure for module stats
-#    sim.stats(sim.data)[["habitat"]] <<- list()
     
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <<- append(sim.loaded(sim), "habitat")
@@ -63,8 +56,3 @@ habitat.init = function() {
 
 
 ### user-defined subroutines
-
-get.habitat.map = function() {
-    map = sim.maps(sim.data)$habitat$quality
-    return(map)
-}
