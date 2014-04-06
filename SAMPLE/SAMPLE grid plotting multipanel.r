@@ -4,12 +4,12 @@ devtools::load_all("c:/Eliot/GitHub/ABM")
 require(raster)
 require(geoR)
 require(grid)
-ny = 4e3#2e3#3332#1000
-nx = 4e3#2e3#1964#500
+ny = 2e2#2e3#3332#1000
+nx = 2e2#2e3#1964#500
 speed = 3
 
 library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=10)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
 par(mfrow = c(1,1))
 habs.list = list()
 num.maps= 10
@@ -30,7 +30,7 @@ habs = stack(habs.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = habs[[1]], numagents = 1e6)
+caribou = new("mobileAgent", agentlocation = habs[[1]], numagents = 1e3)
 
 x11()
 simplot(habs, axes = "L", which.to.plot = "all")

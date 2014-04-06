@@ -2,7 +2,7 @@
 \alias{arrange.simplots}
 \title{Determine optimal plotting arrangement of RasterStack}
 \usage{
-arrange.simplots(ext, dimx, nam, which.to.plot)
+arrange.simplots(ext, dimx, nam, which.to.plot, axes, ...)
 }
 \arguments{
   \item{ext}{extent object}
@@ -13,6 +13,8 @@ arrange.simplots(ext, dimx, nam, which.to.plot)
 
   \item{which.to.plot}{vector of numbers or names in
   rasterStack to plot}
+
+  \item{axes}{passed from simplot}
 }
 \description{
 Hidden function.
