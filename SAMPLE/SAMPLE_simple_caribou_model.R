@@ -8,8 +8,10 @@ install.packages("devtools", dependencies=TRUE)
 #   (this is a seperate install of an .exe file)
 devtools::install_github("lineprof")
 devtools::install_github("pryr")
+devtools::install_github("shiny-slickgrid", "wch")
 library(lineprof)
 library(pryr)
+library(shiny)
 
 ### load ABM package
 devtools::load_all("ABM") # for development/testing
@@ -20,7 +22,7 @@ devtools::load_all("ABM") # for development/testing
 dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE")
 
 ## profiling of development code
-prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE/"))
+prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
 shine(prof)
 c(address(sim), refs(sim))
 c(address(sim.data), refs(sim.data))
