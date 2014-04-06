@@ -75,3 +75,28 @@ setMethod("reload.module.later",
                   return(!f)
               }
 })
+
+# check file path for consistency
+check.path = function(path) {
+    # check to make sure path has a trailing slash
+    # if not, add one
+    strlets <- strsplit(path, "")[[1]]
+    strlen <- length(strlets)
+    if (strlets[strlen]!="/") path <- paste(path, "/", sep="")
+    
+    # check if the path exists
+    if (is.character(path)) {
+        if (file.exists(path)) {
+            # basically, do nothing if it exists
+            exists = TRUE
+        } else {
+            # warn the user before creating the directory
+            print("Warning: the path you specified doesn't exist.")
+            print(paste("Creating directory structure:", path))
+            dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+        }
+    } else {
+        stop("Error: `path` should be specified as a character string.")
+    }
+    return(path)
+}

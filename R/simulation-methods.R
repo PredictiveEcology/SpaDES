@@ -21,12 +21,6 @@ setMethod("initialize",
               return(.Object)
 })
 
-setMethod("initialize",
-          signature = "SimData",
-          definition = function(.Object) {
-              return(.Object)
-})
-
 ### show is already defined in the methods package
 #' @title Show an Object
 #' @name show
@@ -54,22 +48,6 @@ setMethod("show",
               show[["Debugging Mode:"]] = slot(object, "debug")
               print(show)
 })
-
-#' @rdname show-methods
-#' @aliases show,SimData
-#' @importMethodsFrom methods show
-#' @export
-setMethod("show",
-          signature = "SimData",
-          definition = function(object) {
-              show = list()
-              show[["Agents:"]] = slot(object, "agents")
-              show[["Maps:"]] = slot(object, "maps")
-              show[["Stats:"]] = slot(object, "stats")
-              print(show)
-})
-
-
 
 ### get slot values using `slot(object, "slotname")`
 ### set slot values using `slot(object, "slotname") <- value`
@@ -212,35 +190,6 @@ setReplaceMethod("sim.debug",
                      validObject(object)
                      return(object)
 })
-
-
-
-
-
-
-
-check.path = function(path) {
-    if (is.character(path)) {
-        if (file.exists(path)) {
-            # basically, do nothing if it exists
-            exists = TRUE
-        } else {
-            # warn the user before creating the directory
-            print("Warning: the path you specified doesn't exist.")
-            print(paste("Creating directory structure:", path))
-            dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
-        }
-    } else {
-        stop("Error: `path` should be specified as a character string.")
-    }
-    # check to make sure path has a trailing slash
-    # if not, add one
-    strlets <- strsplit(path, "")[[1]]
-    strlen <- length(strlets)
-    if (strlets[strlen]!="/") path <- paste(path, "/", sep="")
-    return(path)
-}
-
 
 ###
 ### initializes simulation variables
