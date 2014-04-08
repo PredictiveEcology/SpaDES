@@ -13,9 +13,9 @@ simplot(x, ...)
 \S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 10,
   axes = "L", add = FALSE, ...)
 
-\S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, map.names = NULL,
-  speedup = 1, axes = "L", max.agents = 10000, add = TRUE, pch = 19,
-  cex = 0.2, ...)
+\S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, ext,
+  map.names = NULL, speedup = 1, axes = "L", max.agents = 10000,
+  add = TRUE, pch = 19, cex = 0.3, ...)
 
 \S4method{simplot}{raster}(x, on.which.to.plot = 1, speedup = 100,
   axes = "L", add = FALSE, ...)

@@ -19,7 +19,7 @@ devtools::load_all("ABM") # for development/testing
 #library(ABM)   # local installation from CRAN
 
 ## simulation code
-dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE")
+dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), params=list(Ncaribou=100), path="ABM/SAMPLE")
 
 ## profiling of development code
 prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))

@@ -60,7 +60,7 @@ caribou.init = function() {
     na = NumAgents(100)         # could be specified globally in params
     
     # initialize caribou agents
-    caribou <<- new("mobileAgent", agentlocation=al, numagents= na, probinit=pri)
+    caribou <<- new("mobileAgent", agentlocation=al, numagents=sim.params(sim)$Ncaribou, probinit=pri)
     points(caribou, pch=19, cex=0.1)
     
     # last thing to do is add module name to the loaded list
