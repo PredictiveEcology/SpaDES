@@ -1,6 +1,6 @@
 #source("C:/Eliot/GitHub/ABM/R/ABM_code_files.R")
 #source("C:/Eliot/Dropbox/R/grid plotting multipanel functions.r")
-devtools::load_all("c:/Eliot/GitHub/ABM")
+#devtools::load_all("c:/Eliot/GitHub/ABM")
 require(raster)
 require(geoR)
 require(grid)
@@ -9,7 +9,7 @@ nx = 2e2#2e3#1964#500
 speed = 3
 
 library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=10)
 par(mfrow = c(1,1))
 habs.list = list()
 num.maps= 10

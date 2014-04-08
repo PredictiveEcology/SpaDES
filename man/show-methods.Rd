@@ -1,8 +1,6 @@
 \docType{methods}
 \name{show}
 \alias{show}
-\alias{show,SimData}
-\alias{show,SimData-method}
 \alias{show,SimList}
 \alias{show,agent}
 \alias{show,mobileAgent}
@@ -22,8 +20,6 @@
 \S4method{show}{mobileAgent}(object)
 
 \S4method{show}{SimList}(object)
-
-\S4method{show}{SimData}(object)
 }
 \arguments{
   \item{object}{Any R object}
