@@ -1,15 +1,16 @@
 #source("C:/Eliot/GitHub/ABM/R/ABM_code_files.R")
 #source("C:/Eliot/Dropbox/R/grid plotting multipanel functions.r")
-#devtools::load_all("c:/Eliot/GitHub/ABM")
+devtools::load_all("c:/Eliot/GitHub/ABM")
 require(raster)
 require(geoR)
 require(grid)
+require(Hmisc)
 ny = 2e2#2e3#3332#1000
 nx = 2e2#2e3#1964#500
 speed = 3
 
 library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=10)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
 par(mfrow = c(1,1))
 habs.list = list()
 num.maps= 10
@@ -36,11 +37,12 @@ x11()
 simplot(habs, axes = "L", which.to.plot = "all")
 sam = sample(1:length(names(habs)),4)
 for(i in 1:200) {
-    dev.hold()
-    for (j in 1:3)
-      habs[[sam[j]]]=(habs[[sam[j]]]+0.4)%%(runif(1,1.5,2.5))
-    simplot(habs,sam,add= T);
-    simplot(caribou,add=T,sam[4],speedup=100);
+     dev.hold()
+     for (j in 1:3)
+       habs[[sam[j]]]=(habs[[sam[j]]]+0.2)%%(runif(1,1.5,2.5))
+    simplot(habs,sam,add= T)
+#    simplot(habs,add=F)
+    simplot(caribou,add=T,ext = extent(habs), sam[4],speedup=10,gp = gpar(cex=0.7,pch=5));
     dev.flush()
 }
 

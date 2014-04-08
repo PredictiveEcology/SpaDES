@@ -2,7 +2,7 @@
 \alias{arrange.simplots}
 \title{Determine optimal plotting arrangement of RasterStack}
 \usage{
-arrange.simplots(ext, dimx, nam, which.to.plot, axes, ...)
+arrange.simplots(ext, dimx, nam, which.to.plot, axes = "L")
 }
 \arguments{
   \item{ext}{extent object}
