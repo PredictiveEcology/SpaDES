@@ -5,46 +5,72 @@ require(raster)
 require(geoR)
 require(grid)
 require(Hmisc)
-ny = 2e2#2e3#3332#1000
-nx = 2e2#2e3#1964#500
-speed = 3
+#require(ABM)
+ny = 3e3#2e3#3332#1000
+nx = 3e3#2e3#1964#500
+speed = 30
 
 library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=7)
 par(mfrow = c(1,1))
-habs.list = list()
-num.maps= 10
+maps.list = list()
+num.maps= 30
 a = function(x,y,z) (x^y - z)^2
 coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
 sfExport(list=c("coarseness","ny","nx","speed"))
 sfLibrary(raster)
 sfLibrary(RandomFields)
 sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
-habs.list <- sfClusterApplyLB(1:num.maps,function(i) {
+maps.list <- sfClusterApplyLB(1:num.maps,function(i) {
 #for (i in 1:num.maps) {
   map <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
   map <- GaussMap(extent(map),speedup = speed, scale = coarseness[i], var = 1)
 })
 #sfStop()
-names(habs.list) = paste("hab",1:num.maps,sep="")
-habs = stack(habs.list)
+names(maps.list) = paste("map",1:num.maps,sep="")
+maps = stack(maps.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = habs[[1]], numagents = 1e3)
+caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 1e6)
 
 x11()
-simplot(habs, axes = "L", which.to.plot = "all")
-sam = sample(1:length(names(habs)),4)
+speed = 40
+simplot(maps, axes = "L", which.to.plot = "all",speedup=speed)
+sam = sample(1:length(names(maps)),4)
 for(i in 1:200) {
-     dev.hold()
+#     dev.hold()
      for (j in 1:3)
-       habs[[sam[j]]]=(habs[[sam[j]]]+0.2)%%(runif(1,1.5,2.5))
-    simplot(habs,sam,add= T)
-#    simplot(habs,add=F)
-    simplot(caribou,add=T,ext = extent(habs), sam[4],speedup=10,gp = gpar(cex=0.7,pch=5));
-    dev.flush()
+       maps[[sam[j]]]=(maps[[sam[j]]]+0.2)%%(runif(1,1.5,2.5))
+    simplot(maps,sam,add= T,speedup=speed)
+#    simplot(maps,add=F)
+    simplot(caribou,add=T,ext = extent(maps), sam[4],speedup=speed,gp = gpar(cex=0.2,alpha=1),pch=19,delete.previous=T);
+#    dev.flush()
 }
+
+
+
+
+setwd("C:/Eliot/Dropbox/R/")
+di = dir(pattern = ".rdata")
+lapply(di,load,envir=.GlobalEnv)
+maps.list = list()
+#class(maps.list) <- "rasterList"
+
+map.names = unlist(strsplit(di,".rdata"))
+for (i in map.names) {
+    maps.list[[i]] = get(i)
+    #  maps.list[[i]] <- setValues (maps.list[[i]], getValues(maps.list[[i]]))
+}
+maps = stack(maps.list)
+rm(maps.list)
+rm(list=map.names)
+simplot(maps,speedup=2)
+
+cold = !is.na(maps$dd5)
+pi = ProbInit(map,p=(maps$dd5>400) & (maps$dd5<440),absolute=F)
+caribou = new("mobileAgent", agentlocation = cold, numagents = 1e4,probinit=pi)
+simplot(caribou,3,ext=extent(maps),pch=19,gp=gpar(cex=0.1))
 
 
 
@@ -69,17 +95,9 @@ st2=Sys.time();
 print(st2-st1);
 
 
-setwd("C:/Eliot/Dropbox/Alana/Disp_BoA_v2.0/gisData/cell/")
-di = dir(pattern = ".asc")[-c(1:2)]
-habs = list()
-class(habs) <- "rasterList"
 
-for (i in di) {
-  habs[[i]] = raster(i)
-  habs[[i]] <- setValues (habs[[i]], getValues(habs[[i]]))
-}
-names(habs) <- unlist(strsplit(di, ".asc"))
 
+# Convert to .rdata
 setwd("c:/Eliot/Dropbox/R/")
 lapply(1:length(habs), function(x) {
         nam = names(habs)[x]

@@ -132,8 +132,8 @@ setMethod("simplot",
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",
-          definition = function(x, on.which.to.plot=1, ext,map.names = NULL, speedup=1, 
-                                axes="L", max.agents = 1e4, add=TRUE,pch=19, cex=0.3, ... ) {
+          definition = function(x, on.which.to.plot=1, ext,map.names = NULL, speedup=1, delete.previous = T,
+                                axes="L", max.agents = 1e4, add=TRUE,... ) {
               len = length(x)
               if (len>max.agents) {
                   sam = sample.int(len,size=max.agents,replace=F) 
@@ -151,7 +151,7 @@ setMethod("simplot",
               rangex = range(x1)
               rangey = range(y1)
 
-              if(!exists("gp1")){if (exists("cex")) {gp1 = gpar(cex = cex);rm(cex)} else {gp1=gpar()}}
+#              if(!exists("gp1")){if (exists("cex")) {gp1 = gpar(cex = cex);rm(cex)} else {gp1=gpar()}}
 
               if (add==FALSE) {
                 arr = arrange.simplots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")    
@@ -200,9 +200,10 @@ setMethod("simplot",
                     }
                     
                     with(arr,{
-#                         if(any(vp.names==deparse(substitute(x))))
-                             grid.remove(deparse(substitute(x)))
-                    
+                        if (delete.previous) {grob.names = grid.ls(grobs=TRUE, recursive=TRUE, print=FALSE)$name
+                           if(any(grob.names==deparse(substitute(x))))
+                              grid.remove(deparse(substitute(x)))
+                        }                    
                         grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),
                                     name = deparse(substitute(x)), ...)  
 #                    grid.points(x1,y1,gp=gpar(cex=0.4),pch=19,...)  
