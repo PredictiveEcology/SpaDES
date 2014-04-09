@@ -34,7 +34,7 @@ ProbInit = function(map, p=NULL, absolute=FALSE) {
     } else if (is(p,"NULL"))  {
         ProbInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
     } else {
-        stop("error initializing probability map: bad inputs") # temp err msg (general)
+        stop("Error initializing probability map: bad inputs") # temp err msg (general)
     }
     return(ProbInit)
 }
