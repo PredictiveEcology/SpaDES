@@ -15,8 +15,8 @@ shinyUI(pageWithSidebar(
   ),
   
   mainPanel(
-    textOutput("debug"),
-    plotOutput("mapPlot"),
-    plotOutput("ringsPlot")
+#    textOutput("debug"),
+#    plotOutput("mapPlot"),
+     plotOutput("simPlot")
   )
 ))

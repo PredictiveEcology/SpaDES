@@ -63,6 +63,10 @@ caribou.init = function() {
     caribou <<- new("mobileAgent", agentlocation=al, numagents=sim.params(sim)$Ncaribou, probinit=pri)
     points(caribou, pch=19, cex=0.1)
     
+    # save output list to track caribou over time
+#    outputs$caribou[[1]] <<- caribou
+#    saveRDS(caribou, paste("../data/caribou_0.rds"))
+    
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <<- append(sim.loaded(sim), "caribou")
 }
@@ -78,12 +82,14 @@ caribou.move = function() {
     dir.sd = 30 # could be specified globally in params
     
     caribou <<- crw(caribou, step.len=ln , dir.sd=dir.sd)
-    points(caribou, pch=19, cex = 0.1)
+    points(caribou, pch=19, cex=0.1)
+    
+    # update caribou list
+#    outputs$caribou[[sim.time(sim)+1]] <<- caribou
     
     rads = sample(10:30, length(caribou), replace=TRUE)
     rings = cir(caribou, radiuses=rads, hab, 1)
     points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
-    dev.flush()
+    
+#    saveRDS(list(caribou, rings), paste("../data/caribou_", sim.time(sim), ".rds", sep=""))
 }
-
-### user-defined subroutines

@@ -17,7 +17,7 @@ do.event.habitat = function(event.time, event.type) {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends = "NONE" # list package names here
+        depends = "NONE" # list module names here
         
         if (reload.module.later(depends)) {
             schedule.event(sim.time(sim), "habitat", "init")
@@ -39,17 +39,23 @@ do.event.habitat = function(event.time, event.type) {
 
 habitat.init = function() {
     ### load any required packages
-    pkgs = list("raster") # list required packages here
+    pkgs = list("raster", "shiny") # list required packages here
     load.packages(pkgs)
         
     ### initialize habitat
     nx = 5e2 # could be specified globally in params
     ny = 5e2 # could be specified globally in params
-    hab <<- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
+    hab <<- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
     hab <<- round(GaussMap(extent(hab), speedup=10), 1)
+    
+    ### add map to outputs list
+#    outputs <- list(caribou=list(), habitat=list())
+#    outputs$habitat[["map"]] <<- hab
+
+#    saveRDS(hab, "../data/habitat.rds")
+    
     x11()
     plot(hab)
-    dev.flush()
     
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <<- append(sim.loaded(sim), "habitat")
