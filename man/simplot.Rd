@@ -6,7 +6,7 @@
 \alias{simplot,pointAgent}
 \alias{simplot,pointAgent-method}
 \alias{simplot,raster-method}
-\title{Ploting methods}
+\title{Plotting methods}
 \usage{
 simplot(x, ...)
 
@@ -14,8 +14,8 @@ simplot(x, ...)
   axes = "L", add = FALSE, ...)
 
 \S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, ext,
-  map.names = NULL, speedup = 1, axes = "L", max.agents = 10000,
-  add = TRUE, pch = 19, cex = 0.3, ...)
+  map.names = NULL, speedup = 1, delete.previous = T, axes = "L",
+  max.agents = 10000, add = TRUE, ...)
 
 \S4method{simplot}{raster}(x, on.which.to.plot = 1, speedup = 100,
   axes = "L", add = FALSE, ...)
