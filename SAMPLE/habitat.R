@@ -54,7 +54,7 @@ habitat.init = function() {
 
 #    saveRDS(hab, "../data/habitat.rds")
     
-    x11()
+    newPlot()
     plot(hab)
     
     # last thing to do is add module name to the loaded list

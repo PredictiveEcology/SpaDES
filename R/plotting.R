@@ -14,8 +14,27 @@
 # 3. allow plotting of legends
 
 
+
 ##############################################################
-#' Ploting methods
+#' Open a new plotting window
+#'
+#' Launch a new quartz, x11 device based on OS used.
+#' 
+#' @return Opens a new plot device on the screen.
+#' 
+#' @export
+#' @docType methods
+#' @rdname newPlot
+#'
+# @examples
+# needs examples
+newPlot = function() {
+    ifelse(Sys.info()[["sysname"]]=="Darwin", quartz(), x11())
+}
+
+
+##############################################################
+#' Plotting methods
 #'
 #' Plotting for RasterStack, Agents and other classes used in simulations.
 #' 
