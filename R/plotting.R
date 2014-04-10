@@ -274,7 +274,7 @@ setMethod("simplot",
 #' @param which.to.plot vector of numbers or names in rasterStack to plot
 #' @param axes passed from simplot 
 #' @rdname arrange.simplots
-# @importMethodsFrom Hmisc llist
+#' @importMethodsFrom Hmisc llist
 arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
     
     if (length(which.to.plot)==1) {

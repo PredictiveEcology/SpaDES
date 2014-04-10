@@ -11,7 +11,7 @@ nx = 3e3#2e3#1964#500
 speed = 30
 
 library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=7)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=10)
 par(mfrow = c(1,1))
 maps.list = list()
 num.maps= 30
@@ -32,10 +32,10 @@ maps = stack(maps.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 1e6)
+caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 1e7)
 
 x11()
-speed = 40
+speed = 3
 simplot(maps, axes = "L", which.to.plot = "all",speedup=speed)
 sam = sample(1:length(names(maps)),4)
 for(i in 1:200) {
@@ -44,7 +44,7 @@ for(i in 1:200) {
        maps[[sam[j]]]=(maps[[sam[j]]]+0.2)%%(runif(1,1.5,2.5))
     simplot(maps,sam,add= T,speedup=speed)
 #    simplot(maps,add=F)
-    simplot(caribou,add=T,ext = extent(maps), sam[4],speedup=speed,gp = gpar(cex=0.2,alpha=1),pch=19,delete.previous=T);
+    simplot(caribou,add=T,ext = extent(maps), 6,speedup=speed,gp = gpar(cex=0.2,alpha=1),pch=19,delete.previous=T);
 #    dev.flush()
 }
 
@@ -54,6 +54,7 @@ for(i in 1:200) {
 setwd("C:/Eliot/Dropbox/R/")
 di = dir(pattern = ".rdata")
 lapply(di,load,envir=.GlobalEnv)
+
 maps.list = list()
 #class(maps.list) <- "rasterList"
 
@@ -62,7 +63,8 @@ for (i in map.names) {
     maps.list[[i]] = get(i)
     #  maps.list[[i]] <- setValues (maps.list[[i]], getValues(maps.list[[i]]))
 }
-maps = stack(maps.list)
+
+maps = stack(lapply(map.names,get))
 rm(maps.list)
 rm(list=map.names)
 simplot(maps,speedup=2)

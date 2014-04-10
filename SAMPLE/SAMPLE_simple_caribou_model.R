@@ -1,5 +1,6 @@
 ### set the working directory
 setwd("~/GitHub/")  #setwd("~/Documents/GitHub/")
+#setwd("c:/Eliot/GitHub/")
 
 ### development only:
 install.packages("devtools", dependencies=TRUE)
