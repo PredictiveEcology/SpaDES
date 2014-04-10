@@ -60,11 +60,34 @@ setMethod("load.packages",
               lapply(package.list, load, install=FALSE)
 })
 
-# check whether a module should be reloaded later
+
+
+##############################################################
+#' Load modules for simulation.
+#'
+#' Checks the dependencies of the current module on other modules.
+#' These dependencies need to be loaded first, so if they are not
+#' already loaded, hold off loading the cuurent module until after
+#' dependencies are loaded.
+#'
+#' @param depends A list of character strings specifying
+#' the names of modules upon which the current module depends.
+#'
+#' @return \code{TRUE}/\code{FALSE}.
+#' 
+#' @seealso \code{\link{library}}.
+#' 
+#' @export
+#' @docType methods
+#' @rdname loadmodules
+#'
+# @examples
+# need examples
 setGeneric("reload.module.later", function(depends, ...) {
     standardGeneric("reload.module.later")
 })
 
+#' @rdname loadmodules
 setMethod("reload.module.later",
           signature(depends="character"),
           definition = function(depends, ...) {
@@ -76,24 +99,48 @@ setMethod("reload.module.later",
               }
 })
 
-# check file path for consistency
-check.path = function(path) {
-    # check to make sure path has a trailing slash
-    # if not, add one
-    strlets <- strsplit(path, "")[[1]]
-    strlen <- length(strlets)
-    if (strlets[strlen]!="/") path <- paste(path, "/", sep="")
-    
-    # check if the path exists
+
+
+##############################################################
+#' Check filepath.
+#'
+#' Checks the specified filepath for formatting consistencies, 
+#' such as trailing slashes, etc.
+#'
+#' @param path A character string corresponding to a filepath.
+#' 
+#' @param create A logical indicating whether the path should
+#' be created if it doesn't exist. Default is \code{FALSE}.
+#'
+#' @return Character string denoting the cleaned up filepath.
+#' 
+#' @seealso \code{\link{file.exists}}, \code{\link{create.dir}}.
+#' 
+#' @export
+#' @docType methods
+#' @rdname checkpath
+#'
+# @examples
+# need examples
+check.path = function(path, create=FALSE) {
     if (is.character(path)) {
+        # check if path has a trailing slash and remove it
+        strlets <- strsplit(path, "")[[1]]
+        strlen <- length(strlets)
+        if (strlets[strlen]=="/") {
+            path <- cat("\"",strlets[-strlen], "\"", sep="")
+        } else {}
+        
         if (file.exists(path)) {
-            # basically, do nothing if it exists
-            exists = TRUE
+            exists = TRUE # basically, do nothing if it exists
         } else {
-            # warn the user before creating the directory
-            print("Warning: the path you specified doesn't exist.")
-            print(paste("Creating directory structure:", path))
-            dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+            print("Warning: the specified path doesn't exist...")
+            if (create==TRUE) {
+                print(paste("...creating directory structure:", path))
+                dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+            } else {
+                print("...please create it and try again.")
+            }
         }
     } else {
         stop("Error: `path` should be specified as a character string.")

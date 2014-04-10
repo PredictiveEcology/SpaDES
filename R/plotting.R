@@ -39,7 +39,7 @@ newPlot = function() {
     } else if (Sys.info()[["sysname"]]=="Windows") {
         windows()
     } else {
-        x11()
+        x11() # try x11() to see if it works
         print("Which operating system are you using?")
     }
 }

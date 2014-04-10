@@ -195,7 +195,7 @@ setReplaceMethod("sim.debug",
 ### initializes simulation variables
 ###
 sim.init <- function(params, modules, path) {
-    path <- check.path(path)
+    path <- check.path(path, create=TRUE)
     
     sim <<- new("SimList")
     
@@ -204,7 +204,7 @@ sim.init <- function(params, modules, path) {
     sim.modules(sim) <<- modules # this should be a list of module names that will be loaded
 
     for (m in modules) {
-        source(paste(path, m, ".R", sep="")) # source each module from file
+        source(paste(path, "/", m, ".R", sep="")) # source each module from file
     }
     # set up first event(s): all first events should be initialization events e.g. from modules
     #    schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
