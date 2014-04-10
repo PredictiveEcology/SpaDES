@@ -18,7 +18,10 @@
 ##############################################################
 #' Open a new plotting window
 #'
-#' Launch a new quartz, x11 device based on OS used.
+#' Launch a new graphics device based on operating system used.
+#' Mac OS: open device with \code{quartz()}.
+#' Linux: open device with \code{x11()}.
+#' Windows: open device with \code{windows()}.
 #' 
 #' @return Opens a new plot device on the screen.
 #' 
@@ -29,7 +32,16 @@
 # @examples
 # needs examples
 newPlot = function() {
-    ifelse(Sys.info()[["sysname"]]=="Darwin", quartz(), x11())
+    if (Sys.info()[["sysname"]]=="Darwin") {
+        quartz()
+    } else if (Sys.info()[["sysname"]]=="Linux") {
+        x11()
+    } else if (Sys.info()[["sysname"]]=="Windows") {
+        windows()
+    } else {
+        x11()
+        print("Which operating system are you using?")
+    }
 }
 
 
