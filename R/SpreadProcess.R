@@ -1,7 +1,7 @@
 #' @param Raster* Landscape
 #' @param Mask  non null, a raster congruent with Landscape whose elements are 0,1 where 1 indicates can not spread to.
-
-#' tst<-raster(nrows=10,ncols=10,vals=0)
+#  DOCUMENT ME
+# tst<-raster(nrows=10,ncols=10,vals=0)
 #' 
 SpreadEvents<-
     function(Landscape, Loci=NULL, Mask=NULL,
