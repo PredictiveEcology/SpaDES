@@ -19,6 +19,8 @@
 #'
 #' @examples
 #'  \dontrun{tst <- raster(nrows=10, ncols=10, vals=0)}
+#'  
+#'  @author Steve Cumming
 #' 
 SpreadEvents = function(Landscape, Loci=NULL, SpreadProb=0.1,
              Persistance=NULL, Mask=NULL, MaxSize=NULL, directions=8) {

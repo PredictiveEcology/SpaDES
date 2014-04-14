@@ -5,12 +5,17 @@ Description: More about what it does (maybe more than one line)
 URL: 
 Version: 0.0.1
 Date: 2014-03-25
-Authors@R: c(person("Eliot", "McIntire",
-    email="Eliot.McIntire@NRCan.gc.ca",
-    role=c("aut", "cre")),
+Authors@R: c(
+	person("Eliot", "McIntire",
+			email="Eliot.McIntire@NRCan.gc.ca",
+			role=c("aut", "cre")),
     person("Alex", "Chubaty",
-    email="Alexander.Chubaty@NRCan.gc.ca",
-    role = c("aut", "cre")))
+			email="Alexander.Chubaty@NRCan.gc.ca",
+			role=c("aut", "cre")),
+	person("Steve", "Cumming",
+			email="",
+			role=c("ctb"))
+	)
 Depends:
     R (>= 3.0.2),
 	data.table
