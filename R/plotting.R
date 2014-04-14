@@ -157,6 +157,71 @@ setMethod("simplot",
 })
 
 
+#' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
+#' 
+#' @param speedup Scalar indicating how much faster than normal to make plots (see Details).
+#' 
+#' @param axes String either "all", "L", or "none" (see Details). Default is "L".
+#' 
+#' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
+#' Default is \code{FALSE}.
+#' 
+#' @aliases simplot,RasterStack
+#' @rdname simplot
+setMethod("simplot",
+          signature = "RasterLayer",
+          definition = function(x, speedup=1, axes="L", add=FALSE, on.which.to.plot=NULL, ...) {
+              ext = extent(x)
+              nam = names(x)
+              dimx = dim(x)
+
+              if (add==FALSE) {
+                  grid.newpage()
+                  vp <- viewport(w=0.8, h=0.8,
+                                      just = c(0.5, 0.5),
+                                      name = deparse(substitute(x)),
+                                      xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
+                  pushViewport(vp)
+                  if (axes != "none" & axes != FALSE) {
+                      if (axes == "L") {
+                              grid.yaxis()#gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
+#                                              label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
+                          }
+#                                  if (cr$rows[i] == min(cr$rows)) {
+                              #grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), label=prettys[["x"]])
+                              grid.xaxis()#gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
+#                                                label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
+#                                }
+                      } else {
+                          grid.xaxis()#gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
+#                                             label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
+                          grid.yaxis()#gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
+#                                            label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
+                      }
+                  
+                  grid.text(y=1.08, vjust=0.5, gp=gpar(cex=1-0.015),
+                            label = nam)
+                  grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup),
+                              name=nam,...)
+                  upViewport()
+              } else if (add==TRUE){
+                  vp.names= grid.ls(grobs=F, viewports=TRUE, recursive=TRUE, print=FALSE)$name
+                  vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+                  #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
+                      
+                      if (is.numeric(on.which.to.plot)) {i = vp.names[match(on.which.to.plot,vp.names)]
+                         } else { i = on.which.to.plot }
+                      seekViewport(i)
+                      grid.remove(i)
+                      grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup),
+                                  name=nam,...)
+                      upViewport()
+                  
+              } else {
+                  stop("Error: Logical `add` should be TRUE or FALSE.")
+              }
+          })
+
 #' @param on.which.to.plot when add = TRUE, which map to plot on
 #' @aliases simplot,pointAgent
 #' @import graphics

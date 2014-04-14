@@ -1,20 +1,30 @@
 #source("C:/Eliot/GitHub/ABM/R/ABM_code_files.R")
 #source("C:/Eliot/Dropbox/R/grid plotting multipanel functions.r")
-devtools::load_all("c:/Eliot/GitHub/ABM")
+
 require(raster)
 require(geoR)
 require(grid)
 require(Hmisc)
+#devtools::install_github("lineprof")
+#devtools::install_github("pryr")
+#devtools::install_github("shiny-slickgrid", "wch")
+library(lineprof)
+library(pryr)
+library(shiny)
+
+devtools::load_all("c:/Eliot/GitHub/ABM")
+
+
 #require(ABM)
-ny = 3e3#2e3#3332#1000
-nx = 3e3#2e3#1964#500
-speed = 30
+ny = 1e2#2e3#3332#1000
+nx = 1e2#2e3#1964#500
+speed = 8# 30
 
 library(snowfall)
 if(!sfIsRunning()) sfInit(parallel = T, cpus=10)
 par(mfrow = c(1,1))
 maps.list = list()
-num.maps= 30
+num.maps= 2
 a = function(x,y,z) (x^y - z)^2
 coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
 sfExport(list=c("coarseness","ny","nx","speed"))
@@ -32,7 +42,157 @@ maps = stack(maps.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 1e7)
+caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 2)
+Loci = cellFromXY(maps, coordinates(caribou))
+
+ext = extent(maps)
+dm = dim(maps)
+
+# rc.ras = rowColFromCell(maps,loci)
+# adj = sort(adjacent(maps,loci,pairs=F))
+
+
+adja = function(loci) {
+#    rc.sp = vi2mrc(loci,dm[1],dm[2])#[,c(2,1)]
+#    rc.rook = do.call(rbind,apply(rc.sp,1,function(w) rookcell(nrow=dm[1],ncol=dm[2],rowcol=w)))[,c(2,1)]
+    rc.rook = rookcell.E(nrow=dm[1],ncol=dm[2],rowcol=vi2mrc(loci,dm[1],dm[2]))[,c(2,1)]
+    adj.sp = cellFromRowCol(maps,rc.rook[,1],rc.rook[,2])
+    adj = adjacent(maps,loci,directions=8,pairs=T)    
+}
+
+prof <- lineprof(adja(loci))
+shine(prof)
+
+
+
+r1 <- raster(nrows=108, ncols=21, xmn=0, xmx=10)
+
+
+ben = benchmark(replications = 30, adj.sp=adja(loci), adj = adjacent(maps,loci,directions=8,pairs=T))
+
+
+
+#################################################################
+x <- data.frame(matrix(runif(100 * 1e3), ncol = 1000))
+medians <- vapply(x, median, numeric(1))
+
+system.time({
+    for(i in seq_along(medians)) {
+        x[, i] <- x[, i] - medians[i]
+    }
+})
+
+y <- as.list(x)
+y = maps[[1]]
+
+system.time({
+    
+
+#        y[[i]] <- c(y[[i]],3)
+    test = function() {
+        
+    test = function() {
+        gv = getValues(y)
+        gv[40:34567] <- 3
+        gv[40:34567] <- 4
+        gv[40:34567] <- 5
+        gv[40:34567] <- 6
+        values(y)<-gv
+    }
+    test2 = function() {
+        y[40:34567] <- 3
+        y[40:34567] <- 4
+        y[40:34567] <- 5
+        y[40:34567] <- 6
+    }
+    
+    ben = microbenchmark(times = 10L,
+        test2(),
+        test()
+    )
+                
+                 print(c(address(y), refs(y)))  
+                )
+                
+            }
+    }
+
+lineprof(test)
+
+})
+
+z <- as.matrix(x)
+system.time({
+    for(i in seq_along(medians)) {
+        z[, i] <- z[, i] - medians[i]
+    }
+})
+
+
+
+rookcell.E = function (rowcol, nrow, ncol, torus = FALSE, rmin = 1, cmin = 1) 
+{
+    row <- rowcol[,1]
+    col <- rowcol[,2]
+    if (torus) {
+        y <- c(ifelse(col - 1 < cmin, ncol, col - 1), col, col, 
+               ifelse(col + 1 > (ncol + (cmin - 1)), cmin, col + 
+                          1))
+        x <- c(row, ifelse(row - 1 < rmin, nrow, row - 1), ifelse(row + 
+                                                                      1 > (nrow + (rmin - 1)), rmin, row + 1), row)
+    } else {
+        y <- c(ifelse(col - 1 < cmin, NA, col - 1), col, col, 
+               ifelse(col + 1 > (ncol + (cmin - 1)), NA, col + 1))
+        x <- c(row, ifelse(row - 1 < rmin, NA, row - 1), ifelse(row + 
+                                                                    1 > (nrow + (rmin - 1)), NA, row + 1), row)
+    }
+    res <- as.data.frame(list(row = y, col = x))
+#    res2 <- data.frame(row = y, col = x)
+
+    
+    #from=matrix(rep(c(row,col),each=4),ncol=2,byrow=F)))
+    
+
+    res <- na.omit(res)
+    res <- as.matrix(res)
+    rownames(res) <- NULL
+    attr(res, "coords") <- c(col, row)
+    res
+}
+
+
+rowcol = rc.sp
+col=rowcol[,2]
+
+
+gt = GridTopology(c(xmin(ext),ymin(ext)),res(maps),dim(maps)[1:2])
+
+
+gt = GridTopology(c(0,0),c(1,1),c(10,10))
+grd = SpatialGrid(gt)
+SpatialPixels
+
+gridIndex2nb(grd)
+gridIndex2nb(gt)
+
+getGridIndex(coordinates(caribou),grid=gt)
+
+
+
+
+queencell(rowcol=rc[1,],dm[2],dm[1])
+
+library(spdep)
+rowcol
+
+
+SP = SpatialPixels(SpatialPoints(caribou),grid=gt)
+queencell()
+
+gridIndex2nb(SP,fullMat=F)
+kml(SP)
+
+fires = SpreadEvents(maps,SpreadProb=0.225,Loci=loci[1])
 
 x11()
 speed = 3
