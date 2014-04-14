@@ -25,4 +25,7 @@ More detailed description needed here.
 \examples{
 \dontrun{tst <- raster(nrows=10, ncols=10, vals=0)}
 }
+\author{
+Steve Cumming
+}
 

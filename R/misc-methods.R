@@ -70,6 +70,8 @@ setMethod("load.packages",
 #' already loaded, hold off loading the cuurent module until after
 #' dependencies are loaded.
 #'
+#' @param sim An object of class \code{SimList}.
+#' 
 #' @param depends A list of character strings specifying
 #' the names of modules upon which the current module depends.
 #'
@@ -83,14 +85,14 @@ setMethod("load.packages",
 #'
 # @examples
 # need examples
-setGeneric("reload.module.later", function(depends, ...) {
+setGeneric("reload.module.later", function(sim, depends, ...) {
     standardGeneric("reload.module.later")
 })
 
 #' @rdname loadmodules
 setMethod("reload.module.later",
           signature(depends="character"),
-          definition = function(depends, ...) {
+          definition = function(sim, depends, ...) {
               if (depends=="NONE") {
                   return(FALSE)
               } else {

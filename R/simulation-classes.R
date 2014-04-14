@@ -33,7 +33,8 @@
 #' 
 #' @slot events     The list of scheduled events, as a data.table class.
 #' 
-#' @slot simtime    Numerical value describing the current simulation time.
+#' @slot simtimes    List of numerical values describing the simulation start and stop timos,
+#'                  and the current simulation time.
 #' 
 #' @slot debug      Logical value specifying whether to run simulation in debugging mode.
 #'
@@ -47,5 +48,5 @@
 #' 
 setClass("SimList",
          slots=list(.loaded="list", modules="list", params="list",
-                    events="data.table", simtime="numeric", debug="logical"
+                    events="data.table", simtimes="list", debug="logical"
 ))

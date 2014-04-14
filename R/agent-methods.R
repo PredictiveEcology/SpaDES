@@ -24,7 +24,7 @@ setMethod("initialize",
               return(.Object)
 })
 
-setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NULL, numagents=NULL, probinit=NULL) {
+setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation=NULL, numagents=NULL, probinit=NULL) {
     if (is(agentlocation, "Raster")){
         ext = extent(agentlocation)
         if (!is.null(probinit)) {
@@ -243,12 +243,10 @@ setMethod("coordinates",
 })
 
 
-### POINTS METHODS FOR ALL AGENT CLASSES
-###
-### be sure to @import graphics
-###
-# plot location of a pointAgent (extends method initialize to this class)
-# should we make a plot method as an alias to this?
+
+### points is already defined in the graphics package
+#' add agents to plot
+#' @export
 setMethod("points",
           signature = "pointAgent",
           definition = function(x, ..., which.to.plot=NULL) {
@@ -256,6 +254,8 @@ setMethod("points",
               points(x@spatial@coords[sam,], ...)
 })
 
+#' add agents to plot
+#' @export
 setMethod("points",
           signature = "mobileAgent",
           definition = function(x, ..., which.to.plot=NULL) {
@@ -279,12 +279,14 @@ setMethod("position",
               return(obj@spatial)
 })
 
-# print the positions of the first n pointAgents (extends method initialize to this class)
-# why does head only show positions???
+
+
+#' head method for mobileAgent class
+#' @export
 setMethod("head",
     signature = "mobileAgent",
     definition = function(x, ...) {
-        out = head(data.table(x@spatial), ...)
+        out = head(data.table(x@spatial), ...) # why only show positions???
         print(out)
 })
 

@@ -12,32 +12,33 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-do.event.habitat = function(event.time, event.type) {
+do.event.habitat = function(sim, event.time, event.type) {
     if (event.type=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         depends = "NONE" # list module names here
         
-        if (reload.module.later(depends)) {
-            schedule.event(sim.time(sim), "habitat", "init")
+        if (reload.module.later(sim, depends)) {
+            sim <- schedule.event(sim, currentTime(sim), "habitat", "init")
         } else {
             # do stuff for this event
-            habitat.init()
+            sim <- habitat.init(sim)
             
             # schedule the next event
-#            schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+            #sim <- schedule.event(sim, EVENT.TIME, "MODULE.NAME", "EVENT.TYPE",)
         }
     } else {
         # do stuff for this event
         print("polar bears. grr!")
         
         # schedule the next event
- #       schedule.event(EVENT.TIME, "MODULE.NAME", "EVENT.TYPE", list(OPTIONAL.ITEMS))
+        #sim <- schedule.event(sim, EVENT.TIME, "MODULE.NAME", "EVENT.TYPE")
     }
+    return(sim)
 }
 
-habitat.init = function() {
+habitat.init = function(sim) {
     ### load any required packages
     pkgs = list("raster", "shiny") # list required packages here
     load.packages(pkgs)
@@ -58,7 +59,9 @@ habitat.init = function() {
     plot(hab)
     
     # last thing to do is add module name to the loaded list
-    sim.loaded(sim) <<- append(sim.loaded(sim), "habitat")
+    sim.loaded(sim) <- append(sim.loaded(sim), "habitat")
+    
+    return(sim)
 }
 
 
