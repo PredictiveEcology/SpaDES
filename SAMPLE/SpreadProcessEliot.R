@@ -4,7 +4,7 @@
 #  DOCUMENT ME
 # tst<-raster(nrows=10,ncols=10,vals=0)
 #' 
-SpreadEvents<-
+SpreadEventsEliot<-
     function(Landscape, Loci=NULL,SpreadProb=0.1,
              Persistance=NULL,Mask=NULL,MaxSize=NULL,directions=8){
    # should sanity check map extents

@@ -18,10 +18,10 @@ devtools::load_all("c:/Eliot/GitHub/ABM")
 #require(ABM)
 ny = 1e2#2e3#3332#1000
 nx = 1e2#2e3#1964#500
-speed = 8# 30
+speed = 2# 30
 
 library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=10)
+if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
 par(mfrow = c(1,1))
 maps.list = list()
 num.maps= 2
@@ -42,8 +42,11 @@ maps = stack(maps.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 2)
+caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 20)
 Loci = cellFromXY(maps, coordinates(caribou))
+
+prof <- lineprof(SpreadEvents(maps,Loci,SpreadProb = 0.2),torture = FALSE)
+shine(prof)
 
 ext = extent(maps)
 dm = dim(maps)
@@ -60,8 +63,7 @@ adja = function(loci) {
     adj = adjacent(maps,loci,directions=8,pairs=T)    
 }
 
-prof <- lineprof(adja(loci))
-shine(prof)
+
 
 
 
