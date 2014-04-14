@@ -1,3 +1,4 @@
+\docType{methods}
 \name{arrange.simplots}
 \alias{arrange.simplots}
 \title{Determine optimal plotting arrangement of RasterStack}

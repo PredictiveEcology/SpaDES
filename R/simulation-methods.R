@@ -22,11 +22,7 @@ setMethod("initialize",
 })
 
 ### show is already defined in the methods package
-#' @title Show an Object
-#' @name show
-#' @rdname show-methods
-#' @aliases show,SimList
-#' @importMethodsFrom methods show
+#' show SimList
 #' @export
 #' 
 setMethod("show",

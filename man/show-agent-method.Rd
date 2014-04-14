@@ -1,0 +1,14 @@
+\docType{methods}
+\name{show,agent-method}
+\alias{show,agent-method}
+\title{show agent}
+\usage{
+\S4method{show}{agent}(object)
+}
+\arguments{
+  \item{object}{Any R object}
+}
+\description{
+show agent
+}
+

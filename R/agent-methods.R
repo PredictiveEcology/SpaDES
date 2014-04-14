@@ -108,11 +108,7 @@ setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation = NU
 })
 
 ### show is already defined in the methods package
-#' @title Show an Object
-#' @name show
-#' @rdname show-methods
-#' @aliases show,agent
-#' @importMethodsFrom methods show
+#' show agent
 #' @export
 setMethod("show",
           signature = "agent",
@@ -126,9 +122,7 @@ setMethod("show",
               print(show)
 })
 
-#' @rdname show-methods
-#' @aliases show,spreadAgent
-#' @importMethodsFrom methods show
+#' show spreadAgent
 #' @export
 setMethod("show",
           signature = "spreadAgent",
@@ -143,9 +137,7 @@ setMethod("show",
               print(show)
 })
 
-#' @rdname show-methods
-#' @aliases show,pointAgent
-#' @importMethodsFrom methods show
+#' show pointAgent
 #' @export
 setMethod("show",
           signature = "pointAgent",
@@ -160,9 +152,7 @@ setMethod("show",
               print(show)
 })
 
-#' @rdname show-methods
-#' @aliases show,mobileAgent
-#' @importMethodsFrom methods show
+#' show mobileAgent
 #' @export
 setMethod("show",
           signature = "mobileAgent",

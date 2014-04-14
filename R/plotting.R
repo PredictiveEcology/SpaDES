@@ -61,7 +61,7 @@ newPlot = function() {
 #'
 #' @return Creates a plot within the active plotting device.
 #' 
-#' #@seealso \code{\link{grid.raster}}
+#' @seealso \code{\link{grid.raster}}
 #' 
 #' @import grid raster
 #' @export
@@ -248,10 +248,11 @@ setMethod("simplot",
 
 #' @param ... additional plotting functions passed to plot or points
 #' @param on.which.to.plot when add = T, which map to plot on
+#' @aliases simplot,RasterLayer
 #' @import raster
 #' @rdname simplot
 setMethod("simplot",
-          signature = "raster",
+          signature = "RasterLayer",
           definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
               if (add==FALSE) {
                   plot(x, type="p", ...)
@@ -275,8 +276,9 @@ setMethod("simplot",
 #' @param axes passed from simplot 
 #' @rdname arrange.simplots
 #' @importMethodsFrom Hmisc llist
+#' @docType methods
+#  @export
 arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
-    
     if (length(which.to.plot)==1) {
         if(which.to.plot=="all")
             wh = 1:dimx[3]
@@ -285,6 +287,7 @@ arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
     } else {
         wh = which.to.plot
     }
+    
     if (is.character(wh)) if (any(is.na(match(wh, nam)))) stop("Not a named map in rasterx")
     
     if(dev.cur()==1) {

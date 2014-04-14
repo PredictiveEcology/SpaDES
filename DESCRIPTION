@@ -19,6 +19,7 @@ Imports:
     CircStats,
     geoR,
     grid,
+	Hmisc,
     igraph,
     methods,
     plotrix,

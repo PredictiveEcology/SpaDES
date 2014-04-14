@@ -1,11 +1,12 @@
 \docType{methods}
 \name{simplot}
 \alias{simplot}
+\alias{simplot,RasterLayer}
+\alias{simplot,RasterLayer-method}
 \alias{simplot,RasterStack}
 \alias{simplot,RasterStack-method}
 \alias{simplot,pointAgent}
 \alias{simplot,pointAgent-method}
-\alias{simplot,raster-method}
 \title{Plotting methods}
 \usage{
 simplot(x, ...)
@@ -17,7 +18,7 @@ simplot(x, ...)
   map.names = NULL, speedup = 1, delete.previous = T, axes = "L",
   max.agents = 10000, add = TRUE, ...)
 
-\S4method{simplot}{raster}(x, on.which.to.plot = 1, speedup = 100,
+\S4method{simplot}{RasterLayer}(x, on.which.to.plot = 1, speedup = 100,
   axes = "L", add = FALSE, ...)
 }
 \arguments{
@@ -51,8 +52,6 @@ simplot(x, ...)
 }
 \value{
 Creates a plot within the active plotting device.
-
-#
 }
 \description{
 Plotting for RasterStack, Agents and other classes used in
