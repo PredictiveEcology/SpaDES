@@ -16,38 +16,87 @@ devtools::load_all("c:/Eliot/GitHub/ABM")
 
 
 #require(ABM)
-ny = 1e2#2e3#3332#1000
-nx = 1e2#2e3#1964#500
-speed = 2# 30
+st = data.frame(matrix(ncol = 3))
+colnames(st)<- c("Time","NumLoci","NumPixels")
+counter = 0
+for (i in 4:4*30) {
+    ny = 1e2*i
+    nx = 1e2*i
+    speed = 20# 30
+    
+    library(snowfall)
+    if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
+    par(mfrow = c(1,1))
+    maps.list = list()
+    num.maps= 1
+    a = function(x,y,z) (x^y - z)^2
+    coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
+    #sfExport(list=c("coarseness","ny","nx","speed"))
+    #sfLibrary(raster)
+    #sfLibrary(RandomFields)
+    #sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
+    #maps.list <- sfClusterApplyLB(1:num.maps,function(i) {
+    #for (i in 1:num.maps) {
+      map <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
+      map[] = 1
+      #map <- GaussMap(extent(map),speedup = speed, scale = coarseness[i], var = 1)
+    #})
+    #sfStop()
+    #names(maps.list) = paste("map",1:num.maps,sep="")
+    #maps = stack(maps.list)
+    
+    
+    
+    
+    
+    for (NumLoci in 1:10*10000) {
+        caribou = new("mobileAgent", agentlocation = map, numagents = NumLoci)
+        Loci = cellFromXY(map, coordinates(caribou))
+        
+        Landscape = map
+        counter = counter + 1
+        st[counter,1] = system.time(Potentials<-adjacent(Landscape,Loci,directions))[1]
+        st[counter,2] = NumLoci
+        st[counter,3] = prod(dim(map)[1:2])
+    }
+}
+plot(st$NumPixels,st$Time,col=st$NumLoci/1e4)
+plot(st$NumLoci,st$Time,col=as.factor(st$NumPixels/min(st$NumPixels)),pch=19)
+legend("bottomright",pch=19, col=unique(as.factor(st$NumPixels/min(st$NumPixels))),
+       legend=unique(st$NumPixels))
 
-library(snowfall)
-if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
-par(mfrow = c(1,1))
-maps.list = list()
-num.maps= 2
-a = function(x,y,z) (x^y - z)^2
-coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
-sfExport(list=c("coarseness","ny","nx","speed"))
-sfLibrary(raster)
-sfLibrary(RandomFields)
-sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
-maps.list <- sfClusterApplyLB(1:num.maps,function(i) {
-#for (i in 1:num.maps) {
-  map <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
-  map <- GaussMap(extent(map),speedup = speed, scale = coarseness[i], var = 1)
-})
-#sfStop()
-names(maps.list) = paste("map",1:num.maps,sep="")
-maps = stack(maps.list)
+glm1 = glm(st$Time ~ st$NumPixels + st$NumLoci)
+summary(glm1)
 
 
+library(microbenchmark)
 
 
+ext = extent(maps)
+dm = dim(maps)
+re = res(maps)
+gt = GridTopology(c(xmin(ext),ymin(ext)),re,dm[1:2])
+SP = SpatialPixels(SpatialPoints(coordinates(caribou)),grid=gt)
+SP.ras =raster(coordinates(SP)[1])
 
-caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 120)
-Loci = cellFromXY(maps, coordinates(caribou))
+set.seed(1234)
+st1 = system.time(fires <- SpreadEvents(maps,Loci,SpreadProb = 0.2))
+set.seed(1234)
+st1E = system.time(firesE <- SpreadEventsEliot(dim(maps),Loci,SpreadProb = 0.2))
 
-fires = SpreadEvents(maps,Loci,SpreadProb = 0.2)
+# > st1
+# user  system elapsed 
+# 0.66    0.00    0.69 
+# > length(wh);extent(maps);SpreadProb=0.2;Loci
+# [1] 509
+# class       : Extent 
+# xmin        : -50 
+# xmax        : 50 
+# ymin        : -50 
+# ymax        : 50 
+# [1] 4957 8772 4679 2085 3006 5067 9154 9434  963 3453
+# [11] 3886 7897
+
 
 
 x = maps
@@ -60,8 +109,6 @@ adja <- adjacent(maps,Loci,directions = 8)
 prof <- lineprof(SpreadEvents(maps,Loci,SpreadProb = 0.2),torture = FALSE)
 shine(prof)
 
-ext = extent(maps)
-dm = dim(maps)
 
 # rc.ras = rowColFromCell(maps,loci)
 # adj = sort(adjacent(maps,loci,pairs=F))
@@ -179,7 +226,6 @@ rowcol = rc.sp
 col=rowcol[,2]
 
 
-gt = GridTopology(c(xmin(ext),ymin(ext)),res(maps),dim(maps)[1:2])
 
 
 gt = GridTopology(c(0,0),c(1,1),c(10,10))
