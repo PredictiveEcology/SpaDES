@@ -42,8 +42,20 @@ maps = stack(maps.list)
 
 
 
-caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 20)
+
+
+caribou = new("mobileAgent", agentlocation = maps[[1]], numagents = 120)
 Loci = cellFromXY(maps, coordinates(caribou))
+
+fires = SpreadEvents(maps,Loci,SpreadProb = 0.2)
+
+
+x = maps
+cells = Loci
+
+prof = lineprof(adja <- adjacent(maps,Loci,directions = 8))
+
+adja <- adjacent(maps,Loci,directions = 8)
 
 prof <- lineprof(SpreadEvents(maps,Loci,SpreadProb = 0.2),torture = FALSE)
 shine(prof)

@@ -134,7 +134,7 @@ setMethod("simplot",
                       grid.text(names(x)[ma], y=1.08, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)),
                                 name = paste(w,"title",sep=""))
                       grid.raster(as.raster(x[[w]],maxpixels=1e4/(cols*rows)*prod(ds)/speedup),
-                                  name=w,...)
+                                  interpolate=FALSE,name=w,...)
                       upViewport()
                     }
                  })
@@ -148,7 +148,7 @@ setMethod("simplot",
                       seekViewport(i)
                       grid.remove(i)
                       grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup),
-                                  name=names(x[[i]]),...)
+                                  interpolate=FALSE,name=names(x[[i]]),...)
                       upViewport()
                   }
               } else {
@@ -157,7 +157,7 @@ setMethod("simplot",
 })
 
 
-#' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
+#' @param on.which.to.plot Numeric or character vector identifying on which raster in existing plot window to plot.
 #' 
 #' @param speedup Scalar indicating how much faster than normal to make plots (see Details).
 #' 
@@ -166,7 +166,7 @@ setMethod("simplot",
 #' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
 #' Default is \code{FALSE}.
 #' 
-#' @aliases simplot,RasterStack
+#' @aliases simplot,RasterLayer
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterLayer",
@@ -201,7 +201,7 @@ setMethod("simplot",
                   
                   grid.text(y=1.08, vjust=0.5, gp=gpar(cex=1-0.015),
                             label = nam)
-                  grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup),
+                  grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup),interpolate = F,
                               name=nam,...)
                   upViewport()
               } else if (add==TRUE){
@@ -214,7 +214,7 @@ setMethod("simplot",
                       seekViewport(i)
                       grid.remove(i)
                       grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup),
-                                  name=nam,...)
+                                  interpolate=FALSE,name=nam,...)
                       upViewport()
                   
               } else {
@@ -311,20 +311,6 @@ setMethod("simplot",
 })
 
 
-#' @param ... additional plotting functions passed to plot or points
-#' @param on.which.to.plot when add = T, which map to plot on
-#' @aliases simplot,RasterLayer
-#' @import raster
-#' @rdname simplot
-setMethod("simplot",
-          signature = "RasterLayer",
-          definition = function(x, on.which.to.plot=1, speedup=100, axes="L", add=FALSE, ...) {
-              if (add==FALSE) {
-                  plot(x, type="p", ...)
-              } else {
-                  plot(x, ...)
-              }
-})
 
 #' Determine optimal plotting arrangement of RasterStack
 #'
@@ -340,7 +326,6 @@ setMethod("simplot",
 #' @param which.to.plot vector of numbers or names in rasterStack to plot
 #' @param axes passed from simplot 
 #' @rdname arrange.simplots
-#' @importMethodsFrom Hmisc llist
 #' @docType methods
 #  @export
 arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
@@ -388,6 +373,7 @@ arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
     }
     
     cr = expand.grid(cols=((1:cols/cols - 1/cols/2)-0.55)*0.9+0.55,rows=((1:rows/rows - 1/rows/2)-0.55)*0.9+0.55)
-    out = llist(cr,rows,cols,actual.ratio,ds.map.ratio,ds,prettys,wh,ds.ratio)
+    out = list(cr=cr,rows=rows,cols=cols,actual.ratio=actual.ratio,ds.map.ratio=ds.map.ratio,
+                ds=ds,prettys=prettys,wh=wh,ds.ratio=ds.ratio)
     return(out)
 }
