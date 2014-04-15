@@ -12,7 +12,7 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-do.event.habitat = function(sim, event.time, event.type) {
+do.event.habitat = function(sim, event.time, event.type, debug=FALSE) {
     if (event.type=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,

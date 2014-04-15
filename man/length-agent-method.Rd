@@ -1,0 +1,15 @@
+\docType{methods}
+\name{length,agent-method}
+\alias{length,agent-method}
+\title{length agent (this is really num.agents())}
+\usage{
+\S4method{length}{agent}(x)
+}
+\arguments{
+  \item{x}{an \R object.  For replacement, a vector or
+  factor.}
+}
+\description{
+length agent (this is really num.agents())
+}
+

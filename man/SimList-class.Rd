@@ -6,18 +6,6 @@
 \description{
 This class contains the minimum components of a simulation.
 }
-\details{
-An object of class SimList contains: events: the events
-data.table (see below); .loaded: list of already loaded
-modules; modules: list of required modules to load; params:
-list of simulation parameters; simtime: the current
-simulated time; debug: indicates debugging mode.  Each
-event is represented by a data.table row consisting of:
-event.time: the time the event is to occur; module.name:
-the module from which the event is taken; event.type: a
-character string for the programmer-defined event type; :
-optional application-specific components.
-}
 \section{Slots}{
 
 \describe{
@@ -27,13 +15,23 @@ optional application-specific components.
 
 \item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
 
-\item{\code{events}}{The list of scheduled events, as a data.table class.}
+\item{\code{events}}{The list of scheduled events, as a data.table class. This is implemented
+                 such that the data.table is always sorted (keyed) by time, making it easy
+                 to insert new events into the table.}
 
-\item{\code{simtime}}{Numerical value describing the current simulation time.}
+\item{\code{simtimes}}{List of numerical values describing the simulation start and stop timos,
+                 and the current simulation time.}
 
 \item{\code{debug}}{Logical value specifying whether to run simulation in debugging mode.}
 }}
 \note{
-add additional notes here.
+Each event is represented by a data.table row consisting
+of: event.time: the time the event is to occur;
+module.name: the module from which the event is taken;
+event.type: a character string for the programmer-defined
+event type.
+}
+\seealso{
+\code{\link{data.table}}
 }
 

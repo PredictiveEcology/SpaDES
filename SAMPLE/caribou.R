@@ -14,7 +14,7 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-do.event.caribou = function(sim, event.time, event.type) {
+do.event.caribou = function(sim, event.time, event.type, debug=FALSE) {
     if (event.type=="init") {
         ### check for module dependencies:
         depends = c("habitat") # list package names here

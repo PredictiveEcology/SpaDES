@@ -14,12 +14,12 @@ simplot(x, ...)
 \S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 10,
   axes = "L", add = FALSE, ...)
 
+\S4method{simplot}{RasterLayer}(x, speedup = 1, axes = "L", add = FALSE,
+  on.which.to.plot = NULL, ...)
+
 \S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, ext,
   map.names = NULL, speedup = 1, delete.previous = T, axes = "L",
   max.agents = 10000, add = TRUE, ...)
-
-\S4method{simplot}{RasterLayer}(x, on.which.to.plot = 1, speedup = 100,
-  axes = "L", add = FALSE, ...)
 }
 \arguments{
   \item{x}{rasterStack object.}
@@ -41,14 +41,22 @@ simplot(x, ...)
   (\code{FALSE}) or update exising maps (\code{TRUE}).
   Default is \code{FALSE}.}
 
+  \item{on.which.to.plot}{Numeric or character vector
+  identifying on which raster in existing plot window to
+  plot.}
+
+  \item{speedup}{Scalar indicating how much faster than
+  normal to make plots (see Details).}
+
+  \item{axes}{String either "all", "L", or "none" (see
+  Details). Default is "L".}
+
+  \item{add}{Logical indicating whether to plot new maps
+  (\code{FALSE}) or update exising maps (\code{TRUE}).
+  Default is \code{FALSE}.}
+
   \item{on.which.to.plot}{when add = TRUE, which map to
   plot on}
-
-  \item{...}{additional plotting functions passed to plot
-  or points}
-
-  \item{on.which.to.plot}{when add = T, which map to plot
-  on}
 }
 \value{
 Creates a plot within the active plotting device.

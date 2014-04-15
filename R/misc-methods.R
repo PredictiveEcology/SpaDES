@@ -85,14 +85,14 @@ setMethod("load.packages",
 #'
 # @examples
 # need examples
-setGeneric("reload.module.later", function(sim, depends, ...) {
+setGeneric("reload.module.later", function(sim, depends) {
     standardGeneric("reload.module.later")
 })
 
 #' @rdname loadmodules
 setMethod("reload.module.later",
           signature(depends="character"),
-          definition = function(sim, depends, ...) {
+          definition = function(sim, depends) {
               if (depends=="NONE") {
                   return(FALSE)
               } else {
@@ -100,8 +100,6 @@ setMethod("reload.module.later",
                   return(!f)
               }
 })
-
-
 
 ##############################################################
 #' Check filepath.

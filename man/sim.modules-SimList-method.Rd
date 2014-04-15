@@ -1,0 +1,14 @@
+\docType{methods}
+\name{sim.modules,SimList-method}
+\alias{sim.modules,SimList-method}
+\title{get list of simulation modules}
+\usage{
+\S4method{sim.modules}{SimList}(object)
+}
+\arguments{
+  \item{object}{A \code{SimList} simulation object.}
+}
+\description{
+get list of simulation modules
+}
+

@@ -1,4 +1,6 @@
-### INIT METHODS FOR ALL CLASSES
+### initialize is already defined in the methods package
+#' initialize agent
+#' @export
 setMethod("initialize",
           signature = "agent",
           definition = function(.Object, ..., numagents=NULL) {
@@ -12,6 +14,8 @@ setMethod("initialize",
 
 # need init for spreadAgent class
 
+#' initialize pointAgent
+#' @export
 setMethod("initialize",
           signature = "pointAgent",
           definition = function(.Object, ..., numagents=NULL) {
@@ -24,6 +28,8 @@ setMethod("initialize",
               return(.Object)
 })
 
+#' initialize mobileAgent
+#' @export
 setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation=NULL, numagents=NULL, probinit=NULL) {
     if (is(agentlocation, "Raster")){
         ext = extent(agentlocation)
@@ -221,7 +227,9 @@ setMethod("setOther",
               return(object)
 })
 
-# length (this is really num.agents())
+### length is already defined in the base package
+#' length agent (this is really num.agents())
+#' @export
 setMethod("length",
           signature = "agent",
           definition = function(x) {
@@ -229,12 +237,10 @@ setMethod("length",
               return(len)
 })
 
-
-
-###
-### be sure to @import sp
-###
-# get coordinates of a pointAgent (extends method initialize to this class)
+### coodinates is already defined in the sp package
+#' get coordinates of a pointAgent
+#' @importMethodsFrom sp coordinates 
+#' @export
 setMethod("coordinates",
           signature = "pointAgent",
           definition = function(obj, ...) {
@@ -242,10 +248,11 @@ setMethod("coordinates",
               return(coords)
 })
 
-
-
 ### points is already defined in the graphics package
 #' add agents to plot
+#' 
+#' @param which.to.plot     Optional subset of agent IDs to plot.
+#' 
 #' @export
 setMethod("points",
           signature = "pointAgent",
@@ -255,6 +262,9 @@ setMethod("points",
 })
 
 #' add agents to plot
+#' 
+#' @param which.to.plot     Optional subset of agent IDs to plot.
+#' 
 #' @export
 setMethod("points",
           signature = "mobileAgent",
@@ -264,9 +274,6 @@ setMethod("points",
               if (is.null(which.to.plot)) { sam = 1:length(x)} else {sam = which.to.plot}
               points(x@spatial@coords[sam,], ...)
 })
-
-
-
 
 # get agent positions
 setGeneric("position", function(obj, ...) {

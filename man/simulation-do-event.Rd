@@ -1,0 +1,43 @@
+\docType{methods}
+\name{do.event}
+\alias{do.event}
+\alias{do.event,SimList,logical-method}
+\alias{do.event,SimList,missing-method}
+\title{Process a simulation event}
+\usage{
+do.event(sim, debug)
+
+\S4method{do.event}{SimList,logical}(sim, debug)
+
+\S4method{do.event}{SimList,missing}(sim)
+}
+\arguments{
+  \item{sim}{A \code{SimList} simulation object.}
+
+  \item{debug}{Optional logical flag determines whether sim
+  debug info will be printed. If not specified, the default
+  is \code{debug=FALSE}.}
+}
+\value{
+Returns the modified \code{SimList} object.
+}
+\description{
+Internal function called from \code{dosim}.
+
+do.event
+
+do.event
+}
+\details{
+Calls the module corresponding to the event call, and
+executes the event. E.g., if the next event in the SimList
+event queue was:
+
+\code{}
+
+the following call would to the "fire" module would be
+produced:
+
+\code{do.event.fire(sim, TIME, "TYPE", debug)}.
+}
+

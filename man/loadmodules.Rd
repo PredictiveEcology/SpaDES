@@ -1,14 +1,16 @@
 \docType{methods}
 \name{reload.module.later}
 \alias{reload.module.later}
-\alias{reload.module.later,character-method}
+\alias{reload.module.later,ANY,character-method}
 \title{Load modules for simulation.}
 \usage{
-reload.module.later(depends, ...)
+reload.module.later(sim, depends)
 
-\S4method{reload.module.later}{character}(depends, ...)
+\S4method{reload.module.later}{ANY,character}(sim, depends)
 }
 \arguments{
+  \item{sim}{An object of class \code{SimList}.}
+
   \item{depends}{A list of character strings specifying the
   names of modules upon which the current module depends.}
 }
