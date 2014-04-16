@@ -275,6 +275,15 @@ setMethod("points",
               points(x@spatial@coords[sam,], ...)
 })
 
+#' head method for mobileAgent class
+#' @export
+setMethod("head",
+    signature = "mobileAgent",
+    definition = function(x, ...) {
+        out = head(data.table(x@spatial), ...) # why only show positions???
+        print(out)
+})
+
 # get agent positions
 setGeneric("position", function(obj, ...) {
     standardGeneric("position")
@@ -285,18 +294,6 @@ setMethod("position",
           definition = function(obj, ...) {
               return(obj@spatial)
 })
-
-
-
-#' head method for mobileAgent class
-#' @export
-setMethod("head",
-    signature = "mobileAgent",
-    definition = function(x, ...) {
-        out = head(data.table(x@spatial), ...) # why only show positions???
-        print(out)
-})
-
 
 # get mobileAgent heading
 setGeneric("agentHeading", function(object) {
@@ -342,27 +339,6 @@ setMethod("arrow",
 
 
 
-#################################################################
-### generic methods (lack class-specific methods)
-
-# calculates the distance between spatial points
-setGeneric("distance", function(from, to, ...) {
-    standardGeneric("distance")
-})
-
-setMethod("distance",
-          signature("SpatialPoints"),
-          definition = function(from, to, ...) {
-              if ( (is(from)=="SpatialPoints") && (is(to)=="SpatialPoints") ) {
-                  from = coordinates(from)
-                  to = coordinates(to)
-                  out = sqrt((from[,2] - to[,2])^2 + (from[,1] - to[,1])^2)
-                  return(out)
-              } else {
-                  stop("Error: `from` and `to` must be SpatialPoints objects.")
-              }
-})
-
 ##############################################################
 #' Heading between spatial points.
 #'
@@ -375,8 +351,6 @@ setMethod("distance",
 #' @param ... Additional arguments.
 #'
 #' @return The heading between the points, in RADIANS or DEGREES?.
-#' 
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
 #' 
 #' @importMethodsFrom CircStats deg
 #' @importClassesFrom sp SpatialPoints
