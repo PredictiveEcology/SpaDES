@@ -21,11 +21,11 @@ devtools::load_all("ABM") # for development/testing
 
 ## simulation code
 # initialize the simulation
-simsim <- sim.init(times=list(start=0.0, stop=10.0),
+mySim <- sim.init(times=list(start=0.0, stop=10.0),
                    params=list(Ncaribou=100),
                    modules=list("habitat", "caribou"),
                    path="ABM/SAMPLE")
-simsim <- dosim(simsim)
+mySim <- dosim(mySim)
 
 ## profiling of development code
 prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
