@@ -1,3 +1,4 @@
+source("c:/Eliot/.Rprofile")
 #source("C:/Eliot/GitHub/ABM/R/ABM_code_files.R")
 #source("C:/Eliot/Dropbox/R/grid plotting multipanel functions.r")
 
@@ -19,18 +20,26 @@ devtools::load_all("c:/Eliot/GitHub/ABM")
 st = data.frame(matrix(ncol = 3))
 colnames(st)<- c("Time","NumLoci","NumPixels")
 counter = 0
-for (i in 4:4*30) {
+
+# library(snowfall)
+# if(!sfIsRunning()) sfInit(parallel = T, cpus=11)
+# sfExport(list=c("counter"))
+# sfLibrary(raster)
+# sfLibrary(RandomFields)
+# sfLibrary(ABM)
+#sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
+#st = sfClusterApplyLB(1:2*10, function(i) {#
+    
+for (i in 1:8*20) {
     ny = 1e2*i
     nx = 1e2*i
-    speed = 20# 30
+#    speed = 100# 30
     
-    library(snowfall)
-    if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
-    par(mfrow = c(1,1))
-    maps.list = list()
-    num.maps= 1
-    a = function(x,y,z) (x^y - z)^2
-    coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
+    #par(mfrow = c(1,1))
+    #maps.list = list()
+    #num.maps= 1
+    #a = function(x,y,z) (x^y - z)^2
+    #coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
     #sfExport(list=c("coarseness","ny","nx","speed"))
     #sfLibrary(raster)
     #sfLibrary(RandomFields)
@@ -45,25 +54,35 @@ for (i in 4:4*30) {
     #names(maps.list) = paste("map",1:num.maps,sep="")
     #maps = stack(maps.list)
     
-    
-    
-    
-    
-    for (NumLoci in 1:10*10000) {
+    for (NumLoci in 1:10*40000) {
         caribou = new("mobileAgent", agentlocation = map, numagents = NumLoci)
         Loci = cellFromXY(map, coordinates(caribou))
         
         Landscape = map
         counter = counter + 1
-        st[counter,1] = system.time(Potentials<-adjacent(Landscape,Loci,directions))[1]
+        st[counter,1] = system.time(Potentials<-adjacent(Landscape,Loci,directions=8))[1]
         st[counter,2] = NumLoci
         st[counter,3] = prod(dim(map)[1:2])
+        print(paste(NumLoci,"NumLoci",prod(dim(map)[1:2]),"NumPixels"))
     }
 }
-plot(st$NumPixels,st$Time,col=st$NumLoci/1e4)
-plot(st$NumLoci,st$Time,col=as.factor(st$NumPixels/min(st$NumPixels)),pch=19)
+
+x11(11,8)
+par(mfrow = c(1,2))
+par(mai = c(1,1,1,1))
+plot(st$NumPixels,st$Time,ylab="Time in seconds for 1 iteration of fn adjacent",
+     xlab = "Number of Pixels",col=unique(as.factor(st$NumLoci)),pch=19)
+col.vec = unique(as.factor(st$NumLoci))
+legend("bottomright",xpd=T,inset=c(-0.6,0),pch=19, col=col.vec[length(col.vec):1],
+       legend=col.vec[length(col.vec):1],title="Number of\nLoci",bty="n")
+par(mai = c(1,1,1,0.1))
+plot(st$NumLoci,st$Time,ylab="Time in seconds for 1 iteration of fn adjacent",
+     xlab = "Number of Active Loci",col=as.factor(st$NumPixels/min(st$NumPixels)),pch=19)
+mtext(side=3,outer = T,line=-2,paste("Fn call: \nadjacent(Landscape,Loci,directions=8)"),bty="n")
 legend("bottomright",pch=19, col=unique(as.factor(st$NumPixels/min(st$NumPixels))),
-       legend=unique(st$NumPixels))
+       legend=unique(st$NumPixels),title="Number of\npixels",bty="n")
+for (i in 1:4*1:4*40*40*100*100) lines(st$NumLoci[st$NumPixels==i],st$Time[st$NumPixels==i],
+                                       col=unique(as.factor(st$NumPixels/min(st$NumPixels))[which(st$NumPixels[st$NumPixels==i]==st$NumPixels)]))
 
 glm1 = glm(st$Time ~ st$NumPixels + st$NumLoci)
 summary(glm1)

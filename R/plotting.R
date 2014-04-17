@@ -10,7 +10,7 @@
 
 # Notes to self (Eliot)... 
 #DONE 1. fix when rasters are not square... need equivalent to eqscplot
-# 2. use arrange.simplot for pointAgent
+#DONE 2. use arrange.simplot for pointAgent
 # 3. allow plotting of legends
 
 
@@ -25,21 +25,23 @@
 #' 
 #' @return Opens a new plot device on the screen.
 #' 
+#' @param ... Additional arguments passed to x11() or windows() 
+#' 
 #' @export
 #' @docType methods
 #' @rdname newPlot
 #'
 # @examples
 # needs examples
-newPlot = function() {
+newPlot = function(...) {
     if (Sys.info()[["sysname"]]=="Darwin") {
-        quartz()
+        quartz(...)
     } else if (Sys.info()[["sysname"]]=="Linux") {
-        x11()
+        x11(...)
     } else if (Sys.info()[["sysname"]]=="Windows") {
-        windows()
+        windows(...)
     } else {
-        x11() # try x11() to see if it works
+        x11(...) # try x11() to see if it works
         print("Which operating system are you using?")
     }
 }
@@ -55,7 +57,7 @@ newPlot = function() {
 #' the window. \code{Speedup} will make downsample the number of pixels, allowing for greater plotting
 #' speed, at a cost of more fuzzy plots. 
 #'
-#' @param x rasterStack object.
+#' @param x rasterStack, rasterLayer, or list of named rasters, SpatialPoints* object.
 #' 
 #' @param ... Additional plotting functions passed to grid.raster (if rasterStack) or grid.points (if pointAgent)
 #'
