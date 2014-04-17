@@ -3,78 +3,89 @@
 #'
 #' More detailed description needed here.
 #'
-#' @param Landscape A RasterLayer
+#' @param landscape     A \code{RasterLayer} object.
 #' 
-#' @param Loci A list(?) of locations in \code{Landscape}
+#' @param loci          A list(?) of locations in \code{landscape}
 #' 
-#' @param Mask  non null, a RasterLayer congruent with Landscape whose elements are \code{0,1},
-#'              where 1 indicates can not spread to.
+#' @param spreadProb    The probability of spreading.
+#' 
+#' @param persistance   DOCUMENTATION NEEDED
+#' 
+#' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
+#'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".
+#' 
+#' @param maxSize       DOCUMENTATION NEEDED
+#' 
+#' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
 #' 
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #' 
 #' @import raster
 #' @export
 #' @docType methods
-#' @rdname SpreadEvents
+#' @rdname SpreadEvents-method
 #'
 #' @examples
-#'  \dontrun{tst <- raster(nrows=10, ncols=10, vals=0)}
+#'  \dontrun{tmp <- raster(nrows=10, ncols=10, vals=0)}
+#'  \dontrun{plot(tmp)}
+#'  \dontrun{SpreadEvents(tmp, spreadProb=0.25)}
+#'  \dontrun{plot(tmp)}
 #'  
 #'  @author Steve Cumming
 #' 
-SpreadEvents = function(Landscape, Loci=NULL, SpreadProb=0.1,
-             Persistance=NULL, Mask=NULL, MaxSize=NULL, directions=8) {
+SpreadEvents = function(landscape, loci=NULL, spreadProb=0.1,
+             persistance=NULL, mask=NULL, maxSize=NULL, directions=8) {
               ### should sanity check map extents
-                is.prob<-function(x){
+                is.prob <- function(x){
                     if (!is.numeric(x)) 
                         return(FALSE)
                     else 
-                        return(!(x>1|| x<0))
+                        return(!(x>1 || x<0))
                 }
                 
-                if (is.null(Loci))
-                    Loci <- (Landscape@nrows/2 + 0.5) * Landscape@ncols    
+                if (is.null(loci))
+                    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols    
             
-                Spreads<- setValues(raster(Landscape),0)
-                n<-1
-                Spreads[Loci]<-n
+                Spreads <- setValues(raster(landscape), 0)
+                n <- 1
+                Spreads[loci] <- n
                
-                while (length(Loci)>0){
-                  #print(paste(n,length(Loci)))
-                  Potentials<-adjacent(Landscape,Loci,directions)
+                while (length(loci)>0){
+                  #print(paste(n, length(loci)))
+                  Potentials <- adjacent(landscape, loci, directions)
                   #drop those inelgible
-                  if (!is.null(Mask)){
-                    tmp<-extract(Mask,Potentials[,2])
-                    Potentials<-Potentials[ifelse(is.na(tmp),FALSE,tmp == 0,)]
+                  if (!is.null(mask)){
+                    tmp <- extract(mask, Potentials[,2])
+                    Potentials <- Potentials[ifelse(is.na(tmp), FALSE, tmp == 0),]
                   }
-                  tmp<-extract(Spreads,Potentials[,2])
+                  tmp <- extract(Spreads, Potentials[,2])
                   #print(cbind(Potentials,tmp))
-                  Potentials<-Potentials[ifelse(is.na(tmp),FALSE,tmp == 0),]
+                  Potentials <- Potentials[ifelse(is.na(tmp), FALSE, tmp == 0),]
                  
                   #select which potentials actually happened
                   #nrow() only works if Potentials is an array
-                  if (is.numeric(SpreadProb))
-                    ItHappened<-runif(nrow(Potentials))<SpreadProb
+                  if (is.numeric(spreadProb))
+                    ItHappened <- runif(nrow(Potentials)) < spreadProb
                   else
-                    stop("Unsupported type:SpreadProb") #methods for raster* or function args
-                  Events<-Potentials[ItHappened,2]
+                    stop("Unsupported type:spreadProb") #methods for raster* or function args
+                  Events <- Potentials[ItHappened, 2]
                   #print(Events)
                   #update eligibility map
-                  Spreads[Events]<-n
-                  n<-n+1
-                  #drop or keep Loci
+                  Spreads[Events] <- n
+                  n <- n+1
+                  #drop or keep loci
                   
-                  if (is.null(Persistance))
-                      Loci<-NULL
+                  if (is.null(persistance))
+                      loci <- NULL
                   else {
-                      if (is.prob(Persistance)) 
-                        Loci<-Loci[runif(length(Loci))<Persistance]
+                      if (is.prob(persistance)) 
+                        loci <- loci[runif(length(loci))<persistance]
                       else
-                        stop("Unsupported type: Persistance") #here is were we would handle methods
+                        stop("Unsupported type: persistance") #here is were we would handle methods
                                                               #for raster* or functions
                   }
                  
-                  Loci<-c(Loci,Events)
+                  loci <- c(loci, Events)
                   
                 }
                 return(Spreads)

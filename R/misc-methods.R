@@ -114,7 +114,7 @@ setMethod("reload.module.later",
 #'
 #' @return Character string denoting the cleaned up filepath.
 #' 
-#' @seealso \code{\link{file.exists}}, \code{\link{create.dir}}.
+#' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
 #' 
 #' @export
 #' @docType methods

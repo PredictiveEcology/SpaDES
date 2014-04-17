@@ -1,5 +1,8 @@
 ### initialize is already defined in the methods package
 #' initialize agent
+#' 
+#' @param numagents The number of agents to initialize.
+#' 
 #' @export
 setMethod("initialize",
           signature = "agent",
@@ -15,6 +18,9 @@ setMethod("initialize",
 # need init for spreadAgent class
 
 #' initialize pointAgent
+#' 
+#' @param numagents The number of agents to initialize.
+#' 
 #' @export
 setMethod("initialize",
           signature = "pointAgent",
@@ -29,6 +35,15 @@ setMethod("initialize",
 })
 
 #' initialize mobileAgent
+#' 
+#' @param agentlocation The initial positions of the agents
+#'                      (currently only \code{RasterLayer} or
+#'                      \code{SpatialPolygonsDataFrame}) accepted.
+#' 
+#' @param numagents The number of agents to initialize.
+#' 
+#' @param probinit The probability of placing an agent at a given initial position.
+#' 
 #' @export
 setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation=NULL, numagents=NULL, probinit=NULL) {
     if (is(agentlocation, "Raster")){
@@ -175,27 +190,32 @@ setMethod("show",
 
 
 
-
-### DEFINE ALL OTHER METHODS FOR ALL CLASSES
-
-# get agent id
+#' get the agent ID
+#' @export
+#' @rdname agent-accessor-methods
 setGeneric("agentID", function(object) {
     standardGeneric("agentID")
 })
 
+#' get the agent ID
+#' @rdname agent-accessor-methods
 setMethod("agentID",
           signature = "agent",
           definition = function(object) {
-              object@ID = value
-              return(object)
+              return(object@ID)
 })
 
-# set agent id
+#' set the agent ID
+#' @export
+#' @rdname agent-accessor-methods
 setGeneric("agentID<-",
            function(object, value) {
                standardGeneric("agentID<-")
 })
 
+#' set the agent ID
+#' @name <-
+#' @rdname agent-accessor-methods
 setReplaceMethod("agentID",
                  signature="agent",
                  function(object, value) {
@@ -204,22 +224,30 @@ setReplaceMethod("agentID",
                      return(object)
 })
 
-# get other (non-default) attributes of agent
+#' get other (non-default) attributes of agent
+#' @export
+#' @rdname agent-accessor-methods
 setGeneric("getOther", function(object, name) {
     standardGeneric("getOther")
 })
 
+#' get other (non-default) attributes of agent
+#' @rdname agent-accessor-methods
 setMethod("getOther",
           signature = "agent",
           definition = function(object, name) {
               return(object@other[[as.character(name)]])
 })
 
-# set other (non-default) attributes of agent
+#' set other (non-default) attributes of agent
+#' @export
+#' @rdname agent-accessor-methods
 setGeneric("setOther", function(object, name, value) {
     standardGeneric("setOther")
 })
 
+#' set other (non-default) attributes of agent
+#' @rdname agent-accessor-methods
 setMethod("setOther",
           signature = "agent",
           definition = function(object, name, value) {
@@ -228,7 +256,7 @@ setMethod("setOther",
 })
 
 ### length is already defined in the base package
-#' length agent (this is really num.agents())
+#' length agent (this is really \code{num.agents()})
 #' @export
 setMethod("length",
           signature = "agent",
@@ -244,7 +272,7 @@ setMethod("length",
 setMethod("coordinates",
           signature = "pointAgent",
           definition = function(obj, ...) {
-              coords <- coordinates(position(obj), ...)
+              coords <- coordinates(agentPosition(obj), ...)
               return(coords)
 })
 
@@ -284,34 +312,81 @@ setMethod("head",
         print(out)
 })
 
-# get agent positions
-setGeneric("position", function(obj, ...) {
-    standardGeneric("position")
+##############################################################
+#' Get agent position
+#'
+#' Currently, only get methods are defined. Set and subset methods are not.
+#' 
+#' @param object A \code{*Agent} object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{*Agent} object.
+#' 
+#' @seealso \code{\link{agent-class}}, \code{\link{polygonAgent-class}}, \code{\link{pointAgent-class}},
+#'          \code{\link{spreadAgent-class}}, \code{\link{mobileAgent-class}}
+#' 
+#' @export
+#' @docType methods
+#' @rdname agent-accessor-methods
+#' 
+setGeneric("agentPosition", function(object) {
+    standardGeneric("agentPosition")
 })
 
-setMethod("position",
+#' get pointAgent positions
+#' @rdname agent-accessor-methods
+setMethod("agentPosition",
           signature = "pointAgent",
-          definition = function(obj, ...) {
-              return(obj@spatial)
+          definition = function(object) {
+              return(object@spatial)
 })
 
-# get mobileAgent heading
+#' set the agent position
+#' @export
+#' @rdname agent-accessor-methods
+setGeneric("agentPosition<-",
+           function(object, value) {
+               standardGeneric("agentPosition<-")
+           })
+
+#' set the pointAgent position
+#' @name <-
+#' @rdname agent-accessor-methods
+setReplaceMethod("agentPosition",
+                 signature="mobileAgent",
+                 function(object, value) {
+                     object@spatial <- value
+                     validObject(object)
+                     return(object)
+                 })
+
+#' get agent heading
+#' @export
+#' @rdname agent-accessor-methods
 setGeneric("agentHeading", function(object) {
     standardGeneric("agentHeading")
 })
 
+#' get mobileAgent heading
+#' @rdname agent-accessor-methods
 setMethod("agentHeading",
           signature = "mobileAgent",
           definition = function(object) {
               return(object@heading)
 })
 
-# set agent id
+#' set the agent heading
+#' @export
+#' @rdname agent-accessor-methods
 setGeneric("agentHeading<-",
            function(object, value) {
                standardGeneric("agentHeading<-")
 })
 
+#' set the mobileAgent heading
+#' @name <-
+#' @rdname agent-accessor-methods
 setReplaceMethod("agentHeading",
                  signature="mobileAgent",
                  function(object, value) {
@@ -321,20 +396,40 @@ setReplaceMethod("agentHeading",
 })
 
 
-###
-### be sure to @import sp
-###
-# plot arrows showing direction of mobileAgent movement
+##############################################################
+#' plot arrows showing direction of mobileAgent movement
+#'
+#' Plots arrows showing direction of mobileAgent movement.
+#' 
+#' @param agent         A \code{mobileAgent} object.
+#' 
+#' @param ...           Additional plotting parameters.
+#'
+#' @return Returns the modified \code{SimList} object.
+#' 
+#' @importMethodsFrom sp coordinates
+#' @export
+#' @docType methods
+#' @rdname arrow-method
+#'
+# @examples
+# NEEDS EXAMPLES
+#' 
 setGeneric("arrow", function(agent, ...) {
     standardGeneric("arrow")
 })
 
+#' plot arrows showing direction of mobileAgent movement
+#' 
+#' @param length    The length of the arrows to draw (defaults to 0.1).
+#' 
+#' @rdname arrow-method
 setMethod("arrow",
           signature="mobileAgent",
-          definition = function(agent, length = 0.1, ...) {
-              co.pos = coordinates(position(agent))
+          definition = function(agent, ..., length = 0.1) {
+              co.pos = coordinates(agentPosition(agent))
               co.lpos = calculate.last.position()
-              arrows(co.lpos[,"x"], co.lpos[,"y"], co.pos[,"x"], co.pos[,"y"], length = length, ...)
+              arrows(co.lpos[,"x"], co.lpos[,"y"], co.pos[,"x"], co.pos[,"y"], length=length, ...)
 })
 
 
@@ -344,13 +439,13 @@ setMethod("arrow",
 #'
 #' Determines the heading between spatial points.
 #'
-#' @param from The starting position; an object of class SpatiolPoints.
+#' @param from The starting position; an object of class SpatialPoints.
 #'
-#' @param to The ending position;  an object of class SpatiolPoints.
+#' @param to The ending position;  an object of class SpatialPoints.
 #'
 #' @param ... Additional arguments.
 #'
-#' @return The heading between the points, in RADIANS or DEGREES?.
+#' @return The heading between the points, in degrees.
 #' 
 #' @importMethodsFrom CircStats deg
 #' @importClassesFrom sp SpatialPoints

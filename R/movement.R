@@ -56,7 +56,7 @@ AgentLocation = function(map) {
 #' @import raster
 #' @export
 #' @docType methods
-#' @rdname gaussmap
+#' @rdname gaussmap-method
 #'
 #@examples
 #EXAMPLES NEEDED
@@ -136,7 +136,7 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
 #' @importMethodsFrom raster pointDistance
 #' @export
 #' @docType methods
-#' @rdname crw
+#' @rdname crw-method
 #'
 #@examples
 #NEED EXAMPLES
@@ -151,14 +151,14 @@ crw = function(agent, step.len, dir.sd, lonlat) {
     rand.dir = rnorm(n, agent@heading, dir.sd)
     rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
     
-    last.position = position(agent)
+    last.position = agentPosition(agent)
     
     # these should use `coordinates(agent) <-` or similar set methods
     agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
     agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
     
-    agent@heading = heading(last.position, position(agent))
-    agent@distance = pointDistance(last.position, position(agent), lonlat=lonlat)
+    agent@heading = heading(last.position, agentPosition(agent))
+    agent@distance = pointDistance(last.position, agentPosition(agent), lonlat=lonlat)
     
     return(agent)
 }
@@ -182,7 +182,7 @@ crw = function(agent, step.len, dir.sd, lonlat) {
 #' @import data.table
 #' @export
 #' @docType methods
-#' @rdname ringprobs
+#' @rdname ringprobs-method
 #'
 #' #@examples
 #' # NEED EXAMPLES
@@ -195,7 +195,7 @@ ring.probs = function(agent, rings, step.len, dir.sd) {
     }
     n = length(agent)
     
-    DT = data.table(data.frame(position(agent), ids=agentID(agent), heading.rad=rad(agent@heading)))
+    DT = data.table(data.frame(agentPosition(agent), ids=agentID(agent), heading.rad=rad(agent@heading)))
     setkey(DT, ids)
     setkey(rings, ids)
     fromto = rings[DT]
@@ -231,7 +231,7 @@ ring.probs = function(agent, rings, step.len, dir.sd) {
 #' @import data.table sp raster
 #' @export
 #' @docType methods
-#' @rdname cir
+#' @rdname cir-method
 #'
 # @examples
 #  NEED EXAMPLES

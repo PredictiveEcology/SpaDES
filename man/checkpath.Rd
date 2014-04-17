@@ -21,6 +21,6 @@ Checks the specified filepath for formatting consistencies,
 such as trailing slashes, etc.
 }
 \seealso{
-\code{\link{file.exists}}, \code{\link{create.dir}}.
+\code{\link{file.exists}}, \code{\link{dir.create}}.
 }
 

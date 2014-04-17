@@ -1,13 +1,10 @@
 \docType{methods}
 \name{dosim}
 \alias{dosim}
-\alias{dosim,SimList,logical-method}
 \alias{dosim,SimList,missing-method}
 \title{Process a simulation event}
 \usage{
 dosim(sim, debug)
-
-\S4method{dosim}{SimList,logical}(sim, debug)
 
 \S4method{dosim}{SimList,missing}(sim)
 }
@@ -23,8 +20,6 @@ Returns the modified \code{SimList} object.
 }
 \description{
 Internal function called from \code{dosim}.
-
-dosim
 
 dosim
 }

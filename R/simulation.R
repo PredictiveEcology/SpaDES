@@ -39,8 +39,8 @@
 #' @seealso \code{\link{data.table}}
 #' 
 #' @name SimList
-#' @rdname SimList-class
 #' @aliases SimList-class
+#' @rdname SimList-class
 #' @importClassesFrom data.table data.table
 #' @exportClass SimList
 #' 
@@ -112,7 +112,7 @@ setMethod("show",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 #' 
 setGeneric("sim.modules", function(object) {
     standardGeneric("sim.modules")
@@ -128,7 +128,7 @@ setMethod("sim.modules",
 
 #' set list of simulation modules
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.modules<-",
            function(object, value) {
                standardGeneric("sim.modules<-")
@@ -136,7 +136,7 @@ setGeneric("sim.modules<-",
 
 #' set list of simulation modules
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("sim.modules",
                  signature="SimList",
                  function(object, value) {
@@ -147,13 +147,13 @@ setReplaceMethod("sim.modules",
 
 #' get list of loaded simulation modules
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.loaded", function(object) {
     standardGeneric("sim.loaded")
 })
 
 #' get list of loaded simulation modules
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("sim.loaded",
           signature = "SimList",
           definition = function(object) {
@@ -162,7 +162,7 @@ setMethod("sim.loaded",
 
 #' set list of loaded simulation modules
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.loaded<-",
            function(object, value) {
                standardGeneric("sim.loaded<-")
@@ -170,7 +170,7 @@ setGeneric("sim.loaded<-",
 
 #' set list of loaded simulation modules
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("sim.loaded",
                  signature="SimList",
                  function(object, value) {
@@ -181,13 +181,13 @@ setReplaceMethod("sim.loaded",
 
 #' get list of simulation parameters
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.params", function(object) {
     standardGeneric("sim.params")
 })
 
 #' get list of simulation parameters
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("sim.params",
           signature = "SimList",
           definition = function(object) {
@@ -196,7 +196,7 @@ setMethod("sim.params",
 
 #' set list of simulation parameters
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.params<-",
            function(object, value) {
                standardGeneric("sim.params<-")
@@ -204,7 +204,7 @@ setGeneric("sim.params<-",
 
 #' set list of simulation parameters
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("sim.params",
                  signature="SimList",
                  function(object, value) {
@@ -215,13 +215,13 @@ setReplaceMethod("sim.params",
 
 #' get list of simulation times
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.times", function(object) {
     standardGeneric("sim.times")
 })
 
 #' get list of simulation times
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("sim.times",
           signature = "SimList",
           definition = function(object) {
@@ -230,7 +230,7 @@ setMethod("sim.times",
 
 #' set list of simulation times
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.times<-",
            function(object, value) {
                standardGeneric("sim.times<-")
@@ -238,7 +238,7 @@ setGeneric("sim.times<-",
 
 #' set list of simulation times
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("sim.times",
                  signature="SimList",
                  function(object, value) {
@@ -249,13 +249,13 @@ setReplaceMethod("sim.times",
 
 #' get the current simulation time
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("currentTime", function(object) {
     standardGeneric("currentTime")
 })
 
 #' get the current simulation time
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("currentTime",
           signature = "SimList",
           definition = function(object) {
@@ -264,7 +264,7 @@ setMethod("currentTime",
 
 #' set the current simulation time
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("currentTime<-",
            function(object, value) {
                standardGeneric("currentTime<-")
@@ -272,7 +272,7 @@ setGeneric("currentTime<-",
 
 #' set the current simulation time
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("currentTime",
                  signature="SimList",
                  function(object, value) {
@@ -283,13 +283,13 @@ setReplaceMethod("currentTime",
 
 #' get the simulation start time
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("startTime", function(object) {
     standardGeneric("startTime")
 })
 
 #' get the simulation start time
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("startTime",
           signature = "SimList",
           definition = function(object) {
@@ -298,7 +298,7 @@ setMethod("startTime",
 
 #' set the simulation start time
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("startTime<-",
            function(object, value) {
                standardGeneric("startTime<-")
@@ -306,7 +306,7 @@ setGeneric("startTime<-",
 
 #' set the simulation start time
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("startTime",
                  signature="SimList",
                  function(object, value) {
@@ -317,13 +317,13 @@ setReplaceMethod("startTime",
 
 #' get the simulation stop time
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("stopTime", function(object) {
     standardGeneric("stopTime")
 })
 
 #' get the simulation stop time
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("stopTime",
           signature = "SimList",
           definition = function(object) {
@@ -332,7 +332,7 @@ setMethod("stopTime",
 
 #' set the simulation stop time
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("stopTime<-",
            function(object, value) {
                standardGeneric("stopTime<-")
@@ -340,7 +340,7 @@ setGeneric("stopTime<-",
 
 #' set the simulation stop time
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("stopTime",
                  signature="SimList",
                  function(object, value) {
@@ -351,13 +351,13 @@ setReplaceMethod("stopTime",
 
 #' get the simulation event queue
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.events", function(object) {
     standardGeneric("sim.events")
 })
 
 #' get the simulation event queue
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("sim.events",
           signature = "SimList",
           definition = function(object) {
@@ -366,7 +366,7 @@ setMethod("sim.events",
 
 #' set the simulation event queue
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.events<-",
            function(object, value) {
                standardGeneric("sim.events<-")
@@ -374,7 +374,7 @@ setGeneric("sim.events<-",
 
 #' set the simulation event queue
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("sim.events",
                  signature="SimList",
                  function(object, value) {
@@ -385,13 +385,13 @@ setReplaceMethod("sim.events",
 
 #' get the simulation debug toggle
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.debug", function(object) {
     standardGeneric("sim.debug")
 })
 
 #' get the simulation debug toggle
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setMethod("sim.debug",
           signature = "SimList",
           definition = function(object) {
@@ -400,7 +400,7 @@ setMethod("sim.debug",
 
 #' set the simulation debug toggle
 #' @export
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setGeneric("sim.debug<-",
            function(object, value) {
                standardGeneric("sim.debug<-")
@@ -408,7 +408,7 @@ setGeneric("sim.debug<-",
 
 #' set the simulation debug toggle
 #' @name <-
-#' @rdname simulation-accessors
+#' @rdname simulation-accessor-methods
 setReplaceMethod("sim.debug",
                  signature="SimList",
                  function(object, value) {
@@ -444,7 +444,7 @@ setReplaceMethod("sim.debug",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-init
+#' @rdname simulation-init-method
 #'
 #' @examples
 #' \dontrun{mySim <- sim.init(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
@@ -455,7 +455,7 @@ setGeneric("sim.init", function(times, params, modules, path) {
 })
 
 #' sim.init
-#' @rdname simulation-init
+#' @rdname simulation-init-method
 setMethod("sim.init",
           signature(times="list", params="list", modules="list", path="character"),
           definition = function(times, params, modules, path) {
@@ -483,7 +483,7 @@ setMethod("sim.init",
 })
 
 #' sim.init
-#' @rdname simulation-init
+#' @rdname simulation-init-method
 setMethod("sim.init",
           signature(times="list", params="list", modules="list", path="missing"),
           definition = function(times, params, modules) {
@@ -515,14 +515,14 @@ setMethod("sim.init",
 #' @import data.table
 #' @export
 #' @docType methods
-#' @rdname simulation-do-event
+#' @rdname simulation-do-event-method
 #' 
 setGeneric("do.event", function(sim, debug) {
     standardGeneric("do.event")
 })
 
 #' do.event
-#' @rdname simulation-do-event
+#' @rdname simulation-do-event-method
 setMethod("do.event",
           signature(sim="SimList", debug="logical"),
           definition = function(sim, debug) {
@@ -550,7 +550,7 @@ setMethod("do.event",
 })
 
 #' do.event
-#' @rdname simulation-do-event
+#' @rdname simulation-do-event-method
 setMethod("do.event",
           signature(sim="SimList", debug="missing"),
           definition = function(sim) {
@@ -577,16 +577,16 @@ setMethod("do.event",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-schedule-event
+#' @rdname simulation-schedule-event-method
 #'
 #' @examples
-#' \dontrun{}
+#' \dontrun{schedule.event(x, 10.5, "firemodule", "burn")}
 setGeneric("schedule.event", function(sim, event.time, module.name, event.type) {
     standardGeneric("schedule.event")
 })
 
 #' schedule event
-#' @rdname simulation-schedule-event
+#' @rdname simulation-schedule-event-method
 setMethod("schedule.event",
           signature(sim="SimList", event.time="numeric", module.name="character", event.type="character"),
           definition = function(sim, event.time, module.name, event.type) {
@@ -631,7 +631,7 @@ setMethod("schedule.event",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-dosim
+#' @rdname simulation-dosim-method
 #'
 #' @examples
 #' \dontrun{mySim <- sim.init(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
@@ -642,7 +642,7 @@ setGeneric("dosim", function(sim, debug) {
 })
 
 #' dosim
-#' @rdname simulation-dosim
+#' @rdname simulation-dosim-method-method
 setMethod("dosim",
           signature(sim="SimList", debug="logical"),
           definition = function(sim, debug) {
@@ -662,7 +662,7 @@ setMethod("dosim",
 })
 
 #' dosim
-#' @rdname simulation-dosim
+#' @rdname simulation-dosim-method
 setMethod("dosim",
           signature(sim="SimList", debug="missing"),
           definition = function(sim) {

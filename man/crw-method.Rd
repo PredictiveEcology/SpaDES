@@ -3,7 +3,7 @@
 \alias{crw}
 \title{Simple Correlated Random Walk}
 \usage{
-crw(agent, step.len, dir.sd)
+crw(agent, step.len, dir.sd, lonlat)
 }
 \arguments{
   \item{agent}{An object of class mobileAgent.}
@@ -13,6 +13,10 @@ crw(agent, step.len, dir.sd)
 
   \item{dir.sd}{Numeric vector of length 1 or number of
   agents describing sd of wrapped normal turn angles.}
+
+  \item{lonlat}{logical. If TRUE, coordinates should be in
+  degrees; else they should represent planar ('Euclidean')
+  space (e.g. units of meters)}
 }
 \value{
 An agent object with updated spatial position defined by a
@@ -39,6 +43,6 @@ where individuals, populations and landscapes interact.
 Journal of Applied Ecology 44:725-736.
 }
 \seealso{
-\code{\link{mobileAgent}}
+\code{\link{mobileAgent}}, \code{\link{pointDistance}}
 }
 

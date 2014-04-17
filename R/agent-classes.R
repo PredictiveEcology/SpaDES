@@ -10,8 +10,8 @@
 #' @note add additional notes here.
 #' 
 #' @name agent
-#' @rdname agent-class
 #' @aliases agent-class
+#' @rdname agent-class
 #' @exportClass agent
 #' 
 setClass("agent", slots=list(ID="character", other="list"),
@@ -23,7 +23,7 @@ setClass("agent", slots=list(ID="character", other="list"),
 #' Describes spatial agents whose  spatial components are characterized by
 #' a raster (i.e., in contrast to points or a polygon).
 #' 
-#' This is a virtual class and not intended to be used directly.
+#' This is a placeholder class and not intended to be used directly.
 #'
 #' @slot ID     A character string that identifies the individual agent.
 #'              By default, the numbers 1...n are used.
@@ -33,8 +33,8 @@ setClass("agent", slots=list(ID="character", other="list"),
 #' @note This is a virtual class and not intended to be used directly.
 #' 
 #' @name rasterAgent
-#' @rdname rasterAgent-class
 #' @aliases rasterAgent-class
+#' @rdname rasterAgent-class
 #' @exportClass rasterAgent
 #' 
 setClass("rasterAgent", slots=list(ID="character", other = "list"), contains="agent")
@@ -46,7 +46,7 @@ setClass("rasterAgent", slots=list(ID="character", other = "list"), contains="ag
 #' Describes spatial agents whose  spatial components are characterized by
 #' points or a polygon (i.e., in contrast to a raster).
 #' 
-#' This is a virtual class and not intended to be used directly.
+#' This is a placeholder class and not intended to be used directly.
 #'
 #' @slot ID     A character string that identifies the individual agent.
 #'              By default, the numbers 1...n are used.
@@ -56,8 +56,8 @@ setClass("rasterAgent", slots=list(ID="character", other = "list"), contains="ag
 #' @note This is a virtual class and not intended to be used directly.
 #' 
 #' @name vectorAgent
-#' @rdname vectorAgent-class
 #' @aliases vectorAgent-class
+#' @rdname vectorAgent-class
 #' @exportClass vectorAgent
 #' 
 setClass("vectorAgent", slots=list(ID="character", other = "list"), contains="agent")
@@ -78,8 +78,8 @@ setClass("vectorAgent", slots=list(ID="character", other = "list"), contains="ag
 #' @note add additional notes here.
 #' 
 #' @name polygonAgent
-#' @rdname polygonAgent-class
 #' @aliases polygonAgent-class
+#' @rdname polygonAgent-class
 #' @importClassesFrom sp SpatialPolygons
 #' @exportClass polygonAgent
 #' 
@@ -101,8 +101,8 @@ setClass("polygonAgent", slots=list(spatial="SpatialPolygons"), contains="vector
 #' @note add additional notes here.
 #' 
 #' @name pointAgent
-#' @rdname pointAgent-class
 #' @aliases pointAgent-class
+#' @rdname pointAgent-class
 #' @importClassesFrom sp SpatialPoints
 #' @exportClass pointAgent
 #' 
@@ -125,8 +125,8 @@ setClass("pointAgent", slots=list(spatial="SpatialPoints"), contains="vectorAgen
 #' @note add additional notes here.
 #' 
 #' @name spreadAgent
-#' @rdname spreadAgent-class
 #' @aliases spreadAgent-class
+#' @rdname spreadAgent-class
 #' @exportClass spreadAgent
 #' 
 setClass("spreadAgent", slots=list(NumPix="numeric"),
@@ -152,8 +152,8 @@ setClass("spreadAgent", slots=list(NumPix="numeric"),
 #' @note add additional notes here.
 #' 
 #' @name mobileAgent
-#' @rdname mobileAgent-class
 #' @aliases mobileAgent-class
+#' @rdname mobileAgent-class
 #' @importClassesFrom sp SpatialPoints
 #' @exportClass mobileAgent
 #' 

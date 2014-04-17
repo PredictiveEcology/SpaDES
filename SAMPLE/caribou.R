@@ -74,7 +74,7 @@ caribou.init = function(sim) {
 }
 
 caribou.move = function(sim) {
-    ex =  hab[position(caribou)] # find out what pixels the individuals are on now
+    ex =  hab[agentPosition(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
     if (length(wh)==0) stop(paste("all agents off map at time", currentTime(sim)))
     sl = ex/10
@@ -83,7 +83,7 @@ caribou.move = function(sim) {
     ln = rlnorm(length(ex), sl, 0.02) # log normal step length
     dir.sd = 30 # could be specified globally in params
     
-    caribou <<- crw(caribou, step.len=ln, dir.sd=dir.sd)
+    caribou <<- crw(caribou, step.len=ln, dir.sd=dir.sd, lonlat=FALSE)
     points(caribou, pch=19, cex=0.1)
     
     # update caribou list

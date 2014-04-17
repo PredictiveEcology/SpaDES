@@ -31,6 +31,6 @@ the simulation object.
 schedule event
 }
 \examples{
-\dontrun{}
+\dontrun{schedule.event(x, 10.5, "firemodule", "burn")}
 }
 

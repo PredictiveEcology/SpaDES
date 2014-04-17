@@ -7,6 +7,15 @@
   numagents = NULL, probinit = NULL)
 }
 \arguments{
+  \item{agentlocation}{The initial positions of the agents
+  (currently only \code{RasterLayer} or
+  \code{SpatialPolygonsDataFrame}) accepted.}
+
+  \item{numagents}{The number of agents to initialize.}
+
+  \item{probinit}{The probability of placing an agent at a
+  given initial position.}
+
   \item{.Object}{ An object: see the Details section.}
 
   \item{...}{data to include in the new object.  Named

@@ -6,6 +6,8 @@
 \S4method{initialize}{agent}(.Object, ..., numagents = NULL)
 }
 \arguments{
+  \item{numagents}{The number of agents to initialize.}
+
   \item{.Object}{ An object: see the Details section.}
 
   \item{...}{data to include in the new object.  Named

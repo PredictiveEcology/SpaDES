@@ -10,22 +10,17 @@ heading(from, to, ...)
 }
 \arguments{
   \item{from}{The starting position; an object of class
-  SpatiolPoints.}
+  SpatialPoints.}
 
   \item{to}{The ending position; an object of class
-  SpatiolPoints.}
+  SpatialPoints.}
 
   \item{...}{Additional arguments.}
 }
 \value{
-The heading between the points, in RADIANS or DEGREES?.
-
-#
+The heading between the points, in degrees.
 }
 \description{
 Determines the heading between spatial points.
-}
-\seealso{
-\code{\link{print}} and \code{\link{cat}}
 }
 

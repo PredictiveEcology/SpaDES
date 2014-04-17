@@ -10,7 +10,7 @@ characterized by points or a polygon (i.e., in contrast to
 a raster).
 }
 \details{
-This is a virtual class and not intended to be used
+This is a placeholder class and not intended to be used
 directly.
 }
 \section{Slots}{

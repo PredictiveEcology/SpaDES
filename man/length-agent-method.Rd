@@ -1,7 +1,7 @@
 \docType{methods}
 \name{length,agent-method}
 \alias{length,agent-method}
-\title{length agent (this is really num.agents())}
+\title{length agent (this is really \code{num.agents()})}
 \usage{
 \S4method{length}{agent}(x)
 }
@@ -10,6 +10,6 @@
   factor.}
 }
 \description{
-length agent (this is really num.agents())
+length agent (this is really \code{num.agents()})
 }
 
