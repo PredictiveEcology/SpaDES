@@ -3,20 +3,19 @@
 #'
 #' Load and optionally install additional packages.
 #'
-#' @param package.list A list of character strings specifying
-#' the names of packages to be loaded.
+#' @param package.list    A list of character strings specifying
+#'                        the names of packages to be loaded.
 #'
-#' @param install Logical flag. If required packages are not
-#'  already installed, should they be installed?  
+#' @param install         Logical flag. If required packages are not
+#'                        already installed, should they be installed?
 #'
-#' @return Nothing is returned. Specified packages are loaded
-#'  and attached using \code{library()}.
+#' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
 #' 
 #' @seealso \code{\link{library}}.
 #' 
 #' @export
 #' @docType methods
-#' @rdname loadpackages
+#' @rdname loadpackages-method
 #'
 #' @examples
 #' \dontrun{pkgs <- list("ggplot2", "lme4")}
@@ -26,7 +25,7 @@ setGeneric("load.packages", function(package.list, install) {
     standardGeneric("load.packages")
 })
 
-#' @rdname loadpackages
+#' @rdname loadpackages-method
 setMethod("load.packages",
           signature(package.list="list", install="logical"),
           definition = function(package.list, install) {
@@ -43,21 +42,11 @@ setMethod("load.packages",
               lapply(package.list, load, install)
 })
 
-#' @rdname loadpackages
+#' @rdname loadpackages-method
 setMethod("load.packages",
           signature(package.list="list", install="missing"),
           definition = function(package.list) {
-              load <- function(name, install) {
-                  if (!require(name, character.only=TRUE)) {
-                      if (install) {
-                          install.packages(name, repos="http://cran.r-project.org")
-                          library(name, character.only=TRUE)
-                      } else {
-                          print(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
-                      }
-                  }
-              }
-              lapply(package.list, load, install=FALSE)
+              load.packages(package.list=package.list, install=FALSE)
 })
 
 
