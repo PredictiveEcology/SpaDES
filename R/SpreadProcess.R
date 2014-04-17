@@ -31,7 +31,7 @@
 #'  \dontrun{tmp <- SpreadEvents(tmp, spreadProb=0.225)}
 #'  \dontrun{plot(tmp)}
 #'  
-#'  @author Steve Cumming
+#'  @author Steve Cumming <Steve.Cumming@sbf.ulaval.ca>
 #' 
 SpreadEvents = function(landscape, loci=NULL, spreadProb=0.1,
              persistance=NULL, mask=NULL, maxSize=NULL, directions=8) {

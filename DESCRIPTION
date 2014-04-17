@@ -13,7 +13,7 @@ Authors@R: c(
 			email="Alexander.Chubaty@NRCan.gc.ca",
 			role=c("aut", "cre")),
 	person("Steve", "Cumming",
-			email="",
+			email="Steve.Cumming@sbf.ulaval.ca",
 			role=c("ctb"))
 	)
 Depends:
@@ -22,11 +22,7 @@ Depends:
 Suggests:
 Imports:
     CircStats,
-    geoR,
     grid,
-    igraph,
-    methods,
-    plotrix,
     RandomFields,
     raster,
     sp

@@ -1,62 +1,65 @@
 \docType{methods}
 \name{simplot}
 \alias{simplot}
-\alias{simplot,RasterLayer}
 \alias{simplot,RasterLayer-method}
-\alias{simplot,RasterStack}
 \alias{simplot,RasterStack-method}
-\alias{simplot,pointAgent}
 \alias{simplot,pointAgent-method}
 \title{Plotting methods}
 \usage{
-simplot(x, ...)
+simplot(x, on.which.to.plot = 1, which.to.plot = "all", ..., add = FALSE,
+  speedup = 1, axes = "L")
 
-\S4method{simplot}{RasterStack}(x, which.to.plot = "all", speedup = 10,
-  axes = "L", add = FALSE, ...)
+\S4method{simplot}{RasterStack}(x, on.which.to.plot, which.to.plot, ..., add,
+  speedup, axes)
 
-\S4method{simplot}{RasterLayer}(x, speedup = 1, axes = "L", add = FALSE,
-  on.which.to.plot = NULL, ...)
+\S4method{simplot}{RasterLayer}(x, on.which.to.plot, which.to.plot, ..., add,
+  speedup, axes)
 
-\S4method{simplot}{pointAgent}(x, on.which.to.plot = 1, ext,
-  map.names = NULL, speedup = 1, delete.previous = T, axes = "L",
-  max.agents = 10000, add = TRUE, ...)
+\S4method{simplot}{pointAgent}(x, ext, on.which.to.plot, map.names = NULL,
+  delete.previous = TRUE, max.agents = 10000, ..., add = TRUE, speedup,
+  axes)
 }
 \arguments{
-  \item{x}{rasterStack object.}
+  \item{x}{rasterStack, rasterLayer, or list of named
+  rasters (not implemented yet), SpatialPoints* object.}
+
+  \item{on.which.to.plot}{when add = TRUE, numeric or
+  character string identifying on which raster in existing
+  plot window to plot. Used on \code{RasterLayer} and
+  \code{pointAgent} and \code{mobileAgent}. Defaults to 1.}
+
+  \item{which.to.plot}{Numeric or character vector
+  identifying which rasters in \code{rasterStack} to plot.}
 
   \item{...}{Additional plotting functions passed to
   grid.raster (if rasterStack) or grid.points (if
   pointAgent)}
 
-  \item{which.to.plot}{Numeric or character vector
-  identifying which rasters in \code{rasterStack} to plot.}
+  \item{add}{Logical indicating whether to plot new maps
+  (\code{FALSE}) or update exising maps (\code{TRUE}).
+  Default is \code{FALSE} for rasters and \code{TRUE} for
+  agents.}
 
   \item{speedup}{Scalar indicating how much faster than
-  normal to make plots (see Details).}
+  normal to make plots (see Details). Defaults to 1.}
 
   \item{axes}{String either "all", "L", or "none" (see
   Details). Default is "L".}
 
-  \item{add}{Logical indicating whether to plot new maps
-  (\code{FALSE}) or update exising maps (\code{TRUE}).
-  Default is \code{FALSE}.}
+  \item{ext}{an extent object to describe the size of the
+  map that is being plotted on}
 
-  \item{on.which.to.plot}{Numeric or character vector
-  identifying on which raster in existing plot window to
-  plot.}
+  \item{map.names}{a character vector with the names of the
+  maps. If NULL, the default, then it reads from existing
+  plot names}
 
-  \item{speedup}{Scalar indicating how much faster than
-  normal to make plots (see Details).}
+  \item{delete.previous}{should the immediately previously
+  simplotted object be removed before adding current
+  simplot call}
 
-  \item{axes}{String either "all", "L", or "none" (see
-  Details). Default is "L".}
-
-  \item{add}{Logical indicating whether to plot new maps
-  (\code{FALSE}) or update exising maps (\code{TRUE}).
-  Default is \code{FALSE}.}
-
-  \item{on.which.to.plot}{when add = TRUE, which map to
-  plot on}
+  \item{max.agents}{is the maximum number of agents to
+  plot. \code{speedup} reduces the number plotted from this
+  max.agents}
 }
 \value{
 Creates a plot within the active plotting device.

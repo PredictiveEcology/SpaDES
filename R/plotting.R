@@ -57,41 +57,43 @@ newPlot = function(...) {
 #' the window. \code{Speedup} will make downsample the number of pixels, allowing for greater plotting
 #' speed, at a cost of more fuzzy plots. 
 #'
-#' @param x rasterStack, rasterLayer, or list of named rasters, SpatialPoints* object.
+#' @param x rasterStack, rasterLayer, or list of named rasters (not implemented yet), SpatialPoints* object.
+#' 
+#' @param on.which.to.plot when add = TRUE, numeric or character string identifying on which raster in existing plot window to plot. Used on \code{RasterLayer} and \code{pointAgent} and \code{mobileAgent}. Defaults to 1.
+#' 
+#' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
 #' 
 #' @param ... Additional plotting functions passed to grid.raster (if rasterStack) or grid.points (if pointAgent)
 #'
+#' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
+#' Default is \code{FALSE} for rasters and \code{TRUE} for agents.
+#' 
+#' @param speedup Scalar indicating how much faster than normal to make plots (see Details). Defaults to 1.
+#' 
+#' @param axes String either "all", "L", or "none" (see Details). Default is "L".
+#' 
 #' @return Creates a plot within the active plotting device.
 #' 
 #' @seealso \code{\link{grid.raster}}
 #' 
-#' @import grid raster
+#' @import grid raster graphics
 #' @export
 #' @docType methods
 #' @rdname simplot
 #'
 # @examples
 # needs examples
-setGeneric("simplot", function(x, ...) {
+setGeneric("simplot", function(x, on.which.to.plot=1, which.to.plot="all", ..., add=FALSE, speedup = 1, axes = "L") {
            standardGeneric("simplot")
 })
 
 
 
-#' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
-#' 
-#' @param speedup Scalar indicating how much faster than normal to make plots (see Details).
-#' 
-#' @param axes String either "all", "L", or "none" (see Details). Default is "L".
-#' 
-#' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
-#' Default is \code{FALSE}.
-#' 
-#' @aliases simplot,RasterStack
+#' @aliases simplot
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterStack",
-          definition = function(x, which.to.plot="all", speedup=10, axes="L", add=FALSE, ...) {
+          definition = function(x, on.which.to.plot, which.to.plot, ..., add, speedup, axes) {
               nam = names(x)
               ext = extent(x)
 #              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
@@ -109,7 +111,7 @@ setMethod("simplot",
                       ma = match(w,nam)
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
-                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], w=1/cols*0.8, h=1/rows*0.8,
+                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], width=1/cols*0.8, height=1/rows*0.8,
                                           just = c(0.5, 0.5),
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
@@ -159,27 +161,19 @@ setMethod("simplot",
 })
 
 
-#' @param on.which.to.plot Numeric or character vector identifying on which raster in existing plot window to plot.
-#' 
-#' @param speedup Scalar indicating how much faster than normal to make plots (see Details).
-#' 
-#' @param axes String either "all", "L", or "none" (see Details). Default is "L".
-#' 
-#' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
-#' Default is \code{FALSE}.
-#' 
-#' @aliases simplot,RasterLayer
+#' @aliases simplot
+#' @export
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterLayer",
-          definition = function(x, speedup=1, axes="L", add=FALSE, on.which.to.plot=NULL, ...) {
+          definition = function(x, on.which.to.plot,which.to.plot, ..., add, speedup, axes) {
               ext = extent(x)
               nam = names(x)
               dimx = dim(x)
 
               if (add==FALSE) {
                   grid.newpage()
-                  vp <- viewport(w=0.8, h=0.8,
+                  vp <- viewport(width=0.8, height=0.8,
                                       just = c(0.5, 0.5),
                                       name = deparse(substitute(x)),
                                       xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
@@ -224,14 +218,22 @@ setMethod("simplot",
               }
           })
 
-#' @param on.which.to.plot when add = TRUE, which map to plot on
-#' @aliases simplot,pointAgent
-#' @import graphics
+		  
+#' @param ext an extent object to describe the size of the map that is being plotted on
+#'
+#' @param map.names a character vector with the names of the maps. If NULL, the default, then it reads from existing plot names
+#'
+#' @param delete.previous should the immediately previously simplotted object be removed before adding current simplot call
+#'
+#' @param max.agents is the maximum number of agents to plot. \code{speedup} reduces the number plotted from this max.agents
+#'
+#' @aliases simplot
+#' @export
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",
-          definition = function(x, on.which.to.plot=1, ext,map.names = NULL, speedup=1, delete.previous = T,
-                                axes="L", max.agents = 1e4, add=TRUE,... ) {
+          definition = function(x, ext, on.which.to.plot,map.names = NULL, delete.previous = TRUE,
+                                max.agents = 1e4, ..., add = TRUE, speedup, axes ) {
               len = length(x)
               if (len>max.agents) {
                   sam = sample.int(len,size=max.agents,replace=F) 
@@ -256,7 +258,7 @@ setMethod("simplot",
 
                 grid.newpage()
                 with(arr, {
-                    vp = viewport(xscale = rangex,yscale= rangey,w=0.8,h=0.8,
+                    vp = viewport(xscale = rangex,yscale= rangey,width=0.8,height=0.8,
                                   name=paste(deparse(substitute(x))))
                     pushViewport(vp)
                     grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.map.ratio),
@@ -329,7 +331,6 @@ setMethod("simplot",
 #' @param axes passed from simplot 
 #' @rdname arrange.simplots
 #' @docType methods
-#  @export
 arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
     if (length(which.to.plot)==1) {
         if(which.to.plot=="all")

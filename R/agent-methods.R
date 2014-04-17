@@ -267,7 +267,7 @@ setMethod("length",
 
 ### coodinates is already defined in the sp package
 #' get coordinates of a pointAgent
-#' @importMethodsFrom sp coordinates 
+##' @importMethodsFrom sp coordinates 
 #' @export
 setMethod("coordinates",
           signature = "pointAgent",
@@ -407,7 +407,7 @@ setReplaceMethod("agentHeading",
 #'
 #' @return Returns the modified \code{SimList} object.
 #' 
-#' @importMethodsFrom sp coordinates
+##' @importMethodsFrom sp coordinates
 #' @export
 #' @docType methods
 #' @rdname arrow-method
@@ -448,8 +448,8 @@ setMethod("arrow",
 #' @return The heading between the points, in degrees.
 #' 
 #' @importMethodsFrom CircStats deg
-#' @importClassesFrom sp SpatialPoints
-#' @importMethodsFrom sp coordinates
+##' @importClassesFrom sp SpatialPoints
+##' @importMethodsFrom sp coordinates
 #' @export
 #' @docType methods
 #' @rdname heading

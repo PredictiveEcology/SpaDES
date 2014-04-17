@@ -3,7 +3,11 @@
 \alias{newPlot}
 \title{Open a new plotting window}
 \usage{
-newPlot()
+newPlot(...)
+}
+\arguments{
+  \item{...}{Additional arguments passed to x11() or
+  windows()}
 }
 \value{
 Opens a new plot device on the screen.

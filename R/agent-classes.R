@@ -80,7 +80,7 @@ setClass("vectorAgent", slots=list(ID="character", other = "list"), contains="ag
 #' @name polygonAgent
 #' @aliases polygonAgent-class
 #' @rdname polygonAgent-class
-#' @importClassesFrom sp SpatialPolygons
+##' @importClassesFrom sp SpatialPolygons
 #' @exportClass polygonAgent
 #' 
 setClass("polygonAgent", slots=list(spatial="SpatialPolygons"), contains="vectorAgent")
@@ -103,7 +103,7 @@ setClass("polygonAgent", slots=list(spatial="SpatialPolygons"), contains="vector
 #' @name pointAgent
 #' @aliases pointAgent-class
 #' @rdname pointAgent-class
-#' @importClassesFrom sp SpatialPoints
+##' @importClassesFrom sp SpatialPoints
 #' @exportClass pointAgent
 #' 
 setClass("pointAgent", slots=list(spatial="SpatialPoints"), contains="vectorAgent")
@@ -154,7 +154,7 @@ setClass("spreadAgent", slots=list(NumPix="numeric"),
 #' @name mobileAgent
 #' @aliases mobileAgent-class
 #' @rdname mobileAgent-class
-#' @importClassesFrom sp SpatialPoints
+##' @importClassesFrom sp SpatialPoints
 #' @exportClass mobileAgent
 #' 
 setClass("mobileAgent", slots=list(heading="numeric", distance="numeric"),

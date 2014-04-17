@@ -3,7 +3,7 @@ source("c:/Eliot/.Rprofile")
 #source("C:/Eliot/Dropbox/R/grid plotting multipanel functions.r")
 
 require(raster)
-require(geoR)
+#require(geoR)
 require(grid)
 require(Hmisc)
 #devtools::install_github("lineprof")
@@ -21,7 +21,6 @@ st = data.frame(matrix(ncol = 3))
 colnames(st)<- c("Time","NumLoci","NumPixels")
 counter = 0
 
-# library(snowfall)
 # if(!sfIsRunning()) sfInit(parallel = T, cpus=11)
 # sfExport(list=c("counter"))
 # sfLibrary(raster)
@@ -30,42 +29,45 @@ counter = 0
 #sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
 #st = sfClusterApplyLB(1:2*10, function(i) {#
     
-for (i in 1:8*20) {
-    ny = 1e2*i
-    nx = 1e2*i
-#    speed = 100# 30
+#for (i in 1:8*20) {
+    ny = 1e2
+    nx = 1e2
+    speed = 2# 30
     
-    #par(mfrow = c(1,1))
-    #maps.list = list()
-    #num.maps= 1
-    #a = function(x,y,z) (x^y - z)^2
-    #coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
-    #sfExport(list=c("coarseness","ny","nx","speed"))
-    #sfLibrary(raster)
-    #sfLibrary(RandomFields)
-    #sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
-    #maps.list <- sfClusterApplyLB(1:num.maps,function(i) {
-    #for (i in 1:num.maps) {
+    par(mfrow = c(1,1))
+    maps.list = list()
+    num.maps= 2
+    a = function(x,y,z) (x^y - z)^2
+    coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
+    library(snowfall)
+    if(!sfIsRunning()) sfInit(parallel = T, cpus=2)
+    sfExport(list=c("coarseness","ny","nx","speed"))
+    sfLibrary(raster)
+    sfLibrary(RandomFields)
+    sfSource("C:/Eliot/GitHub/ABM/R/movement.R")
+    maps.list <- sfClusterApplyLB(1:num.maps,function(i) {
+#    for (i in 1:num.maps) {
       map <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
-      map[] = 1
-      #map <- GaussMap(extent(map),speedup = speed, scale = coarseness[i], var = 1)
-    #})
+      map <- GaussMap(extent(map),speedup = speed, scale = coarseness[i], var = 1)
+    })
+
     #sfStop()
-    #names(maps.list) = paste("map",1:num.maps,sep="")
-    #maps = stack(maps.list)
+    names(maps.list) = paste("map",1:num.maps,sep="")
+    maps = stack(maps.list)
     
-    for (NumLoci in 1:10*40000) {
-        caribou = new("mobileAgent", agentlocation = map, numagents = NumLoci)
-        Loci = cellFromXY(map, coordinates(caribou))
-        
-        Landscape = map
-        counter = counter + 1
-        st[counter,1] = system.time(Potentials<-adjacent(Landscape,Loci,directions=8))[1]
-        st[counter,2] = NumLoci
-        st[counter,3] = prod(dim(map)[1:2])
-        print(paste(NumLoci,"NumLoci",prod(dim(map)[1:2]),"NumPixels"))
-    }
-}
+#     for (NumLoci in 1:10*40000) {
+    NumLoci = 10
+    caribou = new("mobileAgent", agentlocation = maps, numagents = NumLoci)
+         Loci = cellFromXY(map, coordinates(caribou))
+#         
+#         Landscape = map
+#         counter = counter + 1
+#         st[counter,1] = system.time(Potentials<-adjacent(Landscape,Loci,directions=8))[1]
+#         st[counter,2] = NumLoci
+#         st[counter,3] = prod(dim(map)[1:2])
+#         print(paste(NumLoci,"NumLoci",prod(dim(map)[1:2]),"NumPixels"))
+#    }
+
 
 x11(11,8)
 par(mfrow = c(1,2))
@@ -99,7 +101,7 @@ SP = SpatialPixels(SpatialPoints(coordinates(caribou)),grid=gt)
 SP.ras =raster(coordinates(SP)[1])
 
 set.seed(1234)
-st1 = system.time(fires <- SpreadEvents(maps,Loci,SpreadProb = 0.2))
+st1 = system.time(fires <- SpreadEvents(maps,Loci,spreadProb = 0.2))
 set.seed(1234)
 st1E = system.time(firesE <- SpreadEventsEliot(dim(maps),Loci,SpreadProb = 0.2))
 
