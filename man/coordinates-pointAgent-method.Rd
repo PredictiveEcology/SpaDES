@@ -9,7 +9,7 @@
   \item{obj}{ object deriving from class "Spatial" }
 
   \item{...}{additional arguments that may be used by
-  particular methods}
+  particular instances}
 }
 \description{
 get coordinates of a pointAgent
