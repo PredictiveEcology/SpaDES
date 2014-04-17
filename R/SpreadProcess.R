@@ -28,7 +28,7 @@
 #' @examples
 #'  \dontrun{tmp <- raster(nrows=10, ncols=10, vals=0)}
 #'  \dontrun{plot(tmp)}
-#'  \dontrun{SpreadEvents(tmp, spreadProb=0.25)}
+#'  \dontrun{tmp <- SpreadEvents(tmp, spreadProb=0.225)}
 #'  \dontrun{plot(tmp)}
 #'  
 #'  @author Steve Cumming
