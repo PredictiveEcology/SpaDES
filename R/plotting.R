@@ -205,8 +205,11 @@ setMethod("simplot",
                   vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
                   #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
                       
-                      if (is.numeric(on.which.to.plot)) {i = vp.names[match(on.which.to.plot,vp.names)]
-                         } else { i = on.which.to.plot }
+                      if (is.numeric(on.which.to.plot)) {
+                          i = vp.names[match(on.which.to.plot, vp.names)]
+                      } else {
+                          i = on.which.to.plot
+                      }
                       seekViewport(i)
                       grid.remove(i)
                       grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup),

@@ -58,11 +58,10 @@ caribou.init = function(sim) {
     
     al = AgentLocation(good)    # good habitat, from above
     pri = ProbInit(hab, al)
-    na = NumAgents(100)         # could be specified globally in params
     
     # initialize caribou agents
-    caribou <<- new("mobileAgent", agentlocation=al, numagents=sim.params(sim)$Ncaribou, probinit=pri)
-    points(caribou, pch=19, cex=0.1)
+    caribou <<- new("mobileAgent", agentlocation=al, numagents=sim.params(sim)$caribou$N, probinit=pri)
+    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE)
     
     # save output list to track caribou over time
 #    outputs$caribou[[1]] <<- caribou
@@ -84,14 +83,14 @@ caribou.move = function(sim) {
     dir.sd = 30 # could be specified globally in params
     
     caribou <<- crw(caribou, step.len=ln, dir.sd=dir.sd, lonlat=FALSE)
-    points(caribou, pch=19, cex=0.1)
+    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE)
     
     # update caribou list
 #    outputs$caribou[[currentTime(sim)+1]] <<- caribou
     
-    rads = sample(10:30, length(caribou), replace=TRUE)
-    rings = cir(caribou, radiuses=rads, hab, 1)
-    points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
+    #rads = sample(10:30, length(caribou), replace=TRUE)
+    #rings = cir(caribou, radiuses=rads, hab, 1)
+    #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
     
 #    saveRDS(list(caribou, rings), paste("../data/caribou_", currentTime(sim), ".rds", sep=""))
 

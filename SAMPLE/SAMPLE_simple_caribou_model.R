@@ -1,5 +1,6 @@
 ### set the working directory
-setwd("~/GitHub/")  #setwd("~/Documents/GitHub/")
+setwd("~/GitHub/") 
+#setwd("~/Documents/GitHub/")
 #setwd("c:/Eliot/GitHub/")
 
 ### development only:
@@ -15,15 +16,16 @@ library(pryr)
 library(shiny)
 
 ### load ABM package
-devtools::load_all("ABM") # for development/testing
-#devtools::install_github("ABM", username="achubaty")   # local install from GitHub
 #library(ABM)   # local installation from CRAN
+#devtools::install_github("ABM", username="achubaty")   # local install from GitHub
+devtools::load_all("ABM") # for development/testing
 
 ## simulation code
 # initialize the simulation
 mySim <- sim.init(times=list(start=0.0, stop=10.0),
-                   params=list(Ncaribou=100),
-                   modules=list("habitat", "caribou"),
+                   params=list(caribou=list(N=100),
+                               fires=list(num=100, spreadprob=0.224, persistprob=0.1, its=10)),
+                   modules=list("habitat", "caribou", "fire"),
                    path="ABM/SAMPLE")
 mySim <- dosim(mySim)
 
