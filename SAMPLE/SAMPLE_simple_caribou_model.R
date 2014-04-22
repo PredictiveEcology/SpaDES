@@ -1,6 +1,6 @@
 ### set the working directory
-setwd("~/GitHub/") 
-#setwd("~/Documents/GitHub/")
+#setwd("~/GitHub/") 
+setwd("~/Documents/GitHub/")
 #setwd("c:/Eliot/GitHub/")
 
 ### development only:
@@ -25,7 +25,7 @@ devtools::load_all("ABM") # for development/testing
 mySim <- sim.init(times=list(start=0.0, stop=10.0),
                    params=list(caribou=list(N=100),
                                fires=list(num=100, spreadprob=0.224, persistprob=0.1, its=10)),
-                   modules=list("habitat", "caribou", "fire"),
+                   modules=list("habitat", "fire", "caribou"),
                    path="ABM/SAMPLE")
 mySim <- dosim(mySim)
 
