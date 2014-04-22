@@ -49,7 +49,7 @@ do.event.caribou = function(sim, event.time, event.type, debug=FALSE) {
 
 caribou.init = function(sim) {
     ### load any required packages
-    pkgs = list("raster") # list required packages here
+    pkgs = list("raster", "grid") # list required packages here
     load.packages(pkgs)
     
     best = max(hab@data@values)
@@ -61,7 +61,7 @@ caribou.init = function(sim) {
     
     # initialize caribou agents
     caribou <<- new("mobileAgent", agentlocation=al, numagents=sim.params(sim)$caribou$N, probinit=pri)
-    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE)
+    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE, pch=19, gp=gpar(cex=0.1))
     
     # save output list to track caribou over time
 #    outputs$caribou[[1]] <<- caribou
@@ -83,7 +83,7 @@ caribou.move = function(sim) {
     dir.sd = 30 # could be specified globally in params
     
     caribou <<- crw(caribou, step.len=ln, dir.sd=dir.sd, lonlat=FALSE)
-    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE)
+    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE, pch=19, gp=gpar(cex=0.1))
     
     # update caribou list
 #    outputs$caribou[[currentTime(sim)+1]] <<- caribou
