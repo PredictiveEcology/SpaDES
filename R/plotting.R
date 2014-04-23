@@ -63,6 +63,8 @@ newPlot = function(...) {
 #' 
 #' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
 #' 
+#' @param col a colour palette vector, possibly from RColorBrewer. Defaults to rev(terrain.colors(255))
+#' 
 #' @param ... Additional plotting functions passed to grid.raster (if rasterStack) or grid.points (if pointAgent)
 #'
 #' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
@@ -83,7 +85,8 @@ newPlot = function(...) {
 #'
 # @examples
 # needs examples
-setGeneric("simplot", function(x, on.which.to.plot=1, which.to.plot="all", ..., add=FALSE, speedup = 1, axes = "L") {
+setGeneric("simplot", function(x, on.which.to.plot=1, which.to.plot="all",
+                               col=rev(terrain.colors(255)), ..., add=FALSE, speedup = 1, axes = "L") {
            standardGeneric("simplot")
 })
 
@@ -93,12 +96,14 @@ setGeneric("simplot", function(x, on.which.to.plot=1, which.to.plot="all", ..., 
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterStack",
-          definition = function(x, on.which.to.plot, which.to.plot, ..., add, speedup, axes) {
+          definition = function(x, on.which.to.plot, which.to.plot, col, ..., add, speedup, axes) {
               nam = names(x)
               ext = extent(x)
 #              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
               dimx = dim(x)
-              
+
+              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3])))
+
               if (add==FALSE) {
                  arr = arrange.simplots(ext,dimx,nam,which.to.plot,axes,...)    
                  
@@ -137,7 +142,8 @@ setMethod("simplot",
                       }
                       grid.text(names(x)[ma], y=1.08, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)),
                                 name = paste(w,"title",sep=""))
-                      grid.raster(as.raster(x[[w]],maxpixels=1e4/(cols*rows)*prod(ds)/speedup),
+                      grid.raster(as.raster(x[[w]],maxpixels=1e4/(cols*rows)*prod(ds)/speedup,
+                                            col=col[[ma]] ),
                                   interpolate=FALSE,name=w,...)
                       upViewport()
                     }
@@ -151,7 +157,8 @@ setMethod("simplot",
                       if (is.numeric(i)) i = nam[i]#match(nam,vp.names)
                       seekViewport(i)
                       grid.remove(i)
-                      grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup),
+                      grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
+                                            col=col[[ma]] ),
                                   interpolate=FALSE,name=names(x[[i]]),...)
                       upViewport()
                   }
@@ -166,7 +173,7 @@ setMethod("simplot",
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterLayer",
-          definition = function(x, on.which.to.plot,which.to.plot, ..., add, speedup, axes) {
+          definition = function(x, on.which.to.plot,which.to.plot, col, ..., add, speedup, axes) {
               ext = extent(x)
               nam = names(x)
               dimx = dim(x)
@@ -197,7 +204,8 @@ setMethod("simplot",
                   
                   grid.text(y=1.08, vjust=0.5, gp=gpar(cex=1-0.015),
                             label = nam)
-                  grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup),interpolate = F,
+                  grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup,
+                                        col=col),interpolate = F,
                               name=nam,...)
                   upViewport()
               } else if (add==TRUE){
@@ -212,7 +220,8 @@ setMethod("simplot",
                       }
                       seekViewport(i)
                       grid.remove(i)
-                      grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup),
+                      grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
+                                            col=col),
                                   interpolate=FALSE,name=nam,...)
                       upViewport()
                   

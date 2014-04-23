@@ -22,15 +22,18 @@ devtools::load_all("ABM") # for development/testing
 
 ## simulation code
 # initialize the simulation
-mySim <- sim.init(times=list(start=0.0, stop=10.0),
+mySim <- sim.init(times=list(start=0.0, stop=100.0),
                    params=list(caribou=list(N=100),
-                               fires=list(num=100, spreadprob=0.224, persistprob=0.1, its=10)),
-                   modules=list("habitat", "caribou", "fire"),
-                   path="ABM/SAMPLE")
+                               fires=list(num=2, spreadprob=0.225, 
+                                          persistprob=0.1, its=50)),
+                   modules=list("habitat", "fire", "caribou"),
+#                  modules=list("habitat", "caribou"),
+                  path="ABM/SAMPLE")
 mySim <- dosim(mySim)
 
 ## profiling of development code
 prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
+prof <- lineprof(dosim(mySim))
 shine(prof)
 c(address(sim), refs(sim))
 c(address(sim.data), refs(sim.data))

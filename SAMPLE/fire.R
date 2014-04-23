@@ -50,7 +50,8 @@ fire.init = function(sim) {
     names(tmp) = "area.burned"
     burned <<- tmp
     
-    simplot(stack(hab, burned), speedup=10)
+    simplot(stack(hab, burned), speedup=10,add=F, 
+            col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
     
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <- append(sim.loaded(sim), "fire")
@@ -66,8 +67,10 @@ fire.burn = function(sim) {
                        persistance=sim.params(sim)$fire$persistprob, iterations=sim.params(sim)$fire$its)
     
     values(burned) <<- values(burned) + values(tmp)
-    
-    simplot(burned, on.which.to.plot="area.burned", add=TRUE, speedup=10)
+    burnedNoNA = burned
+    burnedNoNA[burned==0]<-NA
+    simplot(burnedNoNA, on.which.to.plot="area.burned", add=TRUE, speedup=20, 
+            col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
     
     return(sim)
 }
