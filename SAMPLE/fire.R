@@ -67,10 +67,11 @@ fire.burn = function(sim) {
                        persistance=sim.params(sim)$fire$persistprob, iterations=sim.params(sim)$fire$its)
     
     values(burned) <<- values(burned) + values(tmp)
-    burnedNoNA = burned
-    burnedNoNA[burned==0]<-NA
+#    burned <- burned+tmp
+    burnedNoNA <- burned
+    burnedNoNA[burned==0] <- NA
     simplot(burnedNoNA, on.which.to.plot="area.burned", add=TRUE, speedup=20, 
-            col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
+            col=brewer.pal(10,"Set3"))
     
     return(sim)
 }

@@ -22,12 +22,11 @@ devtools::load_all("ABM") # for development/testing
 
 ## simulation code
 # initialize the simulation
-mySim <- sim.init(times=list(start=0.0, stop=100.0),
+mySim <- sim.init(times=list(start=0.0, stop=1.0),
                    params=list(caribou=list(N=100),
-                               fires=list(num=2, spreadprob=0.215, 
-                                          persistprob=0.1, its=1)),
+                               fires=list(num=2, spreadprob=0.205, 
+                                          persistprob=0.1, its=2)),
                    modules=list("habitat", "fire", "caribou"),
-#                  modules=list("habitat", "caribou"),
                   path="ABM/SAMPLE")
 mySim <- dosim(mySim)
 

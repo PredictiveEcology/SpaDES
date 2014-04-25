@@ -36,7 +36,7 @@ counter = 0
     
     par(mfrow = c(1,1))
     maps.list = list()
-    num.maps= 2
+    num.maps= 50
     a = function(x,y,z) (x^y - z)^2
     coarseness = sample((1:num.maps)^optimize(f = a, x = num.maps, z = 500, interval = c(0,10))$minimum,num.maps)
     library(snowfall)
@@ -58,7 +58,7 @@ counter = 0
 #     for (NumLoci in 1:10*40000) {
     NumLoci = 10
     caribou = new("mobileAgent", agentlocation = maps, numagents = NumLoci)
-         Loci = cellFromXY(map, coordinates(caribou))
+         Loci = cellFromXY(maps, coordinates(caribou))
 #         
 #         Landscape = map
 #         counter = counter + 1
