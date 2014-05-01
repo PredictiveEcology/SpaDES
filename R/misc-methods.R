@@ -40,7 +40,7 @@ setMethod("load.packages",
                   }
               }
               lapply(package.list, load, install)
-              print(paste("Loaded", length(package.list), "packages.", sep=" ")
+              print(paste("Loaded", length(package.list), "packages.", sep=" "))
 })
 
 #' @rdname loadpackages-method
