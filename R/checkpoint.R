@@ -24,6 +24,9 @@ do.event.checkpoint = function(sim, event.time, event.type, debug=FALSE) {
     return(sim)
 }
 
+### these next two functions are copied from:
+### https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
+
 checkpoint.load = function(file="checkpoint.RData") {
     # check for previous checkpoint file
     if (file.exists(file)) {
