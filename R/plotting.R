@@ -100,7 +100,7 @@ newPlot = function(...) {
 #' 
 #' @seealso \code{\link{grid.raster}}
 #' 
-#' @import grid raster graphics RColorBrewer
+#' @import grid raster graphics
 #' @export
 #' @docType methods
 #' @rdname simplot

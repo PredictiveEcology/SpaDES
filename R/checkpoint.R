@@ -5,21 +5,34 @@
 ## https://stackoverflow.com/questions/13997444/
 
 do.event.checkpoint = function(sim, event.time, event.type, debug=FALSE) {
-    if ( (event.type=="init") || (event.type=="load") ) {
-        checkpoint.load(sim.params(sim)$checkpoint$file)        
-        
-        # schedule the next save
-        time.next.save <- currentTime(sim) + sim.params(sim)$checkpoint$interval
-        sim <- schedule.event(sim, time.next.save, "checkpoint", "save")
+    if (event.type=="init") {
+        if( !(".checkpoint" %in% names(sim.params(mySim))) ) {
+            # default is not to use checkpointing
+            params = sim.params(sim)
+            params[[".chekpoint"]] = list(interval=NA_real_, file=NULL)
+            sim.params(sim) <- params
+        } else {
+            sim <- schedule.event(sim, 0.00, "checkpoint", "load")
+        }
+    } else if (event.type=="load") {
+        use.chkpnt = !is.na(sim.params(sim)$.checkpoint$interval)
+        if (use.chkpnt) {
+            # load user-specified checkpoint options
+            checkpoint.load(sim.params(sim)$.checkpoint$file)        
+            
+            # schedule the next save
+            time.next.save <- currentTime(sim) + sim.params(sim)$.checkpoint$interval
+            sim <- schedule.event(sim, time.next.save, "checkpoint", "save")
+        }
     } else if (event.type=="save") {
-        checkpoint.save(sim.params(sim)$checkpoint$file)
-        
-        # schedule the next save
-        time.next.save <- currentTime(sim) + sim.params(sim)$checkpoint$interval
-        sim <- schedule.event(sim, time.next.save, "checkpoint", "save")
-    } else {
-        # do stuff for this event
-        print("polar bears. grr!")
+        use.chkpnt = !is.na(sim.params(sim)$.checkpoint$interval)
+        if (use.chkpnt) {
+            checkpoint.save(sim.params(sim)$.checkpoint$file)
+            
+            # schedule the next save
+            time.next.save <- currentTime(sim) + sim.params(sim)$.checkpoint$interval
+            sim <- schedule.event(sim, time.next.save, "checkpoint", "save")
+        }
     }
     return(sim)
 }

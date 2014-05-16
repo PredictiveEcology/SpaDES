@@ -88,7 +88,7 @@ setMethod("show",
               show = list()
               show[["Modules Required:"]] = as.character(sim.modules(object))
               show[["Modules Loaded:"]] = as.character(sim.loaded(object))
-              show[["Simulation Parameters:"]] = as.data.frame(sim.params(object))
+              show[["Simulation Parameters:"]] = as.list(sim.params(object))
               show[["Current Simulation Time:"]] = sim.times(object)
               show[["Next 5 Scheduled Events:"]] = head(sim.events(object), 5)
               show[["Debugging Mode:"]] = sim.debug(object)
@@ -467,16 +467,25 @@ setMethod("sim.init",
               # create new SimList object
               sim <- new("SimList", times=times)
               
-              # load simulation parameters and modules
-              sim.params(sim) <- params
-              sim.modules(sim) <- modules
+              # default/built-in modules:  (should we be hardcoding this??)
+              defaults <- list("checkpoint")
               
+              sim.modules(sim) <- append(defaults, modules)
+              sim.params(sim) <- params
+              
+              # load user-defined modules
               for (m in modules) {
                   # source the code from each module's R file
                   source(paste(path, "/", m, ".R", sep=""))
                   
                   # schedule each module's init event:
                   sim <- schedule.event(sim, 0.00, m, "init")
+              }
+              
+              # load "default" modules (should we be hardcoding this??)
+              for (d in defaults) {
+                  # schedule each module's init event:
+                  sim <- schedule.event(sim, 0.00, d, "init")
               }
               
               return(sim)

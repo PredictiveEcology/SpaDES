@@ -42,7 +42,7 @@ do.event.fire = function(sim, event.time, event.type, debug=FALSE) {
 
 fire.init = function(sim) {
     ### load any required packages
-    pkgs = list("raster") # list required packages here
+    pkgs = list("raster", "RColorBrewer") # list required packages here
     load.packages(pkgs)
     
     ### create burn map that tracks fire locations over time

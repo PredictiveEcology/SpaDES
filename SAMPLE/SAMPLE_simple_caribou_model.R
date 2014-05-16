@@ -22,13 +22,13 @@ devtools::load_all("ABM") # for development/testing
 
 ## simulation code
 # initialize the simulation
-mySim <- sim.init(times=list(start=0.0, stop=100.0),
-                   params=list(checkpoint=list(interval=5, file="chkpnt.RData"),
-                               caribou=list(N=100),
-                               fires=list(num=2, spreadprob=0.215, 
-                                          persistprob=0.1, its=1)
-                               ),
-                   modules=list("checkpoint", "habitat", "fire", "caribou"),
+mySim <- sim.init(times=list(start=0.0, stop=10.1),
+                  params=list(.checkpoint=list(interval=5, file="ABM/SAMPLE/chkpnt.RData"),
+                              caribou=list(N=100),
+                              fires=list(num=2, spreadprob=0.215, 
+                                         persistprob=0.1, its=1)
+                              ),
+                  modules=list("habitat", "fire", "caribou"),
 #                  modules=list("habitat", "caribou"),
                   path="ABM/SAMPLE")
 mySim <- dosim(mySim)
