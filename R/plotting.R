@@ -266,7 +266,7 @@ setMethod("simplot",
 #' @rdname simplot
 setMethod("simplot",
           signature = "pointAgent",
-          definition = function(x, ext, on.which.to.plot,map.names = NULL, delete.previous = TRUE,
+          definition = function(x, ext, on.which.to.plot, map.names=NULL, delete.previous=TRUE,
                                 max.agents = 1e4, ..., add = TRUE, speedup, axes ) {
               len = length(x)
               if (len>max.agents) {

@@ -26,18 +26,40 @@
 #' @import raster
 #' @export
 #' @docType methods
-#' @rdname SpreadEvents-method
+#' @rdname spread-method
 #'
 #' @examples
 #'  \dontrun{tmp <- raster(nrows=10, ncols=10, vals=0)}
 #'  \dontrun{plot(tmp)}
-#'  \dontrun{tmp <- SpreadEvents(tmp, spreadProb=0.225)}
+#'  \dontrun{tmp <- spread(tmp, spreadProb=0.225)}
 #'  \dontrun{plot(tmp)}
 #'  
 #'  @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
 #' 
-SpreadEvents = function(landscape, loci=NULL, spreadProb=0.1, persistance=NULL,
-              mask=NULL, maxSize=NULL, directions=8, iterations=NULL) {
+setGeneric("spread", function(landscape, loci, spreadProb, persistance,
+                              mask, maxSize, directions, iterations) {
+    standardGeneric("spread")
+})
+
+# defaults:
+# (landscape, loci=NULL, spreadProb=0.1, persistance=NULL, mask=NULL, maxSize=NULL, directions=8, iterations=NULL)
+
+### ALLOW:
+### landscape:      RasterLayer, RasterStack
+### loci:           integer, SpatialPoints
+### spreadProb:     [0,1], function, RasterLayer
+### persistance:    [0,1], function, RasterLayer
+### mask:           RasterLayer
+### maxSize:        integer?
+### directions:     integer
+### iterations:     intger
+
+#' @rdname spread-method
+setMethod("spread",
+          signature(landscape=RasterLayer, loci=integer, spreadProb=numeric, persistance=numeric,
+                    mask=RasterLayer, maxSize=numeric, directions=integer, iterations=integer),
+          definition = function(landscape, loci, spreadProb, persistance,
+                                mask, maxSize, directions, iterations) {
               ### should sanity check map extents
                 is.prob <- function(x) {
                     if (!is.numeric(x)) 
@@ -51,9 +73,9 @@ SpreadEvents = function(landscape, loci=NULL, spreadProb=0.1, persistance=NULL,
                     loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
                 }
                 
-                Spreads <- setValues(raster(landscape), 0)
+                spreads <- setValues(raster(landscape), 0)
                 n <- 1
-                Spreads[loci] <- n
+                spreads[loci] <- n
                 
                 if (is.null(iterations)) {
                     iterations = Inf # this is a stupid way to do this!
@@ -61,31 +83,31 @@ SpreadEvents = function(landscape, loci=NULL, spreadProb=0.1, persistance=NULL,
                     # do nothing
                 }
                 
-                while ( (length(loci)>0) & (iterations>=n) ) {
+                while ( (length(loci)>0) && (iterations>=n) ) {
                     #print(paste(n, length(loci)))
-                    Potentials <- adjacent(landscape, loci, directions)
+                    potentials <- adjacent(landscape, loci, directions)
                     
                     # drop those ineligible
                     if (!is.null(mask)){
-                        tmp <- extract(mask, Potentials[,2])
+                        tmp <- extract(mask, potentials[,2])
                     } else {
-                        tmp <- extract(Spreads, Potentials[,2])
+                        tmp <- extract(spreads, potentials[,2])
                     }
-                    #print(cbind(Potentials,tmp))
-                    Potentials <- Potentials[ifelse(is.na(tmp), FALSE, tmp==0),]
+                    #print(cbind(potentials,tmp))
+                    potentials <- potentials[ifelse(is.na(tmp), FALSE, tmp==0),]
                                         
                     # select which potentials actually happened
-                    # nrow() only works if Potentials is an array
+                    # nrow() only works if potentials is an array
                     if (is.numeric(spreadProb)) {
-                        ItHappened <- runif(nrow(Potentials)) <= spreadProb
+                        ItHappened <- runif(nrow(potentials)) <= spreadProb
                     } else {
                         stop("Unsupported type:spreadProb") # methods for raster* or function args
                     }
-                    Events <- Potentials[ItHappened, 2]
-                    #print(Events)
+                    events <- potentials[ItHappened, 2]
+                    #print(events)
                     
                     # update eligibility map
-                    Spreads[Events] <- n
+                    spreads[events] <- n
                     n <- n+1
                     
                     # drop or keep loci
@@ -100,8 +122,8 @@ SpreadEvents = function(landscape, loci=NULL, spreadProb=0.1, persistance=NULL,
                         }
                     }
                     
-                    loci <- c(loci, Events)
+                    loci <- c(loci, events)
                     
                 }
-                return(Spreads)
+                return(spreads)
 }
