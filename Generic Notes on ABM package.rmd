@@ -98,9 +98,13 @@ lccReclass <- structure(list(BAM.Land.Cover.Class.Name = structure(c(2L, 3L,
     "6,7", "8,13,20", "9"), class = "factor")), .Names = c("BAM.Land.Cover.Class.Name", 
 "BAM.Code", "LCC05.Labels"), class = "data.frame", row.names = c(NA, 
 -18L))
+
 lcc05Labels <- as.numeric(strsplit(paste(lccReclass$LCC05.Labels,collapse = ","),",")[[1]])
+
 numOldInNew <- sapply(strsplit(unname(sapply(as.character(lccReclass$LCC05.Labels),function(x) x)),","),length)
+
 lcc05Reclass <- cbind(lcc05Labels,rep(lccReclass$BAM.Code,numOldInNew))
-lcc05BAM <- writeRaster(reclassify(lcc05,lcc05Reclass),filename="lcc05BAMReclass.grid")
+
+lcc05BAM <- writeRaster(reclassify(lcc05,lcc05Reclass),filename="lcc05BAMReclass.grid",overwrite = TRUE)
 ```
 

@@ -5,6 +5,7 @@
 .log
 cache/
 figure/
+SAMPLE/chkpnt.RData
 
 #################
 ## LaTeX
@@ -41,3 +42,4 @@ figure/
 *.vrb
 *.xdy
 *.tdo
+
