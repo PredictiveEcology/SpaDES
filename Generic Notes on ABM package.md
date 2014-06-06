@@ -10,6 +10,7 @@ ABM - A generic platform for building
             1. A classified land cover 
                 1. LCC05 - Land Cover Classification 2005 (2000 imagery)
                     http://bit.ly/1ujeRE1
+                1. EOSD - 25 m resolution exists, also here at 250m: http://cfs.nrcan.gc.ca/common/eosd/Canada_Mosaic_2000_250m_tif.zip  
             1. Fire data
                http://cwfis.cfs.nrcan.gc.ca/datamart/datarequest/nfdbpnt
             1. Age class data
@@ -47,11 +48,27 @@ ABM - A generic platform for building
     
 1. Build simulation model
 
+
+1. STEVE's 9-minute succession model:
+    - data sources
+        - LCC05
+    - states in model
+        - veg type
+        - age
+        - traj
+    - processes
+        - transition rules
+            - f(state, time): eg deciduous until age 90; conifer after 90
+        - regeneration
+            - state regen
+            - assign traj
+
+
 1. Code style preferences
     - R style guide
-        - Camel case is preferred
-        - first letter always lower case, 
-
+        - lowerCamelCase is preferred (first letter always lower case)
+        - class/object names: use nouns
+        - method/function names: use verbs
 
 
 ```r
@@ -143,28 +160,51 @@ lccReclass <- structure(list(BAM.Land.Cover.Class.Name = structure(c(2L, 3L,
     "6,7", "8,13,20", "9"), class = "factor")), .Names = c("BAM.Land.Cover.Class.Name", 
 "BAM.Code", "LCC05.Labels"), class = "data.frame", row.names = c(NA, 
 -18L))
-lcc05Labels <- as.numeric(strsplit(paste(lcc.reclass$LCC05.Labels,collapse = ","),",")[[1]])
-```
 
-```
-## Error: object 'lcc.reclass' not found
-```
+lcc05Labels <- as.numeric(strsplit(paste(lccReclass$LCC05.Labels,collapse = ","),",")[[1]])
 
-```r
 numOldInNew <- sapply(strsplit(unname(sapply(as.character(lccReclass$LCC05.Labels),function(x) x)),","),length)
+
 lcc05Reclass <- cbind(lcc05Labels,rep(lccReclass$BAM.Code,numOldInNew))
+
+lcc05BAM <- reclassify(lcc05,lcc05Reclass)
+```
+
+
+
+```r
+BurnableClasses <- rep(0,39)
+BurnableClasses[c(1:35)] <- 1
+BurnableClassesFromTo = cbind(1:39,BurnableClasses)
+lcc05Burnable <- reclassify(lcc05,BurnableClassesFromTo)
+plot(lcc05Burnable)
+```
+
+![plot of chunk Reclassify LCC to Burnable](figure/Reclassify LCC to Burnable.png) 
+
+
+```r
+    vegMap <- trajObj[ageMap,trajMap]
 ```
 
 ```
-## Error: object 'lcc05Labels' not found
+## Error: object 'trajObj' not found
 ```
 
 ```r
-lcc05BAM <- writeRaster(reclassify(lcc05,lcc05Reclass),filename="lcc05BAMReclass.grid")
+    vegMap[indStatics] <- valsStatics
 ```
 
 ```
-## Error: error in evaluating the argument 'x' in selecting a method for function 'writeRaster': Error in .local(x, rcl, ...) : object 'lcc05Reclass' not found
-## Calls: reclassify -> reclassify -> .local
+## Error: object 'valsStatics' not found
+```
+
+
+```r
+    ageMap <- pmin(maxAge, ageMap + 1)
+```
+
+```
+## Error: object 'maxAge' not found
 ```
 
