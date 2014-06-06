@@ -143,3 +143,28 @@ plot(lcc05Burnable)
     ageMap <- pmin(maxAge, ageMap + 1)
 ```
 
+```{r benchmark data.table vs adjacent fn}
+# Shown that data.table lookup is about 10x faster for a wide range of raster sizes
+#  and also for a wide range of quantities of loci (from 10 to 1e5)
+
+# Load raster block
+lcc05_01<-raster("C:/shared/data/shared/lcc05_small_chunks/grid1_lcc05_ascii.txt")
+
+adj.all.n <- adjacent(lcc05_01,1:ncell(lcc05_01),directions=8)
+
+adj.all <-cbind(as.integer(adj.all.n[,"from"]),as.integer(adj.all.n[,"to"]))
+colnames(adj.all) <- c("from","to")
+
+#plot(lcc05_01)
+
+dt1 <- data.table(adj.all)
+setkey(dt1,"from")
+
+library(benchmark)
+ben <- benchmark(adj1 <- dt1[J(1:1e1)],
+adjacent(lcc05_01,1:1e1,directions=8))
+
+print(ben)
+
+    
+```

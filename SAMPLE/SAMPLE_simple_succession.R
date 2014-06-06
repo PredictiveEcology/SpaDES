@@ -29,6 +29,7 @@ myAgeFunction = function(myStack) {
     out = pmin(ageMax, ageMap + myStack[["burned"]])
     return(out)
 }
+
 mySim <- sim.init(times=list(start=0.0, stop=1.0),
                    params=list(age=list(inputFile="C:/shared/data/shared/age/age.asc",
                                         agingFunction=myAgeFunction,
