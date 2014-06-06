@@ -56,8 +56,9 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 
 #' @rdname spread-method
 setMethod("spread",
-          signature(landscape=RasterLayer, loci=integer, spreadProb=numeric, persistance=numeric,
-                    mask=RasterLayer, maxSize=numeric, directions=integer, iterations=integer),
+          signature(landscape="RasterLayer", loci="integer", spreadProb="numeric",
+                    persistance="numeric", mask="RasterLayer", maxSize="numeric",
+                    directions="integer", iterations="integer"),
           definition = function(landscape, loci, spreadProb, persistance,
                                 mask, maxSize, directions, iterations) {
               ### should sanity check map extents
@@ -126,4 +127,5 @@ setMethod("spread",
                     
                 }
                 return(spreads)
-}
+          }
+)

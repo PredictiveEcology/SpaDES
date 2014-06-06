@@ -63,7 +63,7 @@ fire.init = function(sim) {
 fire.burn = function(sim) {
     # random fire start locations, but could be based on hab:
     loci = sample(1:ncell(hab), size=sim.params(sim)$fire$num)
-    tmp = SpreadEvents(hab, loci=loci, spreadProb=sim.params(sim)$fire$spreadprob,
+    tmp = spread(hab, loci=loci, spreadProb=sim.params(sim)$fire$spreadprob,
                        persistance=sim.params(sim)$fire$persistprob, iterations=sim.params(sim)$fire$its)
     
     values(burned) <<- values(burned) + values(tmp)
