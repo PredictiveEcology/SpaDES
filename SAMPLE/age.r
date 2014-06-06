@@ -44,10 +44,15 @@ age.init = function(sim) {
     ### load any required packages
     pkgs = list("raster", "RColorBrewer") # list required packages here
     load.packages(pkgs)
+    ageMap.full <- raster("C:/shared/data/shared/age/age.asc")
+    beginCluster()
+    ageMap <- projectRaster(ageMap.full,to=vegMap)
+    endCluster()
     
-    assign(x=get(sim.params(sim)$age$rasterLayerName),
-           value=raster(sim.params(sim)$age$inputFile),
-           envir=.GlobalEnv)
+#    assign(x=get(sim.params(sim)$age$rasterLayerName),
+#           value=raster(sim.params(sim)$age$inputFile),
+#           envir=.GlobalEnv)
+
     
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <- append(sim.loaded(sim), "age")
@@ -56,8 +61,9 @@ age.init = function(sim) {
 }
 
 age.age = function(sim) {
-    assign(x=get(sim.params(sim)$age$rasterStackName),
-           value=agingFunction(get(sim.params(sim)$age$rasterStackName)),
-           envir=.GlobalEnv)
+#    assign(x=get(sim.params(sim)$age$rasterStackName),
+#           value=agingFunction(get(sim.params(sim)$age$rasterStackName)),
+#           envir=.GlobalEnv)
+    ageMap[] <- ageMap[] + 1
     return(sim)
 }
