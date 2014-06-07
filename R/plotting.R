@@ -164,9 +164,9 @@ setMethod("simplot",
                       }
                       grid.text(names(x)[ma], y=1.08, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)),
                                 name = paste(w,"title",sep=""))
-                      grid.raster(as.raster(x[[w]],maxpixels=1e4/(cols*rows)*prod(ds)/speedup,
+                      grid.raster(as.raster(x[[w]], maxpixels=1e4/(cols*rows)*prod(ds)/speedup,
                                             col=col[[ma]] ),
-                                  interpolate=FALSE,name=w,...)
+                                  interpolate=FALSE, name=w,...)
                       upViewport()
                     }
                  })
