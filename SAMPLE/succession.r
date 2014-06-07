@@ -95,39 +95,36 @@ succession.init = function(sim) {
     lcc05TrajTable <- cbind(lcc05Labels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
     trajMap <- reclassify(lcc05.cr,lcc05TrajTable)
     
-    #trajObj.raw <- read.table(file = "clipboard",se="\t",header = T)
+    #trajObj.raw <- read.table(file = "clipboard",se="\t",header = T,stringsAsFactors=F)
     #dput(trajObj.raw)
-    trajObj.raw <- structure(list(Veg.Type = structure(c(1L, 5L, 4L, 2L, 2L, 6L, 3L), .Label = c("Closed coniferous", "Deciduous*", "Herbaceous", 
-               "Mixedwood", "Open coniferous", "Shrub"), class = "factor"), 
-               X0.2 = structure(c(1L, 1L, 1L, 1L, 1L, 1L, 1L), .Label = "Burned", class = "factor"), 
-               X3.20 = structure(c(1L, 4L, 2L, 2L, 2L, 5L, 3L), .Label = c("Closed coniferous", 
-               "Deciduous", "Herbaceous", "Open coniferous", "Shrub"), class = "factor"), 
-               X21.60 = structure(c(1L, 5L, 4L, 4L, 2L, 6L, 3L), .Label = c("Closed coniferous", 
-               "Deciduous", "Herbaceous", "Mixedwood", "Open coniferous", 
-               "Shrub"), class = "factor"), X61.80 = structure(c(1L, 5L, 
-               4L, 4L, 2L, 4L, 3L), .Label = c("Closed coniferous", "Deciduous", 
-               "Herbaceous", "Mixedwood", "Open coniferous"), class = "factor"), 
-               X81.120 = structure(c(1L, 5L, 4L, 4L, 2L, 4L, 3L), .Label = c("Closed coniferous", 
-               "Deciduous", "Herbaceous", "Mixedwood", "Open coniferous"
-               ), class = "factor"), X121.160 = structure(c(1L, 5L, 4L, 
-               5L, 2L, 1L, 3L), .Label = c("Closed coniferous", "Deciduous", 
-               "Herbaceous", "Mixedwood", "Open coniferous"), class = "factor"), 
-               X.160 = structure(c(1L, 3L, 1L, 1L, 1L, 1L, 2L), .Label = c("Closed coniferous", 
-               "Herbaceous", "Open coniferous"), class = "factor")), .Names = c("Veg.Type", 
+    trajObj.raw <- structure(list(Veg.Type = c("Closed coniferous", "Open coniferous", 
+              "Mixedwood", "Deciduous*", "Deciduous*", "Shrub", "Herbaceous"
+               ), X0.2 = c("Burned", "Burned", "Burned", "Burned", "Burned", 
+               "Burned", "Burned"), X3.20 = c("Closed coniferous", "Open coniferous", 
+               "Deciduous", "Deciduous", "Deciduous", "Shrub", "Herbaceous"), 
+               X21.60 = c("Closed coniferous", "Open coniferous", "Mixedwood", 
+               "Mixedwood", "Deciduous", "Shrub", "Herbaceous"), X61.80 = c("Closed coniferous", 
+               "Open coniferous", "Mixedwood", "Mixedwood", "Deciduous", 
+               "Mixedwood", "Herbaceous"), X81.120 = c("Closed coniferous", 
+               "Open coniferous", "Mixedwood", "Mixedwood", "Deciduous", 
+               "Mixedwood", "Herbaceous"), X121.160 = c("Closed coniferous", 
+               "Open coniferous", "Mixedwood", "Open coniferous", "Deciduous", 
+               "Closed coniferous", "Herbaceous"), X.160 = c("Closed coniferous", 
+               "Open coniferous", "Closed coniferous", "Closed coniferous", 
+               "Closed coniferous", "Closed coniferous", "Herbaceous")), .Names = c("Veg.Type", 
                "X0.2", "X3.20", "X21.60", "X61.80", "X81.120", "X121.160", "X.160"
                ), class = "data.frame", row.names = c(NA, -7L))
+    
     numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw),2,9),"\\."),function(x) diff(as.numeric(x))))+1)
     maxAge <- 200
     ages <- 0:maxAge
+#    out = unname( unlist(rep(trajObj.raw[1,-1],times = c(numYearsPer,40))))
 
-    lapply(1:11,function(x) apply(t(trajObj.raw),2,)
-           
-    
-    
+    trajObj1 <- apply(trajObj.raw[,-1],1,function(x) rep(x,times=c(numYearsPer,40)))
+    trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned","Wetland","Water","Cropland"),each=201),ncol=4))
+    trajObj <- matrix(match(trajObj2,lcc05VegReclass$Description),ncol=11)
      
-    
 
-    
 
     
         
@@ -143,7 +140,13 @@ succession.init = function(sim) {
 
 succession.succession = function(sim) {
 
-    vegMap <<- trajObj[ageMap,trajMap]
+    ageMap.v <- round(getValues(ageMap))
+    trajMap.v <- getValues(trajMap)
+
+    vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
+    vegMap <- raster(ageMap)
+    vegMap <- setValues(vegMap,vegMap.v)
+    
     vegMap[indStatics] <<- valsStatics
     
     return(sim)

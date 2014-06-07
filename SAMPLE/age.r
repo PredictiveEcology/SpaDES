@@ -70,6 +70,4 @@ age.age = function(sim) {
     return(sim)
 }
 
-dt1 <- data.table(locus=rep(1:100,each=8),adjacent=rep(1:100,8))
-setkey(dt1,locus)
 
