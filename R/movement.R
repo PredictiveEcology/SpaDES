@@ -133,7 +133,6 @@ dwrpnorm = function (theta, mu, rho, sd = 1, acc = 1e-05, tol = acc) {
 #' @references Turchin, P. 1998. Quantitative analysis of movement: measuring and modeling population redistribution in animals and plants. Sinauer Associates, Sunderland, MA.
 #' @references McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network for butterfly habitat restoration: where individuals, populations and landscapes interact. Journal of Applied Ecology 44:725-736.
 #' 
-##' @importMethodsFrom raster pointDistance
 #' @export
 #' @docType methods
 #' @rdname crw-method

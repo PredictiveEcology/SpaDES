@@ -41,7 +41,7 @@
 #' @name SimList
 #' @aliases SimList-class
 #' @rdname SimList-class
-#' @importClassesFrom data.table data.table
+#' @import data.table
 #' @exportClass SimList
 #' 
 setClass("SimList",
