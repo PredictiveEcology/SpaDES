@@ -1,7 +1,16 @@
 ### set the working directory
-setwd("~/GitHub/") 
-#setwd("~/Documents/GitHub/")
-#setwd("c:/Eliot/GitHub/")
+OS <- tolower(Sys.info()["sysname"])
+hostname <- Sys.info()["nodename"]
+
+if (OS=="windows") {
+    if(pmatch("A105200", hostname, nomatch=FALSE)) {
+        setwd("c:/Eliot/GitHub/")
+    } else {
+        setwd("~/GitHub/")
+    }
+} else {
+    setwd("~/Documents/GitHub/")
+}
 
 ### development only:
 install.packages("devtools", dependencies=TRUE)
@@ -25,8 +34,7 @@ devtools::load_all("ABM") # for development/testing
 mySim <- sim.init(times=list(start=0.0, stop=10.1),
                   params=list(.checkpoint=list(interval=5, file="ABM/SAMPLE/chkpnt.RData"),
                               caribou=list(N=100),
-                              fires=list(num=2, spreadprob=0.215, 
-                                         persistprob=0.1, its=1)
+                              fires=list(num=2, spreadprob=0.215, persistprob=0.1, its=1)
                               ),
                   modules=list("habitat", "fire", "caribou"),
 #                  modules=list("habitat", "caribou"),
