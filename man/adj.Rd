@@ -39,6 +39,12 @@ a matrix of one or two columns, from and to.
 Faster function for determining the cells of the 4 or 8
 neighbours of the \code{cells}
 }
+\details{
+There is some speed gain if NumCol and NumCells are passed
+rather than a raster. This gain is on the order of 5%-10%.
+The fastest gain over \code{\link{adjacent}} is from the
+use of data.table pass by reference feature.
+}
 \examples{
 a <- raster(extent(0,1000,0,1000),res=1)
 sam = sample(1:length(a),1e4)
