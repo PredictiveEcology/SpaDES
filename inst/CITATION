@@ -1,5 +1,5 @@
 bibentry("Manual",
-   title = "ABM: Agent Based Simulation Modelling in R",
+   title = "SpaDES: Spatial Discrete Event Simulation modeling in R",
    author = c(person("Eliot", "McIntire"), person("Alex", "Chubaty")),
    organization = "Canadian Forest Service, Pacific Foresty Centre",
    address      = "Victoria, Canada",
