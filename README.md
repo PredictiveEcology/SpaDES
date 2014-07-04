@@ -1,6 +1,7 @@
-# Spatial Discrete Evest Simulator
+# Spatial Discrete Event Simulation (SpaDES)
 
-R package for building spatially explicit discrete event simulation models.
+R package for building spatially explicit discrete event simulation
+models.
 
 ## Installation
 
