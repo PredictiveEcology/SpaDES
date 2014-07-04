@@ -1,6 +1,6 @@
-Package: ABM
+Package: SpaDES
 Type: Package
-Title: Run spatial Agent Based simulation Models
+Title: Develop and run spatially explicit discrete event simulation models
 Description: Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 URL: 
 Version: 0.1
@@ -17,7 +17,7 @@ Authors@R: c(
 			role=c("ctb"))
 	)
 Depends:
-    R (>= 3.0.2),
+    R (>= 3.1.0),
 	data.table
 Suggests:
 Imports:
@@ -26,4 +26,4 @@ Imports:
     RandomFields,
     raster,
     sp
-License: What license is it under?
+License: NA
