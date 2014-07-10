@@ -1,33 +1,8 @@
-### MOVEMENT LIBRARY
-
-Transitions = function(p, agent) {
-    agent@spatial@coords[which(p==0),] = NA
-    return(agent)
-}
-
-NumAgents = function(N) {
-    if ((length(N) == 1) && (is.numeric(N))) NumAgents = N
-    else stop("N must be a single integer value, not a vector.")
-    return(NumAgents)
-}
-
-move = function(hypothesis = NULL) {
-    if (hypothesis == "TwoDT") move = "TwoDT"
-    if (hypothesis == "crw") move = "crw"
-}
-
-AgentLocation = function(map) {
-    if (length(grep(pattern = "Raster", class(map)))==1) {
-        map[map==0] = NA
-    } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
-        map
-    } else if (!is.na(pmatch("SpatialPolygons",class(map)))) {
-        map
-    } else {
-        stop("only raster, Spatialpoints or SpatialPolygons implemented")
-    }
-    return(map)
-}
+# Not implemented yet
+# move = function(hypothesis = NULL) {
+#     if (hypothesis == "TwoDT") move = "TwoDT"
+#     if (hypothesis == "crw") move = "crw"
+# }
 
 ##############################################################
 #' GaussMap
@@ -61,6 +36,7 @@ AgentLocation = function(map) {
 #@examples
 #EXAMPLES NEEDED
 GaussMap = function(ext, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
+    RFoptions(spConform=FALSE)
     xmn = ext@xmin
     xmx = ext@xmax
     ymn = ext@ymin
@@ -177,7 +153,7 @@ crw = function(agent, step.len, dir.sd, lonlat) {
 #'
 #' @return Decribe what it returns: fromto.
 #' 
-##' @import CircStats
+#' @import CircStats
 #' @import data.table
 #' @export
 #' @docType methods
