@@ -75,7 +75,7 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,numCol=NULL,numCell=NULL) {
     to.mod.numCol=adj$to%%numCol
     from.mod.numCol=adj$from%%numCol
     
-    # remove any cell that is outside extent or wrapped (right and left)
+    # remove any cell that is outside extent or wrapped (above, below, right or left)
     adj.return <- adj[
         i = !(to<1 |  #above top row
                   to>numCell | # below bottom row
