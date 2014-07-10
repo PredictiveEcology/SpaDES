@@ -52,25 +52,27 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,numCol=NULL,numCell=NULL) {
         botl=as.integer(cells+numCol-1)
         bot=as.integer(cells+numCol)
         botr=as.integer(cells+numCol+1)
-        adj=data.table(from=rep.int(cells,times=directions),to=c(topl,top,topr,lef,rig,botl,bot,botr),key=c("from"))
+        adj=data.table(from=rep.int(cells,times=directions),to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
     } else if (directions==4) {
         # determine the indices of the 4 surrounding cells of the cells cells
         top=as.integer(cells-numCol)
         lef=as.integer(cells-1)
         rig=as.integer(cells+1)
         bot=as.integer(cells+numCol)
-        adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key=c("from"))
+        adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key="from")
     } else if (directions=="bishop") {
         topl=as.integer(cells-numCol-1)
         topr=as.integer(cells-numCol+1)
         botl=as.integer(cells+numCol-1)
         botr=as.integer(cells+numCol+1)
-        adj=data.table(from=rep.int(cells,times=directions),to=c(topl,topr,botl,botr),key=c("from"))
+        adj=data.table(from=rep.int(cells,times=directions),to=c(topl,topr,botl,botr),key="from")
     } else {stop("directions must be 4 or 8 or \'bishop\'")}
     
     # Add 2 columns that show whether the from or to cell is one of the far
     #  right or far left cells in x
-    adj[,`:=`(from.mod.numCol=from%%numCol,to.mod.numCol=to%%numCol)]
+    #adj[,`:=`(from.mod.numCol=from%%numCol,to.mod.numCol=to%%numCol)]
+    to.mod.numCol=adj$to%%numCol
+    from.mod.numCol=adj$from%%numCol
     
     # remove any cell that is outside extent or wrapped (right and left)
     adj.return <- adj[
@@ -82,11 +84,11 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,numCol=NULL,numCell=NULL) {
     
     
     #remove unwanted temporary columns by reference, based on pairs
-    if (pairs) {
-        adj.return[,`:=`(from.mod.numCol=NULL,to.mod.numCol=NULL)]
-    } else {
-        adj.return[,`:=`(from=NULL,from.mod.numCol=NULL,to.mod.numCol=NULL)]
-    }
+#     if (pairs) {
+#         adj.return[,`:=`(from.mod.numCol=NULL,to.mod.numCol=NULL)]
+#     } else {
+#         adj.return[,`:=`(from=NULL,from.mod.numCol=NULL,to.mod.numCol=NULL)]
+#     }
     
     return(as.matrix(adj.return))
 }
