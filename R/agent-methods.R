@@ -410,21 +410,21 @@ setReplaceMethod("agentHeading",
 ##' @import sp
 #' @export
 #' @docType methods
-#' @rdname arrow-method
+#' @rdname drawArrows-method
 #'
 # @examples
 # NEEDS EXAMPLES
 #' 
-setGeneric("arrow", function(agent, ...) {
-    standardGeneric("arrow")
+setGeneric("drawArrows", function(agent, ...) {
+    standardGeneric("drawArrows")
 })
 
 #' plot arrows showing direction of mobileAgent movement
 #' 
 #' @param length    The length of the arrows to draw (defaults to 0.1).
 #' 
-#' @rdname arrow-method
-setMethod("arrow",
+#' @rdname drawArrows-method
+setMethod("drawArrows",
           signature="mobileAgent",
           definition = function(agent, ..., length = 0.1) {
               co.pos = coordinates(agentPosition(agent))
