@@ -1,6 +1,6 @@
 ### set the working directory
 OS <- tolower(Sys.info()["sysname"])
-hostname <- Sys.info()["nodename"]
+hostname <- gsub(Sys.info()["nodename"],pattern="W-VIC-",replace="")
 
 if (OS=="windows") {
     if(pmatch("A105200", hostname, nomatch=FALSE)) {
@@ -27,18 +27,19 @@ library(shiny)
 ### load ABM package
 #library(ABM)   # local installation from CRAN
 #devtools::install_github("ABM", username="achubaty")   # local install from GitHub
-devtools::load_all("ABM") # for development/testing
+devtools::load_all("SpaDES") # for development/testing
+devtools::dev_mode(TRUE)
 
 ## simulation code
 # initialize the simulation
 mySim <- sim.init(times=list(start=0.0, stop=10.1),
-                  params=list(.checkpoint=list(interval=5, file="ABM/SAMPLE/chkpnt.RData"),
+                  params=list(.checkpoint=list(interval=5, file="SpaDES/SAMPLE/chkpnt.RData"),
                               caribou=list(N=100),
                               fires=list(num=2, spreadprob=0.215, persistprob=0.1, its=1)
                               ),
-                  modules=list("habitat", "fire", "caribou"),
-#                  modules=list("habitat", "caribou"),
-                  path="ABM/SAMPLE")
+#                  modules=list("habitat", "fire", "caribou"),
+                  modules=list("habitat", "caribou"),
+                  path="SpaDES/SAMPLE")
 mySim <- dosim(mySim)
 
 ## profiling of development code
