@@ -29,11 +29,12 @@
 #' @rdname adj
 #'
 #' @examples
+#' require(raster)
 #' a <- raster(extent(0,1000,0,1000),res=1)
 #' sam = sample(1:length(a),1e4)
 #' numCol <- ncol(a)
-#' numCell <- numCell(a)
-#' adj.new <- adj(numCol,numCell,sam,directions=8)
+#' numCell <- ncell(a)
+#' adj.new <- adj(numCol=numCol,numCell=numCell,sam,directions=8)
 #' print(head(adj.new))
 adj <- function(x=NULL,cells,directions=8,pairs=TRUE,numCol=NULL,numCell=NULL) {
     if (is.null(numCol) | is.null(numCell)) {
