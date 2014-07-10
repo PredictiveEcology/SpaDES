@@ -1,3 +1,4 @@
+
 ##############################################################
 #' Simulate a spread process on a landscape.
 #'
@@ -5,7 +6,7 @@
 #'
 #' @param landscape     A \code{RasterLayer} object.
 #' 
-#' @param loci          A list(?) of locations in \code{landscape}
+#' @param loci          A vector of locations in \code{landscape}
 #' 
 #' @param spreadProb    The probability of spreading.
 #' 
@@ -26,7 +27,6 @@
 #' @import raster
 #' @export
 #' @docType methods
-#' @rdname spread-method
 #'
 #' @examples
 #'  \dontrun{tmp <- raster(nrows=10, ncols=10, vals=0)}
@@ -34,10 +34,12 @@
 #'  \dontrun{tmp <- spread(tmp, spreadProb=0.225)}
 #'  \dontrun{plot(tmp)}
 #'  
-#'  @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
+#' @name spread  
+#' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
+#' @rdname spread-method
 #' 
-setGeneric("spread", function(landscape, loci, spreadProb, persistance,
-                              mask, maxSize, directions, iterations) {
+setGeneric("spread", function(landscape, loci, spreadProb, persistance, 
+                              mask, maxSize, directions, iterations, ...) {
     standardGeneric("spread")
 })
 
@@ -54,6 +56,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 ### directions:     integer
 ### iterations:     intger
 
+#' @import raster
 #' @rdname spread-method
 setMethod("spread",
           signature(landscape="RasterLayer", loci="integer", spreadProb="numeric",
