@@ -73,10 +73,10 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
         bot=as.integer(cells+numCol)
         botr=as.integer(cells+numCol+1)
         if (include)
-          adj=data.table(from=rep.int(cells,times=directions+include),
+          adj=data.table(from=rep.int(cells,times=9),
                        to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
         else
-          adj=data.table(from=rep.int(cells,times=directions+include),
+          adj=data.table(from=rep.int(cells,times=8),
                        to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
     } else if (directions==4) {
         # determine the indices of the 4 surrounding cells of the cells cells
@@ -114,12 +114,12 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
     
     if (as.data.table) 
       return(adj[
-        i = !((to%%numCell!=to) |  #top or bottom of raster
+        i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
                 ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
         ])
     else 
       return(as.matrix(adj[
-        i = !((to%%numCell!=to) |  #top or bottom of raster
+        i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
                 ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
         ]))
 }
