@@ -35,7 +35,7 @@
 #' @param numCell numeric indicating number of cells in the raster. Using this with numCol is a bit faster execution time.
 #' 
 #' @param as.data.table logical. Should return be a data.table (or matrix to replicate \code{adjacent}). 
-#' Default is TRUE, which is faster, and has also id (as \code{adjacent})
+#' Default is FALSE to replicate \code{adjacent} behaviour, though TRUE is faster, and has also id (as \code{adjacent})
 #' 
 #' @return a matrix of one or two columns, from and to.
 #' 
@@ -54,8 +54,8 @@
 #' numCell <- ncell(a)
 #' adj.new <- adj(numCol=numCol,numCell=numCell,sam,directions=8)
 #' print(head(adj.new))
-adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,
-                numCol=NULL,numCell=NULL,as.data.table=TRUE) {
+adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
+                numCol=NULL,numCell=NULL,as.data.table=FALSE) {
     if (is.null(numCol) | is.null(numCell)) {
         if (is.null(x)) stop("must provide either numCol & numCell or a x")
         numCol = ncol(x)
@@ -101,14 +101,25 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,
                        to=c(topl,topr,botl,botr),key="from")
     } else {stop("directions must be 4 or 8 or \'bishop\'")}
     
-    if (as.data.table)
+    if (!is.null(target)) {
+      setkey(adj,to)
+      adj<-adj[J(target)] 
+      setkey(adj,from)
+      setcolorder(adj,c("from","to"))
+    }
+    if (!pairs) {
+      from=adj$from
+      adj[,from:=NULL]
+    }
+    
+    if (as.data.table) 
       return(adj[
         i = !((to%%numCell!=to) |  #top or bottom of raster
-                ((adj$from%%numCol+adj$to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
         ])
     else 
       return(as.matrix(adj[
         i = !((to%%numCell!=to) |  #top or bottom of raster
-                ((adj$from%%numCol+adj$to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
         ]))
 }
