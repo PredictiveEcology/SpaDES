@@ -3,23 +3,22 @@ library(microbenchmark)
 library(raster)
 #library(SpaDES)
 a = raster(extent(0,1e3,0,1e3),res=1)
-cells = sample(1:ncell(a),1e5)
+cells = sample(1:ncell(a),1e3)
 numCol <- ncol(a)
 numCell <- ncell(a)
-directions=8
+#cells = 1:numCell
+  directions=8
 
   
-(mb = microbenchmark(times=100L,
-                     out1 = rep.int(cells,4),
-                     out
-                     
-(mb = microbenchmark(times=10L,
-system.time(  adj.orig <- adjacent(a,cells,sort=T,directions=8))#,
-  adj.new = adj(numCol=numCol,numCell=numCell,cells=cells,directions=8),
-  adj.new3 <- adj3(numCol=numCol,numCell=numCell,cells=cells,directions=8),
-system.time(  adj.new4 <- adj4(numCol=numCol,numCell=numCell,cells=cells,directions=8))
+(mb = microbenchmark(times=200L,
+  adj.orig = adjacent(a,cells,sort=T,directions=8),
+  adj.new = adj(numCol=numCol,numCell=numCell,as.data.table=TRUE,cells=cells,directions=8),
+  adj.new2 = adj(numCol=numCol,numCell=numCell,as.data.table=FALSE,cells=cells,directions=8)
+  #adj.new3 <- adj3(numCol=numCol,numCell=numCell,cells=cells,directions=8),
+  #adj.new4 <- adj4(numCol=numCol,numCell=numCell,cells=cells,directions=8)
 ))
-print(all.equal(adj.orig,adj.new4))
+plot(mb,horiz=FALSE)
+print(all.equal(adj.orig,adj.new2))
 ##############################################################
 adj4 <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
                   numCol=NULL,numCell=NULL,as.data.table=FALSE) {
