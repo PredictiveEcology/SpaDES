@@ -4,8 +4,8 @@
 \alias{adj}
 \title{Fast Adjacent function}
 \usage{
-adj(x = NULL, cells, directions = 8, pairs = TRUE, numCol = NULL,
-  numCell = NULL)
+adj(x = NULL, cells, directions = 8, pairs = TRUE, include = FALSE,
+  target = NULL, numCol = NULL, numCell = NULL, as.data.table = FALSE)
 }
 \arguments{
 \item{x}{Raster* object for which adjacency will be calculated.}
@@ -16,20 +16,38 @@ adj(x = NULL, cells, directions = 8, pairs = TRUE, numCol = NULL,
 
 \item{pairs}{logical. If TRUE, a matrix of pairs of adjacent cells is returned. If FALSE, a vector of cells adjacent to cells is returned}
 
+\item{include}{logical. Should the focal cells be included in the result?}
+
 \item{numCol}{numeric indicating number of columns in the raster. Using this with numCell is a bit faster execution time.}
 
 \item{numCell}{numeric indicating number of cells in the raster. Using this with numCol is a bit faster execution time.}
+
+\item{as.data.table}{logical. Should return be a data.table (or matrix to replicate \code{adjacent}).
+Default is FALSE to replicate \code{adjacent} behaviour, though TRUE is faster, and has also id (as \code{adjacent})}
 }
 \value{
 a matrix of one or two columns, from and to.
 }
 \description{
-Faster function for determining the cells of the 4 or 8 neighbours of the \code{cells}
+Faster function for determining the cells of the 4, 8 or bishop
+ neighbours of the \code{cells}
 }
 \details{
-There is some speed gain if NumCol and NumCells are passed rather than a raster.
-This gain is on the order of 5%-10%. The fastest gain over \code{\link{adjacent}}
-is from the use of data.table pass by reference feature.
+About 10x speed gains over \code{adjacent} in raster package. There is some extra
+speed gain if NumCol and NumCells are passed rather than a raster.
+Efficiency gains come from
+ 1. use data.table internally
+  - no need to remove NAs because wrapped or outside points are
+    just removed directly with data.table
+  - use data.table to sort and fast select (though not fastest possible)
+ 2. don't make intermediate objects; just put calculation into return statement
+
+The steps used in the algorithm are:
+1. Calculate indices of neighbouring cells
+2. Remove "to" cells that are
+   - <1 or >numCells (i.e., they are above or below raster)
+   - where the modulo of "to" cells is equal to 1 if "from" cells are 0 (wrapped right to left)
+   - or where the modulo of the "to" cells is equal to 0 if "from" cells are 1 (wrapped left to right)
 }
 \examples{
 require(raster)
@@ -37,7 +55,7 @@ a <- raster(extent(0,1000,0,1000),res=1)
 sam = sample(1:length(a),1e4)
 numCol <- ncol(a)
 numCell <- ncell(a)
-adj.new <- adj(numCol=numCol,numCell=numCell,sam,directions=8)
+adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 print(head(adj.new))
 }
 \seealso{

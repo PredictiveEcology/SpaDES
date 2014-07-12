@@ -124,7 +124,7 @@ setMethod("simplot",
 #              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
               dimx = dim(x)
 
-              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3])))
+              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
 
               if (add==FALSE) {
                  arr = arrange.simplots(ext,dimx,nam,which.to.plot,axes,...)    

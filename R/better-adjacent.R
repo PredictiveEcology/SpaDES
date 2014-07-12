@@ -16,7 +16,7 @@
 #' The steps used in the algorithm are:
 #' 1. Calculate indices of neighbouring cells
 #' 2. Remove "to" cells that are 
-#'    - <1 or >numCells (i.e., they are above or below raster)
+#'    - <1 or >numCells (i.e., they are above or below raster), using a single modulo calculation
 #'    - where the modulo of "to" cells is equal to 1 if "from" cells are 0 (wrapped right to left)
 #'    - or where the modulo of the "to" cells is equal to 0 if "from" cells are 1 (wrapped left to right)
 #' 
@@ -52,7 +52,7 @@
 #' sam = sample(1:length(a),1e4)
 #' numCol <- ncol(a)
 #' numCell <- ncell(a)
-#' adj.new <- adj(numCol=numCol,numCell=numCell,sam,directions=8)
+#' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 #' print(head(adj.new))
 adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
                 numCol=NULL,numCell=NULL,as.data.table=FALSE) {
@@ -101,17 +101,21 @@ adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
                        to=c(topl,topr,botl,botr),key="from")
     } else {stop("directions must be 4 or 8 or \'bishop\'")}
     
+    # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       setkey(adj,to)
       adj<-adj[J(target)] 
       setkey(adj,from)
       setcolorder(adj,c("from","to"))
     }
+    
+    # Remove the "from" column if pairs is FALSE
     if (!pairs) {
       from=adj$from
       adj[,from:=NULL]
     }
-    
+
+    # Good time savings if no intermediate object is created
     if (as.data.table) 
       return(adj[
         i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
