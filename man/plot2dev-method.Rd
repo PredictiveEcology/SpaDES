@@ -10,13 +10,12 @@ plot2dev(x, ...)
 newPlot(...)
 }
 \arguments{
-\item{...}{Additional arguments passed to quartz(), x11(), or windows().}
+\item{x}{The number of a plot device.}
 
-\item{...}{Additional arguments passed to quartz(), x11(), or windows().}
+\item{...}{Additional arguments passed to \code{\link{quartz}},
+           \code{\link{windows}}, or \code{\link{x11}}.}
 }
 \value{
-Opens a new plot device on the screen.
-
 Opens a new plot device on the screen.
 }
 \description{
@@ -29,7 +28,7 @@ Linux: open device with \code{x11()}.
 Windows: open device with \code{windows()}.
 }
 \details{
-For example, \code{plot2(6)} switches the active plot device to device #6.
+For example, \code{plot2dev(6)} switches the active plot device to device #6.
 If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
 they will be opened too.
 }

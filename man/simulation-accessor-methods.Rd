@@ -15,6 +15,7 @@
 \alias{sim.loaded,SimList-method}
 \alias{sim.loaded<-}
 \alias{sim.modules}
+\alias{sim.modules,SimList-method}
 \alias{sim.modules<-}
 \alias{sim.params}
 \alias{sim.params,SimList-method}
@@ -31,6 +32,8 @@
 \title{Accessor methods for \code{SimList} object slots}
 \usage{
 sim.modules(object)
+
+\S4method{sim.modules}{SimList}(object)
 
 sim.modules(object) <- value
 
@@ -92,6 +95,8 @@ Returns or sets the value of the slot from the \code{SimList} object.
 }
 \description{
 Currently, only get and set methods are defined. Subset methods are not.
+
+get list of simulation modules
 
 set list of simulation modules
 

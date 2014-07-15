@@ -2,24 +2,29 @@
 \docType{methods}
 \name{dosim}
 \alias{dosim}
+\alias{dosim,SimList,logical-method}
 \alias{dosim,SimList,missing-method}
 \title{Process a simulation event}
 \usage{
 dosim(sim, debug)
+
+\S4method{dosim}{SimList,logical}(sim, debug)
 
 \S4method{dosim}{SimList,missing}(sim)
 }
 \arguments{
 \item{sim}{A \code{SimList} simulation object.}
 
-\item{debug}{Optional logical flag determines whether sim debug info will be printed.
-If not specified, the default is \code{debug=FALSE}.}
+\item{debug}{Optional logical flag determines whether sim debug info
+             will be printed (default is \code{debug=FALSE}).}
 }
 \value{
 Returns the modified \code{SimList} object.
 }
 \description{
 Internal function called from \code{dosim}.
+
+dosim
 
 dosim
 }

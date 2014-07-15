@@ -12,11 +12,11 @@ reload.module.later(sim, depends)
 \arguments{
 \item{sim}{An object of class \code{SimList}.}
 
-\item{depends}{A list of character strings specifying
-the names of modules upon which the current module depends.}
+\item{depends}{A list of character strings specifying the names
+               of modules upon which the current module depends.}
 }
 \value{
-\code{TRUE}/\code{FALSE}.
+\code{Logical}.
 }
 \description{
 Checks the dependencies of the current module on other modules.

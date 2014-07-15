@@ -19,11 +19,14 @@
 #' Switch to an existing plot device, or if not already open,
 #' launch a new graphics device based on operating system used.
 #' 
-#' For example, \code{plot2(6)} switches the active plot device to device #6.
+#' For example, \code{plot2dev(6)} switches the active plot device to device #6.
 #' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
 #' they will be opened too.
 #' 
-#' @param ... Additional arguments passed to quartz(), x11(), or windows().
+#' @param x   The number of a plot device.
+#' 
+#' @param ... Additional arguments passed to \code{\link{quartz}},
+#'            \code{\link{windows}}, or \code{\link{x11}}.
 #' 
 #' @return Opens a new plot device on the screen.
 #' 
@@ -45,10 +48,6 @@ plot2dev = function(x, ...) {
 #' Mac OS: open device with \code{quartz()}.
 #' Linux: open device with \code{x11()}.
 #' Windows: open device with \code{windows()}.
-#' 
-#' @param ... Additional arguments passed to quartz(), x11(), or windows().
-#' 
-#' @return Opens a new plot device on the screen.
 #' 
 #' @export
 #' @docType methods

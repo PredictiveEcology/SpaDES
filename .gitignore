@@ -6,6 +6,7 @@
 cache/
 figure/
 SAMPLE/chkpnt.RData
+.csv
 
 #################
 ## LaTeX

@@ -11,7 +11,6 @@
 ###       to add submodules to the simulation                           ###
 ###                                                                     ###
 ###########################################################################
-
 #' The \code{SimList} class
 #'
 #' This class contains the minimum components of a simulation.
@@ -119,7 +118,7 @@ setGeneric("sim.modules", function(object) {
 })
 
 #' get list of simulation modules
-#' 
+#' @rdname simulation-accessor-methods
 setMethod("sim.modules",
           signature = "SimList",
           definition = function(object) {
@@ -501,6 +500,44 @@ setMethod("sim.init",
 })
 
 ##############################################################
+#' Load modules for simulation.
+#'
+#' Checks the dependencies of the current module on other modules.
+#' These dependencies need to be loaded first, so if they are not
+#' already loaded, hold off loading the cuurent module until after
+#' dependencies are loaded.
+#'
+#' @param sim An object of class \code{SimList}.
+#' 
+#' @param depends A list of character strings specifying the names
+#'                of modules upon which the current module depends.
+#'
+#' @return \code{Logical}.
+#' 
+#' @seealso \code{\link{library}}.
+#' 
+#' @export
+#' @docType methods
+#' @rdname loadmodules
+#'
+# @examples
+# need examples
+setGeneric("reload.module.later", function(sim, depends) {
+  standardGeneric("reload.module.later")
+})
+
+#' @rdname loadmodules
+setMethod("reload.module.later",
+          signature(depends="character"),
+          definition = function(sim, depends) {
+            if (depends=="NONE") {
+              return(FALSE)
+            } else {
+              return(!all(depends %in% sim.loaded(sim)))
+            }
+})
+
+##############################################################
 #' Process a simulation event
 #'
 #' Internal function called from \code{dosim}.
@@ -516,8 +553,8 @@ setMethod("sim.init",
 #' 
 #' @param sim A \code{SimList} simulation object.
 #' 
-#' @param debug Optional logical flag determines whether sim debug info will be printed.
-#' If not specified, the default is \code{debug=FALSE}.
+#' @param debug Optional logical flag determines whether sim debug info
+#'              will be printed (default is \code{debug=FALSE}).
 #'
 #' @return Returns the modified \code{SimList} object.
 #' 
@@ -627,8 +664,8 @@ setMethod("schedule.event",
 #' 
 #' @param sim A \code{SimList} simulation object.
 #' 
-#' @param debug Optional logical flag determines whether sim debug info will be printed.
-#' If not specified, the default is \code{debug=FALSE}.
+#' @param debug Optional logical flag determines whether sim debug info
+#'              will be printed (default is \code{debug=FALSE}).
 #'
 #' @return Returns the modified \code{SimList} object.
 #' 
@@ -651,7 +688,7 @@ setGeneric("dosim", function(sim, debug) {
 })
 
 #' dosim
-#' @rdname simulation-dosim-method-method
+#' @rdname simulation-dosim-method
 setMethod("dosim",
           signature(sim="SimList", debug="logical"),
           definition = function(sim, debug) {

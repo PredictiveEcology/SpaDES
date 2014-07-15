@@ -15,8 +15,8 @@ do.event(sim, debug)
 \arguments{
 \item{sim}{A \code{SimList} simulation object.}
 
-\item{debug}{Optional logical flag determines whether sim debug info will be printed.
-If not specified, the default is \code{debug=FALSE}.}
+\item{debug}{Optional logical flag determines whether sim debug info
+             will be printed (default is \code{debug=FALSE}).}
 }
 \value{
 Returns the modified \code{SimList} object.

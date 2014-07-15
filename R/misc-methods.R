@@ -67,47 +67,6 @@ setMethod("load.packages",
               load.packages(package.list=package.list, install=install, quiet=FALSE)
 })
 
-
-
-##############################################################
-#' Load modules for simulation.
-#'
-#' Checks the dependencies of the current module on other modules.
-#' These dependencies need to be loaded first, so if they are not
-#' already loaded, hold off loading the cuurent module until after
-#' dependencies are loaded.
-#'
-#' @param sim An object of class \code{SimList}.
-#' 
-#' @param depends A list of character strings specifying
-#' the names of modules upon which the current module depends.
-#'
-#' @return \code{TRUE}/\code{FALSE}.
-#' 
-#' @seealso \code{\link{library}}.
-#' 
-#' @export
-#' @docType methods
-#' @rdname loadmodules
-#'
-# @examples
-# need examples
-setGeneric("reload.module.later", function(sim, depends) {
-    standardGeneric("reload.module.later")
-})
-
-#' @rdname loadmodules
-setMethod("reload.module.later",
-          signature(depends="character"),
-          definition = function(sim, depends) {
-              if (depends=="NONE") {
-                  return(FALSE)
-              } else {
-                  f = all(depends %in% sim.loaded(sim))
-                  return(!f)
-              }
-})
-
 ##############################################################
 #' Check filepath.
 #'

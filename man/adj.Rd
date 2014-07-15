@@ -45,7 +45,7 @@ Efficiency gains come from
 The steps used in the algorithm are:
 1. Calculate indices of neighbouring cells
 2. Remove "to" cells that are
-   - <1 or >numCells (i.e., they are above or below raster)
+   - <1 or >numCells (i.e., they are above or below raster), using a single modulo calculation
    - where the modulo of "to" cells is equal to 1 if "from" cells are 0 (wrapped right to left)
    - or where the modulo of the "to" cells is equal to 0 if "from" cells are 1 (wrapped left to right)
 }

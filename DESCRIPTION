@@ -27,7 +27,8 @@ Depends:
     sp,
     raster
 Suggests:
-    Matrix
+    Matrix,
+    testthat
 Imports:
     RandomFields,
     CircStats
