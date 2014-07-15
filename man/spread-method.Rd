@@ -4,8 +4,7 @@
 \alias{spread,RasterLayer,integer,numeric,numeric,RasterLayer,numeric,integer,integer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
-  iterations, ...)
+spread()
 
 
   \S4method{spread}{RasterLayer,integer,numeric,numeric,RasterLayer,numeric,integer,integer}(landscape,
@@ -14,7 +13,7 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
 \arguments{
   \item{landscape}{A \code{RasterLayer} object.}
 
-  \item{loci}{A vector of locations in \code{landscape}}
+  \item{loci}{A list(?) of locations in \code{landscape}}
 
   \item{spreadProb}{The probability of spreading.}
 
