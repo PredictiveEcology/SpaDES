@@ -9,11 +9,11 @@ devtools::load_all("c:/Eliot/GitHub/SpaDES")
 library(microbenchmark)
 library(raster)
 library(RColorBrewer)
-library(compiler)
-enableJIT(3)
+#library(compiler)
+#enableJIT(3)
 #library(SpaDES)
-a = raster(extent(0,1e2,0,1e2),res=1)
-hab = a#GaussMap(extent(a),speedup=1000)
+a = raster(extent(0,1e3,0,1e3),res=1)
+hab = GaussMap(extent(a),speedup=10)
 loci = b = as.integer(sample(1:ncell(a),10))
 mask = raster(a)
 mask = setValues(mask, 0)
@@ -23,7 +23,21 @@ numCell <- ncell(a)
 #cells = 1:numCell
   directions=8
 
-cols = list(brewer.pal(8,"RdYlGn")[8:1],brewer.pal(9,"Blues"),brewer.pal(8,"Spectral"))
+# Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
+cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+
+simplot(hab,col=cols[[1]],speedup=10)
+#names(hab)<-"hab"
+simplot(stack(fire2,hab),col=cols[1:2],speedup=10)
+fire2 <- spread.adj(hab,loci=as.integer(sample(1:ncell(hab),10)),
+                    0.235,0,NULL,1e6,8,1e6,plot.it=F,
+                    speedup=10)
+simplot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="layer",delete.previous=F)
+simplot(fire2,col=cols[[1]],speedup=10,add=T,
+        on.which.to.plot="hab",delete.previous=F)
+
+
+
 newPlot()
 simplot(hab,speedup=15,col=brewer.pal(9,"Accent"))
 simplot(stack(speedup=15,fire0,fire1,hab),col=cols)
@@ -40,7 +54,6 @@ fire3 <- spread.adj.c(hab,loci=b,1,0,NULL,1e3,8,1e6)
 )
 }
 
-fire2 <- spread.adj(hab,loci=b,1,0,NULL,1e3,8,1e6,mask=mask)
 
 out <-sapply(mb,function(x) print(x)[[4]])
 for (i in 1:3)
