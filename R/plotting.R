@@ -137,8 +137,8 @@ setMethod("simplot",
                       ma = match(w,nam)
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
-                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], width=1/cols*0.8, height=1/rows*0.8,
-                                          just = c(0.5, 0.5),
+                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], width=1/cols*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
+                                          just = "centre",
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
                       pushViewport(vp[[i]])
@@ -151,7 +151,7 @@ setMethod("simplot",
                               }
                               if (cr$rows[i] == min(cr$rows)) {
                                   #grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), label=prettys[["x"]])
-                                  grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
+                                  grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/min(1,ds.map.ratio/actual.ratio), 
                                              label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
                               }
                           } else {
@@ -194,16 +194,23 @@ setMethod("simplot",
 #' @rdname simplot
 setMethod("simplot",
           signature = "RasterLayer",
-          definition = function(x, on.which.to.plot,which.to.plot, col, ..., add, speedup, axes) {
+          definition = function(x, on.which.to.plot,which.to.plot, col, delete.previous=TRUE, ..., add, speedup, axes) {
               ext = extent(x)
-              nam = names(x)
+              if (add==TRUE) {
+                wh=which(names(x)==grid.ls(grobs=F, viewports=T, recursive=TRUE, print=FALSE)$name)
+                if(length(wh)>1)
+                nam = paste(names(x),length(wh)+1,sep="")
+              } else {
+                nam = names(x)
+              }
               dimx = dim(x)
 
               if (add==FALSE) {
+                  arr = arrange.simplots(ext,dimx,nam,which.to.plot=1,axes=axes,...)        
                   grid.newpage()
                   vp <- viewport(width=0.8, height=0.8,
                                       just = c(0.5, 0.5),
-                                      name = deparse(substitute(x)),
+                                      name = nam,
                                       xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
                   pushViewport(vp)
                   if (axes != "none" & axes != FALSE) {
@@ -228,24 +235,26 @@ setMethod("simplot",
                   grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup,
                                         col=col),interpolate = F,
                               name=nam,...)
-                  upViewport()
+                  #upViewport()
               } else if (add==TRUE){
-                  vp.names= grid.ls(grobs=F, viewports=TRUE, recursive=TRUE, print=FALSE)$name
+                  vp.names= grid.ls(grobs=F, viewports=T, recursive=FALSE, flatten=T, print=F)$name
                   vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+                  #vp.names= vp.names[-grep("GRID",vp.names)]
                   #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
                       
                       if (is.numeric(on.which.to.plot)) {
-                          i = vp.names[match(on.which.to.plot, vp.names)]
+                          i = vp.names[on.which.to.plot]
                       } else {
                           i = on.which.to.plot
                       }
                       seekViewport(i)
-                      grid.remove(i)
+                  
+                      if (delete.previous) grid.remove(i)
                       grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
                                             col=col),
                                   interpolate=FALSE,name=nam,...)
-                      upViewport()
-                  
+#                  upViewport()
+                                        
               } else {
                   stop("Error: Logical `add` should be TRUE or FALSE.")
               }
@@ -304,9 +313,9 @@ setMethod("simplot",
                     prettys[["y"]] = pretty(ats[["y"]])
 
                     grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
-                               label=prettys[["y"]],name=paste(deparse(substitute(caribou)),"yaxis",sep=""))
+                               label=prettys[["y"]],name=paste(deparse(substitute(x)),"yaxis",sep=""))
                     grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
-                               label=prettys[["x"]],name=paste(deparse(substitute(caribou)),"xaxis",sep=""))
+                               label=prettys[["x"]],name=paste(deparse(substitute(x)),"xaxis",sep=""))
                     
 #                     grid.xaxis(gp=gpar(cex=0.5),at = seq(ats[["x"]][1],ats[["x"]][2],length.out=length(prettys[["x"]])),label = prettys[["x"]])
 #                     grid.yaxis(gp=gpar(cex=0.5),at = seq(ats[["y"]][1],ats[["y"]][2],length.out=length(prettys[["y"]])),label = prettys[["y"]])
