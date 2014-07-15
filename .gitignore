@@ -44,3 +44,5 @@ SAMPLE/chkpnt.RData
 *.xdy
 *.tdo
 
+*.Rd
+*.Rd
