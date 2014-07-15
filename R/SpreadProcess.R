@@ -186,13 +186,13 @@ setGeneric("spread.adj", function(landscape, loci, spreadProb, persistance,
 #' @rdname spread.adj-method
 setMethod("spread.adj",
           signature(landscape="RasterLayer",# loci="integer", 
-                    spreadProb="numeric",
+                    spreadProb="numeric"
                     #persistance="numeric", 
-                    mask="RasterLayer"#, maxSize="numeric",
+                    #mask="RasterLayer"#, maxSize="numeric",
                     #directions="integer", iterations="integer"
                     ),
           definition = function(landscape, loci, spreadProb, persistance,
-                       mask, maxSize, directions, iterations, plot.it=FALSE) {
+                       mask, maxSize, directions, iterations, plot.it=FALSE,...) {
   ### should sanity check map extents
   is.prob <- function(x) {
     if (!is.numeric(x)) 
@@ -277,7 +277,7 @@ setMethod("spread.adj",
     if (plot.it){
       top <- raster(landscape)
       top<-setValues(top,spreads[,burned])
-      plot(top)
+      simplot(top,,...)
     }
     
   }
