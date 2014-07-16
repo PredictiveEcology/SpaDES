@@ -9,144 +9,7 @@
 #' 
 #' @param spreadProb    The probability of spreading.
 #' 
-#' @param persistance   DOCUMENTATION NEEDED
-#' 
-#' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
-#'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".
-#' 
-#' @param maxSize       DOCUMENTATION NEEDED
-#' 
-#' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
-#' 
-#' @param iterations    Number of iterations to spread. Leaving this \code{NULL} allows the spread
-#'                      to continue until stops spreading itself (i.e., exhausts itself).
-#' 
-#' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
-#' 
-#' @import raster
-#' @export
-#' @docType methods
-#'
-#' @examples
-#'  \dontrun{tmp <- raster(nrows=10, ncols=10, vals=0)}
-#'  \dontrun{plot(tmp)}
-#'  \dontrun{tmp <- spread(tmp, spreadProb=0.225)}
-#'  \dontrun{plot(tmp)}
-#'  
-#' @name spread  
-#' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
-#' @rdname spread-method
-#' 
-setGeneric("spread", function(landscape, loci, spreadProb, persistance, 
-                              mask, maxSize, directions, iterations, ...) {
-    standardGeneric("spread")
-})
-
-# defaults:
-# (landscape, loci=NULL, spreadProb=0.1, persistance=NULL, mask=NULL, maxSize=NULL, directions=8, iterations=NULL)
-
-### ALLOW:
-### landscape:      RasterLayer, RasterStack
-### loci:           integer, SpatialPoints
-### spreadProb:     [0,1], function, RasterLayer
-### persistance:    [0,1], function, RasterLayer
-### mask:           RasterLayer
-### maxSize:        integer?
-### directions:     integer
-### iterations:     intger
-
-#' @import raster
-#' @rdname spread-method
-setMethod("spread",
-          signature(landscape="RasterLayer", loci="integer", spreadProb="numeric",
-                    persistance="numeric", mask="RasterLayer", maxSize="numeric",
-                    directions="integer", iterations="integer"),
-          definition = function(landscape, loci, spreadProb, persistance,
-                                mask, maxSize, directions, iterations) {
-              ### should sanity check map extents
-                is.prob <- function(x) {
-                    if (!is.numeric(x)) 
-                        return(FALSE)
-                    else 
-                        return(!(x>1 || x<0))
-                }
-                
-                if (is.null(loci))  {
-                    # start it in the centre cell
-                    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-                }
-                
-                spreads <- setValues(raster(landscape), 0)
-                n <- 1
-                spreads[loci] <- n
-                
-                if (is.null(iterations)) {
-                    iterations = Inf # this is a stupid way to do this!
-                } else {
-                    # do nothing
-                }
-                
-                while ( (length(loci)>0) && (iterations>=n) ) {
-                    #print(paste(n, length(loci)))
-                    potentials <- adj(landscape, loci, directions)
-                    
-                    # drop those ineligible
-                    if (!is.null(mask)){
-                        tmp <- extract(mask, potentials[,2])
-                    } else {
-                        tmp <- extract(spreads, potentials[,2])
-                    }
-                    #print(cbind(potentials,tmp))
-                    potentials <- potentials[ifelse(is.na(tmp), FALSE, tmp==0),]
-                                        
-                    # select which potentials actually happened
-                    # nrow() only works if potentials is an array
-                    if (is(potentials,"numeric")) {
-                      ItHappened <- runif(1) <= spreadProb
-                      events <- potentials[2][ItHappened]
-                    } else if (is.numeric(spreadProb)) {
-                      ItHappened <- runif(nrow(potentials)) <= spreadProb
-                      events <- potentials[ItHappened, 2]
-                    } else {
-                      stop("Unsupported type:spreadProb") # methods for raster* or function args
-                    }
-                    #print(events)
-                    
-                    # update eligibility map
-                    spreads[events] <- n
-                    n <- n+1
-                    
-                    # drop or keep loci
-                    if (is.null(persistance)) {
-                        loci <- NULL
-                    } else {
-                        if (is.prob(persistance)) {
-                            loci <- loci[runif(length(loci))<=persistance]
-                        } else {
-                            # here is were we would handle methods for raster* or functions
-                            stop("Unsupported type: persistance")
-                        }
-                    }
-                    
-                    loci <- c(loci, events)
-                    
-                }
-                return(spreads)
-          }
-)
-
-##############################################################
-#' Simulate a spread process on a landscape.
-#'
-#' More detailed description needed here.
-#'
-#' @param landscape     A \code{RasterLayer} object.
-#' 
-#' @param loci          A vector of locations in \code{landscape}
-#' 
-#' @param spreadProb    The probability of spreading.
-#' 
-#' @param persistance   DOCUMENTATION NEEDED
+#' @param persistance   A probability that a burning cell will continue to burn, per time step
 #' 
 #' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".
@@ -165,41 +28,74 @@ setMethod("spread",
 #' @export
 #' @docType methods
 #'
-#' @examples
-#'  \dontrun{tmp <- raster(nrows=10, ncols=10, vals=0)}
-#'  \dontrun{plot(tmp)}
-#'  \dontrun{tmp <- spread(tmp, spreadProb=0.225)}
-#'  \dontrun{plot(tmp)}
-#'  
-#' @name spread.adj
+#' @name spread
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
-#' @rdname spread.adj-method
+#' @author Eliot McIntire 
+#' @rdname spread
 #' 
-setGeneric("spread.adj", function(landscape, loci, spreadProb, persistance, 
+setGeneric("spread", function(landscape, loci, spreadProb, persistance, 
                               mask, maxSize, directions, iterations, ...) {
-  standardGeneric("spread.adj")
+  standardGeneric("spread")
 })
 
 #' @param plot.it    If TRUE, then plot the raster at every iteraction, so one can watch the 
 #' spread event grow.
 #' @import raster
-#' @rdname spread.adj-method
-setMethod("spread.adj",
-          signature(landscape="RasterLayer",# loci="integer", 
-                    spreadProb="numeric"
+#' @rdname spread
+#' @name spread
+#' 
+#' @examples
+#' library(raster)
+#' library(RColorBrewer)
+#' 
+#' # Make random forest cover map
+#' fc = GaussMap(extent(raster(extent(0,1e3,0,1e3),res=1)),speedup=10)
+#' names(fc)="fc"
+
+#' #make 10 fires
+#' loci = as.integer(sample(1:ncell(fc),10))
+
+#' #create a mask used to omit spreading
+#' mask = raster(fc)
+#' mask = setValues(mask, 0)
+#' mask[1:5000] <- 1
+#' 
+#' numCol <- ncol(fc)
+#' numCell <- ncell(fc)
+#' directions=8
+#' 
+#' # Transparency involves adding 2 extra hex digits on the 6 digit color code, 00 is fully transparent.
+#' #  This first colour code will give the lowest value on the scale a value of "transparent"
+#' #  This can be used for overlaying a raster onto another raster
+#' cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+#' 
+#' newPlot()
+#' simplot(fc,col=cols[[3]],speedup=10)
+#' names(fc)<-"fc" # required to name the layer if there is a need to plot one raster over another
+#' 
+#' fire2 <- spread(landscape = fc, loci=loci, spreadProb=0.235,
+#'                      0, mask=NULL, maxSize=1e6, directions = 8,
+#'                      iterations = 1e6, plot.it=F, speedup=10)
+#' names(fire2)<-"fire"
+#' 
+#' simplot(stack(fire2,fc),col=cols[1:2],speedup=10)
+#' simplot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="fc",delete.previous=F)
+#' 
+#' # Here, watch the fire grow
+#' fire2 <- spread(landscape = fc, loci=loci, spreadProb=0.235,
+#'                      0, mask=NULL, maxSize=1e6, directions = 8,
+#'                      iterations = 1e6, plot.it=T, speedup=20, col=cols[[1]],
+#'                      delete.previous=F)
+setMethod("spread",
+          signature(landscape="RasterLayer"#, loci="integer", 
+                    #spreadProb="numeric"
                     #persistance="numeric", 
-                    #mask="RasterLayer"#, maxSize="numeric",
+                    #mask="RasterLayer", maxSize="numeric",
                     #directions="integer", iterations="integer"
                     ),
           definition = function(landscape, loci, spreadProb, persistance,
                        mask, maxSize, directions, iterations, plot.it=FALSE,...) {
   ### should sanity check map extents
-  is.prob <- function(x) {
-    if (!is.numeric(x)) 
-      return(FALSE)
-    else 
-      return(!(x>1 || x<0))
-  }
   
   if (is.null(loci))  {
     # start it in the centre cell
@@ -277,11 +173,12 @@ setMethod("spread.adj",
     if (plot.it){
       top <- raster(landscape)
       top<-setValues(top,spreads[,burned])
-      simplot(top,,...)
+      simplot(top,...)
     }
     
   }
-  #loci = sample(1:ncell(a),20)
+
+  # Convert the data.table back to raster
   spre=raster(landscape)
   spre<-setValues(spre, spreads[,burned])
   return(spre)

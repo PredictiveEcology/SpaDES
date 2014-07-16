@@ -4,7 +4,7 @@
 \alias{GaussMap}
 \title{GaussMap}
 \usage{
-GaussMap(ext, scale = 10, var = 1, speedup = 10)
+GaussMap(x, scale = 10, var = 1, speedup = 10)
 }
 \arguments{
 \item{ext}{An object of class \code{extent} giving the dimensions of output map.}

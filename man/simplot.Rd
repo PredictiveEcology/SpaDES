@@ -4,7 +4,7 @@
 \alias{simplot}
 \alias{simplot,RasterLayer-method}
 \alias{simplot,RasterStack-method}
-\alias{simplot,pointAgent-method}
+\alias{simplot,SpatialPoints-method}
 \title{Plotting methods}
 \usage{
 simplot(x, on.which.to.plot = 1, which.to.plot = "all",
@@ -15,11 +15,10 @@ simplot(x, on.which.to.plot = 1, which.to.plot = "all",
   which.to.plot = "all", col = rev(terrain.colors(255)), ..., add = FALSE,
   speedup = 1, axes = "L")
 
-\S4method{simplot}{RasterLayer}(x, on.which.to.plot = 1,
-  which.to.plot = "all", col = rev(terrain.colors(255)), ..., add = FALSE,
-  speedup = 1, axes = "L")
+\S4method{simplot}{RasterLayer}(x, on.which.to.plot, which.to.plot, col,
+  delete.previous = TRUE, ..., add, speedup, axes)
 
-\S4method{simplot}{pointAgent}(x, ext, on.which.to.plot, map.names = NULL,
+\S4method{simplot}{SpatialPoints}(x, ext, on.which.to.plot, map.names = NULL,
   delete.previous = TRUE, max.agents = 10000, ..., add = TRUE, speedup,
   axes)
 }

@@ -4,7 +4,7 @@
 \alias{cir}
 \title{Circle around an agent.}
 \usage{
-cir(agent, radiuses, raster_world, scale_raster)
+cir(agent, radiuses, raster)
 }
 \arguments{
 \item{agent}{Description of this.}
@@ -12,7 +12,7 @@ cir(agent, radiuses, raster_world, scale_raster)
 \item{radiuses}{Description of this, including why it isn't called
 radii ;p}
 
-\item{raster_world}{Description of this.}
+\item{raster}{Description of this.}
 
 \item{scale_raster}{Description of this.}
 }

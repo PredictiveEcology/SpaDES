@@ -2,12 +2,13 @@
 \docType{methods}
 \name{drawArrows}
 \alias{drawArrows}
-\alias{drawArrows,mobileAgent-method}
+\alias{drawArrows,SpatialPoints,SpatialPoints-method}
 \title{plot arrows showing direction of mobileAgent movement}
 \usage{
-drawArrows(agent, ...)
+drawArrows(current, previous, ...)
 
-\S4method{drawArrows}{mobileAgent}(agent, ..., length = 0.1)
+\S4method{drawArrows}{SpatialPoints,SpatialPoints}(current, previous, ...,
+  length = 0.1)
 }
 \arguments{
 \item{agent}{A \code{mobileAgent} object.}
@@ -22,6 +23,13 @@ Returns the modified \code{SimList} object.
 \description{
 Plots arrows showing direction of mobileAgent movement.
 
-plot arrows showing direction of mobileAgent movement
+Plot arrows showing direction of mobileAgent movement
+}
+\examples{
+current <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
+previous <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
+plot(current)
+points(previous)
+drawArrows(current, previous)
 }
 

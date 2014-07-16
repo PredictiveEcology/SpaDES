@@ -19,7 +19,7 @@
 #' Switch to an existing plot device, or if not already open,
 #' launch a new graphics device based on operating system used.
 #' 
-#' For example, \code{plot2dev(6)} switches the active plot device to device #6.
+#' For example, \code{dev(6)} switches the active plot device to device #6.
 #' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
 #' they will be opened too.
 #' 
@@ -32,11 +32,11 @@
 #' 
 #' @export
 #' @docType methods
-#' @rdname plot2dev-method
+#' @rdname dev-method
 #'
 # @examples
 # needs examples
-plot2dev = function(x, ...) {
+dev = function(x, ...) {
   if(is.null(dev.list())) newPlot(...)
   while (dev.set(x)!=x) newPlot(...)
 }
@@ -137,14 +137,14 @@ setMethod("simplot",
                       ma = match(w,nam)
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
-                      vp[[i]] <- viewport(x=cr[i,"cols"], y=cr[i,"rows"], width=1/cols*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
+                      vp[[i]] <- viewport(x=cr[i,"columns"], y=cr[i,"rows"], width=1/columns*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
                                           just = "centre",
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
                       pushViewport(vp[[i]])
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
-                              if (cr$cols[i]==min(cr$cols)) {
+                              if (cr$columns[i]==min(cr$columns)) {
                                   #grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]])#/max(1,actual.ratio/ds.map.ratio), label=prettys[["y"]])
                                   grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
                                              label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
@@ -163,7 +163,7 @@ setMethod("simplot",
                       }
                       grid.text(names(x)[ma], y=1.08, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)),
                                 name = paste(w,"title",sep=""))
-                      grid.raster(as.raster(x[[w]], maxpixels=1e4/(cols*rows)*prod(ds)/speedup,
+                      grid.raster(as.raster(x[[w]], maxpixels=1e4/(columns*rows)*prod(ds)/speedup,
                                             col=col[[ma]] ),
                                   interpolate=FALSE, name=w,...)
                       upViewport()
@@ -198,20 +198,31 @@ setMethod("simplot",
               ext = extent(x)
               if (add==TRUE) {
                 wh=which(names(x)==grid.ls(grobs=F, viewports=T, recursive=TRUE, print=FALSE)$name)
-                if(length(wh)>1)
-                nam = paste(names(x),length(wh)+1,sep="")
+                if(length(wh)>1) {
+                  nam = paste(names(x),length(wh)+1,sep="")
+                } else {
+                  nam = names(x)
+                }
               } else {
                 nam = names(x)
               }
               dimx = dim(x)
 
+              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
+              
               if (add==FALSE) {
-                  arr = arrange.simplots(ext,dimx,nam,which.to.plot=1,axes=axes,...)        
+                arr = arrange.simplots(ext,dimx,nam,which.to.plot=1,axes=axes)#,...)        
+                with (arr, {
                   grid.newpage()
-                  vp <- viewport(width=0.8, height=0.8,
-                                      just = c(0.5, 0.5),
-                                      name = nam,
-                                      xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
+                  vp <- viewport(x=cr[1,"columns"], y=cr[1,"rows"], width=1/columns*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
+                    just = "centre",
+                    name = nam,
+                    xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
+                  
+#                   vp <- viewport(width=0.8, height=0.8,
+#                                       just = c(0.5, 0.5),
+#                                       name = nam,
+#                                       xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
                   pushViewport(vp)
                   if (axes != "none" & axes != FALSE) {
                       if (axes == "L") {
@@ -233,9 +244,11 @@ setMethod("simplot",
                   grid.text(y=1.08, vjust=0.5, gp=gpar(cex=1-0.015),
                             label = nam)
                   grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup,
-                                        col=col),interpolate = F,
+                                        col=col[[1]]),interpolate = F,
                               name=nam,...)
                   #upViewport()
+                })
+
               } else if (add==TRUE){
                   vp.names= grid.ls(grobs=F, viewports=T, recursive=FALSE, flatten=T, print=F)$name
                   vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
@@ -273,7 +286,7 @@ setMethod("simplot",
 #' @export
 #' @rdname simplot
 setMethod("simplot",
-          signature = "pointAgent",
+          signature = "SpatialPoints",
           definition = function(x, ext, on.which.to.plot, map.names=NULL, delete.previous=TRUE,
                                 max.agents = 1e4, ..., add = TRUE, speedup, axes ) {
               len = length(x)
@@ -404,10 +417,10 @@ arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
     
     wh.best = which.min(abs(apply(col.by.row,1,function(x) x[1]/x[2]) - ds.map.ratio))
     
-    cols = col.by.row[wh.best,1]
+    columns = col.by.row[wh.best,1]
     rows = col.by.row[wh.best,2]
     
-    actual.ratio = cols/rows
+    actual.ratio = columns/rows
     
     if (axes != "none" & axes != FALSE) {
         prettys = list()
@@ -417,8 +430,49 @@ arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
         prettys[["y"]] = prettys[["y"]][which(prettys[["y"]]>=ymin(ext) & prettys[["y"]]<=ymax(ext))]
     }
     
-    cr = expand.grid(cols=((1:cols/cols - 1/cols/2)-0.55)*0.9+0.55,rows=((1:rows/rows - 1/rows/2)-0.55)*0.9+0.55)
-    out = list(cr=cr,rows=rows,cols=cols,actual.ratio=actual.ratio,ds.map.ratio=ds.map.ratio,
+    cr = expand.grid(columns=((1:columns/columns - 1/columns/2)-0.55)*0.9+0.55,rows=((1:rows/rows - 1/rows/2)-0.55)*0.9+0.55)
+    out = list(cr=cr,rows=rows,columns=columns,actual.ratio=actual.ratio,ds.map.ratio=ds.map.ratio,
                 ds=ds,prettys=prettys,wh=wh,ds.ratio=ds.ratio)
     return(out)
 }
+
+##############################################################
+#' plot arrows showing direction of mobileAgent movement
+#'
+#' Plots arrows showing direction of mobileAgent movement.
+#' 
+#' @param agent         A \code{mobileAgent} object.
+#' 
+#' @param ...           Additional plotting parameters.
+#'
+#' @return Returns the modified \code{SimList} object.
+#' 
+##' @import sp
+#' @export
+#' @docType methods
+#' @rdname drawArrows-method
+#'
+# @examples
+# NEEDS EXAMPLES
+#' 
+setGeneric("drawArrows", function(from, to, ...) {
+  standardGeneric("drawArrows")
+})
+
+#' Plot arrows showing direction of mobileAgent movement
+#' 
+#' @param length    The length of the arrows to draw (defaults to 0.1).
+#' 
+#' @rdname drawArrows-method
+#' @examples
+#' to <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
+#' from <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
+#' plot(to)
+#' points(from)
+#' drawArrows(to, from)
+setMethod("drawArrows",
+          signature=c("SpatialPoints","SpatialPoints"),
+          definition = function(from, to, ..., length=0.1) {
+            arrows(from$x, from$y, to$x, to$y, ..., length=length)
+          })
+
