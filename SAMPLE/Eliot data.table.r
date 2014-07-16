@@ -126,6 +126,98 @@ tmp <- extract(spreads, potentials[,2])
 }
 ))
 
+###################################################################################
+
+install.packages("ref")
+library(ref)
+x = matrix(sample(1:12),ncol=1)
+rd <- refdata(x) # create reference
+derefdata(rd) # retrieve original data
+derefdata(rd) <- value # modify original data
+rd[] # get all (current) data
+i = 11; j = 1
+rd[i, j] # get part of data
+rd[i, j, ref=TRUE] # get new reference on part of data
+rd[i, j] <- value # modify / create local copy
+rd[i, j, ref=TRUE] <- value # modify original data (respecting subsetting history)
+dim(rd) # dim of (subsetted) data
+dimnames(rd) # dimnames of (subsetted) data
+
+x <- matrix(sample(1:10,replace=T,1e8),ncol=1e3) # take a matrix or data frame
+rx <- refdata(x) # wrap it into an refdata object
+rx # see the autoprinting
+#rm(x) # delete original to save memory
+#rx[] # extract all data
+#rx[-1, ] # extract part of data
+ras <- raster(x)
+extent(ras)<-c(0,100000,0,1000)
+df = data.frame(x)
+dt = data.table(x)
+
+sam = sort(sample(1:nrow(x),2e2,replace=F))
+system.time(for (i in 1:1e3) {
+  rx[sam,2 , ref=FALSE]<-sam
+})
+
+x <- matrix(sample(1:10,replace=T,1e7),ncol=1e3) # take a matrix or data frame
+system.time(for (i in 1:1e4) {
+  x[sam,2]<-sam
+})
+
+x <- matrix(sample(1:10,replace=T,1e7),ncol=1e3) # take a matrix or data frame
+system.time(for (i in 1:1e4) {
+  x[]<-x
+})
+
+system.time(for (i in 1:1e4) {
+  df[sam,2]<-sam
+})
+
+dt = data.table(x)
+setkey(dt,V1)
+system.time(for (i in 1:1e4) {
+  dt[sam,V2:=sam]
+})
+
+system.time(for (i in 1:1e4) {
+  ras[sam,2]<-sam
+}
+)
+
+
+system.time({  m <- matrix(getValues(ras),ncol=dim(ras)[1])
+               for (i in 1:1e4) {
+                 m[sam,2]<-sam
+               }
+               ras1<-raster(m)
+               extent(ras1)<-extent(ras)
+})
+
+library(raster)
+dev(4)
+ras <- raster(x)
+system.time(grid.raster(as.raster(ras,maxpixels=1e5),interpolate=F))
+
+dev(4)
+system.time(grid.raster(as.raster(x,max=max(x),interpolate=F)))
+
+dt.m <- as.matrix(dt)
+
+all.equal()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ##############################################################
 spread.adjacent <- function(landscape, loci, spreadProb, persistance,
