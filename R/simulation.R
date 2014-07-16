@@ -647,10 +647,10 @@ setMethod("schedule.event",
                   } else {
                       # find what portion of the current matrix should come before the new event,
                       # and what portion should come after it, then bind everything together.
-                      before <- sim.events(sim)[event.time<=new.event$event.time[1]]
-                      after <- sim.events(sim)[event.time>new.event$event.time[1]]
-                      revised.list <- rbindlist(list(before,new.event,after))
-                      sim.events(sim) <- setkey(revised.list, event.time)
+                      #before <- sim.events(sim)[event.time<=new.event$event.time[1]]
+                      #after <- sim.events(sim)[event.time>new.event$event.time[1]]
+                      #revised.list <- rbindlist(list(sim.events(sim), new.event))
+                      sim.events(sim) <- setkey(rbindlist(list(sim.events(sim), new.event)), event.time)
                   }
               return(sim)
 })
