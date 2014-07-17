@@ -66,7 +66,6 @@ new2.dt <- function(tmp.dt, n) {
   tmp.dt <- rbindlist(list(tmp.dt[-1,], as.data.table(new))); setkey(tmp.dt, x)
 }
 
-
 ####### BENCHMARKS
 mb = microbenchmark(
   new1.mat(tmp.mat),
