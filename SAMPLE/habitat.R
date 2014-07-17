@@ -39,7 +39,7 @@ habitatInit = function(sim) {
     nx = 1e3 # could be specified globally in params
     ny = 1e3 # could be specified globally in params
     tmp = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
-    tmp = round(GaussMap(tmp, speedup=10), 1)
+    tmp = round(GaussMap(extent(tmp), speedup=10), 1)
     names(tmp) = "habitat"
     hab <<- tmp
     
