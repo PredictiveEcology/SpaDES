@@ -19,6 +19,8 @@
 #' @export
 #' @docType methods
 #' @rdname loadpackages-method
+#' 
+#' @author Alex Chubaty
 #'
 #' @examples
 #' \dontrun{pkgs <- list("ggplot2", "lme4")}
@@ -88,7 +90,7 @@ setMethod("load.packages",
 #'
 # @examples
 # need examples
-check.path = function(path, create=FALSE) {
+checkPath = function(path, create=FALSE) {
     if (is.character(path)) {
         # check if path has a trailing slash and remove it
         strlets <- strsplit(path, "")[[1]]

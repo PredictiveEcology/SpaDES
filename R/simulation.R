@@ -102,7 +102,7 @@ setMethod("show",
 #' Currently, only get and set methods are defined. Subset methods are not.
 #' 
 #' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{currentTime(sim)}, \code{startTime(sim)}, \code{stopTime(sim)}.
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #' 
 #' @param object A \code{simList} simulation object.
 #' 
@@ -112,7 +112,7 @@ setMethod("show",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-accessor-methods
+#' @rdname simModules-accessor-methods
 #' 
 #' @author Alex Chubaty
 #' 
@@ -121,7 +121,7 @@ setGeneric("simModules", function(object) {
 })
 
 #' get list of simulation modules
-#' @rdname simulation-accessor-methods
+#' @rdname simModules-accessor-methods
 setMethod("simModules",
           signature = "simList",
           definition = function(object) {
@@ -130,7 +130,7 @@ setMethod("simModules",
 
 #' set list of simulation modules
 #' @export
-#' @rdname simulation-accessor-methods
+#' @rdname simModules-accessor-methods
 setGeneric("simModules<-",
            function(object, value) {
                standardGeneric("simModules<-")
@@ -138,7 +138,7 @@ setGeneric("simModules<-",
 
 #' set list of simulation modules
 #' @name <-
-#' @rdname simulation-accessor-methods
+#' @rdname simModules-accessor-methods
 setReplaceMethod("simModules",
                  signature="simList",
                  function(object, value) {
@@ -147,15 +147,34 @@ setReplaceMethod("simModules",
                      return(object)
 })
 
-#' get list of loaded simulation modules
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
+#' @docType methods
+#' @rdname simLoaded-accessor-methods
+#' 
+#' @export
+#' 
+#' @author Alex Chubaty
+#' 
 setGeneric("simLoaded", function(object) {
     standardGeneric("simLoaded")
 })
 
 #' get list of loaded simulation modules
-#' @rdname simulation-accessor-methods
+#' @rdname simLoaded-accessor-methods
 setMethod("simLoaded",
           signature = "simList",
           definition = function(object) {
@@ -164,7 +183,7 @@ setMethod("simLoaded",
 
 #' set list of loaded simulation modules
 #' @export
-#' @rdname simulation-accessor-methods
+#' @rdname simLoaded-accessor-methods
 setGeneric("simLoaded<-",
            function(object, value) {
                standardGeneric("simLoaded<-")
@@ -172,7 +191,7 @@ setGeneric("simLoaded<-",
 
 #' set list of loaded simulation modules
 #' @name <-
-#' @rdname simulation-accessor-methods
+#' @rdname simLoaded-accessor-methods
 setReplaceMethod("simLoaded",
                  signature="simList",
                  function(object, value) {
@@ -181,15 +200,34 @@ setReplaceMethod("simLoaded",
                      return(object)
 })
 
-#' get list of simulation parameters
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
+#' @docType methods
+#' @rdname simParams-accessor-methods
+#' 
+#' @export
+#' 
+#' @author Alex Chubaty
+#' 
 setGeneric("simParams", function(object) {
     standardGeneric("simParams")
 })
 
 #' get list of simulation parameters
-#' @rdname simulation-accessor-methods
+#' @rdname simParams-accessor-methods
 setMethod("simParams",
           signature = "simList",
           definition = function(object) {
@@ -198,7 +236,7 @@ setMethod("simParams",
 
 #' set list of simulation parameters
 #' @export
-#' @rdname simulation-accessor-methods
+#' @rdname simParams-accessor-methods
 setGeneric("simParams<-",
            function(object, value) {
                standardGeneric("simParams<-")
@@ -206,7 +244,7 @@ setGeneric("simParams<-",
 
 #' set list of simulation parameters
 #' @name <-
-#' @rdname simulation-accessor-methods
+#' @rdname simParams-accessor-methods
 setReplaceMethod("simParams",
                  signature="simList",
                  function(object, value) {
@@ -215,15 +253,34 @@ setReplaceMethod("simParams",
                      return(object)
 })
 
-#' get list of simulation times
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
+#' @docType methods
+#' @rdname simParams-accessor-methods
+#' 
+#' @export
+#' 
+#' @author Alex Chubaty
+#' 
 setGeneric("simTimes", function(object) {
     standardGeneric("simTimes")
 })
 
 #' get list of simulation times
-#' @rdname simulation-accessor-methods
+#' @rdname simTimes-accessor-methods
 setMethod("simTimes",
           signature = "simList",
           definition = function(object) {
@@ -232,7 +289,7 @@ setMethod("simTimes",
 
 #' set list of simulation times
 #' @export
-#' @rdname simulation-accessor-methods
+#' @rdname simTimes-accessor-methods
 setGeneric("simTimes<-",
            function(object, value) {
                standardGeneric("simTimes<-")
@@ -240,7 +297,7 @@ setGeneric("simTimes<-",
 
 #' set list of simulation times
 #' @name <-
-#' @rdname simulation-accessor-methods
+#' @rdname simTimes-accessor-methods
 setReplaceMethod("simTimes",
                  signature="simList",
                  function(object, value) {
@@ -249,16 +306,35 @@ setReplaceMethod("simTimes",
                      return(object)
 })
 
-#' get the current simulation time
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
-setGeneric("currentTime", function(object) {
-    standardGeneric("currentTime")
+#' @docType methods
+#' @rdname simCurrentTime-accessor-methods
+#' 
+#' @export
+#' 
+#' @author Alex Chubaty
+#' 
+setGeneric("simCurrentTime", function(object) {
+    standardGeneric("simCurrentTime")
 })
 
 #' get the current simulation time
-#' @rdname simulation-accessor-methods
-setMethod("currentTime",
+#' @rdname simCurrentTime-accessor-methods
+setMethod("simCurrentTime",
           signature = "simList",
           definition = function(object) {
               return(object@simtimes$current)
@@ -266,16 +342,16 @@ setMethod("currentTime",
 
 #' set the current simulation time
 #' @export
-#' @rdname simulation-accessor-methods
-setGeneric("currentTime<-",
+#' @rdname simCurrentTime-accessor-methods
+setGeneric("simCurrentTime<-",
            function(object, value) {
-               standardGeneric("currentTime<-")
+               standardGeneric("simCurrentTime<-")
 })
 
 #' set the current simulation time
 #' @name <-
-#' @rdname simulation-accessor-methods
-setReplaceMethod("currentTime",
+#' @rdname simCurrentTime-accessor-methods
+setReplaceMethod("simCurrentTime",
                  signature="simList",
                  function(object, value) {
                      object@simtimes$current <- value
@@ -283,16 +359,33 @@ setReplaceMethod("currentTime",
                      return(object)
 })
 
-#' get the simulation start time
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
-setGeneric("startTime", function(object) {
-    standardGeneric("startTime")
+#' @docType methods
+#' @rdname simStartTime-accessor-methods
+#' 
+#' @author Alex Chubaty
+#' 
+setGeneric("simStartTime", function(object) {
+    standardGeneric("simStartTime")
 })
 
 #' get the simulation start time
-#' @rdname simulation-accessor-methods
-setMethod("startTime",
+#' @rdname simStartTime-accessor-methods
+setMethod("simStartTime",
           signature = "simList",
           definition = function(object) {
               return(object@simtimes$start)
@@ -300,16 +393,16 @@ setMethod("startTime",
 
 #' set the simulation start time
 #' @export
-#' @rdname simulation-accessor-methods
-setGeneric("startTime<-",
+#' @rdname simStartTime-accessor-methods
+setGeneric("simStartTime<-",
            function(object, value) {
-               standardGeneric("startTime<-")
+               standardGeneric("simStartTime<-")
            })
 
 #' set the simulation start time
 #' @name <-
-#' @rdname simulation-accessor-methods
-setReplaceMethod("startTime",
+#' @rdname simStartTime-accessor-methods
+setReplaceMethod("simStartTime",
                  signature="simList",
                  function(object, value) {
                      object@simtimes$start <- value
@@ -317,16 +410,33 @@ setReplaceMethod("startTime",
                      return(object)
                  })
 
-#' get the simulation stop time
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
-setGeneric("stopTime", function(object) {
-    standardGeneric("stopTime")
+#' @docType methods
+#' @rdname simStopTime-accessor-methods
+#' 
+#' @author Alex Chubaty
+#' 
+setGeneric("simStopTime", function(object) {
+    standardGeneric("simStopTime")
 })
 
 #' get the simulation stop time
-#' @rdname simulation-accessor-methods
-setMethod("stopTime",
+#' @rdname simStopTime-accessor-methods
+setMethod("simStopTime",
           signature = "simList",
           definition = function(object) {
               return(object@simtimes$stop)
@@ -334,16 +444,16 @@ setMethod("stopTime",
 
 #' set the simulation stop time
 #' @export
-#' @rdname simulation-accessor-methods
-setGeneric("stopTime<-",
+#' @rdname simStopTime-accessor-methods
+setGeneric("simStopTime<-",
            function(object, value) {
-               standardGeneric("stopTime<-")
+               standardGeneric("simStopTime<-")
 })
 
 #' set the simulation stop time
 #' @name <-
-#' @rdname simulation-accessor-methods
-setReplaceMethod("stopTime",
+#' @rdname simStopTime-accessor-methods
+setReplaceMethod("simStopTime",
                  signature="simList",
                  function(object, value) {
                      object@simtimes$stop <- value
@@ -351,15 +461,32 @@ setReplaceMethod("stopTime",
                      return(object)
 })
 
-#' get the simulation event queue
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
+#' @docType methods
+#' @rdname simEvents-accessor-methods
+#' 
+#' @author Alex Chubaty
+#' 
 setGeneric("simEvents", function(object) {
     standardGeneric("simEvents")
 })
 
 #' get the simulation event queue
-#' @rdname simulation-accessor-methods
+#' @rdname simEvents-accessor-methods
 setMethod("simEvents",
           signature = "simList",
           definition = function(object) {
@@ -368,7 +495,7 @@ setMethod("simEvents",
 
 #' set the simulation event queue
 #' @export
-#' @rdname simulation-accessor-methods
+#' @rdname simEvents-accessor-methods
 setGeneric("simEvents<-",
            function(object, value) {
                standardGeneric("simEvents<-")
@@ -376,7 +503,7 @@ setGeneric("simEvents<-",
 
 #' set the simulation event queue
 #' @name <-
-#' @rdname simulation-accessor-methods
+#' @rdname simEvents-accessor-methods
 setReplaceMethod("simEvents",
                  signature="simList",
                  function(object, value) {
@@ -385,15 +512,32 @@ setReplaceMethod("simEvents",
                      return(object)
 })
 
-#' get the simulation debug toggle
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
 #' @export
-#' @rdname simulation-accessor-methods
+#' @docType methods
+#' @rdname simDebug-accessor-methods
+#' 
+#' @author Alex Chubaty
+#' 
 setGeneric("simDebug", function(object) {
     standardGeneric("simDebug")
 })
 
 #' get the simulation debug toggle
-#' @rdname simulation-accessor-methods
+#' @rdname simDebug-accessor-methods
 setMethod("simDebug",
           signature = "simList",
           definition = function(object) {
@@ -402,7 +546,7 @@ setMethod("simDebug",
 
 #' set the simulation debug toggle
 #' @export
-#' @rdname simulation-accessor-methods
+#' @rdname simDebug-accessor-methods
 setGeneric("simDebug<-",
            function(object, value) {
                standardGeneric("simDebug<-")
@@ -410,7 +554,7 @@ setGeneric("simDebug<-",
 
 #' set the simulation debug toggle
 #' @name <-
-#' @rdname simulation-accessor-methods
+#' @rdname simDebug-accessor-methods
 setReplaceMethod("simDebug",
                  signature="simList",
                  function(object, value) {
@@ -452,7 +596,7 @@ setReplaceMethod("simDebug",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-init-method
+#' @rdname simInit-method
 #' 
 #' @author Alex Chubaty
 #' 
@@ -467,7 +611,7 @@ setGeneric("simInit", function(times, params, modules, path) {
 })
 
 #' simInit
-#' @rdname simulation-init-method
+#' @rdname simInit-method
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="character"),
           definition = function(times, params, modules, path) {
@@ -504,12 +648,11 @@ setMethod("simInit",
 })
 
 #' simInit
-#' @rdname simulation-init-method
+#' @rdname simInit-method
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing"),
           definition = function(times, params, modules) {
-              sim <- simInit(times=times, params=params, modules=modules, path="./")
-              return(sim)
+              return(simInit(times=times, params=params, modules=modules, path="./"))
 })
 
 ##############################################################
@@ -575,7 +718,7 @@ setMethod("reloadModuleLater",
 #' @import data.table
 #' @export
 #' @docType methods
-#' @rdname simulation-do-event-method
+#' @rdname doEvent-method
 #' 
 #' @author Alex Chubaty
 #' 
@@ -586,7 +729,7 @@ setGeneric("doEvent", function(sim, debug) {
 })
 
 #' doEvent
-#' @rdname simulation-do-event-method
+#' @rdname doEvent-do-event-method
 setMethod("doEvent",
           signature(sim="simList", debug="logical"),
           definition = function(sim, debug) {
@@ -595,7 +738,7 @@ setMethod("doEvent",
               simEvents(sim) <- simEvents(sim)[-1,] # remove this event from the queue
               
               # update current simulated time
-              currentTime(sim) <- nextEvent$eventTime
+              simCurrentTime(sim) <- nextEvent$eventTime
               
               # call the module responsible for processing this event
               module.call <- paste("doEvent", nextEvent$moduleName, sep=".")
@@ -614,7 +757,7 @@ setMethod("doEvent",
 })
 
 #' doEvent
-#' @rdname simulation-do-event-method
+#' @rdname doEvent-do-event-method
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
           definition = function(sim) {
@@ -643,11 +786,9 @@ setMethod("doEvent",
 #'
 #' @return Returns the modified \code{simList} object.
 #' 
-# @seealso \code{\link{SIMULATION-MODULES}}.
-#' 
 #' @export
 #' @docType methods
-#' @rdname simulation-schedule-event-method
+#' @rdname scheduleEvent-method
 #' 
 #' @author Alex Chubaty
 #'
@@ -660,7 +801,7 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 })
 
 #' schedule event
-#' @rdname simulation-schedule-event-method
+#' @rdname scheduleEvent-method
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
@@ -707,7 +848,7 @@ setMethod("scheduleEvent",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-doSim-method
+#' @rdname doSim-method
 #' 
 #' @author Alex Chubaty
 #'
@@ -722,12 +863,12 @@ setGeneric("doSim", function(sim, debug) {
 })
 
 #' doSim
-#' @rdname simulation-doSim-method
+#' @rdname doSim-method
 setMethod("doSim",
           signature(sim="simList", debug="logical"),
           definition = function(sim, debug) {
               # run the discrete event simulation
-              while(currentTime(sim) < stopTime(sim)) {
+              while(simCurrentTime(sim) < simStopTime(sim)) {
                   sim <- doEvent(sim, debug)  # process the next event
                   
                   # print debugging info
@@ -742,7 +883,7 @@ setMethod("doSim",
 })
 
 #' doSim
-#' @rdname simulation-doSim-method
+#' @rdname doSim-method
 setMethod("doSim",
           signature(sim="simList", debug="missing"),
           definition = function(sim) {
