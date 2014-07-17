@@ -19,6 +19,8 @@ tmp.dt <- as.data.table(tmp); setkey(tmp.dt, x)
 
 # manual insert by parts
 new1.mat <- function(tmp.mat) {
+  tmp.mat <- tmp.mat[-1,]
+  
   r <- sample(1:N, size=1) + rnorm(1)
   new <- cbind(x=r, y=rnorm(1), z=rnorm(1))
   
@@ -26,6 +28,8 @@ new1.mat <- function(tmp.mat) {
 }
 
 new1.df <- function(tmp.df) {
+  tmp.df <- tmp.df[-1,]
+  
   r <- sample(1:N, size=1) + rnorm(1)
   new <- cbind(x=r, y=rnorm(1), z=rnorm(1))
   
@@ -33,6 +37,8 @@ new1.df <- function(tmp.df) {
 }
 
 new1.dt <- function(tmp.dt) {
+  tmp.dt <- tmp.dt[-1,]
+  
   r <- sample(1:N, size=1) + rnorm(1)
   new <- cbind(x=r, y=rnorm(1), z=rnorm(1))
   
@@ -44,35 +50,48 @@ new2.mat <- function(tmp.mat) {
   r <- sample(1:N, size=1) + rnorm(1)
   new <- cbind(x=r, y=rnorm(1), z=rnorm(1))
   
-  rbind(tmp.mat, new)[order(rbind(tmp.mat, new)[,"x"]),]
+  rbind(tmp.mat, new)[order(rbind(tmp.mat[-1,], new)[,"x"]),]
 }
 
 new2.df <- function(tmp.df) {
   r <- sample(1:N, size=1) + rnorm(1)
   new <- cbind(x=r, y=rnorm(1), z=rnorm(1))
   
-  tmp.df <- rbind(tmp.df, as.data.frame(new)); tmp.df[order(tmp.df$x),]
+  tmp.df <- rbind(tmp.df[-1,], as.data.frame(new)); tmp.df[order(tmp.df$x),]
 }
 
-new2.dt <- function(tmp.dt) {
+new2.dt <- function(tmp.dt, n) {
   r <- sample(1:N, size=1) + rnorm(1)
   new <- cbind(x=r, y=rnorm(1), z=rnorm(1))
   
-  tmp.dt <- rbindlist(list(tmp.dt, as.data.table(new))); setkey(tmp.dt, x)
+  tmp.dt <- rbindlist(list(tmp.dt[-1,], as.data.table(new))); setkey(tmp.dt, x)
 }
 
 
 ####### BENCHMARKS
 mb = microbenchmark(
   new1.mat(tmp.mat),
-  new1.df(tmp.df),
-  new1.dt(tmp.dt),
   new2.mat(tmp.mat),
+  new1.df(tmp.df),
   new2.df(tmp.df),
+  new1.dt(tmp.dt),
   new2.dt(tmp.dt),
   times=1e3L)
 autoplot.microbenchmark(mb)
 mb
 
-mat1 <- lineprof(new1.mat(tmp.mat))
-shine(mat1)
+M <- 1e3L
+setwd("SAMPLE")
+lp1.mat <- lineprof(source("testing-alex-lp1.mat.R"))
+lp2.mat <- lineprof(source("testing-alex-lp2.mat.R"))
+lp1.df <- lineprof(source("testing-alex-lp1.df.R"))
+lp2.df <- lineprof(source("testing-alex-lp2.df.R"))
+lp1.dt <- lineprof(source("testing-alex-lp1.dt.R"))
+lp2.dt <- lineprof(source("testing-alex-lp2.dt.R"))
+
+shine(lp1.mat)
+shine(lp2.mat)
+shine(lp1.df)
+shine(lp2.df)
+shine(lp1.dt)
+shine(lp2.dt)
