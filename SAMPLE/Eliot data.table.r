@@ -12,10 +12,10 @@ library(RColorBrewer)
 #library(compiler)
 #enableJIT(3)
 #library(SpaDES)
-a = raster(extent(0,1e4,0,1e4),res=1)
-hab = GaussMap(a,speedup=100)
+a = raster(extent(0,1e3,0,1e3),res=1)
+hab = GaussMap(a,speedup=1)
 names(hab)="hab"
-loci = b = as.integer(sample(1:ncell(a),1e6))
+loci = b = as.integer(sample(1:ncell(a),1e1))
 mask = raster(a)
 mask = setValues(mask, 0)
 mask[1:5000] <- 1
@@ -32,7 +32,7 @@ simplot(hab,col=cols[[1]],speedup=10)
 #names(hab)<-"hab"
 fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
                     0.235,0,NULL,1e6,8,1e6,plot.it=T,col=cols[[1]],delete.previous=F,
-                    speedup=10)
+                    speedup=100)
 names(fire2)<-"fire"
 
 simplot(stack(fire2,hab),col=cols[1:2],speedup=10)

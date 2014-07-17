@@ -57,7 +57,7 @@
 #' print(head(adj.new))
 adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
                   numCol=NULL,numCell=NULL,as.data.table=FALSE) {
-  if (length(cells)<1e4){
+  if ((length(cells)<1e4) & (as.data.table==FALSE)){
     if (is.null(numCol) | is.null(numCell)) {
       if (is.null(x)) stop("must provide either numCol & numCell or a x")
       numCol = ncol(x)
