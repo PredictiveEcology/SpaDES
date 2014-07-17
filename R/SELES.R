@@ -1,17 +1,17 @@
 ### SELES options LIBRARY
 
-Transitions = function(p, agent) {
+Transitions <- function(p, agent) {
     agent@spatial@coords[which(p==0),] = NA
     return(agent)
 }
 
-NumAgents = function(N) {
+NumAgents <- function(N) {
     if ((length(N) == 1) && (is.numeric(N))) NumAgents = N
     else stop("N must be a single integer value, not a vector.")
     return(NumAgents)
 }
 
-AgentLocation = function(map) {
+AgentLocation <- function(map) {
     if (length(grep(pattern = "Raster", class(map)))==1) {
         map[map==0] = NA
     } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
@@ -25,7 +25,7 @@ AgentLocation = function(map) {
 }
 
 ##############################################################
-#' ProbInit
+#' probInit
 #'
 #' Details here.
 #'
@@ -43,28 +43,29 @@ AgentLocation = function(map) {
 #' @import sp
 #' @export
 #' @docType methods
-#' @rdname ring-probs
+#' @rdname probInit-method
+#' 
+#' @author Eliot McIntire
 #'
 # @examples
 # NEED EXAMPLES
-ProbInit = function(map, p=NULL, absolute=FALSE) {
+probInit = function(map, p=NULL, absolute=FALSE) {
   if (length(p) == 1) { 
-    ProbInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
-    ProbInit = setValues(ProbInit, rep(p,length(ProbInit)))
+    probInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
+    probInit = setValues(probInit, rep(p,length(probInit)))
   } else if (is(p,"RasterLayer")) {
-    ProbInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
+    probInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
   } else if (is(map,"SpatialPolygonsDataFrame")) {
-    ProbInit = p/sum(p) 
+    probInit = p/sum(p) 
   } else if (is(p,"NULL"))  {
-    ProbInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
+    probInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
   } else {
     stop("Error initializing probability map: bad inputs") # temp err msg (general)
   }
-  return(ProbInit)
+  return(probInit)
 }
 
 
-patch.size = function(patches) {
-  patch.size = freq(patches)
-  return(patch.size)
+patchSize = function(patches) {
+  return(freq(patches))
 }

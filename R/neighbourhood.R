@@ -1,5 +1,5 @@
 ##############################################################
-#' Fast Adjacent function
+#' Fast `adjacent` function
 #'
 #' Faster function for determining the cells of the 4, 8 or bishop
 #'  neighbours of the \code{cells}. This is a hybrid function that uses
@@ -7,11 +7,11 @@
 #' 
 #' Between 4x (large number loci) to 200x (small number loci) speed gains over \code{adjacent} in raster package. There is some extra 
 #' speed gain if NumCol and NumCells are passed rather than a raster. 
-#' Efficiency gains come from 
+#' Efficiency gains come from:
 #'  1. use data.table internally
-#'   - no need to remove NAs because wrapped or outside points are
-#'     just removed directly with data.table
-#'   - use data.table to sort and fast select (though not fastest possible)   
+#'     - no need to remove NAs because wrapped or outside points are
+#'       just removed directly with data.table
+#'     - use data.table to sort and fast select (though not fastest possible)   
 #'  2. don't make intermediate objects; just put calculation into return statement
 #'  
 #' The steps used in the algorithm are:
@@ -46,7 +46,9 @@
 #' @export
 #' @docType methods
 #' @rdname adj
-#'
+#' 
+#' @author Eliot McIntire
+#' 
 #' @examples
 #' require(raster)
 #' a <- raster(extent(0,1000,0,1000),res=1)
@@ -205,19 +207,17 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
 #'
 #' Identifies the xy coordinates of a circle around all live agents.
 #'
-#' @param agent Description of this.
+#' @param agent     Description of this.
 #'
-#' @param radiuses Description of this, including why it isn't called
-#' radii ;p
+#' @param radiuses  Description of this, including why it isn't called
+#'                  radii ;p
 #'
-#' @param raster Description of this.
+#' @param raster    Description of this.
 #'
 #' @param scale_raster Description of this.
 #'
 #' @return A list of data.frames with x and y coordinates of each 
 #' unique pixel of the circle around each individual.
-#' 
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
 #' 
 #' @import data.table sp raster
 #' @export
@@ -226,10 +226,9 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
 #'
 # @examples
 #  NEED EXAMPLES
-cir = function(agent, radiuses, raster) {
+cir <- function(agent, radiuses, raster) {
   ### identify the pixels ("patches" in NetLogo) that are at
   ###  a buffer distance of the individual location.
-  
   scale_raster <- res(raster)
   
   # create an index sequence for the number of individuals

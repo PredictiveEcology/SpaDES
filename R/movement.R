@@ -14,16 +14,20 @@
 #' was presented in Turchin 1998, but it was also used with bias modifications 
 #' in McIntire, Schultz, Crone 2007.
 #'
-#' @param agent An object of class mobileAgent.
+#' @param agent       An object of class mobileAgent.
 #'
-#' @param step.len Numeric vector of length 1 or number of agents describing step length.
+#' @param stepLength  Numeric vector of length 1 or number of agents describing
+#'                    step length.
 #' 
-#' @param dir.sd Numeric vector of length 1 or number of agents describing sd of wrapped normal turn angles.
+#' @param dir.sd      Numeric vector of length 1 or number of agents describing
+#'                    standard deviation of wrapped normal turn angles.
 #' 
-#' @param lonlat logical. If TRUE, coordinates should be in degrees; else they should represent planar ('Euclidean') space (e.g. units of meters)
+#' @param lonlat      Logical. If \code{TRUE}, coordinates should be in degrees.
+#'                    If \code{FALSE} coordinates represent planar ('Euclidean')
+#'                    space (e.g. units of meters)
 #' 
-#' @return An agent object with updated spatial position defined by a single occurrence
-#' of step length(s) and turn angle(s).
+#' @return An agent object with updated spatial position defined by a single
+#'          occurence of step length(s) and turn angle(s).
 #' 
 #' @seealso \code{\link{mobileAgent}}, \code{\link{pointDistance}}
 #' 
@@ -33,10 +37,12 @@
 #' @export
 #' @docType methods
 #' @rdname crw-method
+#' 
+#' @author Eliot McIntire
 #'
 #@examples
 #NEED EXAMPLES
-crw = function(agent, step.len, dir.sd, lonlat) {
+crw = function(agent, stepLength, dir.sd, lonlat) {
     if (missing(lonlat)) {
         stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
     }
@@ -50,8 +56,8 @@ crw = function(agent, step.len, dir.sd, lonlat) {
     last.position = agentPosition(agent)
     
     # these should use `coordinates(agent) <-` or similar set methods
-    agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * step.len
-    agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * step.len
+    agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * stepLength
+    agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * stepLength
     
     agent@heading = heading(last.position, agentPosition(agent))
     agent@distance = pointDistance(last.position, agentPosition(agent), lonlat=lonlat)

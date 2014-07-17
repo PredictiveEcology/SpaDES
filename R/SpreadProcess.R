@@ -14,8 +14,8 @@
 #' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".
 #' 
-#' @param maxSize       The maximum number of pixels for a fire. This is currently only a single number, 
-#' not one for each spread event
+#' @param maxSize       The maximum number of pixels for a fire. This is currently 
+#'                      only a single number, not one for each spread event
 #' 
 #' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
 #' 
@@ -160,7 +160,7 @@ setMethod("spread",
     if (is.null(persistance)) {
       loci <- NULL
     } else {
-      if (is.prob(persistance)) {
+      if (inRange(persistance)) {
         loci <- loci[runif(length(loci))<=persistance]
       } else {
         # here is were we would handle methods for raster* or functions
@@ -179,9 +179,8 @@ setMethod("spread",
   }
 
   # Convert the data.table back to raster
-  spre=raster(landscape)
-  spre<-setValues(spre, spreads[,burned])
+  spre <- raster(landscape)
+  spre <- setValues(spre, spreads[,burned])
   return(spre)
 }
 )
-
