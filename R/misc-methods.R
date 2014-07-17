@@ -3,7 +3,7 @@
 #'
 #' Load and optionally install additional packages.
 #'
-#' @param package.list    A list of character strings specifying
+#' @param packageList    A list of character strings specifying
 #'                        the names of packages to be loaded.
 #'
 #' @param install         Logical flag. If required packages are not
@@ -18,55 +18,55 @@
 #' 
 #' @export
 #' @docType methods
-#' @rdname loadpackages-method
+#' @rdname loadPackages-method
 #' 
 #' @author Alex Chubaty
 #'
 #' @examples
 #' \dontrun{pkgs <- list("ggplot2", "lme4")}
-#' \dontrun{load.packages(pkgs) # loads packages if installed}
-#' \dontrun{load.packages(pkgs, install=TRUE) # loads packages after installation (if needed)}
-setGeneric("load.packages", function(package.list, install, quiet) {
-    standardGeneric("load.packages")
+#' \dontrun{loadPackages(pkgs) # loads packages if installed}
+#' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+setGeneric("loadPackages", function(packageList, install, quiet) {
+    standardGeneric("loadPackages")
 })
 
-#' @rdname loadpackages-method
-setMethod("load.packages",
-          signature(package.list="list", install="logical", quiet="logical"),
-          definition = function(package.list, install, quiet) {
+#' @rdname loadPackages-method,list,logical,logical
+setMethod("loadPackages",
+          signature(packageList="list", install="logical", quiet="logical"),
+          definition = function(packageList, install, quiet) {
               load <- function(name, install) {
                   if (!require(name, character.only=TRUE)) {
                       if (install) {
                           install.packages(name, repos="http://cran.r-project.org")
                           library(name, character.only=TRUE)
                       } else {
-                          print(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
+                          warning(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
                       }
                   }
               }
-              lapply(package.list, load, install)
-              if (!quiet) print(paste("Loaded", length(package.list), "packages.", sep=" "))
+              lapply(packageList, load, install)
+              if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
-#' @rdname loadpackages-method
-setMethod("load.packages",
-          signature(package.list="list", install="missing", quiet="missing"),
-          definition = function(package.list) {
-              load.packages(package.list=package.list, install=FALSE, quiet=FALSE)
+#' @rdname loadPackages-method,list,missing,missing
+setMethod("loadPackages",
+          signature(packageList="list", install="missing", quiet="missing"),
+          definition = function(packageList) {
+              loadPackages(packageList=packageList, install=FALSE, quiet=FALSE)
 })
 
-#' @rdname loadpackages-method
-setMethod("load.packages",
-          signature(package.list="list", install="missing", quiet="logical"),
-          definition = function(package.list, quiet) {
-              load.packages(package.list=package.list, install=FALSE, quiet=quiet)
+#' @rdname loadPackages-method,list,missing,logical
+setMethod("loadPackages",
+          signature(packageList="list", install="missing", quiet="logical"),
+          definition = function(packageList, quiet) {
+              loadPackages(packageList=packageList, install=FALSE, quiet=quiet)
 })
 
-#' @rdname loadpackages-method
-setMethod("load.packages",
-          signature(package.list="list", install="logical", quiet="missing"),
-          definition = function(package.list, install) {
-              load.packages(package.list=package.list, install=install, quiet=FALSE)
+#' @rdname loadpackages-method,list,logical,missing
+setMethod("loadPackages",
+          signature(packageList="list", install="logical", quiet="missing"),
+          definition = function(packageList, install) {
+              loadPackages(packageList=packageList, install=install, quiet=FALSE)
 })
 
 ##############################################################
@@ -102,16 +102,15 @@ checkPath = function(path, create=FALSE) {
         if (file.exists(path)) {
             exists = TRUE # basically, do nothing if it exists
         } else {
-            print("Warning: the specified path doesn't exist...")
             if (create==TRUE) {
-                print(paste("...creating directory structure:", path))
-                dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+              print(paste("...creating directory structure:", path))
+              dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
             } else {
-                print("...please create it and try again.")
+              warning("the specified path doesn't exist. Please create it and try again.")
             }
         }
     } else {
-        stop("Error: `path` should be specified as a character string.")
+        stop("specify `path` as a character string.")
     }
     return(path)
 }

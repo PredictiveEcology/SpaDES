@@ -14,65 +14,64 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-do.event.caribou = function(sim, event.time, event.type, debug=FALSE) {
-    if (event.type=="init") {
+doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
+    if (eventType=="init") {
         ### check for module dependencies:
         depends = c("habitat") # list package names here
         
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        if (reload.module.later(sim, depends)) {
-            sim <- schedule.event(sim, currentTime(sim), "caribou", "init")
+        if (reloadModuleLater(sim, depends)) {
+            sim <- scheduleEvent(sim, currentTime(sim), "caribou", "init")
         } else {
             # do stuff for this event
-            sim <- caribou.init(sim)
+            sim <- caribouInit(sim)
 
             # schedule the next event
-            sim <- schedule.event(sim, 1.00, "caribou", "move")
+            sim <- scheduleEvent(sim, 1.00, "caribou", "move")
         }
-    } else if (event.type=="move") {
+    } else if (eventType=="move") {
         # do stuff for this event
-        sim <- caribou.move(sim)
+        sim <- caribouMove(sim)
         
         # schedule the next event
-        time.next.move = currentTime(sim) + 1.00
-        sim <- schedule.event(sim, time.next.move, "caribou", "move")
+        sim <- scheduleEvent(sim, currentTime(sim) + 1.00, "caribou", "move")
     } else {
         # do stuff for this event
         print("polar bears. grr!")
         
         # schedule the next event
-#        sim <- schedule.event(sim, EVENT.TIME, "MODULE.NAME", "EVENT.TYPE")
+#        sim <- scheuleEvent(sim, EVENT.TIME, "MODULE.NAME", "EVENT.TYPE")
     }
     return(sim)
 }
 
-caribou.init = function(sim) {
+caribouInit = function(sim) {
     ### load any required packages
     pkgs = list("raster","grid") # list required packages here
-    load.packages(pkgs)
+    loadPackages(pkgs)
     
     best = max(hab@data@values)
     worst = min(hab@data@values)
     good = Which(hab>0.2*best)
     
-    al = AgentLocation(good)    # good habitat, from above
-    pri = ProbInit(hab, al)
+    al = agentLocation(good)    # good habitat, from above
+    pri = probInit(hab, al)
     
     # initialize caribou agents
-    caribou <<- new("mobileAgent", agentlocation=al, numagents=sim.params(sim)$caribou$N, probinit=pri)
-    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE,pch=19,gp=gpar(cex=0.1))
+    caribou <<- new("mobileAgent", agentlocation=al, numagents=simParams(sim)$caribou$N, probinit=pri)
+    simPlot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE,pch=19,gp=gpar(cex=0.1))
     
     # save output list to track caribou over time
 #    outputs$caribou[[1]] <<- caribou
 #    saveRDS(caribou, paste("../data/caribou_0.rds"))
     
     # last thing to do is add module name to the loaded list
-    sim.loaded(sim) <- append(sim.loaded(sim), "caribou")
+    sim.loaded(sim) <- append(simLoaded(sim), "caribou")
     return(sim)
 }
 
-caribou.move = function(sim) {
+caribouMove = function(sim) {
     ex =  hab[agentPosition(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
     if (length(wh)==0) stop(paste("all agents off map at time", currentTime(sim)))
@@ -80,10 +79,11 @@ caribou.move = function(sim) {
     sl[-wh] = 1
     
     ln = rlnorm(length(ex), sl, 0.02) # log normal step length
-    dir.sd = 30 # could be specified globally in params
+    sd = 30 # could be specified globally in params
     
-    caribou <<- crw(caribou, step.len=ln, dir.sd=dir.sd, lonlat=FALSE)
-    simplot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE,pch=19,gp=gpar(cex=0.1),delete.previous=F)
+    caribou <<- crw(caribou, stepLength=ln, sd=sd, lonlat=FALSE)
+    simPlot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE, pch=19,
+            gp=gpar(cex=0.1), delete.previous=FALSE)
     
     # update caribou list
 #    outputs$caribou[[currentTime(sim)+1]] <<- caribou

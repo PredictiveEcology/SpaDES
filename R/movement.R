@@ -19,7 +19,7 @@
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.
 #' 
-#' @param dir.sd      Numeric vector of length 1 or number of agents describing
+#' @param sd          Numeric vector of length 1 or number of agents describing
 #'                    standard deviation of wrapped normal turn angles.
 #' 
 #' @param lonlat      Logical. If \code{TRUE}, coordinates should be in degrees.
@@ -42,7 +42,7 @@
 #'
 #@examples
 #NEED EXAMPLES
-crw = function(agent, stepLength, dir.sd, lonlat) {
+crw = function(agent, stepLength, sd, lonlat) {
     if (missing(lonlat)) {
         stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
     }
@@ -50,7 +50,7 @@ crw = function(agent, stepLength, dir.sd, lonlat) {
     
     ### should convert to S4 for a mobileAgent
     n = length(agent)
-    rand.dir = rnorm(n, agent@heading, dir.sd)
+    rand.dir = rnorm(n, agent@heading, sd)
     rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
     
     last.position = agentPosition(agent)

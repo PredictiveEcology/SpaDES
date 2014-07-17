@@ -741,16 +741,16 @@ setMethod("doEvent",
               simCurrentTime(sim) <- nextEvent$eventTime
               
               # call the module responsible for processing this event
-              module.call <- paste("doEvent", nextEvent$moduleName, sep=".")
+              moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
               
               # check the module call for validity
               if(nextEvent$moduleName %in% simModules(sim)) {
-                  sim <- get(module.call)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+                  sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
               } else {
-                  error.msg <- paste("ERROR: Invalid module call. The module ",
+                  errormsg <- paste("ERROR: Invalid module call. The module ",
                                      nextEvent$moduleName,
                                      " wasn't specified to be loaded.", sep="")
-                  stop(error.msg)
+                  stop(errormsg)
               }  
               
               return(sim)

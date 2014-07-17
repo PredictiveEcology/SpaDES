@@ -12,57 +12,57 @@
 #   - `moduleName.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-do.event.age = function(sim, event.time, event.type, debug=FALSE) {
-    if (event.type=="init") {
+doEvent.age = function(sim, eventTime, eventType, debug=FALSE) {
+    if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         depends = "" # list module names here
         
-        if (reload.module.later(sim, depends)) {
-            sim <- schedule.event(sim, currentTime(sim), "age", "init")
+        if (reloadModuleLater(sim, depends)) {
+            sim <- scheduleEvent(sim, currentTime(sim), "age", "init")
         } else {
             # do stuff for this event
-            sim <- age.init(sim)
+            sim <- ageInit(sim)
             
             # schedule the next event
-            sim <- schedule.event(sim, 0.6, "age", "age")
+            sim <- scheduleEvent(sim, 0.6, "age", "age")
         }
-    } else if (event.type=="age") {
+    } else if (eventType=="age") {
         # do stuff for this event
-        sim <- age(sim)
+        sim <- ageAge(sim)
         
         # schedule the next event
-        sim <- schedule.event(sim, currentTime(sim)+1.0, "age", "age")
+        sim <- scheduleEvent(sim, currentTime(sim)+1.0, "age", "age")
     } else {
         print("polar bears. grr!")
     }
     return(sim)
 }
 
-age.init = function(sim) {
+ageInit = function(sim) {
     ### load any required packages
     pkgs = list("raster", "RColorBrewer") # list required packages here
-    load.packages(pkgs)
-    ageMap.full <- raster("C:/shared/data/shared/age/age.asc")
+    loadPackages(pkgs)
+
 #    beginCluster()
-    ageMap <- projectRaster(ageMap.full,to=vegMap)
+    ageMap <- projectRaster(raster("C:/shared/data/shared/age/age.asc"), to=vegMap)
 #    endCluster()
     
-#    assign(x=get(sim.params(sim)$age$rasterLayerName),
-#           value=raster(sim.params(sim)$age$inputFile),
+#    assign(x=get(simParams(sim)$age$rasterLayerName),
+#           value=raster(simParams(sim)$age$inputFile),
 #           envir=.GlobalEnv)
 
     
     # last thing to do is add module name to the loaded list
-    sim.loaded(sim) <- append(sim.loaded(sim), "age")
+    simLoaded(sim) <- append(simLoaded(sim), "age")
     
     return(sim)
 }
 
-age.age = function(sim) {
-#    assign(x=get(sim.params(sim)$age$rasterStackName),
-#           value=agingFunction(get(sim.params(sim)$age$rasterStackName)),
+ageAge = function(sim) {
+#    assign(x=get(simParams(sim)$age$rasterStackName),
+#           value=agingFunction(get(simParams(sim)$age$rasterStackName)),
 #           envir=.GlobalEnv)
     ageMap[] <- pmin(200,ageMap[] + 1)
     ageMap[1]<-0

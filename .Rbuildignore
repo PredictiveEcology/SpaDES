@@ -2,5 +2,4 @@
 ^\.Rproj\.user$
 cache/*.*
 figure/*.*
-
-
+SAMPLE/*.*

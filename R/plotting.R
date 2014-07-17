@@ -10,7 +10,7 @@
 
 # Notes to self (Eliot)... 
 #DONE 1. fix when rasters are not square... need equivalent to eqscplot
-#DONE 2. use arrange.simplot for pointAgent
+#DONE 2. use arrangeSimPlot for pointAgent
 # 3. allow plotting of legends
 
 ##############################################################
@@ -102,20 +102,20 @@ newPlot = function(...) {
 #' @import grid raster graphics
 #' @export
 #' @docType methods
-#' @rdname simplot
+#' @rdname simPlot
 #'
 # @examples
 # needs examples
-setGeneric("simplot", function(x, on.which.to.plot=1, which.to.plot="all",
+setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
                                col=rev(terrain.colors(255)), ..., add=FALSE, speedup = 1, axes = "L") {
-           standardGeneric("simplot")
+           standardGeneric("simPlot")
 })
 
 
 
-#' @aliases simplot
-#' @rdname simplot
-setMethod("simplot",
+#' @aliases simPlot
+#' @rdname simPlot
+setMethod("simPlot",
           signature = "RasterStack",
           definition = function(x, on.which.to.plot, which.to.plot, col, ..., add, speedup, axes) {
               nam = names(x)
@@ -126,7 +126,7 @@ setMethod("simplot",
               if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
 
               if (add==FALSE) {
-                 arr = arrange.simplots(ext,dimx,nam,which.to.plot,axes,...)    
+                 arr = arrangeSimPlots(ext,dimx,nam,which.to.plot,axes,...)    
                  
                  vp = list()
                  grid.newpage()
@@ -189,10 +189,10 @@ setMethod("simplot",
 })
 
 
-#' @aliases simplot
+#' @aliases simPlot
 #' @export
-#' @rdname simplot
-setMethod("simplot",
+#' @rdname simPlot
+setMethod("simPlot",
           signature = "RasterLayer",
           definition = function(x, on.which.to.plot,which.to.plot, col, delete.previous=TRUE, ..., add, speedup, axes) {
               ext = extent(x)
@@ -211,7 +211,7 @@ setMethod("simplot",
               if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
               
               if (add==FALSE) {
-                arr = arrange.simplots(ext,dimx,nam,which.to.plot=1,axes=axes)#,...)        
+                arr = arrangeSimPlots(ext,dimx,nam,which.to.plot=1,axes=axes)#,...)        
                 with (arr, {
                   grid.newpage()
                   vp <- viewport(x=cr[1,"columns"], y=cr[1,"rows"], width=1/columns*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
@@ -278,14 +278,14 @@ setMethod("simplot",
 #'
 #' @param map.names a character vector with the names of the maps. If NULL, the default, then it reads from existing plot names
 #'
-#' @param delete.previous should the immediately previously simplotted object be removed before adding current simplot call
+#' @param delete.previous should the immediately previously simPlotted object be removed before adding current simPlot call
 #'
 #' @param max.agents is the maximum number of agents to plot. \code{speedup} reduces the number plotted from this max.agents
 #'
-#' @aliases simplot
+#' @aliases simPlot
 #' @export
-#' @rdname simplot
-setMethod("simplot",
+#' @rdname simPlot
+setMethod("simPlot",
           signature = "SpatialPoints",
           definition = function(x, ext, on.which.to.plot, map.names=NULL, delete.previous=TRUE,
                                 max.agents = 1e4, ..., add = TRUE, speedup, axes ) {
@@ -309,7 +309,7 @@ setMethod("simplot",
 #              if(!exists("gp1")){if (exists("cex")) {gp1 = gpar(cex = cex);rm(cex)} else {gp1=gpar()}}
 
               if (add==FALSE) {
-                arr = arrange.simplots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")    
+                arr = arrangeSimPlots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")    
 
                 grid.newpage()
                 with(arr, {
@@ -343,7 +343,7 @@ setMethod("simplot",
                   } else {
                       vp.names = map.names
                   }
-                  arr = arrange.simplots(ext,length(vp.names),
+                  arr = arrangeSimPlots(ext,length(vp.names),
                                          deparse(substitute(x)),1:length(vp.names),axes="L")    
                   for (k in 1:length(on.which.to.plot)) {
                     if(is.numeric(on.which.to.plot[k])) {
@@ -383,10 +383,10 @@ setMethod("simplot",
 #' @param dimx dimension of rasterStack
 #' @param nam names in rasterStack
 #' @param which.to.plot vector of numbers or names in rasterStack to plot
-#' @param axes passed from simplot 
-#' @rdname arrange.simplots
+#' @param axes passed from simPlot 
+#' @rdname arrangeSimPlots
 #' @docType methods
-arrange.simplots = function(ext,dimx,nam,which.to.plot,axes="L") {
+arrangeSimPlots = function(ext,dimx,nam,which.to.plot,axes="L") {
     if (length(which.to.plot)==1) {
         if(which.to.plot=="all")
             wh = 1:dimx[3]
@@ -474,5 +474,4 @@ setMethod("drawArrows",
           signature=c("SpatialPoints","SpatialPoints"),
           definition = function(from, to, ..., length=0.1) {
             arrows(from$x, from$y, to$x, to$y, ..., length=length)
-          })
-
+})

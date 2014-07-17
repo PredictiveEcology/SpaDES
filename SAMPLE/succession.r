@@ -12,14 +12,14 @@
 #   - `moduleName.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-do.event.succession = function(sim, event.time, event.type, debug=FALSE) {
-    if (event.type=="init") {
+doEvent.succession = function(sim, eventTime, eventType, debug=FALSE) {
+    if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         depends = "age" # list module names here
         
-        if (reload.module.later(sim, depends)) {
+        if (reloadModulesLater(sim, depends)) {
             sim <- schedule.event(sim, currentTime(sim), "succession", "init")
         } else {
             # do stuff for this event
@@ -28,7 +28,7 @@ do.event.succession = function(sim, event.time, event.type, debug=FALSE) {
             # schedule the next event
             sim <- schedule.event(sim, 0.5, "succession", "succession")
         }
-    } else if (event.type=="succession") {
+    } else if (eventType=="succession") {
         # do stuff for this event
         sim <- succession(sim)
         
@@ -40,7 +40,7 @@ do.event.succession = function(sim, event.time, event.type, debug=FALSE) {
     return(sim)
 }
 
-succession.init = function(sim) {
+successionInit = function(sim) {
     ### load any required packages
     pkgs = list("raster", "RColorBrewer") # list required packages here
     load.packages(pkgs)
@@ -61,29 +61,46 @@ succession.init = function(sim) {
     #dput(lcc05TrajReclass[,c("LCC05.classes","VEG.reclass","Description")])
     
     lcc05TrajReclass <- structure(list(LCC05.classes = structure(c(2L, 11L, 8L, 6L, 3L, 
-                                                                   4L, 9L, 5L, 10L, 7L, 1L), .Label = c("0,30,31,32,33,36,38,39", 
-                                                                                                        "1", "16,35", "17,18,20,21,22,23,24,25", "19", "2,11,12", "26,27,28,29", 
-                                                                                                        "3,4,5,13,14,15", "34", "37", "6,7,8,9,10"), class = "factor"), 
-                                       Trajectory = structure(c(2L, 5L, 7L, 6L, 8L, 9L, 1L, 10L, 
-                                                                11L, 3L, 4L), .Label = c("1,2,3,4,5,6,7", "1,3,4,5,6", "10", 
-                                                                                         "11", "2,4", "3,4,5", "3,4,6", "6", "7", "8", "9"), class = "factor"), 
-                                       Description = structure(c(2L, 7L, 6L, 4L, 9L, 5L, 1L, 11L, 
-                                                                 10L, 3L, 8L), .Label = c("Burned", "Closed coniferous", "Cropland", 
-                                                                                          "Deciduous", "Herbaceous", "Mixedwood", "Open coniferous", 
-                                                                                          "Other", "Shrub", "Water", "Wetland"), class = "factor")), .Names = c("LCC05.classes", 
-                                                                                                                                                                "Trajectory", "Description"), class = "data.frame", row.names = c(NA, 
-                                                                                                                                                                                                                                  -11L))
+                                                                   4L, 9L, 5L, 10L, 7L, 1L),
+                                                                 .Label = c("0,30,31,32,33,36,38,39",
+                                                                            "1", "16,35",
+                                                                            "17,18,20,21,22,23,24,25",
+                                                                            "19", "2,11,12", "26,27,28,29",
+                                                                            "3,4,5,13,14,15", "34", "37",
+                                                                            "6,7,8,9,10"), class = "factor"),
+                                       Trajectory = structure(c(2L, 5L, 7L, 6L, 8L, 9L, 1L, 10L, 11L, 3L, 4L),
+                                                              .Label = c("1,2,3,4,5,6,7", "1,3,4,5,6", "10", 
+                                                                         "11", "2,4", "3,4,5", "3,4,6", "6",
+                                                                         "7", "8", "9"), class = "factor"), 
+                                       Description = structure(c(2L, 7L, 6L, 4L, 9L, 5L, 1L, 11L, 10L, 3L, 8L),
+                                                               .Label = c("Burned", "Closed coniferous", "Cropland",
+                                                                          "Deciduous", "Herbaceous", "Mixedwood",
+                                                                          "Open coniferous", "Other", "Shrub",
+                                                                          "Water", "Wetland"), class = "factor")),
+                                  .Names = c("LCC05.classes", "Trajectory", "Description"),
+                                  class = "data.frame", row.names = c(NA, -11L))
 
     lcc05VegReclass <- structure(list(LCC05.classes = structure(c(2L, 11L, 8L, 6L, 3L, 
-                                                                  4L, 9L, 5L, 10L, 7L, 1L), .Label = c("0,30,31,32,33,36,38,39", 
-                                                                                                       "1", "16,35", "17,18,20,21,22,23,24,25", "19", "2,11,12", "26,27,28,29", 
-                                                                                                       "3,4,5,13,14,15", "34", "37", "6,7,8,9,10"), class = "factor"), 
-                                      VEG.reclass = 1:11, Description = structure(c(2L, 7L, 6L, 
-                                                                                    4L, 9L, 5L, 1L, 11L, 10L, 3L, 8L), .Label = c("Burned", "Closed coniferous", 
-                                                                                                                                  "Cropland", "Deciduous", "Herbaceous", "Mixedwood", "Open coniferous", 
-                                                                                                                                  "Other", "Shrub", "Water", "Wetland"), class = "factor")), .Names = c("LCC05.classes", 
-                                                                                                                                                                                                        "VEG.reclass", "Description"), class = "data.frame", row.names = c(NA, 
-                                                                                                                                                                                                                                                                           -11L))
+                                                                  4L, 9L, 5L, 10L, 7L, 1L),
+                                                                .Label = c("0,30,31,32,33,36,38,39", "1",
+                                                                           "16,35", "17,18,20,21,22,23,24,25",
+                                                                           "19", "2,11,12", "26,27,28,29",
+                                                                           "3,4,5,13,14,15", "34", "37",
+                                                                           "6,7,8,9,10"), class = "factor"),
+                                      VEG.reclass = 1:11, Description = structure(c(2L, 7L, 6L, 4L, 9L, 5L,
+                                                                                    1L, 11L, 10L, 3L, 8L),
+                                                                                  .Label = c("Burned",
+                                                                                             "Closed coniferous", 
+                                                                                             "Cropland",
+                                                                                             "Deciduous",
+                                                                                             "Herbaceous",
+                                                                                             "Mixedwood",
+                                                                                             "Open coniferous",
+                                                                                             "Other", "Shrub",
+                                                                                             "Water", "Wetland"),
+                                                                                  class = "factor")),
+                                 .Names = c("LCC05.classes", "VEG.reclass", "Description"),
+                                 class = "data.frame", row.names = c(NA, -11L))
 
     lcc05Labels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes,collapse = ","),",")[[1]])
     numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes),function(x) x)),","),length)
@@ -133,7 +150,7 @@ succession.init = function(sim) {
 #            col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
     
     # last thing to do is add module name to the loaded list
-    sim.loaded(sim) <- append(sim.loaded(sim), "succession")
+    simLoaded(sim) <- append(simLoaded(sim), "succession")
     
     return(sim)
 }
@@ -155,7 +172,7 @@ succession.succession = function(sim) {
 succession.report = function(sim) {
     
 
-    simplot(vegMap, add=FALSE, speedup=20, 
+    simPlot(vegMap, add=FALSE, speedup=20, 
             col=brewer.pal(10,"Set3"))
     return(sim)
 }

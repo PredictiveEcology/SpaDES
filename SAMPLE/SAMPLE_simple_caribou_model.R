@@ -24,11 +24,11 @@ library(lineprof)
 library(pryr)
 library(shiny)
 
-### load ABM package
-#library(ABM)   # local installation from CRAN
-#devtools::install_github("ABM", username="achubaty")   # local install from GitHub
-devtools::load_all("SpaDES") # for development/testing
 devtools::dev_mode(TRUE)
+### load SpaDES package
+#library(SpaDES)   # local installation from CRAN
+#devtools::install_github("SpaDES", username="achubaty")   # local install from GitHub
+devtools::load_all("SpaDES") # for development/testing
 
 ## simulation code
 # initialize the simulation

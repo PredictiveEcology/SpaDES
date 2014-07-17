@@ -29,7 +29,7 @@
 #'
 #@examples
 #EXAMPLES NEEDED
-GaussMap = function(x, scale = 10, var = 1, speedup = 10) {#, fast = T, n.unique.pixels = 100) {
+GaussMap = function(x, scale=10, var=1, speedup=10) {#, fast = TRUE, n.unique.pixels = 100) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)

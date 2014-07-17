@@ -11,7 +11,7 @@ NumAgents <- function(N) {
     return(NumAgents)
 }
 
-AgentLocation <- function(map) {
+agentLocation <- function(map) {
     if (length(grep(pattern = "Raster", class(map)))==1) {
         map[map==0] = NA
     } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
