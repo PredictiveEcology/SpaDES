@@ -26,6 +26,8 @@
 #' 
 #' @seealso \code{\link{.Random.seed}}.
 #' 
+#' @author Alex Chubaty
+#' 
 #' @export
 #' @docType methods
 #' @rdname checkpoint

@@ -70,4 +70,4 @@ This is adapted from Hadley Wickham's [Advanced R Style Guide](http://adv-r.had.
 - Use comments to explain *why* (and if the code is complicated or uses shorthand, *what*) the code is doing.
 - Use a single `# ` (with trailing space) to denote commented lines.
 - Document every class, function, etc. you write.
-- Use `#' ` to denote documentation blocks (see `roxygen2` documentation).
+- Use `#' ` to denote documentation blocks (see `roxygen2` documentation: `vignette("rd", package = "roxygen2")`).

@@ -32,19 +32,19 @@ devtools::dev_mode(TRUE)
 
 ## simulation code
 # initialize the simulation
-mySim <- sim.init(times=list(start=0.0, stop=10.1),
-                  params=list(.checkpoint=list(interval=5, file="SpaDES/SAMPLE/chkpnt.RData"),
-                              caribou=list(N=100),
-                              fires=list(num=2, spreadprob=0.215, persistprob=0.1, its=1)
-                              ),
-#                  modules=list("habitat", "fire", "caribou"),
-                  modules=list("habitat", "caribou"),
-                  path="SpaDES/SAMPLE")
-mySim <- dosim(mySim)
+mySim <- simInit(times=list(start=0.0, stop=10.1),
+                 params=list(.checkpoint=list(interval=5, file="SpaDES/SAMPLE/chkpnt.RData"),
+                             caribou=list(N=100),
+                             fires=list(num=2, spreadprob=0.215, persistprob=0.1, its=1)
+                             ),
+#                 modules=list("habitat", "fire", "caribou"),
+                 modules=list("habitat", "caribou"),
+                 path="SpaDES/SAMPLE")
+mySim <- doSim(mySim)
 
 ## profiling of development code
 #prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
-prof <- lineprof(dosim(mySim))
+prof <- lineprof(doSim(mySim))
 shine(prof)
 c(address(sim), refs(sim))
 c(address(sim.data), refs(sim.data))

@@ -1,19 +1,13 @@
 ###########################################################################
-###                                                                     ###
-###     Based on code from chapter 7.8.3 on discrete event simulation:  ###
-###         Matloff, N. (2011). The Art of R Programming (373 pp.).     ###
-###             San Fransisco, CA: No Starch Press, Inc.                ###
-###             Retrieved from http://www.nostarch.com/artofr.htm       ###
-###                                                                     ###
-###     - implemented using S4 classes and methods                      ###
-###     - uses `data.table` instead of `data.frame`                     ###
-###     - implemented in a more modular fashion so it's easier          ###
-###       to add submodules to the simulation                           ###
-###                                                                     ###
-###########################################################################
-#' The \code{SimList} class
+#' The \code{simList} class
 #'
 #' This class contains the minimum components of a simulation.
+#' 
+#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
+#' - implemented using S4 classes and methods;
+#' - uses `data.table` instead of `data.frame` (which is much faster);
+#' - implemented in a more modular fashion so it's easier
+#'   to add submodules to the simulation.
 #'
 #' @slot .loaded    List of character names specifying which modules are currently loaded.
 #' 
@@ -31,32 +25,39 @@
 #' @slot debug      Logical value specifying whether to run simulation in debugging mode.
 #'
 #' @note Each event is represented by a data.table row consisting of:
-#'          event.time: the time the event is to occur;
-#'          module.name: the module from which the event is taken;
-#'          event.type: a character string for the programmer-defined event type.
+#'          eventTime: the time the event is to occur;
+#'          moduleName: the module from which the event is taken;
+#'          eventType: a character string for the programmer-defined event type.
 #' 
 #' @seealso \code{\link{data.table}}
 #' 
-#' @name SimList
-#' @aliases SimList-class
-#' @rdname SimList-class
+#' @name simList
+#' @aliases simList-class
+#' @rdname simList-class
 #' @import data.table
-#' @exportClass SimList
+#' @exportClass simList
 #' 
-setClass("SimList",
+#' @author Alex Chubaty
+#' 
+#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' 
+setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
                     events="data.table", simtimes="list", debug="logical"
 ))
 
 ### initialize is already defined in the methods package
-#' initialize SimList
+#' initialize simList
 #' 
 #' @param times     A named list of simulation start and stop times
 #'                  (e.g., \code{times=list(start=0.00, stop=10.00)}).
 #' 
 #' @export
+#' 
+#' @author Alex Chubaty
+#' 
 setMethod("initialize",
-          signature = "SimList",
+          signature = "simList",
           definition = function(.Object, ..., times=list(start=0.00, stop=NA_real_)) {
               # check for valid sim times and make default list
               if (is.na(times$stop)) {
@@ -70,57 +71,59 @@ setMethod("initialize",
               }
                             
               # set default slot values
-              sim.events(.Object) = as.data.table(NULL)
-              sim.times(.Object) = simtimes # validated list of sim times
-              sim.debug(.Object) = FALSE
+              simEvents(.Object) = as.data.table(NULL)
+              simTimes(.Object) = simtimes # validated list of sim times
+              simDebug(.Object) = FALSE
               .Object <- callNextMethod(.Object, ..., simtimes=simtimes)
               return(.Object)
 })
 
 ### show is already defined in the methods package
-#' show SimList
+#' show simList
 #' 
 #' @export
 setMethod("show",
-          signature = "SimList",
+          signature = "simList",
           definition = function(object) {
               show = list()
-              show[["Modules Required:"]] = as.character(sim.modules(object))
-              show[["Modules Loaded:"]] = as.character(sim.loaded(object))
-              show[["Simulation Parameters:"]] = as.list(sim.params(object))
-              show[["Current Simulation Time:"]] = sim.times(object)
-              show[["Next 5 Scheduled Events:"]] = head(sim.events(object), 5)
-              show[["Debugging Mode:"]] = sim.debug(object)
+              show[["Modules Required:"]] = as.character(simModules(object))
+              show[["Modules Loaded:"]] = as.character(simLoaded(object))
+              show[["Simulation Parameters:"]] = as.list(simParams(object))
+              show[["Current Simulation Time:"]] = simTimes(object)
+              show[["Next 5 Scheduled Events:"]] = head(simEvents(object), 5)
+              show[["Debugging Mode:"]] = simDebug(object)
               print(show)
 })
 
 
 ##############################################################
-#' Accessor methods for \code{SimList} object slots
+#' Accessor methods for \code{simList} object slots
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #' 
 #' Additonal methods are provided to access the current, start, and stop times of the
 #' simulation: \code{currentTime(sim)}, \code{startTime(sim)}, \code{stopTime(sim)}.
 #' 
-#' @param object A \code{SimList} simulation object.
+#' @param object A \code{simList} simulation object.
 #' 
 #' @param value The object to be stored at the slot.
 #' 
-#' @return Returns or sets the value of the slot from the \code{SimList} object.
+#' @return Returns or sets the value of the slot from the \code{simList} object.
 #' 
 #' @export
 #' @docType methods
 #' @rdname simulation-accessor-methods
 #' 
-setGeneric("sim.modules", function(object) {
-    standardGeneric("sim.modules")
+#' @author Alex Chubaty
+#' 
+setGeneric("simModules", function(object) {
+    standardGeneric("simModules")
 })
 
 #' get list of simulation modules
 #' @rdname simulation-accessor-methods
-setMethod("sim.modules",
-          signature = "SimList",
+setMethod("simModules",
+          signature = "simList",
           definition = function(object) {
               return(object@modules)
 })
@@ -128,16 +131,16 @@ setMethod("sim.modules",
 #' set list of simulation modules
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.modules<-",
+setGeneric("simModules<-",
            function(object, value) {
-               standardGeneric("sim.modules<-")
+               standardGeneric("simModules<-")
 })
 
 #' set list of simulation modules
 #' @name <-
 #' @rdname simulation-accessor-methods
-setReplaceMethod("sim.modules",
-                 signature="SimList",
+setReplaceMethod("simModules",
+                 signature="simList",
                  function(object, value) {
                      object@modules <- value
                      validObject(object)
@@ -147,14 +150,14 @@ setReplaceMethod("sim.modules",
 #' get list of loaded simulation modules
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.loaded", function(object) {
-    standardGeneric("sim.loaded")
+setGeneric("simLoaded", function(object) {
+    standardGeneric("simLoaded")
 })
 
 #' get list of loaded simulation modules
 #' @rdname simulation-accessor-methods
-setMethod("sim.loaded",
-          signature = "SimList",
+setMethod("simLoaded",
+          signature = "simList",
           definition = function(object) {
               return(object@.loaded)
 })
@@ -162,16 +165,16 @@ setMethod("sim.loaded",
 #' set list of loaded simulation modules
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.loaded<-",
+setGeneric("simLoaded<-",
            function(object, value) {
-               standardGeneric("sim.loaded<-")
+               standardGeneric("simLoaded<-")
 })
 
 #' set list of loaded simulation modules
 #' @name <-
 #' @rdname simulation-accessor-methods
-setReplaceMethod("sim.loaded",
-                 signature="SimList",
+setReplaceMethod("simLoaded",
+                 signature="simList",
                  function(object, value) {
                      object@.loaded <- value
                      validObject(object)
@@ -181,14 +184,14 @@ setReplaceMethod("sim.loaded",
 #' get list of simulation parameters
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.params", function(object) {
-    standardGeneric("sim.params")
+setGeneric("simParams", function(object) {
+    standardGeneric("simParams")
 })
 
 #' get list of simulation parameters
 #' @rdname simulation-accessor-methods
-setMethod("sim.params",
-          signature = "SimList",
+setMethod("simParams",
+          signature = "simList",
           definition = function(object) {
               return(object@params)
 })
@@ -196,16 +199,16 @@ setMethod("sim.params",
 #' set list of simulation parameters
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.params<-",
+setGeneric("simParams<-",
            function(object, value) {
-               standardGeneric("sim.params<-")
+               standardGeneric("simParams<-")
 })
 
 #' set list of simulation parameters
 #' @name <-
 #' @rdname simulation-accessor-methods
-setReplaceMethod("sim.params",
-                 signature="SimList",
+setReplaceMethod("simParams",
+                 signature="simList",
                  function(object, value) {
                      object@params <- value
                      validObject(object)
@@ -215,14 +218,14 @@ setReplaceMethod("sim.params",
 #' get list of simulation times
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.times", function(object) {
-    standardGeneric("sim.times")
+setGeneric("simTimes", function(object) {
+    standardGeneric("simTimes")
 })
 
 #' get list of simulation times
 #' @rdname simulation-accessor-methods
-setMethod("sim.times",
-          signature = "SimList",
+setMethod("simTimes",
+          signature = "simList",
           definition = function(object) {
               return(object@simtimes)
 })
@@ -230,16 +233,16 @@ setMethod("sim.times",
 #' set list of simulation times
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.times<-",
+setGeneric("simTimes<-",
            function(object, value) {
-               standardGeneric("sim.times<-")
+               standardGeneric("simTimes<-")
 })
 
 #' set list of simulation times
 #' @name <-
 #' @rdname simulation-accessor-methods
-setReplaceMethod("sim.times",
-                 signature="SimList",
+setReplaceMethod("simTimes",
+                 signature="simList",
                  function(object, value) {
                      object@simtimes <- value
                      validObject(object)
@@ -256,7 +259,7 @@ setGeneric("currentTime", function(object) {
 #' get the current simulation time
 #' @rdname simulation-accessor-methods
 setMethod("currentTime",
-          signature = "SimList",
+          signature = "simList",
           definition = function(object) {
               return(object@simtimes$current)
 })
@@ -273,7 +276,7 @@ setGeneric("currentTime<-",
 #' @name <-
 #' @rdname simulation-accessor-methods
 setReplaceMethod("currentTime",
-                 signature="SimList",
+                 signature="simList",
                  function(object, value) {
                      object@simtimes$current <- value
                      validObject(object)
@@ -290,7 +293,7 @@ setGeneric("startTime", function(object) {
 #' get the simulation start time
 #' @rdname simulation-accessor-methods
 setMethod("startTime",
-          signature = "SimList",
+          signature = "simList",
           definition = function(object) {
               return(object@simtimes$start)
           })
@@ -307,7 +310,7 @@ setGeneric("startTime<-",
 #' @name <-
 #' @rdname simulation-accessor-methods
 setReplaceMethod("startTime",
-                 signature="SimList",
+                 signature="simList",
                  function(object, value) {
                      object@simtimes$start <- value
                      validObject(object)
@@ -324,7 +327,7 @@ setGeneric("stopTime", function(object) {
 #' get the simulation stop time
 #' @rdname simulation-accessor-methods
 setMethod("stopTime",
-          signature = "SimList",
+          signature = "simList",
           definition = function(object) {
               return(object@simtimes$stop)
 })
@@ -341,7 +344,7 @@ setGeneric("stopTime<-",
 #' @name <-
 #' @rdname simulation-accessor-methods
 setReplaceMethod("stopTime",
-                 signature="SimList",
+                 signature="simList",
                  function(object, value) {
                      object@simtimes$stop <- value
                      validObject(object)
@@ -351,14 +354,14 @@ setReplaceMethod("stopTime",
 #' get the simulation event queue
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.events", function(object) {
-    standardGeneric("sim.events")
+setGeneric("simEvents", function(object) {
+    standardGeneric("simEvents")
 })
 
 #' get the simulation event queue
 #' @rdname simulation-accessor-methods
-setMethod("sim.events",
-          signature = "SimList",
+setMethod("simEvents",
+          signature = "simList",
           definition = function(object) {
               return(object@events)
 })
@@ -366,16 +369,16 @@ setMethod("sim.events",
 #' set the simulation event queue
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.events<-",
+setGeneric("simEvents<-",
            function(object, value) {
-               standardGeneric("sim.events<-")
+               standardGeneric("simEvents<-")
 })
 
 #' set the simulation event queue
 #' @name <-
 #' @rdname simulation-accessor-methods
-setReplaceMethod("sim.events",
-                 signature="SimList",
+setReplaceMethod("simEvents",
+                 signature="simList",
                  function(object, value) {
                      object@events <- value
                      validObject(object)
@@ -385,14 +388,14 @@ setReplaceMethod("sim.events",
 #' get the simulation debug toggle
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.debug", function(object) {
-    standardGeneric("sim.debug")
+setGeneric("simDebug", function(object) {
+    standardGeneric("simDebug")
 })
 
 #' get the simulation debug toggle
 #' @rdname simulation-accessor-methods
-setMethod("sim.debug",
-          signature = "SimList",
+setMethod("simDebug",
+          signature = "simList",
           definition = function(object) {
               return(object@debug)
 })
@@ -400,16 +403,16 @@ setMethod("sim.debug",
 #' set the simulation debug toggle
 #' @export
 #' @rdname simulation-accessor-methods
-setGeneric("sim.debug<-",
+setGeneric("simDebug<-",
            function(object, value) {
-               standardGeneric("sim.debug<-")
+               standardGeneric("simDebug<-")
 })
 
 #' set the simulation debug toggle
 #' @name <-
 #' @rdname simulation-accessor-methods
-setReplaceMethod("sim.debug",
-                 signature="SimList",
+setReplaceMethod("simDebug",
+                 signature="simList",
                  function(object, value) {
                      object@debug <- value
                      validObject(object)
@@ -421,6 +424,12 @@ setReplaceMethod("sim.debug",
 #'
 #' Create a new simulation object, preloaded with parameters,
 #' modules, times, etc.
+#' 
+#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
+#' - implemented using S4 classes and methods;
+#' - uses `data.table` instead of `data.frame` (which is much faster);
+#' - implemented in a more modular fashion so it's easier
+#'   to add submodules to the simulation.
 #' 
 #' @param times A named list of numeric simulation start and stop times,
 #' of the form \code{times=list(start=0.0, stop=10.0)}.
@@ -436,41 +445,45 @@ setReplaceMethod("sim.debug",
 #' @param path An optional character string specifying the location of the module source files.
 #' If no path is specified, it defaults to the current working directory.
 #'
-#' @return A \code{SimList} simulation object, pre-initialized from values specified
+#' @return A \code{simList} simulation object, pre-initialized from values specified
 #' in the arguments supplied.
 #' 
-#' @seealso \code{\link{dosim}}.
+#' @seealso \code{\link{doSim}}.
 #' 
 #' @export
 #' @docType methods
 #' @rdname simulation-init-method
+#' 
+#' @author Alex Chubaty
+#' 
+#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
-#' \dontrun{mySim <- sim.init(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+#' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/")}
 #' \dontrun{mySim}
-setGeneric("sim.init", function(times, params, modules, path) {
-    standardGeneric("sim.init")
+setGeneric("simInit", function(times, params, modules, path) {
+    standardGeneric("simInit")
 })
 
-#' sim.init
+#' simInit
 #' @rdname simulation-init-method
-setMethod("sim.init",
+setMethod("simInit",
           signature(times="list", params="list", modules="list", path="character"),
           definition = function(times, params, modules, path) {
               # check validity of all inputs
-              path <- check.path(path, create=TRUE)
-              #params <- check.params(params)
-              #modules <- check.modules(modules)
+              path <- checkPath(path, create=TRUE)
+              #params <- checkParams(params)
+              #modules <- checkModules(modules)
               
-              # create new SimList object
-              sim <- new("SimList", times=times)
+              # create new simList object
+              sim <- new("simList", times=times)
               
               # default/built-in modules:  (should we be hardcoding this??)
               defaults <- list("checkpoint")
               
-              sim.modules(sim) <- append(defaults, modules)
-              sim.params(sim) <- params
+              simModules(sim) <- append(defaults, modules)
+              simParams(sim) <- params
               
               # load user-defined modules
               for (m in modules) {
@@ -478,24 +491,24 @@ setMethod("sim.init",
                   source(paste(path, "/", m, ".R", sep=""))
                   
                   # schedule each module's init event:
-                  sim <- schedule.event(sim, 0.00, m, "init")
+                  sim <- scheduleEvent(sim, 0.00, m, "init")
               }
               
               # load "default" modules (should we be hardcoding this??)
               for (d in defaults) {
                   # schedule each module's init event:
-                  sim <- schedule.event(sim, 0.00, d, "init")
+                  sim <- scheduleEvent(sim, 0.00, d, "init")
               }
               
               return(sim)
 })
 
-#' sim.init
+#' simInit
 #' @rdname simulation-init-method
-setMethod("sim.init",
+setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing"),
           definition = function(times, params, modules) {
-              sim <- sim.init(times=times, params=params, modules=modules, path="./")
+              sim <- simInit(times=times, params=params, modules=modules, path="./")
               return(sim)
 })
 
@@ -504,10 +517,10 @@ setMethod("sim.init",
 #'
 #' Checks the dependencies of the current module on other modules.
 #' These dependencies need to be loaded first, so if they are not
-#' already loaded, hold off loading the cuurent module until after
+#' already loaded, hold off loading the current module until after
 #' dependencies are loaded.
 #'
-#' @param sim An object of class \code{SimList}.
+#' @param sim An object of class \code{simList}.
 #' 
 #' @param depends A list of character strings specifying the names
 #'                of modules upon which the current module depends.
@@ -519,75 +532,80 @@ setMethod("sim.init",
 #' @export
 #' @docType methods
 #' @rdname loadmodules
+#' 
+#' @author Alex Chubaty
 #'
 # @examples
 # need examples
-setGeneric("reload.module.later", function(sim, depends) {
-  standardGeneric("reload.module.later")
+setGeneric("reloadModuleLater", function(sim, depends) {
+  standardGeneric("reloadModuleLater")
 })
 
 #' @rdname loadmodules
-setMethod("reload.module.later",
+setMethod("reloadModuleLater",
           signature(depends="character"),
           definition = function(sim, depends) {
             if (depends=="NONE") {
               return(FALSE)
             } else {
-              return(!all(depends %in% sim.loaded(sim)))
+              return(!all(depends %in% simLoaded(sim)))
             }
 })
 
 ##############################################################
 #' Process a simulation event
 #'
-#' Internal function called from \code{dosim}.
+#' Internal function called from \code{doSim}.
 #' 
 #' Calls the module corresponding to the event call, and executes the event.
-#' E.g., if the next event in the SimList event queue was:
 #' 
-#' \code{}
+#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
+#' - implemented using S4 classes and methods;
+#' - uses `data.table` instead of `data.frame` (which is much faster);
+#' - implemented in a more modular fashion so it's easier
+#'   to add submodules to the simulation.
 #' 
-#' the following call would to the "fire" module would be produced:
-#' 
-#' \code{do.event.fire(sim, TIME, "TYPE", debug)}.
-#' 
-#' @param sim A \code{SimList} simulation object.
+#' @param sim A \code{simList} simulation object.
 #' 
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Returns the modified \code{simList} object.
 #' 
 #' @import data.table
 #' @export
 #' @docType methods
 #' @rdname simulation-do-event-method
 #' 
-setGeneric("do.event", function(sim, debug) {
-    standardGeneric("do.event")
+#' @author Alex Chubaty
+#' 
+#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' 
+setGeneric("doEvent", function(sim, debug) {
+    standardGeneric("doEvent")
 })
 
-#' do.event
+#' doEvent
 #' @rdname simulation-do-event-method
-setMethod("do.event",
-          signature(sim="SimList", debug="logical"),
+setMethod("doEvent",
+          signature(sim="simList", debug="logical"),
           definition = function(sim, debug) {
               # get next event
-              next.event <- sim.events(sim)[1,]       # extract the next event from queue
-              sim.events(sim) <- sim.events(sim)[-1,] # remove this event from the queue
+              nextEvent <- simEvents(sim)[1,]       # extract the next event from queue
+              simEvents(sim) <- simEvents(sim)[-1,] # remove this event from the queue
               
               # update current simulated time
-              currentTime(sim) <- next.event$event.time
+              currentTime(sim) <- nextEvent$eventTime
               
               # call the module responsible for processing this event
-              module.call <- paste("do.event", next.event$module.name, sep=".")
+              module.call <- paste("doEvent", nextEvent$moduleName, sep=".")
               
               # check the module call for validity
-              if(next.event$module.name %in% sim.modules(sim)) {
-                  sim <- get(module.call)(sim, next.event$event.time, next.event$event.type, debug)
+              if(nextEvent$moduleName %in% simModules(sim)) {
+                  sim <- get(module.call)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
               } else {
                   error.msg <- paste("ERROR: Invalid module call. The module ",
-                                     next.event$module.name,
+                                     nextEvent$moduleName,
                                      " wasn't specified to be loaded.", sep="")
                   stop(error.msg)
               }  
@@ -595,12 +613,12 @@ setMethod("do.event",
               return(sim)
 })
 
-#' do.event
+#' doEvent
 #' @rdname simulation-do-event-method
-setMethod("do.event",
-          signature(sim="SimList", debug="missing"),
+setMethod("doEvent",
+          signature(sim="simList", debug="missing"),
           definition = function(sim) {
-              sim <- do.event(sim, debug=FALSE)
+              sim <- doEvent(sim, debug=FALSE)
               return(sim)
 })
 
@@ -609,67 +627,79 @@ setMethod("do.event",
 #'
 #' Adds a new event to the simulation's event queue, updating the simulation object.
 #' 
-#' @param sim           A \code{SimList} simulation object.
+#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
+#' - implemented using S4 classes and methods;
+#' - uses `data.table` instead of `data.frame` (which is much faster);
+#' - implemented in a more modular fashion so it's easier
+#'   to add submodules to the simulation.
 #' 
-#' @param event.time    A numeric specifying the time of the next event.
+#' @param sim           A \code{simList} simulation object.
 #' 
-#' @param module.name   A character string specifying the module from which to call the event.
+#' @param eventTime    A numeric specifying the time of the next event.
 #' 
-#' @param event.type    A character string specifying the type of event from within the module.
+#' @param moduleName   A character string specifying the module from which to call the event.
+#' 
+#' @param eventType    A character string specifying the type of event from within the module.
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Returns the modified \code{simList} object.
 #' 
 # @seealso \code{\link{SIMULATION-MODULES}}.
 #' 
 #' @export
 #' @docType methods
 #' @rdname simulation-schedule-event-method
+#' 
+#' @author Alex Chubaty
 #'
+#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' 
 #' @examples
-#' \dontrun{schedule.event(x, 10.5, "firemodule", "burn")}
-setGeneric("schedule.event", function(sim, event.time, module.name, event.type) {
-    standardGeneric("schedule.event")
+#' \dontrun{scheduleEvent(x, 10.5, "firemodule", "burn")}
+setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
+    standardGeneric("scheduleEvent")
 })
 
 #' schedule event
 #' @rdname simulation-schedule-event-method
-setMethod("schedule.event",
-          signature(sim="SimList", event.time="numeric", module.name="character", event.type="character"),
-          definition = function(sim, event.time, module.name, event.type) {
-              new.event <- as.data.table(list(event.time=event.time,
-                                              module.name=module.name,
-                                              event.type=event.type))
+setMethod("scheduleEvent",
+          signature(sim="simList", eventTime="numeric",
+                    moduleName="character", eventType="character"),
+          definition = function(sim, eventTime, moduleName, eventType) {
+              new.event <- as.data.table(list(eventTime=eventTime,
+                                              moduleName=moduleName,
+                                              eventType=eventType))
               
               # if the event list is empty, set it to consist of evnt and return;
-              # otherwise, "insert" by reconstructing the data frame.
-              if (length(sim.events(sim))==0) {
-                  sim.events(sim) <- new.event
-                  } else {
-                      # find what portion of the current matrix should come before the new event,
-                      # and what portion should come after it, then bind everything together.
-                      #before <- sim.events(sim)[event.time<=new.event$event.time[1]]
-                      #after <- sim.events(sim)[event.time>new.event$event.time[1]]
-                      #revised.list <- rbindlist(list(sim.events(sim), new.event))
-                      sim.events(sim) <- setkey(rbindlist(list(sim.events(sim), new.event)), event.time)
-                  }
+              # otherwise, insert new event and re-sort (rekey).
+              if (length(simEvents(sim))==0) {
+                  simEvents(sim) <- setkey(new.event, eventTime)
+              } else {
+                  simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), new.event)), eventTime)
+              }
               return(sim)
 })
 
 ##############################################################
 #' Process a simulation event
 #'
-#' Internal function called from \code{dosim}.
+#' Internal function called from \code{doSim}.
 #' 
 #' Calls the module corresponding to the event call, and executes the event.
 #' 
-#' @param sim A \code{SimList} simulation object.
+#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
+#' - implemented using S4 classes and methods;
+#' - uses `data.table` instead of `data.frame` (which is much faster);
+#' - implemented in a more modular fashion so it's easier
+#'   to add submodules to the simulation.
+#' 
+#' @param sim A \code{simList} simulation object.
 #' 
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Returns the modified \code{simList} object.
 #' 
-#' @seealso \code{\link{sim.init}}.
+#' @seealso \code{\link{simInit}}.
 #' 
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Setting \code{debug=TRUE} allows the user to toggle debugging
@@ -677,24 +707,28 @@ setMethod("schedule.event",
 #' 
 #' @export
 #' @docType methods
-#' @rdname simulation-dosim-method
+#' @rdname simulation-doSim-method
+#' 
+#' @author Alex Chubaty
 #'
+#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' 
 #' @examples
-#' \dontrun{mySim <- sim.init(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+#' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/)}
-#' \dontrun{dosim{mySim}}
-setGeneric("dosim", function(sim, debug) {
-    standardGeneric("dosim")
+#' \dontrun{doSim{mySim}}
+setGeneric("doSim", function(sim, debug) {
+    standardGeneric("doSim")
 })
 
-#' dosim
-#' @rdname simulation-dosim-method
-setMethod("dosim",
-          signature(sim="SimList", debug="logical"),
+#' doSim
+#' @rdname simulation-doSim-method
+setMethod("doSim",
+          signature(sim="simList", debug="logical"),
           definition = function(sim, debug) {
               # run the discrete event simulation
               while(currentTime(sim) < stopTime(sim)) {
-                  sim <- do.event(sim, debug)  # process the next event
+                  sim <- doEvent(sim, debug)  # process the next event
                   
                   # print debugging info
                   #  this can, and should, be more sophisticated;
@@ -707,11 +741,11 @@ setMethod("dosim",
               return(sim)
 })
 
-#' dosim
-#' @rdname simulation-dosim-method
-setMethod("dosim",
-          signature(sim="SimList", debug="missing"),
+#' doSim
+#' @rdname simulation-doSim-method
+setMethod("doSim",
+          signature(sim="simList", debug="missing"),
           definition = function(sim) {
-              sim <- dosim(sim, debug=FALSE)
+              sim <- doSim(sim, debug=FALSE)
               return(sim)
 })
