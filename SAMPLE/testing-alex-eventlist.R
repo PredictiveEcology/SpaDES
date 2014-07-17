@@ -81,5 +81,5 @@ mb
 
 M <- 1e3L
 setwd("SAMPLE")
-lp <- lineprof(source("testing-alex-lp.R"))
+lp <- lineprof(source("testing-alex-eventlist-lp.R"))
 shine(lp)
