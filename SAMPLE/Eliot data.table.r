@@ -12,16 +12,16 @@ library(RColorBrewer)
 #library(compiler)
 #enableJIT(3)
 #library(SpaDES)
-a = raster(extent(0,1e2,0,1e2),res=1)
-hab = GaussMap(a,speedup=1)
+a = raster(extent(0,1e4,0,1e4),res=1)
+hab = GaussMap(a,speedup=100)
 names(hab)="hab"
-loci = b = as.integer(sample(1:ncell(a),10))
+loci = b = as.integer(sample(1:ncell(a),1e6))
 mask = raster(a)
 mask = setValues(mask, 0)
 mask[1:5000] <- 1
 numCol <- ncol(a)
 numCell <- ncell(a)
-#cells = 1:numCell
+cells = loci
   directions=8
 
 # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
@@ -92,15 +92,16 @@ shine(prof)
 #dev.set(4)
 simplot(stack(fire1,fire2,fire0),speedup=1)
   
-(mb = microbenchmark(times=200L,
-  adj.orig = adjacent(a,cells,sort=T,directions=8),
-  adj.new = adj(numCol=numCol,numCell=numCell,as.data.table=TRUE,cells=cells,directions=8),
-  adj.new2 = adj(numCol=numCol,numCell=numCell,as.data.table=FALSE,cells=cells,directions=8)
+(mb = microbenchmark(times=5L,
+  adj.orig = adjacent(a,cells,sort=F,directions=8,pairs = F),
+  adj.new = adj(numCol=numCol,numCell=numCell,as.data.table=FALSE,cells=cells,directions=8,pairs=F),
+  adj.new.m = adj.m(numCol=numCol,numCell=numCell,sort=F,as.data.table=FALSE,cells=cells,directions=8,pairs = F),
+  adj.new.m2 = adj.m(numCol=numCol,numCell=numCell,sort=T,cells=cells,directions=8,pairs = F)
   #adj.new3 <- adj3(numCol=numCol,numCell=numCell,cells=cells,directions=8),
   #adj.new4 <- adj4(numCol=numCol,numCell=numCell,cells=cells,directions=8)
 ))
 plot(mb,horiz=FALSE)
-print(all.equal(adj.orig,adj.new2))
+print(all.equal(adj.orig,adj.new.m))
 
 landscape = a
 spreadProb = 0.225
@@ -241,366 +242,223 @@ all.equal()
 
 
 ##############################################################
-spread.adjacent <- function(landscape, loci, spreadProb, persistance,
-         mask, maxSize, directions, iterations) {
-  ### should sanity check map extents
-  is.prob <- function(x) {
-    if (!is.numeric(x)) 
-      return(FALSE)
-    else 
-      return(!(x>1 || x<0))
+adj <- function(x=NULL,cells,directions=8,pairs=TRUE,include=FALSE,target=NULL,
+                numCol=NULL,numCell=NULL,as.data.table=FALSE) {
+  if (is.null(numCol) | is.null(numCell)) {
+    if (is.null(x)) stop("must provide either numCol & numCell or a x")
+    numCol = ncol(x)
+    numCell = ncell(x)
+  } 
+  
+  if (directions==8) {
+    # determine the indices of the 8 surrounding cells of the cells cells
+    topl=as.integer(cells-numCol-1)
+    top=as.integer(cells-numCol)
+    topr=as.integer(cells-numCol+1)
+    lef=as.integer(cells-1)
+    rig=as.integer(cells+1)
+    botl=as.integer(cells+numCol-1)
+    bot=as.integer(cells+numCol)
+    botr=as.integer(cells+numCol+1)
+    if (include)
+      adj=data.table(from=rep.int(cells,times=9),
+                     to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
+    else
+      adj=data.table(from=rep.int(cells,times=8),
+                     to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
+  } else if (directions==4) {
+    # determine the indices of the 4 surrounding cells of the cells cells
+    top=as.integer(cells-numCol)
+    lef=as.integer(cells-1)
+    rig=as.integer(cells+1)
+    bot=as.integer(cells+numCol)
+    if (include)
+      adj=data.table(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot),key="from")
+    else
+      adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key="from")
+  } else if (directions=="bishop") {
+    topl=as.integer(cells-numCol-1)
+    topr=as.integer(cells-numCol+1)
+    botl=as.integer(cells+numCol-1)
+    botr=as.integer(cells+numCol+1)
+    if (include)
+      adj=data.table(from=rep.int(cells,times=5),
+                     to=c(topl,topr,as.integer(cells),botl,botr),key="from")
+    else
+      adj=data.table(from=rep.int(cells,times=4),
+                     to=c(topl,topr,botl,botr),key="from")
+  } else {stop("directions must be 4 or 8 or \'bishop\'")}
+  
+  # Remove all cells that are not target cells, if target is a vector of cells
+  if (!is.null(target)) {
+    setkey(adj,to)
+    adj<-adj[J(target)] 
+    setkey(adj,from)
+    setcolorder(adj,c("from","to"))
   }
   
-  if (is.null(loci))  {
-    # start it in the centre cell
-    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
+  # Remove the "from" column if pairs is FALSE
+  if (!pairs) {
+    from=adj$from
+    adj[,from:=NULL]
   }
   
-  spreads <- setValues(raster(landscape), 0)
-  n <- 1
-  spreads[loci] <- n
-  size <- length(loci)
-  
-  if (is.null(iterations)) {
-    iterations = Inf # this is a stupid way to do this!
-  } else {
-    # do nothing
-  }
-  
-  while ( (length(loci)>0) && (iterations>=n)  ) {
-    #print(paste(n, length(loci)))
-    potentials <- adj(landscape, loci, directions)
-    
-    # drop those ineligible
-    if (!is.null(mask)){
-      tmp <- extract(mask, potentials[,2])
-    } else {
-      tmp <- extract(spreads, potentials[,2])
-    }
-    #print(cbind(potentials,tmp))
-    potentials <- potentials[ifelse(is.na(tmp), FALSE, tmp==0),]
-    
-    # select which potentials actually happened
-    # nrow() only works if potentials is an array
-    if (is.numeric(spreadProb)) {
-      if (is(potentials,"numeric")) {
-        ItHappened <- runif(1) <= spreadProb
-        events <- potentials[2][ItHappened]
-      }
-      else {
-        ItHappened <- runif(nrow(potentials)) <= spreadProb
-        events <- potentials[ItHappened, 2]
-      }
-    } else {
-      stop("Unsupported type:spreadProb") # methods for raster* or function args
-    }
-    #print(events)
-    
-    if((size+length(events)) > maxSize) {
-      keep<-length(events) - ((size+length(events)) - maxSize)
-      events<-events[sample(length(events),keep)]
-      
-    }
-    size <- size + length(unique(events))
-    # update eligibility map
-    n <- n+1
-    spreads[events] <- n
-    if(size >= maxSize) {
-      events<-NULL
-    }
-    
-    # drop or keep loci
-    
-    if (is.null(persistance)) {
-      loci <- NULL
-    } else {
-      if (is.prob(persistance)) {
-        loci <- loci[runif(length(loci))<=persistance]
-      } else {
-        # here is were we would handle methods for raster* or functions
-        stop("Unsupported type: persistance")
-      }
-    }
-    
-    loci <- c(loci, events)
-    
-  }
-  return(spreads)
+  # Good time savings if no intermediate object is created
+  if (as.data.table) 
+    return(adj[
+      i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+              ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+      ])
+  else 
+    return(as.matrix(adj[
+      i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+              ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+      ]))
 }
 
-spread.adj <- function(landscape, loci, spreadProb, persistance,
-                       mask, maxSize, directions, iterations, plot.it=FALSE) {
-  ### should sanity check map extents
-  is.prob <- function(x) {
-    if (!is.numeric(x)) 
-      return(FALSE)
-    else 
-      return(!(x>1 || x<0))
+
+#########################################################
+adj.m <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
+                numCol=NULL,numCell=NULL,as.data.table=FALSE) {
+  if (length(cells)<1e4){
+  if (is.null(numCol) | is.null(numCell)) {
+    if (is.null(x)) stop("must provide either numCol & numCell or a x")
+    numCol = ncol(x)
+    numCell = ncell(x)
+  } 
+  
+  if (directions==8) {
+    # determine the indices of the 8 surrounding cells of the cells cells
+    topl=as.integer(cells-numCol-1)
+    top=as.integer(cells-numCol)
+    topr=as.integer(cells-numCol+1)
+    lef=as.integer(cells-1)
+    rig=as.integer(cells+1)
+    botl=as.integer(cells+numCol-1)
+    bot=as.integer(cells+numCol)
+    botr=as.integer(cells+numCol+1)
+    if (include){
+      adj=cbind(from=rep.int(cells,times=9),
+                     to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr))
+    }else{
+      adj=cbind(from=rep.int(cells,times=8),
+                     to=c(topl,top,topr,lef,rig,botl,bot,botr))
+    }
+  } else if (directions==4) {
+    # determine the indices of the 4 surrounding cells of the cells cells
+    top=as.integer(cells-numCol)
+    lef=as.integer(cells-1)
+    rig=as.integer(cells+1)
+    bot=as.integer(cells+numCol)
+    if (include)
+      adj=cbind(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot))
+    else
+      adj=cbind(from=rep.int(cells,times=4),to=c(top,lef,rig,bot))
+  } else if (directions=="bishop") {
+    topl=as.integer(cells-numCol-1)
+    topr=as.integer(cells-numCol+1)
+    botl=as.integer(cells+numCol-1)
+    botr=as.integer(cells+numCol+1)
+    if (include)
+      adj=cbind(from=rep.int(cells,times=5),
+                     to=c(topl,topr,as.integer(cells),botl,botr))
+    else
+      adj=cbind(from=rep.int(cells,times=4),
+                     to=c(topl,topr,botl,botr))
+  } else {stop("directions must be 4 or 8 or \'bishop\'")}
+  
+  # Remove all cells that are not target cells, if target is a vector of cells
+  if (!is.null(target)) {
+    adj<-adj[target,] 
+  }
+  if (sort){
+    #adj <- as.matrix(data.table(adj,key="from"))
+    adj<-adj[sort.list(adj[,"from"],method="quick",na.last=NA),]
   }
   
-  if (is.null(loci))  {
-    # start it in the centre cell
-    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-  }
-  
-  #spreads <- setValues(raster(landscape), 0)
-  spreads <- data.table(ind=1:ncell(landscape),burned=0,key="ind")
-  if(!is.null(mask))
-    masked<-getValues(mask)==0
-  n <- 1
-  spreads[loci,burned:=n]
-  size <- length(loci)
-  #spreads[4,burned:=NA]
-  
-  if (is.null(iterations)) {
-    iterations = Inf # this is a stupid way to do this!
+  # Remove the "from" column if pairs is FALSE
+  # Good time savings if no intermediate object is created
+  if (pairs) {
+    return(adj[
+      !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
+              ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+      ,])
   } else {
-    # do nothing
+    return(adj[
+      !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
+          ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+      ,2])
   }
-  
-  while ( (length(loci)>0) && (iterations>=n) ) {
-    #print(paste(n, length(loci)))
-    potentials <- adj(landscape, loci, directions,as.data.table=TRUE)
-    setkey(potentials,to)
-    
-    # drop those ineligible
-    if (!is.null(mask)){
-      potentials <- spreads[masked][potentials][burned==0][,burned:=NULL]
-    } else {
-      potentials <- spreads[potentials][burned==0][,burned:=NULL]
-    }
-    
-    # select which potentials actually happened
-    # nrow() only works if potentials is an array
-    if (!is.numeric(spreadProb)) {
-    #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-    #} else {
-      stop("Unsupported type:spreadProb") # methods for raster* or function args
-    }
-
-    events <- potentials[runif(nrow(potentials))<=spreadProb,ind]
-
-    # Implement maxSize
-    if((size+length(events)) > maxSize) {
-      keep<-length(events) - ((size+length(events)) - maxSize)
-      events<-events[sample(length(events),keep)]
-    }
-
-    size <- size + length(unique(events))
-
-    # update eligibility map
-
-    n <- n+1
-    spreads[events,burned:=n]
-        
-    if(size >= maxSize) {
-      events<-NULL
-    }
-
-    # drop or keep loci
-    if (is.null(persistance)) {
-      loci <- NULL
-    } else {
-      if (is.prob(persistance)) {
-        loci <- loci[runif(length(loci))<=persistance]
-      } else {
-        # here is were we would handle methods for raster* or functions
-        stop("Unsupported type: persistance")
-      }
-    }
-    
-    loci <- c(loci, events)
-
-    if (plot.it){
-      top <- raster(landscape)
-      top<-setValues(top,spreads[,burned])
-      plot(top)
-    }
-
-  }
-  #loci = sample(1:ncell(a),20)
-  spre=raster(landscape)
-  spre<-setValues(spre, spreads[,burned])
-  return(spre)
-}
-
-spread <- function(landscape, loci, spreadProb, persistance,
-                   mask, maxSize, directions, iterations) {
-  ### should sanity check map extents
-  is.prob <- function(x) {
-    if (!is.numeric(x)) 
-      return(FALSE)
-    else 
-      return(!(x>1 || x<0))
-  }
-  
-  if (is.null(loci))  {
-    # start it in the centre cell
-    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-  }
-  
-  spreads <- setValues(raster(landscape), 0)
-  n <- 1
-  spreads[loci] <- n
-  size <- length(loci)
-  
-  if (is.null(iterations)) {
-    iterations = Inf # this is a stupid way to do this!
   } else {
-    # do nothing
-  }
-  
-  while ( (length(loci)>0) && (iterations>=n) ) {
-    #print(paste(n, length(loci)))
-    potentials <- adjacent(landscape, loci, directions)
+    if (is.null(numCol) | is.null(numCell)) {
+      if (is.null(x)) stop("must provide either numCol & numCell or a x")
+      numCol = ncol(x)
+      numCell = ncell(x)
+    } 
     
-    # drop those ineligible
-    if (!is.null(mask)){
-      tmp <- extract(mask, potentials[,2])
-    } else {
-      tmp <- extract(spreads, potentials[,2])
-    }
-    #print(cbind(potentials,tmp))
-    potentials <- potentials[ifelse(is.na(tmp), FALSE, tmp==0),]
+    if (directions==8) {
+      # determine the indices of the 8 surrounding cells of the cells cells
+      topl=as.integer(cells-numCol-1)
+      top=as.integer(cells-numCol)
+      topr=as.integer(cells-numCol+1)
+      lef=as.integer(cells-1)
+      rig=as.integer(cells+1)
+      botl=as.integer(cells+numCol-1)
+      bot=as.integer(cells+numCol)
+      botr=as.integer(cells+numCol+1)
+      if (include)
+        adj=data.table(from=rep.int(cells,times=9),
+                       to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
+      else
+        adj=data.table(from=rep.int(cells,times=8),
+                       to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
+    } else if (directions==4) {
+      # determine the indices of the 4 surrounding cells of the cells cells
+      top=as.integer(cells-numCol)
+      lef=as.integer(cells-1)
+      rig=as.integer(cells+1)
+      bot=as.integer(cells+numCol)
+      if (include)
+        adj=data.table(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot),key="from")
+      else
+        adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key="from")
+    } else if (directions=="bishop") {
+      topl=as.integer(cells-numCol-1)
+      topr=as.integer(cells-numCol+1)
+      botl=as.integer(cells+numCol-1)
+      botr=as.integer(cells+numCol+1)
+      if (include)
+        adj=data.table(from=rep.int(cells,times=5),
+                       to=c(topl,topr,as.integer(cells),botl,botr),key="from")
+      else
+        adj=data.table(from=rep.int(cells,times=4),
+                       to=c(topl,topr,botl,botr),key="from")
+    } else {stop("directions must be 4 or 8 or \'bishop\'")}
     
-    # select which potentials actually happened
-    # nrow() only works if potentials is an array
-    if (is(potentials,"numeric")) {
-      ItHappened <- runif(1) <= spreadProb
-      events <- potentials[2][ItHappened]
-    } else if (is.numeric(spreadProb)) {
-      ItHappened <- runif(nrow(potentials)) <= spreadProb
-      events <- potentials[ItHappened, 2]
-    } else {
-      stop("Unsupported type:spreadProb") # methods for raster* or function args
-    }
-    #print(events)
-    
-    # update eligibility map
-    if((size+length(events)) > maxSize) {
-      keep<-length(events) - ((size+length(events)) - maxSize)
-      events<-events[sample(length(events),keep)]
-    }
-    size <- size + length(unique(events))
-    # update eligibility map
-
-    spreads[events] <- n
-    n <- n+1
-    
-    if(size >= maxSize) {
-      events<-NULL
-    }
-    
-    # drop or keep loci
-    
-    if (is.null(persistance)) {
-      loci <- NULL
-    } else {
-      if (is.prob(persistance)) {
-        loci <- loci[runif(length(loci))<=persistance]
-      } else {
-        # here is were we would handle methods for raster* or functions
-        stop("Unsupported type: persistance")
-      }
+    # Remove all cells that are not target cells, if target is a vector of cells
+    if (!is.null(target)) {
+      setkey(adj,to)
+      adj<-adj[J(target)] 
+      setkey(adj,from)
+      setcolorder(adj,c("from","to"))
     }
     
-    loci <- c(loci, events)
+    # Remove the "from" column if pairs is FALSE
+    if (!pairs) {
+      from=adj$from
+      adj[,from:=NULL]
+    }
     
-  }
-  return(spreads)
-}
-
-spread.adj.c <- function(landscape, loci, spreadProb, persistance,
-                       mask, maxSize, directions, iterations, plot.it=FALSE) {
-  ### should sanity check map extents
-  is.prob <- function(x) {
-    if (!is.numeric(x)) 
-      return(FALSE)
+    # Good time savings if no intermediate object is created
+    if (as.data.table) 
+      return(adj[
+        i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+        ])
     else 
-      return(!(x>1 || x<0))
+      return(as.matrix(adj[
+        i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+        ]))
   }
-  
-  if (is.null(loci))  {
-    # start it in the centre cell
-    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-  }
-  
-  #spreads <- setValues(raster(landscape), 0)
-  spreads <- data.table(ind=1:ncell(landscape),burned=0,key="ind")
-  n <- 1
-  spreads[loci,burned:=n]
-  size <- length(loci)
-  #spreads[4,burned:=NA]
-  
-  if (is.null(iterations)) {
-    iterations = Inf # this is a stupid way to do this!
-  } else {
-    # do nothing
-  }
-  
-  while ( (length(loci)>0) && (iterations>=n) ) {
-    #print(paste(n, length(loci)))
-    potentials <- adj.c(landscape, loci, directions,as.data.table=TRUE)
-    setkey(potentials,to)
-    
-    # drop those ineligible
-    if (!is.null(mask)){
-      tmp <- extract(mask, potentials[,to])
-    } else {
-      #      tmp <- extract(spreads, potentials[,to])
-      potentials <- spreads[potentials][burned==0][,burned:=NULL]#,ind,keyby=burned]
-      #tmp <- na.omit(tmp[burned==0])
-      #setkey(tmp,ind)
-      #tmp<-na.omit(tmp)
-      
-    }
-    
-    # select which potentials actually happened
-    # nrow() only works if potentials is an array
-    if (!is.numeric(spreadProb)) {
-      #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-      #} else {
-      stop("Unsupported type:spreadProb") # methods for raster* or function args
-    }
-    
-    events <- potentials[runif(nrow(potentials))<=spreadProb,ind]
-    
-    if((size+length(events)) > maxSize) {
-      keep<-length(events) - ((size+length(events)) - maxSize)
-      events<-events[sample(length(events),keep)]
-    }
-    size <- size + length(unique(events))
-    # update eligibility map
-    n <- n+1
-    spreads[events,burned:=n]
-    
-    if(size >= maxSize) {
-      events<-NULL
-    }
-    # drop or keep loci
-    
-    if (is.null(persistance)) {
-      loci <- NULL
-    } else {
-      if (is.prob(persistance)) {
-        loci <- loci[runif(length(loci))<=persistance]
-      } else {
-        # here is were we would handle methods for raster* or functions
-        stop("Unsupported type: persistance")
-      }
-    }
-    
-    loci <- c(loci, events)
-    
-    if (plot.it){
-      top <- raster(landscape)
-      top<-setValues(top,spreads[,burned])
-      plot(top)
-    }
-    
-  }
-  #loci = sample(1:ncell(a),20)
-  spre=raster(landscape)
-  spre<-setValues(spre, spreads[,burned])
-  return(spre)
 }
