@@ -133,13 +133,12 @@ library(ref)
 x = matrix(sample(1:12),ncol=1)
 rd <- refdata(x) # create reference
 derefdata(rd) # retrieve original data
-derefdata(rd) <- value # modify original data
-rd[] # get all (current) data
+#rd[] # get all (current) data
 i = 11; j = 1
 rd[i, j] # get part of data
 rd[i, j, ref=TRUE] # get new reference on part of data
-rd[i, j] <- value # modify / create local copy
-rd[i, j, ref=TRUE] <- value # modify original data (respecting subsetting history)
+#rd[i, j] <- value # modify / create local copy
+#rd[i, j, ref=TRUE] <- value # modify original data (respecting subsetting history)
 dim(rd) # dim of (subsetted) data
 dimnames(rd) # dimnames of (subsetted) data
 
@@ -159,14 +158,34 @@ system.time(for (i in 1:1e3) {
   rx[sam,2 , ref=FALSE]<-sam
 })
 
-x <- matrix(sample(1:10,replace=T,1e7),ncol=1e3) # take a matrix or data frame
+x <- matrix(sample(1:10,replace=T,1e5),ncol=2) # take a matrix or data frame
 system.time(for (i in 1:1e4) {
-  x[sam,2]<-sam
+  x[sam,2]<-sam+i
 })
 
-x <- matrix(sample(1:10,replace=T,1e7),ncol=1e3) # take a matrix or data frame
+
+rm(x)
+x <- 1:1e7 # take a matrix or data frame
+sam = sample(1:length(x),8e3,replace=F)
+sam.sort = sort(sam)
+
+system.time(for (i in 1:1e1) {
+  prof <- lineprof(x[sam]<-sam.sort)
+#  prof <- lineprof(x[1:7e3]<-1:7e3)
+  shine(prof)
+})
+refs(z)
+address(z)
+
+y= matrix(rep(x,10),ncol=10)
+system.time(for (i in 1:1e1){
+  x = numeric(length=1e7)
+  x <- y[,(i-1)%%10+1]
+})
+
+<- matrix(sample(1:10,replace=T,1e7),ncol=1e3) # take a matrix or data frame
 system.time(for (i in 1:1e4) {
-  x[]<-x
+  x[sam]<-sam
 })
 
 system.time(for (i in 1:1e4) {
@@ -174,9 +193,11 @@ system.time(for (i in 1:1e4) {
 })
 
 dt = data.table(x)
-setkey(dt,V1)
+setkey(dt,x)
 system.time(for (i in 1:1e4) {
-  dt[sam,V2:=sam]
+  nrdt = nrow(dt)
+  prof<-lineprof(dt[1:4,y:=1:4])
+  shine(prof)
 })
 
 system.time(for (i in 1:1e4) {
@@ -185,7 +206,7 @@ system.time(for (i in 1:1e4) {
 )
 
 
-system.time({  m <- matrix(getValues(ras),ncol=dim(ras)[1])
+system.time({  m <- matrix(getValues(ras),ncol=dim(ras)[2])
                for (i in 1:1e4) {
                  m[sam,2]<-sam
                }
