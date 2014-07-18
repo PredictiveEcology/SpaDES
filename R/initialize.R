@@ -33,29 +33,19 @@ GaussMap = function(x, scale=10, var=1, speedup=10) {#, fast = TRUE, n.unique.pi
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
-  xmn = ext@xmin
-  xmx = ext@xmax
-  ymn = ext@ymin
-  ymx = ext@ymax
-  nc = (xmx-xmn)/speedup # ifelse(fast, min(n.unique.pixels,xmx-xmn),xmx-xmn)
-  nr = (ymx-ymn)/speedup # ifelse(fast, min(ymx-ymn,n.unique.pixels),ymx-ymn)
-  xfact = (xmx-xmn)/nc
-  yfact = (ymx-ymn)/nr
+  nc = (ext@xmax-ext@xmin)/speedup
+  nr = (ext@ymax-ext@ymin)/speedup
   
-  model <- RMexp(scale=scale, var = var)
-  x.seq = 1:nc
-  y.seq = 1:nr
-  sim <- raster(RFsimulate(model, x = x.seq, y = y.seq, grid = T))
+  model <- RMexp(scale=scale, var=var)
+  sim <- raster(RFsimulate(model, x=1:nc, y=1:nr, grid=TRUE))
   sim <- sim - cellStats(sim, "min")
   extent(sim) <- ext
-  res(sim) <- resol
   
   if(speedup>1) {
-    sim <- disaggregate(sim, c(xfact, yfact))
+    return(disaggregate(sim, c(speedup, speedup)))
   } else {
-    extent(sim) <- ext
+    return(sim)
   }
-  return(sim)
 }
 
 ##############################################################
