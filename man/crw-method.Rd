@@ -7,7 +7,7 @@
 crw(agent, stepLength, sd, lonlat)
 }
 \arguments{
-\item{agent}{An object of class mobileAgent.}
+\item{agent}{A SpatialPointsDataFrame.}
 
 \item{stepLength}{Numeric vector of length 1 or number of agents describing
                    step length.}

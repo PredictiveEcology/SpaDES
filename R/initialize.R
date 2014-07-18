@@ -21,8 +21,7 @@
 #' 
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #' 
-#' @import RandomFields
-#' @import raster
+#' @import RandomFields raster
 #' @export
 #' @docType methods
 #' @rdname gaussmap-method
@@ -41,11 +40,7 @@ GaussMap = function(x, scale=10, var=1, speedup=10) {#, fast = TRUE, n.unique.pi
   sim <- sim - cellStats(sim, "min")
   extent(sim) <- ext
   
-  if(speedup>1) {
-    return(disaggregate(sim, c(speedup, speedup)))
-  } else {
-    return(sim)
-  }
+  return(disaggregate(sim, c(speedup, speedup)))
 }
 
 ##############################################################

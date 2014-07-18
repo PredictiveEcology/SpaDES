@@ -8,7 +8,7 @@ ny = 5e2#2e3#3332#1000
 nx = 5e2#2e3#1964#500
 
 hab <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn = -ny/2, ymx = ny/2)
-hab <- round(GaussMap(extent(hab), speedup.index=10, cov.pars=c(0.3, 200)), 1)
+hab <- round(GaussMap(hab, speedup.index=10, cov.pars=c(0.3, 200)), 1)
 plot(hab, maxpixels=1e4)
 
 best = max(hab@data@values)

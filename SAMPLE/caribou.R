@@ -51,16 +51,25 @@ caribouInit = function(sim) {
     pkgs = list("raster","grid") # list required packages here
     loadPackages(pkgs)
     
-    best = max(hab@data@values)
-    worst = min(hab@data@values)
-    good = Which(hab>0.2*best)
+    best = max(habitat@data@values)
+    worst = min(habitat@data@values)
+    good = Which(habitat>0.2*best)
     
     al = agentLocation(good)    # good habitat, from above
-    pri = probInit(hab, al)
+    pri = probInit(habitat, al)
     
     # initialize caribou agents
-    caribou <<- new("mobileAgent", agentlocation=al, numagents=simParams(sim)$caribou$N, probinit=pri)
-    simPlot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE,pch=19,gp=gpar(cex=0.1))
+    N <- simParams(sim)$caribou$N
+    IDs <- as.character(1:N)
+    sex <- sample(c("female", "male"), N, replace=TRUE)
+    age <- round(rnorm(N, mean=8, sd=3))
+    
+    # create the caribou agent object
+    caribou <- SpatialPointsDataFrame(coords=al,
+                                      data=data.frame(sex=sex, age=age))
+    row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
+        
+    simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19, gp=gpar(cex=0.1))
     
     # save output list to track caribou over time
 #    outputs$caribou[[1]] <<- caribou
@@ -72,7 +81,7 @@ caribouInit = function(sim) {
 }
 
 caribouMove = function(sim) {
-    ex =  hab[agentPosition(caribou)] # find out what pixels the individuals are on now
+    ex =  habitat[coordinates(caribou)] # find out what pixels the individuals are on now
     wh = which(!is.na(ex))
     if (length(wh)==0) stop(paste("all agents off map at time", currentTime(sim)))
     sl = 10/ex
@@ -82,14 +91,14 @@ caribouMove = function(sim) {
     sd = 30 # could be specified globally in params
     
     caribou <<- crw(caribou, stepLength=ln, sd=sd, lonlat=FALSE)
-    simPlot(caribou, ext=extent(hab), on.which.to.plot=1, add=TRUE, pch=19,
+    simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19,
             gp=gpar(cex=0.1), delete.previous=FALSE)
     
     # update caribou list
 #    outputs$caribou[[currentTime(sim)+1]] <<- caribou
     
     #rads = sample(10:30, length(caribou), replace=TRUE)
-    #rings = cir(caribou, radiuses=rads, hab, 1)
+    #rings = cir(caribou, radiuses=rads, habitat, 1)
     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
     
 #    saveRDS(list(caribou, rings), paste("../data/caribou_", currentTime(sim), ".rds", sep=""))

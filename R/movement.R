@@ -14,7 +14,7 @@
 #' was presented in Turchin 1998, but it was also used with bias modifications 
 #' in McIntire, Schultz, Crone 2007.
 #'
-#' @param agent       An object of class mobileAgent.
+#' @param agent       A SpatialPointsDataFrame.
 #'
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.

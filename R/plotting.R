@@ -99,7 +99,7 @@ newPlot = function(...) {
 #' 
 #' @seealso \code{\link{grid.raster}}
 #' 
-#' @import grid raster graphics
+#' @import grid raster graphics sp
 #' @export
 #' @docType methods
 #' @rdname simPlot
@@ -107,11 +107,9 @@ newPlot = function(...) {
 # @examples
 # needs examples
 setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
-                               col=rev(terrain.colors(255)), ..., add=FALSE, speedup = 1, axes = "L") {
+                               col=rev(terrain.colors(255)), ..., add=FALSE, speedup=1, axes = "L") {
            standardGeneric("simPlot")
 })
-
-
 
 #' @aliases simPlot
 #' @rdname simPlot
@@ -126,7 +124,7 @@ setMethod("simPlot",
               if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
 
               if (add==FALSE) {
-                 arr = arrangeSimPlots(ext,dimx,nam,which.to.plot,axes,...)    
+                 arr = arrangeSimPlots(ext, dimx, nam, which.to.plot, axes,...)    
                  
                  vp = list()
                  grid.newpage()
@@ -170,7 +168,7 @@ setMethod("simPlot",
                     }
                  })
               } else if (add==TRUE){
-                    vp.names= grid.ls(grobs=F, viewports=TRUE, recursive=TRUE, print=FALSE)$name
+                    vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
                     vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
 #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
                     for (i in which.to.plot) {
@@ -197,7 +195,7 @@ setMethod("simPlot",
           definition = function(x, on.which.to.plot,which.to.plot, col, delete.previous=TRUE, ..., add, speedup, axes) {
               ext = extent(x)
               if (add==TRUE) {
-                wh=which(names(x)==grid.ls(grobs=F, viewports=T, recursive=TRUE, print=FALSE)$name)
+                wh=which(names(x)==grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name)
                 if(length(wh)>1) {
                   nam = paste(names(x),length(wh)+1,sep="")
                 } else {
@@ -250,7 +248,7 @@ setMethod("simPlot",
                 })
 
               } else if (add==TRUE){
-                  vp.names= grid.ls(grobs=F, viewports=T, recursive=FALSE, flatten=T, print=F)$name
+                  vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=FALSE, flatten=TRUE, print=F)$name
                   vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
                   #vp.names= vp.names[-grep("GRID",vp.names)]
                   #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
@@ -263,7 +261,8 @@ setMethod("simPlot",
                       seekViewport(i)
                   
                       if (delete.previous) grid.remove(i)
-                      grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
+                      grid.raster(as.raster(x,
+                                            maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
                                             col=col),
                                   interpolate=FALSE,name=nam,...)
 #                  upViewport()
@@ -289,84 +288,84 @@ setMethod("simPlot",
           signature = "SpatialPoints",
           definition = function(x, ext, on.which.to.plot, map.names=NULL, delete.previous=TRUE,
                                 max.agents = 1e4, ..., add = TRUE, speedup, axes ) {
-              len = length(x)
-              if (len>max.agents) {
-                  sam = sample.int(len,size=max.agents,replace=F) 
-                  len = max.agents
-              } else {
-                  sam=1:len
-              }
-              if(length(len)==1) speed.keep=1:len else speed.keep=sam
-              if(speedup != 1) {
-                  speed.keep = sample(sam,len/speedup,replace=F)
-              } 
-              
-              x1 = coordinates(x)[speed.keep,"x"]
-              y1 = coordinates(x)[speed.keep,"y"]
-              rangex = range(x1)
-              rangey = range(y1)
+            ext = extent(x)  
+            len = length(x)
+            if (len>max.agents) {
+                sam = sample.int(len,size=max.agents,replace=F) 
+                len = max.agents
+            } else {
+                sam=1:len
+            }
+            if(length(len)==1) speed.keep=1:len else speed.keep=sam
+            if(speedup != 1) {
+                speed.keep = sample(sam,len/speedup,replace=F)
+            } 
+            
+            x1 = coordinates(x)[speed.keep,"x"]
+            y1 = coordinates(x)[speed.keep,"y"]
+            rangex = range(x1)
+            rangey = range(y1)
 
 #              if(!exists("gp1")){if (exists("cex")) {gp1 = gpar(cex = cex);rm(cex)} else {gp1=gpar()}}
 
-              if (add==FALSE) {
-                arr = arrangeSimPlots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")    
+            if (add==FALSE) {
+              arr = arrangeSimPlots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")    
 
-                grid.newpage()
-                with(arr, {
-                    vp = viewport(xscale = rangex,yscale= rangey,width=0.8,height=0.8,
-                                  name=paste(deparse(substitute(x))))
-                    pushViewport(vp)
-                    grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.map.ratio),
-                                name=deparse(substitute(x)) ,...)  
-                    ats = list()
-                    prettys = list()
-                    ats[["x"]] = rangex/max(1,ds.ratio/actual.ratio)
-                    ats[["y"]] = rangey/max(1,actual.ratio/ds.ratio)
-                    prettys[["x"]] = pretty(ats[["x"]])
-                    prettys[["y"]] = pretty(ats[["y"]])
+              grid.newpage()
+              with(arr, {
+                  vp = viewport(xscale = rangex,yscale= rangey,width=0.8,height=0.8,
+                                name=paste(deparse(substitute(x))))
+                  pushViewport(vp)
+                  grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.map.ratio),
+                              name=deparse(substitute(x)) ,...)  
+                  ats = list()
+                  prettys = list()
+                  ats[["x"]] = rangex/max(1,ds.ratio/actual.ratio)
+                  ats[["y"]] = rangey/max(1,actual.ratio/ds.ratio)
+                  prettys[["x"]] = pretty(ats[["x"]])
+                  prettys[["y"]] = pretty(ats[["y"]])
 
-                    grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
-                               label=prettys[["y"]],name=paste(deparse(substitute(x)),"yaxis",sep=""))
-                    grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
-                               label=prettys[["x"]],name=paste(deparse(substitute(x)),"xaxis",sep=""))
-                    
+                  grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
+                             label=prettys[["y"]],name=paste(deparse(substitute(x)),"yaxis",sep=""))
+                  grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
+                             label=prettys[["x"]],name=paste(deparse(substitute(x)),"xaxis",sep=""))
+                  
 #                     grid.xaxis(gp=gpar(cex=0.5),at = seq(ats[["x"]][1],ats[["x"]][2],length.out=length(prettys[["x"]])),label = prettys[["x"]])
 #                     grid.yaxis(gp=gpar(cex=0.5),at = seq(ats[["y"]][1],ats[["y"]][2],length.out=length(prettys[["y"]])),label = prettys[["y"]])
-                    upViewport()
-                })
+                  upViewport()
+              })
 #                grid.yaxis(gp=gpar(cex=0.5),at = pretty(rangey/max(1,actual.ratio/ds.ratio)),label = pretty(rangey))
-              } else { #add=T
-                  if(is.null(map.names)) {
-                      vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
-                      vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+            } else { #add=T
+                if(is.null(map.names)) {
+                    vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
+                    vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
 #                      vp.names= vp.names[1:trunc(length(vp.names)/2)*2]
-                  } else {
-                      vp.names = map.names
-                  }
-                  arr = arrangeSimPlots(ext,length(vp.names),
-                                         deparse(substitute(x)),1:length(vp.names),axes="L")    
-                  for (k in 1:length(on.which.to.plot)) {
-                    if(is.numeric(on.which.to.plot[k])) {
-                      vp.to.plot=vp.names[on.which.to.plot[k]]
-                      seekViewport(vp.to.plot)
-                    } else {
-                        vp.to.plot = on.which.to.plot[k]
-                      seekViewport(vp.to.plot)
-                    }
-                    
-                    with(arr,{
-                        if (delete.previous) {grob.names = grid.ls(grobs=TRUE, recursive=TRUE, print=FALSE)$name
-                           if(any(grob.names==deparse(substitute(x))))
-                              grid.remove(deparse(substitute(x)))
-                        }                    
-                        grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),
-                                    name = deparse(substitute(x)), ...)  
-#                    grid.points(x1,y1,gp=gpar(cex=0.4),pch=19,...)  
-                    })
-                    upViewport()
+                } else {
+                    vp.names = map.names
                 }
+                arr = arrangeSimPlots(ext,length(vp.names),
+                                       deparse(substitute(x)),1:length(vp.names),axes="L")    
+                for (k in 1:length(on.which.to.plot)) {
+                  if(is.numeric(on.which.to.plot[k])) {
+                    vp.to.plot=vp.names[on.which.to.plot[k]]
+                    seekViewport(vp.to.plot)
+                  } else {
+                      vp.to.plot = on.which.to.plot[k]
+                    seekViewport(vp.to.plot)
+                  }
+                  
+                  with(arr,{
+                      if (delete.previous) {grob.names = grid.ls(grobs=TRUE, recursive=TRUE, print=FALSE)$name
+                         if(any(grob.names==deparse(substitute(x))))
+                            grid.remove(deparse(substitute(x)))
+                      }                    
+                      grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),
+                                  name = deparse(substitute(x)), ...)  
+#                    grid.points(x1,y1,gp=gpar(cex=0.4),pch=19,...)  
+                  })
+                  upViewport()
               }
-
+            }
 })
 
 
@@ -386,7 +385,7 @@ setMethod("simPlot",
 #' @param axes passed from simPlot 
 #' @rdname arrangeSimPlots
 #' @docType methods
-arrangeSimPlots = function(ext,dimx,nam,which.to.plot,axes="L") {
+arrangeSimPlots = function(ext, dimx, nam, which.to.plot, axes="L") {
     if (length(which.to.plot)==1) {
         if(which.to.plot=="all")
             wh = 1:dimx[3]

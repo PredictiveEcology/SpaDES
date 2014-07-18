@@ -16,7 +16,7 @@ agentLocation <- function(map) {
         map[map==0] = NA
     } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
         map
-    } else if (!is.na(pmatch("SpatialPolygons",class(map)))) {
+    } else if (!is.na(pmatch("SpatialPolygons", class(map)))) {
         map
     } else {
         stop("only raster, Spatialpoints or SpatialPolygons implemented")

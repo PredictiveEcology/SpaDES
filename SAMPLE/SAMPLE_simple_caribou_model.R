@@ -3,14 +3,15 @@ OS <- tolower(Sys.info()["sysname"])
 hostname <- gsub(Sys.info()["nodename"],pattern="W-VIC-",replace="")
 
 if (OS=="windows") {
-    if(pmatch("A105200", hostname, nomatch=FALSE)) {
-        setwd("c:/Eliot/GitHub/")
-    } else {
-        setwd("~/GitHub/")
-    }
+  if(pmatch("A105200", hostname, nomatch=FALSE)) {
+    path <- "c:/Eliot/GitHub"
+  } else {
+    path <- "~/GitHub"
+  }
 } else {
-    setwd("~/Documents/GitHub/")
+  path <- "~/Documents/GitHub"
 }
+
 
 ### development only:
 install.packages("devtools", dependencies=TRUE)
@@ -28,7 +29,7 @@ devtools::dev_mode(TRUE)
 ### load SpaDES package
 #library(SpaDES)   # local installation from CRAN
 #devtools::install_github("SpaDES", username="achubaty")   # local install from GitHub
-devtools::load_all("SpaDES") # for development/testing
+devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 
 ## simulation code
 # initialize the simulation

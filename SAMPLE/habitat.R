@@ -41,7 +41,7 @@ habitatInit = function(sim) {
     tmp = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
     tmp = round(GaussMap(extent(tmp), speedup=10), 1)
     names(tmp) = "habitat"
-    hab <<- tmp
+    habitat <<- tmp
     
     ### add map to outputs list
 #    outputs <- list(caribou=list(), habitat=list())

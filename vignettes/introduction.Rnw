@@ -41,7 +41,30 @@
 
 \section{Spatial Discrete Event Simulation (SpaDES)}
 
-\lipsum
+\paragraph{Requirements}
+This packages makes heavy use of the \texttt{raster} and \texttt{sp} packages, so familiarity with these packages and their classes and methods is recommended.
+
+<<setup-workspace>>=
+## for now only while testing, etc.
+OS <- tolower(Sys.info()["sysname"])
+hostname <- gsub(Sys.info()["nodename"],pattern="W-VIC-",replace="")
+
+if (OS=="windows") {
+    if(pmatch("A105200", hostname, nomatch=FALSE)) {
+        path <- "c:/Eliot/GitHub"
+    } else {
+        path <- "~/GitHub"
+    }
+} else {
+    path <- "~/Documents/GitHub"
+}
+#devtools::dev_mode(TRUE)
+devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+
+## 
+#library(SpaDES)
+@
+
 
 \newpage
 
@@ -51,15 +74,71 @@
 
 \newpage
 
-\section{Simulating ``agents''}
+\section{Working with maps}
 
-\lipsum
+\paragraph{A raster map}
+Sample map of habitat quality.
+
+<<habitat-map, fig=TRUE>>=
+nx = 1e3
+ny = 1e3
+habitat = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
+habitat = round(GaussMap(habitat, speedup=10), 1)
+names(habitat) = "habitatQuality"
+
+simPlot(habitat)
+@
 
 \newpage
 
-\section{Working with maps}
+\section{Simulating ``agents''}
 
-\lipsum
+\paragraph{}
+
+\subsection{Spatial agents}
+
+\subsubsection{Point agents}
+
+\paragraph{}
+Agents represented by a single set of coordinates indicating their current position.
+
+\paragraph{}
+Use a \texttt{SpatialPointsDataFrame} with additional columns as needed.
+
+\paragraph{Non-mobile point agents}
+e.g., plants
+
+\paragraph{Mobile point agents}
+e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for agents' previous \texttt{n} positions, and any other columns such as age, sex, group membership, etc.
+
+<<mobile-point-agent, fig=TRUE>>=
+N <- 10 # number of agents
+
+# caribou data vectors
+IDs <- c("Alice", "Bob", "Clark", "Daisy", "Eric",
+         "Franz", "Gabby", "Hayley", "Igor", "Jane")
+sex <- c("female", "male", "male", "female", "male",
+         "male", "female", "female", "male", "female")
+age <- round(rnorm(N, mean=8, sd=3))
+
+# create the caribou agent object
+caribou <- SpatialPointsDataFrame(coords=cbind(x=rnorm(N, mean=0, sd=100),
+                                               y=rnorm(N, mean=0, sd=100)),
+                                  data=data.frame(sex=sex, age=age))
+row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
+
+head(caribou)
+coordinates(caribou)
+
+## conventional plotting method
+#plot(habitat)
+#plot(caribou, add=TRUE)
+
+# improved plotting using simPlot
+simPlot(habitat)
+simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19,
+        gp=gpar(cex=0.1), delete.previous=FALSE)
+@
 
 \newpage
 

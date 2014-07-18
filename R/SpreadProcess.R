@@ -49,13 +49,13 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' library(RColorBrewer)
 #' 
 #' # Make random forest cover map
-#' fc = GaussMap(extent(raster(extent(0,1e3,0,1e3),res=1)),speedup=10)
+#' fc = GaussMap(raster(extent(0, 1e3, 0, 1e3), res=1), speedup=10)
 #' names(fc)="fc"
 
-#' #make 10 fires
-#' loci = as.integer(sample(1:ncell(fc),10))
+#' # make 10 fires
+#' loci = as.integer(sample(1:ncell(fc), 10))
 
-#' #create a mask used to omit spreading
+#' # create a mask used to omit spreading
 #' mask = raster(fc)
 #' mask = setValues(mask, 0)
 #' mask[1:5000] <- 1
@@ -64,28 +64,31 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' numCell <- ncell(fc)
 #' directions=8
 #' 
-#' # Transparency involves adding 2 extra hex digits on the 6 digit color code, 00 is fully transparent.
-#' #  This first colour code will give the lowest value on the scale a value of "transparent"
-#' #  This can be used for overlaying a raster onto another raster
-#' cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+#' # Transparency involves adding 2 extra hex digits on the
+#' # 6 digit color code, 00 is fully transparent.
+#' # This first colour code will give the lowest value on the
+#' # scale a value of "transparent". This can be used for
+#' # overlaying a raster onto another raster.
+#' cols = list(c("#00000000", brewer.pal(8,"RdYlGn")[8:1]),
+#'               brewer.pal(9,"Greys"), brewer.pal(8,"Spectral"))
 #' 
 #' newPlot()
-#' simplot(fc,col=cols[[3]],speedup=10)
-#' names(fc)<-"fc" # required to name the layer if there is a need to plot one raster over another
+#' simPlot(fc,col=cols[[3]],speedup=10)
+#' names(fc) <- "fc" # required to name the layer if there is a need to plot one raster over another
 #' 
-#' fire2 <- spread(landscape = fc, loci=loci, spreadProb=0.235,
-#'                      0, mask=NULL, maxSize=1e6, directions = 8,
-#'                      iterations = 1e6, plot.it=F, speedup=10)
-#' names(fire2)<-"fire"
+#' fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235,
+#'                      0, mask=NULL, maxSize=1e3, directions=8,
+#'                      iterations=1e6, plot.it=FALSE, speedup=10)
+#' names(fire2) <- "fire"
 #' 
-#' simplot(stack(fire2,fc),col=cols[1:2],speedup=10)
-#' simplot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="fc",delete.previous=F)
+#' simPlot(stack(fire2, fc), col=cols[1:2], speedup=10)
+#' #simPlot(fire2, col=cols[[1]], speedup=10, add=TRUE, on.which.to.plot="fc", delete.previous=FALSE)
 #' 
 #' # Here, watch the fire grow
-#' fire2 <- spread(landscape = fc, loci=loci, spreadProb=0.235,
-#'                      0, mask=NULL, maxSize=1e6, directions = 8,
-#'                      iterations = 1e6, plot.it=T, speedup=20, col=cols[[1]],
-#'                      delete.previous=F)
+#' fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235,
+#'                      0, mask=NULL, maxSize=1e6, directions=8,
+#'                      iterations=1e2, plot.it=TRUE, speedup=20, col=cols[[1]],
+#'                      delete.previous=FALSE)
 setMethod("spread",
           signature(landscape="RasterLayer"#, loci="integer", 
                     #spreadProb="numeric"
@@ -103,7 +106,7 @@ setMethod("spread",
   }
   
   #spreads <- setValues(raster(landscape), 0)
-  spreads <- data.table(ind=1:ncell(landscape),burned=0,key="ind")
+  spreads <- data.table(ind=1:ncell(landscape), burned=0, key="ind")
   if(!is.null(mask))
     masked<-getValues(mask)==0
   n <- 1
@@ -119,7 +122,7 @@ setMethod("spread",
   
   while ( (length(loci)>0) && (iterations>=n) ) {
     #print(paste(n, length(loci)))
-    potentials <- data.table(adj(landscape, loci, directions,pairs=T,as.data.table=FALSE),key="to")
+    potentials <- data.table(adj(landscape, loci, directions, pairs=TRUE, as.data.table=FALSE),key="to")
 #    setkey(potentials,to)
     
     # drop those ineligible
@@ -172,8 +175,8 @@ setMethod("spread",
     
     if (plot.it){
       top <- raster(landscape)
-      top<-setValues(top,spreads[,burned])
-      simplot(top,...)
+      top <- setValues(top,spreads[,burned])
+      simPlot(top, ...)
     }
     
   }
