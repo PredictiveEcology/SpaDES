@@ -120,11 +120,13 @@ IDs <- c("Alice", "Bob", "Clark", "Daisy", "Eric",
 sex <- c("female", "male", "male", "female", "male",
          "male", "female", "female", "male", "female")
 age <- round(rnorm(N, mean=8, sd=3))
+prevX <- rnorm(N, mean=0, sd=100) # previous X location
+prevY <- rnorm(N, mean=0, sd=100) # previous Y location
 
 # create the caribou agent object
 caribou <- SpatialPointsDataFrame(coords=cbind(x=rnorm(N, mean=0, sd=100),
                                                y=rnorm(N, mean=0, sd=100)),
-                                  data=data.frame(sex=sex, age=age))
+                                  data=data.frame(prevX, prevY, sex, age))
 row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
 
 head(caribou)

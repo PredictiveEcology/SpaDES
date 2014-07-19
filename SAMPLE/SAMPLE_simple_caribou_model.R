@@ -12,7 +12,6 @@ if (OS=="windows") {
   path <- "~/Documents/GitHub"
 }
 
-
 ### development only:
 install.packages("devtools", dependencies=TRUE)
 #   Windows also needs 'Rtools' from
@@ -34,13 +33,14 @@ devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 ## simulation code
 # initialize the simulation
 mySim <- simInit(times=list(start=0.0, stop=10.1),
-                 params=list(.checkpoint=list(interval=5, file="SpaDES/SAMPLE/chkpnt.RData"),
+                 params=list(.checkpoint=list(interval=5,
+                                              file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                              caribou=list(N=100),
                              fires=list(num=2, spreadprob=0.215, persistprob=0.1, its=1)
                              ),
 #                 modules=list("habitat", "fire", "caribou"),
                  modules=list("habitat", "caribou"),
-                 path="SpaDES/SAMPLE")
+                 path=file.path(path, "SpaDES/SAMPLE"))
 mySim <- doSim(mySim)
 
 ## profiling of development code

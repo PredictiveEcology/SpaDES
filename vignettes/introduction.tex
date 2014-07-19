@@ -124,37 +124,39 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 > sex <- c("female", "male", "male", "female", "male",
 +          "male", "female", "female", "male", "female")
 > age <- round(rnorm(N, mean=8, sd=3))
+> prevX <- rnorm(N, mean=0, sd=100) # previous X location
+> prevY <- rnorm(N, mean=0, sd=100) # previous Y location
 > # create the caribou agent object
 > caribou <- SpatialPointsDataFrame(coords=cbind(x=rnorm(N, mean=0, sd=100),
 +                                                y=rnorm(N, mean=0, sd=100)),
-+                                   data=data.frame(sex=sex, age=age))
++                                   data=data.frame(prevX, prevY, sex, age))
 > row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
 > head(caribou)
 \end{Sinput}
 \begin{Soutput}
-         sex age
-Alice female   8
-Bob     male  12
-Clark   male  11
-Daisy female  15
-Eric    male   8
-Franz   male  10
+          prevX     prevY    sex age
+Alice  54.99758 130.16838 female   5
+Bob    56.14550 -95.23294   male   6
+Clark  43.69673  15.60575   male   6
+Daisy  73.21684 -53.28818 female   4
+Eric  -98.50261 -40.84025   male   9
+Franz -91.65131 -86.06384   male   8
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
                 x          y
-Alice   125.57147  -95.84215
-Bob     -83.26788  -82.24998
-Clark   -34.57849  -58.68522
-Daisy  -104.32662 -125.12480
-Eric    -22.99331  -74.18539
-Franz    63.50695 -125.08146
-Gabby   108.36554  277.30177
-Hayley -150.10073   26.81136
-Igor     85.97993  -50.25596
-Jane     27.34358  -36.74905
+Alice   166.54789  -88.76219
+Bob      76.09910  -33.91571
+Clark  -179.22315  -46.17070
+Daisy    18.61346   11.46486
+Eric    141.21491   38.41175
+Franz   203.02519  -41.98872
+Gabby   144.57089   25.48473
+Hayley   54.52718 -139.59689
+Igor     68.74024  -65.12978
+Jane    -13.99476 -151.89578
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method

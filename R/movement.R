@@ -19,7 +19,7 @@
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.
 #' 
-#' @param sd          Numeric vector of length 1 or number of agents describing
+#' @param stddev          Numeric vector of length 1 or number of agents describing
 #'                    standard deviation of wrapped normal turn angles.
 #' 
 #' @param lonlat      Logical. If \code{TRUE}, coordinates should be in degrees.
@@ -42,22 +42,22 @@
 #'
 #@examples
 #NEED EXAMPLES
-crw = function(agent, stepLength, sd, lonlat) {
+crw = function(agent, stepLength, stddev, lonlat) {
     if (missing(lonlat)) {
         stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
     }
     stopifnot(is.logical(lonlat))
     
-    ### should convert to S4 for a mobileAgent
     n = length(agent)
-    rand.dir = rnorm(n, agent@heading, sd)
-    rand.dir = ifelse(rand.dir>180, rand.dir-360, ifelse(rand.dir<(-180), 360+rand.dir, rand.dir))
-    
-    last.position = agentPosition(agent)
+    prevPos = SpatialPoints(cbind(x=agent$prevX, y=agent$prevY))
+    currPos = SpatialPoints(coordinates(agent))
+    agentHeading <- heading(prevPos, currPos)
+    rndDir = rnorm(n, agentHeading, stddev)
+    rndDir = ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
     
     # these should use `coordinates(agent) <-` or similar set methods
-    agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rand.dir)) * stepLength
-    agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rand.dir)) * stepLength
+    agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rndDir)) * stepLength
+    agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rndDir)) * stepLength
     
     agent@heading = heading(last.position, agentPosition(agent))
     agent@distance = pointDistance(last.position, agentPosition(agent), lonlat=lonlat)

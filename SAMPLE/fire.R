@@ -1,7 +1,6 @@
 ################################################
 ###
-### FIRE MODULE
-### - burn some habitat; scare caribou away
+### A SIMPLE FIRE MODULE
 ###
 ###############################################
 
@@ -60,18 +59,18 @@ fireInit = function(sim) {
 }
 
 
-fire.burn = function(sim) {
+fireBurn = function(sim) {
     # random fire start locations, but could be based on hab:
-    loci = sample(1:ncell(hab), size=simParams(sim)$fire$num)
+    loci = sample(1:ncell(habitat), size=simParams(sim)$fire$num)
     tmp = spread(hab, loci=loci, spreadProb=simParams(sim)$fire$spreadprob,
-                       persistance=simParams(sim)$fire$persistprob, iterations=simParams(sim)$fire$its)
+                 persistance=simParams(sim)$fire$persistprob, iterations=simParams(sim)$fire$its)
     
     values(burned) <<- values(burned) + values(tmp)
 #    burned <- burned+tmp
     burnedNoNA <- burned
     burnedNoNA[burned==0] <- NA
     simPlot(burnedNoNA, on.which.to.plot="area.burned", add=TRUE, speedup=20, 
-            col=brewer.pal(10,"Set3"))
+            col=brewer.pal(10, "Set3"))
     
     return(sim)
 }

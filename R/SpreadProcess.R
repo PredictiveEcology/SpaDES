@@ -9,7 +9,7 @@
 #' 
 #' @param spreadProb    The probability of spreading.
 #' 
-#' @param persistance   A probability that a burning cell will continue to burn, per time step
+#' @param persistance   A probability that a burning cell will continue to burn, per time step.
 #' 
 #' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".
@@ -76,8 +76,8 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' simPlot(fc,col=cols[[3]],speedup=10)
 #' names(fc) <- "fc" # required to name the layer if there is a need to plot one raster over another
 #' 
-#' fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235,
-#'                      0, mask=NULL, maxSize=1e3, directions=8,
+#' fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235, persistance=0,
+#'                      mask=NULL, maxSize=1e3, directions=8,
 #'                      iterations=1e6, plot.it=FALSE, speedup=10)
 #' names(fire2) <- "fire"
 #' 
@@ -85,8 +85,8 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' #simPlot(fire2, col=cols[[1]], speedup=10, add=TRUE, on.which.to.plot="fc", delete.previous=FALSE)
 #' 
 #' # Here, watch the fire grow
-#' fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235,
-#'                      0, mask=NULL, maxSize=1e6, directions=8,
+#' fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235, persistance=0,
+#'                      mask=NULL, maxSize=1e6, directions=8,
 #'                      iterations=1e2, plot.it=TRUE, speedup=20, col=cols[[1]],
 #'                      delete.previous=FALSE)
 setMethod("spread",
@@ -97,7 +97,7 @@ setMethod("spread",
                     #directions="integer", iterations="integer"
                     ),
           definition = function(landscape, loci, spreadProb, persistance,
-                       mask, maxSize, directions, iterations, plot.it=FALSE,...) {
+                                mask, maxSize, directions, iterations, plot.it=FALSE, ...) {
   ### should sanity check map extents
   
   if (is.null(loci))  {
@@ -156,11 +156,11 @@ setMethod("spread",
     spreads[events,burned:=n]
     
     if(size >= maxSize) {
-      events<-NULL
+      events <- NULL
     }
     
     # drop or keep loci
-    if (is.null(persistance)) {
+    if (is.null(persistance) | is.na(persistance)) {
       loci <- NULL
     } else {
       if (inRange(persistance)) {

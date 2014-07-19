@@ -51,23 +51,26 @@ caribouInit = function(sim) {
     pkgs = list("raster","grid") # list required packages here
     loadPackages(pkgs)
     
-    best = max(habitat@data@values)
-    worst = min(habitat@data@values)
-    good = Which(habitat>0.2*best)
-    
-    al = agentLocation(good)    # good habitat, from above
-    pri = probInit(habitat, al)
+#    best = max(values(habitat))
+#    worst = min(values(habitat))
+#    good = Which(habitat>0.8*best)
+#  
+#   al = agentLocation(good)    # good habitat, from above
+#   initialCoords = probInit(habitat, al)
     
     # initialize caribou agents
     N <- simParams(sim)$caribou$N
     IDs <- as.character(1:N)
     sex <- sample(c("female", "male"), N, replace=TRUE)
     age <- round(rnorm(N, mean=8, sd=3))
+    prevX <- rep(0, N)
+    prevY <- rep(0, N)
+    starts <- cbind(x=rnorm(N, mean=0, sd=100), y=rnorm(N, mean=0, sd=100))
     
     # create the caribou agent object
-    caribou <- SpatialPointsDataFrame(coords=al,
-                                      data=data.frame(sex=sex, age=age))
-    row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
+    caribou <<- SpatialPointsDataFrame(coords=starts,
+                                       data=data.frame(prevX, prevY, sex, age))
+    row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
         
     simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19, gp=gpar(cex=0.1))
     
@@ -76,7 +79,7 @@ caribouInit = function(sim) {
 #    saveRDS(caribou, paste("../data/caribou_0.rds"))
     
     # last thing to do is add module name to the loaded list
-    sim.loaded(sim) <- append(simLoaded(sim), "caribou")
+    simLoaded(sim) <- append(simLoaded(sim), "caribou")
     return(sim)
 }
 

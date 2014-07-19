@@ -1,5 +1,5 @@
 # autogenerate a skeleton for a new module
-module.skeleton = function(name, path) {
+newModule = function(name, path) {
     path <- check.path(path) # defined in simulation.R
 
 ###

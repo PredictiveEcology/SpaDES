@@ -64,7 +64,10 @@ dwrpnorm2 = function (theta, mu, rho, sd=1, acc=1e-05, tol=acc) {
 #' @author Alex Chubaty
 #' 
 inRange <- function(x, a=0, b=1) {
-  if (a>=b) stop("a cannot be greater than b.")
+  if (is.null(x)) return(NULL) # is this desired behaviour?
   if (!is.numeric(x)) stop("x must be numeric.")
-  return((x - a)  *  (b - x) >= 0)
+  if (!is.numeric(a) || !is.numeric(b)) stop("invalid (non-numeric) bounds.")
+  if (is.na(a) || is.na(b)) stop("invalid (NA) bounds.")
+  if (a>=b) stop("a cannot be greater than b.")
+  return((x - a)  *  (b - x) >= 0) # NAs will propagate -- is this desired?
 }

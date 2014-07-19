@@ -17,7 +17,7 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
 
 \item{spreadProb}{The probability of spreading.}
 
-\item{persistance}{A probability that a burning cell will continue to burn, per time step}
+\item{persistance}{A probability that a burning cell will continue to burn, per time step.}
 
 \item{mask}{non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".}
@@ -69,8 +69,8 @@ newPlot()
 simPlot(fc,col=cols[[3]],speedup=10)
 names(fc) <- "fc" # required to name the layer if there is a need to plot one raster over another
 
-fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235,
-                     0, mask=NULL, maxSize=1e3, directions=8,
+fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235, persistance=0,
+                     mask=NULL, maxSize=1e3, directions=8,
                      iterations=1e6, plot.it=FALSE, speedup=10)
 names(fire2) <- "fire"
 
@@ -78,8 +78,8 @@ simPlot(stack(fire2, fc), col=cols[1:2], speedup=10)
 #simPlot(fire2, col=cols[[1]], speedup=10, add=TRUE, on.which.to.plot="fc", delete.previous=FALSE)
 
 # Here, watch the fire grow
-fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235,
-                     0, mask=NULL, maxSize=1e6, directions=8,
+fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235, persistance=0,
+                     mask=NULL, maxSize=1e6, directions=8,
                      iterations=1e2, plot.it=TRUE, speedup=20, col=cols[[1]],
                      delete.previous=FALSE)
 }

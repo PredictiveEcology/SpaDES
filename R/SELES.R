@@ -1,19 +1,20 @@
 ### SELES options LIBRARY
 
-Transitions <- function(p, agent) {
-    agent@spatial@coords[which(p==0),] = NA
+transitions <- function(p, agent) {
+    coordinates(agent)[which(p==0),] = NA
     return(agent)
 }
 
-NumAgents <- function(N) {
-    if ((length(N) == 1) && (is.numeric(N))) NumAgents = N
+numAgents <- function(N) {
+    if ((length(N) == 1) && (is.numeric(N))) numAgents = N
     else stop("N must be a single integer value, not a vector.")
-    return(NumAgents)
+    return(numAgents)
 }
 
+# this is poorly named
 agentLocation <- function(map) {
     if (length(grep(pattern = "Raster", class(map)))==1) {
-        map[map==0] = NA
+        map[map==0] <- NA
     } else if (length(grep(pattern = "SpatialPoints", class(map)))==1) {
         map
     } else if (!is.na(pmatch("SpatialPolygons", class(map)))) {
@@ -39,8 +40,7 @@ agentLocation <- function(map) {
 #' 
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
 #' 
-#' @import raster
-#' @import sp
+#' @import raster sp
 #' @export
 #' @docType methods
 #' @rdname probInit-method

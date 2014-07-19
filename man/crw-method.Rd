@@ -4,7 +4,7 @@
 \alias{crw}
 \title{Simple Correlated Random Walk}
 \usage{
-crw(agent, stepLength, sd, lonlat)
+crw(agent, stepLength, stddev, lonlat)
 }
 \arguments{
 \item{agent}{A SpatialPointsDataFrame.}
@@ -12,7 +12,7 @@ crw(agent, stepLength, sd, lonlat)
 \item{stepLength}{Numeric vector of length 1 or number of agents describing
                    step length.}
 
-\item{sd}{Numeric vector of length 1 or number of agents describing
+\item{stddev}{Numeric vector of length 1 or number of agents describing
                    standard deviation of wrapped normal turn angles.}
 
 \item{lonlat}{Logical. If \code{TRUE}, coordinates should be in degrees.
