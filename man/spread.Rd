@@ -8,7 +8,9 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
   iterations, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistance, mask,
-  maxSize, directions, iterations, plot.it = FALSE, ...)
+  maxSize = ncell(landscape), directions = 8,
+  iterations = ncell(landscape), plot.it = FALSE, mergeDuplicates = FALSE,
+  ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -32,6 +34,9 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction, so one can watch the
 spread event grow.}
+
+\item{mergeDuplicates}{Logical. While spreading is occuring, and the same pixel gets identified
+                     as being adjacent to two different active cells, run "unique" or not. Default is FALSE.}
 }
 \value{
 A \code{RasterLayer} indicating the spread of the process in the landscape.
@@ -62,7 +67,7 @@ dev(2)
 simPlot(hab,col=cols[[2]],speedup=1)
 names(hab)<-"hab"
 fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
-                0.235,0,NULL,1e6,8,1e6,
+                0.235,0,NULL,1e8,8,1e6,mergeDuplicates = T,
                 plot.it=T,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab",
                 speedup=1)
 }
