@@ -122,7 +122,7 @@ setMethod("spread",
   
   while ( (length(loci)>0) && (iterations>=n) ) {
     #print(paste(n, length(loci)))
-    potentials <- data.table(adj(landscape, loci, directions, pairs=TRUE, as.data.table=FALSE),key="to")
+    potentials <- data.table(adj(landscape, loci, directions, pairs=TRUE),key="to")
 #    setkey(potentials,to)
     
     # drop those ineligible

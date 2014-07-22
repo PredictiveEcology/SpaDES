@@ -35,8 +35,10 @@
 #' 
 #' @param numCell numeric indicating number of cells in the raster. Using this with numCol is a bit faster execution time.
 #' 
-#' @param as.data.table logical. Should return be a data.table (or matrix to replicate \code{adjacent}). 
-#' Default is FALSE to replicate \code{adjacent} behaviour, though TRUE is faster, and has also id (as \code{adjacent})
+#' @param match.adjacent logical. Should the returned object be the same as the \code{adjacent}
+#'          function in the raster package. 
+#' @param cutoff.for.data.table numeric. Above this value, the function uses data.table which is 
+#' faster with large numbers of cells.
 #' 
 #' @return a matrix of one or two columns, from and to.
 #' 
@@ -58,8 +60,8 @@
 #' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 #' print(head(adj.new))
 adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
-                  numCol=NULL,numCell=NULL,as.data.table=FALSE) {
-  if ((length(cells)<1e4) & (as.data.table==FALSE)){
+                numCol=NULL,numCell=NULL,match.adjacent=FALSE,cutoff.for.data.table = 1e4){
+  if ((length(cells)<cutoff.for.data.table)) {
     if (is.null(numCol) | is.null(numCell)) {
       if (is.null(x)) stop("must provide either numCol & numCell or a x")
       numCol = ncol(x)
@@ -76,12 +78,22 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
       botl=as.integer(cells+numCol-1)
       bot=as.integer(cells+numCol)
       botr=as.integer(cells+numCol+1)
-      if (include){
-        adj=cbind(from=rep.int(cells,times=9),
-                  to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr))
-      }else{
-        adj=cbind(from=rep.int(cells,times=8),
-                  to=c(topl,top,topr,lef,rig,botl,bot,botr))
+      if (match.adjacent){
+        if (include){
+          adj=cbind(from=rep.int(cells,times=9),
+                    to=c(as.integer(cells),topl,lef,botl,topr,rig,botr,top,bot))
+        }else{
+          adj=cbind(from=rep.int(cells,times=8),
+                    to=c(topl,lef,botl,topr,rig,botr,top,bot))
+        }
+      } else {
+        if (include){
+          adj=cbind(from=rep.int(cells,times=9),
+                    to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr))
+        }else{
+          adj=cbind(from=rep.int(cells,times=8),
+                    to=c(topl,top,topr,lef,rig,botl,bot,botr))
+        }
       }
     } else if (directions==4) {
       # determine the indices of the 4 surrounding cells of the cells cells
@@ -89,30 +101,50 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
       lef=as.integer(cells-1)
       rig=as.integer(cells+1)
       bot=as.integer(cells+numCol)
-      if (include)
-        adj=cbind(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot))
-      else
-        adj=cbind(from=rep.int(cells,times=4),to=c(top,lef,rig,bot))
+      if (match.adjacent){
+        if (include)
+          adj=cbind(from=rep.int(cells,times=5),to=c(as.integer(cells),lef,rig,top,bot))
+        else
+          adj=cbind(from=rep.int(cells,times=4),to=c(lef,rig,top,bot))
+      } else {
+        if (include)
+          adj=cbind(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot))
+        else
+          adj=cbind(from=rep.int(cells,times=4),to=c(top,lef,rig,bot))
+      }
     } else if (directions=="bishop") {
       topl=as.integer(cells-numCol-1)
       topr=as.integer(cells-numCol+1)
       botl=as.integer(cells+numCol-1)
       botr=as.integer(cells+numCol+1)
-      if (include)
-        adj=cbind(from=rep.int(cells,times=5),
-                  to=c(topl,topr,as.integer(cells),botl,botr))
-      else
-        adj=cbind(from=rep.int(cells,times=4),
-                  to=c(topl,topr,botl,botr))
+      if (match.adjacent) {
+        if (include)
+          adj=cbind(from=rep.int(cells,times=5),
+                    to=c(as.integer(cells),topl,botl,topr,botr))
+        else
+          adj=cbind(from=rep.int(cells,times=4),
+                    to=c(topl,botl,topr,botr))
+      } else {
+        if (include)
+          adj=cbind(from=rep.int(cells,times=5),
+                    to=c(topl,topr,as.integer(cells),botl,botr))
+        else
+          adj=cbind(from=rep.int(cells,times=4),
+                    to=c(topl,topr,botl,botr))
+      }
     } else {stop("directions must be 4 or 8 or \'bishop\'")}
     
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       adj<-adj[target,] 
     }
+    
     if (sort){
-      #adj <- as.matrix(data.table(adj,key="from"))
-      adj<-adj[sort.list(adj[,"from"],method="quick",na.last=NA),]
+      if (match.adjacent)
+        adj<-adj[order(adj[,"from"],adj[,"to"]),]
+      else 
+        adj<-adj[order(adj[,"from"]),]
+      #adj<-adj[sort.list(adj[,"from"],method="shell",na.last=NA),]
     }
     
     # Remove the "from" column if pairs is FALSE
@@ -129,6 +161,9 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
         ,2])
     }
   } else {
+    
+    
+    #### THIS IS FOR SITUATIONS WHERE length(cells) is > 1e4; using data.table
     if (is.null(numCol) | is.null(numCell)) {
       if (is.null(x)) stop("must provide either numCol & numCell or a x")
       numCol = ncol(x)
@@ -145,33 +180,58 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
       botl=as.integer(cells+numCol-1)
       bot=as.integer(cells+numCol)
       botr=as.integer(cells+numCol+1)
-      if (include)
-        adj=data.table(from=rep.int(cells,times=9),
-                       to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
-      else
-        adj=data.table(from=rep.int(cells,times=8),
-                       to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
+      if (match.adjacent) {
+        if (include)
+          adj=data.table(from=rep.int(cells,times=9),
+                         to=c(as.integer(cells),topl,lef,botl,topr,rig,botr,top,bot))
+        else
+          adj=data.table(from=rep.int(cells,times=8),
+                         to=c(topl,lef,botl,topr,rig,botr,top,bot))
+      } else {
+        if (include)
+          adj=data.table(from=rep.int(cells,times=9),
+                         to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
+        else
+          adj=data.table(from=rep.int(cells,times=8),
+                         to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
+      }
     } else if (directions==4) {
       # determine the indices of the 4 surrounding cells of the cells cells
       top=as.integer(cells-numCol)
       lef=as.integer(cells-1)
       rig=as.integer(cells+1)
       bot=as.integer(cells+numCol)
-      if (include)
-        adj=data.table(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot),key="from")
-      else
-        adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key="from")
+      if (match.adjacent) {
+        if (include)
+          adj=data.table(from=rep.int(cells,times=5),to=c(as.integer(cells),lef,rig,top,bot))
+        else
+          adj=data.table(from=rep.int(cells,times=4),to=c(lef,rig,top,bot))
+      } else {
+        if (include)
+          adj=data.table(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot),key="from")
+        else
+          adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key="from")
+      }
     } else if (directions=="bishop") {
       topl=as.integer(cells-numCol-1)
       topr=as.integer(cells-numCol+1)
       botl=as.integer(cells+numCol-1)
       botr=as.integer(cells+numCol+1)
-      if (include)
-        adj=data.table(from=rep.int(cells,times=5),
-                       to=c(topl,topr,as.integer(cells),botl,botr),key="from")
-      else
-        adj=data.table(from=rep.int(cells,times=4),
-                       to=c(topl,topr,botl,botr),key="from")
+      if (match.adjacent) {
+        if (include)
+          adj=data.table(from=rep.int(cells,times=5),
+                         to=c(as.integer(cells),topl,botl,topr,botr))
+        else
+          adj=data.table(from=rep.int(cells,times=4),
+                         to=c(topl,botl,topr,botr))
+      } else {
+        if (include)
+          adj=data.table(from=rep.int(cells,times=5),
+                         to=c(topl,topr,as.integer(cells),botl,botr),key="from")
+        else
+          adj=data.table(from=rep.int(cells,times=4),
+                         to=c(topl,topr,botl,botr),key="from")
+      }
     } else {stop("directions must be 4 or 8 or \'bishop\'")}
     
     # Remove all cells that are not target cells, if target is a vector of cells
@@ -187,18 +247,15 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
       from=adj$from
       adj[,from:=NULL]
     }
+    #      return(adj[
+    #        !((((adj[,to]-1)%%numCell+1)!=adj[,to]) |  #top or bottom of raster
+    #            ((adj[,from]%%numCol+adj[,to]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+    #        ,])
     
-    # Good time savings if no intermediate object is created
-    if (as.data.table) 
-      return(adj[
-        i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
-                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-        ])
-    else 
-      return(as.matrix(adj[
-        i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
-                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-        ]))
+    return(as.matrix(adj[
+      i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+              ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+      ]))
   }
 }
 
