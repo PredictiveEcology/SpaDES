@@ -250,21 +250,18 @@ setMethod("simPlot",
               } else if (add==TRUE){
                   vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=FALSE, flatten=TRUE, print=F)$name
                   vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
-                  #vp.names= vp.names[-grep("GRID",vp.names)]
-                  #                       #                  vp.names= vp.names[(1:trunc(length(vp.names)/2))*2]
                       
-                      if (is.numeric(on.which.to.plot)) {
-                          i = vp.names[on.which.to.plot]
-                      } else {
-                          i = on.which.to.plot
-                      }
-                      seekViewport(i)
-                  
-                      if (delete.previous) grid.remove(i)
-                      grid.raster(as.raster(x,
-                                            maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
-                                            col=col),
-                                  interpolate=FALSE,name=nam,...)
+                  if (is.numeric(on.which.to.plot)) {
+                      i = vp.names[on.which.to.plot]
+                  } else {
+                      i = on.which.to.plot
+                  }
+                  seekViewport(i)
+              
+                  if (delete.previous) grid.remove(i)
+                  grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
+                                        col=col[[1]]),interpolate = F,
+                              name=nam,...)
 #                  upViewport()
                                         
               } else {
