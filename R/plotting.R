@@ -161,7 +161,7 @@ setMethod("simPlot",
                       }
                       grid.text(names(x)[ma], y=1.08, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)),
                                 name = paste(w,"title",sep=""))
-                      grid.raster(as.raster(x[[w]], maxpixels=1e4/(columns*rows)*prod(ds)/speedup,
+                      grid.raster(as.raster(x[[w]], maxpixels=1e3/(columns*rows)*prod(ds)/speedup,
                                             col=col[[ma]] ),
                                   interpolate=FALSE, name=w,...)
                       upViewport()
@@ -176,7 +176,7 @@ setMethod("simPlot",
                       if (is.numeric(i)) i = nam[i]#match(nam,vp.names)
                       seekViewport(i)
                       grid.remove(i)
-                      grid.raster(as.raster(x[[i]],maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
+                      grid.raster(as.raster(x[[i]],maxpixels=1e3/(length(vp.names))*prod(dev.size())/speedup,
                                             col=col[[ma]] ),
                                   interpolate=FALSE,name=names(x[[i]]),...)
                       upViewport()
@@ -241,7 +241,7 @@ setMethod("simPlot",
                   
                   grid.text(y=1.08, vjust=0.5, gp=gpar(cex=1-0.015),
                             label = nam)
-                  grid.raster(as.raster(x,maxpixels=1e4*prod(dev.size())/speedup,
+                  grid.raster(as.raster(x,maxpixels=1e3*prod(dev.size())/speedup,
                                         col=col[[1]]),interpolate = F,
                               name=nam,...)
                   #upViewport()
@@ -259,7 +259,7 @@ setMethod("simPlot",
                   seekViewport(i)
               
                   if (delete.previous) grid.remove(i)
-                  grid.raster(as.raster(x,maxpixels=1e4/(length(vp.names))*prod(dev.size())/speedup,
+                  grid.raster(as.raster(x,maxpixels=1e3/(length(vp.names))*prod(dev.size())/speedup,
                                         col=col[[1]]),interpolate = F,
                               name=nam,...)
 #                  upViewport()
