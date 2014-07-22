@@ -6,7 +6,7 @@
 \usage{
 adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
-  as.data.table = FALSE)
+  match.adjacent = FALSE, cutoff.for.data.table = 10000)
 }
 \arguments{
 \item{x}{Raster* object for which adjacency will be calculated.}
@@ -23,8 +23,11 @@ adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
 
 \item{numCell}{numeric indicating number of cells in the raster. Using this with numCol is a bit faster execution time.}
 
-\item{as.data.table}{logical. Should return be a data.table (or matrix to replicate \code{adjacent}).
-Default is FALSE to replicate \code{adjacent} behaviour, though TRUE is faster, and has also id (as \code{adjacent})}
+\item{match.adjacent}{logical. Should the returned object be the same as the \code{adjacent}
+function in the raster package.}
+
+\item{cutoff.for.data.table}{numeric. Above this value, the function uses data.table which is
+faster with large numbers of cells.}
 }
 \value{
 a matrix of one or two columns, from and to.

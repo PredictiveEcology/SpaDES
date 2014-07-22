@@ -44,44 +44,27 @@ library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
-fc = GaussMap(raster(extent(0, 1e3, 0, 1e3), res=1), speedup=10)
-names(fc)="fc"
-# make 10 fires
-loci = as.integer(sample(1:ncell(fc), 10))
-# create a mask used to omit spreading
-mask = raster(fc)
+a = raster(extent(0,1e2,0,1e2),res=1)
+hab = GaussMap(a,speedup=1)
+names(hab)="hab"
+cells = loci = b = as.integer(sample(1:ncell(a),1e1))
+mask = raster(a)
 mask = setValues(mask, 0)
 mask[1:5000] <- 1
-
-numCol <- ncol(fc)
-numCell <- ncell(fc)
+numCol <- ncol(a)
+numCell <- ncell(a)
 directions=8
 
-# Transparency involves adding 2 extra hex digits on the
-# 6 digit color code, 00 is fully transparent.
-# This first colour code will give the lowest value on the
-# scale a value of "transparent". This can be used for
-# overlaying a raster onto another raster.
-cols = list(c("#00000000", brewer.pal(8,"RdYlGn")[8:1]),
-              brewer.pal(9,"Greys"), brewer.pal(8,"Spectral"))
+# Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
+cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
 
-newPlot()
-simPlot(fc,col=cols[[3]],speedup=10)
-names(fc) <- "fc" # required to name the layer if there is a need to plot one raster over another
-
-fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235, persistance=0,
-                     mask=NULL, maxSize=1e3, directions=8,
-                     iterations=1e6, plot.it=FALSE, speedup=10)
-names(fire2) <- "fire"
-
-simPlot(stack(fire2, fc), col=cols[1:2], speedup=10)
-#simPlot(fire2, col=cols[[1]], speedup=10, add=TRUE, on.which.to.plot="fc", delete.previous=FALSE)
-
-# Here, watch the fire grow
-fire2 <- spread(landscape=fc, loci=loci, spreadProb=0.235, persistance=0,
-                     mask=NULL, maxSize=1e6, directions=8,
-                     iterations=1e2, plot.it=TRUE, speedup=20, col=cols[[1]],
-                     delete.previous=FALSE)
+dev(2)
+simPlot(hab,col=cols[[2]],speedup=1)
+names(hab)<-"hab"
+fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
+                0.235,0,NULL,1e6,8,1e6,
+                plot.it=T,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab",
+                speedup=1)
 }
 \author{
 Steve Cumming \email{Steve.Cumming@sbf.ulaval.ca}

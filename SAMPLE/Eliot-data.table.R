@@ -12,8 +12,8 @@ library(RColorBrewer)
 #library(compiler)
 #enableJIT(3)
 #library(SpaDES)
-a = raster(extent(0,1.5e3,0,1.5e3),res=1)
-hab = GaussMap(a,speedup=10)
+a = raster(extent(0,1e2,0,1e2),res=1)
+hab = GaussMap(a,speedup=1)
 names(hab)="hab"
 cells = loci = b = as.integer(sample(1:ncell(a),1e1))
 mask = raster(a)
@@ -26,19 +26,19 @@ directions=8
 # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
 cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
 
-newPlot()
-simPlot(hab,col=cols[[1]],speedup=10)
-#names(hab)<-"hab"
+dev(2)
+simPlot(hab,col=cols[[2]],speedup=1)
+names(hab)<-"hab"
 fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
                 0.235,0,NULL,1e6,8,1e6,
-                plot.it=F,col=cols[[1]],delete.previous=F,
-                speedup=10)
+                plot.it=T,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab",
+                speedup=1)
 
 names(fire2)<-"fire"
-simPlot(fire2,speedup=4,col=cols[[1]])
-simPlot(fire2,add=T,on.which.to.plot="hab",delete.previous=F,speedup=10)
-
 simPlot(stack(fire2,hab),col=cols[1:2],speedup=4)
+#simPlot(fire2,speedup=1,col=cols[[1]])
+simPlot(fire2,add=T,on.which.to.plot="hab",delete.previous=F,speedup=10,col= cols[[1]])
+
 simPlot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="hab",delete.previous=F)
 simPlot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="fire",delete.previous=F)
 
