@@ -40,6 +40,10 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 
 #' @param plot.it    If TRUE, then plot the raster at every iteraction, so one can watch the 
 #' spread event grow.
+#' 
+#' @param mergeDuplicates Logical. While spreading is occuring, and the same pixel gets identified
+#'                      as being adjacent to two different active cells, run "unique" or not. Default is FALSE.
+#' 
 #' @import raster
 #' @rdname spread
 #' @name spread
@@ -67,7 +71,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' simPlot(hab,col=cols[[2]],speedup=1)
 #' names(hab)<-"hab"
 #' fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
-#'                 0.235,0,NULL,1e6,8,1e6,
+#'                 0.235,0,NULL,1e8,8,1e6,mergeDuplicates = T,
 #'                 plot.it=T,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab",
 #'                 speedup=1)
 setMethod("spread",
@@ -78,93 +82,103 @@ setMethod("spread",
                     #directions="integer", iterations="integer"
                     ),
           definition = function(landscape, loci, spreadProb, persistance,
-                                mask, maxSize, directions, iterations, plot.it=FALSE, ...) {
-  ### should sanity check map extents
-  
-  if (is.null(loci))  {
-    # start it in the centre cell
-    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-  }
-  
-  #spreads <- setValues(raster(landscape), 0)
-  spreads <- data.table(ind=1:ncell(landscape), burned=0, key="ind")
-  if(!is.null(mask))
-    masked<-getValues(mask)==0
-  n <- 1
-  spreads[loci,burned:=n]
-  size <- length(loci)
-  #spreads[4,burned:=NA]
-  
-  if (is.null(iterations)) {
-    iterations = Inf # this is a stupid way to do this!
-  } else {
-    # do nothing
-  }
-  
-  while ( (length(loci)>0) && (iterations>=n) ) {
-    #print(paste(n, length(loci)))
-    potentials <- data.table(adj(landscape, loci, directions, pairs=TRUE),key="to")
-#    setkey(potentials,to)
-    
-    # drop those ineligible
-    if (!is.null(mask)){
-      potentials <- spreads[masked][potentials][burned==0][,burned:=NULL]
-    } else {
-      potentials <- spreads[potentials][burned==0][,burned:=NULL]
-    }
-    
-    # select which potentials actually happened
-    # nrow() only works if potentials is an array
-    if (!is.numeric(spreadProb)) {
-      #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-      #} else {
-      stop("Unsupported type:spreadProb") # methods for raster* or function args
-    }
-    
-    events <- potentials[runif(nrow(potentials))<=spreadProb,ind]
-    
-    # Implement maxSize
-    if((size+length(events)) > maxSize) {
-      keep<-length(events) - ((size+length(events)) - maxSize)
-      events<-events[sample(length(events),keep)]
-    }
-    
-    size <- size + length(unique(events))
-    
-    # update eligibility map
-    
-    n <- n+1
-    spreads[events,burned:=n]
-    
-    if(size >= maxSize) {
-      events <- NULL
-    }
-    
-    # drop or keep loci
-    if (is.null(persistance) | is.na(persistance)) {
-      loci <- NULL
-    } else {
-      if (inRange(persistance)) {
-        loci <- loci[runif(length(loci))<=persistance]
-      } else {
-        # here is were we would handle methods for raster* or functions
-        stop("Unsupported type: persistance")
-      }
-    }
-    
-    loci <- c(loci, events)
-    
-    if (plot.it){
-      top <- raster(landscape)
-      top <- setValues(top,spreads[,burned])
-      simPlot(top, ...)
-    }
-    
-  }
-
-  # Convert the data.table back to raster
-  spre <- raster(landscape)
-  spre <- setValues(spre, spreads[,burned])
-  return(spre)
-}
+                                mask, maxSize=ncell(landscape), directions = 8, 
+                                iterations = ncell(landscape), 
+                                plot.it=FALSE, mergeDuplicates = FALSE, ...) {
+            ### should sanity check map extents
+            
+            if (is.null(loci))  {
+              # start it in the centre cell
+              loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
+            }
+            
+            spreads <- rep_len(0,ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
+            if(!is.null(mask)) {
+              masked<-Which(mask==0,cells=T)#getValues(mask)==0
+              #  spreads[masked]<- NaN#[potentials %in% masked]]
+              
+            }
+            n <- 1
+            spreads[loci]<-n
+            size <- length(loci)
+            
+            if (is.null(iterations)) {
+              iterations = Inf # this is a stupid way to do this!
+            } 
+            
+            while ( (length(loci)>0) && (iterations>=n) ) {
+              potentials <- adj(landscape, loci, directions, pairs=F)
+              
+              # drop those ineligible
+              if (!is.null(mask)){
+                potentials <- potentials[potentials %in% masked]
+                
+                # Should this be unique?
+                if (mergeDuplicates)
+                  potentials <- unique(potentials[spreads[potentials]==0])
+                else 
+                  potentials <- potentials[spreads[potentials]==0]
+              } else {
+                if (mergeDuplicates)
+                  potentials <- unique(potentials[spreads[potentials]==0])
+                else 
+                  potentials <- potentials[spreads[potentials]==0]
+              }
+              
+              # select which potentials actually happened
+              # nrow() only works if potentials is an array
+              if (!is.numeric(spreadProb)) {
+                #  ItHappened <- runif(nrow(potentials)) <= spreadProb
+                #} else {
+                stop("Unsupported type:spreadProb") # methods for raster* or function args
+              }
+              
+              events <- potentials[runif(length(potentials))<=spreadProb]
+              
+              # Implement maxSize
+              if((size+length(events)) > maxSize) {
+                keep<-length(events) - ((size+length(events)) - maxSize)
+                events<-events[sample(length(events),keep)]
+              }
+              
+              size <- size + length(unique(events))
+              
+              # update eligibility map
+              
+              n <- n+1
+              spreads[events] <- n
+              
+              if(size >= maxSize) {
+                events <- NULL
+              }
+              
+              # drop or keep loci
+              if (is.null(persistance) | is.na(persistance)) {
+                loci <- NULL
+              } else {
+                if (inRange(persistance)) {
+                  loci <- loci[runif(length(loci))<=persistance]
+                } else {
+                  # here is were we would handle methods for raster* or functions
+                  stop("Unsupported type: persistance")
+                }
+              }
+              
+              loci <- c(loci, events)
+              
+              if (plot.it){
+                top <- raster(landscape)
+                top <- setValues(top,spreads)
+                simPlot(top, ...)
+              }
+              #    simPlot(raster(matrix(spreads,ncol=10,nrow=10,byrow=T)),col=c("grey","black"))
+              
+            }
+            
+            # Convert the data.table back to raster
+            spre <- raster(landscape)
+            spre <- setValues(spre, spreads)
+            return(spre)
+          }
+          
 )
