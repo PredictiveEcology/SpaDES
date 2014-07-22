@@ -1,5 +1,5 @@
 ##############################################################
-#' Fast `adjacent` function
+#' Fast `adjacent` function, and Just In Time compiled version
 #'
 #' Faster function for determining the cells of the 4, 8 or bishop
 #'  neighbours of the \code{cells}. This is a hybrid function that uses
@@ -59,7 +59,7 @@
 #' numCell <- ncell(a)
 #' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 #' print(head(adj.new))
-adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
+adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
                 numCol=NULL,numCell=NULL,match.adjacent=FALSE,cutoff.for.data.table = 1e4){
   if ((length(cells)<cutoff.for.data.table)) {
     if (is.null(numCol) | is.null(numCell)) {
@@ -258,6 +258,12 @@ adj <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,ta
       ]))
   }
 }
+
+#' @import compiler
+#' @docType methods
+#' @export
+#' @rdname adj
+adj <- cmpfun(adj.raw)
 
 ##############################################################
 #' Circle around an agent.
