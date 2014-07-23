@@ -110,20 +110,21 @@ setMethod("spread",
               potentials <- adj(landscape, loci, directions, pairs=F)
               
               # drop those ineligible
-              if (!is.null(mask)){
+              if (!is.null(mask))
                 potentials <- potentials[potentials %in% masked]
                 
-                # Should this be unique?
-                if (mergeDuplicates)
-                  potentials <- unique(potentials[spreads[potentials]==0])
-                else 
-                  potentials <- potentials[spreads[potentials]==0]
-              } else {
-                if (mergeDuplicates)
-                  potentials <- unique(potentials[spreads[potentials]==0])
-                else 
-                  potentials <- potentials[spreads[potentials]==0]
-              }
+              # Should this be unique?
+              # only accept cells that have no fire yet
+              if (mergeDuplicates)
+                potentials <- unique(potentials[spreads[potentials]==0])
+              else 
+                potentials <- potentials[spreads[potentials]==0]
+#               } else {
+#                 if (mergeDuplicates)
+#                   potentials <- unique(potentials[spreads[potentials]==0])
+#                 else 
+#                   potentials <- potentials[spreads[potentials]==0]
+#               }
               
               # select which potentials actually happened
               # nrow() only works if potentials is an array
@@ -167,6 +168,11 @@ setMethod("spread",
               loci <- c(loci, events)
               
               if (plot.it){
+#                 if (!is.null(events)) {
+#                 pts = SpatialPoints(xyFromCell(landscape,events))
+#                 simPlot(x=pts,on.which.to.plot="fire",add=T,pch=15,
+#                         delete.previous = F, gp=gpar(cex=0.5))
+#                 }
                 top <- raster(landscape)
                 top <- setValues(top,spreads)
                 simPlot(top, ...)
