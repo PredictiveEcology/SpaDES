@@ -12,7 +12,7 @@ library(RColorBrewer)
 #library(compiler)
 #enableJIT(3)
 #library(SpaDES)
-a = raster(extent(0,1e3,0,1e3),res=1)
+a = raster(extent(0,1e2,0,1e2),res=1)
 landscape = hab = GaussMap(a,speedup=10)
 names(hab)="hab"
 cells = loci = b = as.integer(sample(1:ncell(a),1e1))
@@ -22,9 +22,9 @@ mask[1:50] <- 1
 numCol <- ncol(a)
 numCell <- ncell(a)
 directions=8
-
-# Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
 cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+# Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
+
 plot(hab)
 dE = drawExtent()
 dev(2)
@@ -32,19 +32,45 @@ simPlot(crop(hab,dE),col=cols[[2]])
 names(hab)<-"hab"
 (mb2 = microbenchmark(times = 1L,
 fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
-                spreadProb = 0.225,0,NULL,1e6,8,1e6,mergeDuplicates = T,
+                spreadProb = 0.235,0,NULL,1e8,8,1e6,mergeDuplicates = T,
                 plot.it=F,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab"),
 dis <-  distanceFromPoints(hab,pts)
 ))
 
+fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
+                spreadProb = 0.225,0,NULL,1e8,8,1e6,mergeDuplicates = T,
+                plot.it=T,col=cols[[1]],delete.previous=F,add=F,on.which.to.plot="hab")
 names(fire2)<-"fire"
-plot(hab,maxpixels=1e4)
-plot(fire2,maxpixels = 1e5)
+
+vp = viewport(xscale = rangex,yscale= rangey,width=0.8,height=0.8,
+              name=paste(deparse(substitute(x))))
+
+simPlot(fire2,col=cols[[1]])
+upViewport()
+grid.raster(as.raster(cols[[1]][9:2] ),
+            x=0.94,y=0.5,height=0.5,width=0.03,
+            interpolate=TRUE)
+pr = unname(quantile(range(minValue(fire2),maxValue(fire2)),c(0,0.5,1)))
+grid.text(pr,x=0.98, y = pr/(2*max(pr,na.rm=T))+0.25,...)
+
+
+
+dev(4)
+
+pts = SpatialPoints(xyFromCell(fire2,Which(fire2>0,cells=T)))
+simPlot(x=pts,on.which.to.plot="fire",add=T,pch=15,gp=gpar(cex=0.5))
+(mb = microbenchmark(
+simPlot(fire2,col=cols[[1]]),
+simPlot(x=pts,on.which.to.plot="fire",add=T,pch=15,gp=gpar(cex=0.5)),
+times=10L
+))
+
+# crop
 simPlot(crop(hab,dE),col=cols[[2]])
 simPlot(crop(fire2,dE),add=T,on.which.to.plot="hab",delete.previous=F,col= cols[[1]])
 
 simPlot(stack(fire2,hab),col=cols[1:2],speedup=4)
-#simPlot(fire2,speedup=1,col=cols[[1]])
+#
 
 simPlot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="hab",delete.previous=F)
 simPlot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="fire",delete.previous=F)

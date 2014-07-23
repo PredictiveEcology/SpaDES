@@ -107,7 +107,8 @@ newPlot = function(...) {
 # @examples
 # needs examples
 setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
-                               col=rev(terrain.colors(255)), ..., add=FALSE, speedup=1, axes = "L") {
+                               col=rev(terrain.colors(255)), ..., add=FALSE, speedup=1, 
+                               axes = "L", add.legend=T) {
            standardGeneric("simPlot")
 })
 
@@ -115,7 +116,7 @@ setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "RasterStack",
-          definition = function(x, on.which.to.plot, which.to.plot, col, ..., add, speedup, axes) {
+          definition = function(x, on.which.to.plot, which.to.plot, col, ..., add, speedup, axes, add.legend) {
               nam = names(x)
               ext = extent(x)
 #              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
@@ -192,7 +193,8 @@ setMethod("simPlot",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "RasterLayer",
-          definition = function(x, on.which.to.plot,which.to.plot, col, delete.previous=TRUE, ..., add, speedup, axes) {
+          definition = function(x, on.which.to.plot,which.to.plot, col, delete.previous=TRUE, ..., 
+                                add, speedup, axes, add.legend = T) {
               ext = extent(x)
               if (add==TRUE) {
                 wh=which(names(x)==grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name)
@@ -246,6 +248,16 @@ setMethod("simPlot",
                               name=nam,...)
                   #upViewport()
                 })
+                if (add.legend){
+                  #upViewport()
+                  grid.raster(as.raster(col[[1]][length(col[[1]]):1] ),
+                              x=1.04,y=0.5,height=0.5,width=0.03,
+                              interpolate=TRUE)
+                  pr = unname(quantile(range(minValue(x),maxValue(x)),c(0,0.5,1)))
+                  grid.text(pr,x=1.08, y = pr/(2*max(pr,na.rm=T))+0.25,...)
+                  
+                }
+                  
 
               } else if (add==TRUE){
                   vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=FALSE, flatten=TRUE, print=F)$name
@@ -283,8 +295,8 @@ setMethod("simPlot",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "SpatialPoints",
-          definition = function(x, ext, on.which.to.plot, map.names=NULL, delete.previous=TRUE,
-                                max.agents = 1e4, ..., add = TRUE, speedup, axes ) {
+          definition = function(x, ext, on.which.to.plot=1, map.names=NULL, delete.previous=TRUE,
+                                max.agents = 1e4, ..., add = TRUE, speedup, axes, add.legend ) {
             ext = extent(x)  
             len = length(x)
             if (len>max.agents) {
