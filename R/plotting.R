@@ -8,11 +8,6 @@
 ###################################################################
 
 
-# Notes to self (Eliot)... 
-#DONE 1. fix when rasters are not square... need equivalent to eqscplot
-#DONE 2. use arrangeSimPlot for pointAgent
-# 3. allow plotting of legends
-
 ##############################################################
 #' Specify where to plot
 #'
@@ -116,7 +111,8 @@ setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "RasterStack",
-          definition = function(x, on.which.to.plot, which.to.plot, col, ..., add, speedup, axes, add.legend) {
+          definition = function(x, on.which.to.plot, which.to.plot, col, ..., 
+                                add, speedup, axes, add.legend = T) {
               nam = names(x)
               ext = extent(x)
 #              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
@@ -165,9 +161,22 @@ setMethod("simPlot",
                       grid.raster(as.raster(x[[w]], maxpixels=1e3/(columns*rows)*prod(ds)/speedup,
                                             col=col[[ma]] ),
                                   interpolate=FALSE, name=w,...)
+                      if (add.legend){
+                        #upViewport()
+                        grid.raster(as.raster(col[[i]][length(col[[i]]):1] ),
+                                    x=1.04,y=0.5,height=0.5,width=0.03,
+                                    interpolate=TRUE)
+                        pr = pretty(range(minValue(x[[w]]),maxValue(x[[w]])))
+                        pr = pr[pr<maxValue(x[[w]])]
+                        grid.text(pr,x=1.08, y = pr/(2*maxValue(x[[w]]))+0.25,
+                                  gp=gpar(cex=max(0.5,1-0.05*length(wh))),...)
+                        
+                      }
+                      
                       upViewport()
                     }
                  })
+                 
               } else if (add==TRUE){
                     vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
                     vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
@@ -253,8 +262,9 @@ setMethod("simPlot",
                   grid.raster(as.raster(col[[1]][length(col[[1]]):1] ),
                               x=1.04,y=0.5,height=0.5,width=0.03,
                               interpolate=TRUE)
-                  pr = unname(quantile(range(minValue(x),maxValue(x)),c(0,0.5,1)))
-                  grid.text(pr,x=1.08, y = pr/(2*max(pr,na.rm=T))+0.25,...)
+                  pr = pretty(range(minValue(x),maxValue(x)))
+                  pr = pr[pr<maxValue(x)]
+                  grid.text(pr,x=1.08, y = pr/(2*maxValue(x))+0.25,...)
                   
                 }
                   

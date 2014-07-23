@@ -25,7 +25,7 @@ directions=8
 cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
 # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
 
-plot(hab)
+simPlot(hab)
 dE = drawExtent()
 dev(2)
 simPlot(crop(hab,dE),col=cols[[2]])
@@ -37,9 +37,12 @@ fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
 dis <-  distanceFromPoints(hab,pts)
 ))
 
-fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
-                spreadProb = 0.225,0,NULL,1e8,8,1e6,mergeDuplicates = T,
-                plot.it=T,col=cols[[1]],delete.previous=F,add=F,on.which.to.plot="hab")
+dev(4)
+fires = list()
+for (fir in 1:10)
+fires[[fir]] <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
+                spreadProb = runif(1,0.2,0.3),0,NULL,1e8,8,1e6,mergeDuplicates = T,
+                plot.it=F,col=cols[[1]],delete.previous=T,add=F,on.which.to.plot="hab")
 names(fire2)<-"fire"
 
 vp = viewport(xscale = rangex,yscale= rangey,width=0.8,height=0.8,
@@ -69,7 +72,7 @@ times=10L
 simPlot(crop(hab,dE),col=cols[[2]])
 simPlot(crop(fire2,dE),add=T,on.which.to.plot="hab",delete.previous=F,col= cols[[1]])
 
-simPlot(stack(fire2,hab),col=cols[1:2],speedup=4)
+simPlot(stack(stack(fires),hab),col=cols[c(sample(1:3,15,replace=T),2)])
 #
 
 simPlot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="hab",delete.previous=F)
