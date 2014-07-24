@@ -28,7 +28,7 @@
 #'
 #@examples
 #EXAMPLES NEEDED
-GaussMap = function(x, scale=10, var=1, speedup=10) {#, fast = TRUE, n.unique.pixels = 100) {
+GaussMap = function(x, scale=10, var=1, speedup=10,...) {#, fast = TRUE, n.unique.pixels = 100) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
@@ -36,11 +36,13 @@ GaussMap = function(x, scale=10, var=1, speedup=10) {#, fast = TRUE, n.unique.pi
   nr = (ext@ymax-ext@ymin)/speedup
   
   model <- RMexp(scale=scale, var=var)
-  sim <- raster(RFsimulate(model, x=1:nc, y=1:nr, grid=TRUE))
+  sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...),template=x)
   sim <- sim - cellStats(sim, "min")
-  extent(sim) <- ext
-  
-  return(disaggregate(sim, c(speedup, speedup)))
+  #extent(sim)<-ext
+  if(speedup>1)
+    return(disaggregate(sim, c(speedup, speedup)))
+  else
+    return(sim)
 }
 
 ##############################################################
