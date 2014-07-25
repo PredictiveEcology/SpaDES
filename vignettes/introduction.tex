@@ -166,25 +166,25 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 \end{Sinput}
 \begin{Soutput}
     Alice       Bob     Clark     Daisy      Eric     Franz     Gabby    Hayley 
-217.16423 214.35058 313.08274  20.10693 329.57014 204.27571  42.89194  56.16321 
+303.24549 347.11640  84.23531 323.28008 239.18583 195.04528  54.14145  55.02652 
      Igor      Jane 
-244.11175 228.76567 
+ 72.77079 228.10522 
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
-                 x          y
-Alice    0.1294032   9.115847
-Bob    -10.6222364  -6.001149
-Clark    5.6244262  18.800759
-Daisy   -5.8734923  25.134108
-Eric    15.5981518  29.945377
-Franz   12.5689870 -33.224213
-Gabby    5.4981422  23.091096
-Hayley  22.2043170   8.558081
-Igor    22.6617411  -6.961075
-Jane   -29.9194073  -9.720533
+                x           y
+Alice   -7.357724  30.4214478
+Bob    -27.497599  27.3032919
+Clark  -13.771989 -13.0097332
+Daisy   -8.736794  27.7304971
+Eric     3.314618  -4.0533017
+Franz  -25.573490  12.9357876
+Gabby   26.495074 -10.2524419
+Hayley  -8.279154  -4.0691810
+Igor   -12.002937  25.3864274
+Jane    16.520854  -0.2535602
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method - agents don't plot properly when it is a raster stack
@@ -250,22 +250,22 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--45.318  -19.024   -1.776   10.046   34.105  
+-33.511  -14.083   -2.176    8.025   25.961  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  7.131320   0.018632  382.75   <2e-16 ***
-fire1       -1.654289   0.041623  -39.74   <2e-16 ***
-pine        -0.134100   0.004242  -31.61   <2e-16 ***
-fire1:pine   0.155818   0.007999   19.48   <2e-16 ***
+(Intercept)  6.140263   0.026145 234.850   <2e-16 ***
+fire1       -1.227184   0.051229 -23.955   <2e-16 ***
+pine         0.043298   0.004640   9.332   <2e-16 ***
+fire1:pine   0.177246   0.007969  22.242   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 11729.5  on 19  degrees of freedom
-Residual deviance:  8360.1  on 16  degrees of freedom
-AIC: 8507.9
+    Null deviance: 7155.9  on 18  degrees of freedom
+Residual deviance: 5723.9  on 15  degrees of freedom
+AIC: 5874.8
 
 Number of Fisher Scoring iterations: 5
 \end{Soutput}
@@ -288,7 +288,7 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 
 \section{A simple individual based model (IBM)}
 \paragraph{Move some agents}
-Using a simple habitat depedent correlated random walk, simulate the movement of caribou across a heterogeneous landscape. 
+Using a simple habitat depedent correlated random walk, simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 \begin{Schunk}
 \begin{Sinput}

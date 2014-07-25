@@ -225,7 +225,7 @@ simPlot(habitat,col = cols[c(2:5,3,1)])
 
 \section{A simple individual based model (IBM)}
 \paragraph{Move some agents}
-Using a simple habitat depedent correlated random walk, simulate the movement of caribou across a heterogeneous landscape. 
+Using a simple habitat depedent correlated random walk, simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 <<Agent-crw-trajectory, fig=TRUE>>=
 simPlot(habitat[["HabitatQuality"]],col = cols[[3]])
