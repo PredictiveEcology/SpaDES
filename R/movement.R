@@ -56,13 +56,15 @@ crw = function(agent, stepLength, stddev, lonlat) {
     
     
     # these should use `coordinates(agent) <-` or similar set methods
-    agent$prevX <- agent$x
-    agent$prevY <- agent$y
+    # But, the assignment can't be used for overriding coordinates
+    #  Must use slots directly
+    agent@data[,c("prevX","prevY")] = coordinates(agent)
     agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
                           y=agent$y + cos(rad(rndDir)) * stepLength)
     
+    # These are not needed. Could be added with arguments to function
     #agent$heading = agentHeading
-    agent$distance = pointDistance(prevPos, agent, lonlat=lonlat)
+    #agent$distance = pointDistance(prevPos, agent, lonlat=lonlat)
     
     return(agent)
 }
