@@ -80,13 +80,42 @@ devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 Sample map of habitat quality.
 
 <<habitat-map, fig=TRUE>>=
-nx = 1e3
-ny = 1e3
-habitat = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
-habitat = round(GaussMap(habitat, speedup=10), 1)
-names(habitat) = "habitatQuality"
 
-simPlot(habitat)
+# Give dimensions of dummy raster
+nx = 1.3e2
+ny = 1e2
+template = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
+
+# Make dummy maps for testing of models
+DEM = round(GaussMap(template, scale = 300, var = 0.03, speedup=1), 1)*1000
+Age = round(GaussMap(template, scale = 10, var = 0.1, speedup=1), 1)*20
+Forest_Cover = round(GaussMap(template, scale = 50, var = 1, speedup=1))*10
+Pct_Pine = round(GaussMap(template, scale = 50, var = 1, speedup=1),1)
+
+# Scale them as needed
+Age = Age/maxValue(Age)*100
+Pct_Pine = Pct_Pine/maxValue(Pct_Pine)*100
+
+# Make layers that are derived from other layers
+HabitatQuality = (DEM + Forest_Cover*10)/100
+HabitatQuality = HabitatQuality - minValue(HabitatQuality)
+
+# Stack them into a single stack for plotting
+habitat = stack(list(DEM,Age,Forest_Cover,HabitatQuality,Pct_Pine))
+
+names(habitat) = c("DEM","Age", "Forest_Cover", "HabitatQuality", "Pct_Pin")
+
+library(RColorBrewer)
+cols = list(
+  transparent.red=c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
+  grey = brewer.pal(9,"Greys"),
+  spectral = brewer.pal(8,"Spectral"),
+  terrain = rev(terrain.colors(100)),
+  heat = heat.colors(10),
+  topo = topo.colors(10)
+  )
+
+simPlot(habitat,col = cols[c(2:5,3)])
 @
 
 \newpage
@@ -120,29 +149,79 @@ IDs <- c("Alice", "Bob", "Clark", "Daisy", "Eric",
 sex <- c("female", "male", "male", "female", "male",
          "male", "female", "female", "male", "female")
 age <- round(rnorm(N, mean=8, sd=3))
-prevX <- rnorm(N, mean=0, sd=100) # previous X location
-prevY <- rnorm(N, mean=0, sd=100) # previous Y location
+prevX <- runif(N, xmin(habitat)+(ncol(habitat)*0.2), xmax(habitat)-(ncol(habitat)*0.2)) # previous X location
+prevY <- runif(N, ymin(habitat)+(nrow(habitat)*0.2), ymax(habitat)-(nrow(habitat)*0.2)) # previous Y location
 
 # create the caribou agent object
-caribou <- SpatialPointsDataFrame(coords=cbind(x=rnorm(N, mean=0, sd=100),
-                                               y=rnorm(N, mean=0, sd=100)),
+caribou <- SpatialPointsDataFrame(coords=cbind(x=rnorm(N, prevX, ncol(habitat)/20),
+                                               y=rnorm(N, prevY, ncol(habitat)/20)),
                                   data=data.frame(prevX, prevY, sex, age))
 row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
 
-head(caribou)
+heading(SpatialPoints(cbind(x=prevX,y=prevY)),caribou)
 coordinates(caribou)
 
-## conventional plotting method
+## conventional plotting method - agents don't plot properly when it is a raster stack
 #plot(habitat)
 #plot(caribou, add=TRUE)
 
-# improved plotting using simPlot
-simPlot(habitat)
-simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19,
-        gp=gpar(cex=0.1), delete.previous=FALSE)
+# convenient plotting using simPlot
+simPlot(habitat,col = cols[c(2:5,3)])
+simPlot(caribou,on.which.to.plot=c(2,3,5),pch=19,size=unit(0.1,"inches"))
+drawArrows(from = SpatialPoints(cbind(x=prevX,y=prevY)),
+           to = caribou,
+           on.which.to.plot = "DEM")
 @
 
-\newpage
+\section{A simple fire model}
+
+\paragraph{Burn some of the forest}
+Using the spread function, we can simulate fires, and subsequent changes to the various map layers
+<<fire, fig=FALSE>>=
+nFires <- 100 # number of agents
+habitat[["Fires"]] <- spread(habitat[[1]],loci=as.integer(sample(1:ncell(habitat),nFires)),
+                             spreadProb = habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.12,
+                             persistance=0,
+                             mask = NULL,
+                             maxSize = 1e8,
+                             directions = 8,
+                             iterations=1e6,
+                             mergeDuplicates = T)
+@
+
+\paragraph{}
+
+<<fire-overlaid, fig=TRUE>>=
+# Show the burning more strongly over abundant pine
+simPlot(habitat[["Pct_Pin"]],col=cols[[3]])
+simPlot(habitat[["Fires"]],add=T,delete.previous=F,col=cols[[1]])
+@
+
+
+\paragraph{}
+We can see that the fires tend to be in the Pines because we made it that way, using an arbitrary weighting with pine abundance
+
+<<fire-impacts, fig=FALSE>>=
+# Show the burning more strongly over abundant pine
+fire<-reclassify(habitat[["Fires"]],rcl= cbind(0:1,c(0,100),0:1))
+pine<-reclassify(habitat[["Pct_Pin"]],rcl= cbind(0:9*10,1:10*10,0:9))
+PineByFire<-crosstab(fire,pine,long=T)
+colnames(PineByFire)<-c("fire","pine","freq")
+PineByFire$pine <- as.numeric(as.character(PineByFire$pine))
+summary(glm(freq ~ fire*pine, data=PineByFire,family="poisson"))
+@
+
+\paragraph{}
+Sure enough, there are more fires as the abundance of pine goes up, as seen by the positive interaction term (the negative fire1 term means that there are more pixels without fires than with fires).
+
+\paragraph{Impact some of the forest}
+<<Fire-impacts-maps, fig=TRUE>>=
+  habitat[["Age"]][habitat[["Fires"]]>0] <- 0
+habitat[["Forest_Cover"]][habitat[["Fires"]]>0] <- 0
+habitat[["HabitatQuality"]][habitat[["Fires"]]>0] <- 0
+habitat[["Pct_Pin"]][habitat[["Fires"]]>0] <- 0
+simPlot(habitat)
+@
 
 \section{A simple individual based model (IBM)}
 
