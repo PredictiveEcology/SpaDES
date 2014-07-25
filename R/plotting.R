@@ -81,6 +81,9 @@ newPlot = function(...) {
 #' 
 #' @param col a colour palette vector, possibly from RColorBrewer. Defaults to rev(terrain.colors(255))
 #' 
+#' @param visualSqueeze numeric index (from 0 to 1) that indicates how tightly the rasters should be plotted next
+#' to each other. Default is 0.75, which allows for legends. 
+#' 
 #' @param ... Additional plotting functions passed to grid.raster (if rasterStack) or grid.points (if pointAgent)
 #'
 #' @param add Logical indicating whether to plot new maps (\code{FALSE}) or update exising maps (\code{TRUE}).
@@ -102,7 +105,7 @@ newPlot = function(...) {
 # @examples
 # needs examples
 setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
-                               col=rev(terrain.colors(255)), ..., add=FALSE, speedup=1, 
+                               col=rev(terrain.colors(255)), visualSqueeze = 0.75, ..., add=FALSE, speedup=1, 
                                axes = "L", add.legend=T) {
            standardGeneric("simPlot")
 })
@@ -111,7 +114,7 @@ setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "RasterStack",
-          definition = function(x, on.which.to.plot, which.to.plot, col, ..., 
+          definition = function(x, on.which.to.plot, which.to.plot="all", col, visualSqueeze, ..., 
                                 add, speedup, axes, add.legend = T) {
               nam = names(x)
               ext = extent(x)
@@ -132,7 +135,9 @@ setMethod("simPlot",
                       ma = match(w,nam)
                       if(is.numeric(wh)) i = match(ma,wh) else i = match(nam[ma],wh)
                       
-                      vp[[i]] <- viewport(x=cr[i,"columns"], y=cr[i,"rows"], width=1/columns*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
+                      vp[[i]] <- viewport(x=cr[i,"columns"], y=cr[i,"rows"], 
+                                          width=min(1/columns*visualSqueeze,1/columns*visualSqueeze/(ds.map.ratio/actual.ratio)), 
+                                          height=min(1/rows*visualSqueeze,1/rows*visualSqueeze/(actual.ratio/ds.map.ratio)),
                                           just = "centre",
                                           name = w,
                                           xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
@@ -140,20 +145,21 @@ setMethod("simPlot",
                       if (axes != "none" & axes != FALSE) {
                           if (axes == "L") {
                               if (cr$columns[i]==min(cr$columns)) {
-                                  #grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]])#/max(1,actual.ratio/ds.map.ratio), label=prettys[["y"]])
-                                  grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
-                                             label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
+                                  grid.yaxis(gp=gpar(cex=0.5))
+                                  #grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
+                                  #           label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
                               }
                               if (cr$rows[i] == min(cr$rows)) {
                                   #grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), label=prettys[["x"]])
-                                  grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/min(1,ds.map.ratio/actual.ratio), 
-                                             label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
+                                grid.xaxis(gp=gpar(cex=0.5))
+#                                   grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/min(1,ds.map.ratio/actual.ratio), 
+#                                              label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
                               }
                           } else {
-                              grid.xaxis(gp=gpar(cex=0.5), at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
-                                         label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
-                              grid.yaxis(gp=gpar(cex=0.5), at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
-                                         label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
+                              grid.xaxis(gp=gpar(cex=0.5))#, at=prettys[["x"]]/max(1,ds.map.ratio/actual.ratio), 
+                              #           label=prettys[["x"]],name=paste(w,"xaxis",sep=""))
+                              grid.yaxis(gp=gpar(cex=0.5))#, at=prettys[["y"]]/max(1,actual.ratio/ds.map.ratio), 
+                              #           label=prettys[["y"]],name=paste(w,"yaxis",sep=""))
                           }
                       }
                       grid.text(names(x)[ma], y=1.08, vjust=0.5, gp=gpar(cex=1-0.015*length(wh)),
@@ -169,7 +175,8 @@ setMethod("simPlot",
                         pr = pretty(range(minValue(x[[w]]),maxValue(x[[w]])))
                         pr = pr[pr<maxValue(x[[w]])]
                         grid.text(pr,x=1.08, y = pr/(2*maxValue(x[[w]]))+0.25,
-                                  gp=gpar(cex=max(0.5,1-0.05*length(wh))),...)
+                                  gp=gpar(cex=max(0.5,1-0.05*length(wh))),
+                                  just = "left",...)
                         
                       }
                       
@@ -202,7 +209,7 @@ setMethod("simPlot",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "RasterLayer",
-          definition = function(x, on.which.to.plot,which.to.plot, col, delete.previous=TRUE, ..., 
+          definition = function(x, on.which.to.plot,which.to.plot, col, visualSqueeze, delete.previous=TRUE, ..., 
                                 add, speedup, axes, add.legend = T) {
               ext = extent(x)
               if (add==TRUE) {
@@ -220,10 +227,12 @@ setMethod("simPlot",
               if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
               
               if (add==FALSE) {
-                arr = arrangeSimPlots(ext,dimx,nam,which.to.plot=1,axes=axes)#,...)        
+                arr = arrangeSimPlots(ext,dimx,nam,which.to.plot=1,axes=axes,...)        
                 with (arr, {
                   grid.newpage()
-                  vp <- viewport(x=cr[1,"columns"], y=cr[1,"rows"], width=1/columns*0.8/(ds.map.ratio/actual.ratio), height=1/rows*0.8,
+                  vp <- viewport(x=cr[1,"columns"], y=cr[1,"rows"], 
+                                 width=1/columns*visualSqueeze/(ds.map.ratio/actual.ratio), 
+                                 height=1/rows*visualSqueeze,
                     just = "centre",
                     name = nam,
                     xscale = c(xmin(ext),xmax(ext)),yscale= c(ymin(ext),ymax(ext)))
@@ -264,7 +273,7 @@ setMethod("simPlot",
                               interpolate=TRUE)
                   pr = pretty(range(minValue(x),maxValue(x)))
                   pr = pr[pr<maxValue(x)]
-                  grid.text(pr,x=1.08, y = pr/(2*maxValue(x))+0.25,...)
+                  grid.text(pr,x=1.08, y = pr/(2*maxValue(x))+0.25,just="left",...)
                   
                 }
                   
@@ -284,7 +293,7 @@ setMethod("simPlot",
                   grid.raster(as.raster(x,maxpixels=1e3/(length(vp.names))*prod(dev.size())/speedup,
                                         col=col[[1]]),interpolate = F,
                               name=nam,...)
-#                  upViewport()
+                  upViewport(0)
                                         
               } else {
                   stop("Error: Logical `add` should be TRUE or FALSE.")
@@ -293,8 +302,6 @@ setMethod("simPlot",
 
 		  
 #' @param ext an extent object to describe the size of the map that is being plotted on
-#'
-#' @param map.names a character vector with the names of the maps. If NULL, the default, then it reads from existing plot names
 #'
 #' @param delete.previous should the immediately previously simPlotted object be removed before adding current simPlot call
 #'
@@ -305,9 +312,9 @@ setMethod("simPlot",
 #' @rdname simPlot
 setMethod("simPlot",
           signature = "SpatialPoints",
-          definition = function(x, ext, on.which.to.plot=1, map.names=NULL, delete.previous=TRUE,
+          definition = function(x, on.which.to.plot=1, which.to.plot, visualSqueeze=0.75, delete.previous=TRUE,
                                 max.agents = 1e4, ..., add = TRUE, speedup, axes, add.legend ) {
-            ext = extent(x)  
+            #ext = extent(x)  
             len = length(x)
             if (len>max.agents) {
                 sam = sample.int(len,size=max.agents,replace=F) 
@@ -325,14 +332,13 @@ setMethod("simPlot",
             rangex = range(x1)
             rangey = range(y1)
 
-#              if(!exists("gp1")){if (exists("cex")) {gp1 = gpar(cex = cex);rm(cex)} else {gp1=gpar()}}
-
             if (add==FALSE) {
               arr = arrangeSimPlots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")    
 
               grid.newpage()
               with(arr, {
-                  vp = viewport(xscale = rangex,yscale= rangey,width=0.8,height=0.8,
+                  vp = viewport(xscale = rangex,yscale= rangey,
+                                width=visualSqueeze,height=visualSqueeze,
                                 name=paste(deparse(substitute(x))))
                   pushViewport(vp)
                   grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.map.ratio),
@@ -351,38 +357,25 @@ setMethod("simPlot",
                   
 #                     grid.xaxis(gp=gpar(cex=0.5),at = seq(ats[["x"]][1],ats[["x"]][2],length.out=length(prettys[["x"]])),label = prettys[["x"]])
 #                     grid.yaxis(gp=gpar(cex=0.5),at = seq(ats[["y"]][1],ats[["y"]][2],length.out=length(prettys[["y"]])),label = prettys[["y"]])
-                  upViewport()
+                  upViewport(0)
               })
 #                grid.yaxis(gp=gpar(cex=0.5),at = pretty(rangey/max(1,actual.ratio/ds.ratio)),label = pretty(rangey))
             } else { #add=T
-                if(is.null(map.names)) {
-                    vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
-                    vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
-#                      vp.names= vp.names[1:trunc(length(vp.names)/2)*2]
+              vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
+              vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+
+              for (k in 1:length(on.which.to.plot)) {
+                upViewport(0)
+                if(is.numeric(on.which.to.plot[k])) {
+                  vp.to.plot=vp.names[on.which.to.plot[k]]
+                  seekViewport(vp.to.plot)
                 } else {
-                    vp.names = map.names
+                    vp.to.plot = on.which.to.plot[k]
+                  seekViewport(vp.to.plot)
                 }
-                arr = arrangeSimPlots(ext,length(vp.names),
-                                       deparse(substitute(x)),1:length(vp.names),axes="L")    
-                for (k in 1:length(on.which.to.plot)) {
-                  if(is.numeric(on.which.to.plot[k])) {
-                    vp.to.plot=vp.names[on.which.to.plot[k]]
-                    seekViewport(vp.to.plot)
-                  } else {
-                      vp.to.plot = on.which.to.plot[k]
-                    seekViewport(vp.to.plot)
-                  }
-                  
-                  with(arr,{
-                      if (delete.previous) {grob.names = grid.ls(grobs=TRUE, recursive=TRUE, print=FALSE)$name
-                         if(any(grob.names==deparse(substitute(x))))
-                            grid.remove(deparse(substitute(x)))
-                      }                    
-                      grid.points(x1/max(1,ds.map.ratio/actual.ratio),y1/max(1,actual.ratio/ds.ratio),
-                                  name = deparse(substitute(x)), ...)  
-#                    grid.points(x1,y1,gp=gpar(cex=0.4),pch=19,...)  
-                  })
-                  upViewport()
+                
+                grid.points(x1,y1,
+                            name = deparse(substitute(x)), ...)  
               }
             }
 })
@@ -423,7 +416,7 @@ arrangeSimPlots = function(ext, dimx, nam, which.to.plot, axes="L") {
     ds = dev.size()
     ds.ratio = ds[1]/ds[2]
     
-    map.ratio = (xmax(ext)-xmin(ext))/(ymax(ext)-ymin(ext))
+    map.ratio = dimx[2]/dimx[1]
     
     ds.map.ratio = ds.ratio/map.ratio
     
@@ -473,7 +466,7 @@ arrangeSimPlots = function(ext, dimx, nam, which.to.plot, axes="L") {
 # @examples
 # NEEDS EXAMPLES
 #' 
-setGeneric("drawArrows", function(from, to, ...) {
+setGeneric("drawArrows", function(from, to, on.which.to.plot=1, ...) {
   standardGeneric("drawArrows")
 })
 
@@ -490,6 +483,26 @@ setGeneric("drawArrows", function(from, to, ...) {
 #' drawArrows(to, from)
 setMethod("drawArrows",
           signature=c("SpatialPoints","SpatialPoints"),
-          definition = function(from, to, ..., length=0.1) {
-            arrows(from$x, from$y, to$x, to$y, ..., length=length)
+          definition = function(from, to, on.which.to.plot=1, ..., length = 0.1) {
+            vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
+            vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
+            for (k in 1:length(on.which.to.plot)) {
+              if(is.numeric(on.which.to.plot[k])) {
+                vp.to.plot=vp.names[on.which.to.plot[k]]
+                seekViewport(vp.to.plot)
+              } else {
+                vp.to.plot = on.which.to.plot[k]
+                seekViewport(vp.to.plot)
+              }
+              
+              
+            grid.polyline(x = c(from$x,to$x),
+                       y = c(from$y,to$y),default.units="native",
+                       id = rep(1:length(from),2),
+                       #default.units = "npc",
+                       arrow = arrow(length = unit(length,"inches"), ...))#, #name = NULL,
+            upViewport()
+            }
+            #           gp=gpar(), 
+#            arrows(from$x, from$y, to$x, to$y, ..., length=length)
 })
