@@ -5,10 +5,10 @@
 \alias{drawArrows,SpatialPoints,SpatialPoints-method}
 \title{plot arrows showing direction of mobileAgent movement}
 \usage{
-drawArrows(from, to, ...)
+drawArrows(from, to, on.which.to.plot = 1, ...)
 
-\S4method{drawArrows}{SpatialPoints,SpatialPoints}(from, to, ...,
-  length = 0.1)
+\S4method{drawArrows}{SpatialPoints,SpatialPoints}(from, to,
+  on.which.to.plot = 1, ..., length = 0.1)
 }
 \arguments{
 \item{agent}{A \code{mobileAgent} object.}

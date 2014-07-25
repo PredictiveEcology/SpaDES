@@ -8,19 +8,21 @@
 \title{Plotting methods}
 \usage{
 simPlot(x, on.which.to.plot = 1, which.to.plot = "all",
-  col = rev(terrain.colors(255)), ..., add = FALSE, speedup = 1,
-  axes = "L")
+  col = rev(terrain.colors(255)), visualSqueeze = 0.75, ..., add = FALSE,
+  speedup = 1, axes = "L", add.legend = T)
 
 \S4method{simPlot}{RasterStack}(x, on.which.to.plot = 1,
-  which.to.plot = "all", col = rev(terrain.colors(255)), ..., add = FALSE,
-  speedup = 1, axes = "L")
+  which.to.plot = "all", col = rev(terrain.colors(255)),
+  visualSqueeze = 0.75, ..., add = FALSE, speedup = 1, axes = "L",
+  add.legend = T)
 
 \S4method{simPlot}{RasterLayer}(x, on.which.to.plot, which.to.plot, col,
-  delete.previous = TRUE, ..., add, speedup, axes)
+  visualSqueeze, delete.previous = TRUE, ..., add, speedup, axes,
+  add.legend = T)
 
-\S4method{simPlot}{SpatialPoints}(x, ext, on.which.to.plot, map.names = NULL,
-  delete.previous = TRUE, max.agents = 10000, ..., add = TRUE, speedup,
-  axes)
+\S4method{simPlot}{SpatialPoints}(x, on.which.to.plot = 1, which.to.plot,
+  visualSqueeze = 0.75, delete.previous = TRUE, max.agents = 10000, ...,
+  add = TRUE, speedup, axes, add.legend)
 }
 \arguments{
 \item{x}{rasterStack, rasterLayer, or list of named rasters (not implemented yet), SpatialPoints* object.}
@@ -30,6 +32,9 @@ simPlot(x, on.which.to.plot = 1, which.to.plot = "all",
 \item{which.to.plot}{Numeric or character vector identifying which rasters in \code{rasterStack} to plot.}
 
 \item{col}{a colour palette vector, possibly from RColorBrewer. Defaults to rev(terrain.colors(255))}
+
+\item{visualSqueeze}{numeric index (from 0 to 1) that indicates how tightly the rasters should be plotted next
+to each other. Default is 0.75, which allows for legends.}
 
 \item{...}{Additional plotting functions passed to grid.raster (if rasterStack) or grid.points (if pointAgent)}
 
@@ -41,8 +46,6 @@ Default is \code{FALSE} for rasters and \code{TRUE} for agents.}
 \item{axes}{String either "all", "L", or "none" (see Details). Default is "L".}
 
 \item{ext}{an extent object to describe the size of the map that is being plotted on}
-
-\item{map.names}{a character vector with the names of the maps. If NULL, the default, then it reads from existing plot names}
 
 \item{delete.previous}{should the immediately previously simPlotted object be removed before adding current simPlot call}
 
