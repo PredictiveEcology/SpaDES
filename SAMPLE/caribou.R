@@ -84,27 +84,42 @@ caribouInit = function(sim) {
 }
 
 caribouMove = function(sim) {
-    ex =  habitat[coordinates(caribou)] # find out what pixels the individuals are on now
-    wh = which(!is.na(ex))
-    if (length(wh)==0) stop(paste("all agents off map at time", currentTime(sim)))
-    sl = 10/ex
-    sl[-wh] = 1
+
+  #crop any caribou that went off maps
+  caribou <<- crop(caribou,habitat)
+  
+  # find out what pixels the individuals are on now
+  ex =  habitat[["HabitatQuality"]][caribou] 
+  
+  #step length is a function of current cell's habitat quality
+  sl = 0.25/ex
+  
+  ln = rlnorm(length(ex), sl, 0.02) # log normal step length
+  sd = 30 # could be specified globally in params
+  
+  caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
     
-    ln = rlnorm(length(ex), sl, 0.02) # log normal step length
-    sd = 30 # could be specified globally in params
-    
-    caribou <<- crw(caribou, stepLength=ln, sd=sd, lonlat=FALSE)
-    simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19,
-            gp=gpar(cex=0.1), delete.previous=FALSE)
-    
-    # update caribou list
-#    outputs$caribou[[currentTime(sim)+1]] <<- caribou
-    
-    #rads = sample(10:30, length(caribou), replace=TRUE)
-    #rings = cir(caribou, radiuses=rads, habitat, 1)
-    #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
-    
-#    saveRDS(list(caribou, rings), paste("../data/caribou_", currentTime(sim), ".rds", sep=""))
+  
+#     ex =  habitat[["HabitatQuality"]][caribou] # find out what pixels the individuals are on now
+#     wh = which(!is.na(ex))
+#     if (length(wh)==0) stop(paste("all agents off map at time", currentTime(sim)))
+#     sl = 1/ex
+#     sl[-wh] = 1
+#     
+#     ln = rlnorm(length(ex), sl, 0.02) # log normal step length
+#     sd = 30 # could be specified globally in params
+#     
+#     caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
+#     simPlot(caribou, on.which.to.plot=1, add=TRUE, pch=19, delete.previous=FALSE)
+#     
+#     # update caribou list
+# #    outputs$caribou[[currentTime(sim)+1]] <<- caribou
+#     
+#     #rads = sample(10:30, length(caribou), replace=TRUE)
+#     #rings = cir(caribou, radiuses=rads, habitat, 1)
+#     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
+#     
+# #    saveRDS(list(caribou, rings), paste("../data/caribou_", currentTime(sim), ".rds", sep=""))
 
     return(sim) # technically, sim isn't updated in this function
 }
