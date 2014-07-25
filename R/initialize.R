@@ -36,8 +36,9 @@ GaussMap = function(x, scale=10, var=1, speedup=10,...) {#, fast = TRUE, n.uniqu
   nr = (ext@ymax-ext@ymin)/speedup
   
   model <- RMexp(scale=scale, var=var)
-  sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...),template=x)
+  sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
   sim <- sim - cellStats(sim, "min")
+  extent(sim) <- ext
   #extent(sim)<-ext
   if(speedup>1)
     return(disaggregate(sim, c(speedup, speedup)))

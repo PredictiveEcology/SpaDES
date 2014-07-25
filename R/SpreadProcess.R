@@ -7,7 +7,8 @@
 #' 
 #' @param loci          A vector of locations in \code{landscape}
 #' 
-#' @param spreadProb    The probability of spreading.
+#' @param spreadProb    Numeric or rasterLayer. The overall probability of spreading, or probability raster
+#' driven.
 #' 
 #' @param persistance   A probability that a burning cell will continue to burn, per time step.
 #' 
@@ -128,13 +129,14 @@ setMethod("spread",
               
               # select which potentials actually happened
               # nrow() only works if potentials is an array
-              if (!is.numeric(spreadProb)) {
+              if (is.numeric(spreadProb)) {
                 #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-                #} else {
-                stop("Unsupported type:spreadProb") # methods for raster* or function args
+                  spreadProbs <- spreadProb
+                } else {
+                  spreadProbs <- spreadProb[potentials]
               }
               
-              events <- potentials[runif(length(potentials))<=spreadProb]
+              events <- potentials[runif(length(potentials))<=spreadProbs]
               
               # Implement maxSize
               if((size+length(events)) > maxSize) {
