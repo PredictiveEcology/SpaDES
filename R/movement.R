@@ -43,24 +43,26 @@
 #@examples
 #NEED EXAMPLES
 crw = function(agent, stepLength, stddev, lonlat) {
-    if (missing(lonlat)) {
+    if (is.null(lonlat)) {
         stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
     }
     stopifnot(is.logical(lonlat))
     
     n = length(agent)
     prevPos = SpatialPoints(cbind(x=agent$prevX, y=agent$prevY))
-    currPos = SpatialPoints(coordinates(agent))
-    agentHeading <- heading(prevPos, currPos)
+    agentHeading <- heading(prevPos, agent)
     rndDir = rnorm(n, agentHeading, stddev)
     rndDir = ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
     
-    # these should use `coordinates(agent) <-` or similar set methods
-    agent@spatial@coords[,"y"] = last.position@coords[,"y"] + cos(rad(rndDir)) * stepLength
-    agent@spatial@coords[,"x"] = last.position@coords[,"x"] + sin(rad(rndDir)) * stepLength
     
-    agent@heading = heading(last.position, agentPosition(agent))
-    agent@distance = pointDistance(last.position, agentPosition(agent), lonlat=lonlat)
+    # these should use `coordinates(agent) <-` or similar set methods
+    agent$prevX <- agent$x
+    agent$prevY <- agent$y
+    agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
+                          y=agent$y + cos(rad(rndDir)) * stepLength)
+    
+    #agent$heading = agentHeading
+    agent$distance = pointDistance(prevPos, agent, lonlat=lonlat)
     
     return(agent)
 }
