@@ -152,7 +152,11 @@ setMethod("spread",
                   spreadProbs <- spreadProb[potentials[,2]]
               }
               
-              ItHappened =runif(nrow(potentials))<=spreadProbs
+              if(is(potentials,"matrix")) {
+                ItHappened =runif(nrow(potentials))<=spreadProbs
+              } else {
+                ItHappened =runif(1)<=spreadProbs
+              }
               events <- potentials[ItHappened,2]
               
               # Implement maxSize
