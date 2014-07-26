@@ -31,9 +31,13 @@ dev(2)
 simPlot(crop(hab,dE),col=cols[[2]])
 names(hab)<-"hab"
 (mb2 = microbenchmark(times = 1L,
-fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
+
+hab = habitat[["Age"]]
+fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),mapFireID=T,
                 spreadProb = 0.235,0,NULL,1e8,8,1e6,mergeDuplicates = T,
-                plot.it=F,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab"),
+                plot.it=F,col=cols[[1]],delete.previous=F,add=F)
+
+
 dis <-  distanceFromPoints(hab,pts)
 ))
 
@@ -217,109 +221,28 @@ print(all.equal(adj.orig,adj.new))
 
 ###################################################################################
 
+<<tapered-pareto, fig=FALSE, eval=FALSE>>=
+  # Count number of pixels in each fire (removing the pixels with no fires)
+  fireSizes = sort(unname(table(getValues(habitat[["Fires"]]))[-1]))
 
+probEx = vector(length = length(unique(fireSizes)))
+for (i in unique(fireSizes))
+  probEx[match(i,unique(fireSizes))] <- length(fireSizes[fireSizes>i])
 
+library(PtProcess)
+library(parallel)
+source("~/GitHub/SpaDES/SAMPLE/taperedPareto.R")
+cl <- makePSOCKcluster(rep("localhost", 7))
+data = data.frame(Area_ha= fireSizes)
+est.tap = wrap.nlminb(data = data)
+fireSizes.theor <- rtappareto(1000,lambda=est.tap$par[1],theta=est.tap$par[2],a=1)
+fireSizes.theor <- sort(round(fireSizes.theor,0))
+probEx.theor = vector(length = length(unique(fireSizes.theor)))
+for (i in unique(fireSizes.theor))
+  probEx.theor[match(i,unique(fireSizes.theor))] <- length(fireSizes.theor[fireSizes.theor>i])
 
-
-
-spread.m <- function(landscape, loci, spreadProb, persistance,
-         mask, maxSize=ncell(landscape), directions = 8, 
-         iterations = ncell(landscape), 
-         plot.it=FALSE, mergeDuplicates = FALSE, ...) {
-  ### should sanity check map extents
-  
-  if (is.null(loci))  {
-    # start it in the centre cell
-    loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-  }
-  
-  spreads <- rep_len(0,ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
-  if(!is.null(mask)) {
-    masked<-Which(mask==0,cells=T)#getValues(mask)==0
-  #  spreads[masked]<- NaN#[potentials %in% masked]]
-    
-  }
-  n <- 1
-  spreads[loci]<-n
-  size <- length(loci)
-  
-  if (is.null(iterations)) {
-    iterations = Inf # this is a stupid way to do this!
-  } 
-  
-  while ( (length(loci)>0) && (iterations>=n) ) {
-    potentials <- adj(landscape, loci, directions, pairs=F)
-    
-    # drop those ineligible
-    if (!is.null(mask)){
-      potentials <- potentials[potentials %in% masked]
-
-      # Should this be unique?
-      if (mergeDuplicates)
-        potentials <- unique(potentials[spreads[potentials]==0])
-      else 
-        potentials <- potentials[spreads[potentials]==0]
-    } else {
-      if (mergeDuplicates)
-        potentials <- unique(potentials[spreads[potentials]==0])
-      else 
-        potentials <- potentials[spreads[potentials]==0]
-    }
-    
-    # select which potentials actually happened
-    # nrow() only works if potentials is an array
-    if (!is.numeric(spreadProb)) {
-      #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-      #} else {
-      stop("Unsupported type:spreadProb") # methods for raster* or function args
-    }
-    
-    events <- potentials[runif(length(potentials))<=spreadProb]
-    
-    # Implement maxSize
-    if((size+length(events)) > maxSize) {
-      keep<-length(events) - ((size+length(events)) - maxSize)
-      events<-events[sample(length(events),keep)]
-    }
-    
-    size <- size + length(unique(events))
-    
-    # update eligibility map
-    
-    n <- n+1
-    spreads[events] <- n
-    
-    if(size >= maxSize) {
-      events <- NULL
-    }
-    
-    # drop or keep loci
-    if (is.null(persistance) | is.na(persistance)) {
-      loci <- NULL
-    } else {
-      if (inRange(persistance)) {
-        loci <- loci[runif(length(loci))<=persistance]
-      } else {
-        # here is were we would handle methods for raster* or functions
-        stop("Unsupported type: persistance")
-      }
-    }
-    
-    loci <- c(loci, events)
-    
-    if (plot.it){
-      top <- raster(landscape)
-      top <- setValues(top,spreads)
-      simPlot(top, ...)
-    }
-#    simPlot(raster(matrix(spreads,ncol=10,nrow=10,byrow=T)),col=c("grey","black"))
-    
-  }
-  
-  # Convert the data.table back to raster
-  spre <- raster(landscape)
-  spre <- setValues(spre, spreads)
-  return(spre)
-}
-
-
+dev(4); plot(unique(fireSizes.theor),probEx.theor,log="xy",type = "l", ylab = "probability of exceeding", main=paste(nFires,"fires in an",nx,"by",ny,"landscape"))
+par(new = T)
+dev(4); plot(unique(fireSizes),probEx, col = "red",type = "l",log="xy")
+#lines(unique(fireSizes),probEx, col = "red")
+@

@@ -93,7 +93,7 @@ Sample map of habitat quality.
 \begin{Schunk}
 \begin{Sinput}
 > # Give dimensions of dummy raster
-> nx = 1e2
+> nx = 1.3e2
 > ny = 1e2
 > template = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
 > # Make dummy maps for testing of models
@@ -119,7 +119,7 @@ Sample map of habitat quality.
 +   heat = heat.colors(10),
 +   topo = topo.colors(10)
 +   )
-> simPlot(habitat,col = cols[c(2:5,3)])
+> dev(4);simPlot(habitat,col = cols[c(2:5,3)])
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-habitat-map}
@@ -166,25 +166,25 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 \end{Sinput}
 \begin{Soutput}
     Alice       Bob     Clark     Daisy      Eric     Franz     Gabby    Hayley 
-303.24549 347.11640  84.23531 323.28008 239.18583 195.04528  54.14145  55.02652 
+144.55398 182.42939  48.59348  57.57656 279.25616 171.04977 253.22975 247.84398 
      Igor      Jane 
- 72.77079 228.10522 
+350.33210 149.47044 
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
-                x           y
-Alice   -7.357724  30.4214478
-Bob    -27.497599  27.3032919
-Clark  -13.771989 -13.0097332
-Daisy   -8.736794  27.7304971
-Eric     3.314618  -4.0533017
-Franz  -25.573490  12.9357876
-Gabby   26.495074 -10.2524419
-Hayley  -8.279154  -4.0691810
-Igor   -12.002937  25.3864274
-Jane    16.520854  -0.2535602
+                x          y
+Alice  -30.230719 -16.677306
+Bob    -10.755234 -16.146952
+Clark    9.657445  13.495304
+Daisy   11.463725  13.919743
+Eric   -12.790430  -1.629268
+Franz   23.505723 -18.996257
+Gabby  -13.174640 -19.172969
+Hayley  22.606989  18.325854
+Igor    14.912511  24.787351
+Jane   -24.689211   6.129674
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method - agents don't plot properly when it is a raster stack
@@ -202,24 +202,29 @@ Jane    16.520854  -0.2535602
 \includegraphics{introduction-mobile-point-agent}
 
 \section{A simple fire model}
-
 \paragraph{Burn some of the forest}
-Using the spread function, we can simulate fires, and subsequent changes to the various map layers
+Using the spread function, we can simulate fires, and subsequent changes to the various map layers. Here, spreadProb can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
+
+
 \begin{Schunk}
 \begin{Sinput}
-> nFires <- 100 # number of agents
+> nFires <- 10 # number of agents
 > habitat[["Fires"]] <- spread(habitat[[1]],loci=as.integer(sample(1:ncell(habitat),nFires)),
-+                              spreadProb = habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.12,
++                              spreadProb = .225,#habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.1,
 +                              persistance=0,
++                              mapFireID=T,
 +                              mask = NULL,
 +                              maxSize = 1e8,
 +                              directions = 8,
 +                              iterations=1e6,
-+                              mergeDuplicates = T)
++                              plot.it=F,
++                              mapID=T)
+> simPlot(habitat[["Fires"]])
 \end{Sinput}
 \end{Schunk}
 
 \paragraph{}
+
 
 \begin{Schunk}
 \begin{Sinput}
@@ -237,7 +242,7 @@ We can see that the fires tend to be in the Pines because we made it that way, u
 \begin{Schunk}
 \begin{Sinput}
 > # Show the burning more strongly over abundant pine
-> fire<-reclassify(habitat[["Fires"]],rcl= cbind(0:1,c(0,100),0:1))
+> fire<-reclassify(habitat[["Fires"]],rcl= cbind(0:1,c(0,ncell(habitat)),0:1))
 > pine<-reclassify(habitat[["Pct_Pin"]],rcl= cbind(0:9*10,1:10*10,0:9))
 > PineByFire<-crosstab(fire,pine,long=T)
 > colnames(PineByFire)<-c("fire","pine","freq")
@@ -250,22 +255,22 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--33.511  -14.083   -2.176    8.025   25.961  
+-46.909  -24.265   -6.621   17.245   34.913  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  6.140263   0.026145 234.850   <2e-16 ***
-fire1       -1.227184   0.051229 -23.955   <2e-16 ***
-pine         0.043298   0.004640   9.332   <2e-16 ***
-fire1:pine   0.177246   0.007969  22.242   <2e-16 ***
+(Intercept)  7.172729   0.017146 418.324  < 2e-16 ***
+fire1       -1.379572   0.038371 -35.953  < 2e-16 ***
+pine        -0.057311   0.003474 -16.495  < 2e-16 ***
+fire1:pine   0.043177   0.008114   5.321 1.03e-07 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 7155.9  on 18  degrees of freedom
-Residual deviance: 5723.9  on 15  degrees of freedom
-AIC: 5874.8
+    Null deviance: 14966  on 18  degrees of freedom
+Residual deviance: 10937  on 15  degrees of freedom
+AIC: 11082
 
 Number of Fisher Scoring iterations: 5
 \end{Soutput}

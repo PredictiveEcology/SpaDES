@@ -82,7 +82,7 @@ Sample map of habitat quality.
 <<habitat-map, fig=TRUE>>=
 
 # Give dimensions of dummy raster
-nx = 1e2
+nx = 1.3e2
 ny = 1e2
 template = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
 
@@ -115,7 +115,7 @@ cols = list(
   topo = topo.colors(10)
   )
 
-simPlot(habitat,col = cols[c(2:5,3)])
+dev(4);simPlot(habitat,col = cols[c(2:5,3)])
 @
 
 \newpage
@@ -174,22 +174,29 @@ drawArrows(from = SpatialPoints(cbind(x=prevX,y=prevY)),
 @
 
 \section{A simple fire model}
-
 \paragraph{Burn some of the forest}
-Using the spread function, we can simulate fires, and subsequent changes to the various map layers
+Using the spread function, we can simulate fires, and subsequent changes to the various map layers. Here, spreadProb can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
+
+
 <<fire, fig=FALSE>>=
-nFires <- 100 # number of agents
+nFires <- 10 # number of agents
 habitat[["Fires"]] <- spread(habitat[[1]],loci=as.integer(sample(1:ncell(habitat),nFires)),
-                             spreadProb = habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.12,
+                             spreadProb = .225,#habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.1,
                              persistance=0,
+                             mapFireID=T,
                              mask = NULL,
                              maxSize = 1e8,
                              directions = 8,
                              iterations=1e6,
-                             mergeDuplicates = T)
+                             plot.it=F,
+                             mapID=T)
+
+
+simPlot(habitat[["Fires"]])
 @
 
 \paragraph{}
+
 
 <<fire-overlaid, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
@@ -203,7 +210,7 @@ We can see that the fires tend to be in the Pines because we made it that way, u
 
 <<fire-impacts, fig=FALSE>>=
 # Show the burning more strongly over abundant pine
-fire<-reclassify(habitat[["Fires"]],rcl= cbind(0:1,c(0,100),0:1))
+fire<-reclassify(habitat[["Fires"]],rcl= cbind(0:1,c(0,ncell(habitat)),0:1))
 pine<-reclassify(habitat[["Pct_Pin"]],rcl= cbind(0:9*10,1:10*10,0:9))
 PineByFire<-crosstab(fire,pine,long=T)
 colnames(PineByFire)<-c("fire","pine","freq")
