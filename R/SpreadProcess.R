@@ -1,7 +1,12 @@
 ##############################################################
 #' Simulate a spread process on a landscape.
 #'
-#' More detailed description needed here.
+#' This can be used to simulated fires or other things. Essentially, it starts from a collection of cells 
+#' (\code{loci}) and spreads to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+#' This can become quite general, if \code{spreadProb} is 1 as it will expand from every loci until all pixels 
+#' in the landscape have been covered. With \code{mapID} set to \code{TRUE}, the resulting map will be 
+#' classified by the index of the pixel where that event propagated from. This can be used to examine things like
+#' fire size distributions.
 #'
 #' @param landscape     A \code{RasterLayer} object.
 #' 
@@ -42,8 +47,8 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' @param plot.it    If TRUE, then plot the raster at every iteraction, so one can watch the 
 #' spread event grow.
 #' 
-#' @param mergeDuplicates Logical. While spreading is occuring, and the same pixel gets identified
-#'                      as being adjacent to two different active cells, run "unique" or not. Default is FALSE.
+#' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE, 
+#' the returned map is the iteration number that the pixel burned
 #' 
 #' @import raster
 #' @rdname spread
@@ -84,8 +89,8 @@ setMethod("spread",
                     ),
           definition = function(landscape, loci, spreadProb, persistance,
                                 mask, maxSize=ncell(landscape), directions = 8, 
-                                iterations = ncell(landscape), 
-                                plot.it=FALSE, mergeDuplicates = FALSE, ...) {
+                                iterations = ncell(landscape), mapID=FALSE,
+                                plot.it=FALSE, ...) {
             ### should sanity check map extents
             
             if (is.null(loci))  {
@@ -100,7 +105,11 @@ setMethod("spread",
               
             }
             n <- 1
-            spreads[loci]<-n
+            if (mapID) {
+              spreads[loci]<-loci
+            } else {
+              spreads[loci]<-n
+            }
             size <- length(loci)
             
             if (is.null(iterations)) {
@@ -108,18 +117,25 @@ setMethod("spread",
             } 
             
             while ( (length(loci)>0) && (iterations>=n) ) {
-              potentials <- adj(landscape, loci, directions, pairs=F)
+              if (mapID) {
+                potentials <- adj(landscape, loci, directions, pairs=T)
+              } else {
+                # must pad the first column of potentials
+                potentials <- cbind(NA,adj(landscape, loci, directions, pairs=F))
+              }
               
               # drop those ineligible
               if (!is.null(mask))
-                potentials <- potentials[potentials %in% masked]
+                potentials <- potentials[potentials[,2] %in% masked,]
                 
               # Should this be unique?
               # only accept cells that have no fire yet
-              if (mergeDuplicates)
-                potentials <- unique(potentials[spreads[potentials]==0])
-              else 
-                potentials <- potentials[spreads[potentials]==0]
+#               if (mergeDuplicates)
+#                 potentials <- potentials[!duplicated(potentials[spreads[potentials[,2]]==0,2]),]
+#               
+#                 #potentials <- unique(potentials[spreads[potentials[,2]]==0,2])
+#               else 
+                potentials <- potentials[spreads[potentials[,2]]==0,]
 #               } else {
 #                 if (mergeDuplicates)
 #                   potentials <- unique(potentials[spreads[potentials]==0])
@@ -133,15 +149,17 @@ setMethod("spread",
                 #  ItHappened <- runif(nrow(potentials)) <= spreadProb
                   spreadProbs <- spreadProb
                 } else {
-                  spreadProbs <- spreadProb[potentials]
+                  spreadProbs <- spreadProb[potentials[,2]]
               }
               
-              events <- potentials[runif(length(potentials))<=spreadProbs]
+              ItHappened =runif(nrow(potentials))<=spreadProbs
+              events <- potentials[ItHappened,2]
               
               # Implement maxSize
-              if((size+length(events)) > maxSize) {
-                keep<-length(events) - ((size+length(events)) - maxSize)
-                events<-events[sample(length(events),keep)]
+              len = length(events)
+              if((size+len) > maxSize) {
+                keep<-len - ((size+len) - maxSize)
+                events<-events[sample(len,keep)]
               }
               
               size <- size + length(unique(events))
@@ -149,8 +167,14 @@ setMethod("spread",
               # update eligibility map
               
               n <- n+1
-              spreads[events] <- n
-              
+
+              if (mapID) {
+                spreads[events] <- spreads[potentials[ItHappened,1]]
+              } else {
+                spreads[events] <- n
+              }
+
+
               if(size >= maxSize) {
                 events <- NULL
               }
