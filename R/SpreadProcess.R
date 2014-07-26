@@ -152,12 +152,14 @@ setMethod("spread",
                   spreadProbs <- spreadProb[potentials[,2]]
               }
               
+              #If there is only 1 event, R turns the matrix into a vector
               if(is(potentials,"matrix")) {
                 ItHappened =runif(nrow(potentials))<=spreadProbs
+                events <- potentials[ItHappened,2]
               } else {
                 ItHappened =runif(1)<=spreadProbs
+                events <- potentials[2]
               }
-              events <- potentials[ItHappened,2]
               
               # Implement maxSize
               len = length(events)
@@ -173,7 +175,11 @@ setMethod("spread",
               n <- n+1
 
               if (mapID) {
-                spreads[events] <- spreads[potentials[ItHappened,1]]
+                if(is(potentials,"matrix")) {
+                  spreads[events] <- spreads[potentials[ItHappened,1]]
+                } else {
+                  spreads[events] <- spreads[potentials[1]]
+                }
               } else {
                 spreads[events] <- n
               }
