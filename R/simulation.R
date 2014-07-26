@@ -742,7 +742,7 @@ setMethod("doEvent",
               
               # call the module responsible for processing this event
               moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
-              
+
               # check the module call for validity
               if(nextEvent$moduleName %in% simModules(sim)) {
                   sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
@@ -752,6 +752,19 @@ setMethod("doEvent",
                                      " wasn't specified to be loaded.", sep="")
                   stop(errormsg)
               }  
+              
+              # plot simulation timer in top right of whatever device is active
+              upViewport(0)
+              #grid.remove("counterText")
+              counter = viewport(x=0.95,y=0.95,width=0.2,height=0.1)
+              pushViewport(counter,recording=FALSE)
+              #grid.newpage()
+              #grid.rect(gp=gpar(col="white"))
+              grid.text(paste("Time\n",min(
+                simStopTime(sim),simCurrentTime(sim))),name="counterText")
+              if (simCurrentTime(sim)<simStopTime(sim)) grid.remove("counterText")
+              #popViewport(recording=FALSE)
+              
               
               return(sim)
 })
