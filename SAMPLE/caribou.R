@@ -22,7 +22,7 @@ doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, currentTime(sim), "caribou", "init")
+            sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", "init")
         } else {
             # do stuff for this event
             sim <- caribouInit(sim)
@@ -33,9 +33,10 @@ doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="move") {
         # do stuff for this event
         sim <- caribouMove(sim)
+        simPlot(caribou, on.which.to.plot=2, add=TRUE, pch=19,gp=gpar(cex=0.01), delete.previous=FALSE)
         
         # schedule the next event
-        sim <- scheduleEvent(sim, currentTime(sim) + 1.00, "caribou", "move")
+        sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribou", "move")
     } else {
         # do stuff for this event
         print("polar bears. grr!")
@@ -72,7 +73,7 @@ caribouInit = function(sim) {
                                        data=data.frame(prevX, prevY, sex, age))
     row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
         
-    simPlot(caribou, ext=extent(habitat), on.which.to.plot=1, add=TRUE, pch=19, gp=gpar(cex=0.1))
+#    simPlot(caribou, add=TRUE, pch=".")
     
     # save output list to track caribou over time
 #    outputs$caribou[[1]] <<- caribou
@@ -110,7 +111,6 @@ caribouMove = function(sim) {
 #     sd = 30 # could be specified globally in params
 #     
 #     caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
-#     simPlot(caribou, on.which.to.plot=1, add=TRUE, pch=19, delete.previous=FALSE)
 #     
 #     # update caribou list
 # #    outputs$caribou[[currentTime(sim)+1]] <<- caribou

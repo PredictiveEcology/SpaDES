@@ -82,8 +82,8 @@ Sample map of habitat quality.
 <<habitat-map, fig=TRUE>>=
 
 # Give dimensions of dummy raster
-nx = 1.3e2
-ny = 1e2
+nx = 1e3
+ny = 1e3
 template = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
 
 # Make dummy maps for testing of models
@@ -180,8 +180,10 @@ Using the spread function, we can simulate fires, and subsequent changes to the 
 
 <<fire, fig=FALSE>>=
 nFires <- 10 # number of agents
-habitat[["Fires"]] <- spread(habitat[[1]],loci=as.integer(sample(1:ncell(habitat),nFires)),
-                             spreadProb = .225,#habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.1,
+habitat[["Fires"]] <- spread(habitat[[1]],
+                             loci=as.integer(sample(1:ncell(habitat),nFires)),
+                             #spreadProb = 0.225,
+                             spreadProb = habitat[["Pct_Pin"]]/(maxValue(habitat[["Pct_Pin"]])*5)+0.1,
                              persistance=0,
                              mapFireID=T,
                              mask = NULL,

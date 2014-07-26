@@ -19,20 +19,22 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
         depends = "habitat" # list module names here
         
         if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, currentTime(sim), "fire", "init")
+            sim <- scheduleEvent(sim, simCurrentTime(sim), "fire", "init")
         } else {
             # do stuff for this event
-            sim <- fireInit(sim)
+            sim <- fireBurn(sim)
             
             # schedule the next event
-            sim <- scheduleEvent(sim, 0.5, "fire", "burn")
+            sim <- scheduleEvent(sim, 10, "fire", "burn")
         }
     } else if (eventType=="burn") {
         # do stuff for this event
         sim <- fireBurn(sim)
+        simPlot(stack(habitat,Fires),  add=FALSE, 
+                col=cols[c(2:5,3,2)],add.legend=F)
         
         # schedule the next event
-        sim <- scheduleEvent(sim, currentTime(sim)+1.0, "fire", "burn")
+        sim <- scheduleEvent(sim, simCurrentTime(sim)+10, "fire", "burn")
     } else {
         print("polar bears. grr!")
     }
@@ -45,12 +47,11 @@ fireInit = function(sim) {
     loadPackages(pkgs)
     
     ### create burn map that tracks fire locations over time
-    tmp = raster(extent(hab), ncol=ncol(hab), nrow=nrow(hab), vals=0)
-    names(tmp) = "area.burned"
-    burned <<- tmp
+#    fire <<- raster(extent(habitat), ncol=ncol(habitat), nrow=nrow(habitat), vals=0)
+#    names(fire) <<- "fire"
     
-    simPlot(stack(hab, burned), speedup=10,add=F, 
-            col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
+    #simPlot(stack(hab, burned), speedup=10,add=F, 
+    #        col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
     
     # last thing to do is add module name to the loaded list
     sim.loaded(sim) <- append(sim.loaded(sim), "fire")
@@ -61,16 +62,25 @@ fireInit = function(sim) {
 
 fireBurn = function(sim) {
     # random fire start locations, but could be based on hab:
-    loci = sample(1:ncell(habitat), size=simParams(sim)$fire$num)
-    tmp = spread(hab, loci=loci, spreadProb=simParams(sim)$fire$spreadprob,
-                 persistance=simParams(sim)$fire$persistprob, iterations=simParams(sim)$fire$its)
-    
-    values(burned) <<- values(burned) + values(tmp)
+    Fires <<- spread(habitat[[1]],
+                  loci=as.integer(sample(1:ncell(habitat),simParams(sim)$fires$nFires)),
+                  #spreadProb = 0.225,
+                  spreadProb = simParams(sim)$fire$spreadprob,
+                  persistance=simParams(sim)$fire$persistprob,
+                  mapFireID=T,
+                  mask = NULL,
+                  maxSize = 1e8,
+                  directions = 8,
+                  iterations=simParams(sim)$fire$its,
+                  plot.it=F,
+                  mapID=T)
+    names(Fires)<<-"Fires"
+  
+  
+    #values(burned) <<- values(burned) + values(tmp)
 #    burned <- burned+tmp
-    burnedNoNA <- burned
-    burnedNoNA[burned==0] <- NA
-    simPlot(burnedNoNA, on.which.to.plot="area.burned", add=TRUE, speedup=20, 
-            col=brewer.pal(10, "Set3"))
+    #burnedNoNA <- burned
+    #burnedNoNA[burned==0] <- NA
     
     return(sim)
 }

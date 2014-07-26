@@ -23,6 +23,7 @@ doEvent.habitat = function(sim, eventTime, eventType, debug=FALSE) {
             sim <- scheduleEvent(sim, currentTime(sim), "habitat", "init")
         } else {
             sim <- habitatInit(sim)
+            simPlot(habitat,col=cols[c(2:5,3)])
         }
     } else {
         print("polar bears. grr!")
@@ -36,12 +37,29 @@ habitatInit = function(sim) {
     loadPackages(pkgs)
         
     ### initialize habitat
-    nx = 1e3 # could be specified globally in params
-    ny = 1e3 # could be specified globally in params
-    tmp = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
-    tmp = round(GaussMap(tmp, speedup=10), 1)
-    names(tmp) = "habitat"
-    habitat <<- tmp
+    # Give dimensions of dummy raster
+    nx = 1e2
+    ny = 1e2
+    template = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
+    speedup = nx/1e2
+    # Make dummy maps for testing of models
+    DEM = round(GaussMap(template, scale = 300, var = 0.03, speedup=speedup), 1)*1000
+    Age = round(GaussMap(template, scale = 10, var = 0.1, speedup=speedup), 1)*20
+    Forest_Cover = round(GaussMap(template, scale = 50, var = 1, speedup=speedup),2)*10
+    Pct_Pine = round(GaussMap(template, scale = 50, var = 1, speedup=speedup),1)
+    
+    # Scale them as needed
+    Age = Age/maxValue(Age)*100
+    Pct_Pine = Pct_Pine/maxValue(Pct_Pine)*100
+    
+    # Make layers that are derived from other layers
+    HabitatQuality = (DEM+10 + (Forest_Cover+5)*10)/100 
+    HabitatQuality = HabitatQuality/maxValue(HabitatQuality)  
+    
+    # Stack them into a single stack for plotting
+    habitat <<- stack(list(DEM,Age,Forest_Cover,HabitatQuality,Pct_Pine))
+    
+    names(habitat) <<- c("DEM","Age", "Forest_Cover", "HabitatQuality", "Pct_Pin")
     
     ### add map to outputs list
 #    outputs <- list(caribou=list(), habitat=list())
