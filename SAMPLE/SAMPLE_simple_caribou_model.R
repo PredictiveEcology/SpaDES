@@ -1,9 +1,9 @@
 ### set the working directory
 OS <- tolower(Sys.info()["sysname"])
-hostname <- gsub(Sys.info()["nodename"],pattern="W-VIC-",replace="")
+hostname <- gsub(Sys.info()["nodename"], pattern=".-VIC-", replace="")
 
 if (OS=="windows") {
-  if(pmatch("A105200", hostname, nomatch=FALSE)) {
+  if(any(pmatch(c("A105200","A105192"), hostname, nomatch=FALSE))) {
     path <- "c:/Eliot/GitHub"
   } else {
     path <- "~/GitHub"
@@ -30,10 +30,10 @@ devtools::dev_mode(TRUE)
 #devtools::install_github("SpaDES", username="achubaty")   # local install from GitHub
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 
-
+## simulation code
 library(RColorBrewer)
 cols = list(
-  transparent.grey=c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
+  transparent.red=c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
   grey = brewer.pal(9,"Greys"),
   spectral = brewer.pal(8,"Spectral"),
   terrain = rev(terrain.colors(100)),
@@ -41,22 +41,16 @@ cols = list(
   topo = topo.colors(10)
 )
 
-
-## simulation code
 # initialize the simulation
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
-dev(4)
-mySim <- simInit(times=list(start=0.0, stop=100.1),
-                 params=list(.checkpoint=list(interval=1000,
+mySim <- simInit(times=list(start=0.0, stop=10.1),
+                 params=list(.checkpoint=list(interval=5,
                                               file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                             caribou=list(N=1e3),
-                             fires=list(nFires = 10, spreadprob=0.225, persistprob=0, its=1e6)
+                             caribou=list(N=100),
+                             fires=list(num=2, spreadprob=0.215, persistprob=0.1, its=1)
                              ),
-                 modules=list("habitat", "fire", "caribou"),
-#                 modules=list("habitat", "caribou"),
-#                  modules=list("habitat"),
-                  path=file.path(path, "SpaDES/SAMPLE"))
-
+#                 modules=list("habitat", "fire", "caribou"),
+                 modules=list("habitat", "caribou"),
+                 path=file.path(path, "SpaDES/SAMPLE"))
 mySim <- doSim(mySim)
 
 ## profiling of development code

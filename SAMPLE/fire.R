@@ -30,8 +30,8 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="burn") {
         # do stuff for this event
         sim <- fireBurn(sim)
-        simPlot(stack(habitat,Fires),  add=FALSE, 
-                col=cols[c(2:5,3,2)],add.legend=F)
+        simPlot(stack(habitat, Fires), add=FALSE, 
+                col=cols[c(2:5,3,2)], add.legend=FALSE)
         
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim)+10, "fire", "burn")
@@ -50,7 +50,7 @@ fireInit = function(sim) {
 #    fire <<- raster(extent(habitat), ncol=ncol(habitat), nrow=nrow(habitat), vals=0)
 #    names(fire) <<- "fire"
     
-    #simPlot(stack(hab, burned), speedup=10,add=F, 
+    #simPlot(stack(hab, burned), speedup=10,add=FALSE, 
     #        col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
     
     # last thing to do is add module name to the loaded list
@@ -63,19 +63,18 @@ fireInit = function(sim) {
 fireBurn = function(sim) {
     # random fire start locations, but could be based on hab:
     Fires <<- spread(habitat[[1]],
-                  loci=as.integer(sample(1:ncell(habitat),simParams(sim)$fires$nFires)),
+                  loci=as.integer(sample(1:ncell(habitat), simParams(sim)$fires$nFires)),
                   #spreadProb = 0.225,
                   spreadProb = simParams(sim)$fire$spreadprob,
-                  persistance=simParams(sim)$fire$persistprob,
-                  mapFireID=T,
+                  persistance = simParams(sim)$fire$persistprob,
+                  mapFireID = TRUE,
                   mask = NULL,
                   maxSize = 1e8,
                   directions = 8,
-                  iterations=simParams(sim)$fire$its,
-                  plot.it=F,
-                  mapID=T)
+                  iterations = simParams(sim)$fire$its,
+                  plot.it = FALSE,
+                  mapID = TRUE)
     names(Fires)<<-"Fires"
-  
   
     #values(burned) <<- values(burned) + values(tmp)
 #    burned <- burned+tmp
