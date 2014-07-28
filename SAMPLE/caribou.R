@@ -29,14 +29,21 @@ doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
 
             # schedule the next event
             sim <- scheduleEvent(sim, 1.00, "caribou", "move")
+            sim <- scheduleEvent(sim, simCurrentTime(sim) + 10.00, "caribou", "plot")
         }
     } else if (eventType=="move") {
         # do stuff for this event
         sim <- caribouMove(sim)
-        simPlot(caribou, on.which.to.plot=2, add=TRUE, pch=19,gp=gpar(cex=0.01), delete.previous=FALSE)
         
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribou", "move")
+    } else if (eventType=="plot") {
+      # do stuff for this event
+#      simPlot(caribou, on.which.to.plot=2, add=TRUE, pch=19,gp=gpar(cex=0.01), 
+#              delete.previous=FALSE)
+      
+      # schedule the next event
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + 10.00, "caribou", "plot")
     } else {
         # do stuff for this event
         print("polar bears. grr!")

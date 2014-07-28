@@ -22,7 +22,8 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "fire", "init")
         } else {
             # do stuff for this event
-            sim <- fireBurn(sim)
+            sim <- fireInit(sim)
+            simPlot(stack(habitat,Fires),col=cols[c(2:5,3,2)])
             
             # schedule the next event
             sim <- scheduleEvent(sim, 10, "fire", "burn")
@@ -30,8 +31,8 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="burn") {
         # do stuff for this event
         sim <- fireBurn(sim)
-        simPlot(stack(habitat,Fires),  add=FALSE, 
-                col=cols[c(2:5,3,2)],add.legend=F)
+        #simPlot(Fires,  add=TRUE, on.which.to.plot=6,delete.previous=F,
+        #        col=cols[[2]],add.legend=T)
         
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim)+10, "fire", "burn")
@@ -47,14 +48,13 @@ fireInit = function(sim) {
     loadPackages(pkgs)
     
     ### create burn map that tracks fire locations over time
-#    fire <<- raster(extent(habitat), ncol=ncol(habitat), nrow=nrow(habitat), vals=0)
-#    names(fire) <<- "fire"
+    Fires <<- raster(extent(habitat), ncol=ncol(habitat), nrow=nrow(habitat), vals=0)
+    names(Fires) <<- "fire"
+    Fires[] <- 0
     
-    #simPlot(stack(hab, burned), speedup=10,add=F, 
-    #        col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
     
     # last thing to do is add module name to the loaded list
-    sim.loaded(sim) <- append(sim.loaded(sim), "fire")
+    simLoaded(sim) <- append(simLoaded(sim), "fire")
     
     return(sim)
 }
