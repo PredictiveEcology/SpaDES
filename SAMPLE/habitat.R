@@ -23,7 +23,6 @@ doEvent.habitat = function(sim, eventTime, eventType, debug=FALSE) {
             sim <- scheduleEvent(sim, currentTime(sim), "habitat", "init")
         } else {
             sim <- habitatInit(sim)
-            simPlot(habitat, col=cols[c(2:5,3)])
         }
     } else {
         print("polar bears. grr!")

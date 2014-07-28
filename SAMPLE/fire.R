@@ -52,11 +52,6 @@ fireInit = function(sim) {
     names(Fires) <<- "fire"
     Fires[] <- 0
     
-<<<<<<< HEAD
-=======
-    #simPlot(stack(hab, burned), speedup=10,add=FALSE, 
-    #        col=list(brewer.pal(9,"YlGnBu"),brewer.pal(10,"Set3")))
->>>>>>> origin/master
     
     # last thing to do is add module name to the loaded list
     simLoaded(sim) <- append(simLoaded(sim), "fire")

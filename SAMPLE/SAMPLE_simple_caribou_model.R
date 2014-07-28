@@ -44,7 +44,7 @@ cols = list(
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 dev(4)
-mySim <- simInit(times=list(start=0.0, stop=10.1),
+mySim <- simInit(times=list(start=0.0, stop=100.1),
                  params=list(.checkpoint=list(interval=1000,
                                               file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                              habitat = list(nx=1e3,ny=1e3),
@@ -56,7 +56,8 @@ mySim <- simInit(times=list(start=0.0, stop=10.1),
 #                  modules=list("habitat"),
                   path=file.path(path, "SpaDES/SAMPLE"))
 
-print(system.time(mySim <- doSim(mySim,timerUpdateFreq=4,graphicalTimer=T)))
+print(system.time(mySim <- doSim(mySim)))
+#print(system.time(mySim <- doSim(mySim,timerUpdateFreq=1,graphicalTimer=F)))
 
 ## profiling of development code
 #prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))

@@ -880,7 +880,7 @@ setMethod("doSim",
                   if(!is.null(timerUpdateFreq)){
                     if (simCurrentTime(sim)>=nextTimerUpdate) {
                       if(graphicalTimer==FALSE){
-                    #    print(simCurrentTime(sim))
+                        print(simCurrentTime(sim))
                       } else {
 
                       # plot simulation timer in top right of whatever device is active
