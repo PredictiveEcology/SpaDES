@@ -753,19 +753,6 @@ setMethod("doEvent",
                   stop(errormsg)
               }  
               
-              # plot simulation timer in top right of whatever device is active
-              upViewport(0)
-              #grid.remove("counterText")
-              counter = viewport(x=0.95,y=0.95,width=0.2,height=0.1)
-              pushViewport(counter,recording=FALSE)
-              #grid.newpage()
-              #grid.rect(gp=gpar(col="white"))
-              grid.text(paste("Time\n",min(
-                simStopTime(sim),simCurrentTime(sim))),name="counterText")
-              if (simCurrentTime(sim)<simStopTime(sim)) grid.remove("counterText")
-              #popViewport(recording=FALSE)
-              
-              
               return(sim)
 })
 
@@ -850,6 +837,12 @@ setMethod("scheduleEvent",
 #' 
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
+#'              
+#' @param timerUpdateFreq Number of units of time between printing simCurrentTime. 
+#' Defaults to NULL, showing nothing. It is faster to show nothing.
+#' 
+#' @param graphicalTimer logical. Defaults to FALSE, printing in the R console, otherwise
+#' plotting to active device, topright corner.
 #'
 #' @return Returns the modified \code{simList} object.
 #' 
@@ -871,7 +864,7 @@ setMethod("scheduleEvent",
 #' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/)}
 #' \dontrun{doSim{mySim}}
-setGeneric("doSim", function(sim, debug) {
+setGeneric("doSim", function(sim, debug, timerUpdateFreq=NULL, graphicalTimer) {
     standardGeneric("doSim")
 })
 
@@ -879,10 +872,32 @@ setGeneric("doSim", function(sim, debug) {
 #' @rdname doSim-method
 setMethod("doSim",
           signature(sim="simList", debug="logical"),
-          definition = function(sim, debug) {
+          definition = function(sim, debug, timerUpdateFreq, graphicalTimer) {
               # run the discrete event simulation
+              nextTimerUpdate = 0
               while(simCurrentTime(sim) < simStopTime(sim)) {
                   sim <- doEvent(sim, debug)  # process the next event
+                  if(!is.null(timerUpdateFreq)){
+                    if (simCurrentTime(sim)>=nextTimerUpdate) {
+                      if(graphicalTimer==FALSE){
+                    #    print(simCurrentTime(sim))
+                      } else {
+
+                      # plot simulation timer in top right of whatever device is active
+                      upViewport(0)
+                      if (unname(any(grid.ls(viewports =T,print=F)$name == "counterText")))
+                        grid.remove("counterText")
+                      counter = viewport(x=0.95,y=0.95,name="counterTextvp",
+                                         width=0.2,height=0.1)
+                      pushViewport(counter)
+                      grid.text(paste("Time\n",
+                                      min(simStopTime(sim),simCurrentTime(sim))),
+                                name="counterText")
+                      popViewport()
+                      }
+                      nextTimerUpdate = nextTimerUpdate + timerUpdateFreq
+                    }
+                  }
                   
                   # print debugging info
                   #  this can, and should, be more sophisticated;
@@ -899,7 +914,7 @@ setMethod("doSim",
 #' @rdname doSim-method
 setMethod("doSim",
           signature(sim="simList", debug="missing"),
-          definition = function(sim) {
-              sim <- doSim(sim, debug=FALSE)
+          definition = function(sim, timerUpdateFreq, graphicalTimer) {
+              sim <- doSim(sim, debug=FALSE, timerUpdateFreq, graphicalTimer)
               return(sim)
 })
