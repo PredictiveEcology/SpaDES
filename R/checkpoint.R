@@ -37,10 +37,8 @@
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     if( !(".checkpoint" %in% names(simParams(mySim))) ) {
-      # default is not to use checkpointing
-      params = simParams(sim)
-      params[[".checkpoint"]] = list(interval=NA_real_, file=NULL)
-      simParams(sim) <- params
+      # default is not to use checkpointing, so, need to set defaults if unspecified
+      simParams(sim)[[".checkpoint"]] = list(interval=NA_real_, file=NULL)
     } else {
       sim <- scheduleEvent(sim, 0.00, "checkpoint", "load")
     }
@@ -63,6 +61,10 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
       timeNextSave <- simCurrentTime(sim) + simParams(sim)$.checkpoint$interval
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
+  } else {
+    warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
+                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    
   }
   return(sim)
 }

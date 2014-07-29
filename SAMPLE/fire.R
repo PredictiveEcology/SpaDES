@@ -23,21 +23,28 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
         } else {
             # do stuff for this event
             sim <- fireInit(sim)
-            simPlot(stack(habitat,Fires),col=cols[c(2:5,3,2)])
+            simPlot(stack(habitat,Fires),col=cols[c(2:5,3,2)],add.legend=TRUE)
             
             # schedule the next event
             sim <- scheduleEvent(sim, 10, "fire", "burn")
+            sim <- scheduleEvent(sim, 0, "fire", "plot")
         }
     } else if (eventType=="burn") {
         # do stuff for this event
         sim <- fireBurn(sim)
-        simPlot(stack(habitat, Fires), add=FALSE, 
-                col=cols[c(2:5,3,2)], add.legend=FALSE)
         
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim)+10, "fire", "burn")
+    } else if (eventType=="plot") {
+      # do stuff for this event
+      simPlot(stack(habitat, Fires), add=FALSE, 
+              col=cols[c(2:5,3,2)], add.legend=TRUE)
+      
+      # schedule the next event
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, "fire", "plot")
     } else {
-        print("polar bears. grr!")
+      warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
+                    "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
     }
     return(sim)
 }

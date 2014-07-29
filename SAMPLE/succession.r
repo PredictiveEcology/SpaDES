@@ -35,7 +35,8 @@ doEvent.succession = function(sim, eventTime, eventType, debug=FALSE) {
         # schedule the next event
         sim <- schedule.event(sim, currentTime(sim)+1.0, "succession", "succession")
     } else {
-        print("polar bears. grr!")
+      warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
+                    "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
     }
     return(sim)
 }
