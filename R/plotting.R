@@ -75,7 +75,7 @@ newPlot = function(...) {
 #'
 #' @param x rasterStack, rasterLayer, or list of named rasters (not implemented yet), SpatialPoints* object.
 #'
-#' @param on.which.to.plot when add = TRUE, numeric or character string identifying on which raster in existing plot window to plot. Used on \code{RasterLayer} and \code{pointAgent} and \code{mobileAgent}. Defaults to 1.
+#' @param on.which.to.plot when add=TRUE, numeric or character string identifying on which raster in existing plot window to plot. Used on \code{RasterLayer} and \code{pointAgent} and \code{mobileAgent}. Defaults to 1.
 #'
 #' @param which.to.plot Numeric or character vector identifying which rasters in \code{rasterStack} to plot.
 #'
@@ -106,7 +106,7 @@ newPlot = function(...) {
 # needs examples
 setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
                                col=rev(terrain.colors(255)), visualSqueeze=0.75, ..., add=FALSE, speedup=1,
-                               axes = "L", add.legend=T) {
+                               axes = "L", add.legend=TRUE) {
            standardGeneric("simPlot")
 })
 
@@ -115,13 +115,13 @@ setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
 setMethod("simPlot",
           signature = "RasterStack",
           definition = function(x, on.which.to.plot, which.to.plot="all", col, visualSqueeze, ...,
-                                add, speedup, axes, add.legend = T) {
+                                add, speedup, axes, add.legend=TRUE) {
               nam = names(x)
               ext = extent(x)
 #              ext.ratio = diff(c(xmin(ext),xmax(ext)))/diff(c(ymin(ext),ymax(ext)))
               dimx = dim(x)
 
-              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
+              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]), ncol=dimx[3]), stringsAsFactors=FALSE))
 
               if (add==FALSE) {
                  arr = arrangeSimPlots(ext, dimx, nam, which.to.plot, axes,...)
@@ -210,7 +210,7 @@ setMethod("simPlot",
 setMethod("simPlot",
           signature = "RasterLayer",
           definition = function(x, on.which.to.plot,which.to.plot, col, visualSqueeze, delete.previous=TRUE, ...,
-                                add, speedup, axes, add.legend = T) {
+                                add, speedup, axes, add.legend=TRUE) {
               ext = extent(x)
               if (add==TRUE) {
                 wh=which(names(x)==grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name)
@@ -224,7 +224,7 @@ setMethod("simPlot",
               }
               dimx = dim(x)
 
-              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]),ncol=dimx[3]),stringsAsFactors=F))
+              if(!is.list(col)) col = as.list(data.frame(matrix(rep(col,dimx[3]), ncol=dimx[3]), stringsAsFactors=FALSE))
 
               if (add==FALSE) {
                 arr = arrangeSimPlots(ext,dimx,nam,which.to.plot=1,axes=axes,...)
@@ -261,8 +261,8 @@ setMethod("simPlot",
 
                   grid.text(y=1.08, vjust=0.5, gp=gpar(cex=1-0.015),
                             label = nam)
-                  grid.raster(as.raster(x,maxpixels=1e3*prod(dev.size())/speedup,
-                                        col=col[[1]]),interpolate = F,
+                  grid.raster(as.raster(x, maxpixels=1e3*prod(dev.size())/speedup,
+                                        col=col[[1]]), interpolate=FALSE,
                               name=nam,...)
                   #upViewport()
                 })
@@ -271,15 +271,15 @@ setMethod("simPlot",
                   grid.raster(as.raster(col[[1]][length(col[[1]]):1] ),
                               x=1.04,y=0.5,height=0.5,width=0.03,
                               interpolate=TRUE)
-                  pr = pretty(range(minValue(x),maxValue(x)))
-                  pr = pr[pr<maxValue(x)]
-                  grid.text(pr,x=1.08, y = pr/(2*maxValue(x))+0.25,just="left",...)
+                  pr <- pretty(range(minValue(x),maxValue(x)))
+                  pr <- pr[pr<maxValue(x)]
+                  grid.text(pr, x=1.08, y=pr/(2*maxValue(x))+0.25, just="left", ...)
 
                 }
 
 
               } else if (add==TRUE){
-                  vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=FALSE, flatten=TRUE, print=F)$name
+                  vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=FALSE, flatten=TRUE, print=FALSE)$name
                   vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
 
                   if (is.numeric(on.which.to.plot)) {
@@ -291,7 +291,7 @@ setMethod("simPlot",
 
                   if (delete.previous) grid.remove(i)
                   grid.raster(as.raster(x,maxpixels=1e3/(length(vp.names))*prod(dev.size())/speedup,
-                                        col=col[[1]]),interpolate = F,
+                                        col=col[[1]]),interpolate=FALSE,
                               name=nam,...)
                   upViewport(0)
 
@@ -313,18 +313,18 @@ setMethod("simPlot",
 setMethod("simPlot",
           signature = "SpatialPoints",
           definition = function(x, on.which.to.plot=1, which.to.plot, visualSqueeze=0.75, delete.previous=TRUE,
-                                max.agents = 1e4, ..., add = TRUE, speedup, axes, add.legend ) {
+                                max.agents = 1e4, ..., add=TRUE, speedup, axes, add.legend ) {
             #ext = extent(x)
             len = length(x)
             if (len>max.agents) {
-                sam = sample.int(len,size=max.agents,replace=F)
+                sam = sample.int(len,size=max.agents,replace=FALSE)
                 len = max.agents
             } else {
                 sam=1:len
             }
             if(length(len)==1) speed.keep=1:len else speed.keep=sam
             if(speedup != 1) {
-                speed.keep = sample(sam,len/speedup,replace=F)
+                speed.keep = sample(sam,len/speedup,replace=FALSE)
             }
 
             x1 = coordinates(x)[speed.keep,"x"]
@@ -360,7 +360,7 @@ setMethod("simPlot",
                   upViewport(0)
               })
 #                grid.yaxis(gp=gpar(cex=0.5),at = pretty(rangey/max(1,actual.ratio/ds.ratio)),label = pretty(rangey))
-            } else { #add=T
+            } else { #add=TRUE
               vp.names= grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
               vp.names= vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
 
