@@ -12,7 +12,7 @@
 #   - `moduleInit()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-doEvent.habitat = function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
@@ -25,13 +25,13 @@ doEvent.habitat = function(sim, eventTime, eventType, debug=FALSE) {
             sim <- habitatInit(sim)
         }
     } else {
-      warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
-                    "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+      warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
+                    "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] ,"\'", sep=""))
     }
     return(sim)
 }
 
-habitatInit = function(sim) {
+habitatInit <- function(sim) {
     ### load any required packages
     pkgs <- list("raster") # list required packages here
     loadPackages(pkgs)
@@ -40,7 +40,7 @@ habitatInit = function(sim) {
     # Give dimensions of dummy raster
     nx <- simParams(sim)$habitat$nx
     ny <- simParams(sim)$habitat$ny
-    template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
+    template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
     speedup <- nx/5e1
     # Make dummy maps for testing of models
     DEM <- round(GaussMap(template, scale=300, var=0.03, speedup=speedup), 1)*1000

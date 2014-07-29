@@ -59,26 +59,26 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' library(RColorBrewer)
 #' 
 #' # Make random forest cover map
-#' a = raster(extent(0,1e2,0,1e2),res=1)
-#' hab = GaussMap(a,speedup=1)
+#' a <- raster(extent(0,1e2,0,1e2),res=1)
+#' hab <- GaussMap(a,speedup=1)
 #' names(hab)="hab"
-#' cells = loci = b = as.integer(sample(1:ncell(a),1e1))
-#' mask = raster(a)
-#' mask = setValues(mask, 0)
+#' cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
+#' mask <- raster(a)
+#' mask <- setValues(mask, 0)
 #' mask[1:5000] <- 1
 #' numCol <- ncol(a)
 #' numCell <- ncell(a)
 #' directions=8
 #' 
 #' # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
-#' cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+#' cols <- list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
 #' 
 #' dev(2)
 #' simPlot(hab,col=cols[[2]],speedup=1)
 #' names(hab)<-"hab"
-#' fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
-#'                 0.235,0,NULL,1e8,8,1e6,mergeDuplicates = T,
-#'                 plot.it=T,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab",
+#' fire2 <- spread(hab, loci=as.integer(sample(1:ncell(hab),10)),
+#'                 0.235, 0, NULL, 1e8, 8, 1e6, mergeDuplicates=TRUE,
+#'                 plot.it=T, col=cols[[1]], delete.previous=FALSE, add=TRUE, on.which.to.plot="hab",
 #'                 speedup=1)
 setMethod("spread",
           signature(landscape="RasterLayer"#, loci="integer", 
@@ -88,8 +88,8 @@ setMethod("spread",
                     #directions="integer", iterations="integer"
                     ),
           definition = function(landscape, loci, spreadProb, persistance,
-                                mask, maxSize=ncell(landscape), directions = 8, 
-                                iterations = ncell(landscape), mapID=FALSE,
+                                mask, maxSize=ncell(landscape), directions=8, 
+                                iterations=ncell(landscape), mapID=FALSE,
                                 plot.it=FALSE, ...) {
             ### should sanity check map extents
             
@@ -113,7 +113,7 @@ setMethod("spread",
             size <- length(loci)
             
             if (is.null(iterations)) {
-              iterations = Inf # this is a stupid way to do this!
+              iterations <- Inf # this is a stupid way to do this!
             } 
             
             while ( (length(loci)>0) && (iterations>=n) ) {
@@ -162,7 +162,7 @@ setMethod("spread",
               }
               
               # Implement maxSize
-              len = length(events)
+              len <- length(events)
               if((size+len) > maxSize) {
                 keep<-len - ((size+len) - maxSize)
                 events<-events[sample(len,keep)]
@@ -205,16 +205,15 @@ setMethod("spread",
               
               if (plot.it){
 #                 if (!is.null(events)) {
-#                 pts = SpatialPoints(xyFromCell(landscape,events))
-#                 simPlot(x=pts,on.which.to.plot="fire",add=T,pch=15,
-#                         delete.previous = F, gp=gpar(cex=0.5))
+#                 pts <- SpatialPoints(xyFromCell(landscape,events))
+#                 simPlot(x=pts, on.which.to.plot="fire", add=TRUE, pch=15,
+#                         delete.previous=FALSE, gp=gpar(cex=0.5))
 #                 }
                 top <- raster(landscape)
                 top <- setValues(top,spreads)
                 simPlot(top, ...)
               }
-              #    simPlot(raster(matrix(spreads,ncol=10,nrow=10,byrow=T)),col=c("grey","black"))
-              
+              #    simPlot(raster(matrix(spreads, ncol=10, nrow=10, byrow=T)), col=c("grey","black"))
             }
             
             # Convert the data.table back to raster

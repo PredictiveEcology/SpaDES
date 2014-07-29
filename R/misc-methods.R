@@ -26,7 +26,7 @@
 #' \dontrun{pkgs <- list("ggplot2", "lme4")}
 #' \dontrun{loadPackages(pkgs) # loads packages if installed}
 #' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
-setGeneric("loadPackages", function(packageList, install = FALSE, quiet = TRUE) {
+setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
     standardGeneric("loadPackages")
 })
 
@@ -48,8 +48,6 @@ setMethod("loadPackages",
               if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
-
-#####################################################
 ##############################################################
 #' Check filepath.
 #'

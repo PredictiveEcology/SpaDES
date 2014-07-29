@@ -14,10 +14,10 @@
 #   - `module.NAME.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.caribou <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies:
-        depends = c("habitat") # list package names here
+        depends <- c("habitat") # list package names here
 
         # if a required module isn't loaded yet,
         # reschedule this module init for later
@@ -60,19 +60,19 @@ doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
     return(sim)
 }
 
-caribouInit = function(sim) {
+caribouInit <- function(sim) {
     ### load any required packages
     pkgs <- list("raster","grid") # list required packages here
     loadPackages(pkgs)
 
     yrange <- c(ymin(habitat),ymax(habitat))
     xrange <- c(xmin(habitat),xmax(habitat))
-#    best = max(values(habitat))
-#    worst = min(values(habitat))
-#    good = Which(habitat>0.8*best)
+#    best <- max(values(habitat))
+#    worst <- min(values(habitat))
+#    good <- Which(habitat>0.8*best)
 #
-#   al = agentLocation(good)    # good habitat, from above
-#   initialCoords = probInit(habitat, al)
+#   al <- agentLocation(good)    # good habitat, from above
+#   initialCoords <- probInit(habitat, al)
 
     # initialize caribou agents
     N <- simParams(sim)$caribou$N
@@ -100,7 +100,7 @@ caribouInit = function(sim) {
     return(sim)
 }
 
-caribouMove = function(sim) {
+caribouMove <- function(sim) {
   #crop any caribou that went off maps
   caribou <<- crop(caribou, habitat)
   if(length(caribou)==0) stop("All agents are off map")
@@ -116,8 +116,8 @@ caribouMove = function(sim) {
 
   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
-#     #rads = sample(10:30, length(caribou), replace=TRUE)
-#     #rings = cir(caribou, radiuses=rads, habitat, 1)
+#     #rads <- sample(10:30, length(caribou), replace=TRUE)
+#     #rings <- cir(caribou, radiuses=rads, habitat, 1)
 #     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
 #
 

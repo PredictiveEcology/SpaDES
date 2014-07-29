@@ -79,5 +79,4 @@ print(system.time(mySim <- doSim(mySim)))
 #prof <- lineprof(source("doSim.R"))
 
 shine(prof)
-c(address(sim), refs(sim))
-c(address(sim.data), refs(sim.data))
+c(address(mySim), refs(mySim))

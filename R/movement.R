@@ -1,7 +1,7 @@
 # Not implemented yet
-# move = function(hypothesis = NULL) {
-#     if (hypothesis == "TwoDT") move = "TwoDT"
-#     if (hypothesis == "crw") move = "crw"
+# move <- function(hypothesis=NULL) {
+#     if (hypothesis == "TwoDT") move <- "TwoDT"
+#     if (hypothesis == "crw") move <- "crw"
 # }
 
 
@@ -48,23 +48,23 @@ crw = function(agent, stepLength, stddev, lonlat) {
     }
     stopifnot(is.logical(lonlat))
     
-    n = length(agent)
-    prevPos = SpatialPoints(cbind(x=agent$prevX, y=agent$prevY))
+    n <- length(agent)
+    prevPos <- SpatialPoints(cbind(x=agent$prevX, y=agent$prevY))
     agentHeading <- heading(prevPos, agent)
-    rndDir = rnorm(n, agentHeading, stddev)
-    rndDir = ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
+    rndDir <- rnorm(n, agentHeading, stddev)
+    rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
     
     
     # these should use `coordinates(agent) <-` or similar set methods
     # But, the assignment can't be used for overriding coordinates
     #  Must use slots directly
-    agent@data[,c("prevX","prevY")] = coordinates(agent)
+    agent@data[,c("prevX","prevY")] <- coordinates(agent)
     agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
                           y=agent$y + cos(rad(rndDir)) * stepLength)
     
     # These are not needed. Could be added with arguments to function
-    #agent$heading = agentHeading
-    #agent$distance = pointDistance(prevPos, agent, lonlat=lonlat)
+    #agent$heading <- agentHeading
+    #agent$distance <- pointDistance(prevPos, agent, lonlat=lonlat)
     
     return(agent)
 }

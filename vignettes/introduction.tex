@@ -55,6 +55,12 @@ Note: no visible binding for global variable 'to'
 \end{Soutput}
 \end{Schunk}
 
+\newpage
+
+\section{Discrete event simulation}
+
+\paragraph{}
+Lorem ipsum ...
 
 \newpage
 
@@ -94,38 +100,41 @@ As noted above, modules can depend on one another for event scheduling. Modules 
 \paragraph{A raster map}
 Sample map of habitat quality.
 
+\paragraph{Plotting maps}
+
+
 \begin{Schunk}
 \begin{Sinput}
 > # Give dimensions of dummy raster
-> nx = 1e3
-> ny = 1e3
-> template = raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
+> nx <- 1e3
+> ny <- 1e3
+> template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
 > # Make dummy maps for testing of models:
 > # - digital elevation model (DEM)
 > # - forest age
 > # - forset cover
 > # - percent pine
-> DEM = round(GaussMap(template, scale=300, var=0.03, speedup=1), 1)*1000
-> forestAge = round(GaussMap(template, scale=10, var=0.1, speedup=1), 1)*20
-> forestCover = round(GaussMap(template, scale=50, var=1, speedup=1),2)*10
-> percentPine = round(GaussMap(template, scale=50, var=1, speedup=1),1)
+> DEM <- round(GaussMap(template, scale=300, var=0.03, speedup=1), 1)*1000
+> forestAge <- round(GaussMap(template, scale=10, var=0.1, speedup=1), 1)*20
+> forestCover <- round(GaussMap(template, scale=50, var=1, speedup=1),2)*10
+> percentPine <- round(GaussMap(template, scale=50, var=1, speedup=1),1)
 > # Scale them as needed
-> forestAge = forestAge/maxValue(forestAge)*100
-> percentPine = percentPine/maxValue(percentPine)*100
+> forestAge <- forestAge/maxValue(forestAge)*100
+> percentPine <- percentPine/maxValue(percentPine)*100
 > # Make layers that are derived from other layers
-> habitatQuality = (DEM+10 + (forestCover+5)*10)/100
-> habitatQuality = habitatQuality/maxValue(habitatQuality)
+> habitatQuality <- (DEM+10 + (forestCover+5)*10)/100
+> habitatQuality <- habitatQuality/maxValue(habitatQuality)
 > # Stack them into a single stack for plotting
-> habitat = stack(list(DEM, forestAge, forestCover, habitatQuality, percentPine))
-> names(habitat) = c("DEM","forestAge", "forestCover", "habitatQuality", "percentPine")
+> habitat <- stack(list(DEM, forestAge, forestCover, habitatQuality, percentPine))
+> names(habitat) <- c("DEM","forestAge", "forestCover", "habitatQuality", "percentPine")
 > library(RColorBrewer)
-> cols = list(
-+   transparent.red=c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
-+   grey = brewer.pal(9,"Greys"),
-+   spectral = brewer.pal(8,"Spectral"),
-+   terrain = rev(terrain.colors(100)),
-+   heat = heat.colors(10),
-+   topo = topo.colors(10)
+> cols <- list(
++   transparent.red <- c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
++   grey <- brewer.pal(9,"Greys"),
++   spectral <- brewer.pal(8,"Spectral"),
++   terrain <- rev(terrain.colors(100)),
++   heat <- heat.colors(10),
++   topo <- topo.colors(10)
 + )
 > dev(4); simPlot(habitat, col=cols[c(2:5,3)])
 \end{Sinput}
@@ -175,25 +184,25 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 \end{Sinput}
 \begin{Soutput}
     Alice       Bob     Clark     Daisy      Eric     Franz     Gabby    Hayley 
- 84.27990 151.98234 281.05817 346.45595 238.45217 272.51261  14.79431 132.29561 
+163.88065 141.33294 242.66937 302.52284 208.02739  86.71407 184.02960 265.57631 
      Igor      Jane 
-270.83973 155.01249 
+271.31151 154.77112 
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
                 x          y
-Alice  -177.90467  102.03447
-Bob     -32.86537 -231.66976
-Clark   102.66365   13.22998
-Daisy  -194.00788  128.41653
-Eric    -87.09246 -258.88774
-Franz   179.73759  115.68898
-Gabby   -15.36590  -12.24363
-Hayley  -88.03064  105.50950
-Igor   -350.95894 -140.94925
-Jane   -108.04484   23.20363
+Alice   -13.67962  141.33591
+Bob     106.54403  -28.24142
+Clark  -230.22586  169.43380
+Daisy   159.28780 -150.51892
+Eric    -11.60241 -179.74971
+Franz   135.50867 -206.32688
+Gabby   -65.67269 -129.08356
+Hayley  -92.59626  198.78075
+Igor   -203.41696  264.04145
+Jane   -149.09977  131.92345
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method - agents don't plot properly when it is a raster stack
@@ -201,11 +210,11 @@ Jane   -108.04484   23.20363
 > #plot(caribou, add=TRUE)
 > 
 > # convenient plotting using simPlot
-> simPlot(habitat,col = cols[c(2:5,3)])
-> simPlot(caribou,on.which.to.plot=c(2,3,5),pch=19,size=unit(0.1,"inches"))
-> drawArrows(from = SpatialPoints(cbind(x=prevX,y=prevY)),
-+            to = caribou,
-+            on.which.to.plot = "DEM")
+> simPlot(habitat, col=cols[c(2:5,3)])
+> simPlot(caribou, on.which.to.plot=c(2,3,5), pch=19, size=unit(0.1,"inches"))
+> drawArrows(from=SpatialPoints(cbind(x=prevX, y=prevY)),
++            to=caribou,
++            on.which.to.plot="DEM")
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-mobile-point-agent}
@@ -214,19 +223,18 @@ Jane   -108.04484   23.20363
 \paragraph{Burn some of the forest}
 Using the spread function, we can simulate fires, and subsequent changes to the various map layers. Here, spreadProb can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
 
-
 \begin{Schunk}
 \begin{Sinput}
 > nFires <- 10 # number of agents
 > habitat[["Fires"]] <- spread(habitat[[1]],
 +                              loci=as.integer(sample(1:ncell(habitat), nFires)),
-+                              #spreadProb = 0.225,
-+                              spreadProb = habitat[["percentPine"]]/(maxValue(habitat[["percentPine"]])*5)+0.1,
++                              #spreadProb=0.225,
++                              spreadProb=habitat[["percentPine"]]/(maxValue(habitat[["percentPine"]])*5)+0.1,
 +                              persistance=0,
 +                              mapFireID=TRUE,
-+                              mask = NULL,
-+                              maxSize = 1e8,
-+                              directions = 8,
++                              mask=NULL,
++                              maxSize=1e8,
++                              directions=8,
 +                              iterations=1e6,
 +                              plot.it=FALSE,
 +                              mapID=TRUE)
@@ -254,7 +262,7 @@ We can see that the fires tend to be in the Pines because we made it that way, u
 \begin{Sinput}
 > # Show the burning more strongly over abundant pine
 > fire <- reclassify(habitat[["Fires"]],rcl= cbind(0:1,c(0,ncell(habitat)),0:1))
-> pine <- reclassify(habitat[["percentPine"]],rcl= cbind(0:9*10,1:10*10,0:9))
+> pine <- reclassify(habitat[["percentPine"]],rcl= cbind(0:9*10, 1:10*10, 0:9))
 > PineByFire <- crosstab(fire, pine, long=TRUE)
 > colnames(PineByFire) <- c("fire", "pine", "freq")
 > PineByFire$pine <- as.numeric(as.character(PineByFire$pine))
@@ -266,22 +274,22 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--455.93  -263.07    -5.56    43.62   547.81  
+-468.83  -342.77    -8.34    76.88   466.59  
 
 Coefficients:
               Estimate Std. Error  z value Pr(>|z|)    
-(Intercept) 11.5749724  0.0018257 6339.915   <2e-16 ***
-fire1       -8.9984915  0.1811376  -49.678   <2e-16 ***
-pine        -0.0140482  0.0003484  -40.323   <2e-16 ***
-fire1:pine   0.3228374  0.0323012    9.995   <2e-16 ***
+(Intercept) 11.3841261  0.0019295 5899.970  < 2e-16 ***
+fire1       -8.4994367  0.2459311  -34.560  < 2e-16 ***
+pine         0.0278301  0.0003489   79.765  < 2e-16 ***
+fire1:pine   0.3211428  0.0488410    6.575 4.86e-11 ***
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 2266801  on 15  degrees of freedom
-Residual deviance: 1331063  on 12  degrees of freedom
-AIC: 1331218
+    Null deviance: 1928851  on 13  degrees of freedom
+Residual deviance: 1255401  on 10  degrees of freedom
+AIC: 1255550
 
 Number of Fisher Scoring iterations: 6
 \end{Soutput}
@@ -297,7 +305,7 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 > habitat[["forestCover"]][habitat[["Fires"]]>0] <- 0
 > habitat[["habitatQuality"]][habitat[["Fires"]]>0] <- 0.1
 > habitat[["percentPine"]][habitat[["Fires"]]>0] <- 0
-> simPlot(habitat,col = cols[c(2:5,3,1)])
+> simPlot(habitat,col <- cols[c(2:5,3,1)])
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-fire-impacts-maps}
@@ -308,29 +316,39 @@ Using a simple habitat-depedent correlated random walk, simulate the movement of
 
 \begin{Schunk}
 \begin{Sinput}
-> simPlot(habitat[["habitatQuality"]],col = cols[[3]])
+> simPlot(habitat[["habitatQuality"]], col=cols[[3]])
 > for (i in 1:10) {
 +   #crop any caribou that went off maps
 +   caribou <<- crop(caribou,habitat)
-+   drawArrows(from =
-+               SpatialPoints(cbind(x=caribou$prevX,y=caribou$prevY)),
-+               to = caribou,length=0.04,
-+               on.which.to.plot = 1)
++   drawArrows(from=SpatialPoints(cbind(x=caribou$prevX, y=caribou$prevY)),
++              to=caribou,length=0.04,
++              on.which.to.plot=1)
 + 
 +   # find out what pixels the individuals are on now
-+   ex =  habitat[["habitatQuality"]][caribou]
++   ex <- habitat[["habitatQuality"]][caribou]
 + 
 +   #step length is a function of current cell's habitat quality
-+   sl = 0.25/ex
++   sl <- 0.25/ex
 + 
-+   ln = rlnorm(length(ex), sl, 0.02) # log normal step length
-+   sd = 30 # could be specified globally in params
++   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
++   sd <- 30 # could be specified globally in params
 + 
 +   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
-+ 
 + }
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-agent-crw-trajectory}
+
+\newpage
+
+\section{Further reading}
+
+\subsection{Other \texttt{SpaDES} vignettes:}
+
+%% list all other vignettes here
+\begin{itemize}
+\item \texttt{modules}: Building modules in \texttt{SpaDES}
+\item \texttt{plotting}: Plotting with \texttt{simPlot} in \texttt{SpaDES}
+\end{itemize}
 
 \end{document}
