@@ -1,0 +1,48 @@
+%\VignetteIndexEntry{plotting}
+\documentclass{article}
+
+%%% latex packages
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+\usepackage{lipsum} % for dummy text only
+
+%% change margins to 1" all the way around
+\oddsidemargin 0.0in
+\evensidemargin 0.0in
+\textwidth 6.5in
+\headheight 0.0in
+\topmargin 0.0in
+\textheight 9.0in
+
+%%% document info
+\title{Plotting with \texttt{simPlot} in \texttt{SpaDES}}
+
+\author{
+  Alex M. Chubaty\\
+  \small{Natural Resources Canada, Pacific Forestry Centre}\\
+	\small{email: \href{mailto:achubaty@nrcan.gc.ca}{achubaty@nrcan.gc.ca}}
+	\and
+	Eliot McIntire\\
+	\small{Natural Resources Canada, Pacific Forestry Centre}\\
+	\small{email: \href{mailto:emcintir@nrcan.gc.ca}{emcintir@nrcan.gc.ca}}
+}
+
+\usepackage{Sweave}
+\begin{document}
+\input{plotting-concordance}
+ % displays code as entered (no arranging lines)
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Plotting with \texttt{simPlot}}
+
+\paragraph{}
+One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at everystage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package without having to relearn a completely new set of plotting commands.
+
+\end{document}
