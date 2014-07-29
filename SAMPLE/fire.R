@@ -23,19 +23,18 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
         } else {
             # do stuff for this event
             sim <- fireInit(sim)
-            simPlot(stack(habitat,Fires), col=cols[c(2:5,3,2)], add.legend=TRUE)
             
             # schedule the next event
-            sim <- scheduleEvent(sim, 10, "fire", "burn")
-            sim <- scheduleEvent(sim, 0,  "fire", "plot")
-            sim <- scheduleEvent(sim, 10, "fire", "save")
+            sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "burn")
+            sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "plot")
+            sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "save")
         }
     } else if (eventType=="burn") {
         # do stuff for this event
         sim <- fireBurn(sim)
         
         # schedule the next event
-        sim <- scheduleEvent(sim, simCurrentTime(sim)+10, "fire", "burn")
+        sim <- scheduleEvent(sim, simCurrentTime(sim)+simParams(sim)$fire$interval, "fire", "burn")
     } else if (eventType=="plot") {
       # do stuff for this event
       simPlot(stack(habitat, Fires), add=FALSE, col=cols[c(2:5,3,2)], add.legend=TRUE)
@@ -76,7 +75,7 @@ fireInit = function(sim) {
 fireBurn = function(sim) {
     # random fire start locations, but could be based on hab:
     Fires <<- spread(habitat[[1]],
-                  loci=as.integer(sample(1:ncell(habitat), simParams(sim)$fires$nFires)),
+                  loci=as.integer(sample(1:ncell(habitat), simParams(sim)$fire$nFires)),
                   #spreadProb = 0.225,
                   spreadProb = simParams(sim)$fire$spreadprob,
                   persistance = simParams(sim)$fire$persistprob,
