@@ -288,8 +288,19 @@ for (i in 1:10) {
   sd <- 30 # could be specified globally in params
 
   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
-
 }
 @
+
+\newpage
+
+\section{Further reading}
+
+\subsection{Other \texttt{SpaDES} vignettes:}
+
+%% list all other vignettes here
+\begin{itemize}
+\item \texttt{modules}: Building modules in \texttt{SpaDES}
+\item \texttt{plotting}: Plotting with \texttt{simPlot} in \texttt{SpaDES}
+\end{itemize}
 
 \end{document}

@@ -44,6 +44,15 @@
 \paragraph{}
 ...
 
+\newpage
+
+\section{Introduction}
+
+\paragraph{}
+...
+
+\newpage
+
 \section{A simple habitat module}
 
 \paragraph{}
