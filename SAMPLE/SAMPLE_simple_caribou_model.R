@@ -43,24 +43,26 @@ cols = list(
 
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
-dev(2)
-mySim <- simInit(times=list(start=0.0, stop=90.1),
+dev(4)
+mySim <- simInit(times=list(start=0.0, stop=90),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                              .progress=list(graphical=TRUE,interval = 10),
-                             habitat = list(nx=3e2,ny=3e2,toSave=c("habitat")),
-                             caribou=list(N=1e3,plotFreq=1,toSave=c("caribou"),
-                                          savePath = file.path("output","caribou"),
-                                          saveFreq = 4),
+                             habitat = list(nx=3e2,ny=3e2,toSave=c("habitat"),
+                                            savePath = file.path("output","habitat"),
+                                            saveFreq=10),
+#                             caribou=list(N=1e3,plotFreq=1,toSave=c("caribou"),
+#                                          savePath = file.path("output","caribou"),
+#                                          saveFreq = 4),
                              fires=list(nFires = 1e1, spreadprob=0.225, 
                                         persistprob=0, its=1e6, plotFreq=10,
                                         toSave=c("Fires"),
                                         savePath = file.path("output","fires"),
-                                        saveFreq = 4)
+                                        saveFreq = 10)
                              ),
-                 modules=list("habitat", "fire", "caribou"),
-#                 modules=list("habitat", "caribou"),
+#                 modules=list("habitat", "fire", "caribou"),
+                 modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
                   path=file.path(path, "SpaDES/SAMPLE"))
 

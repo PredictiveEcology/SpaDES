@@ -47,7 +47,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @rdname simProgress
 simProgress = function(sim) {
-            close(pb)
+            try(close(pb),silent = TRUE)
             OS <- tolower(Sys.info()["sysname"])
             if (simParams(sim)$.progress$graphical) {
               if (OS=="windows") {

@@ -1,1 +1,0 @@
-doSim(mySim)

@@ -27,7 +27,8 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
             
             # schedule the next event
             sim <- scheduleEvent(sim, 10, "fire", "burn")
-            sim <- scheduleEvent(sim, 0, "fire", "plot")
+            sim <- scheduleEvent(sim, 0,  "fire", "plot")
+            sim <- scheduleEvent(sim, 10, "fire", "save")
         }
     } else if (eventType=="burn") {
         # do stuff for this event
@@ -42,6 +43,12 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
       
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, "fire", "plot")
+    } else if (eventType=="save") {
+      # do stuff for this event
+      simSave(sim)
+
+      # schedule the next event
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$saveFreq, "fire", "save")
     } else {
       warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
                     "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
