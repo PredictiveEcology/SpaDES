@@ -55,6 +55,12 @@ Note: no visible binding for global variable 'to'
 \end{Soutput}
 \end{Schunk}
 
+\newpage
+
+\section{Discrete event simulation}
+
+\paragraph{}
+Lorem ipsum ...
 
 \newpage
 
@@ -178,25 +184,25 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 \end{Sinput}
 \begin{Soutput}
     Alice       Bob     Clark     Daisy      Eric     Franz     Gabby    Hayley 
-178.63162  13.01089 229.21290  81.57059  40.16654  55.79304 132.92075  13.16046 
+163.88065 141.33294 242.66937 302.52284 208.02739  86.71407 184.02960 265.57631 
      Igor      Jane 
-250.55897 243.52534 
+271.31151 154.77112 
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
-                 x          y
-Alice   -24.036257  139.65351
-Bob    -216.187429  231.93097
-Clark    -2.077215 -123.68537
-Daisy   330.922738 -236.04789
-Eric    269.402706 -154.83855
-Franz    27.191678  114.34258
-Gabby   315.011107 -140.87857
-Hayley  190.722134  241.62348
-Igor   -201.634727  -89.46241
-Jane    272.311563 -240.88562
+                x          y
+Alice   -13.67962  141.33591
+Bob     106.54403  -28.24142
+Clark  -230.22586  169.43380
+Daisy   159.28780 -150.51892
+Eric    -11.60241 -179.74971
+Franz   135.50867 -206.32688
+Gabby   -65.67269 -129.08356
+Hayley  -92.59626  198.78075
+Igor   -203.41696  264.04145
+Jane   -149.09977  131.92345
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method - agents don't plot properly when it is a raster stack
@@ -268,22 +274,22 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--476.13  -278.98    -0.64     5.16   610.69  
+-468.83  -342.77    -8.34    76.88   466.59  
 
 Coefficients:
               Estimate Std. Error  z value Pr(>|z|)    
-(Intercept) 11.6646547  0.0017791 6556.661   <2e-16 ***
-fire1       -8.8346144  0.2130406  -41.469   <2e-16 ***
-pine        -0.0348533  0.0003492  -99.797   <2e-16 ***
-fire1:pine   0.0038762  0.0488548    0.079    0.937    
+(Intercept) 11.3841261  0.0019295 5899.970  < 2e-16 ***
+fire1       -8.4994367  0.2459311  -34.560  < 2e-16 ***
+pine         0.0278301  0.0003489   79.765  < 2e-16 ***
+fire1:pine   0.3211428  0.0488410    6.575 4.86e-11 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 2465240  on 16  degrees of freedom
-Residual deviance: 1396052  on 13  degrees of freedom
-AIC: 1396207
+    Null deviance: 1928851  on 13  degrees of freedom
+Residual deviance: 1255401  on 10  degrees of freedom
+AIC: 1255550
 
 Number of Fisher Scoring iterations: 6
 \end{Soutput}

@@ -65,6 +65,12 @@ devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 #library(SpaDES)
 @
 
+\newpage
+
+\section{Discrete event simulation}
+
+\paragraph{}
+Lorem ipsum ...
 
 \newpage
 
