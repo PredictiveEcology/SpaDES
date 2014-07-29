@@ -5,22 +5,15 @@
 ###
 ###############################################
 
-
-
-### event functions:
-#   - follow the naming convention `moduleName.eventType()`;
-#   - `moduleName.init()` function is required for initiliazation;
-#   - keep event functions short and clean, modularize by calling
-#       subroutines from section below.
-doEvent.age = function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.age <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends = "" # list module names here
+        depends <- "" # list module names here
         
         if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, currentTime(sim), "age", "init")
+            sim <- scheduleEvent(sim, simCurrentTime(sim), "age", "init")
         } else {
             # do stuff for this event
             sim <- ageInit(sim)
@@ -33,21 +26,27 @@ doEvent.age = function(sim, eventTime, eventType, debug=FALSE) {
         sim <- ageAge(sim)
         
         # schedule the next event
-        sim <- scheduleEvent(sim, currentTime(sim)+1.0, "age", "age")
+        sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "age", "age")
+    } else if (eventType=="plot") {
+      # do stuff for this event
+      sim <- agePlot(sim)
+      
+      # schedule the next event
+      sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "age", "plot")
     } else {
-      warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
-                    "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+      warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
+                    "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE], "\'", sep=""))
     }
     return(sim)
 }
 
-ageInit = function(sim) {
+ageInit <- function(sim) {
     ### load any required packages
-    pkgs = list("raster", "RColorBrewer") # list required packages here
+    pkgs <- list("raster", "RColorBrewer") # list required packages here
     loadPackages(pkgs)
 
 #    beginCluster()
-    ageMap <- projectRaster(raster("C:/shared/data/shared/age/age.asc"), to=vegMap)
+    ageMap <<- projectRaster(raster("C:/shared/data/shared/age/age.asc"), to=vegMap)
 #    endCluster()
     
 #    assign(x=get(simParams(sim)$age$rasterLayerName),
@@ -61,14 +60,18 @@ ageInit = function(sim) {
     return(sim)
 }
 
-ageAge = function(sim) {
+ageAge <- function(sim) {
 #    assign(x=get(simParams(sim)$age$rasterStackName),
 #           value=agingFunction(get(simParams(sim)$age$rasterStackName)),
 #           envir=.GlobalEnv)
-    ageMap[] <- pmin(200,ageMap[] + 1)
-    ageMap[1]<-0
-    plot(ageMap)    
+    ageMap[] <<- pmin(200,ageMap[] + 1)
+    ageMap[1] <<- 0
     return(sim)
 }
 
+agePlot <- function(sim) {
+  plot(ageMap)
+  
+  return(sim)
+}
 

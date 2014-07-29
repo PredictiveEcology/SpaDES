@@ -7,6 +7,13 @@ newModule = function(name, path) {
     # cat(, file=filename, fill=FALSE, sep="\n")
 
     #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@#
+    
+    ### event functions:
+    #   - follow the naming convention `moduleName.eventType()`;
+    #   - `moduleName.init()` function is required for initiliazation;
+    #   - keep event functions short and clean, modularize by calling
+    #       subroutines from section below.
+    
     ### template event
     doEvent.TEMPLATE = function(sim, eventTime, eventType, debug=FALSE) {
       if (eventType=="init") {

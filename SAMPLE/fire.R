@@ -11,12 +11,12 @@
 #   - `moduleName.init()` function is required for initiliazation;
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
-doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.fire <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends = "habitat" # list module names here
+        depends <- "habitat" # list module names here
         
         if (reloadModuleLater(sim, depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "fire", "init")
@@ -55,9 +55,9 @@ doEvent.fire = function(sim, eventTime, eventType, debug=FALSE) {
     return(sim)
 }
 
-fireInit = function(sim) {
+fireInit <- function(sim) {
     ### load any required packages
-    pkgs = list("raster", "RColorBrewer") # list required packages here
+    pkgs <- list("raster", "RColorBrewer") # list required packages here
     loadPackages(pkgs)
     
     ### create burn map that tracks fire locations over time
@@ -73,20 +73,20 @@ fireInit = function(sim) {
 }
 
 
-fireBurn = function(sim) {
+fireBurn <- function(sim) {
     # random fire start locations, but could be based on hab:
     Fires <<- spread(habitat[[1]],
                   loci=as.integer(sample(1:ncell(habitat), simParams(sim)$fires$nFires)),
-                  #spreadProb = 0.225,
-                  spreadProb = simParams(sim)$fire$spreadprob,
-                  persistance = simParams(sim)$fire$persistprob,
-                  mapFireID = TRUE,
-                  mask = NULL,
-                  maxSize = 1e8,
-                  directions = 8,
-                  iterations = simParams(sim)$fire$its,
-                  plot.it = FALSE,
-                  mapID = TRUE)
+                  #spreadProb=0.225,
+                  spreadProb=simParams(sim)$fire$spreadprob,
+                  persistance=simParams(sim)$fire$persistprob,
+                  mapFireID=TRUE,
+                  mask=NULL,
+                  maxSize=1e8,
+                  directions=8,
+                  iterations=simParams(sim)$fire$its,
+                  plot.it=FALSE,
+                  mapID=TRUE)
     names(Fires) <<- "Fires" # do we need this again here??
   
     #values(burned) <<- values(burned) + values(tmp)
