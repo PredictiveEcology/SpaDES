@@ -62,11 +62,11 @@ doEvent.caribou = function(sim, eventTime, eventType, debug=FALSE) {
 
 caribouInit = function(sim) {
     ### load any required packages
-    pkgs = list("raster","grid") # list required packages here
+    pkgs <- list("raster","grid") # list required packages here
     loadPackages(pkgs)
 
-    yrange = c(ymin(habitat),ymax(habitat))
-    xrange = c(xmin(habitat),xmax(habitat))
+    yrange <- c(ymin(habitat),ymax(habitat))
+    xrange <- c(xmin(habitat),xmax(habitat))
 #    best = max(values(habitat))
 #    worst = min(values(habitat))
 #    good = Which(habitat>0.8*best)
@@ -101,19 +101,18 @@ caribouInit = function(sim) {
 }
 
 caribouMove = function(sim) {
-
   #crop any caribou that went off maps
   caribou <<- crop(caribou, habitat)
   if(length(caribou)==0) stop("All agents are off map")
     
   # find out what pixels the individuals are on now
-  ex =  habitat[["habitatQuality"]][caribou]
+  ex <- habitat[["habitatQuality"]][caribou]
 
   #step length is a function of current cell's habitat quality
-  sl = 0.25/ex
+  sl <- 0.25/ex
 
-  ln = rlnorm(length(ex), sl, 0.02) # log normal step length
-  sd = 30 # could be specified globally in params
+  ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
+  sd <- 30 # could be specified globally in params
 
   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 

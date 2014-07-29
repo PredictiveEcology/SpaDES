@@ -13,7 +13,7 @@ newModule = function(name, path) {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends = "NONE" # list module names here
+        depends <- "NONE" # list module names here
 
         if (reloadModuleLater(sim, depends)) {
           sim <- scheduleEvent(sim, currentTime(sim), "habitat", "init")
@@ -38,7 +38,7 @@ newModule = function(name, path) {
     ### template initilization
     templateInit = function(sim) {
       # load any required packages
-      pkgs = list("raster") # list required packages here
+      pkgs <- list("raster") # list required packages here
       loadPackforestAges(pkgs)
 
       # # ! ----- EDIT BELOW ----- ! #
