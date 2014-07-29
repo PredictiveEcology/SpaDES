@@ -624,7 +624,8 @@ setMethod("simInit",
               sim <- new("simList", times=times)
               
               # default/built-in modules:  (should we be hardcoding this??)
-              defaults <- list("checkpoint")
+              
+              defaults <- list("checkpoint","save","progress")
               
               simModules(sim) <- append(defaults, modules)
               simParams(sim) <- params
@@ -874,30 +875,34 @@ setMethod("doSim",
           signature(sim="simList", debug="logical"),
           definition = function(sim, debug, timerUpdateFreq, graphicalTimer) {
               # run the discrete event simulation
-              nextTimerUpdate = 0
+#              nextTimerUpdate = 0
+              
+              
               while(simCurrentTime(sim) < simStopTime(sim)) {
                   sim <- doEvent(sim, debug)  # process the next event
-                  if(!is.null(timerUpdateFreq)){
-                    if (simCurrentTime(sim)>=nextTimerUpdate) {
-                      if(graphicalTimer==FALSE){
-                        print(simCurrentTime(sim))
-                      } else {
-
-                      # plot simulation timer in top right of whatever device is active
-                      upViewport(0)
-                      if (unname(any(grid.ls(viewports =T,print=F)$name == "counterText")))
-                        grid.remove("counterText")
-                      counter = viewport(x=0.95,y=0.95,name="counterTextvp",
-                                         width=0.2,height=0.1)
-                      pushViewport(counter)
-                      grid.text(paste("Time\n",
-                                      min(simStopTime(sim),simCurrentTime(sim))),
-                                name="counterText")
-                      popViewport()
-                      }
-                      nextTimerUpdate = nextTimerUpdate + timerUpdateFreq
-                    }
-                  }
+                  
+                  
+#                   if(!is.null(timerUpdateFreq)){
+#                     if (simCurrentTime(sim)>=nextTimerUpdate) {
+#                       if(graphicalTimer==FALSE){
+#                         print(simCurrentTime(sim))
+#                       } else {
+# 
+#                       # plot simulation timer in top right of whatever device is active
+#                       upViewport(0)
+#                       if (unname(any(grid.ls(viewports =T,print=F)$name == "counterText")))
+#                         grid.remove("counterText")
+#                       counter = viewport(x=0.95,y=0.95,name="counterTextvp",
+#                                          width=0.2,height=0.1)
+#                       pushViewport(counter)
+#                       grid.text(paste("Time\n",
+#                                       min(simStopTime(sim),simCurrentTime(sim))),
+#                                 name="counterText")
+#                       popViewport()
+#                       }
+#                       nextTimerUpdate = nextTimerUpdate + timerUpdateFreq
+#                     }
+#                   }
                   
                   # print debugging info
                   #  this can, and should, be more sophisticated;
@@ -906,7 +911,7 @@ setMethod("doSim",
                       print(sim)
                   }
               }
-              
+              close(pb)
               return(sim)
 })
 

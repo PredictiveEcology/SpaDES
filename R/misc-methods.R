@@ -26,13 +26,13 @@
 #' \dontrun{pkgs <- list("ggplot2", "lme4")}
 #' \dontrun{loadPackages(pkgs) # loads packages if installed}
 #' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
-setGeneric("loadPackages", function(packageList, install, quiet) {
+setGeneric("loadPackages", function(packageList, install = FALSE, quiet = TRUE) {
     standardGeneric("loadPackages")
 })
 
-#' @rdname loadPackages-method,list,logical,logical
+#' @rdname loadPackages-method
 setMethod("loadPackages",
-          signature(packageList="list", install="logical", quiet="logical"),
+          signature="list",
           definition = function(packageList, install, quiet) {
               load <- function(name, install) {
                   if (!require(name, character.only=TRUE)) {
@@ -48,27 +48,8 @@ setMethod("loadPackages",
               if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
-#' @rdname loadPackages-method,list,missing,missing
-setMethod("loadPackages",
-          signature(packageList="list", install="missing", quiet="missing"),
-          definition = function(packageList) {
-              loadPackages(packageList=packageList, install=FALSE, quiet=FALSE)
-})
 
-#' @rdname loadPackages-method,list,missing,logical
-setMethod("loadPackages",
-          signature(packageList="list", install="missing", quiet="logical"),
-          definition = function(packageList, quiet) {
-              loadPackages(packageList=packageList, install=FALSE, quiet=quiet)
-})
-
-#' @rdname loadpackages-method,list,logical,missing
-setMethod("loadPackages",
-          signature(packageList="list", install="logical", quiet="missing"),
-          definition = function(packageList, install) {
-              loadPackages(packageList=packageList, install=install, quiet=FALSE)
-})
-
+#####################################################
 ##############################################################
 #' Check filepath.
 #'
