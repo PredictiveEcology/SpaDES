@@ -8,16 +8,16 @@
 doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # check that output directory exists, make it if not
-    pathsToCheck <- unname(unlist(lapply(simParams(sim),function(y) {        
+    pathsToCheck <- unname(unlist(lapply(simParams(sim),function(y) {
         return(y$savePath)
       })))
 
     # make paths if they don't exist
     lapply(pathsToCheck, checkPath, create = TRUE)
-    
+
     # no scheduling of new event. Saving will be called by other events,
     #   in an event-specific manner.
-  } 
+  }
   return(sim)
 }
 
@@ -27,7 +27,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
-#' 
+#'
 #' @export
 #' @docType methods
 #' @rdname simSave
@@ -36,31 +36,26 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 # need examples
 simSave = function(sim) {
 
-  # extract savePaths from modules 
+  # extract savePaths from modules
   modulePaths <- lapply(simParams(sim), function(y) return(y$savePath) )
-  
+
   # extract objects to save from modules
   toSave <- lapply(simParams(sim), function(y) return(y$toSave) )
-  
+
   # extract the current module name that called this function
   moduleName = simEvents(sim)[1,moduleName]
 
   # if no savePath is specified, use active working directory
   if (is.null(toSave[[moduleName]])) {
     modulePaths[[moduleName]] <- "."
-  } 
-  
-  if (nchar(simCurrentTime(sim)) < nchar(simStopTime(sim))) {
-    txtTime = paste(
-      paste(rep(0,nchar(simStopTime(sim))-nchar(simCurrentTime(sim))),collapse=""),
-      simCurrentTime(sim),collapse="",sep="")
-  } else {
-    txtTime = as.character(simCurrentTime(sim))
   }
+
+  txtTime = sprintf(paste0("%0", nchar(simStopTime(sim)), "d"), simCurrentTime(sim))
+
   # save objects to a filename that has same name as object name, plus current simulation time
   lapply(toSave[[moduleName]], function(objectname) {
     saveRDS(get(objectname),
             file.path(modulePaths[[moduleName]],
-                      paste(objectname,txtTime, ".rds", sep="")) )})
-    
-}       
+                      paste(objectname, txtTime, ".rds", sep="")) )})
+
+}
