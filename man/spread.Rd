@@ -63,17 +63,18 @@ mask <- setValues(mask, 0)
 mask[1:5000] <- 1
 numCol <- ncol(a)
 numCell <- ncell(a)
-directions=8
+directions <- 8
 
 # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
 cols <- list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
 
 dev(2)
-simPlot(hab,col=cols[[2]],speedup=1)
-names(hab)<-"hab"
-fire2 <- spread(hab, loci=as.integer(sample(1:ncell(hab),10)),
+simPlot(hab, col=cols[[2]], speedup=1)
+names(hab) <- "hab"
+fire2 <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
                 0.235, 0, NULL, 1e8, 8, 1e6, mergeDuplicates=TRUE,
-                plot.it=T, col=cols[[1]], delete.previous=FALSE, add=TRUE, on.which.to.plot="hab",
+                plot.it=TRUE, col=cols[[1]], delete.previous=FALSE,
+                add=TRUE, on.which.to.plot="hab",
                 speedup=1)
 }
 \author{

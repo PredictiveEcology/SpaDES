@@ -30,6 +30,6 @@ to <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
 from <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
 plot(to)
 points(from)
-drawArrows(to, from)
+#drawArrows(to, from)
 }
 

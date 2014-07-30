@@ -36,7 +36,7 @@ dev = function(x, ...) {
 #'
 #' @export
 #' @docType methods
-#' @rdname plot2dev-method
+#' @rdname newPlot-method
 #'
 # @examples
 # needs examples
@@ -48,8 +48,8 @@ newPlot = function(...) {
   } else if (Sys.info()[["sysname"]]=="Windows") {
     windows(...)
   } else {
-    x11(...) # try x11() to see if it works
-    print("Which operating system are you using?")
+    dev.new(...) # try dev.new() to see if it works
+    warning("Which operating system are you using?")
   }
 }
 
@@ -288,7 +288,7 @@ setMethod("simPlot",
               } else {
                   stop("Error: Logical `add` should be TRUE or FALSE.")
               }
-          })
+})
 
 
 #' @param ext an extent object to describe the size of the map that is being plotted on
@@ -453,9 +453,6 @@ arrangeSimPlots = function(ext, dimx, nam, which.to.plot, axes="L") {
 #' @docType methods
 #' @rdname drawArrows-method
 #'
-# @examples
-# NEEDS EXAMPLES
-#'
 setGeneric("drawArrows", function(from, to, on.which.to.plot=1, ...) {
   standardGeneric("drawArrows")
 })
@@ -470,7 +467,8 @@ setGeneric("drawArrows", function(from, to, on.which.to.plot=1, ...) {
 #' from <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
 #' plot(to)
 #' points(from)
-#' drawArrows(to, from)
+#' #drawArrows(to, from)
+#'
 setMethod("drawArrows",
           signature=c("SpatialPoints","SpatialPoints"),
           definition = function(from, to, on.which.to.plot=1, ..., length = 0.1) {
