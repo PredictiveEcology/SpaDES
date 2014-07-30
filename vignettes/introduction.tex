@@ -175,25 +175,25 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 \end{Sinput}
 \begin{Soutput}
     Alice       Bob     Clark     Daisy      Eric     Franz     Gabby    Hayley 
-191.00569  31.17626  69.75310 198.41710 279.73808  63.55474 354.87074 128.38380 
+ 93.46971 292.42703 164.98204 342.89488 273.49100 151.65733 210.22029 303.14473 
      Igor      Jane 
-228.06966 219.92581 
+289.69822 139.61266 
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
                 x          y
-Alice   19.800062 -16.842137
-Bob    -19.154088  11.960405
-Clark   27.577501   1.268896
-Daisy  -24.973445  18.897341
-Eric    12.257073   4.633780
-Franz    3.805036  22.309027
-Gabby   20.655636   8.563896
-Hayley  26.935160 -24.606403
-Igor   -29.126950 -35.451490
-Jane    16.512501 -18.290584
+Alice   -2.990392   4.264426
+Bob     -5.908647  23.523945
+Clark   11.254934 -27.433900
+Daisy    8.910908   7.488650
+Eric   -16.252041  -9.144129
+Franz   -6.671158 -28.885787
+Gabby  -16.203213  16.954425
+Hayley  12.318166  24.271700
+Igor   -21.721241  28.202634
+Jane    16.614659  -2.508213
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method - agents don't plot properly when it is a raster stack
@@ -264,23 +264,23 @@ Call:
 glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
-   Min      1Q  Median      3Q     Max  
--41.56  -20.11   -3.67   10.19   34.78  
+    Min       1Q   Median       3Q      Max  
+-32.553  -12.885   -2.884   12.256   28.505  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  6.924265   0.018901 366.344  < 2e-16 ***
-fire1       -2.543569   0.069064 -36.829  < 2e-16 ***
-pine        -0.027037   0.003671  -7.366 1.76e-13 ***
-fire1:pine   0.137438   0.014747   9.320  < 2e-16 ***
+(Intercept)  6.760597   0.020642 327.516   <2e-16 ***
+fire1       -2.028387   0.050875 -39.870   <2e-16 ***
+pine        -0.033980   0.004047  -8.396   <2e-16 ***
+fire1:pine   0.191963   0.008362  22.957   <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 14413.1  on 17  degrees of freedom
-Residual deviance:  8482.1  on 14  degrees of freedom
-AIC: 8618.6
+    Null deviance: 9423.5  on 19  degrees of freedom
+Residual deviance: 6364.7  on 16  degrees of freedom
+AIC: 6518
 
 Number of Fisher Scoring iterations: 5
 \end{Soutput}

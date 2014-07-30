@@ -72,10 +72,9 @@ dev(2)
 simPlot(hab, col=cols[[2]], speedup=1)
 names(hab) <- "hab"
 fire2 <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
-                0.235, 0, NULL, 1e8, 8, 1e6, #mergeDuplicates=TRUE,
-                plot.it=TRUE, col=cols[[1]], delete.previous=FALSE,
-                add=TRUE, on.which.to.plot="hab",
-                speedup=1)
+                0.235, 0, NULL, 1e8, 8, 1e6, plot.it=TRUE,
+                col=cols[[1]], delete.previous=FALSE,
+                add=TRUE, on.which.to.plot="hab", speedup=1)
 }
 \author{
 Steve Cumming \email{Steve.Cumming@sbf.ulaval.ca}
