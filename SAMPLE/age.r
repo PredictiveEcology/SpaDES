@@ -65,12 +65,12 @@ ageAge <- function(sim) {
 #           value=agingFunction(get(simParams(sim)$age$rasterStackName)),
 #           envir=.GlobalEnv)
     ageMap[] <<- pmin(200,ageMap[] + 1)
-    ageMap[1] <<- 0
+#    ageMap[1] <<- 0
     return(sim)
 }
 
 agePlot <- function(sim) {
-  plot(ageMap)
+  simPlot(ageMap)
   
   return(sim)
 }

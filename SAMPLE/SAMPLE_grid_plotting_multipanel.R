@@ -277,15 +277,15 @@ fires = SpreadEvents(maps,SpreadProb=0.225,Loci=loci[1])
 
 x11()
 speed = 3
-simplot(maps, axes = "L", which.to.plot = "all",speedup=speed)
+simPlot(maps, axes = "L", which.to.plot = "all",speedup=speed)
 sam = sample(1:length(names(maps)),4)
 for(i in 1:200) {
 #     dev.hold()
      for (j in 1:3)
        maps[[sam[j]]]=(maps[[sam[j]]]+0.2)%%(runif(1,1.5,2.5))
-    simplot(maps,sam,add= T,speedup=speed)
-#    simplot(maps,add=F)
-    simplot(caribou,add=T,ext = extent(maps), 6,speedup=speed,gp = gpar(cex=0.2,alpha=1),pch=19,delete.previous=T);
+    simPlot(maps,sam,add= T,speedup=speed)
+#    simPlot(maps,add=F)
+    simPlot(caribou,add=T,ext = extent(maps), 6,speedup=speed,gp = gpar(cex=0.2,alpha=1),pch=19,delete.previous=T);
 #    dev.flush()
 }
 
@@ -308,12 +308,12 @@ for (i in map.names) {
 maps = stack(lapply(map.names,get))
 rm(maps.list)
 rm(list=map.names)
-simplot(maps,speedup=2)
+simPlot(maps,speedup=2)
 
 cold = !is.na(maps$dd5)
 pi = ProbInit(map,p=(maps$dd5>400) & (maps$dd5<440),absolute=F)
 caribou = new("mobileAgent", agentlocation = cold, numagents = 1e4,probinit=pi)
-simplot(caribou,3,ext=extent(maps),pch=19,gp=gpar(cex=0.1))
+simPlot(caribou,3,ext=extent(maps),pch=19,gp=gpar(cex=0.1))
 
 
 
@@ -323,7 +323,7 @@ a1 = a^1.2;
 habs[[4]]=setValues(habs[[4]],a1)
 st2=Sys.time();
 print(st2-st1);
-simplot(habs,4,speedup=10,add=T)
+simPlot(habs,4,speedup=10,add=T)
 
 st1 = Sys.time(); 
 habs[[4]] <- habs[[4]]^1.2

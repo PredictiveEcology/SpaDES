@@ -87,7 +87,7 @@ newPlot = function(...) {
 #'
 #' @seealso \code{\link{grid.raster}}
 #'
-#' @import grid raster graphics sp
+#' @import grid raster sp
 #' @export
 #' @docType methods
 #' @rdname simPlot

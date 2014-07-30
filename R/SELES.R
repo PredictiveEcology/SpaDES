@@ -43,7 +43,7 @@ agentLocation <- function(map) {
 #' @import raster sp
 #' @export
 #' @docType methods
-#' @rdname probInit-method
+#' @rdname probInit
 #' 
 #' @author Eliot McIntire
 #'

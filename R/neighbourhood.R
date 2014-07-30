@@ -261,58 +261,56 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
   }
 }
 
-#' @import compiler
+#' @importFrom compiler cmpfun
 #' @docType methods
 #' @export
 #' @rdname adj
-adj <- cmpfun(adj.raw)
+adj <- compiler::cmpfun(adj.raw)
 
 ##############################################################
-#' Circle around an agent.
+#' Identify pixels in a circle around a SpatialPoints object.
 #'
-#' Identifies the xy coordinates of a circle around all live agents.
+#' identify the pixels and coordinates that are at
+#'  a (set of) buffer distance(s) of the SpatialPoints objects. This can be used
+#'  for agents.
 #'
-#' @param agent     Description of this.
+#' @param spatialPoints SpatialPoints object around which to make circles .
 #'
-#' @param radiuses  Description of this, including why it isn't called
-#'                  radii ;p
+#' @param radii  vector of radii that has same length as spatialPoints
 #'
-#' @param raster    Description of this.
+#' @param raster    Raster on which the circles are built.
 #'
-#' @param scale_raster Description of this.
+#' @param scaleRaster Description of this.
 #'
 #' @return A list of data.frames with x and y coordinates of each 
 #' unique pixel of the circle around each individual.
 #' 
 #' @import data.table sp raster
 #' @export
-#' @docType methods
-#' @rdname cir-method
+#' @rdname cir
 #'
 # @examples
 #  NEED EXAMPLES
-cir <- function(agent, radiuses, raster) {
-  ### identify the pixels ("patches" in NetLogo) that are at
-  ###  a buffer distance of the individual location.
-  scale_raster <- res(raster)
+cir <- function(spatialPoints, radii, raster) {
+  scaleRaster <- res(raster)
   
   # create an index sequence for the number of individuals
-  seq_num_ind<-seq_len(length(agent)) 
+  seqNumInd<-seq_len(length(spatialPoints)) 
   
   # n = optimum number of points to create the circle for a given individual;
   #       gross estimation (checked that it seems to be enough so that pixels
   #       extracted are almost always duplicated, which means there is small
   #       chance that we missed some on the circle).
-  n.angles <- ( ceiling((radiuses/scale_raster)*2*pi) + 1 )
+  n.angles <- ( ceiling((radii/scaleRaster)*2*pi) + 1 )
   
   ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
-  positions = coordinates(agent)
+  positions = coordinates(spatialPoints)
   
   # create individual IDs for the number of points that will be done for their circle
-  ids <- rep.int(seq_num_ind, times=n.angles)
+  ids <- rep.int(seqNumInd, times=n.angles)
   
   # create vector of radius for the number of points that will be done for each individual circle
-  rads <- rep.int(radiuses, times=n.angles)
+  rads <- rep.int(radii, times=n.angles)
   
   # extract the individuals' current positions
   xs <- rep.int(positions[,1], times=n.angles)
@@ -343,8 +341,8 @@ cir <- function(agent, radiuses, raster) {
   
   # extract the coordinates for the pixel IDs
   pixels = xyFromCell(raster, coords.all.ind.unq$pixIDs)
-  pixels_ind_ids_merged = cbind(coords.all.ind.unq, pixels)
+  pixelsIndIdsMerged = cbind(coords.all.ind.unq, pixels)
   
   # list of df with x and y coordinates of each unique pixel of the circle of each individual
-  return(pixels_ind_ids_merged)
+  return(pixelsIndIdsMerged)
 }

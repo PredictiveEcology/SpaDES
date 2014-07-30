@@ -84,8 +84,8 @@ simPlot(fire2,col=cols[[1]],speedup=10,add=T,on.which.to.plot="fire",delete.prev
 
 
 newPlot()
-simplot(hab,speedup=15,col=brewer.pal(9,"Accent"))
-simplot(stack(speedup=15,fire0,fire1,hab),col=cols)
+simPlot(hab,speedup=15,col=brewer.pal(9,"Accent"))
+simPlot(stack(speedup=15,fire0,fire1,hab),col=cols)
 
 mb = list()
 for (i in 3:3) {
@@ -172,7 +172,7 @@ shine(prof4)
 
 #newPlot();
 #dev.set(4)
-simplot(stack(fire1,fire2,fire0),speedup=1)
+simPlot(stack(fire1,fire2,fire0),speedup=1)
   
 mb1 = list()
 i = 0:4

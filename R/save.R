@@ -1,42 +1,39 @@
-##############################################################
-#' Save simulation objects at specified frequencies.
-#'
-#' @param sim           A \code{SimList} simulation object.
-#' 
-#' @param eventTime    A numeric specifying the time of the next event.
-#' 
-#' @param eventType    A character string specifying the type of event:
-#'                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.
-#' 
-#' @param debug         Optional logical flag determines whether sim debug info
-#'                      will be printed (default \code{debug=FALSE}.
-#'
-#' @return Returns the modified \code{SimList} object.
-#' 
-#' @seealso \code{\link{.Random.seed}}.
-#' 
-#' @author Alex Chubaty
-#' 
-#' @export
-#' @docType methods
-#' @rdname checkpoint
-#'
-# @examples
-# need examples
+################################################
+###
+### A SAVE MODULE
+###
+###############################################
+
+# Just checks for paths, creates them if they do not exist
 doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # check that output directory exists, make it if not
     pathsToCheck <- unname(unlist(lapply(simParams(sim),function(y) {        
         return(y$savePath)
-      }
-      )))
-        
-      lapply(pathsToCheck, checkPath, create = TRUE)
+      })))
+
+    # make paths if they don't exist
+    lapply(pathsToCheck, checkPath, create = TRUE)
+    
+    # no scheduling of new event. Saving will be called by other events,
+    #   in an event-specific manner.
   } 
   return(sim)
 }
 
 
+##############################################################
+#' Save simulation objects according to simParams
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+#' 
+#' @export
+#' @docType methods
+#' @rdname simSave
+#'
+# @examples
+# need examples
 simSave = function(sim) {
 
   # extract savePaths from modules 
