@@ -19,6 +19,8 @@
 #'                  such that the data.table is always sorted (keyed) by time, making it easy
 #'                  to insert new events into the table.
 #' 
+#' @slot completed  The list of completed events, as a data.table class.
+#' 
 #' @slot simtimes    List of numerical values describing the simulation start and stop timos,
 #'                  and the current simulation time.
 #' 
@@ -43,7 +45,8 @@
 #' 
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
-                    events="data.table", simtimes="list", debug="logical"
+                    events="data.table", completed="ANY", 
+                    simtimes="list", debug="logical"
 ))
 
 ### initialize is already defined in the methods package
@@ -72,6 +75,7 @@ setMethod("initialize",
                             
               # set default slot values
               simEvents(.Object) = as.data.table(NULL)
+              simEventsCompleted(.Object) = as.data.table(NULL)
               simTimes(.Object) = simtimes # validated list of sim times
               simDebug(.Object) = FALSE
               .Object <- callNextMethod(.Object, ..., simtimes=simtimes)
@@ -90,6 +94,7 @@ setMethod("show",
               show[["Modules Loaded:"]] = as.character(simLoaded(object))
               show[["Simulation Parameters:"]] = as.list(simParams(object))
               show[["Current Simulation Time:"]] = simTimes(object)
+              show[["Past 5 Completed Events:"]] = tail(simEventsCompleted(object), 5)
               show[["Next 5 Scheduled Events:"]] = head(simEvents(object), 5)
               show[["Debugging Mode:"]] = simDebug(object)
               print(show)
@@ -512,6 +517,59 @@ setReplaceMethod("simEvents",
                      return(object)
 })
 
+###################
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#' 
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' 
+#' @param object A \code{simList} simulation object.
+#' 
+#' @param value The object to be stored at the slot.
+#' 
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' 
+#' @export
+#' @docType methods
+#' @rdname simEventsCompleted-accessor-methods
+#' 
+#' @author Eliot McIntire
+#' 
+setGeneric("simEventsCompleted", function(object) {
+  standardGeneric("simEventsCompleted")
+})
+
+#' get the simulation event queue
+#' @rdname simEventsCompleted-accessor-methods
+setMethod("simEventsCompleted",
+          signature = "simList",
+          definition = function(object) {
+            return(object@completed)
+          })
+
+#' set the simulation event queue
+#' @export
+#' @rdname simEventsCompleted-accessor-methods
+setGeneric("simEventsCompleted<-",
+           function(object, value) {
+             standardGeneric("simEventsCompleted<-")
+           })
+
+#' set the simulation event queue
+#' @name <-
+#' @rdname simEventsCompleted-accessor-methods
+setReplaceMethod("simEventsCompleted",
+                 signature="simList",
+                 function(object, value) {
+                   object@completed <- value
+                   validObject(object)
+                   return(object)
+                 })
+###############################
+
 ##############################################################
 #' Accessor methods for \code{simList} object slots
 #'
@@ -736,7 +794,7 @@ setMethod("doEvent",
           definition = function(sim, debug) {
               # get next event
               nextEvent <- simEvents(sim)[1,]       # extract the next event from queue
-              simEvents(sim) <- simEvents(sim)[-1,] # remove this event from the queue
+#              simEvents(sim) <- simEvents(sim)[-1,] # remove this event from the queue
               
               # update current simulated time
               simCurrentTime(sim) <- nextEvent$eventTime
@@ -753,7 +811,16 @@ setMethod("doEvent",
                                      " wasn't specified to be loaded.", sep="")
                   stop(errormsg)
               }  
+
+              #now that it is run, without error, remove it from the queue 
+              simEvents(sim) <- simEvents(sim)[-1,] # remove this event from the queue
+
               
+              if(length(simEventsCompleted(sim))==0) {
+                  simEventsCompleted(sim) <- nextEvent
+                } else {
+                  simEventsCompleted(sim) <- rbindlist(list(simEventsCompleted(sim),nextEvent))
+                }
               return(sim)
 })
 
@@ -869,34 +936,9 @@ setMethod("doSim",
           signature(sim="simList", debug="logical"),
           definition = function(sim, debug) {
               # run the discrete event simulation
-#              nextTimerUpdate = 0
-              
               
               while(simCurrentTime(sim) <= simStopTime(sim)) {
                   sim <- doEvent(sim, debug)  # process the next event
-                  
-                  
-#                   if(!is.null(timerUpdateFreq)){
-#                     if (simCurrentTime(sim)>=nextTimerUpdate) {
-#                       if(graphicalTimer==FALSE){
-#                         print(simCurrentTime(sim))
-#                       } else {
-# 
-#                       # plot simulation timer in top right of whatever device is active
-#                       upViewport(0)
-#                       if (unname(any(grid.ls(viewports =T,print=F)$name == "counterText")))
-#                         grid.remove("counterText")
-#                       counter = viewport(x=0.95,y=0.95,name="counterTextvp",
-#                                          width=0.2,height=0.1)
-#                       pushViewport(counter)
-#                       grid.text(paste("Time\n",
-#                                       min(simStopTime(sim),simCurrentTime(sim))),
-#                                 name="counterText")
-#                       popViewport()
-#                       }
-#                       nextTimerUpdate = nextTimerUpdate + timerUpdateFreq
-#                     }
-#                   }
                   
                   # print debugging info
                   #  this can, and should, be more sophisticated;
