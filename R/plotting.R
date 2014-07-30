@@ -463,11 +463,11 @@ setGeneric("drawArrows", function(from, to, on.which.to.plot=1, ...) {
 #'
 #' @rdname drawArrows-method
 #' @examples
-#' to <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
-#' from <- SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
+#' to <- SpatialPoints(cbind(x=rnorm(10), y=rnorm(10)))
+#' from <- SpatialPoints(cbind(x=rnorm(10), y=rnorm(10)))
 #' plot(to)
 #' points(from)
-#' #drawArrows(to, from)
+#' #drawArrows(from, to)
 #'
 setMethod("drawArrows",
           signature=c("SpatialPoints","SpatialPoints"),
@@ -483,13 +483,12 @@ setMethod("drawArrows",
                 seekViewport(vp.to.plot)
               }
 
-
-            grid.polyline(x = c(from$x,to$x),
-                       y = c(from$y,to$y),default.units="native",
-                       id = rep(1:length(from),2),
-                       #default.units = "npc",
-                       arrow = arrow(length = unit(length,"inches"), ...))#, #name = NULL,
-            upViewport()
+              grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
+                            default.units="native",
+                            id=rep(1:length(from), 2),
+                            #default.units = "npc",
+                            arrow=arrow(length=unit(length, "inches"), ...))#, #name = NULL,
+              upViewport()
             }
             #           gp=gpar(),
 #            arrows(from$x, from$y, to$x, to$y, ..., length=length)
