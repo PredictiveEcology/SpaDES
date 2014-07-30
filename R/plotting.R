@@ -1,13 +1,3 @@
-###################################################################
-###
-###     Methods for the ABM simulation: "observer" module:
-###
-###     All plotting and graphics (via event calls);
-###         - stats to file or to screen (toggle)
-###
-###################################################################
-
-
 ##############################################################
 #' Specify where to plot
 #'
@@ -106,7 +96,7 @@ newPlot = function(...) {
 # needs examples
 setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
                                col=rev(terrain.colors(255)), visualSqueeze=0.75, ..., add=FALSE, speedup=1,
-                               axes = "L", add.legend=TRUE) {
+                               axes="L", add.legend=TRUE) {
            standardGeneric("simPlot")
 })
 
