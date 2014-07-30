@@ -49,10 +49,18 @@ simSave = function(sim) {
   if (is.null(toSave[[moduleName]])) {
     modulePaths[[moduleName]] <- "."
   } 
+  
+  if (nchar(simCurrentTime(sim)) < nchar(simStopTime(sim))) {
+    txtTime = paste(
+      paste(rep(0,nchar(simStopTime(sim))-nchar(simCurrentTime(sim))),collapse=""),
+      simCurrentTime(sim),collapse="",sep="")
+  } else {
+    txtTime = as.character(simCurrentTime(sim))
+  }
   # save objects to a filename that has same name as object name, plus current simulation time
   lapply(toSave[[moduleName]], function(objectname) {
     saveRDS(get(objectname),
             file.path(modulePaths[[moduleName]],
-                      paste(objectname,simCurrentTime(sim), ".rds", sep="")) )})
+                      paste(objectname,txtTime, ".rds", sep="")) )})
     
 }       

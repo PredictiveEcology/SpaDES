@@ -44,7 +44,7 @@ cols = list(
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 dev(2)
-mySim <- simInit(times=list(start=0.0, stop=10),
+mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
@@ -72,6 +72,12 @@ mySim <- simInit(times=list(start=0.0, stop=10),
 #simCurrentTime(mySim)<-0
 print(system.time(mySim <- doSim(mySim,debug=F)))
 #print(system.time(mySim <- doSim(mySim,timerUpdateFreq=1,graphicalTimer=F)))
+
+fls = dir(file.path("output","fires"))
+FireMap = list()
+for (i in fls)
+FireMap[[i]] = readRDS(file.path("output","fires",i))
+simPlot(stack(FireMap),col=cols[[1]])
 
 ## profiling of development code
 #prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
