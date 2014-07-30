@@ -55,11 +55,4 @@ simSave = function(sim) {
             file.path(modulePaths[[moduleName]],
                       paste(objectname,simCurrentTime(sim), ".rds", sep="")) )})
     
-   print("#######")
-   print(simCurrentTime(sim))
-   print(paste("modulePath:",modulePaths[[moduleName]]))
-   print(paste("toSave: ",toSave[[moduleName]]))
-  
-   print(simEvents(sim))
-  
 }       
