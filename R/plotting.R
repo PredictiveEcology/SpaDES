@@ -458,11 +458,13 @@ setGeneric("drawArrows", function(from, to, on.which.to.plot=1, ...) {
 #'
 #' @rdname drawArrows-method
 #' @examples
-#' to <- SpatialPoints(cbind(x=rnorm(10), y=rnorm(10)))
-#' from <- SpatialPoints(cbind(x=rnorm(10), y=rnorm(10)))
-#' plot(to)
-#' points(from)
-#' #drawArrows(from, to)
+#' hab <- raster(extent(0,1e2,0,1e2),res=1)
+#' hab <- GaussMap(hab)
+#' to <- SpatialPoints(cbind(x=runif(10)*100, y=runif(10)*100))
+#' from <- SpatialPoints(cbind(x=rnorm(10,to$x,5), y=rnorm(10,to$y,5)))
+#' simPlot(hab)
+#' simPlot(to,pch=19,gp=gpar(cex=0.1));simPlot(from,pch=19,gp=gpar(cex=0.1))
+#' drawArrows(from, to)
 #'
 setMethod("drawArrows",
           signature=c("SpatialPoints","SpatialPoints"),
