@@ -27,7 +27,6 @@
   Alex M. Chubaty\\
   \small{Natural Resources Canada, Pacific Forestry Centre}\\
   \small{email: \href{mailto:achubaty@nrcan.gc.ca}{achubaty@nrcan.gc.ca}}
-
 }
 
 \begin{document}
@@ -43,6 +42,6 @@
 \section{Plotting with \texttt{simPlot}}
 
 \paragraph{}
-One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at everystage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package without having to relearn a completely new set of plotting commands.
+One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at every stage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands.
 
 \end{document}

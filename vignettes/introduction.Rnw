@@ -116,8 +116,8 @@ Sample map of habitat quality.
 <<habitat-map, fig=TRUE>>=
 
 # Give dimensions of dummy raster
-nx <- 1e3
-ny <- 1e3
+nx <- 1e2
+ny <- 1e2
 template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
 
 # Make dummy maps for testing of models:
@@ -145,7 +145,7 @@ names(habitat) <- c("DEM","forestAge", "forestCover", "habitatQuality", "percent
 
 library(RColorBrewer)
 cols <- list(
-  transparent.red <- c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
+  transparent.greys <- c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
   grey <- brewer.pal(9,"Greys"),
   spectral <- brewer.pal(8,"Spectral"),
   terrain <- rev(terrain.colors(100)),
@@ -153,7 +153,7 @@ cols <- list(
   topo <- topo.colors(10)
 )
 
-dev(4); simPlot(habitat, col=cols[c(2:5,3)])
+simPlot(habitat, col=cols[c(2:5,3)])
 @
 
 \newpage
@@ -220,7 +220,7 @@ Using the spread function, we can simulate fires, and subsequent changes to the 
 nFires <- 10 # number of agents
 habitat[["Fires"]] <- spread(habitat[[1]],
                              loci=as.integer(sample(1:ncell(habitat), nFires)),
-                             #spreadProb=0.225,
+                             #spreadProb=0.44,
                              spreadProb=habitat[["percentPine"]]/(maxValue(habitat[["percentPine"]])*5)+0.1,
                              persistance=0,
                              mapFireID=TRUE,
@@ -267,7 +267,7 @@ habitat[["forestAge"]][habitat[["Fires"]]>0] <- 0
 habitat[["forestCover"]][habitat[["Fires"]]>0] <- 0
 habitat[["habitatQuality"]][habitat[["Fires"]]>0] <- 0.1
 habitat[["percentPine"]][habitat[["Fires"]]>0] <- 0
-simPlot(habitat,col <- cols[c(2:5,3,1)])
+simPlot(habitat, col=cols[c(2:5,3,1)])
 @
 
 \section{A simple individual based model (IBM)}

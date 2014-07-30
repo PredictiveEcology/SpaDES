@@ -9,16 +9,16 @@
 \usage{
 simPlot(x, on.which.to.plot = 1, which.to.plot = "all",
   col = rev(terrain.colors(255)), visualSqueeze = 0.75, ..., add = FALSE,
-  speedup = 1, axes = "L", add.legend = T)
+  speedup = 1, axes = "L", add.legend = TRUE)
 
 \S4method{simPlot}{RasterStack}(x, on.which.to.plot = 1,
   which.to.plot = "all", col = rev(terrain.colors(255)),
   visualSqueeze = 0.75, ..., add = FALSE, speedup = 1, axes = "L",
-  add.legend = T)
+  add.legend = TRUE)
 
 \S4method{simPlot}{RasterLayer}(x, on.which.to.plot, which.to.plot, col,
   visualSqueeze, delete.previous = TRUE, ..., add, speedup, axes,
-  add.legend = T)
+  add.legend = TRUE)
 
 \S4method{simPlot}{SpatialPoints}(x, on.which.to.plot = 1, which.to.plot,
   visualSqueeze = 0.75, delete.previous = TRUE, max.agents = 10000, ...,
@@ -27,7 +27,7 @@ simPlot(x, on.which.to.plot = 1, which.to.plot = "all",
 \arguments{
 \item{x}{rasterStack, rasterLayer, or list of named rasters (not implemented yet), SpatialPoints* object.}
 
-\item{on.which.to.plot}{when add = TRUE, numeric or character string identifying on which raster in existing plot window to plot. Used on \code{RasterLayer} and \code{pointAgent} and \code{mobileAgent}. Defaults to 1.}
+\item{on.which.to.plot}{when add=TRUE, numeric or character string identifying on which raster in existing plot window to plot. Used on \code{RasterLayer} and \code{pointAgent} and \code{mobileAgent}. Defaults to 1.}
 
 \item{which.to.plot}{Numeric or character vector identifying which rasters in \code{rasterStack} to plot.}
 

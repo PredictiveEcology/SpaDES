@@ -9,15 +9,15 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistance, mask,
   maxSize = ncell(landscape), directions = 8,
-  iterations = ncell(landscape), plot.it = FALSE, mergeDuplicates = FALSE,
-  ...)
+  iterations = ncell(landscape), mapID = FALSE, plot.it = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
 
 \item{loci}{A vector of locations in \code{landscape}}
 
-\item{spreadProb}{The probability of spreading.}
+\item{spreadProb}{Numeric or rasterLayer. The overall probability of spreading, or probability raster
+driven.}
 
 \item{persistance}{A probability that a burning cell will continue to burn, per time step.}
 
@@ -35,40 +35,45 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
 \item{plot.it}{If TRUE, then plot the raster at every iteraction, so one can watch the
 spread event grow.}
 
-\item{mergeDuplicates}{Logical. While spreading is occuring, and the same pixel gets identified
-                     as being adjacent to two different active cells, run "unique" or not. Default is FALSE.}
+\item{mapID}{Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
+the returned map is the iteration number that the pixel burned}
 }
 \value{
 A \code{RasterLayer} indicating the spread of the process in the landscape.
 }
 \description{
-More detailed description needed here.
+This can be used to simulated fires or other things. Essentially, it starts from a collection of cells
+(\code{loci}) and spreads to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+This can become quite general, if \code{spreadProb} is 1 as it will expand from every loci until all pixels
+in the landscape have been covered. With \code{mapID} set to \code{TRUE}, the resulting map will be
+classified by the index of the pixel where that event propagated from. This can be used to examine things like
+fire size distributions.
 }
 \examples{
 library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
-a = raster(extent(0,1e2,0,1e2),res=1)
-hab = GaussMap(a,speedup=1)
+a <- raster(extent(0,1e2,0,1e2),res=1)
+hab <- GaussMap(a,speedup=1)
 names(hab)="hab"
-cells = loci = b = as.integer(sample(1:ncell(a),1e1))
-mask = raster(a)
-mask = setValues(mask, 0)
+cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
+mask <- raster(a)
+mask <- setValues(mask, 0)
 mask[1:5000] <- 1
 numCol <- ncol(a)
 numCell <- ncell(a)
 directions=8
 
 # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
-cols = list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+cols <- list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
 
 dev(2)
 simPlot(hab,col=cols[[2]],speedup=1)
 names(hab)<-"hab"
-fire2 <- spread(hab,loci=as.integer(sample(1:ncell(hab),10)),
-                0.235,0,NULL,1e8,8,1e6,mergeDuplicates = T,
-                plot.it=T,col=cols[[1]],delete.previous=F,add=T,on.which.to.plot="hab",
+fire2 <- spread(hab, loci=as.integer(sample(1:ncell(hab),10)),
+                0.235, 0, NULL, 1e8, 8, 1e6, mergeDuplicates=TRUE,
+                plot.it=T, col=cols[[1]], delete.previous=FALSE, add=TRUE, on.which.to.plot="hab",
                 speedup=1)
 }
 \author{

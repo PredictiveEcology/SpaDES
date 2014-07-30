@@ -1,8 +1,10 @@
 # Not implemented yet
-# move <- function(hypothesis=NULL) {
-#     if (hypothesis == "TwoDT") move <- "TwoDT"
-#     if (hypothesis == "crw") move <- "crw"
-# }
+ move <- function(hypothesis=NULL,...) {
+     #if (hypothesis == "TwoDT") move <- "TwoDT"
+     if (hypothesis == "crw") move <- "crw"
+     if (is.null(hypothesis) ) stop("Must specify a movement hypothesis")
+     get(move)(...)
+ }
 
 
 ##############################################################

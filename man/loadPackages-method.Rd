@@ -2,9 +2,12 @@
 \docType{methods}
 \name{loadPackages}
 \alias{loadPackages}
+\alias{loadPackages,list-method}
 \title{Load packages.}
 \usage{
-loadPackages(packageList, install, quiet)
+loadPackages(packageList, install = FALSE, quiet = TRUE)
+
+\S4method{loadPackages}{list}(packageList, install = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{packageList}{A list of character strings specifying

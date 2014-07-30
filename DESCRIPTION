@@ -1,6 +1,7 @@
 Package: SpaDES
 Type: Package
-Title: Develop and run spatially explicit discrete event simulation models
+Title: A package to develop and run spatially explicit discrete event
+    simulation models
 Description: Easily implement a variety of simulation models, with a focus on
     spatially explicit agent based models. The core simulation components are
     built upon a discrete event simulation framework that facilitates

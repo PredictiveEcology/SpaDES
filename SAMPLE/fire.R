@@ -88,10 +88,6 @@ fireBurn <- function(sim) {
                   mapID=TRUE)
     names(Fires) <<- "Fires" # do we need this again here??
   
-    #values(burned) <<- values(burned) + values(tmp)
-#    burned <- burned+tmp
-    #burnedNoNA <- burned
-    #burnedNoNA[burned==0] <- NA
     
     return(sim)
 }

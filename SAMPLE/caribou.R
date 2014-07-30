@@ -114,7 +114,7 @@ caribouMove <- function(sim) {
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
   sd <- 30 # could be specified globally in params
 
-  caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
+  caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
 #     #rads <- sample(10:30, length(caribou), replace=TRUE)
 #     #rings <- cir(caribou, radiuses=rads, habitat, 1)

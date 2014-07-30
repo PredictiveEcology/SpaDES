@@ -4,6 +4,7 @@
 \alias{checkpointLoad}
 \alias{checkpointSave}
 \alias{doEvent.checkpoint}
+\alias{doEvent.save}
 \title{Simulation checkpoints.}
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
@@ -11,8 +12,20 @@ doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
 checkpointLoad(file = "checkpoint.RData")
 
 checkpointSave(file = "checkpoint.RData")
+
+doEvent.save(sim, eventTime, eventType, debug = FALSE)
 }
 \arguments{
+\item{sim}{A \code{SimList} simulation object.}
+
+\item{eventTime}{A numeric specifying the time of the next event.}
+
+\item{eventType}{A character string specifying the type of event:
+                     one of either \code{"init"}, \code{"load"}, or \code{"save"}.}
+
+\item{debug}{Optional logical flag determines whether sim debug info
+                     will be printed (default \code{debug=FALSE}.}
+
 \item{sim}{A \code{SimList} simulation object.}
 
 \item{eventTime}{A numeric specifying the time of the next event.}
@@ -25,11 +38,15 @@ checkpointSave(file = "checkpoint.RData")
 }
 \value{
 Returns the modified \code{SimList} object.
+
+Returns the modified \code{SimList} object.
 }
 \description{
 Save and reload the current state of the simulation,
 including the state of the random number generator,
 by scheduling checkpoint events.
+
+Save simulation objects at specified frequencies.
 }
 \details{
 \code{\link{checkpoint.load}} and \code{\link{checkpoint.save}} code from:
@@ -41,8 +58,12 @@ https://stackoverflow.com/questions/13997444/
 }
 \author{
 Alex Chubaty
+
+Alex Chubaty
 }
 \seealso{
+\code{\link{.Random.seed}}.
+
 \code{\link{.Random.seed}}.
 }
 
