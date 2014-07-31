@@ -2,12 +2,18 @@
 \docType{methods}
 \name{doEvent}
 \alias{doEvent}
+\alias{doEvent,character,logical-method}
+\alias{doEvent,character,missing-method}
 \title{Process a simulation event}
 \usage{
-doEvent(sim, debug)
+doEvent(simname, debug)
+
+\S4method{doEvent}{character,logical}(simname, debug)
+
+\S4method{doEvent}{character,missing}(simname)
 }
 \arguments{
-\item{sim}{A \code{simList} simulation object.}
+\item{simname}{Character string for the \code{simList} simulation object.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
              will be printed (default is \code{debug=FALSE}).}
@@ -17,6 +23,10 @@ Returns the modified \code{simList} object.
 }
 \description{
 Internal function called from \code{doSim}.
+
+doEvent
+
+doEvent
 }
 \details{
 Calls the module corresponding to the event call, and executes the event.

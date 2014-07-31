@@ -5,13 +5,6 @@
 ###
 ###############################################
 
-
-
-### event functions:
-#   - follow the naming convention `module.eventType()`;
-#   - `moduleInit()` function is required for initiliazation;
-#   - keep event functions short and clean, modularize by calling
-#       subroutines from section below.
 doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies
@@ -26,21 +19,21 @@ doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
         }
         sim <- scheduleEvent(sim, simParams(sim)$habitat$startTime, "habitat", "plot")
         sim <- scheduleEvent(sim, simParams(sim)$habitat$startTime, "habitat", "save")
-        
+
     } else if (eventType=="plot") {
       # do stuff for this event
       simPlot(habitat, col=cols[6:2])
-      
+
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$plotFreq, "habitat", "plot")
     } else if (eventType=="save") {
 
       # do stuff for this event
       simSave(sim)
-      
+
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$saveFreq, "habitat", "save")
-      
+
     } else {
       warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
                     "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] ,"\'", sep=""))

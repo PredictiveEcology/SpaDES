@@ -37,7 +37,7 @@
 #' @name spread
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
 #' @author Eliot McIntire
-#' @rdname spread
+#' @rdname spread-method
 #'
 setGeneric("spread", function(landscape, loci, spreadProb, persistance,
                               mask, maxSize, directions, iterations, ...) {
@@ -51,7 +51,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' the returned map is the iteration number that the pixel burned
 #'
 #' @import raster
-#' @rdname spread
+#' @rdname spread-method
 #' @name spread
 #'
 #' @examples
@@ -221,5 +221,4 @@ setMethod("spread",
             spre <- setValues(spre, spreads)
             return(spre)
           }
-
 )

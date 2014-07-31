@@ -60,8 +60,8 @@ setClass("simList",
 #' @author Alex Chubaty
 #'
 setMethod("initialize",
-          signature = "simList",
-          definition = function(.Object, ..., times=list(start=0.00, stop=NA_real_)) {
+          signature="simList",
+          definition=function(.Object, ..., times=list(start=0.00, stop=NA_real_)) {
             # check for valid sim times and make default list
             if (is.na(times$stop)) {
               stop("simulation stop time must be specified.")
@@ -87,8 +87,8 @@ setMethod("initialize",
 #'
 #' @export
 setMethod("show",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               show = list()
               show[["Modules Required:"]] = as.character(simModules(object))
               show[["Modules Loaded:"]] = as.character(simLoaded(object))
@@ -128,8 +128,8 @@ setGeneric("simModules", function(object) {
 #' get list of simulation modules
 #' @rdname simModules-accessor-methods
 setMethod("simModules",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@modules)
 })
 
@@ -181,8 +181,8 @@ setGeneric("simLoaded", function(object) {
 #' get list of loaded simulation modules
 #' @rdname simLoaded-accessor-methods
 setMethod("simLoaded",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@.loaded)
 })
 
@@ -234,8 +234,8 @@ setGeneric("simParams", function(object) {
 #' get list of simulation parameters
 #' @rdname simParams-accessor-methods
 setMethod("simParams",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@params)
 })
 
@@ -287,8 +287,8 @@ setGeneric("simTimes", function(object) {
 #' get list of simulation times
 #' @rdname simTimes-accessor-methods
 setMethod("simTimes",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@simtimes)
 })
 
@@ -340,8 +340,8 @@ setGeneric("simCurrentTime", function(object) {
 #' get the current simulation time
 #' @rdname simCurrentTime-accessor-methods
 setMethod("simCurrentTime",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@simtimes$current)
 })
 
@@ -391,8 +391,8 @@ setGeneric("simStartTime", function(object) {
 #' get the simulation start time
 #' @rdname simStartTime-accessor-methods
 setMethod("simStartTime",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@simtimes$start)
           })
 
@@ -442,8 +442,8 @@ setGeneric("simStopTime", function(object) {
 #' get the simulation stop time
 #' @rdname simStopTime-accessor-methods
 setMethod("simStopTime",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@simtimes$stop)
 })
 
@@ -493,8 +493,8 @@ setGeneric("simEvents", function(object) {
 #' get the simulation event queue
 #' @rdname simEvents-accessor-methods
 setMethod("simEvents",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@events)
 })
 
@@ -595,8 +595,8 @@ setGeneric("simDebug", function(object) {
 #' get the simulation debug toggle
 #' @rdname simDebug-accessor-methods
 setMethod("simDebug",
-          signature = "simList",
-          definition = function(object) {
+          signature="simList",
+          definition=function(object) {
               return(object@debug)
 })
 
@@ -631,8 +631,8 @@ setReplaceMethod("simDebug",
 #' - implemented in a more modular fashion so it's easier
 #'   to add submodules to the simulation.
 #'
-#' @param times A named list of numeric simulation start and stop times,
-#' of the form \code{times=list(start=0.0, stop=10.0)}.
+#' @param times A named list of numeric simulation start and stop times
+#'        (e.g., \code{times=list(start=0.0, stop=10.0)}).
 #'
 #' @param params A named list of simulation parameters and their values.
 #'
@@ -662,7 +662,7 @@ setReplaceMethod("simDebug",
 #' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/")}
 #' \dontrun{mySim}
-setGeneric("simInit", function(times, params, modules, path) {
+setGeneric("simInit", function(simname, times, params, modules, path) {
     standardGeneric("simInit")
 })
 
@@ -670,8 +670,8 @@ setGeneric("simInit", function(times, params, modules, path) {
 #' @rdname simInit-method
 #'
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="character"),
-          definition = function(times, params, modules, path) {
+          signature(simname="character",  times="list", params="list", modules="list", path="character"),
+          definition=function(simname, times, params, modules, path) {
               # check validity of all inputs
               path <- checkPath(path, create=TRUE)
               #params <- checkParams(params)
@@ -701,16 +701,33 @@ setMethod("simInit",
                   # schedule each module's init event:
                   sim <- scheduleEvent(sim, 0.00, d, "init")
               }
-
-              return(sim)
+              assign(simname, sim, envir=globalenv())
 })
 
 #' simInit
 #' @rdname simInit-method
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="missing"),
-          definition = function(times, params, modules) {
-              return(simInit(times=times, params=params, modules=modules, path="./"))
+          signature(simname="character", times="list", params="list", modules="list", path="missing"),
+          definition=function(simname, times, params, modules) {
+              simInit(simname, times=times, params=params, modules=modules, path="./")
+})
+
+#' simInit
+#' @rdname simInit-method
+setMethod("simInit",
+          signature(simname="missing",  times="list", params="list", modules="list", path="character"),
+          definition=function(times, params, modules, path) {
+            simInit(simname=".sim", times=times, params=params, modules=modules, path=path)
+            warning("simname missing: using default `.sim`")
+})
+
+#' simInit
+#' @rdname simInit-method
+setMethod("simInit",
+          signature(simname="missing", times="list", params="list", modules="list", path="missing"),
+          definition=function(times, params, modules) {
+            simInit(simname=".sim", times=times, params=params, modules=modules, path="./")
+            warning("simname missing: using default `.sim`")
 })
 
 ##############################################################
@@ -721,7 +738,7 @@ setMethod("simInit",
 #' already loaded, hold off loading the current module until after
 #' dependencies are loaded.
 #'
-#' @param sim An object of class \code{simList}.
+#' @param sim     A \code{simList} simulation object.
 #'
 #' @param depends A list of character strings specifying the names
 #'                of modules upon which the current module depends.
@@ -736,16 +753,14 @@ setMethod("simInit",
 #'
 #' @author Alex Chubaty
 #'
-# @examples
-# need examples
 setGeneric("reloadModuleLater", function(sim, depends) {
   standardGeneric("reloadModuleLater")
 })
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
-          signature(depends="character"),
-          definition = function(sim, depends) {
+          signature(sim="simList", depends="character"),
+          definition=function(sim, depends) {
             if (depends=="NONE") {
               return(FALSE)
             } else {
@@ -766,7 +781,7 @@ setMethod("reloadModuleLater",
 #' - implemented in a more modular fashion so it's easier
 #'   to add submodules to the simulation.
 #'
-#' @param sim A \code{simList} simulation object.
+#' @param simname Character string for the \code{simList} simulation object.
 #'
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
@@ -782,53 +797,53 @@ setMethod("reloadModuleLater",
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
-setGeneric("doEvent", function(sim, debug) {
+setGeneric("doEvent", function(simname, debug) {
     standardGeneric("doEvent")
 })
 
 #' doEvent
-#' @rdname doEvent-do-event-method
+#' @rdname doEvent-method
 setMethod("doEvent",
-          signature(sim="simList", debug="logical"),
-          definition = function(sim, debug) {
-              # get next event
-              nextEvent <- simEvents(sim)[1,]       # extract the next event from queue
+          signature(simname="character", debug="logical"),
+          definition=function(simname, debug) {
+            sim <- get(simname, envir=globalenv())
 
-              # update current simulated time
-              simCurrentTime(sim) <- nextEvent$eventTime
+            # get next event
+            nextEvent <- simEvents(sim)[1, ] # extract the next event from queue
 
-              # call the module responsible for processing this event
-              moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
+            # update current simulated time
+            simCurrentTime(sim) <- nextEvent$eventTime
 
-              # check the module call for validity
-              if(nextEvent$moduleName %in% simModules(sim)) {
-                  sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
-              } else {
-                  errormsg <- paste("ERROR: Invalid module call. The module ",
-                                     nextEvent$moduleName,
-                                     " wasn't specified to be loaded.", sep="")
-                  stop(errormsg)
-              }
+            # call the module responsible for processing this event
+            moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
 
-              # now that it is run, without error, remove it from the queue
-              simEvents(sim) <- simEvents(sim)[-1,]
+            # check the module call for validity
+            if(nextEvent$moduleName %in% simModules(sim)) {
+              sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+            } else {
+              stop(paste("Invalid module call. The module ",
+                         nextEvent$moduleName,
+                         " wasn't specified to be loaded.", sep=""))
+            }
 
-              # add to list of completed events
-              if(length(simEventsCompleted(sim))==0) {
-                simEventsCompleted(sim) <- setkey(nextEvent, eventTime)
-              } else {
-                simEventsCompleted(sim) <- setkey(rbindlist(list(simEventsCompleted(sim), nextEvent)), eventTime)
-              }
-              return(sim)
+            # now that it is run, without error, remove it from the queue
+            simEvents(sim) <- simEvents(sim)[-1,]
+
+            # add to list of completed events
+            if(length(simEventsCompleted(sim))==0) {
+              simEventsCompleted(sim) <- setkey(nextEvent, eventTime)
+            } else {
+              simEventsCompleted(sim) <- setkey(rbindlist(list(simEventsCompleted(sim), nextEvent)), eventTime)
+            }
+          assign(simname, sim, envir=globalenv())
 })
 
 #' doEvent
-#' @rdname doEvent-do-event-method
+#' @rdname doEvent-method
 setMethod("doEvent",
-          signature(sim="simList", debug="missing"),
-          definition = function(sim) {
-              sim <- doEvent(sim, debug=FALSE)
-              return(sim)
+          signature(simname="character", debug="missing"),
+          definition=function(simname) {
+            doEvent(simname, debug=FALSE)
 })
 
 ##############################################################
@@ -842,7 +857,7 @@ setMethod("doEvent",
 #' - implemented in a more modular fashion so it's easier
 #'   to add submodules to the simulation.
 #'
-#' @param sim           A \code{simList} simulation object.
+#' @param sim          A \code{simList} simulation object.
 #'
 #' @param eventTime    A numeric specifying the time of the next event.
 #'
@@ -871,19 +886,19 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
-          definition = function(sim, eventTime, moduleName, eventType) {
-              newEvent <- as.data.table(list(eventTime=eventTime,
-                                              moduleName=moduleName,
-                                              eventType=eventType))
+          definition=function(sim, eventTime, moduleName, eventType) {
+            newEvent <- as.data.table(list(eventTime=eventTime,
+                                            moduleName=moduleName,
+                                            eventType=eventType))
 
-              # if the event list is empty, set it to consist of evnt and return;
-              # otherwise, insert new event and re-sort (rekey).
-              if (length(simEvents(sim))==0) {
-                  simEvents(sim) <- setkey(newEvent, eventTime)
-              } else {
-                  simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), eventTime)
-              }
-              return(sim)
+            # if the event list is empty, set it to consist of newEvent and return;
+            # otherwise, add newEvent and re-sort (rekey).
+            if (length(simEvents(sim))==0) {
+              simEvents(sim) <- setkey(newEvent, eventTime)
+            } else {
+              simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), eventTime)
+            }
+            return(sim)
 })
 
 ##############################################################
@@ -899,7 +914,7 @@ setMethod("scheduleEvent",
 #' - implemented in a more modular fashion so it's easier
 #'   to add submodules to the simulation.
 #'
-#' @param sim A \code{simList} simulation object.
+#' @param simname Character string for the \code{simList} simulation object.
 #'
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
@@ -921,39 +936,36 @@ setMethod("scheduleEvent",
 #' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
-#' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+#' \dontrun{simInit(simname="mySim", times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/)}
 #' \dontrun{doSim{mySim}}
-setGeneric("doSim", function(sim, debug) {
+setGeneric("doSim", function(simname, debug) {
     standardGeneric("doSim")
 })
 
 #' doSim
 #' @rdname doSim-method
 setMethod("doSim",
-          signature(sim="simList", debug="logical"),
-          definition = function(sim, debug) {
-              # run the discrete event simulation
+          signature(simname="character", debug="logical"),
+          definition=function(simname, debug) {
+            sim <- get(simname, envir=globalenv())
+            while(simCurrentTime(sim) <= simStopTime(sim)) {
+              doEvent(simname, debug)  # process the next event
 
-              while(simCurrentTime(sim) <= simStopTime(sim)) {
-                  sim <- doEvent(sim, debug)  # process the next event
-
-                  # print debugging info
-                  #  this can, and should, be more sophisticated;
-                  #  i.e., don't simply print the entire object
-                  if (debug) {
-                      print(sim)
-                  }
+              # print debugging info
+              #  this can, and should, be more sophisticated;
+              #  i.e., don't simply print the entire object
+              if (debug) {
+                  print(sim)
               }
-#              close(pb)
-              return(sim)
+            }
+#            close(.pb)
 })
 
 #' doSim
 #' @rdname doSim-method
 setMethod("doSim",
-          signature(sim="simList", debug="missing"),
-          definition = function(sim) {
-              sim <- doSim(sim, debug=FALSE)
-              return(sim)
+          signature(simname="character", debug="missing"),
+          definition=function(simname) {
+            doSim(simname, debug=FALSE)
 })

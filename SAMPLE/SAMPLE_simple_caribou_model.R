@@ -44,34 +44,33 @@ cols = list(
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 dev(2)
-mySim <- simInit(times=list(start=0.0, stop=100),
+simInit("mySim", times=list(start=0.0, stop=10),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                             .progress=list(graphical=FALSE,interval = 10),
-                             habitat = list(nx=1e3,ny=1e3,toSave=c("habitat"),
-                                            savePath=file.path("output","habitat"),
+                             .progress=list(graphical=FALSE, interval = 10),
+                             habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
+                                            savePath=file.path("output", "habitat"),
                                             saveFreq=3, plotFreq=10,
                                             interval=0, startTime=0),
                              caribou=list(N=1e3, plotFreq=1, toSave=c("caribou"),
                                           savePath=file.path("output","caribou"),
-                                          saveFreq=4,
-                                          interval=1, startTime=0),
-                             fire=list(nFires = 1e1, spreadprob=0.225, 
+                                          saveFreq=4, interval=1, startTime=0),
+                             fire=list(nFires = 1e1, spreadprob=0.225,
                                         persistprob=0, its=1e6, plotFreq=10,
                                         toSave=c("Fires"),
                                         savePath = file.path("output","fires"),
-                                        saveFreq = 5,
-                                        interval = 10, startTime=0)
+                                        saveFreq = 5, interval = 10, startTime=0)
                              ),
                  modules=list("habitat", "fire", "caribou"),
 #                 modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
-                  path=file.path(path, "SpaDES/SAMPLE"))
+                 path=file.path(path, "SpaDES/SAMPLE"))
 
 #simCurrentTime(mySim)<-0
-print(system.time(mySim <- doSim(mySim,debug=F)))
-#print(system.time(mySim <- doSim(mySim,timerUpdateFreq=1,graphicalTimer=F)))
+doSim("mySim", debug=FALSE)
+#print(system.time(doSim("mySim", debug=FALSE)))
+#print(system.time(mySim <- doSim(mySim, timerUpdateFreq=1, graphicalTimer=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()

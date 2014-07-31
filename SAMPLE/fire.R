@@ -4,26 +4,19 @@
 ###
 ###############################################
 
-
-
-### event functions:
-#   - follow the naming convention `moduleName.eventType()`;
-#   - `moduleName.init()` function is required for initiliazation;
-#   - keep event functions short and clean, modularize by calling
-#       subroutines from section below.
 doEvent.fire <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         depends <- "habitat" # list module names here
-        
+
         if (reloadModuleLater(sim, depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "fire", "init")
         } else {
             # do stuff for this event
             sim <- fireInit(sim)
-            
+
             # schedule the next event
             sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "burn")
             sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "plot")
@@ -32,13 +25,13 @@ doEvent.fire <- function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="burn") {
         # do stuff for this event
         sim <- fireBurn(sim)
-        
+
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim)+simParams(sim)$fire$interval, "fire", "burn")
     } else if (eventType=="plot") {
       # do stuff for this event
       #simPlot(stack(habitat, Fires), add=FALSE, col=cols[c(2:5,3,2)], add.legend=TRUE)
-      
+
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, "fire", "plot")
     } else if (eventType=="save") {
@@ -58,16 +51,16 @@ fireInit <- function(sim) {
     ### load any required packages
     pkgs <- list("raster", "RColorBrewer") # list required packages here
     loadPackages(pkgs)
-    
+
     ### create burn map that tracks fire locations over time
     Fires <<- raster(extent(habitat), ncol=ncol(habitat), nrow=nrow(habitat), vals=0)
     names(Fires) <<- "Fires"
     Fires[] <<- 0
-    
-    
+
+
     # last thing to do is add module name to the loaded list
     simLoaded(sim) <- append(simLoaded(sim), "fire")
-    
+
     return(sim)
 }
 
@@ -87,7 +80,7 @@ fireBurn <- function(sim) {
                   plot.it=FALSE,
                   mapID=TRUE)
     names(Fires) <<- "Fires" # do we need this again here??
-  
-    
+
+
     return(sim)
 }

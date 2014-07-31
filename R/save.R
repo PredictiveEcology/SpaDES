@@ -43,7 +43,7 @@ simSave = function(sim) {
   toSave <- lapply(simParams(sim), function(y) return(y$toSave) )
 
   # extract the current module name that called this function
-  moduleName = simEvents(sim)[1,moduleName]
+  moduleName = simEvents(sim)[1, moduleName]
 
   # if no savePath is specified, use active working directory
   if (is.null(toSave[[moduleName]])) {

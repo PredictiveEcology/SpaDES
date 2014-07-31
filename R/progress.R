@@ -10,18 +10,18 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
       # default is to use graphical progress bar, so, need to set defaults
       simParams(sim)[[".progress"]] = list(graphical = TRUE, interval=(simStopTime(sim)-simStartTime(sim))/10)
     }
-    pb <<- simProgress(sim)
+    .pb <<- simProgress(sim)
     sim <- scheduleEvent(sim, 0.00, "progress", "set")
   } else if (eventType=="set") {
       # update progress bar
-      setSimProgress(pb, sim)
+      setSimProgress(.pb, sim)
 
       # schedule the next save
       timeNextUpdate <- simCurrentTime(sim) + simParams(sim)$.progress$interval
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set")
   } else {
-    warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
-                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE],"\'", sep=""))
   }
   return(sim)
 }
@@ -42,40 +42,40 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 # @examples
 # need examples
 simProgress = function(sim) {
-            try(close(pb),silent = TRUE)
+            try(close(.pb),silent = TRUE)
             OS <- tolower(Sys.info()["sysname"])
             if (simParams(sim)$.progress$graphical) {
               if (OS=="windows") {
-                pb <- winProgressBar(min = simStartTime(sim),
+                .pb <- winProgressBar(min = simStartTime(sim),
                                      max = simStopTime(sim),
                                      initial = simStartTime(sim))
               } else {
-                pb <- tkProgressBar(min = simStartTime(sim),
+                .pb <- tkProgressBar(min = simStartTime(sim),
                                     max = simStopTime(sim),
                                     initial = simStartTime(sim))
               }
             } else {
-              pb <- txtProgressBar(min = simStartTime(sim),
+              .pb <- txtProgressBar(min = simStartTime(sim),
                                    max = simStopTime(sim),
                                    initial = simStartTime(sim),
                                    char = ".", style = 3)
             }
-            return(pb)
+            return(.pb)
           }
 
 
-setSimProgress <- function(pb, sim) {
+setSimProgress <- function(.pb, sim) {
   OS <- tolower(Sys.info()["sysname"])
   if (simParams(sim)$.progress$graphical) {
     if (OS=="windows") {
-      setWinProgressBar(pb, simCurrentTime(sim), title = paste("Current simulation time",simCurrentTime(sim),
+      setWinProgressBar(.pb, simCurrentTime(sim), title = paste("Current simulation time",simCurrentTime(sim),
                                                                "of total", simStopTime(sim)))
     } else {
-      setTkProgressBar(pb, simCurrentTime(sim), title = paste("Current simulation time",simCurrentTime(sim),
+      setTkProgressBar(.pb, simCurrentTime(sim), title = paste("Current simulation time",simCurrentTime(sim),
                                                               "of total", simStopTime(sim)))
     }
   } else {
-    setTxtProgressBar(pb, simCurrentTime(sim))
+    setTxtProgressBar(.pb, simCurrentTime(sim))
   }
 
 

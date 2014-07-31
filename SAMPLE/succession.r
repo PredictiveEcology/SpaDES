@@ -11,26 +11,26 @@ doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     depends <- "age" # list module names here
-    
-    if (reloadModulesLater(sim, depends)) {
+
+    if (reloadModulesLater(deparse(sim), depends)) {
         sim <- scheduleEvent(sim, simCurrentTime(sim), "succession", "init")
     } else {
         # do stuff for this event
         sim <- successionInit(sim)
-        
+
         # schedule the next event
         sim <- scheduleEvent(sim, 0.5, "succession", "succession")
     }
   } else if (eventType=="succession") {
     # do stuff for this event
     sim <- successionSuccession(sim)
-    
+
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "succession", "succession")
   } else if (eventType=="plot") {
     # do stuff for this event
     sim <- successionPlot(sim)
-    
+
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "succession", "plot")
   } else {
@@ -46,15 +46,15 @@ successionInit <- function(sim) {
   loadPackages(pkgs)
 
   # Reclassify lcc05 to trajMap
-  lcc05 <<- if(!exists("lcc05")) 
+  lcc05 <<- if(!exists("lcc05"))
       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
 #    plot(lcc05)
   ext <- extent(-1073154,-987285,7438423,7512480)
   lcc05.cr <<- crop(lcc05,ext)
 #    CRS.lcc05 <- crs(lcc05.cr)
-  
+
   lcc05Labels <- 0:39
-  
+
   ### From the table 1 in Word file from Steve CUmming & Pierre Vernier, June 6, 2014
   ###  09 A5 MDR ANslysis V4_SL.docx
   #
@@ -102,12 +102,12 @@ successionInit <- function(sim) {
   numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
   lcc05VegTable <- cbind(lcc05Labels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
   vegMap <- reclassify(lcc05.cr, lcc05VegTable)
-  
+
   lcc05Labels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
   numLccInTraj <- sapply(strsplit(unname(sapply(as.character(lcc05TrajReclass$LCC05.classes), function(x) x)), ","), length)
   lcc05TrajTable <- cbind(lcc05Labels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
   trajMap <- reclassify(lcc05.cr, lcc05TrajTable)
-  
+
   # trajObj.raw <- read.table(file="clipboard", sep="\t", header=TRUE, stringsAsFactors=FALSE)
   # dput(trajObj.raw)
   trajObj.raw <- structure(
@@ -130,7 +130,7 @@ successionInit <- function(sim) {
                  "Herbaceous")),
     .Names=c("Veg.Type", "X0.2", "X3.20", "X21.60", "X61.80", "X81.120", "X121.160", "X.160"),
     class="data.frame", row.names=c(NA, -7L))
-  
+
   numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw),2,9),"\\."), function(x) diff(as.numeric(x))))+1)
   maxAge <- 200
   ages <- 0:maxAge
@@ -139,10 +139,10 @@ successionInit <- function(sim) {
   trajObj1 <- apply(trajObj.raw[,-1],1,function(x) rep(x, times=c(numYearsPer, 40)))
   trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland"), each=201), ncol=4))
   trajObj <- matrix(match(trajObj2, lcc05VegReclass$Description), ncol=11)
-      
+
   plot(stack(trajMap))
 #, speedup=10, add=FALSE, col=list(brewer.pal(9,"YlGnBu"), brewer.pal(10,"Set3")))
-  
+
   # last thing to do is add module name to the loaded list
   simLoaded(sim) <- append(simLoaded(sim), "succession")
 
@@ -156,9 +156,9 @@ successionSuccession <- function(sim) {
     vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
     vegMap <- raster(ageMap)
     vegMap <- setValues(vegMap,vegMap.v)
-    
+
     vegMap[indStatics] <<- valsStatics
-    
+
     return(sim)
 }
 

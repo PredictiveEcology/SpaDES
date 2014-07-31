@@ -7,13 +7,6 @@
 ###
 ###############################################
 
-
-
-### event functions:
-#   - follow the naming convention `moduleName.eventType()`;
-#   - `module.NAME.init()` function is required for initiliazation;
-#   - keep event functions short and clean, modularize by calling
-#       subroutines from section below.
 doEvent.caribou <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies:
@@ -35,24 +28,24 @@ doEvent.caribou <- function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="move") {
         # do stuff for this event
         sim <- caribouMove(sim)
-        
+
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribou", "move")
     } else if (eventType=="plot") {
       # do stuff for this event
-      simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01), 
+      simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
               delete.previous=TRUE)
-      
+
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$plotFreq, "caribou", "plot")
     } else if (eventType=="save") {
         # do stuff for this event
       simSave(sim)
 
-      
+
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$saveFreq, "caribou", "save")
-      
+
     } else {
       warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
                     "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
@@ -81,7 +74,7 @@ caribouInit <- function(sim) {
     age <- round(rnorm(N, mean=8, sd=3))
     prevX <- rep(0, N)
     prevY <- rep(0, N)
-    starts <- cbind(x=runif(N, xrange[1],xrange[2]), 
+    starts <- cbind(x=runif(N, xrange[1],xrange[2]),
                     y=runif(N, yrange[1],yrange[2]))
 
     # create the caribou agent object
@@ -104,7 +97,7 @@ caribouMove <- function(sim) {
   #crop any caribou that went off maps
   caribou <<- crop(caribou, habitat)
   if(length(caribou)==0) stop("All agents are off map")
-    
+
   # find out what pixels the individuals are on now
   ex <- habitat[["habitatQuality"]][caribou]
 

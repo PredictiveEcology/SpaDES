@@ -11,26 +11,26 @@ doEvent.age <- function(sim, eventTime, eventType, debug=FALSE) {
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         depends <- "" # list module names here
-        
-        if (reloadModuleLater(sim, depends)) {
+
+        if (reloadModuleLater(deparse(sim), depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "age", "init")
         } else {
             # do stuff for this event
             sim <- ageInit(sim)
-            
+
             # schedule the next event
             sim <- scheduleEvent(sim, 0.6, "age", "age")
         }
     } else if (eventType=="age") {
         # do stuff for this event
         sim <- ageAge(sim)
-        
+
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "age", "age")
     } else if (eventType=="plot") {
       # do stuff for this event
       sim <- agePlot(sim)
-      
+
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "age", "plot")
     } else {
@@ -48,15 +48,15 @@ ageInit <- function(sim) {
 #    beginCluster()
     ageMap <<- projectRaster(raster("C:/shared/data/shared/age/age.asc"), to=vegMap)
 #    endCluster()
-    
+
 #    assign(x=get(simParams(sim)$age$rasterLayerName),
 #           value=raster(simParams(sim)$age$inputFile),
 #           envir=.GlobalEnv)
 
-    
+
     # last thing to do is add module name to the loaded list
     simLoaded(sim) <- append(simLoaded(sim), "age")
-    
+
     return(sim)
 }
 
@@ -71,7 +71,7 @@ ageAge <- function(sim) {
 
 agePlot <- function(sim) {
   simPlot(ageMap)
-  
+
   return(sim)
 }
 
