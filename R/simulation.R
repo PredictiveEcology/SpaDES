@@ -682,7 +682,7 @@ setMethod("simInit",
 
               # default/built-in modules:  (should we be hardcoding this??)
 
-              defaults <- list("checkpoint","save","progress")
+              defaults <- list("checkpoint","save","progress","load")
 
               simModules(sim) <- append(defaults, modules)
               simParams(sim) <- params
