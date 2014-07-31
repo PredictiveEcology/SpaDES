@@ -26,7 +26,7 @@ newModule = function(name, path) {
             depends <- \"NONE\" # list module names here
 
             if (reloadModuleLater(sim, depends)) {
-              scheduleEvent(sim, currentTime(sim), \"", name, "\", \"init\")
+              sim <- scheduleEvent(sim, currentTime(sim), \"", name, "\", \"init\")
             } else {
               sim <- ", name, "Init(sim)
             }
