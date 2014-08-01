@@ -10,6 +10,11 @@
 
 simTimes(object) <- value
 }
+\arguments{
+\item{object}{A \code{simList} simulation object.}
+
+\item{value}{The object to be stored at the slot.}
+}
 \description{
 get list of simulation times
 

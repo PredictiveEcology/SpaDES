@@ -44,14 +44,11 @@ cols = list(
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 dev(2)
-fileList = list(
-      landCover1 = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"),
-      landCover2 = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
 
 
 # fileList = list(
 #   landCover = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
-# 
+#
 # setwd(file.path("C","shared","data","shared","rasters"))
 # FileListRasters= data.frame(
 #     file= dir(),
@@ -60,26 +57,37 @@ fileList = list(
 #     arg = NA)
 
 #setwd(file.path("C","shared","data","shared","polygons"))
-fileList= data.frame(
-  files = dir(pattern = "asc"),
+args = rep(list(native=TRUE),6)
+
+fileList= list(
+  file = dir(pattern = "asc"),
   funs = NA,
   objs = NA,
-  args = "native=TRUE",
+  args = args,#I(rep(list(native=TRUE),6)),
   loadTimes = 0,
-  intervals = c(rep(NA,6),10),stringsAsFactors=FALSE)
+  intervals = c(rep(NA,length(dir(pattern="asc"))-1),10))
+
+fileList= list(
+  file = dir(pattern = "asc"),
+  funs = NA,
+  objs = NA,
+  args = args,#I(rep(list(native=TRUE),6)),
+  loadTimes = c(rep(0,5),10))#,
+#  intervals = c(rep(NA,length(dir(pattern="asc"))-1),10),
+#  stringsAsFactors=FALSE)
 
 #setwd(file.path("C","shared","data","shared","maps"))
-#setwd(file.path("C:","Eliot", "ProjectsBig"))
+#setwd(file.path("C:","Eliot", "ProjectsBig", "Caribou"))
 #setwd(file.path("C:","Eliot", "ProjectsBig","Caribou","CoteNord_v2_21nov12"))
 
 #simple one
-fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
+#fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
-simInit("mySim", times=list(start=0.0, stop=100),
-                 fileList=list(fileList),
+simInit("sim", times=list(start=0.0, stop=100),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
+                              fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 10),
                              habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),

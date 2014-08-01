@@ -1,5 +1,4 @@
 ### SELES options LIBRARY
-
 transitions <- function(p, agent) {
     coordinates(agent)[which(p==0),] = NA
     return(agent)
@@ -37,26 +36,26 @@ agentLocation <- function(map) {
 #' @param absolute Description of this.
 #'
 #' @return Decribe what it returns: fromto.
-#' 
+#'
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
-#' 
+#'
 #' @import raster sp
 #' @export
 #' @docType methods
 #' @rdname probInit
-#' 
+#'
 #' @author Eliot McIntire
 #'
 # @examples
 # NEED EXAMPLES
 probInit = function(map, p=NULL, absolute=FALSE) {
-  if (length(p) == 1) { 
+  if (length(p) == 1) {
     probInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
     probInit = setValues(probInit, rep(p,length(probInit)))
   } else if (is(p,"RasterLayer")) {
     probInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
   } else if (is(map,"SpatialPolygonsDataFrame")) {
-    probInit = p/sum(p) 
+    probInit = p/sum(p)
   } else if (is(p,"NULL"))  {
     probInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
   } else {
