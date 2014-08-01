@@ -44,7 +44,36 @@ cols = list(
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 dev(2)
-simInit("mySim", times=list(start=0.0, stop=10),
+fileList = list(
+      landCover1 = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"),
+      landCover2 = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
+
+
+fileList = list(
+  landCover = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
+
+setwd(file.path("C","shared","data","shared","rasters"))
+FileListRasters= data.frame(
+    file= dir(),
+    fun = "raster",
+    obj = c("LandCover1","LandCover2"),
+    arg = NA)
+
+setwd(file.path("C","shared","data","shared","polygons"))
+FileListRasters= data.frame(
+  file= dir(),
+  fun = "readOGR",
+  obj = c("LandCover1","LandCover2"),
+  arg = NA)
+
+setwd(file.path("C","shared","data","shared","maps"))
+FileList= data.frame(file= dir())
+
+.fileExtensions =
+
+FileList = rbind(FileListRaster, FileListPolygons)
+
+simInit("mySim", times=list(start=0.0, stop=100),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
@@ -68,8 +97,8 @@ simInit("mySim", times=list(start=0.0, stop=10),
                  path=file.path(path, "SpaDES/SAMPLE"))
 
 #simCurrentTime(mySim)<-0
-doSim("mySim", debug=FALSE)
-#print(system.time(doSim("mySim", debug=FALSE)))
+#doSim("mySim", debug=FALSE)
+print(system.time(doSim("mySim", debug=FALSE)))
 #print(system.time(mySim <- doSim(mySim, timerUpdateFreq=1, graphicalTimer=FALSE)))
 
 fls = dir(file.path("output","fires"))
