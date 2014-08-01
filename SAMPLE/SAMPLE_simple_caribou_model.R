@@ -49,31 +49,34 @@ fileList = list(
       landCover2 = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
 
 
-fileList = list(
-  landCover = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
+# fileList = list(
+#   landCover = raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"))#,
+# 
+# setwd(file.path("C","shared","data","shared","rasters"))
+# FileListRasters= data.frame(
+#     file= dir(),
+#     fun = "raster",
+#     obj = c("LandCover1","LandCover2"),
+#     arg = NA)
 
-setwd(file.path("C","shared","data","shared","rasters"))
-FileListRasters= data.frame(
-    file= dir(),
-    fun = "raster",
-    obj = c("LandCover1","LandCover2"),
-    arg = NA)
+#setwd(file.path("C","shared","data","shared","polygons"))
+fileList= data.frame(
+  files = dir(pattern = "asc"),
+  funs = NA,
+  objs = NA,
+  args = "native=TRUE",
+  loadTimes = 0,
+  intervals = c(rep(NA,6),10),stringsAsFactors=FALSE)
 
-setwd(file.path("C","shared","data","shared","polygons"))
-FileListRasters= data.frame(
-  file= dir(),
-  fun = "readOGR",
-  obj = c("LandCover1","LandCover2"),
-  arg = NA)
+#setwd(file.path("C","shared","data","shared","maps"))
+#setwd(file.path("C:","Eliot", "ProjectsBig"))
+#setwd(file.path("C:","Eliot", "ProjectsBig","Caribou","CoteNord_v2_21nov12"))
 
-setwd(file.path("C","shared","data","shared","maps"))
-FileList= data.frame(file= dir())
-
-.fileExtensions =
-
-FileList = rbind(FileListRaster, FileListPolygons)
+#simple one
+fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
 simInit("mySim", times=list(start=0.0, stop=100),
+                 fileList=list(fileList),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
