@@ -83,7 +83,7 @@ fileList= list(
 #simple one
 #fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
-simInit("sim", times=list(start=0.0, stop=100),
+simInit("mySim", times=list(start=0.0, stop=100),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
