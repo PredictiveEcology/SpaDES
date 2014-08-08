@@ -19,8 +19,8 @@ doEvent.fire <- function(sim, eventTime, eventType, debug=FALSE) {
 
             # schedule the next event
             sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "burn")
-            sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "plot")
-            sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "save")
+            sim <- scheduleEvent(sim, simParams(sim)$fire$plotFreq, "fire", "plot")
+            sim <- scheduleEvent(sim, simParams(sim)$fire$saveFreq, "fire", "save")
         }
     } else if (eventType=="burn") {
         # do stuff for this event

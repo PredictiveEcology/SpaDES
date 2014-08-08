@@ -57,7 +57,7 @@ dev(2)
 #     arg = NA)
 
 #setwd(file.path("C","shared","data","shared","polygons"))
-args = rep(list(native=TRUE),6)
+args = rep(list(native=TRUE), 6)
 
 fileList= list(
   file = dir(pattern = "asc"),
@@ -83,17 +83,17 @@ fileList= list(
 #simple one
 #fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
-simInit("mySim", times=list(start=0.0, stop=100),
+mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                              fileList=fileList,
+                              #fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 10),
                              habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),
                                             saveFreq=3, plotFreq=10,
                                             interval=0, startTime=0),
-                             caribou=list(N=1e3, plotFreq=1, toSave=c("caribou"),
+                             caribou=list(N=1e2, plotFreq=1, toSave=c("caribou"),
                                           savePath=file.path("output","caribou"),
                                           saveFreq=4, interval=1, startTime=0),
                              fire=list(nFires = 1e1, spreadprob=0.225,
@@ -108,14 +108,14 @@ simInit("mySim", times=list(start=0.0, stop=100),
                  path=file.path(path, "SpaDES/SAMPLE"))
 
 #simCurrentTime(mySim)<-0
-#doSim("mySim", debug=FALSE)
-print(system.time(doSim("mySim", debug=FALSE)))
+#doSim(mySim, debug=FALSE)
+print(system.time(doSim(mySim, debug=FALSE)))
 #print(system.time(mySim <- doSim(mySim, timerUpdateFreq=1, graphicalTimer=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
 for (i in fls)
-FireMap[[i]] = readRDS(file.path("output","fires",i))
+FireMap[[i]] = readRDS(file.path("output", "fires", i))
 simPlot(stack(FireMap),col=cols[[1]])
 
 ## profiling of development code

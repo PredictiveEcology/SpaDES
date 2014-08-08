@@ -394,7 +394,7 @@ setMethod("simStartTime",
           signature="simList",
           definition=function(object) {
               return(object@simtimes$start)
-          })
+})
 
 #' set the simulation start time
 #' @export
@@ -402,7 +402,7 @@ setMethod("simStartTime",
 setGeneric("simStartTime<-",
            function(object, value) {
                standardGeneric("simStartTime<-")
-           })
+})
 
 #' set the simulation start time
 #' @name <-
@@ -413,7 +413,7 @@ setReplaceMethod("simStartTime",
                      object@simtimes$start <- value
                      validObject(object)
                      return(object)
-                 })
+})
 
 ##############################################################
 #' Accessor methods for \code{simList} object slots
@@ -662,7 +662,7 @@ setReplaceMethod("simDebug",
 #' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/")}
 #' \dontrun{mySim}
-setGeneric("simInit", function(simname, times, params, modules, path) {
+setGeneric("simInit", function(times, params, modules, path) {
     standardGeneric("simInit")
 })
 
@@ -670,8 +670,8 @@ setGeneric("simInit", function(simname, times, params, modules, path) {
 #' @rdname simInit-method
 #'
 setMethod("simInit",
-          signature(simname="character",  times="list", params="list", modules="list", path="character"),
-          definition=function(simname, times, params, modules, path) {
+          signature(times="list", params="list", modules="list", path="character"),
+          definition=function(times, params, modules, path) {
               # check validity of all inputs
               path <- checkPath(path, create=TRUE)
               #params <- checkParams(params)
@@ -682,7 +682,7 @@ setMethod("simInit",
 
               # default/built-in modules:  (should we be hardcoding this??)
 
-              defaults <- list("checkpoint","save","progress","load")
+              defaults <- list("checkpoint","save","progress")#,"load")
 
               simModules(sim) <- append(defaults, modules)
               simParams(sim) <- params
@@ -701,33 +701,17 @@ setMethod("simInit",
                   # schedule each module's init event:
                   sim <- scheduleEvent(sim, 0.00, d, "init")
               }
-              assign(simname, sim, envir=globalenv())
+
+              return(sim)
 })
 
 #' simInit
 #' @rdname simInit-method
 setMethod("simInit",
-          signature(simname="character", times="list", params="list", modules="list", path="missing"),
-          definition=function(simname, times, params, modules) {
-              simInit(simname, times=times, params=params, modules=modules, path="./")
-})
-
-#' simInit
-#' @rdname simInit-method
-setMethod("simInit",
-          signature(simname="missing",  times="list", params="list", modules="list", path="character"),
-          definition=function(times, params, modules, path) {
-            simInit(simname=".sim", times=times, params=params, modules=modules, path=path)
-            warning("simname missing: using default `.sim`")
-})
-
-#' simInit
-#' @rdname simInit-method
-setMethod("simInit",
-          signature(simname="missing", times="list", params="list", modules="list", path="missing"),
+          signature(times="list", params="list", modules="list", path="missing"),
           definition=function(times, params, modules) {
-            simInit(simname=".sim", times=times, params=params, modules=modules, path="./")
-            warning("simname missing: using default `.sim`")
+            simInit(times=times, params=params, modules=modules, path="./")
+            return(sim)
 })
 
 ##############################################################
@@ -766,6 +750,7 @@ setMethod("reloadModuleLater",
             } else {
               return(!all(depends %in% simLoaded(sim)))
             }
+            return(sim)
 })
 
 ##############################################################
@@ -781,7 +766,7 @@ setMethod("reloadModuleLater",
 #' - implemented in a more modular fashion so it's easier
 #'   to add submodules to the simulation.
 #'
-#' @param simname Character string for the \code{simList} simulation object.
+#' @param sim Character string for the \code{simList} simulation object.
 #'
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
@@ -797,17 +782,15 @@ setMethod("reloadModuleLater",
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
-setGeneric("doEvent", function(simname, debug) {
+setGeneric("doEvent", function(sim, debug) {
     standardGeneric("doEvent")
 })
 
 #' doEvent
 #' @rdname doEvent-method
 setMethod("doEvent",
-          signature(simname="character", debug="logical"),
-          definition=function(simname, debug) {
-            sim <- get(simname, envir=globalenv())
-
+          signature(sim="simList", debug="logical"),
+          definition=function(sim, debug) {
             # get next event
             nextEvent <- simEvents(sim)[1, ] # extract the next event from queue
 
@@ -835,15 +818,15 @@ setMethod("doEvent",
             } else {
               simEventsCompleted(sim) <- setkey(rbindlist(list(simEventsCompleted(sim), nextEvent)), eventTime)
             }
-          assign(simname, sim, envir=globalenv())
+          return(sim)
 })
 
 #' doEvent
 #' @rdname doEvent-method
 setMethod("doEvent",
-          signature(simname="character", debug="missing"),
-          definition=function(simname) {
-            doEvent(simname, debug=FALSE)
+          signature(sim="simList", debug="missing"),
+          definition=function(sim) {
+            doEvent(sim, debug=FALSE)
 })
 
 ##############################################################
@@ -914,7 +897,7 @@ setMethod("scheduleEvent",
 #' - implemented in a more modular fashion so it's easier
 #'   to add submodules to the simulation.
 #'
-#' @param simname Character string for the \code{simList} simulation object.
+#' @param sim Character string for the \code{simList} simulation object.
 #'
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
@@ -936,21 +919,24 @@ setMethod("scheduleEvent",
 #' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
-#' \dontrun{simInit(simname="mySim", times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-#' modules=list("habitat", "caribou"), path="/path/to/my/modules/)}
-#' \dontrun{doSim{mySim}}
-setGeneric("doSim", function(simname, debug) {
+#' \dontrun{
+#' mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+#' modules=list("habitat", "caribou"), path="/path/to/my/modules/)
+#' }
+#' \dontrun{
+#' doSim{mySim}
+#' }
+setGeneric("doSim", function(sim, debug) {
     standardGeneric("doSim")
 })
 
 #' doSim
 #' @rdname doSim-method
 setMethod("doSim",
-          signature(simname="character", debug="logical"),
-          definition=function(simname, debug) {
-            sim <- get(simname, envir=globalenv())
+          signature(sim="simList", debug="logical"),
+          definition=function(sim, debug) {
             while(simCurrentTime(sim) <= simStopTime(sim)) {
-              doEvent(simname, debug)  # process the next event
+              sim <- doEvent(sim, debug)  # process the next event
 
               # print debugging info
               #  this can, and should, be more sophisticated;
@@ -960,12 +946,13 @@ setMethod("doSim",
               }
             }
 #            close(.pb)
+          return(sim)
 })
 
 #' doSim
 #' @rdname doSim-method
 setMethod("doSim",
-          signature(simname="character", debug="missing"),
-          definition=function(simname) {
-            doSim(simname, debug=FALSE)
+          signature(sim="simList", debug="missing"),
+          definition=function(sim) {
+            return(doSim(sim, debug=FALSE))
 })
