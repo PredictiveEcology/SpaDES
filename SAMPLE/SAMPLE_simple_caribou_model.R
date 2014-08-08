@@ -91,7 +91,7 @@ simInit("mySim", times=list(start=0.0, stop=100),
                              .progress=list(graphical=FALSE, interval = 10),
                              habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),
-                                            saveFreq=3, plotFreq=NA,
+                                            saveFreq=3, plotFreq=1e3,
                                             interval=0, startTime=0),
                              caribou=list(N=1e3, plotFreq=1, toSave=c("caribou"),
                                           savePath=file.path("output","caribou"),
@@ -109,7 +109,7 @@ simInit("mySim", times=list(start=0.0, stop=100),
 
 #simCurrentTime(mySim)<-0
 #doSim("mySim", debug=FALSE)
-print(system.time(doSim("mySim", debug=TRUE)))
+print(system.time(doSim("mySim", debug=FALSE)))
 #print(system.time(mySim <- doSim(mySim, timerUpdateFreq=1, graphicalTimer=FALSE)))
 
 fls = dir(file.path("output","fires"))
