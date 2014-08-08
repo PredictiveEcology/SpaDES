@@ -13,13 +13,13 @@
 #'                        message be suppressed?
 #'
 #' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
-#'
+#' 
 #' @seealso \code{\link{library}}.
-#'
+#' 
 #' @export
 #' @docType methods
 #' @rdname loadPackages-method
-#'
+#' 
 #' @author Alex Chubaty
 #'
 #' @examples
@@ -51,56 +51,45 @@ setMethod("loadPackages",
 ##############################################################
 #' Check filepath.
 #'
-#' Checks the specified filepath for formatting consistencies,
-#' such as leading/trailing slashes, etc.
+#' Checks the specified filepath for formatting consistencies, 
+#' such as trailing slashes, etc.
 #'
-#' @param path      A character string corresponding to a filepath.
+#' @param path A character string corresponding to a filepath.
+#' 
+#' @param create A logical indicating whether the path should
+#' be created if it doesn't exist. Default is \code{FALSE}.
 #'
-#' @param relative  A logical indicating whether return \code{path}
-#'                  is relative (\code{TRUE}) or absolute (\code{FALSE}).
-#'                  Default \code{TRUE} to return relative path.
-#'
-#' @param create    A logical indicating whether the path should be
-#'                  created if it doesn't exist. Default is \code{FALSE}.
-
 #' @return Character string denoting the cleaned up filepath.
-#'
+#' 
 #' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
-#'
+#' 
 #' @export
 #' @docType methods
 #' @rdname checkpath
 #'
 # @examples
 # need examples
-checkPath = function(path, relative=TRUE, create=FALSE) {
-  if (is.character(path)) {
-    path = gsub("\\\\", "/", path)    # use slash instead of backslash
-    path = gsub("/$", "", path)       # remove trailing slash
-
-    if (relative==TRUE) {
-      path = gsub("^[.]/", "", path)  # remove leading dotslash
-
-      # if user provided absolute path, make it relative to .data.dir
-      if (identical(path, normalizePath(path, winslash="/"))) {
-        path = gsub(getwd(), "", path)
-        path = gsub("^/", "", path)
-      }
-      full.path = file.path(getwd(), path)
+checkPath = function(path, create=FALSE) {
+    if (is.character(path)) {
+        # check if path has a trailing slash and remove it
+        strlets <- strsplit(path, "")[[1]]
+        strlen <- length(strlets)
+        if (strlets[strlen]=="/") {
+            path <- cat("\"",strlets[-strlen], "\"", sep="")
+        } else {}
+        
+        if (file.exists(path)) {
+            exists = TRUE # basically, do nothing if it exists
+        } else {
+            if (create==TRUE) {
+              print(paste("...creating directory structure:", path))
+              dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+            } else {
+              warning("the specified path doesn't exist. Please create it and try again.")
+            }
+        }
     } else {
-      full.path = normalizePath(path, winslash="/")
+        stop("specify `path` as a character string.")
     }
-
-    if (!file.exists(full.path)) {
-      if (create==TRUE) {
-        dir.create(file.path(full.path), recursive=TRUE, showWarnings=FALSE)
-      } else {
-        warning("Specified path doesn't exist. Create it and try again.")
-      }
-    }
-  } else {
-    stop("Specify `path` as a character string.")
-  }
-  return(path)
+    return(path)
 }
-
