@@ -83,13 +83,13 @@ fileList= list(
 #simple one
 #fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
-simInit("sim", times=list(start=0.0, stop=100),
+simInit("mySim", times=list(start=0.0, stop=10),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                              fileList=fileList,
+                             fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 10),
-                             habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
+                             habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),
                                             saveFreq=3, plotFreq=10,
                                             interval=0, startTime=0),
@@ -103,7 +103,7 @@ simInit("sim", times=list(start=0.0, stop=100),
                                         saveFreq = 5, interval = 10, startTime=0)
                              ),
                  modules=list("habitat", "fire", "caribou"),
-#                 modules=list("habitat", "fire"),
+#                modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/SAMPLE"))
 

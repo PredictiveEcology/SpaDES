@@ -682,7 +682,7 @@ setMethod("simInit",
 
               # default/built-in modules:  (should we be hardcoding this??)
 
-              defaults <- list("checkpoint","save","progress","load")
+              defaults <- list("checkpoint","save","progress")#,"load")
 
               simModules(sim) <- append(defaults, modules)
               simParams(sim) <- params
@@ -951,6 +951,7 @@ setMethod("doSim",
             sim <- get(simname, envir=globalenv())
             while(simCurrentTime(sim) <= simStopTime(sim)) {
               doEvent(simname, debug)  # process the next event
+              sim <- get(simname, envir=globalenv())
 
               # print debugging info
               #  this can, and should, be more sophisticated;
