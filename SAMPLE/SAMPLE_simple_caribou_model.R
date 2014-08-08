@@ -81,9 +81,9 @@ fileList= list(
 #setwd(file.path("C:","Eliot", "ProjectsBig","Caribou","CoteNord_v2_21nov12"))
 
 #simple one
-#fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
+fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
-simInit("mySim", times=list(start=0.0, stop=10),
+simInit("mySim", times=list(start=0.0, stop=100),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
@@ -91,7 +91,7 @@ simInit("mySim", times=list(start=0.0, stop=10),
                              .progress=list(graphical=FALSE, interval = 10),
                              habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),
-                                            saveFreq=3, plotFreq=10,
+                                            saveFreq=3, plotFreq=NA,
                                             interval=0, startTime=0),
                              caribou=list(N=1e3, plotFreq=1, toSave=c("caribou"),
                                           savePath=file.path("output","caribou"),
@@ -102,14 +102,14 @@ simInit("mySim", times=list(start=0.0, stop=10),
                                         savePath = file.path("output","fires"),
                                         saveFreq = 5, interval = 10, startTime=0)
                              ),
-                 modules=list("habitat", "fire", "caribou"),
-#                modules=list("habitat", "fire"),
+#                 modules=list("habitat", "fire", "caribou"),
+                modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/SAMPLE"))
 
 #simCurrentTime(mySim)<-0
 #doSim("mySim", debug=FALSE)
-print(system.time(doSim("mySim", debug=FALSE)))
+print(system.time(doSim("mySim", debug=TRUE)))
 #print(system.time(mySim <- doSim(mySim, timerUpdateFreq=1, graphicalTimer=FALSE)))
 
 fls = dir(file.path("output","fires"))
