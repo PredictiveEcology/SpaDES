@@ -17,8 +17,8 @@ doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
         } else {
             sim <- habitatInit(sim)
         }
-        sim <- scheduleEvent(sim, simParams(sim)$habitat$startTime, "habitat", "plot")
-        sim <- scheduleEvent(sim, simParams(sim)$habitat$startTime, "habitat", "save")
+        sim <- scheduleEvent(sim, simParams(sim)$habitat$plotFreq, "habitat", "plot")
+        sim <- scheduleEvent(sim, simParams(sim)$habitat$saveFreq, "habitat", "save")
 
     } else if (eventType=="plot") {
       # do stuff for this event

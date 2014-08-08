@@ -81,17 +81,17 @@ fileList= list(
 #setwd(file.path("C:","Eliot", "ProjectsBig","Caribou","CoteNord_v2_21nov12"))
 
 #simple one
-#fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
+fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                              #fileList=fileList,
+                             fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 10),
-                             habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
+                             habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),
-                                            saveFreq=3, plotFreq=10,
+                                            saveFreq=3, plotFreq=1e3,
                                             interval=0, startTime=0),
                              caribou=list(N=1e2, plotFreq=1, toSave=c("caribou"),
                                           savePath=file.path("output","caribou"),
@@ -102,8 +102,8 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                         savePath = file.path("output","fires"),
                                         saveFreq = 5, interval = 10, startTime=0)
                              ),
-                 modules=list("habitat", "fire", "caribou"),
-#                 modules=list("habitat", "fire"),
+#                 modules=list("habitat", "fire", "caribou"),
+                modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/SAMPLE"))
 
