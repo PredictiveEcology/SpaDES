@@ -1,9 +1,9 @@
 ##############################################################
 #' GaussMap
 #'
-#' Produces a raster of a random gaussian process. 
-#' 
-#' This is a wrapper for the \code{RFsimulate} function in the RandomFields 
+#' Produces a raster of a random gaussian process.
+#'
+#' This is a wrapper for the \code{RFsimulate} function in the RandomFields
 #' package. The main addition is the \code{speedup} argument which allows
 #' for faster map generation. A \code{speedup} of 1 is normal and will get
 #' progressively faster as the number increases, at the expense of coarser pixel
@@ -18,9 +18,9 @@
 #' @param speedup An index of how much faster than normal to generate maps.
 #'
 #' @return A map of extent \code{ext} with a Gaussian random pattern.
-#' 
+#'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
-#' 
+#'
 #' @import RandomFields raster
 #' @export
 #' @docType methods
@@ -28,13 +28,13 @@
 #'
 #@examples
 #EXAMPLES NEEDED
-GaussMap = function(x, scale=10, var=1, speedup=10,...) {#, fast=TRUE, n.unique.pixels=100) {
+GaussMap <- function(x, scale=10, var=1, speedup=10,...) {#, fast=TRUE, n.unique.pixels=100) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
   nc <- (ext@xmax-ext@xmin)/speedup
   nr <- (ext@ymax-ext@ymin)/speedup
-  
+
   model <- RMexp(scale=scale, var=var)
   sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
   sim <- sim - cellStats(sim, "min")
@@ -57,9 +57,9 @@ GaussMap = function(x, scale=10, var=1, speedup=10,...) {#, fast=TRUE, n.unique.
 #' @param num.per.patch.map Description of this.
 #'
 #' @return Decribe what it returns: \code{al}.
-#' 
+#'
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
-#' 
+#'
 #' @import data.table raster sp
 #' @export
 #' @docType methods
@@ -67,13 +67,14 @@ GaussMap = function(x, scale=10, var=1, speedup=10,...) {#, fast=TRUE, n.unique.
 #'
 # @examples
 # NEED EXAMPLES
-# 
+#
 # To initialize with a specific number per patch, which may come from
 #  data or have been derived from patch size. Options include a combination of either
 #  a patchid map and a table with 2 columns, pops and num.in.pop,
 #  or 2 maps, patchid and patchnumber. Returns a map with a single unique pixel
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
+#
 spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.map=NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells=TRUE)
@@ -91,14 +92,14 @@ spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.
   } else {
     stop("need num.per.patch.map or num.per.patch.table")
   }
-  
+
   resample <- function(x, ...) x[sample.int(length(x), ...)]
   dt3 <- dt2[, list(cells=resample(wh, unique(num.in.pop))), by=pops]
   dt3$ids <- rownames(dt3)
-  
+
   al <- raster(patches)
   al[dt3$cells] <- 1
-  
+
   return(al)
 }
 
@@ -107,15 +108,15 @@ spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.
 # ### INCORPORATE RELEVANT PARTS OF THIS OLD INIT FUNCTION INTO INITCOODRS()
 # ###
 # #' initialize mobileAgent
-# #' 
+# #'
 # #' @param agentlocation The initial positions of the agents
 # #'                      (currently only \code{RasterLayer} or
 # #'                      \code{SpatialPolygonsDataFrame}) accepted.
-# #' 
+# #'
 # #' @param numagents The number of agents to initialize.
-# #' 
+# #'
 # #' @param probinit The probability of placing an agent at a given initial position.
-# #' 
+# #'
 # #' @export
 # setMethod("initialize", "mobileAgent", function(.Object, ..., agentlocation=NULL, numagents=NULL, probinit=NULL) {
 #   if (is(agentlocation, "Raster")){
@@ -138,11 +139,11 @@ spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.
 #         va <- getValues(probinit)[nonNAs]
 #         ran <- runif(length(va), 0, 1)
 #         fI2 <- wh.nonNAs[ran<va]
-#         
+#
 #         last.ran <- runif(length(fI2), 0, 1)
 #         last.fI <- findInterval(last.ran, ProbInit.v) + 1
 #         last.fI2 <- wh.nonNAs[last.fI]
-#         
+#
 #         #                last.ran <- runif(length(fI2),0,1)
 #         #                last.fI2 <- wh.nonNAs[last.ran<va]
 #       }
@@ -191,11 +192,11 @@ spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.
 #   }
 #   heading1 <- runif(numagents, 0, 360)
 #   distance <- runif(numagents, 0.1, 10)
-#   
+#
 #   .Object@ID <- as.character(1:numagents)
 #   .Object@spatial <- position
 #   .Object@heading <- heading1
 #   .Object@distance <- distance
-#   
+#
 #   return(.Object)
 # })

@@ -102,8 +102,8 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                         savePath = file.path("output","fires"),
                                         saveFreq = 5, interval = 10, startTime=0)
                              ),
-#                 modules=list("habitat", "fire", "caribou"),
-                modules=list("habitat", "fire"),
+                 modules=list("habitat", "fire", "caribou"),
+#               modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/SAMPLE"))
 
