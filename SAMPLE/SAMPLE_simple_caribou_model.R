@@ -113,7 +113,7 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                  modules=list("habitat", "fire", "caribou"),
 #                modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
-                 path=file.path(path, "SpaDES/SAMPLE"))
+                 path=file.path(path, "SpaDES/modules"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)

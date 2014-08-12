@@ -1,5 +1,3 @@
-source("ABM_code_files.R") # package dependencies are in this file
-
 ############################################################################
 ############################################################################
 # First Section - Make dummy data, maps etc. for practicing code
