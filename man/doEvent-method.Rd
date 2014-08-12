@@ -2,18 +2,18 @@
 \docType{methods}
 \name{doEvent}
 \alias{doEvent}
-\alias{doEvent,character,logical-method}
-\alias{doEvent,character,missing-method}
+\alias{doEvent,simList,logical-method}
+\alias{doEvent,simList,missing-method}
 \title{Process a simulation event}
 \usage{
-doEvent(simname, debug)
+doEvent(sim, debug)
 
-\S4method{doEvent}{character,logical}(simname, debug)
+\S4method{doEvent}{simList,logical}(sim, debug)
 
-\S4method{doEvent}{character,missing}(simname)
+\S4method{doEvent}{simList,missing}(sim)
 }
 \arguments{
-\item{simname}{Character string for the \code{simList} simulation object.}
+\item{sim}{Character string for the \code{simList} simulation object.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
              will be printed (default is \code{debug=FALSE}).}
