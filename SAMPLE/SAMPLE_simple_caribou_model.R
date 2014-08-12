@@ -76,13 +76,21 @@ fileList= list(
 #  intervals = c(rep(NA,length(dir(pattern="asc"))-1),10),
 #  stringsAsFactors=FALSE)
 
-#setwd(file.path("C","shared","data","shared","maps"))
+#setwd(file.path("C:","shared","data","shared","LandCoverOfCanada2005_V1_4"))
 #setwd(file.path("C:","Eliot", "ProjectsBig", "Caribou"))
-#setwd(file.path("C:","Eliot", "ProjectsBig","Caribou","CoteNord_v2_21nov12"))
 
 #simple one
+setwd(file.path("C:","Eliot", "ProjectsBig","Caribou","CoteNord_v2_21nov12"))
 fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 
+setwd("C:/shared/data/shared/LandCoverOfCanada2005_V1_4")
+fileList= data.frame(files= dir(pattern = "tif"),stringsAsFactors=FALSE)
+
+# load Pinus Contorta
+setwd("C:/shared/data/shared/kNN")
+fileList = data.frame(files = "NFI_MODIS250m_kNN_Species_Pinu_Con_Lat_v0.tif",stringsAsFactors=FALSE)
+
+devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    #.checkpoint=list(interval=1000,
@@ -103,7 +111,7 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                         saveFreq = 5, interval = 10, startTime=0)
                              ),
                  modules=list("habitat", "fire", "caribou"),
-#               modules=list("habitat", "fire"),
+#                modules=list("habitat", "fire"),
 #                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/SAMPLE"))
 
