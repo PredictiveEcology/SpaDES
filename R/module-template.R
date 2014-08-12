@@ -49,7 +49,7 @@ newModule = function(name, path) {
         ", name, "Init = function(sim) {
           # load any required packages
           pkgs <- list(\"raster\") # list required packages here
-          loadPackforestAges(pkgs)
+          loadPackges(pkgs)
 
           # # ! ----- EDIT BELOW ----- ! #
 
