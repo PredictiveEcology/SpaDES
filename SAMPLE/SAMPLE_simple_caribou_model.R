@@ -87,38 +87,47 @@ setwd("C:/shared/data/shared/LandCoverOfCanada2005_V1_4")
 fileList= data.frame(files= dir(pattern = "tif"),stringsAsFactors=FALSE)
 
 # load Pinus Contorta
-setwd("C:/shared/data/shared/kNN")
+system.file("DEM.rda",package="SpaDES")
 fileList = data.frame(files = "NFI_MODIS250m_kNN_Species_Pinu_Con_Lat_v0.tif",stringsAsFactors=FALSE)
 
+
+fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
+                                  full.names=TRUE,pattern= "tif"),
+                      stringsAsFactors=FALSE)
+
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
-mySim <- simInit(times=list(start=0.0, stop=10),
+mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                              fileList=fileList,
-                             .progress=list(graphical=FALSE, interval = 10),
+                             .progress=list(graphical=FALSE, interval = 1),
                              habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "habitat"),
-                                            saveFreq=3, plotFreq=1e3,
+                                            plotInitialTime = 0, plotInterval=1e3,
+                                            saveInitialTime = 3, saveInterval=100,
                                             interval=0, startTime=0),
-                             caribou=list(N=1e2, plotFreq=1, toSave=c("caribou"),
+                             caribou=list(N=1e2, toSave=c("caribou"),
                                           savePath=file.path("output","caribou"),
-                                          saveFreq=4, interval=1, startTime=0),
+                                          saveInitialTime = 3, saveInterval=100,
+                                          plotInitialTime = 1.01, plotInterval=1,
+                                          interval=1, startTime=0),
                              fire=list(nFires = 1e1, spreadprob=0.225,
-                                        persistprob=0, its=1e6, plotFreq=10,
+                                        persistprob=0, its=1e6,
+                                        plotInitialTime = 0.1, plotInterval=10,
                                         toSave=c("Fires"),
                                         savePath = file.path("output","fires"),
-                                        saveFreq = 5, interval = 10, startTime=0)
+                                        saveInterval = 100, interval = 10, startTime=0)
                              ),
-                 modules=list("habitat", "fire", "caribou"),
-#                modules=list("habitat", "fire"),
+#                 modules=list("habitat", "fire", "caribou"),
+                modules=list("caribou", "fire"),
 #                  modules=list("habitat"),
-                 path=file.path(path, "SpaDES/modules"))
+                 path=file.path(path, "SpaDES/sampleModules"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)
+dev(4)
 print(system.time(doSim(mySim, debug=FALSE)))
-#print(system.time(mySim <- doSim(mySim, timerUpdateFreq=1, graphicalTimer=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
