@@ -57,12 +57,13 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @rdname simLoad
 #'
 #' @examples
-#' #simple one - be sure to setwd first!
+#' \dontrun{
+#' # simple one - be sure to setwd first!
 #' fileList= data.frame(files= dir(pattern = "asc"),stringsAsFactors=FALSE)
 #' simInit("sim", times=list(start=0.0, stop=100),
 #'   params=list(
 #'               fileList=fileList,
-#'               .progress=list(graphical=FALSE, interval = 10),
+#'               .progress=list(graphical=FALSE, interval=10),
 #'               habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
 #'                                savePath=file.path("output", "habitat"),
 #'                                saveFreq=3, plotFreq=10,
@@ -74,12 +75,13 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'   path=file.path(path, "SpaDES/SAMPLE"))
 #' sim <- simLoad(sim)
 #' simPlot(RoadCostSurface_uaf_3)
-#'
-#'# Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#'#  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
-#'#  specifically, when add "native = TRUE" as an argument to the raster function
-#'args = list(native=TRUE)
-#'fileList= list(
+#' }
+#' \dontrun{
+#' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
+#' #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
+#' #  specifically, when add "native = TRUE" as an argument to the raster function
+#' args = list(native=TRUE)
+#' fileList= list(
 #'   file = c(dir(pattern = "asc"),"C:/Rwork/Maps/LCC2005_V1_4a.tif"),
 #'   funs = NA,
 #'   objs = NA,
@@ -89,7 +91,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' simInit("sim", times=list(start=0.0, stop=100),
 #'   params=list(
 #'               fileList=fileList,
-#'               .progress=list(graphical=FALSE, interval = 10),
+#'               .progress=list(graphical=FALSE, interval=10),
 #'               habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
 #'                                savePath=file.path("output", "habitat"),
 #'                                saveFreq=3, plotFreq=10,
@@ -100,6 +102,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'   modules=list("habitat", "caribou"),
 #'   path=file.path(path, "SpaDES/SAMPLE"))
 #' sim <- simLoad(sim)
+#' }
 #'
 simLoad = function(sim, stackName = NULL) {
   fileList <- simParams(sim)$fileList
