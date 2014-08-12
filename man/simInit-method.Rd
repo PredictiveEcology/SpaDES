@@ -2,24 +2,15 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,character,list,list,list,character-method}
-\alias{simInit,character,list,list,list,missing-method}
-\alias{simInit,missing,list,list,list,character-method}
-\alias{simInit,missing,list,list,list,missing-method}
+\alias{simInit,list,list,list,character-method}
+\alias{simInit,list,list,list,missing-method}
 \title{Initialize a new simulation}
 \usage{
-simInit(simname, times, params, modules, path)
+simInit(times, params, modules, path)
 
-\S4method{simInit}{character,list,list,list,character}(simname, times, params,
-  modules, path)
+\S4method{simInit}{list,list,list,character}(times, params, modules, path)
 
-\S4method{simInit}{character,list,list,list,missing}(simname, times, params,
-  modules)
-
-\S4method{simInit}{missing,list,list,list,character}(times, params, modules,
-  path)
-
-\S4method{simInit}{missing,list,list,list,missing}(times, params, modules)
+\S4method{simInit}{list,list,list,missing}(times, params, modules)
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and stop times
@@ -43,10 +34,6 @@ in the arguments supplied.
 \description{
 Create a new simulation object, preloaded with parameters,
 modules, times, etc.
-
-simInit
-
-simInit
 
 simInit
 
