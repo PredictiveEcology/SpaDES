@@ -19,7 +19,7 @@ doEvent.fire <- function(sim, eventTime, eventType, debug=FALSE) {
 
             # schedule the next event
             sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, "fire", "burn")
-            sim <- scheduleEvent(sim, simParams(sim)$fire$plotFreq, "fire", "plot")
+            sim <- scheduleEvent(sim, simParams(sim)$fire$plotFreq, "fire", "plot.init")
             sim <- scheduleEvent(sim, simParams(sim)$fire$saveFreq, "fire", "save")
         }
     } else if (eventType=="burn") {
@@ -28,9 +28,16 @@ doEvent.fire <- function(sim, eventTime, eventType, debug=FALSE) {
 
         # schedule the next event
         sim <- scheduleEvent(sim, simCurrentTime(sim)+simParams(sim)$fire$interval, "fire", "burn")
+    } else if (eventType=="plot.init") {
+      # do stuff for this event
+      simPlot(stack(habitat,Fires), add=FALSE, col=cols[c(2:5,3,2)], add.legend=TRUE)
+
+      # schedule the next event
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, "fire", "plot")
     } else if (eventType=="plot") {
       # do stuff for this event
-      simPlot(stack(habitat, Fires), add=FALSE, col=cols[c(2:5,3,2)], add.legend=TRUE)
+      simPlot(Fires, add=TRUE, on.which.to.plot = "Fires", col=cols[c(2:5,3,2)],
+              add.legend=TRUE)
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, "fire", "plot")

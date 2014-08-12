@@ -177,15 +177,15 @@ simLoad = function(sim, stackName = NULL) {
 
     assign(objs[x],do.call(get(loadFun[x]), args = argument),envir=globalenv())
     if (loadFun[x]=="raster") {
-      print(paste(objs[x],"read to",where[inMemory(get(objs[x]))+1],
+      message(paste(objs[x],"read to",where[inMemory(get(objs[x]))+1],
                   "from",fl[x],"using",loadFun[x]))
     } else {
-      print(paste(objs[x],"read to memory from",fl[x],"using",loadFun[x]))
+      message(paste(objs[x],"read to memory from",fl[x],"using",loadFun[x]))
     }
   })
 
   # rasters sometimes don't load with their min and max values set
-   israst = sapply(objs, function(x) is(get(x),"Raster"))
+   israst = sapply(objs, function(x) is(get(x),"Raster") & !is.numeric(minValue(get(x))) )
    a = lapply(objs[israst],function(x) {
      assign(x, setMinMax(get(x)),envir=globalenv())
    })
