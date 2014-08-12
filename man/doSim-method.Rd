@@ -2,18 +2,18 @@
 \docType{methods}
 \name{doSim}
 \alias{doSim}
-\alias{doSim,simList,logical-method}
-\alias{doSim,simList,missing-method}
+\alias{doSim,character,logical-method}
+\alias{doSim,character,missing-method}
 \title{Process a simulation event}
 \usage{
-doSim(sim, debug)
+doSim(simname, debug)
 
-\S4method{doSim}{simList,logical}(sim, debug)
+\S4method{doSim}{character,logical}(simname, debug)
 
-\S4method{doSim}{simList,missing}(sim)
+\S4method{doSim}{character,missing}(simname)
 }
 \arguments{
-\item{sim}{Character string for the \code{simList} simulation object.}
+\item{simname}{Character string for the \code{simList} simulation object.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
              will be printed (default is \code{debug=FALSE}).}
@@ -43,13 +43,9 @@ models by the user. Setting \code{debug=TRUE} allows the user to toggle debuggin
 statements in their own modules.
 }
 \examples{
-\dontrun{
-mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-modules=list("habitat", "caribou"), path="/path/to/my/modules/)
-}
-\dontrun{
-doSim{mySim}
-}
+\dontrun{simInit(simname="mySim", times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+modules=list("habitat", "caribou"), path="/path/to/my/modules/)}
+\dontrun{doSim{mySim}}
 }
 \author{
 Alex Chubaty

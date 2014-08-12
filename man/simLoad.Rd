@@ -63,12 +63,12 @@ simPlot(RoadCostSurface_uaf_3)
 #  specifically, when add "native = TRUE" as an argument to the raster function
 args = list(native=TRUE)
 fileList= list(
-  file = c(dir(pattern = "asc"),"C:/Rwork/Maps/LCC2005_V1_4a.tif"),
+  file = dir(pattern = "asc"),
   funs = NA,
   objs = NA,
   args = args,
   loadTimes = 0,
-  intervals = c(rep(NA,length(dir(pattern="asc"))),10))
+  intervals = c(rep(NA,length(dir(pattern="asc"))-1),10))
 simInit("sim", times=list(start=0.0, stop=100),
   params=list(
               fileList=fileList,
