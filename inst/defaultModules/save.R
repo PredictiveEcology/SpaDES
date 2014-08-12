@@ -13,7 +13,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
       })))
 
     # make paths if they don't exist
-    lapply(pathsToCheck, checkPath, create = TRUE)
+    lapply(pathsToCheck, checkPath, create=TRUE)
 
     # no scheduling of new event. Saving will be called by other events,
     #   in an event-specific manner.
@@ -37,10 +37,10 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 simSave = function(sim) {
 
   # extract savePaths from modules
-  modulePaths <- lapply(simParams(sim), function(y) return(y$savePath) )
+  modulePaths <- lapply(simParams(sim), function(y) return(y$.savePath) )
 
   # extract objects to save from modules
-  toSave <- lapply(simParams(sim), function(y) return(y$toSave) )
+  toSave <- lapply(simParams(sim), function(y) return(y$.saveObjects) )
 
   # extract the current module name that called this function
   moduleName = simEvents(sim)[1, moduleName]

@@ -46,9 +46,8 @@ doEvent.caribou <- function(sim, eventTime, eventType, debug=FALSE) {
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$plotInterval, "caribou", "plot")
     } else if (eventType=="save") {
-        # do stuff for this event
+      # do stuff for this event
       simSave(sim)
-
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$saveInterval, "caribou", "save")
