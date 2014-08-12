@@ -74,7 +74,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Init = function(sim) {
   # load any required packages
   pkgs <- list(\"raster\") # list required packages here
-          loadPackges(pkgs)
+  loadPackforestAges(pkgs)
 
   # # ! ----- EDIT BELOW ----- ! #
 
