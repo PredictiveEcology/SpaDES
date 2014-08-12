@@ -57,7 +57,6 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @rdname simLoad
 #'
 #' @examples
-<<<<<<< HEAD:inst/defaultModules/load.R
 #' #load random maps included with package
 #' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"data"),
 #'    full.names=TRUE,pattern= "rds"),
