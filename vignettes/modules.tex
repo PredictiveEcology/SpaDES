@@ -263,17 +263,223 @@ See Section \ref{load-and-save-modules} above for more details.
 
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
-\paragraph{}
-...
+\begin{Schunk}
+\begin{Soutput}
+> doEvent.habitat <- function(sim, eventTime, eventType, 
++     debug = FALSE) {
++     if (eventType == "init") {
++         depends <- "NONE"
++         if (reloadModuleLater(sim, depends)) {
++             sim <- scheduleEvent(sim, currentTime(sim), "habitat", 
++                 "init")
++         }
++         else {
++             sim <- habitatInit(sim)
++         }
++         sim <- scheduleEvent(sim, simParams(sim)$habitat$plotFreq, 
++             "habitat", "plot")
++         sim <- scheduleEvent(sim, simParams(sim)$habitat$saveFreq, 
++             "habitat", "save")
++     }
++     else if (eventType == "plot") {
++         simPlot(habitat, col = cols[6:2])
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$plotFreq, 
++             "habitat", "plot")
++     }
++     else if (eventType == "save") {
++         simSave(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$saveFreq, 
++             "habitat", "save")
++     }
++     else {
++         warning(paste("Undefined event type: '", simEvents(sim)[1, 
++             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
++             "moduleName", with = FALSE], "'", sep = ""))
++     }
++     return(sim)
++ }
+
+> habitatInit <- function(sim) {
++     pkgs <- list("raster")
++     loadPackages(pkgs)
++     nx <- simParams(sim)$habitat$nx
++     ny <- simParams(sim)$habitat$ny
++     template <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, 
++         ymn = -ny/2, ymx = ny/2)
++     speedup <- nx/50
++     DEM <- round(GaussMap(template, scale = 300, var = 0.03, 
++         speedup = speedup), 1) * 1000
++     forestAge <- round(GaussMap(template, scale = 10, var = 0.1, 
++         speedup = speedup), 1) * 20
++     forestCover <- round(GaussMap(template, scale = 50, var = 1, 
++         speedup = speedup), 2) * 10
++     percentPine <- round(GaussMap(template, scale = 50, var = 1, 
++         speedup = speedup), 1)
++     forestAge <- forestAge/maxValue(forestAge) * 100
++     percentPine <- percentPine/maxValue(percentPine) * 100
++     habitatQuality <- (DEM + 10 + (forestCover + 5) * 10)/100
++     habitatQuality <- habitatQuality/maxValue(habitatQuality)
++     habitat <<- stack(list(DEM, forestAge, forestCover, habitatQuality, 
++         percentPine))
++     names(habitat) <<- c("DEM", "forestAge", "forestCover", "habitatQuality", 
++         "percentPine")
++     simLoaded(sim) <- append(simLoaded(sim), "habitat")
++     return(sim)
++ }
+\end{Soutput}
+\end{Schunk}
+
+\newpage
 
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
-\paragraph{}
-...
+\begin{Schunk}
+\begin{Soutput}
+> doEvent.fire <- function(sim, eventTime, eventType, 
++     debug = FALSE) {
++     if (eventType == "init") {
++         depends <- "habitat"
++         if (reloadModuleLater(sim, depends)) {
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "fire", 
++                 "init")
++         }
++         else {
++             sim <- fireInit(sim)
++             sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, 
++                 "fire", "burn")
++             sim <- scheduleEvent(sim, simParams(sim)$fire$plotFreq, 
++                 "fire", "plot")
++             sim <- scheduleEvent(sim, simParams(sim)$fire$saveFreq, 
++                 "fire", "save")
++         }
++     }
++     else if (eventType == "burn") {
++         sim <- fireBurn(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$interval, 
++             "fire", "burn")
++     }
++     else if (eventType == "plot") {
++         simPlot(stack(habitat, Fires), add = FALSE, col = cols[c(2:5, 
++             3, 2)], add.legend = TRUE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, 
++             "fire", "plot")
++     }
++     else if (eventType == "save") {
++         simSave(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$saveFreq, 
++             "fire", "save")
++     }
++     else {
++         warning(paste("Undefined event type: '", simEvents(sim)[1, 
++             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
++             "moduleName", with = FALSE], "'", sep = ""))
++     }
++     return(sim)
++ }
+
+> fireInit <- function(sim) {
++     pkgs <- list("raster", "RColorBrewer")
++     loadPackages(pkgs)
++     Fires <<- raster(extent(habitat), ncol = ncol(habitat), nrow = nrow(habitat), 
++         vals = 0)
++     names(Fires) <<- "Fires"
++     Fires[] <<- 0
++     simLoaded(sim) <- append(simLoaded(sim), "fire")
++     return(sim)
++ }
+
+> fireBurn <- function(sim) {
++     Fires <<- spread(habitat[[1]], loci = as.integer(sample(1:ncell(habitat), 
++         simParams(sim)$fire$nFires)), spreadProb = simParams(sim)$fire$spreadprob, 
++         persistance = simParams(sim)$fire$persistprob, mapFireID = TRUE, 
++         mask = NULL, maxSize = 1e+08, directions = 8, iterations = simParams(sim)$fire$its, 
++         plot.it = FALSE, mapID = TRUE)
++     names(Fires) <<- "Fires"
++     return(sim)
++ }
+\end{Soutput}
+\end{Schunk}
+
+\newpage
 
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
-\paragraph{}
-...
+\begin{Schunk}
+\begin{Soutput}
+> doEvent.caribou <- function(sim, eventTime, eventType, 
++     debug = FALSE) {
++     if (eventType == "init") {
++         depends <- c("habitat")
++         if (reloadModuleLater(sim, depends)) {
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", 
++                 "init")
++         }
++         else {
++             sim <- caribouInit(sim)
++             sim <- scheduleEvent(sim, 1, "caribou", "move")
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", 
++                 "plot")
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", 
++                 "save")
++         }
++     }
++     else if (eventType == "move") {
++         sim <- caribouMove(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + 1, "caribou", 
++             "move")
++     }
++     else if (eventType == "plot") {
++         simPlot(caribou, on.which.to.plot = "forestAge", add = TRUE, 
++             pch = 19, gp = gpar(cex = 0.01), delete.previous = TRUE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$plotFreq, 
++             "caribou", "plot")
++     }
++     else if (eventType == "save") {
++         simSave(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$saveFreq, 
++             "caribou", "save")
++     }
++     else {
++         warning(paste("Undefined event type: '", simEvents(sim)[1, 
++             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
++             "moduleName", with = FALSE], "'", sep = ""))
++     }
++     return(sim)
++ }
+
+> caribouInit <- function(sim) {
++     pkgs <- list("raster", "grid")
++     loadPackages(pkgs)
++     yrange <- c(ymin(habitat), ymax(habitat))
++     xrange <- c(xmin(habitat), xmax(habitat))
++     N <- simParams(sim)$caribou$N
++     IDs <- as.character(1:N)
++     sex <- sample(c("female", "male"), N, replace = TRUE)
++     age <- round(rnorm(N, mean = 8, sd = 3))
++     prevX <- rep(0, N)
++     prevY <- rep(0, N)
++     starts <- cbind(x = runif(N, xrange[1], xrange[2]), y = runif(N, 
++         yrange[1], yrange[2]))
++     caribou <<- SpatialPointsDataFrame(coords = starts, data = data.frame(prevX, 
++         prevY, sex, age))
++     row.names(caribou) <<- IDs
++     simLoaded(sim) <- append(simLoaded(sim), "caribou")
++     return(sim)
++ }
+
+> caribouMove <- function(sim) {
++     caribou <<- crop(caribou, habitat)
++     if (length(caribou) == 0) 
++         stop("All agents are off map")
++     ex <- habitat[["habitatQuality"]][caribou]
++     sl <- 0.25/ex
++     ln <- rlnorm(length(ex), sl, 0.02)
++     sd <- 30
++     caribou <<- move("crw", caribou, stepLength = ln, stddev = sd, 
++         lonlat = FALSE)
++     return(sim)
++ }
+\end{Soutput}
+\end{Schunk}
 
 \end{document}

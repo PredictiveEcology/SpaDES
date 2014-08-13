@@ -258,17 +258,24 @@ See Section \ref{load-and-save-modules} above for more details.
 
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
-\paragraph{}
-...
+<<randomLandscapes, echo=FALSE, eval=TRUE>>=
+source(normalizePath("../SAMPLE/habitat.R"), echo=TRUE, max.deparse.length=10000)
+@
+
+\newpage
 
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
-\paragraph{}
-...
+<<fireSpread, echo=FALSE, eval=TRUE>>=
+source(normalizePath("../SAMPLE/fire.R"), echo=TRUE, max.deparse.length=10000)
+@
+
+\newpage
 
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
-\paragraph{}
-...
+<<caribouMovement, echo=FALSE, eval=TRUE>>=
+source(normalizePath("../SAMPLE/caribou.R"), echo=TRUE, max.deparse.length=10000)
+@
 
 \end{document}

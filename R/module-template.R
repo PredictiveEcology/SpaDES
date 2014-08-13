@@ -75,7 +75,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template initilization
 ", name, "Init = function(sim) {
   # load any required packages
-  pkgs <- list(\"raster\") # list required packages here
+  pkgs <- list(\"RColorBrewer\") # list required packages here
   loadPackforestAges(pkgs)
 
   # # ! ----- EDIT BELOW ----- ! #
