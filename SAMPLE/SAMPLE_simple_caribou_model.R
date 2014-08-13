@@ -24,18 +24,17 @@ library(lineprof)
 library(pryr)
 library(shiny)
 
-devtools::dev_mode(TRUE)
 ### load SpaDES package
 #library(SpaDES)   # local installation from CRAN
 #devtools::install_github("SpaDES", username="achubaty")   # local install from GitHub
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+#devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 
 ## simulation code
 library(RColorBrewer)
 
 # initialize the simulation
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
-dev(2)
+#devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+#dev(2)
 
 
 # fileList = list(
@@ -83,11 +82,14 @@ system.file("DEM.rda",package="SpaDES")
 fileList = data.frame(files = "NFI_MODIS250m_kNN_Species_Pinu_Con_Lat_v0.tif",stringsAsFactors=FALSE)
 
 
+################################################################################
+library(devtools)
+dev_mode(TRUE)
+install(build_vignettes=FALSE) # build_vignette currently fails
+
 fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
                                   full.names=TRUE,pattern= "tif"),
                       stringsAsFactors=FALSE)
-
-devtools::dev_mode(TRUE)
 
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
