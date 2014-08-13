@@ -320,8 +320,8 @@ setGeneric("rasterToMemory", function(x, ...) {
   standardGeneric("rasterToMemory")
 })
 
-#' doSim
-#' @rdname doSim-method
+#' rasterToMemory
+#' @rdname rasterToMemory-method
 setMethod("rasterToMemory",
           signature=c(x="ANY"),
           definition=function(x, ...) {

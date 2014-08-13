@@ -2,9 +2,12 @@
 \docType{methods}
 \name{rasterToMemory}
 \alias{rasterToMemory}
+\alias{rasterToMemory,ANY-method}
 \title{Read raster to memory}
 \usage{
 rasterToMemory(x, ...)
+
+\S4method{rasterToMemory}{ANY}(x, ...)
 }
 \arguments{
 \item{x}{An object passed directly to the function raster (e.g., character string of a filename).}
@@ -15,6 +18,8 @@ A raster object whose values are stored in memory.
 \description{
 Wrapper to the \code{raster} function, that creates the raster object in
 memory, even if it was read in from file.
+
+rasterToMemory
 }
 \author{
 Eliot McIntire
