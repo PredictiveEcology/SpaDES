@@ -58,8 +58,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @examples
 #' #load random maps included with package
-#' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"data"),
-#'    full.names=TRUE,pattern= "rds"),
+#' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
+#'    full.names=TRUE,pattern= "tif"), fun="rasterToMemory", package="SpaDES",
 #'    stringsAsFactors=FALSE)
 #' mySim <- simInit(times=list(start=0.0, stop=100),
 #'                  params=list(
@@ -80,7 +80,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'                              saveInterval = 100, interval = 10, startTime=0)
 #'                  ),
 #'                  modules=list("fire", "caribou"),
-#'                  path=file.path(path, "SpaDES/sampleModules"))
+#'                  path=system.file("sampleModules", package="SpaDES"))
 #'
 #' mySim <- simLoad(mySim)
 #' simPlot(DEM)
@@ -88,48 +88,48 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'# Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #'#  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
 #'#  specifically, when add "native = TRUE" as an argument to the raster function
-#'args = list(native=TRUE)
-#'fileList= list(
-#' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#' #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
-#' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' args = list(native=TRUE)
-#' fileList= list(
-#'   file = c(dir(pattern = "asc"),"C:/Rwork/Maps/LCC2005_V1_4a.tif"),
-#'   funs = NA,
-#'   objs = NA,
-#'   args = args,
-#'   loadTimes = 0,
-#'   intervals = c(rep(NA,length(dir(pattern="asc"))),10))
+#' files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
+#'      full.names=TRUE,pattern= "tif")
+#' fileList = data.frame(
+#'    files = files,
+#'    fun="rasterToMemory",
+#'    package="SpaDES",
+#'    objs = NA,
+#'    args = args,
+#'    loadTimes = 0,
+#'    intervals = c(rep(NA,length(files)-1),10),
+#'    stringsAsFactors=FALSE)
 #' mySim <- simInit(times=list(start=0.0, stop=100),
 #'   params=list(
 #'               fileList=fileList,
 #'               .progress=list(graphical=FALSE, interval=10),
-#'               habitat = list(nx=1e3, ny=1e3, toSave=c("habitat"),
-#'                                savePath=file.path("output", "habitat"),
-#'                                saveInterval=3, plotInterval=10,
-#'                                interval=0, startTime=0),
-#'               caribou=list(N=1e3, plotInterval=1, toSave=c("caribou"),
-#'                              savePath=file.path("output","caribou"),
-#'                              saveInterval=4, interval=1, startTime=0)),
+#'               habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
+#'                              savePath=file.path("output", "habitat"),
+#'                              plotInitialTime = 0, plotInterval=1e3,
+#'                              saveInitialTime = 3, saveInterval=100,
+#'                              interval=0, startTime=0),
+#'                    caribou=list(N=1e2, toSave=c("caribou"),
+#'                                 savePath=file.path("output","caribou"),
+#'                                 saveInitialTime = 3, saveInterval=100,
+#'                                 plotInitialTime = 1.01, plotInterval=100,
+#'                                 interval=1, startTime=0)),
 #'   modules=list("habitat", "caribou"),
-#'   path=file.path(path, "SpaDES/sampleModules"))
-#' sim <- simLoad(sim)
-#' }
+#'   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)
+#' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 #'
-simLoad = function(sim = NULL, stackName = NULL, filename = NULL) {
+simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
 
   # check to see if fileList is empty, if it is, skip everything, return nothing
-  if(!is.null(filename)) {
-    sim <- simInit(times=list(start=0.0, stop=0.1),
+  usedFileList = FALSE
+  if(!is.null(fileList)) {
+    usedFileList = TRUE
+    sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(
-                             fileList=data.frame(files = filename, stringsAsFactors = FALSE)
+                             fileList=fileList
                            ),
-#                                            modules=list("load"),
-                           #                modules=list("caribou", "fire"),
-                           #                  modules=list("habitat"),
-                           modules=list("load"),
-                           path=file.path(path, "SpaDES/defaultModules")
+                           modules=list(),
+                           path="."
     )
   }
 
@@ -249,10 +249,10 @@ simLoad = function(sim = NULL, stackName = NULL, filename = NULL) {
   }
 
   # add new rows of files to load based on fileListdf$Interval
-  if(!is.na(match("interval",names(fileListdf)))) {
+  if(!is.na(pmatch("interval",names(fileListdf)))) {
     if (any(!is.na(fileListdf$intervals))) {
-      keep <- !is.na(fileListdf$interval) & fileListdf$interval>curTime
-      fileListdf$loadTime[keep] <- curTime + fileListdf$interval[keep]
+      keep <- !is.na(fileListdf$interval)
+      fileListdf$loadTimes[keep] <- curTime + fileListdf$interval[keep]
     }
   }
 
@@ -262,7 +262,7 @@ simLoad = function(sim = NULL, stackName = NULL, filename = NULL) {
   fileListdf = fileListdf[keepOnFileList,]
 
   # If filename had been provided, then no need to return sim object, just report files loaded
-  if (is.null(filename)) {
+  if (!usedFileList) {
     if(is(fileList, "list")) {
       simParams(sim)$fileList <- c(as.list(fileListdf),args=args[keepOnFileList])
     } else if (is(fileList, "data.frame")) {
@@ -271,14 +271,13 @@ simLoad = function(sim = NULL, stackName = NULL, filename = NULL) {
       error("fileList must be either a list or data.frame")
     }
     if(nrow(fileListdf)>0)
-      sim <- scheduleEvent(sim, min(fileList$loadTime), "load", "init")
-    return(sim)
-  } else {
-    return(invisible())
+      sim <- scheduleEvent(sim, min(fileListdf$loadTimes,na.rm=TRUE),
+                           "load", "init")
   }
 #   } else {
 #       error("Need to specify either a sim object or a filename")
 #   }
+  return(sim)
 
 }
 
@@ -288,8 +287,18 @@ simLoad = function(sim = NULL, stackName = NULL, filename = NULL) {
   "csv", "read.csv", "utils" ,
   "shp", "readOGR","rgdal",
   "txt", "read.table","utils",
-  "asc", "raster","raster",
-  "rds", "readRDS", "base")))
+  "asc", "raster","raster")))
 colnames(.fileExtensions) = c("exts","funs","package")
 #setkey(.fileExtensions,exts)
 
+#' Read raster to memory
+#'
+#' Calls the raster function, and then the getValues function to force the file to memory.
+#'
+#' @param x an object passed directly to the function raster, like a string of a filename.
+#' @export
+rasterToMemory <- function(x, ...){
+  rast <- raster(x, ...)
+  rast[] <- getValues(rast)
+  return(rast)
+}
