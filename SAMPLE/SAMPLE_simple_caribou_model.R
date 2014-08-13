@@ -87,32 +87,33 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE
                                   full.names=TRUE,pattern= "tif"),
                       stringsAsFactors=FALSE)
 
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+devtools::dev_mode(TRUE)
+
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                             fileList=fileList,
+#                             fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 1),
-                              habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
-                                             savePath=file.path("output", "habitat"),
+                             randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
+                                            savePath=file.path("output", "randomLandscapes"),
                                              plotInitialTime = 0, plotInterval=1e3,
                                              saveInitialTime = 3, saveInterval=100,
                                              interval=0, startTime=0),
-                             caribou=list(N=1e2, toSave=c("caribou"),raster="DEM",
-                                          savePath=file.path("output","caribou"),
+                             caribouMovement=list(N=1e2, toSave=c("caribou"),
+                                          savePath=file.path("output","caribouMovement"),
                                           saveInitialTime = 3, saveInterval=100,
                                           plotInitialTime = 1.01, plotInterval=1,
                                           interval=1, startTime=0),
-                             fire=list(nFires = 1e1, spreadprob=0.225, raster="DEM",
+                             fireSpread=list(nFires = 1e1, spreadprob=0.225,
                                         persistprob=0, its=1e6,
                                         plotInitialTime = 0.1, plotInterval=10,
                                         toSave=c("Fires"),
-                                        savePath = file.path("output","fires"),
+                                        savePath = file.path("output","fireSpread"),
                                         saveInterval = 100, interval = 10, startTime=0)
                              ),
-#                 modules=list("habitat", "fire", "caribou"),
-                modules=list("caribou", "fire"),
+#                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                modules=list("caribouMovement", "fireSpread"),
 #                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/inst/sampleModules"))
 
