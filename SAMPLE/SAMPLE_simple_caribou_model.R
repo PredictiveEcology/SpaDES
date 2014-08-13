@@ -97,9 +97,15 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                              .progress=list(graphical=FALSE, interval = 1),
                              randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "randomLandscapes"),
+<<<<<<< HEAD
                                              plotInitialTime = 0, plotInterval=1e3,
                                              saveInitialTime = 3, saveInterval=100,
                                              interval=0, startTime=0),
+=======
+                                            plotInitialTime = 0, plotInterval=1e3,
+                                            saveInitialTime = 3, saveInterval=100,
+                                            interval=0, startTime=0),
+>>>>>>> c426f9407f4a7b1223475ff11e43fc9df251cf26
                              caribouMovement=list(N=1e2, toSave=c("caribou"),
                                           savePath=file.path("output","caribouMovement"),
                                           saveInitialTime = 3, saveInterval=100,
