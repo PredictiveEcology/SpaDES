@@ -104,7 +104,7 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(.checkpoint=list(interval=10, file="chkpnt.RData")),
-                 modules=list("habitat"),
+                 modules=list("randomLandscapes"),
                  path="SAMPLE"
 )
 
@@ -122,7 +122,7 @@ Schedule updates to the simulation progress bar.
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(.progress=list(graphical=FALSE, interval=10)),
-                 modules=list("habitat"),
+                 modules=list("randomLandscapes"),
                  path="SAMPLE"
 )
 
@@ -162,26 +162,26 @@ Saving objects to file can be done by passing the appropriate arguments as param
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
                    .loadFileList=data.frame(files=dir(pattern="tif"), stringsAsFactors=FALSE),
-                   habitat=list(nx=1e2, ny=1e2,
+                   randomLandscapes=list(nx=1e2, ny=1e2,
                                 .saveObjects=c("habitat"),
-                                .savePath=file.path("output", "habitat"),
+                                .savePath=file.path("output", "randomLandscapes"),
                                 .saveInitialTime=0,
                                 .saveInterval=10),
                    ),
-                 modules=list("habitat"),
+                 modules=list("randomLandscapes"),
                  path="SAMPLE"
 )
 
 # retrieve the load and save params from the simulation object
 simParams(mySim)$.loadFileList
-simParams(mySim)$habitat$.saveObjects
-simParams(mySim)$habitat$.savePath
-simParams(mySim)$habitat$.saveInitialTime
-simParams(mySim)$habitat$.saveInterval
+simParams(mySim)$randomLandscapes$.saveObjects
+simParams(mySim)$randomLandscapes$.savePath
+simParams(mySim)$randomLandscapes$.saveInitialTime
+simParams(mySim)$randomLandscapes$.saveInterval
 
 # schedule a recurring save event [WITHIN A MODULE]
-nextSave <- simCurrentTime(sim) + simParams(sim)$habitat$.saveInterval
-sim <- scheduleEvent(sim, nextSave, "habitat", "save")
+nextSave <- simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval
+sim <- scheduleEvent(sim, nextSave, "randomLandscapes", "save")
 @
 
 \newpage
@@ -226,20 +226,20 @@ Plotting events can also be scheduled similarly to save events, by passing modul
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
-                   habitat=list(nx=1e2, ny=1e2,
+                   randomLandscapes=list(nx=1e2, ny=1e2,
                                 .plotInitialTime=0, .plotInterval=1)
                    ),
-                 modules=list("habitat"),
+                 modules=list("randomLandscapes"),
                  path="SAMPLE"
 )
 
 # retrieve the plotting params from the simulation object
-simParams(mySim)$habitat$.plotInitialTime
-simParams(mySim)$habitat$.plotInterval
+simParams(mySim)$randomLandscapes$.plotInitialTime
+simParams(mySim)$randomLandscapes$.plotInterval
 
 # schedule a recurring save event [WITHIN A MODULE]
-nextPlot <- simCurrentTime(sim) + simParams(sim)$habitat$.plotInterval
-sim <- scheduleEvent(sim, nextPlot, "habitat", "save")
+nextPlot <- simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval
+sim <- scheduleEvent(sim, nextPlot, "randomLandscapes", "save")
 @
 
 \subsubsection{Saving}
@@ -259,7 +259,7 @@ See Section \ref{load-and-save-modules} above for more details.
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
 <<randomLandscapes, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../SAMPLE/habitat.R"), echo=TRUE, max.deparse.length=10000)
+source(normalizePath("../sampleModules/randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -267,7 +267,7 @@ source(normalizePath("../SAMPLE/habitat.R"), echo=TRUE, max.deparse.length=10000
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
 <<fireSpread, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../SAMPLE/fire.R"), echo=TRUE, max.deparse.length=10000)
+source(normalizePath("../sampleModules/fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -275,7 +275,7 @@ source(normalizePath("../SAMPLE/fire.R"), echo=TRUE, max.deparse.length=10000)
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
 <<caribouMovement, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../SAMPLE/caribou.R"), echo=TRUE, max.deparse.length=10000)
+source(normalizePath("../sampleModules/caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \end{document}

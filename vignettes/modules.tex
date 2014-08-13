@@ -106,7 +106,7 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 > # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
 > mySim <- simInit(times=list(start=0.0, stop=100),
 +                  params=list(.checkpoint=list(interval=10, file="chkpnt.RData")),
-+                  modules=list("habitat"),
++                  modules=list("randomLandscapes"),
 +                  path="SAMPLE"
 + )
 > # retrieve the checkpoint params from the simulation object
@@ -125,7 +125,7 @@ Schedule updates to the simulation progress bar.
 > # initialize a new simulation, setting the progress parameters
 > mySim <- simInit(times=list(start=0.0, stop=100),
 +                  params=list(.progress=list(graphical=FALSE, interval=10)),
-+                  modules=list("habitat"),
++                  modules=list("randomLandscapes"),
 +                  path="SAMPLE"
 + )
 > # retrieve the checkpoint params from the simulation object
@@ -166,24 +166,24 @@ Saving objects to file can be done by passing the appropriate arguments as param
 > mySim <- simInit(times=list(start=0.0, stop=100),
 +                  params=list(
 +                    .loadFileList=data.frame(files=dir(pattern="tif"), stringsAsFactors=FALSE),
-+                    habitat=list(nx=1e2, ny=1e2,
++                    randomLandscapes=list(nx=1e2, ny=1e2,
 +                                 .saveObjects=c("habitat"),
-+                                 .savePath=file.path("output", "habitat"),
++                                 .savePath=file.path("output", "randomLandscapes"),
 +                                 .saveInitialTime=0,
 +                                 .saveInterval=10),
 +                    ),
-+                  modules=list("habitat"),
++                  modules=list("randomLandscapes"),
 +                  path="SAMPLE"
 + )
 > # retrieve the load and save params from the simulation object
 > simParams(mySim)$.loadFileList
-> simParams(mySim)$habitat$.saveObjects
-> simParams(mySim)$habitat$.savePath
-> simParams(mySim)$habitat$.saveInitialTime
-> simParams(mySim)$habitat$.saveInterval
+> simParams(mySim)$randomLandscapes$.saveObjects
+> simParams(mySim)$randomLandscapes$.savePath
+> simParams(mySim)$randomLandscapes$.saveInitialTime
+> simParams(mySim)$randomLandscapes$.saveInterval
 > # schedule a recurring save event [WITHIN A MODULE]
-> nextSave <- simCurrentTime(sim) + simParams(sim)$habitat$.saveInterval
-> sim <- scheduleEvent(sim, nextSave, "habitat", "save")
+> nextSave <- simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval
+> sim <- scheduleEvent(sim, nextSave, "randomLandscapes", "save")
 \end{Sinput}
 \end{Schunk}
 
@@ -232,18 +232,18 @@ Plotting events can also be scheduled similarly to save events, by passing modul
 > # initialize a new simulation, setting the load and save parameters
 > mySim <- simInit(times=list(start=0.0, stop=100),
 +                  params=list(
-+                    habitat=list(nx=1e2, ny=1e2,
++                    randomLandscapes=list(nx=1e2, ny=1e2,
 +                                 .plotInitialTime=0, .plotInterval=1)
 +                    ),
-+                  modules=list("habitat"),
++                  modules=list("randomLandscapes"),
 +                  path="SAMPLE"
 + )
 > # retrieve the plotting params from the simulation object
-> simParams(mySim)$habitat$.plotInitialTime
-> simParams(mySim)$habitat$.plotInterval
+> simParams(mySim)$randomLandscapes$.plotInitialTime
+> simParams(mySim)$randomLandscapes$.plotInterval
 > # schedule a recurring save event [WITHIN A MODULE]
-> nextPlot <- simCurrentTime(sim) + simParams(sim)$habitat$.plotInterval
-> sim <- scheduleEvent(sim, nextPlot, "habitat", "save")
+> nextPlot <- simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval
+> sim <- scheduleEvent(sim, nextPlot, "randomLandscapes", "save")
 \end{Sinput}
 \end{Schunk}
 
@@ -265,31 +265,31 @@ See Section \ref{load-and-save-modules} above for more details.
 
 \begin{Schunk}
 \begin{Soutput}
-> doEvent.habitat <- function(sim, eventTime, eventType, 
-+     debug = FALSE) {
+> doEvent.randomLandscapes <- function(sim, eventTime, 
++     eventType, debug = FALSE) {
 +     if (eventType == "init") {
 +         depends <- "NONE"
 +         if (reloadModuleLater(sim, depends)) {
-+             sim <- scheduleEvent(sim, currentTime(sim), "habitat", 
++             sim <- scheduleEvent(sim, currentTime(sim), "randomLandscapes", 
 +                 "init")
 +         }
 +         else {
-+             sim <- habitatInit(sim)
++             sim <- randomLandscapesInit(sim)
 +         }
-+         sim <- scheduleEvent(sim, simParams(sim)$habitat$plotFreq, 
-+             "habitat", "plot")
-+         sim <- scheduleEvent(sim, simParams(sim)$habitat$saveFreq, 
-+             "habitat", "save")
++         sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$plotInitialTime, 
++             "randomLandscapes", "plot")
++         sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$saveInitialTime, 
++             "randomLandscapes", "save")
 +     }
 +     else if (eventType == "plot") {
 +         simPlot(habitat, col = cols[6:2])
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$plotFreq, 
-+             "habitat", "plot")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$plotInterval, 
++             "randomLandscapes", "plot")
 +     }
 +     else if (eventType == "save") {
 +         simSave(sim)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$saveFreq, 
-+             "habitat", "save")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$saveInterval, 
++             "randomLandscapes", "save")
 +     }
 +     else {
 +         warning(paste("Undefined event type: '", simEvents(sim)[1, 
@@ -299,11 +299,11 @@ See Section \ref{load-and-save-modules} above for more details.
 +     return(sim)
 + }
 
-> habitatInit <- function(sim) {
+> randomLandscapesInit <- function(sim) {
 +     pkgs <- list("raster")
 +     loadPackages(pkgs)
-+     nx <- simParams(sim)$habitat$nx
-+     ny <- simParams(sim)$habitat$ny
++     nx <- simParams(sim)$randomLandscapes$nx
++     ny <- simParams(sim)$randomLandscapes$ny
 +     template <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, 
 +         ymn = -ny/2, ymx = ny/2)
 +     speedup <- nx/50
@@ -323,7 +323,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +         percentPine))
 +     names(habitat) <<- c("DEM", "forestAge", "forestCover", "habitatQuality", 
 +         "percentPine")
-+     simLoaded(sim) <- append(simLoaded(sim), "habitat")
++     simLoaded(sim) <- append(simLoaded(sim), "randomLandscapes")
 +     return(sim)
 + }
 \end{Soutput}
@@ -335,39 +335,49 @@ See Section \ref{load-and-save-modules} above for more details.
 
 \begin{Schunk}
 \begin{Soutput}
-> doEvent.fire <- function(sim, eventTime, eventType, 
+> doEvent.fireSpread <- function(sim, eventTime, eventType, 
 +     debug = FALSE) {
 +     if (eventType == "init") {
-+         depends <- "habitat"
++         depends <- "NONE"
 +         if (reloadModuleLater(sim, depends)) {
-+             sim <- scheduleEvent(sim, simCurrentTime(sim), "fire", 
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", 
 +                 "init")
 +         }
 +         else {
-+             sim <- fireInit(sim)
-+             sim <- scheduleEvent(sim, simParams(sim)$fire$startTime, 
-+                 "fire", "burn")
-+             sim <- scheduleEvent(sim, simParams(sim)$fire$plotFreq, 
-+                 "fire", "plot")
-+             sim <- scheduleEvent(sim, simParams(sim)$fire$saveFreq, 
-+                 "fire", "save")
++             sim <- fireSpreadInit(sim)
++             sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, 
++                 "fireSpread", "burn")
++             sim <- scheduleEvent(sim, simParams(sim)$fireSpread$plotInitialTime, 
++                 "fireSpread", "plot.init")
++             sim <- scheduleEvent(sim, simParams(sim)$fireSpread$saveInterval, 
++                 "fireSpread", "save")
 +         }
 +     }
 +     else if (eventType == "burn") {
-+         sim <- fireBurn(sim)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$interval, 
-+             "fire", "burn")
++         sim <- fireSpreadBurn(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$interval, 
++             "fireSpread", "burn")
 +     }
-+     else if (eventType == "plot") {
++     else if (eventType == "plot.init") {
++         habitat <<- stack(DEM, forestAge, forestCover, habitatQuality, 
++             percentPine)
++         names(habitat) <<- c("DEM", "forestAge", "forestCover", 
++             "habitatQuality", "percentPine")
 +         simPlot(stack(habitat, Fires), add = FALSE, col = cols[c(2:5, 
 +             3, 2)], add.legend = TRUE)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$plotFreq, 
-+             "fire", "plot")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, 
++             "fireSpread", "plot")
++     }
++     else if (eventType == "plot") {
++         simPlot(Fires, add = TRUE, on.which.to.plot = 6, col = cols[[2]], 
++             add.legend = TRUE, delete.previous = FALSE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, 
++             "fireSpread", "plot")
 +     }
 +     else if (eventType == "save") {
 +         simSave(sim)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fire$saveFreq, 
-+             "fire", "save")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$saveInterval, 
++             "fireSpread", "save")
 +     }
 +     else {
 +         warning(paste("Undefined event type: '", simEvents(sim)[1, 
@@ -377,23 +387,24 @@ See Section \ref{load-and-save-modules} above for more details.
 +     return(sim)
 + }
 
-> fireInit <- function(sim) {
+> fireSpreadInit <- function(sim) {
 +     pkgs <- list("raster", "RColorBrewer")
 +     loadPackages(pkgs)
 +     Fires <<- raster(extent(habitat), ncol = ncol(habitat), nrow = nrow(habitat), 
 +         vals = 0)
 +     names(Fires) <<- "Fires"
 +     Fires[] <<- 0
-+     simLoaded(sim) <- append(simLoaded(sim), "fire")
++     simLoaded(sim) <- append(simLoaded(sim), "fireSpread")
 +     return(sim)
 + }
 
-> fireBurn <- function(sim) {
+> fireSpreadBurn <- function(sim) {
 +     Fires <<- spread(habitat[[1]], loci = as.integer(sample(1:ncell(habitat), 
-+         simParams(sim)$fire$nFires)), spreadProb = simParams(sim)$fire$spreadprob, 
-+         persistance = simParams(sim)$fire$persistprob, mapFireID = TRUE, 
-+         mask = NULL, maxSize = 1e+08, directions = 8, iterations = simParams(sim)$fire$its, 
-+         plot.it = FALSE, mapID = TRUE)
++         simParams(sim)$fireSpread$nFires)), spreadProb = simParams(sim)$fireSpread$spreadprob, 
++         persistance = simParams(sim)$fireSpread$persistprob, 
++         mapFireID = TRUE, mask = NULL, maxSize = 1e+08, directions = 8, 
++         iterations = simParams(sim)$fireSpread$its, plot.it = FALSE, 
++         mapID = TRUE)
 +     names(Fires) <<- "Fires"
 +     return(sim)
 + }
@@ -406,38 +417,44 @@ See Section \ref{load-and-save-modules} above for more details.
 
 \begin{Schunk}
 \begin{Soutput}
-> doEvent.caribou <- function(sim, eventTime, eventType, 
-+     debug = FALSE) {
+> doEvent.caribouMovement <- function(sim, eventTime, 
++     eventType, debug = FALSE) {
 +     if (eventType == "init") {
-+         depends <- c("habitat")
++         depends <- "NONE"
 +         if (reloadModuleLater(sim, depends)) {
-+             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", 
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", 
 +                 "init")
 +         }
 +         else {
-+             sim <- caribouInit(sim)
-+             sim <- scheduleEvent(sim, 1, "caribou", "move")
-+             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", 
-+                 "plot")
-+             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", 
-+                 "save")
++             sim <- caribouMovementInit(sim)
++             sim <- scheduleEvent(sim, 1, "caribouMovement", "move")
++             sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$plotInitialTime, 
++                 "caribouMovement", "plot.init")
++             sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$saveInitialTime, 
++                 "caribouMovement", "save")
 +         }
 +     }
 +     else if (eventType == "move") {
-+         sim <- caribouMove(sim)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + 1, "caribou", 
++         sim <- caribouMovementMove(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + 1, "caribouMovement", 
 +             "move")
++     }
++     else if (eventType == "plot.init") {
++         simPlot(caribou, on.which.to.plot = "forestAge", add = TRUE, 
++             pch = 19, gp = gpar(cex = 0.01), delete.previous = TRUE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$plotInterval, 
++             "caribouMovement", "plot")
 +     }
 +     else if (eventType == "plot") {
 +         simPlot(caribou, on.which.to.plot = "forestAge", add = TRUE, 
 +             pch = 19, gp = gpar(cex = 0.01), delete.previous = TRUE)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$plotFreq, 
-+             "caribou", "plot")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$plotInterval, 
++             "caribouMovement", "plot")
 +     }
 +     else if (eventType == "save") {
 +         simSave(sim)
-+         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$saveFreq, 
-+             "caribou", "save")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$saveInterval, 
++             "caribouMovement", "save")
 +     }
 +     else {
 +         warning(paste("Undefined event type: '", simEvents(sim)[1, 
@@ -447,12 +464,12 @@ See Section \ref{load-and-save-modules} above for more details.
 +     return(sim)
 + }
 
-> caribouInit <- function(sim) {
+> caribouMovementInit <- function(sim) {
 +     pkgs <- list("raster", "grid")
 +     loadPackages(pkgs)
 +     yrange <- c(ymin(habitat), ymax(habitat))
 +     xrange <- c(xmin(habitat), xmax(habitat))
-+     N <- simParams(sim)$caribou$N
++     N <- simParams(sim)$caribouMovement$N
 +     IDs <- as.character(1:N)
 +     sex <- sample(c("female", "male"), N, replace = TRUE)
 +     age <- round(rnorm(N, mean = 8, sd = 3))
@@ -463,11 +480,11 @@ See Section \ref{load-and-save-modules} above for more details.
 +     caribou <<- SpatialPointsDataFrame(coords = starts, data = data.frame(prevX, 
 +         prevY, sex, age))
 +     row.names(caribou) <<- IDs
-+     simLoaded(sim) <- append(simLoaded(sim), "caribou")
++     simLoaded(sim) <- append(simLoaded(sim), "caribouMovement")
 +     return(sim)
 + }
 
-> caribouMove <- function(sim) {
+> caribouMovementMove <- function(sim) {
 +     caribou <<- crop(caribou, habitat)
 +     if (length(caribou) == 0) 
 +         stop("All agents are off map")

@@ -1,11 +1,10 @@
 ################################################
 ###
-### HABITAT MODULE
-### - create random habitat
+### randomLandscapes MODULE
 ###
 ###############################################
 
-doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies
         # if a required module isn't loaded yet,
@@ -13,26 +12,26 @@ doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
         depends <- "NONE" # list module names here
 
         if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, currentTime(sim), "habitat", "init")
+            sim <- scheduleEvent(sim, currentTime(sim), "randomLandscapes", "init")
         } else {
-            sim <- habitatInit(sim)
+            sim <- randomLandscapesInit(sim)
         }
-        sim <- scheduleEvent(sim, simParams(sim)$habitat$plotInitialTime, "habitat", "plot")
-        sim <- scheduleEvent(sim, simParams(sim)$habitat$saveInitialTime, "habitat", "save")
+        sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$plotInitialTime, "randomLandscapes", "plot")
+        sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$saveInitialTime, "randomLandscapes", "save")
 
     } else if (eventType=="plot") {
       # do stuff for this event
       simPlot(habitat, col=cols[6:2])
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$plotInterval, "habitat", "plot")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$plotInterval, "randomLandscapes", "plot")
     } else if (eventType=="save") {
 
       # do stuff for this event
       simSave(sim)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$habitat$saveInterval, "habitat", "save")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$saveInterval, "randomLandscapes", "save")
 
     } else {
       warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
@@ -41,15 +40,15 @@ doEvent.habitat <- function(sim, eventTime, eventType, debug=FALSE) {
     return(sim)
 }
 
-habitatInit <- function(sim) {
+randomLandscapesInit <- function(sim) {
     ### load any required packages
     pkgs <- list("raster") # list required packages here
     loadPackages(pkgs)
 
-    ### initialize habitat
+    ### initialize randomLandscapes
     # Give dimensions of dummy raster
-    nx <- simParams(sim)$habitat$nx
-    ny <- simParams(sim)$habitat$ny
+    nx <- simParams(sim)$randomLandscapes$nx
+    ny <- simParams(sim)$randomLandscapes$ny
     template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
     speedup <- nx/5e1
     # Make dummy maps for testing of models
@@ -71,14 +70,8 @@ habitatInit <- function(sim) {
 
     names(habitat) <<- c("DEM","forestAge", "forestCover", "habitatQuality", "percentPine")
 
-    ### add map to outputs list
-#    outputs <- list(caribou=list(), habitat=list())
-#    outputs$habitat[["map"]] <<- hab
-
-#    saveRDS(hab, "../data/habitat.rds")
-
     # last thing to do is add module name to the loaded list
-    simLoaded(sim) <- append(simLoaded(sim), "habitat")
+    simLoaded(sim) <- append(simLoaded(sim), "randomLandscapes")
 
     return(sim)
 }

@@ -1,56 +1,56 @@
 ################################################
 ###
-### CARIBOU MODULE
-### - requires habitat map from habitat module
+### caribouMovement MODULE
+### - requires `habitat` map from randomLandscapes module
 ### - create a bunch of caribou agents
 ### - move the caribou around the map
 ###
 ###############################################
 
-doEvent.caribou <- function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies:
-        depends <- "NONE"#c("habitat") # list package names here
+        depends <- "NONE"#c("randomLandscapes") # list package names here
 
         # if a required module isn't loaded yet,
         # reschedule this module init for later
         if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, simCurrentTime(sim), "caribou", "init")
+            sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
         } else {
             # do stuff for this event
-            sim <- caribouInit(sim)
+            sim <- caribouMovementInit(sim)
 
             # schedule the next event
-            sim <- scheduleEvent(sim, 1.00, "caribou", "move")
-            sim <- scheduleEvent(sim, simParams(sim)$caribou$plotInitialTime, "caribou", "plot.init")
-            sim <- scheduleEvent(sim, simParams(sim)$caribou$saveInitialTime, "caribou", "save")
+            sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
+            sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$plotInitialTime, "caribouMovement", "plot.init")
+            sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$saveInitialTime, "caribouMovement", "save")
         }
     } else if (eventType=="move") {
         # do stuff for this event
-        sim <- caribouMove(sim)
+        sim <- caribouMovementMove(sim)
 
         # schedule the next event
-        sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribou", "move")
+        sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribouMovement", "move")
     } else if (eventType=="plot.init") {
       # do stuff for this event
       simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
               delete.previous=TRUE)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$plotInterval, "caribou", "plot")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$plotInterval, "caribouMovement", "plot")
     } else if (eventType=="plot") {
       # do stuff for this event
       simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
               delete.previous=TRUE)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$plotInterval, "caribou", "plot")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$plotInterval, "caribouMovement", "plot")
     } else if (eventType=="save") {
       # do stuff for this event
       simSave(sim)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribou$saveInterval, "caribou", "save")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$saveInterval, "caribouMovement", "save")
 
     } else {
       warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
@@ -59,7 +59,7 @@ doEvent.caribou <- function(sim, eventTime, eventType, debug=FALSE) {
     return(sim)
 }
 
-caribouInit <- function(sim) {
+caribouMovementInit <- function(sim) {
     ### load any required packages
     pkgs <- list("raster","grid") # list required packages here
     loadPackages(pkgs)
@@ -74,7 +74,7 @@ caribouInit <- function(sim) {
 #   initialCoords <- probInit(habitat, al)
 
     # initialize caribou agents
-    N <- simParams(sim)$caribou$N
+    N <- simParams(sim)$caribouMovement$N
     IDs <- as.character(1:N)
     sex <- sample(c("female", "male"), N, replace=TRUE)
     age <- round(rnorm(N, mean=8, sd=3))
@@ -88,26 +88,20 @@ caribouInit <- function(sim) {
                                        data=data.frame(prevX, prevY, sex, age))
     row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
 
-    #simPlot(caribou, add=TRUE, pch=".")
-
-    # save output list to track caribou over time
-#    outputs$caribou[[1]] <<- caribou
-#    saveRDS(caribou, paste("../data/caribou_0.rds"))
-
     # last thing to do is add module name to the loaded list
-    simLoaded(sim) <- append(simLoaded(sim), "caribou")
+    simLoaded(sim) <- append(simLoaded(sim), "caribouMovement")
     return(sim)
 }
 
-caribouMove <- function(sim) {
-  #crop any caribou that went off maps
+caribouMovementMove <- function(sim) {
+  # crop any caribou that went off maps
   caribou <<- crop(caribou, habitat)
   if(length(caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
   ex <- habitat[["habitatQuality"]][caribou]
 
-  #step length is a function of current cell's habitat quality
+  # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
 
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
@@ -120,5 +114,5 @@ caribouMove <- function(sim) {
 #     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
 #
 
-    return(sim) # technically, sim isn't updated in this function
+    return(sim)
 }
