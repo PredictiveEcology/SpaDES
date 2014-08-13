@@ -88,15 +88,17 @@ dev_mode(TRUE)
 install(build_vignettes=FALSE) # build_vignette currently fails
 library("SpaDES", lib.loc=getOption("devtools.path"))
 
-fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
-                                  full.names=TRUE,pattern= "tif"),
+fileList = data.frame(files = dir(file.path(find.package("SpaDES",
+                                                         lib.loc=getOption("devtools.path"),
+                                                         quiet=FALSE),"maps"),
+                                  full.names=TRUE, pattern= "tif"),
                       stringsAsFactors=FALSE)
 
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-#                             fileList=fileList,
+                             fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 1),
                              randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "randomLandscapes"),

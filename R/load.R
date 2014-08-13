@@ -280,7 +280,7 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
 
 }
 
-#' File exetnsions map
+#' File extensions map
 #'
 #' How to load various types of files in R.
 #'

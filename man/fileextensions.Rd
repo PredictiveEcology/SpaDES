@@ -2,7 +2,7 @@
 \docType{data}
 \name{.fileExtensions}
 \alias{.fileExtensions}
-\title{File exetnsions map}
+\title{File extensions map}
 \format{\preformatted{'data.frame':	6 obs. of  3 variables:
  $ exts   : Factor w/ 6 levels "asc","csv","png",..: 5 3 2 4 6 1
  $ funs   : Factor w/ 4 levels "raster","read.csv",..: 1 1 2 4 3 1
