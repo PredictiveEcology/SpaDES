@@ -95,12 +95,13 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE
                                   full.names=TRUE,pattern= "tif"),
                       stringsAsFactors=FALSE)
 
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+devtools::dev_mode(TRUE)
+
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                             fileList=fileList,
+#                             fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 1),
                              randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "randomLandscapes"),
