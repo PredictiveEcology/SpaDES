@@ -2,6 +2,7 @@
 \documentclass{article}
 
 %%% latex packages
+\usepackage[T1]{fontenc}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
@@ -60,7 +61,7 @@ Lorem ipsum ...
 \subsection{Module overview}
 
 \paragraph{}
-\texttt{SpaDES} modules are event-based, meaning that different actions (calculations) are performed on data objects based on the order of scheduled events. Basically, a module consists of a collection of events which are scehduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object.
+\texttt{SpaDES} modules are event-based, meaning that different actions are performed on data objects based on the order of scheduled events. Basically, a module consists of a collection of events which are scehduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects.
 
 \subsection{Events}
 
@@ -71,15 +72,15 @@ Lorem ipsum ...
 Lorem ipsum ...
 
 \paragraph{Module event dependencies}
-Typically, each module schedules its own events (e.g., a "fire" module may schedule "burn" events) and only uses its own data objects. Modules that behave in this way are indepedent of each other, and this is generally the prefered way to design and implement modules. A module that schedules events from another module is said to depend on that module. Module event dependencies compilcate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
+Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are indepedent of each other, and this is generally the prefered way to design and implement modules. A module that schedules events from another module is said to depend on that module. Module event dependencies compilcate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
 
 \subsection{Objects}
 
 \paragraph{}
-As you build your module / simulation, you can use any of \textsf{R}'s data types to store your objects / data. In particular, matrices (including vectors) and lists work well for this purpose because they are pass-by-reference, which reduces your model's memory footprint and speeds up your codes execution. Other useful datatypes include Raster* and SpatialPoints* objects.
+As you build your modules for your simulation, you can use any of \textsf{R}'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because as of \textsf{R} version 3.1 they are more efficient and reduce your model's memory footprint and speeds up your codes execution. Other useful datatypes include \texttt{Raster*} and \texttt{SpatialPoints*} objects.
 
 \paragraph{Global objects}
-Use \texttt{<<-} to assign global objects to reduce copying large objects (such as maps), which slows model execution.
+Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global objects to reduce copying large objects (such as maps), which slows model execution.
 
 \paragraph{Module object dependencies}
 As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. A module that relies on a global simulation data object that previously used by another module is said to be dependent on that other module. It is often useful to develop collections of modules that interact indirectly and are dependent in this way. Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
@@ -174,26 +175,26 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 > heading(SpatialPoints(cbind(x=prevX,y=prevY)),caribou)
 \end{Sinput}
 \begin{Soutput}
-    Alice       Bob     Clark     Daisy      Eric     Franz     Gabby    Hayley 
-236.57384 336.60534  31.42194 168.35392  86.49397 124.05078 135.27275 251.64870 
-     Igor      Jane 
-354.26551 164.04291 
+     Alice        Bob      Clark      Daisy       Eric      Franz      Gabby 
+140.446399  39.913894 174.958905 264.076498 322.294982   8.959608 111.902569 
+    Hayley       Igor       Jane 
+149.453927  29.167036 311.408063 
 \end{Soutput}
 \begin{Sinput}
 > coordinates(caribou)
 \end{Sinput}
 \begin{Soutput}
-                 x          y
-Alice  -21.5983181  16.925297
-Bob     11.0121289  28.644292
-Clark    2.4297749  25.038203
-Daisy  -28.4593353   4.577429
-Eric    17.7593882  -6.670523
-Franz   -1.6272231 -13.376500
-Gabby   -6.8601953 -13.865888
-Hayley   2.8888558 -20.934944
-Igor   -12.6492128   5.904563
-Jane    -0.7954287  25.984343
+                x          y
+Alice  -27.398455 -25.858994
+Bob      3.361798 -24.731074
+Clark  -12.234190  -6.151791
+Daisy    4.118903 -18.705284
+Eric    -2.610590  20.954445
+Franz  -11.545520  12.933164
+Gabby  -12.321908 -16.792921
+Hayley  10.939232 -31.669876
+Igor    20.304826   8.956786
+Jane    22.960244   9.372123
 \end{Soutput}
 \begin{Sinput}
 > ## conventional plotting method - agents don't plot properly when it is a raster stack
@@ -265,24 +266,24 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--41.494  -15.853   -3.368   11.554   31.601  
+-41.223  -18.171   -2.712   10.667   32.786  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  6.829804   0.019535 349.627  < 2e-16 ***
-fire1       -1.494918   0.060670 -24.640  < 2e-16 ***
-pine        -0.011484   0.003715  -3.091  0.00199 ** 
-fire1:pine  -0.080735   0.011917  -6.775 1.25e-11 ***
+(Intercept)  6.390328   0.022770 280.648   <2e-16 ***
+fire1       -1.166615   0.047359 -24.633   <2e-16 ***
+pine         0.056146   0.003980  14.107   <2e-16 ***
+fire1:pine  -0.017168   0.008409  -2.042   0.0412 *  
 ---
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 13814.3  on 18  degrees of freedom
-Residual deviance:  8027.2  on 15  degrees of freedom
-AIC: 8162.7
+    Null deviance: 11800  on 19  degrees of freedom
+Residual deviance:  8312  on 16  degrees of freedom
+AIC: 8464.8
 
-Number of Fisher Scoring iterations: 6
+Number of Fisher Scoring iterations: 5
 \end{Soutput}
 \end{Schunk}
 

@@ -2,6 +2,7 @@
 \documentclass{article}
 
 %%% latex packages
+\usepackage[T1]{fontenc}
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
@@ -79,29 +80,41 @@ Lorem ipsum ...
 \subsection{Module overview}
 
 \paragraph{}
-\texttt{SpaDES} modules are event-based, meaning that different actions (calculations) are performed on data objects based on the order of scheduled events. Basically, a module consists of a collection of events which are scehduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object.
+\texttt{SpaDES} modules are event-based, meaning that different actions are performed on data objects based on the order of scheduled events. Basically, a module consists of a collection of events which are scehduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects.
 
 \subsection{Events}
 
-\paragraph{Simulation event list}
+\subsubsection{Simulation event list}
 Lorem ipsum ...
 
-\paragraph{Module events}
+\subsubsection{Module events}
 Lorem ipsum ...
 
-\paragraph{Module event dependencies}
-Typically, each module schedules its own events (e.g., a "fire" module may schedule "burn" events) and only uses its own data objects. Modules that behave in this way are indepedent of each other, and this is generally the prefered way to design and implement modules. A module that schedules events from another module is said to depend on that module. Module event dependencies compilcate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
+\subsubsection{Dependencies}
+Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are indepedent of each other, and this is generally the prefered way to design and implement modules.
+
+\paragraph{}
+For more information about module dependencies please see the \texttt{modules} vignette.
 
 \subsection{Objects}
 
+\subsubsection{Data types}
+
 \paragraph{}
-As you build your module / simulation, you can use any of \textsf{R}'s data types to store your objects / data. In particular, matrices (including vectors) and lists work well for this purpose because they are pass-by-reference, which reduces your model's memory footprint and speeds up your codes execution. Other useful datatypes include Raster* and SpatialPoints* objects.
+As you build your modules for your simulation, you can use any of \textsf{R}'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because as of \textsf{R} version 3.1 they are more efficient and reduce your model's memory footprint and speeds up your codes execution. Other useful datatypes include \texttt{Raster*} and \texttt{SpatialPoints*} objects.
 
-\paragraph{Global objects}
-Use \texttt{<<-} to assign global objects to reduce copying large objects (such as maps), which slows model execution.
+\subsubsection{Global objects}
 
-\paragraph{Module object dependencies}
-As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. A module that relies on a global simulation data object that previously used by another module is said to be dependent on that other module. It is often useful to develop collections of modules that interact indirectly and are dependent in this way. Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
+\paragraph{}
+Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global objects to reduce copying large objects (such as maps), which slows model execution.
+
+\subsubsection{Dependencies}
+
+\paragraph{}
+As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. A module that relies on a global simulation data object that is also used by another module is said to be dependent on that other module. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects.
+
+\paragraph{}
+For more information about module dependencies please see the \texttt{modules} vignette.
 
 \newpage
 
