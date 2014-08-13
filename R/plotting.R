@@ -26,6 +26,9 @@ dev <- function(x, ...) {
   while (dev.set(x)!=x) newPlot(...)
 }
 
+
+
+
 ##############################################################
 #' Open a new plotting window
 #'
@@ -490,3 +493,18 @@ setMethod("drawArrows",
             #           gp=gpar(),
 #            arrows(from$x, from$y, to$x, to$y, ..., length=length)
 })
+
+######################################################################
+#' A short selection of colour palettes that can be use
+#'
+#' Colour number 1 shows use of transparency
+#'
+#' @export
+.cols = list(
+ transparent.red=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
+ grey = RColorBrewer::brewer.pal(9,"Greys"),
+ spectral = RColorBrewer::brewer.pal(8,"Spectral"),
+ terrain = rev(terrain.colors(100)),
+ heat = heat.colors(10),
+ topo = topo.colors(10)
+)
