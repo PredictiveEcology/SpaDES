@@ -121,162 +121,161 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
 
   # check to see if fileList is empty, if it is, skip everything, return nothing
-  usedFileList = FALSE
-  if(!is.null(fileList)) {
-    usedFileList = TRUE
-    sim <- simInit(times=list(start=0.0, stop=1),
-                           params=list(
-                             fileList=fileList
-                           ),
-                           modules=list(),
-                           path="."
-    )
-  }
+  if(!is.null(simParams(sim)$fileList) | !is.null(fileList)) {
+    usedFileList = FALSE
+    if(!is.null(fileList)) {
+      usedFileList = TRUE
+      sim <- simInit(times=list(start=0.0, stop=1),
+                             params=list(
+                               fileList=fileList
+                             ),
+                             modules=list(),
+                             path="."
+      )
+    }
 
-  # Pull .fileExtensions into function so that scoping is faster
-  .fileExts = .fileExtensions
+    # Pull .fileExtensions into function so that scoping is faster
+    .fileExts = .fileExtensions
 
-  fileList <- simParams(sim)$fileList
-  curTime <- simCurrentTime(sim)
+    fileList <- simParams(sim)$fileList
+    curTime <- simCurrentTime(sim)
 
-  args <- fileList$args
-  # Check if args is a named list; the name may be concatenated with the "args", separated
-  #  with a ".". This will extract that
-  if ((length(args)>0) & (is.null(names(args)))) {
-    names(args) <- sapply(strsplit(names(fileList)[pmatch("args",names(fileList))],
-                                   ".",fixed=TRUE),function(x)x[-1])
-  }
+    args <- fileList$args
+    # Check if args is a named list; the name may be concatenated with the "args", separated
+    #  with a ".". This will extract that
+    if ((length(args)>0) & (is.null(names(args)))) {
+      names(args) <- sapply(strsplit(names(fileList)[pmatch("args",names(fileList))],
+                                     ".",fixed=TRUE),function(x)x[-1])
+    }
 
-  if(!is.null(args)) {
-    if(length(args)<length(fileList$file)) args = rep(args, length.out=length(fileList$file))
-  }
+    if(!is.null(args)) {
+      if(length(args)<length(fileList$file)) args = rep(args, length.out=length(fileList$file))
+    }
 
-  if (is(fileList, "list")) {
-    fileListdf <- do.call(data.frame, args=list(fileList[-pmatch("args",names(fileList))],
-                                                stringsAsFactors=FALSE))
-  } else {
-    fileListdf <- fileList
-  }
-
-  # fill in columns if they are missing. Assume loadTime = 0 if missing
-  if(is.na(pmatch("loadTime",names(fileListdf)))) {
-    fileListdf["loadTime"] <- 0
-  }
-
-  # only load those that are to be loaded at their loadTime
-  filesCurTime <- fileListdf[fileListdf$loadTime==curTime,]
-
-  fl <- filesCurTime$file
-
-  fl.list <- strsplit(basename(fl),".",fixed=TRUE)
-
-  # extract file extensions, to be used to determine which function to use
-  exts <- match(sapply(fl.list,function(x) x[length(x)]),.fileExts[,"exts"])
-
-  # determine which function to load with
-  loadFun <- as.character(.fileExts[exts,"funs"])#[,funs])
-  loadPackage <- as.character(.fileExts[exts,"package"])#[,funs])
-
-  # correct those for which a specific function is given in fileListdf$fun
-  if(!is.na(pmatch("fun",names(fileListdf)))) {
-    loadFun[!is.na(fileListdf$fun)] <- fileListdf$fun[!is.na(fileListdf$fun)]
-    loadPackage[!is.na(fileListdf$package)] <- fileListdf$package[!is.na(fileListdf$package)]
-  }
-
-  # use filenames as object names, unless alternative provided in fileListdf$obj
-  objs <- sapply(fl.list,function(x) paste(x[-length(x)],collapse="."))
-  if(!is.na(pmatch("obj",names(fileListdf)))) {
-    loadFun[!is.na(fileListdf$obj)] <- fileListdf$obj
-  }
-
-
-  # identify arguments
-  #args <- filesCurTime$args
-
-  # raster function sometimes loads file to disk; this will be made explicit
-  where <- c("disk","memory")
-  if(is.null(stackName)) {
-    environ <- globalenv()
-  } else {
-    environ <-parent.frame()
-  }
-
-  # load files
-  a <- lapply(1:length(fl), function(x) {
-    nam = names(args[x])
-    if(!is.null(nam)) {
-      argument <- list(unname(unlist(args[x])),fl[x])
-      names(argument) <- c(nam,names(formals(get(loadFun[x],envir=.GlobalEnv)))[1])
+    if (is(fileList, "list")) {
+      fileListdf <- do.call(data.frame, args=list(fileList[-pmatch("args",names(fileList))],
+                                                  stringsAsFactors=FALSE))
     } else {
-      argument <- list(fl[x])
-      names(argument) <- names(formals(get(loadFun[x],envir=.GlobalEnv)))[1]
+      fileListdf <- fileList
     }
 
-    # The actual load call
-    assign(objs[x],do.call(get(loadFun[x]), args = argument),envir=globalenv())
+    # fill in columns if they are missing. Assume loadTime = 0 if missing
+    if(is.na(pmatch("loadTime",names(fileListdf)))) {
+      fileListdf["loadTime"] <- 0
+    }
 
-    if (loadFun[x]=="raster") {
-      print(paste(objs[x],"read to",where[inMemory(get(objs[x]))+1],
-                  "from",fl[x],"using",loadFun[x]))
+    # only load those that are to be loaded at their loadTime
+    filesCurTime <- fileListdf[fileListdf$loadTime==curTime,]
+
+    fl <- filesCurTime$file
+
+    fl.list <- strsplit(basename(fl),".",fixed=TRUE)
+
+    # extract file extensions, to be used to determine which function to use
+    exts <- match(sapply(fl.list,function(x) x[length(x)]),.fileExts[,"exts"])
+
+    # determine which function to load with
+    loadFun <- as.character(.fileExts[exts,"funs"])#[,funs])
+    loadPackage <- as.character(.fileExts[exts,"package"])#[,funs])
+
+    # correct those for which a specific function is given in fileListdf$fun
+    if(!is.na(pmatch("fun",names(fileListdf)))) {
+      loadFun[!is.na(fileListdf$fun)] <- fileListdf$fun[!is.na(fileListdf$fun)]
+      loadPackage[!is.na(fileListdf$package)] <- fileListdf$package[!is.na(fileListdf$package)]
+    }
+
+    # use filenames as object names, unless alternative provided in fileListdf$obj
+    objs <- sapply(fl.list,function(x) paste(x[-length(x)],collapse="."))
+    if(!is.na(pmatch("obj",names(fileListdf)))) {
+      loadFun[!is.na(fileListdf$obj)] <- fileListdf$obj
+    }
+
+
+    # identify arguments
+    #args <- filesCurTime$args
+
+    # raster function sometimes loads file to disk; this will be made explicit
+    where <- c("disk","memory")
+    if(is.null(stackName)) {
+      environ <- globalenv()
     } else {
-      print(paste(objs[x],"read to memory from",fl[x],"using",loadFun[x]))
-    }
-  })
-
-  # rasters sometimes don't load with their min and max values set
-
-#    israst = sapply(objs, function(x) is(get(x),"Raster"))
-#    a = lapply(objs[israst],function(x) {
-#      assign(x, setMinMax(get(x)),envir=globalenv())
-#    })
-
-  if(!is.null(stackName)) {
-    all.equal(mget(objs))
-    extents <- lapply(mget(objs[israst], envir=.GlobalEnv), extent)
-    extents.equal = logical(length(extents))
-    for (i in 1:(length(extents)-1)){
-      extents.equal[i] = (extents[[1]] == extents[[i]])
+      environ <-parent.frame()
     }
 
-    if (all(extents.equal)) {
-      assign(stackName, stack(mget(objs,envir=.GlobalEnv)), envir=.GlobalEnv)
-      rm(list=objs,envir=.GlobalEnv)
-      warning(paste(paste(objs,collapse=", "),"were deleted; they are in the",stackName,"stack"))
-    } else {
-      warning("Cannot stack objects because they don't have same extents,
-              Returning individual objects to global environment")
+    # load files
+    a <- lapply(1:length(fl), function(x) {
+      nam = names(args[x])
+      if(!is.null(nam)) {
+        argument <- list(unname(unlist(args[x])),fl[x])
+        names(argument) <- c(nam,names(formals(get(loadFun[x],envir=.GlobalEnv)))[1])
+      } else {
+        argument <- list(fl[x])
+        names(argument) <- names(formals(get(loadFun[x],envir=.GlobalEnv)))[1]
+      }
+
+      # The actual load call
+      assign(objs[x],do.call(get(loadFun[x]), args = argument),envir=globalenv())
+
+      if (loadFun[x]=="raster") {
+        print(paste(objs[x],"read to",where[inMemory(get(objs[x]))+1],
+                    "from",fl[x],"using",loadFun[x]))
+      } else {
+        print(paste(objs[x],"read to memory from",fl[x],"using",loadFun[x]))
+      }
+    })
+
+    # rasters sometimes don't load with their min and max values set
+
+  #    israst = sapply(objs, function(x) is(get(x),"Raster"))
+  #    a = lapply(objs[israst],function(x) {
+  #      assign(x, setMinMax(get(x)),envir=globalenv())
+  #    })
+
+    if(!is.null(stackName)) {
+      all.equal(mget(objs))
+      extents <- lapply(mget(objs[israst], envir=.GlobalEnv), extent)
+      extents.equal = logical(length(extents))
+      for (i in 1:(length(extents)-1)){
+        extents.equal[i] = (extents[[1]] == extents[[i]])
+      }
+
+      if (all(extents.equal)) {
+        assign(stackName, stack(mget(objs,envir=.GlobalEnv)), envir=.GlobalEnv)
+        rm(list=objs,envir=.GlobalEnv)
+        warning(paste(paste(objs,collapse=", "),"were deleted; they are in the",stackName,"stack"))
+      } else {
+        warning("Cannot stack objects because they don't have same extents,
+                Returning individual objects to global environment")
+      }
+    }
+
+    # add new rows of files to load based on fileListdf$Interval
+    if(!is.na(pmatch("interval",names(fileListdf)))) {
+      if (any(!is.na(fileListdf$intervals))) {
+        keep <- !is.na(fileListdf$interval)
+        fileListdf$loadTimes[keep] <- curTime + fileListdf$interval[keep]
+      }
+    }
+
+
+    # remove files that have been loaded from fileListdf
+    keepOnFileList <- fileListdf$loadTime!=curTime
+    fileListdf = fileListdf[keepOnFileList,]
+
+    # If filename had been provided, then no need to return sim object, just report files loaded
+    if (!usedFileList) {
+      if(is(fileList, "list")) {
+        simParams(sim)$fileList <- c(as.list(fileListdf),args=args[keepOnFileList])
+      } else if (is(fileList, "data.frame")) {
+        simParams(sim)$fileList <- fileListdf
+      } else {
+        error("fileList must be either a list or data.frame")
+      }
+      if(nrow(fileListdf)>0)
+        sim <- scheduleEvent(sim, min(fileListdf$loadTimes,na.rm=TRUE),
+                             "load", "init")
     }
   }
-
-  # add new rows of files to load based on fileListdf$Interval
-  if(!is.na(pmatch("interval",names(fileListdf)))) {
-    if (any(!is.na(fileListdf$intervals))) {
-      keep <- !is.na(fileListdf$interval)
-      fileListdf$loadTimes[keep] <- curTime + fileListdf$interval[keep]
-    }
-  }
-
-
-  # remove files that have been loaded from fileListdf
-  keepOnFileList <- fileListdf$loadTime!=curTime
-  fileListdf = fileListdf[keepOnFileList,]
-
-  # If filename had been provided, then no need to return sim object, just report files loaded
-  if (!usedFileList) {
-    if(is(fileList, "list")) {
-      simParams(sim)$fileList <- c(as.list(fileListdf),args=args[keepOnFileList])
-    } else if (is(fileList, "data.frame")) {
-      simParams(sim)$fileList <- fileListdf
-    } else {
-      error("fileList must be either a list or data.frame")
-    }
-    if(nrow(fileListdf)>0)
-      sim <- scheduleEvent(sim, min(fileListdf$loadTimes,na.rm=TRUE),
-                           "load", "init")
-  }
-#   } else {
-#       error("Need to specify either a sim object or a filename")
-#   }
   return(sim)
 
 }
