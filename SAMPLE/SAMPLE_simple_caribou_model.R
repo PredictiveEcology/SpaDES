@@ -86,6 +86,7 @@ fileList = data.frame(files = "NFI_MODIS250m_kNN_Species_Pinu_Con_Lat_v0.tif",st
 library(devtools)
 dev_mode(TRUE)
 install(build_vignettes=FALSE) # build_vignette currently fails
+library("SpaDES", lib.loc=getOption("devtools.path"))
 
 fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
                                   full.names=TRUE,pattern= "tif"),
