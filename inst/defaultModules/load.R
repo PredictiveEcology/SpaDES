@@ -67,19 +67,19 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
 #'                    fileList=fileList,
 #'                    .progress=list(graphical=FALSE, interval = 1),
-#'                    caribou=list(N=1e2, toSave=c("caribou"),
+#'                    caribouMovement=list(N=1e2, toSave=c("caribou"),
 #'                                 savePath=file.path("output","caribou"),
 #'                                 saveInitialTime = 3, saveInterval=100,
 #'                                 plotInitialTime = 1.01, plotInterval=100,
 #'                                 interval=1, startTime=0),
-#'                    fire=list(nFires = 1e1, spreadprob=0.225,
+#'                    fireSpread=list(nFires = 1e1, spreadprob=0.225,
 #'                              persistprob=0, its=1e6,
 #'                              plotInitialTime = 0, plotInterval=100,
 #'                              toSave=c("Fires"),
 #'                              savePath = file.path("output","fires"),
 #'                              saveInterval = 100, interval = 10, startTime=0)
 #'                  ),
-#'                  modules=list("fire", "caribou"),
+#'                  modules=list("fireSpread", "caribouMovement"),
 #'                  path=system.file("sampleModules", package="SpaDES"))
 #'
 #' mySim <- simLoad(mySim)
@@ -104,17 +104,17 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'   params=list(
 #'               fileList=fileList,
 #'               .progress=list(graphical=FALSE, interval=10),
-#'               habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
+#'               randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
 #'                              savePath=file.path("output", "habitat"),
 #'                              plotInitialTime = 0, plotInterval=1e3,
 #'                              saveInitialTime = 3, saveInterval=100,
 #'                              interval=0, startTime=0),
-#'                    caribou=list(N=1e2, toSave=c("caribou"),
+#'                    caribouMovement=list(N=1e2, toSave=c("caribou"),
 #'                                 savePath=file.path("output","caribou"),
 #'                                 saveInitialTime = 3, saveInterval=100,
 #'                                 plotInitialTime = 1.01, plotInterval=100,
 #'                                 interval=1, startTime=0)),
-#'   modules=list("habitat", "caribou"),
+#'   modules=list("randomLandscapes", "caribouMovement"),
 #'   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)
 #' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 #'

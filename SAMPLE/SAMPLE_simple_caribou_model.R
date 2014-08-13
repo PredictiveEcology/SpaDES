@@ -120,7 +120,6 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                              ),
 #                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
                 modules=list("caribouMovement", "fireSpread"),
-#                  modules=list("habitat"),
                  path=file.path(path, "SpaDES/inst/sampleModules"))
 
 #simCurrentTime(mySim)<-0
