@@ -21,7 +21,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
     } else if (eventType=="plot") {
       # do stuff for this event
-      simPlot(habitat, col=cols[6:2])
+      simPlot(habitat, col=.cols[6:2])
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$plotInterval, "randomLandscapes", "plot")

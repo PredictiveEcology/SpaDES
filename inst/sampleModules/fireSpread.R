@@ -33,13 +33,13 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
       habitat <<- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
       names(habitat) <<- c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
 
-      simPlot(stack(habitat, Fires), add=FALSE, col=cols[c(2:5,3,2)], add.legend=TRUE)
+      simPlot(stack(habitat, Fires), add=FALSE, col=.cols[c(2:5,3,2)], add.legend=TRUE)
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")
     } else if (eventType=="plot") {
       # do stuff for this event
-      simPlot(Fires, add=TRUE, on.which.to.plot = 6, col=cols[[2]], add.legend=TRUE, delete.previous = FALSE)
+      simPlot(Fires, add=TRUE, on.which.to.plot = 6, col=.cols[[2]], add.legend=TRUE, delete.previous = FALSE)
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")
