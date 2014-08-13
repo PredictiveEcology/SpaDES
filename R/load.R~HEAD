@@ -280,6 +280,13 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
 
 }
 
+#' File extensions map
+#'
+#' How to load various types of files in R.
+#'
+#' @export
+#' @rdname fileextensions
+#'
 .fileExtensions = data.frame(matrix(ncol=3,byrow=TRUE,c(
   "tif", "raster", "raster" ,
   "png", "raster", "raster" ,
@@ -292,12 +299,33 @@ colnames(.fileExtensions) = c("exts","functions","package")
 
 #' Read raster to memory
 #'
-#' Calls the raster function, and then the getValues function to force the file to memory.
+#' Wrapper to the \code{raster} function, that creates the raster object in
+#' memory, even if it was read in from file.
 #'
-#' @param x an object passed directly to the function raster, like a string of a filename.
+#' @param x An object passed directly to the function raster (e.g., character string of a filename).
+#'
+#' @return A raster object whose values are stored in memory.
+#'
+#' @seealso \link{\code{raster}}
+#'
+#' @importMethodsFrom raster raster
 #' @export
-rasterToMemory <- function(x, ...){
-  rast <- raster(x, ...)
-  rast[] <- getValues(rast)
-  return(rast)
-}
+#' @docType methods
+#' @rdname rasterToMemory-method
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+#'
+setGeneric("rasterToMemory", function(x, ...) {
+  standardGeneric("rasterToMemory")
+})
+
+#' rasterToMemory
+#' @rdname rasterToMemory-method
+setMethod("rasterToMemory",
+          signature=c(x="ANY"),
+          definition=function(x, ...) {
+  r <- raster(x, ...)
+  r <- setValues(r, getValues(r))
+  return(r)
+})
