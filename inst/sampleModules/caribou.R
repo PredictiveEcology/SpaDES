@@ -65,6 +65,8 @@ caribouInit <- function(sim) {
     pkgs <- list("raster","grid") # list required packages here
     loadPackages(pkgs)
 
+    habitat <<- stack(DEM, forestCover, forestAge, percentPine, habitatQuality)
+
     yrange <- c(ymin(habitat),ymax(habitat))
     xrange <- c(xmin(habitat),xmax(habitat))
 #    best <- max(values(habitat))
