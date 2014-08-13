@@ -24,15 +24,12 @@ Returns the modified \code{simList} object.
 }
 \description{
 Adds a new event to the simulation's event queue, updating the simulation object.
-
-schedule event
 }
 \details{
-Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
-- implemented using S4 classes and methods;
-- uses `data.table` instead of `data.frame` (which is much faster);
-- implemented in a more modular fashion so it's easier
-  to add submodules to the simulation.
+Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
+Here, we implement a simulation in a more modular fashion so it's easier to add
+submodules to the simulation. We use S4 classes and methods, and use `data.table`
+instead of `data.frame` to implement the event queue (because it is much faster).
 }
 \examples{
 \dontrun{scheduleEvent(x, 10.5, "firemodule", "burn")}
@@ -41,6 +38,6 @@ Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
 Alex Chubaty
 }
 \references{
-Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 }
 

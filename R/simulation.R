@@ -3,11 +3,10 @@
 #'
 #' This class contains the minimum components of a simulation.
 #'
-#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
-#' - implemented using S4 classes and methods;
-#' - uses `data.table` instead of `data.frame` (which is much faster);
-#' - implemented in a more modular fashion so it's easier
-#'   to add submodules to the simulation.
+#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
+#' Here, we implement a simulation in a more modular fashion so it's easier to add
+#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
+#' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
 #' @slot .loaded    List of character names specifying which modules are currently loaded.
 #'
@@ -41,7 +40,7 @@
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
@@ -573,8 +572,9 @@ setReplaceMethod("simEventsCompleted",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' Additonal methods are provided to access the current, start, and stop times
+#' of the simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)},
+#' \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -625,11 +625,10 @@ setReplaceMethod("simDebug",
 #' Create a new simulation object, preloaded with parameters,
 #' modules, times, etc.
 #'
-#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
-#' - implemented using S4 classes and methods;
-#' - uses `data.table` instead of `data.frame` (which is much faster);
-#' - implemented in a more modular fashion so it's easier
-#'   to add submodules to the simulation.
+#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
+#' Here, we implement a simulation in a more modular fashion so it's easier to add
+#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
+#' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
 #' @param times A named list of numeric simulation start and stop times
 #'        (e.g., \code{times=list(start=0.0, stop=10.0)}).
@@ -656,7 +655,7 @@ setReplaceMethod("simDebug",
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
@@ -666,7 +665,6 @@ setGeneric("simInit", function(times, params, modules, path) {
     standardGeneric("simInit")
 })
 
-#' simInit
 #' @rdname simInit-method
 #'
 setMethod("simInit",
@@ -708,7 +706,6 @@ setMethod("simInit",
               return(sim)
 })
 
-#' simInit
 #' @rdname simInit-method
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing"),
@@ -763,11 +760,10 @@ setMethod("reloadModuleLater",
 #'
 #' Calls the module corresponding to the event call, and executes the event.
 #'
-#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
-#' - implemented using S4 classes and methods;
-#' - uses `data.table` instead of `data.frame` (which is much faster);
-#' - implemented in a more modular fashion so it's easier
-#'   to add submodules to the simulation.
+#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
+#' Here, we implement a simulation in a more modular fashion so it's easier to add
+#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
+#' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
 #' @param sim Character string for the \code{simList} simulation object.
 #'
@@ -783,13 +779,12 @@ setMethod("reloadModuleLater",
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 setGeneric("doEvent", function(sim, debug) {
     standardGeneric("doEvent")
 })
 
-#' doEvent
 #' @rdname doEvent-method
 setMethod("doEvent",
           signature(sim="simList", debug="logical"),
@@ -824,7 +819,6 @@ setMethod("doEvent",
           return(sim)
 })
 
-#' doEvent
 #' @rdname doEvent-method
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
@@ -837,11 +831,10 @@ setMethod("doEvent",
 #'
 #' Adds a new event to the simulation's event queue, updating the simulation object.
 #'
-#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
-#' - implemented using S4 classes and methods;
-#' - uses `data.table` instead of `data.frame` (which is much faster);
-#' - implemented in a more modular fashion so it's easier
-#'   to add submodules to the simulation.
+#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
+#' Here, we implement a simulation in a more modular fashion so it's easier to add
+#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
+#' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
 #' @param sim          A \code{simList} simulation object.
 #'
@@ -859,7 +852,7 @@ setMethod("doEvent",
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{scheduleEvent(x, 10.5, "firemodule", "burn")}
@@ -867,7 +860,6 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
     standardGeneric("scheduleEvent")
 })
 
-#' schedule event
 #' @rdname scheduleEvent-method
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
@@ -894,11 +886,10 @@ setMethod("scheduleEvent",
 #'
 #' Calls the module corresponding to the event call, and executes the event.
 #'
-#' Based on code from Matloff (2011) ch. 7.8.3 on discrete event simulation:
-#' - implemented using S4 classes and methods;
-#' - uses `data.table` instead of `data.frame` (which is much faster);
-#' - implemented in a more modular fashion so it's easier
-#'   to add submodules to the simulation.
+#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
+#' Here, we implement a simulation in a more modular fashion so it's easier to add
+#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
+#' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
 #' @param sim Character string for the \code{simList} simulation object.
 #'
@@ -919,21 +910,19 @@ setMethod("scheduleEvent",
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (373 pp.). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{
 #' mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/)
 #' }
-#' \dontrun{
-#' doSim{mySim}
-#' }
+#' \dontrun{doSim{mySim}}
+#'
 setGeneric("doSim", function(sim, debug) {
     standardGeneric("doSim")
 })
 
-#' doSim
 #' @rdname doSim-method
 setMethod("doSim",
           signature(sim="simList", debug="logical"),
@@ -951,7 +940,6 @@ setMethod("doSim",
           return(sim)
 })
 
-#' doSim
 #' @rdname doSim-method
 setMethod("doSim",
           signature(sim="simList", debug="missing"),

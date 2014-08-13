@@ -31,8 +31,9 @@ set the simulation debug toggle
 set the simulation debug toggle
 }
 \details{
-Additonal methods are provided to access the current, start, and stop times of the
-simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+Additonal methods are provided to access the current, start, and stop times
+of the simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)},
+\code{simStopTime(sim)}.
 }
 \author{
 Alex Chubaty
