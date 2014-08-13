@@ -32,14 +32,6 @@ devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 
 ## simulation code
 library(RColorBrewer)
-cols = list(
-  transparent.red=c("#00000000",paste(brewer.pal(8,"Greys"),"66",sep="")[8:1]),
-  grey = brewer.pal(9,"Greys"),
-  spectral = brewer.pal(8,"Spectral"),
-  terrain = rev(terrain.colors(100)),
-  heat = heat.colors(10),
-  topo = topo.colors(10)
-)
 
 # initialize the simulation
 devtools::load_all(file.path(path, "SpaDES")) # for development/testing
@@ -102,17 +94,17 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                              fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 1),
-                             habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
-                                            savePath=file.path("output", "habitat"),
-                                            plotInitialTime = 0, plotInterval=1e3,
-                                            saveInitialTime = 3, saveInterval=100,
-                                            interval=0, startTime=0),
-                             caribou=list(N=1e2, toSave=c("caribou"),
+                              habitat = list(nx=1e2, ny=1e2, toSave=c("habitat"),
+                                             savePath=file.path("output", "habitat"),
+                                             plotInitialTime = 0, plotInterval=1e3,
+                                             saveInitialTime = 3, saveInterval=100,
+                                             interval=0, startTime=0),
+                             caribou=list(N=1e2, toSave=c("caribou"),raster="DEM",
                                           savePath=file.path("output","caribou"),
                                           saveInitialTime = 3, saveInterval=100,
                                           plotInitialTime = 1.01, plotInterval=1,
                                           interval=1, startTime=0),
-                             fire=list(nFires = 1e1, spreadprob=0.225,
+                             fire=list(nFires = 1e1, spreadprob=0.225, raster="DEM",
                                         persistprob=0, its=1e6,
                                         plotInitialTime = 0.1, plotInterval=10,
                                         toSave=c("Fires"),
@@ -122,12 +114,12 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
 #                 modules=list("habitat", "fire", "caribou"),
                 modules=list("caribou", "fire"),
 #                  modules=list("habitat"),
-                 path=file.path(path, "SpaDES/sampleModules"))
+                 path=file.path(path, "SpaDES/inst/sampleModules"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)
 dev(4)
-print(system.time(doSim(mySim, debug=FALSE)))
+print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
