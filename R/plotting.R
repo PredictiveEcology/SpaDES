@@ -500,6 +500,7 @@ setMethod("drawArrows",
 #' Colour number 1 shows use of transparency
 #'
 #' @export
+#' @rdname cols
 .cols = list(
  transparent.red=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
  grey = RColorBrewer::brewer.pal(9,"Greys"),

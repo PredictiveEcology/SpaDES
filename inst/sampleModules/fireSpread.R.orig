@@ -9,7 +9,11 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
+<<<<<<< HEAD
+        depends <- "stackMaps"#c("randomLandscapes") # list package names here
+=======
         depends <- "NONE"#c("randomLandscapes") # list package names here
+>>>>>>> 97a42c518cf861759166c70dbb491aadb93345db
 
         if (reloadModuleLater(sim, depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "init")
@@ -30,7 +34,12 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
         sim <- scheduleEvent(sim, simCurrentTime(sim)+simParams(sim)$fireSpread$interval, "fireSpread", "burn")
     } else if (eventType=="plot.init") {
       # do stuff for this event
+<<<<<<< HEAD
+
       simPlot(stack(landscapes, Fires), add=FALSE, col=.cols[c(2:5,3,2)], add.legend=TRUE)
+=======
+      simPlot(stack(habitat, Fires), add=FALSE, col=.cols[c(2:5,3,2)], add.legend=TRUE)
+>>>>>>> 97a42c518cf861759166c70dbb491aadb93345db
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")

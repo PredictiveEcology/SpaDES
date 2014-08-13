@@ -24,18 +24,17 @@ library(lineprof)
 library(pryr)
 library(shiny)
 
-devtools::dev_mode(TRUE)
 ### load SpaDES package
 #library(SpaDES)   # local installation from CRAN
 #devtools::install_github("SpaDES", username="achubaty")   # local install from GitHub
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+#devtools::load_all(file.path(path, "SpaDES")) # for development/testing
 
 ## simulation code
 library(RColorBrewer)
 
 # initialize the simulation
-devtools::load_all(file.path(path, "SpaDES")) # for development/testing
-dev(2)
+#devtools::load_all(file.path(path, "SpaDES")) # for development/testing
+#dev(2)
 
 
 # fileList = list(
@@ -83,23 +82,34 @@ system.file("DEM.rda",package="SpaDES")
 fileList = data.frame(files = "NFI_MODIS250m_kNN_Species_Pinu_Con_Lat_v0.tif",stringsAsFactors=FALSE)
 
 
-fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
-                                  full.names=TRUE,pattern= "tif"),
-                      stringsAsFactors=FALSE)
+################################################################################
+library(devtools)
+dev_mode(TRUE)
+install(build_vignettes=FALSE) # build_vignette currently fails
+library("SpaDES", lib.loc=getOption("devtools.path"))
 
-devtools::dev_mode(TRUE)
+fileList = data.frame(files = dir(file.path(find.package("SpaDES",
+                                                         lib.loc=getOption("devtools.path"),
+                                                         quiet=FALSE),"maps"),
+                                  full.names=TRUE, pattern= "tif"),
+                      stringsAsFactors=FALSE)
 
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-#                             fileList=fileList,
+                             fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 1),
                              randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
                                             savePath=file.path("output", "randomLandscapes"),
                                              plotInitialTime = 0, plotInterval=1e3,
                                              saveInitialTime = 3, saveInterval=100,
                                              interval=0, startTime=0),
+                             loadLandscapes = list(toSave=c("habitat"),
+                                                   savePath=file.path("output", "loadLandscapes"),
+                                                   plotInitialTime = 0, plotInterval=1e3,
+                                                   saveInitialTime = 3, saveInterval=100,
+                                                   interval=0, startTime=0),
                              caribouMovement=list(N=1e2, toSave=c("caribou"),
                                           savePath=file.path("output","caribouMovement"),
                                           saveInitialTime = 3, saveInterval=100,
@@ -112,9 +122,10 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                         savePath = file.path("output","fireSpread"),
                                         saveInterval = 100, interval = 10, startTime=0)
                              ),
-#                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-                modules=list("caribouMovement", "fireSpread"),
-                 path=system.file("sampleModules", package="SpaDES"))
+#                modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                modules=list("loadLandscapes", "fireSpread", "caribouMovement"),
+#                modules=list("caribouMovement", "fireSpread"),
+                path=system.file("sampleModules", package="SpaDES"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)
