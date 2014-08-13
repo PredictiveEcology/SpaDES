@@ -1,7 +1,8 @@
 ################################################
 ###
 ### caribouMovement MODULE
-### - requires `habitat` map from randomLandscapes module
+### - requires `landscapes` stack with a habitatQuality map generated
+###    from randomLandscapes module or a fileList
 ### - create a bunch of caribou agents
 ### - move the caribou around the map
 ###
@@ -10,7 +11,7 @@
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
         ### check for module dependencies:
-        depends <- "NONE"#c("randomLandscapes") # list package names here
+        depends <- "stackMaps"#c("randomLandscapes") # list package names here
 
         # if a required module isn't loaded yet,
         # reschedule this module init for later
@@ -64,14 +65,14 @@ caribouMovementInit <- function(sim) {
     pkgs <- list("raster","grid") # list required packages here
     loadPackages(pkgs)
 
-    yrange <- c(ymin(habitat),ymax(habitat))
-    xrange <- c(xmin(habitat),xmax(habitat))
-#    best <- max(values(habitat))
-#    worst <- min(values(habitat))
-#    good <- Which(habitat>0.8*best)
+    yrange <- c(ymin(landscapes),ymax(landscapes))
+    xrange <- c(xmin(landscapes),xmax(landscapes))
+#    best <- max(values(landscapes))
+#    worst <- min(values(landscapes))
+#    good <- Which(landscapes>0.8*best)
 #
-#   al <- agentLocation(good)    # good habitat, from above
-#   initialCoords <- probInit(habitat, al)
+#   al <- agentLocation(good)    # good landscapes, from above
+#   initialCoords <- probInit(landscapes, al)
 
     # initialize caribou agents
     N <- simParams(sim)$caribouMovement$N
@@ -95,11 +96,11 @@ caribouMovementInit <- function(sim) {
 
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
-  caribou <<- crop(caribou, habitat)
+  caribou <<- crop(caribou, landscapes)
   if(length(caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- habitat[["habitatQuality"]][caribou]
+  ex <- landscapes[["habitatQuality"]][caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -110,7 +111,7 @@ caribouMovementMove <- function(sim) {
   caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
 #     #rads <- sample(10:30, length(caribou), replace=TRUE)
-#     #rings <- cir(caribou, radiuses=rads, habitat, 1)
+#     #rings <- cir(caribou, radiuses=rads, landscapes, 1)
 #     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
 #
 

@@ -26,10 +26,10 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' Other optional columns are:
 #'
-#' - "objs", a character string indicating the name of the object once the
+#' - "objectNames", a character string indicating the name of the object once the
 #' file is loaded.
 #'
-#' - "funs", a character string indicating the function to be used to load the file
+#' - "functions", a character string indicating the function to be used to load the file
 #'
 #' - "intervals", a numeric indicating the interval between repeated loading of the same
 #' file. This should be NA or the column absent if the file is only loaded once.
@@ -39,8 +39,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' whatever that is. If the same file is to loaded many times, but not at a regular interval,
 #' then there should be separate line, with a unique loadTime for each.
 #'
-#' - "args" is a list of lists of named arguments, one list for each loading function. For example, if raster
-#' is a loading function, args = list(native = TRUE). If there is only one list, then it is assumed to apply
+#' - "arguments" is a list of lists of named arguments, one list for each loading function. For example, if raster
+#' is a loading function, arguments = list(native = TRUE). If there is only one list, then it is assumed to apply
 #' to all load attempts and will be repeated for each load function.
 #'
 #'
@@ -59,7 +59,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @examples
 #' #load random maps included with package
 #' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
-#'    full.names=TRUE,pattern= "tif"), fun="rasterToMemory", package="SpaDES",
+#'    full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
 #'    stringsAsFactors=FALSE)
 #' mySim <- simInit(times=list(start=0.0, stop=100),
 #'                  params=list(
@@ -68,7 +68,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'                    fileList=fileList,
 #'                    .progress=list(graphical=FALSE, interval = 1),
 #'                    caribouMovement=list(N=1e2, toSave=c("caribou"),
-#'                                 savePath=file.path("output","caribou"),
+#'                                 savePath=file.path("output","caribouMovement"),
 #'                                 saveInitialTime = 3, saveInterval=100,
 #'                                 plotInitialTime = 1.01, plotInterval=100,
 #'                                 interval=1, startTime=0),
@@ -76,7 +76,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'                              persistprob=0, its=1e6,
 #'                              plotInitialTime = 0, plotInterval=100,
 #'                              toSave=c("Fires"),
-#'                              savePath = file.path("output","fires"),
+#'                              savePath = file.path("output","firesSpread"),
 #'                              saveInterval = 100, interval = 10, startTime=0)
 #'                  ),
 #'                  modules=list("fireSpread", "caribouMovement"),
@@ -88,15 +88,15 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'# Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #'#  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
 #'#  specifically, when add "native = TRUE" as an argument to the raster function
-#' args = list(native=TRUE)
+#' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
 #'      full.names=TRUE,pattern= "tif")
 #' fileList = data.frame(
 #'    files = files,
-#'    fun="rasterToMemory",
-#'    package="SpaDES",
-#'    objs = NA,
-#'    args = args,
+#'    functions="rasterToMemory",
+#'    packages="SpaDES",
+#'    objectNames = NA,
+#'    arguments = arguments,
 #'    loadTimes = 0,
 #'    intervals = c(rep(NA,length(files)-1),10),
 #'    stringsAsFactors=FALSE)
@@ -112,7 +112,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'                    caribouMovement=list(N=1e2, toSave=c("caribou"),
 #'                                 savePath=file.path("output","caribou"),
 #'                                 saveInitialTime = 3, saveInterval=100,
-#'                                 plotInitialTime = 1.01, plotInterval=100,
+#'                                 plotInitialTime = 1.01, plotInterval=1,
 #'                                 interval=1, startTime=0)),
 #'   modules=list("randomLandscapes", "caribouMovement"),
 #'   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)
@@ -140,27 +140,27 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
     fileList <- simParams(sim)$fileList
     curTime <- simCurrentTime(sim)
 
-    args <- fileList$args
-    # Check if args is a named list; the name may be concatenated with the "args", separated
+    arguments <- fileList$arguments
+    # Check if arguments is a named list; the name may be concatenated with the "arguments", separated
     #  with a ".". This will extract that
-    if ((length(args)>0) & (is.null(names(args)))) {
-      names(args) <- sapply(strsplit(names(fileList)[pmatch("args",names(fileList))],
+    if ((length(arguments)>0) & (is.null(names(arguments)))) {
+      names(arguments) <- sapply(strsplit(names(fileList)[match("arguments",names(fileList))],
                                      ".",fixed=TRUE),function(x)x[-1])
     }
 
-    if(!is.null(args)) {
-      if(length(args)<length(fileList$file)) args = rep(args, length.out=length(fileList$file))
+    if(!is.null(arguments)) {
+      if(length(arguments)<length(fileList$file)) arguments = rep(arguments, length.out=length(fileList$file))
     }
 
     if (is(fileList, "list")) {
-      fileListdf <- do.call(data.frame, args=list(fileList[-pmatch("args",names(fileList))],
+      fileListdf <- do.call(data.frame, arguments=list(fileList[-match("arguments",names(fileList))],
                                                   stringsAsFactors=FALSE))
     } else {
       fileListdf <- fileList
     }
 
     # fill in columns if they are missing. Assume loadTime = 0 if missing
-    if(is.na(pmatch("loadTime",names(fileListdf)))) {
+    if(is.na(match("loadTime",names(fileListdf)))) {
       fileListdf["loadTime"] <- 0
     }
 
@@ -175,24 +175,24 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
     exts <- match(sapply(fl.list,function(x) x[length(x)]),.fileExts[,"exts"])
 
     # determine which function to load with
-    loadFun <- as.character(.fileExts[exts,"funs"])#[,funs])
-    loadPackage <- as.character(.fileExts[exts,"package"])#[,funs])
+    loadFun <- as.character(.fileExts[exts,"functions"])#[,functions])
+    loadPackage <- as.character(.fileExts[exts,"package"])#[,functions])
 
-    # correct those for which a specific function is given in fileListdf$fun
-    if(!is.na(pmatch("fun",names(fileListdf)))) {
-      loadFun[!is.na(fileListdf$fun)] <- fileListdf$fun[!is.na(fileListdf$fun)]
+    # correct those for which a specific function is given in fileListdf$functions
+    if(!is.na(match("functions",names(fileListdf)))) {
+      loadFun[!is.na(fileListdf$functions)] <- fileListdf$functions[!is.na(fileListdf$functions)]
       loadPackage[!is.na(fileListdf$package)] <- fileListdf$package[!is.na(fileListdf$package)]
     }
 
-    # use filenames as object names, unless alternative provided in fileListdf$obj
-    objs <- sapply(fl.list,function(x) paste(x[-length(x)],collapse="."))
-    if(!is.na(pmatch("obj",names(fileListdf)))) {
-      loadFun[!is.na(fileListdf$obj)] <- fileListdf$obj
+    # use filenames as object names, unless alternative provided in fileListdf$objectNames
+    objectNames <- sapply(fl.list,function(x) paste(x[-length(x)],collapse="."))
+    if(!is.na(match("objectNames",names(fileListdf)))) {
+      loadFun[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
     }
 
 
     # identify arguments
-    #args <- filesCurTime$args
+    #arguments <- filesCurTime$arguments
 
     # raster function sometimes loads file to disk; this will be made explicit
     where <- c("disk","memory")
@@ -204,9 +204,9 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
 
     # load files
     a <- lapply(1:length(fl), function(x) {
-      nam = names(args[x])
+      nam = names(arguments[x])
       if(!is.null(nam)) {
-        argument <- list(unname(unlist(args[x])),fl[x])
+        argument <- list(unname(unlist(arguments[x])),fl[x])
         names(argument) <- c(nam,names(formals(get(loadFun[x],envir=.GlobalEnv)))[1])
       } else {
         argument <- list(fl[x])
@@ -214,35 +214,35 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
       }
 
       # The actual load call
-      assign(objs[x],do.call(get(loadFun[x]), args = argument),envir=globalenv())
+      assign(objectNames[x],do.call(get(loadFun[x]), args = argument),envir=globalenv())
 
       if (loadFun[x]=="raster") {
-        print(paste(objs[x],"read to",where[inMemory(get(objs[x]))+1],
+        print(paste(objectNames[x],"read to",where[inMemory(get(objectNames[x]))+1],
                     "from",fl[x],"using",loadFun[x]))
       } else {
-        print(paste(objs[x],"read to memory from",fl[x],"using",loadFun[x]))
+        print(paste(objectNames[x],"read to memory from",fl[x],"using",loadFun[x]))
       }
     })
 
     # rasters sometimes don't load with their min and max values set
 
-  #    israst = sapply(objs, function(x) is(get(x),"Raster"))
-  #    a = lapply(objs[israst],function(x) {
+  #    israst = sapply(objectNames, function(x) is(get(x),"Raster"))
+  #    a = lapply(objectNames[israst],function(x) {
   #      assign(x, setMinMax(get(x)),envir=globalenv())
   #    })
 
     if(!is.null(stackName)) {
-      all.equal(mget(objs))
-      extents <- lapply(mget(objs[israst], envir=.GlobalEnv), extent)
+      all.equal(mget(objectNames))
+      extents <- lapply(mget(objectNames[israst], envir=.GlobalEnv), extent)
       extents.equal = logical(length(extents))
       for (i in 1:(length(extents)-1)){
         extents.equal[i] = (extents[[1]] == extents[[i]])
       }
 
       if (all(extents.equal)) {
-        assign(stackName, stack(mget(objs,envir=.GlobalEnv)), envir=.GlobalEnv)
-        rm(list=objs,envir=.GlobalEnv)
-        warning(paste(paste(objs,collapse=", "),"were deleted; they are in the",stackName,"stack"))
+        assign(stackName, stack(mget(objectNames,envir=.GlobalEnv)), envir=.GlobalEnv)
+        rm(list=objectNames,envir=.GlobalEnv)
+        warning(paste(paste(objectNames,collapse=", "),"were deleted; they are in the",stackName,"stack"))
       } else {
         warning("Cannot stack objects because they don't have same extents,
                 Returning individual objects to global environment")
@@ -250,7 +250,7 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
     }
 
     # add new rows of files to load based on fileListdf$Interval
-    if(!is.na(pmatch("interval",names(fileListdf)))) {
+    if(!is.na(match("intervals",names(fileListdf)))) {
       if (any(!is.na(fileListdf$intervals))) {
         keep <- !is.na(fileListdf$interval)
         fileListdf$loadTimes[keep] <- curTime + fileListdf$interval[keep]
@@ -265,7 +265,7 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
     # If filename had been provided, then no need to return sim object, just report files loaded
     if (!usedFileList) {
       if(is(fileList, "list")) {
-        simParams(sim)$fileList <- c(as.list(fileListdf),args=args[keepOnFileList])
+        simParams(sim)$fileList <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
       } else if (is(fileList, "data.frame")) {
         simParams(sim)$fileList <- fileListdf
       } else {
@@ -287,7 +287,7 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
   "shp", "readOGR","rgdal",
   "txt", "read.table","utils",
   "asc", "raster","raster")))
-colnames(.fileExtensions) = c("exts","funs","package")
+colnames(.fileExtensions) = c("exts","functions","package")
 #setkey(.fileExtensions,exts)
 
 #' Read raster to memory
