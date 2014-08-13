@@ -103,6 +103,11 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                              plotInitialTime = 0, plotInterval=1e3,
                                              saveInitialTime = 3, saveInterval=100,
                                              interval=0, startTime=0),
+                             loadLandscapes = list(toSave=c("habitat"),
+                                                   savePath=file.path("output", "loadLandscapes"),
+                                                   plotInitialTime = 0, plotInterval=1e3,
+                                                   saveInitialTime = 3, saveInterval=100,
+                                                   interval=0, startTime=0),
                              caribouMovement=list(N=1e2, toSave=c("caribou"),
                                           savePath=file.path("output","caribouMovement"),
                                           saveInitialTime = 3, saveInterval=100,
@@ -115,9 +120,10 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                         savePath = file.path("output","fireSpread"),
                                         saveInterval = 100, interval = 10, startTime=0)
                              ),
-#                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-                modules=list("caribouMovement", "fireSpread"),
-                 path=system.file("sampleModules", package="SpaDES"))
+#                modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                modules=list("loadLandscapes", "fireSpread", "caribouMovement"),
+#                modules=list("caribouMovement", "fireSpread"),
+                path=system.file("sampleModules", package="SpaDES"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)
