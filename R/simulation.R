@@ -680,23 +680,19 @@ setMethod("simInit",
               # create new simList object
               sim <- new("simList", times=times)
 
-              # default/built-in modules:  (should we be hardcoding this??)
-
-              defaults <- list("checkpoint","save","progress","load")
+              defaults <- list("checkpoint", "save", "progress", "load")
 
               simModules(sim) <- modules
               simParams(sim) <- params
 
-               # load "default" modules (should we be hardcoding this??)
-               for (d in defaults) {
-                 source(system.file(file.path("defaultModules",
-                                              paste(d, ".R", sep="")),
-                                    package="SpaDES"),local=.GlobalEnv)
-                 # source the code from each module's R file
+              # load "default" modules (should we be hardcoding this??)
+              for (d in defaults) {
+                # sourcing the code in each module in already done
+                # because they are loaded with the package
 
-                 # schedule each module's init event:
-                 sim <- scheduleEvent(sim, 0.00, d, "init")
-               }
+                # schedule each module's init event:
+                sim <- scheduleEvent(sim, 0.00, d, "init")
+              }
 
               # load user-defined modules
               for (m in simModules(sim)) {
