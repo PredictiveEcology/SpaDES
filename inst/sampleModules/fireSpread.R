@@ -4,12 +4,14 @@
 ###
 ###############################################
 
+### load any required packages
+### (use `loadPackages` or similar)
+pkgs <- list("raster", "RColorBrewer")
+loadPackages(pkgs)
+
+
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### load any required packages
-    ### (use `loadPackages` or similar)
-    pkgs <- list("raster", "RColorBrewer")
-    loadPackages(pkgs)
 
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
@@ -37,7 +39,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- fireSpreadBurn(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$interval, "fireSpread", "burn")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$returnInterval, "fireSpread", "burn")
   } else if (eventType=="plot.init") {
     # do stuff for this event
 

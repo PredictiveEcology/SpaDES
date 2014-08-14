@@ -3,13 +3,14 @@
 ### randomLandscapes MODULE
 ###
 ###############################################
+### load any required packages
+### (use `loadPackages` or similar)
+pkgs <- list("raster")
+loadPackages(pkgs)
+
 
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### load any required packages
-    ### (use `loadPackages` or similar)
-    pkgs <- list("raster")
-    loadPackages(pkgs)
 
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)

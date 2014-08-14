@@ -7,13 +7,14 @@
 ### - move the caribou around the map
 ###
 ###############################################
+### load any required packages
+### (use `loadPackages` or similar)
+pkgs <- list("grid", "raster", "sp")
+loadPackages(pkgs)
+
 
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### load any required packages
-    ### (use `loadPackages` or similar)
-    pkgs <- list("grid", "raster", "sp")
-    loadPackages(pkgs)
 
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
@@ -41,7 +42,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- caribouMovementMove(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribouMovement", "move")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
     simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
