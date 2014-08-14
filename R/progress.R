@@ -6,9 +6,10 @@
 
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
+    # Check whether a .progress is specified in the simList
     if( !(".progress" %in% names(simParams(mySim))) ) {
-      # default is to use graphical progress bar, so, need to set defaults
-      simParams(sim)[[".progress"]] = list(graphical = TRUE, interval=(simStopTime(sim)-simStartTime(sim))/10)
+      # default is to use text progress bar at 10% increments
+      simParams(sim)[[".progress"]] = list(graphical = FALSE, interval=(simStopTime(sim)-simStartTime(sim))/10)
     }
     .pb <<- simProgress(sim)
     sim <- scheduleEvent(sim, 0.00, "progress", "set")
