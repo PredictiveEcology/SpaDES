@@ -1,38 +1,40 @@
 ##############################################################
 #' Load packages.
-  #'
-  #' Load and optionally install additional packages.
-  #'
-  #' @param packageList A list of character strings specifying
+#'
+#' Load and optionally install additional packages.
+#'
+#' @param packageList A list of character strings specifying
 #' the names of packages to be loaded.
-  #'
-  #' @param install Logical flag. If required packages are not
+#'
+#' @param install Logical flag. If required packages are not
 #' already installed, should they be installed?
-  #'
-  #' @param quiet Logical flag. Should the final "packages loaded"
+#'
+#' @param quiet Logical flag. Should the final "packages loaded"
 #' message be suppressed?
-  #'
-  #' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
 #'
-  #' @seealso \code{\link{library}}.
+#' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
 #'
-  #' @export
+#' @seealso \code{\link{library}}.
+#'
+#' @export
 #' @docType methods
 #' @rdname loadPackages-method
 #'
-  #' @author Alex Chubaty
+#' @author Alex Chubaty
 #'
-  #' @examples
+#' @examples
 #' \dontrun{pkgs <- list("ggplot2", "lme4")}
 #' \dontrun{loadPackages(pkgs) # loads packages if installed}
 #' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+#'
 setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
   standardGeneric("loadPackages")
 })
+
 #' @rdname loadPackages-method
 setMethod("loadPackages",
            signature="list",
-            definition = function(packageList, install, quiet) {
+            definition=function(packageList, install, quiet) {
               load <- function(name, install) {
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
@@ -45,9 +47,7 @@ setMethod("loadPackages",
                 }
               lapply(packageList, load, install)
               if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
-             })
-
-
+})
 
 ##############################################################
 #' Check filepath.
@@ -66,30 +66,39 @@ setMethod("loadPackages",
 #'
 #' @export
 #' @docType methods
-#' @rdname checkpath
+#' @rdname checkPath-method
 #'
 # @examples
 # need examples
-checkPath <- function(path, create=FALSE) {
-    if (is.character(path)) {
-        path = gsub("\\\\", "/", path)  # use slash instead of backslash
-        path = gsub("/$", "", path)     # remove trailing slash
-        path = gsub("^[.]/", "", path)  # remove leading dotslash
+setGeneric("checkPath", function(path, create) {
+  standardGeneric("checkPath")
+})
 
-        if (!file.exists(path)) {
-            if (create==TRUE) {
-              dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
-            } else {
-              stop(paste("Specified path", normalizePath(path, winslash="/"),
-                         "doesn't exist. Create it and try again."))
+#' @rdname checkPath-method
+setMethod("checkPath",
+          signature(path="character", create="logical"),
+          definition=function(path, create) {
+            path = gsub("\\\\", "/", path)  # use slash instead of backslash
+            path = gsub("/$", "", path)     # remove trailing slash
+            path = gsub("^[.]/", "", path)  # remove leading dotslash
+
+            if (!file.exists(path)) {
+              if (create==TRUE) {
+                dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+              } else {
+                stop(paste("Specified path", normalizePath(path, winslash="/"),
+                           "doesn't exist. Create it and try again."))
+              }
             }
-        }
-    } else {
-        stop("specify `path` as a character string.")
-    }
-    return(path)
-}
+          return(path)
+})
 
+#' @rdname checkPath-method
+setMethod("checkPath",
+          signature(path="character", create="missing"),
+          definition=function(path) {
+            return(checkPath(path, create=FALSE))
+})
 
 ##############################################################
 #' Check for existence of a global object
@@ -97,16 +106,17 @@ checkPath <- function(path, create=FALSE) {
 #' Check that a named object exists in the global environment, and optionally has
 #' desired attributes.
 #'
-#' @param name    A character string specifying
-#'                        the name of an object to be checked
-#' @param object    An object. This is mostly used internally, or with
-#'                        layer, because it will fail if the object does not exist
-#' @param layer Character string, specifying a layer name in a Raster, if the \code{name}
-#'                      is a Raster* object
+#' @param name    A character string specifying the name of an object to be checked.
 #'
-#' @param ...   Additional arguments. Not implemented.
+#' @param object  An object. This is mostly used internally, or with layer,
+#'                  because it will fail if the object does not exist.
 #'
-#' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+#' @param layer   Character string, specifying a layer name in a Raster, if the
+#'                \code{name} is a Raster* object.
+#'
+#' @param ...    Additional arguments. Not implemented.
+#'
+#' @return Nothing is returned. Specified packages are loaded and attached using \code{library}.
 #'
 #' @seealso \code{\link{library}}.
 #'
@@ -115,6 +125,7 @@ checkPath <- function(path, create=FALSE) {
 #' @rdname checkObject-method
 #'
 #' @author Alex Chubaty
+#' @author Eliot McIntire
 #'
 #' @examples
 #' \dontrun{}
@@ -135,9 +146,9 @@ setMethod("checkObject",
                 warning(paste(deparse(substitute(object,env=.GlobalEnv)),"exists, but",layer,"is not a layer"))
                 return(FALSE)
               }
-#            }
 })
 
+#' @rdname checkObject-method
 setMethod("checkObject",
           signature(name="missing", object="ANY", layer="missing"),
           definition = function(name, object, layer, ...) {
@@ -147,11 +158,10 @@ setMethod("checkObject",
               warning(paste(deparse(substitute(object,env=.GlobalEnv)),"does not exist"))
               return(FALSE)
             }
-          })
+})
 
 
 #' @rdname checkObject-method
-#' @param layer Character string, specifying a layer name in a Raster
 setMethod("checkObject",
           signature(name="character", object="missing", layer="missing"),
           definition = function(name, ...) {
@@ -161,8 +171,9 @@ setMethod("checkObject",
               warning(paste(name,"does not exist in the global environment"))
               return(FALSE)
             }
-            })
+})
 
+#' @rdname checkObject-method
 setMethod("checkObject",
           signature(name="character", object="missing", layer="character"),
           definition = function(name, layer, ...) {
@@ -178,4 +189,4 @@ setMethod("checkObject",
               warning(paste(name,"does not exist in the global environment"))
               return(FALSE)
             }
-            })
+})

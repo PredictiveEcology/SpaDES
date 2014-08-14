@@ -2,7 +2,9 @@
 \docType{methods}
 \name{checkObject}
 \alias{checkObject}
+\alias{checkObject,character,missing,character-method}
 \alias{checkObject,character,missing,missing-method}
+\alias{checkObject,missing,ANY,missing-method}
 \alias{checkObject,missing,Raster,character-method}
 \title{Check for existence of a global object}
 \usage{
@@ -10,24 +12,25 @@ checkObject(name, object, layer, ...)
 
 \S4method{checkObject}{missing,Raster,character}(name, object, layer, ...)
 
+\S4method{checkObject}{missing,ANY,missing}(name, object, layer, ...)
+
 \S4method{checkObject}{character,missing,missing}(name, object, layer, ...)
+
+\S4method{checkObject}{character,missing,character}(name, object, layer, ...)
 }
 \arguments{
-\item{name}{A character string specifying
-the name of an object to be checked}
+\item{name}{A character string specifying the name of an object to be checked.}
 
-\item{object}{An object. This is mostly used internally, or with
-layer, because it will fail if the object does not exist}
+\item{object}{An object. This is mostly used internally, or with layer,
+                 because it will fail if the object does not exist.}
 
-\item{layer}{Character string, specifying a layer name in a Raster, if the \code{name}
-                     is a Raster* object}
+\item{layer}{Character string, specifying a layer name in a Raster, if the
+               \code{name} is a Raster* object.}
 
 \item{...}{Additional arguments. Not implemented.}
-
-\item{layer}{Character string, specifying a layer name in a Raster}
 }
 \value{
-Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+Nothing is returned. Specified packages are loaded and attached using \code{library}.
 }
 \description{
 Check that a named object exists in the global environment, and optionally has
@@ -40,6 +43,8 @@ desired attributes.
 }
 \author{
 Alex Chubaty
+
+Eliot McIntire
 }
 \seealso{
 \code{\link{library}}.

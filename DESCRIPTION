@@ -36,3 +36,19 @@ Imports:
     RandomFields,
     RColorBrewer
 License: GPL
+Collate:
+    'SELES.R'
+    'agent-methods.R'
+    'checkpoint.R'
+    'initialize.R'
+    'simulation.R'
+    'load.R'
+    'misc-methods.R'
+    'module-template.R'
+    'movement.R'
+    'neighbourhood.R'
+    'plotting.R'
+    'probability.R'
+    'progress.R'
+    'save.R'
+    'spread-process.R'

@@ -42,7 +42,6 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 # @examples
 # need examples
 simSave = function(sim) {
-
   # extract savePaths from modules
   modulePaths <- lapply(simParams(sim), function(y) return(y$.savePath) )
 
