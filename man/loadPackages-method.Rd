@@ -11,13 +11,13 @@ loadPackages(packageList, install = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{packageList}{A list of character strings specifying
-                       the names of packages to be loaded.}
+the names of packages to be loaded.}
 
 \item{install}{Logical flag. If required packages are not
-                       already installed, should they be installed?}
+already installed, should they be installed?}
 
 \item{quiet}{Logical flag. Should the final "packages loaded"
-                       message be suppressed?}
+message be suppressed?}
 }
 \value{
 Nothing is returned. Specified packages are loaded and attached using \code{library()}.
