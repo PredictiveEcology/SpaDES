@@ -10,28 +10,23 @@
 
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
-        ### check for module dependencies:
-        # if a required module isn't loaded yet,
-        # reschedule this module init for later
-        depends <- "NONE" # list module names here
+      ### check for module dependencies:
+      # if a required module isn't loaded yet,
+      # reschedule this module init for later
+      depends <- "NONE"#randomLandscapes" # list module names here
+      checkObject(simParams(sim)$globals$mapName,layer="habitatQuality")
 
-        if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
-        } else if (exists("landscapes")) {
-          if (is(landscapes, "RasterStack")) {
-            if (!is.na(match("habitatQuality", names(landscapes)))) {
-              # do stuff for this event
-              sim <- caribouMovementInit(sim)
+      if (reloadModuleLater(sim, depends)) {
+          sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
+      } else  {
+        # do stuff for this event
+        sim <- caribouMovementInit(sim)
 
-              # schedule the next event
-              sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
-              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$plotInitialTime, "caribouMovement", "plot.init")
-              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$saveInitialTime, "caribouMovement", "save")
-            } else { stop("caribouMovement requires an RasterStack named landscapes,
-                           with a layer called habitatQuality")}
-          } else { stop("caribouMovement requires an RasterStack named landscapes")}
-        } else { stop("caribouMovement requires an object named landscapes")}
-
+        # schedule the next event
+        sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
+        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$plotInitialTime, "caribouMovement", "plot.init")
+        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$saveInitialTime, "caribouMovement", "save")
+      }
     } else if (eventType=="move") {
         # do stuff for this event
         sim <- caribouMovementMove(sim)
