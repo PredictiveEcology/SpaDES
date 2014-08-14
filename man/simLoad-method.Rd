@@ -3,6 +3,7 @@
 \name{simLoad}
 \alias{simLoad}
 \alias{simLoad,missing,ANY,ANY-method}
+\alias{simLoad,missing,ANY,missing-method}
 \alias{simLoad,simList,ANY,missing-method}
 \title{Load simulation objects according to fileList}
 \usage{
@@ -11,6 +12,8 @@ simLoad(sim, stackName = NULL, fileList, ...)
 \S4method{simLoad}{simList,ANY,missing}(sim, stackName = NULL, fileList, ...)
 
 \S4method{simLoad}{missing,ANY,ANY}(sim, stackName = NULL, fileList, ...)
+
+\S4method{simLoad}{missing,ANY,missing}(sim, stackName = NULL, fileList, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object}
@@ -58,17 +61,17 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                    fileList=fileList,
                    .progress=list(graphical=FALSE, interval = 1),
-                   caribouMovement=list(N=1e2, toSave=c("caribou"),
-                                savePath=file.path("output","caribouMovement"),
-                                saveInitialTime = 3, saveInterval=100,
-                                plotInitialTime = 1.01, plotInterval=100,
+                   caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
+                                .savePath=file.path("output","caribouMovement"),
+                                .saveInitialTime = 3, .saveInterval=100,
+                                .plotInitialTime = 1.01, .plotInterval=100,
                                 interval=1, startTime=0),
                    fireSpread=list(nFires = 1e1, spreadprob=0.225,
                              persistprob=0, its=1e6,
-                             plotInitialTime = 0, plotInterval=100,
-                             toSave=c("Fires"),
-                             savePath = file.path("output","firesSpread"),
-                             saveInterval = 100, interval = 10, startTime=0)
+                             .plotInitialTime = 0, .plotInterval=100,
+                             .saveObjects=c("Fires"),
+                             .savePath = file.path("output","firesSpread"),
+                             .saveInterval = 100, interval = 10, startTime=0)
                  ),
                  modules=list("fireSpread", "caribouMovement"),
                  path=system.file("sampleModules", package="SpaDES"))
@@ -95,15 +98,15 @@ mySim <- simInit(times=list(start=0.0, stop=100),
   params=list(
               fileList=fileList,
               .progress=list(graphical=FALSE, interval=10),
-              randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
-                             savePath=file.path("output", "habitat"),
-                             plotInitialTime = 0, plotInterval=1e3,
-                             saveInitialTime = 3, saveInterval=100,
+              randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c("habitat"),
+                             .savePath=file.path("output", "habitat"),
+                             .plotInitialTime = 0, .plotInterval=1e3,
+                             .saveInitialTime = 3, .saveInterval=100,
                              interval=0, startTime=0),
-                   caribouMovement=list(N=1e2, toSave=c("caribou"),
-                                savePath=file.path("output","caribou"),
-                                saveInitialTime = 3, saveInterval=100,
-                                plotInitialTime = 1.01, plotInterval=1,
+                   caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
+                                .savePath=file.path("output","caribou"),
+                                .saveInitialTime = 3, .saveInterval=100,
+                                .plotInitialTime = 1.01, .plotInterval=1,
                                 interval=1, startTime=0)),
   modules=list("randomLandscapes", "caribouMovement"),
   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)

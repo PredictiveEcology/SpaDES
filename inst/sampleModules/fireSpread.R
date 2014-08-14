@@ -33,7 +33,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="plot.init") {
       # do stuff for this event
 
-      simPlot(stack(get(simParams(sim)$globals$mapName)),col=.cols[c(2:6,2)])
+      simPlot(stack(get(simParams(sim)$globals$mapName)))
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
     } else if (eventType=="plot") {

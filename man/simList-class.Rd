@@ -16,7 +16,7 @@ instead of `data.frame` to implement the event queue (because it is much faster)
 \section{Slots}{
 
 \describe{
-\item{\code{.loaded}}{List of character names specifying which modules are currently loaded.}
+\item{\code{.loaded}}{List of character names specifying which modules and objects are currently loaded.}
 
 \item{\code{modules}}{List of character names specifying which modules to load.}
 

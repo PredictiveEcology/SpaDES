@@ -2,7 +2,6 @@
 \docType{methods}
 \name{checkObject}
 \alias{checkObject}
-<<<<<<< HEAD
 \alias{checkObject,character,missing,missing-method}
 \alias{checkObject,missing,Raster,character-method}
 \title{Check for existence of a global object}
@@ -12,30 +11,20 @@ checkObject(name, object, layer, ...)
 \S4method{checkObject}{missing,Raster,character}(name, object, layer, ...)
 
 \S4method{checkObject}{character,missing,missing}(name, object, layer, ...)
-=======
-\alias{checkObject,ANY-method}
-\alias{checkObject,Raster-method}
-\title{Check for existence of a global object}
-\usage{
-checkObject(name, ...)
-
-\S4method{checkObject}{Raster}(name, layer, ...)
-
-\S4method{checkObject}{ANY}(name, ...)
->>>>>>> origin/development
 }
 \arguments{
 \item{name}{A character string specifying
 the name of an object to be checked}
 
+\item{object}{An object. This is mostly used internally, or with
+layer, because it will fail if the object does not exist}
+
+\item{layer}{Character string, specifying a layer name in a Raster, if the \code{name}
+                     is a Raster* object}
+
 \item{...}{Additional arguments. Not implemented.}
 
 \item{layer}{Character string, specifying a layer name in a Raster}
-<<<<<<< HEAD
-
-\item{layer}{Character string, specifying a layer name in a Raster}
-=======
->>>>>>> origin/development
 }
 \value{
 Nothing is returned. Specified packages are loaded and attached using \code{library()}.

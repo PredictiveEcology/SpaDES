@@ -10,7 +10,6 @@
 
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     if (eventType=="init") {
-<<<<<<< HEAD
       ### check for module dependencies:
       # if a required module isn't loaded yet,
       # reschedule this module init for later
@@ -22,29 +21,6 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
       } else  {
         # do stuff for this event
         sim <- caribouMovementInit(sim)
-=======
-        ### check for module dependencies:
-        # if a required module isn't loaded yet,
-        # reschedule this module init for later
-        depends <- "NONE" # list module names here
-
-        if (reloadModuleLater(sim, depends)) {
-            sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
-        } else if (exists("landscape", envir=.GlobalEnv)) {
-          if (is(landscape, "RasterStack")) {
-            if (!is.na(match("habitatQuality", names(landscape)))) {
-              # do stuff for this event
-              sim <- caribouMovementInit(sim)
-
-              # schedule the next event
-              sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
-              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
-              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
-            } else { stop("caribouMovement requires an RasterStack named landscape,
-                           with a layer called habitatQuality")}
-          } else { stop("caribouMovement requires an RasterStack named landscape") }
-        } else { stop("caribouMovement requires an object named landscape") }
->>>>>>> origin/development
 
         # schedule the next event
         sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
