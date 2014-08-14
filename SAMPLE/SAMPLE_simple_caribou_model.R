@@ -99,6 +99,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
 #simLoad(fileList = fileList)
 mapName = "landscape"
 outputPath=file.path("~", "tmp", "simOutputs")
+
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
@@ -106,22 +107,22 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                    #fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 10),
                              globals=list(mapName=mapName, outputPath=outputPath),
-                             randomLandscapes = list(nx=1e2, ny=1e2, toSave=c(mapName),
+                             randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c(mapName),
                                             .savePath=file.path("output", "randomLandscapes"),
                                             .plotInitialTime = 0, .plotInterval=1e3,
                                             .saveInitialTime = 3, .saveInterval=100,
                                             interval=0, startTime=0),
-                             caribouMovement=list(N=1e2, toSave=c("caribou"),
+                             caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
                                           .savePath=file.path("output","caribouMovement"),
                                           .saveInitialTime = 3, .saveInterval=100,
                                           .plotInitialTime = 1.01, .plotInterval=1,
-                                          interval=1, startTime=0),
+                                          moveInterval=1, startTime=0),
                              fireSpread=list(nFires = 1e1, spreadprob=0.225,
                                         persistprob=0, its=1e6,
                                         .plotInitialTime = 0.1, .plotInterval=10,
                                         .saveObjects=c("Fires"), .saveInterval = 10,
                                         .savePath = file.path("output","fireSpread"),
-                                        interval = 10, startTime=0)
+                                        returnInterval = 10, startTime=0)
                  ),
                  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
                  #modules=list("stackFileList"),
@@ -131,7 +132,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
 
 #simCurrentTime(mySim)<-0
 dev(4)
-print(system.time(doSim(mySim, debug=TRUE)))
+print(system.time(doSim(mySim, debug=FALSE)))
 print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 
 fls = dir(file.path("output","fires"))
@@ -146,3 +147,20 @@ simPlot(stack(FireMap),col=cols[[1]])
 
 shine(prof)
 c(address(mySim), refs(mySim))
+
+
+#######################################
+mySim <- simInit(times=list(start=0.0, stop=100.02),
+                 params=list(
+                   globals=list(mapName="landscape"),
+                   randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects="landscape",
+                                           .plotInitialTime = 0, .plotInterval=1e3,
+                                           startTime=0),
+                   fireSpread=list(nFires = 1e1, spreadprob=0.225,
+                                   persistprob=0, its=1e6,
+                                   .plotInitialTime = 0.1, .plotInterval=10,
+                                   returnInterval = 10, startTime=0)
+                 ),
+                 modules=list("randomLandscapes", "fireSpread"),
+                 path=system.file("sampleModules", package="SpaDES"))
+doSim(mySim, debug=FALSE)
