@@ -9,7 +9,9 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends <- "NONE"  # list package names here
+        depends <- "NONE"#randomLandscapes"  c list package names here
+
+        checkObject(simParams(sim)$globals$mapName,layer="habitatQuality")
 
         if (reloadModuleLater(sim, depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "init")
@@ -31,11 +33,12 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     } else if (eventType=="plot.init") {
       # do stuff for this event
 
+      simPlot(stack(get(simParams(sim)$globals$mapName)),col=.cols[c(2:6,2)])
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")
     } else if (eventType=="plot") {
       # do stuff for this event
-      simPlot(Fires, add=TRUE, on.which.to.plot = 6, col=.cols[[2]], add.legend=TRUE, delete.previous = FALSE)
+      simPlot(Fires, add=TRUE, on.which.to.plot = "Fires", col=.cols[[2]], add.legend=TRUE, delete.previous = FALSE)
 
       # schedule the next event
       sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")
@@ -60,9 +63,14 @@ fireSpreadInit <- function(sim) {
     landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
 
     ### create burn map that tracks fire locations over time
-    Fires <<- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
-    names(Fires) <<- "Fires"
-    Fires[] <<- 0
+    Fires <- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
+    names(Fires) <- "Fires"
+    Fires[] <- 0
+
+    # add Fires map to global$mapName stack
+    assign(simParams(sim)$globals$mapName,
+           stack(landscapes,Fires),
+           envir=.GlobalEnv)
 
 
     # last thing to do is add module name to the loaded list
@@ -89,7 +97,6 @@ fireSpreadBurn <- function(sim) {
                   plot.it=FALSE,
                   mapID=TRUE)
     names(Fires) <<- "Fires" # do we need this again here??
-
 
     return(sim)
 }
