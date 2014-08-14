@@ -17,20 +17,20 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
         if (reloadModuleLater(sim, depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
-        } else if (exists("landscapes", envir=.GlobalEnv)) {
-          if (is(landscapes, "RasterStack")) {
-            if (!is.na(match("habitatQuality", names(landscapes)))) {
+        } else if (exists("landscape", envir=.GlobalEnv)) {
+          if (is(landscape, "RasterStack")) {
+            if (!is.na(match("habitatQuality", names(landscape)))) {
               # do stuff for this event
               sim <- caribouMovementInit(sim)
 
               # schedule the next event
               sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
-              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$plotInitialTime, "caribouMovement", "plot.init")
-              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$saveInitialTime, "caribouMovement", "save")
-            } else { stop("caribouMovement requires an RasterStack named landscapes,
+              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
+              sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
+            } else { stop("caribouMovement requires an RasterStack named landscape,
                            with a layer called habitatQuality")}
-          } else { stop("caribouMovement requires an RasterStack named landscapes") }
-        } else { stop("caribouMovement requires an object named landscapes") }
+          } else { stop("caribouMovement requires an RasterStack named landscape") }
+        } else { stop("caribouMovement requires an object named landscape") }
 
     } else if (eventType=="move") {
         # do stuff for this event
@@ -71,16 +71,16 @@ caribouMovementInit <- function(sim) {
     pkgs <- list("raster","grid") # list required packages here
     loadPackages(pkgs)
 
-    landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
+    landscape <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
 
-    yrange <- c(ymin(landscapes),ymax(landscapes))
-    xrange <- c(xmin(landscapes),xmax(landscapes))
-#    best <- max(values(landscapes))
-#    worst <- min(values(landscapes))
-#    good <- Which(landscapes>0.8*best)
+    yrange <- c(ymin(landscape),ymax(landscape))
+    xrange <- c(xmin(landscape),xmax(landscape))
+#    best <- max(values(landscape))
+#    worst <- min(values(landscape))
+#    good <- Which(landscape>0.8*best)
 #
-#   al <- agentLocation(good)    # good landscapes, from above
-#   initialCoords <- probInit(landscapes, al)
+#   al <- agentLocation(good)    # good landscape, from above
+#   initialCoords <- probInit(landscape, al)
 
     # initialize caribou agents
     N <- simParams(sim)$caribouMovement$N
@@ -103,13 +103,13 @@ caribouMovementInit <- function(sim) {
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
 
-  landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
+  landscape <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
 
-  caribou <<- crop(caribou, landscapes)
+  caribou <<- crop(caribou, landscape)
   if(length(caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- landscapes[["habitatQuality"]][caribou]
+  ex <- landscape[["habitatQuality"]][caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -120,7 +120,7 @@ caribouMovementMove <- function(sim) {
   caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
 #     #rads <- sample(10:30, length(caribou), replace=TRUE)
-#     #rings <- cir(caribou, radiuses=rads, landscapes, 1)
+#     #rings <- cir(caribou, radiuses=rads, landscape, 1)
 #     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
 #
 
