@@ -2,10 +2,13 @@
 \docType{methods}
 \name{reloadModuleLater}
 \alias{reloadModuleLater}
+\alias{reloadModuleLater,simList,NULL-method}
 \alias{reloadModuleLater,simList,character-method}
 \title{Load modules for simulation.}
 \usage{
 reloadModuleLater(sim, depends)
+
+\S4method{reloadModuleLater}{simList,`NULL`}(sim, depends)
 
 \S4method{reloadModuleLater}{simList,character}(sim, depends)
 }

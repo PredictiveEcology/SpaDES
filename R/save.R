@@ -8,18 +8,16 @@
 doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # check that output directory exists, make it if not
-    pathsToCheck <- unname(unlist(lapply(simParams(sim),function(y) {
-        return(y$savePath)
-      })))
+    pathsToCheck <- unname(unlist(lapply(simParams(sim), function(y) return(y$.savePath))))
 
     # make paths if they don't exist
     lapply(pathsToCheck, function(x) {
       if (is.null(simParams(sim)$globals$outputPath)){
         outputPath <- x
       } else {
-        outputPath <- file.path(simParams(sim)$globals$outputPath,x)
+        outputPath <- file.path(simParams(sim)$globals$outputPath, x)
       }
-      checkPath(outputPath, create=TRUE)
+      outputPath <- checkPath(outputPath, create=TRUE)
     })
 
     # no scheduling of new event. Saving will be called by other events,
@@ -47,7 +45,7 @@ simSave = function(sim) {
     if (is.null(simParams(sim)$globals$outputPath)){
       outputPath <- y$.savePath
     } else {
-      outputPath <- file.path(simParams(sim)$globals$outputPath,y$.savePath)
+      outputPath <- file.path(simParams(sim)$globals$outputPath, y$.savePath)
     }
     return(outputPath)
     })

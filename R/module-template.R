@@ -45,11 +45,21 @@ setMethod("newModule",
 ### template event
 doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType==\"init\") {
-    ### check for module dependencies
+    ### load any required packages
+    ### (use `loadPackages` or similar)
+    #pkgs <- list(\"raster\", \"RColorBrewer\")
+    #loadPackages(pkgs)
+
+    ### check for module dependencies:
+    ### (use or NULL if no dependencies exist)
+    depends <- NULL
+
+    ### check for object dependencies:
+    ### (use `checkObject` or similar)
+
+
     # if a required module isn't loaded yet,
     # reschedule this module init for later
-    depends <- \"NONE\" # list module names here
-
     if (reloadModuleLater(sim, depends)) {
       sim <- scheduleEvent(sim, currentTime(sim), \"", name, "\", \"init\")
     } else {
