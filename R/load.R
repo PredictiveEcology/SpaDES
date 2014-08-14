@@ -65,8 +65,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' mySim <- simInit(times=list(start=0.0, stop=100),
 #'                  params=list(
 #'                    #.checkpoint=list(interval=1000,
-#'                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-#'                    fileList=fileList,
+#'                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
+#'                    .loadFileList=fileList,
 #'                    .progress=list(graphical=FALSE, interval = 1),
 #'                    caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
 #'                                 .savePath=file.path("output","caribouMovement"),
@@ -86,9 +86,9 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' mySim <- simLoad(mySim)
 #' simPlot(DEM)
 #'
-#'# Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#'#  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
-#'#  specifically, when add "native = TRUE" as an argument to the raster function
+#' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
+#' #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
+#' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
 #'      full.names=TRUE,pattern= "tif")
@@ -103,7 +103,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    stringsAsFactors=FALSE)
 #' mySim <- simInit(times=list(start=0.0, stop=100),
 #'   params=list(
-#'               fileList=fileList,
+#'               .loadFileList=fileList,
 #'               .progress=list(graphical=FALSE, interval=10),
 #'               randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c("habitat"),
 #'                              .savePath=file.path("output", "habitat"),
@@ -116,7 +116,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'                                 .plotInitialTime = 1.01, .plotInterval=1,
 #'                                 interval=1, startTime=0)),
 #'   modules=list("randomLandscapes", "caribouMovement"),
-#'   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)
+#'   path=system.file("sampleModules", package="SpaDES"))
+#' sim <- simLoad(sim)
 #' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 #'
 #'
@@ -131,8 +132,8 @@ setMethod("simLoad",
           definition = function(sim, stackName, fileList, ...) {
             # Pull .fileExtensions into function so that scoping is faster
             .fileExts = .fileExtensions
-            if(!is.null(simParams(sim)$filelist)) {
-              fileList <- simParams(sim)$fileList
+            if(!is.null(simParams(sim)$.loadFilelist)) {
+              fileList <- simParams(sim)$.loadFilelist
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -263,9 +264,9 @@ setMethod("simLoad",
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
-                  simParams(sim)$fileList <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
+                  simParams(sim)$.loadFilelist <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
                 } else if (is(fileList, "data.frame")) {
-                  simParams(sim)$fileList <- fileListdf
+                  simParams(sim)$.loadFilelist <- fileListdf
                 } else {
                   error("fileList must be either a list or data.frame")
                 }
@@ -274,7 +275,7 @@ setMethod("simLoad",
                                        "load", "init")
               }
             } else {
-              warning("No files loaded, because no fileList")
+              message("No files loaded, because no fileList")
             }
             return(sim)
 
@@ -289,7 +290,7 @@ setMethod("simLoad",
             usedFileList <- TRUE
 
             sim <- simInit(times=list(start=0.0, stop=1),
-                           params=list(fileList=fileList),
+                           params=list(.loadFileList=fileList),
                            modules=list(),
                            path=".")
             simLoad(sim=sim, usedFileList=usedFilelist)

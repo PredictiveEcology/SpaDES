@@ -103,10 +103,10 @@ outputPath=file.path("~", "tmp", "simOutputs")
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
-                   #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                   #fileList=fileList,
-                             .progress=list(graphical=FALSE, interval = 10),
-                             globals=list(mapName=mapName, outputPath=outputPath),
+                   #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
+                   #.loadFileList=fileList,
+                             .progress=list(.graphical=FALSE, .progressInterval = 10),
+                             globals=list(mapName=mapName, .outputPath=outputPath),
                              randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c(mapName),
                                             .savePath=file.path("output", "randomLandscapes"),
                                             .plotInitialTime = 0, .plotInterval=1e3,
@@ -124,9 +124,9 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                         .savePath = file.path("output","fireSpread"),
                                         returnInterval = 10, startTime=0)
                  ),
-                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                 #modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
                  #modules=list("stackFileList"),
-                 #modules=list("stackFileList", "fireSpread", "caribouMovement"),
+                 modules=list("stackFileList", "fireSpread", "caribouMovement"),
                 #                modules=list("caribouMovement", "fireSpread"),
                 path=system.file("sampleModules", package="SpaDES"))
 
@@ -148,19 +148,3 @@ simPlot(stack(FireMap),col=cols[[1]])
 shine(prof)
 c(address(mySim), refs(mySim))
 
-
-#######################################
-mySim <- simInit(times=list(start=0.0, stop=100.02),
-                 params=list(
-                   globals=list(mapName="landscape"),
-                   randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects="landscape",
-                                           .plotInitialTime = 0, .plotInterval=1e3,
-                                           startTime=0),
-                   fireSpread=list(nFires = 1e1, spreadprob=0.225,
-                                   persistprob=0, its=1e6,
-                                   .plotInitialTime = 0.1, .plotInterval=10,
-                                   returnInterval = 10, startTime=0)
-                 ),
-                 modules=list("randomLandscapes", "fireSpread"),
-                 path=system.file("sampleModules", package="SpaDES"))
-doSim(mySim, debug=FALSE)
