@@ -9,67 +9,72 @@
 ###############################################
 
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
-    if (eventType=="init") {
-      ### check for module dependencies:
-      # if a required module isn't loaded yet,
-      # reschedule this module init for later
-      depends <- "NONE"#randomLandscapes" # list module names here
-      checkObject(simParams(sim)$globals$mapName,layer="habitatQuality")
+  if (eventType=="init") {
+    ### load any required packages
+    ### (use `loadPackages` or similar)
+    pkgs <- list("grid", "raster", "sp")
+    loadPackages(pkgs)
 
-      if (reloadModuleLater(sim, depends)) {
-          sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
-      } else  {
-        # do stuff for this event
-        sim <- caribouMovementInit(sim)
+    ### check for module dependencies:
+    ### (use NULL if no dependencies exist)
+    depends <- NULL
 
-        # schedule the next event
-        sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
-        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
-        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
-      }
-    } else if (eventType=="move") {
-        # do stuff for this event
-        sim <- caribouMovementMove(sim)
+    ### check for object dependencies:
+    ### (use `checkObject` or similar)
+    checkObject(simParams(sim)$globals$mapName, layer="habitatQuality")
 
-        # schedule the next event
-        sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribouMovement", "move")
-    } else if (eventType=="plot.init") {
+    # if a required module isn't loaded yet,
+    # reschedule this module init for later
+    if (reloadModuleLater(sim, depends)) {
+      sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
+    } else  {
       # do stuff for this event
-      simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
-              delete.previous=TRUE)
+      sim <- caribouMovementInit(sim)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
-    } else if (eventType=="plot") {
-      # do stuff for this event
-      simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
-              delete.previous=TRUE)
-
-      # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
-    } else if (eventType=="save") {
-      # do stuff for this event
-      simSave(sim)
-
-      # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
-
-    } else {
-      warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
-                    "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+      sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
+      sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
+      sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
     }
-    return(sim)
+  } else if (eventType=="move") {
+    # do stuff for this event
+    sim <- caribouMovementMove(sim)
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + 1.00, "caribouMovement", "move")
+  } else if (eventType=="plot.init") {
+    # do stuff for this event
+    simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
+            delete.previous=TRUE)
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
+  } else if (eventType=="plot") {
+    # do stuff for this event
+    simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19,gp=gpar(cex=0.01),
+            delete.previous=TRUE)
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
+  } else if (eventType=="save") {
+    # do stuff for this event
+    simSave(sim)
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
+
+  } else {
+    warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
+                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+  }
+  return(sim)
 }
 
 caribouMovementInit <- function(sim) {
-    ### load any required packages
-    pkgs <- list("raster","grid") # list required packages here
-    loadPackages(pkgs)
+  landscape <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
 
-    landscape <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
-
-    yrange <- c(ymin(landscape),ymax(landscape))
-    xrange <- c(xmin(landscape),xmax(landscape))
+  yrange <- c(ymin(landscape),ymax(landscape))
+  xrange <- c(xmin(landscape),xmax(landscape))
 #    best <- max(values(landscape))
 #    worst <- min(values(landscape))
 #    good <- Which(landscape>0.8*best)
@@ -77,22 +82,22 @@ caribouMovementInit <- function(sim) {
 #   al <- agentLocation(good)    # good landscape, from above
 #   initialCoords <- probInit(landscape, al)
 
-    # initialize caribou agents
-    N <- simParams(sim)$caribouMovement$N
-    IDs <- as.character(1:N)
-    sex <- sample(c("female", "male"), N, replace=TRUE)
-    age <- round(rnorm(N, mean=8, sd=3))
-    prevX <- rep(0, N)
-    prevY <- rep(0, N)
-    starts <- cbind(x=runif(N, xrange[1],xrange[2]),
-                    y=runif(N, yrange[1],yrange[2]))
+  # initialize caribou agents
+  N <- simParams(sim)$caribouMovement$N
+  IDs <- as.character(1:N)
+  sex <- sample(c("female", "male"), N, replace=TRUE)
+  age <- round(rnorm(N, mean=8, sd=3))
+  prevX <- rep(0, N)
+  prevY <- rep(0, N)
+  starts <- cbind(x=runif(N, xrange[1],xrange[2]),
+                  y=runif(N, yrange[1],yrange[2]))
 
-    # create the caribou agent object
-    caribou <<- SpatialPointsDataFrame(coords=starts,
-                                       data=data.frame(prevX, prevY, sex, age))
-    row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
+  # create the caribou agent object
+  caribou <<- SpatialPointsDataFrame(coords=starts,
+                                     data=data.frame(prevX, prevY, sex, age))
+  row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
 
-    return(sim)
+  return(sim)
 }
 
 caribouMovementMove <- function(sim) {
