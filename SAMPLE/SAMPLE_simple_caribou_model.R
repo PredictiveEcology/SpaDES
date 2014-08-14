@@ -92,17 +92,20 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          lib.loc=getOption("devtools.path"),
                                                          quiet=FALSE),"maps"),
                                   full.names=TRUE, pattern= "tif"),
+                      functions="rasterToMemory",
+                      packages="SpaDES",
                       stringsAsFactors=FALSE)
 
 #simLoad(fileList = fileList)
 mapName = "landscape"
+outputPath=file.path("~","simOutputs")
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                             fileList=fileList,
-                             .progress=list(graphical=FALSE, interval = 1),
-                             globals=list(mapName = mapName),
+                            fileList=fileList,
+                             .progress=list(graphical=FALSE, interval = 10),
+                             globals=list(mapName=mapName, outputPath=outputPath),
                              randomLandscapes = list(nx=1e2, ny=1e2, toSave=c(mapName),
                                             savePath=file.path("output", "randomLandscapes"),
                                             plotInitialTime = 0, plotInterval=1e3,
@@ -118,17 +121,18 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                         plotInitialTime = 0.1, plotInterval=10,
                                         toSave=c("Fires"),
                                         savePath = file.path("output","fireSpread"),
-                                        saveInterval = 100, interval = 10, startTime=0))
+                                        saveInterval = 100, interval = 10, startTime=0)
                  ),
-#                modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                 #modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                 #modules=list("stackFileList"),
                 modules=list("stackFileList", "fireSpread", "caribouMovement"),
-#                modules=list("caribouMovement", "fireSpread"),
+                #                modules=list("caribouMovement", "fireSpread"),
                 path=system.file("sampleModules", package="SpaDES"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)
 dev(4)
-print(system.time(mySim <- doSim(mySim, debug=TRUE)))
+print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
