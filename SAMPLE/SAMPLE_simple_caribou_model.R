@@ -118,7 +118,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                         plotInitialTime = 0.1, plotInterval=10,
                                         toSave=c("Fires"),
                                         savePath = file.path("output","fireSpread"),
-                                        saveInterval = 100, interval = 10, startTime=0))
+                                        saveInterval = 100, interval = 10, startTime=0)
                  ),
 #                modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
                 modules=list("stackFileList", "fireSpread", "caribouMovement"),
