@@ -13,7 +13,14 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
       })))
 
     # make paths if they don't exist
-    lapply(pathsToCheck, checkPath, create=TRUE)
+    lapply(pathsToCheck, function(x) {
+      if (is.null(simParams(sim)$globals$outputPath)){
+        outputPath <- x
+      } else {
+        outputPath <- file.path(simParams(sim)$globals$outputPath,x)
+      }
+      checkPath(outputPath, create=TRUE)
+    })
 
     # no scheduling of new event. Saving will be called by other events,
     #   in an event-specific manner.
