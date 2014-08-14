@@ -16,26 +16,26 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
         } else {
             sim <- randomLandscapesInit(sim)
         }
-        sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$plotInitialTime, "randomLandscapes", "plot")
-        sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$saveInitialTime, "randomLandscapes", "save")
+        sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime, "randomLandscapes", "plot")
+        sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime, "randomLandscapes", "save")
 
     } else if (eventType=="plot") {
       # do stuff for this event
       simPlot(habitat, col=.cols[6:2])
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$plotInterval, "randomLandscapes", "plot")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, "randomLandscapes", "plot")
     } else if (eventType=="save") {
 
       # do stuff for this event
       simSave(sim)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$saveInterval, "randomLandscapes", "save")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval, "randomLandscapes", "save")
 
     } else {
-      warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
-                    "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] ,"\'", sep=""))
+      warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
+                    "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
     }
     return(sim)
 }

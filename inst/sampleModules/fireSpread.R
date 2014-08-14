@@ -19,8 +19,8 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 
             # schedule the next event
             sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, "fireSpread", "burn")
-            sim <- scheduleEvent(sim, simParams(sim)$fireSpread$plotInitialTime, "fireSpread", "plot.init")
-            sim <- scheduleEvent(sim, simParams(sim)$fireSpread$saveInterval, "fireSpread", "save")
+            sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
+            sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
         }
     } else if (eventType=="burn") {
         # do stuff for this event
@@ -32,22 +32,22 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
       # do stuff for this event
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
     } else if (eventType=="plot") {
       # do stuff for this event
       simPlot(Fires, add=TRUE, on.which.to.plot = 6, col=.cols[[2]], add.legend=TRUE, delete.previous = FALSE)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$plotInterval, "fireSpread", "plot")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
     } else if (eventType=="save") {
       # do stuff for this event
       simSave(sim)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$saveInterval, "fireSpread", "save")
+      sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
     } else {
-      warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
-                    "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+      warning(paste("Undefined event type: \'",simEvents(sim)[1, "eventType", with=FALSE],
+                    "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE],"\'", sep=""))
     }
     return(sim)
 }

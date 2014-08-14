@@ -8,7 +8,7 @@
 #' submodules to the simulation. We use S4 classes and methods, and use `data.table`
 #' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
-#' @slot .loaded    List of character names specifying which modules are currently loaded.
+#' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
 #'
 #' @slot modules    List of character names specifying which modules to load.
 #'
