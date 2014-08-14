@@ -49,7 +49,6 @@ simSave = function(sim) {
     } else {
       outputPath <- file.path(simParams(sim)$globals$outputPath,y$.savePath)
     }
-
     return(outputPath)
     })
 
