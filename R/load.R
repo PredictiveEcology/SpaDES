@@ -43,18 +43,20 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' is a loading function, arguments = list(native = TRUE). If there is only one list, then it is assumed to apply
 #' to all load attempts and will be repeated for each load function.
 #'
-#'
 #' @param sim A \code{simList} object
 #'
 #' @param stackName String or Null, the default. If a string, then all rasters will be put into
 #' a single RasterStack object, with name given.
 #'
+#' @param fileList list or data.frame to call simLoad directly from the fileList as described in Details
+#'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
+#' @name simLoad
 #' @export
 #' @docType methods
-#' @rdname simLoad
+#' @rdname simLoad-method
 #'
 #' @examples
 #' #load random maps included with package
@@ -118,20 +120,16 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)
 #' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 #'
-simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
+#'
+#'
+setGeneric("simLoad", function(sim, stackName=NULL, fileList, ...)  {
+  standardGeneric("simLoad")
+})
+#' @rdname simLoad-method
+setMethod("simLoad",
+          signature(sim="simList",stackName="ANY",fileList="missing"),
+          definition = function(sim, stackName, fileList, ...) {
 
-  # check to see if fileList is empty, if it is, skip everything, return nothing
-  usedFileList = FALSE
-  if(!is.null(fileList)) {
-    usedFileList = TRUE
-    sim <- simInit(times=list(start=0.0, stop=1),
-                   params=list(
-                     fileList=fileList
-                   ),
-                   modules=list(),
-                   path="."
-    )
-  }
 
   # Pull .fileExtensions into function so that scoping is faster
   .fileExts = .fileExtensions
@@ -263,6 +261,7 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
   keepOnFileList <- fileListdf$loadTime!=curTime
   fileListdf = fileListdf[keepOnFileList,]
 
+  if(!exists("usedFileList")) usedFileList = FALSE
   # If filename had been provided, then no need to return sim object, just report files loaded
   if (!usedFileList) {
     if(is(fileList, "list")) {
@@ -280,6 +279,26 @@ simLoad = function(sim = NULL, stackName = NULL, fileList = NULL) {
   return(sim)
 
 }
+)
+
+#' @rdname simLoad-method
+setMethod("simLoad",
+          signature(sim="missing",stackName="ANY",fileList="ANY"),
+          definition = function(sim, stackName, fileList, ...) {
+
+# check to see if fileList is empty, if it is, skip everything, return nothing
+usedFileList = TRUE
+sim <- simInit(times=list(start=0.0, stop=1),
+               params=list(
+                 fileList=fileList
+               ),
+               modules=list(),
+               path="."
+)
+simLoad(sim=sim, usedFileList=usedFilelist)
+}
+)
+
 
 #' File extensions map
 #'
