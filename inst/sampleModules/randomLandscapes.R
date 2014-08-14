@@ -65,13 +65,12 @@ randomLandscapesInit <- function(sim) {
     habitatQuality <- (DEM+10 + (forestCover+5)*10)/100
     habitatQuality <- habitatQuality/maxValue(habitatQuality)
 
-    # Stack them into a single stack for plotting
-    habitat <<- stack(list(DEM, forestAge, forestCover, habitatQuality, percentPine))
-
-    names(habitat) <<- c("DEM","forestAge", "forestCover", "habitatQuality", "percentPine")
+    # Stack them into a single stack and assign to global env
+    mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
+    assign(simParams(sim)$globals$mapName, mapStack, envir=.GlobalEnv)
 
     # last thing to do is add module name to the loaded list
-    simLoaded(sim) <- append(simLoaded(sim), "randomLandscapes")
+    simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
 
     return(sim)
 }

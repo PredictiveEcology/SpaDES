@@ -9,7 +9,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends <- "NONE"#c("randomLandscapes") # list package names here
+        depends <- "NONE"  # list package names here
 
         if (reloadModuleLater(sim, depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "init")
@@ -57,6 +57,8 @@ fireSpreadInit <- function(sim) {
     pkgs <- list("raster", "RColorBrewer") # list required packages here
     loadPackages(pkgs)
 
+    landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
+
     ### create burn map that tracks fire locations over time
     Fires <<- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
     names(Fires) <<- "Fires"
@@ -64,7 +66,7 @@ fireSpreadInit <- function(sim) {
 
 
     # last thing to do is add module name to the loaded list
-    simLoaded(sim) <- append(simLoaded(sim), "fireSpread")
+    simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
 
     return(sim)
 }
@@ -72,6 +74,8 @@ fireSpreadInit <- function(sim) {
 
 fireSpreadBurn <- function(sim) {
     # random fire start locations, but could be based on hab:
+    landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
+
     Fires <<- spread(landscapes[[1]],
                   loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
                   #spreadProb=0.225,

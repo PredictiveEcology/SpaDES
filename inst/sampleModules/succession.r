@@ -144,7 +144,7 @@ successionInit <- function(sim) {
 #, speedup=10, add=FALSE, col=list(brewer.pal(9,"YlGnBu"), brewer.pal(10,"Set3")))
 
   # last thing to do is add module name to the loaded list
-  simLoaded(sim) <- append(simLoaded(sim), "succession")
+  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "succession")
 
   return(sim)
 }

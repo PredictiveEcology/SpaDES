@@ -94,22 +94,20 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                   full.names=TRUE, pattern= "tif"),
                       stringsAsFactors=FALSE)
 
+#simLoad(fileList = fileList)
+mapName = "landscape"
 mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                          file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
                              fileList=fileList,
                              .progress=list(graphical=FALSE, interval = 1),
-                             randomLandscapes = list(nx=1e2, ny=1e2, toSave=c("habitat"),
+                             globals=list(mapName = mapName),
+                             randomLandscapes = list(nx=1e2, ny=1e2, toSave=c(mapName),
                                             savePath=file.path("output", "randomLandscapes"),
-                                             plotInitialTime = 0, plotInterval=1e3,
-                                             saveInitialTime = 3, saveInterval=100,
-                                             interval=0, startTime=0),
-                             loadLandscapes = list(toSave=c("habitat"),
-                                                   savePath=file.path("output", "loadLandscapes"),
-                                                   plotInitialTime = 0, plotInterval=1e3,
-                                                   saveInitialTime = 3, saveInterval=100,
-                                                   interval=0, startTime=0),
+                                            plotInitialTime = 0, plotInterval=1e3,
+                                            saveInitialTime = 3, saveInterval=100,
+                                            interval=0, startTime=0),
                              caribouMovement=list(N=1e2, toSave=c("caribou"),
                                           savePath=file.path("output","caribouMovement"),
                                           saveInitialTime = 3, saveInterval=100,
@@ -120,17 +118,17 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                                         plotInitialTime = 0.1, plotInterval=10,
                                         toSave=c("Fires"),
                                         savePath = file.path("output","fireSpread"),
-                                        saveInterval = 100, interval = 10, startTime=0)
-                             ),
+                                        saveInterval = 100, interval = 10, startTime=0))
+                 ),
 #                modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-                modules=list("loadLandscapes", "fireSpread", "caribouMovement"),
+                modules=list("stackFileList", "fireSpread", "caribouMovement"),
 #                modules=list("caribouMovement", "fireSpread"),
                 path=system.file("sampleModules", package="SpaDES"))
 
 #simCurrentTime(mySim)<-0
 #doSim(mySim, debug=FALSE)
 dev(4)
-print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+print(system.time(mySim <- doSim(mySim, debug=TRUE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
@@ -140,7 +138,6 @@ simPlot(stack(FireMap),col=cols[[1]])
 
 ## profiling of development code
 #prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
-
 #prof <- lineprof(source("doSim.R"))
 
 shine(prof)

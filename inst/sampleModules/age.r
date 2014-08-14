@@ -10,7 +10,7 @@ doEvent.age <- function(sim, eventTime, eventType, debug=FALSE) {
         ### check for module dependencies
         # if a required module isn't loaded yet,
         # reschedule this module init for later
-        depends <- "" # list module names here
+        depends <- "NONE" # list module names here
 
         if (reloadModuleLater(deparse(sim), depends)) {
             sim <- scheduleEvent(sim, simCurrentTime(sim), "age", "init")
@@ -55,7 +55,7 @@ ageInit <- function(sim) {
 
 
     # last thing to do is add module name to the loaded list
-    simLoaded(sim) <- append(simLoaded(sim), "age")
+    simModulesLoaded(sim) <- append(simModulesLoaded(sim), "age")
 
     return(sim)
 }

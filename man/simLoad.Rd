@@ -22,10 +22,10 @@ All other columns are optional.
 
 Other optional columns are:
 
-- "objs", a character string indicating the name of the object once the
+- "objectNames", a character string indicating the name of the object once the
 file is loaded.
 
-- "funs", a character string indicating the function to be used to load the file
+- "functions", a character string indicating the function to be used to load the file
 
 - "intervals", a numeric indicating the interval between repeated loading of the same
 file. This should be NA or the column absent if the file is only loaded once.
@@ -35,14 +35,14 @@ but this can be any time. The loading will be scheduled to occur at the "loadTim
 whatever that is. If the same file is to loaded many times, but not at a regular interval,
 then there should be separate line, with a unique loadTime for each.
 
-- "args" is a list of lists of named arguments, one list for each loading function. For example, if raster
-is a loading function, args = list(native = TRUE). If there is only one list, then it is assumed to apply
+- "arguments" is a list of lists of named arguments, one list for each loading function. For example, if raster
+is a loading function, arguments = list(native = TRUE). If there is only one list, then it is assumed to apply
 to all load attempts and will be repeated for each load function.
 }
 \examples{
 #load random maps included with package
 fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
-   full.names=TRUE,pattern= "tif"), fun="rasterToMemory", package="SpaDES",
+   full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
    stringsAsFactors=FALSE)
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
@@ -51,7 +51,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                    fileList=fileList,
                    .progress=list(graphical=FALSE, interval = 1),
                    caribouMovement=list(N=1e2, toSave=c("caribou"),
-                                savePath=file.path("output","caribou"),
+                                savePath=file.path("output","caribouMovement"),
                                 saveInitialTime = 3, saveInterval=100,
                                 plotInitialTime = 1.01, plotInterval=100,
                                 interval=1, startTime=0),
@@ -59,7 +59,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                              persistprob=0, its=1e6,
                              plotInitialTime = 0, plotInterval=100,
                              toSave=c("Fires"),
-                             savePath = file.path("output","fires"),
+                             savePath = file.path("output","firesSpread"),
                              saveInterval = 100, interval = 10, startTime=0)
                  ),
                  modules=list("fireSpread", "caribouMovement"),
@@ -71,15 +71,15 @@ simPlot(DEM)
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
-args = list(native=TRUE)
+arguments = list(native=TRUE)
 files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
      full.names=TRUE,pattern= "tif")
 fileList = data.frame(
    files = files,
-   fun="rasterToMemory",
-   package="SpaDES",
-   objs = NA,
-   args = args,
+   functions="rasterToMemory",
+   packages="SpaDES",
+   objectNames = NA,
+   arguments = arguments,
    loadTimes = 0,
    intervals = c(rep(NA,length(files)-1),10),
    stringsAsFactors=FALSE)
@@ -95,7 +95,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                    caribouMovement=list(N=1e2, toSave=c("caribou"),
                                 savePath=file.path("output","caribou"),
                                 saveInitialTime = 3, saveInterval=100,
-                                plotInitialTime = 1.01, plotInterval=100,
+                                plotInitialTime = 1.01, plotInterval=1,
                                 interval=1, startTime=0)),
   modules=list("randomLandscapes", "caribouMovement"),
   path=system.file("sampleModules", package="SpaDES"))#' sim <- simLoad(sim)

@@ -75,8 +75,11 @@ setMethod("initialize",
             # set default slot values
             simEvents(.Object) <- as.data.table(NULL)
             simEventsCompleted(.Object) <- as.data.table(NULL)
+            simModulesLoaded(.Object) <- NULL
+            simObjectsLoaded(.Object) <- NULL
             simTimes(.Object) <- simtimes # validated list of sim times
             simDebug(.Object) <- FALSE
+
             .Object <- callNextMethod(.Object, ..., simtimes=simtimes)
             return(.Object)
 })
@@ -90,11 +93,12 @@ setMethod("show",
           definition=function(object) {
               show = list()
               show[["Modules Required:"]] = as.character(simModules(object))
-              show[["Modules Loaded:"]] = as.character(simLoaded(object))
+              show[["Modules Loaded:"]] = as.character(simModulesLoaded(object))
+              show[["Objects Loaded:"]] = as.character(simObjectsLoaded(object))
               show[["Simulation Parameters:"]] = as.list(simParams(object))
               show[["Current Simulation Time:"]] = simTimes(object)
-              show[["Past 5 Completed Events:"]] = tail(simEventsCompleted(object), 5)
-              show[["Next 5 Scheduled Events:"]] = head(simEvents(object), 5)
+              show[["Past Completed Events:"]] = simEventsCompleted(object)
+              show[["Next Scheduled Events:"]] = simEvents(object)
               show[["Debugging Mode:"]] = simDebug(object)
               print(show)
 })
@@ -167,42 +171,96 @@ setReplaceMethod("simModules",
 #'
 #' @export
 #' @docType methods
-#' @rdname simLoaded-accessor-methods
+#' @rdname simModulesLoaded-accessor-methods
 #'
 #' @export
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("simLoaded", function(object) {
-    standardGeneric("simLoaded")
+setGeneric("simModulesLoaded", function(object) {
+    standardGeneric("simModulesLoaded")
 })
 
 #' get list of loaded simulation modules
-#' @rdname simLoaded-accessor-methods
-setMethod("simLoaded",
+#' @rdname simModulesLoaded-accessor-methods
+setMethod("simModulesLoaded",
           signature="simList",
           definition=function(object) {
-              return(object@.loaded)
+              return(object@.loaded$modules)
 })
 
 #' set list of loaded simulation modules
 #' @export
-#' @rdname simLoaded-accessor-methods
-setGeneric("simLoaded<-",
+#' @rdname simModulesLoaded-accessor-methods
+setGeneric("simModulesLoaded<-",
            function(object, value) {
-               standardGeneric("simLoaded<-")
+               standardGeneric("simModulesLoaded<-")
 })
 
 #' set list of loaded simulation modules
 #' @name <-
-#' @rdname simLoaded-accessor-methods
-setReplaceMethod("simLoaded",
+#' @rdname simModulesLoaded-accessor-methods
+setReplaceMethod("simModulesLoaded",
                  signature="simList",
                  function(object, value) {
-                     object@.loaded <- value
+                     object@.loaded$modules <- value
                      validObject(object)
                      return(object)
 })
+
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#'
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simObjectsLoaded-accessor-methods
+#'
+#' @export
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simObjectsLoaded", function(object) {
+  standardGeneric("simObjectsLoaded")
+})
+
+#' get list of loaded simulation modules
+#' @rdname simObjectsLoaded-accessor-methods
+setMethod("simObjectsLoaded",
+          signature="simList",
+          definition=function(object) {
+            return(object@.loaded$objects)
+          })
+
+#' set list of loaded simulation modules
+#' @export
+#' @rdname simObjectsLoaded-accessor-methods
+setGeneric("simObjectsLoaded<-",
+           function(object, value) {
+             standardGeneric("simObjectsLoaded<-")
+           })
+
+#' set list of loaded simulation modules
+#' @name <-
+#' @rdname simObjectsLoaded-accessor-methods
+setReplaceMethod("simObjectsLoaded",
+                 signature="simList",
+                 function(object, value) {
+                   object@.loaded$objects <- value
+                   validObject(object)
+                   return(object)
+                 })
+
 
 ##############################################################
 #' Accessor methods for \code{simList} object slots
@@ -699,6 +757,9 @@ setMethod("simInit",
 
                   # schedule each module's init event:
                   sim <- scheduleEvent(sim, 0.00, m, "init")
+
+                  # add module name to the loaded list
+                  simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
               }
 
               simModules(sim) <- append(defaults, modules)
@@ -748,7 +809,7 @@ setMethod("reloadModuleLater",
             if (depends=="NONE") {
               return(FALSE)
             } else {
-              return(!all(depends %in% simLoaded(sim)))
+              return(!all(depends %in% simModulesLoaded(sim)))
             }
             return(sim)
 })
