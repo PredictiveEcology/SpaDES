@@ -1,3 +1,51 @@
+##############################################################
+#' Load packages.
+  #'
+  #' Load and optionally install additional packages.
+  #'
+  #' @param packageList A list of character strings specifying
+#' the names of packages to be loaded.
+  #'
+  #' @param install Logical flag. If required packages are not
+#' already installed, should they be installed?
+  #'
+  #' @param quiet Logical flag. Should the final "packages loaded"
+#' message be suppressed?
+  #'
+  #' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+#'
+  #' @seealso \code{\link{library}}.
+#'
+  #' @export
+#' @docType methods
+#' @rdname loadPackages-method
+#'
+  #' @author Alex Chubaty
+#'
+  #' @examples
+#' \dontrun{pkgs <- list("ggplot2", "lme4")}
+#' \dontrun{loadPackages(pkgs) # loads packages if installed}
+#' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
+  standardGeneric("loadPackages")
+})
+#' @rdname loadPackages-method
+setMethod("loadPackages",
+           signature="list",
+            definition = function(packageList, install, quiet) {
+              load <- function(name, install) {
+                if (!require(name, character.only=TRUE)) {
+                  if (install) {
+                    install.packages(name, repos="http://cran.r-project.org")
+                    library(name, character.only=TRUE)
+                    } else {
+                      warning(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
+                      }
+                  }
+                }
+              lapply(packageList, load, install)
+              if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
+             })
 
 
 
@@ -67,7 +115,7 @@ checkPath <- function(path, create=FALSE) {
 #' \dontrun{}
 #' \dontrun{}
 #' \dontrun{}
-setGeneric("checkObject", function(name, ...) {
+setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
 })
 
@@ -75,26 +123,55 @@ setGeneric("checkObject", function(name, ...) {
 #' @rdname checkObject-method
 #' @param layer Character string, specifying a layer name in a Raster
 setMethod("checkObject",
-          signature="Raster",
-          definition = function(name, layer, ...) {
-            if (exists(name, envir=.GlobalEnv)) {
-              object <- get(name, envir=.GlobalEnv)
+          signature(name="missing", object="Raster", layer="character"),
+          definition = function(name, object, layer, ...) {
               if (!is.na(match(layer, names(object)))) {
                 return(invisible(TRUE))
               } else {
-                warning(paste(name,"is not loaded in the global environment"))
+                warning(paste(deparse(substitute(object,env=.GlobalEnv)),"exists, but",layer,"is not a layer"))
                 return(FALSE)
               }
-            }})
+#            }
+})
 
-#' @rdname checkObject-method
 setMethod("checkObject",
-          signature="ANY",
-          definition = function(name, ...) {
-            if (exists(name, envir=.GlobalEnv)) {
+          signature(name="missing", object="ANY", layer="missing"),
+          definition = function(name, object, layer, ...) {
+            if(exists(deparse(substitute(object)),envir=.GlobalEnv)) {
               return(invisible(TRUE))
             } else {
-              warning(paste(name,"is not loaded in the global environment"))
-              return(invisible(FALSE))
+              warning(paste(deparse(substitute(object,env=.GlobalEnv)),"does not exist"))
+              return(FALSE)
             }
           })
+
+
+#' @rdname checkObject-method
+#' @param layer Character string, specifying a layer name in a Raster
+setMethod("checkObject",
+          signature(name="character", object="missing", layer="missing"),
+          definition = function(name, ...) {
+            if (exists(name, envir=.GlobalEnv)) {
+                return(invisible(TRUE))
+            } else {
+              warning(paste(name,"does not exist in the global environment"))
+              return(FALSE)
+            }
+            })
+
+setMethod("checkObject",
+          signature(name="character", object="missing", layer="character"),
+          definition = function(name, layer, ...) {
+            if (exists(name, envir=.GlobalEnv)) {
+              if(is(get(name, envir=.GlobalEnv),"Raster")) {
+                checkObject(object=get(name, envir=.GlobalEnv), layer=layer, ...)
+              } else {
+                warning(paste("The object \"",name,"\" exists, but is not
+                              a Raster, so layer is ignored",sep=""))
+                return(invisible(TRUE))
+              }
+            } else {
+              warning(paste(name,"does not exist in the global environment"))
+              return(FALSE)
+            }
+            })
