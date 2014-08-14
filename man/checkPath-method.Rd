@@ -2,6 +2,7 @@
 \docType{methods}
 \name{checkPath}
 \alias{checkPath}
+\alias{checkPath,NULL,ANY-method}
 \alias{checkPath,character,logical-method}
 \alias{checkPath,character,missing-method}
 \title{Check filepath.}
@@ -11,6 +12,8 @@ checkPath(path, create)
 \S4method{checkPath}{character,logical}(path, create)
 
 \S4method{checkPath}{character,missing}(path)
+
+\S4method{checkPath}{`NULL`,ANY}(path)
 }
 \arguments{
 \item{path}{A character string corresponding to a filepath.}
