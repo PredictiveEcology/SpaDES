@@ -741,6 +741,9 @@ setMethod("simInit",
               simModules(sim) <- modules
               simParams(sim) <- params
 
+              dotParams = list(".saveInterval",".savePath",".saveInitialTime",".saveObjects",
+                               ".plotInterval",".plotInitialTime")
+
               # load "default" modules (should we be hardcoding this??)
               for (d in defaults) {
                 # sourcing the code in each module in already done
@@ -760,6 +763,14 @@ setMethod("simInit",
 
                   # add module name to the loaded list
                   simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
+
+                  # add NAs to any of the dotParams that are not specified by user
+                  for(x in dotParams) {
+                    if(is.null(simParams(sim)[[m]][[x]])) {
+                      simParams(sim)[[m]][[x]] = NA_real_
+                    }
+                  }
+
               }
 
               simModules(sim) <- append(defaults, modules)
@@ -928,19 +939,38 @@ setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
-            newEvent <- as.data.table(list(eventTime=eventTime,
-                                            moduleName=moduleName,
-                                            eventType=eventType))
+            if (!is.na(eventTime)) {
+              if (length(eventTime)>0) {
+                newEvent <- as.data.table(list(eventTime=eventTime,
+                                                moduleName=moduleName,
+                                                eventType=eventType))
 
-            # if the event list is empty, set it to consist of newEvent and return;
-            # otherwise, add newEvent and re-sort (rekey).
-            if (length(simEvents(sim))==0) {
-              simEvents(sim) <- setkey(newEvent, eventTime)
-            } else {
-              simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), eventTime)
+                # if the event list is empty, set it to consist of newEvent and return;
+                # otherwise, add newEvent and re-sort (rekey).
+                if (length(simEvents(sim))==0) {
+                  simEvents(sim) <- setkey(newEvent, eventTime)
+                } else {
+                  simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), eventTime)
+                }
+              } else {
+                warning(paste("Invalid or missing eventTime. This is usually",
+                                "caused by an attempt to scheduleEvent at time NULL",
+                                "or by using an undefined parameter."))
+              }
             }
+
             return(sim)
 })
+
+setMethod("scheduleEvent",
+          signature(sim="simList", eventTime="NULL",
+                    moduleName="character", eventType="character"),
+          definition=function(sim, eventTime, moduleName, eventType) {
+            warning(paste("Invalid or missing eventTime. This is usually",
+                          "caused by an attempt to scheduleEvent at time NULL",
+                          "or by using an undefined parameter."))
+            return(sim)
+          })
 
 ##############################################################
 #' Process a simulation event
