@@ -24,8 +24,8 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
         # schedule the next event
         sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
-        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$plotInitialTime, "caribouMovement", "plot.init")
-        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$saveInitialTime, "caribouMovement", "save")
+        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
+        sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
       }
     } else if (eventType=="move") {
         # do stuff for this event
