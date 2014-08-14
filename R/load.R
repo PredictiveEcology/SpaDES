@@ -7,9 +7,7 @@
 # Just checks for paths, creates them if they do not exist
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-
-    sim <- simLoad(sim) #, stackName="maps2")
-
+    sim <- simLoad(sim)
   }
   return(sim)
 }

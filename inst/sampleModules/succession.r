@@ -7,11 +7,21 @@
 
 doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### check for module dependencies
+    ### load any required packages
+    ### (use `loadPackages` or similar)
+    pkgs <- list("raster", "RColorBrewer")
+    loadPackages(pkgs)
+
+    ### check for module dependencies:
+    ### (use NULL if no dependencies exist)
+    depends <- "age"
+
+    ### check for object dependencies:
+    ### (use `checkObject` or similar)
+
+
     # if a required module isn't loaded yet,
     # reschedule this module init for later
-    depends <- "age" # list module names here
-
     if (reloadModulesLater(deparse(sim), depends)) {
         sim <- scheduleEvent(sim, simCurrentTime(sim), "succession", "init")
     } else {
@@ -41,10 +51,6 @@ doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 successionInit <- function(sim) {
-  ### load any required packages
-  pkgs <- list("raster", "RColorBrewer") # list required packages here
-  loadPackages(pkgs)
-
   # Reclassify lcc05 to trajMap
   lcc05 <<- if(!exists("lcc05"))
       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")

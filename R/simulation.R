@@ -804,14 +804,16 @@ setGeneric("reloadModuleLater", function(sim, depends) {
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
+          signature(sim="simList", depends="NULL"),
+          definition=function(sim, depends) {
+            return(FALSE)
+})
+
+#' @rdname loadmodules
+setMethod("reloadModuleLater",
           signature(sim="simList", depends="character"),
           definition=function(sim, depends) {
-            if (depends=="NONE") {
-              return(FALSE)
-            } else {
-              return(!all(depends %in% simModulesLoaded(sim)))
-            }
-            return(sim)
+            return(!all(depends %in% simModulesLoaded(sim)))
 })
 
 ##############################################################

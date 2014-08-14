@@ -42,7 +42,7 @@ setMethod("loadPackages",
                     library(name, character.only=TRUE)
                     } else {
                       warning(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
-                      }
+                    }
                   }
                 }
               lapply(packageList, load, install)
