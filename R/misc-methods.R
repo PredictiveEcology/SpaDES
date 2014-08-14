@@ -99,6 +99,11 @@ checkPath <- function(path, create=FALSE) {
 #'
 #' @param name    A character string specifying
 #'                        the name of an object to be checked
+#' @param object    An object. This is mostly used internally, or with
+#'                        layer, because it will fail if the object does not exist
+#' @param layer Character string, specifying a layer name in a Raster, if the \code{name}
+#'                      is a Raster* object
+#'
 #' @param ...   Additional arguments. Not implemented.
 #'
 #' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
@@ -121,7 +126,6 @@ setGeneric("checkObject", function(name, object, layer, ...) {
 
 
 #' @rdname checkObject-method
-#' @param layer Character string, specifying a layer name in a Raster
 setMethod("checkObject",
           signature(name="missing", object="Raster", layer="character"),
           definition = function(name, object, layer, ...) {
