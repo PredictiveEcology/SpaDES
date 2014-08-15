@@ -4,16 +4,10 @@
 \alias{arrangeSimPlots}
 \title{Determine optimal plotting arrangement of RasterStack}
 \usage{
-arrangeSimPlots(ext, dimx, nam, which.to.plot, axes = "L")
+arrangeSimPlots(rast, which.to.plot = "all", axes = "L")
 }
 \arguments{
-\item{ext}{extent object}
-
-\item{dimx}{dimension of rasterStack}
-
-\item{nam}{names in rasterStack}
-
-\item{which.to.plot}{vector of numbers or names in rasterStack to plot}
+\item{rast}{Raster* object}
 
 \item{axes}{passed from simPlot}
 }

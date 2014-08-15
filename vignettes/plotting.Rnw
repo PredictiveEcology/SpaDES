@@ -88,4 +88,38 @@ cols <- list(
 simPlot(habitat, col=cols[c(2:5,3)])
 @
 
+<<mobile-point-agent, fig=TRUE>>=
+N <- 1e1 # number of agents
+
+# caribou data vectors
+IDs <- c("Alice", "Bob", "Clark", "Daisy", "Eric",
+         "Franz", "Gabby", "Hayley", "Igor", "Jane")
+sex <- c("female", "male", "male", "female", "male",
+         "male", "female", "female", "male", "female")
+age <- round(rnorm(N, mean=8, sd=3))
+prevX <- runif(N, xmin(habitat)+(ncol(habitat)*0.2), xmax(habitat)-(ncol(habitat)*0.2))
+prevY <- runif(N, ymin(habitat)+(nrow(habitat)*0.2), ymax(habitat)-(nrow(habitat)*0.2))
+
+# create the caribou agent object
+caribou <- SpatialPointsDataFrame(coords=cbind(x=rnorm(N, prevX, ncol(habitat)/20),
+                                               y=rnorm(N, prevY, ncol(habitat)/20)),
+                                  data=data.frame(prevX, prevY, sex, age))
+row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
+
+heading(SpatialPoints(cbind(x=prevX,y=prevY)),caribou)
+coordinates(caribou)
+
+## conventional plotting method - agents don't plot properly when it is a raster stack
+#plot(habitat)
+#plot(caribou, add=TRUE)
+
+# convenient plotting using simPlot
+simPlot(habitat, col=cols[c(2:5,3)])
+simPlot(caribou, on.which.to.plot=c(2,3,5), pch=19, size=unit(0.1,"inches"))
+drawArrows(from=SpatialPoints(cbind(x=prevX, y=prevY)),
+           to=caribou,
+           on.which.to.plot="DEM")
+@
+
+
 \end{document}

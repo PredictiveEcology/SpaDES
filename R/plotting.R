@@ -101,6 +101,7 @@ setGeneric("simPlot", function(x, on.which.to.plot=1, which.to.plot="all",
 })
 
 #' @aliases simPlot
+#' @export
 #' @rdname simPlot
 setMethod("simPlot",
           signature="RasterStack",
@@ -114,7 +115,7 @@ setMethod("simPlot",
               if(!is.list(col)) col <- as.list(data.frame(matrix(rep(col,dimx[3]), ncol=dimx[3]), stringsAsFactors=FALSE))
 
               if (add==FALSE) {
-                 arr <- arrangeSimPlots(ext, dimx, nam, which.to.plot, axes,...)
+                 arr <- arrangeSimPlots(x, which.to.plot, axes,...)
 
                  vp <- list()
                  grid.newpage()
@@ -217,7 +218,7 @@ setMethod("simPlot",
               if(!is.list(col)) col <- as.list(data.frame(matrix(rep(col,dimx[3]), ncol=dimx[3]), stringsAsFactors=FALSE))
 
               if (add==FALSE) {
-                arr <- arrangeSimPlots(ext,dimx,nam,which.to.plot=1,axes=axes,...)
+                arr <- arrangeSimPlots(x,which.to.plot=1,axes=axes,...)
                 with (arr, {
                   grid.newpage()
                   vp <- viewport(x=cr[1,"columns"], y=cr[1,"rows"],
@@ -319,7 +320,7 @@ setMethod("simPlot",
             rangey <- range(y1)
 
             if (add==FALSE) {
-              arr <- arrangeSimPlots(extent(c(rangex,rangey)),1,deparse(substitute(x)),1,axes="L")
+              arr <- arrangeSimPlots(raster(extent(c(rangex,rangey))),1,axes="L")
 
               grid.newpage()
               with(arr, {
@@ -378,22 +379,22 @@ setMethod("simPlot",
 #' @param rast Raster* object
 #' @param axes passed from simPlot
 #' @rdname arrangeSimPlots
+#' @export
 #' @docType methods
-arrangeSimPlots <- function(rast, axes="L") {
+arrangeSimPlots <- function(rast, which.to.plot="all", axes="L") {
     ext = extent(rast)
     dimx = dim(rast)
     nam = names(rast)
-#     if (length(which.to.plot)==1) {
-#         if(which.to.plot=="all")
-#             wh <- 1:dimx[3]
-#         else
-#             wh <- which.to.plot
-#     } else {
-#         wh <- which.to.plot
-#     }
     wh <- nam
 
-#    if (is.character(wh)) if (any(is.na(match(wh, nam)))) stop("Not a named map in rasterx")
+    if(any(which.to.plot != "all")) {
+      if (is.character(which.to.plot)) if (any(is.na(match(which.to.plot, nam)))) stop("Not a named map in rasterx")
+      if (is.numeric(which.to.plot)) {
+        wh <- wh[match(nam[which.to.plot], wh)]
+      } else {
+        wh <- wh[match(which.to.plot, wh)]
+      }
+    }
 
     if(dev.cur()==1) {
         dev.new(height=8, width=10)
@@ -584,64 +585,77 @@ setMethod("drawArrows",
 
 ##########
 rastVp <- function(rast){
-  xRange=c(xmin(rast),xmax(rast))
-  yRange=c(ymin(rast),ymax(rast))
-  deltaX=diff(xRange)
-  deltaY=diff(yRange)
-  ht = deltaY/(max(deltaY,deltaX))*0.8
-  wdth = deltaX/(max(deltaY,deltaX))*0.8
-  vp.rast <- viewport(name=names(rast),
+
+  dimx <- dim(rast)
+  ds <- dev.size()
+  ds.ratio <- ds[1]/ds[2]
+  map.ratio <- dimx[2]/dimx[1]
+  ds.map.ratio <- ds.ratio/map.ratio
+
+  vp.rast <- viewport(name=paste("vp",names(rast),sep=""),
                       x = unit(0.55, "npc"),
                       y = unit(0.55, "npc"),
                       just = "centre",
-                      width = unit(wdth, "npc"),
-                      height = unit(ht, "npc"),
-                      xscale=xRange,
-                      yscale=yRange)
+                      width=visualSqueeze/(ds.map.ratio),
+                      height=visualSqueeze,
+                      xscale=c(xmin(rast),xmax(rast)),
+                      yscale=c(ymin(rast),ymax(rast)))
   return(vp.rast)
 }
 
-plotRast <- function(rast, axes=TRUE, col=NULL, 
-                     legend=TRUE, draw=TRUE, 
+plotRast <- function(rast, col=NULL,
+                     legend=TRUE, draw=TRUE, xaxis=TRUE, yaxis = TRUE,
                      gp=gpar(), add = FALSE, vp=rastVp(rast), ...) {
-  if(!add) grid.newpage()
+  if(!add) {
+    grid.newpage()
+  }
+
   pr <- pretty(range(minValue(rast),maxValue(rast)))
   pr <- pr[pr<maxValue(rast)]
   if(is.null(col)) col=rev(terrain.colors(20))
-  
+
   rastGrob <- gTree(rast=rast, name=names(rast),
                     pr=pr,col=col,
                     childrenvp=vp,
                     children=gList(
-                    rasterGrob(as.raster(rast, maxpixels=1e4,col),
+                      rasterGrob(as.raster(rast, maxpixels=1e4,col = col),
                                  interpolate=FALSE,
                                 name="raster"),
-                    xaxisGrob(name="xaxis"),
-                    yaxisGrob(name="yaxis"),
-                    rasterGrob(as.raster(col[length(col):1]),
-                                x=1.04,y=0.5,height=0.5,width=0.03,
-                                interpolate=TRUE,
-                                name="legend"),
-                    textGrob(pr, x=1.08, y=pr/(2*maxValue(rast))+0.25,
+                      if(xaxis) xaxisGrob(name="xaxis"),
+                      if(yaxis) yaxisGrob(name="yaxis"),
+                      if(legend) rasterGrob(as.raster(col[length(col):1]),
+                                    x=1.04,y=0.5,height=0.5,width=0.03,
+                                    interpolate=TRUE,
+                                    name="legend"),
+                      if(legend) textGrob(pr, x=1.08, y=pr/(2*maxValue(rast))+0.25,
                               gp=gpar(cex=max(0.5, 1-0.05)),
                               just="left",
-                              name="legendText")
-                   ), 
-                   gp=gp, 
-                   vp=vp, 
+                              name="legendText"),
+                      textGrob(names(rast), name="title", y=1.08, vjust=0.5)
+                   ),
+                   gp=gp,
+                   vp=vp,
                    cl="rast")
   if(draw) grid.draw(rastGrob)
   return(invisible(rastGrob))
 }
 
-plotRastStack <- function(rastStack, axes=TRUE, col=NULL, 
-                          legend=TRUE, draw=TRUE, 
-                          gp=gpar(), add = FALSE, vp=NULL, 
+plotRastStack <- function(rastStack, axes="L", col=NULL,
+                          legend=TRUE, draw=TRUE, deletePrevious = FALSE,
+                          gp=gpar(), add = FALSE, vp=NULL,
                           visualSqueeze = 0.75, ...) {
-  grid.newpage()
+  if (!add) grid.newpage()
   arr <- arrangeSimPlots(rastStack)
   ext <- extent(rastStack)
   nam <- names(rastStack)
+
+  if (!is.null(col)) {
+    if(length(col) < length(nam)) {
+      col = lapply(1:length(nam), function(x) {
+        col[[((x-1)%%length(col))+1]]
+      })
+    }
+  }
   vp = list()
   with (arr, {
     for (i in 1:length(nam)) {
@@ -649,14 +663,34 @@ plotRastStack <- function(rastStack, axes=TRUE, col=NULL,
                           width=min(1/columns*visualSqueeze,1/columns*visualSqueeze/(ds.map.ratio/actual.ratio)),
                           height=min(1/rows*visualSqueeze,1/rows*visualSqueeze/(actual.ratio/ds.map.ratio)),
                           just="centre",
-                          name=nam[i],
+                          name=paste("vp",nam[i],paste(sample(LETTERS,4),collapse=""),sep=""),
                           xscale=c(xmin(ext),xmax(ext)),
                           yscale= c(ymin(ext), ymax(ext)))
+      if(deletePrevious) {
+        openGrobs <- grid.ls(grobs=T, recursive = F, print = F)$name
+        whichRemoved <- match(nam[i],openGrobs)
+        grid.remove(openGrobs[whichRemoved])
+      }
       pushViewport(vp[[i]])
-      plotRast(rastStack[[i]],add=TRUE,vp=NULL)
-      popViewport(1)
+      if(axes=="L") if(cr[i,"rows"]==min(cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
+      if(axes=="L") if(cr[i,"columns"]==min(cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}
+      if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
+      if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
+      a <- plotRast(rastStack[[i]], col = col[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
+                    legend = legend, gp = gp, draw = draw, ...)
+      popViewport(1)#,recording=FALSE)
     }
   }
   )
+  assign(".arr", arr, envir=.GlobalEnv)
+  return(invisible(arr))
 }
+
+if(deletePrevious) {
+  openGrobs <- grid.ls(grobs=T, recursive = F, print = F)$name
+  whichRemoved <- match(names(rast),openGrobs)
+  grid.remove(openGrobs[whichRemoved])
+  seekViewport(names(rast))
+}
+
 
