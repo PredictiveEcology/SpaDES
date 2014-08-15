@@ -7,8 +7,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
 
-\usepackage{lipsum} % for dummy text only
-
 %% change margins to 1" all the way around
 \oddsidemargin 0.0in
 \evensidemargin 0.0in
