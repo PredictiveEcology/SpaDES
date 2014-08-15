@@ -663,7 +663,7 @@ plotRastStack <- function(rastStack, axes="L", col=NULL,
                           width=min(1/columns*visualSqueeze,1/columns*visualSqueeze/(ds.map.ratio/actual.ratio)),
                           height=min(1/rows*visualSqueeze,1/rows*visualSqueeze/(actual.ratio/ds.map.ratio)),
                           just="centre",
-                          name=paste("vp",nam[i],paste(sample(LETTERS,4),collapse=""),sep=""),
+                          name=paste("vp",nam[i],sep=""),
                           xscale=c(xmin(ext),xmax(ext)),
                           yscale= c(ymin(ext), ymax(ext)))
       if(deletePrevious) {
@@ -678,7 +678,7 @@ plotRastStack <- function(rastStack, axes="L", col=NULL,
       if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
       a <- plotRast(rastStack[[i]], col = col[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
                     legend = legend, gp = gp, draw = draw, ...)
-      popViewport(1)#,recording=FALSE)
+      upViewport(1)
     }
   }
   )
@@ -686,11 +686,11 @@ plotRastStack <- function(rastStack, axes="L", col=NULL,
   return(invisible(arr))
 }
 
-if(deletePrevious) {
-  openGrobs <- grid.ls(grobs=T, recursive = F, print = F)$name
-  whichRemoved <- match(names(rast),openGrobs)
-  grid.remove(openGrobs[whichRemoved])
-  seekViewport(names(rast))
-}
+# if(deletePrevious) {
+#   openGrobs <- grid.ls(grobs=T, recursive = F, print = F)$name
+#   whichRemoved <- match(names(rast),openGrobs)
+#   grid.remove(openGrobs[whichRemoved])
+#   seekViewport(names(rast))
+# }
 
 
