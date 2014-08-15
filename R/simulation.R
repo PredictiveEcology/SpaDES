@@ -716,7 +716,9 @@ setMethod("simInit",
                   }
 
                   for(x in dotParamsReal) {
-                    if(is.null(simParams(sim)[[m]][[x]])) {
+                    if (is.null(simParams(sim)[[m]][[x]])) {
+                      simParams(sim)[[m]][[x]] = NA_real_
+                    } else if (is.na(simParams(sim)[[m]][[x]])) {
                       simParams(sim)[[m]][[x]] = NA_real_
                     }
                   }
