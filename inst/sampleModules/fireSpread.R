@@ -48,7 +48,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(Fires, add=TRUE, on.which.to.plot="Fires", col=.cols[[2]], add.legend=TRUE, delete.previous=FALSE)
+    simPlot(get(simParams(sim)$.globals$mapName)$Fires, add=TRUE, on.which.to.plot="Fires", col=.cols[[2]], add.legend=TRUE, delete.previous=FALSE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
@@ -86,7 +86,7 @@ fireSpreadInit <- function(sim) {
 fireSpreadBurn <- function(sim) {
   landscapes <- get(simParams(sim)$.globals$mapName, envir=.GlobalEnv)
 
-  Fires <<- spread(landscapes[[1]],
+  Fires <- spread(landscapes[[1]],
                    loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
                    spreadProb=simParams(sim)$fireSpread$spreadprob,
                    persistance=simParams(sim)$fireSpread$persistprob,
@@ -97,7 +97,8 @@ fireSpreadBurn <- function(sim) {
                    iterations=simParams(sim)$fireSpread$its,
                    plot.it=FALSE,
                    mapID=TRUE)
-  names(Fires) <<- "Fires" # do we need this again here??
+  names(Fires) <- "Fires" # do we need this again here??
+  assign(simParams(sim)$.globals$mapName, stack(landscapes,Fires), envir=.GlobalEnv)
 
   return(sim)
 }
