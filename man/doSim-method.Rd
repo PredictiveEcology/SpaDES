@@ -19,7 +19,7 @@ doSim(sim, debug)
              will be printed (default is \code{debug=FALSE}).}
 }
 \value{
-Returns the modified \code{simList} object.
+Invisibly returns the modified \code{simList} object.
 }
 \description{
 Internal function called from \code{doSim}.

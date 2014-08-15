@@ -30,8 +30,6 @@ instead of `data.frame` to implement the event queue (because it is much faster)
 
 \item{\code{simtimes}}{List of numerical values describing the simulation start and stop timos,
                  and the current simulation time.}
-
-\item{\code{debug}}{Logical value specifying whether to run simulation in debugging mode.}
 }}
 \note{
 Each event is represented by a data.table row consisting of:
