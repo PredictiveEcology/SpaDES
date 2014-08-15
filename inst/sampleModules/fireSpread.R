@@ -3,7 +3,6 @@
 ### fireSpread MODULE
 ###
 ###############################################
-
 ### load any required packages
 ### (use `loadPackages` or similar)
 pkgs <- list("raster", "RColorBrewer")
@@ -12,7 +11,6 @@ loadPackages(pkgs)
 
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
     depends <- NULL
@@ -48,7 +46,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(Fires, add=TRUE, on.which.to.plot = "Fires", col=.cols[[2]], add.legend=TRUE, delete.previous = FALSE)
+    simPlot(Fires, add=TRUE, on.which.to.plot="Fires", col=.cols[[2]], add.legend=TRUE, delete.previous=FALSE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
@@ -59,7 +57,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
   } else {
-    warning(paste("Undefined event type: \'",simEvents(sim)[1, "eventType", with=FALSE],
+    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE],"\'", sep=""))
   }
   return(sim)
