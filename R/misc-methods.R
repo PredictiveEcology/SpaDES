@@ -142,10 +142,9 @@ setMethod("checkPath",
 #' @author Alex Chubaty
 #' @author Eliot McIntire
 #'
-#' @examples
-#' \dontrun{}
-#' \dontrun{}
-#' \dontrun{}
+# @examples
+# \dontrun{}
+#'
 setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
 })

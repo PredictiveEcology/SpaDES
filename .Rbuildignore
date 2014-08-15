@@ -1,7 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
-cache/*.*
-figure/*.*
-old/*.*
-SAMPLE/*.*
-development/*.*
+.*\.tar\.gz$
+.*\.zip$
+cache/*
+figure/*
+old/*
+SAMPLE/*
+development/*
