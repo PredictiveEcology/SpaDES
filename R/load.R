@@ -62,26 +62,6 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
 #'    full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
 #'    stringsAsFactors=FALSE)
-#' mySim <- simInit(times=list(start=0.0, stop=100),
-#'                  params=list(
-#'                    #.checkpoint=list(interval=1000,
-#'                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-#'                    .loadFileList=fileList,
-#'                    .progress=list(graphical=FALSE, interval = 1),
-#'                    caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
-#'                                 .savePath=file.path("output","caribouMovement"),
-#'                                 .saveInitialTime = 3, .saveInterval=100,
-#'                                 .plotInitialTime = 1.01, .plotInterval=100,
-#'                                 interval=1, startTime=0),
-#'                    fireSpread=list(nFires = 1e1, spreadprob=0.225,
-#'                              persistprob=0, its=1e6,
-#'                              .plotInitialTime = 0, .plotInterval=100,
-#'                              .saveObjects=c("Fires"),
-#'                              .savePath = file.path("output","firesSpread"),
-#'                              .saveInterval = 100, interval = 10, startTime=0)
-#'                  ),
-#'                  modules=list("fireSpread", "caribouMovement"),
-#'                  path=system.file("sampleModules", package="SpaDES"))
 #'
 #' mySim <- simLoad(mySim)
 #' simPlot(DEM)
@@ -101,22 +81,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    loadTimes = 0,
 #'    intervals = c(rep(NA,length(files)-1),10),
 #'    stringsAsFactors=FALSE)
-#' mySim <- simInit(times=list(start=0.0, stop=100),
-#'   params=list(
-#'               .loadFileList=fileList,
-#'               .progress=list(graphical=FALSE, interval=10),
-#'               randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c("habitat"),
-#'                              .savePath=file.path("output", "habitat"),
-#'                              .plotInitialTime = 0, .plotInterval=1e3,
-#'                              .saveInitialTime = 3, .saveInterval=100,
-#'                              interval=0, startTime=0),
-#'                    caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
-#'                                 .savePath=file.path("output","caribou"),
-#'                                 .saveInitialTime = 3, .saveInterval=100,
-#'                                 .plotInitialTime = 1.01, .plotInterval=1,
-#'                                 interval=1, startTime=0)),
-#'   modules=list("randomLandscapes", "caribouMovement"),
-#'   path=system.file("sampleModules", package="SpaDES"))
+#'
 #' sim <- simLoad(sim)
 #' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
 #'
@@ -132,8 +97,8 @@ setMethod("simLoad",
           definition = function(sim, stackName, fileList, ...) {
             # Pull .fileExtensions into function so that scoping is faster
             .fileExts = .fileExtensions
-            if(!is.null(simParams(sim)$.loadFilelist)) {
-              fileList <- simParams(sim)$.loadFilelist
+            if(!is.null(simParams(sim)$.loadFileList)) {
+              fileList <- simParams(sim)$.loadFileList
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -264,9 +229,9 @@ setMethod("simLoad",
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
-                  simParams(sim)$.loadFilelist <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
+                  simParams(sim)$.loadFileList <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
                 } else if (is(fileList, "data.frame")) {
-                  simParams(sim)$.loadFilelist <- fileListdf
+                  simParams(sim)$.loadFileList <- fileListdf
                 } else {
                   error("fileList must be either a list or data.frame")
                 }
