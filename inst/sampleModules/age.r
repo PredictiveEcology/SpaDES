@@ -4,9 +4,10 @@
 ### - change the age of cells
 ###
 ###############################################
+
 ### load any required packages
-### (use `loadPackages` or similar)
-pkgs <- list("raster", "RColorBrewer")
+### (use `loadPackages`, or `library` directly)
+pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
 
 doEvent.age <- function(sim, eventTime, eventType, debug=FALSE) {

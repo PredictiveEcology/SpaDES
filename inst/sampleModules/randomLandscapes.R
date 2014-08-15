@@ -1,11 +1,13 @@
-################################################
 ###
-### randomLandscapes MODULE
+### MODULE: randomLandscapes
 ###
-###############################################
+### DESCRIPTION: generate RasterStack of random maps representative of a forest landscape
+###               - DEM, forestAge, forestCover, habitatQuality, percentPine
+###
+
 ### load any required packages
 ### (use `loadPackages` or similar)
-pkgs <- list("raster")
+pkgs <- list("SpaDES", "raster")
 loadPackages(pkgs)
 
 

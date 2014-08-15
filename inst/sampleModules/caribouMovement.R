@@ -7,12 +7,13 @@
 ### - move the caribou around the map
 ###
 ###############################################
+
 ### load any required packages
-### (use `loadPackages` or similar)
-pkgs <- list("grid", "raster", "sp")
+### (use `loadPackages`, or `library` directly)
+pkgs <- list("SpaDES", "grid", "raster", "sp")
 loadPackages(pkgs)
 
-
+### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
 

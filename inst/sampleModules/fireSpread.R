@@ -1,11 +1,13 @@
-################################################
 ###
-### fireSpread MODULE
+### MODULE: fireSpread
 ###
-###############################################
+### DESCRIPTION: simulate fire ignition and spread on a landscape
+###               - spread probability varies according to percent pine
+###
+
 ### load any required packages
 ### (use `loadPackages` or similar)
-pkgs <- list("raster", "RColorBrewer")
+pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
 
 

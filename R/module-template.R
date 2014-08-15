@@ -35,6 +35,17 @@ setMethod("newModule",
             filename <- file.path(path, paste0(name, ".R"))
 
             cat("
+### MODULE: ", name, "
+###
+### DESCRIPTION: enter a brief description of your module here
+###
+###
+
+### load any required packages
+### (use `loadPackages`, or `library` directly)
+pkgs <- list(\"SpaDES\")
+loadPackages(pkgs)
+
 ### event functions:
 #   - follow the naming convention `modulenameEventtype()`;
 #   - `modulenameInit()` function is required for initiliazation;
@@ -45,11 +56,6 @@ setMethod("newModule",
 ### template event
 doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType==\"init\") {
-    ### load any required packages
-    ### (use `loadPackages` or similar)
-    #pkgs <- list(\"raster\", \"RColorBrewer\")
-    #loadPackages(pkgs)
-
     ### check for module dependencies:
     ### (use or NULL if no dependencies exist)
     depends <- NULL

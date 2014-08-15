@@ -1,9 +1,16 @@
-################################################
 ###
-### stackFileList MODULE
+### MODULE: stackFileList
 ###
-###############################################
+### DESCRIPTION: stack the RasterLayers loaded from files inta a single object
+###               - DEM, forestAge, forestCover, habitatQuality, percentPine
+###
 
+### load any required packages
+### (use `loadPackages` or similar)
+pkgs <- list("SpaDES")
+loadPackages(pkgs)
+
+### event functions
 doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
