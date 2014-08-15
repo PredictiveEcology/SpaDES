@@ -30,8 +30,6 @@
 #'
 #' @seealso \code{\link{data.table}}
 #'
-#' @name simList
-#' @aliases simList-class
 #' @rdname simList-class
 #' @import data.table
 #' @exportClass simList
@@ -42,9 +40,8 @@
 #'
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
-                    events="data.table", completed="ANY",
-                    simtimes="list"
-))
+                    events="data.table", completed="ANY", simtimes="list")
+)
 
 ### initialize is already defined in the methods package
 #' initialize simList
@@ -71,8 +68,8 @@ setMethod("initialize",
             }
 
             # set default slot values
-            simEvents(.Object) <- as.data.table(NULL)
-            simEventsCompleted(.Object) <- as.data.table(NULL)
+            simEvents(.Object) <- data.table(NULL)
+            simEventsCompleted(.Object) <- data.table(NULL)
             simModulesLoaded(.Object) <- NULL
             simObjectsLoaded(.Object) <- NULL
             simTimes(.Object) <- simtimes # validated list of sim times
@@ -94,8 +91,8 @@ setMethod("show",
               show[["Objects Loaded:"]] = as.character(simObjectsLoaded(object))
               show[["Simulation Parameters:"]] = as.list(simParams(object))
               show[["Current Simulation Time:"]] = simTimes(object)
-              show[["Past Completed Events:"]] = simEventsCompleted(object)
-              show[["Next Scheduled Events:"]] = simEvents(object)
+              show[["Completed Events:"]] = simEventsCompleted(object)
+              show[["Scheduled Events:"]] = simEvents(object)
               print(show)
 })
 
@@ -594,7 +591,7 @@ setGeneric("simEventsCompleted", function(object) {
   standardGeneric("simEventsCompleted")
 })
 
-#' get the simulation event queue
+#' get the simulation completed events list
 #' @rdname simEventsCompleted-accessor-methods
 setMethod("simEventsCompleted",
           signature="simList",
@@ -602,7 +599,7 @@ setMethod("simEventsCompleted",
             return(object@completed)
 })
 
-#' set the simulation event queue
+#' set the simulation completed events list
 #' @export
 #' @rdname simEventsCompleted-accessor-methods
 setGeneric("simEventsCompleted<-",
@@ -610,7 +607,7 @@ setGeneric("simEventsCompleted<-",
              standardGeneric("simEventsCompleted<-")
 })
 
-#' set the simulation event queue
+#' set the simulation completed events list
 #' @name <-
 #' @rdname simEventsCompleted-accessor-methods
 setReplaceMethod("simEventsCompleted",

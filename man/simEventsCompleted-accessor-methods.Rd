@@ -24,11 +24,11 @@ Returns or sets the value of the slot from the \code{simList} object.
 \description{
 Currently, only get and set methods are defined. Subset methods are not.
 
-get the simulation event queue
+get the simulation completed events list
 
-set the simulation event queue
+set the simulation completed events list
 
-set the simulation event queue
+set the simulation completed events list
 }
 \details{
 Additonal methods are provided to access the current, start, and stop times of the
