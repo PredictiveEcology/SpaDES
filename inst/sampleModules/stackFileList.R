@@ -33,7 +33,7 @@ doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
 
       assign(simParams(sim)$.globals$mapName, mapStack, envir=.GlobalEnv)
 
-      simPlot(mapStack, col = .cols[5:1])
+#      simPlot(mapStack, col = .cols[5:1])
     }
 
   } else {
