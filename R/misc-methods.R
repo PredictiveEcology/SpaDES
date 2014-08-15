@@ -239,13 +239,12 @@ setGeneric("checkParams", function(sim, defaultModules, defaultParams, path, ...
 setMethod("checkParams",
           signature(sim="simList", defaultModules="list", defaultParams="list", path="character"),
           definition=function(sim, defaultModules, defaultParams, path, ...) {
+            params <- simParams(sim)
             modules <- simModules(sim)
             userModules <- modules[-which(defaultModules %in% modules)]
-
-            params <- simParams(sim)
-
-            ### check whether each param occurs in a module's .R file
             allFound <- TRUE
+
+            ### check whether each param in simInit occurs in a module's .R file
             for (uM in userModules) {
               userParams <- params[[uM]][-which(names(params[[uM]]) %in% defaultParams)]
               if (length(userParams)>0) {
@@ -255,6 +254,39 @@ setMethod("checkParams",
                   if (length(result)<=0) {
                     allFound <- FALSE
                     warning(paste("Parameter", uP, "is not used in module", uM))
+                  }
+                }
+              }
+            }
+
+            ### check whether each param in a module's .R file occurs in simInit
+            for (uM in userModules) {
+              # read in and cleanup/isolate the params in the module's .R file
+              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                                   readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
+              moduleParams <- strsplit(moduleParams, " ")
+              moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
+              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                                   moduleParams, value=TRUE)
+              moduleParams <- unlist(strsplit(moduleParams, "="))
+              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                                   moduleParams, value=TRUE)
+              moduleParams <- gsub(",", "", moduleParams)
+              moduleParams <- gsub("\\)\\)", "", moduleParams)
+              moduleParams <- sort(unique(moduleParams))
+              moduleParams <- gsub(paste0("simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
+
+              if (length(moduleParams)>0) {
+                # which params does the user supply to simInit?
+                userParams <- sort(unlist(names(params[[uM]])))
+                if (length(userParams)>0) {
+                  for (i in 1:length(moduleParams)) {
+                    mP <- moduleParams[i]
+                    print(paste(userParams, mP, mP %in% userParams))
+                    if (!(mP %in% userParams)) {
+                      allFound <- FALSE
+                      warning(paste("Parameter", mP, "is not supplied to module", uM))
+                    }
                   }
                 }
               }

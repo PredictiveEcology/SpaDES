@@ -74,8 +74,8 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 caribouMovementInit <- function(sim) {
   landscape <- get(simParams(sim)$.globals$mapName, envir=.GlobalEnv)
 
-  yrange <- c(ymin(landscape),ymax(landscape))
-  xrange <- c(xmin(landscape),xmax(landscape))
+  yrange <- c(ymin(landscape), ymax(landscape))
+  xrange <- c(xmin(landscape), xmax(landscape))
 #    best <- max(values(landscape))
 #    worst <- min(values(landscape))
 #    good <- Which(landscape>0.8*best)
