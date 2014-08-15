@@ -78,22 +78,26 @@ setGeneric("checkPath", function(path, create) {
 setMethod("checkPath",
           signature(path="character", create="logical"),
           definition=function(path, create) {
-            if (length(path)>0) {
-              path = gsub("\\\\", "/", path)  # use slash instead of backslash
-              path = gsub("/$", "", path)     # remove trailing slash
-              path = gsub("^[.]/", "", path)  # remove leading dotslash
+            if (!is.na(path)) {
+              if (length(path)>0) {
+                path = gsub("\\\\", "/", path)  # use slash instead of backslash
+                path = gsub("/$", "", path)     # remove trailing slash
+                path = gsub("^[.]/", "", path)  # remove leading dotslash
 
-              if (!file.exists(path)) {
-                if (create==TRUE) {
-                  dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
-                } else {
-                  stop(paste("Specified path", normalizePath(path, winslash="/"),
-                             "doesn't exist. Create it and try again."))
+                if (!file.exists(path)) {
+                  if (create==TRUE) {
+                    dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
+                  } else {
+                    stop(paste("Specified path", normalizePath(path, winslash="/"),
+                               "doesn't exist. Create it and try again."))
+                  }
                 }
-              }
-            return(path)
+              return(path)
+            } else {
+              stop("Invalid path: cannot be empty.")
+            }
           } else {
-            stop("Invalid path: cannot be empty.")
+            stop("Invalid path: cannot be NA.")
           }
 })
 
