@@ -23,8 +23,6 @@
 #' @slot simtimes   List of numerical values describing the simulation start and stop timos,
 #'                  and the current simulation time.
 #'
-#' @slot debug      Logical value specifying whether to run simulation in debugging mode.
-#'
 #' @note Each event is represented by a data.table row consisting of:
 #'          eventTime: the time the event is to occur;
 #'          moduleName: the module from which the event is taken;
@@ -45,7 +43,7 @@
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
                     events="data.table", completed="ANY",
-                    simtimes="list", debug="logical"
+                    simtimes="list"
 ))
 
 ### initialize is already defined in the methods package
@@ -78,7 +76,6 @@ setMethod("initialize",
             simModulesLoaded(.Object) <- NULL
             simObjectsLoaded(.Object) <- NULL
             simTimes(.Object) <- simtimes # validated list of sim times
-            simDebug(.Object) <- FALSE
 
             .Object <- callNextMethod(.Object, ..., simtimes=simtimes)
             return(.Object)
@@ -99,7 +96,6 @@ setMethod("show",
               show[["Current Simulation Time:"]] = simTimes(object)
               show[["Past Completed Events:"]] = simEventsCompleted(object)
               show[["Next Scheduled Events:"]] = simEvents(object)
-              show[["Debugging Mode:"]] = simDebug(object)
               print(show)
 })
 
@@ -625,57 +621,6 @@ setReplaceMethod("simEventsCompleted",
                    return(object)
 })
 
-##############################################################
-#' Accessor methods for \code{simList} object slots
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times
-#' of the simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)},
-#' \code{simStopTime(sim)}.
-#'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
-#'
-#' @return Returns or sets the value of the slot from the \code{simList} object.
-#'
-#' @export
-#' @docType methods
-#' @rdname simDebug-accessor-methods
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("simDebug", function(object) {
-    standardGeneric("simDebug")
-})
-
-#' get the simulation debug toggle
-#' @rdname simDebug-accessor-methods
-setMethod("simDebug",
-          signature="simList",
-          definition=function(object) {
-              return(object@debug)
-})
-
-#' set the simulation debug toggle
-#' @export
-#' @rdname simDebug-accessor-methods
-setGeneric("simDebug<-",
-           function(object, value) {
-               standardGeneric("simDebug<-")
-})
-
-#' set the simulation debug toggle
-#' @name <-
-#' @rdname simDebug-accessor-methods
-setReplaceMethod("simDebug",
-                 signature="simList",
-                 function(object, value) {
-                     object@debug <- value
-                     validObject(object)
-                     return(object)
-})
 
 ##############################################################
 #' Initialize a new simulation
@@ -741,8 +686,9 @@ setMethod("simInit",
               simModules(sim) <- modules
               simParams(sim) <- params
 
-              dotParams = list(".saveInterval",".savePath",".saveInitialTime",".saveObjects",
-                               ".plotInterval",".plotInitialTime")
+              dotParamsReal = list(".saveInterval", ".saveInitialTime",
+                                   ".plotInterval", ".plotInitialTime")
+              dotParamsChar = list(".savePath", ".saveObjects")
 
               # load "default" modules (should we be hardcoding this??)
               for (d in defaults) {
@@ -765,12 +711,17 @@ setMethod("simInit",
                   simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
 
                   # add NAs to any of the dotParams that are not specified by user
-                  for(x in dotParams) {
+                  if(is.null(simParams(sim)[[m]])) {
+                    simParams(sim)[[m]] = list(NA_real_)
+                  }
+
+                  for(x in dotParamsReal) {
                     if(is.null(simParams(sim)[[m]][[x]])) {
                       simParams(sim)[[m]][[x]] = NA_real_
                     }
                   }
-
+                  # Currently, everything in dotParamsChar is being checked for null
+                  #  values where used (i.e., in save.R).
               }
 
               simModules(sim) <- append(defaults, modules)
@@ -989,7 +940,7 @@ setMethod("scheduleEvent",
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
-#' @return Returns the modified \code{simList} object.
+#' @return Invisibly returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{simInit}}.
 #'
@@ -1030,7 +981,7 @@ setMethod("doSim",
                   print(sim)
               }
             }
-          return(sim)
+          return(invisible(sim))
 })
 
 #' @rdname doSim-method
