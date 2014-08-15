@@ -19,7 +19,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simParams(sim)$globals$mapName, layer="habitatQuality")
+    checkObject(simParams(sim)$.globals$mapName, layer="habitatQuality")
 
     # if a required module isn't loaded yet,
     # reschedule this module init for later
@@ -43,7 +43,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="plot.init") {
     # do stuff for this event
 
-    simPlot(stack(get(simParams(sim)$globals$mapName)))
+    simPlot(stack(get(simParams(sim)$.globals$mapName)))
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
@@ -66,7 +66,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 fireSpreadInit <- function(sim) {
-  landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
+  landscapes <- get(simParams(sim)$.globals$mapName, envir=.GlobalEnv)
 
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
@@ -74,7 +74,7 @@ fireSpreadInit <- function(sim) {
   Fires <- setValues(Fires, 0)
 
   # add Fires map to global$mapName stack
-  assign(simParams(sim)$globals$mapName, stack(landscapes,Fires), envir=.GlobalEnv)
+  assign(simParams(sim)$.globals$mapName, stack(landscapes,Fires), envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
@@ -84,7 +84,7 @@ fireSpreadInit <- function(sim) {
 
 
 fireSpreadBurn <- function(sim) {
-  landscapes <- get(simParams(sim)$globals$mapName, envir=.GlobalEnv)
+  landscapes <- get(simParams(sim)$.globals$mapName, envir=.GlobalEnv)
 
   Fires <<- spread(landscapes[[1]],
                    loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),

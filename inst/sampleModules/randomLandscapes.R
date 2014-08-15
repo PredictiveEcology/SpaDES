@@ -11,7 +11,6 @@ loadPackages(pkgs)
 
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
     depends <- NULL
@@ -23,7 +22,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, currentTime(sim), "randomLandscapes", "init")
+      sim <- scheduleEvent(sim, simCurrentTime(sim), "randomLandscapes", "init")
     } else {
       sim <- randomLandscapesInit(sim)
     }
@@ -32,7 +31,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(get(simParams(sim)$globals$mapName,envir=.GlobalEnv))
+    simPlot(get(simParams(sim)$.globals$mapName, envir=.GlobalEnv))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, "randomLandscapes", "plot")
@@ -74,7 +73,7 @@ randomLandscapesInit <- function(sim) {
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
   names(mapStack)<-c("DEM","forestAge","forestCover","habitatQuality","percentPine")
-  assign(simParams(sim)$globals$mapName, mapStack, envir=.GlobalEnv)
+  assign(simParams(sim)$.globals$mapName, mapStack, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")

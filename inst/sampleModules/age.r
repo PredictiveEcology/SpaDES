@@ -18,7 +18,7 @@ doEvent.age <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simParams(sim)$globals$mapName, layer="habitatQuality")
+    checkObject(simParams(sim)$.globals$mapName, layer="habitatQuality")
 
     # if a required module isn't loaded yet,
     # reschedule this module init for later
