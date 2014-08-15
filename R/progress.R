@@ -7,18 +7,23 @@
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # Check whether a .progress is specified in the simList
-    if( !(".progress" %in% names(simParams(mySim))) ) {
+    if( !(".progress" %in% names(simParams(sim))) ) {
       # default is to use text progress bar at 10% increments
-      simParams(sim)[[".progress"]] = list(graphical = FALSE, interval=(simStopTime(sim)-simStartTime(sim))/10)
+      simParams(sim)[[".progress"]] = list(.graphical = FALSE, .progressInterval=(simStopTime(sim)-simStartTime(sim))/10)
     }
-    .pb <<- simProgress(sim)
-    sim <- scheduleEvent(sim, 0.00, "progress", "set")
+
+    # if NA then don't use progress bar
+    if (any(!is.na(simParams(sim)$.progress))) {
+      .pb <<- newProgressBar(sim)
+      sim <- scheduleEvent(sim, 0.00, "progress", "set")
+    }
   } else if (eventType=="set") {
       # update progress bar
-      setSimProgress(.pb, sim)
+      setProgressBar(sim, .pb)
 
       # schedule the next save
-      timeNextUpdate <- simCurrentTime(sim) + simParams(sim)$.progress$interval
+      timeNextUpdate <- simCurrentTime(sim) + simParams(sim)$.progress$.progressInterval
+
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set")
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
@@ -38,14 +43,14 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @export
 #' @docType methods
-#' @rdname simProgress
+#' @rdname newProgressBar
 #'
 # @examples
 # need examples
-simProgress = function(sim) {
+newProgressBar = function(sim) {
             try(close(.pb),silent = TRUE)
             OS <- tolower(Sys.info()["sysname"])
-            if (simParams(sim)$.progress$graphical) {
+            if (simParams(sim)$.progress$.graphical) {
               if (OS=="windows") {
                 .pb <- winProgressBar(min = simStartTime(sim),
                                      max = simStopTime(sim),
@@ -65,9 +70,9 @@ simProgress = function(sim) {
           }
 
 
-setSimProgress <- function(.pb, sim) {
+setProgressBar <- function(sim, .pb) {
   OS <- tolower(Sys.info()["sysname"])
-  if (simParams(sim)$.progress$graphical) {
+  if (simParams(sim)$.progress$.graphical) {
     if (OS=="windows") {
       setWinProgressBar(.pb, simCurrentTime(sim), title = paste("Current simulation time",simCurrentTime(sim),
                                                                "of total", simStopTime(sim)))
