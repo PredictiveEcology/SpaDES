@@ -295,7 +295,7 @@ colnames(.fileExtensions) = c("exts","functions","package")
 #'
 #' @return A raster object whose values are stored in memory.
 #'
-#' @seealso \link{\code{raster}}
+#' @seealso \code{\link{raster}}
 #'
 #' @name rasterToMemory
 #' @importMethodsFrom raster raster

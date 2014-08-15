@@ -259,7 +259,7 @@ See Section \ref{load-and-save-modules} above for more details.
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
 <<randomLandscapes, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../inst/sampleModules/randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
+#source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -267,7 +267,7 @@ source(normalizePath("../inst/sampleModules/randomLandscapes.R"), echo=TRUE, max
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
 <<fireSpread, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../inst/sampleModules/fireSpread.R"), echo=TRUE, max.deparse.length=10000)
+#source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -275,7 +275,7 @@ source(normalizePath("../inst/sampleModules/fireSpread.R"), echo=TRUE, max.depar
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
 <<caribouMovement, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../inst/sampleModules/caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
+#source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \end{document}

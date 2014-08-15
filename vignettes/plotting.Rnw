@@ -45,7 +45,9 @@
 One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at every stage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands.
 
 
-<<habitat-map, fig=TRUE>>=
+<<habitat-map, eval=FALSE, echo=TRUE, fig=TRUE>>=
+library(raster)
+library(RColorBrewer)
 
 # Give dimensions of dummy raster
 nx <- 1e2
@@ -75,7 +77,6 @@ habitat <- stack(list(DEM, forestAge, forestCover, habitatQuality, percentPine))
 
 names(habitat) <- c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
 
-library(RColorBrewer)
 cols <- list(
   transparent.greys <- c("#00000000", paste(brewer.pal(8,"Greys"), "66", sep="")[8:1]),
   grey <- brewer.pal(9,"Greys"),
