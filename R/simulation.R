@@ -920,6 +920,7 @@ setMethod("scheduleEvent",
             return(sim)
 })
 
+#' @rdname scheduleEvent-method
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="NULL",
                     moduleName="character", eventType="character"),
@@ -928,7 +929,7 @@ setMethod("scheduleEvent",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
             return(sim)
-          })
+})
 
 ##############################################################
 #' Process a simulation event

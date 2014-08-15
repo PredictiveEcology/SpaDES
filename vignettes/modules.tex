@@ -124,14 +124,14 @@ Schedule updates to the simulation progress bar.
 \begin{Sinput}
 > # initialize a new simulation, setting the progress parameters
 > mySim <- simInit(times=list(start=0.0, stop=100),
-+                  params=list(.progress=list(graphical=FALSE, interval=10)),
++                  params=list(.progress=list(.graphical=FALSE, .progressInterval=10)),
 +                  modules=list("randomLandscapes"),
 +                  path="SAMPLE"
 + )
 > # retrieve the checkpoint params from the simulation object
 > simParams(mySim)$.progress
-> simParams(mySim)$.progress$graphical
-> simParams(mySim)$.progress$interval
+> simParams(mySim)$.progress$.graphical
+> simParams(mySim)$.progress$.progressInterval
 \end{Sinput}
 \end{Schunk}
 

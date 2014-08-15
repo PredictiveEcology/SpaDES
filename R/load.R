@@ -58,6 +58,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @rdname simLoad-method
 #'
 #' @examples
+#' \dontrun{
 #' #load random maps included with package
 #' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
 #'    full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
@@ -84,8 +85,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' sim <- simLoad(sim)
 #' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
-#'
-#'
+#' }
 #'
 setGeneric("simLoad", function(sim, stackName=NULL, fileList, ...)  {
   standardGeneric("simLoad")

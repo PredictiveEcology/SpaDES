@@ -41,12 +41,22 @@
 \newpage
 
 \section{Spatial Discrete Event Simulation (SpaDES)}
+
 \subsection{Overview}
+
+\paragraph{}
 Why SpaDES exists
+
+\begin{figure}[!htbp]
+  \centering
+	\includegraphics[width=5in]{../inst/SpaDES-overview-diagram.pdf}
+	\caption{Schematic representation of a \texttt{SpaDES} simulation model.}
+	\label{figure-SpaDES-overview}
+\end{figure}
+
 \subsection{What is Discrete Event Simulation}
 
 \subsection{SpaDES is a DES}
-
 
 <<setup-workspace, echo=FALSE>>=
 library(SpaDES)
@@ -55,29 +65,43 @@ library(SpaDES)
 \newpage
 
 \section{Using SpaDES to build discrete event simulations}
+
 \paragraph{Requirements}
 This packages makes heavy use of the \texttt{raster} and \texttt{sp} packages, so familiarity with these packages and their classes and methods is recommended.
+
 \paragraph{}
 Talk about doSim and simInit.
 
+\paragraph{}
+There are some demos to look at:
+
+<<SpaDES-demo, eval=FALSE, echo=TRUE>>=
+# demo 1: randomLandscapes, fireSpread, caribouMovement
+demo("spades-simulation", package="SpaDES")
+
+# demo 2: forestSuccession, forestAge
+#demo("spades-succession", package="SpaDES") # not yet implemented
+@
+
+\paragraph{Demo 1 outputs:}
+sort of -- doesn't actually run demo1 but it's similar. make it the same!
+
 <<using-SpaDES, fig=TRUE>>=
-times = list(start=0,stop=10.02)
-parameters = list(
-                   .globals=list(mapName="landscape"),
-                   .progress=list(NA),
-                   randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects="landscape",
-                                           .plotInitialTime = 0, .plotInterval=1e3,
-                                           startTime=0),
-                   fireSpread=list(nFires = 1e1, spreadprob=0.225,
-                                   persistprob=0, its=1e6,
-                                   .plotInitialTime = 0.1, .plotInterval=10,
-                                   returnInterval = 10, startTime=0),
-                   caribouMovement=list(N=1e2,
-                                .plotInitialTime = 1.01, .plotInterval=1,
-                                moveInterval=1, startTime=0)
-                 )
-modules = list("randomLandscapes", "fireSpread", "caribouMovement")
-path = system.file("sampleModules", package="SpaDES")
+times <- list(start=0,stop=100.02)
+parameters <- list(.globals=list(mapName="landscape"),
+                  .progress=list(NA),
+                  randomLandscapes = list(nx=1e2, ny=1e2,
+                                          .plotInitialTime = 0, .plotInterval=1e3,
+                                          startTime=0),
+                  fireSpread=list(nFires = 1e1, spreadprob=0.225,
+                                  persistprob=0, its=1e6,
+                                  .plotInitialTime = 0.1, .plotInterval=10,
+                                  returnInterval = 10, startTime=0),
+                  caribouMovement=list(N=1e2,
+                                       .plotInitialTime = 1.01, .plotInterval=1,
+                                       moveInterval=1, startTime=0))
+modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
@@ -122,10 +146,15 @@ Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global object
 \subsubsection{Dependencies}
 
 \paragraph{}
-As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. A module that relies on a global simulation data object that is also used by another module is said to be dependent on that other module. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects.
+As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects.
 
 \paragraph{}
 For more information about module dependencies please see the \texttt{modules} vignette.
+
+\subsubsection{Creating new modules}
+
+\paragraph{}
+The power of SpaDES is in modularity and the ease with which new modules can be created. See the \texttt{modules} vignette for details on creating your own modules.
 
 \newpage
 

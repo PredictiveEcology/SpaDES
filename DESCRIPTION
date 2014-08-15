@@ -33,6 +33,7 @@ Suggests:
     testthat
 Imports:
     CircStats,
+    methods,
     RandomFields,
     RColorBrewer
 License: GPL

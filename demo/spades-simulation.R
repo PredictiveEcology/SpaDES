@@ -1,3 +1,11 @@
+#' SpaDES simulation demo
+#'
+#' randomLandscapes, caribouMovement, fireSpread
+#'
+# @demoTitle spades-simulation
+#
+
+
 library("SpaDES")
 
 fileList = data.frame(files = dir(file.path(find.package("SpaDES",
