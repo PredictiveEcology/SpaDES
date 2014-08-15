@@ -61,7 +61,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, currentTime(sim), \"", name, "\", \"init\")
+      sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"init\")
     } else {
       sim <- ", name, "Init(sim)
     }
@@ -72,7 +72,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # do stuff for this event
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, currentTime(sim), \"", name, "\", \"init\")
+    sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"init\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {

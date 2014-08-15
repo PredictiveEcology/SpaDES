@@ -26,9 +26,6 @@ dev <- function(x, ...) {
   while (dev.set(x)!=x) newPlot(...)
 }
 
-
-
-
 ##############################################################
 #' Open a new plotting window
 #'
