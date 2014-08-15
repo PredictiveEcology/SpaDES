@@ -282,7 +282,6 @@ setMethod("checkParams",
                 if (length(userParams)>0) {
                   for (i in 1:length(moduleParams)) {
                     mP <- moduleParams[i]
-                    print(paste(userParams, mP, mP %in% userParams))
                     if (!(mP %in% userParams)) {
                       allFound <- FALSE
                       warning(paste("Parameter", mP, "is not supplied to module", uM))
