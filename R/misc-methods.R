@@ -205,3 +205,91 @@ setMethod("checkObject",
               return(FALSE)
             }
 })
+
+##############################################################
+#' Check use and existence of params passed to simulation.
+#'
+#' Checks that all parameters passed are used in a module,
+#' and that all parameters used in a module are passed.
+#'
+#' @param sim    A simList simulation object.
+#'
+#' @param ...    Additional arguments. Not implemented.
+#'
+#' @return  Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
+#'          Sensible warning messages are be produced identifying missing params.
+#'
+#' @export
+#' @docType methods
+#' @rdname checkParams-method
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{}
+#' \dontrun{}
+#' \dontrun{}
+#'
+setGeneric("checkParams", function(sim, defaultModules, defaultParams, path, ...) {
+  standardGeneric("checkParams")
+})
+
+
+#' @rdname checkParams-method
+setMethod("checkParams",
+          signature(sim="simList", defaultModules="list", defaultParams="list", path="character"),
+          definition=function(sim, defaultModules, defaultParams, path, ...) {
+            params <- simParams(sim)
+            modules <- simModules(sim)
+            userModules <- modules[-which(defaultModules %in% modules)]
+            allFound <- TRUE
+
+            ### check whether each param in simInit occurs in a module's .R file
+            for (uM in userModules) {
+              userParams <- params[[uM]][-which(names(params[[uM]]) %in% defaultParams)]
+              if (length(userParams)>0) {
+                for (i in 1:length(userParams)) {
+                  uP <- names(userParams[i])
+                  result <- grep(uP, readLines(paste(path, "/", uM, ".R", sep="")), value=FALSE)
+                  if (length(result)<=0) {
+                    allFound <- FALSE
+                    warning(paste("Parameter", uP, "is not used in module", uM))
+                  }
+                }
+              }
+            }
+
+            ### check whether each param in a module's .R file occurs in simInit
+            for (uM in userModules) {
+              # read in and cleanup/isolate the params in the module's .R file
+              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                                   readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
+              moduleParams <- strsplit(moduleParams, " ")
+              moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
+              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                                   moduleParams, value=TRUE)
+              moduleParams <- unlist(strsplit(moduleParams, "="))
+              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                                   moduleParams, value=TRUE)
+              moduleParams <- gsub(",", "", moduleParams)
+              moduleParams <- gsub("\\)\\)", "", moduleParams)
+              moduleParams <- sort(unique(moduleParams))
+              moduleParams <- gsub(paste0("simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
+
+              if (length(moduleParams)>0) {
+                # which params does the user supply to simInit?
+                userParams <- sort(unlist(names(params[[uM]])))
+                if (length(userParams)>0) {
+                  for (i in 1:length(moduleParams)) {
+                    mP <- moduleParams[i]
+                    if (!(mP %in% userParams)) {
+                      allFound <- FALSE
+                      warning(paste("Parameter", mP, "is not supplied to module", uM))
+                    }
+                  }
+                }
+              }
+            }
+
+            return(invisible(allFound))
+})

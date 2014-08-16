@@ -7,8 +7,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
 
-\usepackage{lipsum} % for dummy text only
-
 %% change margins to 1" all the way around
 \oddsidemargin 0.0in
 \evensidemargin 0.0in
@@ -42,41 +40,67 @@
 \newpage
 
 \section{Spatial Discrete Event Simulation (SpaDES)}
+
 \subsection{Overview}
+
+\paragraph{}
 Why SpaDES exists
+
+\begin{figure}[!htbp]
+  \centering
+	\includegraphics[width=5in]{../inst/SpaDES-overview-diagram.pdf}
+	\caption{Schematic representation of a \texttt{SpaDES} simulation model.}
+	\label{figure-SpaDES-overview}
+\end{figure}
+
 \subsection{What is Discrete Event Simulation}
 
 \subsection{SpaDES is a DES}
 
-
-
 \newpage
 
 \section{Using SpaDES to build discrete event simulations}
+
 \paragraph{Requirements}
 This packages makes heavy use of the \texttt{raster} and \texttt{sp} packages, so familiarity with these packages and their classes and methods is recommended.
+
 \paragraph{}
 Talk about doSim and simInit.
 
+\paragraph{}
+There are some demos to look at:
+
 \begin{Schunk}
 \begin{Sinput}
-> times = list(start=0,stop=10.02)
-> parameters = list(
-+                    .globals=list(mapName="landscape"),
-+                    .progress=list(NA),
-+                    randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects="landscape",
-+                                            .plotInitialTime = 0, .plotInterval=1e3,
-+                                            startTime=0),
-+                    fireSpread=list(nFires = 1e1, spreadprob=0.225,
-+                                    persistprob=0, its=1e6,
-+                                    .plotInitialTime = 0.1, .plotInterval=10,
-+                                    returnInterval = 10, startTime=0),
-+                    caribouMovement=list(N=1e2,
-+                                 .plotInitialTime = 1.01, .plotInterval=1,
-+                                 moveInterval=1, startTime=0)
-+                  )
-> modules = list("randomLandscapes", "fireSpread", "caribouMovement")
-> path = system.file("sampleModules", package="SpaDES")
+> # demo 1: randomLandscapes, fireSpread, caribouMovement
+> demo("spades-simulation", package="SpaDES")
+> 
+> # demo 2: forestSuccession, forestAge
+> #demo("spades-succession", package="SpaDES") # not yet implemented
+\end{Sinput}
+\end{Schunk}
+
+\paragraph{Demo 1 outputs:}
+sort of -- doesn't actually run demo1 but it's similar. make it the same!
+
+\begin{Schunk}
+\begin{Sinput}
+> library(SpaDES)
+> #
+> times <- list(start=0,stop=100.02)
+> parameters <- list(.globals=list(mapName="landscape"),
++                   .progress=list(NA),
++                   randomLandscapes = list(nx=1e2, ny=1e2,
++                                           .plotInitialTime = 0, .plotInterval=1e3),
++                   fireSpread=list(nFires = 1e1, spreadprob=0.225,
++                                   persistprob=0, its=1e6,
++                                   .plotInitialTime = 10.1, .plotInterval=10,
++                                   returnInterval = 10, startTime=0),
++                   caribouMovement=list(N=1e2,
++                                        .plotInitialTime = 1.01, .plotInterval=1,
++                                        moveInterval=1))
+> modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+> path <- system.file("sampleModules", package="SpaDES")
 > mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 > doSim(mySim)
 \end{Sinput}
@@ -121,10 +145,15 @@ Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global object
 \subsubsection{Dependencies}
 
 \paragraph{}
-As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. A module that relies on a global simulation data object that is also used by another module is said to be dependent on that other module. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects.
+As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects.
 
 \paragraph{}
 For more information about module dependencies please see the \texttt{modules} vignette.
+
+\subsubsection{Creating new modules}
+
+\paragraph{}
+The power of SpaDES is in modularity and the ease with which new modules can be created. See the \texttt{modules} vignette for details on creating your own modules.
 
 \newpage
 
@@ -206,22 +235,22 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--40.631  -10.346   -2.539    8.542   34.637  
+-37.810  -14.885   -6.973    7.498   42.497  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  7.027853   0.018319  383.64   <2e-16 ***
-fire1       -3.478185   0.093695  -37.12   <2e-16 ***
-pine        -0.050061   0.003674  -13.63   <2e-16 ***
-fire1:pine   0.239021   0.014292   16.72   <2e-16 ***
+(Intercept)  6.676166   0.020366 327.809  < 2e-16 ***
+fire1       -2.403265   0.076752 -31.312  < 2e-16 ***
+pine         0.025186   0.003695   6.817 9.30e-12 ***
+fire1:pine   0.073493   0.012512   5.874 4.26e-09 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 14668.2  on 18  degrees of freedom
-Residual deviance:  7326.6  on 15  degrees of freedom
-AIC: 7463
+    Null deviance: 15340.0  on 18  degrees of freedom
+Residual deviance:  9053.6  on 15  degrees of freedom
+AIC: 9189.4
 
 Number of Fisher Scoring iterations: 6
 \end{Soutput}
@@ -237,7 +266,7 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 > landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 > landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 > landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-> simPlot(landscape, col=.cols[c(2:5,3,1)])
+> simPlot(landscape, col=.cols[c(4, 7, 10, 3, 8, 1)])
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-fire-impacts-maps}

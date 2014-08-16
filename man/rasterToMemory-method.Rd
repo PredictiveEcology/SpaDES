@@ -27,6 +27,6 @@ Eliot McIntire
 Alex Chubaty
 }
 \seealso{
-\link{\code{raster}}
+\code{\link{raster}}
 }
 

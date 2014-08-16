@@ -1,12 +1,14 @@
-################################################
 ###
-### SUCCESSION MODULE
-### - change the composition of cells
+### MODULE: succession
 ###
-###############################################
+### DESCRIPTION: a basic forest succession module
+###               - land cover classes (2005) for Canada
+###               - etc.
+###
+
 ### load any required packages
 ### (use `loadPackages` or similar)
-pkgs <- list("raster", "RColorBrewer")
+pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
 
 doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {

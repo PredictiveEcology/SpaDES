@@ -51,6 +51,7 @@ is a loading function, arguments = list(native = TRUE). If there is only one lis
 to all load attempts and will be repeated for each load function.
 }
 \examples{
+\dontrun{
 #load random maps included with package
 fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
    full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
@@ -77,6 +78,7 @@ fileList = data.frame(
 
 sim <- simLoad(sim)
 print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+}
 }
 \author{
 Eliot McIntire

@@ -672,62 +672,70 @@ setGeneric("simInit", function(times, params, modules, path) {
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="character"),
           definition=function(times, params, modules, path) {
-              # check validity of all inputs
-              path <- checkPath(path, create=TRUE)
-              #params <- checkParams(params)
-              #modules <- checkModules(modules)
+            path <- checkPath(path, create=TRUE)
 
-              # create new simList object
-              sim <- new("simList", times=times)
+            # default modules
+            defaults <- list("checkpoint", "save", "progress", "load")
 
-              defaults <- list("checkpoint", "save", "progress", "load")
+            # parameters for default modules
+            dotParamsReal = list(".saveInterval", ".saveInitialTime",
+                                 ".plotInterval", ".plotInitialTime")
+            dotParamsChar = list(".savePath", ".saveObjects")
+            dotParams = append(dotParamsChar, dotParamsReal)
 
-              simModules(sim) <- modules
-              simParams(sim) <- params
+            # create new simList object
+            sim <- new("simList", times=times)
+            simModules(sim) <- modules
+            simParams(sim) <- params
 
-              dotParamsReal = list(".saveInterval", ".saveInitialTime",
-                                   ".plotInterval", ".plotInitialTime")
-              dotParamsChar = list(".savePath", ".saveObjects")
+            # load "default" modules (should we be hardcoding this??)
+            for (d in defaults) {
+              # sourcing the code in each module in already done
+              # because they are loaded with the package
 
-              # load "default" modules (should we be hardcoding this??)
-              for (d in defaults) {
-                # sourcing the code in each module in already done
-                # because they are loaded with the package
+              # schedule each module's init event:
+              sim <- scheduleEvent(sim, 0.00, d, "init")
+            }
+
+            # load user-defined modules
+            for (m in simModules(sim)) {
+                # source the code from each module's R file
+                source(paste(path, "/", m, ".R", sep=""),local=.GlobalEnv)
 
                 # schedule each module's init event:
-                sim <- scheduleEvent(sim, 0.00, d, "init")
-              }
+                sim <- scheduleEvent(sim, 0.00, m, "init")
 
-              # load user-defined modules
-              for (m in simModules(sim)) {
-                  # source the code from each module's R file
-                  source(paste(path, "/", m, ".R", sep=""),local=.GlobalEnv)
+                ### add module name to the loaded list
+                simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
 
-                  # schedule each module's init event:
-                  sim <- scheduleEvent(sim, 0.00, m, "init")
+                ### add NAs to any of the dotParams that are not specified by user
+                # ensure the moduls sublist exists by creating a tmp value in it
+                if(is.null(simParams(sim)[[m]])) {
+                  simParams(sim)[[m]] <- list(.tmp=NA_real_)
+                }
 
-                  # add module name to the loaded list
-                  simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
-
-                  # add NAs to any of the dotParams that are not specified by user
-                  if(is.null(simParams(sim)[[m]])) {
-                    simParams(sim)[[m]] = list(NA_real_)
+                # add the necessary values to the sublist
+                for(x in dotParamsReal) {
+                  if (is.null(simParams(sim)[[m]][[x]])) {
+                    simParams(sim)[[m]][[x]] <- NA_real_
+                  } else if (is.na(simParams(sim)[[m]][[x]])) {
+                    simParams(sim)[[m]][[x]] <- NA_real_
                   }
+                }
 
-                  for(x in dotParamsReal) {
-                    if (is.null(simParams(sim)[[m]][[x]])) {
-                      simParams(sim)[[m]][[x]] = NA_real_
-                    } else if (is.na(simParams(sim)[[m]][[x]])) {
-                      simParams(sim)[[m]][[x]] = NA_real_
-                    }
-                  }
-                  # Currently, everything in dotParamsChar is being checked for null
-                  #  values where used (i.e., in save.R).
-              }
+                # remove the tmp value from the module sublist
+                simParams(sim)[[m]]$.tmp <- NULL
 
-              simModules(sim) <- append(defaults, modules)
+                ### Currently, everything in dotParamsChar is being checked for NULL
+                ### values where used (i.e., in save.R).
+            }
 
-              return(sim)
+            simModules(sim) <- append(defaults, modules)
+
+            # check the parameters supplied by the user
+            checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE
+
+            return(sim)
 })
 
 #' @rdname simInit-method
@@ -914,6 +922,7 @@ setMethod("scheduleEvent",
             return(sim)
 })
 
+#' @rdname scheduleEvent-method
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="NULL",
                     moduleName="character", eventType="character"),
@@ -922,14 +931,10 @@ setMethod("scheduleEvent",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
             return(sim)
-          })
+})
 
 ##############################################################
-#' Process a simulation event
-#'
-#' Internal function called from \code{doSim}.
-#'
-#' Calls the module corresponding to the event call, and executes the event.
+#' Run a spatial discrete event simulation
 #'
 #' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
 #' Here, we implement a simulation in a more modular fashion so it's easier to add
@@ -946,8 +951,8 @@ setMethod("scheduleEvent",
 #' @seealso \code{\link{simInit}}.
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
-#' models by the user. Setting \code{debug=TRUE} allows the user to toggle debugging
-#' statements in their own modules.
+#' models by the user. Will print additional outputs informing the user of updates
+#' to the values of various simList slot components.
 #'
 #' @export
 #' @docType methods

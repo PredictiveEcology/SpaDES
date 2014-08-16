@@ -1,11 +1,13 @@
-################################################
 ###
-### randomLandscapes MODULE
+### MODULE: randomLandscapes
 ###
-###############################################
+### DESCRIPTION: generate RasterStack of random maps representative of a forest landscape
+###               - DEM, forestAge, forestCover, habitatQuality, percentPine
+###
+
 ### load any required packages
 ### (use `loadPackages` or similar)
-pkgs <- list("raster")
+pkgs <- list("SpaDES", "raster")
 loadPackages(pkgs)
 
 
@@ -67,7 +69,7 @@ randomLandscapesInit <- function(sim) {
   percentPine <- percentPine/maxValue(percentPine)*100
 
   # Make layers that are derived from other layers
-  habitatQuality <- (DEM+10 + (forestCover+5)*10)/100
+  habitatQuality <- (DEM+10 + (forestAge+2.5)*10)/100
   habitatQuality <- habitatQuality/maxValue(habitatQuality)
 
   # Stack them into a single stack and assign to global env

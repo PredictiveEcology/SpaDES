@@ -7,12 +7,13 @@
 ### - move the caribou around the map
 ###
 ###############################################
+
 ### load any required packages
-### (use `loadPackages` or similar)
-pkgs <- list("grid", "raster", "sp")
+### (use `loadPackages`, or `library` directly)
+pkgs <- list("SpaDES", "grid", "raster", "sp")
 loadPackages(pkgs)
 
-
+### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
 
@@ -74,8 +75,8 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 caribouMovementInit <- function(sim) {
   landscape <- get(simParams(sim)$.globals$mapName, envir=.GlobalEnv)
 
-  yrange <- c(ymin(landscape),ymax(landscape))
-  xrange <- c(xmin(landscape),xmax(landscape))
+  yrange <- c(ymin(landscape), ymax(landscape))
+  xrange <- c(xmin(landscape), xmax(landscape))
 #    best <- max(values(landscape))
 #    worst <- min(values(landscape))
 #    good <- Which(landscape>0.8*best)
