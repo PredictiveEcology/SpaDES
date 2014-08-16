@@ -932,11 +932,7 @@ setMethod("scheduleEvent",
 })
 
 ##############################################################
-#' Process a simulation event
-#'
-#' Internal function called from \code{doSim}.
-#'
-#' Calls the module corresponding to the event call, and executes the event.
+#' Run a spatial discrete event simulation
 #'
 #' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
 #' Here, we implement a simulation in a more modular fashion so it's easier to add
@@ -953,8 +949,8 @@ setMethod("scheduleEvent",
 #' @seealso \code{\link{simInit}}.
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
-#' models by the user. Setting \code{debug=TRUE} allows the user to toggle debugging
-#' statements in their own modules.
+#' models by the user. Will print additional outputs informing the user of updates
+#' to the values of various simList slot components.
 #'
 #' @export
 #' @docType methods
