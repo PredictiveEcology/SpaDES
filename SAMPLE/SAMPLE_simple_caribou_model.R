@@ -100,7 +100,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
 mapName = "landscape"
 outputPath=file.path("~", "tmp", "simOutputs")
 
-mySim <- simInit(times=list(start=0.0, stop=10.2),
+mySim <- simInit(times=list(start=0.0, stop=10.0),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
