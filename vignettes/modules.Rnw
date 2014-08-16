@@ -100,13 +100,20 @@ There are a number of built-in modules that provide useful functionality. These 
 \paragraph{}
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the \texttt{interval} parameter is provided; the simulation checkpoint file (if one exists) is loaded if the \texttt{file} parameter is specified.
 
-<<checkpoints, echo=TRUE, eval=FALSE>>=
+<<checkpoints, echo=TRUE, eval=TRUE>>=
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
-mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.checkpoint=list(interval=10, file="chkpnt.RData")),
-                 modules=list("randomLandscapes"),
-                 path="SAMPLE"
-)
+times <- list(start=0,stop=100.02)
+outputPath=file.path("~", "tmp", "simOutputs")
+parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
+                   .checkpoint=list(interval=10, file="chkpnt.RData"),
+                   randomLandscapes = list(nx=1e2, ny=1e2,
+                     .plotInitialTime = 0, .plotInterval=1e3))
+modules <- list("randomLandscapes")
+path <- system.file("sampleModules", package="SpaDES")
+
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+
+doSim(mySim)
 
 # retrieve the checkpoint params from the simulation object
 simParams(mySim)$.checkpoint
