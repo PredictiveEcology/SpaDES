@@ -4,30 +4,30 @@
 #' Save and reload the current state of the simulation,
 #' including the state of the random number generator,
 #' by scheduling checkpoint events.
-#' 
+#'
 #' \code{\link{checkpoint.load}} and \code{\link{checkpoint.save}} code from:
 #' https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
 #'
 #' RNG save code adapted from:
 #' http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/
 #' https://stackoverflow.com/questions/13997444/
-#' 
+#'
 #' @param sim           A \code{SimList} simulation object.
-#' 
+#'
 #' @param eventTime    A numeric specifying the time of the next event.
-#' 
+#'
 #' @param eventType    A character string specifying the type of event:
 #'                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.
-#' 
+#'
 #' @param debug         Optional logical flag determines whether sim debug info
 #'                      will be printed (default \code{debug=FALSE}.
 #'
 #' @return Returns the modified \code{SimList} object.
-#' 
+#'
 #' @seealso \code{\link{.Random.seed}}.
-#' 
+#'
 #' @author Alex Chubaty
-#' 
+#'
 #' @export
 #' @docType methods
 #' @rdname checkpoint
@@ -35,6 +35,15 @@
 # @examples
 # need examples
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
+  ### determine checkpoint file location, for use in events below
+  if (is.null(simParams(sim)$.globals$.outputPath)){
+    checkpointFile <- simParams(sim)$.checkpoint$file
+  } else {
+    checkpointDir <- checkPath(simParams(sim)$.globals$.outputPath, create=TRUE)
+    checkpointFile <- file.path(checkpointDir, simParams(sim)$.checkpoint$file)
+  }
+
+  ### event definitions
   if (eventType=="init") {
     if( !(".checkpoint" %in% names(simParams(mySim))) ) {
       # default is not to use checkpointing, so, need to set defaults if unspecified
@@ -46,8 +55,8 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     useChkpnt = !is.na(simParams(sim)$.checkpoint$interval)
     if (useChkpnt) {
       # load user-specified checkpoint options
-      checkpointLoad(simParams(sim)$.checkpoint$file)        
-      
+      checkpointLoad(checkpointFile)
+
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simParams(sim)$.checkpoint$interval
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
@@ -55,8 +64,8 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="save") {
     useChkpnt = !is.na(simParams(sim)$.checkpoint$interval)
     if (useChkpnt) {
-      checkpointSave(simParams(sim)$.checkpoint$file)
-      
+      checkpointSave(checkpointFile)
+
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simParams(sim)$.checkpoint$interval
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
@@ -64,7 +73,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   } else {
     warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
                   "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
-    
+
   }
   return(sim)
 }

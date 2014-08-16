@@ -104,8 +104,8 @@ times <- list(start=0,stop=100.02)
 outputPath=file.path("~", "tmp", "simOutputs")
 parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
-                   randomLandscapes = list(nx=1e2, ny=1e2,
-                     .plotInitialTime = 0, .plotInterval=1e3))
+                   randomLandscapes=list(nx=1e2, ny=1e2,
+                     .plotInitialTime=0, .plotInterval=1e3))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
 
