@@ -40,7 +40,13 @@
 #'
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
-                    events="data.table", completed="ANY", simtimes="list")
+                    events="data.table", completed="data.table", simtimes="list"),
+         prototype=list(.loaded=as.list(NULL),
+                        modules=as.list(NULL),
+                        params=as.list(NULL),
+                        events=as.data.table(NULL),
+                        completed=as.data.table(NULL),
+                        simtimes=list(current=0.00, start=0.00, stop=NA_real_))
 )
 
 ### initialize is already defined in the methods package
@@ -55,7 +61,7 @@ setClass("simList",
 #'
 setMethod("initialize",
           signature="simList",
-          definition=function(.Object, ..., times=list(start=0.00, stop=NA_real_)) {
+          definition=function(.Object, ..., times) {
             # check for valid sim times and make default list
             if (is.na(times$stop)) {
               stop("simulation stop time must be specified.")
@@ -68,10 +74,6 @@ setMethod("initialize",
             }
 
             # set default slot values
-            simEvents(.Object) <- data.table(NULL)
-            simEventsCompleted(.Object) <- data.table(NULL)
-            simModulesLoaded(.Object) <- NULL
-            simObjectsLoaded(.Object) <- NULL
             simTimes(.Object) <- simtimes # validated list of sim times
 
             .Object <- callNextMethod(.Object, ..., simtimes=simtimes)

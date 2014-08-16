@@ -4,8 +4,7 @@
 \alias{initialize,simList-method}
 \title{initialize simList}
 \usage{
-\S4method{initialize}{simList}(.Object, ..., times = list(start = 0, stop =
-  NA_real_))
+\S4method{initialize}{simList}(.Object, ..., times)
 }
 \arguments{
 \item{times}{A named list of simulation start and stop times
