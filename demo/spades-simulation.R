@@ -37,4 +37,4 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                  path=system.file("sampleModules", package="SpaDES"))
 
 dev(4)
-mySim <- doSim(mySim, debug=FALSE)
+mySim <- spades(mySim, debug=FALSE)

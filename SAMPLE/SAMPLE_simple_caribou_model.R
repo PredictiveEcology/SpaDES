@@ -107,22 +107,22 @@ mySim <- simInit(times=list(start=0.0, stop=10.2),
                    #.loadFileList=fileList,
                              .progress=list(.graphical=FALSE, .progressInterval = 10),
                              .globals=list(mapName=mapName, .outputPath=outputPath),
-                             randomLandscapes = list(nx=3.3e3, ny=3.3e3, .saveObjects=c(mapName),
-                                            .savePath=file.path("output", "randomLandscapes"),
-                                            .plotInitialTime=NA, .plotInterval=NA,
-                                            .saveInitialTime=3, .saveInterval=100),
+                             randomLandscapes = list(nx=3.3e3, ny=3.3e3, #.saveObjects=c(mapName),
+                                            #.savePath=file.path("output", "randomLandscapes"),
+                                            #.saveInitialTime=3, .saveInterval=100,
+                                            .plotInitialTime=NA, .plotInterval=NA),
                              caribouMovement=list(N=1e6, .saveObjects=c("caribou"),
-                                          .savePath=file.path("output","caribouMovement"),
-                                          .saveInitialTime=3, .saveInterval=100,
-                                          .plotInitialTime=NA, .plotInterval=NA,
-                                          #.plotInitialTime = 1.01, .plotInterval=1,
+                                          #.savePath=file.path("output","caribouMovement"),
+                                          #.saveInitialTime=3, .saveInterval=100,
+                                          #.plotInitialTime=NA, .plotInterval=NA,
+                                          .plotInitialTime = 1.01, .plotInterval=1,
                                           moveInterval=1),
                              fireSpread=list(nFires = 1e2, spreadprob=0.225,
                                         persistprob=0, its=1e6,
-                                        .plotInitialTime=NA, .plotInterval=NA,
-                                        #.plotInitialTime = 0.1, .plotInterval=10,
-                                        .saveObjects=c("Fires"), .saveInterval=10,
-                                        .savePath=file.path("output","fireSpread"),
+                                        #.plotInitialTime=NA, .plotInterval=NA,
+                                        .plotInitialTime = 0.1, .plotInterval=10,
+                                        #.saveObjects=c("Fires"), .saveInterval=10,
+                                        #.savePath=file.path("output","fireSpread"),
                                         returnInterval=10, startTime=0)
                  ),
                  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
@@ -133,8 +133,8 @@ mySim <- simInit(times=list(start=0.0, stop=10.2),
 
 #simCurrentTime(mySim)<-0
 dev(4)
-print(system.time(doSim(mySim, debug=FALSE)))
-print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+print(system.time(spades(mySim, debug=FALSE)))
+print(system.time(mySim <- spades(mySim, debug=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
@@ -144,7 +144,7 @@ simPlot(stack(FireMap),col=cols[[1]])
 
 ## profiling of development code
 #prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
-#prof <- lineprof(source("doSim.R"))
+#prof <- lineprof(source("spades.R"))
 
 shine(prof)
 c(address(mySim), refs(mySim))

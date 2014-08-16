@@ -65,7 +65,7 @@ Why SpaDES exists
 This packages makes heavy use of the \texttt{raster} and \texttt{sp} packages, so familiarity with these packages and their classes and methods is recommended.
 
 \paragraph{}
-Talk about doSim and simInit.
+Talk about spades and simInit.
 
 \paragraph{}
 There are some demos to look at:
@@ -74,7 +74,7 @@ There are some demos to look at:
 \begin{Sinput}
 > # demo 1: randomLandscapes, fireSpread, caribouMovement
 > demo("spades-simulation", package="SpaDES")
-> 
+>
 > # demo 2: forestSuccession, forestAge
 > #demo("spades-succession", package="SpaDES") # not yet implemented
 \end{Sinput}
@@ -102,7 +102,7 @@ sort of -- doesn't actually run demo1 but it's similar. make it the same!
 > modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 > path <- system.file("sampleModules", package="SpaDES")
 > mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
-> doSim(mySim)
+> spades(mySim)
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-using-SpaDES}
@@ -233,12 +233,12 @@ We can see that the fires tend to be in the Pines because we made it that way, u
 Call:
 glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--37.810  -14.885   -6.973    7.498   42.497  
+Deviance Residuals:
+    Min       1Q   Median       3Q      Max
+-37.810  -14.885   -6.973    7.498   42.497
 
 Coefficients:
-             Estimate Std. Error z value Pr(>|z|)    
+             Estimate Std. Error z value Pr(>|z|)
 (Intercept)  6.676166   0.020366 327.809  < 2e-16 ***
 fire1       -2.403265   0.076752 -31.312  < 2e-16 ***
 pine         0.025186   0.003695   6.817 9.30e-12 ***
@@ -284,16 +284,16 @@ Using a simple landscape-depedent correlated random walk, simulate the movement 
 +   drawArrows(from=SpatialPoints(cbind(x=caribou$prevX, y=caribou$prevY)),
 +              to=caribou,length=0.04,
 +              on.which.to.plot=1)
-+ 
++
 +   # find out what pixels the individuals are on now
 +   ex <- landscape[["habitatQuality"]][caribou]
-+ 
++
 +   #step length is a function of current cell's landscape quality
 +   sl <- 0.25/ex
-+ 
++
 +   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
 +   sd <- 30 # could be specified globally in params
-+ 
++
 +   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 + }
 \end{Sinput}

@@ -77,7 +77,7 @@ fileList = data.frame(
    stringsAsFactors=FALSE)
 
 sim <- simLoad(sim)
-print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+print(system.time(mySim <- spades(mySim, debug=FALSE)))
 }
 }
 \author{

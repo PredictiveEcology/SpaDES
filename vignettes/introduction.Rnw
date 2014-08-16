@@ -64,7 +64,7 @@ Why SpaDES exists
 This packages makes heavy use of the \texttt{raster} and \texttt{sp} packages, so familiarity with these packages and their classes and methods is recommended.
 
 \paragraph{}
-Talk about doSim and simInit.
+Talk about spades and simInit.
 
 \paragraph{}
 There are some demos to look at:
@@ -101,7 +101,7 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-doSim(mySim)
+spades(mySim)
 @
 
 \newpage
