@@ -86,25 +86,26 @@ sort of -- doesn't actually run demo1 but it's similar. make it the same!
 \begin{Schunk}
 \begin{Sinput}
 > library(SpaDES)
+> #
 > times <- list(start=0,stop=100.02)
 > parameters <- list(.globals=list(mapName="landscape"),
 +                   .progress=list(NA),
 +                   randomLandscapes = list(nx=1e2, ny=1e2,
-+                                           .plotInitialTime = 0, .plotInterval=1e3,
-+                                           startTime=0),
++                                           .plotInitialTime = 0, .plotInterval=1e3),
 +                   fireSpread=list(nFires = 1e1, spreadprob=0.225,
 +                                   persistprob=0, its=1e6,
-+                                   .plotInitialTime = 0.1, .plotInterval=10,
++                                   .plotInitialTime = 10.1, .plotInterval=10,
 +                                   returnInterval = 10, startTime=0),
 +                   caribouMovement=list(N=1e2,
 +                                        .plotInitialTime = 1.01, .plotInterval=1,
-+                                        moveInterval=1, startTime=0))
++                                        moveInterval=1))
 > modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 > path <- system.file("sampleModules", package="SpaDES")
 > mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 > doSim(mySim)
 \end{Sinput}
 \end{Schunk}
+\includegraphics{introduction-using-SpaDES}
 
 \newpage
 
@@ -212,6 +213,7 @@ Using the spread function, we can simulate fires, and subsequent changes to the 
 > simPlot(landscape[["Fires"]], add=TRUE, delete.previous=FALSE, col=.cols[[1]])
 \end{Sinput}
 \end{Schunk}
+\includegraphics{introduction-fire-overlaid}
 
 
 \paragraph{}
@@ -227,6 +229,31 @@ We can see that the fires tend to be in the Pines because we made it that way, u
 > PineByFire$pine <- as.numeric(as.character(PineByFire$pine))
 > summary(glm(freq ~ fire*pine, data=PineByFire, family="poisson"))
 \end{Sinput}
+\begin{Soutput}
+Call:
+glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-37.810  -14.885   -6.973    7.498   42.497  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  6.676166   0.020366 327.809  < 2e-16 ***
+fire1       -2.403265   0.076752 -31.312  < 2e-16 ***
+pine         0.025186   0.003695   6.817 9.30e-12 ***
+fire1:pine   0.073493   0.012512   5.874 4.26e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 15340.0  on 18  degrees of freedom
+Residual deviance:  9053.6  on 15  degrees of freedom
+AIC: 9189.4
+
+Number of Fisher Scoring iterations: 6
+\end{Soutput}
 \end{Schunk}
 
 \paragraph{}
@@ -239,9 +266,10 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 > landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 > landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 > landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-> simPlot(landscape, col=.cols[c(2:5,3,1)])
+> simPlot(landscape, col=.cols[c(4, 7, 10, 3, 8, 1)])
 \end{Sinput}
 \end{Schunk}
+\includegraphics{introduction-fire-impacts-maps}
 
 \section{A simple individual based model (IBM)}
 \paragraph{Move some agents}
@@ -270,6 +298,7 @@ Using a simple landscape-depedent correlated random walk, simulate the movement 
 + }
 \end{Sinput}
 \end{Schunk}
+\includegraphics{introduction-agent-crw-trajectory}
 
 \newpage
 

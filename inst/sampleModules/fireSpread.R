@@ -43,12 +43,12 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="plot.init") {
     # do stuff for this event
 
-    simPlot(stack(get(simParams(sim)$.globals$mapName)))
+    simPlot(get(simParams(sim)$.globals$mapName), col = .cols[c(4, 7, 10, 3, 8, 5)])
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(get(simParams(sim)$.globals$mapName)$Fires, add=TRUE, on.which.to.plot="Fires", col=.cols[[2]], add.legend=TRUE, delete.previous=FALSE)
+    simPlot(get(simParams(sim)$.globals$mapName)$Fires, add=TRUE, on.which.to.plot="Fires", col=.cols[[1]], add.legend=TRUE, delete.previous=FALSE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
@@ -97,8 +97,9 @@ fireSpreadBurn <- function(sim) {
                    iterations=simParams(sim)$fireSpread$its,
                    plot.it=FALSE,
                    mapID=TRUE)
-  names(Fires) <- "Fires" # do we need this again here??
-  assign(simParams(sim)$.globals$mapName, stack(landscapes,Fires), envir=.GlobalEnv)
+  names(Fires) <- "Fires"
+  landscapes$Fires <- Fires
+  assign(simParams(sim)$.globals$mapName, landscapes, envir=.GlobalEnv)
 
   return(sim)
 }

@@ -495,14 +495,17 @@ setMethod("drawArrows",
 #' A short selection of colour palettes that can be use
 #'
 #' Colour number 1 shows use of transparency
-#'
 #' @export
 #' @rdname cols
 .cols = list(
- transparent.red=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
+ transparentGrey=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
  grey = RColorBrewer::brewer.pal(9,"Greys"),
  spectral = RColorBrewer::brewer.pal(8,"Spectral"),
- terrain = rev(terrain.colors(100)),
+ terrain = terrain.colors(100),
  heat = heat.colors(10),
- topo = topo.colors(10)
+ topo = topo.colors(10),
+ blueGreen = RColorBrewer::brewer.pal(9,"BuGn"),
+ greens = RColorBrewer::brewer.pal(9,"Greens"),
+ yellowBrown = RColorBrewer::brewer.pal(9, "YlOrBr"),
+ discrete1 = RColorBrewer::brewer.pal(8,"BrBG")
 )
