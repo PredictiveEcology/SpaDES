@@ -603,12 +603,11 @@ rastVp <- function(rast){
   return(vp.rast)
 }
 
-plotRast <- function(rast, col=NULL,
+plotRast <- function(rast, add = FALSE, col=NULL,
                      legend=TRUE, draw=TRUE, xaxis=TRUE, yaxis = TRUE,
-                     gp=gpar(), add = FALSE, vp=rastVp(rast), ...) {
-  if(!add) {
-    grid.newpage()
-  }
+                     gp=gpar(), vp=NULL, 
+                     childrenvp=NULL, ...) {
+  if(!add) { grid.newpage() }
 
   pr <- pretty(range(minValue(rast),maxValue(rast)))
   pr <- pr[pr<maxValue(rast)]
@@ -616,7 +615,7 @@ plotRast <- function(rast, col=NULL,
 
   rastGrob <- gTree(rast=rast, name=names(rast),
                     pr=pr,col=col,
-                    childrenvp=vp,
+                    childrenvp=childrenvp,
                     children=gList(
                       rasterGrob(as.raster(rast, maxpixels=1e4,col = col),
                                  interpolate=FALSE,
@@ -640,50 +639,75 @@ plotRast <- function(rast, col=NULL,
   return(invisible(rastGrob))
 }
 
-plotRastStack <- function(rastStack, axes="L", col=NULL,
+plotRastStack <- function(rastStack, add = FALSE, axes="L", col=NULL,
                           legend=TRUE, draw=TRUE, deletePrevious = FALSE,
-                          gp=gpar(), add = FALSE, vp=NULL,
+                          gp=gpar(), vp=NULL,
                           visualSqueeze = 0.75, ...) {
-  if (!add) grid.newpage()
-  arr <- arrangeSimPlots(rastStack)
-  ext <- extent(rastStack)
-  nam <- names(rastStack)
-
-  if (!is.null(col)) {
-    if(length(col) < length(nam)) {
-      col = lapply(1:length(nam), function(x) {
-        col[[((x-1)%%length(col))+1]]
-      })
-    }
-  }
-  vp = list()
-  with (arr, {
-    for (i in 1:length(nam)) {
-      vp[[i]] <- viewport(x=cr[i,"columns"], y=cr[i,"rows"],
-                          width=min(1/columns*visualSqueeze,1/columns*visualSqueeze/(ds.map.ratio/actual.ratio)),
-                          height=min(1/rows*visualSqueeze,1/rows*visualSqueeze/(actual.ratio/ds.map.ratio)),
-                          just="centre",
-                          name=paste("vp",nam[i],sep=""),
-                          xscale=c(xmin(ext),xmax(ext)),
-                          yscale= c(ymin(ext), ymax(ext)))
-      if(deletePrevious) {
-        openGrobs <- grid.ls(grobs=T, recursive = F, print = F)$name
-        whichRemoved <- match(nam[i],openGrobs)
-        grid.remove(openGrobs[whichRemoved])
+  if (add==FALSE) {
+    grid.newpage()
+    arr <- arrangeSimPlots(rastStack)
+    ext <- extent(rastStack)
+    nam <- names(rastStack)
+  
+    # recycle colours, if not enough provided
+    if (!is.null(col)) {
+      if(length(col) < length(nam)) {
+        col = lapply(1:length(nam), function(x) {
+          col[[((x-1)%%length(col))+1]]
+        })
       }
-      pushViewport(vp[[i]])
-      if(axes=="L") if(cr[i,"rows"]==min(cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
-      if(axes=="L") if(cr[i,"columns"]==min(cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}
+    }
+    vp = list()
+    with (arr, {
+      for (i in 1:length(nam)) {
+        vp[[i]] <- viewport(x=cr[i,"columns"], y=cr[i,"rows"],
+                            width=min(1/columns*visualSqueeze,1/columns*visualSqueeze/(ds.map.ratio/actual.ratio)),
+                            height=min(1/rows*visualSqueeze,1/rows*visualSqueeze/(actual.ratio/ds.map.ratio)),
+                            just="centre",
+                            name=paste("vp",nam[i],sep=""),
+                            xscale=c(xmin(ext),xmax(ext)),
+                            yscale= c(ymin(ext), ymax(ext)))
+        if(deletePrevious) {
+          openGrobs <- grid.ls(grobs=T, recursive = F, print = F)$name
+          whichRemoved <- match(nam[i],openGrobs)
+          grid.remove(openGrobs[whichRemoved])
+        }
+        pushViewport(vp[[i]])
+        if(axes=="L") if(cr[i,"rows"]==min(cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
+        if(axes=="L") if(cr[i,"columns"]==min(cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}
+        if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
+        if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
+        a <- plotRast(rastStack[[i]], col = col[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
+                      legend = legend, gp = gp, draw = draw, ...)
+        upViewport(1)
+      }
+    }
+    )
+    assign(".arr", arr, envir=.GlobalEnv)
+  } else { # add is TRUE
+    activeGrobs <- grid.ls(print=FALSE, recursive=FALSE)$name
+    wh <- match(names(rastStack), activeGrobs)
+    if(any(is.na(wh))) stop("Adding new plot areas to an existing multi-panel plot is
+                            not implemented yet")
+    for(i in activeGrobs[wh]) {
+      i.numeric <- which(i==.arr$wh)
+      if(axes=="L") if(.arr$cr[i.numeric,"rows"]==min(.arr$cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
+      if(axes=="L") if(.arr$cr[i.numeric,"columns"]==min(.arr$cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}
       if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
       if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
-      a <- plotRast(rastStack[[i]], col = col[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
+
+      seekViewport(paste("vp",i,sep=""),recording=TRUE)
+      
+      if(deletePrevious) grid.remove(i)
+      a <- plotRast(rastStack[[i]], add=TRUE, col = col[[i]], 
+                    vp=NULL,#paste("vp",i,sep=""), 
+                    childrenvp = NULL, #paste("vp",i,sep=""), 
+                    xaxis = xaxis, yaxis = yaxis,
                     legend = legend, gp = gp, draw = draw, ...)
-      upViewport(1)
+      #upViewport()#recording=FALSE)
     }
   }
-  )
-  assign(".arr", arr, envir=.GlobalEnv)
-  return(invisible(arr))
+  return(invisible())
 }
 
 # if(deletePrevious) {
@@ -693,4 +717,205 @@ plotRastStack <- function(rastStack, axes="L", col=NULL,
 #   seekViewport(names(rast))
 # }
 
+######################################################3
+sPlot <- function(...) {
+  print(length(list(...)))
+}
 
+setGeneric("makeViewport", function(obj, 
+                      layout.pos.col, layout.pos.row, 
+                      visualSqueeze=0.8) {
+  standardGeneric("makeViewport")
+})
+
+#' @aliases simPlot
+#' @export
+#' @rdname simPlot
+setMethod("makeViewport",
+          signature="Raster",
+          definition=function(obj, layout.pos.col=1, layout.pos.row=1,
+                              visualSqueeze) {
+  
+  dimx <- dim(obj)
+  ds <- dev.size()
+  ds.ratio <- ds[1]/ds[2]
+  map.ratio <- dimx[2]/dimx[1]
+  ds.map.ratio <- ds.ratio/map.ratio
+    
+  vp.obj <- viewport(name=paste("vp",names(obj),sep=""),
+                     x = unit(0.55, "npc"),
+                     y = unit(0.55, "npc"),
+                     just = "centre",
+                     layout.pos.col = layout.pos.col,
+                     layout.pos.row = layout.pos.row,
+                     width=min(1*visualSqueeze,1*visualSqueeze/(ds.map.ratio)),
+                     height=min(1*visualSqueeze,1*visualSqueeze/(1/ds.map.ratio)),
+                     xscale=c(xmin(obj),xmax(obj)),
+                     yscale=c(ymin(obj),ymax(obj)))
+  return(vp.obj)
+})
+
+actual.ratio <- columns/rows
+
+width=min(1/columns*visualSqueeze,1/columns*visualSqueeze/(ds.map.ratio/actual.ratio))
+height=min(1/rows*visualSqueeze,1/rows*visualSqueeze/(actual.ratio/ds.map.ratio))
+
+
+
+makeViewports <- function(arr, visualSqueeze) {
+  columns = arr$columns
+  rows = arr$rows
+  vS.w = min(visualSqueeze/columns, visualSqueeze/columns*arr$actual.ratio/arr$ds.map.ratio)
+  wdth <- unit(c(rep(c(2,vS.w),columns),1)-c(1,rep(0,columns*2)),
+               c(rep(c("null","npc"),columns),"null"))
+  vS.h = min(visualSqueeze/rows, visualSqueeze/rows*arr$ds.map.ratio/arr$actual.ratio)
+  ht <- unit(c(rep(c(2,vS.h),rows),1)-c(1,rep(0,rows*2)),
+             c(rep(c("null","npc"),rows),"null"))
+  topVp <-
+    viewport(layout=grid.layout(nrow=rows*2+1, ncol=columns*2+1,
+                                widths=wdth,
+                                heights=ht,
+                                ),
+             name="top")
+  plotVps <- list()
+  for(i in 1:length(arr$wh)) {
+    plotVps[[i]] <- makeViewport(landscape[[i]], visualSqueeze = 0.6,
+                                 layout.pos.row=ceiling(i/columns)*2,
+                                 layout.pos.col=ceiling((i-1)%%columns+1)*2)
+  }
+  
+
+  wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
+  return(wholeVp)
+}
+
+
+
+dev(4)
+grid.newpage()
+arr <- arrangeSimPlots(landscape)
+vps <- makeViewports(arr, 0.8)
+a <- pushViewport(vps)
+#upViewport()
+
+for(i in 1:100){
+print(system.time(
+for(i in 1:length(names(landscape))) {
+  seekViewport(paste("vp",names(landscape)[i],sep=""),recording=F)
+  a <- plotRast(rastStack[[i]], col = .cols[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
+                legend = legend, gp = gpar(cex=0.5), draw = draw)
+}
+))
+}
+
+  
+  
+  ###################################################
+  ### code chunk number 21: viewports
+  ###################################################
+  pushViewport(splot)
+  
+}
+
+#' Determine optimal plotting arrangement of RasterStack
+#'
+#' Hidden function.
+#'
+#' This assesses the device geometry, the map geometry, and the number of rasters
+#' to plot and builds an object that will be used by the simPlot functions to plot
+#' them efficiently
+#'
+#' @param rast Raster* object
+#' @param axes passed from simPlot
+#' @rdname optimArrange
+#' @export
+#' @docType methods
+optimArrange <- function(rast, which.to.plot="all", axes="L") {
+  ext = extent(rast)
+  dimx = dim(rast)
+  nam = names(rast)
+  wh <- nam
+  
+  if(any(which.to.plot != "all")) {
+    if (is.character(which.to.plot)) if (any(is.na(match(which.to.plot, nam)))) stop("Not a named map in rasterx")
+    if (is.numeric(which.to.plot)) {
+      wh <- wh[match(nam[which.to.plot], wh)]
+    } else {
+      wh <- wh[match(which.to.plot, wh)]
+    }
+  }
+  
+  if(dev.cur()==1) {
+    dev.new(height=8, width=10)
+  }
+  
+  ds <- dev.size()
+  ds.ratio <- ds[1]/ds[2]
+  
+  map.ratio <- dimx[2]/dimx[1]
+  
+  ds.map.ratio <- ds.ratio/map.ratio
+  
+  col.by.row <- data.frame(matrix(ncol=2, nrow=length(wh)))
+  
+  col.by.row[,1] <- ceiling(length(wh)/(1:length(wh)))
+  col.by.row[,2] <- ceiling(length(wh)/col.by.row[,1])
+  
+  
+  wh.best <- which.min(abs(apply(col.by.row,1,function(x) x[1]/x[2]) - ds.map.ratio))
+  
+  columns <- col.by.row[wh.best,1]
+  rows <- col.by.row[wh.best,2]
+  
+  actual.ratio <- columns/rows
+  
+  if (axes != "none" & axes != FALSE) {
+    prettys <- list()
+    prettys[["x"]] <- pretty(c(xmin(ext),xmax(ext)))
+    prettys[["y"]] <- pretty(c(ymin(ext),ymax(ext)))
+    prettys[["x"]] <- prettys[["x"]][which(prettys[["x"]]>=xmin(ext) & prettys[["x"]]<=xmax(ext))]
+    prettys[["y"]] <- prettys[["y"]][which(prettys[["y"]]>=ymin(ext) & prettys[["y"]]<=ymax(ext))]
+  }
+  
+  cr <- expand.grid(columns=((1:columns/columns - 1/columns/2)-0.55)*0.9+0.55,rows=((rows:1/rows - 1/rows/2)-0.55)*0.9+0.55)
+  out <- list(cr=cr,rows=rows,columns=columns,actual.ratio=actual.ratio,ds.map.ratio=ds.map.ratio,
+              ds=ds,prettys=prettys,wh=wh,ds.ratio=ds.ratio)
+  return(out)
+}
+
+sPlot("hello", 1:10,"rogn")
+
+
+xscale <- extendrange(x)
+yscale <- extendrange(y)
+
+
+###################################################
+### code chunk number 17: viewports.Rnw:203-208
+###################################################
+top.vp <-
+  viewport(layout=grid.layout(3, 3,
+                              widths=unit(c(5, 1, 2), c("lines", "null", "lines")),
+                              heights=unit(c(5, 1, 4), c("lines", "null", "lines"))))
+
+
+
+###################################################
+### code chunk number 18: viewports.Rnw:209-210
+###################################################
+grid.show.layout(viewport.layout(top.vp))
+
+
+###################################################
+### code chunk number 19: viewports.Rnw:217-227
+###################################################
+margin1 <- viewport(layout.pos.col = 2, layout.pos.row = 3,
+                    name = "margin1")
+margin2 <- viewport(layout.pos.col = 1, layout.pos.row = 2,
+                    name = "margin2")
+margin3 <- viewport(layout.pos.col = 2, layout.pos.row = 1,
+                    name = "margin3")
+margin4 <- viewport(layout.pos.col = 3, layout.pos.row = 2,
+                    name = "margin4")
+plot <- viewport(layout.pos.col = 2, layout.pos.row = 2,
+                 name = "plot", xscale = xscale, yscale = yscale)
