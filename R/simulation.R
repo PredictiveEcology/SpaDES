@@ -40,43 +40,21 @@
 #'
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
-                    events="data.table", completed="ANY", simtimes="list")
+                    events="data.table", completed="data.table", simtimes="list"),
+         prototype=list(.loaded=as.list(NULL), modules=as.list(NULL), params=as.list(NULL),
+                        events=as.data.table(NULL), completed=as.data.table(NULL),
+                        simtimes=list(current=0.00, start=0.00, stop=1.00)),
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (is.na(object@simtimes$stop)) {
+             stop("simulation stop time must be specified.")
+           } else {
+             if (object@simtimes$start >= object@simtimes$stop) {
+               stop("simulation start time should occur before stop time.")
+             }
+           }
+         }
 )
-
-### initialize is already defined in the methods package
-#' initialize simList
-#'
-#' @param times     A named list of simulation start and stop times
-#'                  (e.g., \code{times=list(start=0.00, stop=10.00)}).
-#'
-#' @export
-#'
-#' @author Alex Chubaty
-#'
-setMethod("initialize",
-          signature="simList",
-          definition=function(.Object, ..., times=list(start=0.00, stop=NA_real_)) {
-            # check for valid sim times and make default list
-            if (is.na(times$stop)) {
-              stop("simulation stop time must be specified.")
-            } else {
-              if (times$start >= times$stop) {
-                stop("simulation start time should occur before stop time.")
-              } else {
-                simtimes <- list(current=times$start, start=times$start, stop=times$stop)
-              }
-            }
-
-            # set default slot values
-            simEvents(.Object) <- data.table(NULL)
-            simEventsCompleted(.Object) <- data.table(NULL)
-            simModulesLoaded(.Object) <- NULL
-            simObjectsLoaded(.Object) <- NULL
-            simTimes(.Object) <- simtimes # validated list of sim times
-
-            .Object <- callNextMethod(.Object, ..., simtimes=simtimes)
-            return(.Object)
-})
 
 ### show is already defined in the methods package
 #' show simList
@@ -682,7 +660,9 @@ setMethod("simInit",
             dotParams = append(dotParamsChar, dotParamsReal)
 
             # create new simList object
-            sim <- new("simList", times=times)
+            sim <- new("simList", simtimes=list(current=times$start,
+                                                start=times$start,
+                                                stop=times$stop))
             simModules(sim) <- modules
             simParams(sim) <- params
 
