@@ -302,6 +302,59 @@ setReplaceMethod("simParams",
 #'
 #' @export
 #' @docType methods
+#' @rdname simFileList-accessor-methods
+#'
+#' @export
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simFileList", function(object) {
+  standardGeneric("simFileList")
+})
+
+#' get .loadFileList from simulation parameters
+#' @rdname simFileList-accessor-methods
+setMethod("simFileList",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.loadFileList)
+})
+
+#' set .loadFileList in simulation parameters
+#' @export
+#' @rdname simFileList-accessor-methods
+setGeneric("simFileList<-",
+           function(object, value) {
+             standardGeneric("simFileList<-")
+})
+
+#' set .loadFileList in simulation parameters
+#' @name <-
+#' @rdname simFileList-accessor-methods
+setReplaceMethod("simFileList",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.loadFileList <- value
+                   validObject(object)
+                   return(object)
+})
+
+##############################################################
+#' Accessor methods for \code{simList} object slots
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#'
+#' Additonal methods are provided to access the current, start, and stop times of the
+#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
 #' @rdname simParams-accessor-methods
 #'
 #' @export
