@@ -5,7 +5,7 @@
 #' including the state of the random number generator,
 #' by scheduling checkpoint events.
 #'
-#' \code{\link{checkpoint.load}} and \code{\link{checkpoint.save}} code from:
+#' \code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
 #' https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
 #'
 #' RNG save code adapted from:
@@ -35,39 +35,46 @@
 # @examples
 # need examples
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
+  ### determine whether to use checkpointing
+  ### default is not to use checkpointing if unspecified
+  if ( !(".checkpoint" %in% names(simParams(sim))) ) {
+    simParams(sim)[[".checkpoint"]] = list(interval=NA_real_, file=NULL)
+  }
+  useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
+
   ### determine checkpoint file location, for use in events below
-  if (is.null(simParams(sim)$.globals$.outputPath)){
-    checkpointFile <- simParams(sim)$.checkpoint$file
-  } else {
-    checkpointDir <- checkPath(simParams(sim)$.globals$.outputPath, create=TRUE)
-    checkpointFile <- file.path(checkpointDir, simParams(sim)$.checkpoint$file)
+  if (useChkpnt) {
+    if (is.null(simCheckpointFile(sim))) {
+      checkpointFile <- "checkpoint.RData"
+    } else {
+      checkpointFile <- simCheckpointFile(sim)
+    }
+    if (!is.null(simParams(sim)$.globals$.outputPath)) {
+      checkpointDir <- checkPath(simParams(sim)$.globals$.outputPath, create=TRUE)
+      checkpointFile <- file.path(checkpointDir, simCheckpointFile(sim))
+    }
   }
 
   ### event definitions
   if (eventType=="init") {
-    if( !(".checkpoint" %in% names(simParams(mySim))) ) {
-      # default is not to use checkpointing, so, need to set defaults if unspecified
-      simParams(sim)[[".checkpoint"]] = list(interval=NA_real_, file=NULL)
-    } else {
+    if (useChkpnt) {
       sim <- scheduleEvent(sim, 0.00, "checkpoint", "load")
     }
   } else if (eventType=="load") {
-    useChkpnt = !is.na(simParams(sim)$.checkpoint$interval)
     if (useChkpnt) {
       # load user-specified checkpoint options
       checkpointLoad(checkpointFile)
 
       # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simParams(sim)$.checkpoint$interval
+      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else if (eventType=="save") {
-    useChkpnt = !is.na(simParams(sim)$.checkpoint$interval)
     if (useChkpnt) {
       checkpointSave(checkpointFile)
 
       # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simParams(sim)$.checkpoint$interval
+      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
@@ -79,7 +86,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 #' @rdname checkpoint
-checkpointLoad = function(file="checkpoint.RData") {
+checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
     load(file)
@@ -94,7 +101,7 @@ checkpointLoad = function(file="checkpoint.RData") {
 }
 
 #' @rdname checkpoint
-checkpointSave = function(file="checkpoint.RData") {
+checkpointSave = function(file) {
   if (exists(".Random.seed"))  {
     assign("rng.state", get(".Random.seed", .GlobalEnv), .GlobalEnv)
     assign("rng.kind", RNGkind(), .GlobalEnv)

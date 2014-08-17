@@ -40,6 +40,6 @@ Turchin, P. 1998. Quantitative analysis of movement: measuring and modeling popu
 McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network for butterfly habitat restoration: where individuals, populations and landscapes interact. Journal of Applied Ecology 44:725-736.
 }
 \seealso{
-\code{\link{mobileAgent}}, \code{\link{pointDistance}}
+\code{\link{pointDistance}}
 }
 

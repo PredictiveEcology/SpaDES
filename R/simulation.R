@@ -41,7 +41,8 @@
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
                     events="data.table", completed="data.table", simtimes="list"),
-         prototype=list(.loaded=as.list(NULL), modules=as.list(NULL), params=as.list(NULL),
+         prototype=list(.loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
+                        modules=as.list(NULL), params=as.list(NULL),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         simtimes=list(current=0.00, start=0.00, stop=1.00)),
          validity=function(object) {
@@ -68,20 +69,16 @@ setMethod("show",
               show[["Modules Loaded:"]] = as.character(simModulesLoaded(object))
               show[["Objects Loaded:"]] = as.character(simObjectsLoaded(object))
               show[["Simulation Parameters:"]] = as.list(simParams(object))
-              show[["Current Simulation Time:"]] = simTimes(object)
-              show[["Completed Events:"]] = simEventsCompleted(object)
+              show[["Simulation Times:"]] = simTimes(object)
+              show[["Completed Events:"]] = simCompleted(object)
               show[["Scheduled Events:"]] = simEvents(object)
               print(show)
 })
 
-
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the list of modules to be loaded for a simulation.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -89,6 +86,18 @@ setMethod("show",
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #' @export
 #' @docType methods
 #' @rdname simModules-accessor-methods
@@ -109,6 +118,7 @@ setMethod("simModules",
 
 #' set list of simulation modules
 #' @export
+#' @name simModules<-
 #' @rdname simModules-accessor-methods
 setGeneric("simModules<-",
            function(object, value) {
@@ -116,7 +126,7 @@ setGeneric("simModules<-",
 })
 
 #' set list of simulation modules
-#' @name <-
+#' @name simModules<-
 #' @rdname simModules-accessor-methods
 setReplaceMethod("simModules",
                  signature="simList",
@@ -127,12 +137,9 @@ setReplaceMethod("simModules",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the modules loaded for the simulation.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -144,7 +151,18 @@ setReplaceMethod("simModules",
 #' @docType methods
 #' @rdname simModulesLoaded-accessor-methods
 #'
-#' @export
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -162,6 +180,7 @@ setMethod("simModulesLoaded",
 
 #' set list of loaded simulation modules
 #' @export
+#' @name simModulesLoaded<-
 #' @rdname simModulesLoaded-accessor-methods
 setGeneric("simModulesLoaded<-",
            function(object, value) {
@@ -169,7 +188,7 @@ setGeneric("simModulesLoaded<-",
 })
 
 #' set list of loaded simulation modules
-#' @name <-
+#' @name simModulesLoaded<-
 #' @rdname simModulesLoaded-accessor-methods
 setReplaceMethod("simModulesLoaded",
                  signature="simList",
@@ -180,12 +199,9 @@ setReplaceMethod("simModulesLoaded",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the objects loaded for the simulation.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -197,7 +213,18 @@ setReplaceMethod("simModulesLoaded",
 #' @docType methods
 #' @rdname simObjectsLoaded-accessor-methods
 #'
-#' @export
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -211,18 +238,19 @@ setMethod("simObjectsLoaded",
           signature="simList",
           definition=function(object) {
             return(object@.loaded$objects)
-          })
+})
 
 #' set list of loaded simulation modules
 #' @export
+#' @name simObjectsLoaded<-
 #' @rdname simObjectsLoaded-accessor-methods
 setGeneric("simObjectsLoaded<-",
            function(object, value) {
              standardGeneric("simObjectsLoaded<-")
-           })
+})
 
 #' set list of loaded simulation modules
-#' @name <-
+#' @name simObjectsLoaded<-
 #' @rdname simObjectsLoaded-accessor-methods
 setReplaceMethod("simObjectsLoaded",
                  signature="simList",
@@ -230,16 +258,13 @@ setReplaceMethod("simObjectsLoaded",
                    object@.loaded$objects <- value
                    validObject(object)
                    return(object)
-                 })
+})
 
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the simulation parameters list.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -251,7 +276,18 @@ setReplaceMethod("simObjectsLoaded",
 #' @docType methods
 #' @rdname simParams-accessor-methods
 #'
-#' @export
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -269,6 +305,7 @@ setMethod("simParams",
 
 #' set list of simulation parameters
 #' @export
+#' @name simParams<-
 #' @rdname simParams-accessor-methods
 setGeneric("simParams<-",
            function(object, value) {
@@ -276,7 +313,7 @@ setGeneric("simParams<-",
 })
 
 #' set list of simulation parameters
-#' @name <-
+#' @name simParams<-
 #' @rdname simParams-accessor-methods
 setReplaceMethod("simParams",
                  signature="simList",
@@ -287,12 +324,127 @@ setReplaceMethod("simParams",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the simulation checkpoint filename.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simCheckpointFile-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simCheckpointFile", function(object) {
+  standardGeneric("simCheckpointFile")
+})
+
+#' get list of simulation parameters
+#' @rdname simCheckpointFile-accessor-methods
+setMethod("simCheckpointFile",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.checkpoint$file)
+})
+
+#' set list of simulation parameters
+#' @export
+#' @name simCheckpointFile<-
+#' @rdname simCheckpointFile-accessor-methods
+setGeneric("simCheckpointFile<-",
+           function(object, value) {
+             standardGeneric("simCheckpointFile<-")
+})
+
+#' set list of simulation parameters
+#' @name simCheckpointFile<-
+#' @rdname simCheckpointFile-accessor-methods
+setReplaceMethod("simCheckpointFile",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.checkpoint$file <- value
+                   validObject(object)
+                   return(object)
+})
+
+##############################################################
+#' Get and set the simulation checkpoint interval.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simCheckpointInterval-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simCheckpointInterval", function(object) {
+  standardGeneric("simCheckpointInterval")
+})
+
+#' get list of simulation parameters
+#' @rdname simCheckpointInterval-accessor-methods
+setMethod("simCheckpointInterval",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.checkpoint$interval)
+})
+
+#' set list of simulation parameters
+#' @export
+#' @name simCheckpointInterval<-
+#' @rdname simCheckpointInterval-accessor-methods
+setGeneric("simCheckpointInterval<-",
+           function(object, value) {
+             standardGeneric("simCheckpointInterval<-")
+})
+
+#' set list of simulation parameters
+#' @name simCheckpointInterval<-
+#' @rdname simCheckpointInterval-accessor-methods
+setReplaceMethod("simCheckpointInterval",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.checkpoint$interval <- value
+                   validObject(object)
+                   return(object)
+})
+
+##############################################################
+#' Get and set the filelist to be loaded during simulation.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -304,7 +456,19 @@ setReplaceMethod("simParams",
 #' @docType methods
 #' @rdname simFileList-accessor-methods
 #'
-#' @export
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -322,6 +486,7 @@ setMethod("simFileList",
 
 #' set .loadFileList in simulation parameters
 #' @export
+#' @name simFileList<-
 #' @rdname simFileList-accessor-methods
 setGeneric("simFileList<-",
            function(object, value) {
@@ -329,7 +494,7 @@ setGeneric("simFileList<-",
 })
 
 #' set .loadFileList in simulation parameters
-#' @name <-
+#' @name simFileList<-
 #' @rdname simFileList-accessor-methods
 setReplaceMethod("simFileList",
                  signature="simList",
@@ -340,7 +505,129 @@ setReplaceMethod("simFileList",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the list of global simulation parmeters.
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simGlobals-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simGlobals", function(object) {
+  standardGeneric("simGlobals")
+})
+
+#' get .loadFileList from simulation parameters
+#' @rdname simGlobals-accessor-methods
+setMethod("simGlobals",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.globals)
+})
+
+#' set .loadFileList in simulation parameters
+#' @export
+#' @name simGlobals<-
+#' @rdname simGlobals-accessor-methods
+setGeneric("simGlobals<-",
+           function(object, value) {
+             standardGeneric("simGlobals<-")
+})
+
+#' set .loadFileList in simulation parameters
+#' @name simGlobals<-
+#' @rdname simGlobals-accessor-methods
+setReplaceMethod("simGlobals",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.globals <- value
+                   validObject(object)
+                   return(object)
+})
+
+##############################################################
+#' Get and set the output path from global simulation parmeters.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simGlobalsOutputPath-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simGlobalsOutputPath", function(object) {
+  standardGeneric("simGlobalsOutputPath")
+})
+
+#' get .globals$.outputPath from simulation parameters
+#' @rdname simGlobalsOutputPath-accessor-methods
+setMethod("simGlobalsOutputPath",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.globals$.outputPath)
+          })
+
+#' set .globals$.outputPath in simulation parameters
+#' @export
+#' @name simGlobalsOutputPath<-
+#' @rdname simGlobalsOutputPath-accessor-methods
+setGeneric("simGlobalsOutputPath<-",
+           function(object, value) {
+             standardGeneric("simGlobalsOutputPath<-")
+           })
+
+#' set .globals$.outputPath in simulation parameters
+#' @name simGlobalsOutputPath<-
+#' @rdname simGlobalsOutputPath-accessor-methods
+setReplaceMethod("simGlobalsOutputPath",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.globals$.outputPath <- value
+                   validObject(object)
+                   return(object)
+})
+
+##############################################################
+#' Get and set the list of simulation times.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
@@ -355,9 +642,20 @@ setReplaceMethod("simFileList",
 #'
 #' @export
 #' @docType methods
-#' @rdname simParams-accessor-methods
+#' @rdname simTimes-accessor-methods
 #'
-#' @export
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually.
 #'
 #' @author Alex Chubaty
 #'
@@ -375,6 +673,7 @@ setMethod("simTimes",
 
 #' set list of simulation times
 #' @export
+#' @name simTimes<-
 #' @rdname simTimes-accessor-methods
 setGeneric("simTimes<-",
            function(object, value) {
@@ -382,7 +681,7 @@ setGeneric("simTimes<-",
 })
 
 #' set list of simulation times
-#' @name <-
+#' @name simTimes<-
 #' @rdname simTimes-accessor-methods
 setReplaceMethod("simTimes",
                  signature="simList",
@@ -393,12 +692,7 @@ setReplaceMethod("simTimes",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' Get and set the current simulation time.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -410,7 +704,19 @@ setReplaceMethod("simTimes",
 #' @docType methods
 #' @rdname simCurrentTime-accessor-methods
 #'
-#' @export
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation start, and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -428,6 +734,7 @@ setMethod("simCurrentTime",
 
 #' set the current simulation time
 #' @export
+#' @name simCurrentTime<-
 #' @rdname simCurrentTime-accessor-methods
 setGeneric("simCurrentTime<-",
            function(object, value) {
@@ -435,7 +742,7 @@ setGeneric("simCurrentTime<-",
 })
 
 #' set the current simulation time
-#' @name <-
+#' @name simCurrentTime<-
 #' @rdname simCurrentTime-accessor-methods
 setReplaceMethod("simCurrentTime",
                  signature="simList",
@@ -446,12 +753,7 @@ setReplaceMethod("simCurrentTime",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' Get and set the simulation start time.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -462,6 +764,20 @@ setReplaceMethod("simCurrentTime",
 #' @export
 #' @docType methods
 #' @rdname simStartTime-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime} and \code{simStopTime}
+#'          to access the simulation current and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -479,6 +795,7 @@ setMethod("simStartTime",
 
 #' set the simulation start time
 #' @export
+#' @name simStartTime<-
 #' @rdname simStartTime-accessor-methods
 setGeneric("simStartTime<-",
            function(object, value) {
@@ -486,7 +803,7 @@ setGeneric("simStartTime<-",
 })
 
 #' set the simulation start time
-#' @name <-
+#' @name simStartTime<-
 #' @rdname simStartTime-accessor-methods
 setReplaceMethod("simStartTime",
                  signature="simList",
@@ -497,12 +814,7 @@ setReplaceMethod("simStartTime",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
+#' Get and set the simulation stop time.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -513,6 +825,20 @@ setReplaceMethod("simStartTime",
 #' @export
 #' @docType methods
 #' @rdname simStopTime-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime} and \code{simStartTime}
+#'          to access the simulation current and start times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -530,6 +856,7 @@ setMethod("simStopTime",
 
 #' set the simulation stop time
 #' @export
+#' @name simStopTime<-
 #' @rdname simStopTime-accessor-methods
 setGeneric("simStopTime<-",
            function(object, value) {
@@ -537,7 +864,7 @@ setGeneric("simStopTime<-",
 })
 
 #' set the simulation stop time
-#' @name <-
+#' @name simStopTime<-
 #' @rdname simStopTime-accessor-methods
 setReplaceMethod("simStopTime",
                  signature="simList",
@@ -548,12 +875,12 @@ setReplaceMethod("simStopTime",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the simluation event list (aka event queue).
+#'
+#' The event queue is the list of scheduled (upcoming) events. All completed events
+#' are moved to to a sepaparte list accessed via \code{simCompleted}.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -564,6 +891,19 @@ setReplaceMethod("simStopTime",
 #' @export
 #' @docType methods
 #' @rdname simEvents-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #'
 #' @author Alex Chubaty
 #'
@@ -581,6 +921,7 @@ setMethod("simEvents",
 
 #' set the simulation event queue
 #' @export
+#' @name simEvents<-
 #' @rdname simEvents-accessor-methods
 setGeneric("simEvents<-",
            function(object, value) {
@@ -588,7 +929,7 @@ setGeneric("simEvents<-",
 })
 
 #' set the simulation event queue
-#' @name <-
+#' @name simEvents<-
 #' @rdname simEvents-accessor-methods
 setReplaceMethod("simEvents",
                  signature="simList",
@@ -599,12 +940,12 @@ setReplaceMethod("simEvents",
 })
 
 ##############################################################
-#' Accessor methods for \code{simList} object slots
+#' Get and set the list of completed simulation events.
+#'
+#' Upcaming (scheduled) events are stored in the events slot, accessible via
+#' \code{simEvents}.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
-#'
-#' Additonal methods are provided to access the current, start, and stop times of the
-#' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
 #' @param object A \code{simList} simulation object.
 #'
@@ -614,17 +955,30 @@ setReplaceMethod("simEvents",
 #'
 #' @export
 #' @docType methods
-#' @rdname simEventsCompleted-accessor-methods
+#' @rdname simCompleted-accessor-methods
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simParams}} for accessing the list of simulation parameters;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
 #'
 #' @author Eliot McIntire
 #'
-setGeneric("simEventsCompleted", function(object) {
-  standardGeneric("simEventsCompleted")
+setGeneric("simCompleted", function(object) {
+  standardGeneric("simCompleted")
 })
 
 #' get the simulation completed events list
-#' @rdname simEventsCompleted-accessor-methods
-setMethod("simEventsCompleted",
+#' @rdname simCompleted-accessor-methods
+setMethod("simCompleted",
           signature="simList",
           definition=function(object) {
             return(object@completed)
@@ -632,16 +986,17 @@ setMethod("simEventsCompleted",
 
 #' set the simulation completed events list
 #' @export
-#' @rdname simEventsCompleted-accessor-methods
-setGeneric("simEventsCompleted<-",
+#' @name simCompleted<-
+#' @rdname simCompleted-accessor-methods
+setGeneric("simCompleted<-",
            function(object, value) {
-             standardGeneric("simEventsCompleted<-")
+             standardGeneric("simCompleted<-")
 })
 
 #' set the simulation completed events list
-#' @name <-
-#' @rdname simEventsCompleted-accessor-methods
-setReplaceMethod("simEventsCompleted",
+#' @name simCompleted<-
+#' @rdname simCompleted-accessor-methods
+setReplaceMethod("simCompleted",
                  signature="simList",
                  function(object, value) {
                    object@completed <- value
@@ -839,6 +1194,7 @@ setMethod("reloadModuleLater",
 #'
 #' @import data.table
 #' @export
+#' @keywords internal
 #' @docType methods
 #' @rdname doEvent-method
 #'
@@ -876,10 +1232,10 @@ setMethod("doEvent",
             simEvents(sim) <- simEvents(sim)[-1,]
 
             # add to list of completed events
-            if(length(simEventsCompleted(sim))==0) {
-              simEventsCompleted(sim) <- setkey(nextEvent, eventTime)
+            if(length(simCompleted(sim))==0) {
+              simCompleted(sim) <- setkey(nextEvent, eventTime)
             } else {
-              simEventsCompleted(sim) <- setkey(rbindlist(list(simEventsCompleted(sim), nextEvent)), eventTime)
+              simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), eventTime)
             }
           return(sim)
 })
