@@ -4,6 +4,7 @@
 \alias{simStartTime}
 \alias{simStartTime,simList-method}
 \alias{simStartTime<-}
+\alias{simStartTime<-,simList-method}
 \title{Get and set the simulation start time.}
 \usage{
 simStartTime(object)

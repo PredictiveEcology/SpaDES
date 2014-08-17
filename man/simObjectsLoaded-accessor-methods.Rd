@@ -4,6 +4,7 @@
 \alias{simObjectsLoaded}
 \alias{simObjectsLoaded,simList-method}
 \alias{simObjectsLoaded<-}
+\alias{simObjectsLoaded<-,simList-method}
 \title{Get and set the objects loaded for the simulation.}
 \usage{
 simObjectsLoaded(object)

@@ -13,6 +13,12 @@ checkParams(sim, defaultModules, defaultParams, path, ...)
 \arguments{
 \item{sim}{A simList simulation object.}
 
+\item{defaultModules}{List of default modules.}
+
+\item{defaultParams}{List of default parameters.}
+
+\item{path}{The location of the modules' source files.}
+
 \item{...}{Additional arguments. Not implemented.}
 }
 \value{
@@ -22,11 +28,6 @@ Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
 \description{
 Checks that all parameters passed are used in a module,
 and that all parameters used in a module are passed.
-}
-\examples{
-\dontrun{}
-\dontrun{}
-\dontrun{}
 }
 \author{
 Alex Chubaty

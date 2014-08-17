@@ -34,6 +34,13 @@ dev <- function(x, ...) {
 #' Linux: open device with \code{x11()}.
 #' Windows: open device with \code{windows()}.
 #'
+#' @param ... Additional arguments.
+#'
+#' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
+#' window in a platform-generic way, however, this doesn't work in RStudio.
+#'
+#' @seealso \code{\link{quartz}}, \code{\link{windows}}, \code{\link{x11}}.
+#'
 #' @export
 #' @docType methods
 #' @rdname newPlot-method
@@ -433,15 +440,17 @@ arrangeSimPlots <- function(ext, dimx, nam, which.to.plot, axes="L") {
 }
 
 ##############################################################
-#' plot arrows showing direction of mobileAgent movement
+#' Plots arrows showing direction of agent movement.
 #'
-#' Plots arrows showing direction of mobileAgent movement.
+#' @param from          Starting spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
-#' @param agent         A \code{mobileAgent} object.
+#' @param to            Ending spatial coordinates (\code{SpatialPointsDataFrame})..
+#'
+#' @param on.which.to.plot The name of a map layer on which to draw the arrows.
 #'
 #' @param ...           Additional plotting parameters.
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Plots the vectors representing agent movement on the specified map.
 #'
 ##' @import sp
 #' @export

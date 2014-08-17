@@ -33,6 +33,8 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
+#' @param sim A \code{simList} simulation object.
+#'
 #' @export
 #' @docType methods
 #' @rdname simSave

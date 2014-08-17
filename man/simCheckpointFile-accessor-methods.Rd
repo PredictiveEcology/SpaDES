@@ -4,6 +4,7 @@
 \alias{simCheckpointFile}
 \alias{simCheckpointFile,simList-method}
 \alias{simCheckpointFile<-}
+\alias{simCheckpointFile<-,simList-method}
 \title{Get and set the simulation checkpoint filename.}
 \usage{
 simCheckpointFile(object)

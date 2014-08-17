@@ -4,6 +4,7 @@
 \alias{simModules}
 \alias{simModules,simList-method}
 \alias{simModules<-}
+\alias{simModules<-,simList-method}
 \title{Get and set the list of modules to be loaded for a simulation.}
 \usage{
 simModules(object)

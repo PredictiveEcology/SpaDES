@@ -22,6 +22,8 @@ checkpointSave(file)
 
 \item{debug}{Optional logical flag determines whether sim debug info
                      will be printed (default \code{debug=FALSE}.}
+
+\item{file}{The checkpoint file.}
 }
 \value{
 Returns the modified \code{SimList} object.

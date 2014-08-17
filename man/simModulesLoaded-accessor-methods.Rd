@@ -4,6 +4,7 @@
 \alias{simModulesLoaded}
 \alias{simModulesLoaded,simList-method}
 \alias{simModulesLoaded<-}
+\alias{simModulesLoaded<-,simList-method}
 \title{Get and set the modules loaded for the simulation.}
 \usage{
 simModulesLoaded(object)

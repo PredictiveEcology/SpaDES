@@ -38,7 +38,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### determine whether to use checkpointing
   ### default is not to use checkpointing if unspecified
   if ( !(".checkpoint" %in% names(simParams(sim))) ) {
-    simParams(sim)[[".checkpoint"]] = list(interval=NA_real_, file=NULL)
+    simParams(sim)$.checkpoint = list(interval=NA_real_, file=NULL)
   }
   useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
 
@@ -49,8 +49,8 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       checkpointFile <- simCheckpointFile(sim)
     }
-    if (!is.null(simParams(sim)$.globals$.outputPath)) {
-      checkpointDir <- checkPath(simParams(sim)$.globals$.outputPath, create=TRUE)
+    if (!is.null(simGlobalsOutputPath(sim))) {
+      checkpointDir <- checkPath(simGlobalsOutputPath(sim), create=TRUE)
       checkpointFile <- file.path(checkpointDir, simCheckpointFile(sim))
     }
   }
@@ -85,6 +85,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   return(sim)
 }
 
+#' @param file The checkpoint file.
 #' @rdname checkpoint
 checkpointLoad = function(file) {
   # check for previous checkpoint file

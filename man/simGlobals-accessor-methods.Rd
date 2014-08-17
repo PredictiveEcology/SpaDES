@@ -4,6 +4,7 @@
 \alias{simGlobals}
 \alias{simGlobals,simList-method}
 \alias{simGlobals<-}
+\alias{simGlobals<-,simList-method}
 \title{Get and set the list of global simulation parmeters.}
 \usage{
 simGlobals(object)

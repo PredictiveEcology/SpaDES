@@ -6,6 +6,9 @@
 \usage{
 simSave(sim)
 }
+\arguments{
+\item{sim}{A \code{simList} simulation object.}
+}
 \description{
 Save simulation objects according to simParams
 }

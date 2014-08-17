@@ -4,6 +4,7 @@
 \alias{simParams}
 \alias{simParams,simList-method}
 \alias{simParams<-}
+\alias{simParams<-,simList-method}
 \title{Get and set the simulation parameters list.}
 \usage{
 simParams(object)

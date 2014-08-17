@@ -126,6 +126,7 @@ setGeneric("simModules<-",
 
 #' set list of simulation modules
 #' @name simModules<-
+#' @aliases simModules<-,simList-method
 #' @rdname simModules-accessor-methods
 setReplaceMethod("simModules",
                  signature="simList",
@@ -187,6 +188,7 @@ setGeneric("simModulesLoaded<-",
 
 #' set list of loaded simulation modules
 #' @name simModulesLoaded<-
+#' @aliases simModulesLoaded<-,simList-method
 #' @rdname simModulesLoaded-accessor-methods
 setReplaceMethod("simModulesLoaded",
                  signature="simList",
@@ -248,6 +250,7 @@ setGeneric("simObjectsLoaded<-",
 
 #' set list of loaded simulation modules
 #' @name simObjectsLoaded<-
+#' @aliases simObjectsLoaded<-,simList-method
 #' @rdname simObjectsLoaded-accessor-methods
 setReplaceMethod("simObjectsLoaded",
                  signature="simList",
@@ -310,6 +313,7 @@ setGeneric("simParams<-",
 
 #' set list of simulation parameters
 #' @name simParams<-
+#' @aliases simParams<-,simList-method
 #' @rdname simParams-accessor-methods
 setReplaceMethod("simParams",
                  signature="simList",
@@ -368,6 +372,7 @@ setGeneric("simCheckpointFile<-",
 
 #' set list of simulation parameters
 #' @name simCheckpointFile<-
+#' @aliases simCheckpointFile<-,simList-method
 #' @rdname simCheckpointFile-accessor-methods
 setReplaceMethod("simCheckpointFile",
                  signature="simList",
@@ -426,6 +431,7 @@ setGeneric("simCheckpointInterval<-",
 
 #' set list of simulation parameters
 #' @name simCheckpointInterval<-
+#' @aliases simCheckpointInterval<-,simList-method
 #' @rdname simCheckpointInterval-accessor-methods
 setReplaceMethod("simCheckpointInterval",
                  signature="simList",
@@ -488,6 +494,7 @@ setGeneric("simFileList<-",
 
 #' set .loadFileList in simulation parameters
 #' @name simFileList<-
+#' @aliases simFileList<-,simList-method
 #' @rdname simFileList-accessor-methods
 setReplaceMethod("simFileList",
                  signature="simList",
@@ -549,6 +556,7 @@ setGeneric("simGlobals<-",
 
 #' set .loadFileList in simulation parameters
 #' @name simGlobals<-
+#' @aliases simGlobals<-,simList-method
 #' @rdname simGlobals-accessor-methods
 setReplaceMethod("simGlobals",
                  signature="simList",
@@ -608,6 +616,7 @@ setGeneric("simGlobalsOutputPath<-",
 
 #' set .globals$.outputPath in simulation parameters
 #' @name simGlobalsOutputPath<-
+#' @aliases simGlobalsOutputPath<-,simList-method
 #' @rdname simGlobalsOutputPath-accessor-methods
 setReplaceMethod("simGlobalsOutputPath",
                  signature="simList",
@@ -672,6 +681,7 @@ setGeneric("simTimes<-",
 
 #' set list of simulation times
 #' @name simTimes<-
+#' @aliases simTimes<-,simList-method
 #' @rdname simTimes-accessor-methods
 setReplaceMethod("simTimes",
                  signature="simList",
@@ -732,6 +742,7 @@ setGeneric("simCurrentTime<-",
 
 #' set the current simulation time
 #' @name simCurrentTime<-
+#' @aliases simCurrentTime<-,simList-method
 #' @rdname simCurrentTime-accessor-methods
 setReplaceMethod("simCurrentTime",
                  signature="simList",
@@ -792,6 +803,7 @@ setGeneric("simStartTime<-",
 
 #' set the simulation start time
 #' @name simStartTime<-
+#' @aliases simStartTime<-,simList-method
 #' @rdname simStartTime-accessor-methods
 setReplaceMethod("simStartTime",
                  signature="simList",
@@ -852,6 +864,7 @@ setGeneric("simStopTime<-",
 
 #' set the simulation stop time
 #' @name simStopTime<-
+#' @aliases simStopTime<-,simList-method
 #' @rdname simStopTime-accessor-methods
 setReplaceMethod("simStopTime",
                  signature="simList",
@@ -916,6 +929,7 @@ setGeneric("simEvents<-",
 
 #' set the simulation event queue
 #' @name simEvents<-
+#' @aliases simEvents<-,simList-method
 #' @rdname simEvents-accessor-methods
 setReplaceMethod("simEvents",
                  signature="simList",
@@ -980,6 +994,7 @@ setGeneric("simCompleted<-",
 
 #' set the simulation completed events list
 #' @name simCompleted<-
+#' @aliases simCompleted<-,simList-method
 #' @rdname simCompleted-accessor-methods
 setReplaceMethod("simCompleted",
                  signature="simList",

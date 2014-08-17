@@ -22,6 +22,8 @@ simLoad(sim, stackName = NULL, fileList, ...)
 a single RasterStack object, with name given.}
 
 \item{fileList}{list or data.frame to call simLoad directly from the fileList as described in Details}
+
+\item{...}{Additional arguments.}
 }
 \description{
 This function takes the fileList argument in the simList object and loads all the files

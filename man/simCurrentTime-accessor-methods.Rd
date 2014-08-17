@@ -4,6 +4,7 @@
 \alias{simCurrentTime}
 \alias{simCurrentTime,simList-method}
 \alias{simCurrentTime<-}
+\alias{simCurrentTime<-,simList-method}
 \title{Get and set the current simulation time.}
 \usage{
 simCurrentTime(object)

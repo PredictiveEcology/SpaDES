@@ -4,6 +4,7 @@
 \alias{simTimes}
 \alias{simTimes,simList-method}
 \alias{simTimes<-}
+\alias{simTimes<-,simList-method}
 \title{Get and set the list of simulation times.}
 \usage{
 simTimes(object)

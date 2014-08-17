@@ -4,6 +4,7 @@
 \alias{simStopTime}
 \alias{simStopTime,simList-method}
 \alias{simStopTime<-}
+\alias{simStopTime<-,simList-method}
 \title{Get and set the simulation stop time.}
 \usage{
 simStopTime(object)

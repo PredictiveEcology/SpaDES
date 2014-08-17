@@ -4,6 +4,7 @@
 \alias{simFileList}
 \alias{simFileList,simList-method}
 \alias{simFileList<-}
+\alias{simFileList<-,simList-method}
 \title{Get and set the filelist to be loaded during simulation.}
 \usage{
 simFileList(object)

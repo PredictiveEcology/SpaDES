@@ -4,6 +4,7 @@
 \alias{simGlobalsOutputPath}
 \alias{simGlobalsOutputPath,simList-method}
 \alias{simGlobalsOutputPath<-}
+\alias{simGlobalsOutputPath<-,simList-method}
 \title{Get and set the output path from global simulation parmeters.}
 \usage{
 simGlobalsOutputPath(object)

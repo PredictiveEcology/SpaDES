@@ -48,6 +48,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @param fileList list or data.frame to call simLoad directly from the fileList as described in Details
 #'
+#' @param ... Additional arguments.
+#'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
@@ -293,9 +295,10 @@ colnames(.fileExtensions) = c("exts","functions","package")
 #'
 #' @param x An object passed directly to the function raster (e.g., character string of a filename).
 #'
+#' @param ... Additional arguments to \code{raster}.
 #' @return A raster object whose values are stored in memory.
 #'
-#' @seealso \code{\link{raster}}
+#' @seealso \code{\link{raster}}.
 #'
 #' @name rasterToMemory
 #' @importMethodsFrom raster raster

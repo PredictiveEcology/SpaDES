@@ -4,6 +4,7 @@
 \alias{simCheckpointInterval}
 \alias{simCheckpointInterval,simList-method}
 \alias{simCheckpointInterval<-}
+\alias{simCheckpointInterval<-,simList-method}
 \title{Get and set the simulation checkpoint interval.}
 \usage{
 simCheckpointInterval(object)
