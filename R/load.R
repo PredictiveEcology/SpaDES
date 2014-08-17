@@ -181,10 +181,10 @@ setMethod("simLoad",
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
                 if (loadFun[x]=="raster") {
-                  print(paste(objectNames[x],"read to",where[inMemory(get(objectNames[x]))+1],
+                  message(paste(objectNames[x],"read to",where[inMemory(get(objectNames[x]))+1],
                               "from",fl[x],"using",loadFun[x]))
                 } else {
-                  print(paste(objectNames[x],"read to memory from",fl[x],"using",loadFun[x]))
+                  message(paste(objectNames[x],"read to memory from",fl[x],"using",loadFun[x]))
                 }
               }
 

@@ -46,7 +46,7 @@ setMethod("loadPackages",
                   }
                 }
               lapply(packageList, load, install)
-              if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
+              if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
 ##############################################################
