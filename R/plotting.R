@@ -793,20 +793,28 @@ makeViewports <- function(arr, visualSqueeze) {
 
 dev(4)
 grid.newpage()
-arr <- arrangeSimPlots(landscape)
-vps <- makeViewports(arr, 0.8)
-a <- pushViewport(vps)
-#upViewport()
 
-for(i in 1:100){
-print(system.time(
-for(i in 1:length(names(landscape))) {
-  seekViewport(paste("vp",names(landscape)[i],sep=""),recording=F)
-  a <- plotRast(rastStack[[i]], col = .cols[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
-                legend = legend, gp = gpar(cex=0.5), draw = draw)
-}
-))
-}
+setGeneric("sPlot", signature="...", function(..., add=F, gp=gpar(cex=0.8), visualSqueeze=0.75) {
+  standardGeneric("sPlot")
+})
+setMethod("sPlot",
+          signature("RasterStack"),
+          definition = function(..., add, gp, visualSqueeze) {
+            
+            if(add==F) grid.newpage()
+            arr <- arrangeSimPlots(...)
+            vps <- makeViewports(arr, visualSqueeze=visualSqueeze)
+            a <- pushViewport(vps)
+            
+            for(i in 1:length(names(...))) {
+              seekViewport(paste("vp",names(landscape)[i],sep=""),recording=F)
+              a <- plotRast(rastStack[[i]], col = .cols[[i]], add=TRUE,vp=NULL, xaxis = xaxis, yaxis = yaxis,
+                            legend = legend, gp = gp, draw = draw)
+            }
+          }
+)
+dev(4);sPlot(landscape[[c("DEM","forestAge")]])
+
 
   
   
