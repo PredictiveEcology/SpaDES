@@ -118,7 +118,6 @@ setMethod("simModules",
 
 #' set list of simulation modules
 #' @export
-#' @name simModules<-
 #' @rdname simModules-accessor-methods
 setGeneric("simModules<-",
            function(object, value) {
@@ -180,7 +179,6 @@ setMethod("simModulesLoaded",
 
 #' set list of loaded simulation modules
 #' @export
-#' @name simModulesLoaded<-
 #' @rdname simModulesLoaded-accessor-methods
 setGeneric("simModulesLoaded<-",
            function(object, value) {
@@ -242,7 +240,6 @@ setMethod("simObjectsLoaded",
 
 #' set list of loaded simulation modules
 #' @export
-#' @name simObjectsLoaded<-
 #' @rdname simObjectsLoaded-accessor-methods
 setGeneric("simObjectsLoaded<-",
            function(object, value) {
@@ -305,7 +302,6 @@ setMethod("simParams",
 
 #' set list of simulation parameters
 #' @export
-#' @name simParams<-
 #' @rdname simParams-accessor-methods
 setGeneric("simParams<-",
            function(object, value) {
@@ -364,7 +360,6 @@ setMethod("simCheckpointFile",
 
 #' set list of simulation parameters
 #' @export
-#' @name simCheckpointFile<-
 #' @rdname simCheckpointFile-accessor-methods
 setGeneric("simCheckpointFile<-",
            function(object, value) {
@@ -423,7 +418,6 @@ setMethod("simCheckpointInterval",
 
 #' set list of simulation parameters
 #' @export
-#' @name simCheckpointInterval<-
 #' @rdname simCheckpointInterval-accessor-methods
 setGeneric("simCheckpointInterval<-",
            function(object, value) {
@@ -486,7 +480,6 @@ setMethod("simFileList",
 
 #' set .loadFileList in simulation parameters
 #' @export
-#' @name simFileList<-
 #' @rdname simFileList-accessor-methods
 setGeneric("simFileList<-",
            function(object, value) {
@@ -548,7 +541,6 @@ setMethod("simGlobals",
 
 #' set .loadFileList in simulation parameters
 #' @export
-#' @name simGlobals<-
 #' @rdname simGlobals-accessor-methods
 setGeneric("simGlobals<-",
            function(object, value) {
@@ -604,16 +596,15 @@ setMethod("simGlobalsOutputPath",
           signature="simList",
           definition=function(object) {
             return(object@params$.globals$.outputPath)
-          })
+})
 
 #' set .globals$.outputPath in simulation parameters
 #' @export
-#' @name simGlobalsOutputPath<-
 #' @rdname simGlobalsOutputPath-accessor-methods
 setGeneric("simGlobalsOutputPath<-",
            function(object, value) {
              standardGeneric("simGlobalsOutputPath<-")
-           })
+})
 
 #' set .globals$.outputPath in simulation parameters
 #' @name simGlobalsOutputPath<-
@@ -673,7 +664,6 @@ setMethod("simTimes",
 
 #' set list of simulation times
 #' @export
-#' @name simTimes<-
 #' @rdname simTimes-accessor-methods
 setGeneric("simTimes<-",
            function(object, value) {
@@ -734,7 +724,6 @@ setMethod("simCurrentTime",
 
 #' set the current simulation time
 #' @export
-#' @name simCurrentTime<-
 #' @rdname simCurrentTime-accessor-methods
 setGeneric("simCurrentTime<-",
            function(object, value) {
@@ -795,7 +784,6 @@ setMethod("simStartTime",
 
 #' set the simulation start time
 #' @export
-#' @name simStartTime<-
 #' @rdname simStartTime-accessor-methods
 setGeneric("simStartTime<-",
            function(object, value) {
@@ -856,7 +844,6 @@ setMethod("simStopTime",
 
 #' set the simulation stop time
 #' @export
-#' @name simStopTime<-
 #' @rdname simStopTime-accessor-methods
 setGeneric("simStopTime<-",
            function(object, value) {
@@ -921,7 +908,6 @@ setMethod("simEvents",
 
 #' set the simulation event queue
 #' @export
-#' @name simEvents<-
 #' @rdname simEvents-accessor-methods
 setGeneric("simEvents<-",
            function(object, value) {
@@ -986,7 +972,6 @@ setMethod("simCompleted",
 
 #' set the simulation completed events list
 #' @export
-#' @name simCompleted<-
 #' @rdname simCompleted-accessor-methods
 setGeneric("simCompleted<-",
            function(object, value) {

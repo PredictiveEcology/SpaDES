@@ -34,9 +34,10 @@
 #' @export
 #' @docType methods
 #'
-#' @name spread
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
 #' @author Eliot McIntire
+#'
+#' @name spread
 #' @rdname spread-method
 #'
 setGeneric("spread", function(landscape, loci, spreadProb, persistance,
