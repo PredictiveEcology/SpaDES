@@ -84,7 +84,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    stringsAsFactors=FALSE)
 #'
 #' sim <- simLoad(sim)
-#' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+#' print(system.time(mySim <- spades(mySim, debug=FALSE)))
 #' }
 #'
 setGeneric("simLoad", function(sim, stackName=NULL, fileList, ...)  {

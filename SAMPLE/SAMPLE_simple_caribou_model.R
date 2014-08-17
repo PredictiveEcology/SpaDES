@@ -119,10 +119,10 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                                           moveInterval=1),
                              fireSpread=list(nFires=1e1, spreadprob=0.225,
                                         persistprob=0, its=1e6,
-#                                        .plotInitialTime=NA, .plotInterval=NA,
+                                        #.plotInitialTime=NA, .plotInterval=NA,
                                         .plotInitialTime = 0.1, .plotInterval=10,
-#                                        .saveObjects=c("Fires"), .saveInterval=10,
-#                                        .savePath=file.path("output","fireSpread"),
+                                        #.saveObjects=c("Fires"), .saveInterval=10,
+                                        #.savePath=file.path("output","fireSpread"),
                                         returnInterval=10, startTime=0)
                  ),
                  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
@@ -133,8 +133,8 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
 
 #simCurrentTime(mySim)<-0
 dev(4)
-print(system.time(doSim(mySim, debug=FALSE)))
-print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+print(system.time(spades(mySim, debug=FALSE)))
+print(system.time(mySim <- spades(mySim, debug=FALSE)))
 
 fls = dir(file.path("output","fires"))
 FireMap = list()
@@ -144,7 +144,7 @@ simPlot(stack(FireMap),col=cols[[1]])
 
 ## profiling of development code
 #prof <- lineprof(dosim(maxsimtime=10.00, modules=list("habitat", "caribou"), path="ABM/SAMPLE"))
-#prof <- lineprof(source("doSim.R"))
+#prof <- lineprof(source("spades.R"))
 
 shine(prof)
 c(address(mySim), refs(mySim))

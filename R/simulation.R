@@ -625,7 +625,7 @@ setReplaceMethod("simEventsCompleted",
 #' @return A \code{simList} simulation object, pre-initialized from values specified
 #' in the arguments supplied.
 #'
-#' @seealso \code{\link{doSim}}.
+#' @seealso \code{\link{spades}}.
 #'
 #' @export
 #' @docType methods
@@ -768,7 +768,7 @@ setMethod("reloadModuleLater",
 ##############################################################
 #' Process a simulation event
 #'
-#' Internal function called from \code{doSim}.
+#' Internal function called from \code{spades}.
 #'
 #' Calls the module corresponding to the event call, and executes the event.
 #'
@@ -934,7 +934,7 @@ setMethod("scheduleEvent",
 #'
 #' @export
 #' @docType methods
-#' @rdname doSim-method
+#' @rdname spades-method
 #'
 #' @author Alex Chubaty
 #'
@@ -945,14 +945,14 @@ setMethod("scheduleEvent",
 #' mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
 #' modules=list("habitat", "caribou"), path="/path/to/my/modules/)
 #' }
-#' \dontrun{doSim{mySim}}
+#' \dontrun{spades{mySim}}
 #'
-setGeneric("doSim", function(sim, debug) {
-    standardGeneric("doSim")
+setGeneric("spades", function(sim, debug) {
+    standardGeneric("spades")
 })
 
-#' @rdname doSim-method
-setMethod("doSim",
+#' @rdname spades-method
+setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             while(simCurrentTime(sim) <= simStopTime(sim)) {
@@ -968,9 +968,9 @@ setMethod("doSim",
           return(invisible(sim))
 })
 
-#' @rdname doSim-method
-setMethod("doSim",
+#' @rdname spades-method
+setMethod("spades",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {
-            return(doSim(sim, debug=FALSE))
+            return(spades(sim, debug=FALSE))
 })

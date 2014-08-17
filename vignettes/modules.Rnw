@@ -111,7 +111,7 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-doSim(mySim)
+spades(mySim)
 
 # retrieve the checkpoint params from the simulation object
 simParams(mySim)$.checkpoint
