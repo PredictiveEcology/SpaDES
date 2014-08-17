@@ -7,7 +7,7 @@
 # Just checks for paths, creates them if they do not exist
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    sim <- simLoad(sim)
+    sim <- loadFiles(sim)
   }
   return(sim)
 }
@@ -46,18 +46,18 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @param stackName String or Null, the default. If a string, then all rasters will be put into
 #' a single RasterStack object, with name given.
 #'
-#' @param fileList list or data.frame to call simLoad directly from the fileList as described in Details
+#' @param fileList list or data.frame to call loadFiles directly from the fileList as described in Details
 #'
 #' @param ... Additional arguments.
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
-#' @name simLoad
+#' @name loadFiles
 #' @include simulation.R
 #' @export
 #' @docType methods
-#' @rdname simLoad-method
+#' @rdname loadFiles-method
 #'
 #' @examples
 #' \dontrun{
@@ -66,7 +66,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
 #'    stringsAsFactors=FALSE)
 #'
-#' mySim <- simLoad(mySim)
+#' mySim <- loadFiles(mySim)
 #' simPlot(DEM)
 #'
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
@@ -85,16 +85,16 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    intervals = c(rep(NA,length(files)-1),10),
 #'    stringsAsFactors=FALSE)
 #'
-#' sim <- simLoad(sim)
+#' sim <- loadFiles(sim)
 #' print(system.time(mySim <- spades(mySim, debug=FALSE)))
 #' }
 #'
-setGeneric("simLoad", function(sim, stackName=NULL, fileList, ...)  {
-  standardGeneric("simLoad")
+setGeneric("loadFiles", function(sim, stackName=NULL, fileList, ...)  {
+  standardGeneric("loadFiles")
 })
 
-#' @rdname simLoad-method
-setMethod("simLoad",
+#' @rdname loadFiles-method
+setMethod("loadFiles",
           signature(sim="simList", stackName="ANY", fileList="missing"),
           definition = function(sim, stackName, fileList, ...) {
             # Pull .fileExtensions into function so that scoping is faster
@@ -248,8 +248,8 @@ setMethod("simLoad",
 
 })
 
-#' @rdname simLoad-method
-setMethod("simLoad",
+#' @rdname loadFiles-method
+setMethod("loadFiles",
           signature(sim="missing", stackName="ANY", fileList="ANY"),
           definition = function(sim, stackName, fileList, ...) {
             # check to see if fileList is empty
@@ -260,11 +260,11 @@ setMethod("simLoad",
                            params=list(.loadFileList=fileList),
                            modules=list(),
                            path=".")
-            simLoad(sim=sim, usedFileList=usedFilelist)
+            loadFiles(sim=sim, usedFileList=usedFilelist)
 })
 
-#' @rdname simLoad-method
-setMethod("simLoad",
+#' @rdname loadFiles-method
+setMethod("loadFiles",
           signature(sim="missing", stackName="ANY", fileList="missing"),
           definition = function(sim, stackName, fileList, ...) {
             warning("no files loaded because sim and fileList are empty")

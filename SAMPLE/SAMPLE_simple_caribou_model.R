@@ -96,7 +96,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                       packages="SpaDES",
                       stringsAsFactors=FALSE)
 
-#simLoad(fileList = fileList)
+#loadFiles(fileList = fileList)
 mapName = "landscape"
 outputPath=file.path("~", "tmp", "simOutputs")
 
@@ -104,7 +104,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                   #.loadFileList=fileList,
+                   .loadFileList=fileList,
                              .progress=list(.graphical=FALSE, .progressInterval = 10),
                              .globals=list(mapName=mapName, .outputPath=outputPath),
                              randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c(mapName),

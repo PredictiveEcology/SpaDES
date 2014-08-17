@@ -37,11 +37,11 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @export
 #' @docType methods
-#' @rdname simSave
+#' @rdname saveFiles
 #'
 # @examples
 # need examples
-simSave = function(sim) {
+saveFiles = function(sim) {
   # extract savePaths from modules
   modulePaths <- sapply(simParams(sim), function(y) {
     if (is.null(simParams(sim)$.globals$.outputPath)){

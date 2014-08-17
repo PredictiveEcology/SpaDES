@@ -155,7 +155,7 @@ The power of SpaDES is in modularity and the ease with which new modules can be 
 \newpage
 
 \section{Reading data or maps from files}
-There is a function, simLoad, that can use the simList or a fileList directly, to load maps or data from files. This can ease loading of many types of files into R.
+There is a function, loadFiles, that can use the simList or a fileList directly, to load maps or data from files. This can ease loading of many types of files into R.
 
 \newpage
 
