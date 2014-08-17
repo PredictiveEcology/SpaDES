@@ -99,8 +99,8 @@ setMethod("loadFiles",
           definition = function(sim, stackName, fileList, ...) {
             # Pull .fileExtensions into function so that scoping is faster
             .fileExts = .fileExtensions
-            if(!is.null(simParams(sim)$.loadFileList)) {
-              fileList <- simParams(sim)$.loadFileList
+            if(!is.null(simFileList(sim))) {
+              fileList <- simFileList(sim)
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -231,9 +231,9 @@ setMethod("loadFiles",
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
-                  simParams(sim)$.loadFileList <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
+                  simFileList(sim) <- c(as.list(fileListdf), arguments=arguments[keepOnFileList])
                 } else if (is(fileList, "data.frame")) {
-                  simParams(sim)$.loadFileList <- fileListdf
+                  simFileList(sim) <- fileListdf
                 } else {
                   error("fileList must be either a list or data.frame")
                 }

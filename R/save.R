@@ -12,10 +12,10 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 
     # make paths if they don't exist
     lapply(pathsToCheck, function(x) {
-      if (is.null(simParams(sim)$.globals$.outputPath)){
+      if (is.null(simGlobalsOutputPath(sim))){
         outputPath <- x
       } else {
-        outputPath <- file.path(simParams(sim)$.globals$.outputPath, x)
+        outputPath <- file.path(simGlobalsOutputPath(sim), x)
       }
       outputPath <- checkPath(outputPath, create=TRUE)
     })
@@ -44,10 +44,10 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 saveFiles = function(sim) {
   # extract savePaths from modules
   modulePaths <- sapply(simParams(sim), function(y) {
-    if (is.null(simParams(sim)$.globals$.outputPath)){
+    if (is.null(simGlobalsOutputPath(sim))){
       outputPath <- y$.savePath
     } else {
-      outputPath <- file.path(simParams(sim)$.globals$.outputPath, y$.savePath)
+      outputPath <- file.path(simGlobalsOutputPath(sim), y$.savePath)
     }
     return(outputPath)
     })
