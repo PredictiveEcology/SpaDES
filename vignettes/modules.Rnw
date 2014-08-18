@@ -178,7 +178,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
 )
 
 # retrieve the load and save params from the simulation object
-simParams(mySim)$.loadFileList
+simFileList(mySim)
 simParams(mySim)$randomLandscapes$.saveObjects
 simParams(mySim)$randomLandscapes$.savePath
 simParams(mySim)$randomLandscapes$.saveInitialTime
