@@ -837,10 +837,14 @@ landscape1 <- landscape
 names(landscape1) <- paste("a",names(landscape),"1",sep="")
 land <- stack(landscape,landscape1)
 land <- land[[-12]]
-dev(4);sPlot(land)
-DEM = DEM ^2
+DEM = land$DEM
 dev(4);sPlot(stack(DEM,DEM1),add=T)
-dev(4);sPlot(DEM,add=T,legend = T)
+dev(4);sPlot(land)
+DEM = land$DEM
+for(i in 1:100) {
+  DEM = DEM + sample(0:10,length(DEM),replace = T)
+  print(system.time(sPlot(DEM,add=T,legend = T)))
+}
 
 dev(4);sPlot(land)
 
