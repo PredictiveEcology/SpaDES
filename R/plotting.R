@@ -824,7 +824,7 @@ setMethod("sPlot",
 
               if(deletePrevious) {grid.remove(gPath(nam[[i2]]))}
 #              if(deletePrevious) {grid.remove(gPath(nam[[i2]],"legend"))}
-              seekViewport(paste("vp",names(obj)[i2],sep=""),recording=T)
+              seekViewport(paste("vp",names(obj)[i2],sep=""),recording=!add)
               a <- plotRast(obj[[i2]], col = cols[[i2]], add=TRUE, vp=NULL, 
                             xaxis = xaxis, yaxis = yaxis,
                             legend = legend, gp = gp, draw = draw)
