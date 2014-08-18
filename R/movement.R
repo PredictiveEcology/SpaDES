@@ -1,5 +1,16 @@
-# Not implemented yet
+##############################################################
+#' Move
+#'
+#' Wrapper for selecting different animal movement methods.
+#'
+#' @param agent       A SpatialPointsDataFrame.
+#'
 #' @export
+#' @docType methods
+#' @rdname crw-method
+#'
+#' @author Eliot McIntire
+#'
 move <- function(hypothesis=NULL,...) {
      #if (hypothesis == "TwoDT") move <- "TwoDT"
      if (hypothesis == "crw") move <- "crw"
