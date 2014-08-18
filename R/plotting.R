@@ -824,7 +824,7 @@ setMethod("sPlot",
 
               if(deletePrevious) {grid.remove(gPath(nam[[i2]]))}
 #              if(deletePrevious) {grid.remove(gPath(nam[[i2]],"legend"))}
-              seekViewport(paste("vp",names(obj)[i2],sep=""),recording=!add)
+              seekViewport(paste("vp",names(obj)[i2],sep=""),recording=T)
               a <- plotRast(obj[[i2]], col = cols[[i2]], add=TRUE, vp=NULL, 
                             xaxis = xaxis, yaxis = yaxis,
                             legend = legend, gp = gp, draw = draw)
@@ -841,9 +841,12 @@ DEM = land$DEM
 dev(4);sPlot(stack(DEM,DEM1),add=T)
 dev(4);sPlot(land)
 DEM = land$DEM
-for(i in 1:100) {
+forestAge= land$forestAge
+for(i in 1:10) {
   DEM = DEM + sample(0:10,length(DEM),replace = T)
-  print(system.time(sPlot(DEM,add=T,legend = T)))
+  forestAge = forestAge + sample(0:10,length(DEM),replace = T)
+  #print(system.time(sPlot(forestAge,add=T,legend = T)))
+  print(system.time(sPlot(stack(DEM,forestAge),add=T,legend = T)))
 }
 
 dev(4);sPlot(land)
