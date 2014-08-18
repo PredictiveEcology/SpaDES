@@ -28,15 +28,18 @@
 #' @param iterations    Number of iterations to spread. Leaving this \code{NULL} allows the spread
 #'                      to continue until stops spreading itself (i.e., exhausts itself).
 #'
+#' @param ...           Additional parameters.
+#'
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #'
 #' @import raster
 #' @export
 #' @docType methods
 #'
-#' @name spread
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
 #' @author Eliot McIntire
+#'
+#' @name spread
 #' @rdname spread-method
 #'
 setGeneric("spread", function(landscape, loci, spreadProb, persistance,

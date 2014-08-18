@@ -6,8 +6,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
 
-\usepackage{lipsum} % for dummy text only
-
 %% change margins to 1" all the way around
 \oddsidemargin 0.0in
 \evensidemargin 0.0in
@@ -100,13 +98,20 @@ There are a number of built-in modules that provide useful functionality. These 
 \paragraph{}
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the \texttt{interval} parameter is provided; the simulation checkpoint file (if one exists) is loaded if the \texttt{file} parameter is specified.
 
-<<checkpoints, echo=TRUE, eval=FALSE>>=
+<<checkpoints, echo=TRUE, eval=TRUE>>=
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
-mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.checkpoint=list(interval=10, file="chkpnt.RData")),
-                 modules=list("randomLandscapes"),
-                 path="SAMPLE"
-)
+times <- list(start=0,stop=100.02)
+outputPath=file.path("~", "tmp", "simOutputs")
+parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
+                   .checkpoint=list(interval=10, file="chkpnt.RData"),
+                   randomLandscapes=list(nx=1e2, ny=1e2,
+                     .plotInitialTime=0, .plotInterval=1e3))
+modules <- list("randomLandscapes")
+path <- system.file("sampleModules", package="SpaDES")
+
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+
+spades(mySim)
 
 # retrieve the checkpoint params from the simulation object
 simParams(mySim)$.checkpoint
@@ -173,7 +178,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
 )
 
 # retrieve the load and save params from the simulation object
-simParams(mySim)$.loadFileList
+simFileList(mySim)
 simParams(mySim)$randomLandscapes$.saveObjects
 simParams(mySim)$randomLandscapes$.savePath
 simParams(mySim)$randomLandscapes$.saveInitialTime
@@ -259,7 +264,7 @@ See Section \ref{load-and-save-modules} above for more details.
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
 <<randomLandscapes, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../inst/sampleModules/randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
+#source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -267,7 +272,7 @@ source(normalizePath("../inst/sampleModules/randomLandscapes.R"), echo=TRUE, max
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
 <<fireSpread, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../inst/sampleModules/fireSpread.R"), echo=TRUE, max.deparse.length=10000)
+#source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -275,7 +280,7 @@ source(normalizePath("../inst/sampleModules/fireSpread.R"), echo=TRUE, max.depar
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
 <<caribouMovement, echo=FALSE, eval=TRUE>>=
-source(normalizePath("../inst/sampleModules/caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
+#source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \end{document}

@@ -33,14 +33,14 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(get(simParams(sim)$.globals$mapName, envir=.GlobalEnv))
+    simPlot(get(simGlobals(sim)$mapName, envir=.GlobalEnv))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, "randomLandscapes", "plot")
   } else if (eventType=="save") {
 
     # do stuff for this event
-    simSave(sim)
+    saveFiles(sim)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval, "randomLandscapes", "save")
@@ -69,13 +69,13 @@ randomLandscapesInit <- function(sim) {
   percentPine <- percentPine/maxValue(percentPine)*100
 
   # Make layers that are derived from other layers
-  habitatQuality <- (DEM+10 + (forestCover+5)*10)/100
+  habitatQuality <- (DEM+10 + (forestAge+2.5)*10)/100
   habitatQuality <- habitatQuality/maxValue(habitatQuality)
 
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
   names(mapStack)<-c("DEM","forestAge","forestCover","habitatQuality","percentPine")
-  assign(simParams(sim)$.globals$mapName, mapStack, envir=.GlobalEnv)
+  assign(simGlobals(sim)$mapName, mapStack, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")

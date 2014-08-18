@@ -109,7 +109,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  simSave(sim)
+  saveFiles(sim)
 
   # schedule future event(s)
   sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.saveInterval, \"", name, "\", \"save\")

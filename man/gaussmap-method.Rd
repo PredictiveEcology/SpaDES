@@ -7,13 +7,15 @@
 GaussMap(x, scale = 10, var = 1, speedup = 10, ...)
 }
 \arguments{
-\item{ext}{An object of class \code{extent} giving the dimensions of output map.}
+\item{x}{An spatial object (e.g., a raster).}
 
 \item{scale}{The spatial scale in map units of the Gaussian pattern.}
 
 \item{var}{Spatial variance.}
 
 \item{speedup}{An index of how much faster than normal to generate maps.}
+
+\item{...}{Additional arguments to \code{raster}.}
 }
 \value{
 A map of extent \code{ext} with a Gaussian random pattern.

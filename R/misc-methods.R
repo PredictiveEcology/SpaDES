@@ -46,7 +46,7 @@ setMethod("loadPackages",
                   }
                 }
               lapply(packageList, load, install)
-              if (!quiet) print(paste("Loaded", length(packageList), "packages.", sep=" "))
+              if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
 ##############################################################
@@ -213,6 +213,12 @@ setMethod("checkObject",
 #'
 #' @param sim    A simList simulation object.
 #'
+#' @param defaultModules List of default modules.
+#'
+#' @param defaultParams List of default parameters.
+#'
+#' @param path The location of the modules' source files.
+#'
 #' @param ...    Additional arguments. Not implemented.
 #'
 #' @return  Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
@@ -224,10 +230,8 @@ setMethod("checkObject",
 #'
 #' @author Alex Chubaty
 #'
-#' @examples
-#' \dontrun{}
-#' \dontrun{}
-#' \dontrun{}
+# @examples
+# \dontrun{}
 #'
 setGeneric("checkParams", function(sim, defaultModules, defaultParams, path, ...) {
   standardGeneric("checkParams")

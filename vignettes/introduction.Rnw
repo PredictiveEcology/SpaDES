@@ -7,8 +7,6 @@
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
 
-\usepackage{lipsum} % for dummy text only
-
 %% change margins to 1" all the way around
 \oddsidemargin 0.0in
 \evensidemargin 0.0in
@@ -58,10 +56,6 @@ Why SpaDES exists
 
 \subsection{SpaDES is a DES}
 
-<<setup-workspace, echo=FALSE>>=
-library(SpaDES)
-@
-
 \newpage
 
 \section{Using SpaDES to build discrete event simulations}
@@ -70,7 +64,7 @@ library(SpaDES)
 This packages makes heavy use of the \texttt{raster} and \texttt{sp} packages, so familiarity with these packages and their classes and methods is recommended.
 
 \paragraph{}
-Talk about doSim and simInit.
+Talk about spades and simInit.
 
 \paragraph{}
 There are some demos to look at:
@@ -86,26 +80,28 @@ demo("spades-simulation", package="SpaDES")
 \paragraph{Demo 1 outputs:}
 sort of -- doesn't actually run demo1 but it's similar. make it the same!
 
-<<using-SpaDES, fig=TRUE>>=
+<<using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE>>=
+library(SpaDES)
+#
+outputPath=file.path("~", "tmp", "simOutputs")
 times <- list(start=0,stop=100.02)
-parameters <- list(.globals=list(mapName="landscape"),
-                  .progress=list(NA),
-                  randomLandscapes = list(nx=1e2, ny=1e2,
-                                          .plotInitialTime = 0, .plotInterval=1e3,
-                                          startTime=0),
-                  fireSpread=list(nFires = 1e1, spreadprob=0.225,
+parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
+                   .progress=list(NA),
+                   randomLandscapes = list(nx=1e2, ny=1e2,
+                                          .plotInitialTime = 0, .plotInterval=1e3),
+                   fireSpread=list(nFires = 1e1, spreadprob=0.225,
                                   persistprob=0, its=1e6,
-                                  .plotInitialTime = 0.1, .plotInterval=10,
+                                  .plotInitialTime = 10.1, .plotInterval=10,
                                   returnInterval = 10, startTime=0),
-                  caribouMovement=list(N=1e2,
+                   caribouMovement=list(N=1e2,
                                        .plotInitialTime = 1.01, .plotInterval=1,
-                                       moveInterval=1, startTime=0))
+                                       moveInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-doSim(mySim)
+spades(mySim)
 @
 
 \newpage
@@ -159,7 +155,7 @@ The power of SpaDES is in modularity and the ease with which new modules can be 
 \newpage
 
 \section{Reading data or maps from files}
-There is a function, simLoad, that can use the simList or a fileList directly, to load maps or data from files. This can ease loading of many types of files into R.
+There is a function, loadFiles, that can use the simList or a fileList directly, to load maps or data from files. This can ease loading of many types of files into R.
 
 \newpage
 
@@ -187,7 +183,7 @@ e.g., animals use a \texttt{SpatialPointsDataFrame}, with additonal columns for 
 \paragraph{Burn some of the forest}
 Using the spread function, we can simulate fires, and subsequent changes to the various map layers. Here, spreadProb can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
 
-<<fire, fig=FALSE>>=
+<<fire, eval=TRUE, echo=TRUE, fig=FALSE>>=
 nFires <- 10 # number of agents
 landscape[["Fires"]] <-
   spread(landscape[[1]],
@@ -206,7 +202,7 @@ simPlot(landscape[["Fires"]])
 @
 
 
-<<fire-overlaid, fig=TRUE>>=
+<<fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
 simPlot(landscape[["percentPine"]], col=.cols[[3]])
 simPlot(landscape[["Fires"]], add=TRUE, delete.previous=FALSE, col=.cols[[1]])
@@ -216,7 +212,7 @@ simPlot(landscape[["Fires"]], add=TRUE, delete.previous=FALSE, col=.cols[[1]])
 \paragraph{}
 We can see that the fires tend to be in the Pines because we made it that way, using an arbitrary weighting with pine abundance
 
-<<fire-impacts, fig=FALSE>>=
+<<fire-impacts, eval=TRUE, echo=TRUE, fig=FALSE>>=
 # Show the burning more strongly over abundant pine
 fire <- reclassify(landscape[["Fires"]],rcl= cbind(0:1,c(0,ncell(landscape)),0:1))
 pine <- reclassify(landscape[["percentPine"]],rcl= cbind(0:9*10, 1:10*10, 0:9))
@@ -230,19 +226,19 @@ summary(glm(freq ~ fire*pine, data=PineByFire, family="poisson"))
 Sure enough, there are more fires as the abundance of pine goes up, as seen by the positive interaction term (the negative \texttt{fire1} term means that there are more pixels without fires than with fires).
 
 \paragraph{Impact some of the forest}
-<<fire-impacts-maps, fig=TRUE>>=
+<<fire-impacts-maps, eval=TRUE, echo=TRUE, fig=TRUE>>=
 landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
 landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-simPlot(landscape, col=.cols[c(2:5,3,1)])
+simPlot(landscape, col=.cols[c(4, 7, 10, 3, 8, 1)])
 @
 
 \section{A simple individual based model (IBM)}
 \paragraph{Move some agents}
 Using a simple landscape-depedent correlated random walk, simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
-<<agent-crw-trajectory, fig=TRUE>>=
+<<agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE>>=
 simPlot(landscape[["habitatQuality"]], col=.cols[[3]])
 
 for (i in 1:10) {

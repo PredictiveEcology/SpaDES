@@ -31,9 +31,9 @@ doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
       mapStack <- stack(mget(objectNames, envir=.GlobalEnv))
       names(mapStack) <- objectNames
 
-      assign(simParams(sim)$.globals$mapName, mapStack, envir=.GlobalEnv)
+      assign(simGlobls(sim)$mapName, mapStack, envir=.GlobalEnv)
 
-      simPlot(mapStack, col = .cols[5:1])
+#      simPlot(mapStack, col = .cols[5:1])
     }
 
   } else {

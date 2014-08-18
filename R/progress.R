@@ -36,7 +36,9 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 ##############################################################
 #' Progress bar
 #'
-#' Shows a progress bar that is scaled to End simulation time.
+#' Shows a progress bar that is scaled to simulation stop time.
+#'
+#' @param sim A \code{simList} simulation object.
 #'
 #' @author Alex Chubaty
 #' @author Eliot McIntire

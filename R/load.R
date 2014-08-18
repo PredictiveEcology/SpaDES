@@ -7,7 +7,7 @@
 # Just checks for paths, creates them if they do not exist
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    sim <- simLoad(sim)
+    sim <- loadFiles(sim)
   }
   return(sim)
 }
@@ -46,16 +46,18 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @param stackName String or Null, the default. If a string, then all rasters will be put into
 #' a single RasterStack object, with name given.
 #'
-#' @param fileList list or data.frame to call simLoad directly from the fileList as described in Details
+#' @param fileList list or data.frame to call loadFiles directly from the fileList as described in Details
+#'
+#' @param ... Additional arguments.
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
-#' @name simLoad
+#' @name loadFiles
 #' @include simulation.R
 #' @export
 #' @docType methods
-#' @rdname simLoad-method
+#' @rdname loadFiles-method
 #'
 #' @examples
 #' \dontrun{
@@ -64,7 +66,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
 #'    stringsAsFactors=FALSE)
 #'
-#' mySim <- simLoad(mySim)
+#' mySim <- loadFiles(mySim)
 #' simPlot(DEM)
 #'
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
@@ -83,22 +85,22 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    intervals = c(rep(NA,length(files)-1),10),
 #'    stringsAsFactors=FALSE)
 #'
-#' sim <- simLoad(sim)
-#' print(system.time(mySim <- doSim(mySim, debug=FALSE)))
+#' sim <- loadFiles(sim)
+#' print(system.time(mySim <- spades(mySim, debug=FALSE)))
 #' }
 #'
-setGeneric("simLoad", function(sim, stackName=NULL, fileList, ...)  {
-  standardGeneric("simLoad")
+setGeneric("loadFiles", function(sim, stackName=NULL, fileList, ...)  {
+  standardGeneric("loadFiles")
 })
 
-#' @rdname simLoad-method
-setMethod("simLoad",
+#' @rdname loadFiles-method
+setMethod("loadFiles",
           signature(sim="simList", stackName="ANY", fileList="missing"),
           definition = function(sim, stackName, fileList, ...) {
             # Pull .fileExtensions into function so that scoping is faster
             .fileExts = .fileExtensions
-            if(!is.null(simParams(sim)$.loadFileList)) {
-              fileList <- simParams(sim)$.loadFileList
+            if(!is.null(simFileList(sim))) {
+              fileList <- simFileList(sim)
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -181,10 +183,10 @@ setMethod("simLoad",
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
                 if (loadFun[x]=="raster") {
-                  print(paste(objectNames[x],"read to",where[inMemory(get(objectNames[x]))+1],
+                  message(paste(objectNames[x],"read to",where[inMemory(get(objectNames[x]))+1],
                               "from",fl[x],"using",loadFun[x]))
                 } else {
-                  print(paste(objectNames[x],"read to memory from",fl[x],"using",loadFun[x]))
+                  message(paste(objectNames[x],"read to memory from",fl[x],"using",loadFun[x]))
                 }
               }
 
@@ -229,9 +231,9 @@ setMethod("simLoad",
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
-                  simParams(sim)$.loadFileList <- c(as.list(fileListdf),arguments=arguments[keepOnFileList])
+                  simFileList(sim) <- c(as.list(fileListdf), arguments=arguments[keepOnFileList])
                 } else if (is(fileList, "data.frame")) {
-                  simParams(sim)$.loadFileList <- fileListdf
+                  simFileList(sim) <- fileListdf
                 } else {
                   error("fileList must be either a list or data.frame")
                 }
@@ -246,8 +248,8 @@ setMethod("simLoad",
 
 })
 
-#' @rdname simLoad-method
-setMethod("simLoad",
+#' @rdname loadFiles-method
+setMethod("loadFiles",
           signature(sim="missing", stackName="ANY", fileList="ANY"),
           definition = function(sim, stackName, fileList, ...) {
             # check to see if fileList is empty
@@ -258,11 +260,11 @@ setMethod("simLoad",
                            params=list(.loadFileList=fileList),
                            modules=list(),
                            path=".")
-            simLoad(sim=sim, usedFileList=usedFilelist)
+            loadFiles(sim=sim, usedFileList=usedFilelist)
 })
 
-#' @rdname simLoad-method
-setMethod("simLoad",
+#' @rdname loadFiles-method
+setMethod("loadFiles",
           signature(sim="missing", stackName="ANY", fileList="missing"),
           definition = function(sim, stackName, fileList, ...) {
             warning("no files loaded because sim and fileList are empty")
@@ -293,9 +295,10 @@ colnames(.fileExtensions) = c("exts","functions","package")
 #'
 #' @param x An object passed directly to the function raster (e.g., character string of a filename).
 #'
+#' @param ... Additional arguments to \code{raster}.
 #' @return A raster object whose values are stored in memory.
 #'
-#' @seealso \code{\link{raster}}
+#' @seealso \code{\link{raster}}.
 #'
 #' @name rasterToMemory
 #' @importMethodsFrom raster raster
