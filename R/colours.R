@@ -57,7 +57,7 @@ setGeneric("setColors<-",
              standardGeneric("setColors<-")
 })
 
-#' set list of simulation modules
+#' set colortable of a raster object
 #' @name setColors<-
 #' @aliases setColors<-RasterLayer,character,numeric-method
 #' @rdname setColors-method
@@ -70,7 +70,7 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' set list of simulation modules
+#' set colortable of a raster object
 #' @name setColors<-
 #' @aliases setColors<-RasterLayer,character,missing-method
 #' @rdname setColors-method
@@ -85,7 +85,7 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' set list of simulation modules
+#' set colortable of a raster object
 #' @name setColors<-
 #' @aliases setColors<-Raster,list,numeric-method
 #' @rdname setColors-method
@@ -93,13 +93,13 @@ setReplaceMethod("setColors",
                  signature("Raster", "list", "numeric"),
                  function(object, value, ..., n) {
                    for(x in names(object)) {
-                     setColors(object[[x]], value[[x]], ..., n=n)
+                     setColors(object[[x]], ..., n=n) <- value[[x]]
                    }
                    validObject(object)
                    return(object)
 })
 
-#' set list of simulation modules
+#' set colortable of a raster object
 #' @name setColors<-
 #' @aliases setColors<-Raster,list,missing-method
 #' @rdname setColors-method
@@ -107,19 +107,8 @@ setReplaceMethod("setColors",
                  signature("Raster", "list", "missing"),
                  function(object, value, ...) {
                    for(x in names(object)) {
-                     setColors(object[[x]], value[[x]], ...)
+                     setColors(object[[x]], ...) <- value[[x]]
                    }
                    validObject(object)
                    return(object)
 })
-
-##############################
-# tmp = landscape
-# mycols = list(DEM=.cols[[4]], forestAge=.cols[[7]], forestCover=.cols[[10]],
-#               habitatQuality=.cols[[3]], percentPine=.cols[[8]], Fires=.cols[[5]])
-#
-# setColors(tmp, n=100) <- mycols[3]
-# setColors(tmp, n=10) <- mycols
-# setColors(tmp) <- mycols
-# getColors(tmp)
-
