@@ -1,0 +1,158 @@
+* checking index information ... WARNING
+Empty or missing file 'demo/00Index'.
+See the information on INDEX files and package subdirectories in the
+chapter 'Creating R packages' of the 'Writing R Extensions' manual.
+
+* checking dependencies in R code ... NOTE
+Namespace in Imports field not imported from: 'methods'
+  All declared Imports should be used.
+See the information on DESCRIPTION files in the chapter 'Creating R
+packages' of the 'Writing R Extensions' manual.
+
+* checking replacement functions ... WARNING
+  'setColors<-' '\S4method{setColors<-}{Raster,list,missing}'
+  '\S4method{setColors<-}{Raster,list,numeric}'
+  '\S4method{setColors<-}{RasterLayer,character,missing}'
+  '\S4method{setColors<-}{RasterLayer,character,numeric}'
+The argument of a replacement function which corresponds to the right
+hand side must be named 'value'.
+
+* checking R code for possible problems ... NOTE
+Found an obsolete/platform-specific call in the following function:
+  'newPlot'
+Found the platform-specific devices:
+  'quartz' 'windows' 'x11'
+dev.new() is the preferred way to open a new device, in the unlikely
+event one is needed.
+checkpointLoad: no visible binding for global variable 'rng.kind'
+checkpointLoad: no visible binding for global variable 'rng.state'
+cir: no visible binding for global variable 'angles'
+cir: no visible binding for global variable 'x'
+cir: no visible binding for global variable 'y'
+cir: no visible binding for global variable 'pixIDs'
+cir: no visible binding for global variable 'pixIDs.unq'
+doEvent.progress: no visible binding for '<<-' assignment to '.pb'
+doEvent.progress: no visible binding for global variable '.pb'
+newProgressBar: no visible global function definition for
+  'tkProgressBar'
+setProgressBar: no visible global function definition for
+  'setTkProgressBar'
+spec.num.per.patch: no visible binding for global variable 'pops'
+spec.num.per.patch: no visible binding for global variable 'num.in.pop'
+doEvent,simList-logical: no visible binding for global variable
+  'eventTime'
+loadFiles,missing-ANY-ANY: no visible binding for global variable
+  'usedFilelist'
+loadFiles,simList-ANY-missing: no visible binding for global variable
+  'israst'
+loadFiles,simList-ANY-missing: no visible global function definition
+  for 'error'
+
+Found the following assignments to the global environment:
+File 'SpaDES/R/checkpoint.R':
+  assign("rng.state", get(".Random.seed", .GlobalEnv), .GlobalEnv)
+  assign("rng.kind", RNGkind(), .GlobalEnv)
+File 'SpaDES/R/load.R':
+  assign(objectNames[x], do.call(get(loadFun[x]), args = argument), 
+    envir = globalenv())
+  assign(stackName, stack(mget(objectNames, envir = .GlobalEnv)), 
+    envir = .GlobalEnv)
+
+* checking Rd cross-references ... WARNING
+Missing link or links in documentation object 'dev-method.Rd':
+  'quartz'
+
+Missing link or links in documentation object 'getColors-method.Rd':
+  'setColors'
+
+Missing link or links in documentation object 'newPlot-method.Rd':
+  'quartz'
+
+See the information in section 'Cross-references' of the 'Writing R
+Extensions' manual.
+
+* checking for missing documentation entries ... WARNING
+Undocumented S4 methods:
+  generic 'setColors<-' and siglist 'Raster,list,missing'
+  generic 'setColors<-' and siglist 'Raster,list,numeric'
+  generic 'setColors<-' and siglist 'RasterLayer,character,missing'
+  generic 'setColors<-' and siglist 'RasterLayer,character,numeric'
+  generic 'spread' and siglist 'RasterLayer'
+All user-level objects in a package (including S4 classes and methods)
+should have documentation entries.
+See the chapter 'Writing R documentation files' in the 'Writing R
+Extensions' manual.
+
+* checking for code/documentation mismatches ... WARNING
+Codoc mismatches from documentation object 'setColors<-':
+setColors<-
+  Code: function(object, value, ..., n)
+  Docs: function(object, ..., n, value)
+  Mismatches in argument names:
+    Position: 2 Code: value Docs: ...
+    Position: 3 Code: ... Docs: n
+    Position: 4 Code: n Docs: value
+
+* checking Rd \usage sections ... WARNING
+Undocumented arguments in documentation object 'adj.raw'
+  'sort' 'target'
+
+Documented arguments not in \usage in documentation object 'cir':
+  'scaleRaster'
+
+Undocumented arguments in documentation object 'move'
+  'hypothesis' '...'
+Duplicated \argument entries in documentation object 'move':
+  'agent'
+
+Undocumented arguments in documentation object 'getColors'
+  'object'
+Documented arguments not in \usage in documentation object 'getColors':
+  'x'
+
+Undocumented arguments in documentation object 'setColors<-'
+  'object'
+Documented arguments not in \usage in documentation object 'setColors<-':
+  'x'
+
+Undocumented arguments in documentation object 'simPlot'
+  'add.legend'
+Documented arguments not in \usage in documentation object 'simPlot':
+  'ext'
+
+Objects in \usage without \alias in documentation object 'spread':
+  '\S4method{spread}{RasterLayer}'
+
+Functions with \usage entries need to have the appropriate \alias
+entries, and all their arguments documented.
+The \usage entries must correspond to syntactically valid R code.
+See the chapter 'Writing R documentation files' in the 'Writing R
+Extensions' manual.
+
+* checking running R code from vignettes ... ERROR
+Errors in running code in vignettes:
+when running code in 'introduction.Rnw'
+  ...
+> path <- system.file("sampleModules", package = "SpaDES")
+
+> mySim <- simInit(times = times, params = parameters, 
++     modules = modules, path = path)
+Warning in file(filename, "r", encoding = encoding) :
+  cannot open file '/randomLandscapes.R': No such file or directory
+
+  When sourcing 'introduction.R':
+Error: cannot open the connection
+Execution halted
+when running code in 'modules.Rnw'
+  ...
+> modules <- list("randomLandscapes")
+
+> path <- system.file("sampleModules", package = "SpaDES")
+
+> mySim <- simInit(times = times, params = parameters, 
++     modules = modules, path = path)
+
+  When sourcing 'modules.R':
+Error: could not find function "simInit"
+Execution halted
+
