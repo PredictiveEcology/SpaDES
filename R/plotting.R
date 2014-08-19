@@ -383,6 +383,7 @@ setMethod("simPlot",
 #' @docType methods
 arrangeSimPlots <- function(rast, nam=NULL, which.to.plot="all", axes="L") {
     ext = extent(rast)
+    dimx = dim(rast)
     if(is.null(nam)) nam = names(rast)
     wh <- nam
 
@@ -585,58 +586,23 @@ setMethod("drawArrows",
 ##########
 rastVp <- function(rast){
 
-  dimx <- dim(rast)
-  ds <- dev.size()
-  ds.ratio <- ds[1]/ds[2]
-  map.ratio <- dimx[2]/dimx[1]
-  ds.map.ratio <- ds.ratio/map.ratio
+#   dimx <- dim(rast)
+#   ds <- dev.size()
+#   ds.ratio <- ds[1]/ds[2]
+#   map.ratio <- dimx[2]/dimx[1]
+#   ds.map.ratio <- ds.ratio/map.ratio
 
   vp.rast <- viewport(name=paste("vp",names(rast),sep=""),
-                      x = unit(0.55, "npc"),
-                      y = unit(0.55, "npc"),
-                      just = "centre",
-                      width=visualSqueeze/(ds.map.ratio),
-                      height=visualSqueeze,
+#                       x = unit(0.55, "npc"),
+#                       y = unit(0.55, "npc"),
+#                       just = "centre",
+#                       width=visualSqueeze/(ds.map.ratio),
+#                       height=visualSqueeze,
                       xscale=c(xmin(rast),xmax(rast)),
                       yscale=c(ymin(rast),ymax(rast)))
   return(vp.rast)
 }
 
-plotRast <- function(rast, add = FALSE, col=NULL,
-                     legend=TRUE, draw=TRUE, xaxis=TRUE, yaxis = TRUE,
-                     gp=gpar(), vp=NULL, 
-                     childrenvp=NULL, ...) {
-  if(!add) { grid.newpage() }
-
-  pr <- pretty(range(minValue(rast),maxValue(rast)))
-  pr <- pr[pr<maxValue(rast)]
-  if(is.null(col)) col=rev(terrain.colors(20))
-
-  rastGrob <- gTree(rast=rast, name=names(rast),
-                    pr=pr,col=col,
-                    childrenvp=childrenvp,
-                    children=gList(
-                      rasterGrob(as.raster(rast, maxpixels=1e4,col = col),
-                                 interpolate=FALSE,
-                                name="raster"),
-                      if(xaxis) xaxisGrob(name="xaxis"),
-                      if(yaxis) yaxisGrob(name="yaxis"),
-                      if(legend) rasterGrob(as.raster(col[length(col):1]),
-                                    x=1.04,y=0.5,height=0.5,width=0.03,
-                                    interpolate=TRUE,
-                                    name="legend"),
-                      if(legend) textGrob(pr, x=1.08, y=pr/(2*maxValue(rast))+0.25,
-                              gp=gpar(cex=max(0.5, 1-0.05)),
-                              just="left",
-                              name="legendText"),
-                      textGrob(names(rast), name="title", y=1.08, vjust=0.5)
-                   ),
-                   gp=gp,
-                   vp=vp,
-                   cl="rast")
-  if(draw) grid.draw(rastGrob)
-  return(invisible(rastGrob))
-}
 
 
 # if(deletePrevious) {
@@ -651,8 +617,45 @@ plotRast <- function(rast, add = FALSE, col=NULL,
 ######################################################3
 ######################################################3
 
-setGeneric("makeViewport", function(obj, 
-                      layout.pos.col, layout.pos.row, 
+#' @export
+plotRast <- function(rast, add = FALSE, col=NULL,
+                     legend=TRUE, draw=TRUE, xaxis=TRUE, yaxis=TRUE, title=TRUE,
+                     gp=gpar(), vp=NULL,
+                     childrenvp=NULL, ...) {
+  if(!add) { grid.newpage() }
+
+  pr <- pretty(range(minValue(rast),maxValue(rast)))
+  pr <- pr[pr<=maxValue(rast)]
+  if(is.null(col)) col=rev(terrain.colors(40))
+
+  rastGrob <- gTree(rast=rast, name=names(rast),
+                    pr=pr,col=col,
+                    childrenvp=childrenvp,
+                    children=gList(
+                      rasterGrob(as.raster(rast, maxpixels=1e4,col = col),
+                                 interpolate=FALSE,
+                                 name="raster"),
+                      if(xaxis) xaxisGrob(name="xaxis"),
+                      if(yaxis) yaxisGrob(name="yaxis"),
+                      if(legend) rasterGrob(as.raster(col[length(col):1]),
+                                            x=1.04,y=0.5,height=0.5,width=0.03,
+                                            interpolate=FALSE,
+                                            name="legend"),
+                      if(legend) textGrob(pr, x=1.08, y=pr/(2*maxValue(rast))+0.25,
+                                          gp=gpar(cex=max(0.5, 1-0.05)),
+                                          just="left",
+                                          name="legendText"),
+                      if(title) textGrob(names(rast), name="title", y=1.08, vjust=0.5)
+                    ),
+                    gp=gp,
+                    vp=vp,
+                    cl="rast")
+  if(draw) grid.draw(rastGrob)
+  return(invisible(rastGrob))
+}
+
+setGeneric("makeViewport", function(obj,
+                      layout.pos.col, layout.pos.row,
                       visualSqueeze=0.75) {
   standardGeneric("makeViewport")
 })
@@ -662,15 +665,14 @@ setGeneric("makeViewport", function(obj,
 #' @rdname simPlot
 setMethod("makeViewport",
           signature="Raster",
-          definition=function(obj, layout.pos.col=1, layout.pos.row=1,
-                              visualSqueeze) {
-  
+          definition=function(obj, layout.pos.col=1, layout.pos.row=1) {
+
 #   dimx <- dim(obj)
 #   ds <- dev.size()
 #   ds.ratio <- ds[1]/ds[2]
 #   map.ratio <- dimx[2]/dimx[1]
 #   ds.map.ratio <- ds.ratio/map.ratio
-    
+
   vp.obj <- viewport(name=paste("vp",names(obj),sep=""),
 #                     x = unit(0.55, "npc"),
 #                     y = unit(0.55, "npc"),
@@ -687,88 +689,117 @@ setMethod("makeViewport",
 
 
 
-rm(makeViewports)
-makeViewports <- function(obj, arr, add, visualSqueeze) {
+#' @export
+makeViewports <- function(obj, arr, add, visualSqueeze, needRearrange = FALSE) {
   columns = arr$columns
   rows = arr$rows
-  
+
   # for add new plots, this check confirms that there is no change of arrangement
-  if((.arr$columns != arr$columns) | (.arr$rows != arr$rows) | add==FALSE) {
-    
+#  if((.arr$columns != arr$columns) | (.arr$rows != arr$rows) | add==FALSE) {
+
     # need to know current plot cex to scale the dimensions of the plot
     #  The following line is used within the main plot function and is repeated here
     currentcex = max(0.4,min(1,prod(arr$ds)/prod(arr$columns,arr$rows)*0.2))
-    
+
     # calculate the visualSqueeze for the width (i.e., vS.w)
     vS.w = min(visualSqueeze/columns, visualSqueeze/columns*arr$actual.ratio/arr$ds.map.ratio)
     # check to see if the windows is too small and all axes and legends can't fit
     tooTight <- (((arr$ds[1] - arr$ds[1]*columns*vS.w)/(2*columns))/max(0.3,currentcex/2))
     #adjust if visualSqueeze is set to default value; otherwise, take user's provided value
-    if(visualSqueeze==0.75) #if(tooTight<1.5) 
+    if(visualSqueeze==0.75) #if(tooTight<1.5)
       vS.w = vS.w*(tooTight^0.09)
     # make vector of unit objects to make layout
     wdth <- unit.c(unit(1.5,"null"), unit(rep(c(vS.w,1),columns),
-                                        rep(c("npc","null"),columns))[-columns*2], 
+                                        rep(c("npc","null"),columns))[-columns*2],
                    unit(1,"null"))
-    
-  
+
+
     # repeat as above for height
     vS.h = min(visualSqueeze/rows, visualSqueeze/rows*arr$ds.map.ratio/arr$actual.ratio)
-    if(visualSqueeze==0.75) #if(tooTight<1.5) 
+    if(visualSqueeze==0.75) #if(tooTight<1.5)
       vS.h = vS.h*(tooTight^0.09)
     bottopMargin <- max(max(0.2,currentcex/3),(arr$ds[2] - arr$ds[2]*rows*vS.h)/(2*rows))
     ht <- unit.c(unit(bottopMargin,"inches"), unit(rep(c(vS.h,2),rows),
                                                  rep(c("npc","null"),rows))[-rows*2], unit(bottopMargin,"inches"))
     ht <- unit.c(unit(1,"null"), unit(rep(c(vS.h,1),rows),
-                                      rep(c("npc","null"),rows))[-rows*2], 
+                                      rep(c("npc","null"),rows))[-rows*2],
                  unit(1,"null"))
-  
+
     topVp <-
       viewport(layout=grid.layout(nrow=rows*2+1, ncol=columns*2+1,
                                   widths=wdth,
                                   heights=ht),
                name="top")
     plotVps <- list()
-    
-    for(i in 1:length(arr$wh)) {
-      plotVps[[i]] <- makeViewport(obj[[i]], #visualSqueeze = 0.6,
-                                   layout.pos.row=ceiling(i/columns)*2,
-                                   layout.pos.col=ceiling((i-1)%%columns+1)*2)
+
+    if((.arr$columns != arr$columns) | (.arr$rows != arr$rows) | add==FALSE | needRearrange) {
+      for(i in 1:length(arr$wh)) {
+
+         plotVps[[i]] <- viewport(name=paste("vp",arr$wh[i],sep=""),
+                  layout.pos.col = ceiling((i-1)%%columns+1)*2,
+                  layout.pos.row = ceiling(i/columns)*2,
+                  xscale=c(xmin(obj),xmax(obj)),
+                  yscale=c(ymin(obj),ymax(obj)))
+
+#         plotVps[[i]] <- makeViewport(obj[[i]], #visualSqueeze = 0.6,
+#                                     layout.pos.row=ceiling(i/columns)*2,
+#                                     layout.pos.col=ceiling((i-1)%%columns+1)*2)
+      }
+      wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
+
+    } else {
+   # wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
+#  } else {
+      currentViewports <- paste("vp",sapply(grobs,function(x) x$name),sep="")
+      #currentViewports <- currentViewports[grep(pattern="vp",grid.ls(viewport=T,recursive=F,print=F,grob=F)$name)]
+      toAdd <- which(is.na(match(paste("vp",names(obj),sep=""), currentViewports)))
+      nameToAdd <- paste("vp",names(obj),sep="")[toAdd]
+      #plotVps <- list()
+      for(i in toAdd) {
+        i2 <- match(i,toAdd)
+        i3 <- i2 + length(currentViewports)
+        #seekViewport("top")
+        plotVps[[i2]] <- makeViewport(obj[[i]], #visualSqueeze = 0.6,
+                                   layout.pos.row=ceiling(i3/columns)*2,
+                                   layout.pos.col=ceiling((i3-1)%%columns+1)*2)
+      }
+      #wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
+      wholeVp <- do.call(vpList, plotVps)#vpList(plotVps)#vpTree(topVp, )
     }
-    wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
-  } else {
-    currentViewports <- grid.ls(viewport=T,recursive=F,print=F,grob=F)$name
-    currentViewports <- currentViewports[grep(pattern="vp",grid.ls(viewport=T,recursive=F,print=F,grob=F)$name)]
-    toAdd <- which(is.na(match(paste("vp",names(obj),sep=""), currentViewports)))
-    nameToAdd <- paste("vp",names(obj),sep="")[toAdd]
-    plotVps <- list()
-    for(i in toAdd) {
-      i2 <- match(i,toAdd)
-      i3 <- i2 + length(currentViewports)
-      seekViewport("top")
-      plotVps[[i2]] <- makeViewport(obj[[i]], #visualSqueeze = 0.6,
-                                 layout.pos.row=ceiling(i3/columns)*2,
-                                 layout.pos.col=ceiling((i3-1)%%columns+1)*2)
-    }
-    wholeVp <- do.call(vpList, plotVps)#vpList(plotVps)#vpTree(topVp, )
-  }
+  #}
   return(wholeVp)
 }
 
+#' @export
 setGeneric("sPlot", signature="...", function(..., add=F, gp=gpar(), axes="L",
-                                              cols=topo.colors(20), deletePrevious = add,
-                                              visualSqueeze=0.75, legend=T) {
+                                              cols=topo.colors(50), deletePrevious = add,
+                                              visualSqueeze=0.75, quick = FALSE, legend=!quick, draw = TRUE) {
   standardGeneric("sPlot")
 })
+
+#' @export
 setMethod("sPlot",
           signature("Raster"),
           definition = function(..., add, gp, axes,
                                 cols, deletePrevious, visualSqueeze,
-                                legend) {
+                                quick, legend, draw) {
             obj <- list(...)[[1]]
             nam <- names(obj)
+            if(exists(".grobs",envir=.GlobalEnv)) grobs = .grobs
 #            return(obj)
 #          })
+
+#             if(is.null(cols)) {
+#               rastCols <- getColors(obj)
+#               namesColMaps <- names(rastCols)
+#
+#               cols <- lapply(1:length(rastCols), function(x) {
+#                 if(length(rastCols[[x]])==0)
+#                   col1 <- topo.colors(min(50,round(maxValue(obj[[x]])-minValue(obj[[x]])))+1)
+#                 else
+#                   col1 <- x
+#               })
+#             }
 
             # recycle colours, if not enough provided
             if(is.character(cols)) { # if it is a single vector of colours
@@ -778,82 +809,103 @@ setMethod("sPlot",
                 cols[[((x-1)%%length(cols))+1]]
               })
             }
-          
+
+
+            needRearrange = FALSE
             if(add==F) {
               grid.newpage()
+              grobs = list()
+              #try(rm(.arr, envir=.GlobalEnv),silent=T)
               arr <- arrangeSimPlots(obj)
               #arr$objName <- deparse(substitute(obj))
               assign(".arr", arr, envir=.GlobalEnv)
               toAdd <- nam
-              
+
             } else {
-              currentGrobs <- grid.ls(grob=T,recursive=F,print=F)$name
+              currentGrobs <- unique(grid.ls(grob=T,recursive=F,print=F)$name)
               alreadyPlotted <- match(nam, currentGrobs)
               if(any(is.na(alreadyPlotted))){
                 toAdd <- nam[which(is.na(alreadyPlotted))]
               } else {
                 toAdd <- NULL
               }
+
               # check to see if new addition can fit without rearranging
               if(length(c(currentGrobs, toAdd))>prod(.arr$columns,.arr$rows)){
-                arr <- arrangeSimPlots(obj[[toAdd]],
-                                       nam=c(currentGrobs, toAdd))
+                toAdd = c(currentGrobs, toAdd)
+                arr <- arrangeSimPlots(obj,
+                                       nam=toAdd)
+                needRearrange <- TRUE
+                grid.newpage()
+                #grobs = list()
               } else {
                 arr = .arr
                 arr$wh <- c(arr$wh,toAdd)
               }
-              
+              assign(".arr", arr, envir=.GlobalEnv)
+
             }
 
             if (!is.null(toAdd)) {
-              vps <- makeViewports(obj, arr, add=add, visualSqueeze=visualSqueeze)
-              pushViewport(vps)
+              vps <- makeViewports(obj, arr, add=add, visualSqueeze=visualSqueeze,
+                                   needRearrange=needRearrange)
+              if(add & !needRearrange)
+                upViewport(1)
+#              upViewport(0)
+              pushViewport(vps,recording = FALSE)
+              upViewport(2)
             }
 
             if(is.null(gp$cex)) {
               gp$cex = max(0.4,min(1,prod(arr$ds)/prod(arr$columns,arr$rows)*0.2))
             }
-            
-#            for(i in 1:length(names(obj))) {
-            for(i in match(names(obj),arr$wh)) {
-              i2 <- match(arr$wh[i],names(obj))
-              if(axes=="L") {if(arr$cr[i,"rows"]==min(arr$cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
-                             if(arr$cr[i,"columns"]==min(arr$cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}}
-              if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
-              if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
 
-              if(deletePrevious) {grid.remove(gPath(nam[[i2]]))}
-#              if(deletePrevious) {grid.remove(gPath(nam[[i2]],"legend"))}
-              seekViewport(paste("vp",names(obj)[i2],sep=""),recording=T)
-              a <- plotRast(obj[[i2]], col = cols[[i2]], add=TRUE, vp=NULL, 
-                            xaxis = xaxis, yaxis = yaxis,
-                            legend = legend, gp = gp, draw = draw)
+            if (needRearrange){
+              for(i in 1:length(toAdd)) {
+                if(axes=="L") {if(arr$cr[i,"rows"]==min(arr$cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
+                               if(arr$cr[i,"columns"]==min(arr$cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}}
+                if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
+                if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
+                title=TRUE
+
+                seekViewport(paste("vp",toAdd[i],sep=""),recording=F)#(!quick | !add))
+
+                if(all(i != match(names(obj),toAdd))) {
+                  #if (!xaxis) grid.remove("xaxis")
+                  #if (!yaxis) grid.remove("yaxis")
+                  grid.draw(grobs[[i]])
+                } else {
+                  i2 = match(toAdd,names(obj))[i]
+                  grobs[[i]] <- plotRast(obj[[i2]], col = cols[[i2]], add=TRUE, vp=NULL,
+                              xaxis = xaxis, yaxis = yaxis, title=title,
+                              legend = legend, gp = gp, draw = draw)
+                }
+
+              }
+            } else {
+              for(i in match(names(obj),arr$wh)) {
+                i2 <- match(arr$wh[i],names(obj))
+                if(any(nam[[i2]]==toAdd)) {
+                  if(axes=="L") {if(arr$cr[i,"rows"]==min(arr$cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
+                                 if(arr$cr[i,"columns"]==min(arr$cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}}
+                  if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
+                  if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
+                  title=TRUE
+                } else {
+                  xaxis=FALSE; yaxis=FALSE; legend = FALSE; title=FALSE
+                }
+
+
+                if(deletePrevious & !quick) {grid.remove(nam[[i2]])}
+  #              if(deletePrevious) {grid.remove(gPath(nam[[i2]],"legend"))}
+                seekViewport(paste("vp",names(obj)[i2],sep=""),recording=F)#names(obj)[i2] %in% toAdd)#(!quick | !add))
+                grobs[[i]] <- plotRast(obj[[i2]], col = cols[[i2]], add=TRUE, vp=NULL,
+                              xaxis = xaxis, yaxis = yaxis, title=title,
+                              legend = legend, gp = gp, draw = draw)
+              }
             }
+          assign(".grobs",grobs,envir=.GlobalEnv)
+          return(invisible(grobs))
           }
 )
-dev(4);sPlot(landscape[[c("DEM","forestAge")]],
-             visualSqueeze=0.7)
-landscape1 <- landscape
-names(landscape1) <- paste("a",names(landscape),"1",sep="")
-land <- stack(landscape,landscape1)
-land <- land[[-12]]
-DEM = land$DEM
-dev(4);sPlot(stack(DEM,DEM1),add=T)
-dev(4);sPlot(land)
-DEM = land$DEM
-forestAge= land$forestAge
-for(i in 1:10) {
-  DEM = DEM + sample(0:10,length(DEM),replace = T)
-  forestAge = forestAge + sample(0:10,length(DEM),replace = T)
-  #print(system.time(sPlot(forestAge,add=T,legend = T)))
-  print(system.time(sPlot(stack(DEM,forestAge),add=T,legend = T)))
-}
 
-dev(4);sPlot(land)
-
-dev(4);sPlot(landscape[[c("DEM","forestAge")]])
-dev(4);sPlot(landscape[[c("DEM")]])
-
-
-dev(4)
-grid.newpage()

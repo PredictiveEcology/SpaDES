@@ -4,7 +4,7 @@
 \alias{arrangeSimPlots}
 \title{Determine optimal plotting arrangement of RasterStack}
 \usage{
-arrangeSimPlots(rast, which.to.plot = "all", axes = "L")
+arrangeSimPlots(rast, nam = NULL, which.to.plot = "all", axes = "L")
 }
 \arguments{
 \item{rast}{Raster* object}

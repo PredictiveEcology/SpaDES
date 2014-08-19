@@ -92,7 +92,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          lib.loc=getOption("devtools.path"),
                                                          quiet=FALSE),"maps"),
                                   full.names=TRUE, pattern= "tif"),
-                      functions="rasterToMemory",
+                      functions="raster",
                       packages="SpaDES",
                       stringsAsFactors=FALSE)
 
@@ -104,7 +104,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-                   #.loadFileList=fileList,
+#                   .loadFileList=fileList,
                              .progress=list(.graphical=FALSE, .progressInterval = 10),
                              .globals=list(mapName=mapName, .outputPath=outputPath),
                              randomLandscapes = list(nx=1e2, ny=2e2, .saveObjects=c(mapName),
