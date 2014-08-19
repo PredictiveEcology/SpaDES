@@ -3,17 +3,11 @@
 \name{getColors}
 \alias{getColors}
 \alias{getColors,Raster-method}
-\alias{getColours}
-\alias{getColours,Raster-method}
 \title{Get colours for plotting Raster* objects.}
 \usage{
 getColors(object)
 
 \S4method{getColors}{Raster}(object)
-
-getColours(object)
-
-\S4method{getColours}{Raster}(object)
 }
 \arguments{
 \item{x}{A \code{Raster*} object.}
