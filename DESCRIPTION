@@ -41,6 +41,7 @@ Collate:
     'SELES.R'
     'agent-methods.R'
     'checkpoint.R'
+    'colours.R'
     'initialize.R'
     'simulation.R'
     'load.R'

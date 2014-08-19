@@ -36,11 +36,6 @@ Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
 Check that a named object exists in the global environment, and optionally has
 desired attributes.
 }
-\examples{
-\dontrun{}
-\dontrun{}
-\dontrun{}
-}
 \author{
 Alex Chubaty
 
