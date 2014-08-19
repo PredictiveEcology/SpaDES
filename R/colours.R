@@ -33,13 +33,13 @@ setMethod("getColors",
 #'
 #' @param x     A \code{Raster*} object.
 #'
+#' @param ...   Additional arguments to \code{colorRampPalette}.
+#'
 #' @param value  Named list of hex color codes (e.g., from \code{RColorBrewer::brewer.pal}),
 #'              corresponding to the names of RasterLayers in \code{x}.
 #'
 #' @param n     An optional vector of values specifiying the number
 #'              of levels from which to interpolate the color palette.
-#'
-#' @param ...   Additional arguments to \code{colorRampPalette}.
 #'
 #' @return Returns a Raster with the colortable slot set to values.
 #'
@@ -53,7 +53,7 @@ setMethod("getColors",
 #' @author Alex Chubaty
 #'
 setGeneric("setColors<-",
-           function(object, value, ..., n) {
+           function(object, ..., value, n) {
              standardGeneric("setColors<-")
 })
 
@@ -63,7 +63,7 @@ setGeneric("setColors<-",
 #' @rdname setColors-method
 setReplaceMethod("setColors",
                  signature("RasterLayer", "character", "numeric"),
-                 function(object, value, ..., n) {
+                 function(object, ..., value, n) {
                    pal <- colorRampPalette(value)
                    object@legend@colortable <- pal(n)
                    validObject(object)
@@ -76,11 +76,10 @@ setReplaceMethod("setColors",
 #' @rdname setColors-method
 setReplaceMethod("setColors",
                  signature("RasterLayer", "character", "missing"),
-                 function(object, value, ...) {
+                 function(object, ..., value) {
                    n <- round((maxValue(object)-minValue(object)))+1
                    pal <- colorRampPalette(value)
                    object@legend@colortable <- pal(n)
-                   object@legend@colortable <- value
                    validObject(object)
                    return(object)
 })
@@ -91,7 +90,7 @@ setReplaceMethod("setColors",
 #' @rdname setColors-method
 setReplaceMethod("setColors",
                  signature("Raster", "list", "numeric"),
-                 function(object, value, ..., n) {
+                 function(object, ..., value, n) {
                    for(x in names(object)) {
                      setColors(object[[x]], ..., n=n) <- value[[x]]
                    }
@@ -105,7 +104,7 @@ setReplaceMethod("setColors",
 #' @rdname setColors-method
 setReplaceMethod("setColors",
                  signature("Raster", "list", "missing"),
-                 function(object, value, ...) {
+                 function(object, ..., value) {
                    for(x in names(object)) {
                      setColors(object[[x]], ...) <- value[[x]]
                    }

@@ -13,13 +13,13 @@ setColors(object, ..., n) <- value
 \arguments{
 \item{x}{A \code{Raster*} object.}
 
+\item{...}{Additional arguments to \code{colorRampPalette}.}
+
 \item{value}{Named list of hex color codes (e.g., from \code{RColorBrewer::brewer.pal}),
              corresponding to the names of RasterLayers in \code{x}.}
 
 \item{n}{An optional vector of values specifiying the number
              of levels from which to interpolate the color palette.}
-
-\item{...}{Additional arguments to \code{colorRampPalette}.}
 }
 \value{
 Returns a Raster with the colortable slot set to values.
