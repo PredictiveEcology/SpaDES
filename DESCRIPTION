@@ -47,6 +47,7 @@ Collate:
     'module-template.R'
     'movement.R'
     'neighbourhood.R'
+    'oldPlotting.R'
     'plotting.R'
     'probability.R'
     'progress.R'

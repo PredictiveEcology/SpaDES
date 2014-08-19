@@ -55,7 +55,7 @@ randomLandscapesInit <- function(sim) {
   nx <- simParams(sim)$randomLandscapes$nx
   ny <- simParams(sim)$randomLandscapes$ny
   template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
-  speedup <- nx/5e1
+  speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
   DEM <- round(GaussMap(template, scale=300, var=0.03, speedup=speedup), 1)*1000
   forestAge <- round(GaussMap(template, scale=10, var=0.1, speedup=speedup), 1)*20
