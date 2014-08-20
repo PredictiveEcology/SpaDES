@@ -4,6 +4,21 @@
 ###
 ###############################################
 
+# extract filename (without extension) of a file
+# - will accept list or charcter vector
+# - outputs character vector
+fileName = function (file) {
+  return(unlist(strsplit(basename(unlist(file)), "\\..*$")))
+}
+
+# extract the file extension of a file
+# - will accept list or charcter vector
+# - outputs character vector
+fileExt = function (file) {
+  f = strsplit(basename(unlist(file)), "^.*\\.")
+  sapply(f, function(x) { x[[length(x)]] })
+}
+
 # Just checks for paths, creates them if they do not exist
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
@@ -150,7 +165,7 @@ setMethod("loadFiles",
               }
 
               # use filenames as object names, unless alternative provided in fileListdf$objectNames
-              objectNames <- sapply(fl.list,function(x) paste(x[-length(x)],collapse="."))
+              objectNames <- sapply(fl.list, function(x) paste(x[-length(x)], collapse="."))
               if(!is.na(match("objectNames",names(fileListdf)))) {
                 loadFun[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
               }
