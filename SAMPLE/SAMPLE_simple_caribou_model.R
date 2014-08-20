@@ -88,6 +88,9 @@ dev_mode(TRUE)
 install(build_vignettes=FALSE) # build_vignette currently fails
 library("SpaDES", lib.loc=getOption("devtools.path"))
 
+# temporary fix to plot colours (to be changed in plotting.R)
+.cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
+
 fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          lib.loc=getOption("devtools.path"),
                                                          quiet=FALSE),"maps"),
@@ -133,7 +136,8 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
 
 print(mySim)
 dev(4)
-spades(mySim, debug=TRUE)
+
+spades(mySim, debug=FALSE)
 print(system.time(spades(mySim, debug=false)))
 print(system.time(mySim <- spades(mySim, debug=FALSE)))
 
