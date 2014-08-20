@@ -11,7 +11,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                       functions="raster",
                       packages="SpaDES",
                       stringsAsFactors=FALSE)
-sim <- simLoad(fileList=fileList, stackName="landscape")
+sim <- simLoad(fileList=fileList)
 landscape = stack(mget(simObjectsLoaded(sim)))
 
 land = landscape
@@ -21,13 +21,16 @@ land <- stack(landscape,landscape1)
 land <- land[[-12]]
 DEM = land$DEM
 
-caribou = SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
-obj <- stack(forestCover, DEM1)
+caribou = SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 
 
 #dev(4);Plot(land, quick = F, add = F)
+dev(4);Plot(caribou)
 dev(4);print(system.time(Plot(landscape,axes=F)))
 dev(4);print(system.time(Plot(land,add = T, axes=F)))
+dev(4);print(system.time(Plot(caribou, DEM,add = F, axes=T)))
+dev(4);print(system.time(Plot(DEM, caribou,add = F, axes=T)))
+dev(4);print(system.time(Plot(caribou,addTo="DEM", axes=T)))
 DEM = land$DEM
 DEM1 = DEM
 names(DEM1) = "DEM1"
@@ -69,3 +72,7 @@ forestAge = forestAge + sample(0:10,length(DEM),replace = T)
 forestCover = forestCover + sample(0:10,length(DEM),replace = T)
 obj = stack(forestCover,forestAge)
 add = T; quick = T
+
+
+toPlot<-list(caribou = caribou)
+toPlot<-list(DEM, caribou=caribou)
