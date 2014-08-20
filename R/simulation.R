@@ -88,14 +88,13 @@ setMethod("show",
             out[[6]] = capture.output(cat("\n"))
 
             ### params
+            omit = which(names(simParams(object))==".loadFileList")
             p = mapply(function(x, y) {
                         data.frame(Module=x, Parameter=names(y), Value=unlist(y),
                                    stringsAsFactors=FALSE, row.names=NULL)
                         },
-                       x=names(simParams(object)), y=simParams(object),
-                       USE.NAMES=FALSE, SIMPLIFY=FALSE)
-            names(p) = names(simParams(object))
-            p = p[-which(names(p)==".loadFileList")] # omit .loadFileList
+                       x=names(simParams(object))[-omit], y=simParams(object)[-omit],
+                       USE.NAMES=TRUE, SIMPLIFY=FALSE)
             q = do.call(rbind, p)
             q = q[order(q$Module, q$Parameter),]
             out[[7]] = capture.output(cat(">> Parameters:\n"))

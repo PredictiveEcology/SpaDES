@@ -134,6 +134,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
 
 #simCurrentTime(mySim)<-0
 dev(4)
+spades(mySim, debug=TRUE)
 print(system.time(spades(mySim, debug=TRUE)))
 print(system.time(mySim <- spades(mySim, debug=FALSE)))
 
