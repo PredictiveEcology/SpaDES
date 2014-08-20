@@ -126,7 +126,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                                         returnInterval=10, startTime=0)
                  ),
                  #modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-                 modules=list("randomLandscapes"),#, "fireSpread", "caribouMovement"),
+                 modules=list("randomLandscapes", "fireSpread"),#"caribouMovement"),
                  #modules=list("stackFileList"),
                  #modules=list("stackFileList", "fireSpread", "caribouMovement"),
                  #modules=list("caribouMovement", "fireSpread"),
