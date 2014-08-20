@@ -2,21 +2,25 @@
 \docType{methods}
 \name{arrangeSimPlots}
 \alias{arrangeSimPlots}
+\alias{arrangeSimPlots,Raster-method}
 \title{Determine optimal plotting arrangement of RasterStack}
 \usage{
-arrangeSimPlots(rast, nam = NULL, which.to.plot = "all", axes = "L")
+arrangeSimPlots(toPlot, nam = NULL, which.to.plot = "all", axes = "L")
+
+\S4method{arrangeSimPlots}{Raster}(toPlot, nam = NULL,
+  which.to.plot = "all", axes = "L")
 }
 \arguments{
-\item{rast}{Raster* object}
+\item{toPlot}{Raster* object}
 
-\item{axes}{passed from simPlot}
+\item{axes}{passed from Plot}
 }
 \description{
 Hidden function.
 }
 \details{
 This assesses the device geometry, the map geometry, and the number of rasters
-to plot and builds an object that will be used by the simPlot functions to plot
+to plot and builds an object that will be used by the Plot functions to plot
 them efficiently
 }
 

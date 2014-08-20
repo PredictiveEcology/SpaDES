@@ -1,7 +1,7 @@
 library(devtools)
 dev_mode(TRUE)
 detach(package:SpaDES,unload=T)
-install(build_vignettes=FALSE) # build_vignette currently fails
+install(quick = TRUE) # build_vignette currently fails
 library("SpaDES", lib.loc=getOption("devtools.path"))
 
 fileList = data.frame(files = dir(file.path(find.package("SpaDES",
@@ -21,6 +21,7 @@ land <- stack(landscape,landscape1)
 land <- land[[-12]]
 DEM = land$DEM
 
+caribou = SpatialPoints(cbind(x=rnorm(10),y=rnorm(10)))
 obj <- stack(forestCover, DEM1)
 
 
