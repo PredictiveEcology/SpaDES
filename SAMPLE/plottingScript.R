@@ -21,16 +21,21 @@ land <- stack(landscape,landscape1)
 land <- land[[-12]]
 DEM = land$DEM
 
+caribou <- data.frame(x = 1:10, y = 1:10)
+coordinates(caribou) <- cbind(x=runif(10,-50,50),y=runif(10,-50,50))
+
+
 caribou = SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 
 
 #dev(4);Plot(land, quick = F, add = F)
 dev(4);Plot(caribou)
 dev(4);print(system.time(Plot(landscape,axes=F)))
-dev(4);print(system.time(Plot(land,add = T, axes=F)))
-dev(4);print(system.time(Plot(caribou, DEM,add = F, axes=T)))
+dev(4);print(system.time(Plot(land,add = F, axes=F)))
+dev(4);print(system.time(Plot(caribou, DEM,add = F, axes=F)))
 dev(4);print(system.time(Plot(DEM, caribou,add = F, axes=T)))
-dev(4);print(system.time(Plot(caribou,addTo="DEM", axes=T)))
+caribou = SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+dev(4);print(system.time(Plot(addTo="DEM", caribou,add = T, axes=T)))
 DEM = land$DEM
 DEM1 = DEM
 names(DEM1) = "DEM1"
@@ -74,5 +79,12 @@ obj = stack(forestCover,forestAge)
 add = T; quick = T
 
 
-toPlot<-list(caribou = caribou)
-toPlot<-list(DEM, caribou=caribou)
+add=F; addTo=NULL; gp=gpar(); axes="L"; speedup = 1
+size=5; cols=topo.colors(50); deletePrevious = add
+visualSqueeze=0.75; quick = FALSE; legend=!quick; draw = TRUE
+pch = 19
+
+rm(add,addTo,gp,axes,speedup,size,cols,deletePrevious,visualSqueeze,quick,legend,draw,pch)
+toPlot<-list(caribou)
+toPlot<-list(DEM, caribou)
+dev(4);Plot(landscape)
