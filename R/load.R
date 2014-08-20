@@ -7,16 +7,16 @@
 # extract filename (without extension) of a file
 # - will accept list or charcter vector
 # - outputs character vector
-fileName = function (file) {
-  return(unlist(strsplit(basename(unlist(file)), "\\..*$")))
+fileName = function (x) {
+  return(unlist(strsplit(basename(unlist(x)), "\\..*$")))
 }
 
 # extract the file extension of a file
 # - will accept list or charcter vector
 # - outputs character vector
-fileExt = function (file) {
-  f = strsplit(basename(unlist(file)), "^.*\\.")
-  sapply(f, function(x) { x[[length(x)]] })
+fileExt = function (x) {
+  f = strsplit(basename(unlist(x)), "^.*\\.")
+  sapply(f, function(y) { y[[length(y)]] })
 }
 
 # Just checks for paths, creates them if they do not exist

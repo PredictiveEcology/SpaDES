@@ -125,17 +125,16 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                                         #.savePath=file.path("output","fireSpread"),
                                         returnInterval=10, startTime=0)
                  ),
-                 #modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-                 modules=list("randomLandscapes", "fireSpread"),#"caribouMovement"),
+                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
                  #modules=list("stackFileList"),
                  #modules=list("stackFileList", "fireSpread", "caribouMovement"),
                  #modules=list("caribouMovement", "fireSpread"),
                  path=system.file("sampleModules", package="SpaDES"))
 
-#simCurrentTime(mySim)<-0
+print(mySim)
 dev(4)
 spades(mySim, debug=TRUE)
-print(system.time(spades(mySim, debug=TRUE)))
+print(system.time(spades(mySim, debug=false)))
 print(system.time(mySim <- spades(mySim, debug=FALSE)))
 
 
