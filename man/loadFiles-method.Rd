@@ -20,10 +20,10 @@ loadFiles(sim, stackName = NULL, fileList, ...)
 \arguments{
 \item{sim}{A \code{simList} object}
 
-\item{stackName}{String or Null, the default. If a string, then all rasters will be put into
-a single RasterStack object, with name given.}
+\item{stackName}{Character string or \code{NULL}, the default. If a string, then all rasters will be put into
+a single \code{RasterStack} object, with name given.}
 
-\item{fileList}{list or data.frame to call loadFiles directly from the fileList as described in Details}
+\item{fileList}{List or data.frame to call loadFiles directly from the fileList as described in Details}
 
 \item{...}{Additional arguments.}
 }
@@ -37,28 +37,28 @@ All other columns are optional.
 
 Other optional columns are:
 
-- "objectNames", a character string indicating the name of the object once the
+- \code{objectNames}: a character string indicating the name of the object once the
 file is loaded.
 
-- "functions", a character string indicating the function to be used to load the file
+- \code{functions}: a character string indicating the function to be used to load the file
 
-- "intervals", a numeric indicating the interval between repeated loading of the same
+- \code{intervals}: a numeric indicating the interval between repeated loading of the same
 file. This should be NA or the column absent if the file is only loaded once.
 
-- "loadTime", a numeric indicating when the file should be loaded. Defaults to simTime = 0,
+- \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to simTime = 0,
 but this can be any time. The loading will be scheduled to occur at the "loadTime",
 whatever that is. If the same file is to loaded many times, but not at a regular interval,
 then there should be separate line, with a unique loadTime for each.
 
-- "arguments" is a list of lists of named arguments, one list for each loading function. For example, if raster
+- \code{arguments}: is a list of lists of named arguments, one list for each loading function. For example, if raster
 is a loading function, arguments = list(native = TRUE). If there is only one list, then it is assumed to apply
 to all load attempts and will be repeated for each load function.
 }
 \examples{
 \dontrun{
 #load random maps included with package
-fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
-   full.names=TRUE,pattern= "tif"), functions="rasterToMemory", package="SpaDES",
+fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
+   full.names=TRUE, pattern= "tif"), functions="rasterToMemory", package="SpaDES",
    stringsAsFactors=FALSE)
 
 mySim <- loadFiles(mySim)
@@ -68,8 +68,8 @@ simPlot(DEM)
 #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
 arguments = list(native=TRUE)
-files = dir(file.path(find.package("SpaDES", quiet = FALSE),"maps"),
-     full.names=TRUE,pattern= "tif")
+files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
+     full.names=TRUE, pattern= "tif")
 fileList = data.frame(
    files = files,
    functions="rasterToMemory",
@@ -77,11 +77,11 @@ fileList = data.frame(
    objectNames = NA,
    arguments = arguments,
    loadTimes = 0,
-   intervals = c(rep(NA,length(files)-1),10),
+   intervals = c(rep(NA, length(files)-1), 10),
    stringsAsFactors=FALSE)
 
 sim <- loadFiles(sim)
-print(system.time(mySim <- spades(mySim, debug=FALSE)))
+mySim <- spades(mySim, debug=FALSE))
 }
 }
 \author{

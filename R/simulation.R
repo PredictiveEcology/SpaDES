@@ -66,13 +66,21 @@ setMethod("show",
           definition=function(object) {
             out = list()
 
+            ### hr
+            out[[1]] = capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
+
+            ### simtimes
+            out[[2]] = capture.output(cat(">> Simulation times:\n"))
+            out[[3]] = capture.output(print(rbind(simTimes(object))))
+            out[[4]] = capture.output(cat("\n"))
+
             ### modules loaded
-            out[[1]] = capture.output(cat(">> Modules:\n"))
-            out[[2]] = capture.output(print(cbind(ModuleName=simModules(object),
+            out[[5]] = capture.output(cat(">> Modules:\n"))
+            out[[6]] = capture.output(print(cbind(ModuleName=simModules(object),
                           IsLoaded=simModules(object) %in%
                             simModulesLoaded(object)),
                           quote=FALSE, row.names=FALSE))
-            out[[3]] = capture.output(cat("\n"))
+            out[[7]] = capture.output(cat("\n"))
 
             ### file/objects loaded
             files = simFileList(object)[["files"]]
@@ -81,11 +89,11 @@ setMethod("show",
             } else {
               names = objectNames
             }
-            out[[4]] = capture.output(cat(">> Files/Objects:\n"))
-            out[[5]] = capture.output(print(cbind(FileName=lapply(simFileList(object)[["files"]], basename),
-                                                IsLoaded=names %in% simObjectsLoaded(object)),
-                                          quote=FALSE, row.names=FALSE))
-            out[[6]] = capture.output(cat("\n"))
+            out[[8]] = capture.output(cat(">> Files/Objects:\n"))
+            out[[9]] = capture.output(print(cbind(FileName=lapply(simFileList(object)[["files"]], basename),
+                                                  IsLoaded=names %in% simObjectsLoaded(object)),
+                                            quote=FALSE, row.names=FALSE))
+            out[[10]] = capture.output(cat("\n"))
 
             ### params
             omit = which(names(simParams(object))==".loadFileList")
@@ -97,23 +105,19 @@ setMethod("show",
                        USE.NAMES=TRUE, SIMPLIFY=FALSE)
             q = do.call(rbind, p)
             q = q[order(q$Module, q$Parameter),]
-            out[[7]] = capture.output(cat(">> Parameters:\n"))
-            out[[8]] = capture.output(print(q, row.names=FALSE))
-            out[[9]] = capture.output(cat("\n"))
-
-            ### simtimes
-            out[[10]] = capture.output(cat(">> Simulation times:\n"))
-            out[[11]] = capture.output(print(rbind(simTimes(object))))
-            out[[12]] = capture.output(cat("\n"))
+            out[[11]] = capture.output(cat(">> Parameters:\n"))
+            out[[12]] = capture.output(print(q, row.names=FALSE))
+            out[[13]] = capture.output(cat("\n"))
 
             ### completed events
-            out[[13]] = capture.output(cat(">> Completed Events:\n"))
-            out[[14]] = capture.output(print(simCompleted(object)))
-            out[[15]] = capture.output(cat("\n"))
+            out[[14]] = capture.output(cat(">> Completed Events:\n"))
+            out[[15]] = capture.output(print(simCompleted(object)))
+            out[[16]] = capture.output(cat("\n"))
 
             ### scheduled events
-            out[[16]] = capture.output(cat(">> Scheduled Events:\n"))
-            out[[17]] = capture.output(print(simEvents(object)))
+            out[[17]] = capture.output(cat(">> Scheduled Events:\n"))
+            out[[18]] = capture.output(print(simEvents(object)))
+            out[[19]] = capture.output(cat("\n"))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
