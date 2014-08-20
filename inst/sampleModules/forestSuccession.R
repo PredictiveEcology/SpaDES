@@ -1,5 +1,5 @@
 ###
-### MODULE: succession
+### MODULE: forsetSuccession
 ###
 ### DESCRIPTION: a basic forest succession module
 ###               - land cover classes (2005) for Canada
@@ -11,12 +11,12 @@
 pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
 
-doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
 
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
-    depends <- "age"
+    depends <- "forestAge"
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
@@ -25,26 +25,26 @@ doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModulesLater(deparse(sim), depends)) {
-        sim <- scheduleEvent(sim, simCurrentTime(sim), "succession", "init")
+        sim <- scheduleEvent(sim, simCurrentTime(sim), "forestSuccession", "init")
     } else {
         # do stuff for this event
-        sim <- successionInit(sim)
+        sim <- forestSuccessionInit(sim)
 
         # schedule the next event
-        sim <- scheduleEvent(sim, 0.5, "succession", "succession")
+        sim <- scheduleEvent(sim, 0.5, "forestSuccession", "succession")
     }
   } else if (eventType=="succession") {
     # do stuff for this event
-    sim <- successionSuccession(sim)
+    sim <- forestSuccessionSuccession(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "succession", "succession")
+    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "forestSuccession", "succession")
   } else if (eventType=="plot") {
     # do stuff for this event
-    sim <- successionPlot(sim)
+    sim <- forestSuccessionPlot(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "succession", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "forestSuccession", "plot")
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE], "\'", sep=""))
@@ -52,7 +52,7 @@ doEvent.succession <- function(sim, eventTime, eventType, debug=FALSE) {
   return(sim)
 }
 
-successionInit <- function(sim) {
+forestSuccessionInit <- function(sim) {
   # Reclassify lcc05 to trajMap
   lcc05 <<- if(!exists("lcc05"))
       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
@@ -152,12 +152,12 @@ successionInit <- function(sim) {
 #, speedup=10, add=FALSE, col=list(brewer.pal(9,"YlGnBu"), brewer.pal(10,"Set3")))
 
   # last thing to do is add module name to the loaded list
-  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "succession")
+  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "forestSuccession")
 
   return(sim)
 }
 
-successionSuccession <- function(sim) {
+forestSuccessionSuccession <- function(sim) {
   ageMap.v <- round(getValues(ageMap))
   trajMap.v <- getValues(trajMap)
 
@@ -170,7 +170,7 @@ successionSuccession <- function(sim) {
     return(sim)
 }
 
-successionPlot <- function(sim) {
+forestSuccessionPlot <- function(sim) {
     simPlot(vegMap, add=FALSE, speedup=20, col=brewer.pal(10,"Set3"))
     return(sim)
 }

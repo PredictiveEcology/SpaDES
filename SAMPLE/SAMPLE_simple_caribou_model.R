@@ -125,7 +125,8 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                                         #.savePath=file.path("output","fireSpread"),
                                         returnInterval=10, startTime=0)
                  ),
-                 modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                 #modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+                 modules=list("randomLandscapes", "fireSpread"),#"caribouMovement"),
                  #modules=list("stackFileList"),
                  #modules=list("stackFileList", "fireSpread", "caribouMovement"),
                  #modules=list("caribouMovement", "fireSpread"),
@@ -133,9 +134,14 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
 
 #simCurrentTime(mySim)<-0
 dev(4)
-print(system.time(spades(mySim, debug=FALSE)))
+spades(mySim, debug=TRUE)
+print(system.time(spades(mySim, debug=TRUE)))
 print(system.time(mySim <- spades(mySim, debug=FALSE)))
 
+
+detach("package:SpaDES", unload=TRUE)
+
+################################################################################
 fls = dir(file.path("output","fires"))
 FireMap = list()
 for (i in fls)

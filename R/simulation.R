@@ -64,15 +64,59 @@ setClass("simList",
 setMethod("show",
           signature="simList",
           definition=function(object) {
-              show = list()
-              show[["Modules Required:"]] = as.character(simModules(object))
-              show[["Modules Loaded:"]] = as.character(simModulesLoaded(object))
-              show[["Objects Loaded:"]] = as.character(simObjectsLoaded(object))
-              show[["Simulation Parameters:"]] = as.list(simParams(object))
-              show[["Simulation Times:"]] = simTimes(object)
-              show[["Completed Events:"]] = simCompleted(object)
-              show[["Scheduled Events:"]] = simEvents(object)
-              print(show)
+            out = list()
+
+            ### modules loaded
+            out[[1]] = capture.output(cat(">> Modules:\n"))
+            out[[2]] = capture.output(print(cbind(ModuleName=simModules(object),
+                          IsLoaded=simModules(object) %in%
+                            simModulesLoaded(object)),
+                          quote=FALSE, row.names=FALSE))
+            out[[3]] = capture.output(cat("\n"))
+
+            ### file/objects loaded
+            files = lapply(simFileList(mySim)[["files"]], basename)
+            if (is.null(simFileList(mySim)[["objectNames"]])) {
+              names = fileName(files)
+            } else {
+              names = objectNames
+            }
+            out[[4]] = capture.output(cat(">> Files/Objects:\n"))
+            out[[5]] = capture.output(print(cbind(FileName=files,
+                                                IsLoaded=names %in% simObjectsLoaded(object)),
+                                          quote=FALSE, row.names=FALSE))
+            out[[6]] = capture.output(cat("\n"))
+
+            ### params
+            omit = which(names(simParams(object))==".loadFileList")
+            p = mapply(function(x, y) {
+                        data.frame(Module=x, Parameter=names(y), Value=unlist(y),
+                                   stringsAsFactors=FALSE, row.names=NULL)
+                        },
+                       x=names(simParams(object))[-omit], y=simParams(object)[-omit],
+                       USE.NAMES=TRUE, SIMPLIFY=FALSE)
+            q = do.call(rbind, p)
+            q = q[order(q$Module, q$Parameter),]
+            out[[7]] = capture.output(cat(">> Parameters:\n"))
+            out[[8]] = capture.output(print(q, row.names=FALSE))
+            out[[9]] = capture.output(cat("\n"))
+
+            ### simtimes
+            out[[10]] = capture.output(cat(">> Simulation times:\n"))
+            out[[11]] = capture.output(print(rbind(simTimes(object))))
+            out[[12]] = capture.output(cat("\n"))
+
+            ### completed events
+            out[[13]] = capture.output(cat(">> Completed Events:\n"))
+            out[[14]] = capture.output(print(simCompleted(object)))
+            out[[15]] = capture.output(cat("\n"))
+
+            ### scheduled events
+            out[[16]] = capture.output(cat(">> Scheduled Events:\n"))
+            out[[17]] = capture.output(print(simEvents(object)))
+
+            ### print result
+            cat(unlist(out), fill=FALSE, sep="\n")
 })
 
 ##############################################################
@@ -1076,8 +1120,12 @@ setMethod("simInit",
 
             # load "default" modules (should we be hardcoding this??)
             for (d in defaults) {
-              # sourcing the code in each module in already done
-              # because they are loaded with the package
+              ### sourcing the code in each module is already done
+              ### because they are loaded with the package
+
+              # add default module name to the loaded list:
+              ### add module name to the loaded list
+              simModulesLoaded(sim) <- append(simModulesLoaded(sim), d)
 
               # schedule each module's init event:
               sim <- scheduleEvent(sim, 0.00, d, "init")
@@ -1213,29 +1261,33 @@ setMethod("doEvent",
             # get next event
             nextEvent <- simEvents(sim)[1, ] # extract the next event from queue
 
-            # update current simulated time
-            simCurrentTime(sim) <- nextEvent$eventTime
+            if (nextEvent$eventTime <= simStopTime(sim)) {
+              # update current simulated time
+              simCurrentTime(sim) <- nextEvent$eventTime
 
-            # call the module responsible for processing this event
-            moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
+              # call the module responsible for processing this event
+              moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
 
-            # check the module call for validity
-            if(nextEvent$moduleName %in% simModules(sim)) {
-              sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+              # check the module call for validity
+              if(nextEvent$moduleName %in% simModules(sim)) {
+                sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+              } else {
+                stop(paste("Invalid module call. The module `", nextEvent$moduleName,
+                           "` wasn't specified to be loaded."))
+              }
+
+              # now that it is run, without error, remove it from the queue
+              simEvents(sim) <- simEvents(sim)[-1,]
+
+              # add to list of completed events
+              if(length(simCompleted(sim))==0) {
+                simCompleted(sim) <- setkey(nextEvent, eventTime)
+              } else {
+                simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), eventTime)
+              }
             } else {
-              stop(paste("Invalid module call. The module ",
-                         nextEvent$moduleName,
-                         " wasn't specified to be loaded.", sep=""))
-            }
-
-            # now that it is run, without error, remove it from the queue
-            simEvents(sim) <- simEvents(sim)[-1,]
-
-            # add to list of completed events
-            if(length(simCompleted(sim))==0) {
-              simCompleted(sim) <- setkey(nextEvent, eventTime)
-            } else {
-              simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), eventTime)
+              # update current simulated time to
+              simCurrentTime(sim) <- simCurrentTime(sim) + 1e-10 # .Machine$double.eps
             }
           return(sim)
 })
@@ -1301,7 +1353,7 @@ setMethod("scheduleEvent",
                 }
               } else {
                 warning(paste("Invalid or missing eventTime. This is usually",
-                                "caused by an attempt to scheduleEvent at time NULL",
+                                "caused by an attempt to scheduleEvent at an empty eventTime",
                                 "or by using an undefined parameter."))
               }
             }
@@ -1352,9 +1404,9 @@ setMethod("scheduleEvent",
 #' @examples
 #' \dontrun{
 #' mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-#' modules=list("habitat", "caribou"), path="/path/to/my/modules/)
+#'                  modules=list("habitat", "caribou"), path="/path/to/my/modules/)
+#' spades{mySim}
 #' }
-#' \dontrun{spades{mySim}}
 #'
 setGeneric("spades", function(sim, debug) {
     standardGeneric("spades")
