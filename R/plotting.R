@@ -53,34 +53,57 @@ newPlot <- function(...) {
   }
 }
 
+setClass("SpatialPointsDataFrameNamed",
+         slots=list(name="character"),
+         prototype=list(name=NA_character_),
+         contains="SpatialPointsDataFrame",
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (is.na(object@name)) {
+             stop("name must be provided")
+           }
+         }
+)
+
+setGeneric("SpatialPointsDataFrameNamed",
+           signature=c("..."),
+           function(..., name) {
+             standardGeneric("SpatialPointsDataFrameNamed")
+           })
 
 
-#' @export
-setGeneric("uberPlot", function(obj, add, ...) {
-  standardGeneric("uberPlot")
-})
-
-#' @rdname arrangePlots
-#' @export
-setMethod("uberPlot",
-          signature=c("SpatialPoints"),
-          definition= function(obj, add, hello, once) {
-            a = Plot(obj)
-            return(a)
+setMethod("SpatialPointsDataFrameNamed",
+          signature="SpatialPointsDataFrame",
+          definition= function(..., name) {
+            new("SpatialPointsDataFrameNamed", ..., name=name)
           })
+
 
 setClass("SpatialPointsNamed",
-         slots=c("name"),
+         slots=list(name="character"),
+         prototype=list(name=NA_character_),
          contains="SpatialPoints",
-         definition=function()
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (is.na(object@name)) {
+             stop("name must be provided")
+           }
+         }
+)
 
-           )
+setGeneric("SpatialPointsNamed",
+           signature=c("..."),
+           function(..., name) {
+             standardGeneric("SpatialPointsNamed")
+           })
 
-setMethod("coordinates",
-          signature=c("data.frame"),
-          definition= function(obj, ..., name) {
 
+setMethod("SpatialPointsNamed",
+          signature="SpatialPoints",
+          definition= function(..., name) {
+            new("SpatialPointsNamed", ..., name=name)
           })
+
 
 #################################################
 #' @export
@@ -381,7 +404,8 @@ makeViewports <- function(obj, arr, cex, add, visualSqueeze, needRearrange = FAL
 }
 
 #' @export
-setGeneric("Plot", signature="...", function(..., add=F, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
+setGeneric("Plot", signature="...",
+           function(..., add=F, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                                              size=5, cols=topo.colors(50), deletePrevious = add,
                                              visualSqueeze=0.75, quick = FALSE, legend=!quick, draw = TRUE,
                                              pch = 19) {
