@@ -23,9 +23,11 @@ DEM = land$DEM
 
 caribou <- data.frame(x = 1:10, y = 1:10)
 coordinates(caribou) <- cbind(x=runif(10,-50,50),y=runif(10,-50,50))
+name(caribou)<-"caribou"
 
 
-caribou = SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+caribou <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+name(caribou)<-"caribou"
 
 
 #dev(4);Plot(land, quick = F, add = F)
