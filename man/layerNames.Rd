@@ -1,0 +1,23 @@
+\docType{methods}
+\name{layerNames}
+\alias{layerNames}
+\alias{layerNames,Raster-method}
+\alias{layerNames,SpatialPointsDataFrameNamed-method}
+\alias{layerNames,SpatialPointsNamed-method}
+\alias{layerNames,list-method}
+\title{extract the layer names in a mixed set of layer objects}
+\usage{
+layerNames(object)
+
+\S4method{layerNames}{list}(object)
+
+\S4method{layerNames}{SpatialPointsNamed}(object)
+
+\S4method{layerNames}{SpatialPointsDataFrameNamed}(object)
+
+\S4method{layerNames}{Raster}(object)
+}
+\description{
+extract the layer names in a mixed set of layer objects
+}
+
