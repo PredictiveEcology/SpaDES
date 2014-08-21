@@ -98,32 +98,26 @@ setMethod("SpatialPointsDataFrameNamed",
 
 
 
-#' @export
-setGeneric("name",
-           signature=c("..."),
-           function(..., name) {
-             standardGeneric("SpatialPointsNamed")
-           })
-
-#' @export
-setMethod("name",
-          signature="SpatialPoints",
-          definition= function(..., name) {
-            new("SpatialPointsNamed", ..., name=name)
-          })
-#' @export
-setMethod("name",
-          signature="SpatialPointsDataFrame",
-          definition= function(..., name) {
-            new("SpatialPointsDataFrameNamed", ..., name=name)
-          })
-
-#' @export
-setMethod("name",
-          signature="SpatialPointsDataFrame",
-          definition= function(..., name) {
-            new("SpatialPointsDataFrameNamed", ..., name=name)
-          })
+# #' @export
+# setGeneric("name",
+#            signature=c("..."),
+#            function(..., name) {
+#              standardGeneric("name")
+#            })
+#
+# #' @export
+# setMethod("name",
+#           signature="SpatialPoints",
+#           definition= function(..., name) {
+#             new("SpatialPointsNamed", ..., name=name)
+#           })
+#
+# #' @export
+# setMethod("name",
+#           signature="SpatialPointsDataFrame",
+#           definition= function(..., name) {
+#             new("SpatialPointsDataFrameNamed", ..., name=name)
+#           })
 
 #' @export
 setGeneric("SpatialPointsNamed",
@@ -168,10 +162,12 @@ setMethod("show",
           })
 
 
+#' @export
 setGeneric("name", function(object) {
   standardGeneric("name")
 })
 
+#' @export
 #' @rdname name-accessor-methods
 setMethod("name",
           signature="SpatialPointsNamed",
@@ -187,21 +183,25 @@ setGeneric("name<-",
              standardGeneric("name<-")
            })
 
+#' @export
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPointsNamed",
                  function(object, value) {
                    object@name <- value
-                   validObject(object)
+#                   validObject(object)
                    return(object)
                  })
 
+#' @export
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPoints",
                  function(object, value) {
                    new("SpatialPointsNamed", object, name=value)
                  })
+
+#' @export
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrameNamed",
@@ -211,6 +211,7 @@ setReplaceMethod("name",
                    return(object)
                  })
 
+#' @export
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrame",
@@ -219,6 +220,7 @@ setReplaceMethod("name",
                  })
 
 
+#' @export
 setMethod("nlayers",
           signature="list",
           function(x) {
@@ -232,11 +234,13 @@ setMethod("nlayers",
             }))}
             )
 
+#' @export
 setGeneric("layerNames", function(object) {
   standardGeneric("layerNames")
 })
 
 #' @rdname name-accessor-methods
+#' @export
 setMethod("layerNames",
           signature="list",
           definition=function(object) {
@@ -502,20 +506,20 @@ makeViewports <- function(toPlot, arr, cex, add, visualSqueeze, needRearrange = 
   # Test that
   if(needRearrange | add==FALSE) {
   #if((.arr$columns != arr$columns) | (.arr$rows != arr$rows) | add==FALSE | needRearrange) {
-    for(i in toPlot) {
-      if(listClass[i]=="SpatialPointNamed")
-      for(j in name()))
-      #use layout just made
-      plotVps[[i]] <- viewport(
-                name=paste("vp",arr$names[i],sep=""),
-                layout.pos.col = ceiling((i-1)%%columns+1)*2,
-                layout.pos.row = ceiling(i/columns)*2,
-                xscale=c(extent(toPlot[[i]])@xmin,extent(toPlot[[i]])@xmax),
-                yscale=c(extent(toPlot[[i]])@ymin,extent(toPlot[[i]])@ymax))
+    for(toPloti in toPlot) {
+      if(listClass[toPloti]=="SpatialPointNamed") nam = name(toPlot[[toPloti]])
+#        for(j in name()))
+        #use layout just made
+        plotVps[[toPloti]] <- viewport(
+                  name=paste("vp",arr$names[toPloti],sep=""),
+                  layout.pos.col = ceiling((toPloti-1)%%columns+1)*2,
+                  layout.pos.row = ceiling(toPloti/columns)*2,
+                  xscale=c(extent(toPlot[[toPloti]])@xmin,extent(toPlot[[toPloti]])@xmax),
+                  yscale=c(extent(toPlot[[toPloti]])@ymin,extent(toPlot[[toPloti]])@ymax))
 
-#         plotVps[[i]] <- makeViewport(obj[[i]], #visualSqueeze = 0.6,
-#                                     layout.pos.row=ceiling(i/columns)*2,
-#                                     layout.pos.col=ceiling((i-1)%%columns+1)*2)
+  #         plotVps[[toPloti]] <- makeViewport(obj[[toPloti]], #visualSqueeze = 0.6,
+  #                                     layout.pos.row=ceiling(toPloti/columns)*2,
+  #                                     layout.pos.col=ceiling((toPloti-1)%%columns+1)*2)
     }
     wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
 

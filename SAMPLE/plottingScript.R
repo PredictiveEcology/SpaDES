@@ -88,5 +88,5 @@ pch = 19
 
 rm(add,addTo,gp,axes,speedup,size,cols,deletePrevious,visualSqueeze,quick,legend,draw,pch)
 toPlot<-list(caribou)
-toPlot<-list(DEM, caribou)
+toPlot<-list(DEM, caribou, land, DEM1, caribou1)
 dev(4);Plot(landscape)
