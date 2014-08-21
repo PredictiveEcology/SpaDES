@@ -177,6 +177,7 @@ setMethod("name",
 
 #' set list of simulation modules
 #' @export
+#' @name name<-
 #' @rdname name-accessor-methods
 setGeneric("name<-",
            function(object, value) {
@@ -184,16 +185,18 @@ setGeneric("name<-",
            })
 
 #' @export
+#' @name name<-
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPointsNamed",
                  function(object, value) {
                    object@name <- value
-#                   validObject(object)
+                   validObject(object)
                    return(object)
                  })
 
 #' @export
+#' @name name<-
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPoints",
@@ -202,6 +205,7 @@ setReplaceMethod("name",
                  })
 
 #' @export
+#' @name name<-
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrameNamed",
@@ -212,6 +216,7 @@ setReplaceMethod("name",
                  })
 
 #' @export
+#' @name name<-
 #' @rdname name-accessor-methods
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrame",
@@ -246,6 +251,39 @@ setMethod("layerNames",
           definition=function(object) {
             unlist(sapply(toPlot, function(x) {if(is(x,"Raster")) {names(x)} else {name(x)}}))
           })
+
+# ################################################3
+# setGeneric("simModules", function(object) {
+#   standardGeneric("simModules")
+# })
+#
+# #' get list of simulation modules
+# #' @rdname simModules-accessor-methods
+# setMethod("simModules",
+#           signature="simList",
+#           definition=function(object) {
+#             return(object@modules)
+#           })
+#
+# #' set list of simulation modules
+# #' @export
+# #' @rdname simModules-accessor-methods
+# setGeneric("simModules<-",
+#            function(object, value) {
+#              standardGeneric("simModules<-")
+#            })
+#
+# #' set list of simulation modules
+# #' @name simModules<-
+# #' @aliases simModules<-,simList-method
+# #' @rdname simModules-accessor-methods
+# setReplaceMethod("simModules",
+#                  signature="simList",
+#                  function(object, value) {
+#                    object@modules <- value
+#                    validObject(object)
+#                    return(object)
+#                  })
 
 
 #################################################
