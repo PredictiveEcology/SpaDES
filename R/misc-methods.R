@@ -276,6 +276,7 @@ setMethod("checkParams",
                                    moduleParams, value=TRUE)
               moduleParams <- gsub(",", "", moduleParams)
               moduleParams <- gsub("\\)\\)", "", moduleParams)
+              moduleParams <- gsub("^.*\\(simParams\\(sim\\)", "\\simParams\\(sim\\)", moduleParams)
               moduleParams <- sort(unique(moduleParams))
               moduleParams <- gsub(paste0("simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
 

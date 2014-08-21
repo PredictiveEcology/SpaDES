@@ -260,6 +260,7 @@ setMethod("loadFiles",
             } else {
               message("No files loaded, because no fileList")
             }
+            message("") ## print empty message to add linebreak to console message output
             return(sim)
 })
 
