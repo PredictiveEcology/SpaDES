@@ -1,16 +1,16 @@
 \docType{methods}
-\name{simModules}
-\alias{simModules}
-\alias{simModules,simList-method}
-\alias{simModules<-}
-\alias{simModules<-,simList-method}
-\title{Get and set the list of modules to be loaded for a simulation.}
+\name{simGlobals}
+\alias{simGlobals}
+\alias{simGlobals,simList-method}
+\alias{simGlobals<-}
+\alias{simGlobals<-,simList-method}
+\title{Get and set the list of global simulation parmeters.}
 \usage{
-simModules(object)
+simGlobals(object)
 
-\S4method{simModules}{simList}(object)
+\S4method{simGlobals}{simList}(object)
 
-simModules(object) <- value
+simGlobals(object) <- value
 }
 \arguments{
   \item{object}{A \code{simList} simulation object.}
@@ -25,11 +25,11 @@ Returns or sets the value of the slot from the
 Currently, only get and set methods are defined. Subset
 methods are not.
 
-get list of simulation modules
+get .loadFileList from simulation parameters
 
-set list of simulation modules
+set .loadFileList in simulation parameters
 
-set list of simulation modules
+set .loadFileList in simulation parameters
 }
 \author{
 Alex Chubaty
@@ -38,12 +38,12 @@ Alex Chubaty
 \code{\link{simCheckpointFile}} for accessing the name of
 the checkpoint file; \code{\link{simCheckpointInterval}}
 for accessing the simulation checkpoint interval;
-\code{\link{simGlobals}} for accessing the global
-simulation parameters; \code{\link{simGlobalsOutputPath}}
-for accessing the global simulation output path;
-\code{\link{simModulesLoaded}} for accessing the list of
-loaded simulation modules; \code{\link{simObjectsLoaded}}
-for accessing the list of loaded simulation objects;
+\code{\link{simGlobalsOutputPath}} for accessing the global
+simulation output path; \code{\link{simModulesLoaded}} for
+accessing the list of loaded simulation modules;
+\code{\link{simObjectsLoaded}} for accessing the list of
+loaded simulation objects; \code{\link{simModules}} for
+accessing the list of simulation modules to be loaded;
 \code{\link{simParams}} for accessing the list of
 simulation parameters; \code{\link{simEvents}} for
 accessing the scheduled simulation event queue;

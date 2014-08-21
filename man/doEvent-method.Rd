@@ -23,7 +23,7 @@ doEvent(sim, debug)
 Returns the modified \code{simList} object.
 }
 \description{
-Internal function called from \code{doSim}.
+Internal function called from \code{spades}.
 }
 \details{
 Calls the module corresponding to the event call, and
@@ -44,4 +44,5 @@ Matloff, N. (2011). The Art of R Programming (ch. 7.8.3).
 San Fransisco, CA: No Starch Press, Inc.. Retrieved from
 \url{http://www.nostarch.com/artofr.htm}
 }
+\keyword{internal}
 

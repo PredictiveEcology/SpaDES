@@ -1,9 +1,12 @@
 \docType{methods}
-\name{simSave}
-\alias{simSave}
+\name{saveFiles}
+\alias{saveFiles}
 \title{Save simulation objects according to simParams}
 \usage{
-simSave(sim)
+saveFiles(sim)
+}
+\arguments{
+  \item{sim}{A \code{simList} simulation object.}
 }
 \description{
 Save simulation objects according to simParams

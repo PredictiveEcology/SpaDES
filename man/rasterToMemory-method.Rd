@@ -11,6 +11,8 @@ rasterToMemory(x, ...)
 \arguments{
   \item{x}{An object passed directly to the function raster
   (e.g., character string of a filename).}
+
+  \item{...}{Additional arguments to \code{raster}.}
 }
 \value{
 A raster object whose values are stored in memory.
@@ -27,6 +29,6 @@ Eliot McIntire
 Alex Chubaty
 }
 \seealso{
-\link{\code{raster}}
+\code{\link{raster}}.
 }
 

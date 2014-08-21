@@ -1,15 +1,15 @@
 \docType{methods}
-\name{doSim}
-\alias{doSim}
-\alias{doSim,simList,logical-method}
-\alias{doSim,simList,missing-method}
-\title{Process a simulation event}
+\name{spades}
+\alias{spades}
+\alias{spades,simList,logical-method}
+\alias{spades,simList,missing-method}
+\title{Run a spatial discrete event simulation}
 \usage{
-doSim(sim, debug)
+spades(sim, debug)
 
-\S4method{doSim}{simList,logical}(sim, debug)
+\S4method{spades}{simList,logical}(sim, debug)
 
-\S4method{doSim}{simList,missing}(sim)
+\S4method{spades}{simList,missing}(sim)
 }
 \arguments{
   \item{sim}{Character string for the \code{simList}
@@ -23,12 +23,6 @@ doSim(sim, debug)
 Invisibly returns the modified \code{simList} object.
 }
 \description{
-Internal function called from \code{doSim}.
-}
-\details{
-Calls the module corresponding to the event call, and
-executes the event.
-
 Based on code from chapter 7.8.3 of Matloff (2011):
 "Discrete event simulation". Here, we implement a
 simulation in a more modular fashion so it's easier to add
@@ -38,16 +32,16 @@ implement the event queue (because it is much faster).
 }
 \note{
 The debug option is primarily intended to facilitate
-building simulation models by the user. Setting
-\code{debug=TRUE} allows the user to toggle debugging
-statements in their own modules.
+building simulation models by the user. Will print
+additional outputs informing the user of updates to the
+values of various simList slot components.
 }
 \examples{
 \dontrun{
 mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-modules=list("habitat", "caribou"), path="/path/to/my/modules/)
+                 modules=list("habitat", "caribou"), path="/path/to/my/modules/)
+spades{mySim}
 }
-\dontrun{doSim{mySim}}
 }
 \author{
 Alex Chubaty

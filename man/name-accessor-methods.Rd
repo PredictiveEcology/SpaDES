@@ -1,17 +1,17 @@
 \docType{methods}
 \name{name,SpatialPointsNamed-method}
-\alias{layerNames,list-method}
+\alias{name,SpatialPointsDataFrameNamed-method}
 \alias{name,SpatialPointsNamed-method}
 \alias{name<-}
-\title{set list of simulation modules}
+\title{set name of SpatialPoints and SpatialPointsDataFrames}
 \usage{
 \S4method{name}{SpatialPointsNamed}(object)
 
-name(object) <- value
+\S4method{name}{SpatialPointsDataFrameNamed}(object)
 
-\S4method{layerNames}{list}(object)
+name(object) <- value
 }
 \description{
-set list of simulation modules
+set name of SpatialPoints and SpatialPointsDataFrames
 }
 

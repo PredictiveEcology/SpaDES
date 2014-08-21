@@ -1,16 +1,16 @@
 \docType{methods}
-\name{simModules}
-\alias{simModules}
-\alias{simModules,simList-method}
-\alias{simModules<-}
-\alias{simModules<-,simList-method}
-\title{Get and set the list of modules to be loaded for a simulation.}
+\name{simFileList}
+\alias{simFileList}
+\alias{simFileList,simList-method}
+\alias{simFileList<-}
+\alias{simFileList<-,simList-method}
+\title{Get and set the filelist to be loaded during simulation.}
 \usage{
-simModules(object)
+simFileList(object)
 
-\S4method{simModules}{simList}(object)
+\S4method{simFileList}{simList}(object)
 
-simModules(object) <- value
+simFileList(object) <- value
 }
 \arguments{
   \item{object}{A \code{simList} simulation object.}
@@ -25,11 +25,11 @@ Returns or sets the value of the slot from the
 Currently, only get and set methods are defined. Subset
 methods are not.
 
-get list of simulation modules
+get .loadFileList from simulation parameters
 
-set list of simulation modules
+set .loadFileList in simulation parameters
 
-set list of simulation modules
+set .loadFileList in simulation parameters
 }
 \author{
 Alex Chubaty
@@ -44,13 +44,14 @@ for accessing the global simulation output path;
 \code{\link{simModulesLoaded}} for accessing the list of
 loaded simulation modules; \code{\link{simObjectsLoaded}}
 for accessing the list of loaded simulation objects;
-\code{\link{simParams}} for accessing the list of
-simulation parameters; \code{\link{simEvents}} for
-accessing the scheduled simulation event queue;
-\code{\link{simCompleted}} for accessing the list of
-completed simulation events; \code{\link{simTimes}} for
-accessing the list of simulation times
-(\code{simCurrentTime}, \code{simStartTime}, and
+\code{\link{simModules}} for accessing the list of
+simulation modules to be loaded; \code{\link{simParams}}
+for accessing the list of simulation parameters;
+\code{\link{simEvents}} for accessing the scheduled
+simulation event queue; \code{\link{simCompleted}} for
+accessing the list of completed simulation events;
+\code{\link{simTimes}} for accessing the list of simulation
+times (\code{simCurrentTime}, \code{simStartTime}, and
 \code{simStopTime} to access the simulation current, start,
 and stop times individually).
 }

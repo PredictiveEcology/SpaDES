@@ -1,10 +1,10 @@
 \docType{methods}
 \name{simModulesLoaded}
-\alias{<-}
 \alias{simModulesLoaded}
 \alias{simModulesLoaded,simList-method}
 \alias{simModulesLoaded<-}
-\title{Accessor methods for \code{simList} object slots}
+\alias{simModulesLoaded<-,simList-method}
+\title{Get and set the modules loaded for the simulation.}
 \usage{
 simModulesLoaded(object)
 
@@ -31,13 +31,27 @@ set list of loaded simulation modules
 
 set list of loaded simulation modules
 }
-\details{
-Additonal methods are provided to access the current,
-start, and stop times of the simulation:
-\code{simCurrentTime(sim)}, \code{simStartTime(sim)},
-\code{simStopTime(sim)}.
-}
 \author{
 Alex Chubaty
+}
+\seealso{
+\code{\link{simCheckpointFile}} for accessing the name of
+the checkpoint file; \code{\link{simCheckpointInterval}}
+for accessing the simulation checkpoint interval;
+\code{\link{simObjectsLoaded}} for accessing the list of
+loaded simulation objects; \code{\link{simGlobals}} for
+accessing the global simulation parameters;
+\code{\link{simGlobalsOutputPath}} for accessing the global
+simulation output path; \code{\link{simModules}} for
+accessing the list of simulation modules to be loaded;
+\code{\link{simParams}} for accessing the list of
+simulation parameters; \code{\link{simEvents}} for
+accessing the scheduled simulation event queue;
+\code{\link{simCompleted}} for accessing the list of
+completed simulation events; \code{\link{simTimes}} for
+accessing the list of simulation times
+(\code{simCurrentTime}, \code{simStartTime}, and
+\code{simStopTime} to access the simulation current, start,
+and stop times individually).
 }
 

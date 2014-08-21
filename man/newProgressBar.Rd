@@ -5,8 +5,12 @@
 \usage{
 newProgressBar(sim)
 }
+\arguments{
+  \item{sim}{A \code{simList} simulation object.}
+}
 \description{
-Shows a progress bar that is scaled to End simulation time.
+Shows a progress bar that is scaled to simulation stop
+time.
 }
 \author{
 Alex Chubaty

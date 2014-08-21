@@ -1,16 +1,16 @@
 \docType{methods}
-\name{simModules}
-\alias{simModules}
-\alias{simModules,simList-method}
-\alias{simModules<-}
-\alias{simModules<-,simList-method}
-\title{Get and set the list of modules to be loaded for a simulation.}
+\name{simGlobalsOutputPath}
+\alias{simGlobalsOutputPath}
+\alias{simGlobalsOutputPath,simList-method}
+\alias{simGlobalsOutputPath<-}
+\alias{simGlobalsOutputPath<-,simList-method}
+\title{Get and set the output path from global simulation parmeters.}
 \usage{
-simModules(object)
+simGlobalsOutputPath(object)
 
-\S4method{simModules}{simList}(object)
+\S4method{simGlobalsOutputPath}{simList}(object)
 
-simModules(object) <- value
+simGlobalsOutputPath(object) <- value
 }
 \arguments{
   \item{object}{A \code{simList} simulation object.}
@@ -22,14 +22,14 @@ Returns or sets the value of the slot from the
 \code{simList} object.
 }
 \description{
-Currently, only get and set methods are defined. Subset
-methods are not.
+Get and set the output path from global simulation
+parmeters.
 
-get list of simulation modules
+get .globals$.outputPath from simulation parameters
 
-set list of simulation modules
+set .globals$.outputPath in simulation parameters
 
-set list of simulation modules
+set .globals$.outputPath in simulation parameters
 }
 \author{
 Alex Chubaty
@@ -39,11 +39,11 @@ Alex Chubaty
 the checkpoint file; \code{\link{simCheckpointInterval}}
 for accessing the simulation checkpoint interval;
 \code{\link{simGlobals}} for accessing the global
-simulation parameters; \code{\link{simGlobalsOutputPath}}
-for accessing the global simulation output path;
-\code{\link{simModulesLoaded}} for accessing the list of
-loaded simulation modules; \code{\link{simObjectsLoaded}}
-for accessing the list of loaded simulation objects;
+simulation parameters; \code{\link{simModulesLoaded}} for
+accessing the list of loaded simulation modules;
+\code{\link{simObjectsLoaded}} for accessing the list of
+loaded simulation objects; \code{\link{simModules}} for
+accessing the list of simulation modules to be loaded;
 \code{\link{simParams}} for accessing the list of
 simulation parameters; \code{\link{simEvents}} for
 accessing the scheduled simulation event queue;

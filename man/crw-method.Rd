@@ -1,11 +1,16 @@
 \docType{methods}
-\name{crw}
+\name{move}
 \alias{crw}
-\title{Simple Correlated Random Walk}
+\alias{move}
+\title{Move}
 \usage{
+move(hypothesis = NULL, ...)
+
 crw(agent, stepLength, stddev, lonlat)
 }
 \arguments{
+  \item{agent}{A SpatialPointsDataFrame.}
+
   \item{agent}{A SpatialPointsDataFrame.}
 
   \item{stepLength}{Numeric vector of length 1 or number of
@@ -24,6 +29,8 @@ An agent object with updated spatial position defined by a
 single occurence of step length(s) and turn angle(s).
 }
 \description{
+Wrapper for selecting different animal movement methods.
+
 This version uses just turn angles and step lengths to
 define the correlated random walk.
 }
@@ -34,6 +41,8 @@ also used with bias modifications in McIntire, Schultz,
 Crone 2007.
 }
 \author{
+Eliot McIntire
+
 Eliot McIntire
 }
 \references{
@@ -47,6 +56,6 @@ where individuals, populations and landscapes interact.
 Journal of Applied Ecology 44:725-736.
 }
 \seealso{
-\code{\link{mobileAgent}}, \code{\link{pointDistance}}
+\code{\link{pointDistance}}
 }
 

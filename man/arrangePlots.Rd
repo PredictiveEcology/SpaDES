@@ -3,18 +3,13 @@
 \alias{arrangePlots}
 \alias{arrangePlots,list-method}
 \alias{placeOnRaster,NamedSpatialPoints-method}
-\alias{plotPoints}
 \title{Determine optimal plotting arrangement of RasterStack}
 \usage{
 \S4method{placeOnRaster}{NamedSpatialPoints}(obj, raster)
 
-arrangePlots(toPlot)
+arrangePlots(toPlot, name = NULL)
 
-\S4method{arrangePlots}{list}(toPlot)
-
-plotPoints(toPlot, add = TRUE, size = unit(5, "points"), draw = TRUE,
-  xaxis = TRUE, yaxis = TRUE, title = TRUE, gp = gpar(), vp = NULL,
-  pch = 19, childrenvp = NULL, ...)
+\S4method{arrangePlots}{list}(toPlot, name)
 }
 \arguments{
   \item{toPlot}{Raster* object}

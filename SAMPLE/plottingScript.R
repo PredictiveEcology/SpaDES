@@ -11,8 +11,8 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                       functions="raster",
                       packages="SpaDES",
                       stringsAsFactors=FALSE)
-sim <- simLoad(fileList=fileList)
-landscape = stack(mget(simObjectsLoaded(sim)))
+sim <- loadFiles(fileList=fileList)
+landscape = stack(mget(unlist(simObjectsLoaded(sim))))
 
 land = landscape
 landscape1 <- landscape
@@ -26,8 +26,8 @@ coordinates(caribou) <- cbind(x=runif(10,-50,50),y=runif(10,-50,50))
 name(caribou)<-"caribou"
 
 
-caribou <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
-name(caribou)<-"caribou"
+caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+name(caribou1)<-"caribou1"
 
 
 #dev(4);Plot(land, quick = F, add = F)
@@ -86,7 +86,9 @@ size=5; cols=topo.colors(50); deletePrevious = add
 visualSqueeze=0.75; quick = FALSE; legend=!quick; draw = TRUE
 pch = 19
 
-rm(add,addTo,gp,axes,speedup,size,cols,deletePrevious,visualSqueeze,quick,legend,draw,pch)
+rm(add,addTo,gp,axes,speedup,size,cols,deletePrevious,visualSqueeze,quick,legend,draw,pch,
+   arr, grobs,lay, .arr)
 toPlot<-list(caribou)
-toPlot<-list(DEM, caribou, land, DEM1, caribou1)
-dev(4);Plot(landscape)
+toPlot<-list(DEM2, caribou, landscape, DEM1, caribou1)
+Plot(caribou)
+Plot(landscape)

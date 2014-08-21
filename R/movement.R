@@ -1,5 +1,16 @@
-# Not implemented yet
+##############################################################
+#' Move
+#'
+#' Wrapper for selecting different animal movement methods.
+#'
+#' @param agent       A SpatialPointsDataFrame.
+#'
 #' @export
+#' @docType methods
+#' @rdname crw-method
+#'
+#' @author Eliot McIntire
+#'
 move <- function(hypothesis=NULL,...) {
      #if (hypothesis == "TwoDT") move <- "TwoDT"
      if (hypothesis == "crw") move <- "crw"
@@ -32,9 +43,10 @@ move <- function(hypothesis=NULL,...) {
 #' @return An agent object with updated spatial position defined by a single
 #'          occurence of step length(s) and turn angle(s).
 #'
-#' @seealso \code{\link{mobileAgent}}, \code{\link{pointDistance}}
+#' @seealso \code{\link{pointDistance}}
 #'
 #' @references Turchin, P. 1998. Quantitative analysis of movement: measuring and modeling population redistribution in animals and plants. Sinauer Associates, Sunderland, MA.
+#'
 #' @references McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network for butterfly habitat restoration: where individuals, populations and landscapes interact. Journal of Applied Ecology 44:725-736.
 #'
 #' @export

@@ -36,6 +36,8 @@ spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
   this \code{NULL} allows the spread to continue until
   stops spreading itself (i.e., exhausts itself).}
 
+  \item{...}{Additional parameters.}
+
   \item{plot.it}{If TRUE, then plot the raster at every
   iteraction, so one can watch the spread event grow.}
 

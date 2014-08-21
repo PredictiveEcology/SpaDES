@@ -7,9 +7,9 @@
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
 
-checkpointLoad(file = "checkpoint.RData")
+checkpointLoad(file)
 
-checkpointSave(file = "checkpoint.RData")
+checkpointSave(file)
 }
 \arguments{
   \item{sim}{A \code{SimList} simulation object.}
@@ -23,6 +23,8 @@ checkpointSave(file = "checkpoint.RData")
 
   \item{debug}{Optional logical flag determines whether sim
   debug info will be printed (default \code{debug=FALSE}.}
+
+  \item{file}{The checkpoint file.}
 }
 \value{
 Returns the modified \code{SimList} object.
@@ -33,8 +35,8 @@ including the state of the random number generator, by
 scheduling checkpoint events.
 }
 \details{
-\code{\link{checkpoint.load}} and
-\code{\link{checkpoint.save}} code from:
+\code{\link{checkpointLoad}} and
+\code{\link{checkpointSave}} code from:
 https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
 
 RNG save code adapted from:

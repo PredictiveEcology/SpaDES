@@ -9,13 +9,15 @@
 #' progressively faster as the number increases, at the expense of coarser pixel
 #' resolution of the pattern generated
 #'
-#' @param ext An object of class \code{extent} giving the dimensions of output map.
+#' @param x An spatial object (e.g., a raster).
 #'
 #' @param scale The spatial scale in map units of the Gaussian pattern.
 #'
 #' @param var Spatial variance.
 #'
 #' @param speedup An index of how much faster than normal to generate maps.
+#'
+#' @param ... Additional arguments to \code{raster}.
 #'
 #' @return A map of extent \code{ext} with a Gaussian random pattern.
 #'
