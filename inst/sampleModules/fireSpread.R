@@ -107,7 +107,6 @@ fireSpreadBurn <- function(sim) {
                    loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
                    spreadProb=simParams(sim)$fireSpread$spreadprob,
                    persistance=simParams(sim)$fireSpread$persistprob,
-                   mapFireID=TRUE,
                    mask=NULL,
                    maxSize=1e8,
                    directions=8,
