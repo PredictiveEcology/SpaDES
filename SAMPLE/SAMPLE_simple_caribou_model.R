@@ -88,6 +88,9 @@ dev_mode(TRUE)
 install(build_vignettes=FALSE) # build_vignette currently fails
 library("SpaDES", lib.loc=getOption("devtools.path"))
 
+# set raster options (adjust as needed)
+rasterOptions(maxmemory=1e9)
+
 # temporary fix to plot colours (to be changed in plotting.R)
 .cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
 
