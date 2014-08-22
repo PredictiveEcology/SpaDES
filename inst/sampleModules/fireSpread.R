@@ -25,9 +25,11 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
       assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
     } else {
+      if (length(npix)>0) {
+        message(paste("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
+      }
       npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
-      message(paste("Object `", simGlobals(sim)$burnStats, "` already exists."))
-      stopifnot("numeric" %in% is(npix), "vector" %in% is(npix), length(npix)==0)
+      stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
     }
 
     # if a required module isn't loaded yet,
@@ -105,7 +107,7 @@ fireSpreadBurn <- function(sim) {
                    loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
                    spreadProb=simParams(sim)$fireSpread$spreadprob,
                    persistance=simParams(sim)$fireSpread$persistprob,
-                   mapFireID=TRUE,
+                   mapID=TRUE,
                    mask=NULL,
                    maxSize=1e8,
                    directions=8,
