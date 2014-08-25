@@ -701,7 +701,8 @@ setMethod("Plot2",
 
             if(is.null(addTo)) {
               addTo <- lN
-              } else {
+            } else {
+              if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
               add = TRUE
             }
             currentPlusToPlotN <- unique(c(currentNames, addTo))
@@ -715,15 +716,20 @@ setMethod("Plot2",
 
             if(add==F) {
               newArr = T
-              vpNames <- lN
-              grobNames <- lN
+              vpNames <- addTo
+              grobNames <- addTo
               if(exists(".grobs",envir=.GlobalEnv)) rm(.grobs, envir=.GlobalEnv)
               grobs <- list()
             } else { # add == T
               if(length(currentPlusToPlotN) > prod(arr$column, arr$rows)) {
                 grobs <- .grobs
                 newArr = T
-                vpNames = currentPlusToPlotN
+                if(sum(!(lN %in% currentPlusToPlotN))!=0) {
+                  vpNames <- lN[!(lN %in% currentPlusToPlotN)]
+                } else {
+                  vpNames <- NULL
+                }
+#                vpNames = currentPlusToPlotN
                 grobNames = vpNames
                 addTo <- grobNames
                 ind <- vpNames %in% lN + 1
@@ -733,14 +739,14 @@ setMethod("Plot2",
               } else {
                 grobs <- .grobs
                 newArr = F
-                if(sum(!(lN %in% currentNames))!=0) {
-                  vpNames <- !(lN %in% currentNames)
+                if(sum(!(addTo %in% currentNames))!=0) {
+                  vpNames <- addTo[!(addTo %in% currentNames)]
                 } else {
                   vpNames <- NULL
                 }
-                extsToPlot <- extsToPlot[!names(extsToPlot) %in% currentNames]
+                extsToPlot <- extsToPlot[!(addTo %in% currentNames)]
                 names(extsToPlot) <- vpNames
-                grobNames <- lN
+                grobNames <- addTo
               }
             }
 
@@ -810,15 +816,16 @@ setMethod("Plot2",
               #seekViewport(addTo[whPlot],recording=F)
               seekViewport(addTo[whGrobNamesi],recording=F)
 
-              if(!grobNamesi %in% lN) {
+              if(!grobNamesi %in% addTo) {
                 grid.draw(.grobs[[grobNamesi]])
                 if(xaxis==TRUE) grid.xaxis(gp = gp)
                 if(yaxis==TRUE) grid.xaxis(gp = gp)
               } else {
                 # because of stacks, have to find the right layer which may or may not be in a stack
                 layerLengths <- lapply(toPlot, layerNames)
-                toPlotInd <- which(!is.na(sapply(layerLengths,
-                                                 function(x) match(grobNamesi,x))))
+#                toPlotInd <- lN[whGrobNamesi]
+                 toPlotInd <- cumsum(which(!is.na(sapply(layerLengths,
+                                                  function(x) 1:length(x)))))#match(grobNamesi,x))))
                 if(is(toPlot[[toPlotInd]],"RasterStack")) {
                   grobToPlot = toPlot[[toPlotInd]][[grobNamesi]]
                 } else {
