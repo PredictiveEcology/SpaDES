@@ -36,40 +36,47 @@ DEM2 = DEM
 names(DEM2) = "DEM2"
 DEM3 = DEM
 names(DEM3) = "DEM3"
+DEM4 = DEM
+names(DEM4) = "DEM4"
+DEM5 = DEM
+names(DEM5) = "DEM5"
+DEM6 = DEM
+names(DEM6) = "DEM6"
 forestAge= land$forestAge
 forestCover= land$forestCover
 
-toPlot<-list(DEM2, caribou, landscape, DEM1, caribou1)
-toPlot<-list(DEM3, landscape1, DEM1, caribou1)
-toPlot<-list(DEM3, caribou)
-toPlot<-list(land)
+# toPlot<-list(DEM2, caribou, landscape, DEM1, caribou1)
+# toPlot<-list(DEM3, landscape1, DEM1, caribou1)
+# toPlot<-list(DEM3, caribou)
+# toPlot<-list(land)
 
+print(system.time(Plot2(land,add=F, axes=F)))
+print(system.time(Plot2(stack(DEM1,forestCover),add=T,axes=F)))
+print(system.time(Plot2(stack(DEM1,DEM2,DEM3),add=T,axes=F)))
+print(system.time(Plot2(stack(DEM1,DEM2),add=T,axes=F)))
 for(i in 1:10) {
   DEM = DEM + sample(0:100,length(DEM),replace = T)
   DEM1 = DEM1 + sample(0:10,length(DEM),replace = T)
   DEM2 = DEM2 + sample(0:10,length(DEM),replace = T)
   DEM3 = DEM3 + sample(0:10,length(DEM),replace = T)
   forestCover = forestCover + sample(0:10,length(DEM),replace = T)
-  #print(system.time(Plot(forestAge,add=T,legend = T)))
-  print(system.time(Plot(DEM, DEM1,DEM2,DEM3,add=T, quick = T,axes=F, title=F,legend=F,speedup=2)))
-#  print(system.time(Plot(stack(DEM1,forestCover),add=T, quick = T)))
+  #print(system.time(Plot2(forestAge,add=T,legend = T)))
+  print(system.time(Plot2(DEM, DEM1,DEM2,DEM3,add=T, axes=F, title=F,legend=F)))
+#  print(system.time(Plot2(stack(DEM1,forestCover),add=T, quick = T)))
 }
-print(system.time(Plot(land,add=F, quick = T)))
-print(system.time(Plot(stack(DEM1,forestCover),add=T, quick = T)))
-print(system.time(Plot(stack(DEM1,DEM2,DEM3),add=T, quick = T)))
-print(system.time(Plot(stack(DEM1,DEM2),add=T, quick = T)))
+print(system.time(Plot2(DEM4, DEM5, DEM6, add=T, axes=F, title=F,legend=F)))
 
-dev(4);Plot(land)
+dev(4);Plot2(land)
 
-dev(4);Plot(landscape[[c("DEM","forestAge")]])
-dev(4);Plot(DEM)
+dev(4);Plot2(landscape[[c("DEM","forestAge")]])
+dev(4);Plot2(DEM)
 DEM = round(DEM/100)
 
 dev(4)
 grid.newpage()
-dev(4);Plot(landscape[[c("DEM","forestAge")]],
+dev(4);Plot2(landscape[[c("DEM","forestAge")]],
              visualSqueeze=0.7)
-dev(4);Plot(stack(DEM,DEM1),add=T)
+dev(4);Plot2(stack(DEM,DEM1),add=T)
 
 DEM = DEM + sample(0:10,length(DEM),replace = T)
 forestAge = forestAge + sample(0:10,length(DEM),replace = T)
@@ -88,16 +95,20 @@ rm(add,addTo,gp,axes,speedup,size,cols,deletePrevious,visualSqueeze,quick,legend
    arr, grobs,lay, .arr, extsKeep, extents)
 rm(dev, newPlot, SpatialPointsDataFrameNeeded, SpatialPointsNamed)
 toPlot<-list(caribou)
-Plot(caribou)
-Plot(landscape)
+Plot2(caribou)
+Plot2(landscape)
 
 
 
-#dev(4);Plot(land, quick = F, add = F)
-dev(4);Plot(caribou)
-dev(4);print(system.time(Plot(landscape,axes=F)))
-dev(4);print(system.time(Plot(land,add = F, axes=F)))
-dev(4);print(system.time(Plot(caribou, DEM,add = F, axes=F)))
-dev(4);print(system.time(Plot(DEM, caribou,add = F, axes=T)))
-caribou = SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
-dev(4);print(system.time(Plot(addTo="DEM", caribou,add = T, axes=T)))
+#dev(4);Plot2(land, quick = F, add = F)
+dev(4);Plot2(caribou)
+dev(4);print(system.time(Plot2(landscape,axes=F)))
+dev(4);print(system.time(Plot2(land,add = F, axes=F)))
+dev(4);print(system.time(Plot2(caribou, DEM,add = F, axes=F)))
+
+detach(package:SpaDES,unload=T)
+install(quick = TRUE) # build_vignette currently fails
+library("SpaDES", lib.loc=getOption("devtools.path"))
+dev(4);print(system.time(Plot2(DEM, caribou,add = F, axes=T, quick = F)))
+dev(4);print(system.time(Plot2(caribou, addTo="DEM", add = T, axes=T)))
+
