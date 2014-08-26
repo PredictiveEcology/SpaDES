@@ -109,12 +109,12 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 library("SpaDES")
 
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
-times <- list(start=0,stop=100.02)
+times <- list(start=0, stop=100)
 outputPath=file.path("~", "tmp", "simOutputs")
 parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
-                   randomLandscapes=list(nx=1e2, ny=1e2,
-                     .plotInitialTime=0, .plotInterval=1e3))
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
+                                         .plotInitialTime=0, .plotInterval=1e3))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
 
@@ -135,9 +135,10 @@ Schedule updates to the simulation progress bar.
 <<progress, echo=TRUE, eval=FALSE>>=
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.progress=list(.graphical=FALSE, .progressInterval=10)),
+                 params=list(.progress=list(.graphical=FALSE, .progressInterval=10),
+                             randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE)),
                  modules=list("randomLandscapes"),
-                 path="SAMPLE"
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the checkpoint params from the simulation object
@@ -176,14 +177,13 @@ Saving objects to file can be done by passing the appropriate arguments as param
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
                    .loadFileList=data.frame(files=dir(pattern="tif"), stringsAsFactors=FALSE),
-                   randomLandscapes=list(nx=1e2, ny=1e2,
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                 .saveObjects=c("habitat"),
                                 .savePath=file.path("output", "randomLandscapes"),
-                                .saveInitialTime=0,
-                                .saveInterval=10),
+                                .saveInitialTime=0, .saveInterval=10)
                    ),
                  modules=list("randomLandscapes"),
-                 path="SAMPLE"
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the load and save params from the simulation object

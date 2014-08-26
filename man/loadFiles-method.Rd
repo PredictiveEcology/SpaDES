@@ -45,7 +45,7 @@ file is loaded.
 - \code{intervals}: a numeric indicating the interval between repeated loading of the same
 file. This should be NA or the column absent if the file is only loaded once.
 
-- \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to simTime = 0,
+- \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to simTime=0,
 but this can be any time. The loading will be scheduled to occur at the "loadTime",
 whatever that is. If the same file is to loaded many times, but not at a regular interval,
 then there should be separate line, with a unique loadTime for each.
