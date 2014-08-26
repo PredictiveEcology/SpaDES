@@ -104,8 +104,12 @@ setMethod("show",
                         },
                        x=names(simParams(object))[-omit], y=simParams(object)[-omit],
                        USE.NAMES=TRUE, SIMPLIFY=FALSE)
-            q = do.call(rbind, p)
-            q = q[order(q$Module, q$Parameter),]
+            if (length(p)>0) {
+              q = do.call(rbind, p)
+              q = q[order(q$Module, q$Parameter),]
+            } else {
+              q = cbind(Module=list(), Parameter=list())
+            }
             out[[11]] = capture.output(cat(">> Parameters:\n"))
             out[[12]] = capture.output(print(q, row.names=FALSE))
             out[[13]] = capture.output(cat("\n"))

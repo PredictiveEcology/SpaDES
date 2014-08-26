@@ -242,7 +242,7 @@ setMethod("loadFiles",
               keepOnFileList <- fileListdf$loadTime!=curTime
               fileListdf = fileListdf[keepOnFileList,]
 
-              if(!exists("usedFileList")) usedFileList = FALSE
+              if(!exists("usedFileList")) usedFileList <- FALSE
 
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
