@@ -11,6 +11,7 @@
 ### (use `loadPackages`, or `library` directly)
 pkgs <- list("SpaDES", "grid", "raster", "sp")
 loadPackages(pkgs)
+rm(pkgs)
 
 ### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {

@@ -10,8 +10,9 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
+rm(pkgs)
 
-
+### event functions
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:

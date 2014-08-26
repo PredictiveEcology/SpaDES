@@ -1,5 +1,5 @@
 ###
-### MODULE: forsetSuccession
+### MODULE: forestSuccession
 ###
 ### DESCRIPTION: a basic forest succession module
 ###               - land cover classes (2005) for Canada
@@ -10,7 +10,9 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
+rm(pkgs)
 
+### event functions
 doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
 
@@ -63,7 +65,7 @@ forestSuccessionInit <- function(sim) {
 
   lcc05Labels <- 0:39
 
-  ### From the table 1 in Word file from Steve CUmming & Pierre Vernier, June 6, 2014
+  ### From the table 1 in Word file from Steve Cumming & Pierre Vernier, June 6, 2014
   ###  09 A5 MDR ANslysis V4_SL.docx
   #
   # lcc05TrajReclass <- read.table(file="clipboard", header=TRUE, sep="\t")

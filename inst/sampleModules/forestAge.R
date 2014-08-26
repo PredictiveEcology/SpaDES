@@ -10,7 +10,9 @@
 ### (use `loadPackages`, or `library` directly)
 pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
+rm(pkgs)
 
+### event functions
 doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
 

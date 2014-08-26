@@ -123,7 +123,7 @@ setMethod("loadFiles",
               # with the "arguments", separated by a ".". This will extract that.
               if ((length(arguments)>0) & (is.null(names(arguments)))) {
                 names(arguments) <- sapply(strsplit(names(fileList)[match("arguments", names(fileList))],
-                                                    ".", fixed=TRUE), function(x) x[-1])
+                                                    ".", fixed=TRUE), function(x) { x[-1] } )
               }
 
               if (!is.null(arguments)) {

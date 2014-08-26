@@ -1300,7 +1300,7 @@ setMethod("doEvent",
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {
-            doEvent(sim, debug=FALSE)
+            return(doEvent(sim, debug=FALSE))
 })
 
 ##############################################################

@@ -9,8 +9,9 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES", "raster")
 loadPackages(pkgs)
+rm(pkgs)
 
-
+### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:

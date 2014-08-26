@@ -1,12 +1,12 @@
-%\VignetteIndexEntry{modules}
+%\VignetteIndexEntry{Building modules in SpaDES.}
+%\VignetteDepends{SpaDES}
+%\VignetteKeyword{module}
 \documentclass{article}
 
 %%% latex packages
 \usepackage{hyperref}
 \usepackage[utf8]{inputenc}
 \usepackage[usenames,dvipsnames]{xcolor}
-
-\usepackage{lipsum} % for dummy text only
 
 %% change margins to 1" all the way around
 \oddsidemargin 0.0in
@@ -44,8 +44,8 @@
 
 \subsection{Module overview}
 
-\paragraph{} %%% copied from intro vignette
-\texttt{SpaDES} modules are event-based, meaning that different actions are performed on data objects based on the order of scheduled events. Basically, a module consists of a collection of events which are scehduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object.
+\paragraph{}
+As described in the introductory vignette, \texttt{SpaDES} is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A \texttt{SpaDEs} module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
 \subsection{Events}
 
@@ -61,26 +61,31 @@ textit{color{blue}{Lorem ipsum ...}}
 
 \subsubsection{Dependencies}
 
-\paragraph{} %%% copied from intro vignette
-Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are indepedent of each other, and this is generally the prefered way to design and implement modules. A module that schedules events from another module is said to depend on that module.
+\paragraph{}
+Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
 
 \paragraph{}
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
 
 \subsection{Objects}
 
-\paragraph{} %%% copied from intro vignette
+\paragraph{}
 As you build your module / simulation, you can use any of \textsf{R}'s data types to store your objects / data. In particular, matrices (including vectors) and lists work well for this purpose because they are pass-by-reference, which reduces your model's memory footprint and speeds up your codes execution. Other useful datatypes include Raster* and SpatialPoints* objects.
+
+\subsubsection{Data types}
+
+\paragraph{}
+As you build your modules for your simulation, you can use any of \textsf{R}'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because as of \textsf{R} version 3.1 they are more efficient and reduce your model's memory footprint and speeds up your codes execution. Other useful datatypes include \texttt{Raster*} and \texttt{SpatialPoints*} objects.
 
 \subsubsection{Global objects}
 
-\paragraph{} %%% copied from intro vignette
+\paragraph{}
 Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global objects to reduce copying large objects (such as maps), which slows model execution.
 
 \subsubsection{Module object dependencies}
 
-\paragraph{} %%% copied from intro vignette
-As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules.  It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. To check whether global objects upon which a model depends exist, a call to \texttt{checkObject} is made during module initilization.
+\paragraph{}
+As noted above, modules can depend on one another for event scheduling. Modules can also be designed to rely on outputs (data objects) from other modules. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. When objects are shared between modules, it is important to state these dependencies explicitly. To check whether global objects upon which a model depends exist, a call to \texttt{checkObject} is made during module initilization.
 
 \paragraph{}
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
@@ -103,17 +108,66 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 
 \begin{Schunk}
 \begin{Sinput}
+> library("SpaDES")
 > # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
-> mySim <- simInit(times=list(start=0.0, stop=100),
-+                  params=list(.checkpoint=list(interval=10, file="chkpnt.RData")),
-+                  modules=list("randomLandscapes"),
-+                  path="SAMPLE"
-+ )
+> times <- list(start=0,stop=100.02)
+> outputPath=file.path("~", "tmp", "simOutputs")
+> parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
++                    .checkpoint=list(interval=10, file="chkpnt.RData"),
++                    randomLandscapes=list(nx=1e2, ny=1e2,
++                      .plotInitialTime=0, .plotInterval=1e3))
+> modules <- list("randomLandscapes")
+> path <- system.file("sampleModules", package="SpaDES")
+> mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+> spades(mySim)
+\end{Sinput}
+\begin{Soutput}
+  |                                                                            
+  |                                                                      |   0%
+  |                                                                            
+  |.......                                                               |  10%
+  |                                                                            
+  |..............                                                        |  20%
+  |                                                                            
+  |.....................                                                 |  30%
+  |                                                                            
+  |............................                                          |  40%
+  |                                                                            
+  |...................................                                   |  50%
+  |                                                                            
+  |..........................................                            |  60%
+  |                                                                            
+  |.................................................                     |  70%
+  |                                                                            
+  |........................................................              |  80%
+  |                                                                            
+  |...............................................................       |  90%
+  |                                                                            
+  |......................................................................| 100%
+\end{Soutput}
+\begin{Sinput}
 > # retrieve the checkpoint params from the simulation object
 > simParams(mySim)$.checkpoint
+\end{Sinput}
+\begin{Soutput}
+$interval
+[1] 10
+
+$file
+[1] "chkpnt.RData"
+\end{Soutput}
+\begin{Sinput}
 > simParams(mySim)$.checkpoint$interval
+\end{Sinput}
+\begin{Soutput}
+[1] 10
+\end{Soutput}
+\begin{Sinput}
 > simParams(mySim)$.checkpoint$file
 \end{Sinput}
+\begin{Soutput}
+[1] "chkpnt.RData"
+\end{Soutput}
 \end{Schunk}
 
 \subsection{\texttt{.progress} module}
@@ -176,7 +230,7 @@ Saving objects to file can be done by passing the appropriate arguments as param
 +                  path="SAMPLE"
 + )
 > # retrieve the load and save params from the simulation object
-> simParams(mySim)$.loadFileList
+> simFileList(mySim)
 > simParams(mySim)$randomLandscapes$.saveObjects
 > simParams(mySim)$randomLandscapes$.savePath
 > simParams(mySim)$randomLandscapes$.saveInitialTime
@@ -263,15 +317,287 @@ See Section \ref{load-and-save-modules} above for more details.
 
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
+\begin{Schunk}
+\begin{Soutput}
+> pkgs <- list("SpaDES", "raster")
+
+> loadPackages(pkgs)
+
+> rm(pkgs)
+
+> doEvent.randomLandscapes <- function(sim, eventTime, 
++     eventType, debug = FALSE) {
++     if (eventType == "init") {
++         depends <- NULL
++         if (reloadModuleLater(sim, depends)) {
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "randomLandscapes", 
++                 "init")
++         }
++         else {
++             sim <- randomLandscapesInit(sim)
++         }
++         sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime, 
++             "randomLandscapes", "plot")
++         sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime, 
++             "randomLandscapes", "save")
++     }
++     else if (eventType == "plot") {
++         simPlot(get(simGlobals(sim)$mapName, envir = .GlobalEnv))
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, 
++             "randomLandscapes", "plot")
++     }
++     else if (eventType == "save") {
++         saveFiles(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval, 
++             "randomLandscapes", "save")
++     }
++     else {
++         warning(paste("Undefined event type: '", simEvents(sim)[1, 
++             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
++             "moduleName", with = FALSE], "'", sep = ""))
++     }
++     return(sim)
++ }
+
+> randomLandscapesInit <- function(sim) {
++     if (is.null(simParams(sim)$randomLandscapes$inRAM)) {
++         inMemory <- FALSE
++     }
++     else {
++         inMemory <- simParams(sim)$randomLandscapes$inRAM
++     }
++     nx <- simParams(sim)$randomLandscapes$nx
++     ny <- simParams(sim)$randomLandscapes$ny
++     template <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, 
++         ymn = -ny/2, ymx = ny/2)
++     speedup <- nx/50
++     DEM <- round(GaussMap(template, scale = 300, var = 0.03, 
++         speedup = speedup, inMemory = inMemory), 1) * 1000
++     forestAge <- round(GaussMap(template, scale = 10, var = 0.1, 
++         speedup = speedup, inMemory = inMemory), 1) * 20
++     forestCover <- round(GaussMap(template, scale = 50, var = 1, 
++         speedup = speedup, inMemory = inMemory), 2) * 10
++     percentPine <- round(GaussMap(template, scale = 50, var = 1, 
++         speedup = speedup, inMemory = inMemory), 1)
++     forestAge <- forestAge/maxValue(forestAge) * 100
++     percentPine <- percentPine/maxValue(percentPine) * 100
++     habitatQuality <- (DEM + 10 + (forestAge + 2.5) * 10)/100
++     habitatQuality <- habitatQuality/maxValue(habitatQuality)
++     mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, 
++         percentPine)
++     names(mapStack) <- c("DEM", "forestAge", "forestCover", "habitatQuality", 
++         "percentPine")
++     assign(simGlobals(sim)$mapName, mapStack, envir = .GlobalEnv)
++     simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
++     return(sim)
++ }
+\end{Soutput}
+\end{Schunk}
 
 \newpage
 
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
+\begin{Schunk}
+\begin{Soutput}
+> pkgs <- list("SpaDES", "raster", "RColorBrewer")
+
+> loadPackages(pkgs)
+
+> rm(pkgs)
+
+> doEvent.fireSpread <- function(sim, eventTime, eventType, 
++     debug = FALSE) {
++     if (eventType == "init") {
++         depends <- NULL
++         checkObject(simGlobals(sim)$mapName, layer = "habitatQuality")
++         if (!exists(simGlobals(sim)$burnStats, envir = .GlobalEnv)) {
++             assign(simGlobals(sim)$burnStats, numeric(), envir = .GlobalEnv)
++         }
++         else {
++             npix <- get(simGlobals(sim)$burnStats, envir = .GlobalEnv)
++             stopifnot("numeric" %in% is(npix), "vector" %in% 
++                 is(npix))
++             if (length(npix) > 0) {
++                 message(paste0("Object `", simGlobals(sim)$burnStats, 
++                   "` already exists and will be overwritten."))
++             }
++         }
++         if (reloadModuleLater(sim, depends)) {
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", 
++                 "init")
++         }
++         else {
++             sim <- fireSpreadInit(sim)
++             sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, 
++                 "fireSpread", "burn")
++             sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, 
++                 "fireSpread", "save")
++         }
++     }
++     else if (eventType == "burn") {
++         sim <- fireSpreadBurn(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", 
++             "stats")
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$returnInterval, 
++             "fireSpread", "burn")
++     }
++     else if (eventType == "stats") {
++         sim <- fireSpreadStats(sim)
++     }
++     else if (eventType == "plot.init") {
++         simPlot(get(simGlobals(sim)$mapName), col = .cols[c(4, 
++             7, 10, 3, 8, 5)])
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, 
++             "fireSpread", "plot")
++     }
++     else if (eventType == "plot") {
++         simPlot(get(simGlobals(sim)$mapName)$Fires, add = TRUE, 
++             on.which.to.plot = "Fires", col = .cols[[1]], add.legend = TRUE, 
++             delete.previous = FALSE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, 
++             "fireSpread", "plot")
++     }
++     else if (eventType == "save") {
++         saveFiles(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.saveInterval, 
++             "fireSpread", "save")
++     }
++     else {
++         warning(paste("Undefined event type: '", simEvents(sim)[1, 
++             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
++             "moduleName", with = FALSE], "'", sep = ""))
++     }
++     return(sim)
++ }
+
+> fireSpreadInit <- function(sim) {
++     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     Fires <- raster(extent(landscapes), ncol = ncol(landscapes), 
++         nrow = nrow(landscapes), vals = 0)
++     names(Fires) <- "Fires"
++     Fires <- setValues(Fires, 0)
++     assign(simGlobals(sim)$mapName, stack(landscapes, Fires), 
++         envir = .GlobalEnv)
++     simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
++     return(sim)
++ }
+
+> fireSpreadBurn <- function(sim) {
++     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     Fires <- spread(landscapes[[1]], loci = as.integer(sample(1:ncell(landscapes), 
++         simParams(sim)$fireSpread$nFires)), spreadProb = simParams(sim)$fireSpread$spreadprob, 
++         persistance = simParams(sim)$fireSpread$persistprob, 
++         mask = NULL, maxSize = 1e+08, directions = 8, iterations = simParams(sim)$fireSpread$its, 
++         plot.it = FALSE, mapID = TRUE)
++     names(Fires) <- "Fires"
++     landscapes$Fires <- Fires
++     assign(simGlobals(sim)$mapName, landscapes, envir = .GlobalEnv)
++     return(sim)
++ }
+
+> fireSpreadStats <- function(sim) {
++     npix <- get(simGlobals(sim)$burnStats, envir = .GlobalEnv)
++     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires) > 
++         0))), envir = .GlobalEnv)
++     return(sim)
++ }
+\end{Soutput}
+\end{Schunk}
 
 \newpage
 
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
+\begin{Schunk}
+\begin{Soutput}
+> pkgs <- list("SpaDES", "grid", "raster", "sp")
+
+> loadPackages(pkgs)
+
+> rm(pkgs)
+
+> doEvent.caribouMovement <- function(sim, eventTime, 
++     eventType, debug = FALSE) {
++     if (eventType == "init") {
++         depends <- NULL
++         checkObject(simGlobals(sim)$mapName, layer = "habitatQuality")
++         if (reloadModuleLater(sim, depends)) {
++             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", 
++                 "init")
++         }
++         else {
++             sim <- caribouMovementInit(sim)
++             sim <- scheduleEvent(sim, 1, "caribouMovement", "move")
++             sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, 
++                 "caribouMovement", "plot.init")
++             sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, 
++                 "caribouMovement", "save")
++         }
++     }
++     else if (eventType == "move") {
++         sim <- caribouMovementMove(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$moveInterval, 
++             "caribouMovement", "move")
++     }
++     else if (eventType == "plot.init") {
++         simPlot(caribou, on.which.to.plot = "forestAge", add = TRUE, 
++             pch = 19, gp = gpar(cex = 0.01), delete.previous = TRUE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, 
++             "caribouMovement", "plot")
++     }
++     else if (eventType == "plot") {
++         simPlot(caribou, on.which.to.plot = "forestAge", add = TRUE, 
++             pch = 19, gp = gpar(cex = 0.01), delete.previous = TRUE)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, 
++             "caribouMovement", "plot")
++     }
++     else if (eventType == "save") {
++         saveFiles(sim)
++         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.saveInterval, 
++             "caribouMovement", "save")
++     }
++     else {
++         warning(paste("Undefined event type: '", simEvents(sim)[1, 
++             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
++             "moduleName", with = FALSE], "'", sep = ""))
++     }
++     return(sim)
++ }
+
+> caribouMovementInit <- function(sim) {
++     landscape <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     yrange <- c(ymin(landscape), ymax(landscape))
++     xrange <- c(xmin(landscape), xmax(landscape))
++     N <- simParams(sim)$caribouMovement$N
++     IDs <- as.character(1:N)
++     sex <- sample(c("female", "male"), N, replace = TRUE)
++     age <- round(rnorm(N, mean = 8, sd = 3))
++     prevX <- rep(0, N)
++     prevY <- rep(0, N)
++     starts <- cbind(x = runif(N, xrange[1], xrange[2]), y = runif(N, 
++         yrange[1], yrange[2]))
++     caribou <<- SpatialPointsDataFrame(coords = starts, data = data.frame(prevX, 
++         prevY, sex, age))
++     row.names(caribou) <<- IDs
++     return(sim)
++ }
+
+> caribouMovementMove <- function(sim) {
++     landscape <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     caribou <<- crop(caribou, landscape)
++     if (length(caribou) == 0) 
++         stop("All agents are off map")
++     ex <- landscape[["habitatQuality"]][caribou]
++     sl <- 0.25/ex
++     ln <- rlnorm(length(ex), sl, 0.02)
++     sd <- 30
++     caribou <<- move("crw", caribou, stepLength = ln, stddev = sd, 
++         lonlat = FALSE)
++     return(sim)
++ }
+\end{Soutput}
+\end{Schunk}
 
 \end{document}
