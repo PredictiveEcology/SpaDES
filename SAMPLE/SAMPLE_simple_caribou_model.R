@@ -88,6 +88,9 @@ dev_mode(TRUE)
 install(build_vignettes=FALSE) # build_vignette currently fails
 library("SpaDES", lib.loc=getOption("devtools.path"))
 
+# set raster options (adjust as needed)
+rasterOptions(maxmemory=1e9)
+
 # temporary fix to plot colours (to be changed in plotting.R)
 .cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
 
@@ -95,7 +98,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          lib.loc=getOption("devtools.path"),
                                                          quiet=FALSE),"maps"),
                                   full.names=TRUE, pattern= "tif"),
-                      functions="raster",
+                      functions="rasterToMemory",
                       packages="SpaDES",
                       stringsAsFactors=FALSE)
 
@@ -109,20 +112,15 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
 #                   .loadFileList=fileList,
                              .progress=list(.graphical=FALSE, .progressInterval = 10),
-                             .globals=list(mapName=mapName, .outputPath=outputPath),
-<<<<<<< HEAD
-                             randomLandscapes = list(nx=1e3, ny=1.5e3, .saveObjects=c(mapName),
-                                            .savePath=file.path("output", "randomLandscapes"),
-                                            .plotInitialTime=0, .plotInterval=NA,
-                                            .saveInitialTime=3, .saveInterval=100,
-                                            interval=0, startTime=0),
-=======
-                             randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c(mapName),
+                             .globals=list(mapName=mapName, burnStats="nPixelsBurned",
+                                           .outputPath=outputPath),
+                             randomLandscapes = list(nx=1e2, ny=1e2, inRAM=TRUE,
+#                                            .saveObjects=c(mapName),
 #                                            .savePath=file.path("output", "randomLandscapes"),
 #                                            .saveInitialTime=3, .saveInterval=100,
                                             .plotInitialTime=NA, .plotInterval=NA),
->>>>>>> origin/development
-                             caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
+                             caribouMovement=list(N=1e2,
+#                                          .saveObjects=c("caribou"),
 #                                          .savePath=file.path("output","caribouMovement"),
 #                                          .saveInitialTime=3, .saveInterval=100,
 #                                          .plotInitialTime=NA, .plotInterval=NA,
@@ -136,11 +134,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                                         #.savePath=file.path("output","fireSpread"),
                                         returnInterval=10, startTime=0)
                  ),
-<<<<<<< HEAD
-                 modules=list("randomLandscapes"),#, "fireSpread", "caribouMovement"),
-=======
                  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
->>>>>>> origin/development
                  #modules=list("stackFileList"),
                  #modules=list("stackFileList", "fireSpread", "caribouMovement"),
                  #modules=list("caribouMovement", "fireSpread"),

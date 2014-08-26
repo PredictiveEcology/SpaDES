@@ -3,7 +3,7 @@
 \alias{GaussMap}
 \title{GaussMap}
 \usage{
-GaussMap(x, scale = 10, var = 1, speedup = 10, ...)
+GaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
 }
 \arguments{
   \item{x}{An spatial object (e.g., a raster).}
@@ -16,7 +16,9 @@ GaussMap(x, scale = 10, var = 1, speedup = 10, ...)
   \item{speedup}{An index of how much faster than normal to
   generate maps.}
 
-  \item{...}{Additional arguments to \code{raster}.}
+\item{inMemory}{Should the RasterLayer be forced to be in memory? Default \code{FALSE}.}
+
+\item{...}{Additional arguments to \code{raster}.}
 }
 \value{
 A map of extent \code{ext} with a Gaussian random pattern.
