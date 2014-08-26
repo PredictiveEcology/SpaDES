@@ -81,7 +81,7 @@ randomLandscapesInit <- function(sim) {
 
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
-  names(mapStack)<-c("DEM","forestAge","forestCover","habitatQuality","percentPine")
+  names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
   assign(simGlobals(sim)$mapName, mapStack, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list

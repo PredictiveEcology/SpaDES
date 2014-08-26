@@ -84,10 +84,12 @@ setMethod("show",
 
             ### file/objects loaded
             files = simFileList(object)[["files"]]
-            if (is.null(simFileList(object)[["objectNames"]])) {
-              names = fileName(files)
-            } else {
-              names = objectNames
+            if (!is.null(simFileList(object)[["files"]])) {
+              if (is.null(simFileList(object)[["objectNames"]])) {
+                names = fileName(files)
+              } else {
+                names = objectNames
+              }
             }
             out[[8]] = capture.output(cat(">> Files/Objects:\n"))
             out[[9]] = capture.output(print(cbind(FileName=lapply(simFileList(object)[["files"]], basename),
