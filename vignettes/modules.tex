@@ -356,7 +356,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
 +             "moduleName", with = FALSE], "'", sep = ""))
 +     }
-+     return(sim)
++     return(invisible(sim))
 + }
 
 > randomLandscapesInit <- function(sim) {
@@ -389,7 +389,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +         "percentPine")
 +     assign(simGlobals(sim)$mapName, mapStack, envir = .GlobalEnv)
 +     simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
-+     return(sim)
++     return(invisible(sim))
 + }
 \end{Soutput}
 \end{Schunk}
@@ -468,7 +468,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
 +             "moduleName", with = FALSE], "'", sep = ""))
 +     }
-+     return(sim)
++     return(invisible(sim))
 + }
 
 > fireSpreadInit <- function(sim) {
@@ -480,7 +480,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     assign(simGlobals(sim)$mapName, stack(landscapes, Fires), 
 +         envir = .GlobalEnv)
 +     simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
-+     return(sim)
++     return(invisible(sim))
 + }
 
 > fireSpreadBurn <- function(sim) {
@@ -493,7 +493,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     names(Fires) <- "Fires"
 +     landscapes$Fires <- Fires
 +     assign(simGlobals(sim)$mapName, landscapes, envir = .GlobalEnv)
-+     return(sim)
++     return(invisible(sim))
 + }
 
 > fireSpreadStats <- function(sim) {
@@ -501,7 +501,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
 +     assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires) > 
 +         0))), envir = .GlobalEnv)
-+     return(sim)
++     return(invisible(sim))
 + }
 \end{Soutput}
 \end{Schunk}
@@ -563,7 +563,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +             "eventType", with = FALSE], "' in module '", simEvents(sim)[1, 
 +             "moduleName", with = FALSE], "'", sep = ""))
 +     }
-+     return(sim)
++     return(invisible(sim))
 + }
 
 > caribouMovementInit <- function(sim) {
@@ -581,7 +581,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     caribou <<- SpatialPointsDataFrame(coords = starts, data = data.frame(prevX, 
 +         prevY, sex, age))
 +     row.names(caribou) <<- IDs
-+     return(sim)
++     return(invisible(sim))
 + }
 
 > caribouMovementMove <- function(sim) {
@@ -595,7 +595,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     sd <- 30
 +     caribou <<- move("crw", caribou, stepLength = ln, stddev = sd, 
 +         lonlat = FALSE)
-+     return(sim)
++     return(invisible(sim))
 + }
 \end{Soutput}
 \end{Schunk}

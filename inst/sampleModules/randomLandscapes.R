@@ -50,7 +50,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 randomLandscapesInit <- function(sim) {
@@ -87,5 +87,5 @@ randomLandscapesInit <- function(sim) {
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
 
-  return(sim)
+  return(invisible(sim))
 }

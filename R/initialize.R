@@ -50,7 +50,7 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
   if(speedup>1)
     return(disaggregate(sim, c(speedup, speedup)))
   else
-    return(sim)
+    return(invisible(sim))
 }
 
 ##############################################################

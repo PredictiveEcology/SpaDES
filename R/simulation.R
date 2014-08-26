@@ -1149,7 +1149,7 @@ setMethod("simInit",
                 simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
 
                 ### add NAs to any of the dotParams that are not specified by user
-                # ensure the moduls sublist exists by creating a tmp value in it
+                # ensure the modules sublist exists by creating a tmp value in it
                 if(is.null(simParams(sim)[[m]])) {
                   simParams(sim)[[m]] <- list(.tmp=NA_real_)
                 }
@@ -1175,7 +1175,7 @@ setMethod("simInit",
             # check the parameters supplied by the user
             checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE
 
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname simInit-method
@@ -1183,7 +1183,7 @@ setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing"),
           definition=function(times, params, modules) {
             simInit(times=times, params=params, modules=modules, path="./")
-            return(sim)
+            return(invisible(sim))
 })
 
 ##############################################################
@@ -1295,7 +1295,7 @@ setMethod("doEvent",
               # update current simulated time to
               simCurrentTime(sim) <- simCurrentTime(sim) + 1e-10 # .Machine$double.eps
             }
-          return(sim)
+          return(invisible(sim))
 })
 
 #' @rdname doEvent-method
@@ -1364,7 +1364,7 @@ setMethod("scheduleEvent",
               }
             }
 
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname scheduleEvent-method
@@ -1375,7 +1375,7 @@ setMethod("scheduleEvent",
             warning(paste("Invalid or missing eventTime. This is usually",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
-            return(sim)
+            return(invisible(sim))
 })
 
 ##############################################################

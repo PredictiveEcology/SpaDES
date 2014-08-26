@@ -51,7 +51,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE], "\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 forestSuccessionInit <- function(sim) {
@@ -156,7 +156,7 @@ forestSuccessionInit <- function(sim) {
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "forestSuccession")
 
-  return(sim)
+  return(invisible(sim))
 }
 
 forestSuccessionSuccession <- function(sim) {
@@ -169,10 +169,10 @@ forestSuccessionSuccession <- function(sim) {
 
     vegMap[indStatics] <<- valsStatics
 
-    return(sim)
+    return(invisible(sim))
 }
 
 forestSuccessionPlot <- function(sim) {
     simPlot(vegMap, add=FALSE, speedup=20, col=brewer.pal(10,"Set3"))
-    return(sim)
+    return(invisible(sim))
 }

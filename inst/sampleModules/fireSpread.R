@@ -80,7 +80,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE],"\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 fireSpreadInit <- function(sim) {
@@ -97,7 +97,7 @@ fireSpreadInit <- function(sim) {
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
 
-  return(sim)
+  return(invisible(sim))
 }
 
 
@@ -118,7 +118,7 @@ fireSpreadBurn <- function(sim) {
   landscapes$Fires <- Fires
   assign(simGlobals(sim)$mapName, landscapes, envir=.GlobalEnv)
 
-  return(sim)
+  return(invisible(sim))
 }
 
 fireSpreadStats <- function(sim) {
@@ -128,5 +128,5 @@ fireSpreadStats <- function(sim) {
 
   assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
 
-  return(sim)
+  return(invisible(sim))
 }

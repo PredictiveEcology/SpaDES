@@ -23,7 +23,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
     # no scheduling of new event. Saving will be called by other events,
     #   in an event-specific manner.
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 

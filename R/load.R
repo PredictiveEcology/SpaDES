@@ -24,7 +24,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     sim <- loadFiles(sim)
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 
@@ -261,7 +261,7 @@ setMethod("loadFiles",
               message("No files loaded, because no fileList")
             }
             message("") ## print empty message to add linebreak to console message output
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname loadFiles-method

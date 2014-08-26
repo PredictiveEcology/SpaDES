@@ -51,7 +51,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE], "\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 forestAgeInit <- function(sim) {
@@ -66,7 +66,7 @@ forestAgeInit <- function(sim) {
  # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "forestAge")
 
-  return(sim)
+  return(invisible(sim))
 }
 
 forestAgeAge <- function(sim) {
@@ -75,12 +75,12 @@ forestAgeAge <- function(sim) {
 #           envir=.GlobalEnv)
     ageMap[] <<- setValues(ageMap, pmin(200, getValues(ageMap) + 1))
 #    ageMap[1] <<- 0
-    return(sim)
+    return(invisible(sim))
 }
 
 forestAgePlot <- function(sim) {
   simPlot(ageMap)
 
-  return(sim)
+  return(invisible(sim))
 }
 

@@ -39,5 +39,5 @@ doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] ,"\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
