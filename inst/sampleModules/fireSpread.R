@@ -3,6 +3,7 @@
 ###
 ### DESCRIPTION: simulate fire ignition and spread on a landscape
 ###               - spread probability varies according to percent pine
+###               - stats re: fire size collected immediately after each burn event
 ###
 
 ### load any required packages
@@ -21,6 +22,16 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     ### (use `checkObject` or similar)
     checkObject(simGlobals(sim)$mapName, layer="habitatQuality")
 
+    if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
+      assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
+    } else {
+      npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
+      stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
+      if (length(npix)>0) {
+        message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
+      }
+    }
+
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {
@@ -31,15 +42,21 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 
       # schedule the next event
       sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, "fireSpread", "burn")
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
       sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
     }
   } else if (eventType=="burn") {
     # do stuff for this event
     sim <- fireSpreadBurn(sim)
 
-    # schedule the next event
+    # schedule the next events
+    sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "stats") # do stats immediately following burn
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$returnInterval, "fireSpread", "burn")
+  } else if (eventType=="stats") {
+    # do stuff for this event
+    sim <- fireSpreadStats(sim)
+
+    # schedule the next event
+    ## stats scheduling done by burn event
   } else if (eventType=="plot.init") {
     # do stuff for this event
     simPlot(get(simGlobals(sim)$mapName), col=.cols[c(4, 7, 10, 3, 8, 5)])
@@ -90,7 +107,6 @@ fireSpreadBurn <- function(sim) {
                    loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
                    spreadProb=simParams(sim)$fireSpread$spreadprob,
                    persistance=simParams(sim)$fireSpread$persistprob,
-                   mapFireID=TRUE,
                    mask=NULL,
                    maxSize=1e8,
                    directions=8,
@@ -100,6 +116,16 @@ fireSpreadBurn <- function(sim) {
   names(Fires) <- "Fires"
   landscapes$Fires <- Fires
   assign(simGlobals(sim)$mapName, landscapes, envir=.GlobalEnv)
+
+  return(sim)
+}
+
+fireSpreadStats <- function(sim) {
+  npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
+
+  landscapes <- get(simGlobals(sim)$mapName, envir=.GlobalEnv)
+
+  assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
 
   return(sim)
 }

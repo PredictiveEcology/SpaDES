@@ -17,6 +17,8 @@
 #'
 #' @param speedup An index of how much faster than normal to generate maps.
 #'
+#' @param inMemory Should the RasterLayer be forced to be in memory? Default \code{FALSE}.
+#'
 #' @param ... Additional arguments to \code{raster}.
 #'
 #' @return A map of extent \code{ext} with a Gaussian random pattern.
@@ -30,7 +32,7 @@
 #'
 #@examples
 #EXAMPLES NEEDED
-GaussMap <- function(x, scale=10, var=1, speedup=10,...) {#, fast=TRUE, n.unique.pixels=100) {
+GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fast=TRUE, n.unique.pixels=100) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
@@ -38,7 +40,11 @@ GaussMap <- function(x, scale=10, var=1, speedup=10,...) {#, fast=TRUE, n.unique
   nr <- (ext@ymax-ext@ymin)/speedup
 
   model <- RMexp(scale=scale, var=var)
-  sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+  if (inMemory) {
+    sim <- rasterToMemory(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+  } else {
+    sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+  }
   sim <- sim - cellStats(sim, "min")
   extent(sim) <- ext
   if(speedup>1)
