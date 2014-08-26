@@ -113,9 +113,9 @@ setMethod("loadFiles",
           signature(sim="simList", stackName="ANY", fileList="missing"),
           definition = function(sim, stackName, fileList, ...) {
             # Pull .fileExtensions into function so that scoping is faster
-            .fileExts = .fileExtensions
-            if(!is.null(simFileList(sim))) {
-              fileList <- simFileList(sim)
+            .fileExts <- .fileExtensions
+            fileList <- simFileList(sim)
+            if(!is.null(fileList) & length(fileList$file)>0) {
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -259,7 +259,7 @@ setMethod("loadFiles",
                  }
               }
             } else {
-              message("No files loaded, because no fileList")
+              message("No files loaded, because no fileList (or empty fileList) provided.")
             }
             message("") ## print empty message to add linebreak to console message output
             return(invisible(sim))

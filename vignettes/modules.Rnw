@@ -174,9 +174,10 @@ Saving objects to file can be done by passing the appropriate arguments as param
 
 <<load-save, echo=TRUE, eval=FALSE>>=
 # initialize a new simulation, setting the load and save parameters
+filelist <- file.path(find.package("SpaDES", quiet=FALSE),"maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
-                   .loadFileList=data.frame(files=dir(pattern="tif"), stringsAsFactors=FALSE),
+                   .loadFileList=data.frame(files=filelist, stringsAsFactors=FALSE),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                 .saveObjects=c("habitat"),
                                 .savePath=file.path("output", "randomLandscapes"),
@@ -187,7 +188,9 @@ mySim <- simInit(times=list(start=0.0, stop=100),
 )
 
 # retrieve the load and save params from the simulation object
-simFileList(mySim)
+simObjectsLoaded(mySim) # shows what's been loaded
+simFileList(mySim) # returns empty if objects successfully loaded
+
 simParams(mySim)$randomLandscapes$.saveObjects
 simParams(mySim)$randomLandscapes$.savePath
 simParams(mySim)$randomLandscapes$.saveInitialTime
