@@ -21,10 +21,12 @@ land <- stack(landscape,landscape1)
 land <- land[[-12]]
 DEM = land$DEM
 
-caribou <- data.frame(x = 1:10, y = 1:10)
-coordinates(caribou) <- cbind(x=runif(10,-50,50),y=runif(10,-50,50))
-name(caribou)<-"caribou"
-
+Plot(forestAge)
+for(i in 1:10) {
+  caribou <- SpatialPoints(cbind(x=runif(1e4,-50,50),y=runif(1e4,-50,50)))
+  name(caribou)<-"caribou"
+  print(system.time(Plot(caribou, addTo="forestAge",size=(i+2)/2, axes=F)))
+}
 
 caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 name(caribou1)<-"caribou1"
