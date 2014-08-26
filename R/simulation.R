@@ -91,9 +91,8 @@ setMethod("show",
                 names = objectNames
               }
             }
-            out[[8]] = capture.output(cat(">> Files/Objects:\n"))
-            out[[9]] = capture.output(print(cbind(FileName=lapply(simFileList(object)[["files"]], basename),
-                                                  IsLoaded=names %in% simObjectsLoaded(object)),
+            out[[8]] = capture.output(cat(">> Objects Loaded:\n"))
+            out[[9]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
                                             quote=FALSE, row.names=FALSE))
             out[[10]] = capture.output(cat("\n"))
 
@@ -588,7 +587,7 @@ setGeneric("simGlobals", function(object) {
   standardGeneric("simGlobals")
 })
 
-#' get .loadFileList from simulation parameters
+#' get .globals from simulation parameters
 #' @rdname simGlobals-accessor-methods
 setMethod("simGlobals",
           signature="simList",
@@ -596,7 +595,7 @@ setMethod("simGlobals",
             return(object@params$.globals)
 })
 
-#' set .loadFileList in simulation parameters
+#' set .globals in simulation parameters
 #' @export
 #' @rdname simGlobals-accessor-methods
 setGeneric("simGlobals<-",
@@ -604,7 +603,7 @@ setGeneric("simGlobals<-",
              standardGeneric("simGlobals<-")
 })
 
-#' set .loadFileList in simulation parameters
+#' set .globals in simulation parameters
 #' @name simGlobals<-
 #' @aliases simGlobals<-,simList-method
 #' @rdname simGlobals-accessor-methods
@@ -1124,7 +1123,7 @@ setMethod("simInit",
             simModules(sim) <- modules
             simParams(sim) <- params
 
-            # load "default" modules (should we be hardcoding this??)
+            # load "default" modules
             for (d in defaults) {
               ### sourcing the code in each module is already done
               ### because they are loaded with the package
@@ -1171,6 +1170,13 @@ setMethod("simInit",
             }
 
             simModules(sim) <- append(defaults, modules)
+
+            # load files in the filelist
+            if (is.null(simFileList(sim))) {
+              sim <- loadFiles(sim, usedFileList=TRUE)
+            } else {
+              sim <- loadFiles(sim)
+            }
 
             # check the parameters supplied by the user
             checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE

@@ -21,7 +21,7 @@ fileExt = function (x) {
 
 # Just checks for paths, creates them if they do not exist
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="init") {
+  if (eventType=="later") {
     sim <- loadFiles(sim)
   }
   return(invisible(sim))
@@ -243,6 +243,7 @@ setMethod("loadFiles",
               fileListdf = fileListdf[keepOnFileList,]
 
               if(!exists("usedFileList")) usedFileList = FALSE
+
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
@@ -253,9 +254,9 @@ setMethod("loadFiles",
                   error("fileList must be either a list or data.frame")
                 }
 
-                if(nrow(fileListdf)>0) {
-                  sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "init")
-                }
+                 if(nrow(fileListdf)>0) {
+                   sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
+                 }
               }
             } else {
               message("No files loaded, because no fileList")
@@ -268,15 +269,10 @@ setMethod("loadFiles",
 setMethod("loadFiles",
           signature(sim="missing", stackName="ANY", fileList="ANY"),
           definition = function(sim, stackName, fileList, ...) {
-            # check to see if fileList is empty
-            # if it is, skip everything, return nothing
-            usedFileList <- TRUE
-
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.loadFileList=fileList),
-                           modules=list(),
-                           path=".")
-            loadFiles(sim=sim, usedFileList=usedFilelist)
+                           modules=list(), path=".")
+            return(sim)
 })
 
 #' @rdname loadFiles-method
