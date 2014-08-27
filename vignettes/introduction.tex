@@ -106,7 +106,7 @@ The static nature of PDFs does not allow us to really show off the simulation vi
 > .cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
 > outputPath=file.path("~", "tmp", "simOutputs")
 > times <- list(start=0,stop=100)
-> parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath,
+> parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
 +                                  burnStats="nPixelsBurned"),
 +                    .progress=list(NA),
 +                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),

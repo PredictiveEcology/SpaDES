@@ -104,14 +104,14 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' mySim <- spades(mySim, debug=FALSE))
 #' }
 #'
-setGeneric("loadFiles", function(sim, stackName=NULL, fileList, ...)  {
+setGeneric("loadFiles", function(sim, fileList, ...)  {
   standardGeneric("loadFiles")
 })
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
-          signature(sim="simList", stackName="ANY", fileList="missing"),
-          definition = function(sim, stackName, fileList, ...) {
+          signature(sim="simList", fileList="missing"),
+          definition = function(sim, fileList, ...) {
             # Pull .fileExtensions() into function so that scoping is faster
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
@@ -150,10 +150,10 @@ setMethod("loadFiles",
 
               fl <- filesCurTime$file
 
-              fl.list <- strsplit(basename(fl), ".", fixed=TRUE)
-
+              #fl.list <- strsplit(basename(fl), ".", fixed=TRUE)
+browser()
               # extract file extensions, to be used to determine which function to use
-              exts <- match(sapply(fl.list, function(x) x[length(x)]), .fileExts[,"exts"])
+              exts <- match(fileExt(fl), .fileExts[,"exts"])
 
               # determine which function to load with
               loadFun <- as.character(.fileExts[exts,"functions"])#[,functions])
@@ -166,7 +166,7 @@ setMethod("loadFiles",
               }
 
               # use filenames as object names, unless alternative provided in fileListdf$objectNames
-              objectNames <- sapply(fl.list, function(x) paste(x[-length(x)], collapse="."))
+              objectNames <- fileName(fl)#sapply(fl.list, function(x) paste(x[-length(x)], collapse="."))
               if(!is.na(match("objectNames", names(fileListdf)))) {
                 loadFun[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
               }
@@ -182,6 +182,28 @@ setMethod("loadFiles",
                 environ <-parent.frame()
               }
 
+              if(length(simGlobals(sim)$.stackName)==1) {
+                stackName=rep(simGlobals(sim)$.stackName,length(objectNames))
+              } else if (length(simGlobals(sim)$.stackName)==length(objectNames)){
+                stackName=simGlobals(sim)$.stackName
+              } else {
+                stop(".stackNames must be same length as fileList or length=1")
+              }
+
+              if(exists(simGlobals(sim)$.stackName, envir=.GlobalEnv))
+                rm(list=unique(simGlobals(sim)$.stackName), envir=.GlobalEnv)
+
+              # create empty stack
+              localStacks = list()
+               for(uniqueStacki in unique(stackName)) {
+                 if(exists(uniqueStacki, envir=.GlobalEnv)) {
+                   localStacks[uniqueStacki] <- get(uniqueStacki)
+                 } else {
+                   localStacks[uniqueStacki] <- stack()
+                 }
+               }
+
+
               # load files
               for (x in 1:length(fl)) {
                 nam = names(arguments[x])
@@ -194,8 +216,18 @@ setMethod("loadFiles",
                 }
 
                 # The actual load call
-                assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
-
+                if(is.na(stackName[x])) {
+                  assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
+                } else {
+                  whLayer <- which(names(localStacks[[stackName[x]]])==objectNames[x])
+                  if (length(whLayer)>0) {
+                    localStacks[[stackName[x]]][[whLayer]] <- do.call(get(loadFun[x]),
+                                                                      args=argument)
+                  } else {
+                    localStacks[[stackName[x]]] <- stack(localStacks[[stackName[x]]],
+                                                         do.call(get(loadFun[x]), args=argument))
+                  }
+                }
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
                 if (loadFun[x]=="raster") {
@@ -204,7 +236,13 @@ setMethod("loadFiles",
                 } else {
                   message(paste(objectNames[x], "read to memory from", fl[x], "using", loadFun[x]))
                 }
+              } # end x
+
+              for(uniqueStacki in unique(stackName)) {
+                assign(uniqueStacki, localStacks[[uniqueStacki]],
+                       envir=.GlobalEnv)
               }
+
 
               # rasters sometimes don't load with their min and max values set
 
@@ -213,23 +251,28 @@ setMethod("loadFiles",
               #      assign(x, setMinMax(get(x)), envir=.GlobalEnv)
               #    })
 
-              if(!is.null(stackName)) {
-                all.equal(mget(objectNames))
-                extents <- lapply(mget(objectNames[israst], envir=.GlobalEnv), extent)
-                extents.equal = logical(length(extents))
-                for (i in 1:(length(extents)-1)){
-                  extents.equal[i] = (extents[[1]] == extents[[i]])
-                }
-
-                if (all(extents.equal)) {
-                  assign(stackName, stack(mget(objectNames, envir=.GlobalEnv)), envir=.GlobalEnv)
-                  rm(list=objectNames, envir=.GlobalEnv)
-                  warning(paste(paste(objectNames, collapse=", "), "were deleted; they are in the", stackName, "stack"))
-                } else {
-                  warning("Cannot stack objects because they don't have same extents,
-                          Returning individual objects to global environment")
-                }
-              }
+#               if(!all(is.na(stackName))) {
+#                 for(uniqueStacki in unique(stackName)) {
+#                   whichUniqueStacki <- which(!is.na(match(stackName, uniqueStacki)))
+#                   extents <- lapply(mget(objectNames[whUniqueStacki],
+#                                          envir=.GlobalEnv), extent)
+#                   extents.equal = logical(length(extents)-1)
+#                   for (i in 1:(length(extents)-1)){
+#                     extents.equal[i] = (extents[[1]] == extents[[i]])
+#                   }
+#                   if (all(extents.equal)) {
+#                     newStack <- stack(mget(objectNames[whichUniqueStacki], envir=.GlobalEnv))
+#                     name(newStack) <- uniqueStacki
+#                     assign(uniqueStacki, newStack, envir=.GlobalEnv)
+#                   } else {
+#                     warning("Cannot stack objects because they don't have same extents,
+#                             Returning individual objects to global environment")
+#                   }
+#                   rm(list=objectNames, envir=.GlobalEnv)
+#                   warning(paste(paste(objectNames, collapse=", "),
+#                                 "were deleted; they are in the", stackName, "stack"))
+#                 }
+#               }
 
               # add new rows of files to load based on fileListdf$Interval
               if(!is.na(match("intervals", names(fileListdf)))) {
@@ -268,18 +311,20 @@ setMethod("loadFiles",
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
-          signature(sim="missing", stackName="ANY", fileList="ANY"),
-          definition = function(sim, stackName, fileList, ...) {
+          signature(sim="missing", fileList="ANY"),
+          definition = function(sim, fileList, ...) {
             sim <- simInit(times=list(start=0.0, stop=1),
-                           params=list(.loadFileList=fileList),
-                           modules=list(), path=".")
+                           params=list(.globals=list(.stackName=fileList$.stackName),
+                                       .loadFileList=fileList),
+                           modules=list(), path="."
+                           )
             return(sim)
 })
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
-          signature(sim="missing", stackName="ANY", fileList="missing"),
-          definition = function(sim, stackName, fileList, ...) {
+          signature(sim="missing", fileList="missing"),
+          definition = function(sim, fileList, ...) {
             warning("no files loaded because sim and fileList are empty")
 })
 

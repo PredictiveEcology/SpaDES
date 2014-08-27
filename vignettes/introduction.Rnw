@@ -104,7 +104,7 @@ library("SpaDES")
 .cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
 outputPath=file.path("~", "tmp", "simOutputs")
 times <- list(start=0, stop=100)
-parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath,
+parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),
@@ -169,6 +169,7 @@ Bringing your data into R is easy, and you can use any of the built in data impo
 pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern= "tif"),
                       functions="rasterToMemory", packages="SpaDES",
+                      stackName="landscape",
                       stringsAsFactors=FALSE)
 
 # this list can be passed to simInit() as an entry in the parameter list
@@ -176,7 +177,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                  params=list(
                    .loadFileList=fileList,
                    .progress=list(.graphical=FALSE, .progressInterval=10),
-                   .globals=list(mapName="landscape", burnStats="nPixelsBurned"),
+                   .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
                    fireSpread=list(nFires=1e1, spreadprob=0.225, persistprob=0,
                                    its=1e6,returnInterval=10, startTime=0,
                                    .plotInitialTime = 0.1, .plotInterval=10)
@@ -274,12 +275,11 @@ x0 <- rnorm(N, x1, 5)
 y0 <- rnorm(N, y1, 5)
 
 # create the caribou agent object
-caribou <- SpatialPointsDataFrame(coords=cbind(x=x0, y=y0),
+# caribou needs to be a named object for plotting, use SpatialPointsDataFrameNamed
+caribou <- SpatialPointsDataFrameNamed(coords=cbind(x=x0, y=y0),
                                   data=data.frame(x1, y1, sex, age))
 row.names(caribou) <- IDs
 
-# caribou needs to be a named object for plotting
-#name(caribou) <- "caribou"
 @
 
 \paragraph{}
@@ -342,7 +342,7 @@ for (i in 1:nrow(paramsdf)) {
                 simInit(times=list(start=0.0, stop=20.0),
                         params=list(
                           .progress=list(.graphical=NA, .progressInterval=NA),
-                          .globals=list(mapName="landscape", burnStats="nPixelsBurned"),
+                          .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
                           randomLandscapes=list(nx=mapSize[i], ny=mapSize[i],
                                                 inRAM=TRUE),
                           fireSpread=list(nFires=1000, spreadprob=pSpread[i],

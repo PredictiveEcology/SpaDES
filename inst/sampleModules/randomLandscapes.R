@@ -34,7 +34,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(get(simGlobals(sim)$mapName, envir=.GlobalEnv))
+    Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, "randomLandscapes", "plot")
@@ -82,7 +82,8 @@ randomLandscapesInit <- function(sim) {
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
   names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
-  assign(simGlobals(sim)$mapName, mapStack, envir=.GlobalEnv)
+  name(mapStack) <- simGlobals(sim)$.stackName
+  assign(simGlobals(sim)$.stackName, mapStack, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")

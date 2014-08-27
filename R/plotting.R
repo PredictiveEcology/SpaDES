@@ -74,6 +74,22 @@ setClass("SpatialPointsDataFrameNamed",
          }
 )
 
+#' @export
+setGeneric("SpatialPointsDataFrameNamed",
+           function(..., name) {
+             standardGeneric("SpatialPointsDataFrameNamed")
+           })
+
+#' @export
+setMethod("SpatialPointsDataFrameNamed",
+          signature="character",
+          definition= function(..., name) {
+            obj <- SpatialPointsDataFrame(...)
+            name(obj) <- name
+            return(obj)
+          })
+
+
 #' @exportClass SpatialPointsNamed
 setClass("SpatialPointsNamed",
          slots=list(name="character"),
@@ -119,26 +135,11 @@ setMethod("RasterStackNamed",
 #' @exportClass NamedSpatialPoints
 setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
 
-#' @export
-setGeneric("SpatialPointsDataFrameNamed",
-           signature=c("..."),
-           function(..., name) {
-             standardGeneric("SpatialPointsDataFrameNamed")
-           })
-
-
-#' @export
-setMethod("SpatialPointsDataFrameNamed",
-          signature="SpatialPointsDataFrame",
-          definition= function(..., name) {
-            new("SpatialPointsDataFrameNamed", ..., name=name)
-          })
-
 
 
 #' @export
 setGeneric("SpatialPointsNamed",
-           signature=c("..."),
+           #signature=c("..."),
            function(..., name) {
              standardGeneric("SpatialPointsNamed")
            })
@@ -146,11 +147,12 @@ setGeneric("SpatialPointsNamed",
 
 #' @export
 setMethod("SpatialPointsNamed",
-          signature="SpatialPoints",
+          signature="character",
           definition= function(..., name) {
-            new("SpatialPointsNamed", ..., name=name)
+            obj <- SpatialPoints(...)
+            name(obj) <- name
+            return(obj)
           })
-
 
 #' @export
 setMethod("show",
@@ -171,7 +173,7 @@ setMethod("show",
           definition=function(object) {
             out = list()
             out[[1]] = capture.output(print(object,
-                                            quote=FALSE))
+                                            quote=FALSE, row.names=FALSE))
             out[[2]] = capture.output(cat(paste("name        :",object@name)))
 
             ### print result
@@ -983,7 +985,7 @@ setGeneric("Plot", signature="...",
 
 #' @export
 setMethod("Plot",
-          signature(c("spatialObjects")),
+          signature("spatialObjects"),
           definition = function(..., add, addTo, gp, axes, speedup, size,
                                 cols, visualSqueeze,
                                 legend, draw, pch, title) {

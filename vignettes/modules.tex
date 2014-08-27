@@ -112,7 +112,7 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 > # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
 > times <- list(start=0,stop=100.02)
 > outputPath=file.path("~", "tmp", "simOutputs")
-> parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
+> parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
 +                    .checkpoint=list(interval=10, file="chkpnt.RData"),
 +                    randomLandscapes=list(nx=1e2, ny=1e2,
 +                      .plotInitialTime=0, .plotInterval=1e3))
@@ -342,7 +342,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +             "randomLandscapes", "save")
 +     }
 +     else if (eventType == "plot") {
-+         simPlot(get(simGlobals(sim)$mapName, envir = .GlobalEnv))
++         simPlot(get(simGlobals(sim)$.stackName, envir = .GlobalEnv))
 +         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, 
 +             "randomLandscapes", "plot")
 +     }
@@ -387,7 +387,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +         percentPine)
 +     names(mapStack) <- c("DEM", "forestAge", "forestCover", "habitatQuality", 
 +         "percentPine")
-+     assign(simGlobals(sim)$mapName, mapStack, envir = .GlobalEnv)
++     assign(simGlobals(sim)$.stackName, mapStack, envir = .GlobalEnv)
 +     simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
 +     return(invisible(sim))
 + }
@@ -410,7 +410,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     debug = FALSE) {
 +     if (eventType == "init") {
 +         depends <- NULL
-+         checkObject(simGlobals(sim)$mapName, layer = "habitatQuality")
++         checkObject(simGlobals(sim)$.stackName, layer = "habitatQuality")
 +         if (!exists(simGlobals(sim)$burnStats, envir = .GlobalEnv)) {
 +             assign(simGlobals(sim)$burnStats, numeric(), envir = .GlobalEnv)
 +         }
@@ -446,13 +446,13 @@ See Section \ref{load-and-save-modules} above for more details.
 +         sim <- fireSpreadStats(sim)
 +     }
 +     else if (eventType == "plot.init") {
-+         simPlot(get(simGlobals(sim)$mapName), col = .cols[c(4, 
++         simPlot(get(simGlobals(sim)$.stackName), col = .cols[c(4, 
 +             7, 10, 3, 8, 5)])
 +         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, 
 +             "fireSpread", "plot")
 +     }
 +     else if (eventType == "plot") {
-+         simPlot(get(simGlobals(sim)$mapName)$Fires, add = TRUE, 
++         simPlot(get(simGlobals(sim)$.stackName)$Fires, add = TRUE, 
 +             on.which.to.plot = "Fires", col = .cols[[1]], add.legend = TRUE, 
 +             delete.previous = FALSE)
 +         sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, 
@@ -472,19 +472,19 @@ See Section \ref{load-and-save-modules} above for more details.
 + }
 
 > fireSpreadInit <- function(sim) {
-+     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     landscapes <- get(simGlobals(sim)$.stackName, envir = .GlobalEnv)
 +     Fires <- raster(extent(landscapes), ncol = ncol(landscapes), 
 +         nrow = nrow(landscapes), vals = 0)
 +     names(Fires) <- "Fires"
 +     Fires <- setValues(Fires, 0)
-+     assign(simGlobals(sim)$mapName, stack(landscapes, Fires), 
++     assign(simGlobals(sim)$.stackName, stack(landscapes, Fires), 
 +         envir = .GlobalEnv)
 +     simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
 +     return(invisible(sim))
 + }
 
 > fireSpreadBurn <- function(sim) {
-+     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     landscapes <- get(simGlobals(sim)$.stackName, envir = .GlobalEnv)
 +     Fires <- spread(landscapes[[1]], loci = as.integer(sample(1:ncell(landscapes), 
 +         simParams(sim)$fireSpread$nFires)), spreadProb = simParams(sim)$fireSpread$spreadprob, 
 +         persistance = simParams(sim)$fireSpread$persistprob, 
@@ -492,13 +492,13 @@ See Section \ref{load-and-save-modules} above for more details.
 +         plot.it = FALSE, mapID = TRUE)
 +     names(Fires) <- "Fires"
 +     landscapes$Fires <- Fires
-+     assign(simGlobals(sim)$mapName, landscapes, envir = .GlobalEnv)
++     assign(simGlobals(sim)$.stackName, landscapes, envir = .GlobalEnv)
 +     return(invisible(sim))
 + }
 
 > fireSpreadStats <- function(sim) {
 +     npix <- get(simGlobals(sim)$burnStats, envir = .GlobalEnv)
-+     landscapes <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     landscapes <- get(simGlobals(sim)$.stackName, envir = .GlobalEnv)
 +     assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires) > 
 +         0))), envir = .GlobalEnv)
 +     return(invisible(sim))
@@ -522,7 +522,7 @@ See Section \ref{load-and-save-modules} above for more details.
 +     eventType, debug = FALSE) {
 +     if (eventType == "init") {
 +         depends <- NULL
-+         checkObject(simGlobals(sim)$mapName, layer = "habitatQuality")
++         checkObject(simGlobals(sim)$.stackName, layer = "habitatQuality")
 +         if (reloadModuleLater(sim, depends)) {
 +             sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", 
 +                 "init")
@@ -567,7 +567,7 @@ See Section \ref{load-and-save-modules} above for more details.
 + }
 
 > caribouMovementInit <- function(sim) {
-+     landscape <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     landscape <- get(simGlobals(sim)$.stackName, envir = .GlobalEnv)
 +     yrange <- c(ymin(landscape), ymax(landscape))
 +     xrange <- c(xmin(landscape), xmax(landscape))
 +     N <- simParams(sim)$caribouMovement$N
@@ -585,7 +585,7 @@ See Section \ref{load-and-save-modules} above for more details.
 + }
 
 > caribouMovementMove <- function(sim) {
-+     landscape <- get(simGlobals(sim)$mapName, envir = .GlobalEnv)
++     landscape <- get(simGlobals(sim)$.stackName, envir = .GlobalEnv)
 +     caribou <<- crop(caribou, landscape)
 +     if (length(caribou) == 0) 
 +         stop("All agents are off map")

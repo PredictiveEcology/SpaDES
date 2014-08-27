@@ -3,7 +3,7 @@
 ###
 ### DESCRIPTION: simulate caribou movement via correlated random walk
 ###               - requires a RasterStack object whose name is specified
-###                 by `simGlobals(sim)$mapName`, containing a RasterLayer
+###                 by `simGlobals(sim)$.stackName`, containing a RasterLayer
 ###                 named `habitatQuality`
 ###
 
@@ -23,7 +23,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simGlobals(sim)$mapName, layer="habitatQuality")
+    checkObject(simGlobals(sim)$.stackName, layer="habitatQuality")
 
     # if a required module isn't loaded yet,
     # reschedule this module init for later
@@ -46,15 +46,14 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19, gp=gpar(cex=0.01),
+    Plot(caribou, addTo="forestAge", add=TRUE, pch=19, gp=gpar(cex=0.01),
             delete.previous=TRUE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    simPlot(caribou, on.which.to.plot="forestAge", add=TRUE, pch=19, gp=gpar(cex=0.01),
-            delete.previous=TRUE)
+    Plot(caribou, addTo="forestAge", add=TRUE, pch=19, gp=gpar(cex=0.01))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
@@ -73,7 +72,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 caribouMovementInit <- function(sim) {
-  landscape <- get(simGlobals(sim)$mapName, envir=.GlobalEnv)
+  landscape <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
   yrange <- c(ymin(landscape), ymax(landscape))
   xrange <- c(xmin(landscape), xmax(landscape))
@@ -105,7 +104,7 @@ caribouMovementInit <- function(sim) {
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
 
-  landscape <- get(simGlobals(sim)$mapName, envir=.GlobalEnv)
+  landscape <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
   caribou <<- crop(caribou, landscape)
   if(length(caribou)==0) stop("All agents are off map")

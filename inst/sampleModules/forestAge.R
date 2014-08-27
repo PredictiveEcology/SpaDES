@@ -22,7 +22,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simGlobals(sim)$mapName, layer="habitatQuality")
+    checkObject(simGlobals(sim)$.stackName, layer="habitatQuality")
 
     # if a required module isn't loaded yet,
     # reschedule this module init for later

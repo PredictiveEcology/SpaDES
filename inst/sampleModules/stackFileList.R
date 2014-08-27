@@ -32,7 +32,7 @@ doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
       mapStack <- stack(mget(unlist(objectNames), envir=.GlobalEnv))
       names(mapStack) <- objectNames
 
-      assign(simGlobals(sim)$mapName, mapStack, envir=.GlobalEnv)
+      assign(simGlobals(sim)$.stackName, mapStack, envir=.GlobalEnv)
     }
 
   } else {

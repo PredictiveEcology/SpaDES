@@ -9,7 +9,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          quiet=FALSE),"maps"),
                                   full.names=TRUE, pattern= "tif"),
                       functions="rasterToMemory",
-                      packages="SpaDES",
+                      packages="SpaDES", .stackNames="landscape",
                       stringsAsFactors=FALSE)
 sim <- loadFiles(fileList=fileList)
 landscape = stack(mget(unlist(simObjectsLoaded(sim))))

@@ -111,7 +111,7 @@ library("SpaDES")
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
 times <- list(start=0, stop=100)
 outputPath=file.path("~", "tmp", "simOutputs")
-parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
+parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                          .plotInitialTime=0, .plotInterval=1e3))
