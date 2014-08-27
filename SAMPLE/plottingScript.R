@@ -18,10 +18,13 @@ name(landscape) <- "landscape"
 #land = landscape
 landscape1 <- landscape
 names(landscape1) <- paste("a",names(landscape),"1",sep="")
+landscape2 <- landscape
+names(landscape2) <- paste("a",names(landscape),"2",sep="")
 land <- stack(landscape,landscape1)
 name(land) <- "land"
-land <- land[[-12]]
+land <- land[[-10]]
 DEM = land$DEM
+forestAge = land$DEM
 
 Plot(DEM)
 Plot(forestAge, add= T)
@@ -33,6 +36,8 @@ for(i in 1:10) {
 
 caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 name(caribou1)<-"caribou1"
+caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+name(caribou2)<-"caribou2"
 
 DEM = land$DEM
 DEM1 = DEM

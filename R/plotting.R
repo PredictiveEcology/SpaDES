@@ -591,12 +591,11 @@ setMethod("arrangeViewports",
 #' Plot either a raster Grob or a points Grob
 #'
 #' @param grobToPlot Raster* or SpatialPoints* object
-#' @param add should grob be added to current plot
 #' @name plotGrob
 #' @rdname plotGrob
 #' @export
 #' @docType methods
-setGeneric("plotGrob", function(grobToPlot, add=TRUE, col=NULL, size=unit(5,"points"),
+setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
                                 legend=TRUE, draw=TRUE, #xaxis=TRUE, yaxis=TRUE, title=TRUE,
                                 gp=gpar(), vp=NULL, pch=19, maxpixels=1e6,
                                 childrenvp=NULL, ...) {
@@ -607,15 +606,18 @@ setGeneric("plotGrob", function(grobToPlot, add=TRUE, col=NULL, size=unit(5,"poi
 #' @export
 setMethod("plotGrob",
           signature=c("Raster"),
-          definition= function(grobToPlot, add, col, size,
+          definition= function(grobToPlot, col, size,
                                legend, draw, #xaxis, yaxis, title,
                                gp, vp, pch, maxpixels,
                                childrenvp, ...) {
-            if(!add) { grid.newpage() }
 
             pr <- pretty(range(minValue(grobToPlot),maxValue(grobToPlot)))
             pr <- pr[pr<=maxValue(grobToPlot)]
-            if(is.null(col)) col=rev(terrain.colors(40))
+            if(sapply(getColors(grobToPlot),length)>0) {
+              col=getColors(grobToPlot)[[1]]
+            } else {
+              col=topo.colors(50)
+            }
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=layerNames(grobToPlot),
@@ -632,7 +634,7 @@ setMethod("plotGrob",
                                                       interpolate=FALSE,
                                                       name="legend"),
                                 if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/(max(pr)-min(pr)))/2+0.25,
-                                                    gp=gpar(cex=max(0.6, 1-0.05)),
+                                                    gp=gpar(cex=0.9),
                                                     just="left",
                                                     name="legendText")
                                 #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
@@ -648,11 +650,10 @@ setMethod("plotGrob",
 #' @export
 setMethod("plotGrob",
           signature=c("SpatialPoints"),
-          definition= function(grobToPlot, add = FALSE, col, size,
+          definition= function(grobToPlot, col, size,
                                legend, draw, #xaxis, yaxis, title,
                                gp=gpar(), vp=NULL, pch, maxpixels,
                                childrenvp=NULL, ...) {
-            if(!add) { grid.newpage() }
             pntGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                              name=layerNames(grobToPlot),
                              childrenvp=childrenvp,
@@ -671,31 +672,8 @@ setMethod("plotGrob",
 
 
 
-#' @title makeViewport
-#' @name makeViewport
 #' @export
-#' @rdname makeViewport
-setGeneric("makeViewport", function(obj,
-                      layout.pos.col, layout.pos.row,
-                      visualSqueeze=0.75) {
-  standardGeneric("makeViewport")
-})
-
-#' @rdname makeViewport
-setMethod("makeViewport",
-          signature="Raster",
-          definition=function(obj, layout.pos.col=1, layout.pos.row=1) {
-
-  vp.obj <- viewport(name=paste("vp",names(obj),sep=""),
-                     layout.pos.col = layout.pos.col,
-                     layout.pos.row = layout.pos.row,
-                     xscale=c(xmin(obj),xmax(obj)),
-                     yscale=c(ymin(obj),ymax(obj)))
-  return(vp.obj)
-})
-
-#' @export
-makeLayout <- function(arr, visualSqueeze, cex) {
+makeLayout <- function(arr, visualSqueeze) {
   columns <- arr@columns
   rows <- arr@rows
 
@@ -765,9 +743,10 @@ setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNa
 #'
 #' @param to            Ending spatial coordinates (\code{SpatialPointsDataFrame})..
 #'
-#' @param on.which.to.plot The name of a map layer on which to draw the arrows.
+#' @param addTo Optional character string. The name of a map layer on which to draw the arrows.
 #'
-#' @param ...           Additional plotting parameters.
+#' @param ...           Additional plotting parameters passed to grid.polyline. Currently
+#' does not appear to pass anything.
 #'
 #' @return Plots the vectors representing agent movement on the specified map.
 #'
@@ -775,41 +754,80 @@ setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNa
 #' @export
 #' @docType methods
 #' @rdname drawArrows-method
+#' @examples
+#' # Make 2 objects
+#' caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+#' name(caribou1)<-"caribou1"
+#' caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+#' name(caribou2)<-"caribou2"
 #'
-setGeneric("drawArrows", function(from, to, on.which.to.plot=1, ...) {
+#' drawArrows(caribou1, caribou2)
+#' seekViewport("caribou1")
+#' grid.text("caribou1",0.5,1.05)
+#' grid.xaxis()
+#' grid.yaxis()
+#'
+#' # or add to a previous Plot
+#' fileList <-
+#'    data.frame(files =
+#'      dir(file.path(
+#'                    find.package("SpaDES",
+#'                                 lib.loc=getOption("devtools.path"),
+#'                                 quiet=FALSE),
+#'                   "maps"),
+#'         full.names=TRUE, pattern= "tif"),
+#'      functions="rasterToMemory",
+#'      packages="SpaDES",
+#'      stringsAsFactors=FALSE)
+#'
+#' # Load files to memory (using rasterToMemory)
+#' sim <- loadFiles(fileList=fileList)
+#' names(DEM)<-"DEM"
+#'
+#' Plot(DEM)
+#' drawArrows(caribou1, caribou2, addTo="DEM")
+setGeneric("drawArrows", function(from, to, addTo, ...) {
   standardGeneric("drawArrows")
 })
 
-#' Plot arrows showing direction of mobileAgent movement
-#'
 #' @param length    The length of the arrows to draw (defaults to 0.1).
 #'
 #' @rdname drawArrows-method
 #'
 setMethod("drawArrows",
-          signature=c("SpatialPoints","SpatialPoints"),
-          definition=function(from, to, on.which.to.plot=1, ..., length=0.1) {
-            vp.names <- grid.ls(grobs=FALSE, viewports=TRUE, recursive=TRUE, print=FALSE)$name
-            vp.names <- vp.names[match(unique(vp.names[1:trunc(length(vp.names)/2)*2]),vp.names)]
-            for (k in 1:length(on.which.to.plot)) {
-              if(is.numeric(on.which.to.plot[k])) {
-                vp.to.plot <- vp.names[on.which.to.plot[k]]
-                seekViewport(vp.to.plot)
-              } else {
-                vp.to.plot <- on.which.to.plot[k]
-                seekViewport(vp.to.plot)
-              }
-
+          signature=c("SpatialPoints","SpatialPoints","character"),
+          definition=function(from, to, addTo, ..., length=0.1) {
+              seekViewport(addTo, recording=FALSE)
               grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
                             default.units="native",
                             id=rep(1:length(from), 2),
-                            #default.units="npc",
-                            arrow=arrow(length=unit(length, "inches"), ...))#, #name=NULL,
-              upViewport()
-            }
-            #           gp=gpar(),
-            #            arrows(from$x, from$y, to$x, to$y, ..., length=length)
+                            arrow=arrow(length=unit(length, "inches"), ...))
+              upViewport(0)
           })
+
+#' @rdname drawArrows-method
+#'
+setMethod("drawArrows",
+               signature=c("SpatialPoints","SpatialPoints","missing"),
+               definition=function(from, to, addTo, ..., length=0.1) {
+                 grid.newpage()
+                 extents <- list(extent(
+                   extendrange(c(min(min(from$x),min(to$x)),max(max(from$x,to$x)))),
+                   extendrange(c(min(min(from$y),min(to$y)),max(max(from$y,to$y))))))
+                 names(extents) <- name(from)
+                 arr <- arrangeViewports(extents,name=name(from))
+                 lay <- makeLayout(arr=arr, visualSqueeze=0.75)
+                 vps <- makeViewports(extents, arr=arr, layout=lay,
+                                      visualSqueeze=0.75, newArr = TRUE)
+                 pushViewport(vps)
+                 seekViewport(name(from), recording=FALSE)
+                 grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
+                               default.units="native",
+                               id=rep(1:length(from), 2),
+                               arrow=arrow(length=unit(length, "inches"), ...))
+                 upViewport(0)
+               })
+
 
 ######################################################################
 #' A short selection of colour palettes that can be use
@@ -834,22 +852,55 @@ setMethod("drawArrows",
 #' Fast, optimally arranged, multipanel plotting function with spades
 #'
 #' The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*Named,
-#' and any combination of those. If add=F, then a new plot will be generated. When add=T, then any plot that
+#' and any combination of those.
+#'
+#' If add=F, then a new plot will be generated. When add=T, then any plot that
 #' already exists will be overplotted, while plots that have not already been plotted will be added. This function
 #' rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
 #' it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
 #' The function is based on the grid package.
 #'
-#' Silently, two hidden objects are made, .arr and .grobs, which are used for later replotting (i.e., if add=T). Also,
-#' the function invisibly returns the grobs (see grid package).
+#' Silently, one hidden object is made, .arr, which is used for arranging plots in the
+#' device window, and identifying the objects to be replotted if rearranging is required,
+#' subsequent to an add=T additional plot.
+#'
+#' \code{speedup} is not a precise number because it is faster to plot an un-resampled
+#' raster if the new resampling is close to the original number of pixels. At the moment,
+#' this is set to 1/3 of the original pixels. In other words, \code{speedup} may not do anything
+#' if the factor for speeding up is not high enough (i.e., >3).
+#'
+#' \code{col} can be used to set the colors of Raster* objects, but it is preferable to use
+#' setColors to give each layer its own color table. See examples.
 #'
 #' @param ... Raster* object(s) and or SpatialPoints*Named objects
+#'
 #' @param axes Logical. If FALSE, then the previous plot is wiped and a new one made; if TRUE, then the ... plots
 #' will be added to the current device, adding or rearranging the plot layout as necessary.
+#'
 #' @param addTo String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
 #' the plot with the same name, such as plotting a SpatialPoints*Named object on a RasterLayer.
+#'
 #' @param gp A gpar object, created by gpar() function, to change plotting parameters (see grid package)
+#'
 #' @param axes Logical or "L", representing the left and bottom axes, overall plots
+#'
+#' @param speedup Numeric. The factor by which the number of pixels is divided by to plot rasters. See Details.
+#'
+#' @param size Numeric. The size, in points, for SpatialPoints symbols, if using a scalable symbol.
+#'
+#' @param col character vector. Hex codes for colors. See Details.
+#'
+#' @param visualSqueeze numeric. The proportion of the white space to be used for plots. Default is 0.75.
+#'
+#' @param legend logical. Whether legend should be drawn next to plots. Default is TRUE.
+#'
+#' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
+#' to be FALSE. Default is TRUE
+#'
+#' @param pch see ?par
+#'
+#' @param title Logical. Whether the names of each plot should be written above plots
+#'
 #' @rdname Plot
 #' @export
 #' @docType methods
@@ -873,9 +924,18 @@ setMethod("drawArrows",
 #'
 #' # make a stack of all these rasters
 #' landscape <- stack(mget(unlist(simObjectsLoaded(sim))))
+#' name(landscape) <- "landscape"
 #'
 #' # extract a single one of these rasters
 #' DEM <- landscape$DEM
+#'
+#' # can change color palette
+#' setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
+#'                            forestCover = brewer.pal(9,"Set1"),
+#'                            forestAge = brewer.pal("Blues",n=8),
+#'                            habitatQuality = brewer.pal(9,"Spectral"),
+#'                            percentPine = brewer.pal("GnBu",n=8))
+#'
 #' DEM1 <- landscape$DEM
 #' names(DEM1) <- "DEM1"
 #'
@@ -905,16 +965,15 @@ setMethod("drawArrows",
 #' # can't add a two maps with same name
 #' Plot(landscape, caribou, DEM)
 #'
-#' # Can mix stacks, rasters, SpatialPoint*Named
+#' # can mix stacks, rasters, SpatialPoint*Named
 #' Plot(landscape, DEM1, caribou)
 #'
-#' # Can mix stacks, rasters, SpatialPoint*Named
+#' # can mix stacks, rasters, SpatialPoint*Named
 #' Plot(landscape, caribou)
 #' Plot(DEM1, add=T)
-#'
 setGeneric("Plot", signature="...",
            function(..., add=F, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
-                    size=5, cols=topo.colors(50),
+                    size=5, cols,
                     visualSqueeze=0.75, legend=TRUE, draw = TRUE,
                     pch = 19, title=T) {
              standardGeneric("Plot")
@@ -928,9 +987,24 @@ setMethod("Plot",
                                 cols, visualSqueeze,
                                 legend, draw, pch, title) {
             toPlot <- list(...)
-            # check whether .arr exists, meaning that there is already a plot
-            browser()
 
+            whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
+            if(any(whStacks)) {
+              stacksToPlot <- lapply(toPlot[whStacks], layerNames)
+              names(stacksToPlot) <- sapply(toPlot[whStacks], name)
+            } else {
+              stacksToPlot <- as.list(NULL)
+            }
+
+            if(add | !is.null(addTo)){
+              if(exists(".arr", envir=.GlobalEnv)) {
+                stacksInArr <- .arr@stack
+              } else {
+                stacksInArr <- list(NULL)
+              }
+            }
+
+            # check whether .arr exists, meaning that there is already a plot
             if(!exists(".arr",envir=.GlobalEnv)) {
               add=F
               arr = new("arrangement"); arr@columns=0; arr@rows = 0
@@ -939,8 +1013,13 @@ setMethod("Plot",
             } else {
               arr <- .arr
               currentNames <- arr@names
-              currentStacks <- arr@stack
             }
+
+            if(!is.null(addTo)) {
+              if(!any(addTo %in% .arr@names))
+                stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
+            }
+
             lN <- layerNames(toPlot)
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
                                          "inside RasterStacks"))
@@ -966,11 +1045,11 @@ setMethod("Plot",
               newArr = T
               vpNames <- addTo
               grobNames <- lN
-              if(exists(".grobs",envir=.GlobalEnv)) rm(.grobs, envir=.GlobalEnv)
-              grobs <- list()
+              #if(exists(".grobs",envir=.GlobalEnv)) rm(.grobs, envir=.GlobalEnv)
+              #grobs <- list()
             } else { # add == T
               if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) {
-                grobs <- .grobs
+                #grobs <- .grobs
                 newArr = T
 #                 if(sum(!(lN %in% currentPlusToPlotN))!=0) {
 #                   vpNames <- lN[!(lN %in% currentPlusToPlotN)]
@@ -985,7 +1064,7 @@ setMethod("Plot",
                                      extlN=extsToPlot[match(vpNames, lN)])
                 extsToPlot <- sapply(1:length(vpNames), function(x) extsUnmerged[[ind[x]]][x])
               } else {
-                grobs <- .grobs
+                #grobs <- .grobs
                 newArr = F
                 if(sum(!(addTo %in% currentNames))!=0) {
                   vpNames <- addTo[!(addTo %in% currentNames)]
@@ -1004,50 +1083,24 @@ setMethod("Plot",
                 arr <- .arr
                 arr@names = append(arr@names, names(extsToPlot))
                 arr@extents = append(arr@extents, extsToPlot)
-
-                stacks <- which(sapply(toPlot, function(x) length(layerNames(x)))>1)
-                if(length(stacks)>0) {
-                  namesByStack <- lapply(toPlot[stacks], layerNames)
-                  arrStackLen <- length(arr@stack)
-                  arr@stack <- append(arr@stack, namesByStack)
-                  names(arr@stack)[arrStackLen+1:length(namesByStack)] <- sapply(toPlot[stacks], name)
-                }
-
-                #grobs <- .grobs
               } else {
                 message("nothing to add to, creating new plot")
                 arr <- arrangeViewports(extsToPlot)
-                stacks <- which(sapply(toPlot, function(x) length(layerNames(x)))>1)
-                if(length(stacks)>0) {
-                  arr@stack <- lapply(toPlot[stacks], layerNames)
-                  names(arr@stack) <- sapply(toPlot[stacks], name)
-                }
-                assign(".arr", arr, envir=.GlobalEnv)
                 grid.newpage()
               }
             } else { # need a new arrangement
               arr <- arrangeViewports(extsToPlot)
-              stacks <- which(sapply(toPlot, function(x) length(layerNames(x)))>1)
-              if(length(stacks)>0) {
-                namesByStack <- lapply(toPlot[stacks], layerNames)
-                arrStackLen <- length(arr@stack)
-                arr@stack <- append(currentStacks, namesByStack)
-                names(arr@stack)[arrStackLen+1:length(namesByStack)] <- sapply(toPlot[stacks], name)
-              } else {
-                arr@stack <- currentStacks
-              }
-
-              assign(".arr", arr, envir=.GlobalEnv)
+              #rm(.arr, envir=.GlobalEnv)
               grid.newpage()
             }
 
             #end create .arr object
 
             if(is.null(gp$cex)) {
-              gp$cex <- cex <- max(0.6,min(1,prod(arr@ds)/prod(arr@columns,arr@rows)*0.1))
+              gp$cex <- cex <- max(0.6,min(1,prod(arr@ds)/prod(arr@columns,arr@rows)*0.07))
             }
 
-            lay <- makeLayout(arr, visualSqueeze, cex)
+            lay <- makeLayout(arr, visualSqueeze)
 
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
@@ -1057,10 +1110,11 @@ setMethod("Plot",
               pushViewport(vps,recording = FALSE)
               upViewport(2)
             }
-
-            npixels <- sapply(toPlot, ncell)
+            npixels <- unlist(sapply(toPlot, function(x) if(is(x,"Raster")) ncell(x)))
             maxpixels <- 2e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
-            maxpixels <- c(maxpixels,npixels)[(npixels/3<maxpixels)+1]
+            if(!is.null(npixels)) {
+              maxpixels <- c(maxpixels,npixels)[(npixels/3<maxpixels)+1]
+            }
 
 
             # because of stacks, have to find the right layer which may or may not be in a stack
@@ -1076,38 +1130,30 @@ setMethod("Plot",
               }
               whPlot <- match(addTo[whGrobNamesi], arr@names)
               if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis = TRUE } else { xaxis = FALSE}
-                             if(whPlot%%arr@columns==1) { yaxis = TRUE } else { yaxis = FALSE}}
+                             if((whPlot-1)%%arr@columns==0) { yaxis = TRUE } else { yaxis = FALSE}}
 
               seekViewport(addTo[whGrobNamesi],recording=F)
-
               if(!grobNamesi %in% lN) {
-#                 lapply(arr@stack, function(x) x == grobNamesi)
-                isPrevLayerInStack <- sapply(arr@stack, function(x) {
-                    match(arr@names[match(grobNamesi, arr@names)],x)
-                  }
-                )
-                if(!is.na(isPrevLayerInStack)) {# means it is in a stack
-                  withinStacki <- match(grobNamesi,arr@stack[[names(isPrevLayerInStack)]])
-                  grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
+                if(length(stacksInArr)>0) {
+                  # only take first one, if there are more than one. First one is most recent
+                  isPrevLayerInStack <- na.omit(sapply(stacksInArr, function(x) {
+                    match(arr@names[match(grobNamesi, grobNames)],x)}))[1]
                 } else {
-                  grobToPlot <- get(grobNamesi)
+                  isPrevLayerInStack = NA
                 }
-
-#                 inStack <- match(arr@stack, arr@names[match(grobNamesi, arr@names)])
+                if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
+                  grobToPlot <- get(grobNamesi)
+                } else {
+                  withinStacki <- match(grobNamesi,stacksInArr[[names(isPrevLayerInStack)]])
+                  grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
+                }
                  plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
-                          add=TRUE, vp=NULL, pch=pch,
+                          vp=NULL, pch=pch,
                           #xaxis = xaxis, yaxis = yaxis, title=title,
-                          maxpixels= maxpixels[toPlotInd],
+                          maxpixels= maxpixels,
                           legend = legend, gp = gp, draw = draw)
-                #grid.draw(.grobs[[grobNamesi]])
                 if(title) grid.text(grobNamesi, name="title", y=1.08, vjust=0.5, gp = gp)
-
-#                 if(xaxis==TRUE) grid.xaxis(gp = gp)
-#                 if(yaxis==TRUE) grid.xaxis(gp = gp)
               } else {
-                # because of stacks, have to find the right layer which may or may not be in a stack
-#                layerLengths <- lapply(toPlot, layerNames)
-#                toPlotInd <- lN[whGrobNamesi]
                 toPlotInd <- which(!is.na(sapply(layerLengths,
                                                   function(x) match(grobNamesi,x))))
                 if(is(toPlot[[toPlotInd]],"RasterStack")) {
@@ -1115,16 +1161,8 @@ setMethod("Plot",
                 } else {
                   grobToPlot = toPlot[[toPlotInd]]
                 }
-
-#                 if (quick) {
-#                   plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
-#                            add=TRUE, vp=NULL, pch=pch,
-#                            #xaxis = xaxis, yaxis = yaxis, title=title,
-#                            maxpixels= maxpixels[toPlotInd],
-#                            legend = legend, gp = gp, draw = draw)
-#                 } else {
-                  grobs[[grobNamesi]] <- plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
-                                           add=TRUE, vp=NULL, pch=pch,
+                  plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
+                                           vp=NULL, pch=pch,
                                            #xaxis = xaxis, yaxis = yaxis, title=title,
                                            maxpixels= maxpixels[toPlotInd],
                                            legend = legend, gp = gp, draw = draw)
@@ -1134,6 +1172,12 @@ setMethod("Plot",
               if(xaxis) grid.xaxis(name="xaxis", gp = gp)
               if(yaxis) grid.yaxis(name="yaxis", gp = gp)
             }
-            assign(".grobs", grobs, envir=.GlobalEnv)
-            return(invisible(grobs))
+
+            if(add==FALSE) {
+              arr@stack <- stacksToPlot
+            } else {
+              arr@stack <- append(stacksToPlot, stacksInArr)
+              arr@stack <- arr@stack[!duplicated(arr@stack)]
+            }
+            assign(".arr", arr, envir=.GlobalEnv)
          })
