@@ -112,8 +112,8 @@ setGeneric("loadFiles", function(sim, stackName=NULL, fileList, ...)  {
 setMethod("loadFiles",
           signature(sim="simList", stackName="ANY", fileList="missing"),
           definition = function(sim, stackName, fileList, ...) {
-            # Pull .fileExtensions into function so that scoping is faster
-            .fileExts = .fileExtensions
+            # Pull .fileExtensions() into function so that scoping is faster
+            .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
               fileList <- simFileList(sim)
               curTime <- simCurrentTime(sim)
@@ -291,17 +291,27 @@ setMethod("loadFiles",
 #' How to load various types of files in R.
 #'
 #' @export
-#' @rdname fileextensions
-#'
-.fileExtensions = data.frame(matrix(ncol=3, byrow=TRUE,c(
+#' @rdname loadFiles-method
+setGeneric(".fileExtensions", function(x) {
+  standardGeneric(".fileExtensions")
+})
+
+#' @export
+#' @rdname loadFiles-method
+setMethod(".fileExtensions",
+          signature(x="missing"),
+          definition = function(x) {
+  .fE <- data.frame(matrix(ncol=3, byrow=TRUE,c(
   "tif", "raster", "raster" ,
   "png", "raster", "raster" ,
   "csv", "read.csv", "utils" ,
   "shp", "readOGR", "rgdal",
   "txt", "read.table", "utils",
   "asc", "raster", "raster")))
-colnames(.fileExtensions) = c("exts", "functions", "package")
-
+  colnames(.fE) = c("exts", "functions", "package")
+  return(.fE)
+}
+)
 
 #######################################################
 #' Read raster to memory

@@ -110,7 +110,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
-#                   .loadFileList=fileList,
+                   .loadFileList=fileList,
                              .progress=list(.graphical=FALSE, .progressInterval = 10),
                              .globals=list(mapName=mapName, burnStats="nPixelsBurned",
                                            .outputPath=outputPath),

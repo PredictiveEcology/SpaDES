@@ -13,15 +13,18 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                       stringsAsFactors=FALSE)
 sim <- loadFiles(fileList=fileList)
 landscape = stack(mget(unlist(simObjectsLoaded(sim))))
+name(landscape) <- "landscape"
 
-land = landscape
+#land = landscape
 landscape1 <- landscape
 names(landscape1) <- paste("a",names(landscape),"1",sep="")
 land <- stack(landscape,landscape1)
+name(land) <- "land"
 land <- land[[-12]]
 DEM = land$DEM
 
-Plot(forestAge)
+Plot(DEM)
+Plot(forestAge, add= T)
 for(i in 1:10) {
   caribou <- SpatialPoints(cbind(x=runif(1e4,-50,50),y=runif(1e4,-50,50)))
   name(caribou)<-"caribou"

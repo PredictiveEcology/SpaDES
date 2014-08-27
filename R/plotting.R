@@ -87,6 +87,35 @@ setClass("SpatialPointsNamed",
          }
 )
 
+#' @exportClass RasterStackNamed
+setClass("RasterStackNamed",
+         slots=list(name="character"),
+         prototype=list(name=NA_character_),
+         contains="RasterStack",
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (is.na(object@name)) {
+             stop("name must be provided")
+           }
+         }
+)
+
+#' @export
+setGeneric("RasterStackNamed",
+           signature=c("..."),
+           function(..., name) {
+             standardGeneric("RasterStackNamed")
+           })
+
+
+#' @export
+setMethod("RasterStackNamed",
+          signature="RasterStack",
+          definition= function(..., name) {
+            new("RasterStackNamed", ..., name=name)
+          })
+
+
 #' @exportClass NamedSpatialPoints
 setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
 
@@ -142,11 +171,97 @@ setMethod("show",
           definition=function(object) {
             out = list()
             out[[1]] = capture.output(print(object,
-                                            quote=FALSE, row.names=FALSE))
+                                            quote=FALSE))
             out[[2]] = capture.output(cat(paste("name        :",object@name)))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
+          })
+
+#' @export
+setMethod("show",
+          signature="RasterStackNamed",
+          definition=function(object) {
+  cat("class       :", class(object), "\n")
+  if (rotated(object)) {
+    cat("rotated     : TRUE\n")
+  }
+  mnr <- 15
+  if (filename(object) != "") {
+    cat("filename    :", filename(object), "\n")
+  }
+  nl <- nlayers(object)
+  if (nl == 0) {
+    cat("nlayers     :", nl, "\n")
+  }
+  else {
+    cat("dimensions  : ", nrow(object), ", ", ncol(object),
+        ", ", ncell(object), ", ", nl, "  (nrow, ncol, ncell, nlayers)\n",
+        sep = "")
+    cat("resolution  : ", xres(object), ", ", yres(object),
+        "  (x, y)\n", sep = "")
+    cat("extent      : ", object@extent@xmin, ", ", object@extent@xmax,
+        ", ", object@extent@ymin, ", ", object@extent@ymax,
+        "  (xmin, xmax, ymin, ymax)\n", sep = "")
+    cat("name        :", name(object), "\n")
+    cat("coord. ref. :", projection(object, TRUE), "\n")
+    ln <- names(object)
+    if (nl > mnr) {
+      ln <- c(ln[1:mnr], "...")
+    }
+    n <- nchar(ln)
+    if (nl > 5) {
+      b <- n > 26
+      if (any(b)) {
+        ln[b] <- paste(substr(ln[b], 1, 9), "//", substr(ln[b],
+                                                         nchar(ln[b]) - 9, nchar(ln[b])), sep = "")
+      }
+    }
+    minv <- format(minValue(object))
+    maxv <- format(maxValue(object))
+    minv <- gsub("Inf", "?", minv)
+    maxv <- gsub("-Inf", "?", maxv)
+    if (nl > mnr) {
+      minv <- c(minv[1:mnr], "...")
+      maxv <- c(maxv[1:mnr], "...")
+    }
+    w <- pmax(nchar(ln), nchar(minv), nchar(maxv))
+    m <- rbind(ln, minv, maxv)
+    for (i in 1:ncol(m)) {
+      m[, i] <- format(m[, i], width = w[i], justify = "right")
+    }
+    cat("names       :", paste(m[1, ], collapse = ", "),
+        "\n")
+    cat("min values  :", paste(m[2, ], collapse = ", "),
+        "\n")
+    cat("max values  :", paste(m[3, ], collapse = ", "),
+        "\n")
+  }
+  z <- getZ(object)
+  if (length(z) > 0) {
+    name <- names(object@z)
+    if (is.null(name))
+      name <- "z-value"
+    if (name == "")
+      name <- "z-value"
+    name <- paste(sprintf("%-12s", name), ":", sep = "")
+    if (length(z) < mnr) {
+      cat(name, paste(as.character(z), collapse = ", "),
+          "\n")
+    }
+    else {
+      z <- range(z)
+      cat(name, paste(as.character(z), collapse = " - "),
+          "(range)\n")
+    }
+  }
+  cat("\n")
+#             out = list()
+#             out[[1]] = capture.output(show(object))
+#             out[[2]] = capture.output(cat(paste("name        :",object@name)))
+#
+#             ### print result
+#             cat(unlist(out), fill=FALSE, sep="\n")
           })
 
 
@@ -167,6 +282,14 @@ setMethod("name",
 #' @rdname name-accessor-methods
 setMethod("name",
           signature="SpatialPointsDataFrameNamed",
+          definition=function(object) {
+            return(object@name)
+          })
+
+#' @export
+#' @rdname name-accessor-methods
+setMethod("name",
+          signature="RasterStackNamed",
           definition=function(object) {
             return(object@name)
           })
@@ -220,6 +343,26 @@ setReplaceMethod("name",
                    new("SpatialPointsDataFrameNamed", object, name=value)
                  })
 
+#' @export
+#' @name name<-
+#' @rdname name-accessor-methods
+setReplaceMethod("name",
+                 signature="RasterStackNamed",
+                 function(object, value) {
+                   object@name <- value
+                   validObject(object)
+                   return(object)
+                 })
+
+#' @export
+#' @name name<-
+#' @rdname name-accessor-methods
+setReplaceMethod("name",
+                 signature="RasterStack",
+                 function(object, value) {
+                   new("RasterStackNamed", object, name=value)
+                 })
+
 
 #' @export
 setMethod("nlayers",
@@ -248,7 +391,7 @@ setGeneric("layerNames", function(object) {
 setMethod("layerNames",
           signature="list",
           definition=function(object) {
-            as.character(sapply(object, function(x) {if(is(x,"Raster")) {names(x)} else {name(x)}}))
+            unlist(lapply(object, layerNames))
           })
 
 #' @export
@@ -318,31 +461,51 @@ setMethod("inRasterStack",
               }}))})
 
 
-#' Makes a raster around a SpatialPoints object
-#'
-#' @name placeOnRaster
-#' @rdname placeOnRaster
-#' @export
-setGeneric("placeOnRaster", function(obj, raster=NULL) {
-  standardGeneric("placeOnRaster")
-})
 
-#' @rdname placeOnRaster
-#' @export
-setMethod("placeOnRaster",
-          signature=c("NamedSpatialPoints"),
-          definition= function(obj, raster) {
-            if(is.null(raster)) {
-              ext <- extent(bbox(obj))
-              ext <- ext+diff(range(xmin(ext),xmax(ext)))*0.1
-              rast <- raster(ext)
-            } else {
-              rast <- raster(raster)
-            }
-            names(rast) <- name(obj)
-            rast <- setValues(rast, 0)
-            return(rast)
-          }
+###########################################################################
+#' The \code{arrangement} class
+#'
+#' This class contains the plotting arrangement information.
+#'
+#' @slot rows    numeric. Number of rows in the arrangement.
+#'
+#' @slot columns numeric. Number of columns in the arragnement.
+#'
+#' @slot actual.ratio numeric. Ratio of columns to rows
+#'
+#' @slot ds.dimensionRatio numeric. Ratio of the device size to the ratio of the
+#' extents
+#'
+#' @slot ds  numeric of length 2. The dimensions of the plotting window in inches
+#'
+#' @slot stack  list with 2 elements: a character vector of stack names and
+#' a character vector of the layer names in each of those
+#'
+#' @slot names  character vector. The names of the layers in the plot
+#'
+#' @slot extents list of class Extent objects. These are needed to calculate the
+#' \code{ds.dimensionRatio}, which is used to scale the Raster* objects correctly
+#'
+#' @rdname arrangement-class
+#' @exportClass arrangement
+#'
+#' @author Eliot McIntire
+#'
+setClass("arrangement",
+         slots=list(rows="numeric", columns="numeric",
+                    actual.ratio="numeric", ds.dimensionRatio="numeric",
+                    ds="numeric", stack="list", names="character",
+                    extents="list"),
+         prototype=list(rows=1, columns=1,
+                        actual.ratio=1, ds.dimensionRatio=1,
+                        ds=c(7,7), stack=as.list(NULL), names=as.character(NULL),
+                        extents=as.list(NULL)),
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (any(is.na(object@extents))) {
+             stop("must supply a list of extents")
+           }
+         }
 )
 
 
@@ -404,14 +567,18 @@ setMethod("arrangeViewports",
 
     actual.ratio <- columns/rows
 
-    cr <- expand.grid(columns=((1:columns/columns - 1/columns/2)-0.55)*0.9+0.55,rows=((rows:1/rows - 1/rows/2)-0.55)*0.9+0.55)
-    out <- list(cr=cr,rows=rows,columns=columns,
-                actual.ratio=actual.ratio,ds.dimensionRatio=ds.dimensionRatio,
-                ds=ds,#prettys=prettys,
-                names=names,ds.ratio=ds.ratio, extents = extents)
+    out <- new("arrangement", rows=rows,columns=columns,
+               actual.ratio=actual.ratio,ds.dimensionRatio=ds.dimensionRatio,
+               ds=ds,#prettys=prettys,
+               names=names, extents = extents)
+#     out <- list(rows=rows,columns=columns,
+#                 actual.ratio=actual.ratio,ds.dimensionRatio=ds.dimensionRatio,
+#                 ds=ds,#prettys=prettys,
+#                 names=names,ds.ratio=ds.ratio, extents = extents)
     return(out)
 }
 )
+
 
 
 
@@ -529,20 +696,20 @@ setMethod("makeViewport",
 
 #' @export
 makeLayout <- function(arr, visualSqueeze, cex) {
-  columns <- arr$columns
-  rows <- arr$rows
+  columns <- arr@columns
+  rows <- arr@rows
 
 
   # calculate the visualSqueeze for the width (i.e., vS.w)
   vS.w = min(visualSqueeze/columns,
-             visualSqueeze/columns*arr$actual.ratio/arr$ds.dimensionRatio)
+             visualSqueeze/columns*arr@actual.ratio/arr@ds.dimensionRatio)
   wdth <- unit.c(unit(1.5,"null"), unit(rep(c(vS.w,1.75),columns),
                                         rep(c("npc","null"),columns))[-columns*2],
                  unit(1.5,"null"))
 
   # calculate the visualSqueeze for the height (i.e., vS.h)
   vS.h = min(visualSqueeze/rows,
-             visualSqueeze/rows*arr$ds.dimensionRatio/arr$actual.ratio)
+             visualSqueeze/rows*arr@ds.dimensionRatio/arr@actual.ratio)
   ht <- unit.c(unit(1,"null"), unit(rep(c(vS.h,1.75),rows),
                                     rep(c("npc","null"),rows))[-rows*2],
                unit(1,"null"))
@@ -554,8 +721,8 @@ makeLayout <- function(arr, visualSqueeze, cex) {
 #' @export
 makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 
-  columns = arr$columns
-  rows = arr$rows
+  columns = arr@columns
+  rows = arr@rows
 
   topVp <- viewport(layout=grid.layout(nrow=rows*2+1,
                                        ncol=columns*2+1,
@@ -566,7 +733,7 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 
   for(extentInd in 1:length(extents)) {
     nam = names(extents)[extentInd]
-    posInd = match(nam, arr$names)
+    posInd = match(nam, arr@names)
 
     plotVps[[extentInd]] <- viewport(
               name=nam,
@@ -577,10 +744,11 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 
   }
 
-  if(newArr)
+  if(newArr) {
     wholeVp <- vpTree(topVp, do.call(vpList, plotVps))
-  else
+  } else {
     wholeVp <- do.call(vpList, plotVps)
+  }
   return(wholeVp)
 }
 
@@ -682,14 +850,72 @@ setMethod("drawArrows",
 #' the plot with the same name, such as plotting a SpatialPoints*Named object on a RasterLayer.
 #' @param gp A gpar object, created by gpar() function, to change plotting parameters (see grid package)
 #' @param axes Logical or "L", representing the left and bottom axes, overall plots
-#' @rdname arrangeViewports
+#' @rdname Plot
 #' @export
 #' @docType methods
 #' @export
+#' @examples
+#' #  Make list of maps from package database to load, and what functions to use to load them
+#' fileList <-
+#'    data.frame(files =
+#'      dir(file.path(
+#'                    find.package("SpaDES",
+#'                                 lib.loc=getOption("devtools.path"),
+#'                                 quiet=FALSE),
+#'                   "maps"),
+#'         full.names=TRUE, pattern= "tif"),
+#'      functions="rasterToMemory",
+#'      packages="SpaDES",
+#'      stringsAsFactors=FALSE)
+#'
+#' # Load files to memory (using rasterToMemory)
+#' sim <- loadFiles(fileList=fileList)
+#'
+#' # make a stack of all these rasters
+#' landscape <- stack(mget(unlist(simObjectsLoaded(sim))))
+#'
+#' # extract a single one of these rasters
+#' DEM <- landscape$DEM
+#' DEM1 <- landscape$DEM
+#' names(DEM1) <- "DEM1"
+#'
+#' # make a SpatialPointsNamed object
+#' caribou <- SpatialPoints(cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
+#'      name(caribou)<-"caribou"
+#'
+#' #Plot all maps on a new plot windows - Do not use RStudio window
+#' if(is.null(dev.list())) {
+#'   dev(2)
+#' } else {
+#'   if(any(names(dev.list())=="RStudioGD")) {
+#'     dev(which(names(dev.list())=="RStudioGD")+3)
+#'   } else {
+#'     dev(max(dev.list()))
+#'   }
+#' }
+#'
+#' Plot(landscape)
+#'
+#' # Can overplot, using addTo
+#' Plot(caribou, addTo="forestAge",size=4, axes=F)
+#'
+#' # can add a new plot to the plotting window
+#' Plot(caribou, add=T)
+#'
+#' # can't add a two maps with same name
+#' Plot(landscape, caribou, DEM)
+#'
+#' # Can mix stacks, rasters, SpatialPoint*Named
+#' Plot(landscape, DEM1, caribou)
+#'
+#' # Can mix stacks, rasters, SpatialPoint*Named
+#' Plot(landscape, caribou)
+#' Plot(DEM1, add=T)
+#'
 setGeneric("Plot", signature="...",
            function(..., add=F, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
-                    size=5, cols=topo.colors(50), deletePrevious = add,
-                    visualSqueeze=0.75, quick = FALSE, legend=!quick, draw = TRUE,
+                    size=5, cols=topo.colors(50),
+                    visualSqueeze=0.75, legend=TRUE, draw = TRUE,
                     pch = 19, title=T) {
              standardGeneric("Plot")
            })
@@ -699,21 +925,25 @@ setGeneric("Plot", signature="...",
 setMethod("Plot",
           signature(c("spatialObjects")),
           definition = function(..., add, addTo, gp, axes, speedup, size,
-                                cols, deletePrevious, visualSqueeze,
-                                quick, legend, draw, pch, title) {
+                                cols, visualSqueeze,
+                                legend, draw, pch, title) {
             toPlot <- list(...)
             # check whether .arr exists, meaning that there is already a plot
+            browser()
+
             if(!exists(".arr",envir=.GlobalEnv)) {
               add=F
-              arr = list(); arr$columns=0; arr$row = 0
+              arr = new("arrangement"); arr@columns=0; arr@rows = 0
               if(add==T) message("Nothing to add plots to; creating new plots")
               currentNames = NULL
             } else {
               arr <- .arr
-              currentNames <- arr$names
+              currentNames <- arr@names
+              currentStacks <- arr@stack
             }
-
             lN <- layerNames(toPlot)
+            if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
+                                         "inside RasterStacks"))
 
             if(is.null(addTo)) {
               addTo <- lN
@@ -726,10 +956,11 @@ setMethod("Plot",
 
             # if add == F, then new plots are only the ones in the function call, otherwise
             #  it needs to assess what is already there
+
+            # get extents from all SpatialPoints*, Rasters*, including Stacks
             extsToPlot <- rep(sapply(toPlot, extent),
                             sapply(toPlot, function(x) length(layerNames(x))))
             names(extsToPlot)<-lN
-
 
             if(add==F) {
               newArr = T
@@ -738,7 +969,7 @@ setMethod("Plot",
               if(exists(".grobs",envir=.GlobalEnv)) rm(.grobs, envir=.GlobalEnv)
               grobs <- list()
             } else { # add == T
-              if(length(currentPlusToPlotN) > prod(arr$column, arr$rows)) {
+              if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) {
                 grobs <- .grobs
                 newArr = T
 #                 if(sum(!(lN %in% currentPlusToPlotN))!=0) {
@@ -750,7 +981,7 @@ setMethod("Plot",
                 grobNames = vpNames
                 addTo <- grobNames
                 ind <- vpNames %in% lN + 1
-                extsUnmerged <- list(extCurrent=arr$extents[match(vpNames,currentNames)],
+                extsUnmerged <- list(extCurrent=arr@extents[match(vpNames,currentNames)],
                                      extlN=extsToPlot[match(vpNames, lN)])
                 extsToPlot <- sapply(1:length(vpNames), function(x) extsUnmerged[[ind[x]]][x])
               } else {
@@ -767,43 +998,57 @@ setMethod("Plot",
               }
             }
 
-            # get extents from all SpatialPoints*, Rasters*, including Stacks
-#             extsToPlot <- rep(sapply(toPlot, extent),
-#                               sapply(toPlot, function(x) length(layerNames(x))))
-#             names(extsToPlot)<-lN
-#             ind <- vpNames %in% lN + 1
-#             extsUnmerged <- list(extCurrent=arr$extents[match(vpNames,currentNames)],
-#                                  extlN=extsToPlot[match(vpNames, lN)])
-#             extsAll <- sapply(1:length(vpNames), function(x) extsUnmerged[[ind[x]]][x])
-#             extsNew <- extsToPlot[!(lN %in% currentNames)]
-#             extsToAdd <- list(extsNew,extsAll)[[newArr+1]]
-#             extsNamesToAdd <- names(extsToAdd)
-
             # create .arr object - i.e., the arrangement based on number and extents
             if(!newArr) {
               if(exists(".arr",envir=.GlobalEnv)) {
                 arr <- .arr
-                arr$names = append(arr$names, names(extsToPlot))
+                arr@names = append(arr@names, names(extsToPlot))
+                arr@extents = append(arr@extents, extsToPlot)
+
+                stacks <- which(sapply(toPlot, function(x) length(layerNames(x)))>1)
+                if(length(stacks)>0) {
+                  namesByStack <- lapply(toPlot[stacks], layerNames)
+                  arrStackLen <- length(arr@stack)
+                  arr@stack <- append(arr@stack, namesByStack)
+                  names(arr@stack)[arrStackLen+1:length(namesByStack)] <- sapply(toPlot[stacks], name)
+                }
+
                 #grobs <- .grobs
               } else {
                 message("nothing to add to, creating new plot")
                 arr <- arrangeViewports(extsToPlot)
+                stacks <- which(sapply(toPlot, function(x) length(layerNames(x)))>1)
+                if(length(stacks)>0) {
+                  arr@stack <- lapply(toPlot[stacks], layerNames)
+                  names(arr@stack) <- sapply(toPlot[stacks], name)
+                }
                 assign(".arr", arr, envir=.GlobalEnv)
                 grid.newpage()
               }
-            } else {
+            } else { # need a new arrangement
               arr <- arrangeViewports(extsToPlot)
+              stacks <- which(sapply(toPlot, function(x) length(layerNames(x)))>1)
+              if(length(stacks)>0) {
+                namesByStack <- lapply(toPlot[stacks], layerNames)
+                arrStackLen <- length(arr@stack)
+                arr@stack <- append(currentStacks, namesByStack)
+                names(arr@stack)[arrStackLen+1:length(namesByStack)] <- sapply(toPlot[stacks], name)
+              } else {
+                arr@stack <- currentStacks
+              }
+
               assign(".arr", arr, envir=.GlobalEnv)
               grid.newpage()
             }
+
             #end create .arr object
 
             if(is.null(gp$cex)) {
-              gp$cex <- cex <- max(0.6,min(1,prod(arr$ds)/prod(arr$columns,arr$rows)*0.1))
+              gp$cex <- cex <- max(0.6,min(1,prod(arr@ds)/prod(arr@columns,arr@rows)*0.1))
             }
 
-
             lay <- makeLayout(arr, visualSqueeze, cex)
+
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
 
@@ -814,8 +1059,14 @@ setMethod("Plot",
             }
 
             npixels <- sapply(toPlot, ncell)
-            maxpixels <- 1e3/(arr$columns*arr$rows)*prod(arr$ds)/speedup
-            maxpixels <- c(maxpixels,npixels)[(npixels/2<maxpixels)+1]
+            maxpixels <- 2e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
+            maxpixels <- c(maxpixels,npixels)[(npixels/3<maxpixels)+1]
+
+
+            # because of stacks, have to find the right layer which may or may not be in a stack
+            layerLengths <- lapply(toPlot, layerNames)
+            if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
+            if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
 
             for(grobNamesi in grobNames) {
               whGrobNamesi <- match(grobNamesi,grobNames)
@@ -823,21 +1074,39 @@ setMethod("Plot",
                 title = FALSE
                 legend = FALSE
               }
-              whPlot <- match(addTo[whGrobNamesi], .arr$names)
-              if(axes=="L") {if(arr$cr[whPlot,"rows"]==min(arr$cr[,"rows"])) { xaxis = TRUE } else { xaxis = FALSE}
-                             if(arr$cr[whPlot,"columns"]==min(arr$cr[,"columns"])) { yaxis = TRUE } else { yaxis = FALSE}}
-              if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
-              if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
+              whPlot <- match(addTo[whGrobNamesi], arr@names)
+              if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis = TRUE } else { xaxis = FALSE}
+                             if(whPlot%%arr@columns==1) { yaxis = TRUE } else { yaxis = FALSE}}
 
               seekViewport(addTo[whGrobNamesi],recording=F)
 
               if(!grobNamesi %in% lN) {
-                grid.draw(.grobs[[grobNamesi]])
+#                 lapply(arr@stack, function(x) x == grobNamesi)
+                isPrevLayerInStack <- sapply(arr@stack, function(x) {
+                    match(arr@names[match(grobNamesi, arr@names)],x)
+                  }
+                )
+                if(!is.na(isPrevLayerInStack)) {# means it is in a stack
+                  withinStacki <- match(grobNamesi,arr@stack[[names(isPrevLayerInStack)]])
+                  grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
+                } else {
+                  grobToPlot <- get(grobNamesi)
+                }
+
+#                 inStack <- match(arr@stack, arr@names[match(grobNamesi, arr@names)])
+                 plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
+                          add=TRUE, vp=NULL, pch=pch,
+                          #xaxis = xaxis, yaxis = yaxis, title=title,
+                          maxpixels= maxpixels[toPlotInd],
+                          legend = legend, gp = gp, draw = draw)
+                #grid.draw(.grobs[[grobNamesi]])
+                if(title) grid.text(grobNamesi, name="title", y=1.08, vjust=0.5, gp = gp)
+
 #                 if(xaxis==TRUE) grid.xaxis(gp = gp)
 #                 if(yaxis==TRUE) grid.xaxis(gp = gp)
               } else {
                 # because of stacks, have to find the right layer which may or may not be in a stack
-                layerLengths <- lapply(toPlot, layerNames)
+#                layerLengths <- lapply(toPlot, layerNames)
 #                toPlotInd <- lN[whGrobNamesi]
                 toPlotInd <- which(!is.na(sapply(layerLengths,
                                                   function(x) match(grobNamesi,x))))
@@ -847,21 +1116,21 @@ setMethod("Plot",
                   grobToPlot = toPlot[[toPlotInd]]
                 }
 
-                if (quick) {
-                  plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
-                           add=TRUE, vp=NULL, pch=pch,
-                           #xaxis = xaxis, yaxis = yaxis, title=title,
-                           maxpixels= maxpixels[toPlotInd],
-                           legend = legend, gp = gp, draw = draw)
-                } else {
+#                 if (quick) {
+#                   plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
+#                            add=TRUE, vp=NULL, pch=pch,
+#                            #xaxis = xaxis, yaxis = yaxis, title=title,
+#                            maxpixels= maxpixels[toPlotInd],
+#                            legend = legend, gp = gp, draw = draw)
+#                 } else {
                   grobs[[grobNamesi]] <- plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
                                            add=TRUE, vp=NULL, pch=pch,
                                            #xaxis = xaxis, yaxis = yaxis, title=title,
                                            maxpixels= maxpixels[toPlotInd],
                                            legend = legend, gp = gp, draw = draw)
-                }
+                  if(title) grid.text(layerNames(grobToPlot), name="title", y=1.08, vjust=0.5, gp = gp)
+#                }
               }
-              if(title) grid.text(layerNames(grobToPlot), name="title", y=1.08, vjust=0.5, gp = gp)
               if(xaxis) grid.xaxis(name="xaxis", gp = gp)
               if(yaxis) grid.yaxis(name="yaxis", gp = gp)
             }
