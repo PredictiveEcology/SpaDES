@@ -11,6 +11,7 @@
 ### (use `loadPackages`, or `library` directly)
 pkgs <- list("SpaDES", "grid", "raster", "sp")
 loadPackages(pkgs)
+rm(pkgs)
 
 ### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
@@ -68,7 +69,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
                   "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 caribouMovementInit <- function(sim) {
@@ -98,7 +99,7 @@ caribouMovementInit <- function(sim) {
                                      data=data.frame(prevX, prevY, sex, age))
   row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
 
-  return(sim)
+  return(invisible(sim))
 }
 
 caribouMovementMove <- function(sim) {
@@ -125,5 +126,5 @@ caribouMovementMove <- function(sim) {
 #     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
 #
 
-    return(sim)
+    return(invisible(sim))
 }

@@ -9,6 +9,7 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES")
 loadPackages(pkgs)
+rm(pkgs)
 
 ### event functions
 doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
@@ -28,17 +29,15 @@ doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       objectNames <- simObjectsLoaded(sim)
 
-      mapStack <- stack(mget(objectNames, envir=.GlobalEnv))
+      mapStack <- stack(mget(unlist(objectNames), envir=.GlobalEnv))
       names(mapStack) <- objectNames
 
-      assign(simGlobls(sim)$mapName, mapStack, envir=.GlobalEnv)
-
-#      simPlot(mapStack, col = .cols[5:1])
+      assign(simGlobals(sim)$mapName, mapStack, envir=.GlobalEnv)
     }
 
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] ,"\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }

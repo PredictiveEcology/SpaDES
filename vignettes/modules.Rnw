@@ -1,4 +1,6 @@
-%\VignetteIndexEntry{modules}
+%\VignetteIndexEntry{Building modules in SpaDES.}
+%\VignetteDepends{SpaDES}
+%\VignetteKeyword{module}
 \documentclass{article}
 
 %%% latex packages
@@ -41,8 +43,8 @@
 
 \subsection{Module overview}
 
-\paragraph{} %%% copied from intro vignette
-\texttt{SpaDES} modules are event-based, meaning that different actions are performed on data objects based on the order of scheduled events. Basically, a module consists of a collection of events which are scehduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object.
+\paragraph{}
+As described in the introductory vignette, \texttt{SpaDES} is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A \texttt{SpaDEs} module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
 \subsection{Events}
 
@@ -58,26 +60,31 @@ textit{color{blue}{Lorem ipsum ...}}
 
 \subsubsection{Dependencies}
 
-\paragraph{} %%% copied from intro vignette
-Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are indepedent of each other, and this is generally the prefered way to design and implement modules. A module that schedules events from another module is said to depend on that module.
+\paragraph{}
+Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
 
 \paragraph{}
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
 
 \subsection{Objects}
 
-\paragraph{} %%% copied from intro vignette
+\paragraph{}
 As you build your module / simulation, you can use any of \textsf{R}'s data types to store your objects / data. In particular, matrices (including vectors) and lists work well for this purpose because they are pass-by-reference, which reduces your model's memory footprint and speeds up your codes execution. Other useful datatypes include Raster* and SpatialPoints* objects.
+
+\subsubsection{Data types}
+
+\paragraph{}
+As you build your modules for your simulation, you can use any of \textsf{R}'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because as of \textsf{R} version 3.1 they are more efficient and reduce your model's memory footprint and speeds up your codes execution. Other useful datatypes include \texttt{Raster*} and \texttt{SpatialPoints*} objects.
 
 \subsubsection{Global objects}
 
-\paragraph{} %%% copied from intro vignette
+\paragraph{}
 Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global objects to reduce copying large objects (such as maps), which slows model execution.
 
 \subsubsection{Module object dependencies}
 
-\paragraph{} %%% copied from intro vignette
-As noted above, modules can depend on one another for event scheduling. Modules can also be design to rely on outputs (data objects) from other modules.  It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. To check whether global objects upon which a model depends exist, a call to \texttt{checkObject} is made during module initilization.
+\paragraph{}
+As noted above, modules can depend on one another for event scheduling. Modules can also be designed to rely on outputs (data objects) from other modules. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. When objects are shared between modules, it is important to state these dependencies explicitly. To check whether global objects upon which a model depends exist, a call to \texttt{checkObject} is made during module initilization.
 
 \paragraph{}
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
@@ -99,13 +106,15 @@ There are a number of built-in modules that provide useful functionality. These 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the \texttt{interval} parameter is provided; the simulation checkpoint file (if one exists) is loaded if the \texttt{file} parameter is specified.
 
 <<checkpoints, echo=TRUE, eval=TRUE>>=
+library("SpaDES")
+
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
-times <- list(start=0,stop=100.02)
+times <- list(start=0, stop=100)
 outputPath=file.path("~", "tmp", "simOutputs")
 parameters <- list(.globals=list(mapName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
-                   randomLandscapes=list(nx=1e2, ny=1e2,
-                     .plotInitialTime=0, .plotInterval=1e3))
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
+                                         .plotInitialTime=0, .plotInterval=1e3))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
 
@@ -126,9 +135,10 @@ Schedule updates to the simulation progress bar.
 <<progress, echo=TRUE, eval=FALSE>>=
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.progress=list(.graphical=FALSE, .progressInterval=10)),
+                 params=list(.progress=list(.graphical=FALSE, .progressInterval=10),
+                             randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE)),
                  modules=list("randomLandscapes"),
-                 path="SAMPLE"
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the checkpoint params from the simulation object
@@ -164,21 +174,23 @@ Saving objects to file can be done by passing the appropriate arguments as param
 
 <<load-save, echo=TRUE, eval=FALSE>>=
 # initialize a new simulation, setting the load and save parameters
+filelist <- file.path(find.package("SpaDES", quiet=FALSE),"maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
-                   .loadFileList=data.frame(files=dir(pattern="tif"), stringsAsFactors=FALSE),
-                   randomLandscapes=list(nx=1e2, ny=1e2,
+                   .loadFileList=data.frame(files=filelist, stringsAsFactors=FALSE),
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                 .saveObjects=c("habitat"),
                                 .savePath=file.path("output", "randomLandscapes"),
-                                .saveInitialTime=0,
-                                .saveInterval=10),
+                                .saveInitialTime=0, .saveInterval=10)
                    ),
                  modules=list("randomLandscapes"),
-                 path="SAMPLE"
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the load and save params from the simulation object
-simFileList(mySim)
+simObjectsLoaded(mySim) # shows what's been loaded
+simFileList(mySim) # returns empty if objects successfully loaded
+
 simParams(mySim)$randomLandscapes$.saveObjects
 simParams(mySim)$randomLandscapes$.savePath
 simParams(mySim)$randomLandscapes$.saveInitialTime
@@ -264,7 +276,7 @@ See Section \ref{load-and-save-modules} above for more details.
 \subsection{Generate random landscapes (\texttt{randomLandscapes})}
 
 <<randomLandscapes, echo=FALSE, eval=TRUE>>=
-#source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -272,7 +284,7 @@ See Section \ref{load-and-save-modules} above for more details.
 \subsection{Simulate fire spread on a landscape (\texttt{fireSpread})}
 
 <<fireSpread, echo=FALSE, eval=TRUE>>=
-#source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \newpage
@@ -280,7 +292,7 @@ See Section \ref{load-and-save-modules} above for more details.
 \subsection{Agent based model of caribou movement (\texttt{caribouMovement})}
 
 <<caribouMovement, echo=FALSE, eval=TRUE>>=
-#source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 @
 
 \end{document}

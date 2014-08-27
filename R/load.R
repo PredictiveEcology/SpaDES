@@ -21,10 +21,10 @@ fileExt = function (x) {
 
 # Just checks for paths, creates them if they do not exist
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="init") {
+  if (eventType=="later") {
     sim <- loadFiles(sim)
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 
@@ -47,7 +47,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' - \code{intervals}: a numeric indicating the interval between repeated loading of the same
 #' file. This should be NA or the column absent if the file is only loaded once.
 #'
-#' - \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to simTime = 0,
+#' - \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to simTime=0,
 #' but this can be any time. The loading will be scheduled to occur at the "loadTime",
 #' whatever that is. If the same file is to loaded many times, but not at a regular interval,
 #' then there should be separate line, with a unique loadTime for each.
@@ -116,6 +116,7 @@ setMethod("loadFiles",
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
               fileList <- simFileList(sim)
+#            if(!is.null(fileList) & length(fileList$file)>0) {
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -123,7 +124,7 @@ setMethod("loadFiles",
               # with the "arguments", separated by a ".". This will extract that.
               if ((length(arguments)>0) & (is.null(names(arguments)))) {
                 names(arguments) <- sapply(strsplit(names(fileList)[match("arguments", names(fileList))],
-                                                    ".", fixed=TRUE), function(x) x[-1])
+                                                    ".", fixed=TRUE), function(x) { x[-1] } )
               }
 
               if (!is.null(arguments)) {
@@ -140,7 +141,7 @@ setMethod("loadFiles",
               }
 
               # fill in columns if they are missing. Assume loadTime = 0 if missing
-              if(is.na(match("loadTime",names(fileListdf)))) {
+              if(is.na(match("loadTime", names(fileListdf)))) {
                 fileListdf["loadTime"] <- 0
               }
 
@@ -242,7 +243,8 @@ setMethod("loadFiles",
               keepOnFileList <- fileListdf$loadTime!=curTime
               fileListdf = fileListdf[keepOnFileList,]
 
-              if(!exists("usedFileList")) usedFileList = FALSE
+              if(!exists("usedFileList")) usedFileList <- FALSE
+
               # If filename had been provided, then no need to return sim object, just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
@@ -253,30 +255,25 @@ setMethod("loadFiles",
                   error("fileList must be either a list or data.frame")
                 }
 
-                if(nrow(fileListdf)>0) {
-                  sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "init")
-                }
+                 if(nrow(fileListdf)>0) {
+                   sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
+                 }
               }
             } else {
-              message("No files loaded, because no fileList")
+              message("No files loaded, because no fileList (or empty fileList) provided.")
             }
             message("") ## print empty message to add linebreak to console message output
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
           signature(sim="missing", stackName="ANY", fileList="ANY"),
           definition = function(sim, stackName, fileList, ...) {
-            # check to see if fileList is empty
-            # if it is, skip everything, return nothing
-            usedFileList <- TRUE
-
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.loadFileList=fileList),
-                           modules=list(),
-                           path=".")
-            loadFiles(sim=sim, usedFileList=usedFilelist)
+                           modules=list(), path=".")
+            return(sim)
 })
 
 #' @rdname loadFiles-method

@@ -25,11 +25,11 @@ Returns or sets the value of the slot from the
 Currently, only get and set methods are defined. Subset
 methods are not.
 
-get .loadFileList from simulation parameters
+get .globals from simulation parameters
 
-set .loadFileList in simulation parameters
+set .globals in simulation parameters
 
-set .loadFileList in simulation parameters
+set .globals in simulation parameters
 }
 \author{
 Alex Chubaty

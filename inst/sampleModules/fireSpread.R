@@ -10,8 +10,9 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
+rm(pkgs)
 
-
+### event functions
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
@@ -79,7 +80,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE],"\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 fireSpreadInit <- function(sim) {
@@ -96,7 +97,7 @@ fireSpreadInit <- function(sim) {
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
 
-  return(sim)
+  return(invisible(sim))
 }
 
 
@@ -117,7 +118,17 @@ fireSpreadBurn <- function(sim) {
   landscapes$Fires <- Fires
   assign(simGlobals(sim)$mapName, landscapes, envir=.GlobalEnv)
 
-  return(sim)
+  return(invisible(sim))
+}
+
+fireSpreadStats <- function(sim) {
+  npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
+
+  landscapes <- get(simGlobals(sim)$mapName, envir=.GlobalEnv)
+
+  assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
+
+  return(invisible(sim))
 }
 
 fireSpreadStats <- function(sim) {

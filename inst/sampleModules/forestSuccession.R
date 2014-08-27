@@ -1,5 +1,5 @@
 ###
-### MODULE: forsetSuccession
+### MODULE: forestSuccession
 ###
 ### DESCRIPTION: a basic forest succession module
 ###               - land cover classes (2005) for Canada
@@ -10,7 +10,9 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
+rm(pkgs)
 
+### event functions
 doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
 
@@ -49,7 +51,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE], "\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 forestSuccessionInit <- function(sim) {
@@ -63,7 +65,7 @@ forestSuccessionInit <- function(sim) {
 
   lcc05Labels <- 0:39
 
-  ### From the table 1 in Word file from Steve CUmming & Pierre Vernier, June 6, 2014
+  ### From the table 1 in Word file from Steve Cumming & Pierre Vernier, June 6, 2014
   ###  09 A5 MDR ANslysis V4_SL.docx
   #
   # lcc05TrajReclass <- read.table(file="clipboard", header=TRUE, sep="\t")
@@ -154,7 +156,7 @@ forestSuccessionInit <- function(sim) {
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "forestSuccession")
 
-  return(sim)
+  return(invisible(sim))
 }
 
 forestSuccessionSuccession <- function(sim) {
@@ -167,10 +169,10 @@ forestSuccessionSuccession <- function(sim) {
 
     vegMap[indStatics] <<- valsStatics
 
-    return(sim)
+    return(invisible(sim))
 }
 
 forestSuccessionPlot <- function(sim) {
     simPlot(vegMap, add=FALSE, speedup=20, col=brewer.pal(10,"Set3"))
-    return(sim)
+    return(invisible(sim))
 }

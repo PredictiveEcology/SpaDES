@@ -82,7 +82,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
                   "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
 
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 #' @param file The checkpoint file.

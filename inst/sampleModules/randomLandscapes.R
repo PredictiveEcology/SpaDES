@@ -9,8 +9,9 @@
 ### (use `loadPackages` or similar)
 pkgs <- list("SpaDES", "raster")
 loadPackages(pkgs)
+rm(pkgs)
 
-
+### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
@@ -49,7 +50,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
   }
-  return(sim)
+  return(invisible(sim))
 }
 
 randomLandscapesInit <- function(sim) {
@@ -80,11 +81,11 @@ randomLandscapesInit <- function(sim) {
 
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
-  names(mapStack)<-c("DEM","forestAge","forestCover","habitatQuality","percentPine")
+  names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
   assign(simGlobals(sim)$mapName, mapStack, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
 
-  return(sim)
+  return(invisible(sim))
 }

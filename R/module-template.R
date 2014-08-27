@@ -85,7 +85,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
       warning(paste(\"Undefined event type: \'\", simEvents(sim)[1, \"eventType\", with=FALSE],
                     \"\' in module \'\", simEvents(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
     }
-  return(sim)
+  return(invisible(sim))
 }
 
 ### template initilization
@@ -102,7 +102,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), \"", name, "\")
 
-  return(sim)
+  return(invisible(sim))
 }
 
 ### template for save events
@@ -115,7 +115,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.saveInterval, \"", name, "\", \"save\")
 
   # ! ----- STOP EDITING ----- ! #
-  return(sim)
+  return(invisible(sim))
 }
 
 ### template for plot events
@@ -128,7 +128,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.plotInterval, \"", name, "\", \"plot\")
 
   # ! ----- STOP EDITING ----- ! #
-  return(sim)
+  return(invisible(sim))
 }
 
 ### template for your event1
@@ -140,7 +140,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"event1\")
 
   # ! ----- STOP EDITING ----- ! #
-  return(sim)
+  return(invisible(sim))
 }
 
 ### template for your event2
@@ -152,7 +152,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"event2\")
 
   # ! ----- STOP EDITING ----- ! #
-  return(sim)
+  return(invisible(sim))
 }
 
 ### add additional events as needed by copy/pasting from above\n",

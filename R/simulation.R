@@ -84,14 +84,15 @@ setMethod("show",
 
             ### file/objects loaded
             files = simFileList(object)[["files"]]
-            if (is.null(simFileList(object)[["objectNames"]])) {
-              names = fileName(files)
-            } else {
-              names = objectNames
+            if (!is.null(simFileList(object)[["files"]])) {
+              if (is.null(simFileList(object)[["objectNames"]])) {
+                names = fileName(files)
+              } else {
+                names = objectNames
+              }
             }
-            out[[8]] = capture.output(cat(">> Files/Objects:\n"))
-            out[[9]] = capture.output(print(cbind(FileName=lapply(simFileList(object)[["files"]], basename),
-                                                  IsLoaded=names %in% simObjectsLoaded(object)),
+            out[[8]] = capture.output(cat(">> Objects Loaded:\n"))
+            out[[9]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
                                             quote=FALSE, row.names=FALSE))
             out[[10]] = capture.output(cat("\n"))
 
@@ -103,8 +104,12 @@ setMethod("show",
                         },
                        x=names(simParams(object))[-omit], y=simParams(object)[-omit],
                        USE.NAMES=TRUE, SIMPLIFY=FALSE)
-            q = do.call(rbind, p)
-            q = q[order(q$Module, q$Parameter),]
+            if (length(p)>0) {
+              q = do.call(rbind, p)
+              q = q[order(q$Module, q$Parameter),]
+            } else {
+              q = cbind(Module=list(), Parameter=list())
+            }
             out[[11]] = capture.output(cat(">> Parameters:\n"))
             out[[12]] = capture.output(print(q, row.names=FALSE))
             out[[13]] = capture.output(cat("\n"))
@@ -586,7 +591,7 @@ setGeneric("simGlobals", function(object) {
   standardGeneric("simGlobals")
 })
 
-#' get .loadFileList from simulation parameters
+#' get .globals from simulation parameters
 #' @rdname simGlobals-accessor-methods
 setMethod("simGlobals",
           signature="simList",
@@ -594,7 +599,7 @@ setMethod("simGlobals",
             return(object@params$.globals)
 })
 
-#' set .loadFileList in simulation parameters
+#' set .globals in simulation parameters
 #' @export
 #' @rdname simGlobals-accessor-methods
 setGeneric("simGlobals<-",
@@ -602,7 +607,7 @@ setGeneric("simGlobals<-",
              standardGeneric("simGlobals<-")
 })
 
-#' set .loadFileList in simulation parameters
+#' set .globals in simulation parameters
 #' @name simGlobals<-
 #' @aliases simGlobals<-,simList-method
 #' @rdname simGlobals-accessor-methods
@@ -1122,7 +1127,7 @@ setMethod("simInit",
             simModules(sim) <- modules
             simParams(sim) <- params
 
-            # load "default" modules (should we be hardcoding this??)
+            # load "default" modules
             for (d in defaults) {
               ### sourcing the code in each module is already done
               ### because they are loaded with the package
@@ -1147,7 +1152,7 @@ setMethod("simInit",
                 simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
 
                 ### add NAs to any of the dotParams that are not specified by user
-                # ensure the moduls sublist exists by creating a tmp value in it
+                # ensure the modules sublist exists by creating a tmp value in it
                 if(is.null(simParams(sim)[[m]])) {
                   simParams(sim)[[m]] <- list(.tmp=NA_real_)
                 }
@@ -1170,10 +1175,17 @@ setMethod("simInit",
 
             simModules(sim) <- append(defaults, modules)
 
+            # load files in the filelist
+            if (is.null(simFileList(sim))) {
+              sim <- loadFiles(sim, usedFileList=TRUE)
+            } else {
+              sim <- loadFiles(sim)
+            }
+
             # check the parameters supplied by the user
             checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE
 
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname simInit-method
@@ -1181,7 +1193,7 @@ setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing"),
           definition=function(times, params, modules) {
             simInit(times=times, params=params, modules=modules, path="./")
-            return(sim)
+            return(invisible(sim))
 })
 
 ##############################################################
@@ -1293,14 +1305,14 @@ setMethod("doEvent",
               # update current simulated time to
               simCurrentTime(sim) <- simCurrentTime(sim) + 1e-10 # .Machine$double.eps
             }
-          return(sim)
+          return(invisible(sim))
 })
 
 #' @rdname doEvent-method
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {
-            doEvent(sim, debug=FALSE)
+            return(doEvent(sim, debug=FALSE))
 })
 
 ##############################################################
@@ -1362,7 +1374,7 @@ setMethod("scheduleEvent",
               }
             }
 
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname scheduleEvent-method
@@ -1373,7 +1385,7 @@ setMethod("scheduleEvent",
             warning(paste("Invalid or missing eventTime. This is usually",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
-            return(sim)
+            return(invisible(sim))
 })
 
 ##############################################################

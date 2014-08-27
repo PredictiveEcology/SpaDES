@@ -1,4 +1,8 @@
-%\VignetteIndexEntry{plotting}
+%\VignetteIndexEntry{Simulation visualization and plotting in SpaDES}
+%\VignetteDepends{SpaDES}
+%\VignetteKeyword{maps}
+%\VignetteKeyword{plot}
+%\VignetteKeyword{visualization}
 \documentclass{article}
 
 %%% latex packages
