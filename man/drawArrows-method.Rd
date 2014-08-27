@@ -20,10 +20,12 @@ drawArrows(from, to, addTo, ...)
   \item{to}{Ending spatial coordinates
   (\code{SpatialPointsDataFrame})..}
 
-  \item{addTo}{The name of a map layer on which to draw the
-  arrows.}
+  \item{addTo}{Optional character string. The name of a map
+  layer on which to draw the arrows.}
 
-  \item{...}{Additional plotting parameters.}
+  \item{...}{Additional plotting parameters passed to
+  grid.polyline. Currently does not appear to pass
+  anything.}
 
   \item{length}{The length of the arrows to draw (defaults
   to 0.1).}

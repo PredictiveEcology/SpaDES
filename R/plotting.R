@@ -905,6 +905,7 @@ setMethod("drawArrows",
 #' @export
 #' @docType methods
 #' @export
+#' @import RColorBrewer
 #' @examples
 #' #  Make list of maps from package database to load, and what functions to use to load them
 #' fileList <-
