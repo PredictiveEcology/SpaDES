@@ -44,8 +44,6 @@ setClass("SpatialPointsNamed",
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
-#'
-#' @export
 setGeneric("SpatialPointsNamed", function(..., name) {
              standardGeneric("SpatialPointsNamed")
 })
@@ -116,7 +114,6 @@ setClass("SpatialPointsDataFrameNamed",
 #' @seealso \code{\link{SpatialPointsDataFrame}}
 #'
 #' @import sp
-#' @export
 #' @docType methods
 #' @rdname SpatialPointsDataFrameNamed-method
 #'
