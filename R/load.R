@@ -156,8 +156,8 @@ setMethod("loadFiles",
               exts <- match(fileExt(fl), .fileExts[,"exts"])
 
               # determine which function to load with
-              loadFun <- as.character(.fileExts[exts,"functions"])#[,functions])
-              loadPackage <- as.character(.fileExts[exts,"package"])#[,functions])
+              loadFun <- as.character(.fileExts[exts, "functions"])#[,functions])
+              loadPackage <- as.character(.fileExts[exts, "package"])#[,functions])
 
               # correct those for which a specific function is given in fileListdf$functions
               if(!is.na(match("functions",names(fileListdf)))) {
@@ -179,7 +179,7 @@ setMethod("loadFiles",
               if(is.null(stackName)) {
                 environ <- .GlobalEnv
               } else {
-                environ <-parent.frame()
+                environ <- parent.frame()
               }
 
               if(length(simGlobals(sim)$.stackName)==1) {

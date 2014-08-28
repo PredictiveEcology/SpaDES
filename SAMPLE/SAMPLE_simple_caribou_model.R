@@ -92,8 +92,6 @@ library("SpaDES", lib.loc=getOption("devtools.path"))
 rasterOptions(maxmemory=1e9)
 
 # temporary fix to plot colours (to be changed in plotting.R)
-.cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
-
 fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          lib.loc=getOption("devtools.path"),
                                                          quiet=FALSE),"maps"),

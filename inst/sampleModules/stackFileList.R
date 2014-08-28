@@ -31,6 +31,11 @@ doEvent.stackFileList <- function(sim, eventTime, eventType, debug=FALSE) {
 
       mapStack <- stack(mget(unlist(objectNames), envir=.GlobalEnv))
       names(mapStack) <- objectNames
+      setColors(mapStack) <- list(DEM=terrain.colors(100),
+                                  forestAge=brewer.pal(9,"BuGn"),
+                                  forestCover=brewer.pal(8,"BrBG"),
+                                  habitatQuality=brewer.pal(8,"Spectral"),
+                                  percentPine=brewer.pal(9,"Greens"))
 
       assign(simGlobals(sim)$.stackName, mapStack, envir=.GlobalEnv)
     }

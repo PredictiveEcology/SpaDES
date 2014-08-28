@@ -7,7 +7,7 @@
 
 ### load any required packages
 ### (use `loadPackages` or similar)
-pkgs <- list("SpaDES", "raster")
+pkgs <- list("SpaDES", "raster", "RColorBrewer")
 loadPackages(pkgs)
 rm(pkgs)
 
@@ -83,6 +83,11 @@ randomLandscapesInit <- function(sim) {
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
   names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
   name(mapStack) <- simGlobals(sim)$.stackName
+  setColors(mapStack) <- list(DEM=terrain.colors(100),
+                              forestAge=brewer.pal(9,"BuGn"),
+                              forestCover=brewer.pal(8,"BrBG"),
+                              habitatQuality=brewer.pal(8,"Spectral"),
+                              percentPine=brewer.pal(9,"Greens"))
   assign(simGlobals(sim)$.stackName, mapStack, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list

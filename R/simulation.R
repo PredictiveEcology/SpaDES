@@ -92,7 +92,9 @@ setMethod("show",
               }
             }
             out[[8]] = capture.output(cat(">> Objects Loaded:\n"))
-            out[[9]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
+            out[[9]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object),
+                                                  #Contains=names(get(simObjectsLoaded(object), envir=.GlobalEnv))
+                                                  ),
                                             quote=FALSE, row.names=FALSE))
             out[[10]] = capture.output(cat("\n"))
 

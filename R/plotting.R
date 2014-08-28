@@ -201,7 +201,6 @@ setClass("arrangement",
            }
 })
 
-
 #' Determine optimal plotting arrangement of RasterStack
 #'
 #' Hidden function.
