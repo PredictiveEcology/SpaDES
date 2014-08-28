@@ -11,7 +11,8 @@
 #' @seealso \code{\link{SpatialPoints}}
 #'
 #' @rdname SpatialPointsNamed-class
-#' @importClassesFrom sp SpatialPoints
+# @importClassesFrom sp SpatialPoints
+#' @import sp
 #' @exportClass SpatialPointsNamed
 #'
 setClass("SpatialPointsNamed",
@@ -88,7 +89,8 @@ setMethod("show",
 #' @seealso \code{\link{SpatialPointsDataFrame}}
 #'
 #' @rdname SpatialPointsDataFrameNamed-class
-#' @importClassesFrom sp SpatialPointsDataFrame
+# @importClassesFrom sp SpatialPointsDataFrame
+#' @import sp
 #' @exportClass SpatialPointsDataFrameNamed
 #'
 setClass("SpatialPointsDataFrameNamed",
@@ -164,7 +166,8 @@ setMethod("show",
 #' @seealso \code{\link{RasterStack}}
 #'
 #' @rdname RasterStackNamed-class
-#' @importClassesFrom raster RasterStack
+# @importClassesFrom raster RasterStack
+#' @import raster
 #' @exportClass SpatialPointsNamed
 #'
 setClass("RasterStackNamed",
