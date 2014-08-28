@@ -40,28 +40,37 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' Other optional columns are:
 #'
 #' - \code{objectNames}: a character string indicating the name of the object once the
-#' file is loaded.
+#' file is loaded. Default is to use the file names, with file extension removed.
 #'
-#' - \code{functions}: a character string indicating the function to be used to load the file
+#' - \code{functions}: a character string indicating the function to be used to load the file.
+#' Default is to use the mapping between file extensions in the \code{.fileExtensions} function
+#' and the actual file extensions.
 #'
 #' - \code{intervals}: a numeric indicating the interval between repeated loading of the same
-#' file. This should be NA or the column absent if the file is only loaded once.
+#' file. This should be NA or the column absent if the file is only loaded once. Default is
+#' absent, so files are loaded only at \code{start} in the \code{simList}.
 #'
-#' - \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to simTime=0,
-#' but this can be any time. The loading will be scheduled to occur at the "loadTime",
-#' whatever that is. If the same file is to loaded many times, but not at a regular interval,
-#' then there should be separate line, with a unique loadTime for each.
+#' - \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to
+#' simTime=0,but this can be any time. The loading will be scheduled to occur
+#' at the "loadTime", whatever that is. If the same file is to loaded many times,
+#' but not at a regular interval, then there should be separate line, with a unique
+#' loadTime for each.
 #'
-#' - \code{arguments}: is a list of lists of named arguments, one list for each loading function. For example, if raster
-#' is a loading function, arguments = list(native = TRUE). If there is only one list, then it is assumed to apply
-#' to all load attempts and will be repeated for each load function.
+#' - \code{.stackNames}: a character (vector) indicating the name(s) of the RasterStack(s)
+#' to stack all the RasterLayers into. If left blank, then the individual RasterLayers will
+#' not be automatically stacked. If this is specified, the individual RasterLayers loaded
+#' will not actually be created as individual R objects; they will be loaded directly
+#' into the stack. Finally, the behaviour here is
+#'
+#' - \code{arguments}: is a list of lists of named arguments, one list for each loading function.
+#' For example, if raster is a loading function, arguments = list(native = TRUE). If there is only
+#' one list, then it is assumed to apply to all load attempts and will be repeated
+#' for each load function.
 #'
 #' @param sim A \code{simList} object
 #'
-#' @param stackName Character string or \code{NULL}, the default. If a string, then all rasters will be put into
-#' a single \code{RasterStack} object, with name given.
-#'
-#' @param fileList List or data.frame to call loadFiles directly from the fileList as described in Details
+#' @param fileList List or data.frame to call loadFiles directly from the fileList as
+#' described in Details
 #'
 #' @param ... Additional arguments.
 #'
@@ -75,14 +84,13 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @rdname loadFiles-method
 #'
 #' @examples
-#' \dontrun{
 #' #load random maps included with package
 #' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
 #'    full.names=TRUE, pattern= "tif"), functions="rasterToMemory", package="SpaDES",
 #'    stringsAsFactors=FALSE)
 #'
-#' mySim <- loadFiles(mySim)
-#' simPlot(DEM)
+#' loadFiles(fileList=fileList)
+#' Plot(DEM)
 #'
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #' #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
@@ -100,9 +108,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    intervals = c(rep(NA, length(files)-1), 10),
 #'    stringsAsFactors=FALSE)
 #'
-#' sim <- loadFiles(sim)
-#' mySim <- spades(mySim, debug=FALSE))
-#' }
+#' loadFiles(fileList=fileList)
 #'
 setGeneric("loadFiles", function(sim, fileList, ...)  {
   standardGeneric("loadFiles")
@@ -176,11 +182,6 @@ setMethod("loadFiles",
 
               # raster function sometimes loads file to disk; this will be made explicit
               where <- c("disk", "memory")
-              if(is.null(stackName)) {
-                environ <- .GlobalEnv
-              } else {
-                environ <- parent.frame()
-              }
 
               if(length(simGlobals(sim)$.stackName)==1) {
                 stackName=rep(simGlobals(sim)$.stackName,length(objectNames))
@@ -342,15 +343,7 @@ setMethod("loadFiles",
 #'
 #' @export
 #' @rdname loadFiles-method
-setGeneric(".fileExtensions", function(x) {
-  standardGeneric(".fileExtensions")
-})
-
-#' @export
-#' @rdname loadFiles-method
-setMethod(".fileExtensions",
-          signature(x="missing"),
-          definition = function(x) {
+.fileExtensions = function() {
   .fE <- data.frame(matrix(ncol=3, byrow=TRUE,c(
   "tif", "raster", "raster" ,
   "png", "raster", "raster" ,
@@ -361,7 +354,7 @@ setMethod(".fileExtensions",
   colnames(.fE) = c("exts", "functions", "package")
   return(.fE)
 }
-)
+
 
 #######################################################
 #' Read raster to memory

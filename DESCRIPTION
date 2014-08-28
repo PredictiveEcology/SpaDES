@@ -50,7 +50,6 @@ Collate:
     'movement.R'
     'named-objects.R'
     'neighbourhood.R'
-    'oldPlotting.R'
     'plotting.R'
     'probability.R'
     'progress.R'

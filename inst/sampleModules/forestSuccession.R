@@ -173,6 +173,6 @@ forestSuccessionSuccession <- function(sim) {
 }
 
 forestSuccessionPlot <- function(sim) {
-    simPlot(vegMap, add=FALSE, speedup=20, col=brewer.pal(10,"Set3"))
+    Plot(vegMap, speedup=20)
     return(invisible(sim))
 }
