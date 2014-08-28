@@ -25,8 +25,6 @@ setClass("SpatialPointsNamed",
            }
 })
 
-#' @exportClass NamedSpatialPoints
-setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
 
 #' @export
 setGeneric("SpatialPointsNamed",
@@ -241,6 +239,13 @@ setMethod("show",
             #             cat(unlist(out), fill=FALSE, sep="\n")
 })
 
+#' @exportClass spatialObjects
+setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNamed",
+                                  "RasterLayer", "RasterStack"))
+
+#' @exportClass NamedSpatialPoints
+setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
+
 ################################################################################
 #' Get and set the name of an object.
 #'
@@ -263,9 +268,6 @@ setMethod("show",
 #' @seealso \code{\link{SpatialPointsNamed}},
 #'          \code{\link{SpatialPointsDataFrameNamed}},
 #'          \code{\link{RasterStackNamed}}.
-#'
-#' @examples
-#'
 #'
 setGeneric("name", function(object) {
   standardGeneric("name")

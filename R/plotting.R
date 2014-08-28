@@ -413,11 +413,6 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
   return(wholeVp)
 }
 
-#' @exportClass spatialObjects
-setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNamed",
-                                  "RasterLayer", "RasterStack"))
-
-
 
 ##############################################################
 #' Plots arrows showing direction of agent movement.
