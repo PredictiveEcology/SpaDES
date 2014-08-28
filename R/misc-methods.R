@@ -142,9 +142,6 @@ setMethod("checkPath",
 #' @author Alex Chubaty
 #' @author Eliot McIntire
 #'
-# @examples
-# \dontrun{}
-#'
 setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
 })
@@ -249,6 +246,20 @@ setMethod("checkParams",
 
             ### check whether each param in simInit occurs in a module's .R file
             for (uM in userModules) {
+              # check global params
+              globalParams <- simGlobals(sim)
+              if (length(globalParams)>0) {
+                for (i in 1:length(globalParams)) {
+                  gP <- names(globalParams[i])
+                  result <- grep(gP, readLines(paste(path, "/", uM, ".R", sep="")), value=FALSE)
+                  if (length(result)<=0) {
+                    allFound <- FALSE
+                    warning(paste("Global parameter", gP, "is not used in module", uM))
+                  }
+                }
+              }
+
+              # check user params
               userParams <- params[[uM]][-which(names(params[[uM]]) %in% defaultParams)]
               if (length(userParams)>0) {
                 for (i in 1:length(userParams)) {
@@ -264,7 +275,37 @@ setMethod("checkParams",
 
             ### check whether each param in a module's .R file occurs in simInit
             for (uM in userModules) {
-              # read in and cleanup/isolate the params in the module's .R file
+              # read in and cleanup/isolate the global params in the module's .R file
+              moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
+                                   readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
+              moduleParams <- strsplit(moduleParams, " ")
+              moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
+              moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
+                                   moduleParams, value=TRUE)
+              moduleParams <- unlist(strsplit(moduleParams, "="))
+              moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
+                                   moduleParams, value=TRUE)
+              moduleParams <- gsub(",", "", moduleParams)
+              moduleParams <- gsub("\\)\\)", "", moduleParams)
+              moduleParams <- gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", moduleParams)
+              moduleParams <- sort(unique(moduleParams))
+              moduleParams <- gsub(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
+
+              if (length(moduleParams)>0) {
+                # which params does the user supply to simInit?
+                userParams <- sort(unlist(names(params[[uM]])))
+                if (length(globalParams)>0) {
+                  for (i in 1:length(moduleParams)) {
+                    mP <- moduleParams[i]
+                    if (!(mP %in% userParams)) {
+                      allFound <- FALSE
+                      warning(paste("Global parameter", mP, "is not supplied to module", uM))
+                    }
+                  }
+                }
+              }
+
+              # read in and cleanup/isolate the user params in the module's .R file
               moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
                                    readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
               moduleParams <- strsplit(moduleParams, " ")
