@@ -151,7 +151,7 @@ setMethod("loadFiles",
               fl <- filesCurTime$file
 
               #fl.list <- strsplit(basename(fl), ".", fixed=TRUE)
-browser()
+#browser()
               # extract file extensions, to be used to determine which function to use
               exts <- match(fileExt(fl), .fileExts[,"exts"])
 
@@ -239,6 +239,7 @@ browser()
               } # end x
 
               for(uniqueStacki in unique(stackName)) {
+                name(localStacks[[uniqueStacki]]) <- uniqueStacki
                 assign(uniqueStacki, localStacks[[uniqueStacki]],
                        envir=.GlobalEnv)
               }
