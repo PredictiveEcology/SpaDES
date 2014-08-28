@@ -106,14 +106,14 @@ times <- list(start=0, stop=100)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
-                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),
-                   fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=10, startTime=0,
-                                  .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=1e2, moveInterval=1,
-                                        .plotInitialTime=1.01, .plotInterval=1)
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE)#,
+                   #fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
+                  #                 persistprob=0, returnInterval=10, startTime=0,
+                  #                .plotInitialTime=0.1, .plotInterval=10),
+                  # caribouMovement=list(N=1e2, moveInterval=1,
+                  #                      .plotInitialTime=1.01, .plotInterval=1)
                    )
-modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+modules <- list("randomLandscapes")#, "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
@@ -208,14 +208,14 @@ landscape[["Fires"]] <-
          plot.it=FALSE,
          mapID=TRUE)
 
-simPlot(landscape[["Fires"]])
+Plot(landscape[["Fires"]])
 @
 
 
 <<fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
-simPlot(landscape[["percentPine"]], col=.cols[[3]])
-simPlot(landscape[["Fires"]], add=TRUE, delete.previous=FALSE, col=.cols[[1]])
+Plot(landscape[["percentPine"]])
+Plot(landscape[["Fires"]], add=TRUE)
 @
 
 \paragraph{}
@@ -240,7 +240,7 @@ landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
 landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-simPlot(landscape, col=.cols[c(4, 7, 10, 3, 8, 5)])
+Plot(landscape)
 @
 
 \newpage
@@ -285,7 +285,7 @@ row.names(caribou) <- IDs
 Using a simple landscape-depedent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 <<agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE>>=
-simPlot(landscape[["habitatQuality"]], col=.cols[[3]])
+Plot(landscape[["habitatQuality"]], col=.cols[[3]])
 
 for (t in 1:10) {
   #crop any caribou that went off maps
@@ -309,7 +309,7 @@ for (t in 1:10) {
 \subsubsection{Polygons agents}
 
 \paragraph{}
-Analogously, possible to use \texttt{SpatialPolygons*}, but we don't have \texttt{simPlot} plotting methods yet.
+Analogously, possible to use \texttt{SpatialPolygons*}, but we don't have \texttt{Plot} plotting methods yet.
 
 \newpage
 

@@ -46,8 +46,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(caribou, addTo="forestAge", add=TRUE, pch=19, gp=gpar(cex=0.01),
-            delete.previous=TRUE)
+    Plot(caribou, addTo="forestAge", add=TRUE, pch=19, gp=gpar(cex=0.01))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
@@ -94,8 +93,9 @@ caribouMovementInit <- function(sim) {
                   y=runif(N, yrange[1],yrange[2]))
 
   # create the caribou agent object
-  caribou <<- SpatialPointsDataFrame(coords=starts,
-                                     data=data.frame(prevX, prevY, sex, age))
+  caribou <<- SpatialPointsDataFrameNamed(coords=starts,
+                                     data=data.frame(prevX, prevY, sex, age),
+                                     name="caribou")
   row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
 
   return(invisible(sim))

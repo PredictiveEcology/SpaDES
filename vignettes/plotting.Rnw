@@ -19,7 +19,7 @@
 \textheight 9.0in
 
 %%% document info
-\title{Plotting with \texttt{simPlot} in \texttt{SpaDES}}
+\title{Plotting with \texttt{Plot} in \texttt{SpaDES}}
 
 \author{
 	Eliot McIntire\\
@@ -41,7 +41,7 @@
 
 \newpage
 
-\section{Plotting with \texttt{simPlot}}
+\section{Plotting with \texttt{Plot}}
 
 \paragraph{}
 One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at every stage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands.
@@ -88,7 +88,7 @@ cols <- list(
   topo <- topo.colors(10)
 )
 
-simPlot(habitat, col=cols[c(2:5,3)])
+Plot(habitat)
 @
 
 <<mobile-point-agent, fig=TRUE>>=
@@ -116,12 +116,12 @@ coordinates(caribou)
 #plot(habitat)
 #plot(caribou, add=TRUE)
 
-# convenient plotting using simPlot
-simPlot(habitat, col=cols[c(2:5,3)])
-simPlot(caribou, on.which.to.plot=c(2,3,5), pch=19, size=unit(0.1,"inches"))
-drawArrows(from=SpatialPoints(cbind(x=prevX, y=prevY)),
+# convenient plotting using Plot
+Plot(habitat)
+Plot(caribou, addTo="habitatQuality", pch=19, size=1)
+drawArrows(from=SpatialPointsNamed(cbind(x=prevX, y=prevY)),
            to=caribou,
-           on.which.to.plot="DEM")
+           addTo="DEM")
 @
 
 
