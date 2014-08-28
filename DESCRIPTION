@@ -39,7 +39,7 @@ Imports:
 License: GPL
 Collate:
     'SELES.R'
-    'agent-methods.R'
+    'agents.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
@@ -48,6 +48,7 @@ Collate:
     'misc-methods.R'
     'module-template.R'
     'movement.R'
+    'named-objects.R'
     'neighbourhood.R'
     'oldPlotting.R'
     'plotting.R'
