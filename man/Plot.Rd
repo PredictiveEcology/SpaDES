@@ -72,15 +72,12 @@ fileList <-
                   "maps"),
         full.names=TRUE, pattern= "tif"),
      functions="rasterToMemory",
+     .stackName="landscape",
      packages="SpaDES",
      stringsAsFactors=FALSE)
 
-# Load files to memory (using rasterToMemory)
-sim <- loadFiles(fileList=fileList)
-
-# make a stack of all these rasters
-landscape <- stack(mget(unlist(simObjectsLoaded(sim))))
-name(landscape) <- "landscape"
+# Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
+loadFiles(fileList=fileList)
 
 # extract a single one of these rasters
 DEM <- landscape$DEM
@@ -92,12 +89,13 @@ setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
                            habitatQuality = brewer.pal(9,"Spectral"),
                            percentPine = brewer.pal("GnBu",n=8))
 
-DEM1 <- landscape$DEM
-names(DEM1) <- "DEM1"
+#Make a new raster derived from a previous one; must give it a unique name
+habitatQuality2 <- landscape$habitatQuality ^ 0.3
+names(habitatQuality2) <- "habitatQuality2"
 
 # make a SpatialPointsNamed object
-caribou <- SpatialPoints(cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
-     name(caribou)<-"caribou"
+caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
+                              name="caribou")
 
 #Plot all maps on a new plot windows - Do not use RStudio window
 if(is.null(dev.list())) {

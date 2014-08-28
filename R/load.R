@@ -186,22 +186,27 @@ setMethod("loadFiles",
                 stackName=rep(simGlobals(sim)$.stackName,length(objectNames))
               } else if (length(simGlobals(sim)$.stackName)==length(objectNames)){
                 stackName=simGlobals(sim)$.stackName
+              } else if (is.null(simGlobals(sim)$.stackName)) {
+                stackName=rep(NA, length(objectNames))
+                simGlobals(sim)$.stackName <- stackName
               } else {
                 stop(".stackNames must be same length as fileList or length=1")
               }
 
-              if(exists(simGlobals(sim)$.stackName, envir=.GlobalEnv))
+              if(any(unique(simGlobals(sim)$.stackName) %in% ls(envir=.GlobalEnv)))
                 rm(list=unique(simGlobals(sim)$.stackName), envir=.GlobalEnv)
 
               # create empty stack
               localStacks = list()
-               for(uniqueStacki in unique(stackName)) {
-                 if(exists(uniqueStacki, envir=.GlobalEnv)) {
-                   localStacks[uniqueStacki] <- get(uniqueStacki)
-                 } else {
-                   localStacks[uniqueStacki] <- stack()
-                 }
-               }
+              if(!is.na(unique(stackName))) {
+                for(uniqueStacki in unique(stackName)) {
+                  if(exists(uniqueStacki, envir=.GlobalEnv)) {
+                    localStacks[uniqueStacki] <- get(uniqueStacki)
+                  } else {
+                    localStacks[uniqueStacki] <- stack()
+                  }
+                }
+              }
 
 
               # load files
@@ -238,10 +243,12 @@ setMethod("loadFiles",
                 }
               } # end x
 
-              for(uniqueStacki in unique(stackName)) {
-                name(localStacks[[uniqueStacki]]) <- uniqueStacki
-                assign(uniqueStacki, localStacks[[uniqueStacki]],
-                       envir=.GlobalEnv)
+              if(!is.na(unique(stackName))) {
+                for(uniqueStacki in unique(stackName)) {
+                  name(localStacks[[uniqueStacki]]) <- uniqueStacki
+                  assign(uniqueStacki, localStacks[[uniqueStacki]],
+                         envir=.GlobalEnv)
+                }
               }
 
 
@@ -319,7 +326,7 @@ setMethod("loadFiles",
                                        .loadFileList=fileList),
                            modules=list(), path="."
                            )
-            return(sim)
+            return(invisible(sim))
 })
 
 #' @rdname loadFiles-method

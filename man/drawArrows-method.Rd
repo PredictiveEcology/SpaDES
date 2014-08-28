@@ -34,10 +34,8 @@ Plots arrows showing direction of agent movement.
 }
 \examples{
 # Make 2 objects
-caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
-name(caribou1)<-"caribou1"
-caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
-name(caribou2)<-"caribou2"
+caribou1 <- SpatialPointsNamed(cbind(x=runif(10,-50,50),y=runif(10,-50,50)),name="caribou1")
+caribou2 <- SpatialPointsNamed(cbind(x=runif(10,-50,50),y=runif(10,-50,50)),name="caribou2")
 
 drawArrows(caribou1, caribou2)
 seekViewport("caribou1")
@@ -59,8 +57,7 @@ fileList <-
      stringsAsFactors=FALSE)
 
 # Load files to memory (using rasterToMemory)
-sim <- loadFiles(fileList=fileList)
-names(DEM)<-"DEM"
+loadFiles(fileList=fileList)
 
 Plot(DEM)
 drawArrows(caribou1, caribou2, addTo="DEM")

@@ -1,5 +1,5 @@
 library(devtools)
-dev_mode(TRUE)
+dev_mode(FALSE)
 detach(package:SpaDES,unload=T)
 install(quick = TRUE) # build_vignette currently fails
 library("SpaDES", lib.loc=getOption("devtools.path"))
@@ -9,11 +9,9 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
                                                          quiet=FALSE),"maps"),
                                   full.names=TRUE, pattern= "tif"),
                       functions="rasterToMemory",
-                      packages="SpaDES", .stackNames="landscape",
+                      packages="SpaDES",.stackNames="landscape",
                       stringsAsFactors=FALSE)
-sim <- loadFiles(fileList=fileList)
-landscape = stack(mget(unlist(simObjectsLoaded(sim))))
-name(landscape) <- "landscape"
+loadFiles(fileList=fileList)
 
 #land = landscape
 landscape1 <- landscape

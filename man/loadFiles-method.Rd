@@ -4,20 +4,18 @@
 \alias{.fileExtensions}
 \alias{.fileExtensions,missing-method}
 \alias{loadFiles}
-\alias{loadFiles,missing,ANY,ANY-method}
-\alias{loadFiles,missing,ANY,missing-method}
-\alias{loadFiles,simList,ANY,missing-method}
+\alias{loadFiles,missing,ANY-method}
+\alias{loadFiles,missing,missing-method}
+\alias{loadFiles,simList,missing-method}
 \title{Load simulation objects according to fileList}
 \usage{
-loadFiles(sim, stackName = NULL, fileList, ...)
+loadFiles(sim, fileList, ...)
 
-\S4method{loadFiles}{simList,ANY,missing}(sim, stackName = NULL, fileList,
-  ...)
+\S4method{loadFiles}{simList,missing}(sim, fileList, ...)
 
-\S4method{loadFiles}{missing,ANY,ANY}(sim, stackName = NULL, fileList, ...)
+\S4method{loadFiles}{missing,ANY}(sim, fileList, ...)
 
-\S4method{loadFiles}{missing,ANY,missing}(sim, stackName = NULL, fileList,
-  ...)
+\S4method{loadFiles}{missing,missing}(sim, fileList, ...)
 
 .fileExtensions(x)
 
