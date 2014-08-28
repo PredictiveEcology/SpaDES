@@ -60,49 +60,6 @@ newPlot <- function(...) {
   }
 }
 
-
-#' @exportClass SpatialPointsDataFrameNamed
-setClass("SpatialPointsDataFrameNamed",
-         slots=list(name="character"),
-         prototype=list(name=NA_character_),
-         contains="SpatialPointsDataFrame",
-         validity=function(object) {
-           # check for valid sim times and make default list
-           if (is.na(object@name)) {
-             stop("name must be provided")
-           }
-         }
-)
-
-#' @export
-setGeneric("SpatialPointsDataFrameNamed",
-           function(..., name) {
-             standardGeneric("SpatialPointsDataFrameNamed")
-           })
-
-#' @export
-setMethod("SpatialPointsDataFrameNamed",
-          signature="character",
-          definition= function(..., name) {
-            obj <- SpatialPointsDataFrame(...)
-            name(obj) <- name
-            return(obj)
-          })
-
-
-#' @exportClass SpatialPointsNamed
-setClass("SpatialPointsNamed",
-         slots=list(name="character"),
-         prototype=list(name=NA_character_),
-         contains="SpatialPoints",
-         validity=function(object) {
-           # check for valid sim times and make default list
-           if (is.na(object@name)) {
-             stop("name must be provided")
-           }
-         }
-)
-
 #' @exportClass RasterStackNamed
 setClass("RasterStackNamed",
          slots=list(name="character"),
@@ -113,15 +70,14 @@ setClass("RasterStackNamed",
            if (is.na(object@name)) {
              stop("name must be provided")
            }
-         }
-)
+})
 
 #' @export
 setGeneric("RasterStackNamed",
            signature=c("..."),
            function(..., name) {
              standardGeneric("RasterStackNamed")
-           })
+ })
 
 
 #' @export
@@ -129,56 +85,7 @@ setMethod("RasterStackNamed",
           signature="RasterStack",
           definition= function(..., name) {
             new("RasterStackNamed", ..., name=name)
-          })
-
-
-#' @exportClass NamedSpatialPoints
-setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
-
-
-
-#' @export
-setGeneric("SpatialPointsNamed",
-           #signature=c("..."),
-           function(..., name) {
-             standardGeneric("SpatialPointsNamed")
-           })
-
-
-#' @export
-setMethod("SpatialPointsNamed",
-          signature="character",
-          definition= function(..., name) {
-            obj <- SpatialPoints(...)
-            name(obj) <- name
-            return(obj)
-          })
-
-#' @export
-setMethod("show",
-          signature="SpatialPointsNamed",
-          definition=function(object) {
-            out = list()
-            out[[1]] = capture.output(print(object,
-                                            quote=FALSE, row.names=FALSE))
-            out[[2]] = capture.output(cat(paste("name        :",object@name)))
-
-            ### print result
-            cat(unlist(out), fill=FALSE, sep="\n")
-          })
-
-#' @export
-setMethod("show",
-          signature="SpatialPointsDataFrameNamed",
-          definition=function(object) {
-            out = list()
-            out[[1]] = capture.output(print(object,
-                                            quote=FALSE, row.names=FALSE))
-            out[[2]] = capture.output(cat(paste("name        :",object@name)))
-
-            ### print result
-            cat(unlist(out), fill=FALSE, sep="\n")
-          })
+})
 
 #' @export
 setMethod("show",
@@ -264,7 +171,7 @@ setMethod("show",
 #
 #             ### print result
 #             cat(unlist(out), fill=FALSE, sep="\n")
-          })
+})
 
 
 #' @export
@@ -278,7 +185,7 @@ setMethod("name",
           signature="SpatialPointsNamed",
           definition=function(object) {
             return(object@name)
-          })
+})
 
 #' @export
 #' @rdname name-accessor-methods
@@ -286,7 +193,7 @@ setMethod("name",
           signature="SpatialPointsDataFrameNamed",
           definition=function(object) {
             return(object@name)
-          })
+})
 
 #' @export
 #' @rdname name-accessor-methods
@@ -294,7 +201,7 @@ setMethod("name",
           signature="RasterStackNamed",
           definition=function(object) {
             return(object@name)
-          })
+})
 
 #' set name of SpatialPoints and SpatialPointsDataFrames
 #' @export
@@ -303,7 +210,7 @@ setMethod("name",
 setGeneric("name<-",
            function(object, value) {
              standardGeneric("name<-")
-           })
+ })
 
 #' @export
 #' @name name<-
@@ -314,7 +221,7 @@ setReplaceMethod("name",
                    object@name <- value
                    validObject(object)
                    return(object)
-                 })
+       })
 
 #' @export
 #' @name name<-
@@ -323,7 +230,7 @@ setReplaceMethod("name",
                  signature="SpatialPoints",
                  function(object, value) {
                    new("SpatialPointsNamed", object, name=value)
-                 })
+       })
 
 #' @export
 #' @name name<-
@@ -334,7 +241,7 @@ setReplaceMethod("name",
                    object@name <- value
                    validObject(object)
                    return(object)
-                 })
+       })
 
 #' @export
 #' @name name<-
@@ -343,7 +250,7 @@ setReplaceMethod("name",
                  signature="SpatialPointsDataFrame",
                  function(object, value) {
                    new("SpatialPointsDataFrameNamed", object, name=value)
-                 })
+       })
 
 #' @export
 #' @name name<-
@@ -354,7 +261,7 @@ setReplaceMethod("name",
                    object@name <- value
                    validObject(object)
                    return(object)
-                 })
+       })
 
 #' @export
 #' @name name<-
@@ -363,7 +270,7 @@ setReplaceMethod("name",
                  signature="RasterStack",
                  function(object, value) {
                    new("RasterStackNamed", object, name=value)
-                 })
+       })
 
 
 #' @export
@@ -377,7 +284,7 @@ setMethod("nlayers",
                 x = 1
               }
               return(x)
-            }))}
+  }))}
             )
 
 #' extract the layer names in a mixed set of layer objects
@@ -394,7 +301,7 @@ setMethod("layerNames",
           signature="list",
           definition=function(object) {
             unlist(lapply(object, layerNames))
-          })
+})
 
 #' @export
 #' @rdname layerNames
@@ -402,7 +309,7 @@ setMethod("layerNames",
           signature="SpatialPointsNamed",
           definition=function(object) {
             name(object)
-          })
+})
 
 #' @export
 #' @rdname layerNames
@@ -410,7 +317,7 @@ setMethod("layerNames",
           signature="SpatialPointsDataFrameNamed",
           definition=function(object) {
             name(object)
-          })
+})
 
 #' @export
 #' @rdname layerNames
@@ -418,7 +325,7 @@ setMethod("layerNames",
           signature="Raster",
           definition=function(object) {
             names(object)
-          })
+})
 
 #' Assess whether a list of extents are all equal
 #' @name equalExtent
@@ -437,7 +344,7 @@ setMethod("equalExtent",
             sapply(extents,function(x) x@xmax)==extents[[1]]@xmax,
             sapply(extents,function(x) x@ymin)==extents[[1]]@ymin,
             sapply(extents,function(x) x@ymax)==extents[[1]]@ymax))
-          })
+})
 
 
 
@@ -646,7 +553,7 @@ setMethod("plotGrob",
                               cl="plotRast")
             if(draw) grid.draw(rastGrob)
             return(invisible(rastGrob))
-          })
+})
 
 #' @rdname plotGrob
 #' @export
@@ -670,7 +577,7 @@ setMethod("plotGrob",
                              cl="plotPoint")
             if(draw) grid.draw(pntGrob)
             return(invisible(pntGrob))
-          })
+})
 
 
 
@@ -805,7 +712,7 @@ setMethod("drawArrows",
                             id=rep(1:length(from), 2),
                             arrow=arrow(length=unit(length, "inches"), ...))
               upViewport(0)
-          })
+})
 
 #' @rdname drawArrows-method
 #'
@@ -828,7 +735,7 @@ setMethod("drawArrows",
                                id=rep(1:length(from), 2),
                                arrow=arrow(length=unit(length, "inches"), ...))
                  upViewport(0)
-               })
+     })
 
 #####################
 #' Fast, optimally arranged, multipanel plotting function with spades
@@ -960,7 +867,7 @@ setGeneric("Plot", signature="...",
                     visualSqueeze=0.75, legend=TRUE, draw = TRUE,
                     pch = 19, title=T) {
              standardGeneric("Plot")
-           })
+ })
 
 
 #' @export
