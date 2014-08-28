@@ -101,7 +101,6 @@ demo("spades-simulation", package="SpaDES")
 <<using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE>>=
 library("SpaDES")
 
-.cols[[5]] <- c("#FFFFFFFF", rev(heat.colors(9)))
 outputPath=file.path("~", "tmp", "simOutputs")
 times <- list(start=0, stop=100)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,

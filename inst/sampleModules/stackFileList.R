@@ -7,7 +7,7 @@
 
 ### load any required packages
 ### (use `loadPackages` or similar)
-pkgs <- list("SpaDES")
+pkgs <- list("SpaDES", "RColorBrewer")
 loadPackages(pkgs)
 rm(pkgs)
 
