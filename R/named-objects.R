@@ -263,7 +263,7 @@ setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFr
 #' @name name
 #' @export
 #' @docType methods
-#' @rdname name-method
+#' @rdname name-methods
 #'
 #' @seealso \code{\link{SpatialPointsNamed}},
 #'          \code{\link{SpatialPointsDataFrameNamed}},

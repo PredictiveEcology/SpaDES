@@ -84,10 +84,10 @@ DEM <- landscape$DEM
 
 # can change color palette
 setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
-                           forestCover = brewer.pal(9,"Set1"),
-                           forestAge = brewer.pal("Blues",n=8),
-                           habitatQuality = brewer.pal(9,"Spectral"),
-                           percentPine = brewer.pal("GnBu",n=8))
+                           forestCover = RColorBrewer::brewer.pal(9,"Set1"),
+                           forestAge = RColorBrewer::brewer.pal("Blues",n=8),
+                           habitatQuality = RColorBrewer::brewer.pal(9,"Spectral"),
+                           percentPine = RColorBrewer::brewer.pal("GnBu",n=8))
 
 #Make a new raster derived from a previous one; must give it a unique name
 habitatQuality2 <- landscape$habitatQuality ^ 0.3
@@ -120,10 +120,10 @@ Plot(caribou, add=T)
 Plot(landscape, caribou, DEM)
 
 # can mix stacks, rasters, SpatialPoint*Named
-Plot(landscape, DEM1, caribou)
+Plot(landscape, habitatQuality2, caribou)
 
 # can mix stacks, rasters, SpatialPoint*Named
 Plot(landscape, caribou)
-Plot(DEM1, add=T)
+Plot(habitatQuality2, add=T)
 }
 

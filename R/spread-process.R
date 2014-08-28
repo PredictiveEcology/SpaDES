@@ -53,7 +53,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
 #' the returned map is the iteration number that the pixel burned
 #'
-#' @import raster
+#' @import raster RColorBrewer
 #' @rdname spread-method
 #' @name spread
 #'
@@ -74,15 +74,19 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' directions <- 8
 #'
 #' # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
-#' .cols <- list(c("#00000000",brewer.pal(8,"RdYlGn")[8:1]),brewer.pal(9,"Greys"),brewer.pal(8,"Spectral"))
+#' setColors(hab) <- paste(c("#000000",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
 #'
-#' dev(2)
-#' simPlot(hab, col=.cols[[2]], speedup=1)
-#' names(hab) <- "hab"
-#' fire2 <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
-#'                 0.235, 0, NULL, 1e8, 8, 1e6, plot.it=TRUE,
-#'                 col=.cols[[1]], delete.previous=FALSE,
-#'                 add=TRUE, on.which.to.plot="hab", speedup=1)
+#' dev(4)
+#' Plot(hab)
+#'
+#' # initiate 10 fires at to loci
+#' fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
+#'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
+#' #set colors, adding a transparency factor... i.e., the last 2 characters of an 8 character
+#' #  hex code are transparency, from 00 (fully transparent) to FF (fully opaque)
+#' #  Here, we are using only the darkest end of the Red palette (i.e., of 8 reds, use the 5:8 ones)
+#' setColors(fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
+#' Plot(fires,addTo="hab")
 setMethod("spread",
           signature(landscape="RasterLayer"#, loci="integer",
                     #spreadProb="numeric"
@@ -209,12 +213,12 @@ setMethod("spread",
               if (plot.it){
 #                 if (!is.null(events)) {
 #                 pts <- SpatialPoints(xyFromCell(landscape,events))
-#                 simPlot(x=pts, on.which.to.plot="fire", add=TRUE, pch=15,
+#                 Plot(x=pts, addTo="fire", add=TRUE, pch=15,
 #                         delete.previous=FALSE, gp=gpar(cex=0.5))
 #                 }
                 top <- raster(landscape)
                 top <- setValues(top,spreads)
-                simPlot(top, ...)
+                Plot(top)
               }
               #    simPlot(raster(matrix(spreads, ncol=10, nrow=10, byrow=TRUE)), col=c("grey","black"))
             }

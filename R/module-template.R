@@ -122,7 +122,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Event1 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  simPlot()
+  Plot()
 
   # schedule future event(s)
   sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.plotInterval, \"", name, "\", \"plot\")

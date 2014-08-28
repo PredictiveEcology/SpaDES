@@ -79,7 +79,7 @@ forestAgeAge <- function(sim) {
 }
 
 forestAgePlot <- function(sim) {
-  simPlot(ageMap)
+  Plot(ageMap)
 
   return(invisible(sim))
 }
