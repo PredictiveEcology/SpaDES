@@ -1,3 +1,5 @@
+if(getRversion() >= "3.1.0")  utils::globalVariables(".arr")
+
 ##############################################################
 #' Specify where to plot
 #'
@@ -515,7 +517,7 @@ setMethod("drawArrows",
 #' it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
 #' The function is based on the grid package.
 #'
-#' Silently, one hidden object is made, .arr, which is used for arranging plots in the
+#' Silently, one hidden object is made, \code{.arr}, which is used for arranging plots in the
 #' device window, and identifying the objects to be replotted if rearranging is required,
 #' subsequent to an add=T additional plot.
 #'

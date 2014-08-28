@@ -1,3 +1,5 @@
+if(getRversion() >= "3.1.0")  utils::globalVariables(".pb")
+
 ################################################
 ###
 ### A PROGRESS BAR MODULE
@@ -32,7 +34,6 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
-
 ##############################################################
 #' Progress bar
 #'
@@ -49,7 +50,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 # @examples
 # need examples
-newProgressBar = function(sim) {
+newProgressBar <- function(sim) {
             try(close(.pb),silent = TRUE)
             OS <- tolower(Sys.info()["sysname"])
             if (simParams(sim)$.progress$.graphical) {
@@ -69,7 +70,7 @@ newProgressBar = function(sim) {
                                    char = ".", style = 3)
             }
             return(.pb)
-          }
+}
 
 
 setProgressBar <- function(sim, .pb) {
@@ -85,7 +86,5 @@ setProgressBar <- function(sim, .pb) {
   } else {
     setTxtProgressBar(.pb, simCurrentTime(sim))
   }
-
-
 }
 

@@ -1,3 +1,5 @@
+if(getRversion() >= "3.1.0")  utils::globalVariables(c("rng.kind", "rng.state"))
+
 ##############################################################
 #' Simulation checkpoints.
 #'
