@@ -3,7 +3,8 @@
 #'
 #' Wrapper for selecting different animal movement methods.
 #'
-#' @param agent       A SpatialPointsDataFrame.
+#' @param agent       A SpatialPoints*Named (created by SpatialPointsNamed or
+#' SpatialPointsDataFrameNamed, of with name(obj) <- "character").
 #'
 #' @export
 #' @docType methods
@@ -28,7 +29,8 @@ move <- function(hypothesis=NULL,...) {
 #' was presented in Turchin 1998, but it was also used with bias modifications
 #' in McIntire, Schultz, Crone 2007.
 #'
-#' @param agent       A SpatialPointsDataFrame.
+#' @param agent       A SpatialPoints*Named (created by SpatialPointsNamed or
+#' SpatialPointsDataFrameNamed, of with name(obj) <- "character").
 #'
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.

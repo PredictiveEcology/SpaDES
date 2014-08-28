@@ -77,7 +77,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' setColors(hab) <- paste(c("#000000",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
 #'
 #' dev(4)
-#' Plot(hab,speedup=3)
+#' Plot(hab,speedup=3) # note speedup is equivalent to making pyramids, so, some details are lost
 #'
 #' # initiate 10 fires at to loci
 #' fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
@@ -211,16 +211,10 @@ setMethod("spread",
               loci <- c(loci, events)
 
               if (plot.it){
-#                 if (!is.null(events)) {
-#                 pts <- SpatialPoints(xyFromCell(landscape,events))
-#                 Plot(x=pts, addTo="fire", add=TRUE, pch=15,
-#                         delete.previous=FALSE, gp=gpar(cex=0.5))
-#                 }
                 top <- raster(landscape)
                 top <- setValues(top,spreads)
                 Plot(top)
               }
-              #    simPlot(raster(matrix(spreads, ncol=10, nrow=10, byrow=TRUE)), col=c("grey","black"))
             }
 
             # Convert the data.table back to raster

@@ -21,7 +21,6 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     ### check for object dependencies:
     ### (use `checkObject` or similar)
 
-
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {

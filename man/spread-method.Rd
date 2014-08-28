@@ -57,7 +57,7 @@ library(RColorBrewer)
 
 # Make random forest cover map
 a <- raster(extent(0,1e2,0,1e2),res=1)
-hab <- GaussMap(a,speedup=1)
+hab <- GaussMap(a,speedup=3)
 names(hab)="hab"
 cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
 mask <- raster(a)
@@ -71,7 +71,7 @@ directions <- 8
 setColors(hab) <- paste(c("#000000",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
 
 dev(4)
-Plot(hab)
+Plot(hab,speedup=3) # note speedup is equivalent to making pyramids, so, some details are lost
 
 # initiate 10 fires at to loci
 fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
@@ -80,7 +80,7 @@ fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
 #  hex code are transparency, from 00 (fully transparent) to FF (fully opaque)
 #  Here, we are using only the darkest end of the Red palette (i.e., of 8 reds, use the 5:8 ones)
 setColors(fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
-Plot(fires,addTo="hab")
+Plot(fires,addTo="hab",speedup=3)
 }
 \author{
 Steve Cumming \email{Steve.Cumming@sbf.ulaval.ca}

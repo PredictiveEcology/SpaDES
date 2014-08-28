@@ -10,9 +10,11 @@ move(hypothesis = NULL, ...)
 crw(agent, stepLength, stddev, lonlat)
 }
 \arguments{
-\item{agent}{A SpatialPointsDataFrame.}
+\item{agent}{A SpatialPoints*Named (created by SpatialPointsNamed or
+SpatialPointsDataFrameNamed, of with name(obj) <- "character").}
 
-\item{agent}{A SpatialPointsDataFrame.}
+\item{agent}{A SpatialPoints*Named (created by SpatialPointsNamed or
+SpatialPointsDataFrameNamed, of with name(obj) <- "character").}
 
 \item{stepLength}{Numeric vector of length 1 or number of agents describing
                    step length.}

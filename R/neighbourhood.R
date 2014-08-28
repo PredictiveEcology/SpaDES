@@ -268,13 +268,13 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 adj <- compiler::cmpfun(adj.raw)
 
 ##############################################################
-#' Identify pixels in a circle around a SpatialPoints object.
+#' Identify pixels in a circle around a SpatialPoints*Named object.
 #'
 #' identify the pixels and coordinates that are at
-#'  a (set of) buffer distance(s) of the SpatialPoints objects. This can be used
+#'  a (set of) buffer distance(s) of the SpatialPoints*Named objects. This can be used
 #'  for agents.
 #'
-#' @param spatialPoints SpatialPoints object around which to make circles .
+#' @param spatialPoints SpatialPoints*Named object around which to make circles .
 #'
 #' @param radii  vector of radii that has same length as spatialPoints
 #'

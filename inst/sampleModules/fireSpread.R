@@ -89,7 +89,7 @@ fireSpreadInit <- function(sim) {
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
   names(Fires) <- "Fires"
-  setColors(Fires) <- c("FFFFFFFF", rev(heat.colours(9)))
+  setColors(Fires) <- c("#FFFFFFFF", rev(heat.colors(9)))
   Fires <- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
