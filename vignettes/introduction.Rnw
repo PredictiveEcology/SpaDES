@@ -65,7 +65,7 @@ We have been building spatial simulation models for several years and got tired 
 \paragraph{}
 Discrete event simulation is...
 
-event driven: an activity changes the state of the system at particluar times. a particular activity may have several events assoriated with it. future events are scheduled in an event queue, and then processed in order.
+event driven: an activity changes the state of the system at particluar times. a particular activity may have several events associated with it. future events are scheduled in an event queue, and then processed in order.
 
 rather than advancing time in fixed increments, time advances to the time of the next event in the queue (assume that state of the system only changes due to events, therefore no change between events, so no need to run the clock).
 
@@ -157,7 +157,7 @@ The power of \texttt{SpaDES} is in modularity and the ease with which existing m
 \section{Simulation and data}
 
 \paragraph{}
-importance of linking simulation and data
+Importance of linking simulation and data: model inputs; model calibration & validation. incorporating data import and analysis directly into simulation facilitates inclusion of new data (e.g., adding last year's numbers) and enhances reproducibility.
 
 \paragraph{}
 Bringing your data into R is easy, and you can use any of the built in data import tools. To facilitate this, we have provided additional functionality to easily load maps or data from files via the load module. To automatically import a list of files, simply provide it as a parameter named \texttt{.loadFileList} when initializing the simulation. See \texttt{?loadFiles} and the modules vignette for more information on the load module.
