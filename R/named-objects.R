@@ -36,7 +36,7 @@ setClass("SpatialPointsNamed",
 #'
 #' @seealso \code{\link{SpatialPoints}}
 #'
-#' @importMethodsFrom sp SpatialPoints
+#' @import sp
 #' @export
 #' @docType methods
 #' @rdname SpatialPointsNamed-method
@@ -113,7 +113,7 @@ setClass("SpatialPointsDataFrameNamed",
 #'
 #' @seealso \code{\link{SpatialPointsDataFrame}}
 #'
-#' @importMethodsFrom sp SpatialPointsDataFrame
+#' @import sp
 #' @export
 #' @docType methods
 #' @rdname SpatialPointsDataFrameNamed-method
