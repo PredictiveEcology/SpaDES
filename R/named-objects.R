@@ -25,7 +25,25 @@ setClass("SpatialPointsNamed",
            }
 })
 
-
+##############################################################
+#' Create a new \code{SpatialPointsNamed} object.
+#'
+#' @param ... Additional arguments to \code{SpatialPoints}
+#'
+#' @param name  The name of the object.
+#'
+#' @return Returns an object of class \code{SpatialPointsNamed}.
+#'
+#' @seealso \code{\link{SpatialPoints}}
+#'
+#' @import sp
+#' @export
+#' @docType methods
+#' @rdname SpatialPointsNamed-method
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+#'
 #' @export
 setGeneric("SpatialPointsNamed",
            #signature=c("..."),
@@ -34,6 +52,7 @@ setGeneric("SpatialPointsNamed",
 })
 
 
+#' @rdname SpatialPointsNamed-method
 #' @export
 setMethod("SpatialPointsNamed",
           signature="character",
@@ -43,6 +62,8 @@ setMethod("SpatialPointsNamed",
             return(obj)
 })
 
+### show is already defined in the methods package
+#' show SpatialPointsNamed
 #' @export
 setMethod("show",
           signature="SpatialPointsNamed",
@@ -81,14 +102,34 @@ setClass("SpatialPointsDataFrameNamed",
            if (is.na(object@name)) {
              stop("name must be provided")
            }
-         })
+})
 
+##############################################################
+#' Create a new \code{SpatialPointsDataFrameNamed} object.
+#'
+#' @param ... Additional arguments to \code{SpatialPointsDataFrame}
+#'
+#' @param name  The name of the object.
+#'
+#' @return Returns an object of class \code{SpatialPointsDataFrameNamed}.
+#'
+#' @seealso \code{\link{SpatialPointsDataFrame}}
+#'
+#' @import sp
+#' @export
+#' @docType methods
+#' @rdname SpatialPointsDataFrameNamed-method
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+#'
 #' @export
 setGeneric("SpatialPointsDataFrameNamed",
            function(..., name) {
              standardGeneric("SpatialPointsDataFrameNamed")
  })
 
+#' @rdname SpatialPointsDataFrameNamed-method
 #' @export
 setMethod("SpatialPointsDataFrameNamed",
           signature="character",
@@ -98,6 +139,8 @@ setMethod("SpatialPointsDataFrameNamed",
             return(obj)
 })
 
+### show is already defined in the methods package
+#' show SpatialPointsDataFrameNamed
 #' @export
 setMethod("show",
           signature="SpatialPointsDataFrameNamed",
@@ -138,6 +181,26 @@ setClass("RasterStackNamed",
            }
 })
 
+
+##############################################################
+#' Create a new \code{RasterStackNamed} object.
+#'
+#' @param ... Additional arguments to \code{RasterStack}
+#'
+#' @param name  The name of the object.
+#'
+#' @return Returns an object of class \code{RasterStackNamed}.
+#'
+#' @seealso \code{\link{RasterStackNamed}}
+#'
+#' @import raster
+#' @export
+#' @docType methods
+#' @rdname RasterStackNamed-method
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+#'
 #' @export
 setGeneric("RasterStackNamed",
            signature=c("..."),
@@ -146,6 +209,7 @@ setGeneric("RasterStackNamed",
 })
 
 
+#' @rdname RasterStackNamed-method
 #' @export
 setMethod("RasterStackNamed",
           signature="RasterStack",
@@ -153,6 +217,8 @@ setMethod("RasterStackNamed",
             new("RasterStackNamed", ..., name=name)
 })
 
+### show is already defined in the methods package
+#' show RasterStackNamed
 #' @export
 setMethod("show",
           signature="RasterStackNamed",
@@ -274,7 +340,7 @@ setGeneric("name", function(object) {
 })
 
 #' @export
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setMethod("name",
           signature="SpatialPointsNamed",
           definition=function(object) {
@@ -282,7 +348,7 @@ setMethod("name",
 })
 
 #' @export
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setMethod("name",
           signature="SpatialPointsDataFrameNamed",
           definition=function(object) {
@@ -290,7 +356,7 @@ setMethod("name",
 })
 
 #' @export
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setMethod("name",
           signature="RasterStackNamed",
           definition=function(object) {
@@ -299,7 +365,7 @@ setMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setGeneric("name<-",
            function(object, value) {
              standardGeneric("name<-")
@@ -307,7 +373,7 @@ setGeneric("name<-",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setReplaceMethod("name",
                  signature="SpatialPointsNamed",
                  function(object, value) {
@@ -318,7 +384,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setReplaceMethod("name",
                  signature="SpatialPoints",
                  function(object, value) {
@@ -327,7 +393,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrameNamed",
                  function(object, value) {
@@ -338,7 +404,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrame",
                  function(object, value) {
@@ -347,7 +413,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setReplaceMethod("name",
                  signature="RasterStackNamed",
                  function(object, value) {
@@ -358,7 +424,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname name-methods
+#' @rdname SpatialPointsDataFrameNamed-method
 setReplaceMethod("name",
                  signature="RasterStack",
                  function(object, value) {

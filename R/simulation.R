@@ -59,7 +59,6 @@ setClass("simList",
 
 ### show is already defined in the methods package
 #' show simList
-#'
 #' @export
 setMethod("show",
           signature="simList",
