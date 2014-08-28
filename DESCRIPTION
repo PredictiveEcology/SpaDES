@@ -39,7 +39,7 @@ Imports:
 License: GPL
 Collate:
     'SELES.R'
-    'agents.R'
+    'agent-methods.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
