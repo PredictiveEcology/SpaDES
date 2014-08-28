@@ -830,26 +830,6 @@ setMethod("drawArrows",
                  upViewport(0)
                })
 
-
-######################################################################
-#' A short selection of colour palettes that can be use
-#'
-#' Colour number 1 shows use of transparency
-#' @export
-#' @rdname cols
-.cols = list(
- transparentGrey=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
- grey = RColorBrewer::brewer.pal(9,"Greys"),
- spectral = RColorBrewer::brewer.pal(8,"Spectral"),
- terrain = terrain.colors(100),
- heat = heat.colors(10),
- topo = topo.colors(10),
- blueGreen = RColorBrewer::brewer.pal(9,"BuGn"),
- greens = RColorBrewer::brewer.pal(9,"Greens"),
- yellowBrown = RColorBrewer::brewer.pal(9, "YlOrBr"),
- discrete1 = RColorBrewer::brewer.pal(8,"BrBG")
-)
-
 #####################
 #' Fast, optimally arranged, multipanel plotting function with spades
 #'
@@ -1035,7 +1015,6 @@ setMethod("Plot",
             }
             currentPlusToPlotN <- unique(c(currentNames, addTo))
 
-
             # if add == F, then new plots are only the ones in the function call, otherwise
             #  it needs to assess what is already there
 
@@ -1096,7 +1075,6 @@ setMethod("Plot",
               #rm(.arr, envir=.GlobalEnv)
               grid.newpage()
             }
-
             #end create .arr object
 
             if(is.null(gp$cex)) {
@@ -1183,4 +1161,4 @@ setMethod("Plot",
               arr@stack <- arr@stack[!duplicated(arr@stack)]
             }
             assign(".arr", arr, envir=.GlobalEnv)
-         })
+})

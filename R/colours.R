@@ -111,3 +111,19 @@ setReplaceMethod("setColors",
                    validObject(object)
                    return(object)
 })
+
+
+#
+# .cols = list(
+#   transparentGrey=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
+#   grey = RColorBrewer::brewer.pal(9,"Greys"),
+#   spectral = RColorBrewer::brewer.pal(8,"Spectral"),
+#   terrain = terrain.colors(100),
+#   heat = heat.colors(10),
+#   topo = topo.colors(10),
+#   blueGreen = RColorBrewer::brewer.pal(9,"BuGn"),
+#   greens = RColorBrewer::brewer.pal(9,"Greens"),
+#   yellowBrown = RColorBrewer::brewer.pal(9, "YlOrBr"),
+#   discrete1 = RColorBrewer::brewer.pal(8,"BrBG")
+# )
+#
