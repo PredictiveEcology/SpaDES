@@ -16,7 +16,6 @@ rm(pkgs)
 ### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
     depends <- NULL

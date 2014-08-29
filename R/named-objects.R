@@ -142,8 +142,7 @@ setMethod("show",
           signature="SpatialPointsDataFrameNamed",
           definition=function(object) {
             out = list()
-            out[[1]] = capture.output(print(object,
-                                            quote=FALSE, row.names=FALSE))
+            out[[1]] = capture.output(print(object, quote=FALSE, row.names=FALSE))
             out[[2]] = capture.output(cat(paste("name        :", object@name)))
 
             ### print result
@@ -165,7 +164,7 @@ setMethod("show",
 #' @rdname RasterStackNamed-class
 # @importClassesFrom raster RasterStack
 #' @import raster
-#' @exportClass SpatialPointsNamed
+#' @exportClass RasterStackNamed
 #'
 setClass("RasterStackNamed",
          slots=list(name="character"),

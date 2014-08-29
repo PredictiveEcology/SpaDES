@@ -45,6 +45,7 @@ setMethod("newModule",
 ### (use `loadPackages`, or `library` directly)
 pkgs <- list(\"SpaDES\")
 loadPackages(pkgs)
+rm(pkgs)
 
 ### event functions:
 #   - follow the naming convention `modulenameEventtype()`;
@@ -90,9 +91,6 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
 ### template initilization
 ", name, "Init = function(sim) {
-  # load any required packages
-  pkgs <- list(\"RColorBrewer\") # list required packages here
-  loadPackforestAges(pkgs)
 
   # # ! ----- EDIT BELOW ----- ! #
 
