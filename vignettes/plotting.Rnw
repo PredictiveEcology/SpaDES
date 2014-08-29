@@ -44,6 +44,78 @@
 \section{Plotting with \texttt{Plot}}
 
 \paragraph{}
-One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at every stage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands.
+One of the major features of the \texttt{SpaDES} package is that can take advantage of the numerous visualization tools available natively or through user built packages (e.g., RgoogleVis, ggplo2, rgl). The main set of plotting functions that we have packaged with spades are built on top of the grid package. These allow for relatively fast plotting of rasters and points with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted. In other words, the main plotting function can handle modules that add plots, without them knowing what the current state of the active plotting device is. This means that the plotting can be also treated as modular.  Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands. This is called with the workhorse function, \texttt{Plot}, i.e., capital P.
+
+\section{Plotting with \texttt{Plot}}
+\paragraph{}
+There are several features of Plot that are worth highlighting. First, it can plot a mixture of RasterLayers, RasterStacks and SpatialPoints* objects. For example:
+<<plot-using-files, eval=FALSE, echo=TRUE, fig=TRUE>>=
+#  Make list of maps from package database to load, and what functions to use to load them
+library(SpaDES)
+fileList <-
+    data.frame(files =
+     dir(file.path(
+                   find.package("SpaDES",
+                                lib.loc=getOption("devtools.path"),
+                                quiet=FALSE),
+                  "maps"),
+        full.names=TRUE, pattern= "tif"),
+     functions="rasterToMemory",
+     .stackName="landscape",
+     packages="SpaDES",
+     stringsAsFactors=FALSE)
+#'
+# Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
+loadFiles(fileList=fileList)
+#'
+# extract a single one of these rasters
+DEM <- landscape$DEM
+#'
+# can change color palette
+setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
+                           forestCover = RColorBrewer::brewer.pal(9,"Set1"),
+                           forestAge = RColorBrewer::brewer.pal("Blues",n=8),
+                           habitatQuality = RColorBrewer::brewer.pal(9,"Spectral"),
+                           percentPine = RColorBrewer::brewer.pal("GnBu",n=8))
+#'
+#Make a new raster derived from a previous one; must give it a unique name
+habitatQuality2 <- landscape$habitatQuality ^ 0.3
+names(habitatQuality2) <- "habitatQuality2"
+#'
+# make a SpatialPointsNamed object
+caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
+                              name="caribou")
+#'
+#Plot all maps on a new plot windows - Do not use RStudio window
+#if(is.null(dev.list())) {
+#   dev(2)
+#} else {
+ # if(any(names(dev.list())=="RStudioGD")) {
+ #   dev(which(names(dev.list())=="RStudioGD")+3)
+ # } else {
+ #   dev(max(dev.list()))
+ # }
+#}
+#'
+Plot(landscape)
+#'
+# Can overplot, using addTo
+Plot(caribou, addTo="forestAge",size=4, axes=F)
+#'
+# can add a new plot to the plotting window
+Plot(caribou, add=T)
+#'
+# can't add a two maps with same name
+Plot(landscape, caribou, DEM)
+#'
+# can mix stacks, rasters, SpatialPoint*Named
+Plot(landscape, habitatQuality2, caribou)
+#'
+# can mix stacks, rasters, SpatialPoint*Named
+Plot(landscape, caribou)
+Plot(habitatQuality2, add=T)
+
+@
+
 
 \end{document}
