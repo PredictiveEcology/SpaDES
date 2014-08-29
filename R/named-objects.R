@@ -298,12 +298,12 @@ setMethod("show",
             #             cat(unlist(out), fill=FALSE, sep="\n")
 })
 
+#' @exportClass NamedSpatialPoints
+setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
+
 #' @exportClass spatialObjects
 setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNamed",
                                   "RasterLayer", "RasterStack"))
-
-#' @exportClass NamedSpatialPoints
-setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
 
 ################################################################################
 #' Get and set the name of an object.
