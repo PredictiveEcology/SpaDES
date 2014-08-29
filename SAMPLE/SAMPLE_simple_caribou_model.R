@@ -138,9 +138,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                  #modules=list("caribouMovement", "fireSpread"),
                  path=system.file("sampleModules", package="SpaDES"))
 
-print(mySim)
 dev(4)
-
 spades(mySim, debug=FALSE)
 print(system.time(spades(mySim, debug=false)))
 print(system.time(mySim <- spades(mySim, debug=FALSE)))
