@@ -567,6 +567,7 @@ setMethod("drawArrows",
 #' @import sp
 #' @include named-objects.R
 #' @examples
+#' \dontrun{
 #' library(raster)
 #' library(rgdal)
 #' #  Make list of maps from package database to load, and what functions to use to load them
@@ -618,7 +619,7 @@ setMethod("drawArrows",
 #' Plot(landscape)
 #'
 #' # Can overplot, using addTo
-#' Plot(caribou, addTo="forestAge",size=4, axes=F)
+#' Plot(caribou, addTo="forestAge", size=4, axes=FALSE)
 #'
 #' # can add a new plot to the plotting window
 #' Plot(caribou, add=T)
@@ -632,8 +633,9 @@ setMethod("drawArrows",
 #' # can mix stacks, rasters, SpatialPoint*Named
 #' Plot(landscape, caribou)
 #' Plot(habitatQuality2, add=T)
+#' }
 setGeneric("Plot", signature="...",
-           function(..., add=F, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
+           function(..., add=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols,
                     visualSqueeze=0.75, legend=TRUE, draw = TRUE,
                     pch = 19, title=T) {

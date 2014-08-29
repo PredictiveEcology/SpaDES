@@ -70,7 +70,7 @@ directions <- 8
 # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
 setColors(hab) <- paste(c("#000000",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
 
-dev(4)
+#dev(4)
 Plot(hab,speedup=3) # note speedup is equivalent to making pyramids, so, some details are lost
 
 # initiate 10 fires at to loci

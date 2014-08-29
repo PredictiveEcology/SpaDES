@@ -199,50 +199,36 @@ Extensions' manual.
 * checking for unstated dependencies in examples ... OK
 * checking installed files from 'inst/doc' ... OK
 * checking files in 'vignettes' ... OK
-* checking examples ... ERROR
-Running examples in 'SpaDES-Ex.R' failed
-The error most likely occurred in:
+* checking examples ... OK
+* checking for unstated dependencies in tests ... OK
+* checking tests ... OK
+  Running 'test-all.R'
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in 'inst/doc' ... OK
+* checking running R code from vignettes ... ERROR
+Errors in running code in vignettes:
+when running code in 'introduction.Rnw'
+  ...
+> path <- system.file("sampleModules", package = "SpaDES")
 
-> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
-> ### Name: Plot
-> ### Title: Fast, optimally arranged, multipanel plotting function with
-> ###   spades
-> ### Aliases: Plot
-> 
-> ### ** Examples
-> 
-> library(raster)
-> library(rgdal)
-rgdal: version: 0.8-16, (SVN revision 498)
-Geospatial Data Abstraction Library extensions to R successfully loaded
-Loaded GDAL runtime: GDAL 1.11.0, released 2014/04/16
-Path to GDAL shared files: C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/rgdal/gdal
-GDAL does not use iconv for recoding strings.
-Loaded PROJ.4 runtime: Rel. 4.8.0, 6 March 2012, [PJ_VERSION: 480]
-Path to PROJ.4 shared files: C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/rgdal/proj
-> #  Make list of maps from package database to load, and what functions to use to load them
-> fileList <-
-+    data.frame(files =
-+      dir(file.path(
-+                    find.package("SpaDES",
-+                                 lib.loc=getOption("devtools.path"),
-+                                 quiet=FALSE),
-+                   "maps"),
-+         full.names=TRUE, pattern= "tif"),
-+      functions="rasterToMemory",
-+      .stackName="landscape",
-+      packages="SpaDES",
-+      stringsAsFactors=FALSE)
-> 
-> # Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
-> loadFiles(fileList=fileList)
-DEM read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/DEM.tif using rasterToMemory
-forestAge read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/forestAge.tif using rasterToMemory
-forestCover read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/forestCover.tif using rasterToMemory
-habitatQuality read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/habitatQuality.tif using rasterToMemory
-percentPine read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/percentPine.tif using rasterToMemory
+> mySim <- simInit(times = times, params = parameters, 
++     modules = modules, path = path)
+Warning in file(filename, "r", encoding = encoding) :
+  cannot open file '/randomLandscapes.R': No such file or directory
 
-Error in paste("Global parameter", gP, "is not used in any module.") : 
-  object 'gP' not found
-Calls: loadFiles ... loadFiles -> simInit -> simInit -> checkParams -> checkParams
+  When sourcing 'introduction.R':
+Error: cannot open the connection
 Execution halted
+when running code in 'modules.Rnw'
+  ...
+> path <- system.file("sampleModules", package = "SpaDES")
+
+> mySim <- simInit(times = times, params = parameters, 
++     modules = modules, path = path)
+Warning in file(filename, "r", encoding = encoding) :
+  cannot open file '/randomLandscapes.R': No such file or directory
+
+  When sourcing 'modules.R':
+Error: cannot open the connection
+Execution halted
+

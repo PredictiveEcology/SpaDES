@@ -205,6 +205,7 @@ spades(mySim)
 Using the \texttt{spread} function, we can simulate fires, and subsequent changes to the various map layers. Here, \texttt{spreadProb} can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
 
 <<fire, eval=TRUE, echo=TRUE, fig=FALSE>>=
+library(RColorBrewer)
 nFires <- 10
 landscape[["Fires"]] <-
   spread(landscape[["percentPine"]],
