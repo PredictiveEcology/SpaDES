@@ -1278,33 +1278,38 @@ setMethod("doEvent",
             # get next event
             nextEvent <- simEvents(sim)[1, ] # extract the next event from queue
 
-            if (nextEvent$eventTime <= simStopTime(sim)) {
-              # update current simulated time
-              simCurrentTime(sim) <- nextEvent$eventTime
+            # Catches the situation where no future event is scheduled, but StopTime is not reached
+             if(any(is.na(nextEvent))) {
+               simCurrentTime(sim) <- simStopTime(sim) + 1e-10
+             } else {
+              if (nextEvent$eventTime <= simStopTime(sim)) {
+                # update current simulated time
+                simCurrentTime(sim) <- nextEvent$eventTime
 
-              # call the module responsible for processing this event
-              moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
+                # call the module responsible for processing this event
+                moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
 
-              # check the module call for validity
-              if(nextEvent$moduleName %in% simModules(sim)) {
-                sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+                # check the module call for validity
+                if(nextEvent$moduleName %in% simModules(sim)) {
+                  sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+                } else {
+                  stop(paste("Invalid module call. The module `", nextEvent$moduleName,
+                             "` wasn't specified to be loaded."))
+                }
+
+                # now that it is run, without error, remove it from the queue
+                simEvents(sim) <- simEvents(sim)[-1,]
+
+                # add to list of completed events
+                if(length(simCompleted(sim))==0) {
+                  simCompleted(sim) <- setkey(nextEvent, eventTime)
+                } else {
+                  simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), eventTime)
+                }
               } else {
-                stop(paste("Invalid module call. The module `", nextEvent$moduleName,
-                           "` wasn't specified to be loaded."))
+                # update current simulated time to
+                simCurrentTime(sim) <- simStopTime(sim) + 1e-10 # .Machine$double.eps
               }
-
-              # now that it is run, without error, remove it from the queue
-              simEvents(sim) <- simEvents(sim)[-1,]
-
-              # add to list of completed events
-              if(length(simCompleted(sim))==0) {
-                simCompleted(sim) <- setkey(nextEvent, eventTime)
-              } else {
-                simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), eventTime)
-              }
-            } else {
-              # update current simulated time to
-              simCurrentTime(sim) <- simCurrentTime(sim) + 1e-10 # .Machine$double.eps
             }
           return(invisible(sim))
 })
@@ -1355,9 +1360,9 @@ setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
-            if (!is.na(eventTime)) {
-              if (length(eventTime)>0) {
-                newEvent <- as.data.table(list(eventTime=eventTime,
+            if (length(eventTime)>0) {
+              if (!is.na(eventTime)) {
+                  newEvent <- as.data.table(list(eventTime=eventTime,
                                                 moduleName=moduleName,
                                                 eventType=eventType))
 
@@ -1368,12 +1373,13 @@ setMethod("scheduleEvent",
                 } else {
                   simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), eventTime)
                 }
-              } else {
+              }
+            } else {
                 warning(paste("Invalid or missing eventTime. This is usually",
                                 "caused by an attempt to scheduleEvent at an empty eventTime",
                                 "or by using an undefined parameter."))
-              }
             }
+
 
             return(invisible(sim))
 })

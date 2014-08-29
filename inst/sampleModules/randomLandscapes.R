@@ -23,6 +23,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
     # if a required module isn't loaded yet,
     # reschedule this module init for later
+
     if (reloadModuleLater(sim, depends)) {
       sim <- scheduleEvent(sim, simCurrentTime(sim), "randomLandscapes", "init")
     } else {
@@ -36,14 +37,16 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv))
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval, "randomLandscapes", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
+                         "randomLandscapes", "plot")
   } else if (eventType=="save") {
 
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval, "randomLandscapes", "save")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
+                         "randomLandscapes", "save")
 
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
@@ -58,7 +61,6 @@ randomLandscapesInit <- function(sim) {
   } else {
     inMemory <- simParams(sim)$randomLandscapes$inRAM
   }
-
   # Give dimensions of dummy raster
   nx <- simParams(sim)$randomLandscapes$nx
   ny <- simParams(sim)$randomLandscapes$ny

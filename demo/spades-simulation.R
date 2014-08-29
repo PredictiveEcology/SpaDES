@@ -5,7 +5,6 @@
 # @demoTitle spades-simulation
 #
 
-
 library("SpaDES")
 
 fileList = data.frame(files = dir(file.path(find.package("SpaDES",
@@ -22,10 +21,11 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    .loadFileList=fileList,
                    .progress=list(.graphical=FALSE, .progressInterval = 10),
-                   .globals=list(.stackName=stackName, .outputPath=NA),
-                   randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=c(.stackName),
-                                           .plotInitialTime=NA, .plotInterval=NA),
-                   caribouMovement=list(N=1e2, .saveObjects=c("caribou"),
+                   .globals=list(.stackName=stackName, .outputPath=NA, burnStats="nPixelsBurned"),
+                   randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=stackName,
+                                           .plotInitialTime=NA, .plotInterval=NA,
+                                           inRAM=TRUE),
+                   caribouMovement=list(N=1e1, .saveObjects=c("caribou"),
                                         .plotInitialTime = 1.01, .plotInterval=1,
                                         moveInterval=1),
                    fireSpread=list(nFires = 1e1, spreadprob=0.225,

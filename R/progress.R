@@ -9,9 +9,13 @@ if(getRversion() >= "3.1.0")  utils::globalVariables(".pb")
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # Check whether a .progress is specified in the simList
+    defaults = list(.graphical = FALSE, .progressInterval=(simStopTime(sim)-simStartTime(sim))/10)
+
     if( !(".progress" %in% names(simParams(sim))) ) {
-      # default is to use text progress bar at 10% increments
-      simParams(sim)[[".progress"]] = list(.graphical = FALSE, .progressInterval=(simStopTime(sim)-simStartTime(sim))/10)
+      simParams(sim)[[".progress"]] = defaults
+    } else {
+      ids = na.omit(match(names(simParams(sim)$.progress),c(".graphical", ".progressInterval")))
+      simParams(sim)[[".progress"]][names(defaults)[-ids]] = defaults[-ids]
     }
 
     # if NA then don't use progress bar

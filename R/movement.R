@@ -60,22 +60,22 @@ move <- function(hypothesis=NULL,...) {
 #@examples
 #NEED EXAMPLES
 crw = function(agent, stepLength, stddev, lonlat) {
+
     if (is.null(lonlat)) {
         stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
     }
     stopifnot(is.logical(lonlat))
 
     n <- length(agent)
-    prevPos <- SpatialPoints(cbind(x=agent$prevX, y=agent$prevY))
+    prevPos <- SpatialPoints(cbind(x=agent$x1, y=agent$y1))
     agentHeading <- heading(prevPos, agent)
     rndDir <- rnorm(n, agentHeading, stddev)
     rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
 
-
     # these should use `coordinates(agent) <-` or similar set methods
     # But, the assignment can't be used for overriding coordinates
     #  Must use slots directly
-    agent@data[,c("prevX","prevY")] <- coordinates(agent)
+    agent@data[,c("x1","y1")] <- coordinates(agent)
     agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
                           y=agent$y + cos(rad(rndDir)) * stepLength)
 

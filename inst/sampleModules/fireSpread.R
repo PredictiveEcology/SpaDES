@@ -41,9 +41,11 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
       # do stuff for this event
       sim <- fireSpreadInit(sim)
 
+
       # schedule the next event
       sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, "fireSpread", "burn")
       sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
+      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
     }
   } else if (eventType=="burn") {
     # do stuff for this event
@@ -60,13 +62,22 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     ## stats scheduling done by burn event
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(get(simGlobals(sim)$.stackName))
+    maps <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+    setColors(maps) <- list(DEM=terrain.colors(100),
+                                forestAge=brewer.pal(9,"BuGn"),
+                                forestCover=brewer.pal(8,"BrBG"),
+                                habitatQuality=brewer.pal(8,"Spectral"),
+                                percentPine=brewer.pal(9,"Greens"),
+                                Fires=c("#FFFFFF", rev(heat.colors(9)))
+                            )
+    Plot(maps)
+    assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(get(simGlobals(sim)$.stackName)$Fires, add=TRUE, addTo="Fires")
+    Plot(get(simGlobals(sim)$.stackName)$Fires, add=TRUE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
@@ -89,11 +100,11 @@ fireSpreadInit <- function(sim) {
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
   names(Fires) <- "Fires"
-  setColors(Fires) <- c("#FFFFFFFF", rev(heat.colors(9)))
+  setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
   Fires <- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
-  assign(simGlobals(sim)$.stackName, stack(landscapes,Fires), envir=.GlobalEnv)
+  assign(simGlobals(sim)$.stackName, addLayer(landscapes,Fires), envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
@@ -116,7 +127,9 @@ fireSpreadBurn <- function(sim) {
                    plot.it=FALSE,
                    mapID=TRUE)
   names(Fires) <- "Fires"
+  setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
   landscapes$Fires <- Fires
+
   assign(simGlobals(sim)$.stackName, landscapes, envir=.GlobalEnv)
 
   return(invisible(sim))
