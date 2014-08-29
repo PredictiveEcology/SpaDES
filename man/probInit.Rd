@@ -15,8 +15,6 @@ probInit(map, p = NULL, absolute = FALSE)
 }
 \value{
 Decribe what it returns: fromto.
-
-#
 }
 \description{
 Details here.

@@ -430,7 +430,7 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 #'
 #' @return Plots the vectors representing agent movement on the specified map.
 #'
-##' @import sp
+#' @import sp
 #' @export
 #' @docType methods
 #' @rdname drawArrows-method
@@ -559,10 +559,10 @@ setMethod("drawArrows",
 #' @param title Logical. Whether the names of each plot should be written above plots
 #'
 #' @rdname Plot
-#' @export
 #' @docType methods
 #' @export
 #' @import RColorBrewer
+#' @include named-objects.R
 #' @examples
 #' #  Make list of maps from package database to load, and what functions to use to load them
 #' fileList <-

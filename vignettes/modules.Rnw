@@ -46,45 +46,48 @@
 \paragraph{}
 As described in the introductory vignette, \texttt{SpaDES} is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A \texttt{SpaDEs} module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
+\paragraph{}
+A \texttt{SpaDES} module consists of a single \texttt{.R} source file, containing the code for 1) defining the event types described in the module, and 2) describing what happens during the processing of each event type.
+
 \subsection{Events}
 
 \subsubsection{Simulation event list}
 
 \paragraph{}
-textit{color{blue}{Lorem ipsum ...}}
+The event queue is stored in a slot in a \texttt{simList} simulation object. Each event is represented by a \texttt{data.table} row consisting of the time the event is to occur (\texttt{eventTime}), the name of the module from which the event is taken (\texttt{moduleName}), and a character string for the programmer-defined event type (\texttt{eventType}). This list is kept sorted by \texttt{eventTime}, and events are processed in sequence beginning at the top of the list. Completed events are removed from the queue.
 
 \subsubsection{Module events}
 
 \paragraph{}
-textit{color{blue}{Lorem ipsum ...}}
+When a call to the event list is made, the event is processed by the module specified by \texttt{moduleName}. The module code then determines the event type and executes the code for that event. For each event type within a module: 1) the instructions for what happens for this event get executed; and 2) there is an optional call to \texttt{scheduleEvent}, which schedules a future event. A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the ``drop-in/replace'' modularity of your simulation model.
 
 \subsubsection{Dependencies}
 
 \paragraph{}
-Typically, each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects. Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
+Each module schedules its own events (e.g., a ``fire'' module may schedule ``burn'' events) and only uses its own data objects (or shared global objects). Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
 
 \paragraph{}
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
 
 \subsection{Objects}
 
-\paragraph{}
-As you build your module / simulation, you can use any of \textsf{R}'s data types to store your objects / data. In particular, matrices (including vectors) and lists work well for this purpose because they are pass-by-reference, which reduces your model's memory footprint and speeds up your codes execution. Other useful datatypes include Raster* and SpatialPoints* objects.
-
 \subsubsection{Data types}
 
 \paragraph{}
-As you build your modules for your simulation, you can use any of \textsf{R}'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because as of \textsf{R} version 3.1 they are more efficient and reduce your model's memory footprint and speeds up your codes execution. Other useful datatypes include \texttt{Raster*} and \texttt{SpatialPoints*} objects.
+As you build your modules for your simulation, you can use any of \textsf{R}'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because, as of \textsf{R} version 3.1, they are more efficient, reducing your model's memory footprint and speeding up your code's execution. Other useful datatypes include \texttt{Raster*} and \texttt{SpatialPoints*} objects (see examples below).
 
 \subsubsection{Global objects}
 
 \paragraph{}
-Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global objects to reduce copying large objects (such as maps), which slows model execution.
+\textsf{R} passes copies of objects to functions (instead of using pass-by-reference), so the typical \textsf{R} function never acts directly on the global copy of the variable. Within a function, all operations are generally performed on a local copy of the object, which is then either discarded or returned back to the parent environment upon when the function completes. This object-copying behaviour has given \textsf{R} a reputation of being slow in comparison to languages like C and FORTRAN. However, recent improvements to \textsf{R} have made it more memory efficient and faster to execute, in part by minimizing the number of object copies made.
+
+\paragraph{}
+One way to reduce object copying is to work directly on objects in the global environment. Although this practice is not common among \textsf{R} users, it can be done. Use the superassignment operator (\texttt{<}\texttt{<-}) to assign global objects to reduce copying large objects (such as maps), which slows model execution. Altenatively (and more ``correctly''), use the \texttt{assign} function to assign objects directly to the global environment. Likewise, use \texttt{get} to bring global objects into your functions.
 
 \subsubsection{Module object dependencies}
 
 \paragraph{}
-As noted above, modules can depend on one another for event scheduling. Modules can also be designed to rely on outputs (data objects) from other modules. It is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. When objects are shared between modules, it is important to state these dependencies explicitly. To check whether global objects upon which a model depends exist, a call to \texttt{checkObject} is made during module initilization.
+As noted above, modules should not depend on one another for event scheduling. However, it is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. Modules can be designed to rely on outputs (data objects) from other modules. When objects are shared between modules, it is important to state these dependencies explicitly. To check whether global objects upon which a model depends exist, a call to \texttt{checkObject} is made during module initilization.
 
 \paragraph{}
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.

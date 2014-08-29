@@ -37,9 +37,11 @@ agentLocation <- function(map) {
 #'
 #' @return Decribe what it returns: fromto.
 #'
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' @seealso \code{\link{print}} and \code{\link{cat}}
 #'
 #' @import raster sp
+#' @include agent-methods.R
+#' @include named-objects.R
 #' @export
 #' @docType methods
 #' @rdname probInit
@@ -64,7 +66,7 @@ probInit = function(map, p=NULL, absolute=FALSE) {
   return(probInit)
 }
 
-
+###
 patchSize = function(patches) {
   return(freq(patches))
 }

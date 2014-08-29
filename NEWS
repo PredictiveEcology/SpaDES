@@ -1,3 +1,17 @@
+Known issues: https://github.com/achubaty/SpaDES/issues
+
+version 0.3.1
+=============
+
+* first public ("beta") release
+* reworked plotting and visualization (it's faster, more reliable)
+* added additional parameter checks and improved debugging
+* new and improved documentation:
+    - two new vignettes (introduction to SpaDES and how modules work)
+	- new demo highlighting visualization components
+	- more complete code documentation
+* numerous bug fixes
+
 version 0.2
 =============
 

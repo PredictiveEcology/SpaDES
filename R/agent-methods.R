@@ -10,6 +10,7 @@
 #' @return The heading between the points, in degrees.
 #'
 #' @import CircStats sp
+#' @include named-objects.R
 #' @export
 #' @docType methods
 #' @rdname heading

@@ -9,8 +9,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps.
 URL: 
-Version: 0.3.0
-Date: 2014-08-15
+Version: 0.3.1
+Date: 2014-08-29
 Authors@R: c(
     person("Eliot", "McIntire",
     email="Eliot.McIntire@NRCan.gc.ca",
@@ -38,8 +38,9 @@ Imports:
     RColorBrewer
 License: GPL
 Collate:
-    'SELES.R'
+    'named-objects.R'
     'agent-methods.R'
+    'SELES.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
@@ -48,7 +49,6 @@ Collate:
     'misc-methods.R'
     'module-template.R'
     'movement.R'
-    'named-objects.R'
     'neighbourhood.R'
     'plotting.R'
     'probability.R'
