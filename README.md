@@ -4,7 +4,7 @@
 
 Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
-*Website:* [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
+**Website:** [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
 
 ## Installation
 
