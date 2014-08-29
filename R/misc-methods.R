@@ -245,6 +245,7 @@ setMethod("checkParams",
             allFound <- TRUE
 
             ### check whether each param in simInit occurs in a module's .R file
+            globalsFound <- list()
             for (uM in userModules) {
               # check global params
               globalParams <- simGlobals(sim)
@@ -252,9 +253,8 @@ setMethod("checkParams",
                 for (i in 1:length(globalParams)) {
                   gP <- names(globalParams[i])
                   result <- grep(gP, readLines(paste(path, "/", uM, ".R", sep="")), value=FALSE)
-                  if (length(result)<=0) {
-                    allFound <- FALSE
-                    warning(paste("Global parameter", gP, "is not used in module", uM))
+                  if (length(result)>0) {
+                    globalsFound <- append(globalsFound, gP)
                   }
                 }
               }
@@ -273,30 +273,35 @@ setMethod("checkParams",
               }
             }
 
+            globalsFound <- unique(globalsFound)
+            notFound <- setdiff(names(globalParams), globalsFound)
+            if (length(notFound)>0) {
+              allFound <- FALSE
+              warning(paste("Global parameter", gP, "is not used in any module."))
+            }
+
             ### check whether each param in a module's .R file occurs in simInit
             globalsFound <- list()
             for (uM in userModules) {
               # read in and cleanup/isolate the global params in the module's .R file
-              moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
+              moduleParams <- grep("simGlobals\\(sim\\)\\$",
                                    readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
               moduleParams <- strsplit(moduleParams, " ")
               moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
-              moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
-                                   moduleParams, value=TRUE)
-              moduleParams <- unlist(strsplit(moduleParams, "="))
-              moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
-                                   moduleParams, value=TRUE)
+              moduleParams <- grep("simGlobals\\(sim\\)\\$", moduleParams, value=TRUE)
               moduleParams <- gsub(",", "", moduleParams)
               moduleParams <- gsub("\\)\\)", "", moduleParams)
               moduleParams <- gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", moduleParams)
+              moduleParams <- gsub("^simGlobals\\(sim\\)", "", moduleParams)
+              moduleParams <- gsub("\\)\\$.*", "", moduleParams)
               moduleParams <- sort(unique(moduleParams))
-              moduleParams <- gsub(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
+              moduleParams <- gsub("\\$", "", moduleParams)
 
               if (length(moduleParams)>0) {
                 if (length(globalParams)>0) {
                   for (i in 1:length(moduleParams)) {
                     mP <- moduleParams[i]
-                    if (mP %in% globalParams) {
+                    if (mP %in% names(globalParams)) {
                       globalsFound <- append(globalsFound, mP)
                     }
                   }
@@ -334,10 +339,11 @@ setMethod("checkParams",
               }
 
               globalsFound <- unique(globalsFound)
-              notFound <- setdiff(globalsFound, globalParams)
-              if (length(notfound)>0) {
+              notFound <- setdiff(globalsFound, names(globalParams))
+              if (length(notFound)>0) {
                 allFound <- FALSE
-                warning(paste("Global parameters", unlist(notFound), "not supplied in .globals to simInit."))
+                warning(paste("The following global parameters are used in module", uM,
+                              "but not supplied to simInit in .globals:", unlist(notFound)))
               }
             }
 
