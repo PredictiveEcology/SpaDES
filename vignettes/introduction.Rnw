@@ -126,7 +126,7 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-dev(4)
+#dev(4)
 spades(mySim)
 @
 
@@ -298,7 +298,7 @@ row.names(caribou) <- IDs
 Using a simple landscape-dependent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 <<agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE>>=
-dev(4)
+#dev(4)
 Plot(landscape[["habitatQuality"]])
 
 for (t in 1:10) {
