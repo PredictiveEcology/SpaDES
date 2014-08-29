@@ -242,13 +242,13 @@ setMethod("checkParams",
             params <- simParams(sim)
             modules <- simModules(sim)
             userModules <- modules[-which(defaultModules %in% modules)]
+            globalParams <- simGlobals(sim)
             allFound <- TRUE
 
             ### check whether each param in simInit occurs in a module's .R file
             globalsFound <- list()
             for (uM in userModules) {
               # check global params
-              globalParams <- simGlobals(sim)
               if (length(globalParams)>0) {
                 for (i in 1:length(globalParams)) {
                   gP <- names(globalParams[i])
@@ -277,7 +277,7 @@ setMethod("checkParams",
             notFound <- setdiff(names(globalParams), globalsFound)
             if (length(notFound)>0) {
               allFound <- FALSE
-              warning(paste("Global parameter", gP, "is not used in any module."))
+              warning(paste("Global parameters", notFound, "are not used in any module."))
             }
 
             ### check whether each param in a module's .R file occurs in simInit

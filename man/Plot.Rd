@@ -62,6 +62,8 @@ if the factor for speeding up is not high enough (i.e., >3).
 setColors to give each layer its own color table. See examples.
 }
 \examples{
+library(raster)
+library(rgdal)
 #  Make list of maps from package database to load, and what functions to use to load them
 fileList <-
    data.frame(files =

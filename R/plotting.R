@@ -562,8 +562,13 @@ setMethod("drawArrows",
 #' @docType methods
 #' @export
 #' @import RColorBrewer
+#' @import rgdal
+#' @import raster
+#' @import sp
 #' @include named-objects.R
 #' @examples
+#' library(raster)
+#' library(rgdal)
 #' #  Make list of maps from package database to load, and what functions to use to load them
 #' fileList <-
 #'    data.frame(files =

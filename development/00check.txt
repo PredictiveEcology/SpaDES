@@ -1,14 +1,43 @@
+* using log directory 'C:/Users/achubaty/Documents/GitHub/SpaDES.Rcheck'
+* using R version 3.1.1 (2014-07-10)
+* using platform: x86_64-w64-mingw32 (64-bit)
+* using session charset: ASCII
+* checking for file 'SpaDES/DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'SpaDES' version '0.3.1'
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking whether package 'SpaDES' can be installed ... [14s] OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking 'build' directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
 * checking index information ... WARNING
 Empty or missing file 'demo/00Index'.
 See the information on INDEX files and package subdirectories in the
 chapter 'Creating R packages' of the 'Writing R Extensions' manual.
-
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
 * checking dependencies in R code ... NOTE
 Namespace in Imports field not imported from: 'methods'
   All declared Imports should be used.
 See the information on DESCRIPTION files in the chapter 'Creating R
 packages' of the 'Writing R Extensions' manual.
-
+* checking S3 generic/method consistency ... OK
 * checking replacement functions ... WARNING
   'setColors<-' '\S4method{setColors<-}{Raster,list,missing}'
   '\S4method{setColors<-}{Raster,list,numeric}'
@@ -16,7 +45,7 @@ packages' of the 'Writing R Extensions' manual.
   '\S4method{setColors<-}{RasterLayer,character,numeric}'
 The argument of a replacement function which corresponds to the right
 hand side must be named 'value'.
-
+* checking foreign function calls ... OK
 * checking R code for possible problems ... NOTE
 Found an obsolete/platform-specific call in the following function:
   'newPlot'
@@ -24,29 +53,23 @@ Found the platform-specific devices:
   'quartz' 'windows' 'x11'
 dev.new() is the preferred way to open a new device, in the unlikely
 event one is needed.
-
 cir: no visible binding for global variable 'angles'
 cir: no visible binding for global variable 'x'
 cir: no visible binding for global variable 'y'
 cir: no visible binding for global variable 'pixIDs'
 cir: no visible binding for global variable 'pixIDs.unq'
-
-## utils isn't exporting these, which causes the error:
+doEvent.progress: no visible binding for '<<-' assignment to '.pb'
 newProgressBar: no visible global function definition for
   'tkProgressBar'
 setProgressBar: no visible global function definition for
   'setTkProgressBar'
-
 spec.num.per.patch: no visible binding for global variable 'pops'
 spec.num.per.patch: no visible binding for global variable 'num.in.pop'
 doEvent,simList-logical: no visible binding for global variable
   'eventTime'
-loadFiles,missing-ANY-ANY: no visible binding for global variable
-  'usedFilelist'
-loadFiles,simList-ANY-missing: no visible binding for global variable
-  'israst'
-loadFiles,simList-ANY-missing: no visible global function definition
-  for 'error'
+loadFiles,simList-missing: no visible global function definition for
+  'error'
+show,simList: no visible binding for global variable 'objectNames'
 
 Found the following assignments to the global environment:
 File 'SpaDES/R/checkpoint.R':
@@ -54,11 +77,16 @@ File 'SpaDES/R/checkpoint.R':
   assign("rng.kind", RNGkind(), .GlobalEnv)
 File 'SpaDES/R/load.R':
   assign(objectNames[x], do.call(get(loadFun[x]), args = argument), 
-    envir = globalenv())
-  assign(stackName, stack(mget(objectNames, envir = .GlobalEnv)), 
     envir = .GlobalEnv)
-
+  assign(uniqueStacki, localStacks[[uniqueStacki]], envir = .GlobalEnv)
+File 'SpaDES/R/plotting.R':
+  assign(".arr", arr, envir = .GlobalEnv)
+* checking Rd files ... OK
+* checking Rd metadata ... OK
 * checking Rd cross-references ... WARNING
+Missing link or links in documentation object 'RasterStackNamed-class.Rd':
+  'RasterStack'
+
 Missing link or links in documentation object 'dev-method.Rd':
   'quartz'
 
@@ -72,7 +100,20 @@ See the information in section 'Cross-references' of the 'Writing R
 Extensions' manual.
 
 * checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  'makeLayout' 'makeViewports'
+Undocumented S4 classes:
+  'NamedSpatialPoints' 'spatialObjects'
 Undocumented S4 methods:
+  generic 'Plot' and siglist 'spatialObjects'
+  generic 'inRasterStack' and siglist 'list'
+  generic 'name<-' and siglist 'RasterStack'
+  generic 'name<-' and siglist 'RasterStackNamed'
+  generic 'name<-' and siglist 'SpatialPoints'
+  generic 'name<-' and siglist 'SpatialPointsDataFrame'
+  generic 'name<-' and siglist 'SpatialPointsDataFrameNamed'
+  generic 'name<-' and siglist 'SpatialPointsNamed'
+  generic 'nlayers' and siglist 'list'
   generic 'setColors<-' and siglist 'Raster,list,missing'
   generic 'setColors<-' and siglist 'Raster,list,numeric'
   generic 'setColors<-' and siglist 'RasterLayer,character,missing'
@@ -82,20 +123,33 @@ All user-level objects in a package (including S4 classes and methods)
 should have documentation entries.
 See the chapter 'Writing R documentation files' in the 'Writing R
 Extensions' manual.
-
 * checking for code/documentation mismatches ... WARNING
 Codoc mismatches from documentation object 'setColors<-':
 setColors<-
-  Code: function(object, value, ..., n)
+  Code: function(object, ..., value, n)
   Docs: function(object, ..., n, value)
   Mismatches in argument names:
-    Position: 2 Code: value Docs: ...
-    Position: 3 Code: ... Docs: n
+    Position: 3 Code: value Docs: n
     Position: 4 Code: n Docs: value
 
 * checking Rd \usage sections ... WARNING
+Undocumented arguments in documentation object 'Plot'
+  'add' 'cols'
+Duplicated \argument entries in documentation object 'Plot':
+  'axes'
+Documented arguments not in \usage in documentation object 'Plot':
+  'col'
+
+Undocumented arguments in documentation object 'SpatialPointsDataFrameNamed'
+  'object' 'value'
+
 Undocumented arguments in documentation object 'adj.raw'
   'sort' 'target'
+
+Undocumented arguments in documentation object 'arrangeViewports'
+  'extents' 'name'
+Documented arguments not in \usage in documentation object 'arrangeViewports':
+  'toPlot' 'axes'
 
 Documented arguments not in \usage in documentation object 'cir':
   'scaleRaster'
@@ -105,20 +159,33 @@ Undocumented arguments in documentation object 'move'
 Duplicated \argument entries in documentation object 'move':
   'agent'
 
+Undocumented arguments in documentation object 'equalExtent'
+  'extents'
+
 Undocumented arguments in documentation object 'getColors'
   'object'
 Documented arguments not in \usage in documentation object 'getColors':
   'x'
 
+Undocumented arguments in documentation object 'inRasterStack'
+  'object'
+Objects in \usage without \alias in documentation object 'inRasterStack':
+  '\S4method{inRasterStack}{list}'
+
+Undocumented arguments in documentation object 'layerNames'
+  'object'
+
+Undocumented arguments in documentation object 'name'
+  'object'
+
+Undocumented arguments in documentation object 'plotGrob'
+  'col' 'size' 'legend' 'draw' 'gp' 'vp' 'pch' 'maxpixels' 'childrenvp'
+  '...'
+
 Undocumented arguments in documentation object 'setColors<-'
   'object'
 Documented arguments not in \usage in documentation object 'setColors<-':
   'x'
-
-Undocumented arguments in documentation object 'simPlot'
-  'add.legend'
-Documented arguments not in \usage in documentation object 'simPlot':
-  'ext'
 
 Objects in \usage without \alias in documentation object 'spread':
   '\S4method{spread}{RasterLayer}'
@@ -128,31 +195,54 @@ entries, and all their arguments documented.
 The \usage entries must correspond to syntactically valid R code.
 See the chapter 'Writing R documentation files' in the 'Writing R
 Extensions' manual.
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking installed files from 'inst/doc' ... OK
+* checking files in 'vignettes' ... OK
+* checking examples ... ERROR
+Running examples in 'SpaDES-Ex.R' failed
+The error most likely occurred in:
 
-* checking running R code from vignettes ... ERROR
-Errors in running code in vignettes:
-when running code in 'introduction.Rnw'
-  ...
-> path <- system.file("sampleModules", package = "SpaDES")
+> base::assign(".ptime", proc.time(), pos = "CheckExEnv")
+> ### Name: Plot
+> ### Title: Fast, optimally arranged, multipanel plotting function with
+> ###   spades
+> ### Aliases: Plot
+> 
+> ### ** Examples
+> 
+> library(raster)
+> library(rgdal)
+rgdal: version: 0.8-16, (SVN revision 498)
+Geospatial Data Abstraction Library extensions to R successfully loaded
+Loaded GDAL runtime: GDAL 1.11.0, released 2014/04/16
+Path to GDAL shared files: C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/rgdal/gdal
+GDAL does not use iconv for recoding strings.
+Loaded PROJ.4 runtime: Rel. 4.8.0, 6 March 2012, [PJ_VERSION: 480]
+Path to PROJ.4 shared files: C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/rgdal/proj
+> #  Make list of maps from package database to load, and what functions to use to load them
+> fileList <-
++    data.frame(files =
++      dir(file.path(
++                    find.package("SpaDES",
++                                 lib.loc=getOption("devtools.path"),
++                                 quiet=FALSE),
++                   "maps"),
++         full.names=TRUE, pattern= "tif"),
++      functions="rasterToMemory",
++      .stackName="landscape",
++      packages="SpaDES",
++      stringsAsFactors=FALSE)
+> 
+> # Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
+> loadFiles(fileList=fileList)
+DEM read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/DEM.tif using rasterToMemory
+forestAge read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/forestAge.tif using rasterToMemory
+forestCover read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/forestCover.tif using rasterToMemory
+habitatQuality read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/habitatQuality.tif using rasterToMemory
+percentPine read to memory from C:/Temp/RtmpmiAaTO/RLIBS_2bb410066611/SpaDES/maps/percentPine.tif using rasterToMemory
 
-> mySim <- simInit(times = times, params = parameters, 
-+     modules = modules, path = path)
-Warning in file(filename, "r", encoding = encoding) :
-  cannot open file '/randomLandscapes.R': No such file or directory
-
-  When sourcing 'introduction.R':
-Error: cannot open the connection
+Error in paste("Global parameter", gP, "is not used in any module.") : 
+  object 'gP' not found
+Calls: loadFiles ... loadFiles -> simInit -> simInit -> checkParams -> checkParams
 Execution halted
-when running code in 'modules.Rnw'
-  ...
-> modules <- list("randomLandscapes")
-
-> path <- system.file("sampleModules", package = "SpaDES")
-
-> mySim <- simInit(times = times, params = parameters, 
-+     modules = modules, path = path)
-
-  When sourcing 'modules.R':
-Error: could not find function "simInit"
-Execution halted
-

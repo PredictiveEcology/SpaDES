@@ -35,7 +35,8 @@ Imports:
     CircStats,
     methods,
     RandomFields,
-    RColorBrewer
+    RColorBrewer,
+    rgdal
 License: GPL
 Collate:
     'named-objects.R'
