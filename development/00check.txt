@@ -24,19 +24,19 @@ Found the platform-specific devices:
   'quartz' 'windows' 'x11'
 dev.new() is the preferred way to open a new device, in the unlikely
 event one is needed.
-checkpointLoad: no visible binding for global variable 'rng.kind'
-checkpointLoad: no visible binding for global variable 'rng.state'
+
 cir: no visible binding for global variable 'angles'
 cir: no visible binding for global variable 'x'
 cir: no visible binding for global variable 'y'
 cir: no visible binding for global variable 'pixIDs'
 cir: no visible binding for global variable 'pixIDs.unq'
-doEvent.progress: no visible binding for '<<-' assignment to '.pb'
-doEvent.progress: no visible binding for global variable '.pb'
+
+## utils isn't exporting these, which causes the error:
 newProgressBar: no visible global function definition for
   'tkProgressBar'
 setProgressBar: no visible global function definition for
   'setTkProgressBar'
+
 spec.num.per.patch: no visible binding for global variable 'pops'
 spec.num.per.patch: no visible binding for global variable 'num.in.pop'
 doEvent,simList-logical: no visible binding for global variable
