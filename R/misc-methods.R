@@ -274,6 +274,7 @@ setMethod("checkParams",
             }
 
             ### check whether each param in a module's .R file occurs in simInit
+            globalsFound <- list()
             for (uM in userModules) {
               # read in and cleanup/isolate the global params in the module's .R file
               moduleParams <- grep(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"),
@@ -292,14 +293,11 @@ setMethod("checkParams",
               moduleParams <- gsub(paste0("simGlobals\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
 
               if (length(moduleParams)>0) {
-                # which params does the user supply to simInit?
-                userParams <- sort(unlist(names(params[[uM]])))
                 if (length(globalParams)>0) {
                   for (i in 1:length(moduleParams)) {
                     mP <- moduleParams[i]
-                    if (!(mP %in% userParams)) {
-                      allFound <- FALSE
-                      warning(paste("Global parameter", mP, "is not supplied to module", uM))
+                    if (mP %in% globalParams) {
+                      globalsFound <- append(globalsFound, mP)
                     }
                   }
                 }
@@ -329,10 +327,17 @@ setMethod("checkParams",
                     mP <- moduleParams[i]
                     if (!(mP %in% userParams)) {
                       allFound <- FALSE
-                      warning(paste("Parameter", mP, "is not supplied to module", uM))
+                      warning(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
                     }
                   }
                 }
+              }
+
+              globalsFound <- unique(globalsFound)
+              notFound <- setdiff(globalsFound, globalParams)
+              if (length(notfound)>0) {
+                allFound <- FALSE
+                warning(paste("Global parameters", unlist(notFound), "not supplied in .globals to simInit."))
               }
             }
 
