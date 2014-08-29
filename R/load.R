@@ -79,6 +79,9 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @name loadFiles
 #' @include simulation.R
+#' @import rgdal
+#' @import raster
+#' @import sp
 #' @export
 #' @docType methods
 #' @rdname loadFiles-method
@@ -157,7 +160,7 @@ setMethod("loadFiles",
               fl <- filesCurTime$file
 
               #fl.list <- strsplit(basename(fl), ".", fixed=TRUE)
-#browser()
+
               # extract file extensions, to be used to determine which function to use
               exts <- match(fileExt(fl), .fileExts[,"exts"])
 

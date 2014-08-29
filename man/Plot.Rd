@@ -4,9 +4,9 @@
 \alias{Plot}
 \title{Fast, optimally arranged, multipanel plotting function with spades}
 \usage{
-Plot(..., add = F, addTo = NULL, gp = gpar(), axes = "L", speedup = 1,
-  size = 5, cols, visualSqueeze = 0.75, legend = TRUE, draw = TRUE,
-  pch = 19, title = T)
+Plot(..., add = FALSE, addTo = NULL, gp = gpar(), axes = "L",
+  speedup = 1, size = 5, cols, visualSqueeze = 0.75, legend = TRUE,
+  draw = TRUE, pch = 19, title = T)
 }
 \arguments{
 \item{...}{Raster* object(s) and or SpatialPoints*Named objects}
@@ -62,6 +62,9 @@ if the factor for speeding up is not high enough (i.e., >3).
 setColors to give each layer its own color table. See examples.
 }
 \examples{
+\dontrun{
+library(raster)
+library(rgdal)
 #  Make list of maps from package database to load, and what functions to use to load them
 fileList <-
    data.frame(files =
@@ -111,7 +114,7 @@ if(is.null(dev.list())) {
 Plot(landscape)
 
 # Can overplot, using addTo
-Plot(caribou, addTo="forestAge",size=4, axes=F)
+Plot(caribou, addTo="forestAge", size=4, axes=FALSE)
 
 # can add a new plot to the plotting window
 Plot(caribou, add=T)
@@ -125,5 +128,6 @@ Plot(landscape, habitatQuality2, caribou)
 # can mix stacks, rasters, SpatialPoint*Named
 Plot(landscape, caribou)
 Plot(habitatQuality2, add=T)
+}
 }
 

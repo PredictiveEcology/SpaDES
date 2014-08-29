@@ -1,0 +1,86 @@
+%\VignetteIndexEntry{Simulation visualization and plotting in SpaDES}
+%\VignetteDepends{SpaDES}
+%\VignetteKeyword{maps}
+%\VignetteKeyword{plot}
+%\VignetteKeyword{visualization}
+\documentclass{article}
+
+%%% latex packages
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[usenames,dvipsnames]{xcolor}
+
+%% change margins to 1" all the way around
+\oddsidemargin 0.0in
+\evensidemargin 0.0in
+\textwidth 6.5in
+\headheight 0.0in
+\topmargin 0.0in
+\textheight 9.0in
+
+%%% document info
+\title{Plotting with \texttt{Plot} in \texttt{SpaDES}}
+
+\author{
+	Eliot McIntire\\
+	\small{Natural Resources Canada, Pacific Forestry Centre}\\
+	\small{email: \href{mailto:emcintir@nrcan.gc.ca}{emcintir@nrcan.gc.ca}}
+  \and
+  Alex M. Chubaty\\
+  \small{Natural Resources Canada, Pacific Forestry Centre}\\
+  \small{email: \href{mailto:achubaty@nrcan.gc.ca}{achubaty@nrcan.gc.ca}}
+}
+
+\usepackage{Sweave}
+\begin{document}
+\input{plotting-concordance}
+ % displays code as entered (no arranging lines)
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Plotting with \texttt{Plot}}
+
+\paragraph{}
+One of the major features of the \texttt{SpaDES} package is that it brings together many of \textsf{R}'s powerful plotting and visualization into a small family of related functions. These new plotting functions make it easy to quickly produce visualizations useful at every stage of model development. Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands.
+
+
+\begin{Schunk}
+\begin{Sinput}
+> library(raster)
+> library(RColorBrewer)
+> # Give dimensions of dummy raster
+> nx <- 1e2
+> ny <- 1e2
+> template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)
+> # Make dummy maps for testing of models:
+> # - digital elevation model (DEM)
+> # - forest age
+> # - forset cover
+> # - percent pine
+> DEM <- round(GaussMap(template, scale=300, var=0.03, speedup=1), 1)*1000
+> forestAge <- round(GaussMap(template, scale=10, var=0.1, speedup=1), 1)*20
+> forestCover <- round(GaussMap(template, scale=50, var=1, speedup=1),2)*10
+> percentPine <- round(GaussMap(template, scale=50, var=1, speedup=1),1)
+> # Scale them as needed
+> forestAge <- forestAge/maxValue(forestAge)*100
+> percentPine <- percentPine/maxValue(percentPine)*100
+> # Make layers that are derived from other layers
+> habitatQuality <- (DEM+10 + (forestCover+5)*10)/100
+> habitatQuality <- habitatQuality/maxValue(habitatQuality)
+> # Stack them into a single stack for plotting
+> habitat <- stack(list(DEM, forestAge, forestCover, habitatQuality, percentPine))
+> names(habitat) <- c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
+> name(habitat) <- "habitat"
+> Plot(habitat)
+\end{Sinput}
+\end{Schunk}
+
+\begin{Schunk}
+\begin{Sinput}
+> nx <- 1e2
+> ny <- 1e2
+> template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn =-ny/2, ymx=ny/2)

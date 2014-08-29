@@ -64,7 +64,7 @@ setGeneric("setColors<-",
 setReplaceMethod("setColors",
                  signature("RasterLayer", "character", "numeric"),
                  function(object, ..., value, n) {
-                   pal <- colorRampPalette(value,alpha=TRUE)
+                   pal <- colorRampPalette(value, alpha=TRUE)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
@@ -78,7 +78,7 @@ setReplaceMethod("setColors",
                  signature("RasterLayer", "character", "missing"),
                  function(object, ..., value) {
                    n <- round((maxValue(object)-minValue(object)))+1
-                   pal <- colorRampPalette(value,alpha=TRUE)
+                   pal <- colorRampPalette(value, alpha=TRUE)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
