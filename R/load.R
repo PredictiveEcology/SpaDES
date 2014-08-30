@@ -125,7 +125,7 @@ setMethod("loadFiles",
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
               fileList <- simFileList(sim)
-#            if(!is.null(fileList) & length(fileList$file)>0) {
+              #            if(!is.null(fileList) & length(fileList$file)>0) {
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -241,7 +241,7 @@ setMethod("loadFiles",
 
                 if (loadFun[x]=="raster") {
                   message(paste(objectNames[x], "read to", where[inMemory(get(objectNames[x]))+1],
-                              "from", fl[x], "using", loadFun[x]))
+                                "from", fl[x], "using", loadFun[x]))
                 } else {
                   message(paste(objectNames[x], "read to memory from", fl[x], "using", loadFun[x]))
                 }
@@ -263,28 +263,28 @@ setMethod("loadFiles",
               #      assign(x, setMinMax(get(x)), envir=.GlobalEnv)
               #    })
 
-#               if(!all(is.na(stackName))) {
-#                 for(uniqueStacki in unique(stackName)) {
-#                   whichUniqueStacki <- which(!is.na(match(stackName, uniqueStacki)))
-#                   extents <- lapply(mget(objectNames[whUniqueStacki],
-#                                          envir=.GlobalEnv), extent)
-#                   extents.equal = logical(length(extents)-1)
-#                   for (i in 1:(length(extents)-1)){
-#                     extents.equal[i] = (extents[[1]] == extents[[i]])
-#                   }
-#                   if (all(extents.equal)) {
-#                     newStack <- stack(mget(objectNames[whichUniqueStacki], envir=.GlobalEnv))
-#                     name(newStack) <- uniqueStacki
-#                     assign(uniqueStacki, newStack, envir=.GlobalEnv)
-#                   } else {
-#                     warning("Cannot stack objects because they don't have same extents,
-#                             Returning individual objects to global environment")
-#                   }
-#                   rm(list=objectNames, envir=.GlobalEnv)
-#                   warning(paste(paste(objectNames, collapse=", "),
-#                                 "were deleted; they are in the", stackName, "stack"))
-#                 }
-#               }
+              #               if(!all(is.na(stackName))) {
+              #                 for(uniqueStacki in unique(stackName)) {
+              #                   whichUniqueStacki <- which(!is.na(match(stackName, uniqueStacki)))
+              #                   extents <- lapply(mget(objectNames[whUniqueStacki],
+              #                                          envir=.GlobalEnv), extent)
+              #                   extents.equal = logical(length(extents)-1)
+              #                   for (i in 1:(length(extents)-1)){
+              #                     extents.equal[i] = (extents[[1]] == extents[[i]])
+              #                   }
+              #                   if (all(extents.equal)) {
+              #                     newStack <- stack(mget(objectNames[whichUniqueStacki], envir=.GlobalEnv))
+              #                     name(newStack) <- uniqueStacki
+              #                     assign(uniqueStacki, newStack, envir=.GlobalEnv)
+              #                   } else {
+              #                     warning("Cannot stack objects because they don't have same extents,
+              #                             Returning individual objects to global environment")
+              #                   }
+              #                   rm(list=objectNames, envir=.GlobalEnv)
+              #                   warning(paste(paste(objectNames, collapse=", "),
+              #                                 "were deleted; they are in the", stackName, "stack"))
+              #                 }
+              #               }
 
               # add new rows of files to load based on fileListdf$Interval
               if(!is.na(match("intervals", names(fileListdf)))) {
@@ -310,35 +310,41 @@ setMethod("loadFiles",
                   error("fileList must be either a list or data.frame")
                 }
 
-                 if(nrow(fileListdf)>0) {
-                   sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
-                 }
+                if(nrow(fileListdf)>0) {
+                  sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
+                }
               }
             } else {
               message("No files loaded, because no fileList (or empty fileList) provided.")
             }
             message("") ## print empty message to add linebreak to console message output
             return(invisible(sim))
-})
+          })
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
           signature(sim="missing", fileList="ANY"),
           definition = function(sim, fileList, ...) {
+            if(any(names(fileList)==".stackName")) {
+              stackName = fileList$.stackName
+            } else {
+              stackName = NA
+            }
+
             sim <- simInit(times=list(start=0.0, stop=1),
-                           params=list(.globals=list(.stackName=fileList$.stackName),
+                           params=list(.globals=list(.stackName=stackName),
                                        .loadFileList=fileList),
                            modules=list(), path="."
-                           )
+            )
             return(invisible(sim))
-})
+          })
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
           signature(sim="missing", fileList="missing"),
           definition = function(sim, fileList, ...) {
             warning("no files loaded because sim and fileList are empty")
-})
+          })
 
 #' File extensions map
 #'
@@ -348,12 +354,12 @@ setMethod("loadFiles",
 #' @rdname loadFiles-method
 .fileExtensions = function() {
   .fE <- data.frame(matrix(ncol=3, byrow=TRUE,c(
-  "tif", "raster", "raster" ,
-  "png", "raster", "raster" ,
-  "csv", "read.csv", "utils" ,
-  "shp", "readOGR", "rgdal",
-  "txt", "read.table", "utils",
-  "asc", "raster", "raster")))
+    "tif", "raster", "raster" ,
+    "png", "raster", "raster" ,
+    "csv", "read.csv", "utils" ,
+    "shp", "readOGR", "rgdal",
+    "txt", "read.table", "utils",
+    "asc", "raster", "raster")))
   colnames(.fE) = c("exts", "functions", "package")
   return(.fE)
 }
@@ -390,7 +396,7 @@ setGeneric("rasterToMemory", function(x, ...) {
 setMethod("rasterToMemory",
           signature=c(x="ANY"),
           definition=function(x, ...) {
-  r <- raster(x, ...)
-  r <- setValues(r, getValues(r))
-  return(r)
-})
+            r <- raster(x, ...)
+            r <- setValues(r, getValues(r))
+            return(r)
+          })
