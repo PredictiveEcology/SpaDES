@@ -356,7 +356,6 @@ setMethod("plotGrob",
               maxcol = maxv
             }
 
-            #browser()
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,
                               pr=pr,col=col,
@@ -714,6 +713,7 @@ setMethod("Plot",
                                 legend, draw, pch, title) {
             toPlot <- list(...)
 
+
             whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
             if(any(whStacks)) {
               stacksToPlot <- lapply(toPlot[whStacks], layerNames)
@@ -728,6 +728,18 @@ setMethod("Plot",
               } else {
                 stacksInArr <- list(NULL)
               }
+#              if(!is.null(addTo)) add <- TRUE
+            }
+
+            lN <- layerNames(toPlot)
+            if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
+                                                 "inside RasterStacks"))
+
+            if(is.null(addTo)) {
+              addTo <- lN
+            } else {
+              if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
+              add = TRUE
             }
 
             # check whether .arr exists, meaning that there is already a plot
@@ -750,16 +762,6 @@ setMethod("Plot",
                 stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
             }
 
-            lN <- layerNames(toPlot)
-            if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
-                                         "inside RasterStacks"))
-
-            if(is.null(addTo)) {
-              addTo <- lN
-            } else {
-              if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-              add = TRUE
-            }
             currentPlusToPlotN <- unique(c(currentNames, addTo))
 
             # if add == F, then new plots are only the ones in the function call, otherwise
@@ -849,7 +851,7 @@ setMethod("Plot",
             layerLengths <- lapply(toPlot, layerNames)
             if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
             if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
-#if(!exists("xaxis")) browser()
+
             for(grobNamesi in grobNames) {
               whGrobNamesi <- match(grobNamesi,grobNames)
 
@@ -864,7 +866,6 @@ setMethod("Plot",
               }
 
 
-              #browser()
               seekViewport(addTo[whGrobNamesi],recording=F)
               if(!grobNamesi %in% lN) {
                 if(length(stacksInArr)>0) {
@@ -916,7 +917,9 @@ setMethod("Plot",
                   z <- grobToPlot
                 }
 
-                 plotGrob(z, col = cols, size=unit(size,"points"),
+                plotGrob(z, col = cols, size=unit(size,"points"),
+                          minv=minz,
+                          maxv=maxz,
                           vp=NULL, pch=pch,
                           #xaxis = xaxis, yaxis = yaxis, title=title,
                           maxpixels= maxpixels,
@@ -956,8 +959,11 @@ setMethod("Plot",
                   if(maxz <= 1) {
                     if(length(unique(z))>length(cols)) {
                       cols <- colorRampPalette(cols)(50)
-                      z = z*49
+                      z <- z*49
                     }
+                  }
+                  if((maxz-minz)==0) {
+                    legend <- FALSE
                   }
 
                   # colors are indexed from 1, as with all objects in R, but there are generally

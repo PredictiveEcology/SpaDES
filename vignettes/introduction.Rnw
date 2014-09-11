@@ -174,7 +174,7 @@ Bringing data into\textsf{R}is easy, and can be done using any of the built in d
 ### Example: loading habitat maps
 
 # use all built-in maps from the SpaDES package
-# pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
+pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern= "tif"),
                       functions="rasterToMemory", packages="SpaDES",
                       stringsAsFactors=FALSE)
@@ -221,14 +221,14 @@ landscape[["Fires"]] <-
 
 setColors(landscape$Fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
 
-Plot(landscape[["Fires"]])
+Plot(landscape[["Fires"]],add=T)
 @
 
 
 <<fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
-Plot(percentPine)
+# Plot(percentPine)
 Plot(landscape[["Fires"]], add=TRUE)
 Plot(landscape[["Fires"]], addTo="percentPine")
 @
