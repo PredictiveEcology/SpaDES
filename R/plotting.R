@@ -350,22 +350,34 @@ setMethod("plotGrob",
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
 
+            if(maxv<=1) {
+              maxcol = maxv*47
+            } else {
+              maxcol = maxv
+            }
+
+            #browser()
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,
                               pr=pr,col=col,
                               children=gList(
-                                rasterGrob(as.raster(grobToPlot, col = col), #maxpixels=maxpixels,
+                                rasterGrob(as.raster(grobToPlot),#, col = col), #maxpixels=maxpixels,
                                            interpolate=FALSE,
                                            name="raster"),
-                                if(legend) rasterGrob(as.raster(col[(maxv+1):1]),
+                                if(legend) rasterGrob(as.raster(col[(maxcol+1):1]),
                                                       x=1.04,y=0.5,height=0.5,width=0.03,
                                                       interpolate=FALSE,
                                                       name="legend"),
-                                if(legend) {
-                                  if(col[1]=="#FFFFFF" | col[maxv+1]=="#FFFFFF")
+                                if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
+                                  if(col[1]=="#FFFFFF" | col[maxcol+1]=="#FFFFFF")
                                     rectGrob(x=1.04,y=0.5,height=0.5,width=0.03)
                                 },
-                                if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/((maxv+1)-min(pr)))/2+0.25+1/diff(range(minv,maxv))/4,
+                                if(legend) textGrob(pr, x=1.08,
+                                                    if(maxv>1) {
+                                                      y= ((pr-min(pr))/((maxv+1)-min(pr)))/2+0.25+1/diff(range(minv,maxv))/4
+                                                    } else {
+                                                      y= ((pr-min(pr))/((maxv)-min(pr)))/2+0.25
+                                                    },
                                                     gp=gpar(cex=0.9),
                                                     just="left",
                                                     name="legendText")
@@ -725,7 +737,11 @@ setMethod("Plot",
               if(add==T) message("Nothing to add plots to; creating new plots")
               currentNames = NULL
             } else {
-              arr <- .arr
+              if(add) {
+                arr <- .arr
+              } else {
+                arr = new("arrangement"); arr@columns=0; arr@rows = 0
+              }
               currentNames <- arr@names
             }
 
@@ -836,14 +852,15 @@ setMethod("Plot",
 
             for(grobNamesi in grobNames) {
               whGrobNamesi <- match(grobNamesi,grobNames)
-              if(addTo[whGrobNamesi] != grobNamesi) {
-                title = FALSE
-                legend = FALSE
-              }
+               if(grobNamesi %in% currentNames) {
+                 title = FALSE
+                 legend = FALSE
+               }
               whPlot <- match(addTo[whGrobNamesi], arr@names)
               if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis = TRUE } else { xaxis = FALSE}
                              if((whPlot-1)%%arr@columns==0) { yaxis = TRUE } else { yaxis = FALSE}}
 
+              #browser()
               seekViewport(addTo[whGrobNamesi],recording=F)
               if(!grobNamesi %in% lN) {
                 if(length(stacksInArr)>0) {
@@ -879,6 +896,13 @@ setMethod("Plot",
                   minz <- min(z)
                   maxz <- max(z)
 
+                  # if data in raster are proportions, must treat colors differently
+                  if(maxz <= 1) {
+                    if(length(unique(z))>length(cols)) {
+                      cols <- colorRampPalette(cols)(50)
+                      z = z*50
+                    }
+                  }
                   # colors are indexed from 1, as with all objects in R, but there are generally
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
@@ -904,7 +928,6 @@ setMethod("Plot",
                 }
 
 #                maxpixels=1e4
-
                 if(is(grobToPlot, "Raster")) {
                   if(sapply(getColors(grobToPlot),length)>0) {
                     cols <- getColors(grobToPlot)[[1]]
@@ -924,6 +947,14 @@ setMethod("Plot",
                   z <- getValues(grobToPlot)
                   minz <- min(z)
                   maxz <- max(z)
+
+                  # if data in raster are proportions, must treat colors differently
+                  if(maxz <= 1) {
+                    if(length(unique(z))>length(cols)) {
+                      cols <- colorRampPalette(cols)(50)
+                      z = z*49
+                    }
+                  }
 
                   # colors are indexed from 1, as with all objects in R, but there are generally
                   #  zero values on the rasters, so shift by 1
