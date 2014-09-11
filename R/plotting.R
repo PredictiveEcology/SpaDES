@@ -714,6 +714,7 @@ setMethod("Plot",
             toPlot <- list(...)
 
 
+browser()
             whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
             if(any(whStacks)) {
               stacksToPlot <- lapply(toPlot[whStacks], layerNames)
@@ -749,17 +750,17 @@ setMethod("Plot",
               if(add==T) message("Nothing to add plots to; creating new plots")
               currentNames = NULL
             } else {
+              if(!is.null(addTo)) {
+                if(!any(addTo %in% .arr@names))
+                  stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
+              }
+
               if(add) {
                 arr <- .arr
               } else {
                 arr = new("arrangement"); arr@columns=0; arr@rows = 0
               }
               currentNames <- arr@names
-            }
-
-            if(!is.null(addTo)) {
-              if(!any(addTo %in% .arr@names))
-                stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
             }
 
             currentPlusToPlotN <- unique(c(currentNames, addTo))
