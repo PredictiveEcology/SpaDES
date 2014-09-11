@@ -4,19 +4,24 @@
 \alias{plotGrob}
 \alias{plotGrob,Raster-method}
 \alias{plotGrob,SpatialPoints-method}
+\alias{plotGrob,matrix-method}
 \title{Plot either a raster Grob or a points Grob}
 \usage{
-plotGrob(grobToPlot, col = NULL, size = unit(5, "points"), legend = TRUE,
-  draw = TRUE, gp = gpar(), vp = NULL, pch = 19, maxpixels = 1e+06,
-  childrenvp = NULL, ...)
+plotGrob(grobToPlot, col = NULL, size = unit(5, "points"), name = "plot",
+  minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(), vp = NULL,
+  pch = 19, childrenvp = NULL, ...)
 
 \S4method{plotGrob}{Raster}(grobToPlot, col = NULL, size = unit(5,
-  "points"), legend = TRUE, draw = TRUE, gp = gpar(), vp = NULL,
-  pch = 19, maxpixels = 1e+06, childrenvp = NULL, ...)
+  "points"), name = "plot", minv, maxv, legend = TRUE, draw = TRUE,
+  gp = gpar(), vp = NULL, pch = 19, childrenvp = NULL, ...)
+
+\S4method{plotGrob}{matrix}(grobToPlot, col = NULL, size = unit(5,
+  "points"), name = "plot", minv, maxv, legend = TRUE, draw = TRUE,
+  gp = gpar(), vp = NULL, pch = 19, childrenvp = NULL, ...)
 
 \S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, size = unit(5,
-  "points"), legend = TRUE, draw = TRUE, gp = gpar(), vp = NULL,
-  pch = 19, maxpixels = 1e+06, childrenvp = NULL, ...)
+  "points"), name = "plot", minv, maxv, legend = TRUE, draw = TRUE,
+  gp = gpar(), vp = NULL, pch = 19, childrenvp = NULL, ...)
 }
 \arguments{
 \item{grobToPlot}{Raster* or SpatialPoints* object}

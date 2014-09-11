@@ -230,11 +230,11 @@ setMethod("arrangeViewports",
     dimx <- apply(sapply(extents,function(y) apply(bbox(y),1,function(x) diff(range(x)))),1,max)
     if(is.null(name)) {
       nPlots <- length(extents)
-      vpnames <- paste("vp",names(extents),sep="")
+      #vpnames <- paste("vp",names(extents),sep="")
       names <- names(extents)
     } else {
       nPlots <- length(name)
-      vpnames <- paste("vp",name,sep="")
+      #vpnames <- paste("vp",name,sep="")
       names <- name
     }
 
@@ -245,7 +245,8 @@ setMethod("arrangeViewports",
     ds <- dev.size()
     ds.ratio <- ds[1]/ds[2]
 
-    dimensionRatio <- dimx[2]/dimx[1]
+    #dimensionRatio <- dimx[2]/dimx[1]
+    dimensionRatio <- dimx[1]/dimx[2]
 
     ds.dimensionRatio <- ds.ratio/dimensionRatio
 
@@ -281,8 +282,9 @@ setMethod("arrangeViewports",
 #' @export
 #' @docType methods
 setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
+                                name="plot", minv, maxv,
                                 legend=TRUE, draw=TRUE, #xaxis=TRUE, yaxis=TRUE, title=TRUE,
-                                gp=gpar(), vp=NULL, pch=19, maxpixels=1e6,
+                                gp=gpar(), vp=NULL, pch=19, #maxpixels=5e5,
                                 childrenvp=NULL, ...) {
   standardGeneric("plotGrob")
 })
@@ -291,15 +293,23 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
 #' @export
 setMethod("plotGrob",
           signature=c("Raster"),
-          definition= function(grobToPlot, col, size,
+          definition= function(grobToPlot, col, size, name,
                                legend, draw, #xaxis, yaxis, title,
-                               gp, vp, pch, maxpixels,
+                               gp, vp, pch, #maxpixels,
                                childrenvp, ...) {
 
             pr <- pretty(range(minValue(grobToPlot),maxValue(grobToPlot)))
             pr <- pr[pr<=maxValue(grobToPlot)]
+
             if(sapply(getColors(grobToPlot),length)>0) {
-              col=getColors(grobToPlot)[[1]]
+              col <- getColors(grobToPlot)[[1]]
+
+              # If there is a legend that is too long for the number of values, this chops
+              #  off the extraneous ones because the as.raster below will match min-max on
+              #  both col and values, which is not the desired behaviour
+              if(length(col)>(maxValue(grobToPlot)+1)) {
+                col <- col[1:maxValue(grobToPlot)+1]
+              }
             } else {
               col=topo.colors(50)
             }
@@ -307,18 +317,15 @@ setMethod("plotGrob",
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=layerNames(grobToPlot),
                               pr=pr,col=col,
-                              #childrenvp=childrenvp,
                               children=gList(
-                                rasterGrob(as.raster(grobToPlot, maxpixels=maxpixels,col = col),
+                                rasterGrob(as.raster(grobToPlot, col = col), #maxpixels=maxpixels,
                                            interpolate=FALSE,
                                            name="raster"),
-#                                 if(xaxis) xaxisGrob(name="xaxis"),
-#                                 if(yaxis) yaxisGrob(name="yaxis"),
                                 if(legend) rasterGrob(as.raster(col[length(col):1]),
                                                       x=1.04,y=0.5,height=0.5,width=0.03,
                                                       interpolate=FALSE,
                                                       name="legend"),
-                                if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/(max(pr)-min(pr)))/2+0.25,
+                                if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/(maxValue(grobToPlot)-min(pr)))/2+0.25,
                                                     gp=gpar(cex=0.9),
                                                     just="left",
                                                     name="legendText")
@@ -334,10 +341,50 @@ setMethod("plotGrob",
 #' @rdname plotGrob
 #' @export
 setMethod("plotGrob",
+          signature=c("matrix"),
+          definition= function(grobToPlot, col, size, name, minv, maxv,
+                               legend, draw, #xaxis, yaxis, title,
+                               gp, vp, pch, #maxpixels,
+                               childrenvp, ...) {
+
+            pr <- pretty(range(minv,maxv))
+            pr <- pr[pr<=maxv]
+
+            rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
+                              name=name,
+                              pr=pr,col=col,
+                              children=gList(
+                                rasterGrob(as.raster(grobToPlot, col = col), #maxpixels=maxpixels,
+                                           interpolate=FALSE,
+                                           name="raster"),
+                                if(legend) rasterGrob(as.raster(col[(maxv+1):1]),
+                                                      x=1.04,y=0.5,height=0.5,width=0.03,
+                                                      interpolate=FALSE,
+                                                      name="legend"),
+                                if(legend) {
+                                  if(col[1]=="#FFFFFF" | col[maxv+1]=="#FFFFFF")
+                                    rectGrob(x=1.04,y=0.5,height=0.5,width=0.03)
+                                },
+                                if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/((maxv+1)-min(pr)))/2+0.25+1/diff(range(minv,maxv))/4,
+                                                    gp=gpar(cex=0.9),
+                                                    just="left",
+                                                    name="legendText")
+                                #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
+                              ),
+                              gp=gp,
+                              #vp=vp,
+                              cl="plotRast")
+            if(draw) grid.draw(rastGrob)
+            return(invisible(rastGrob))
+          })
+
+#' @rdname plotGrob
+#' @export
+setMethod("plotGrob",
           signature=c("SpatialPoints"),
           definition= function(grobToPlot, col, size,
                                legend, draw, #xaxis, yaxis, title,
-                               gp=gpar(), vp=NULL, pch, maxpixels,
+                               gp=gpar(), vp=NULL, pch, #maxpixels,
                                childrenvp=NULL, ...) {
             pntGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                              name=layerNames(grobToPlot),
@@ -358,21 +405,26 @@ setMethod("plotGrob",
 
 
 #' @export
-makeLayout <- function(arr, visualSqueeze) {
+makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
   columns <- arr@columns
   rows <- arr@rows
 
+  # Reduce by 40% of remaining space if each of the following is not wanted
+  if(legend==FALSE ) visualSqueeze <- visualSqueeze + 0.4*(1-visualSqueeze)
+  if(axes==FALSE) visualSqueeze <- visualSqueeze + 0.4*(1-visualSqueeze)
+  if(title==FALSE) visualSqueeze <- visualSqueeze + 0.4*(1-visualSqueeze)
 
   # calculate the visualSqueeze for the width (i.e., vS.w)
   vS.w = min(visualSqueeze/columns,
              visualSqueeze/columns*arr@actual.ratio/arr@ds.dimensionRatio)
+
   wdth <- unit.c(unit(1.5,"null"), unit(rep(c(vS.w,1.75),columns),
                                         rep(c("npc","null"),columns))[-columns*2],
                  unit(1.5,"null"))
 
   # calculate the visualSqueeze for the height (i.e., vS.h)
   vS.h = min(visualSqueeze/rows,
-             visualSqueeze/rows*arr@ds.dimensionRatio/arr@actual.ratio)
+              visualSqueeze/rows*arr@ds.dimensionRatio/arr@actual.ratio)
   ht <- unit.c(unit(1,"null"), unit(rep(c(vS.h,1.75),rows),
                                     rep(c("npc","null"),rows))[-rows*2],
                unit(1,"null"))
@@ -393,7 +445,6 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
                                        heights=layout$ht),
                     name="top")
   plotVps <- list()
-
   for(extentInd in 1:length(extents)) {
     nam = names(extents)[extentInd]
     posInd = match(nam, arr@names)
@@ -761,7 +812,7 @@ setMethod("Plot",
               gp$cex <- cex <- max(0.6,min(1,prod(arr@ds)/prod(arr@columns,arr@rows)*0.07))
             }
 
-            lay <- makeLayout(arr, visualSqueeze)
+            lay <- makeLayout(arr, visualSqueeze, legend, axes)
 
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
@@ -771,12 +822,12 @@ setMethod("Plot",
               pushViewport(vps,recording = FALSE)
               upViewport(2)
             }
-            npixels <- unlist(sapply(toPlot, function(x) if(is(x,"Raster")) ncell(x)))
-            maxpixels <- 2e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
-            if(!is.null(npixels)) {
-              maxpixels <- c(maxpixels,npixels)[(npixels/3<maxpixels)+1]
-            }
 
+            npixels <- unlist(sapply(toPlot, function(x) if(is(x,"Raster")) ncell(x)))
+            maxpixels <- 4e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
+            if(!is.null(npixels)) {
+              maxpixels <- min(maxpixels,max(npixels/3))
+            }
 
             # because of stacks, have to find the right layer which may or may not be in a stack
             layerLengths <- lapply(toPlot, layerNames)
@@ -808,12 +859,41 @@ setMethod("Plot",
                   withinStacki <- match(grobNamesi,stacksInArr[[names(isPrevLayerInStack)]])
                   grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
                 }
-                 plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
+                if(is(grobToPlot, "Raster")) {
+                  if(sapply(getColors(grobToPlot),length)>0) {
+                    cols <- getColors(grobToPlot)[[1]]
+
+                    # If there is a legend that is too long for the number of values, this chops
+                    #  off the extraneous ones because the as.raster below will match min-max on
+                    #  both col and values, which is not the desired behaviour
+                    #   if(length(col)>(maxValue(grobToPlot)+1)) {
+                    #     col <- col[1:maxValue(grobToPlot)+1]
+                    #   }
+                  } else {
+                    cols=topo.colors(50)
+                  }
+
+                  # subsample for speed of plotting - taken from .plotCT in package "raster"
+                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE)#, useGDAL=TRUE)
+                  z <- getValues(grobToPlot)
+                  minz <- min(z)
+                  maxz <- max(z)
+
+                  # colors are indexed from 1, as with all objects in R, but there are generally
+                  #  zero values on the rasters, so shift by 1
+                  z <- z + 1
+                  z[is.na(z)] <- 1
+                  z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+                } else {
+                  z <- grobToPlot
+                }
+
+                 plotGrob(z, col = cols, size=unit(size,"points"),
                           vp=NULL, pch=pch,
                           #xaxis = xaxis, yaxis = yaxis, title=title,
                           maxpixels= maxpixels,
                           legend = legend, gp = gp, draw = draw)
-                if(title) grid.text(grobNamesi, name="title", y=1.08, vjust=0.5, gp = gp)
+                if(title) grid.text(grobNamesi, name="title", y=1.06, vjust=0.5, gp = gp)
               } else {
                 toPlotInd <- which(!is.na(sapply(layerLengths,
                                                   function(x) match(grobNamesi,x))))
@@ -822,12 +902,46 @@ setMethod("Plot",
                 } else {
                   grobToPlot = toPlot[[toPlotInd]]
                 }
-                  plotGrob(grobToPlot, col = cols, size=unit(size,"points"),
-                                           vp=NULL, pch=pch,
-                                           #xaxis = xaxis, yaxis = yaxis, title=title,
-                                           maxpixels= maxpixels[toPlotInd],
-                                           legend = legend, gp = gp, draw = draw)
-                  if(title) grid.text(layerNames(grobToPlot), name="title", y=1.08, vjust=0.5, gp = gp)
+
+#                maxpixels=1e4
+
+                if(is(grobToPlot, "Raster")) {
+                  if(sapply(getColors(grobToPlot),length)>0) {
+                    cols <- getColors(grobToPlot)[[1]]
+
+                    # If there is a legend that is too long for the number of values, this chops
+                    #  off the extraneous ones because the as.raster below will match min-max on
+                    #  both col and values, which is not the desired behaviour
+                  #   if(length(col)>(maxValue(grobToPlot)+1)) {
+                  #     col <- col[1:maxValue(grobToPlot)+1]
+                  #   }
+                  } else {
+                    cols=topo.colors(50)
+                  }
+
+                  # subsample for speed of plotting - taken from .plotCT in package "raster"
+                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE)#, useGDAL=TRUE)
+                  z <- getValues(grobToPlot)
+                  minz <- min(z)
+                  maxz <- max(z)
+
+                  # colors are indexed from 1, as with all objects in R, but there are generally
+                  #  zero values on the rasters, so shift by 1
+                  z <- z + 1
+                  z[is.na(z)] <- 1
+                  z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+                } else {
+                  z <- grobToPlot
+                }
+
+                plotGrob(z, col = cols, size=unit(size,"points"),
+                         minv=minz,
+                         maxv=maxz,
+                         vp=NULL, pch=pch, name = layerNames(grobToPlot),
+                         #xaxis = xaxis, yaxis = yaxis, title=title,
+                         #maxpixels= maxpixels[toPlotInd],
+                         legend = legend, gp = gp, draw = draw)
+                if(title) grid.text(layerNames(grobToPlot), name="title", y=1.08, vjust=0.5, gp = gp)
 #                }
               }
               if(xaxis) grid.xaxis(name="xaxis", gp = gp)
