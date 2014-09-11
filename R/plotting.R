@@ -855,6 +855,7 @@ setMethod("Plot",
                if(grobNamesi %in% currentNames) {
                  title = FALSE
                  legend = FALSE
+                 axes = FALSE
                }
               whPlot <- match(addTo[whGrobNamesi], arr@names)
               if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis = TRUE } else { xaxis = FALSE}
