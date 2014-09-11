@@ -849,17 +849,20 @@ setMethod("Plot",
             layerLengths <- lapply(toPlot, layerNames)
             if(axes==TRUE) { xaxis = TRUE ; yaxis = TRUE}
             if(axes==FALSE) { xaxis = FALSE ; yaxis = FALSE}
-
+#if(!exists("xaxis")) browser()
             for(grobNamesi in grobNames) {
               whGrobNamesi <- match(grobNamesi,grobNames)
-               if(grobNamesi %in% currentNames) {
-                 title = FALSE
-                 legend = FALSE
-                 axes = FALSE
-               }
+
               whPlot <- match(addTo[whGrobNamesi], arr@names)
               if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis = TRUE } else { xaxis = FALSE}
                              if((whPlot-1)%%arr@columns==0) { yaxis = TRUE } else { yaxis = FALSE}}
+              if(grobNamesi %in% currentNames) {
+                title = FALSE
+                legend = FALSE
+                xaxis = FALSE
+                yaxis = FALSE
+              }
+
 
               #browser()
               seekViewport(addTo[whGrobNamesi],recording=F)
