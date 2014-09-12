@@ -106,11 +106,11 @@ demo("spades-simulation", package="SpaDES")
 
 \subsubsection{Sample model}
 
-<<using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE>>=
+<<using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE>>=
 library("SpaDES")
 
 outputPath=file.path("~", "tmp", "simOutputs")
-times <- list(start=0, stop=100.2)
+times <- list(start=0, stop=10.2)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -170,7 +170,7 @@ Historically, simulation models were built separately from the analysis of input
 \paragraph{}
 Bringing data into\textsf{R}is easy, and can be done using any of the built in data import tools. To facilitate this, we have provided additional functionality to easily load maps or data from files via the load module. To automatically import a list of files, simply provide it as a parameter named \texttt{.loadFileList} when initializing the simulation. See \texttt{?loadFiles} and the modules vignette for more information on the load module.
 
-<<load-landscape-maps, echo=TRUE, eval=FALSE>>=
+<<load-landscape-maps, echo=TRUE, eval=TRUE, cache=TRUE, fig=TRUE>>=
 ### Example: loading habitat maps
 
 # use all built-in maps from the SpaDES package
@@ -204,7 +204,7 @@ spades(mySim)
 
 Using the \texttt{spread} function, we can simulate fires, and subsequent changes to the various map layers. Here, \texttt{spreadProb} can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
 
-<<fire, eval=TRUE, echo=TRUE, fig=FALSE>>=
+<<fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE>>=
 library(RColorBrewer)
 nFires <- 10
 landscape[["Fires"]] <-
@@ -221,16 +221,16 @@ landscape[["Fires"]] <-
 
 setColors(landscape$Fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
 
-Plot(landscape[["Fires"]],add=T)
+Plot(landscape[["Fires"]])
 @
 
 
 <<fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
-# Plot(percentPine)
-Plot(landscape[["Fires"]], add=TRUE)
-Plot(landscape[["Fires"]], addTo="percentPine")
+Plot(percentPine)
+#Plot(landscape[["Fires"]], add=T)
+Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 @
 
 \paragraph{}

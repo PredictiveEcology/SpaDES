@@ -355,7 +355,6 @@ setMethod("plotGrob",
             } else {
               maxcol = maxv
             }
-
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,
                               pr=pr,col=col,
@@ -713,8 +712,6 @@ setMethod("Plot",
                                 legend, draw, pch, title) {
             toPlot <- list(...)
 
-
-browser()
             whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
             if(any(whStacks)) {
               stacksToPlot <- lapply(toPlot[whStacks], layerNames)
@@ -740,8 +737,17 @@ browser()
               addTo <- lN
             } else {
               if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-              add = TRUE
+              if(exists(".arr", envir=.GlobalEnv)) {
+                if(!any(addTo %in% .arr@names)) {
+                  stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
+                }
+              }
+              add <- TRUE
+              legend <- FALSE
+              title <- FALSE
+              axes <- FALSE
             }
+
 
             # check whether .arr exists, meaning that there is already a plot
             if(!exists(".arr",envir=.GlobalEnv)) {
@@ -750,10 +756,6 @@ browser()
               if(add==T) message("Nothing to add plots to; creating new plots")
               currentNames = NULL
             } else {
-              if(!is.null(addTo)) {
-                if(!any(addTo %in% .arr@names))
-                  stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
-              }
 
               if(add) {
                 arr <- .arr
@@ -909,6 +911,15 @@ browser()
                       z = z*50
                     }
                   }
+
+                  if((maxz-minz)==0) { # prevent meaningless legend if there is no variation
+                    legend <- FALSE
+                  }
+
+                  if((maxz-minz+1)>=length(cols)) { # if not enough colors, make more
+                    cols <- colorRampPalette(cols)(maxz-minz+1)
+                  }
+
                   # colors are indexed from 1, as with all objects in R, but there are generally
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
@@ -965,6 +976,9 @@ browser()
                   }
                   if((maxz-minz)==0) {
                     legend <- FALSE
+                  }
+                  if((maxz-minz+1)>=length(cols)) {
+                    cols <- colorRampPalette(cols)(maxz-minz+1)
                   }
 
                   # colors are indexed from 1, as with all objects in R, but there are generally

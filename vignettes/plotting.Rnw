@@ -122,7 +122,7 @@ Plot(caribou, add=T)
 # can mix stacks, rasters, SpatialPoint*Named
 Plot(landscape, habitatQuality2, caribou)
 #'
-# can mix stacks, rasters, SpatialPoint*Named
+# can mix stacks, SpatialPoint*Named
 Plot(landscape, caribou)
 Plot(habitatQuality2, add=T)
 
