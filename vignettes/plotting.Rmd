@@ -1,18 +1,22 @@
 ---
-title: "Plotting"
+title: "Plotting with SpaDES"
 author: "Eliot McIntire"
 date: "Friday, September 12, 2014"
 output:
   pdf_document:
     number_sections: yes
     toc: yes
+  html_document:
+    self_contained: no
+    toc: yes
+  word_document: default
 ---
 
 # Plotting in `SpaDES`
 
-One of the major features of the `SpaDES` package is that can take advantage of the numerous visualization tools available natively or through user built packages (e.g., RgoogleVis, ggplo2, rgl). The main set of plotting functions that we have packaged with spades are built on top of the grid package. These allow for relatively fast plotting of rasters and points with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted. In other words, the main plotting function can handle modules that add plots, without them knowing what the current state of the active plotting device is. This means that the plotting can be also treated as modular.  Furthermore, conventional R plotting still works, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands. This is called with the workhorse function, `Plot`, i.e., capital P.
+One of the major features of the `SpaDES` package is that can take advantage of the numerous visualization tools available natively or through user built packages (e.g., RgoogleVis, ggplo2, rgl). The main plotting function, `Plot` (i.e., with a capital `P`), is built using the grid package. We have specifically built a plotting system that allows for relatively fast plotting of rasters and points with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted. In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is. This means that the plotting can be treated as modular.  Importantly, conventional R plotting still works fine, so you can use the features provided in this package or you can use base plotting functions without having to relearn a completely new set of plotting commands. 
 
-First, we load some maps and put them into a stack. These maps are randomly generated maps that come with the `SpaDES` package.
+To demonstrate plotting, we first load some maps. These maps are randomly generated maps that come with the `SpaDES` package. In the code snippet below, we create the list of files to load, which is every file in the "maps" subdirectory of the package. Then we load that list of files. Because we specified .stackName in the fileList, the loadFiles function will automatically put the individual layers into a RasterStack; the individual layers will, therefore, not be available as individual objects within the R environment. If .stackNames did not exist, then the individual files would be individual objects.
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, cache=TRUE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
 library(SpaDES)
@@ -38,10 +42,16 @@ DEM <- landscape$DEM
 ```
 
 # The `Plot` function
+There are several features of `Plot` that are worth highlighting. 
+
 ## Layer types
-There are several features of Plot that are worth highlighting. First, it can plot a mixture of RasterLayers, RasterStacks and SpatialPoints* objects. In the code snippet below, we create the list of files to load, which is every file in the "maps" subdirectory of the package. Then we load that list of files. Because we specified .stackName in the fileList, the loadFiles function will automatically put the individual layers into a RasterStack; the individual layers will not be available as objects within the R environment. If .stackNames did not exist, then the individual files would be individual objects.
+Its main purpose is to plot spatial type objects. Specifically, it currently can plot RasterLayers, RasterStacks and SpatialPoints* objects. 
 ```{r first_plot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
-Plot(landscape[[1:2]])
+Plot(landscape)
+# make a SpatialPointsNamed object
+caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
+                              name="caribou")
+Plot(caribou)
 ```
 
 ## Colors
@@ -57,13 +67,6 @@ setColors(landscape, n = 50)<-
                    habitatQuality=brewer.pal(9,"Spectral"),
                    percentPine=brewer.pal("GnBu",n=8))
 Plot(landscape[[2:3]])
-```
-
-```{r Spatial_Points, eval=TRUE, echo=TRUE, fig.height=2}
-# make a SpatialPointsNamed object
-caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
-                              name="caribou")
-Plot(caribou)
 ```
 
 
@@ -92,36 +95,60 @@ Any combination of RasterStacks, RasterLayers, and SpatialPoints* objects can be
 Plot(landscape, caribou, habitatQuality2)
 ```
 
+## `visualSqueeze`
+Under most circumstances, the plotting regions will be automatically scaled to maximize the area taken by the map layers, minimizing white space, but allowing axes, legends and titles to be visible when they are plotted. In some devices, this automatic scaling is imperfect, so axes or legends may be squished. The `visualSqueeze` argument is an easy way to shrink or grow the plots on the device. The default value is 0.75 representing ~75% of the area. If the plots need to be slightly smaller, this could be set to 0.6; if they can be larger, visualSqueeze could be set to 0.8. 
+
+```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
+# x axis gets cut off in pdf and html
+Plot(DEM)
+Plot(DEM, visualSqueeze=0.6)
+```
+ 
+A key reason why the legends or axes are cut off sometimes is because there is a minimum threshold for font size for readability. So, either visualSqueeze can be set or making a larger device will usually also solve these problems.
+
+
 # Modularity
 One of the main purposes of the `Plot` function is modularity. The goal is to enable any `SpaDES` module to be able to add a plot to the plotting device, without being aware of what is already in the plotting device. To do this, there is a hidden global variable (a `.arr` object of S4 class, "arrangement") created when a first Plot function is called. This object keeps the layer names, their extents, and whether they were in a RasterStack (and a few other things). So, when a new `Plot` is called, and `add` is used, then it will simply add the new layer. There may not be space on the plot device for this, in which case, everything will be replotted in a new arrangement, but taking the original R objects. This is different than the grid package engine for replotting. That engine was not designed for large numbers of plots to be added to a region; it slows down immensely as the number of plots increases. 
 
 ## The `add` argument
-There are essentially 3 types of adding that are addressed by this argument. Adding a new plot with:
+There are essentially 3 types of adding that are addressed by this argument, 1) adding a new plot with enough empty space to accommodate the new plot, 2) without this empty space,  and 3) where the device already has a pre-existing plot of the same name. 
 
 ### a new name to a device with enough space
 The `Plot` function simply adds the new plot in the available empty space.
-### a new name to a device without enough space
-The `Plot` function creates a new arrangement, keeping the pre-exising order of plots, and adding the new plots afterwards. The plots will all be a little bit smaller, and in a different location on the device.
-### a pre-existing name to a device
-The `Plot` function will overplot the new layer in the location as the layer with the same name. If colors in the layer are not transparent, then this will effectively block the previous plot. *This will automatically set legend, title and axes to FALSE*. 
 ```{r simple_add, eval=TRUE, echo=TRUE, fig.height=3}
 Plot(landscape)
 # can add a new plot to the plotting window
 Plot(caribou, add=T, axes=FALSE)
 ```
 
-When there is not enough room on the plot, they will be rearranged and rescaled appropriately:
+### a new name to a device without enough space
+The `Plot` function creates a new arrangement, keeping the pre-exising order of plots, and adding the new plots afterwards. The plots will all be a little bit smaller (assuming the device has not changed size), and they will be in different locations on the device. 
 ```{r add_with_rearrangement, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape[[1:4]])
 # can add a new plot to the plotting window
 Plot(caribou, add=T, axes=FALSE)
 ```
 
+### a pre-existing name to a device
+The `Plot` function will overplot the new layer in the location as the layer with the same name. If colors in the layer are not transparent, then this will effectively block the previous plot. *This will automatically set legend, title and axes to FALSE*. 
+```{r add_with_same_name, eval=TRUE, echo=TRUE, fig.height=2}
+Plot(landscape[[1:3]])
+landscape$forestAge = (landscape$forestAge +10 %% 100)
+landscape$forestCover = (landscape$forestCover +10 %% 30)
+# can add a new plot to the plotting window
+Plot(landscape[[2:3]], add=T)
+```
+
+
 # Plotting Speed
-A second main purpose of the `Plot` function is to plot as fast as possible so that visual updates, which may be frequent, take as little time as possible. To do this, several automatic calculations are made upon a call to `Plot`. First, the number of plots is compared to the physical size of the device window. If the layers are RasterLayers, then they are subsampled before plotting, automatically scaled to the number of pixels that would be discernible by the human eye. See below for using the `speedup` argument.
+A second main purpose of the `Plot` function is to plot as fast as possible so that visual updates, which may be frequent, take as little time as possible. To do this, several automatic calculations are made upon a call to `Plot`. First, the number of plots is compared to the physical size of the device window. If the layers are RasterLayers, then they are subsampled before plotting, automatically scaled to the number of pixels that would be discernible by the human eye. If the layer is a SpatialPoints* object, then a maximum of 10,000 points will be plotted. These defaults can be adjusted by using the `speedup` argument. Broadly, `speedup` is a number >0, where the default is 1. Numbers >1 will plot faster; numbers between 0 and 1 will plot slower. See below for using the `speedup` argument.
 
 ## `speedup`
-The argument, `speedup`, is a relative speed increase at the cost of resolution if it is >1. If it is between 0 and 1, it will be a relative speed decrease at the gain of resolution. This may be used successfully when the layer is particularly coarse resolution. The speedup gains here are modest because the rasters are relatively small (10,000 pixels), but will be much greater for larger rasters. For SpatialPoints, the default is to only plot 10,000 points; if there are more than this in the object, then a random sample will be drawn. Speedup is used as the denominator to determine how many to plot `10000/speedup`. :
+The `speedup` argument is a *relative* speed increase at the cost of resolution if it is >1. If it is between 0 and 1, it will be a relative speed decrease at the gain of resolution. This may be used successfully when the layer texture is particularly coarse, i.e., there are clusters of identical pixels, so subsampling will have little effect. In the examples below, the speedup gains are modest because the Rasters are relatively small (10,000 pixels). This speed gain will be much greater for larger rasters. 
+
+For SpatialPoints, the default is to only plot 10,000 points; if there are more than this in the object, then a random sample will be drawn. Speedup is used as the denominator to determine how many to plot `10000/speedup`. 
+
+In the example here, the speedup is "extreme" so that an actual speedup can be observed with such small Rasters. This means that the resulting images are very pixelated. This would not be so extreme when the original Raster had 1e8 pixels, but it will plot faster.
 ```{r speedup, eval=TRUE, echo=TRUE, fig.height=2}
 system.time(Plot(landscape, caribou, habitatQuality2))
 system.time(Plot(landscape, caribou, habitatQuality2,speedup=200))
@@ -138,21 +165,27 @@ Plot(caribou, addTo="forestAge", size=2, axes=F)
 ```
 
 
-There are several situations that do not plot. A call to Plot where there are two RasterLayers with the same name will return an error. This is true even if one of the layers is in a RasterStack, so is not explicitly named in the call to `Plot`.
+There are several situations that do not plot. A call to Plot where there are two RasterLayers with the same name will return an error. This is true even if one of the layers is in a RasterStack, so is not explicitly named in the call to `Plot`. The following code will create an error.
 ```{r, echo=TRUE, eval=FALSE, fig.height=2}
 Plot(landscape, caribou, DEM)
 ```
 
+# Using RStudio Plots window
+The built in RStudio Plot window is particularly slow. It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster. This may change in a future version of RStudio. Until then, we have created a function, `dev` which will add devices up to the number in the parenthesis, or switch to that device if it is already open. If an RStudio plot has not been called, dev(2) will create a new device outside RStudio. If a plot has already occurred in RStudio's embedded plot window, then dev(4) will create a new device outside RStudio. dev(4) on its own will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device.
 
-```{r, echo=FALSE, eval=FALSE }
+```{r, echo=TRUE, eval=FALSE }
+# simple:
+dev(4)
+
+# better:
 #Plot all maps on a new plot windows - Do not use RStudio window
-#if(is.null(dev.list())) {
-#   dev(2)
-#} else {
- # if(any(names(dev.list())=="RStudioGD")) {
- #   dev(which(names(dev.list())=="RStudioGD")+3)
- # } else {
- #   dev(max(dev.list()))
- # }
-#}
+if(is.null(dev.list())) {
+   dev(2)
+} else {
+ if(any(names(dev.list())=="RStudioGD")) {
+   dev(which(names(dev.list())=="RStudioGD")+3)
+ } else {
+   dev(max(dev.list()))
+ }
+}
 ```
