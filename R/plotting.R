@@ -353,8 +353,9 @@ setMethod("plotGrob",
             if(maxv<=1) {
               maxcol = maxv*47
             } else {
-              maxcol = maxv
+              maxcol = round(maxv - minv)
             }
+
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,
                               pr=pr,col=col,
@@ -732,7 +733,7 @@ setMethod("Plot",
             lN <- layerNames(toPlot)
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
                                                  "inside RasterStacks"))
-
+#browser()
             if(is.null(addTo)) {
               addTo <- lN
             } else {
@@ -862,10 +863,12 @@ setMethod("Plot",
               if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis = TRUE } else { xaxis = FALSE}
                              if((whPlot-1)%%arr@columns==0) { yaxis = TRUE } else { yaxis = FALSE}}
               if(grobNamesi %in% currentNames) {
-                title = FALSE
-                legend = FALSE
-                xaxis = FALSE
-                yaxis = FALSE
+                if (!newArr) {
+                  title = FALSE
+                  legend = FALSE
+                  xaxis = FALSE
+                  yaxis = FALSE
+                }
               }
 
 
@@ -926,7 +929,12 @@ setMethod("Plot",
                   z[is.na(z)] <- 1
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
-                  z <- grobToPlot
+                  len <- length(caribou)
+                  if(len<(1e4/speedup)) {
+                    z <- grobToPlot
+                  } else {
+                    z <- sample(grobToPlot, 1e4/speedup)
+                  }
                 }
 
                 plotGrob(z, col = cols, size=unit(size,"points"),
@@ -987,7 +995,12 @@ setMethod("Plot",
                   z[is.na(z)] <- 1
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
-                  z <- grobToPlot
+                  len <- length(caribou)
+                  if(len<(1e4/speedup)) {
+                    z <- grobToPlot
+                  } else {
+                    z <- sample(grobToPlot, 1e4/speedup)
+                  }
                 }
 
                 plotGrob(z, col = cols, size=unit(size,"points"),
