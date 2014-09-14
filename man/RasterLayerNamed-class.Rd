@@ -1,0 +1,21 @@
+\docType{class}
+\name{RasterLayerNamed-class}
+\alias{RasterLayerNamed-class}
+\title{RasterLayerNamed class}
+\description{
+This new class extends \code{RasterLayer} by adding a slot
+called \code{name}.
+}
+\details{
+Using the simulation visualization features in \code{Plot}
+requires objects to be plotted to have a name set.
+}
+\section{Slots}{
+
+\describe{
+\item{\code{name}}{The name of the object.}
+}}
+\seealso{
+\code{\link{RasterLayer}}
+}
+

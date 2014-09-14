@@ -1,0 +1,30 @@
+\docType{methods}
+\name{RasterLayerNamed}
+\alias{RasterLayerNamed}
+\alias{RasterLayerNamed,RasterLayer-method}
+\title{Create a new \code{RasterLayerNamed} object.}
+\usage{
+RasterLayerNamed(..., name)
+
+\S4method{RasterLayerNamed}{RasterLayer}(..., name)
+}
+\arguments{
+  \item{...}{Additional arguments to \code{RasterLayer}}
+
+  \item{name}{The name of the object.}
+}
+\value{
+Returns an object of class \code{RasterLayerNamed}.
+}
+\description{
+Create a new \code{RasterLayerNamed} object.
+}
+\author{
+Eliot McIntire
+
+Alex Chubaty
+}
+\seealso{
+\code{\link{RasterLayerNamed}}
+}
+
