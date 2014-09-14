@@ -56,7 +56,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' but not at a regular interval, then there should be separate line, with a unique
 #' loadTime for each.
 #'
-#' - \code{.stackNames}: a character (vector) indicating the name(s) of the RasterStack(s)
+#' - \code{.stackName}: a character (vector) indicating the name(s) of the RasterStack(s)
 #' to stack all the RasterLayers into. If left blank, then the individual RasterLayers will
 #' not be automatically stacked. If this is specified, the individual RasterLayers loaded
 #' will not actually be created as individual R objects; they will be loaded directly
@@ -194,7 +194,7 @@ setMethod("loadFiles",
                 stackName=rep(NA, length(objectNames))
                 simGlobals(sim)$.stackName <- stackName
               } else {
-                stop(".stackNames must be same length as fileList or length=1")
+                stop(".stackName must be same length as fileList or length=1")
               }
 
               if(any(unique(simGlobals(sim)$.stackName) %in% ls(envir=.GlobalEnv)))
@@ -227,6 +227,8 @@ setMethod("loadFiles",
                 # The actual load call
                 if(is.na(stackName[x])) {
                   assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
+                  assign(objectNames[x], RasterLayerNamed(get(objectNames[x], envir=.GlobalEnv),name=objectNames[x]),
+                         , envir=.GlobalEnv)
                 } else {
                   whLayer <- which(names(localStacks[[stackName[x]]])==objectNames[x])
                   if (length(whLayer)>0) {
@@ -343,7 +345,7 @@ setMethod("loadFiles",
 setMethod("loadFiles",
           signature(sim="missing", fileList="missing"),
           definition = function(sim, fileList, ...) {
-            warning("no files loaded because sim and fileList are empty")
+            message("no files loaded because sim and fileList are empty")
           })
 
 #' File extensions map

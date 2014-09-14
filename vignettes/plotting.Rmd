@@ -83,7 +83,7 @@ Plot(habitatQuality2, add=TRUE)
 
 To get the correct behavior, give the new layer a unique name:
 ```{r naming, eval=TRUE, echo=TRUE, fig.height=2}
-names(habitatQuality2) <- "habitatQuality2"
+name(habitatQuality2) <- "habitatQuality2"
 print(habitatQuality2)
 Plot(landscape[[1:3]])
 Plot(habitatQuality2, add=T)
