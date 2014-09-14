@@ -591,6 +591,14 @@ setMethod("drawArrows",
 #' \code{col} can be used to set the colors of Raster* objects, but it is preferable to use
 #' setColors to give each layer its own color table. See examples.
 #'
+#' If plotting a single layer from a stack, any rearrangement plotting will fail because
+#' Plot does not know where to look for the original file to replot. The layer is contained within
+#' a stack, but the raster package unstacks the single layer when a single layer is called.
+#' If this layer remained within a stacked object, then Plot would know where to look for it
+#' for subsequent plotting. Recommendation: If single layers are to be plotted, extract them as
+#' RasterLayerNamed objects to Plot them.
+#'
+#'
 #' @param ... Raster* object(s) and or SpatialPoints*Named objects
 #'
 #' @param axes Logical. If FALSE, then the previous plot is wiped and a new one made; if TRUE, then the ... plots
