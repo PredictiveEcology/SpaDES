@@ -884,8 +884,9 @@ setMethod("Plot",
                 if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
                   grobToPlot <- get(grobNamesi)
                 } else {
-                  withinStacki <- match(grobNamesi,stacksInArr[[names(isPrevLayerInStack)]])
-                  grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
+#                  withinStacki <- match(grobNamesi,layerNames(get(names(isPrevLayerInStack))))
+#                  grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
+                  grobToPlot <- get(names(isPrevLayerInStack))[[grobNamesi]]
                 }
                 if(is(grobToPlot, "Raster")) {
                   if(sapply(getColors(grobToPlot),length)>0) {
