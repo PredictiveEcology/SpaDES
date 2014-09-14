@@ -609,6 +609,10 @@ setMethod("drawArrows",
 #'
 #' @param col character vector. Hex codes for colors. See Details.
 #'
+#' @param zoomExtent extent object. Supplying a single extent object that is smaller than the
+#' rasters will call a crop statement before plotting. Defaults to NULL. This occurs after any
+#' downsampling of rasters, so it may produce very pixelated maps.
+#'
 #' @param visualSqueeze numeric. The proportion of the white space to be used for plots. Default is 0.75.
 #'
 #' @param legend logical. Whether legend should be drawn next to plots. Default is TRUE.
@@ -698,7 +702,7 @@ setMethod("drawArrows",
 #' }
 setGeneric("Plot", signature="...",
            function(..., add=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
-                    size=5, cols,
+                    size=5, cols, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, draw = TRUE,
                     pch = 19, title=T) {
              standardGeneric("Plot")
@@ -709,7 +713,7 @@ setGeneric("Plot", signature="...",
 setMethod("Plot",
           signature("spatialObjects"),
           definition = function(..., add, addTo, gp, axes, speedup, size,
-                                cols, visualSqueeze,
+                                cols, zoomExtent, visualSqueeze,
                                 legend, draw, pch, title) {
             toPlot <- list(...)
 
@@ -772,8 +776,14 @@ setMethod("Plot",
             #  it needs to assess what is already there
 
             # get extents from all SpatialPoints*, Rasters*, including Stacks
-            extsToPlot <- rep(sapply(toPlot, extent),
+            if(is.null(zoomExtent)) {
+              extsToPlot <- rep(sapply(toPlot, extent),
                             sapply(toPlot, function(x) length(layerNames(x))))
+            } else {
+              extsToPlot <- rep(list(zoomExtent),
+                                sapply(toPlot, function(x) length(layerNames(x))))
+            }
+
             names(extsToPlot)<-lN
 
             if(add==F) {
@@ -904,6 +914,9 @@ setMethod("Plot",
 
                   # subsample for speed of plotting - taken from .plotCT in package "raster"
                   grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE)#, useGDAL=TRUE)
+                  if(!is.null(zoomExtent)) {
+                    grobToPlot <- crop(grobToPlot, zoomExtent)
+                  }
                   z <- getValues(grobToPlot)
                   minz <- min(z)
                   maxz <- max(z)
@@ -972,6 +985,9 @@ setMethod("Plot",
 
                   # subsample for speed of plotting - taken from .plotCT in package "raster"
                   grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE)#, useGDAL=TRUE)
+                  if(!is.null(zoomExtent)) {
+                    grobToPlot <- crop(grobToPlot, zoomExtent)
+                  }
                   z <- getValues(grobToPlot)
                   minz <- min(z)
                   maxz <- max(z)
