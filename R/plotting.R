@@ -1,4 +1,4 @@
-if(getRversion() >= "3.1.0")  utils::globalVariables(".arr")
+if(getRversion() >= "3.1.0")  utils::globalVariables(".spadesArr")
 
 ##############################################################
 #' Specify where to plot
@@ -579,7 +579,7 @@ setMethod("drawArrows",
 #' it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
 #' The function is based on the grid package.
 #'
-#' Silently, one hidden object is made, \code{.arr}, which is used for arranging plots in the
+#' Silently, one hidden object is made, \code{.spadesArr}, which is used for arranging plots in the
 #' device window, and identifying the objects to be replotted if rearranging is required,
 #' subsequent to an add=T additional plot.
 #'
@@ -734,8 +734,8 @@ setMethod("Plot",
             }
 
             if(add | !is.null(addTo)){
-              if(exists(".arr", envir=.GlobalEnv)) {
-                stacksInArr <- .arr@stack
+              if(exists(".spadesArr", envir=.GlobalEnv)) {
+                stacksInArr <- .spadesArr@stack
               } else {
                 stacksInArr <- list(NULL)
               }
@@ -750,8 +750,8 @@ setMethod("Plot",
               addTo <- lN
             } else {
               if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-              if(exists(".arr", envir=.GlobalEnv)) {
-                if(!any(addTo %in% .arr@names)) {
+              if(exists(".spadesArr", envir=.GlobalEnv)) {
+                if(!any(addTo %in% .spadesArr@names)) {
                   stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
                 }
               }
@@ -762,8 +762,8 @@ setMethod("Plot",
             }
 
 
-            # check whether .arr exists, meaning that there is already a plot
-            if(!exists(".arr",envir=.GlobalEnv)) {
+            # check whether .spadesArr exists, meaning that there is already a plot
+            if(!exists(".spadesArr",envir=.GlobalEnv)) {
               add=F
               arr = new("arrangement"); arr@columns=0; arr@rows = 0
               if(add==T) message("Nothing to add plots to; creating new plots")
@@ -771,7 +771,7 @@ setMethod("Plot",
             } else {
 
               if(add) {
-                arr <- .arr
+                arr <- .spadesArr
               } else {
                 arr = new("arrangement"); arr@columns=0; arr@rows = 0
               }
@@ -830,10 +830,10 @@ setMethod("Plot",
               }
             }
 
-            # create .arr object - i.e., the arrangement based on number and extents
+            # create .spadesArr object - i.e., the arrangement based on number and extents
             if(!newArr) {
-              if(exists(".arr",envir=.GlobalEnv)) {
-                arr <- .arr
+              if(exists(".spadesArr",envir=.GlobalEnv)) {
+                arr <- .spadesArr
                 arr@names = append(arr@names, names(extsToPlot))
                 arr@extents = append(arr@extents, extsToPlot)
               } else {
@@ -843,10 +843,10 @@ setMethod("Plot",
               }
             } else { # need a new arrangement
               arr <- arrangeViewports(extsToPlot)
-              #rm(.arr, envir=.GlobalEnv)
+              #rm(.spadesArr, envir=.GlobalEnv)
               grid.newpage()
             }
-            #end create .arr object
+            #end create .spadesArr object
 
             if(is.null(gp$cex)) {
               gp$cex <- cex <- max(0.6,min(1,prod(arr@ds)/prod(arr@columns,arr@rows)*0.07))
@@ -1048,5 +1048,5 @@ setMethod("Plot",
               arr@stack <- append(stacksToPlot, stacksInArr)
               arr@stack <- arr@stack[!duplicated(arr@stack)]
             }
-            assign(".arr", arr, envir=.GlobalEnv)
+            assign(".spadesArr", arr, envir=.GlobalEnv)
 })
