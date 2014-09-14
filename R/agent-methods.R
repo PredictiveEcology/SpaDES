@@ -34,3 +34,28 @@ setMethod("heading",
             heading[(ys) & (xs) > 0] = heading[(ys) & (xs) > 0] + 180
             return(heading%%360)
 })
+
+#' @rdname heading
+setMethod("heading",
+          signature(from="matrix", to="matrix"),
+          definition = function(from, to) {
+            ys <- (to[,"y"] - from[,"y"])
+            xs <- (to[,"x"] - from[,"x"])
+            heading = deg(atan((xs) / (ys)))
+            ys <- (ys < 0)
+            heading[(ys) & (xs) < 0] = heading[(ys) & (xs) < 0] - 180
+            heading[(ys) & (xs) > 0] = heading[(ys) & (xs) > 0] + 180
+            return(heading%%360)
+          })
+
+setMethod("heading",
+          signature(from="matrix", to="SpatialPoints"),
+          definition = function(from, to) {
+            ys <- (to$y - from[,"y"])
+            xs <- (to$x - from[,"x"])
+            heading = deg(atan((xs) / (ys)))
+            ys <- (ys < 0)
+            heading[(ys) & (xs) < 0] = heading[(ys) & (xs) < 0] - 180
+            heading[(ys) & (xs) > 0] = heading[(ys) & (xs) > 0] + 180
+            return(heading%%360)
+          })

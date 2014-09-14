@@ -61,28 +61,43 @@ move <- function(hypothesis=NULL,...) {
 #NEED EXAMPLES
 crw = function(agent, stepLength, stddev, lonlat) {
 
-    if (is.null(lonlat)) {
-        stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
-    }
-    stopifnot(is.logical(lonlat))
+  if (is.null(lonlat)) {
+    stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
+  }
+  stopifnot(is.logical(lonlat))
 
-    n <- length(agent)
-    prevPos <- SpatialPoints(cbind(x=agent$x1, y=agent$y1))
-    agentHeading <- heading(prevPos, agent)
-    rndDir <- rnorm(n, agentHeading, stddev)
-    rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
+  n <- length(agent)
+  agentHeading <- heading(cbind(x=agent$x1, y=agent$y1), agent)
+  rndDir <- rnorm(n, agentHeading, stddev)
+  #rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
+  rndDir[rndDir>180] <- rndDir[rndDir>180]-360
+  rndDir[rndDir<=180 & rndDir<(-180)] <- 360+rndDir[rndDir<=180 & rndDir<(-180)]
 
-    # these should use `coordinates(agent) <-` or similar set methods
-    # But, the assignment can't be used for overriding coordinates
-    #  Must use slots directly
-    agent@data[,c("x1","y1")] <- coordinates(agent)
-    agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
-                          y=agent$y + cos(rad(rndDir)) * stepLength)
+  agent@data[,c("x1","y1")] <- coordinates(agent)
+  agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
+                        y=agent$y + cos(rad(rndDir)) * stepLength)
 
-    # These are not needed. Could be added with arguments to function
-    #agent$heading <- agentHeading
-    #agent$distance <- pointDistance(prevPos, agent, lonlat=lonlat)
 
-    return(agent)
+  return(agent)
 }
 
+crw3 = function(agent, stepLength, stddev, lonlat) {
+
+  if (is.null(lonlat)) {
+    stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
+  }
+  stopifnot(is.logical(lonlat))
+
+  n <- length(agent)
+  agentHeading <- heading(cbind(x=agent$x1, y=agent$y1), agent)
+  rndDir <- rnorm(n, agentHeading, stddev)
+  #rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
+  rndDir[rndDir>180] <- rndDir[rndDir>180]-360
+  rndDir[rndDir<=180 & rndDir<(-180)] <- 360+rndDir[rndDir<=180 & rndDir<(-180)]
+
+
+  return(cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
+               y=agent$y + cos(rad(rndDir)) * stepLength,
+               x1=agent@coords[,"x"],
+               y1=agent@coords[,"y"]))
+}
