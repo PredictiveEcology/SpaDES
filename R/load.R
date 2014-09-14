@@ -254,6 +254,8 @@ setMethod("loadFiles",
                   name(localStacks[[uniqueStacki]]) <- uniqueStacki
                   assign(uniqueStacki, localStacks[[uniqueStacki]],
                          envir=.GlobalEnv)
+                  message(paste("individual files have been stacked into",uniqueStacki,
+                                "and are not individual RasterLayers"))
                 }
               }
 
