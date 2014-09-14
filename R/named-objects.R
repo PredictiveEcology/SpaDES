@@ -196,7 +196,6 @@ setClass("RasterStackNamed",
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
-#' @export
 setGeneric("RasterStackNamed", signature=c("..."), function(..., name) {
              standardGeneric("RasterStackNamed")
 })
@@ -297,8 +296,160 @@ setMethod("show",
             #             cat(unlist(out), fill=FALSE, sep="\n")
 })
 
-#' @exportClass NamedSpatialPoints
-setClassUnion("NamedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
+#' RasterLayerNamed class
+#'
+#' This new class extends \code{RasterLayer} by adding a slot
+#' called \code{name}.
+#'
+#' Using the simulation visualization features in \code{Plot} requires
+#' objects to be plotted to have a name set.
+#'
+#' @slot name The name of the object.
+#'
+#' @seealso \code{\link{RasterLayer}}
+#'
+#' @rdname RasterLayerNamed-class
+# @importClassesFrom raster RasterLayer
+#' @import raster
+#' @exportClass RasterLayerNamed
+#'
+setClass("RasterLayerNamed",
+         slots=list(name="character"),
+         prototype=list(name=NA_character_),
+         contains="RasterLayer",
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (is.na(object@name)) {
+             stop("name must be provided")
+           }
+         })
+
+
+##############################################################
+#' Create a new \code{RasterLayerNamed} object.
+#'
+#' @param ... Additional arguments to \code{RasterLayer}
+#'
+#' @param name  The name of the object.
+#'
+#' @return Returns an object of class \code{RasterLayerNamed}.
+#'
+#' @seealso \code{\link{RasterLayerNamed}}
+#'
+#' @export
+#' @docType methods
+#' @rdname RasterLayerNamed-method
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+#'
+setGeneric("RasterLayerNamed", signature=c("..."), function(..., name) {
+  standardGeneric("RasterLayerNamed")
+})
+
+#' @rdname RasterLayerNamed-method
+#' @export
+setMethod("RasterLayerNamed",
+          signature="RasterLayer",
+          definition= function(..., name) {
+            .Object <- new("RasterLayerNamed", ..., name=name)
+            #.Object <- new("RasterLayerNamed", object, name=value)
+            names(.Object) <- name
+            return(.Object)
+          })
+
+### show is already defined in the methods package
+#' show RasterLayerNamed
+#' @export
+setMethod("show",
+          signature="RasterLayerNamed",
+          definition=function(object) {
+            cat("class       :", class(object), "\n")
+            if (rotated(object)) {
+              cat("rotated     : TRUE\n")
+            }
+            mnr <- 15
+            if (filename(object) != "") {
+              cat("filename    :", filename(object), "\n")
+            }
+            nl <- nlayers(object)
+            if (nl == 0) {
+              cat("nlayers     :", nl, "\n")
+            }
+            else {
+              cat("dimensions  : ", nrow(object), ", ", ncol(object),
+                  ", ", ncell(object), ", ", nl, "  (nrow, ncol, ncell, nlayers)\n",
+                  sep = "")
+              cat("resolution  : ", xres(object), ", ", yres(object),
+                  "  (x, y)\n", sep = "")
+              cat("extent      : ", object@extent@xmin, ", ", object@extent@xmax,
+                  ", ", object@extent@ymin, ", ", object@extent@ymax,
+                  "  (xmin, xmax, ymin, ymax)\n", sep = "")
+              cat("name        :", name(object), "\n")
+              cat("coord. ref. :", projection(object, TRUE), "\n")
+              ln <- names(object)
+              if (nl > mnr) {
+                ln <- c(ln[1:mnr], "...")
+              }
+              n <- nchar(ln)
+              if (nl > 5) {
+                b <- n > 26
+                if (any(b)) {
+                  ln[b] <- paste(substr(ln[b], 1, 9), "//", substr(ln[b],
+                                                                   nchar(ln[b]) - 9, nchar(ln[b])), sep = "")
+                }
+              }
+              minv <- format(minValue(object))
+              maxv <- format(maxValue(object))
+              minv <- gsub("Inf", "?", minv)
+              maxv <- gsub("-Inf", "?", maxv)
+              if (nl > mnr) {
+                minv <- c(minv[1:mnr], "...")
+                maxv <- c(maxv[1:mnr], "...")
+              }
+              w <- pmax(nchar(ln), nchar(minv), nchar(maxv))
+              m <- rbind(ln, minv, maxv)
+              for (i in 1:ncol(m)) {
+                m[, i] <- format(m[, i], width = w[i], justify = "right")
+              }
+              cat("names       :", paste(m[1, ], collapse = ", "),
+                  "\n")
+              cat("min values  :", paste(m[2, ], collapse = ", "),
+                  "\n")
+              cat("max values  :", paste(m[3, ], collapse = ", "),
+                  "\n")
+            }
+            z <- getZ(object)
+            if (length(z) > 0) {
+              name <- names(object@z)
+              if (is.null(name))
+                name <- "z-value"
+              if (name == "")
+                name <- "z-value"
+              name <- paste(sprintf("%-12s", name), ":", sep = "")
+              if (length(z) < mnr) {
+                cat(name, paste(as.character(z), collapse = ", "),
+                    "\n")
+              }
+              else {
+                z <- range(z)
+                cat(name, paste(as.character(z), collapse = " - "),
+                    "(range)\n")
+              }
+            }
+            cat("\n")
+            #             out = list()
+            #             out[[1]] = capture.output(show(object))
+            #             out[[2]] = capture.output(cat(paste("name        :",object@name)))
+            #
+            #             ### print result
+            #             cat(unlist(out), fill=FALSE, sep="\n")
+          })
+
+
+
+#' @exportClass namedSpatialPoints
+setClassUnion("namedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFrameNamed"))
 
 #' @exportClass spatialObjects
 setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNamed",
@@ -326,13 +477,14 @@ setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNa
 #' @seealso \code{\link{SpatialPointsNamed}},
 #'          \code{\link{SpatialPointsDataFrameNamed}},
 #'          \code{\link{RasterStackNamed}}.
+#'          \code{\link{RasterLayerNamed}}.
 #'
 setGeneric("name", function(object) {
   standardGeneric("name")
 })
 
 #' @export
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setMethod("name",
           signature="SpatialPointsNamed",
           definition=function(object) {
@@ -340,7 +492,7 @@ setMethod("name",
 })
 
 #' @export
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setMethod("name",
           signature="SpatialPointsDataFrameNamed",
           definition=function(object) {
@@ -348,7 +500,7 @@ setMethod("name",
 })
 
 #' @export
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setMethod("name",
           signature="RasterStackNamed",
           definition=function(object) {
@@ -356,15 +508,23 @@ setMethod("name",
 })
 
 #' @export
+#' @rdname name-methods
+setMethod("name",
+          signature="RasterLayerNamed",
+          definition=function(object) {
+            return(object@name)
+          })
+
+#' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setGeneric("name<-", function(object, value) {
              standardGeneric("name<-")
  })
 
 #' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setReplaceMethod("name",
                  signature="SpatialPointsNamed",
                  definition=function(object, value) {
@@ -375,7 +535,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setReplaceMethod("name",
                  signature="SpatialPoints",
                  definition=function(object, value) {
@@ -384,7 +544,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrameNamed",
                  definition=function(object, value) {
@@ -395,7 +555,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setReplaceMethod("name",
                  signature="SpatialPointsDataFrame",
                  definition=function(object, value) {
@@ -404,7 +564,7 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setReplaceMethod("name",
                  signature="RasterStackNamed",
                  definition=function(object, value) {
@@ -415,9 +575,32 @@ setReplaceMethod("name",
 
 #' @export
 #' @name name<-
-#' @rdname SpatialPointsDataFrameNamed-method
+#' @rdname name-methods
 setReplaceMethod("name",
                  signature="RasterStack",
                  definition=function(object, value) {
                    new("RasterStackNamed", object, name=value)
 })
+
+#' @export
+#' @name name<-
+#' @rdname name-methods
+setReplaceMethod("name",
+                 signature="RasterLayerNamed",
+                 definition=function(object, value) {
+                   object@name <- value
+                   names(object) <- value
+                   validObject(object)
+                   return(object)
+                 })
+
+#' @export
+#' @name name<-
+#' @rdname name-methods
+setReplaceMethod("name",
+                 signature="RasterLayer",
+                 definition=function(object, value) {
+                   .Object <- new("RasterLayerNamed", object, name=value)
+                   names(.Object) <- value
+                   return(.Object)
+                 })
