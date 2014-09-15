@@ -121,6 +121,8 @@ setGeneric("loadFiles", function(sim, fileList, ...)  {
 setMethod("loadFiles",
           signature(sim="simList", fileList="missing"),
           definition = function(sim, fileList, ...) {
+
+            browser()
             # Pull .fileExtensions() into function so that scoping is faster
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
@@ -176,9 +178,9 @@ setMethod("loadFiles",
 
               # use filenames as object names, unless alternative provided in fileListdf$objectNames
               objectNames <- fileName(fl)#sapply(fl.list, function(x) paste(x[-length(x)], collapse="."))
-              if(!is.na(match("objectNames", names(fileListdf)))) {
-                loadFun[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
-              }
+               if(!is.na(match("objectNames", names(fileListdf)))) {
+                 objectNames[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
+               }
 
               # identify arguments
               #arguments <- filesCurTime$arguments
@@ -334,6 +336,7 @@ setMethod("loadFiles",
             } else {
               stackName = NA
             }
+            browser()
 
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.globals=list(.stackName=stackName),
