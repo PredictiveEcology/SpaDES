@@ -745,7 +745,6 @@ setMethod("Plot",
             lN <- layerNames(toPlot)
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
                                                  "inside RasterStacks"))
-#browser()
             if(is.null(addTo)) {
               addTo <- lN
             } else {
@@ -921,13 +920,13 @@ setMethod("Plot",
                   }
 
                   # subsample for speed of plotting - taken from .plotCT in package "raster"
-                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE)#, useGDAL=TRUE)
+                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE, useGDAL=TRUE)
                   if(!is.null(zoomExtent)) {
                     grobToPlot <- crop(grobToPlot, zoomExtent)
                   }
                   z <- getValues(grobToPlot)
-                  minz <- min(z)
-                  maxz <- max(z)
+                  minz <- min(z, na.rm=T)
+                  maxz <- max(z, na.rm=T)
 
                   # if data in raster are proportions, must treat colors differently
                   if(maxz <= 1) {
@@ -992,15 +991,16 @@ setMethod("Plot",
                   }
 
                   # subsample for speed of plotting - taken from .plotCT in package "raster"
-                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE)#, useGDAL=TRUE)
+                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE, useGDAL=TRUE)
                   if(!is.null(zoomExtent)) {
                     grobToPlot <- crop(grobToPlot, zoomExtent)
                   }
                   z <- getValues(grobToPlot)
-                  minz <- min(z)
-                  maxz <- max(z)
+                  minz <- min(z, na.rm=T)
+                  maxz <- max(z, na.rm=T)
 
                   # if data in raster are proportions, must treat colors differently
+
                   if(maxz <= 1) {
                     if(length(unique(z))>length(cols)) {
                       cols <- colorRampPalette(cols)(50)
