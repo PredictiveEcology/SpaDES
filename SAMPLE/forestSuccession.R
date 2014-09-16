@@ -18,7 +18,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
-    depends <- "forestAge"
+    depends <- NULL
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
@@ -26,27 +26,46 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
 
     # if a required module isn't loaded yet,
     # reschedule this module init for later
-    if (reloadModulesLater(deparse(sim), depends)) {
-        sim <- scheduleEvent(sim, simCurrentTime(sim), "forestSuccession", "init")
+    if (reloadModuleLater(sim, depends)) {
+      sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSuccession", "init")
     } else {
         # do stuff for this event
         sim <- forestSuccessionInit(sim)
 
         # schedule the next event
-        sim <- scheduleEvent(sim, 0.5, "forestSuccession", "succession")
+#        sim <- scheduleEvent(sim, 0.5, "forestSuccession", "succession")
+        sim <- scheduleEvent(sim, simParams(sim)$forestSuccession$startTime,
+                             "forestSuccession", "succession")
+        sim <- scheduleEvent(sim, simParams(sim)$forestSuccession$.saveInterval,
+                             "forestSuccession", "save")
+        sim <- scheduleEvent(sim, simParams(sim)$forestSuccession$.plotInitialTime,
+                             "forestSuccession", "plot.init")
+
     }
   } else if (eventType=="succession") {
     # do stuff for this event
     sim <- forestSuccessionSuccession(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "forestSuccession", "succession")
-  } else if (eventType=="plot") {
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$forestSuccession$returnInterval,
+                         "forestSuccession", "succession")
+#    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "forestSuccession", "succession")
+  } else if (eventType=="plot.init") {
     # do stuff for this event
-    sim <- forestSuccessionPlot(sim)
+    Plot(vegMap, add=T)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "forestSuccession", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim)+ simParams(sim)$forestSuccession$.plotInterval,
+                         "forestSuccession", "plot")
+  } else if (eventType=="plot") {
+    # do stuff for this event
+    Plot(vegMap,add=T)
+    #dev(5); hist(getValues(vegMap)); dev(4)
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim)+ simParams(sim)$forestSuccession$.plotInterval,
+                         "forestSuccession", "plot")
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE], "\'", sep=""))
@@ -56,15 +75,14 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
 
 forestSuccessionInit <- function(sim) {
   # Reclassify lcc05 to trajMap
-  lcc05 <<- if(!exists("lcc05"))
-      raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
+#   lcc05 <<- if(!exists("lcc05"))
+#       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
 #    plot(lcc05)
   ext <- extent(-1073154,-987285,7438423,7512480)
   lcc05.cr <<- crop(lcc05,ext)
 #    CRS.lcc05 <- crs(lcc05.cr)
 
   lcc05Labels <- 0:39
-
   ### From the table 1 in Word file from Steve Cumming & Pierre Vernier, June 6, 2014
   ###  09 A5 MDR ANslysis V4_SL.docx
   #
@@ -110,13 +128,16 @@ forestSuccessionInit <- function(sim) {
 
   lcc05Labels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
   numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
-  lcc05VegTable <- cbind(lcc05Labels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-  vegMap <- reclassify(lcc05.cr, lcc05VegTable)
+#   lcc05VegTable <- cbind(lcc05Labels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
+#   vegMap <- reclassify(lcc05.cr, lcc05VegTable)
 
   lcc05Labels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
   numLccInTraj <- sapply(strsplit(unname(sapply(as.character(lcc05TrajReclass$LCC05.classes), function(x) x)), ","), length)
   lcc05TrajTable <- cbind(lcc05Labels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
   trajMap <- reclassify(lcc05.cr, lcc05TrajTable)
+  setColors(trajMap) <- brewer.pal(9, "YlGn")
+  name(trajMap) <- "trajMap"
+  assign("trajMap", trajMap, envir=.GlobalEnv)
 
   # trajObj.raw <- read.table(file="clipboard", sep="\t", header=TRUE, stringsAsFactors=FALSE)
   # dput(trajObj.raw)
@@ -142,15 +163,14 @@ forestSuccessionInit <- function(sim) {
     class="data.frame", row.names=c(NA, -7L))
 
   numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw),2,9),"\\."), function(x) diff(as.numeric(x))))+1)
-  maxAge <- 200
+  maxAge <- 300
   ages <- 0:maxAge
 #    out = unname( unlist(rep(trajObj.raw[1,-1],times = c(numYearsPer,40))))
 
-  trajObj1 <- apply(trajObj.raw[,-1],1,function(x) rep(x, times=c(numYearsPer, 40)))
-  trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland"), each=201), ncol=4))
-  trajObj <- matrix(match(trajObj2, lcc05VegReclass$Description), ncol=11)
+  trajObj1 <- apply(trajObj.raw[,-1],1,function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
+  trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland"), each=maxAge+1), ncol=4))
+  trajObj <<- matrix(match(trajObj2, lcc05VegReclass$Description), ncol=11)
 
-  plot(stack(trajMap))
 #, speedup=10, add=FALSE, col=list(brewer.pal(9,"YlGnBu"), brewer.pal(10,"Set3")))
 
   # last thing to do is add module name to the loaded list
@@ -160,19 +180,20 @@ forestSuccessionInit <- function(sim) {
 }
 
 forestSuccessionSuccession <- function(sim) {
+
   ageMap.v <- round(getValues(ageMap))
   trajMap.v <- getValues(trajMap)
 
+
     vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
     vegMap <- raster(ageMap)
-    vegMap <- setValues(vegMap,vegMap.v)
+    vegMap <- RasterLayerNamed(setValues(vegMap,vegMap.v),name="vegMap")
+    setColors(vegMap) <- brewer.pal(8,"Set1")
+    assign("vegMap", vegMap, envir=.GlobalEnv)
 
-    vegMap[indStatics] <<- valsStatics
+
+    #vegMap[indStatics] <<- valsStatics
 
     return(invisible(sim))
 }
 
-forestSuccessionPlot <- function(sim) {
-    Plot(vegMap, speedup=20)
-    return(invisible(sim))
-}
