@@ -162,7 +162,7 @@ forestSuccessionInit <- function(sim) {
     class="data.frame", row.names=c(NA, -7L))
 
   numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw),2,9),"\\."), function(x) diff(as.numeric(x))))+1)
-  maxAge <- 300
+  maxAge <- 200
   ages <- 0:maxAge
 #    out = unname( unlist(rep(trajObj.raw[1,-1],times = c(numYearsPer,40))))
 

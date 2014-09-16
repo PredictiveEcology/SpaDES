@@ -47,7 +47,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
                            "forestAge", "age")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(ageMap, legendRange=c(0,300),add=T)
+    Plot(ageMap, legendRange=c(0,200),add=T)
     #grid.text(paste0("age, time=",simCurrentTime(sim)),y=1.05)
 
     # schedule the next event
@@ -55,7 +55,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
                          "forestAge", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(ageMap, legendRange=c(0,300), add=T, axes=F, legend=F)
+    Plot(ageMap, legendRange=c(0,200), add=T, axes=F, legend=F)
     #grid.text(paste0("age, time=",simCurrentTime(sim)),y=1.05)
 
     # schedule the next event
@@ -71,7 +71,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
 forestAgeInit <- function(sim) {
 #  beginCluster()
 #  ageMap <- projectRaster(age, to=lcc05.cr, method="ngb")
-  setColors(ageMap, 300) <- brewer.pal(8, "BrBG")
+  setColors(ageMap, 200) <- brewer.pal(8, "BrBG")
   name(ageMap) <- "ageMap"
   assign("ageMap", ageMap, envir=.GlobalEnv)
   #  endCluster()
@@ -92,10 +92,10 @@ forestAgeAge <- function(sim) {
 #           envir=.GlobalEnv)
 
 
-    ageMap <- setValues(ageMap, pmin(300, getValues(ageMap) + 1))
+    ageMap <- setValues(ageMap, pmin(200, getValues(ageMap) + 1))
     ageMap[Fires>0] <- 1
     name(ageMap) <- "ageMap"
-    setColors(ageMap, 300) <- brewer.pal(8, "BrBG")
+    setColors(ageMap, 200) <- brewer.pal(8, "BrBG")
     assign("ageMap", ageMap, envir=.GlobalEnv)
 #    ageMap[1] <<- 0
     return(invisible(sim))
