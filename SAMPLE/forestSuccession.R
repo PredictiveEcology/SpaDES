@@ -79,8 +79,7 @@ forestSuccessionInit <- function(sim) {
 #       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
 #    plot(lcc05)
 #   ext <- extent(-1073154,-987285,7438423,7512480)
-#   lcc05.cr <<- crop(lcc05,ext)
-#    CRS.lcc05 <- crs(lcc05.cr)
+#   vegMap <<- crop(lcc05,ext)
 
   lcc05Labels <- 0:39
   ### From the table 1 in Word file from Steve Cumming & Pierre Vernier, June 6, 2014
@@ -129,12 +128,12 @@ forestSuccessionInit <- function(sim) {
   lcc05Labels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
   numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
 #   lcc05VegTable <- cbind(lcc05Labels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-#   vegMap <- reclassify(lcc05.cr, lcc05VegTable)
+#   vegMap <- reclassify(vegMap, lcc05VegTable)
 
   lcc05Labels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
   numLccInTraj <- sapply(strsplit(unname(sapply(as.character(lcc05TrajReclass$LCC05.classes), function(x) x)), ","), length)
   lcc05TrajTable <- cbind(lcc05Labels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
-  trajMap <- reclassify(lcc05.cr, lcc05TrajTable)
+  trajMap <- reclassify(vegMap, lcc05TrajTable)
   setColors(trajMap) <- brewer.pal(9, "YlGn")
   name(trajMap) <- "trajMap"
   assign("trajMap", trajMap, envir=.GlobalEnv)

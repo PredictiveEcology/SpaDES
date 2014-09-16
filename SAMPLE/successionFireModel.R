@@ -31,20 +31,23 @@ fileList <- data.frame(files=c("c:/Eliot/GitHub/SpaDES/SAMPLE/vegMap.tif",
                                "c:/Eliot/GitHub/SpaDES/SAMPLE/ageMap.tif",
                                "c:/Eliot/GitHub/SpaDES/SAMPLE/fireSpreadProb.tif"),
                        functions="raster", packages="raster",
-                       .stackName="landscape",
+                       #.stackName="landscape",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
 
+times=list(start=0.0, stop=10)
+
+
 parameters <- list(.globals=list(.stackName="landscape"),
                    .progress=list(.graphical=TRUE, .progressInterval=1),
-                   .loadFileList=fileList,
+                   #.loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
                                    .plotInitialTime=1, .plotInterval=10),
                    forestAge=list(returnInterval=1, startTime=0.5,
                                         .plotInitialTime=1, .plotInterval=10),
                    fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
                                    persistprob=0, returnInterval=10, startTime=0,
-                                   .plotInitialTime=0.1, .plotInterval=10),
+                                   .plotInitialTime=0.1, .plotInterval=10)
 #                   caribouMovement=list(N=1e2, moveInterval=1,
 #                                        .plotInitialTime=1.01, .plotInterval=1)
 )
@@ -52,7 +55,7 @@ parameters <- list(.globals=list(.stackName="landscape"),
 #path <- system.file("sampleModules", package="SpaDES")
 
 
-modules <- list("forestSuccession", "forestAge", "fireSpreadLcc")
+modules <- list("forestSuccession", "forestAge")#, "fireSpreadLcc")
 path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
