@@ -1,5 +1,5 @@
 ###
-### MODULE: fireSpread
+### MODULE: fireSpreadLcc
 ###
 ### DESCRIPTION: simulate fire ignition and spread on a landscape
 ###               - spread probability varies according to percent pine
@@ -13,7 +13,7 @@ loadPackages(pkgs)
 rm(pkgs)
 
 ### event functions
-doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
+doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
@@ -21,8 +21,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simGlobals(sim)$.stackName, layer="fireSpreadProb")
-
+    checkObject(name="fireSpreadProb")
     if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
       assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
     } else {
@@ -36,27 +35,27 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "init")
+      sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpreadLcc", "init")
     } else {
       # do stuff for this event
-      sim <- fireSpreadInit(sim)
+      sim <- fireSpreadLccInit(sim)
 
 
       # schedule the next event
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, "fireSpread", "burn")
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
+      sim <- scheduleEvent(sim, simParams(sim)$fireSpreadLcc$startTime, "fireSpreadLcc", "burn")
+      sim <- scheduleEvent(sim, simParams(sim)$fireSpreadLcc$.saveInterval, "fireSpreadLcc", "save")
+      sim <- scheduleEvent(sim, simParams(sim)$fireSpreadLcc$.plotInitialTime, "fireSpreadLcc", "plot.init")
     }
   } else if (eventType=="burn") {
     # do stuff for this event
-    sim <- fireSpreadBurn(sim)
+    sim <- fireSpreadLccBurn(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "stats") # do stats immediately following burn
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$returnInterval, "fireSpread", "burn")
+    sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpreadLcc", "stats") # do stats immediately following burn
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$returnInterval, "fireSpreadLcc", "burn")
   } else if (eventType=="stats") {
     # do stuff for this event
-    sim <- fireSpreadStats(sim)
+    sim <- fireSpreadLccStats(sim)
 
     # schedule the next event
     ## stats scheduling done by burn event
@@ -74,19 +73,19 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     #assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
     Plot(Fires)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.saveInterval, "fireSpreadLcc", "save")
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE],"\'", sep=""))
@@ -94,7 +93,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
-fireSpreadInit <- function(sim) {
+fireSpreadLccInit <- function(sim) {
   #landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
   ### create burn map that tracks fire locations over time
@@ -106,37 +105,38 @@ fireSpreadInit <- function(sim) {
 
   # add Fires map to global$.stackName stack
 #  assign(simGlobals(sim)$.stackName, addLayer(landscapes,Fires), envir=.GlobalEnv)
+assign("Fires", Fires, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
-  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
+  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpreadLcc")
 
   return(invisible(sim))
 }
 
 
-fireSpreadBurn <- function(sim) {
+fireSpreadLccBurn <- function(sim) {
  # landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
   Fires <- spread(fireSpreadProb,
-                   loci=as.integer(sample(1:ncell(fireSpreadProb), simParams(sim)$fireSpread$nFires)),
+                   loci=as.integer(sample(1:ncell(fireSpreadProb), simParams(sim)$fireSpreadLcc$nFires)),
                    spreadProb=fireSpreadProb,
-                   persistance=simParams(sim)$fireSpread$persistprob,
+                   persistance=simParams(sim)$fireSpreadLcc$persistprob,
                    mask=NULL,
                    maxSize=1e8,
                    directions=8,
-                   iterations=simParams(sim)$fireSpread$its,
+                   iterations=simParams(sim)$fireSpreadLcc$its,
                    plot.it=FALSE,
                    mapID=TRUE)
   names(Fires) <- "Fires"
   setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
 #  landscapes$Fires <- Fires
 
-#  assign(simGlobals(sim)$.stackName, landscapes, envir=.GlobalEnv)
+  assign("Fires", Fires, envir=.GlobalEnv)
 
   return(invisible(sim))
 }
 
-fireSpreadStats <- function(sim) {
+fireSpreadLccStats <- function(sim) {
   npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
 
   #landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
@@ -146,12 +146,3 @@ fireSpreadStats <- function(sim) {
   return(invisible(sim))
 }
 
-fireSpreadStats <- function(sim) {
-  npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
-
-  landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
-
-  assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
-
-  return(sim)
-}

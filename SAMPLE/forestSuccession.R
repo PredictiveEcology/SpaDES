@@ -61,7 +61,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="plot") {
     # do stuff for this event
     Plot(vegMap,add=T)
-    #dev(5); hist(getValues(vegMap)); dev(4)
+    dev(3); hist(getValues(vegMap)); dev(2)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim)+ simParams(sim)$forestSuccession$.plotInterval,
@@ -182,7 +182,6 @@ forestSuccessionSuccession <- function(sim) {
 
   ageMap.v <- round(getValues(ageMap))
   trajMap.v <- getValues(trajMap)
-
 
     vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
     vegMap <- raster(ageMap)

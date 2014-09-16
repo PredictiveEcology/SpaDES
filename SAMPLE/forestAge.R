@@ -93,6 +93,7 @@ forestAgeAge <- function(sim) {
 
 
     ageMap <- setValues(ageMap, pmin(300, getValues(ageMap) + 1))
+    ageMap[Fires>0] <- 1
     name(ageMap) <- "ageMap"
     setColors(ageMap, 300) <- brewer.pal(8, "BrBG")
     assign("ageMap", ageMap, envir=.GlobalEnv)
