@@ -122,7 +122,6 @@ setMethod("loadFiles",
           signature(sim="simList", fileList="missing"),
           definition = function(sim, fileList, ...) {
 
-            browser()
             # Pull .fileExtensions() into function so that scoping is faster
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
@@ -244,11 +243,13 @@ setMethod("loadFiles",
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
                 if (loadFun[x]=="raster") {
-                  message(paste(objectNames[x], "read to", where[inMemory(get(objectNames[x]))+1],
-                                "from", fl[x], "using", loadFun[x]))
-                } else {
-                  message(paste(objectNames[x], "read to memory from", fl[x], "using", loadFun[x]))
-                }
+                  message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
+                                "(inMemory=",inMemory(get(objectNames[x])),")"))
+#                   message(paste(objectNames[x], "read to", where[inMemory(get(objectNames[x]))+1],
+#                                 "from", fl[x], "using", loadFun[x]))
+                  } else {
+                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
+                 }
               } # end x
 
               if(!is.na(unique(stackName))) {
@@ -336,7 +337,6 @@ setMethod("loadFiles",
             } else {
               stackName = NA
             }
-            browser()
 
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.globals=list(.stackName=stackName),
