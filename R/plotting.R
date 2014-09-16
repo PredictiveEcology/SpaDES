@@ -573,7 +573,7 @@ setMethod("drawArrows",
 #' The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*Named,
 #' and any combination of those.
 #'
-#' If add=F, then a new plot will be generated. When add=T, then any plot that
+#' If add=FALSE, then a new plot will be generated. When add=TRUE, then any plot that
 #' already exists will be overplotted, while plots that have not already been plotted will be added. This function
 #' rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
 #' it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
@@ -601,8 +601,8 @@ setMethod("drawArrows",
 #'
 #' @param ... Raster* object(s) and or SpatialPoints*Named objects
 #'
-#' @param axes Logical. If FALSE, then the previous plot is wiped and a new one made; if TRUE, then the ... plots
-#' will be added to the current device, adding or rearranging the plot layout as necessary.
+#' @param add Logical. If FALSE, then the previous plot is wiped and a new one made; if TRUE, then the ... plots
+#' will be added to the current device, adding or rearranging the plot layout as necessary. Default is TRUE.
 #'
 #' @param addTo String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
 #' the plot with the same name, such as plotting a SpatialPoints*Named object on a RasterLayer.
@@ -709,7 +709,7 @@ setMethod("drawArrows",
 #' Plot(habitatQuality2, add=T)
 #' }
 setGeneric("Plot", signature="...",
-           function(..., add=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
+           function(..., add=TRUE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
                     pch = 19, title=TRUE) {

@@ -78,8 +78,8 @@ forestSuccessionInit <- function(sim) {
 #   lcc05 <<- if(!exists("lcc05"))
 #       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
 #    plot(lcc05)
-  ext <- extent(-1073154,-987285,7438423,7512480)
-  lcc05.cr <<- crop(lcc05,ext)
+#   ext <- extent(-1073154,-987285,7438423,7512480)
+#   lcc05.cr <<- crop(lcc05,ext)
 #    CRS.lcc05 <- crs(lcc05.cr)
 
   lcc05Labels <- 0:39
