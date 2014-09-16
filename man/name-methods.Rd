@@ -2,9 +2,24 @@
 \docType{methods}
 \name{name}
 \alias{name}
+\alias{name,RasterLayerNamed-method}
+\alias{name,RasterStackNamed-method}
+\alias{name,SpatialPointsDataFrameNamed-method}
+\alias{name,SpatialPointsNamed-method}
+\alias{name<-}
 \title{Get and set the name of an object.}
 \usage{
 name(object)
+
+\S4method{name}{SpatialPointsNamed}(object)
+
+\S4method{name}{SpatialPointsDataFrameNamed}(object)
+
+\S4method{name}{RasterStackNamed}(object)
+
+\S4method{name}{RasterLayerNamed}(object)
+
+name(object) <- value
 }
 \arguments{
 \item{...}{Additional arguments.}
@@ -25,5 +40,6 @@ Alex Chubaty
 \code{\link{SpatialPointsNamed}},
          \code{\link{SpatialPointsDataFrameNamed}},
          \code{\link{RasterStackNamed}}.
+         \code{\link{RasterLayerNamed}}.
 }
 

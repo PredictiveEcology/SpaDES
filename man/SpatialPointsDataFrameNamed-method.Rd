@@ -3,23 +3,11 @@
 \name{SpatialPointsDataFrameNamed}
 \alias{SpatialPointsDataFrameNamed}
 \alias{SpatialPointsDataFrameNamed,character-method}
-\alias{name,RasterStackNamed-method}
-\alias{name,SpatialPointsDataFrameNamed-method}
-\alias{name,SpatialPointsNamed-method}
-\alias{name<-}
 \title{Create a new \code{SpatialPointsDataFrameNamed} object.}
 \usage{
 SpatialPointsDataFrameNamed(..., name)
 
 \S4method{SpatialPointsDataFrameNamed}{character}(..., name)
-
-\S4method{name}{SpatialPointsNamed}(object)
-
-\S4method{name}{SpatialPointsDataFrameNamed}(object)
-
-\S4method{name}{RasterStackNamed}(object)
-
-name(object) <- value
 }
 \arguments{
 \item{...}{Additional arguments to \code{SpatialPointsDataFrame}}

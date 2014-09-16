@@ -55,7 +55,7 @@ at the "loadTime", whatever that is. If the same file is to loaded many times,
 but not at a regular interval, then there should be separate line, with a unique
 loadTime for each.
 
-- \code{.stackNames}: a character (vector) indicating the name(s) of the RasterStack(s)
+- \code{.stackName}: a character (vector) indicating the name(s) of the RasterStack(s)
 to stack all the RasterLayers into. If left blank, then the individual RasterLayers will
 not be automatically stacked. If this is specified, the individual RasterLayers loaded
 will not actually be created as individual R objects; they will be loaded directly
