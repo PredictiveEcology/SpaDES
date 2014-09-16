@@ -289,54 +289,53 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
   standardGeneric("plotGrob")
 })
 
-#' @rdname plotGrob
-#' @export
-setMethod("plotGrob",
-          signature=c("Raster"),
-          definition= function(grobToPlot, col, size, name,
-                               legend, draw, #xaxis, yaxis, title,
-                               gp, vp, pch, #maxpixels,
-                               childrenvp, ...) {
-
-            pr <- pretty(range(minValue(grobToPlot),maxValue(grobToPlot)))
-            pr <- pr[pr<=maxValue(grobToPlot)]
-
-            if(sapply(getColors(grobToPlot),length)>0) {
-              col <- getColors(grobToPlot)[[1]]
-
-              # If there is a legend that is too long for the number of values, this chops
-              #  off the extraneous ones because the as.raster below will match min-max on
-              #  both col and values, which is not the desired behaviour
-              if(length(col)>(maxValue(grobToPlot)+1)) {
-                col <- col[1:maxValue(grobToPlot)+1]
-              }
-            } else {
-              col=topo.colors(50)
-            }
-
-            rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
-                              name=layerNames(grobToPlot),
-                              pr=pr,col=col,
-                              children=gList(
-                                rasterGrob(as.raster(grobToPlot, col = col), #maxpixels=maxpixels,
-                                           interpolate=FALSE,
-                                           name="raster"),
-                                if(legend) rasterGrob(as.raster(col[length(col):1]),
-                                                      x=1.04,y=0.5,height=0.5,width=0.03,
-                                                      interpolate=FALSE,
-                                                      name="legend"),
-                                if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/(maxValue(grobToPlot)-min(pr)))/2+0.25,
-                                                    gp=gpar(cex=0.9),
-                                                    just="left",
-                                                    name="legendText")
-                                #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
-                              ),
-                              gp=gp,
-                              #vp=vp,
-                              cl="plotRast")
-            if(draw) grid.draw(rastGrob)
-            return(invisible(rastGrob))
-})
+# #' @rdname plotGrob
+# #' @export
+# setMethod("plotGrob",
+#           signature=c("Raster"),
+#           definition= function(grobToPlot, col, size, name,
+#                                legend, draw, #xaxis, yaxis, title,
+#                                gp, vp, pch, #maxpixels,
+#                                childrenvp, ...) {
+#
+#             pr <- pretty(range(minValue(grobToPlot),maxValue(grobToPlot)))
+#             pr <- pr[pr<=maxValue(grobToPlot)]
+#
+#             if(sapply(getColors(grobToPlot),length)>0) {
+#               col <- getColors(grobToPlot)[[1]]
+#
+#               # If there is a legend that is too long for the number of values, this chops
+#               #  off the extraneous ones because the as.raster below will match min-max on
+#               #  both col and values, which is not the desired behaviour
+#               if(length(col)>(maxValue(grobToPlot)+1)) {
+#                 col <- col[1:maxValue(grobToPlot)+1]
+#               }
+#             } else {
+#               col=topo.colors(50)
+#             }
+#             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
+#                               name=layerNames(grobToPlot),
+#                               pr=pr,col=col,
+#                               children=gList(
+#                                 rasterGrob(as.raster(grobToPlot, col = col), #maxpixels=maxpixels,
+#                                            interpolate=FALSE,
+#                                            name="raster"),
+#                                 if(legend) rasterGrob(as.raster(col[length(col):1]),
+#                                                       x=1.04,y=0.5,height=0.5,width=0.03,
+#                                                       interpolate=FALSE,
+#                                                       name="legend"),
+#                                 if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/(maxValue(grobToPlot)-min(pr)))/2+0.25,
+#                                                     gp=gpar(cex=0.9),
+#                                                     just="left",
+#                                                     name="legendText")
+#                                 #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
+#                               ),
+#                               gp=gp,
+#                               #vp=vp,
+#                               cl="plotRast")
+#             if(draw) grid.draw(rastGrob)
+#             return(invisible(rastGrob))
+# })
 
 #' @rdname plotGrob
 #' @export
@@ -349,11 +348,12 @@ setMethod("plotGrob",
 
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
+            pr <- pr[pr>=minv]
 
             if(maxv<=1) {
               maxcol = maxv*47
             } else {
-              maxcol = round(maxv - minv)
+              maxcol = round(maxv - minv)+2 # need one for the NA at the bottom
             }
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
@@ -363,22 +363,22 @@ setMethod("plotGrob",
                                 rasterGrob(as.raster(grobToPlot),#, col = col), #maxpixels=maxpixels,
                                            interpolate=FALSE,
                                            name="raster"),
-                                if(legend) rasterGrob(as.raster(col[(maxcol+1):1]),
+                                if(legend) rasterGrob(as.raster(col[(maxcol):2]),
                                                       x=1.04,y=0.5,height=0.5,width=0.03,
                                                       interpolate=FALSE,
                                                       name="legend"),
                                 if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
-                                  if(col[1]=="#FFFFFF" | col[maxcol+1]=="#FFFFFF")
+                                  if(col[1]=="#FFFFFF" | col[maxcol]=="#FFFFFF")
                                     rectGrob(x=1.04,y=0.5,height=0.5,width=0.03)
                                 },
                                 if(legend) textGrob(pr, x=1.08,
                                                     if(maxv>1) {
-                                                      y= ((pr-min(pr))/((maxv+1)-min(pr)))/2+0.25+1/diff(range(minv,maxv))/4
+                                                      y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/diff(range(minv,maxv))/4
                                                     } else {
-                                                      y= ((pr-min(pr))/((maxv)-min(pr)))/2+0.25
+                                                      y= ((pr-minv)/((maxv)-minv))/2+0.25
                                                     },
                                                     gp=gpar(cex=0.9),
-                                                    just="left",
+                                                    just="left", check.overlap=T,
                                                     name="legendText")
                                 #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
                               ),
@@ -711,8 +711,8 @@ setMethod("drawArrows",
 setGeneric("Plot", signature="...",
            function(..., add=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols, zoomExtent=NULL,
-                    visualSqueeze=0.75, legend=TRUE, draw = TRUE,
-                    pch = 19, title=T) {
+                    visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
+                    pch = 19, title=TRUE) {
              standardGeneric("Plot")
  })
 
@@ -722,8 +722,9 @@ setMethod("Plot",
           signature("spatialObjects"),
           definition = function(..., add, addTo, gp, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
-                                legend, draw, pch, title) {
+                                legend, legendRange, draw, pch, title) {
             toPlot <- list(...)
+
 
             whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
             if(any(whStacks)) {
@@ -801,13 +802,7 @@ setMethod("Plot",
               #grobs <- list()
             } else { # add == T
               if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) {
-                #grobs <- .grobs
                 newArr = T
-#                 if(sum(!(lN %in% currentPlusToPlotN))!=0) {
-#                   vpNames <- lN[!(lN %in% currentPlusToPlotN)]
-#                 } else {
-#                   vpNames <- NULL
-#                 }
                 vpNames = currentPlusToPlotN
                 grobNames = vpNames
                 addTo <- grobNames
@@ -816,7 +811,6 @@ setMethod("Plot",
                                      extlN=extsToPlot[match(vpNames, lN)])
                 extsToPlot <- sapply(1:length(vpNames), function(x) extsUnmerged[[ind[x]]][x])
               } else {
-                #grobs <- .grobs
                 newArr = F
                 if(sum(!(addTo %in% currentNames))!=0) {
                   vpNames <- addTo[!(addTo %in% currentNames)]
@@ -890,7 +884,9 @@ setMethod("Plot",
 
 
               seekViewport(addTo[whGrobNamesi],recording=F)
-              if(!grobNamesi %in% lN) {
+
+
+              if(!grobNamesi %in% lN) { # Is this an overplot
                 if(length(stacksInArr)>0) {
                   # only take first one, if there are more than one. First one is most recent
                   isPrevLayerInStack <- na.omit(sapply(stacksInArr, function(x) {
@@ -898,11 +894,11 @@ setMethod("Plot",
                 } else {
                   isPrevLayerInStack = NA
                 }
+
+                # Get the object from the environment
                 if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
                   grobToPlot <- get(grobNamesi)
                 } else {
-#                  withinStacki <- match(grobNamesi,layerNames(get(names(isPrevLayerInStack))))
-#                  grobToPlot <- get(names(isPrevLayerInStack))[[withinStacki]]
                   grobToPlot <- get(names(isPrevLayerInStack))[[grobNamesi]]
                 }
                 if(is(grobToPlot, "Raster")) {
@@ -943,11 +939,21 @@ setMethod("Plot",
                   if((maxz-minz+1)>=length(cols)) { # if not enough colors, make more
                     cols <- colorRampPalette(cols)(maxz-minz+1)
                   }
+#                   if(!is.null(legendRange)){
+#                     if((diff(legendRange))<length(cols)) {
+#                       message(paste0("legendRange is not wide enough, using default"))
+#                     } else {
+#                       cols <- colorRampPalette(cols)(diff(legendRange)+1)
+#                       minv <- min(legendRange)
+#                       maxv <- max(legendRange)
+#                     }
+#                   }
 
                   # colors are indexed from 1, as with all objects in R, but there are generally
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
                   z[is.na(z)] <- 1
+                  cols <- c("#FFFFFFFF",cols) # NA is black and transparent
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
                   len <- length(caribou)
@@ -966,7 +972,10 @@ setMethod("Plot",
                           maxpixels= maxpixels,
                           legend = legend, gp = gp, draw = draw)
                 if(title) grid.text(grobNamesi, name="title", y=1.06, vjust=0.5, gp = gp)
-              } else {
+
+
+              } else { # Is this a new plot to be added or plotted
+
                 toPlotInd <- which(!is.na(sapply(layerLengths,
                                                   function(x) match(grobNamesi,x))))
                 if(is(toPlot[[toPlotInd]],"RasterStack")) {
@@ -990,7 +999,7 @@ setMethod("Plot",
                     cols=topo.colors(50)
                   }
 
-                  # subsample for speed of plotting - taken from .plotCT in package "raster"
+                  # subsample for speed of plotting - code taken from .plotCT in package "raster"
                   grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE, useGDAL=TRUE)
                   if(!is.null(zoomExtent)) {
                     grobToPlot <- crop(grobToPlot, zoomExtent)
@@ -1000,24 +1009,35 @@ setMethod("Plot",
                   maxz <- max(z, na.rm=T)
 
                   # if data in raster are proportions, must treat colors differently
-
                   if(maxz <= 1) {
                     if(length(unique(z))>length(cols)) {
                       cols <- colorRampPalette(cols)(50)
                       z <- z*49
                     }
                   }
+                  # Single value rasters
                   if((maxz-minz)==0) {
                     legend <- FALSE
                   }
                   if((maxz-minz+1)>=length(cols)) {
                     cols <- colorRampPalette(cols)(maxz-minz+1)
                   }
+                  if(!is.null(legendRange)){
+                    if((diff(legendRange))<length(cols)) {
+                      message(paste0("legendRange is not wide enough, using default"))
+                    } else {
+                      cols <- colorRampPalette(cols)(diff(legendRange)+1)
+                      minz <- min(legendRange)
+                      maxz <- max(legendRange)
+                    }
+                  }
+
 
                   # colors are indexed from 1, as with all objects in R, but there are generally
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
                   z[is.na(z)] <- 1
+                  cols <- c("#FFFFFFFF",cols) # NA is black and transparent
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
                   len <- length(caribou)
@@ -1035,7 +1055,9 @@ setMethod("Plot",
                          #xaxis = xaxis, yaxis = yaxis, title=title,
                          #maxpixels= maxpixels[toPlotInd],
                          legend = legend, gp = gp, draw = draw)
-                if(title) grid.text(layerNames(grobToPlot), name="title", y=1.08, vjust=0.5, gp = gp)
+#                if(title) grid.text(paste0(layerNames(grobToPlot)," (t=",simCurrentTime(cursim),")"),
+                  if(title) grid.text(layerNames(grobToPlot),
+                                    name="title", y=1.08, vjust=0.5, gp = gp)
 #                }
               }
               if(xaxis) grid.xaxis(name="xaxis", gp = gp)
