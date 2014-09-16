@@ -59,7 +59,7 @@ modules <- list("forestSuccession", "forestAge")#, "fireSpreadLcc")
 path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
-dev(4)#pdf("test.pdf")
+dev(2)#pdf("test.pdf")
 mySim <- spades(mySim, debug=F)
 #simStopTime(mySim)<-20
 #dev.off()
