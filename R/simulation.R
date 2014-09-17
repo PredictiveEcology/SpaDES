@@ -96,9 +96,10 @@ setMethod("show",
                                                   ),
                                             quote=FALSE, row.names=FALSE))
             out[[10]] = capture.output(cat("\n"))
-
             ### params
-            omit = which(names(simParams(object))==".loadFileList")
+            omit = which(names(simParams(object))==".loadFileList" |
+                           names(simParams(object))==".progress")
+
             p = mapply(function(x, y) {
                         data.frame(Module=x, Parameter=names(y), Value=unlist(y),
                                    stringsAsFactors=FALSE, row.names=NULL)
