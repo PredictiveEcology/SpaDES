@@ -17,18 +17,19 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
-    depends <- NULL
+    depends <- "forestSuccession"
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
     checkObject(name="fireSpreadProb")
+
     if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
       assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
     } else {
       npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
       stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
       if (length(npix)>0) {
-        message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
+        message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be appended."))
       }
     }
 
@@ -69,14 +70,14 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
     #                            percentPine=brewer.pal(9,"Greens"),
     #                            Fires=c("#FFFFFF", rev(heat.colors(9)))
     #                        )
-    Plot(Fires)
+    #Plot(Fires, legendRange=c(0,simParams(sim)$fireSpreadLcc$nFires))
     #assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(Fires)
+    Plot(Fires, legendRange=c(0,simParams(sim)$fireSpreadLcc$nFires))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
@@ -101,11 +102,11 @@ fireSpreadLccInit <- function(sim) {
                   nrow=nrow(fireSpreadProb), vals=0)
   names(Fires) <- "Fires"
   setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
-  Fires <- setValues(Fires, 0)
+  Fires <<- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
-#  assign(simGlobals(sim)$.stackName, addLayer(landscapes,Fires), envir=.GlobalEnv)
-assign("Fires", Fires, envir=.GlobalEnv)
+  #  assign(simGlobals(sim)$.stackName, addLayer(landscapes,Fires), envir=.GlobalEnv)
+  assign("Fires", Fires, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpreadLcc")
