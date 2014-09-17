@@ -186,14 +186,13 @@ setMethod("loadFiles",
 
               # raster function sometimes loads file to disk; this will be made explicit
               where <- c("disk", "memory")
-
               if(length(simGlobals(sim)$.stackName)==1) {
                 stackName=rep(simGlobals(sim)$.stackName,length(objectNames))
               } else if (length(simGlobals(sim)$.stackName)==length(objectNames)){
                 stackName=simGlobals(sim)$.stackName
               } else if (is.null(simGlobals(sim)$.stackName)) {
                 stackName=rep(NA, length(objectNames))
-                simGlobals(sim)$.stackName <- stackName
+                simGlobals(sim)$.stackName <- NA_character_
               } else {
                 stop(".stackName must be same length as fileList or length=1")
               }
