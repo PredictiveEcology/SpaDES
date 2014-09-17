@@ -113,7 +113,7 @@ setMethod("spread",
             }
             n <- 1
             if (mapID) {
-              spreads[loci] <- loci
+              spreads[loci] <- 1:length(loci)
             } else {
               spreads[loci] <- n
             }
@@ -125,15 +125,22 @@ setMethod("spread",
 
             while ( (length(loci)>0) && (iterations>=n) ) {
               if (mapID) {
-                potentials <- adj(landscape, loci, directions, pairs=TRUE)
+                potentials <- matrix(adj(landscape, loci, directions, pairs=TRUE),ncol=2)
               } else {
                 # must pad the first column of potentials
-                potentials <- cbind(NA, adj(landscape, loci, directions, pairs=FALSE))
+                potentials <- matrix(cbind(NA, adj(landscape, loci, directions, pairs=FALSE)),ncol=2)
               }
+
+              #if there is only one potential, R converts this to a vector, instead of a matrix.
+              # Force it back to a matrix
+              if(length(potentials)==2) {
+                potentials <- matrix(potentials,ncol=2)
+              }
+
 
               # drop those ineligible
               if (!is.null(mask))
-                potentials <- potentials[potentials[,2] %in% masked,]
+                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
 
               # Should this be unique?
               # only accept cells that have no fire yet
@@ -142,7 +149,7 @@ setMethod("spread",
 #
 #                 #potentials <- unique(potentials[spreads[potentials[,2]]==0,2])
 #               else
-                potentials <- potentials[spreads[potentials[,2]]==0,]
+              potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
 #               } else {
 #                 if (mergeDuplicates)
 #                   potentials <- unique(potentials[spreads[potentials]==0])
@@ -157,6 +164,7 @@ setMethod("spread",
                   spreadProbs <- spreadProb
                 } else {
                   spreadProbs <- spreadProb[potentials[,2]]
+                  spreadProbs[is.na(spreadProbs)]<-0
               }
 
               #If there is only 1 event, R turns the matrix into a vector

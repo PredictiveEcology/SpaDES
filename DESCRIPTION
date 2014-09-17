@@ -27,6 +27,7 @@ Depends:
     data.table,
     grid,
     sp,
+    RColorBrewer,
     raster
 Suggests:
     Matrix,
@@ -35,7 +36,6 @@ Imports:
     CircStats,
     methods,
     RandomFields,
-    RColorBrewer,
     rgdal
 License: GPL
 Collate:
