@@ -101,7 +101,7 @@ forestSuccessionSuccession <- function(sim) {
     vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
     vegMap <- raster(ageMap)
     vegMap <- RasterLayerNamed(setValues(vegMap,vegMap.v),name="vegMap")
-    setColors(vegMap) <- brewer.pal(8,"Set1")
+    setColors(vegMap) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
     assign("vegMap", vegMap, envir=.GlobalEnv)
   fireSpreadProb <<- RasterLayerNamed(reclassify(x=vegMap,
                                rcl=cbind(1:11,

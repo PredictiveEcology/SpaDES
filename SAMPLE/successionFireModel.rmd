@@ -2,7 +2,10 @@
 ```{r load_data, cache=TRUE}
 library(SpaDES)
 rasterOptions(maxmemory=2e9)
-interactiveExtent = TRUE
+downloadRequired = FALSE
+interactiveExtent = FALSE
+
+
 setwd(file.path("C:","Rwork"))
 outputPath=file.path("~", "tmp", "simOutputs")
 times <- list(start=0, stop=200)
@@ -10,10 +13,18 @@ times <- list(start=0, stop=200)
 
 pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 
-fileList <- data.frame(files=c("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif",
-                               "C:/shared/data/shared/age/age.asc"),
+setwd(file.path("C:","shared"))
+if(downloadRequired) {
+  temp <- "lcc05.zip"
+  download.file("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip",temp, mode="wb")
+  unzip(temp, files="LCC2005_V1_4a.tif")
+}
+
+
+fileList <- data.frame(files=c("LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif"),
+                               #"C:/shared/age/age.asc"),
                        functions="raster", packages="raster",
-                       objectNames=c("lcc05","age"),
+#                       objectNames=c("lcc05","age"),
 #                       .stackName="landscape",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
