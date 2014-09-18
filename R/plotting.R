@@ -349,7 +349,6 @@ setMethod("plotGrob",
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
-
             if(maxv<=1) {
               maxcol = maxv*47
             } else {
@@ -735,8 +734,8 @@ setMethod("Plot",
             }
 
             if(add | !is.null(addTo)){
-              if(exists(".spadesArr", envir=.GlobalEnv)) {
-                stacksInArr <- .spadesArr@stack
+              if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
+                stacksInArr <- get(paste0(".spadesArr",dev.cur()))@stack
               } else {
                 stacksInArr <- list(NULL)
               }
@@ -750,8 +749,8 @@ setMethod("Plot",
               addTo <- lN
             } else {
               if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-              if(exists(".spadesArr", envir=.GlobalEnv)) {
-                if(!any(addTo %in% .spadesArr@names)) {
+              if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
+                if(!any(addTo %in% get(paste0(".spadesArr",dev.cur()))@names)) {
                   stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
                 }
               }
@@ -763,7 +762,7 @@ setMethod("Plot",
 
 
             # check whether .spadesArr exists, meaning that there is already a plot
-            if(!exists(".spadesArr",envir=.GlobalEnv)) {
+            if(!exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
               add=F
               arr = new("arrangement"); arr@columns=0; arr@rows = 0
               if(add==T) message("Nothing to add plots to; creating new plots")
@@ -771,7 +770,7 @@ setMethod("Plot",
             } else {
 
               if(add) {
-                arr <- .spadesArr
+                arr <- get(paste0(".spadesArr",dev.cur()))
               } else {
                 arr = new("arrangement"); arr@columns=0; arr@rows = 0
               }
@@ -823,10 +822,10 @@ setMethod("Plot",
               }
             }
 
-            # create .spadesArr object - i.e., the arrangement based on number and extents
+            # create get(paste0(".spadesArr",dev.cur())) object - i.e., the arrangement based on number and extents
             if(!newArr) {
-              if(exists(".spadesArr",envir=.GlobalEnv)) {
-                arr <- .spadesArr
+              if(exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
+                arr <- get(paste0(".spadesArr",dev.cur()))
                 arr@names = append(arr@names, names(extsToPlot))
                 arr@extents = append(arr@extents, extsToPlot)
               } else {
@@ -883,8 +882,11 @@ setMethod("Plot",
               }
 
 
-              seekViewport(addTo[whGrobNamesi],recording=F)
 
+              a = try(seekViewport(addTo[whGrobNamesi],recording=F))
+              if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
+                                                "Try add=F or change device to",
+                                                "one that has a plot named",addTo[whGrobNamesi]))
 
               if(!grobNamesi %in% lN) { # Is this an overplot
                 if(length(stacksInArr)>0) {
@@ -916,10 +918,14 @@ setMethod("Plot",
                   }
 
                   # subsample for speed of plotting - taken from .plotCT in package "raster"
-                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE, useGDAL=TRUE)
-                  if(!is.null(zoomExtent)) {
-                    grobToPlot <- crop(grobToPlot, zoomExtent)
+                  if(is.null(zoomExtent)) {
+                    zoom <- extent(grobToPlot)
+                  } else {
+                    zoom <- zoomExtent
                   }
+                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
+                                              ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+
                   z <- getValues(grobToPlot)
                   minz <- min(z, na.rm=T)
                   maxz <- max(z, na.rm=T)
@@ -953,7 +959,9 @@ setMethod("Plot",
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
                   z[is.na(z)] <- 1
-                  cols <- c("#FFFFFFFF",cols) # NA is black and transparent
+
+                  if(!grepl(pattern = "000000",cols[1]) & !grepl(pattern = "FFFFFF",cols[1]))
+                    cols <- c("#FFFFFFFF",cols) # NA is black and transparent
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
                   len <- length(caribou)
@@ -984,7 +992,7 @@ setMethod("Plot",
                   grobToPlot = toPlot[[toPlotInd]]
                 }
 
-#                maxpixels=1e4
+
                 if(is(grobToPlot, "Raster")) {
                   if(sapply(getColors(grobToPlot),length)>0) {
                     cols <- getColors(grobToPlot)[[1]]
@@ -1000,10 +1008,13 @@ setMethod("Plot",
                   }
 
                   # subsample for speed of plotting - code taken from .plotCT in package "raster"
-                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels, asRaster=TRUE, useGDAL=TRUE)
-                  if(!is.null(zoomExtent)) {
-                    grobToPlot <- crop(grobToPlot, zoomExtent)
+                  if(is.null(zoomExtent)) {
+                    zoom <- extent(grobToPlot)
+                  } else {
+                    zoom <- zoomExtent
                   }
+                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
+                                              ext=zoom, asRaster=TRUE, useGDAL=TRUE)
                   z <- getValues(grobToPlot)
                   minz <- min(z, na.rm=T)
                   maxz <- max(z, na.rm=T)
@@ -1037,7 +1048,8 @@ setMethod("Plot",
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
                   z[is.na(z)] <- 1
-                  cols <- c("#FFFFFFFF",cols) # NA is black and transparent
+                  if(!grepl(pattern = "000000",cols[1]) & !grepl(pattern = "FFFFFF",cols[1]))
+                    cols <- c("#FFFFFFFF",cols) # NA is black and transparent
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
                   len <- length(caribou)
@@ -1070,5 +1082,5 @@ setMethod("Plot",
               arr@stack <- append(stacksToPlot, stacksInArr)
               arr@stack <- arr@stack[!duplicated(arr@stack)]
             }
-            assign(".spadesArr", arr, envir=.GlobalEnv)
+            assign(paste0(".spadesArr",dev.cur()), arr, envir=.GlobalEnv)
 })
