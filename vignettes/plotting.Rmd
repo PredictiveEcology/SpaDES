@@ -16,7 +16,7 @@ output:
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Plotting with SpaDES}
 %\VignetteDepends{SpaDES}
-%\VignetteKeyword{discrete event simulation}
+%\VignetteKeyword{visualization, plotting, mapping}
 -->
 
 # Plotting in `SpaDES`
@@ -44,7 +44,6 @@ fileList <-
 loadFiles(fileList=fileList)
 # extract a single one of these rasters
 DEM <- landscape$DEM
-#'
 ```
 
 # The `Plot` function
