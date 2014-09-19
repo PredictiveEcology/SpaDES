@@ -221,15 +221,15 @@ landscape[["Fires"]] <-
 
 setColors(landscape$Fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
 
-Plot(landscape[["Fires"]])
+Plot(landscape[["Fires"]], add=FALSE)
 @
 
 
 <<fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
-Plot(percentPine)
-#Plot(landscape[["Fires"]], add=T)
+Plot(percentPine, add=FALSE)
+#Plot(landscape[["Fires"]], add=TRUE)
 Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 @
 
@@ -255,7 +255,7 @@ landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
 landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-Plot(landscape)
+Plot(landscape, add=FALSE)
 @
 
 \newpage
@@ -301,7 +301,7 @@ Using a simple landscape-dependent correlated random walk, we simulate the movem
 
 <<agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE>>=
 #dev(4)
-Plot(landscape[["habitatQuality"]])
+Plot(landscape[["habitatQuality"]], add=FALSE)
 
 for (t in 1:10) {
   #crop any caribou that went off maps
@@ -434,7 +434,7 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 \begin{itemize}
   \item \texttt{introduction}: Introduction to SpaDES: A package to develop and run spatially explicit discrete event simulation models. [This vignette.]
   \item \texttt{modules}: Building modules in \texttt{SpaDES}.
-  \item \texttt{plotting}: Simulation visualization and plotting in \texttt{SpaDES}. [Not yet written.]
+  \item \texttt{plotting}: Plotting with \texttt{SpaDES}.
   \item \texttt{debugging}: Debugging simulations built using \texttt{SpaDES}. [Not yet written.]
 \end{itemize}
 

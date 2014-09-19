@@ -112,7 +112,7 @@ The static nature of PDFs does not allow us to really show off the simulation vi
 \begin{Sinput}
 > library("SpaDES")
 > outputPath=file.path("~", "tmp", "simOutputs")
-> times <- list(start=0, stop=100.2)
+> times <- list(start=0, stop=10.2)
 > parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
 +                                  burnStats="nPixelsBurned"),
 +                    .progress=list(NA),
@@ -126,7 +126,7 @@ The static nature of PDFs does not allow us to really show off the simulation vi
 > modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 > path <- system.file("sampleModules", package="SpaDES")
 > mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
-> dev(4)
+> #dev(4)
 > spades(mySim)
 \end{Sinput}
 \end{Schunk}
@@ -177,7 +177,7 @@ Bringing data into\textsf{R}is easy, and can be done using any of the built in d
 > ### Example: loading habitat maps
 > 
 > # use all built-in maps from the SpaDES package
-> # pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
+> pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 > fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern= "tif"),
 +                       functions="rasterToMemory", packages="SpaDES",
 +                       stringsAsFactors=FALSE)
@@ -197,6 +197,7 @@ Bringing data into\textsf{R}is easy, and can be done using any of the built in d
 > spades(mySim)
 \end{Sinput}
 \end{Schunk}
+\includegraphics{introduction-load-landscape-maps}
 
 \newpage
 
@@ -208,6 +209,7 @@ Using the \texttt{spread} function, we can simulate fires, and subsequent change
 
 \begin{Schunk}
 \begin{Sinput}
+> library(RColorBrewer)
 > nFires <- 10
 > landscape[["Fires"]] <-
 +   spread(landscape[["percentPine"]],
@@ -221,17 +223,19 @@ Using the \texttt{spread} function, we can simulate fires, and subsequent change
 +          plot.it=FALSE,
 +          mapID=TRUE)
 > setColors(landscape$Fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
-> Plot(landscape[["Fires"]])
+> Plot(landscape[["Fires"]], add=FALSE)
 \end{Sinput}
 \end{Schunk}
+\includegraphics{introduction-fire}
 
 
 \begin{Schunk}
 \begin{Sinput}
 > # Show the burning more strongly over abundant pine
 > percentPine<-landscape$percentPine
-> Plot(percentPine)
-> Plot(landscape[["Fires"]], addTo="percentPine")
+> Plot(percentPine, add=FALSE)
+> #Plot(landscape[["Fires"]], add=TRUE)
+> Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-fire-overlaid}
@@ -255,24 +259,24 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--41.691  -15.159   -4.225   13.825   37.541  
+-38.524  -15.008   -2.338   10.382   32.495  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  6.962328   0.018814  370.06   <2e-16 ***
-fire1       -2.878445   0.077045  -37.36   <2e-16 ***
-pine        -0.043122   0.003736  -11.54   <2e-16 ***
-fire1:pine   0.195437   0.012133   16.11   <2e-16 ***
+(Intercept)  6.933599   0.019436  356.75   <2e-16 ***
+fire1       -2.477138   0.070350  -35.21   <2e-16 ***
+pine        -0.064018   0.003977  -16.10   <2e-16 ***
+fire1:pine   0.255776   0.010681   23.95   <2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 14456.6  on 18  degrees of freedom
-Residual deviance:  8519.9  on 15  degrees of freedom
-AIC: 8657.4
+    Null deviance: 9599  on 17  degrees of freedom
+Residual deviance: 6691  on 14  degrees of freedom
+AIC: 6829.8
 
-Number of Fisher Scoring iterations: 6
+Number of Fisher Scoring iterations: 5
 \end{Soutput}
 \end{Schunk}
 
@@ -286,7 +290,7 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 > landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 > landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 > landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-> Plot(landscape)
+> Plot(landscape, add=FALSE)
 \end{Sinput}
 \end{Schunk}
 \includegraphics{introduction-fire-impacts-maps}
@@ -333,8 +337,8 @@ Using a simple landscape-dependent correlated random walk, we simulate the movem
 
 \begin{Schunk}
 \begin{Sinput}
-> dev(4)
-> Plot(landscape[["habitatQuality"]])
+> #dev(4)
+> Plot(landscape[["habitatQuality"]], add=FALSE)
 > for (t in 1:10) {
 +   #crop any caribou that went off maps
 +   caribou <<- crop(caribou,landscape)
@@ -438,7 +442,7 @@ Running multiple simulations with different parameter values is a critical part 
 \begin{itemize}
   \item \texttt{introduction}: Introduction to SpaDES: A package to develop and run spatially explicit discrete event simulation models. [This vignette.]
   \item \texttt{modules}: Building modules in \texttt{SpaDES}.
-  \item \texttt{plotting}: Simulation visualization and plotting in \texttt{SpaDES}. [Not yet written.]
+  \item \texttt{plotting}: Plotting with \texttt{SpaDES}.
   \item \texttt{debugging}: Debugging simulations built using \texttt{SpaDES}. [Not yet written.]
 \end{itemize}
 

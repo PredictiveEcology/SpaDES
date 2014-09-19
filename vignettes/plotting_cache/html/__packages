@@ -1,5 +1,6 @@
 base
 data.table
+knitr
 raster
 RColorBrewer
 rgdal
