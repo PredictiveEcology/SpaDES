@@ -290,53 +290,6 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
   standardGeneric("plotGrob")
 })
 
-# #' @rdname plotGrob
-# #' @export
-# setMethod("plotGrob",
-#           signature=c("Raster"),
-#           definition= function(grobToPlot, col, size, name,
-#                                legend, draw, #xaxis, yaxis, title,
-#                                gp, vp, pch, #maxpixels,
-#                                childrenvp, ...) {
-#
-#             pr <- pretty(range(minValue(grobToPlot),maxValue(grobToPlot)))
-#             pr <- pr[pr<=maxValue(grobToPlot)]
-#
-#             if(sapply(getColors(grobToPlot),length)>0) {
-#               col <- getColors(grobToPlot)[[1]]
-#
-#               # If there is a legend that is too long for the number of values, this chops
-#               #  off the extraneous ones because the as.raster below will match min-max on
-#               #  both col and values, which is not the desired behaviour
-#               if(length(col)>(maxValue(grobToPlot)+1)) {
-#                 col <- col[1:maxValue(grobToPlot)+1]
-#               }
-#             } else {
-#               col=topo.colors(50)
-#             }
-#             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
-#                               name=layerNames(grobToPlot),
-#                               pr=pr,col=col,
-#                               children=gList(
-#                                 rasterGrob(as.raster(grobToPlot, col = col), #maxpixels=maxpixels,
-#                                            interpolate=FALSE,
-#                                            name="raster"),
-#                                 if(legend) rasterGrob(as.raster(col[length(col):1]),
-#                                                       x=1.04,y=0.5,height=0.5,width=0.03,
-#                                                       interpolate=FALSE,
-#                                                       name="legend"),
-#                                 if(legend) textGrob(pr, x=1.08, y=((pr-min(pr))/(maxValue(grobToPlot)-min(pr)))/2+0.25,
-#                                                     gp=gpar(cex=0.9),
-#                                                     just="left",
-#                                                     name="legendText")
-#                                 #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
-#                               ),
-#                               gp=gp,
-#                               #vp=vp,
-#                               cl="plotRast")
-#             if(draw) grid.draw(rastGrob)
-#             return(invisible(rastGrob))
-# })
 
 #' @rdname plotGrob
 #' @export
