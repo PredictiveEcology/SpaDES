@@ -1,4 +1,4 @@
-if(getRversion() >= "3.1.0")  utils::globalVariables(".spadesArr")
+if(getRversion() >= "3.1.0")  utils::globalVariables(paste0(".spadesArr",1:20))
 
 ##############################################################
 #' Specify where to plot
@@ -283,8 +283,9 @@ setMethod("arrangeViewports",
 #' @docType methods
 setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
                                 name="plot", minv, maxv,
-                                legend=TRUE, draw=TRUE, #xaxis=TRUE, yaxis=TRUE, title=TRUE,
-                                gp=gpar(), vp=NULL, pch=19, #maxpixels=5e5,
+                                legend=TRUE, addedNACol = addedNACol,
+                                draw=TRUE,
+                                gp=gpar(), vp=NULL, pch=19,
                                 childrenvp=NULL, ...) {
   standardGeneric("plotGrob")
 })
@@ -342,17 +343,19 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
 setMethod("plotGrob",
           signature=c("matrix"),
           definition= function(grobToPlot, col, size, name, minv, maxv,
-                               legend, draw, #xaxis, yaxis, title,
-                               gp, vp, pch, #maxpixels,
+                               legend, addedNACol, draw,
+                               gp, vp, pch,
                                childrenvp, ...) {
 
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
+
+            browser()
             if(maxv<=1) {
               maxcol = maxv*47
             } else {
-              maxcol = round(maxv - minv)+2 # need one for the NA at the bottom
+              maxcol = round(maxv - minv) + 1 + addedNACol + 1 # need one for the NA at the bottom
             }
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
@@ -367,7 +370,7 @@ setMethod("plotGrob",
                                                       interpolate=FALSE,
                                                       name="legend"),
                                 if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
-                                  if(col[1]=="#FFFFFF" | col[maxcol]=="#FFFFFF")
+                                  if(col[1]=="^#FFFFFF" | col[maxcol]=="^#FFFFFF")
                                     rectGrob(x=1.04,y=0.5,height=0.5,width=0.03)
                                 },
                                 if(legend) textGrob(pr, x=1.08,
@@ -942,26 +945,23 @@ setMethod("Plot",
                     legend <- FALSE
                   }
 
-                  if((maxz-minz+1)>=length(cols)) { # if not enough colors, make more
+                  if((maxz-minz+1)<=length(cols)) { # correct, but add NA color, if not already there
+                    if(!grepl(pattern = "000000",cols[1]) & !grepl(pattern = "FFFFFF",cols[1])) {
+                      cols <- c("#FFFFFF00",cols) # NA is white and transparent
+                      addedNACol = TRUE
+                    } else {
+                      addedNACol = FALSE
+                    }
+
+                  } else if ((maxz-minz+1)>length(cols)) { # if not enough colors, make more
                     cols <- colorRampPalette(cols)(maxz-minz+1)
                   }
-#                   if(!is.null(legendRange)){
-#                     if((diff(legendRange))<length(cols)) {
-#                       message(paste0("legendRange is not wide enough, using default"))
-#                     } else {
-#                       cols <- colorRampPalette(cols)(diff(legendRange)+1)
-#                       minv <- min(legendRange)
-#                       maxv <- max(legendRange)
-#                     }
-#                   }
 
                   # colors are indexed from 1, as with all objects in R, but there are generally
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
                   z[is.na(z)] <- 1
 
-                  if(!grepl(pattern = "000000",cols[1]) & !grepl(pattern = "FFFFFF",cols[1]))
-                    cols <- c("#FFFFFFFF",cols) # NA is black and transparent
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
                   len <- length(caribou)
@@ -973,12 +973,11 @@ setMethod("Plot",
                 }
 
                 plotGrob(z, col = cols, size=unit(size,"points"),
-                          minv=minz,
-                          maxv=maxz,
-                          vp=NULL, pch=pch,
-                          #xaxis = xaxis, yaxis = yaxis, title=title,
-                          maxpixels= maxpixels,
-                          legend = legend, gp = gp, draw = draw)
+                         minv=minz,
+                         maxv=maxz,
+                         vp=NULL, pch=pch,
+                         legend = legend, addedNACol = addedNACol,
+                         gp = gp, draw = draw)
                 if(title) grid.text(grobNamesi, name="title", y=1.06, vjust=0.5, gp = gp)
 
 
@@ -992,7 +991,7 @@ setMethod("Plot",
                   grobToPlot = toPlot[[toPlotInd]]
                 }
 
-
+                browser()
                 if(is(grobToPlot, "Raster")) {
                   if(sapply(getColors(grobToPlot),length)>0) {
                     cols <- getColors(grobToPlot)[[1]]
@@ -1026,15 +1025,26 @@ setMethod("Plot",
                       z <- z*49
                     }
                   }
+
                   # Single value rasters
                   if((maxz-minz)==0) {
                     legend <- FALSE
                   }
-                  if((maxz-minz+1)>=length(cols)) {
+
+                  # If there aren't enough colors to also give NAs a color
+                  if((maxz-minz+1)<=length(cols)) { # correct, but add NA color
+                    if(!grepl(pattern = "^#000000",cols[1]) & !grepl(pattern = "^#FFFFFF",cols[1])) {
+                      cols <- c("#FFFFFF00",cols) # NA is white and transparent
+                      addedNACol = TRUE
+                    } else {
+                      addedNACol = FALSE
+                    }
+                  } else if ((maxz-minz+1)>length(cols)) { # if not enough colors, make more
                     cols <- colorRampPalette(cols)(maxz-minz+1)
                   }
+
                   if(!is.null(legendRange)){
-                    if((diff(legendRange))<length(cols)) {
+                    if((diff(legendRange)+1)<length(cols)) {
                       message(paste0("legendRange is not wide enough, using default"))
                     } else {
                       cols <- colorRampPalette(cols)(diff(legendRange)+1)
@@ -1048,8 +1058,7 @@ setMethod("Plot",
                   #  zero values on the rasters, so shift by 1
                   z <- z + 1
                   z[is.na(z)] <- 1
-                  if(!grepl(pattern = "000000",cols[1]) & !grepl(pattern = "FFFFFF",cols[1]))
-                    cols <- c("#FFFFFFFF",cols) # NA is black and transparent
+
                   z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
                   len <- length(caribou)
@@ -1064,9 +1073,8 @@ setMethod("Plot",
                          minv=minz,
                          maxv=maxz,
                          vp=NULL, pch=pch, name = layerNames(grobToPlot),
-                         #xaxis = xaxis, yaxis = yaxis, title=title,
-                         #maxpixels= maxpixels[toPlotInd],
-                         legend = legend, gp = gp, draw = draw)
+                         legend = legend, addedNACol = addedNACol,
+                         gp = gp, draw = draw)
 #                if(title) grid.text(paste0(layerNames(grobToPlot)," (t=",simCurrentTime(cursim),")"),
                   if(title) grid.text(layerNames(grobToPlot),
                                     name="title", y=1.08, vjust=0.5, gp = gp)

@@ -53,18 +53,27 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
 #    sim <- scheduleEvent(sim, simCurrentTime(sim)+1.0, "forestSuccession", "succession")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(vegMap,add=T,title=F)
-    grid.rect(y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
-    grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
+    #setColors(vegMap) <- vegMapColors[minValue(vegMap):maxValue(vegMap)]
+    Plot(vegMap)
+    Plot(trajMap)
+#     grid.rect(just="topright", y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
+#     grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim)+ simParams(sim)$forestSuccession$.plotInterval,
                          "forestSuccession", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(vegMap,add=T,title=F)
-    grid.rect(y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
-    grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
+    Plot(vegMap)
+    if(simCurrentTime(sim)<=3) {
+      seekViewport("vegMap")
+      grid.text(x=1.1,y=((minValue(vegMap)-1):(maxValue(vegMap)-1)/(maxValue(vegMap)-1)-0.5)/2.2+0.5,just="left",
+                as.character(lcc05VegReclass[minValue(vegMap):maxValue(vegMap),3]),
+                gp=gpar(cex=0.5))
+    }
+    Plot(trajMap)
+    #     grid.rect(y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
+#     grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
     dev(5); hist(getValues(vegMap)); dev(4)
 
     # schedule the next event
@@ -78,17 +87,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 forestSuccessionInit <- function(sim) {
-  # Reclassify lcc05 to trajMap
-#   lcc05 <<- if(!exists("lcc05"))
-#       raster("C:/shared/data/shared/LandCoverOfCanada2005_V1_4/LCC2005_V1_4a.tif")
-#    plot(lcc05)
-#   ext <- extent(-1073154,-987285,7438423,7512480)
-#   vegMap <<- crop(lcc05,ext)
 
-
-#, speedup=10, add=FALSE, col=list(brewer.pal(9,"YlGnBu"), brewer.pal(10,"Set3")))
-
-  # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "forestSuccession")
 
   return(invisible(sim))
@@ -99,13 +98,14 @@ forestSuccessionSuccession <- function(sim) {
   ageMap.v <- round(getValues(ageMap))+1
   trajMap.v <- getValues(trajMap)
     vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
-    vegMap <- raster(ageMap)
+#    vegMap <- raster(ageMap)
     vegMap <- RasterLayerNamed(setValues(vegMap,vegMap.v),name="vegMap")
-    setColors(vegMap) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
+  setColors(vegMap, n=12 ) <- vegMapColors
+
     assign("vegMap", vegMap, envir=.GlobalEnv)
   fireSpreadProb <<- RasterLayerNamed(reclassify(x=vegMap,
                                rcl=cbind(1:11,
-                                         c(0.24,0.23,0.23,0.24,0.22,0.25,0.1,0.1,0,0,0))),
+                                         c(0.22,0.22,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0))),
                                name="fireSpreadProb")
 
 
