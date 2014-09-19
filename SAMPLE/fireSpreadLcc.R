@@ -100,7 +100,7 @@ fireSpreadLccInit <- function(sim) {
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(fireSpreadProb), ncol=ncol(fireSpreadProb),
                   nrow=nrow(fireSpreadProb), vals=0)
-  names(Fires) <- "Fires"
+  name(Fires) <- "Fires"
   setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
   Fires <<- setValues(Fires, 0)
 

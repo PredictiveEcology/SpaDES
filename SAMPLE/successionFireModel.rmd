@@ -2,12 +2,13 @@
 ```{r load_data, cache=TRUE}
 library(SpaDES)
 rasterOptions(maxmemory=2e9)
-downloadRequired = TRUE
+downloadRequired = FALSE
 interactiveExtent = FALSE
 
-pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
+setwd("~")
+dir.create("spadesTmp")
+setwd(file.path("spadesTmp"))
 
-setwd(file.path("C:","shared"))
 if(downloadRequired) {
 
   # 46MB file
@@ -22,28 +23,28 @@ if(downloadRequired) {
 
 
 fileList <- data.frame(files=c("LCC2005_V1_4a.tif",
-                               #"C:/shared/age/age.asc"),
                                "age.tif"),
                        functions="raster", packages="raster",
                        objectNames=c("lcc05","age"),
-#                       .stackName="landscape",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
-ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
-#ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+#ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
+ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
 
 if(interactiveExtent) {
   dev(4)
   plot(lcc05)
   ext <- drawExtent()
 }
-vegMap <- crop(lcc05,ext)
-if(ncell(vegMap)>1e6) beginCluster(10)
-ageMap <- projectRaster(age, to=vegMap, method="ngb")
+vegMapLcc <- crop(lcc05,ext)
+if(ncell(vegMapLcc)>1e6) beginCluster(10)
+# age will not run with projectRaster directly. Instead, project the vegMap to age, then crop, then project back to vegMap
+vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
+age.crsAge <- crop(age, vegMapLcc.crsAge)
+ageMap <- projectRaster(age.crsAge, to=vegMapLcc, method="ngb")
+
 endCluster()
                                    
-setwd("c:/Eliot/GitHub/SpaDES/SAMPLE/")
-writeRaster(vegMap, filename="vegMap.tif", overwrite=TRUE)
 writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
 ```
 
@@ -65,9 +66,9 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
                                           "3,4,5,13,14,15", "34", "37",
                                           "6,7,8,9,10"), class = "factor"),
          Trajectory=structure(c(2L, 5L, 7L, 6L, 8L, 9L, 1L, 10L, 11L, 3L, 4L),
-                                .Label=c("1,2,3,4,5,6,7", "1,3,4,5,6", "10",
+                                .Label=c("1,2,3,4,5,6", "1,3,4,5,6", "10",
                                          "11", "2,4", "3,4,5", "3,4,6", "6",
-                                         "7", "8", "9"), class = "factor"),
+                                         "6", "8", "9"), class = "factor"),
          Description=structure(c(2L, 7L, 6L, 4L, 9L, 5L, 1L, 11L, 10L, 3L, 8L),
                                .Label=c("Burned", "Closed coniferous", "Cropland",
                                         "Deciduous", "Herbaceous", "Mixedwood",
@@ -92,15 +93,34 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
     .Names = c("LCC05.classes", "VEG.reclass", "Description"),
     class = "data.frame", row.names = c(NA, -11L))
 
-  lcc05Labels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
-  numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
-#   lcc05VegTable <- cbind(lcc05Labels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-#   vegMap <- reclassify(vegMap, lcc05VegTable)
 
-  lcc05Labels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
+  lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
+  numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
+   lcc05VegTable <- cbind(lcc05VegLabels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
+   vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
+   vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
+                                                                 lcc05VegTable[,2])]+1)]
+   setColors(vegMap, n=12 ) <- vegMapColors
+  
+  # the raster package does not keep colors when writing to a tif file
+   writeRaster(vegMap, filename="vegMap.tif", overwrite=TRUE)
+
+  lcc05TrajLabels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
   numLccInTraj <- sapply(strsplit(unname(sapply(as.character(lcc05TrajReclass$LCC05.classes), function(x) x)), ","), length)
-  lcc05TrajTable <- cbind(lcc05Labels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
-  trajMap <- reclassify(vegMap, lcc05TrajTable)
+
+  lcc05TrajReclass$TrajectoryNum <- lapply(as.character(
+    lcc05TrajReclass$Trajectory), function(x) as.numeric(strsplit(x,",")[[1]]))
+
+  lcc05TrajTable <- cbind(
+    lcc05TrajLabels,
+    unlist(
+      lapply(1:length(lcc05TrajReclass$TrajectoryNum),
+             function(x) 
+               sample(lcc05TrajReclass$TrajectoryNum[[x]],
+                      numLccInTraj[x],replace=T))))
+
+#  lcc05TrajTable <- cbind(lcc05TrajLabels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
+  trajMap <- reclassify(vegMapLcc, lcc05TrajTable)
   setColors(trajMap) <- brewer.pal(9, "YlGn")
   name(trajMap) <- "trajMap"
 
@@ -131,31 +151,34 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
   maxAge <- 200
   ages <- 0:maxAge
 
-  trajObj1 <- apply(trajObj.raw[,-1],1,function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
-  trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland"), each=maxAge+1), ncol=4))
-  trajObj <<- matrix(match(trajObj2, lcc05VegReclass$Description), ncol=11)
+
+  trajObj1 <- apply(trajObj.raw[-4,-c(1)],1,function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
+  trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland","Other"), each=maxAge+1), ncol=5))
+  trajObj <<- matrix(match(trajObj2, 
+                           as.character(lcc05TrajReclass$Description))
+                     , ncol=ncol(trajObj2))
 
 ```
 
 ```{r prepare_simInit}
-fileList <- data.frame(files=c("c:/Eliot/GitHub/SpaDES/SAMPLE/vegMap.tif",
-                               "c:/Eliot/GitHub/SpaDES/SAMPLE/ageMap.tif"),#
+fileList <- data.frame(files=c("vegMap.tif",
+                               "ageMap.tif"),
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 
-times=list(start=0.0, stop=20)
+times=list(start=0.0, stop=200)
 #loadFiles(fileList=fileList)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                   .progress=list(.graphical=FALSE, .progressInterval=2),
+                   .progress=list(.graphical=TRUE, .progressInterval=2),
                    .loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
-                                   .plotInitialTime=NA, .plotInterval=1),
-                   forestAge=list(returnInterval=NA, startTime=0.5,
-                                        .plotInitialTime=NA, .plotInterval=1),
-                   fireSpreadLcc=list(nFires= 1e2, #spreadprob=0.225,
+                                   .plotInitialTime=1, .plotInterval=1),
+                   forestAge=list(returnInterval=1, startTime=0.5,
+                                        .plotInitialTime=1, .plotInterval=1),
+                   fireSpreadLcc=list(nFires= 10, #spreadprob=0.225,
                                       its=1e6,
-                                   persistprob=0, returnInterval=1, startTime=0,
-                                   .plotInitialTime=NA, .plotInterval=1)
+                                   persistprob=0, returnInterval=1, startTime=1,
+                                   .plotInitialTime=1, .plotInterval=1)
 #                   caribouMovement=list(N=1e2, moveInterval=1,
 #                                        .plotInitialTime=1.01, .plotInterval=1)
 )
