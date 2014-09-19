@@ -351,13 +351,11 @@ setMethod("plotGrob",
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
 
-            browser()
             if(maxv<=1) {
               maxcol = maxv*47
             } else {
-              maxcol = round(maxv - minv) + 1 + addedNACol + 1 # need one for the NA at the bottom
+              maxcol = length(col) # need one for the NA at the bottom
             }
-
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,
                               pr=pr,col=col,
@@ -569,6 +567,7 @@ setMethod("drawArrows",
                  upViewport(0)
      })
 
+
 #####################
 #' Fast, optimally arranged, multipanel plotting function with spades
 #'
@@ -716,7 +715,7 @@ setGeneric("Plot", signature="...",
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
                     pch = 19, title=TRUE) {
              standardGeneric("Plot")
- })
+           })
 
 
 #' @export
@@ -742,12 +741,12 @@ setMethod("Plot",
               } else {
                 stacksInArr <- list(NULL)
               }
-#              if(!is.null(addTo)) add <- TRUE
+              #              if(!is.null(addTo)) add <- TRUE
             }
 
             lN <- layerNames(toPlot)
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
-                                                 "inside RasterStacks"))
+                                               "inside RasterStacks"))
             if(is.null(addTo)) {
               addTo <- lN
             } else {
@@ -788,7 +787,7 @@ setMethod("Plot",
             # get extents from all SpatialPoints*, Rasters*, including Stacks
             if(is.null(zoomExtent)) {
               extsToPlot <- rep(sapply(toPlot, extent),
-                            sapply(toPlot, function(x) length(layerNames(x))))
+                                sapply(toPlot, function(x) length(layerNames(x))))
             } else {
               extsToPlot <- rep(list(zoomExtent),
                                 sapply(toPlot, function(x) length(layerNames(x))))
@@ -891,6 +890,7 @@ setMethod("Plot",
                                                 "Try add=F or change device to",
                                                 "one that has a plot named",addTo[whGrobNamesi]))
 
+              # Get the object from the environment
               if(!grobNamesi %in% lN) { # Is this an overplot
                 if(length(stacksInArr)>0) {
                   # only take first one, if there are more than one. First one is most recent
@@ -900,168 +900,50 @@ setMethod("Plot",
                   isPrevLayerInStack = NA
                 }
 
-                # Get the object from the environment
                 if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
                   grobToPlot <- get(grobNamesi)
                 } else {
                   grobToPlot <- get(names(isPrevLayerInStack))[[grobNamesi]]
                 }
                 if(is(grobToPlot, "Raster")) {
-                  if(sapply(getColors(grobToPlot),length)>0) {
-                    cols <- getColors(grobToPlot)[[1]]
-
-                    # If there is a legend that is too long for the number of values, this chops
-                    #  off the extraneous ones because the as.raster below will match min-max on
-                    #  both col and values, which is not the desired behaviour
-                    #   if(length(col)>(maxValue(grobToPlot)+1)) {
-                    #     col <- col[1:maxValue(grobToPlot)+1]
-                    #   }
-                  } else {
-                    cols=topo.colors(50)
-                  }
-
-                  # subsample for speed of plotting - taken from .plotCT in package "raster"
                   if(is.null(zoomExtent)) {
                     zoom <- extent(grobToPlot)
                   } else {
                     zoom <- zoomExtent
                   }
-                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
-                                              ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+                  legendRange = NA
+                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange)
 
-                  z <- getValues(grobToPlot)
-                  minz <- min(z, na.rm=T)
-                  maxz <- max(z, na.rm=T)
-
-                  # if data in raster are proportions, must treat colors differently
-                  if(maxz <= 1) {
-                    if(length(unique(z))>length(cols)) {
-                      cols <- colorRampPalette(cols)(50)
-                      z = z*50
-                    }
-                  }
-
-                  if((maxz-minz)==0) { # prevent meaningless legend if there is no variation
-                    legend <- FALSE
-                  }
-
-                  if((maxz-minz+1)<=length(cols)) { # correct, but add NA color, if not already there
-                    if(!grepl(pattern = "000000",cols[1]) & !grepl(pattern = "FFFFFF",cols[1])) {
-                      cols <- c("#FFFFFF00",cols) # NA is white and transparent
-                      addedNACol = TRUE
-                    } else {
-                      addedNACol = FALSE
-                    }
-
-                  } else if ((maxz-minz+1)>length(cols)) { # if not enough colors, make more
-                    cols <- colorRampPalette(cols)(maxz-minz+1)
-                  }
-
-                  # colors are indexed from 1, as with all objects in R, but there are generally
-                  #  zero values on the rasters, so shift by 1
-                  z <- z + 1
-                  z[is.na(z)] <- 1
-
-                  z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
                 } else {
-                  len <- length(caribou)
+                  len <- length(grobToPlot)
                   if(len<(1e4/speedup)) {
-                    z <- grobToPlot
+                    z <- get(grobNamesi)
                   } else {
-                    z <- sample(grobToPlot, 1e4/speedup)
+                    z <- sample(get(grobNamesi), 1e4/speedup)
                   }
+                  zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
                 }
-
-                plotGrob(z, col = cols, size=unit(size,"points"),
-                         minv=minz,
-                         maxv=maxz,
-                         vp=NULL, pch=pch,
-                         legend = legend, addedNACol = addedNACol,
-                         gp = gp, draw = draw)
-                if(title) grid.text(grobNamesi, name="title", y=1.06, vjust=0.5, gp = gp)
-
 
               } else { # Is this a new plot to be added or plotted
 
                 toPlotInd <- which(!is.na(sapply(layerLengths,
-                                                  function(x) match(grobNamesi,x))))
+                                                 function(x) match(grobNamesi,x))))
                 if(is(toPlot[[toPlotInd]],"RasterStack")) {
                   grobToPlot = toPlot[[toPlotInd]][[grobNamesi]]
                 } else {
                   grobToPlot = toPlot[[toPlotInd]]
                 }
 
-                browser()
                 if(is(grobToPlot, "Raster")) {
-                  if(sapply(getColors(grobToPlot),length)>0) {
-                    cols <- getColors(grobToPlot)[[1]]
-
-                    # If there is a legend that is too long for the number of values, this chops
-                    #  off the extraneous ones because the as.raster below will match min-max on
-                    #  both col and values, which is not the desired behaviour
-                  #   if(length(col)>(maxValue(grobToPlot)+1)) {
-                  #     col <- col[1:maxValue(grobToPlot)+1]
-                  #   }
-                  } else {
-                    cols=topo.colors(50)
-                  }
-
-                  # subsample for speed of plotting - code taken from .plotCT in package "raster"
                   if(is.null(zoomExtent)) {
                     zoom <- extent(grobToPlot)
                   } else {
                     zoom <- zoomExtent
                   }
-                  grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
-                                              ext=zoom, asRaster=TRUE, useGDAL=TRUE)
-                  z <- getValues(grobToPlot)
-                  minz <- min(z, na.rm=T)
-                  maxz <- max(z, na.rm=T)
-
-                  # if data in raster are proportions, must treat colors differently
-                  if(maxz <= 1) {
-                    if(length(unique(z))>length(cols)) {
-                      cols <- colorRampPalette(cols)(50)
-                      z <- z*49
-                    }
-                  }
-
-                  # Single value rasters
-                  if((maxz-minz)==0) {
-                    legend <- FALSE
-                  }
-
-                  # If there aren't enough colors to also give NAs a color
-                  if((maxz-minz+1)<=length(cols)) { # correct, but add NA color
-                    if(!grepl(pattern = "^#000000",cols[1]) & !grepl(pattern = "^#FFFFFF",cols[1])) {
-                      cols <- c("#FFFFFF00",cols) # NA is white and transparent
-                      addedNACol = TRUE
-                    } else {
-                      addedNACol = FALSE
-                    }
-                  } else if ((maxz-minz+1)>length(cols)) { # if not enough colors, make more
-                    cols <- colorRampPalette(cols)(maxz-minz+1)
-                  }
-
-                  if(!is.null(legendRange)){
-                    if((diff(legendRange)+1)<length(cols)) {
-                      message(paste0("legendRange is not wide enough, using default"))
-                    } else {
-                      cols <- colorRampPalette(cols)(diff(legendRange)+1)
-                      minz <- min(legendRange)
-                      maxz <- max(legendRange)
-                    }
-                  }
-
-
-                  # colors are indexed from 1, as with all objects in R, but there are generally
-                  #  zero values on the rasters, so shift by 1
-                  z <- z + 1
-                  z[is.na(z)] <- 1
-
-                  z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
-                } else {
-                  len <- length(caribou)
+                  if(is.null(legendRange)) legendRange = NA
+                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange)
+                } else { # Not a Raster, i.e., a SpatialPoint* object
+                  len <- length(grobToPlot)
                   if(len<(1e4/speedup)) {
                     z <- grobToPlot
                   } else {
@@ -1069,17 +951,16 @@ setMethod("Plot",
                   }
                 }
 
-                plotGrob(z, col = cols, size=unit(size,"points"),
-                         minv=minz,
-                         maxv=maxz,
-                         vp=NULL, pch=pch, name = layerNames(grobToPlot),
-                         legend = legend, addedNACol = addedNACol,
-                         gp = gp, draw = draw)
-#                if(title) grid.text(paste0(layerNames(grobToPlot)," (t=",simCurrentTime(cursim),")"),
-                  if(title) grid.text(layerNames(grobToPlot),
-                                    name="title", y=1.08, vjust=0.5, gp = gp)
-#                }
               }
+              plotGrob(zMat$z, col = zMat$cols, size=unit(size,"points"),
+                       minv=zMat$minz,
+                       maxv=zMat$maxz,
+                       vp=NULL, pch=pch, name = layerNames(grobToPlot),
+                       legend = legend,
+                       gp = gp, draw = draw)
+              if(title) grid.text(layerNames(grobToPlot),
+                                  name="title", y=1.08, vjust=0.5, gp = gp)
+
               if(xaxis) grid.xaxis(name="xaxis", gp = gp)
               if(yaxis) grid.yaxis(name="yaxis", gp = gp)
             }
@@ -1091,4 +972,87 @@ setMethod("Plot",
               arr@stack <- arr@stack[!duplicated(arr@stack)]
             }
             assign(paste0(".spadesArr",dev.cur()), arr, envir=.GlobalEnv)
+          })
+
+
+
+#' Convert Raster to color matrix useable by raster function for plotting
+#'
+#' @param grobToPlot a SpatialObject
+#' @param zoomExtent an extent object for zooming to. Defaults to whole extent of grobToPlot
+#' @param maxpixels numeric. Number of cells to subsample the complete grobToPlot
+#' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
+#' a legend that will override the data bounds contained within the grobToPlot
+#' @rdname makeColorMatrix
+#' @export
+#' @docType methods
+setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange) {
+  standardGeneric("makeColorMatrix")
 })
+
+
+#' @rdname makeColorMatrix
+#' @export
+setMethod("makeColorMatrix",
+          signature=c("Raster","Extent","numeric","ANY"),
+          definition= function(grobToPlot, zoomExtent, maxpixels, legendRange) {
+
+            if(sapply(getColors(grobToPlot),length)>0) {
+              cols <- getColors(grobToPlot)[[1]]
+
+              # If there is a legend that is too long for the number of values, this chops
+              #  off the extraneous ones because the as.raster below will match min-max on
+              #  both col and values, which is not the desired behaviour
+              #   if(length(col)>(maxValue(grobToPlot)+1)) {
+              #     col <- col[1:maxValue(grobToPlot)+1]
+              #   }
+            } else {
+              cols=topo.colors(50)
+            }
+            zoom <- zoomExtent
+            grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
+                                        ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+            z <- getValues(grobToPlot)
+
+            minz <- min(z, na.rm=T)
+            maxz <- max(z, na.rm=T)
+
+            #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
+            # if data in raster are proportions, must treat colors differently
+            if(maxz <= 1) {
+              if(length(unique(z))>length(cols)) {
+                cols <- colorRampPalette(cols)(50)
+
+                z <- z*49
+              }
+            }
+
+            # Single value rasters
+            if((maxz-minz)==0) {
+              legend <- FALSE
+            }
+
+            if ((maxz-minz+1)>length(cols)) { # if not enough colors, make more
+              cols <- colorRampPalette(cols)(maxz-minz+1)
+            }
+
+            if(any(!is.na(legendRange))){
+               if((diff(legendRange)+1)<length(cols)) {
+                 message(paste0("legendRange is not wide enough, using default"))
+               } else {
+                cols <- colorRampPalette(cols)(diff(legendRange)+1)
+                minz <- min(legendRange)
+                maxz <- max(legendRange)
+               }
+            }
+
+
+            # colors are indexed from 1, as with all objects in R, but there are generally
+            #  zero values on the rasters, so shift by 1
+            z <- z + 1
+            z[is.na(z)] <- 1
+#             if((length(cols)+1)==(maxz-minz+2))
+#               cols=c("#FFFFFFFF",cols)
+            z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+            list(z=z,minz=minz,maxz=maxz,cols=cols)
+          })
