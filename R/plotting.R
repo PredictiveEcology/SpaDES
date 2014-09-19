@@ -352,7 +352,11 @@ setMethod("plotGrob",
             pr <- pr[pr>=minv]
 
             if(maxv<=1) {
-              maxcol = maxv*47
+              if(maxv>0) {
+                maxcol = maxv*47
+              } else {
+                maxcol=1
+              }
             } else {
               maxcol = length(col) # need one for the NA at the bottom
             }
@@ -949,6 +953,7 @@ setMethod("Plot",
                   } else {
                     z <- sample(grobToPlot, 1e4/speedup)
                   }
+                  zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
                 }
 
               }

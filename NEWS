@@ -1,4 +1,12 @@
 Known issues: https://github.com/achubaty/SpaDES/issues
+version 0.4.0
+=============
+* second public ("beta") release
+* more improvements to Plot function, including dramatically faster for files on disk
+* added second "Model" that adds and integrates 3 sample modules, Fire, Succession and Aging
+* added Plotting vignette
+* bugfixes
+
 
 version 0.3.1
 =============
@@ -8,8 +16,8 @@ version 0.3.1
 * added additional parameter checks and improved debugging
 * new and improved documentation:
     - two new vignettes (introduction to SpaDES and how modules work)
-	- new demo highlighting visualization components
-	- more complete code documentation
+    - new demo highlighting visualization components
+    - more complete code documentation
 * numerous bug fixes
 
 version 0.2
