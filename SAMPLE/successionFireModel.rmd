@@ -11,7 +11,7 @@ setwd(file.path("spadesTmp"))
 
 if(downloadRequired) {
 
-  # 46MB file
+  #46MB file
   fN <- "lcc05.zip"
   download.file("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip", fN, mode="wb")
   unzip(fN, files="LCC2005_V1_4a.tif")
@@ -121,7 +121,7 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
 
 #  lcc05TrajTable <- cbind(lcc05TrajLabels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
   trajMap <- reclassify(vegMapLcc, lcc05TrajTable)
-  setColors(trajMap) <- brewer.pal(9, "YlGn")
+  setColors(trajMap,n=12) <- brewer.pal(9, "YlGn")
   name(trajMap) <- "trajMap"
 
   # trajObj.raw <- read.table(file="clipboard", sep="\t", header=TRUE, stringsAsFactors=FALSE)
