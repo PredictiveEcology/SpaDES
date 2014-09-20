@@ -4,15 +4,17 @@
 
 Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
-*Website:* [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
+**Website:** [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
 
 ## Installation
 
-To install `SpaDES` from github you will need the `devtools` package:
+To install a prebuilt `SpaDES` binary (.zip file) or source file, go to: [Version 0.4.0 zip](https://github.com/achubaty/SpaDES/blob/master/SpaDES_0.4.0.zip?raw=true) or [Version 0.4.0 tar.gz](https://github.com/achubaty/SpaDES/blob/master/SpaDES_0.4.0.tar.gz?raw=true).
+
+To install `SpaDES` directly from github you will need the `devtools` package:
 
     install.packages("devtools")
     library("devtools")
-
+	
     install_github("achubaty/SpaDES")
 
 **NOTE:** you may get errors relating to not having installed the software tools requried for building R packages on your system:
