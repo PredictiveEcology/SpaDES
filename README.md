@@ -8,7 +8,9 @@ Implement a variety of simulation models, with a focus on spatially explicit ras
 
 ## Installation
 
-To install `SpaDES` from github you will need the `devtools` package:
+To install a prebuilt `SpaDES` binary (.zip file) or source file, go to: [Version 0.4.0 zip](https://github.com/achubaty/SpaDES/blob/master/SpaDES_0.4.0.zip?raw=true) or [Version 0.4.0 tar.gz](https://github.com/achubaty/SpaDES/blob/master/SpaDES_0.4.0.tar.gz?raw=true).
+
+To install `SpaDES` directly from github you will need the `devtools` package:
 
     install.packages("devtools")
     library("devtools")
