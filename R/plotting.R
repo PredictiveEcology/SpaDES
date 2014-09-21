@@ -1014,3 +1014,30 @@ setMethod("makeColorMatrix",
             z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
             list(z=z,minz=minz,maxz=maxz,cols=cols)
           })
+
+#' @export
+unittrim <- function(unit) {
+       as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(unit)))
+   }
+
+##############################################################
+#' Retrieve values on a Plot at clicked points
+#'
+#' Equivalent to running \code{X[SpatialPoints(locator(n))]} in base graphics. This
+#' silently calls a \code{seekViewport(layerName(X))} before calling \code{grid.locator()}.
+#'
+#' @param X The plot name to get values on. This must be the correct name for the plot
+#' on which the mouse clicks occur.
+#'
+#' @return The values on the X at the clicked points
+#'
+#' @export
+#' @docType methods
+#' @rdname valueAtClicks
+valueAtClicks <- function(X, n=1, ...) {
+  pts=matrix(ncol=2,nrow=n)
+  seekViewport(layerNames(X))
+  for(i in 1:n)
+    pts[i,] <- unittrim(grid.locator())
+  X[SpatialPoints(pts)]
+}
