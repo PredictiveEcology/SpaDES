@@ -972,12 +972,15 @@ setMethod("makeColorMatrix",
                                         ext=zoom, asRaster=TRUE, useGDAL=TRUE)
             z <- getValues(grobToPlot)
 
-            minz <- min(z, na.rm=T)
-            maxz <- max(z, na.rm=T)
-
+            # It is 5x faster to access the min and max from the Raster than to calculate it
+            minz <- minValue(grobToPlot)
+            maxz <- maxValue(grobToPlot)
+#             minz <- min(z, na.rm=T)
+#             maxz <- max(z, na.rm=T)
+browser()
             #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
             # if data in raster are proportions, must treat colors differently
-            if(maxz <= 1) {
+            if(maxz <= 1 & minz >= 0) {
               if(length(unique(z))>length(cols)) {
                 cols <- colorRampPalette(cols)(50)
 
