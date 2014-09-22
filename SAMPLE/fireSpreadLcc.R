@@ -101,7 +101,8 @@ fireSpreadLccInit <- function(sim) {
   Fires <- raster(extent(fireSpreadProb), ncol=ncol(fireSpreadProb),
                   nrow=nrow(fireSpreadProb), vals=0)
   name(Fires) <- "Fires"
-  setColors(Fires,n=10) <- c("#FFFFFF", rev(heat.colors(9)))
+  setColors(Fires,n=simParams(sim)$fireSpreadLcc$nFires+1) <-
+    c("#FFFFFF", rev(heat.colors(simParams(sim)$fireSpreadLcc$nFires)))
   Fires <<- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
@@ -129,8 +130,8 @@ fireSpreadLccBurn <- function(sim) {
                    plot.it=FALSE,
                    mapID=TRUE)
   names(Fires) <- "Fires"
-  setColors(Fires,n=10) <- c("#FFFFFF", rev(heat.colors(9)))
-#  landscapes$Fires <- Fires
+  setColors(Fires,n=simParams(sim)$fireSpreadLcc$nFires+1) <- c("#FFFFFF", rev(heat.colors(simParams(sim)$fireSpreadLcc$nFires)))
+  #  landscapes$Fires <- Fires
 
   assign("Fires", Fires, envir=.GlobalEnv)
 

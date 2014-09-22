@@ -305,7 +305,6 @@ setMethod("plotGrob",
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
-
             if(maxv<=1) {
               if(maxv>0) {
                 maxcol = maxv*47
@@ -313,8 +312,13 @@ setMethod("plotGrob",
                 maxcol=1
               }
             } else {
-              maxcol = length(col) # need one for the NA at the bottom
+              maxcol = maxv - minv + max(1,-minv+1) + 1 # need one for the NA at the bottom,
+                            #one for the zero at the bottom, if there, and one
+                            #for when taking a difference between two numbers-- need to include
+                            # both numbers
             }
+
+
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,
                               pr=pr,col=col,
@@ -948,7 +952,8 @@ browser()
 #' @rdname makeColorMatrix
 #' @export
 #' @docType methods
-setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange) {
+setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
+                                       na.color="white") {
   standardGeneric("makeColorMatrix")
 })
 
@@ -957,7 +962,8 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 #' @export
 setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
-          definition= function(grobToPlot, zoomExtent, maxpixels, legendRange) {
+          definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
+                               na.color) {
 
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
@@ -972,13 +978,13 @@ setMethod("makeColorMatrix",
               cols=topo.colors(50)
             }
             zoom <- zoomExtent
+            # It is 5x faster to access the min and max from the Raster than to calculate it
+            minz <- minValue(grobToPlot)
+            maxz <- maxValue(grobToPlot)
             grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                         ext=zoom, asRaster=TRUE, useGDAL=TRUE)
             z <- getValues(grobToPlot)
 
-            # It is 5x faster to access the min and max from the Raster than to calculate it
-            minz <- minValue(grobToPlot)
-            maxz <- maxValue(grobToPlot)
 #             minz <- min(z, na.rm=T)
 #             maxz <- max(z, na.rm=T)
             #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
@@ -1010,13 +1016,16 @@ setMethod("makeColorMatrix",
                }
             }
 
-
             # colors are indexed from 1, as with all objects in R, but there are generally
-            #  zero values on the rasters, so shift by 1
-            z <- z + 1
+            #  zero values on the rasters, so shift according to the minValue value, if
+            # it is below 1. Shift it by 2, 1 to make the zeros into two, the other for the NAs
+            #  to be ones
+            z <- z + ((minz<1) * (-minz + 1)) # for the values if below 1
+
+            z <- z + 1 # for the NAs
             z[is.na(z)] <- 1
-#             if((length(cols)+1)==(maxz-minz+2))
-#               cols=c("#FFFFFFFF",cols)
+
+            cols=c(na.color,cols) # make first index of colors be white, transparent
             z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
             list(z=z,minz=minz,maxz=maxz,cols=cols)
           })

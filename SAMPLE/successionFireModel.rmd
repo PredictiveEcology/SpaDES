@@ -168,10 +168,10 @@ fileList <- data.frame(files=c("vegMap.tif",
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 
-times=list(start=0.0, stop=200)
+times=list(start=0.0, stop=100)
 #loadFiles(fileList=fileList)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                   .progress=list(.graphical=TRUE, .progressInterval=2),
+                   .progress=list(.graphical=TRUE, .progressInterval=1),
                    .loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
                                    .plotInitialTime=1, .plotInterval=1),
@@ -193,6 +193,10 @@ path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 ```{r run_spades}
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 dev(4)#pdf("test.pdf")
+# for(i in 1:2) {
+#   print(system.time(mySim <- spades(mySim, debug=F)))
+#   simStopTime(mySim) <- i + 1
+# }
 print(system.time(mySim <- spades(mySim, debug=F)))
 #simStopTime(mySim)<-20
 #dev.off()
