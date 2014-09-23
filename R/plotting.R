@@ -811,7 +811,6 @@ setMethod("Plot",
 
             lay <- makeLayout(arr, visualSqueeze, legend, axes)
             arr@layout <- lay
-browser()
 
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
@@ -1035,23 +1034,9 @@ unittrim <- function(unit) {
        as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(unit)))
    }
 
-##############################################################
-#' Retrieve values on a Plot at clicked points
-#'
-#' Equivalent to running \code{X[SpatialPoints(locator(n))]} in base graphics. This
-#' silently calls a \code{seekViewport(layerName(X))} before calling \code{grid.locator()}.
-#'
-#' @param X The plot name to get values on. This must be the correct name for the plot
-#' on which the mouse clicks occur.
-#'
-#' @return The values on the X at the clicked points
-#'
-#' @export
-#' @docType methods
-#' @rdname valueAtClicks
 valueAtClicks <- function(X, n=1, gl=NULL, ...) {
   pts=matrix(ncol=2,nrow=n)
-  seekViewport(X)
+  seekViewport(layerNames(X))
   for(i in 1:n) {
     if(is.null(gl)) {
       gl <- grid.locator()
@@ -1060,9 +1045,25 @@ valueAtClicks <- function(X, n=1, gl=NULL, ...) {
       pts[i,] <- c(convertX(gl$x, "native"), convertY(gl$y, "native"))
     }
   }
-  return(data.frame(map=X, values=get(X)[SpatialPoints(pts)]))
+
+  return(data.frame(map=layerNames(X), values=X[SpatialPoints(pts)], stringsAsFactors = FALSE))
 }
 
+##############################################################
+#' Retrieve values on a Plot at clicked points
+#'
+#' Equivalent to running \code{X[SpatialPoints(locator(n))]} in base graphics, but it
+#' determines which grid location the click occurs in. This determines which place in the
+#' grid.layout was clicked and makes all appropriate calculations to determine the value
+#' on the raster(s) at that or those location(s)
+#'
+#' @param n The number of mouse clicks to do
+#'
+#' @return The layer names and values at the clicked points
+#'
+#' @export
+#' @docType methods
+#' @rdname valuesAtClicks
 valuesAtClicks <- function(n=1, ...) {
   dc <- dev.cur()
   arr <- get(paste0(".spadesArr",dc))
@@ -1087,26 +1088,20 @@ valuesAtClicks <- function(n=1, ...) {
   npcForNulls <- nulls*remaining/sum(nulls)
   heightNpcs <- c(npcs,npcForNulls)[order(c(grepNpcsH,grepNullsH))]
 
-  seekViewport("top")
-  gloc = matrix(nrow=n, ncol=2)
-  xInt = numeric(length=n)
-  yInt = numeric(length=n)
-  column = numeric(length=n)
-  rows = numeric(length=n)
-  browser()
+  vAC = data.frame(map=NA_character_, values=NA_real_, stringsAsFactors = FALSE)
+
   for(i in 1:n) {
-    gloc[i,] <- unlist(grid.locator(unit="npc"))
-    xInt[i] <- findInterval(gloc[i,1], c(0,cumsum(widthNpcs)))
-    yInt[i] <- findInterval(gloc[i,2], c(0,cumsum(heightNpcs)))
-    if(!(xInt[i] %in% grepNpcsW) & !(yInt[i] %in% grepNpcsH)) {
+    seekViewport("top")
+    gloc <- grid.locator(unit="npc")
+    xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x),"npc")[[1]]), c(0,cumsum(widthNpcs)))
+    yInt <- findInterval(1-as.numeric(strsplit(as.character(gloc$y),"npc")[[1]]), c(0,cumsum(heightNpcs)))
+    if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")
     }
-    column[i] <-  which(xInt[i]==grepNpcsW)
-    row[i] <- which(yInt[i]==grepNpcsH)
-    map[i] <- column[i] + (row[i]-1)*arr@columns
+    column <-  which(xInt==grepNpcsW)
+    row <- which(yInt==grepNpcsH)
+    map <- column + (row-1)*arr@columns
+    vAC[i,] <- valueAtClicks(get(arr@names[map]), n=1, gl=gloc)
   }
-  #seekViewport(arr@names[map])
-
-  valueAtClicks(arr@names[map], n=n, gl=gloc, xInt, yInt)
-
+  return(vAC)
 }

@@ -193,3 +193,14 @@ if(is.null(dev.list())) {
  }
 }
 ```
+
+# Interacting with plots
+
+## valuesAtClicks
+
+This can be used to obtain the values on the plotting device at the locations of the mouse clicks. This will work on multiplanel plots.
+
+```{r valuesAtClicks, eval=FALSE, echo=TRUE}
+Plot(landscape)
+valuesAtClicks(3) #click at three locations on the Plot device
+```
