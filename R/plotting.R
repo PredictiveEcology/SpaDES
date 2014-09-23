@@ -996,26 +996,9 @@ unittrim <- function(unit) {
        as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(unit)))
    }
 
-#' @export
-#' @docType methods
-#' @rdname valuesAtClicks
-valueAtClick <- function(X, n=1, gl=NULL, ...) {
-  pts=matrix(ncol=2,nrow=n)
-  seekViewport(layerNames(X))
-  for(i in 1:n) {
-    if(is.null(gl)) {
-      gl <- grid.locator()
-      pts[i,] <- unittrim(gl)
-    } else {
-      pts[i,] <- c(convertX(gl$x, "native"), convertY(gl$y, "native"))
-    }
-  }
-
-  return(data.frame(map=layerNames(X), values=X[SpatialPoints(pts)], stringsAsFactors = FALSE))
-}
 
 ##############################################################
-#' Retrieve values on a Plot at clicked points
+#' Mouse interactions with Plots
 #'
 #' Equivalent to running \code{X[SpatialPoints(locator(n))]} in base graphics, but it
 #' determines which grid location the click occurs in. This determines which place in the
@@ -1028,14 +1011,23 @@ valueAtClick <- function(X, n=1, gl=NULL, ...) {
 #'
 #' @export
 #' @docType methods
-#' @rdname valuesAtClicks
+#' @rdname spadesMouseClicks
 valuesAtClicks <- function(n=1, ...) {
+  coords <- clickCoordinates(n=n)
+  coords$value = sapply(1:n, function(i) get(coords[i,1],envir=.GlobalEnv)[cellFromXY(get(coords[i,1],envir=.GlobalEnv),coords[i,2:3])])
+  return(coords)
+}
+
+#' @export
+#' @docType methods
+#' @rdname valuesAtClicks
+clickCoordinates <- function(n=1, ...) {
   dc <- dev.cur()
   arr <- get(paste0(".spadesArr",dc))
   gl <- grid.layout(nrow=arr@rows*2+1,
-             ncol=arr@columns*2+1,
-             widths=arr@layout$wdth,
-             heights=arr@layout$ht)
+                    ncol=arr@columns*2+1,
+                    widths=arr@layout$wdth,
+                    heights=arr@layout$ht)
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
@@ -1053,13 +1045,17 @@ valuesAtClicks <- function(n=1, ...) {
   npcForNulls <- nulls*remaining/sum(nulls)
   heightNpcs <- c(npcs,npcForNulls)[order(c(grepNpcsH,grepNullsH))]
 
-  vAC = data.frame(map=NA_character_, values=NA_real_, stringsAsFactors = FALSE)
+  clickCoords = data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
+  mapNames <- character(n)
+
+  grobLoc <- list()
 
   for(i in 1:n) {
     seekViewport("top")
     gloc <- grid.locator(unit="npc")
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x),"npc")[[1]]), c(0,cumsum(widthNpcs)))
-    # for the y, grid treats bottom left as origin, Plot treats top left... so, require 1-
+    # for the y, grid package treats bottom left as origin, Plot treats top left
+    #  as origin... so, require 1-
     yInt <- findInterval(1-as.numeric(strsplit(as.character(gloc$y),"npc")[[1]]), c(0,cumsum(heightNpcs)))
     if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")
@@ -1067,10 +1063,42 @@ valuesAtClicks <- function(n=1, ...) {
     column <-  which(xInt==grepNpcsW)
     row <- which(yInt==grepNpcsH)
     map <- column + (row-1)*arr@columns
-    vAC[i,] <- valueAtClick(get(arr@names[map]), n=1, gl=gloc)
+
+    maxLayX = cumsum(widthNpcs)[xInt]
+    minLayX = cumsum(widthNpcs)[xInt-1]
+    grobLoc$x <- unit((as.numeric(strsplit(as.character(gloc$x),"npc")[[1]])-minLayX)/(maxLayX-minLayX),"npc")
+
+    maxLayY = cumsum(heightNpcs)[yInt]
+    minLayY = cumsum(heightNpcs)[yInt-1]
+    grobLoc$y <- unit((as.numeric(strsplit(as.character(gloc$y),"npc")[[1]])-minLayY)/(maxLayY-minLayY),"npc")
+
+    clickCoords[i,] <- mouseCoord(get(arr@names[map]), n=1, gl=grobLoc)
+    mapNames[i] <- arr@names[map]
   }
-  return(vAC)
+  return(data.frame(map=mapNames, clickCoords, stringsAsFactors = FALSE))
 }
+
+
+#' @export
+#' @docType methods
+#' @rdname spadesMouseClicks
+mouseCoord <- function(X, n=1, gl=NULL, ...) {
+
+  pts=data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
+  seekViewport(layerNames(X))
+  for(i in 1:n) {
+    if(is.null(gl)) {
+      gl <- grid.locator()
+      pts[i,] <- unittrim(gl)
+    } else {
+      pts[i,] <- c(convertX(gl$x, "native"), convertY(gl$y, "native"))
+    }
+  }
+  #return(data.frame(map=layerNames(X), values=X[SpatialPoints(pts)], stringsAsFactors = FALSE))
+
+  return(pts)
+}
+
 
 
 identifyGrobToPlot <- function(grobNamesi, toPlot, lN, arr, layerLengths, stacksInArr) {
