@@ -7,7 +7,7 @@
 Plot(..., add = TRUE, addTo = NULL, gp = gpar(), axes = "L",
   speedup = 1, size = 5, cols, zoomExtent = NULL, visualSqueeze = 0.75,
   legend = TRUE, legendRange = NULL, draw = TRUE, pch = 19,
-  title = TRUE)
+  title = TRUE, na.color = "white")
 }
 \arguments{
 \item{...}{Raster* object(s) and or SpatialPoints*Named objects}
@@ -40,6 +40,8 @@ to be FALSE. Default is TRUE}
 \item{pch}{see ?par}
 
 \item{title}{Logical. Whether the names of each plot should be written above plots}
+
+\item{na.color}{string indicating the color for NA values. Defaults to "white".}
 
 \item{col}{character vector. Hex codes for colors. See Details.}
 }

@@ -592,6 +592,8 @@ setMethod("drawArrows",
 #' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
 #' to be FALSE. Default is TRUE
 #'
+#' @param na.color string indicating the color for NA values. Defaults to "white".
+#'
 #' @param pch see ?par
 #'
 #' @param title Logical. Whether the names of each plot should be written above plots
@@ -676,7 +678,7 @@ setGeneric("Plot", signature="...",
            function(..., add=TRUE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
-                    pch = 19, title=TRUE) {
+                    pch = 19, title=TRUE, na.color="white") {
              standardGeneric("Plot")
            })
 
@@ -686,7 +688,7 @@ setMethod("Plot",
           signature("spatialObjects"),
           definition = function(..., add, addTo, gp, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
-                                legend, legendRange, draw, pch, title) {
+                                legend, legendRange, draw, pch, title, na.color) {
             toPlot <- list(...)
 
 
@@ -876,7 +878,7 @@ setMethod("Plot",
                     zoom <- zoomExtent
                   }
                   legendRange = NA
-                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange)
+                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
 
                 } else {
                   len <- length(grobToPlot)
@@ -905,7 +907,7 @@ setMethod("Plot",
                     zoom <- zoomExtent
                   }
                   if(is.null(legendRange)) legendRange = NA
-                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange)
+                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
                 } else { # Not a Raster, i.e., a SpatialPoint* object
                   len <- length(grobToPlot)
                   if(len<(1e4/speedup)) {
@@ -952,7 +954,7 @@ setMethod("Plot",
 #' @export
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                                       na.color="white") {
+                                       na.color) {
   standardGeneric("makeColorMatrix")
 })
 
@@ -1094,6 +1096,7 @@ valuesAtClicks <- function(n=1, ...) {
     seekViewport("top")
     gloc <- grid.locator(unit="npc")
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x),"npc")[[1]]), c(0,cumsum(widthNpcs)))
+    # for the y, grid treats bottom left as origin, Plot treats top left... so, require 1-
     yInt <- findInterval(1-as.numeric(strsplit(as.character(gloc$y),"npc")[[1]]), c(0,cumsum(heightNpcs)))
     if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")

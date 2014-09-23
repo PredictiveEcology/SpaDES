@@ -5,10 +5,10 @@
 \alias{makeColorMatrix,Raster,Extent,numeric-method}
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
-makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange)
+makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, na.color)
 
 \S4method{makeColorMatrix}{Raster,Extent,numeric}(grobToPlot, zoomExtent,
-  maxpixels, legendRange)
+  maxpixels, legendRange, na.color)
 }
 \arguments{
 \item{grobToPlot}{a SpatialObject}

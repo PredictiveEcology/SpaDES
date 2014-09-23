@@ -168,7 +168,7 @@ fileList <- data.frame(files=c("vegMap.tif",
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 
-times=list(start=0.0, stop=100)
+times=list(start=0.0, stop=10)
 #loadFiles(fileList=fileList)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
                    .progress=list(.graphical=TRUE, .progressInterval=1),

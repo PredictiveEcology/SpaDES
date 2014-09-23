@@ -27,6 +27,8 @@ a character vector of the layer names in each of those}
 
 \item{\code{extents}}{list of class Extent objects. These are needed to calculate the
 \code{ds.dimensionRatio}, which is used to scale the Raster* objects correctly}
+
+\item{\code{layout}}{list of length 2, with width and height measurements for layout.}
 }}
 \author{
 Eliot McIntire
