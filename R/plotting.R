@@ -305,6 +305,7 @@ setMethod("plotGrob",
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
+
             if(maxv<=1) {
               if(maxv>0) {
                 maxcol = maxv*47
@@ -317,7 +318,6 @@ setMethod("plotGrob",
                             #for when taking a difference between two numbers-- need to include
                             # both numbers
             }
-
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               name=name,

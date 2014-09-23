@@ -30,8 +30,8 @@ fileList <- data.frame(files=c("LCC2005_V1_4a.tif",
                        objectNames=c("lcc05","age"),
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
-ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
-#ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+#ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
+ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
 
 if(interactiveExtent) {
   dev(4)
@@ -171,7 +171,11 @@ fileList <- data.frame(files=c("vegMap.tif",
 times=list(start=0.0, stop=200)
 #loadFiles(fileList=fileList)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
+<<<<<<< HEAD
                    .progress=list(.graphical=FALSE, .progressInterval=1),
+=======
+                   .progress=list(.graphical=TRUE, .progressInterval=2),
+>>>>>>> origin/master
                    .loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
                                    .plotInitialTime=1, .plotInterval=1),
