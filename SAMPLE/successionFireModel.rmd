@@ -171,7 +171,7 @@ fileList <- data.frame(files=c("vegMap.tif",
 times=list(start=0.0, stop=200)
 #loadFiles(fileList=fileList)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                   .progress=list(.graphical=TRUE, .progressInterval=1),
+                   .progress=list(.graphical=FALSE, .progressInterval=1),
                    .loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
                                    .plotInitialTime=1, .plotInterval=1),

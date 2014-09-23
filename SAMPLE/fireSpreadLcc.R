@@ -78,6 +78,8 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="plot") {
     # do stuff for this event
     Plot(Fires, legendRange=c(0,simParams(sim)$fireSpreadLcc$nFires))
+    dev(6); hist(nPixelsBurned, main=paste0("nPixelsBurned at time ",simCurrentTime(sim))); dev(4)
+
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
