@@ -856,69 +856,30 @@ setMethod("Plot",
                                                 "Try add=F or change device to",
                                                 "one that has a plot named",addTo[whGrobNamesi]))
 
-              # Get the object from the environment
-              if(!grobNamesi %in% lN) { # Is this an overplot
-                if(length(stacksInArr)>0) {
-                  # only take first one, if there are more than one. First one is most recent
-                  isPrevLayerInStack <- na.omit(sapply(stacksInArr, function(x) {
-                    match(arr@names[match(grobNamesi, grobNames)],x)}))[1]
+              # Determine whether map to plot is new and to be added, or already in the global
+              #  environment
+              grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN, arr, layerLengths, stacksInArr)
+              newplot = ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this an replot
+
+              if(is(grobToPlot, "Raster")) {
+                if(is.null(zoomExtent)) {
+                  zoom <- extent(grobToPlot)
                 } else {
-                  isPrevLayerInStack = NA
+                  zoom <- zoomExtent
                 }
-
-                if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
-                  grobToPlot <- get(grobNamesi)
+                if(is.null(legendRange) | newplot==FALSE) legendRange = NA
+                zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
+              } else { # it is a SpatialPoints object
+                len <- length(grobToPlot)
+                if(len<(1e4/speedup)) {
+                  z <- grobToPlot
                 } else {
-                  grobToPlot <- get(names(isPrevLayerInStack))[[grobNamesi]]
+                  z <- sample(grobToPlot, 1e4/speedup)
                 }
-                if(is(grobToPlot, "Raster")) {
-                  if(is.null(zoomExtent)) {
-                    zoom <- extent(grobToPlot)
-                  } else {
-                    zoom <- zoomExtent
-                  }
-                  legendRange = NA
-                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
-
-                } else {
-                  len <- length(grobToPlot)
-                  if(len<(1e4/speedup)) {
-                    z <- get(grobNamesi)
-                  } else {
-                    z <- sample(get(grobNamesi), 1e4/speedup)
-                  }
-                  zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
-                }
-
-              } else { # Is this a new plot to be added or plotted
-
-                toPlotInd <- which(!is.na(sapply(layerLengths,
-                                                 function(x) match(grobNamesi,x))))
-                if(is(toPlot[[toPlotInd]],"RasterStack")) {
-                  grobToPlot = toPlot[[toPlotInd]][[grobNamesi]]
-                } else {
-                  grobToPlot = toPlot[[toPlotInd]]
-                }
-
-                if(is(grobToPlot, "Raster")) {
-                  if(is.null(zoomExtent)) {
-                    zoom <- extent(grobToPlot)
-                  } else {
-                    zoom <- zoomExtent
-                  }
-                  if(is.null(legendRange)) legendRange = NA
-                  zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
-                } else { # Not a Raster, i.e., a SpatialPoint* object
-                  len <- length(grobToPlot)
-                  if(len<(1e4/speedup)) {
-                    z <- grobToPlot
-                  } else {
-                    z <- sample(grobToPlot, 1e4/speedup)
-                  }
-                  zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
-                }
-
+                zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
               }
+
+              # Actual plotting
               plotGrob(zMat$z, col = zMat$cols, size=unit(size,"points"),
                        minv=zMat$minz,
                        maxv=zMat$maxz,
@@ -927,7 +888,6 @@ setMethod("Plot",
                        gp = gp, draw = draw)
               if(title) grid.text(layerNames(grobToPlot),
                                   name="title", y=1.08, vjust=0.5, gp = gp)
-
               if(xaxis) grid.xaxis(name="xaxis", gp = gp)
               if(yaxis) grid.yaxis(name="yaxis", gp = gp)
             }
@@ -1036,7 +996,10 @@ unittrim <- function(unit) {
        as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(unit)))
    }
 
-valueAtClicks <- function(X, n=1, gl=NULL, ...) {
+#' @export
+#' @docType methods
+#' @rdname valuesAtClicks
+valueAtClick <- function(X, n=1, gl=NULL, ...) {
   pts=matrix(ncol=2,nrow=n)
   seekViewport(layerNames(X))
   for(i in 1:n) {
@@ -1104,7 +1067,36 @@ valuesAtClicks <- function(n=1, ...) {
     column <-  which(xInt==grepNpcsW)
     row <- which(yInt==grepNpcsH)
     map <- column + (row-1)*arr@columns
-    vAC[i,] <- valueAtClicks(get(arr@names[map]), n=1, gl=gloc)
+    vAC[i,] <- valueAtClick(get(arr@names[map]), n=1, gl=gloc)
   }
   return(vAC)
+}
+
+
+identifyGrobToPlot <- function(grobNamesi, toPlot, lN, arr, layerLengths, stacksInArr) {
+  if(!grobNamesi %in% lN) { # Is this an replot
+    newplot=F
+    if(length(stacksInArr)>0) {
+      # only take first one, if there are more than one. First one is most recent
+      isPrevLayerInStack <- na.omit(sapply(stacksInArr, function(x) {
+        match(arr@names[match(grobNamesi, grobNames)],x)}))[1]
+    } else {
+      isPrevLayerInStack = NA
+    }
+
+    if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
+      grobToPlot <- get(grobNamesi, envir=.GlobalEnv)
+    } else {
+      grobToPlot <- get(names(isPrevLayerInStack), envir=.GlobalEnv)[[grobNamesi]]
+    }
+  } else { # Is this a new plot to be added or plotted
+    newplot=T
+    toPlotInd <- which(!is.na(sapply(layerLengths,
+                                     function(x) match(grobNamesi,x))))
+    if(is(toPlot[[toPlotInd]],"RasterStack")) {
+      grobToPlot = toPlot[[toPlotInd]][[grobNamesi]]
+    } else {
+      grobToPlot = toPlot[[toPlotInd]]
+    }
+  }
 }
