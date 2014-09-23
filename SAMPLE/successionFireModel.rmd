@@ -1,4 +1,6 @@
+## Succession and Fire
 
+This is a simple fire disturbance and succession model that acts at a fairly coarse scale (250m x 250m pixels). There are several
 ```{r load_data, cache=TRUE}
 library(SpaDES)
 rasterOptions(maxmemory=2e9)
@@ -175,7 +177,7 @@ parameters <- list(.globals=list(burnStats="nPixelsBurned"),
                                    .plotInitialTime=1, .plotInterval=1),
                    forestAge=list(returnInterval=1, startTime=0.5,
                                         .plotInitialTime=1, .plotInterval=1),
-                   fireSpreadLcc=list(nFires= 10, #spreadprob=0.225,
+                   fireSpreadLcc=list(nFires= function() rpois(1,15), #spreadprob=0.225,
                                       its=1e6,
                                    persistprob=0, returnInterval=1, startTime=1,
                                    .plotInitialTime=1, .plotInterval=1)

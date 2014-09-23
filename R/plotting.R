@@ -182,6 +182,8 @@ setMethod("inRasterStack",
 #' @slot extents list of class Extent objects. These are needed to calculate the
 #' \code{ds.dimensionRatio}, which is used to scale the Raster* objects correctly
 #'
+#' @slot layout list of length 2, with width and height measurements for layout.
+#'
 #' @rdname arrangement-class
 #' @exportClass arrangement
 #'
@@ -191,11 +193,11 @@ setClass("arrangement",
          slots=list(rows="numeric", columns="numeric",
                     actual.ratio="numeric", ds.dimensionRatio="numeric",
                     ds="numeric", stack="list", names="character",
-                    extents="list"),
+                    extents="list", layout="list"),
          prototype=list(rows=1, columns=1,
                         actual.ratio=1, ds.dimensionRatio=1,
                         ds=c(7,7), stack=as.list(NULL), names=as.character(NULL),
-                        extents=as.list(NULL)),
+                        extents=as.list(NULL), layout=as.list(NULL)),
          validity=function(object) {
            # check for valid sim times and make default list
            if (any(is.na(object@extents))) {
@@ -406,7 +408,6 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 
   columns = arr@columns
   rows = arr@rows
-
   topVp <- viewport(layout=grid.layout(nrow=rows*2+1,
                                        ncol=columns*2+1,
                                        widths=layout$wdth,
@@ -513,6 +514,7 @@ setMethod("drawArrows",
                  names(extents) <- name(from)
                  arr <- arrangeViewports(extents,name=name(from))
                  lay <- makeLayout(arr=arr, visualSqueeze=0.75)
+                 arr@layout <- lay
                  vps <- makeViewports(extents, arr=arr, layout=lay,
                                       visualSqueeze=0.75, newArr = TRUE)
                  pushViewport(vps)
@@ -804,6 +806,8 @@ setMethod("Plot",
             }
 
             lay <- makeLayout(arr, visualSqueeze, legend, axes)
+            arr@layout <- lay
+browser()
 
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
@@ -977,7 +981,6 @@ setMethod("makeColorMatrix",
             maxz <- maxValue(grobToPlot)
 #             minz <- min(z, na.rm=T)
 #             maxz <- max(z, na.rm=T)
-browser()
             #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
             # if data in raster are proportions, must treat colors differently
             if(maxz <= 1 & minz >= 0) {
@@ -1037,10 +1040,64 @@ unittrim <- function(unit) {
 #' @export
 #' @docType methods
 #' @rdname valueAtClicks
-valueAtClicks <- function(X, n=1, ...) {
+valueAtClicks <- function(X, n=1, gl=NULL, ...) {
   pts=matrix(ncol=2,nrow=n)
-  seekViewport(layerNames(X))
-  for(i in 1:n)
-    pts[i,] <- unittrim(grid.locator())
-  X[SpatialPoints(pts)]
+  seekViewport(X)
+  for(i in 1:n) {
+    if(is.null(gl)) {
+      gl <- grid.locator()
+      pts[i,] <- unittrim(gl)
+    } else {
+      pts[i,] <- c(convertX(gl$x, "native"), convertY(gl$y, "native"))
+    }
+  }
+  return(data.frame(map=X, values=get(X)[SpatialPoints(pts)]))
+}
+
+valuesAtClicks <- function(n=1, ...) {
+  dc <- dev.cur()
+  arr <- get(paste0(".spadesArr",dc))
+  gl <- grid.layout(nrow=arr@rows*2+1,
+             ncol=arr@columns*2+1,
+             widths=arr@layout$wdth,
+             heights=arr@layout$ht)
+
+  grepNullsW <- grep("null$", gl$widths)
+  grepNpcsW <- grep("npc$", gl$widths)
+  nulls = as.numeric(unlist(strsplit(as.character(gl$widths)[grepNullsW], "null") ))
+  npcs = as.numeric(unlist(strsplit(as.character(gl$widths)[grepNpcsW], "npc") ))
+  remaining <- 1 - sum(npcs)
+  npcForNulls <- nulls*remaining/sum(nulls)
+  widthNpcs <- c(npcs,npcForNulls)[order(c(grepNpcsW,grepNullsW))]
+
+  grepNullsH <- grep("null$", gl$heights)
+  grepNpcsH <- grep("npc$", gl$heights)
+  nulls = as.numeric(unlist(strsplit(as.character(gl$heights)[grepNullsH], "null") ))
+  npcs = as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
+  remaining <- 1 - sum(npcs)
+  npcForNulls <- nulls*remaining/sum(nulls)
+  heightNpcs <- c(npcs,npcForNulls)[order(c(grepNpcsH,grepNullsH))]
+
+  seekViewport("top")
+  gloc = matrix(nrow=n, ncol=2)
+  xInt = numeric(length=n)
+  yInt = numeric(length=n)
+  column = numeric(length=n)
+  rows = numeric(length=n)
+  browser()
+  for(i in 1:n) {
+    gloc[i,] <- unlist(grid.locator(unit="npc"))
+    xInt[i] <- findInterval(gloc[i,1], c(0,cumsum(widthNpcs)))
+    yInt[i] <- findInterval(gloc[i,2], c(0,cumsum(heightNpcs)))
+    if(!(xInt[i] %in% grepNpcsW) & !(yInt[i] %in% grepNpcsH)) {
+      stop("No plot at those coordinates")
+    }
+    column[i] <-  which(xInt[i]==grepNpcsW)
+    row[i] <- which(yInt[i]==grepNpcsH)
+    map[i] <- column[i] + (row[i]-1)*arr@columns
+  }
+  #seekViewport(arr@names[map])
+
+  valueAtClicks(arr@names[map], n=n, gl=gloc, xInt, yInt)
+
 }

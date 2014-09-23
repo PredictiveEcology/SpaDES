@@ -105,7 +105,7 @@ forestSuccessionSuccession <- function(sim) {
     assign("vegMap", vegMap, envir=.GlobalEnv)
   fireSpreadProb <<- RasterLayerNamed(reclassify(x=vegMap,
                                rcl=cbind(1:11,
-                                         c(0.22,0.22,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0))),
+                                         c(0.225,0.225,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0))),
                                name="fireSpreadProb")
 
 
