@@ -1,0 +1,7 @@
+base
+data.table
+raster
+RColorBrewer
+rgdal
+sp
+SpaDES

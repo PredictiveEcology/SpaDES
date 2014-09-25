@@ -1,3 +1,6 @@
+---
+output: pdf_document
+---
 ## Succession and Fire
 
 This is a simple fire disturbance and succession model that acts at a fairly coarse scale (250m x 250m pixels). There are several
@@ -160,44 +163,56 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
                            as.character(lcc05TrajReclass$Description))
                      , ncol=ncol(trajObj2))
 
-```
-
-```{r prepare_simInit}
 fileList <- data.frame(files=c("vegMap.tif",
                                "ageMap.tif"),
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
+loadFiles(fileList=fileList)
+ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
+vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
+setColors(vegMapInit, n=12 ) <- vegMapColors
+  
 
-times=list(start=0.0, stop=2)
-#loadFiles(fileList=fileList)
+```
+Above here is static
+
+Below here is dynamic
+```{r prepare_simInit}
+times=list(start=0.0, stop=20)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                   .progress=list(.graphical=FALSE, .progressInterval=1),
-                   .loadFileList=fileList,
+                   .progress=list(NA),#.graphical=FALSE, .progressInterval=1),
+                   #.loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
-                                   .plotInitialTime=1, .plotInterval=1),
+                                   .plotInitialTime=NA, .plotInterval=24),
                    forestAge=list(returnInterval=1, startTime=0.5,
-                                        .plotInitialTime=1, .plotInterval=1),
-                   fireSpreadLcc=list(nFires= 10, #spreadprob=0.225,
-                                      its=1e6,
-                                   persistprob=0, returnInterval=1, startTime=1,
-                                   .plotInitialTime=1, .plotInterval=1)
+                                        .plotInitialTime=NA, .plotInterval=24),
+                   fireSpreadLcc=list(nFires= 100, #spreadprob=0.225,
+                                     its=1e6,
+                                      persistprob=0, returnInterval=1, startTime=1,
+                                     .plotInitialTime=NA, .plotInterval=24)
 #                   caribouMovement=list(N=1e2, moveInterval=1,
 #                                        .plotInitialTime=1.01, .plotInterval=1)
 )
 
 
-modules <- list("forestSuccession", "forestAge", "fireSpreadLcc")
+modules <- list("forestSuccession", "forestAge")#, "fireSpreadLcc")
 path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 ```
 
 ```{r run_spades}
+ageMap <- ageMapInit
+vegMap <- vegMapInit
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 dev(4)#pdf("test.pdf")
 # for(i in 1:2) {
 #   print(system.time(mySim <- spades(mySim, debug=F)))
 #   simStopTime(mySim) <- i + 1
 # }
+rm(nPixelsBurned)
 print(system.time(mySim <- spades(mySim, debug=F)))
-#simStopTime(mySim)<-20
+Plot(vegMapInit, vegMap)
+dev(5)
+if("fireSpreadLcc" %in% simModulesLoaded(mySim))  hist(nPixelsBurned/6.25, xlab="Hectares",
+                 main=paste0("Hectares burned")); #simStopTime(mySim)<-20
 #dev.off()
 ```
