@@ -226,6 +226,84 @@ setMethod("show",
             cat(unlist(out), fill=FALSE, sep="\n")
           })
 
+
+#' SpatialPolygonsDataFrameNamed class
+#'
+#' This new class extends \code{SpatialPolygonsDataFrame} by adding a slot
+#' called \code{name}.
+#'
+#' Using the simulation visualization features in \code{Plot} requires
+#' objects to be plotted to have a name set.
+#'
+#' @slot name The name of the object.
+#'
+#' @seealso \code{\link{SpatialPolygonsDataFrame}}
+#'
+#' @rdname SpatialPolygonsDataFrameNamed-class
+# @importClassesFrom sp SpatialPolygonsDataFrame
+#' @import sp
+#' @exportClass SpatialPolygonsDataFrameNamed
+#'
+setClass("SpatialPolygonsDataFrameNamed",
+         slots=list(name="character"),
+         prototype=list(name=NA_character_),
+         contains="SpatialPolygonsDataFrame",
+         validity=function(object) {
+           # check for valid sim times and make default list
+           if (is.na(object@name)) {
+             stop("name must be provided")
+           }
+         })
+
+##############################################################
+#' Create a new \code{SpatialPolygonsDataFrameNamed} object.
+#'
+#' @param ... Additional arguments to \code{SpatialPolygonsDataFrame}
+#'
+#' @param name  The name of the object.
+#'
+#' @return Returns an object of class \code{SpatialPolygonsDataFrameNamed}.
+#'
+#' @seealso \code{\link{SpatialPolygonsDataFrame}}
+#'
+#' @import sp
+#' @export
+#' @docType methods
+#' @rdname SpatialPolygonsDataFrameNamed-method
+#'
+#' @author Eliot McIntire
+#' @author Alex Chubaty
+setGeneric("SpatialPolygonsDataFrameNamed", function(..., name) {
+  standardGeneric("SpatialPolygonsDataFrameNamed")
+})
+
+
+#' @rdname SpatialPolygonsDataFrameNamed-method
+#' @export
+setMethod("SpatialPolygonsDataFrameNamed",
+          signature="character",
+          definition=function(..., name) {
+            obj <- SpatialPolygonsDataFrame(...)
+            name(obj) <- name
+            return(obj)
+          })
+
+### show is already defined in the methods package
+#' show SpatialPolygonsDataFrameNamed
+#' @export
+setMethod("show",
+          signature="SpatialPolygonsDataFrameNamed",
+          definition=function(object) {
+            out = list()
+            out[[1]] = capture.output(print(object,
+                                            quote=FALSE, row.names=FALSE))
+            out[[2]] = capture.output(cat(paste("name        :",object@name)))
+
+            ### print result
+            cat(unlist(out), fill=FALSE, sep="\n")
+          })
+
+
 #' RasterStackNamed class
 #'
 #' This new class extends \code{RasterStack} by adding a slot
@@ -530,7 +608,7 @@ setClassUnion("namedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFr
 
 #' @exportClass spatialObjects
 setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNamed",
-                                  "SpatialPolygonsNamed",
+                                  "SpatialPolygonsNamed","SpatialPolygonsDataFrameNamed",
                                   "RasterLayer", "RasterStack"))
 
 ################################################################################
@@ -538,7 +616,7 @@ setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNa
 #'
 #' Using the simulation visualization features in \code{Plot} requires
 #' objects to be plotted to have a name set. Currently, required of:
-#' \code{SpatialPolygons}, \code{SpatialPointsDataFrame}, and \code{RasterStack}
+#' \code{SpatialPolygons}, \code{SpatialPolygonsDataFrame}, \code{SpatialPointsDataFrame}, and \code{RasterStack}
 #' objects. Adding a name to an object of these classes converts these objects
 #' to a \code{*Named} class.
 #'
@@ -555,6 +633,7 @@ setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNa
 #' @seealso \code{\link{SpatialPointsNamed}},
 #'          \code{\link{SpatialPointsDataFrameNamed}},
 #'          \code{\link{SpatialPolygonsNamed}},
+#'          \code{\link{SpatialPolygonsDataFrameNamed}},
 #'          \code{\link{RasterStackNamed}}.
 #'          \code{\link{RasterLayerNamed}}.
 #'
@@ -582,6 +661,14 @@ setMethod("name",
 #' @rdname name-methods
 setMethod("name",
           signature="SpatialPolygonsNamed",
+          definition=function(object) {
+            return(object@name)
+          })
+
+#' @export
+#' @rdname name-methods
+setMethod("name",
+          signature="SpatialPolygonsDataFrameNamed",
           definition=function(object) {
             return(object@name)
           })
@@ -667,6 +754,26 @@ setReplaceMethod("name",
                  signature="SpatialPolygons",
                  definition=function(object, value) {
                    new("SpatialPolygonsNamed", object, name=value)
+                 })
+
+#' @export
+#' @name name<-
+#' @rdname name-methods
+setReplaceMethod("name",
+                 signature="SpatialPolygonsDataFrameNamed",
+                 definition=function(object, value) {
+                   object@name <- value
+                   validObject(object)
+                   return(object)
+                 })
+
+#' @export
+#' @name name<-
+#' @rdname name-methods
+setReplaceMethod("name",
+                 signature="SpatialPolygonsDataFrame",
+                 definition=function(object, value) {
+                   new("SpatialPolygonsDataFrameNamed", object, name=value)
                  })
 
 #' @export

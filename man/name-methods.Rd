@@ -6,6 +6,7 @@
 \alias{name,RasterStackNamed-method}
 \alias{name,SpatialPointsDataFrameNamed-method}
 \alias{name,SpatialPointsNamed-method}
+\alias{name,SpatialPolygonsDataFrameNamed-method}
 \alias{name,SpatialPolygonsNamed-method}
 \alias{name<-}
 \title{Get and set the name of an object.}
@@ -17,6 +18,8 @@ name(object)
 \S4method{name}{SpatialPointsDataFrameNamed}(object)
 
 \S4method{name}{SpatialPolygonsNamed}(object)
+
+\S4method{name}{SpatialPolygonsDataFrameNamed}(object)
 
 \S4method{name}{RasterStackNamed}(object)
 
@@ -30,7 +33,7 @@ name(object) <- value
 \description{
 Using the simulation visualization features in \code{Plot} requires
 objects to be plotted to have a name set. Currently, required of:
-\code{SpatialPolygons}, \code{SpatialPointsDataFrame}, and \code{RasterStack}
+\code{SpatialPolygons}, \code{SpatialPolygonsDataFrame}, \code{SpatialPointsDataFrame}, and \code{RasterStack}
 objects. Adding a name to an object of these classes converts these objects
 to a \code{*Named} class.
 }
@@ -43,6 +46,7 @@ Alex Chubaty
 \code{\link{SpatialPointsNamed}},
          \code{\link{SpatialPointsDataFrameNamed}},
          \code{\link{SpatialPolygonsNamed}},
+         \code{\link{SpatialPolygonsDataFrameNamed}},
          \code{\link{RasterStackNamed}}.
          \code{\link{RasterLayerNamed}}.
 }
