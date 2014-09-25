@@ -168,14 +168,10 @@ fileList <- data.frame(files=c("vegMap.tif",
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 
-times=list(start=0.0, stop=200)
+times=list(start=0.0, stop=2)
 #loadFiles(fileList=fileList)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-<<<<<<< HEAD
                    .progress=list(.graphical=FALSE, .progressInterval=1),
-=======
-                   .progress=list(.graphical=TRUE, .progressInterval=2),
->>>>>>> origin/master
                    .loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
                                    .plotInitialTime=1, .plotInterval=1),

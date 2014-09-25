@@ -104,6 +104,14 @@ setMethod("layerNames",
 #' @export
 #' @rdname layerNames
 setMethod("layerNames",
+          signature="SpatialPolygonsNamed",
+          definition=function(object) {
+            name(object)
+          })
+
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
           signature="SpatialPointsDataFrameNamed",
           definition=function(object) {
             name(object)
@@ -376,6 +384,58 @@ setMethod("plotGrob",
             return(invisible(pntGrob))
 })
 
+#' @rdname plotGrob
+#' @export
+setMethod("plotGrob",
+          signature=c("SpatialPolygons"),
+          definition= function(grobToPlot, col, size,
+                               legend, draw, #xaxis, yaxis, title,
+                               gp=gpar(), vp=NULL, pch, #maxpixels,
+                               childrenvp=NULL, ...) {
+
+            # For speed of plotting
+            maxPoints = 1e4
+            xy = lapply(1:length(grobToPlot),
+                       function(i) lapply(grobToPlot@polygons[[i]]@Polygons,
+                                          function(j) j@coords))
+            hole = unlist(lapply(1:length(grobToPlot),
+                       function(x) lapply(grobToPlot@polygons[[x]]@Polygons,
+                                          function(x) x@hole)))
+            ord <- grobToPlot@plotOrder
+            ordInner <- lapply(1:length(grobToPlot), function(x) grobToPlot@polygons[[x]]@plotOrder)
+
+            idLength = unlist(lapply(xy, function(i) lapply(i, nrow)))
+            xyOrd = do.call(rbind, lapply(
+              lapply(ord, function(i) xy[[i]][ordInner[[i]]]),
+              function(i) do.call(rbind, i)))
+
+            if(nrow(xyOrd)>maxPoints) {
+              samLength <- pmax(pmin(idLength,5), ceiling(idLength/maxPoints))
+              sam <- lapply(idLength, function(i) sample(i, size=samLength))
+              cs <- cumsum(idLength)-idLength[1]
+              cumsam <- unlist(lapply(1:length(cs), function(i) sort(cs[i]+sam[[i]])))
+              xyOrd <- xyOrd[cumsam,]
+              idLength <- unlist(lapply(sam,length))
+            }
+
+            gp$fill[hole] <- "#FFFFFF00"
+
+            polyGrob <- gTree(name=name(grobToPlot),
+                             childrenvp=childrenvp,
+                             children=gList(
+                               polygonGrob(x=xyOrd[,1], y=xyOrd[,2], id.lengths=idLength,
+                                           name=name, gp=gp, default.units="native")
+                               #                                if(xaxis) xaxisGrob(name="xaxis"),
+                               #                                if(yaxis) yaxisGrob(name="yaxis"),
+                               #                                if(title) textGrob(name(grobToPlot), name="title", y=1.08, vjust=0.5)
+                             ),
+                             gp=gp,
+                             vp=vp,
+                             cl="plotPoint")
+            if(draw) grid.draw(polyGrob)
+            return(invisible(polyGrob))
+          })
+
 
 
 #' @export
@@ -441,7 +501,7 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 
 
 ##############################################################
-#' Plots arrows showing direction of agent movement.
+#' Plots arrows showing direction of agent movement
 #'
 #' @param from          Starting spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
@@ -692,6 +752,7 @@ setMethod("Plot",
             toPlot <- list(...)
 
 
+            # Determine if any in the ... are stacks
             whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
             if(any(whStacks)) {
               stacksToPlot <- lapply(toPlot[whStacks], layerNames)
@@ -700,6 +761,7 @@ setMethod("Plot",
               stacksToPlot <- as.list(NULL)
             }
 
+            # determine if any of the already plotted objects are in stacks
             if(add | !is.null(addTo)){
               if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
                 stacksInArr <- get(paste0(".spadesArr",dev.cur()))@stack
@@ -710,8 +772,9 @@ setMethod("Plot",
             }
 
             lN <- layerNames(toPlot)
-            if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name. Check",
-                                               "inside RasterStacks"))
+            if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
+                                               "inside RasterStacks for objects, or",
+                                               "that the name slot is set correctly, using name(x) <- \"name\""))
             if(is.null(addTo)) {
               addTo <- lN
             } else {
@@ -744,11 +807,6 @@ setMethod("Plot",
               currentNames <- arr@names
             }
 
-            currentPlusToPlotN <- unique(c(currentNames, addTo))
-
-            # if add == F, then new plots are only the ones in the function call, otherwise
-            #  it needs to assess what is already there
-
             # get extents from all SpatialPoints*, Rasters*, including Stacks
             if(is.null(zoomExtent)) {
               extsToPlot <- rep(sapply(toPlot, extent),
@@ -757,9 +815,9 @@ setMethod("Plot",
               extsToPlot <- rep(list(zoomExtent),
                                 sapply(toPlot, function(x) length(layerNames(x))))
             }
-
             names(extsToPlot)<-lN
 
+            currentPlusToPlotN <- unique(c(currentNames, addTo))
             if(add==F) {
               newArr = T
               vpNames <- addTo
@@ -861,7 +919,7 @@ setMethod("Plot",
               grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN, arr, layerLengths, stacksInArr)
               newplot = ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this an replot
 
-              if(is(grobToPlot, "Raster")) {
+              if(is(grobToPlot, "Raster")) { # Rasters require subsampling
                 if(is.null(zoomExtent)) {
                   zoom <- extent(grobToPlot)
                 } else {
@@ -869,12 +927,21 @@ setMethod("Plot",
                 }
                 if(is.null(legendRange) | newplot==FALSE) legendRange = NA
                 zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
-              } else { # it is a SpatialPoints object
+              } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
                 len <- length(grobToPlot)
                 if(len<(1e4/speedup)) {
                   z <- grobToPlot
                 } else {
                   z <- sample(grobToPlot, 1e4/speedup)
+                }
+                zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
+              } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPoints object
+                len <- length(grobToPlot)
+                if(len<(1e3/speedup)) {
+                  z <- grobToPlot
+                } else {
+                  z <- sample(grobToPlot, 1e3/speedup)
+                  name(z)<-name(grobToPlot)
                 }
                 zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
               }
@@ -939,15 +1006,17 @@ setMethod("makeColorMatrix",
               cols=topo.colors(50)
             }
             zoom <- zoomExtent
-            # It is 5x faster to access the min and max from the Raster than to calculate it
-            minz <- minValue(grobToPlot)
-            maxz <- maxValue(grobToPlot)
+            # It is 5x faster to access the min and max from the Raster than to calculate it,
+            #  but it is also often wrong... it is only metadata on the raster, so it
+            #  is possible that it is incorrect
+#             minz <- minValue(grobToPlot)
+#             maxz <- maxValue(grobToPlot)
             grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                         ext=zoom, asRaster=TRUE, useGDAL=TRUE)
             z <- getValues(grobToPlot)
 
-#             minz <- min(z, na.rm=T)
-#             maxz <- max(z, na.rm=T)
+             minz <- min(z, na.rm=T)
+             maxz <- max(z, na.rm=T)
             #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
             # if data in raster are proportions, must treat colors differently
             if(maxz <= 1 & minz >= 0) {
@@ -1000,19 +1069,42 @@ unittrim <- function(unit) {
 ##############################################################
 #' Mouse interactions with Plots
 #'
-#' Equivalent to running \code{X[SpatialPoints(locator(n))]} in base graphics, but it
-#' determines which grid location the click occurs in. This determines which place in the
+#' These functions use \code{grid.locator}. The primary two user-level functions are
+#' \code{clickValues} and \code{clickExtent}. These functions automatically select
+#' the correct viewport (i.e., map) where the mouse clicks occured so the user
+#' does not have to manually specify which map is being clicked on.
+#'
+#' \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where
+#' X is the raster being clicked on, in base graphics. This function determines which place in the
 #' grid.layout was clicked and makes all appropriate calculations to determine the value
 #' on the raster(s) at that or those location(s)
 #'
+#' \code{clickExtent} is for drawing an extent with two mouse clicks on a given Plotted map.
+#'
+#' \code{clickCoordinates} is the workhorse function that determines which plot has been
+#' clicked on and passes this plot name and the clicked coordinates to \code{.clickCoord}.
+#'
+#' \code{.clickCoord} is intended for internal use and is called by other functions here.
+#'
 #' @param n The number of mouse clicks to do
 #'
-#' @return The layer names and values at the clicked points
+#' @param devNum The device number for the new plot to be plotted on
+#'
+#' @param plot.it The device number for the new plot to be plotted on
+#'
+#' @param X The raster object whose values will be returned where mouse clicks occur
+#'
+#' @param gl An object created by a call to \code{grid.locator}
+#'
+#' @return \code{clickValues} returns the layer names and values at the clicked points.
+#' \code{clickExtent} invisibly returns the extent object, and optionally plots it
+#' in a new device window. \code{clickCoordinates} returns the xy coordinates in
+#' the units of the plot clicked on.
 #'
 #' @export
 #' @docType methods
 #' @rdname spadesMouseClicks
-valuesAtClicks <- function(n=1, ...) {
+clickValues <- function(n=1, ...) {
   coords <- clickCoordinates(n=n)
   coords$value = sapply(1:n, function(i) get(coords[i,1],envir=.GlobalEnv)[cellFromXY(get(coords[i,1],envir=.GlobalEnv),coords[i,2:3])])
   return(coords)
@@ -1020,7 +1112,30 @@ valuesAtClicks <- function(n=1, ...) {
 
 #' @export
 #' @docType methods
-#' @rdname valuesAtClicks
+#' @rdname spadesMouseClicks
+clickExtent <- function(devNum=NULL, plot.it=TRUE) {
+
+  corners <- clickCoordinates(2)
+  zoom <- extent(c(sort(corners$x), sort(corners$y)))
+  if(plot.it) {
+    devActive <- dev.cur()
+    if(is.null(devNum)) {
+      newPlot()
+    } else {
+      dev(devNum)
+    }
+
+    Plot(get(unique(corners$map), envir=.GlobalEnv), zoomExtent=zoom, add=F)
+    dev(devActive)
+    return(invisible(zoom))
+  } else {
+    return(zoom)
+  }
+}
+
+#' @export
+#' @docType methods
+#' @rdname spadesMouseClicks
 clickCoordinates <- function(n=1, ...) {
   dc <- dev.cur()
   arr <- get(paste0(".spadesArr",dc))
@@ -1072,7 +1187,7 @@ clickCoordinates <- function(n=1, ...) {
     minLayY = cumsum(heightNpcs)[yInt-1]
     grobLoc$y <- unit((as.numeric(strsplit(as.character(gloc$y),"npc")[[1]])-minLayY)/(maxLayY-minLayY),"npc")
 
-    clickCoords[i,] <- mouseCoord(get(arr@names[map]), n=1, gl=grobLoc)
+    clickCoords[i,] <- .clickCoord(get(arr@names[map]), n=1, gl=grobLoc)
     mapNames[i] <- arr@names[map]
   }
   return(data.frame(map=mapNames, clickCoords, stringsAsFactors = FALSE))
@@ -1082,7 +1197,7 @@ clickCoordinates <- function(n=1, ...) {
 #' @export
 #' @docType methods
 #' @rdname spadesMouseClicks
-mouseCoord <- function(X, n=1, gl=NULL, ...) {
+.clickCoord <- function(X, n=1, gl=NULL, ...) {
 
   pts=data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(layerNames(X))
@@ -1128,3 +1243,4 @@ identifyGrobToPlot <- function(grobNamesi, toPlot, lN, arr, layerLengths, stacks
     }
   }
 }
+
