@@ -239,6 +239,7 @@ setGeneric("checkParams", function(sim, defaultModules, defaultParams, path, ...
 setMethod("checkParams",
           signature(sim="simList", defaultModules="list", defaultParams="list", path="character"),
           definition=function(sim, defaultModules, defaultParams, path, ...) {
+
             params <- simParams(sim)
             modules <- simModules(sim)
             userModules <- modules[-which(defaultModules %in% modules)]
@@ -311,18 +312,10 @@ setMethod("checkParams",
               # read in and cleanup/isolate the user params in the module's .R file
               moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
                                    readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
-              moduleParams <- strsplit(moduleParams, " ")
-              moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
-              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
-                                   moduleParams, value=TRUE)
-              moduleParams <- unlist(strsplit(moduleParams, "="))
-              moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
-                                   moduleParams, value=TRUE)
-              moduleParams <- gsub(",", "", moduleParams)
-              moduleParams <- gsub("\\)\\)", "", moduleParams)
-              moduleParams <- gsub("^.*\\(simParams\\(sim\\)", "\\simParams\\(sim\\)", moduleParams)
+              moduleParams <- gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
+              moduleParams <- gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", moduleParams)
+              moduleParams <- gsub("]*", "", moduleParams)
               moduleParams <- sort(unique(moduleParams))
-              moduleParams <- gsub(paste0("simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
 
               if (length(moduleParams)>0) {
                 # which params does the user supply to simInit?
