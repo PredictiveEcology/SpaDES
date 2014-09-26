@@ -1133,7 +1133,8 @@ setMethod("simInit",
             sim <- new("simList", simtimes=list(current=times$start,
                                                 start=times$start,
                                                 stop=times$stop))
-            simModules(sim) <- modules
+
+            simModules(sim) <- modules[!sapply(modules, is.null)]
             simParams(sim) <- params
 
             # load "default" modules
@@ -1182,7 +1183,7 @@ setMethod("simInit",
                 ### values where used (i.e., in save.R).
             }
 
-            simModules(sim) <- append(defaults, modules)
+            simModules(sim) <- append(defaults, simModules(sim))
 
             # load files in the filelist
             if (is.null(simFileList(sim))) {
