@@ -992,7 +992,6 @@ setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                na.color) {
-
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
 
@@ -1114,7 +1113,6 @@ clickValues <- function(n=1, ...) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
-
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners$x), sort(corners$y)))
   if(plot.it) {

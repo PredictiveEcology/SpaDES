@@ -183,19 +183,19 @@ parameters <- list(.globals=list(burnStats="nPixelsBurned"),
                    .progress=list(NA),#.graphical=FALSE, .progressInterval=1),
                    #.loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
-                                   .plotInitialTime=NA, .plotInterval=24),
+                                   .plotInitialTime=1, .plotInterval=1),
                    forestAge=list(returnInterval=1, startTime=0.5,
-                                        .plotInitialTime=NA, .plotInterval=24),
+                                        .plotInitialTime=1, .plotInterval=1),
                    fireSpreadLcc=list(nFires= 100, #spreadprob=0.225,
                                      its=1e6,
                                       persistprob=0, returnInterval=1, startTime=1,
-                                     .plotInitialTime=NA, .plotInterval=24)
+                                     .plotInitialTime=1, .plotInterval=1)
 #                   caribouMovement=list(N=1e2, moveInterval=1,
 #                                        .plotInitialTime=1.01, .plotInterval=1)
 )
 
 
-modules <- list("forestSuccession", "forestAge")#, "fireSpreadLcc")
+modules <- list("forestSuccession", "forestAge", "fireSpreadLcc")
 path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 ```
 
