@@ -24,6 +24,7 @@ if(downloadRequired) {
   # 9MB file
   download.file("ftp://ftp.daac.ornl.gov/data/nacp/NA_TreeAge//data/can_age04_1km.tif",
                 "age.tif",mode="wb")
+  
 }
 
 
@@ -163,16 +164,12 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
                            as.character(lcc05TrajReclass$Description))
                      , ncol=ncol(trajObj2))
 
-fileList <- data.frame(files=c("vegMap.tif",
-                               "ageMap.tif"),
-                       functions="rasterToMemory", packages="SpaDES",
-                       stringsAsFactors=FALSE)
-loadFiles(fileList=fileList)
 ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
 vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
+trajMapInit <- RasterLayerNamed(trajMap, name="trajMapInit")
 setColors(vegMapInit, n=12 ) <- vegMapColors
   
-
+writeRaster(trajMapInit, filename="trajMap.tif", overwrite=TRUE)
 ```
 Above here is static
 
@@ -200,6 +197,7 @@ path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 ```
 
 ```{r run_spades}
+trajMap <- trajMapInit
 ageMap <- ageMapInit
 vegMap <- vegMapInit
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
@@ -215,11 +213,4 @@ dev(5)
 if("fireSpreadLcc" %in% simModulesLoaded(mySim))  hist(nPixelsBurned/6.25, xlab="Hectares",
                  main=paste0("Hectares burned")); #simStopTime(mySim)<-20
 #dev.off()
-```
-
-
-## Shiny version
-```{r shiny_succession}
-library(shiny)
-runApp("SAMPLE/shiny_succession")
 ```

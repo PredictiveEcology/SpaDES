@@ -2,21 +2,24 @@ shinyUI(fluidPage(
   titlePanel("A simple forest succession model."),
 
   sidebarLayout(
-    sidebarPanel("Parameters",
-                 sliderInput('time', 'Number of years',
-                             min=0, max=250, value=20, step=10, round=0),
+    sidebarPanel(
+                 sliderInput('stopTime', 'Year to predict',
+                             min=2006, max=2040, value=2008, step=1, round=FALSE,
+                             format = "###0"),
 
                  br(),
 
-                 checkboxInput('fires', 'Forest fires'),
+                 h3("Simulation modules"),
+                 checkboxInput('fireModule', 'Forest fires'),
 
-                 sliderInput('time', 'Number of years',
-                             min=0, max=250, value=20, step=10, round=0),
-
-                 sliderInput('time', 'Number of years',
-                             min=0, max=250, value=20, step=10, round=0)
+                 sliderInput('drought', 'Drought intensity',
+                            min=0.8, max=1.2, value=1, step=0.05, round=FALSE)
     ),
 
-    mainPanel("main panel")
+    mainPanel(
+      plotOutput('mapsInit'),
+      plotOutput('maps'),
+      plotOutput('fireHist')
+    )
   )
 ))
