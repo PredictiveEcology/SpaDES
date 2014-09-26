@@ -216,3 +216,10 @@ if("fireSpreadLcc" %in% simModulesLoaded(mySim))  hist(nPixelsBurned/6.25, xlab=
                  main=paste0("Hectares burned")); #simStopTime(mySim)<-20
 #dev.off()
 ```
+
+
+## Shiny version
+```{r shiny_succession}
+library(shiny)
+runApp("SAMPLE/shiny_succession")
+```
