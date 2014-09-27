@@ -190,6 +190,10 @@ shinyServer(function(input, output) {
       vegMap <- RasterLayerNamed(get("vegMapInit", envir=.GlobalEnv),name="vegMap")
       assign("vegMap", vegMap, envir=.GlobalEnv)
 
+      Fires <<- raster(extent(vegMap), ncol=ncol(vegMap),
+                      nrow=nrow(vegMap), vals=0)
+
+
       mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
       nPixelsBurned <<- numeric(0)
@@ -220,13 +224,17 @@ shinyServer(function(input, output) {
     output$fireHist <- renderPlot({
       layout(matrix(c(1,2,3,0),byrow = TRUE, ncol=2))
       age <- layers()$ageMap
-      hist(getValues(age), breaks = seq(0,200,length.out=21),
+      hist(getValues(age), freq=FALSE, axes=F, breaks = seq(0,200,length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
            main=paste("Forest age in year",input$stopTime),
-           cex.main=1.5)
-      hist(getValues(layers()$vegMap), col=vegMapColors,
+           cex.main=1.5, ylab="Hectares", xlab="Forest age")
+      axis(side=2,at=c(0,4e3/ncell(age)),labels = round(c(0,4e3*6.25),0))
+      axis(side=1)
+      hist(getValues(layers()$vegMap), freq=F, axes=F, breaks = 0:11, col=vegMapColors[1:12],
            main=paste("Vegetation type in year",input$stopTime),
-           cex.main=1.5)
+           cex.main=1.5, ylab="Hectares", xlab="Vegetation type")
+      axis(side=2,at=c(0,2e4/ncell(age)),labels = c(0,2e4*6.25))
+      axis(side=1)
       if(input$fireModule)
         hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned, (ha)",
              cex.main=1.5)
