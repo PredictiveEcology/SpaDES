@@ -1,4 +1,3 @@
-
 library(SpaDES)
 
 rasterOptions(maxmemory=2e9)
@@ -23,10 +22,9 @@ if(downloadRequired) {
                 "data/age.tif",mode="wb")
 }
 
-fileList <- data.frame(files=c("data/LCC2005_V1_4a.tif",
-                                 "data/age.tif"),
+fileList <- data.frame(files=c("data/LCC2005_V1_4a.tif", "data/age.tif"),
                          functions="raster", packages="raster",
-                         objectNames=c("lcc05","age"),
+                         objectNames=c("lcc05", "age"),
                          stringsAsFactors=FALSE)
 
 loadFiles(fileList=fileList)
@@ -145,7 +143,7 @@ maxAge <- 200
 ages <- 0:maxAge
 
 
-trajObj1 <- apply(trajObj.raw[-4,-c(1)],1,function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
+trajObj1 <- apply(trajObj.raw[-4,-c(1)], 1, function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
 trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland","Other"), each=maxAge+1), ncol=5))
 trajObj <<- matrix(match(trajObj2,
                          as.character(lcc05TrajReclass$Description))
@@ -159,7 +157,7 @@ loadFiles(fileList=fileList)
 ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
 vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
 setColors(vegMapInit, n=12 ) <- vegMapColors
-setColors(ageMapInit,n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
+setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
 
 
 ########################################################################
