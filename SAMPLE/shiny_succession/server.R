@@ -155,8 +155,8 @@ fileList <- data.frame(files=c("vegMap.tif",
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
-ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
-vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
+ageMapInit <<- RasterLayerNamed(ageMap, name="ageMapInit")
+vegMapInit <<- RasterLayerNamed(vegMap, name="vegMapInit")
 setColors(vegMapInit, n=12 ) <- vegMapColors
 setColors(ageMapInit,n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
 
