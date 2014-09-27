@@ -37,7 +37,7 @@ if(interactiveExtent) {
   ext <- drawExtent()
 }
 
-vegMapLcc <- crop(lcc05,ext)
+vegMapLcc <- crop(lcc05, ext)
 if(ncell(vegMapLcc)>1e6) beginCluster(10)
 # age will not run with projectRaster directly. Instead, project the vegMap to age, then crop, then project back to vegMap
 vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
