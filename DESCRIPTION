@@ -56,5 +56,6 @@ Collate:
     'probability.R'
     'progress.R'
     'save.R'
+    'splitRaster.R'
     'spread-process.R'
 VignetteBuilder: knitr
