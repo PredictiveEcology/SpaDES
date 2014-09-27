@@ -1,5 +1,5 @@
 ---
-output: pdf_document
+output: html_document
 ---
 ## Succession and Fire
 
