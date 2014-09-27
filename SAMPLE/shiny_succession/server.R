@@ -185,7 +185,7 @@ shinyServer(function(input, output) {
 
       modules <- list("forestSuccession", "forestAge", if(input$fireModule) "fireSpreadLcc")
 
-      path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
+      path <- file.path("modules")
 
       ageMap <- RasterLayerNamed(get("ageMapInit", envir=.GlobalEnv),name="ageMap")
       assign("ageMap", ageMap, envir=.GlobalEnv)
