@@ -230,7 +230,7 @@ shinyServer(function(input, output) {
            main=paste("Vegetation type in year",input$stopTime),
            cex.main=1.5)
       if(input$fireModule) {
-        hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned, (ha)",
+        hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned (ha)", xlab="Area burned (ha)",
              cex.main=1.5)
       }
     })
