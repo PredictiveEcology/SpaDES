@@ -19,7 +19,7 @@ shinyUI(fluidPage(
     mainPanel(
       plotOutput('mapsInit'),
       plotOutput('maps'),
-      plotOutput('fireHist')
+      plotOutput('fireHist', xlab="Area burned (ha)")
     )
   )
 ))
