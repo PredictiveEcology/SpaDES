@@ -5,29 +5,30 @@ rasterOptions(maxmemory=2e9)
 downloadRequired = FALSE
 interactiveExtent = FALSE
 
-setwd("~")
-dir.create("spadesTmp")
-setwd(file.path("spadesTmp"))
+if (Sys.info()["sysname"]=="Linux") {
+  setwd("/mnt/shared/shiny_succession")
+} else if (Sys.info()["sysname"]=="Windows") {
+  setwd("/shared/shiny_succession")
+}
 
 if(downloadRequired) {
-
   #46MB file
   fN <- "lcc05.zip"
   download.file("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip", fN, mode="wb")
-  unzip(fN, files="LCC2005_V1_4a.tif")
+  dir.create("data")
+  unzip(fN, files="data/LCC2005_V1_4a.tif")
 
   # 9MB file
   download.file("ftp://ftp.daac.ornl.gov/data/nacp/NA_TreeAge//data/can_age04_1km.tif",
-                "age.tif",mode="wb")
-
+                "data/age.tif",mode="wb")
 }
 
+fileList <- data.frame(files=c("data/LCC2005_V1_4a.tif",
+                                 "data/age.tif"),
+                         functions="raster", packages="raster",
+                         objectNames=c("lcc05","age"),
+                         stringsAsFactors=FALSE)
 
-fileList <- data.frame(files=c("LCC2005_V1_4a.tif",
-                               "age.tif"),
-                       functions="raster", packages="raster",
-                       objectNames=c("lcc05","age"),
-                       stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
 #ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
 ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
@@ -37,16 +38,16 @@ if(interactiveExtent) {
   plot(lcc05)
   ext <- drawExtent()
 }
+
 vegMapLcc <- crop(lcc05,ext)
 if(ncell(vegMapLcc)>1e6) beginCluster(10)
 # age will not run with projectRaster directly. Instead, project the vegMap to age, then crop, then project back to vegMap
 vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
 age.crsAge <- crop(age, vegMapLcc.crsAge)
 ageMap <- projectRaster(age.crsAge, to=vegMapLcc, method="ngb")
-
 endCluster()
 
-writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
+writeRaster(ageMap, filename="data/ageMap.tif", overwrite=TRUE)
 
 #####################################################
 
@@ -95,7 +96,7 @@ vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
 setColors(vegMap, n=12 ) <- vegMapColors
 
 # the raster package does not keep colors when writing to a tif file
-writeRaster(vegMap, filename="vegMap.tif", overwrite=TRUE)
+writeRaster(vegMap, filename="data/vegMap.tif", overwrite=TRUE)
 
 lcc05TrajLabels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
 numLccInTraj <- sapply(strsplit(unname(sapply(as.character(lcc05TrajReclass$LCC05.classes), function(x) x)), ","), length)
@@ -150,8 +151,8 @@ trajObj <<- matrix(match(trajObj2,
                          as.character(lcc05TrajReclass$Description))
                    , ncol=ncol(trajObj2))
 
-fileList <- data.frame(files=c("vegMap.tif",
-                               "ageMap.tif"),
+fileList <- data.frame(files=c("data/vegMap.tif",
+                               "data/ageMap.tif"),
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
@@ -183,6 +184,7 @@ shinyServer(function(input, output) {
       )
 
       modules <- list("forestSuccession", "forestAge", if(input$fireModule) "fireSpreadLcc")
+
       path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 
       ageMap <- RasterLayerNamed(get("ageMapInit", envir=.GlobalEnv),name="ageMap")
@@ -208,6 +210,7 @@ shinyServer(function(input, output) {
       seekViewport("vegMapInit")
       grid.text(y=1.05, "Forest Cover", gp=gpar(cex=1.5))
     })
+
     output$maps <- renderPlot({
       Plot(layers()$ageMap, layers()$vegMap, add=F, title=F)
       seekViewport("top")
@@ -217,6 +220,7 @@ shinyServer(function(input, output) {
       seekViewport("vegMap")
       grid.text(y=1.05, "Forest Cover", gp=gpar(cex=1.5))
     })
+
     output$fireHist <- renderPlot({
       layout(matrix(c(1,2,3,0),byrow = TRUE, ncol=2))
       age <- layers()$ageMap
@@ -227,9 +231,10 @@ shinyServer(function(input, output) {
       hist(getValues(layers()$vegMap), col=vegMapColors,
            main=paste("Vegetation type in year",input$stopTime),
            cex.main=1.5)
-      if(input$fireModule)
+      if(input$fireModule) {
         hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned, (ha)",
              cex.main=1.5)
+      }
     })
 
 })
