@@ -225,9 +225,11 @@ shinyServer(function(input, output) {
       hist(getValues(age), breaks = seq(0,200,length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
            main=paste("Forest age in year",input$stopTime),
+           xlab="Forest age",
            cex.main=1.5)
       hist(getValues(layers()$vegMap), col=vegMapColors,
            main=paste("Vegetation type in year",input$stopTime),
+           xlab="Vegetation type",
            cex.main=1.5)
       if(input$fireModule) {
         hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned (ha)", xlab="Area burned (ha)",
