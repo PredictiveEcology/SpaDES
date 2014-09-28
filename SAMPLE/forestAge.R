@@ -18,7 +18,8 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for module dependencies:
     ### (use or NULL if no dependencies exist)
-    depends <- "forestSuccession"
+    #depends <- "forestSuccession"
+    depends <- NULL
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
@@ -26,7 +27,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, simCurrentTime(sim), "fireAge", "init")
+      sim <- scheduleEvent(sim, simCurrentTime(sim), "forestAge", "init")
     } else {
         # do stuff for this event
         sim <- forestAgeInit(sim)

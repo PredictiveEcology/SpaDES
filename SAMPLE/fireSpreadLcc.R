@@ -17,11 +17,11 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
     ### (use NULL if no dependencies exist)
-    depends <- "forestSuccession"
+    depends <- NULL #"forestSuccession"
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(name="fireSpreadProb")
+    #checkObject(name="fireSpreadProb")
 
     if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
       assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
@@ -100,9 +100,10 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
 fireSpreadLccInit <- function(sim) {
   #landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
+
   ### create burn map that tracks fire locations over time
-  Fires <- raster(extent(fireSpreadProb), ncol=ncol(fireSpreadProb),
-                  nrow=nrow(fireSpreadProb), vals=0)
+  Fires <- raster(extent(vegMap), ncol=ncol(vegMap),
+                  nrow=nrow(vegMap), vals=0)
   name(Fires) <- "Fires"
   setColors(Fires,n=simParams(sim)$fireSpreadLcc$nFires+1) <-
     c("#FFFFFF", rev(heat.colors(simParams(sim)$fireSpreadLcc$nFires)))
@@ -121,6 +122,12 @@ fireSpreadLccInit <- function(sim) {
 
 fireSpreadLccBurn <- function(sim) {
  # landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+
+  fireSpreadProb <<- RasterLayerNamed(reclassify(x=vegMap,
+                                                 rcl=cbind(1:11,
+                                                           c(0.225,0.225,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0)*
+                                                             simParams(sim)$fireSpreadLcc$drought)),
+                                      name="fireSpreadProb")
 
   Fires <- spread(fireSpreadProb,
                    loci=as.integer(sample(1:ncell(fireSpreadProb), simParams(sim)$fireSpreadLcc$nFires)),
