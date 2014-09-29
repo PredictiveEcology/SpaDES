@@ -70,7 +70,7 @@ doEvent.caribouMovementLcc <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 caribouMovementInit <- function(sim) {
-  cellsFromXY <- cellFromXY # the raster Package has a bug
+  cellsFromXY <<- cellFromXY # the raster Package has a bug
   caribouRas <<- RasterLayerNamed(raster(extent(vegMap), ncol=ncol(vegMap),
                                                 nrow=nrow(vegMap), vals=0),name="caribouRas")
 
