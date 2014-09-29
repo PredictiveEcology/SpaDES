@@ -1,8 +1,8 @@
 library(SpaDES)
 
 rasterOptions(maxmemory=2e9)
-downloadRequired = FALSE
-interactiveExtent = FALSE
+downloadRequired <- FALSE
+interactiveExtent <- FALSE
 
 if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
@@ -19,7 +19,7 @@ if(downloadRequired) {
 
   # 9MB file
   download.file("ftp://ftp.daac.ornl.gov/data/nacp/NA_TreeAge//data/can_age04_1km.tif",
-                "data/age.tif",mode="wb")
+                "data/age.tif", mode="wb")
 }
 
 fileList <- data.frame(files=c("data/LCC2005_V1_4a.tif", "data/age.tif"),
@@ -29,7 +29,7 @@ fileList <- data.frame(files=c("data/LCC2005_V1_4a.tif", "data/age.tif"),
 
 loadFiles(fileList=fileList)
 #ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
-ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+ext <- extent(-1073154, -987285, 7438423, 7512480) # small central Sask 100 Thousand
 
 if(interactiveExtent) {
   dev(4)
@@ -40,7 +40,7 @@ if(interactiveExtent) {
 vegMapLcc <- crop(lcc05, ext)
 if(ncell(vegMapLcc)>1e6) beginCluster(10)
 # age will not run with projectRaster directly. Instead, project the vegMap to age, then crop, then project back to vegMap
-vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
+vegMapLcc.crsAge <- projectRaster(vegMapLcc, crs=crs(age))
 age.crsAge <- crop(age, vegMapLcc.crsAge)
 ageMap <- projectRaster(age.crsAge, to=vegMapLcc, method="ngb")
 endCluster()
@@ -55,18 +55,18 @@ lcc05TrajReclass <- structure(
                                         "16,35", "17,18,20,21,22,23,24,25",
                                         "19", "2,11,12", "26,27,28,29",
                                         "3,4,5,13,14,15", "34", "37",
-                                        "6,7,8,9,10"), class = "factor"),
+                                        "6,7,8,9,10"), class="factor"),
        Trajectory=structure(c(2L, 5L, 7L, 6L, 8L, 9L, 1L, 10L, 11L, 3L, 4L),
                             .Label=c("1,2,3,4,5,6", "1,3,4,5,6", "10",
                                      "11", "2,4", "3,4,5", "3,4,6", "6",
-                                     "6", "8", "9"), class = "factor"),
+                                     "6", "8", "9"), class="factor"),
        Description=structure(c(2L, 7L, 6L, 4L, 9L, 5L, 1L, 11L, 10L, 3L, 8L),
                              .Label=c("Burned", "Closed coniferous", "Cropland",
                                       "Deciduous", "Herbaceous", "Mixedwood",
                                       "Open coniferous", "Other", "Shrub",
-                                      "Water", "Wetland"), class = "factor")),
+                                      "Water", "Wetland"), class="factor")),
   .Names=c("LCC05.classes", "Trajectory", "Description"),
-  class="data.frame", row.names = c(NA, -11L))
+  class="data.frame", row.names=c(NA, -11L))
 
 
 lcc05VegReclass <- structure(
@@ -75,22 +75,21 @@ lcc05VegReclass <- structure(
                                         "16,35", "17,18,20,21,22,23,24,25",
                                         "19", "2,11,12", "26,27,28,29",
                                         "3,4,5,13,14,15", "34", "37",
-                                        "6,7,8,9,10"), class = "factor"),
+                                        "6,7,8,9,10"), class="factor"),
        VEG.reclass=1:11, Description=structure(
          c(2L, 7L, 6L, 4L, 9L, 5L, 1L, 11L, 10L, 3L, 8L),
-         .Label = c("Burned", "Closed coniferous",  "Cropland", "Deciduous",
+         .Label=c("Burned", "Closed coniferous",  "Cropland", "Deciduous",
                     "Herbaceous", "Mixedwood", "Open coniferous", "Other",
-                    "Shrub", "Water", "Wetland"), class = "factor")),
-  .Names = c("LCC05.classes", "VEG.reclass", "Description"),
-  class = "data.frame", row.names = c(NA, -11L))
+                    "Shrub", "Water", "Wetland"), class="factor")),
+  .Names=c("LCC05.classes", "VEG.reclass", "Description"),
+  class="data.frame", row.names=c(NA, -11L))
 
 
-lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
+lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","), ",")[[1]])
 numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
-lcc05VegTable <- cbind(lcc05VegLabels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
-vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
-                                                                   lcc05VegTable[,2])]+1)]
+lcc05VegTable <- cbind(lcc05VegLabels, rep(lcc05VegReclass$VEG.reclass, numLccInVeg))
+vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable), name="vegMap")
+vegMapColors <<- getColors(lcc05)[[1]][c(1, lcc05VegTable[,1][match(1:11, lcc05VegTable[,2])]+1)]
 setColors(vegMap, n=12 ) <- vegMapColors
 
 # the raster package does not keep colors when writing to a tif file
@@ -108,11 +107,11 @@ lcc05TrajTable <- cbind(
     lapply(1:length(lcc05TrajReclass$TrajectoryNum),
            function(x)
              sample(lcc05TrajReclass$TrajectoryNum[[x]],
-                    numLccInTraj[x],replace=T))))
+                    numLccInTraj[x], replace=TRUE))))
 
-#  lcc05TrajTable <- cbind(lcc05TrajLabels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
+#  lcc05TrajTable <- cbind(lcc05TrajLabels, rep(lcc05TrajReclass$Trajectory, numLccInTraj))
 trajMap <<- reclassify(vegMapLcc, lcc05TrajTable)
-setColors(trajMap,n=12) <- brewer.pal(9, "YlGn")
+setColors(trajMap, n=12) <- brewer.pal(9, "YlGn")
 name(trajMap) <- "trajMap"
 
 # trajObj.raw <- read.table(file="clipboard", sep="\t", header=TRUE, stringsAsFactors=FALSE)
@@ -138,26 +137,23 @@ trajObj.raw <- structure(
   .Names=c("Veg.Type", "X0.2", "X3.20", "X21.60", "X61.80", "X81.120", "X121.160", "X.160"),
   class="data.frame", row.names=c(NA, -7L))
 
-numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw),2,9),"\\."), function(x) diff(as.numeric(x))))+1)
+numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw), 2, 9), "\\."), function(x) diff(as.numeric(x))))+1)
 maxAge <- 200
 ages <- 0:maxAge
 
 
-trajObj1 <- apply(trajObj.raw[-4,-c(1)], 1, function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
-trajObj2 <- cbind(trajObj1,matrix(rep(c("Burned", "Wetland", "Water", "Cropland","Other"), each=maxAge+1), ncol=5))
-trajObj <<- matrix(match(trajObj2,
-                         as.character(lcc05TrajReclass$Description))
-                   , ncol=ncol(trajObj2))
+trajObj1 <- apply(trajObj.raw[-4, -c(1)], 1, function(x) rep(x, times=c(numYearsPer, maxAge+1-sum(numYearsPer))))
+trajObj2 <- cbind(trajObj1, matrix(rep(c("Burned", "Wetland", "Water", "Cropland", "Other"), each=maxAge+1), ncol=5))
+trajObj <<- matrix(match(trajObj2, as.character(lcc05TrajReclass$Description)), ncol=ncol(trajObj2))
 
-fileList <- data.frame(files=c("data/vegMap.tif",
-                               "data/ageMap.tif"),
+fileList <- data.frame(files=c("data/vegMap.tif", "data/ageMap.tif"),
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
 ageMapInit <<- RasterLayerNamed(ageMap, name="ageMapInit")
 vegMapInit <<- RasterLayerNamed(vegMap, name="vegMapInit")
 setColors(vegMapInit, n=12 ) <- vegMapColors
-setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
+setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen", "DarkGreen"))(50)
 
 
 ########################################################################
@@ -188,9 +184,9 @@ shinyServer(function(input, output) {
                       if(input$caribouModule) "caribouMovementLcc")
       path <- file.path("modules")
 
-      ageMap <- RasterLayerNamed(get("ageMapInit", envir=.GlobalEnv),name="ageMap")
+      ageMap <- RasterLayerNamed(get("ageMapInit", envir=.GlobalEnv), name="ageMap")
       assign("ageMap", ageMap, envir=.GlobalEnv)
-      vegMap <- RasterLayerNamed(get("vegMapInit", envir=.GlobalEnv),name="vegMap")
+      vegMap <- RasterLayerNamed(get("vegMapInit", envir=.GlobalEnv), name="vegMap")
       assign("vegMap", vegMap, envir=.GlobalEnv)
 
       Fires <<- raster(extent(vegMap), ncol=ncol(vegMap),
@@ -209,7 +205,7 @@ shinyServer(function(input, output) {
     })
 
     output$mapsInit <- renderPlot({
-      Plot(ageMapInit, vegMapInit, add=F, title=F)
+      Plot(ageMapInit, vegMapInit, add=FALSE, title=FALSE)
       seekViewport("top")
       grid.text(y=0.95, "2005", gp=gpar(cex=2.5))
       seekViewport("ageMapInit")
@@ -219,7 +215,7 @@ shinyServer(function(input, output) {
     })
 
     output$maps <- renderPlot({
-      Plot(layers()$ageMap, layers()$vegMap, add=F, title=F)
+      Plot(layers()$ageMap, layers()$vegMap, add=FALSE, title=FALSE)
       seekViewport("top")
       grid.text(y=0.95, input$stopTime, gp=gpar(cex=2.5))
       seekViewport("ageMap")
@@ -229,46 +225,50 @@ shinyServer(function(input, output) {
     })
 
     output$initHists <- renderPlot({
-      layout(matrix(c(1,2),byrow = TRUE, ncol=2))
+      layout(matrix(c(1,2),byrow=TRUE, ncol=2))
       age <- ageMapInit
-      hist(getValues(age), freq=FALSE, axes=F, breaks = seq(0,200,length.out=21),
+      hist(getValues(age), freq=FALSE, axes=FALSE, breaks=seq(0,200,length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
            main=paste("Forest age in 2005"), ylim=c(0,6e3/ncell(age)),
            cex.main=1.2, ylab="Hectares", xlab="Forest age")
-      axis(side=2,at=c(0,4e3/ncell(age)),labels = round(c(0,4e3*6.25),0))
+      axis(side=2,at=c(0,4e3/ncell(age)),labels=round(c(0,4e3*6.25),0))
       axis(side=1)
-      hist(getValues(vegMapInit), freq=F, axes=F, breaks = 0:11, col=vegMapColors[1:12],
+      hist(getValues(vegMapInit), freq=FALSE, axes=FALSE, breaks=0:11, col=vegMapColors[1:12],
            main=paste("Vegetation type in 2005"),
            cex.main=1.2, ylab="Hectares", xlab="Vegetation type")
-      axis(side=2,at=c(0,2e4/ncell(age)),labels = c(0,2e4*6.25))
+      axis(side=2, at=c(0, 2e4/ncell(age)), labels=c(0, 2e4*6.25))
       axis(side=1)
     })
 
     output$endHists <- renderPlot({
-      layout(matrix(c(1,2,3,0),byrow = TRUE, ncol=2))
+      layout(matrix(c(1, 2), byrow=TRUE, ncol=2))
       age <- layers()$ageMap
-      hist(getValues(age), freq=FALSE, axes=FALSE, breaks = seq(0,200,length.out=21),
+      hist(getValues(age), freq=FALSE, axes=FALSE, breaks=seq(0, 200, length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
-           main=paste("Forest age in year",input$stopTime), ylim=c(0,6e3/ncell(age)),
+           main=paste("Forest age in year", input$stopTime), ylim=c(0, 6e3/ncell(age)),
            cex.main=1.5, ylab="Hectares", xlab="Forest age")
-      axis(side=2,at=c(0,4e3/ncell(age)),labels = round(c(0,4e3*6.25),0))
+      axis(side=2, at=c(0, 4e3/ncell(age)), labels=round(c(0, 4e3*6.25), 0))
       axis(side=1)
-      hist(getValues(layers()$vegMap), freq=FALSE, axes=FALSE, breaks = 0:11, col=vegMapColors[1:12],
-           main=paste("Vegetation type in year",input$stopTime),
+      hist(getValues(layers()$vegMap), freq=FALSE, axes=FALSE, breaks=0:11, col=vegMapColors[1:12],
+           main=paste("Vegetation type in year", input$stopTime),
            cex.main=1.5, ylab="Hectares", xlab="Vegetation type")
-      axis(side=2,at=c(0,2e4/ncell(age)),labels = c(0,2e4*6.25))
+      axis(side=2, at=c(0, 2e4/ncell(age)), labels=c(0, 2e4*6.25))
       axis(side=1)
+    })
+
+    output$fireHist <- renderPlot({
       if(input$fireModule) {
         hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned (ha)",
              xlab="", ylab="Num. years", cex.main=1.5)
-	  }
+      }
     })
+
     output$caribouMaps <- renderPlot({
       if(input$caribouModule) {
-        Plot(layers()$caribouRas, add=F, title=F, pch=".")
+        Plot(layers()$caribouRas, add=FALSE, title=FALSE, pch=".")
            seekViewport("top")
-       grid.text(y=0.95, paste("Caribou densities between 2005 and",input$stopTime,
-                               "\nPopulation size =",length(layers()$caribou)), gp=gpar(cex=1.5))
+       grid.text(y=0.95, paste("Caribou densities between 2005 and", input$stopTime,
+                               "\nPopulation size =", length(layers()$caribou)), gp=gpar(cex=1.5))
 #       seekViewport("caribou")
 #       grid.text(y=1.05, "Caribou", gp=gpar(cex=1.5))
       }
