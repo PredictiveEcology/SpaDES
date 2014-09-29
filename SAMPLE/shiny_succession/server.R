@@ -111,7 +111,7 @@ lcc05TrajTable <- cbind(
                     numLccInTraj[x],replace=T))))
 
 #  lcc05TrajTable <- cbind(lcc05TrajLabels,rep(lcc05TrajReclass$Trajectory,numLccInTraj))
-trajMap <- reclassify(vegMapLcc, lcc05TrajTable)
+trajMap <<- reclassify(vegMapLcc, lcc05TrajTable)
 setColors(trajMap,n=12) <- brewer.pal(9, "YlGn")
 name(trajMap) <- "trajMap"
 
@@ -154,8 +154,8 @@ fileList <- data.frame(files=c("data/vegMap.tif",
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
-ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
-vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
+ageMapInit <<- RasterLayerNamed(ageMap, name="ageMapInit")
+vegMapInit <<- RasterLayerNamed(vegMap, name="vegMapInit")
 setColors(vegMapInit, n=12 ) <- vegMapColors
 setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
 
@@ -171,18 +171,21 @@ shinyServer(function(input, output) {
       parameters <- list(.globals=list(burnStats="nPixelsBurned"),
                          .progress=list(NA),
                          forestSuccession=list(returnInterval=1, startTime=0,
-                                               .plotInitialTime=NA, .plotInterval=1,
-                                               drought=input$drought),
+                                               .plotInitialTime=NA, .plotInterval=1),
                          forestAge=list(returnInterval=1, startTime=0.5,
                                         .plotInitialTime=NA, .plotInterval=1),
                          fireSpreadLcc=list(nFires=10,
-                                            its=1e6,
+                                            its=1e6, drought=input$drought,
                                             persistprob=0, returnInterval=1, startTime=1,
-                                            .plotInitialTime=NA, .plotInterval=1)
+                                            .plotInitialTime=NA, .plotInterval=1),
+                         caribouMovementLcc=list(N=1e4, moveInterval=1,
+                                              .plotInitialTime=NA, .plotInterval=1)
       )
 
-      modules <- list("forestSuccession", "forestAge", if(input$fireModule) "fireSpreadLcc")
-
+      modules <- list(if(input$successionModule) "forestSuccession",
+                      "forestAge",
+                      if(input$fireModule) "fireSpreadLcc",
+                      if(input$caribouModule) "caribouMovementLcc")
       path <- file.path("modules")
 
       ageMap <- RasterLayerNamed(get("ageMapInit", envir=.GlobalEnv),name="ageMap")
@@ -190,13 +193,19 @@ shinyServer(function(input, output) {
       vegMap <- RasterLayerNamed(get("vegMapInit", envir=.GlobalEnv),name="vegMap")
       assign("vegMap", vegMap, envir=.GlobalEnv)
 
+      Fires <<- raster(extent(vegMap), ncol=ncol(vegMap),
+                      nrow=nrow(vegMap), vals=0)
+
+
       mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
       nPixelsBurned <<- numeric(0)
       mySim <- spades(mySim)
       return(list(ageMap=get("ageMap", envir=.GlobalEnv),
                   vegMap=get("vegMap", envir=.GlobalEnv),
-                  nPixelsBurned=get("nPixelsBurned", envir=.GlobalEnv)))
+                  nPixelsBurned=get("nPixelsBurned", envir=.GlobalEnv),
+                  caribouRas=get("caribouRas", envir=.GlobalEnv),
+                  caribou=get("caribou", envir=.GlobalEnv)))
     })
 
     output$mapsInit <- renderPlot({
@@ -219,22 +228,49 @@ shinyServer(function(input, output) {
       grid.text(y=1.05, "Forest Cover", gp=gpar(cex=1.5))
     })
 
-    output$fireHist <- renderPlot({
-      layout(matrix(c(1,2,3,0),byrow = TRUE, ncol=2))
-      age <- layers()$ageMap
-      hist(getValues(age), breaks = seq(0,200,length.out=21),
+    output$initHists <- renderPlot({
+      layout(matrix(c(1,2),byrow = TRUE, ncol=2))
+      age <- ageMapInit
+      hist(getValues(age), freq=FALSE, axes=F, breaks = seq(0,200,length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
-           main=paste("Forest age in year",input$stopTime),
-           xlab="Forest age",
-           cex.main=1.5)
-      hist(getValues(layers()$vegMap), col=vegMapColors,
-           main=paste("Vegetation type in year",input$stopTime),
-           xlab="Vegetation type",
-           cex.main=1.5)
-      if(input$fireModule) {
-        hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned (ha)", xlab="Area burned (ha)",
-             cex.main=1.5)
-      }
+           main=paste("Forest age in 2005"), ylim=c(0,6e3/ncell(age)),
+           cex.main=1.2, ylab="Hectares", xlab="Forest age")
+      axis(side=2,at=c(0,4e3/ncell(age)),labels = round(c(0,4e3*6.25),0))
+      axis(side=1)
+      hist(getValues(vegMapInit), freq=F, axes=F, breaks = 0:11, col=vegMapColors[1:12],
+           main=paste("Vegetation type in 2005"),
+           cex.main=1.2, ylab="Hectares", xlab="Vegetation type")
+      axis(side=2,at=c(0,2e4/ncell(age)),labels = c(0,2e4*6.25))
+      axis(side=1)
     })
 
+    output$endHists <- renderPlot({
+      layout(matrix(c(1,2,3,0),byrow = TRUE, ncol=2))
+      age <- layers()$ageMap
+      hist(getValues(age), freq=FALSE, axes=FALSE, breaks = seq(0,200,length.out=21),
+           col=colorRampPalette(getColors(age)[[1]])(20),
+           main=paste("Forest age in year",input$stopTime), ylim=c(0,6e3/ncell(age)),
+           cex.main=1.5, ylab="Hectares", xlab="Forest age")
+      axis(side=2,at=c(0,4e3/ncell(age)),labels = round(c(0,4e3*6.25),0))
+      axis(side=1)
+      hist(getValues(layers()$vegMap), freq=FALSE, axes=FALSE, breaks = 0:11, col=vegMapColors[1:12],
+           main=paste("Vegetation type in year",input$stopTime),
+           cex.main=1.5, ylab="Hectares", xlab="Vegetation type")
+      axis(side=2,at=c(0,2e4/ncell(age)),labels = c(0,2e4*6.25))
+      axis(side=1)
+      if(input$fireModule) {
+        hist(layers()$nPixelsBurned*6.25, col="grey", main="Annual area burned (ha)",
+             xlab="", ylab="Num. years", cex.main=1.5)
+	  }
+    })
+    output$caribouMaps <- renderPlot({
+      if(input$caribouModule) {
+        Plot(layers()$caribouRas, add=F, title=F, pch=".")
+           seekViewport("top")
+       grid.text(y=0.95, paste("Caribou densities between 2005 and",input$stopTime,
+                               "\nPopulation size =",length(layers()$caribou)), gp=gpar(cex=1.5))
+#       seekViewport("caribou")
+#       grid.text(y=1.05, "Caribou", gp=gpar(cex=1.5))
+      }
+    })
 })

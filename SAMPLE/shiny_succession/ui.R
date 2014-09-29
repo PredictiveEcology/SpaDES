@@ -1,25 +1,42 @@
 shinyUI(fluidPage(
-  titlePanel("A simple forest succession model."),
+  titlePanel("ISA integration platform, Spades"),
 
   sidebarLayout(
     sidebarPanel(
-                 sliderInput('stopTime', 'Year to predict',
-                             min=2006, max=2040, value=2008, step=1, round=FALSE,
-                             format = "###0"),
 
-                 br(),
+      sliderInput('stopTime', 'Year to predict',
+                  min=2006, max=2050, value=2008, step=1, round=FALSE,
+                  format = "###0"),
+      br(),
 
-                 h3("Simulation modules"),
-                 checkboxInput('fireModule', 'Forest fires'),
+      h4("Model integration"),
+      checkboxInput('successionModule', 'Forest succession', value=TRUE),
+      checkboxInput('fireModule', 'Forest fires', value=TRUE),
+      checkboxInput('caribouModule', 'Caribou', value=TRUE),
 
-                 sliderInput('drought', 'Drought intensity',
-                            min=0.8, max=1.2, value=1, step=0.05, round=FALSE)
+      checkboxInput('carbonModule', 'Carbon', value=FALSE),
+      checkboxInput('CanIBIS', 'CanIBIS', value=FALSE),
+      checkboxInput('CANFIRE', 'CANFIRE', value=FALSE),
+
+      sliderInput('drought', 'Drought intensity',
+                  min=0.8, max=1.2, value=1, step=0.05, round=FALSE),
+      br(),
+      h4("Data integration"),
+      checkboxGroupInput("landCoverDataSources", "Land cover data",
+                         list("NFI","KNN","LCC05")),
+      checkboxGroupInput("climateDataSources", "Climate data",
+                         list("McKenney et al.", "ClimateWNA")),
+      br(),
+      fileInput("dataUpload", "Datasets to upload")
+
     ),
 
     mainPanel(
       plotOutput('mapsInit'),
       plotOutput('maps'),
-      plotOutput('fireHist')
+      plotOutput('initHists', height="200px"),
+      plotOutput('endHists'),
+      plotOutput('caribouMaps')
     )
   )
 ))
