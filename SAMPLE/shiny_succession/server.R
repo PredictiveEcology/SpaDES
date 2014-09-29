@@ -29,7 +29,7 @@ fileList <- data.frame(files=c("LCC2005_V1_4a.tif",
                        objectNames=c("lcc05","age"),
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
-#ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
+#ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12 Million
 ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
 
 if(interactiveExtent) {
