@@ -35,8 +35,8 @@ shinyUI(fluidPage(
       plotOutput('mapsInit'),
       plotOutput('maps'),
       plotOutput('initHists', height="200px"),
-      plotOutput('endHists'),
-      plotOutput('fireHist', heigh="200px", width="50%"),
+      plotOutput('endHists', height="200px"),
+      plotOutput('fireHist', height="200px", width="50%"),
       plotOutput('caribouMaps')
     )
   )

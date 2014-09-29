@@ -227,15 +227,15 @@ shinyServer(function(input, output) {
     output$initHists <- renderPlot({
       layout(matrix(c(1,2),byrow=TRUE, ncol=2))
       age <- ageMapInit
-      hist(getValues(age), freq=FALSE, axes=FALSE, breaks=seq(0,200,length.out=21),
+      hist(getValues(age), freq=FALSE, axes=FALSE, breaks=seq(0, 200, length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
-           main=paste("Forest age in 2005"), ylim=c(0,6e3/ncell(age)),
-           cex.main=1.2, ylab="Hectares", xlab="Forest age")
-      axis(side=2,at=c(0,4e3/ncell(age)),labels=round(c(0,4e3*6.25),0))
+           main=paste("Forest age in 2005"), ylim=c(0, 6e3/ncell(age)),
+           cex.main=1.5, ylab="Hectares", xlab="Forest age")
+      axis(side=2,at=c(0,4e3/ncell(age)),labels=round(c(0, 4e3*6.25),0))
       axis(side=1)
       hist(getValues(vegMapInit), freq=FALSE, axes=FALSE, breaks=0:11, col=vegMapColors[1:12],
            main=paste("Vegetation type in 2005"),
-           cex.main=1.2, ylab="Hectares", xlab="Vegetation type")
+           cex.main=1.5, ylab="Hectares", xlab="Vegetation type")
       axis(side=2, at=c(0, 2e4/ncell(age)), labels=c(0, 2e4*6.25))
       axis(side=1)
     })
