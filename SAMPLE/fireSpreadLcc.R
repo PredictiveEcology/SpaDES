@@ -21,7 +21,7 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
 
     ### check for object dependencies:
     ### (use `checkObject` or similar)
-    #checkObject(name="fireSpreadProb")
+    checkObject(name="vegMap")
 
     if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
       assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
