@@ -77,7 +77,7 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(Fires, legendRange=c(0,simParams(sim)$fireSpreadLcc$nFires))
+    Plot(Fires, legendRange=c(0,nFires))
     dev(6); hist(nPixelsBurned*6.25, xlab="Hectares",
                  main=paste0("Hectares burned by year ",simCurrentTime(sim))); dev(4)
 
@@ -128,9 +128,9 @@ fireSpreadLccBurn <- function(sim) {
                                                            c(0.225,0.225,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0)*
                                                              simParams(sim)$fireSpreadLcc$drought)),
                                       name="fireSpreadProb")
-
+  nFires <<- rpois(1,simParams(sim)$fireSpreadLcc$nFires*simParams(sim)$fireSpreadLcc$drought)
   Fires <- spread(fireSpreadProb,
-                   loci=as.integer(sample(1:ncell(fireSpreadProb), simParams(sim)$fireSpreadLcc$nFires)),
+                   loci=as.integer(sample(1:ncell(fireSpreadProb), nFires)),
                    spreadProb=fireSpreadProb,
                    persistance=simParams(sim)$fireSpreadLcc$persistprob,
                    mask=NULL,
@@ -140,7 +140,7 @@ fireSpreadLccBurn <- function(sim) {
                    plot.it=FALSE,
                    mapID=TRUE)
   names(Fires) <- "Fires"
-  setColors(Fires,n=simParams(sim)$fireSpreadLcc$nFires+1) <- c("#FFFFFF", rev(heat.colors(simParams(sim)$fireSpreadLcc$nFires)))
+  setColors(Fires,n=nFires+1) <- c("#FFFFFF", rev(heat.colors(nFires)))
   #  landscapes$Fires <- Fires
 
   assign("Fires", Fires, envir=.GlobalEnv)

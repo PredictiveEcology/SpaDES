@@ -6,8 +6,9 @@ get_next_integer = function(){
   function(u,v){ i <<- i+1 }
 }
 
+
 library(microbenchmark)
-(mb=microbenchmark(times=10L,{
+(mb=microbenchmark(times=1L,{
   vegVal <- tbl_df(data.frame(traj = getValues(trajMap),
                               age=getValues(ageMap)+1))
   get_integer = get_next_integer()
