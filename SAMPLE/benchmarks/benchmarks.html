@@ -100,66 +100,65 @@ rm(a, b, d)
 <pre><code>## [1] TRUE</code></pre>
 <p>The internal R function is <strong><em>3947x</em></strong> faster than the C++ version, or the base R version.</p>
 <p>This is taken from a blog post by Wingfeet at <a href="http://www.r-bloggers.com/quicksort-speed-just-in-time-compiling-and-vectorizing/" class="uri">http://www.r-bloggers.com/quicksort-speed-just-in-time-compiling-and-vectorizing/</a> which drew on benchmark tests here: <a href="http://julialang.org/" class="uri">http://julialang.org/</a> Essentially, this was a benchmark to test the speed of Julia. It shows for the Quicksort, that R is 524x slower than C. Below is a “simple” version, then the best, fastest version that Wingfeet was able to do. But, there was no explicit comparison of how the base R sort would match with C.</p>
-<pre class="r"><code>#require(compiler)
-#enableJIT(0)
-x = runif(1e5)
+<p>Real number sortin:</p>
+<pre class="r"><code>x = runif(1e5)
 (mb &lt;- microbenchmark(a0 &lt;- qsort(x), a &lt;- wfqsx(x), b &lt;- wfqs1(x), 
                       d &lt;- sort(x), 
                       e &lt;- sort(x, method=&quot;quick&quot;),
                       f &lt;- .Internal(sort(x,decreasing = FALSE)),
                       g &lt;- data.table(x=x,key=&quot;x&quot;),
-                      times=2L))</code></pre>
+                      times=1L))</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                         expr      min       lq     mean
-##                               a0 &lt;- qsort(x) 3244.616 3244.616 3400.689
-##                                a &lt;- wfqsx(x) 1108.073 1108.073 1161.650
-##                                b &lt;- wfqs1(x)  947.647  947.647 1006.374
-##                                 d &lt;- sort(x)   12.285   12.285   12.286
-##               e &lt;- sort(x, method = &quot;quick&quot;)    8.026    8.026    8.214
-##  f &lt;- .Internal(sort(x, decreasing = FALSE))   11.394   11.394   12.064
-##            g &lt;- data.table(x = x, key = &quot;x&quot;)    7.455    7.455   25.922
+##                               a0 &lt;- qsort(x) 3261.856 3261.856 3261.856
+##                                a &lt;- wfqsx(x) 1169.061 1169.061 1169.061
+##                                b &lt;- wfqs1(x)  951.724  951.724  951.724
+##                                 d &lt;- sort(x)   11.762   11.762   11.762
+##               e &lt;- sort(x, method = &quot;quick&quot;)    8.077    8.077    8.077
+##  f &lt;- .Internal(sort(x, decreasing = FALSE))   11.336   11.336   11.336
+##            g &lt;- data.table(x = x, key = &quot;x&quot;)    7.158    7.158    7.158
 ##    median       uq      max neval
-##  3400.689 3556.762 3556.762     2
-##  1161.650 1215.227 1215.227     2
-##  1006.374 1065.100 1065.100     2
-##    12.286   12.288   12.288     2
-##     8.214    8.402    8.402     2
-##    12.064   12.735   12.735     2
-##    25.922   44.389   44.389     2</code></pre>
+##  3261.856 3261.856 3261.856     1
+##  1169.061 1169.061 1169.061     1
+##   951.724  951.724  951.724     1
+##    11.762   11.762   11.762     1
+##     8.077    8.077    8.077     1
+##    11.336   11.336   11.336     1
+##     7.158    7.158    7.158     1</code></pre>
 <pre class="r"><code>print(sumReals&lt;-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7])),0)</code></pre>
-<pre><code>## [1] 414</code></pre>
+<pre><code>## [1] 456</code></pre>
 <pre class="r"><code>all.equal(a0,a,b,d,e,f,g$x)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code># Integers
-x = sample(1e5)
+<p>And Integers are faster in the low-level R functions:</p>
+<pre class="r"><code>x = sample(1e5)
 (mb &lt;- microbenchmark(a0 &lt;- qsort(x), a &lt;- wfqsx(x), b &lt;- wfqs1(x),
                       d &lt;- sort(x), 
                       e &lt;- sort(x, method=&quot;quick&quot;), 
                       f &lt;- .Internal(sort(x,decreasing = FALSE)),
                       g &lt;- data.table(x=x,key=&quot;x&quot;),
-                      times=2L))</code></pre>
+                      times=1L))</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                         expr      min       lq     mean
-##                               a0 &lt;- qsort(x) 3290.333 3290.333 3362.327
-##                                a &lt;- wfqsx(x) 1066.741 1066.741 1070.628
-##                                b &lt;- wfqs1(x)  902.735  902.735  948.595
-##                                 d &lt;- sort(x)   10.450   10.450   10.741
-##               e &lt;- sort(x, method = &quot;quick&quot;)    6.524    6.524    6.614
-##  f &lt;- .Internal(sort(x, decreasing = FALSE))   11.098   11.098   11.836
-##            g &lt;- data.table(x = x, key = &quot;x&quot;)    2.971    2.971    3.013
+##                               a0 &lt;- qsort(x) 3342.219 3342.219 3342.219
+##                                a &lt;- wfqsx(x) 1161.511 1161.511 1161.511
+##                                b &lt;- wfqs1(x)  883.049  883.049  883.049
+##                                 d &lt;- sort(x)   10.402   10.402   10.402
+##               e &lt;- sort(x, method = &quot;quick&quot;)    6.577    6.577    6.577
+##  f &lt;- .Internal(sort(x, decreasing = FALSE))   10.636   10.636   10.636
+##            g &lt;- data.table(x = x, key = &quot;x&quot;)    3.026    3.026    3.026
 ##    median       uq      max neval
-##  3362.327 3434.321 3434.321     2
-##  1070.628 1074.516 1074.516     2
-##   948.595  994.455  994.455     2
-##    10.741   11.032   11.032     2
-##     6.614    6.703    6.703     2
-##    11.836   12.574   12.574     2
-##     3.013    3.055    3.055     2</code></pre>
+##  3342.219 3342.219 3342.219     1
+##  1161.511 1161.511 1161.511     1
+##   883.049  883.049  883.049     1
+##    10.402   10.402   10.402     1
+##     6.577    6.577    6.577     1
+##    10.636   10.636   10.636     1
+##     3.026    3.026    3.026     1</code></pre>
 <pre class="r"><code>print(sumInts &lt;- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7])),0)</code></pre>
-<pre><code>## [1] 1116</code></pre>
+<pre><code>## [1] 1104</code></pre>
 <pre class="r"><code>all.equal(a0,a,b,d,e,f,g$x)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
-<p>The first three function are 3 different implementations of the quicksort algorithm shown on the Julia pages, with the first, qsort, being the one that the Julia testers used. Using the data.table sorting we were able to achieve <strong><em>483x</em></strong> speedup if Reals, and <strong>1116x</strong> speedup if integers. These put them as fast or faster than C or Fortran or Julia. In Wingfeet’s blog post, he also showed that using JIT can speed up non-optimized, “procedural” R code, though not as fast as the low level functions that exist in various R packages.</p>
+<p>The first three function are 3 different implementations of the quicksort algorithm shown on the Julia pages, with the first, qsort, being the one that the Julia testers used. Using the data.table sorting we were able to achieve <strong><em>483x</em></strong> speedup if Reals, and <strong>1104x</strong> speedup if integers. These put them as fast or faster than C or Fortran or Julia. In Wingfeet’s blog post, he also showed that using JIT can speed up non-optimized, “procedural” R code, though not as fast as the low level functions that exist in various R packages.</p>
 <p>Again, the fastest native R function is faster than a simple (unoptimized) C or C++ function. As with any language, there is faster code and slower code. With R, it may take a few tries, but there is usually a very fast option.</p>
 <div id="conclusions" class="section level4">
 <h4>Conclusions</h4>

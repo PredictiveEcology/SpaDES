@@ -113,27 +113,28 @@ wfqsx = function(a) {
 }
 ```
 
+Real number sortin:
 ```{r sorting, eval=TRUE, echo=TRUE, cache=TRUE}
-#require(compiler)
-#enableJIT(0)
 x = runif(1e5)
 (mb <- microbenchmark(a0 <- qsort(x), a <- wfqsx(x), b <- wfqs1(x), 
                       d <- sort(x), 
                       e <- sort(x, method="quick"),
                       f <- .Internal(sort(x,decreasing = FALSE)),
                       g <- data.table(x=x,key="x"),
-                      times=2L))
+                      times=1L))
 print(sumReals<-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7])),0)
 all.equal(a0,a,b,d,e,f,g$x)
+```
 
-# Integers
+And Integers are faster in the low-level R functions:
+```{r integer_sort, eval=TRUE, echo=TRUE, cache=TRUE}
 x = sample(1e5)
 (mb <- microbenchmark(a0 <- qsort(x), a <- wfqsx(x), b <- wfqs1(x),
                       d <- sort(x), 
                       e <- sort(x, method="quick"), 
                       f <- .Internal(sort(x,decreasing = FALSE)),
                       g <- data.table(x=x,key="x"),
-                      times=2L))
+                      times=1L))
 print(sumInts <- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7])),0)
 all.equal(a0,a,b,d,e,f,g$x)
 
