@@ -1,0 +1,46 @@
+---
+title: "Benchmarking with R/SpaDES"
+author: "Eliot McIntire"
+date: "Friday, September 12, 2014"
+output: html_document
+---
+
+
+This file 
+
+```{r load_cpp_functions, cache=FALSE, eval=TRUE, echo=FALSE}
+library(Rcpp)
+library(microbenchmark)
+path <- "~/GitHub/SpaDES/SAMPLE/Functions in progress/"
+setwd(path)
+sourceCpp(file="meanCPP.cpp")
+```
+
+For the mean, I show two different C++ versiopns. The R function, "mean" is somewhat slower (1/2x), but the .Primitive option in R, sum/length is faster than either C++ function.
+```{r mean, eval=TRUE, echo=TRUE, cache=FALSE}
+#library(Rcpp)
+library(microbenchmark)
+#sourceCpp(file="meanCPP.cpp")
+x <- runif(1e5)
+
+x1 = matrix(x, ncol=1)
+microbenchmark(a<-meanC1(x), d<-meanC2(x), b<-mean(x), e<-mean.default(x), g<-sum(x)/length(x), i<- .Internal(mean(x)), h<-rowMeans(x1))
+all.equal(a,b, d, e, g, h, i)
+```
+
+
+Below, we take the minimum of each of a pair of columns. The internal R function is 1300x faster than the C++ version, or the base R version. 
+```{r pmin, eval=TRUE}
+x2 <- rnorm(1e5)
+rm(a, b, d)
+(mb<-microbenchmark(a<-pminC(x,x2),b<-base::pmin(x,x2), d<-.Internal(pmin(x,x2))))
+all.equal(a,b,d)
+```
+
+```{r sorting, eval=TRUE, echo=TRUE}
+
+
+
+```
+
+Again, the fastest native R function is faster than a simple (unoptimized) C++ function. As with any language, there is faster code and slower code. With R, it may take a few tries, but there is usually a very fast option.
