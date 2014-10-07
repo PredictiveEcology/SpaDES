@@ -1,9 +1,4 @@
 base
-datasets
-graphics
-grDevices
-methods
+data.table
 microbenchmark
 Rcpp
-stats
-utils
