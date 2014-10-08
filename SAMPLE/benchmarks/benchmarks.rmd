@@ -1,11 +1,19 @@
 ---
-title: "Benchmarking with R/SpaDES"
+title: "Benchmarking with R/SpaDES R 3.1.1"
 author: "Eliot McIntire"
-date: "Friday, Octore 6, 2014"
+date: "October 7, 2014"
 output: html_document
 ---
 
-The objective of this file is to show some speed comparisons between R and C++ and in some cases, other languages or software.
+The objective of this file is to show some speed comparisons between R and C++ and in some cases, other languages or software. Clearly this is NOT a comparison between R and C++ because many of the functions in R are written in C++ and wrapped in R. This document shows three important points:
+
+1. built-in R functions (written in R or C++ or any other language) are often faster than ad hoc C++ functions because they are optimized.
+
+2. built-in R functions are to be used in a vectorized way, avoiding loops unless it is strictly necessary to keep the sequence
+
+3. there are often different ways to do the same thing in R; some are much faster than others
+
+Tests are done on an HP Z400, Xeon 3.33 GHz processor, running Windows 7 Enterprise
 
 ## Low level functionality
 
@@ -16,13 +24,14 @@ We will begin with low level functions that are generally highly optimized in R.
 library(data.table)
 library(microbenchmark)
 library(Rcpp)
-library(microbenchmark)
 path <- "~/GitHub/SpaDES/SAMPLE/Functions in progress/"
 setwd(path)
 sourceCpp(file="meanCPP.cpp")
 ```
 
 For the mean, I show two different C++ versiopns. The R function, "mean" is somewhat slower (1/2x), but the .Primitive option in R, sum/length is faster than either C++ function.
+
+#### Mean
 ```{r mean, eval=TRUE, cache=FALSE, echo=FALSE, cache=TRUE}
 #library(Rcpp)
 library(microbenchmark)
@@ -35,12 +44,13 @@ all.equal(a,b, d, e, g, h, i)
 ```
 
 
+#### Minimum of pair of numbers
 Below, we take the minimum of each of a pair of columns.  
 ```{r pmin, eval=TRUE, cache=TRUE}
 x2 <- rnorm(1e5)
 rm(a, b, d)
 (mb<-microbenchmark(a<-pminC(x,x2),b<-base::pmin(x,x2), d<-.Internal(pmin(x,x2))))
-print(pmins<-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3])),0)
+print(pmins<-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3]),0))
 all.equal(a,b,d)
 ```
 
@@ -113,7 +123,9 @@ wfqsx = function(a) {
 }
 ```
 
-Real number sortin:
+#### Sorting
+
+Real number sorting:
 ```{r sorting, eval=TRUE, echo=TRUE, cache=TRUE}
 x = runif(1e5)
 (mb <- microbenchmark(a0 <- qsort(x), a <- wfqsx(x), b <- wfqs1(x), 
@@ -122,7 +134,7 @@ x = runif(1e5)
                       f <- .Internal(sort(x,decreasing = FALSE)),
                       g <- data.table(x=x,key="x"),
                       times=1L))
-print(sumReals<-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7])),0)
+print(sumReals<-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7]),0))
 all.equal(a0,a,b,d,e,f,g$x)
 ```
 
@@ -135,7 +147,7 @@ x = sample(1e5)
                       f <- .Internal(sort(x,decreasing = FALSE)),
                       g <- data.table(x=x,key="x"),
                       times=1L))
-print(sumInts <- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7])),0)
+print(sumInts <- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7]),0))
 all.equal(a0,a,b,d,e,f,g$x)
 
 ```
@@ -148,9 +160,67 @@ Again, the fastest native R function is faster than a simple (unoptimized) C or 
 #### Conclusions
 Clearly, low level speed can be achieved within R, often better than quick implementations in C or C++. This is because efforts have been made in primitives and internal functions with core R functions to provide optimal versions, without any extra user coding.  Many work flows to not require explicit loops. R's vectorization model allows for fast code, with little coding. ***Write vectorized code in R***
 
+## Loops
+```{r loops, eval=TRUE, echo=TRUE}
+
+N = 2e4
+(mb = microbenchmark(times=5L,
+naiveVector = {set.seed(104)
+               a <- numeric()
+                for (i in 1:N) {
+                  a[i] = rnorm(1)
+                } 
+              } ,
+presetVector = {set.seed(104)
+                b <- numeric(N) 
+      for (i in 1:N) {
+        b[i] = rnorm(1)
+      }
+    },
+vectorized = {set.seed(104)
+                d <- rnorm(N)
+  }
+))
+all.equal(a,b,d)
+print(sumLoops <- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3]),0))
+
+```
+
+The vectorized function is ***`r round(sumLoops,0)`x*** faster.
+
 ## High level functionality
 
 R also has numerous high level functions and packages that allow users to do a diversity of analyses and data manipulations, from GIS to MCMC to optimally stored file-based object storing for fast access (ff package), and much more.  Here are a few examples.
 
 ### GIS
 
+```{r download_file, eval=TRUE, echo=TRUE, cache=TRUE}
+  library(raster)  
+  fN <- "lcc05.zip"
+  download.file("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip", fN, mode="wb")
+  unzip(fN, files="LCC2005_V1_4a.tif")
+
+  download.file("ftp://ftp.daac.ornl.gov/data/nacp/NA_TreeAge//data/can_age04_1km.tif",
+                "age.tif",mode="wb")
+```
+
+
+```{r reproject}
+#ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
+#ext <- extent(1612240, 1895057, 6756615, 6907451) # small 600k pixels Quebec City Lac St. Jean
+lcc05 <- raster("LCC2005_V1_4a.tif")
+age <- raster("age.tif")
+ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+vegMapLcc <- crop(lcc05,ext)
+if(ncell(vegMapLcc)>1e6) beginCluster()
+vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
+age.crsAge <- crop(age, vegMapLcc.crsAge)
+ageMap <- projectRaster(age.crsAge, to=vegMapLcc, method="ngb")
+#ageMap <- projectRaster(ageMap, crs = QC.crs, method="ngb")
+#vegMapLcc <- projectRaster(vegMapLcc, crs = QC.crs, method="ngb")
+
+endCluster()
+
+
+
+```
