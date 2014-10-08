@@ -196,31 +196,50 @@ R also has numerous high level functions and packages that allow users to do a d
 
 ```{r download_file, eval=TRUE, echo=TRUE, cache=TRUE}
   library(raster)  
-  fN <- "lcc05.zip"
-  download.file("ftp://ftp.ccrs.nrcan.gc.ca/ad/NLCCLandCover/LandcoverCanada2005_250m/LandCoverOfCanada2005_V1_4.zip", fN, mode="wb")
-  unzip(fN, files="LCC2005_V1_4a.tif")
-
-  download.file("ftp://ftp.daac.ornl.gov/data/nacp/NA_TreeAge//data/can_age04_1km.tif",
-                "age.tif",mode="wb")
+  lcc05 <- raster("c:/shared/LCC2005_V1_4a.tif")
+  age <- raster("c:/shared/age.tif")
+  
 ```
 
 
-```{r reproject}
-#ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
-#ext <- extent(1612240, 1895057, 6756615, 6907451) # small 600k pixels Quebec City Lac St. Jean
-lcc05 <- raster("LCC2005_V1_4a.tif")
-age <- raster("age.tif")
-ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
-vegMapLcc <- crop(lcc05,ext)
-if(ncell(vegMapLcc)>1e6) beginCluster()
-vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
-age.crsAge <- crop(age, vegMapLcc.crsAge)
-ageMap <- projectRaster(age.crsAge, to=vegMapLcc, method="ngb")
-#ageMap <- projectRaster(ageMap, crs = QC.crs, method="ngb")
-#vegMapLcc <- projectRaster(vegMapLcc, crs = QC.crs, method="ngb")
+```{r crop1, eval=TRUE, echo=TRUE, cache=TRUE}
+beginCluster()
+ext1 <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+vegMapLcc1 <- crop(lcc05,ext1)
 
-endCluster()
+ext2 <- extent(1612240, 1895057, 6756615, 6907451) # small 600k pixels Quebec City Lac St. Jean
+vegMapLcc2 <- crop(lcc05,ext2)
 
-
+ext3 <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
+vegMapLcc3 <- crop(lcc05,ext3)
 
 ```
+
+```{r reproject1, eval=TRUE, echo=TRUE, cache=TRUE}
+(mbReproj <- microbenchmark(times=1L,
+vegMapLcc1.crsAge <- projectRaster(vegMapLcc1, crs=crs(age)),
+vegMapLcc2.crsAge <- projectRaster(vegMapLcc2, crs=crs(age)),
+vegMapLcc3.crsAge <- projectRaster(vegMapLcc3, crs=crs(age)))
+)
+
+```
+
+```{r crop2, eval=TRUE, echo=FALSE, cache=TRUE}
+(mbCrop <- microbenchmark(times=1L,
+age1.crsAge <- crop(age, vegMapLcc1.crsAge),
+age2.crsAge <- crop(age, vegMapLcc2.crsAge),
+age3.crsAge <- crop(age, vegMapLcc3.crsAge)))
+
+```
+
+
+```{r reproject2, eval=TRUE, echo=TRUE, cache=TRUE}
+(mbReproj2 <- microbenchmark(times=1L,
+ageMapSmall <- projectRaster(age1.crsAge, to=vegMapLcc1, method="ngb"),
+ageMapMed <- projectRaster(age2.crsAge, to=vegMapLcc2, method="ngb"),
+ageMapLg <- projectRaster(age3.crsAge, to=vegMapLcc3, method="ngb")
+))
+#endCluster()
+
+```
+Since the raster package can run in "parallel" mode for some of its functions, this reproject raster function reprojected **12 million pixels** in ***`r reproject[3]` seconds*** on a 6 core, hyperthreaded machine (shows up as 12 cores), with a peak 600MB RAM use per core (7.2GB). 

@@ -54,7 +54,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="header">
 <h1 class="title">Benchmarking with R/SpaDES R 3.1.1</h1>
 <h4 class="author"><em>Eliot McIntire</em></h4>
-<h4 class="date"><em>Friday, Octore 6, 2014</em></h4>
+<h4 class="date"><em>October 7, 2014</em></h4>
 </div>
 
 
@@ -202,20 +202,93 @@ vectorized = {set.seed(104)
 ))</code></pre>
 <pre><code>## Unit: milliseconds
 ##          expr     min      lq   mean  median      uq     max neval
-##   naiveVector 548.648 562.332 580.42 568.980 573.777 648.384     5
-##  presetVector  69.203  72.417  84.21  73.966  86.141 119.328     5
-##    vectorized   1.825   1.847   2.01   1.894   1.945   2.538     5</code></pre>
+##   naiveVector 536.594 567.521 576.43 579.543 586.387 612.093     5
+##  presetVector  72.556  72.736  81.68  75.655  77.184 110.251     5
+##    vectorized   1.942   1.942   1.98   1.947   1.948   2.121     5</code></pre>
 <pre class="r"><code>all.equal(a,b,d)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 <pre class="r"><code>print(sumLoops &lt;- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3]),0))</code></pre>
-<pre><code>## [1] 289</code></pre>
-<p>The vectorized function is <strong><em>289x</em></strong> faster.</p>
+<pre><code>## [1] 291</code></pre>
+<p>The vectorized function is <strong><em>291x</em></strong> faster.</p>
 </div>
 <div id="high-level-functionality" class="section level2">
 <h2>High level functionality</h2>
 <p>R also has numerous high level functions and packages that allow users to do a diversity of analyses and data manipulations, from GIS to MCMC to optimally stored file-based object storing for fast access (ff package), and much more. Here are a few examples.</p>
 <div id="gis" class="section level3">
 <h3>GIS</h3>
+<pre class="r"><code>  library(raster)  </code></pre>
+<pre><code>## Loading required package: sp</code></pre>
+<pre class="r"><code>  lcc05 &lt;- raster(&quot;c:/shared/LCC2005_V1_4a.tif&quot;)</code></pre>
+<pre><code>## rgdal: version: 0.9-1, (SVN revision 518)
+## Geospatial Data Abstraction Library extensions to R successfully loaded
+## Loaded GDAL runtime: GDAL 1.11.0, released 2014/04/16
+## Path to GDAL shared files: C:/Eliot/R/win-library/3.1/rgdal/gdal
+## GDAL does not use iconv for recoding strings.
+## Loaded PROJ.4 runtime: Rel. 4.8.0, 6 March 2012, [PJ_VERSION: 480]
+## Path to PROJ.4 shared files: C:/Eliot/R/win-library/3.1/rgdal/proj</code></pre>
+<pre class="r"><code>  age &lt;- raster(&quot;c:/shared/age.tif&quot;)</code></pre>
+<pre class="r"><code>if (is(try(length(getCluster())), &quot;try-error&quot;)) beginCluster()</code></pre>
+<pre><code>## Loading required package: snow</code></pre>
+<pre><code>## 12 cores detected</code></pre>
+<pre class="r"><code>ext1 &lt;- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+vegMapLcc1 &lt;- crop(lcc05,ext1)
+
+ext2 &lt;- extent(1612240, 1895057, 6756615, 6907451) # small 600k pixels Quebec City Lac St. Jean
+vegMapLcc2 &lt;- crop(lcc05,ext2)
+
+ext3 &lt;- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
+vegMapLcc3 &lt;- crop(lcc05,ext3)</code></pre>
+<pre class="r"><code>(mbReproj &lt;- microbenchmark(times=1L,
+vegMapLcc1.crsAge &lt;- projectRaster(vegMapLcc1, crs=crs(age)),
+vegMapLcc2.crsAge &lt;- projectRaster(vegMapLcc2, crs=crs(age)),
+vegMapLcc3.crsAge &lt;- projectRaster(vegMapLcc3, crs=crs(age)))
+)</code></pre>
+<pre><code>## Using cluster with 12 nodes
+## Using cluster with 12 nodes
+## Using cluster with 12 nodes</code></pre>
+<pre><code>## Unit: seconds
+##                                                            expr    min
+##  vegMapLcc1.crsAge &lt;- projectRaster(vegMapLcc1, crs = crs(age))  1.418
+##  vegMapLcc2.crsAge &lt;- projectRaster(vegMapLcc2, crs = crs(age))  6.867
+##  vegMapLcc3.crsAge &lt;- projectRaster(vegMapLcc3, crs = crs(age)) 64.477
+##      lq   mean median     uq    max neval
+##   1.418  1.418  1.418  1.418  1.418     1
+##   6.867  6.867  6.867  6.867  6.867     1
+##  64.477 64.477 64.477 64.477 64.477     1</code></pre>
+<pre class="r"><code>print(reproject &lt;- round( summary(mbReproj)[[4]],0))</code></pre>
+<pre><code>## [1]  1  7 64</code></pre>
+<pre class="r"><code>(mbCrop &lt;- microbenchmark(times=1L,
+age1.crsAge &lt;- crop(age, vegMapLcc1.crsAge),
+age2.crsAge &lt;- crop(age, vegMapLcc2.crsAge),
+age3.crsAge &lt;- crop(age, vegMapLcc3.crsAge)))</code></pre>
+<pre><code>## Unit: milliseconds
+##                                         expr   min    lq  mean median
+##  age1.crsAge &lt;- crop(age, vegMapLcc1.crsAge) 160.2 160.2 160.2  160.2
+##  age2.crsAge &lt;- crop(age, vegMapLcc2.crsAge) 369.5 369.5 369.5  369.5
+##  age3.crsAge &lt;- crop(age, vegMapLcc3.crsAge) 610.1 610.1 610.1  610.1
+##     uq   max neval
+##  160.2 160.2     1
+##  369.5 369.5     1
+##  610.1 610.1     1</code></pre>
+<pre class="r"><code>(mbReproj2 &lt;- microbenchmark(times=1L,
+ageMapSmall &lt;- projectRaster(age1.crsAge, to=vegMapLcc1, method=&quot;ngb&quot;),
+ageMapMed &lt;- projectRaster(age2.crsAge, to=vegMapLcc2, method=&quot;ngb&quot;),
+ageMapLg &lt;- projectRaster(age3.crsAge, to=vegMapLcc3, method=&quot;ngb&quot;)
+))</code></pre>
+<pre><code>## Using cluster with 12 nodes
+## Using cluster with 12 nodes
+## Using cluster with 12 nodes</code></pre>
+<pre><code>## Unit: milliseconds
+##                                                                        expr
+##  ageMapSmall &lt;- projectRaster(age1.crsAge, to = vegMapLcc1, method = &quot;ngb&quot;)
+##    ageMapMed &lt;- projectRaster(age2.crsAge, to = vegMapLcc2, method = &quot;ngb&quot;)
+##     ageMapLg &lt;- projectRaster(age3.crsAge, to = vegMapLcc3, method = &quot;ngb&quot;)
+##      min      lq    mean  median      uq     max neval
+##    341.0   341.0   341.0   341.0   341.0   341.0     1
+##    937.4   937.4   937.4   937.4   937.4   937.4     1
+##  12934.2 12934.2 12934.2 12934.2 12934.2 12934.2     1</code></pre>
+<pre class="r"><code>#endCluster()</code></pre>
+<p>Since the raster package can run in “parallel” mode for some of its functions, this reproject raster function reprojected <strong>12 million pixels</strong> in <strong><em>64 seconds</em></strong> on a 6 core, hyperthreaded machine (shows up as 12 cores), with a peak 600MB RAM use per core (7.2GB).</p>
 </div>
 </div>
 
