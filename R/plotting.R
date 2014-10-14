@@ -591,6 +591,16 @@ setMethod("drawArrows",
      })
 
 
+#' @export
+objectNames <- function(...) {
+  abcd = as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern="^Plot")[1])][[1]])[-1]
+  if(is.null(names(abcd))) return(as.character(abcd)) else {
+    wh = which(nchar(names(abcd))==0)
+    return(as.character(abcd[wh]))
+  }
+}
+
+
 #####################
 #' Fast, optimally arranged, multipanel plotting function with spades
 #'
@@ -751,7 +761,6 @@ setMethod("Plot",
                                 legend, legendRange, draw, pch, title, na.color) {
             toPlot <- list(...)
 
-
             # Determine if any in the ... are stacks
             whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
             if(any(whStacks)) {
@@ -771,7 +780,9 @@ setMethod("Plot",
               #              if(!is.null(addTo)) add <- TRUE
             }
 
-            lN <- layerNames(toPlot)
+            #lN <- layerNames(toPlot)
+            lN <- objectNames()
+
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
                                                "inside RasterStacks for objects, or",
                                                "that the name slot is set correctly, using name(x) <- \"name\""))
