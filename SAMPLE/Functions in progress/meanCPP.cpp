@@ -70,3 +70,14 @@ NumericVector pminC(NumericVector x, NumericVector y) {
 
   return out;
 }
+
+// [[Rcpp::export]]
+int fibonacciC(const int x) {
+    if (x == 0 || x == 1) return(x);
+    return (fibonacciC(x - 1)) + fibonacciC(x - 2);
+}
+
+// [[Rcpp::export]]
+int fibC(int n) {
+    return n < 2 ? n : fibC(n-1) + fibC(n-2);
+}

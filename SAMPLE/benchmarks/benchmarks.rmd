@@ -20,15 +20,99 @@ Tests are done on an HP Z400, Xeon 3.33 GHz processor, running Windows 7 Enterpr
 We will begin with low level functions that are generally highly optimized in R. As a result, the comparison C++ functions, which are not optimized, may not fully represent what C++ could do. However, this represents a real world issue: if the "out of the box" R function is competitive with a "quick" C++ version, then the R version is easier to write as there is no further development. If there is a desire or need for more speed, then a more optimzed C++ version can be written and used either in native C++ applications or R.
 
 
-```{r load_cpp_functions, cache=FALSE, eval=TRUE, echo=FALSE, }
+```{r load_cpp_functions, eval=TRUE, echo=TRUE, cache=FALSE}
 library(data.table)
 library(microbenchmark)
 library(Rcpp)
+library(numbers)
+library(magrittr) # for pipe used below
+library(dplyr)
 path <- "~/GitHub/SpaDES/SAMPLE/Functions in progress/"
 setwd(path)
 sourceCpp(file="meanCPP.cpp")
 ```
 
+```{r RcppFunctions, engine='Rcpp', cache=TRUE, eval=FALSE, echo=TRUE}
+#include <Rcpp.h>
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+double meanC1(NumericVector x) {
+  int n = x.size();
+  double total = 0;
+
+  for(int i = 0; i < n; ++i) {
+    total += x[i];
+  }
+  return total / n;
+}
+
+// [[Rcpp::export]]
+double meanC2(NumericVector x) {
+  int n = x.size();
+  double y = 0;
+
+  for(int i = 0; i < n; ++i) {
+    y += x[i] / n;
+  }
+  return y;
+}
+
+// [[Rcpp::export]]
+NumericVector f2(NumericVector x) {
+  int n = x.size();
+  NumericVector out(n);
+
+  out[0] = x[0];
+  for(int i = 1; i < n; ++i) {
+    out[i] = out[i - 1] + x[i];
+  }
+  return out;
+}
+
+// [[Rcpp::export]]
+bool f3(LogicalVector x) {
+  int n = x.size();
+
+  for(int i = 0; i < n; ++i) {
+    if (x[i]) return true;
+  }
+  return false;
+}
+
+// [[Rcpp::export]]
+int f4(Function pred, List x) {
+  int n = x.size();
+
+  for(int i = 0; i < n; ++i) {
+    LogicalVector res = pred(x[i]);
+    if (res[0]) return i + 1;
+  }
+  return 0;
+}
+
+// [[Rcpp::export]]
+NumericVector pminC(NumericVector x, NumericVector y) {
+  int n = std::max(x.size(), y.size());
+  NumericVector x1 = rep_len(x, n);
+  NumericVector y1 = rep_len(y, n);
+
+  NumericVector out(n);
+
+  for (int i = 0; i < n; ++i) {
+    out[i] = std::min(x1[i], y1[i]);
+  }
+
+  return out;
+}
+
+// [[Rcpp::export]]
+int fibonacciC(const int x) {
+    if (x == 0 || x == 1) return(x);
+    return (fibonacciC(x - 1)) + fibonacciC(x - 2);
+}
+
+```
 For the mean, I show two different C++ versiopns. The R function, "mean" is somewhat slower (1/2x), but the .Primitive option in R, sum/length is faster than either C++ function.
 
 #### Mean
@@ -121,6 +205,11 @@ wfqsx = function(a) {
   qsort_kernel(1, length(a))
   return(a)
 }
+
+all.equalV = function(...) {
+  vals <- list(...)
+  all(sapply(vals[-1], function(x) all.equal(vals[[1]], x)))
+}
 ```
 
 #### Sorting
@@ -128,71 +217,133 @@ wfqsx = function(a) {
 Real number sorting:
 ```{r sorting, eval=TRUE, echo=TRUE, cache=TRUE}
 x = runif(1e5)
+xtbl <- tbl_df(data.frame(x=x))
 (mb <- microbenchmark(a0 <- qsort(x), a <- wfqsx(x), b <- wfqs1(x), 
                       d <- sort(x), 
                       e <- sort(x, method="quick"),
                       f <- .Internal(sort(x,decreasing = FALSE)),
-                      g <- data.table(x=x,key="x"),
+                      g <- data.table(x=x,key="x"), h<-arrange(xtbl,x),
                       times=1L))
 print(sumReals<-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7]),0))
-all.equal(a0,a,b,d,e,f,g$x)
+all.equalV(a0,a,b,d,e,f,g$x,h$x)
 ```
 
 And Integers are faster in the low-level R functions:
 ```{r integer_sort, eval=TRUE, echo=TRUE, cache=TRUE}
-x = sample(1e5)
+x = sample(1e6,size = 1e5)
+xtbl <- tbl_df(data.frame(x=x))
 (mb <- microbenchmark(a0 <- qsort(x), a <- wfqsx(x), b <- wfqs1(x),
                       d <- sort(x), 
                       e <- sort(x, method="quick"), 
                       f <- .Internal(sort(x,decreasing = FALSE)),
-                      g <- data.table(x=x,key="x"),
+                      g <- data.table(x=x,key="x"), h<-arrange(xtbl,x),
                       times=1L))
 print(sumInts <- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7]),0))
-all.equal(a0,a,b,d,e,f,g$x)
+all.equalV(a0,a,b,d,e,f,g$x,h$x)
 
 ```
 
 The first three function are 3 different implementations of the quicksort algorithm shown on the Julia pages, with the first, qsort, being the one that the Julia testers used. Using the data.table sorting we were able to achieve ***483x*** speedup if Reals, and **`r sumInts`x** speedup if integers. These put them as fast or faster than C or Fortran or Julia. In Wingfeet's blog post, he also showed that using JIT can speed up non-optimized, "procedural" R code, though not as fast as the low level functions that exist in various R packages.
 
+#### Fibonacci
 
-Again, the fastest native R function is faster than a simple (unoptimized) C or C++ function. As with any language, there is faster code and slower code. With R, it may take a few tries, but there is usually a very fast option.
+```{r fib, eval=TRUE, echo=TRUE, cache=TRUE}
 
-#### Conclusions
-Clearly, low level speed can be achieved within R, often better than quick implementations in C or C++. This is because efforts have been made in primitives and internal functions with core R functions to provide optimal versions, without any extra user coding.  Many work flows to not require explicit loops. R's vectorization model allows for fast code, with little coding. ***Write vectorized code in R***
+fibR1 = function(n) {
+    fib <- numeric(n)
+    fib[1:2] <- c(1, 2)
+    for (k in 3:n) {
+        fib[k] <- fib[k - 1] + fib[k - 2]
+    } 
+    return(fib)
+}
+fibR2 = function(n) {
+     if (n < 2) {
+         return(n)
+     } else {
+         return(fibR2(n-1) + fibR2(n-2))
+     }
+}
 
-## Loops
+N = 20L
+(mbFib <- microbenchmark(times=10L, a<-numbers::fibonacci(N, sequence=TRUE)[N], 
+                         b<- fibC(N+1), d<-fibR1(N)[N], e<-fibR2(N+1)))
+all.equalV(a,b,d, e)
+```
+
+Here, one of the two native R implementations is **`r round(summary(mbFib)[[4]][4]/summary(mbFib)[[4]][3])`x faster** by pre-allocating the output vector size. The fibonacci function in the package numbers was `r round(summary(mbFib)[[4]][1]/summary(mbFib)[[4]][3])`x slower than the faster RR function because it has error checking. ***The native C++ version was `r round(summary(mbFib)[[4]][3]/summary(mbFib)[[4]][2],2)`x slower***. 
+
+#### Loops
+
+Loops have been the achilles heel of R in the past. In version 3.1 and forward, much of this appears to be gone. As could be seen in the fibonacci example, pre-allocating a vector and filling it up inside a loop can now be very fast and efficient in native R. To demonstrate these points, below are 6 ways to achieve the same result in R, beginning with a naive loop approach, and working up to the fully vectorized approach. I am using a very fast vectorized function, seq_len, to emphasize the differences between using loops and optimized vectorized functions.
+
 ```{r loops, eval=TRUE, echo=TRUE}
 
 N = 2e4
-(mb = microbenchmark(times=5L,
-naiveVector = {set.seed(104)
-               a <- numeric()
-                for (i in 1:N) {
-                  a[i] = rnorm(1)
-                } 
-              } ,
-presetVector = {set.seed(104)
-                b <- numeric(N) 
-      for (i in 1:N) {
-        b[i] = rnorm(1)
-      }
-    },
-vectorized = {set.seed(104)
-                d <- rnorm(N)
+
+(mb = microbenchmark(times=4L,
+naiveVector <- {
+  set.seed(104)
+  a <- numeric()
+    for (i in 1:N) {
+      a[i] = runif(1)+1
+    } 
+   a
+  } ,
+presetVector1 <- {
+    set.seed(104)
+    norms <- runif(N)
+    # pre-allocating vector length, generating normal random numbers once in each loop
+    b <- numeric(N) 
+    for (i in 1:N) {
+      b[i] = norms[i]+1
+    }
+    b
+  },
+presetVector2 <- {
+      set.seed(104)
+      b <- runif(N) 
+      sapply(b,function(x) x)
+      },
+presetVector3 <- {
+      set.seed(104)
+      # pipe operator means that no intermediate objects are created
+      num <- numeric(1)
+      b <- runif(N) %>%
+        sapply(.,function(x) x)
+      },
+vectorized1 <- {
+  # vectorized with intermediate object
+    set.seed(104)
+    norms <- runif(N)
+    d <- norms
+    d
+  },
+vectorized2 <- {
+  set.seed(104)
+  # no intermediate object
+  runif(N)
   }
+
 ))
-all.equal(a,b,d)
-print(sumLoops <- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3]),0))
+all.equalV(naiveVector, presetVector1, presetVector2, presetVector3, vectorized1, vectorized2)
+print(sumLoops <- round(summary(mb)[[4]][1]/summary(mb)[[4]][length(summary(mb)[[4]])],0))
 
 ```
 
-The vectorized function is ***`r round(sumLoops,0)`x*** faster.
+The fully vectorized function is ***`r round(sumLoops,0)`x*** faster than the fully naive loop. Note also that making as few intermediate objects as possible is faster as well. Comparing vectorized1 and vectorized2 shows an improvement of `r round(summary(mb)[[4]][4]/summary(mb)[[4]][3],2)*100`%. **Preallocating a vector** improved by ***`r round(summary(mb)[[4]][1]/summary(mb)[[4]][2],0)`x***. Using pipes instead of inter
 
-## High level functionality
+#### Conclusions
+In all cases shown here, the fastest native R function is faster than a simple (unoptimized) C or C++ function. As with any language, there is faster code and slower code. With R, it may take a few tries, but there is usually a very fast option.
+
+Clearly, low level speed can be achieved within R, often better than quick implementations in C or C++. This is because efforts have been made in primitives and internal functions with core R functions to provide optimal versions, without any extra user coding.  Many work flows to not require explicit loops. R's vectorization model allows for fast code, with little coding. ***Write vectorized code in R***
+
+
+### High level functionality
 
 R also has numerous high level functions and packages that allow users to do a diversity of analyses and data manipulations, from GIS to MCMC to optimally stored file-based object storing for fast access (ff package), and much more.  Here are a few examples.
 
-### GIS
+#### GIS
 
 ```{r download_file, eval=TRUE, echo=TRUE, cache=TRUE}
   library(raster)  
@@ -203,7 +354,6 @@ R also has numerous high level functions and packages that allow users to do a d
 
 
 ```{r crop1, eval=TRUE, echo=TRUE, cache=TRUE}
-beginCluster()
 ext1 <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
 vegMapLcc1 <- crop(lcc05,ext1)
 
@@ -215,13 +365,14 @@ vegMapLcc3 <- crop(lcc05,ext3)
 
 ```
 
-```{r reproject1, eval=TRUE, echo=TRUE, cache=TRUE}
+```{r reproject1, eval=TRUE, echo=FALSE, cache=TRUE}
+beginCluster()
 (mbReproj <- microbenchmark(times=1L,
-vegMapLcc1.crsAge <- projectRaster(vegMapLcc1, crs=crs(age)),
-vegMapLcc2.crsAge <- projectRaster(vegMapLcc2, crs=crs(age)),
-vegMapLcc3.crsAge <- projectRaster(vegMapLcc3, crs=crs(age)))
+vegMapLcc1.crsAge <- projectRaster(vegMapLcc1, crs=crs(age), method="ngb"),
+vegMapLcc2.crsAge <- projectRaster(vegMapLcc2, crs=crs(age), method="ngb"),
+vegMapLcc3.crsAge <- projectRaster(vegMapLcc3, crs=crs(age), method="ngb"))
 )
-
+reproject <- round(summary(mbReproj, unit="s")[[4]],0)
 ```
 
 ```{r crop2, eval=TRUE, echo=FALSE, cache=TRUE}
@@ -233,7 +384,8 @@ age3.crsAge <- crop(age, vegMapLcc3.crsAge)))
 ```
 
 
-```{r reproject2, eval=TRUE, echo=TRUE, cache=TRUE}
+```{r reproject2, eval=TRUE, echo=FALSE, cache=TRUE}
+beginCluster()
 (mbReproj2 <- microbenchmark(times=1L,
 ageMapSmall <- projectRaster(age1.crsAge, to=vegMapLcc1, method="ngb"),
 ageMapMed <- projectRaster(age2.crsAge, to=vegMapLcc2, method="ngb"),

@@ -68,18 +68,126 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="low-level-functionality" class="section level2">
 <h2>Low level functionality</h2>
 <p>We will begin with low level functions that are generally highly optimized in R. As a result, the comparison C++ functions, which are not optimized, may not fully represent what C++ could do. However, this represents a real world issue: if the “out of the box” R function is competitive with a “quick” C++ version, then the R version is easier to write as there is no further development. If there is a desire or need for more speed, then a more optimzed C++ version can be written and used either in native C++ applications or R.</p>
+<pre class="r"><code>library(data.table)
+library(microbenchmark)
+library(Rcpp)
+library(numbers)
+library(magrittr) # for pipe used below</code></pre>
+<pre><code>## 
+## Attaching package: 'magrittr'
+## 
+## The following object is masked from 'package:numbers':
+## 
+##     mod</code></pre>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'
+## 
+## The following object is masked from 'package:data.table':
+## 
+##     last
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>path &lt;- &quot;~/GitHub/SpaDES/SAMPLE/Functions in progress/&quot;
+setwd(path)
+sourceCpp(file=&quot;meanCPP.cpp&quot;)</code></pre>
+<pre class="cpp"><code>#include &lt;Rcpp.h&gt;
+using namespace Rcpp;
+
+// [[Rcpp::export]]
+double meanC1(NumericVector x) {
+  int n = x.size();
+  double total = 0;
+
+  for(int i = 0; i &lt; n; ++i) {
+    total += x[i];
+  }
+  return total / n;
+}
+
+// [[Rcpp::export]]
+double meanC2(NumericVector x) {
+  int n = x.size();
+  double y = 0;
+
+  for(int i = 0; i &lt; n; ++i) {
+    y += x[i] / n;
+  }
+  return y;
+}
+
+// [[Rcpp::export]]
+NumericVector f2(NumericVector x) {
+  int n = x.size();
+  NumericVector out(n);
+
+  out[0] = x[0];
+  for(int i = 1; i &lt; n; ++i) {
+    out[i] = out[i - 1] + x[i];
+  }
+  return out;
+}
+
+// [[Rcpp::export]]
+bool f3(LogicalVector x) {
+  int n = x.size();
+
+  for(int i = 0; i &lt; n; ++i) {
+    if (x[i]) return true;
+  }
+  return false;
+}
+
+// [[Rcpp::export]]
+int f4(Function pred, List x) {
+  int n = x.size();
+
+  for(int i = 0; i &lt; n; ++i) {
+    LogicalVector res = pred(x[i]);
+    if (res[0]) return i + 1;
+  }
+  return 0;
+}
+
+// [[Rcpp::export]]
+NumericVector pminC(NumericVector x, NumericVector y) {
+  int n = std::max(x.size(), y.size());
+  NumericVector x1 = rep_len(x, n);
+  NumericVector y1 = rep_len(y, n);
+
+  NumericVector out(n);
+
+  for (int i = 0; i &lt; n; ++i) {
+    out[i] = std::min(x1[i], y1[i]);
+  }
+
+  return out;
+}
+
+// [[Rcpp::export]]
+int fibonacciC(const int x) {
+    if (x == 0 || x == 1) return(x);
+    return (fibonacciC(x - 1)) + fibonacciC(x - 2);
+}
+</code></pre>
 <p>For the mean, I show two different C++ versiopns. The R function, “mean” is somewhat slower (1/2x), but the .Primitive option in R, sum/length is faster than either C++ function.</p>
 <div id="mean" class="section level4">
 <h4>Mean</h4>
 <pre><code>## Unit: microseconds
 ##                     expr     min      lq    mean  median      uq     max
-##           a &lt;- meanC1(x)   92.47   93.69   96.28   94.62   96.77   136.1
-##           d &lt;- meanC2(x)  662.62  663.85  668.79  665.38  669.99   791.0
-##             b &lt;- mean(x)  194.45  195.68  200.54  198.45  201.21   251.0
-##     e &lt;- mean.default(x)  183.09  184.32  185.93  184.93  186.47   200.6
-##    g &lt;- sum(x)/length(x)   91.85   92.77   94.70   93.23   94.62   137.6
-##  i &lt;- .Internal(mean(x))  181.24  181.55  183.04  181.86  183.24   223.9
-##        h &lt;- rowMeans(x1) 1066.27 1090.85 2041.52 1122.49 1744.25 36918.9
+##           a &lt;- meanC1(x)   92.47   93.69   95.94   94.62   97.07   109.4
+##           d &lt;- meanC2(x)  662.31  663.85  669.75  665.85  669.53   723.8
+##             b &lt;- mean(x)  194.15  195.84  202.22  198.45  204.13   268.2
+##     e &lt;- mean.default(x)  183.09  184.01  188.53  184.93  188.31   245.1
+##    g &lt;- sum(x)/length(x)   91.55   92.77   94.64   93.08   94.31   146.2
+##  i &lt;- .Internal(mean(x))  180.94  181.55  185.73  181.86  183.55   247.9
+##        h &lt;- rowMeans(x1) 1059.21 1123.42 2112.82 1193.92 1796.02 38799.4
 ##  neval
 ##    100
 ##    100
@@ -98,124 +206,206 @@ rm(a, b, d)
 (mb&lt;-microbenchmark(a&lt;-pminC(x,x2),b&lt;-base::pmin(x,x2), d&lt;-.Internal(pmin(x,x2))))</code></pre>
 <pre><code>## Unit: nanoseconds
 ##                         expr     min      lq    mean  median      uq
-##            a &lt;- pminC(x, x2) 1242599 1274087 4283690 2003672 2262944
-##       b &lt;- base::pmin(x, x2) 2926329 2945529 3872996 2961964 3035998
-##  d &lt;- .Internal(pmin(x, x2))       0     307    1057     922    1536
+##            a &lt;- pminC(x, x2) 1247830 1312802 4184799 2101834 2493662
+##       b &lt;- base::pmin(x, x2) 2929726 2966129 3572383 3006987 3097302
+##  d &lt;- .Internal(pmin(x, x2))       0     308    1373    1229    1844
 ##       max neval
-##  37849975   100
-##  38937134   100
-##      4915   100</code></pre>
+##  41742071   100
+##  41917479   100
+##      7066   100</code></pre>
 <pre class="r"><code>print(pmins&lt;-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3]),0))</code></pre>
-<pre><code>## [1] 4053</code></pre>
+<pre><code>## [1] 3047</code></pre>
 <pre class="r"><code>all.equal(a,b,d)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
-<p>The internal R function is <strong><em>4053x</em></strong> faster than the C++ version, or the base R version.</p>
+<p>The internal R function is <strong><em>3047x</em></strong> faster than the C++ version, or the base R version.</p>
 <p>This is taken from a blog post by Wingfeet at <a href="http://www.r-bloggers.com/quicksort-speed-just-in-time-compiling-and-vectorizing/" class="uri">http://www.r-bloggers.com/quicksort-speed-just-in-time-compiling-and-vectorizing/</a> which drew on benchmark tests here: <a href="http://julialang.org/" class="uri">http://julialang.org/</a> Essentially, this was a benchmark to test the speed of Julia. It shows for the Quicksort, that R is 524x slower than C. Below is a “simple” version, then the best, fastest version that Wingfeet was able to do. But, there was no explicit comparison of how the base R sort would match with C.</p>
 </div>
 <div id="sorting" class="section level4">
 <h4>Sorting</h4>
 <p>Real number sorting:</p>
 <pre class="r"><code>x = runif(1e5)
+xtbl &lt;- tbl_df(data.frame(x=x))
 (mb &lt;- microbenchmark(a0 &lt;- qsort(x), a &lt;- wfqsx(x), b &lt;- wfqs1(x), 
                       d &lt;- sort(x), 
                       e &lt;- sort(x, method=&quot;quick&quot;),
                       f &lt;- .Internal(sort(x,decreasing = FALSE)),
-                      g &lt;- data.table(x=x,key=&quot;x&quot;),
+                      g &lt;- data.table(x=x,key=&quot;x&quot;), h&lt;-arrange(xtbl,x),
                       times=1L))</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                         expr      min       lq     mean
-##                               a0 &lt;- qsort(x) 3342.276 3342.276 3342.276
-##                                a &lt;- wfqsx(x) 1168.965 1168.965 1168.965
-##                                b &lt;- wfqs1(x)  987.591  987.591  987.591
-##                                 d &lt;- sort(x)   12.405   12.405   12.405
-##               e &lt;- sort(x, method = &quot;quick&quot;)    8.433    8.433    8.433
-##  f &lt;- .Internal(sort(x, decreasing = FALSE))   11.675   11.675   11.675
-##            g &lt;- data.table(x = x, key = &quot;x&quot;)    8.102    8.102    8.102
+##                               a0 &lt;- qsort(x) 5804.317 5804.317 5804.317
+##                                a &lt;- wfqsx(x) 2243.401 2243.401 2243.401
+##                                b &lt;- wfqs1(x) 1902.326 1902.326 1902.326
+##                                 d &lt;- sort(x)   14.194   14.194   14.194
+##               e &lt;- sort(x, method = &quot;quick&quot;)    9.463    9.463    9.463
+##  f &lt;- .Internal(sort(x, decreasing = FALSE))   14.826   14.826   14.826
+##            g &lt;- data.table(x = x, key = &quot;x&quot;)   13.149   13.149   13.149
+##                        h &lt;- arrange(xtbl, x)   97.028   97.028   97.028
 ##    median       uq      max neval
-##  3342.276 3342.276 3342.276     1
-##  1168.965 1168.965 1168.965     1
-##   987.591  987.591  987.591     1
-##    12.405   12.405   12.405     1
-##     8.433    8.433    8.433     1
-##    11.675   11.675   11.675     1
-##     8.102    8.102    8.102     1</code></pre>
+##  5804.317 5804.317 5804.317     1
+##  2243.401 2243.401 2243.401     1
+##  1902.326 1902.326 1902.326     1
+##    14.194   14.194   14.194     1
+##     9.463    9.463    9.463     1
+##    14.826   14.826   14.826     1
+##    13.149   13.149   13.149     1
+##    97.028   97.028   97.028     1</code></pre>
 <pre class="r"><code>print(sumReals&lt;-round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7]),0))</code></pre>
-<pre><code>## [1] 413</code></pre>
-<pre class="r"><code>all.equal(a0,a,b,d,e,f,g$x)</code></pre>
+<pre><code>## [1] 613</code></pre>
+<pre class="r"><code>all.equalV(a0,a,b,d,e,f,g$x,h$x)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
 <p>And Integers are faster in the low-level R functions:</p>
-<pre class="r"><code>x = sample(1e5)
+<pre class="r"><code>x = sample(1e6,size = 1e5)
+xtbl &lt;- tbl_df(data.frame(x=x))
 (mb &lt;- microbenchmark(a0 &lt;- qsort(x), a &lt;- wfqsx(x), b &lt;- wfqs1(x),
                       d &lt;- sort(x), 
                       e &lt;- sort(x, method=&quot;quick&quot;), 
                       f &lt;- .Internal(sort(x,decreasing = FALSE)),
-                      g &lt;- data.table(x=x,key=&quot;x&quot;),
+                      g &lt;- data.table(x=x,key=&quot;x&quot;), h&lt;-arrange(xtbl,x),
                       times=1L))</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                         expr      min       lq     mean
-##                               a0 &lt;- qsort(x) 3359.308 3359.308 3359.308
-##                                a &lt;- wfqsx(x) 1123.397 1123.397 1123.397
-##                                b &lt;- wfqs1(x)  923.306  923.306  923.306
-##                                 d &lt;- sort(x)   11.063   11.063   11.063
-##               e &lt;- sort(x, method = &quot;quick&quot;)    6.947    6.947    6.947
-##  f &lt;- .Internal(sort(x, decreasing = FALSE))   10.770   10.770   10.770
-##            g &lt;- data.table(x = x, key = &quot;x&quot;)    3.105    3.105    3.105
+##                               a0 &lt;- qsort(x) 5419.246 5419.246 5419.246
+##                                a &lt;- wfqsx(x) 2687.625 2687.625 2687.625
+##                                b &lt;- wfqs1(x) 1900.187 1900.187 1900.187
+##                                 d &lt;- sort(x)   14.114   14.114   14.114
+##               e &lt;- sort(x, method = &quot;quick&quot;)    8.386    8.386    8.386
+##  f &lt;- .Internal(sort(x, decreasing = FALSE))   13.314   13.314   13.314
+##            g &lt;- data.table(x = x, key = &quot;x&quot;)    6.774    6.774    6.774
+##                        h &lt;- arrange(xtbl, x)   41.674   41.674   41.674
 ##    median       uq      max neval
-##  3359.308 3359.308 3359.308     1
-##  1123.397 1123.397 1123.397     1
-##   923.306  923.306  923.306     1
-##    11.063   11.063   11.063     1
-##     6.947    6.947    6.947     1
-##    10.770   10.770   10.770     1
-##     3.105    3.105    3.105     1</code></pre>
+##  5419.246 5419.246 5419.246     1
+##  2687.625 2687.625 2687.625     1
+##  1900.187 1900.187 1900.187     1
+##    14.114   14.114   14.114     1
+##     8.386    8.386    8.386     1
+##    13.314   13.314   13.314     1
+##     6.774    6.774    6.774     1
+##    41.674   41.674   41.674     1</code></pre>
 <pre class="r"><code>print(sumInts &lt;- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][4:7]),0))</code></pre>
-<pre><code>## [1] 1082</code></pre>
-<pre class="r"><code>all.equal(a0,a,b,d,e,f,g$x)</code></pre>
+<pre><code>## [1] 800</code></pre>
+<pre class="r"><code>all.equalV(a0,a,b,d,e,f,g$x,h$x)</code></pre>
 <pre><code>## [1] TRUE</code></pre>
-<p>The first three function are 3 different implementations of the quicksort algorithm shown on the Julia pages, with the first, qsort, being the one that the Julia testers used. Using the data.table sorting we were able to achieve <strong><em>483x</em></strong> speedup if Reals, and <strong>1082x</strong> speedup if integers. These put them as fast or faster than C or Fortran or Julia. In Wingfeet’s blog post, he also showed that using JIT can speed up non-optimized, “procedural” R code, though not as fast as the low level functions that exist in various R packages.</p>
-<p>Again, the fastest native R function is faster than a simple (unoptimized) C or C++ function. As with any language, there is faster code and slower code. With R, it may take a few tries, but there is usually a very fast option.</p>
+<p>The first three function are 3 different implementations of the quicksort algorithm shown on the Julia pages, with the first, qsort, being the one that the Julia testers used. Using the data.table sorting we were able to achieve <strong><em>483x</em></strong> speedup if Reals, and <strong>800x</strong> speedup if integers. These put them as fast or faster than C or Fortran or Julia. In Wingfeet’s blog post, he also showed that using JIT can speed up non-optimized, “procedural” R code, though not as fast as the low level functions that exist in various R packages.</p>
+</div>
+<div id="fibonacci" class="section level4">
+<h4>Fibonacci</h4>
+<pre class="r"><code>fibR1 = function(n) {
+    fib &lt;- numeric(n)
+    fib[1:2] &lt;- c(1, 2)
+    for (k in 3:n) {
+        fib[k] &lt;- fib[k - 1] + fib[k - 2]
+    } 
+    return(fib)
+}
+fibR2 = function(n) {
+     if (n &lt; 2) {
+         return(n)
+     } else {
+         return(fibR2(n-1) + fibR2(n-2))
+     }
+}
+
+N = 20L
+(mbFib &lt;- microbenchmark(times=10L, a&lt;-numbers::fibonacci(N, sequence=TRUE)[N], 
+                         b&lt;- fibC(N+1), d&lt;-fibR1(N)[N], e&lt;-fibR2(N+1)))</code></pre>
+<pre><code>## Unit: microseconds
+##                                            expr      min       lq     mean
+##  a &lt;- numbers::fibonacci(N, sequence = TRUE)[N]    76.18    78.03   143.21
+##                                b &lt;- fibC(N + 1)    54.99    55.60    67.25
+##                                d &lt;- fibR1(N)[N]    38.40    43.31    56.89
+##                               e &lt;- fibR2(N + 1) 91362.18 91750.78 92831.31
+##    median       uq     max neval
+##     92.62   129.02   563.4    10
+##     62.36    70.96   112.7    10
+##     46.54    60.52   125.6    10
+##  92405.57 93337.75 96530.7    10</code></pre>
+<pre class="r"><code>all.equalV(a,b,d, e)</code></pre>
+<pre><code>## [1] TRUE</code></pre>
+<p>Here, one of the two native R implementations is <strong>1632x faster</strong> by pre-allocating the output vector size. The fibonacci function in the package numbers was 3x slower than the faster RR function because it has error checking. <strong><em>The native C++ version was 0.85x slower</em></strong>.</p>
+</div>
+<div id="loops" class="section level4">
+<h4>Loops</h4>
+<p>Loops have been the achilles heel of R in the past. In version 3.1 and forward, much of this appears to be gone. As could be seen in the fibonacci example, pre-allocating a vector and filling it up inside a loop can now be very fast and efficient in native R. To demonstrate these points, below are 6 ways to achieve the same result in R, beginning with a naive loop approach, and working up to the fully vectorized approach. I am using a very fast vectorized function, seq_len, to emphasize the differences between using loops and optimized vectorized functions.</p>
+<pre class="r"><code>N = 2e4
+
+(mb = microbenchmark(times=4L,
+naiveVector &lt;- {
+  set.seed(104)
+  a &lt;- numeric()
+    for (i in 1:N) {
+      a[i] = runif(1)+1
+    } 
+   a
+  } ,
+presetVector1 &lt;- {
+    set.seed(104)
+    norms &lt;- runif(N)
+    # pre-allocating vector length, generating normal random numbers once in each loop
+    b &lt;- numeric(N) 
+    for (i in 1:N) {
+      b[i] = norms[i]+1
+    }
+    b
+  },
+presetVector2 &lt;- {
+      set.seed(104)
+      b &lt;- runif(N) 
+      sapply(b,function(x) x)
+      },
+presetVector3 &lt;- {
+      set.seed(104)
+      # pipe operator means that no intermediate objects are created
+      num &lt;- numeric(1)
+      b &lt;- runif(N) %&gt;%
+        sapply(.,function(x) x)
+      },
+vectorized1 &lt;- {
+  # vectorized with intermediate object
+    set.seed(104)
+    norms &lt;- runif(N)
+    d &lt;- norms
+    d
+  },
+vectorized2 &lt;- {
+  set.seed(104)
+  # no intermediate object
+  runif(N)
+  }
+
+))</code></pre>
+<pre><code>## Unit: microseconds
+##                                                                                                                                           expr
+##                           naiveVector &lt;- {     set.seed(104)     a &lt;- numeric()     for (i in 1:N) {         a[i] = runif(1) + 1     }     a }
+##  presetVector1 &lt;- {     set.seed(104)     norms &lt;- runif(N)     b &lt;- numeric(N)     for (i in 1:N) {         b[i] = norms[i] + 1     }     b }
+##                                                          presetVector2 &lt;- {     set.seed(104)     b &lt;- runif(N)     sapply(b, function(x) x) }
+##                                    presetVector3 &lt;- {     set.seed(104)     num &lt;- numeric(1)     b &lt;- runif(N) %&gt;% sapply(., function(x) x) }
+##                                                                vectorized1 &lt;- {     set.seed(104)     norms &lt;- runif(N)     d &lt;- norms     d }
+##                                                                                              vectorized2 &lt;- {     set.seed(104)     runif(N) }
+##        min        lq      mean  median      uq     max neval
+##  1264353.6 1275182.0 1311119.4 1288688 1347057 1402747     4
+##    50452.9   50903.0   53391.5   53473   55880   56168     4
+##    30164.2   30294.3   33113.2   31210   35932   39869     4
+##    25950.4   28263.9   48830.0   31687   69396  105996     4
+##      771.4     916.4     992.6    1064    1069    1071     4
+##     1057.1    1064.3    1072.3    1075    1080    1082     4</code></pre>
+<pre class="r"><code>all.equalV(naiveVector, presetVector1, presetVector2, presetVector3, vectorized1, vectorized2)</code></pre>
+<pre><code>## Warning: coercing argument of type 'character' to logical</code></pre>
+<pre><code>## [1] NA</code></pre>
+<pre class="r"><code>print(sumLoops &lt;- round(summary(mb)[[4]][1]/summary(mb)[[4]][length(summary(mb)[[4]])],0))</code></pre>
+<pre><code>## [1] 1223</code></pre>
+<p>The fully vectorized function is <strong><em>1223x</em></strong> faster than the fully naive loop. Note also that making as few intermediate objects as possible is faster as well. Comparing vectorized1 and vectorized2 shows an improvement of 147%. <strong>Preallocating a vector</strong> improved by <strong><em>25x</em></strong>. Using pipes instead of inter</p>
 </div>
 <div id="conclusions" class="section level4">
 <h4>Conclusions</h4>
+<p>In all cases shown here, the fastest native R function is faster than a simple (unoptimized) C or C++ function. As with any language, there is faster code and slower code. With R, it may take a few tries, but there is usually a very fast option.</p>
 <p>Clearly, low level speed can be achieved within R, often better than quick implementations in C or C++. This is because efforts have been made in primitives and internal functions with core R functions to provide optimal versions, without any extra user coding. Many work flows to not require explicit loops. R’s vectorization model allows for fast code, with little coding. <strong><em>Write vectorized code in R</em></strong></p>
 </div>
-</div>
-<div id="loops" class="section level2">
-<h2>Loops</h2>
-<pre class="r"><code>N = 2e4
-(mb = microbenchmark(times=5L,
-naiveVector = {set.seed(104)
-               a &lt;- numeric()
-                for (i in 1:N) {
-                  a[i] = rnorm(1)
-                } 
-              } ,
-presetVector = {set.seed(104)
-                b &lt;- numeric(N) 
-      for (i in 1:N) {
-        b[i] = rnorm(1)
-      }
-    },
-vectorized = {set.seed(104)
-                d &lt;- rnorm(N)
-  }
-))</code></pre>
-<pre><code>## Unit: milliseconds
-##          expr     min      lq   mean  median      uq     max neval
-##   naiveVector 536.594 567.521 576.43 579.543 586.387 612.093     5
-##  presetVector  72.556  72.736  81.68  75.655  77.184 110.251     5
-##    vectorized   1.942   1.942   1.98   1.947   1.948   2.121     5</code></pre>
-<pre class="r"><code>all.equal(a,b,d)</code></pre>
-<pre><code>## [1] TRUE</code></pre>
-<pre class="r"><code>print(sumLoops &lt;- round(summary(mb)[[4]][1]/min(summary(mb)[[4]][3]),0))</code></pre>
-<pre><code>## [1] 291</code></pre>
-<p>The vectorized function is <strong><em>291x</em></strong> faster.</p>
-</div>
-<div id="high-level-functionality" class="section level2">
-<h2>High level functionality</h2>
+<div id="high-level-functionality" class="section level3">
+<h3>High level functionality</h3>
 <p>R also has numerous high level functions and packages that allow users to do a diversity of analyses and data manipulations, from GIS to MCMC to optimally stored file-based object storing for fast access (ff package), and much more. Here are a few examples.</p>
-<div id="gis" class="section level3">
-<h3>GIS</h3>
+<div id="gis" class="section level4">
+<h4>GIS</h4>
 <pre class="r"><code>  library(raster)  </code></pre>
 <pre><code>## Loading required package: sp</code></pre>
 <pre class="r"><code>  lcc05 &lt;- raster(&quot;c:/shared/LCC2005_V1_4a.tif&quot;)</code></pre>
@@ -227,9 +417,6 @@ vectorized = {set.seed(104)
 ## Loaded PROJ.4 runtime: Rel. 4.8.0, 6 March 2012, [PJ_VERSION: 480]
 ## Path to PROJ.4 shared files: C:/Eliot/R/win-library/3.1/rgdal/proj</code></pre>
 <pre class="r"><code>  age &lt;- raster(&quot;c:/shared/age.tif&quot;)</code></pre>
-<pre class="r"><code>if (is(try(length(getCluster())), &quot;try-error&quot;)) beginCluster()</code></pre>
-<pre><code>## Loading required package: snow</code></pre>
-<pre><code>## 12 cores detected</code></pre>
 <pre class="r"><code>ext1 &lt;- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
 vegMapLcc1 &lt;- crop(lcc05,ext1)
 
@@ -238,43 +425,41 @@ vegMapLcc2 &lt;- crop(lcc05,ext2)
 
 ext3 &lt;- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
 vegMapLcc3 &lt;- crop(lcc05,ext3)</code></pre>
-<pre class="r"><code>(mbReproj &lt;- microbenchmark(times=1L,
-vegMapLcc1.crsAge &lt;- projectRaster(vegMapLcc1, crs=crs(age)),
-vegMapLcc2.crsAge &lt;- projectRaster(vegMapLcc2, crs=crs(age)),
-vegMapLcc3.crsAge &lt;- projectRaster(vegMapLcc3, crs=crs(age)))
-)</code></pre>
+<pre><code>## 12 cores detected</code></pre>
 <pre><code>## Using cluster with 12 nodes
 ## Using cluster with 12 nodes
 ## Using cluster with 12 nodes</code></pre>
-<pre><code>## Unit: seconds
-##                                                            expr    min
-##  vegMapLcc1.crsAge &lt;- projectRaster(vegMapLcc1, crs = crs(age))  1.418
-##  vegMapLcc2.crsAge &lt;- projectRaster(vegMapLcc2, crs = crs(age))  6.867
-##  vegMapLcc3.crsAge &lt;- projectRaster(vegMapLcc3, crs = crs(age)) 64.477
-##      lq   mean median     uq    max neval
-##   1.418  1.418  1.418  1.418  1.418     1
-##   6.867  6.867  6.867  6.867  6.867     1
-##  64.477 64.477 64.477 64.477 64.477     1</code></pre>
-<pre class="r"><code>print(reproject &lt;- round( summary(mbReproj)[[4]],0))</code></pre>
-<pre><code>## [1]  1  7 64</code></pre>
-<pre class="r"><code>(mbCrop &lt;- microbenchmark(times=1L,
-age1.crsAge &lt;- crop(age, vegMapLcc1.crsAge),
-age2.crsAge &lt;- crop(age, vegMapLcc2.crsAge),
-age3.crsAge &lt;- crop(age, vegMapLcc3.crsAge)))</code></pre>
+<pre><code>## Unit: milliseconds
+##                                                                                 expr
+##  vegMapLcc1.crsAge &lt;- projectRaster(vegMapLcc1, crs = crs(age),      method = &quot;ngb&quot;)
+##  vegMapLcc2.crsAge &lt;- projectRaster(vegMapLcc2, crs = crs(age),      method = &quot;ngb&quot;)
+##  vegMapLcc3.crsAge &lt;- projectRaster(vegMapLcc3, crs = crs(age),      method = &quot;ngb&quot;)
+##      min      lq    mean  median      uq     max neval
+##    706.2   706.2   706.2   706.2   706.2   706.2     1
+##   4007.4  4007.4  4007.4  4007.4  4007.4  4007.4     1
+##  25955.8 25955.8 25955.8 25955.8 25955.8 25955.8     1</code></pre>
 <pre><code>## Unit: milliseconds
 ##                                         expr   min    lq  mean median
-##  age1.crsAge &lt;- crop(age, vegMapLcc1.crsAge) 160.2 160.2 160.2  160.2
-##  age2.crsAge &lt;- crop(age, vegMapLcc2.crsAge) 369.5 369.5 369.5  369.5
-##  age3.crsAge &lt;- crop(age, vegMapLcc3.crsAge) 610.1 610.1 610.1  610.1
+##  age1.crsAge &lt;- crop(age, vegMapLcc1.crsAge) 143.6 143.6 143.6  143.6
+##  age2.crsAge &lt;- crop(age, vegMapLcc2.crsAge) 160.9 160.9 160.9  160.9
+##  age3.crsAge &lt;- crop(age, vegMapLcc3.crsAge) 336.4 336.4 336.4  336.4
 ##     uq   max neval
-##  160.2 160.2     1
-##  369.5 369.5     1
-##  610.1 610.1     1</code></pre>
-<pre class="r"><code>(mbReproj2 &lt;- microbenchmark(times=1L,
-ageMapSmall &lt;- projectRaster(age1.crsAge, to=vegMapLcc1, method=&quot;ngb&quot;),
-ageMapMed &lt;- projectRaster(age2.crsAge, to=vegMapLcc2, method=&quot;ngb&quot;),
-ageMapLg &lt;- projectRaster(age3.crsAge, to=vegMapLcc3, method=&quot;ngb&quot;)
-))</code></pre>
+##  143.6 143.6     1
+##  160.9 160.9     1
+##  336.4 336.4     1</code></pre>
+<pre><code>## 12 cores detected</code></pre>
+<pre><code>## Warning: closing unused connection 16 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 15 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 14 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 13 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 12 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 11 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 10 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 9 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 8 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 7 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 6 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)
+## Warning: closing unused connection 5 (&lt;-W-VIC-A105200.nrn.nrcan.gc.ca:11356)</code></pre>
 <pre><code>## Using cluster with 12 nodes
 ## Using cluster with 12 nodes
 ## Using cluster with 12 nodes</code></pre>
@@ -284,11 +469,11 @@ ageMapLg &lt;- projectRaster(age3.crsAge, to=vegMapLcc3, method=&quot;ngb&quot;)
 ##    ageMapMed &lt;- projectRaster(age2.crsAge, to = vegMapLcc2, method = &quot;ngb&quot;)
 ##     ageMapLg &lt;- projectRaster(age3.crsAge, to = vegMapLcc3, method = &quot;ngb&quot;)
 ##      min      lq    mean  median      uq     max neval
-##    341.0   341.0   341.0   341.0   341.0   341.0     1
-##    937.4   937.4   937.4   937.4   937.4   937.4     1
-##  12934.2 12934.2 12934.2 12934.2 12934.2 12934.2     1</code></pre>
-<pre class="r"><code>#endCluster()</code></pre>
-<p>Since the raster package can run in “parallel” mode for some of its functions, this reproject raster function reprojected <strong>12 million pixels</strong> in <strong><em>64 seconds</em></strong> on a 6 core, hyperthreaded machine (shows up as 12 cores), with a peak 600MB RAM use per core (7.2GB).</p>
+##    704.2   704.2   704.2   704.2   704.2   704.2     1
+##    857.8   857.8   857.8   857.8   857.8   857.8     1
+##  25682.8 25682.8 25682.8 25682.8 25682.8 25682.8     1</code></pre>
+<p>Since the raster package can run in “parallel” mode for some of its functions, this reproject raster function reprojected <strong>12 million pixels</strong> in <strong><em>26 seconds</em></strong> on a 6 core, hyperthreaded machine (shows up as 12 cores), with a peak 600MB RAM use per core (7.2GB).</p>
+</div>
 </div>
 </div>
 
