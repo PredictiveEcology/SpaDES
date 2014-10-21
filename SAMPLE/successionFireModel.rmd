@@ -37,18 +37,16 @@ loadFiles(fileList=fileList)
 #ext <- extent(-1380607, -345446, 7211410, 7971750) # large central BC 12Million
 ext <- extent(1612240, 1895057, 6756615, 6907451) # small 600k pixels Quebec City Lac St. Jean
 #QC.crs = crs("+proj=lcc +lat_1=49 +lat_2=77 +lat_0=0 +lon_0=-71 +x_0=0 +y_0=0
-#+ellps=GRS80 +units=m +no_defs")
-#ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
+# +ellps=GRS80 +units=m +no_defs")
+ext <- extent(-1073154,-987285,7438423,7512480) # small central Sask 100 Thousand
 
 if(interactiveExtent) {
   dev(4)
   plot(lcc05)
   ext <- drawExtent()
 }
-
-vegMapLcc <- RasterLayerNamed(crop(lcc05,ext), name="vegMapLcc")
-setColors(vegMapLcc, n=255) = getColors(lcc05)[[1]][-1]
-if(ncell(vegMapLcc)>1e6) beginCluster(12)
+vegMapLcc <- crop(lcc05,ext)
+if(ncell(vegMapLcc)>1e6) beginCluster(4)
 # age will not run with projectRaster directly. Instead, project the vegMap to age, then crop, then project back to vegMap
 vegMapLcc.crsAge = projectRaster(vegMapLcc, crs=crs(age))
 age.crsAge <- crop(age, vegMapLcc.crsAge)
@@ -113,7 +111,7 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
    vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
    vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
                                                                  lcc05VegTable[,2])]+1)]
-   setColors(vegMap, n=11 ) <- vegMapColors[-1]
+   setColors(vegMap, n=12 ) <- vegMapColors
   
   # the raster package does not keep colors when writing to a tif file
    writeRaster(vegMap, filename="vegMap.tif", overwrite=TRUE)
@@ -174,7 +172,7 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
 ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
 vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
 trajMapInit <- RasterLayerNamed(trajMap, name="trajMapInit")
-setColors(vegMapInit, n=11 ) <- vegMapColors[-1]
+setColors(vegMapInit, n=12 ) <- vegMapColors
   
 writeRaster(trajMapInit, filename="trajMap.tif", overwrite=TRUE)
 ```
@@ -191,7 +189,7 @@ parameters <- list(.globals=list(burnStats="nPixelsBurned"),
                    forestAge=list(returnInterval=1, startTime=0.5,
                                         .plotInitialTime=1, .plotInterval=1),
                    fireSpreadLcc=list(nFires= 100, #spreadprob=0.225,
-                                     its=1e6, drought=1.2,
+                                     its=1e6,
                                       persistprob=0, returnInterval=1, startTime=1,
                                      .plotInitialTime=1, .plotInterval=1)
 #                   caribouMovement=list(N=1e2, moveInterval=1,
@@ -204,9 +202,9 @@ path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
 ```
 
 ```{r run_spades}
-trajMap <- RasterLayerNamed(trajMapInit, name="trajMap")
-ageMap <- RasterLayerNamed(ageMapInit, name="ageMap")
-vegMap <- RasterLayerNamed(vegMapInit, name="vegMap")
+trajMap <- trajMapInit
+ageMap <- ageMapInit
+vegMap <- vegMapInit
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 dev(4)#pdf("test.pdf")
 # for(i in 1:2) {
