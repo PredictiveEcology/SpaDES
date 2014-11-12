@@ -7,3 +7,4 @@ figure/*
 old/*
 SAMPLE/*
 development/*
+.travis.yml
