@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/achubaty/SpaDES.svg)](https://travis-ci.org/achubaty/SpaDES)
+[![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=master)](https://travis-ci.org/achubaty/SpaDES)
 
 # Spatial Discrete Event Simulation (SpaDES)
 
