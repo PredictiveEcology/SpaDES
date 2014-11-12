@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/achubaty/SpaDES.svg)](https://travis-ci.org/achubaty/SpaDES)
+
 # Spatial Discrete Event Simulation (SpaDES)
 
 *A package to develop and run spatially explicit discrete event simulation models.*
