@@ -11,6 +11,7 @@ before_install:
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
 install:
+  - ./travis-tool.sh install_aptget libx11-dev tcl8.5-dev tk8.5-dev
   - ./travis-tool.sh install_r_binary boot chron colorspace dichromat digest ggplot2 gtable labeling lattice latticeextra mass matrix munsell nlme proto rcolorbrewer rcpp reshape rgdal scales snow sp stringr xts zoo
   - ./travis-tool.sh install_deps
 script: ./travis-tool.sh run_tests
