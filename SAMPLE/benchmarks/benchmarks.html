@@ -382,19 +382,19 @@ vectorized2 &lt;- {
 ##                                    presetVector3 &lt;- {     set.seed(104)     num &lt;- numeric(1)     b &lt;- runif(N) %&gt;% sapply(., function(x) x) }
 ##                                                                vectorized1 &lt;- {     set.seed(104)     norms &lt;- runif(N)     d &lt;- norms     d }
 ##                                                                                              vectorized2 &lt;- {     set.seed(104)     runif(N) }
-##        min        lq      mean  median      uq     max neval
-##  1264353.6 1275182.0 1311119.4 1288688 1347057 1402747     4
-##    50452.9   50903.0   53391.5   53473   55880   56168     4
-##    30164.2   30294.3   33113.2   31210   35932   39869     4
-##    25950.4   28263.9   48830.0   31687   69396  105996     4
-##      771.4     916.4     992.6    1064    1069    1071     4
-##     1057.1    1064.3    1072.3    1075    1080    1082     4</code></pre>
+##       min       lq     mean   median       uq      max neval
+##  594499.1 596256.1 619857.4 604108.2 643458.6 676713.9     4
+##   29552.8  30418.7  31616.7  31798.0  32814.7  33317.8     4
+##   17975.3  18107.5  19365.4  18817.6  20623.3  21851.1     4
+##   15705.1  16255.3  27487.3  17027.7  38719.3  60188.6     4
+##     716.7    731.0    760.9    750.5    790.9    826.0     4
+##     730.5    731.6    747.7    741.1    763.8    778.1     4</code></pre>
 <pre class="r"><code>all.equalV(naiveVector, presetVector1, presetVector2, presetVector3, vectorized1, vectorized2)</code></pre>
 <pre><code>## Warning: coercing argument of type 'character' to logical</code></pre>
 <pre><code>## [1] NA</code></pre>
 <pre class="r"><code>print(sumLoops &lt;- round(summary(mb)[[4]][1]/summary(mb)[[4]][length(summary(mb)[[4]])],0))</code></pre>
-<pre><code>## [1] 1223</code></pre>
-<p>The fully vectorized function is <strong><em>1223x</em></strong> faster than the fully naive loop. Note also that making as few intermediate objects as possible is faster as well. Comparing vectorized1 and vectorized2 shows an improvement of 147%. <strong>Preallocating a vector</strong> improved by <strong><em>25x</em></strong>. Using pipes instead of inter</p>
+<pre><code>## [1] 829</code></pre>
+<p>The fully vectorized function is <strong><em>829x</em></strong> faster than the fully naive loop. Note also that making as few intermediate objects as possible is faster as well. Comparing vectorized1 and vectorized2 shows an improvement of 142%. <strong>Preallocating a vector</strong> improved by <strong><em>20x</em></strong>. Using pipes instead of inter</p>
 </div>
 <div id="conclusions" class="section level4">
 <h4>Conclusions</h4>

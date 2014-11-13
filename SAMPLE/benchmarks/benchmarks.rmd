@@ -2,7 +2,7 @@
 title: "Benchmarking with R/SpaDES R 3.1.1"
 author: "Eliot McIntire"
 date: "October 7, 2014"
-output: html_document
+output: pdf_document
 ---
 
 The objective of this file is to show some speed comparisons between R and C++ and in some cases, other languages or software. Clearly this is NOT a comparison between R and C++ because many of the functions in R are written in C++ and wrapped in R. This document shows three important points:
@@ -111,6 +111,12 @@ int fibonacciC(const int x) {
     if (x == 0 || x == 1) return(x);
     return (fibonacciC(x - 1)) + fibonacciC(x - 2);
 }
+
+// [[Rcpp::export]]
+int fibC(int n) {
+    return n < 2 ? n : fibC(n-1) + fibC(n-2);
+}
+
 
 ```
 For the mean, I show two different C++ versiopns. The R function, "mean" is somewhat slower (1/2x), but the .Primitive option in R, sum/length is faster than either C++ function.
@@ -267,11 +273,11 @@ fibR2 = function(n) {
 
 N = 20L
 (mbFib <- microbenchmark(times=10L, a<-numbers::fibonacci(N, sequence=TRUE)[N], 
-                         b<- fibC(N+1), d<-fibR1(N)[N], e<-fibR2(N+1)))
-all.equalV(a,b,d, e)
+                         b<- fibC(N+1), d<-fibonacciC(N+1), e<-fibR1(N)[N], f<-fibR2(N+1)))
+all.equalV(a,b,d, e, f)
 ```
 
-Here, one of the two native R implementations is **`r round(summary(mbFib)[[4]][4]/summary(mbFib)[[4]][3])`x faster** by pre-allocating the output vector size. The fibonacci function in the package numbers was `r round(summary(mbFib)[[4]][1]/summary(mbFib)[[4]][3])`x slower than the faster RR function because it has error checking. ***The native C++ version was `r round(summary(mbFib)[[4]][3]/summary(mbFib)[[4]][2],2)`x slower***. 
+Here, one of the two native R implementations is **`r round(summary(mbFib)[[4]][4]/summary(mbFib)[[4]][3])`x faster** by pre-allocating the output vector size. The fibonacci function in the package numbers was `r round(summary(mbFib)[[4]][1]/summary(mbFib)[[4]][3])`x slower than the faster RR function because it has error checking. ***The native C++ version was `r round(summary(mbFib)[[4]][4]/summary(mbFib)[[4]][2],2)`x slower***. 
 
 #### Loops
 
