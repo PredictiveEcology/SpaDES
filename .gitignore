@@ -8,7 +8,7 @@ figure/
 SAMPLE/chkpnt.RData
 .csv
 output/
-.build.timestamp
+vignettes/.build.timestamp
 
 #################
 ## LaTeX
