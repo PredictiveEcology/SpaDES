@@ -1,6 +1,6 @@
-Master: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=development)](https://travis-ci.org/achubaty/SpaDES)
+Master Branch: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=development)](https://travis-ci.org/achubaty/SpaDES)
 
-Development: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=development)](https://travis-ci.org/achubaty/SpaDES)
+Development Branch: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=development)](https://travis-ci.org/achubaty/SpaDES)
 
 -----
 
@@ -27,7 +27,6 @@ To install `SpaDES` directly from github you will need the `devtools` package:
 
 1. For development purposes on a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/);
 2. In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. I recommend [TexLive](https://www.tug.org/texlive/).
-3. Our testing with the `raster` package, version 2.3, causes plotting to fail (using both `plot` and `Plot` functions). Please use `raster` package version 2.2-31.
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("achubaty/SpaDES", build=FALSE)`. You can access prebuilt versions of the vignettes from here: [intro](https://github.com/achubaty/SpaDES/blob/master/vignettes/introduction.pdf?raw=true) and [modules](https://github.com/achubaty/SpaDES/blob/master/vignettes/modules.pdf?raw=true).
 
