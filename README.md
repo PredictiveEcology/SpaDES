@@ -1,4 +1,4 @@
-Master Branch: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=development)](https://travis-ci.org/achubaty/SpaDES)
+Master Branch: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=master)](https://travis-ci.org/achubaty/SpaDES)
 
 Development Branch: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?branch=development)](https://travis-ci.org/achubaty/SpaDES)
 
