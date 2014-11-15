@@ -2,7 +2,7 @@
 \docType{methods}
 \name{splitRaster}
 \alias{splitRaster}
-\title{Split a raster into mulitple tiles}
+\title{Split a raster into multiple tiles}
 \usage{
 splitRaster(x, nx, ny, crop = TRUE, ...)
 }
