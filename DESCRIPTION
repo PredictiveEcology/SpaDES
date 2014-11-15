@@ -29,7 +29,7 @@ Depends:
     sp,
     RColorBrewer,
     raster,
-	tkrplot
+    tkrplot
 Suggests:
     knitr,
     Matrix,
@@ -57,5 +57,6 @@ Collate:
     'probability.R'
     'progress.R'
     'save.R'
+    'splitRaster.R'
     'spread-process.R'
 VignetteBuilder: knitr
