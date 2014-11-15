@@ -1,7 +1,6 @@
 Package: SpaDES
 Type: Package
-Title: A package to develop and run spatially explicit discrete event
-    simulation models
+Title: Develop and run spatially explicit discrete event simulation models
 Description: Easily implement a variety of simulation models, with a focus on
     spatially explicit agent based models. The core simulation components are
     built upon a discrete event simulation framework that facilitates
@@ -23,13 +22,13 @@ Authors@R: c(
     role=c("ctb"))
     )
 Depends:
-    R (>= 3.1.2),
+    R (>= 3.1.1),
     data.table,
     grid,
     sp,
     RColorBrewer,
     raster,
-    tkrplot
+	tkrplot
 Suggests:
     knitr,
     Matrix,
@@ -60,3 +59,5 @@ Collate:
     'splitRaster.R'
     'spread-process.R'
 VignetteBuilder: knitr
+URL: http://github.com/achubaty/SpaDES
+BugReports: http://github.com/achubaty/SpaDES/issues
