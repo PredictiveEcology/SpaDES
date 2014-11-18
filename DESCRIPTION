@@ -27,7 +27,8 @@ Depends:
     grid,
     sp,
     RColorBrewer,
-    raster
+    raster,
+    tkrplot
 Suggests:
     knitr,
     Matrix,
