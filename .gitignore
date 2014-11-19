@@ -2,12 +2,13 @@
 .RData
 .Rhistory
 .Rproj.user
+.csv
 .log
 cache/
 figure/
-SAMPLE/chkpnt.RData
-.csv
 output/
+SAMPLE/chkpnt.RData
+SAMPLE/shiny_succession/data
 vignettes/.build.timestamp
 
 #################

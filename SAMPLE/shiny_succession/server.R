@@ -8,6 +8,8 @@ if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
 } else if (Sys.info()["sysname"]=="Windows") {
   setwd("/shared/shiny_succession")
+} else if (Sys.info()["sysname"]=="Darwin") {
+  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
 }
 
 if(downloadRequired) {
