@@ -33,6 +33,10 @@ shinyUI(fluidPage(
     ),
 
     mainPanel(
+
+      h4("Land Cover Classification, 2005, 250m"),
+      plotOutput('lcc05'),
+      hr(),
       plotOutput('mapsInit'),
       plotOutput('maps'),
       plotOutput('initHists', height="200px"),
