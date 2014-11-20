@@ -1,5 +1,5 @@
 shinyUI(fluidPage(
-  titlePanel("ISA integration platform, Spades"),
+  titlePanel("ISA integration platform, SpaDES"),
 
   sidebarLayout(
     sidebarPanel(
