@@ -8,14 +8,14 @@ Description: Easily implement a variety of simulation models, with a focus on
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps.
 URL: http://github.com/achubaty/SpaDES
-Version: 0.4.0
-Date: 2014-09-19
+Version: 0.4.0.9000
+Date: 2014-11-19
 Authors@R: c(
-    person("Eliot", "McIntire",
-    email="Eliot.McIntire@NRCan.gc.ca",
-    role=c("aut", "cre")),
-    person("Alex", "Chubaty",
+    person(c("Alex", "M"), "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",
+    role=c("aut", "cre")),
+    person(c("Eliot", "J", "B"), "McIntire",
+    email="Eliot.McIntire@NRCan.gc.ca",
     role=c("aut", "cre")),
     person("Steve", "Cumming",
     email="Steve.Cumming@sbf.ulaval.ca",

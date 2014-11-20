@@ -23,7 +23,8 @@ shinyUI(fluidPage(
       br(),
       h4("Data integration"),
       checkboxGroupInput("landCoverDataSources", "Land cover data",
-                         list("NFI","KNN","LCC05")),
+                         list("NFI","KNN","LCC05"),
+                         list("LCC05")),
       checkboxGroupInput("climateDataSources", "Climate data",
                          list("McKenney et al.", "ClimateWNA")),
       br(),
@@ -32,6 +33,10 @@ shinyUI(fluidPage(
     ),
 
     mainPanel(
+
+      h4("Land Cover Classification, 2005, 250m"),
+      plotOutput('lcc05'),
+      hr(),
       plotOutput('mapsInit'),
       plotOutput('maps'),
       plotOutput('initHists', height="200px"),
