@@ -12,7 +12,7 @@ before_install:
   - ./travis-tool.sh bootstrap
 
 install:
-  - ./travis-tool.sh install_r_binary boot chron colorspace dichromat digest ggplot2 gtable labeling lattice latticeextra knitr mass matrix munsell nlme proto randomfields rcolorbrewer rcpp reshape rgdal scales snow sp stringr tkrplot xts zoo
+  - ./travis-tool.sh install_r_binary boot chron circstats colorspace dichromat digest ggplot2 gtable labeling lattice latticeextra knitr mass matrix munsell nlme proto randomfields rcolorbrewer rcpp reshape rgdal scales snow sp stringr tkrplot xts zoo
   - ./travis-tool.sh install_deps
 
 script:
