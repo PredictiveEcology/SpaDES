@@ -2,7 +2,7 @@ library(SpaDES)
 
 rasterOptions(maxmemory=2e9)
 downloadRequired <- FALSE
-interactiveExtent <- TRUE
+interactiveExtent <- FALSE
 
 if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
