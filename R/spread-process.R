@@ -106,11 +106,13 @@ setMethod("spread",
             }
 
             spreads <- rep_len(0, ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
-            if(!is.null(mask)) {
-              masked <- Which(mask==0, cells=TRUE)#getValues(mask)==0
-              #  spreads[masked]<- NaN#[potentials %in% masked]]
 
-            }
+            masked <- if(is.null(mask)) {
+                NULL
+              } else {
+                Which(mask==0, cells=TRUE)
+              }
+
             n <- 1
             if (mapID) {
               spreads[loci] <- 1:length(loci)
