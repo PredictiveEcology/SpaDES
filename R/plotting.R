@@ -144,28 +144,6 @@ setMethod("equalExtent",
             sapply(extents,function(x) x@ymax)==extents[[1]]@ymax))
 })
 
-#' determine which of the layers are provided within a stack
-#' @name inRasterStack
-#' @rdname inRasterStack
-#' @export
-setGeneric("inRasterStack", function(object) {
-  standardGeneric("inRasterStack")
-})
-
-#' @name inRasterStack
-#' @rdname inRasterStack
-#' @export
-setMethod("inRasterStack",
-          signature="list",
-          definition=function(object) {
-            unlist(sapply(object, function(x) {
-              if(is(x,"RasterStack")) {
-                rep(TRUE,nlayers(x))
-              } else {
-                FALSE
-              }}))
-})
-
 ###########################################################################
 #' The \code{arrangement} class
 #'
@@ -182,7 +160,7 @@ setMethod("inRasterStack",
 #'
 #' @slot ds  numeric of length 2. The dimensions of the plotting window in inches
 #'
-#' @slot stack  list with 2 elements: a character vector of stack names and
+#' @slot raster  list with 2 elements: a character vector of raster names and
 #' a character vector of the layer names in each of those
 #'
 #' @slot names  character vector. The names of the layers in the plot
@@ -200,11 +178,11 @@ setMethod("inRasterStack",
 setClass("arrangement",
          slots=list(rows="numeric", columns="numeric",
                     actual.ratio="numeric", ds.dimensionRatio="numeric",
-                    ds="numeric", stack="list", names="character",
+                    ds="numeric", raster="list", names="character",
                     extents="list", layout="list"),
          prototype=list(rows=1, columns=1,
                         actual.ratio=1, ds.dimensionRatio=1,
-                        ds=c(7,7), stack=as.list(NULL), names=as.character(NULL),
+                        ds=c(7,7), raster=as.list(NULL), names=as.character(NULL),
                         extents=as.list(NULL), layout=as.list(NULL)),
          validity=function(object) {
            # check for valid sim times and make default list
@@ -592,11 +570,16 @@ setMethod("drawArrows",
 
 
 #' @export
-objectNames <- function(...) {
-  abcd = as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern="^Plot")[1])][[1]])[-1]
-  if(is.null(names(abcd))) return(as.character(abcd)) else {
-    wh = which(nchar(names(abcd))==0)
-    return(as.character(abcd[wh]))
+.objectNames <- function(...) {
+  # First extract from the sys.calls only the function call to Plot
+  PlotArgs = as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern="^Plot")[1])][[1]])[-1]
+
+  # Extract the right parts, i.e., only the ..., the stack name if a stack,
+  if(is.null(names(PlotArgs))) return(as.character(PlotArgs)) else {
+    wh = which(nchar(names(PlotArgs))==0) # Only keep unnamed arguments, i.e., the ... elements
+    PlotArgs <- lapply(strsplit(as.character(PlotArgs[wh]),split="\\$"), function(x) x[[1]])
+    PlotArgs <- lapply(strsplit(as.character(PlotArgs[wh]),split="\\["), function(x) x[[1]])
+    return(as.character(PlotArgs[wh]))
   }
 }
 
@@ -760,32 +743,33 @@ setMethod("Plot",
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, draw, pch, title, na.color) {
             toPlot <- list(...)
+            names(toPlot) <- .objectNames()
+            lN <- layerNames(toPlot)
 
-            # Determine if any in the ... are stacks
-            whStacks <- sapply(toPlot, function(x) is(x, "RasterStack"))
-            if(any(whStacks)) {
-              stacksToPlot <- lapply(toPlot[whStacks], layerNames)
-              names(stacksToPlot) <- sapply(toPlot[whStacks], name)
+            # Determine if any in the ... are rasters
+            whRasters <- sapply(toPlot, function(x) is(x, "Raster"))
+            if(any(whRasters)) {
+              rastersToPlot <- lapply(toPlot[whRasters], names)
             } else {
-              stacksToPlot <- as.list(NULL)
+              rastersToPlot <- as.list(NULL)
             }
 
-            # determine if any of the already plotted objects are in stacks
+            # determine if any of the already plotted objects are in rasters
             if(add | !is.null(addTo)){
               if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
-                stacksInArr <- get(paste0(".spadesArr",dev.cur()))@stack
+                rastersInArr <- get(paste0(".spadesArr",dev.cur()))@raster
               } else {
-                stacksInArr <- list(NULL)
+                rastersInArr <- list(NULL)
               }
               #              if(!is.null(addTo)) add <- TRUE
             }
 
             #lN <- layerNames(toPlot)
-            lN <- objectNames()
 
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
                                                "inside RasterStacks for objects, or",
                                                "that the name slot is set correctly, using name(x) <- \"name\""))
+
             if(is.null(addTo)) {
               addTo <- lN
             } else {
@@ -927,7 +911,8 @@ setMethod("Plot",
 
               # Determine whether map to plot is new and to be added, or already in the global
               #  environment
-              grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN, arr, layerLengths, stacksInArr)
+
+              grobToPlot <- identifyGrobToPlot(grobNamesi, grobNames, toPlot, lN, arr, layerLengths, rastersInArr)
               newplot = ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this an replot
 
               if(is(grobToPlot, "Raster")) { # Rasters require subsampling
@@ -971,10 +956,10 @@ setMethod("Plot",
             }
 
             if(add==FALSE) {
-              arr@stack <- stacksToPlot
+              arr@raster <- rastersToPlot
             } else {
-              arr@stack <- append(stacksToPlot, stacksInArr)
-              arr@stack <- arr@stack[!duplicated(arr@stack)]
+              arr@raster <- append(rastersToPlot, rastersInArr)
+              arr@raster <- arr@raster[!duplicated(arr@raster)]
             }
             assign(paste0(".spadesArr",dev.cur()), arr, envir=.GlobalEnv)
           })
@@ -1225,21 +1210,22 @@ clickCoordinates <- function(n=1, ...) {
 
 
 
-identifyGrobToPlot <- function(grobNamesi, toPlot, lN, arr, layerLengths, stacksInArr) {
+identifyGrobToPlot <- function(grobNamesi, grobNames, toPlot, lN, arr, layerLengths, rastersInArr) {
+
   if(!grobNamesi %in% lN) { # Is this an replot
     newplot=F
-    if(length(stacksInArr)>0) {
+    if(length(rastersInArr)>0) {
       # only take first one, if there are more than one. First one is most recent
-      isPrevLayerInStack <- na.omit(sapply(stacksInArr, function(x) {
+      isPrevLayerInRaster <- na.omit(sapply(rastersInArr, function(x) {
         match(arr@names[match(grobNamesi, grobNames)],x)}))[1]
     } else {
-      isPrevLayerInStack = NA
+      isPrevLayerInRaster = NA
     }
 
-    if(all(is.na(isPrevLayerInStack)) ) {# means it is in a stack
+    if(all(is.na(isPrevLayerInRaster)) ) {# means it is in a raster
       grobToPlot <- get(grobNamesi, envir=.GlobalEnv)
     } else {
-      grobToPlot <- get(names(isPrevLayerInStack), envir=.GlobalEnv)[[grobNamesi]]
+      grobToPlot <- get(names(isPrevLayerInRaster), envir=.GlobalEnv)[[grobNamesi]]
     }
   } else { # Is this a new plot to be added or plotted
     newplot=T

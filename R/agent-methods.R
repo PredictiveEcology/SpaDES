@@ -48,6 +48,7 @@ setMethod("heading",
             return(heading%%360)
           })
 
+#' @rdname heading
 setMethod("heading",
           signature(from="matrix", to="SpatialPoints"),
           definition = function(from, to) {

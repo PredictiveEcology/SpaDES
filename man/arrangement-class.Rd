@@ -20,7 +20,7 @@ extents}
 
 \item{\code{ds}}{numeric of length 2. The dimensions of the plotting window in inches}
 
-\item{\code{stack}}{list with 2 elements: a character vector of stack names and
+\item{\code{raster}}{list with 2 elements: a character vector of raster names and
 a character vector of the layer names in each of those}
 
 \item{\code{names}}{character vector. The names of the layers in the plot}

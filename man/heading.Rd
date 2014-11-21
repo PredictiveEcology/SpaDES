@@ -3,6 +3,7 @@
 \name{heading}
 \alias{heading}
 \alias{heading,SpatialPoints,SpatialPoints-method}
+\alias{heading,matrix,SpatialPoints-method}
 \alias{heading,matrix,matrix-method}
 \title{Heading between spatial points.}
 \usage{
@@ -11,6 +12,8 @@ heading(from, to)
 \S4method{heading}{SpatialPoints,SpatialPoints}(from, to)
 
 \S4method{heading}{matrix,matrix}(from, to)
+
+\S4method{heading}{matrix,SpatialPoints}(from, to)
 }
 \arguments{
 \item{from}{The starting position; an object of class SpatialPoints.}
