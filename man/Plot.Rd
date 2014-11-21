@@ -4,7 +4,7 @@
 \alias{Plot}
 \title{Fast, optimally arranged, multipanel plotting function with spades}
 \usage{
-Plot(..., add = TRUE, addTo = NULL, gp = gpar(), axes = "L",
+Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   speedup = 1, size = 5, cols, zoomExtent = NULL, visualSqueeze = 0.75,
   legend = TRUE, legendRange = NULL, draw = TRUE, pch = 19,
   title = TRUE, na.color = "white")
@@ -12,8 +12,8 @@ Plot(..., add = TRUE, addTo = NULL, gp = gpar(), axes = "L",
 \arguments{
 \item{...}{Raster* object(s) and or SpatialPoints*Named objects}
 
-\item{add}{Logical. If FALSE, then the previous plot is wiped and a new one made; if TRUE, then the ... plots
-will be added to the current device, adding or rearranging the plot layout as necessary. Default is TRUE.}
+\item{new}{Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
+will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.}
 
 \item{addTo}{String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
 the plot with the same name, such as plotting a SpatialPoints*Named object on a RasterLayer.}
@@ -50,7 +50,7 @@ The main plotting function accompanying spades. This can take objects of type Ra
 and any combination of those.
 }
 \details{
-If add=FALSE, then a new plot will be generated. When add=TRUE, then any plot that
+If new=TRUE, then a new plot will be generated. When new=FALSE, then any plot that
 already exists will be overplotted, while plots that have not already been plotted will be added. This function
 rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
 it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
@@ -58,7 +58,7 @@ The function is based on the grid package.
 
 Silently, one hidden object is made, \code{.spadesArr}, which is used for arranging plots in the
 device window, and identifying the objects to be replotted if rearranging is required,
-subsequent to an add=T additional plot.
+subsequent to an new=FALSE additional plot.
 
 \code{speedup} is not a precise number because it is faster to plot an un-resampled
 raster if the new resampling is close to the original number of pixels. At the moment,
@@ -130,8 +130,8 @@ Plot(landscape)
 # Can overplot, using addTo
 Plot(caribou, addTo="forestAge", size=4, axes=FALSE)
 
-# can add a new plot to the plotting window
-Plot(caribou, add=T)
+# can add a plot to the plotting window
+Plot(caribou, new=FALSE)
 
 # can't add a two maps with same name
 Plot(landscape, caribou, DEM)
@@ -141,7 +141,7 @@ Plot(landscape, habitatQuality2, caribou)
 
 # can mix stacks, rasters, SpatialPoint*Named
 Plot(landscape, caribou)
-Plot(habitatQuality2, add=T)
+Plot(habitatQuality2, new=FALSE)
 }
 }
 

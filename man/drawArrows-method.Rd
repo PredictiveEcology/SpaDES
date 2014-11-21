@@ -43,7 +43,7 @@ grid.text("caribou1",0.5,1.05)
 grid.xaxis()
 grid.yaxis()
 
-# or add to a previous Plot
+# or  to a previous Plot
 fileList <-
    data.frame(files =
      dir(file.path(

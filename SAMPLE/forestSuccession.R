@@ -99,7 +99,7 @@ forestSuccessionSuccession <- function(sim) {
   trajMap.v <- getValues(trajMap)
     vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
 #    vegMap <- raster(ageMap)
-    vegMap <- RasterLayerNamed(setValues(vegMap,vegMap.v),name="vegMap")
+    vegMap <- setValues(vegMap,vegMap.v)
   setColors(vegMap, n=12 ) <- vegMapColors
 
     assign("vegMap", vegMap, envir=.GlobalEnv)

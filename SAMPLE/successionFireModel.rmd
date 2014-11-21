@@ -108,7 +108,8 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
   lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
   numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
    lcc05VegTable <- cbind(lcc05VegLabels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-   vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
+   #vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
+   vegMap <- reclassify(vegMapLcc, lcc05VegTable)
    vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
                                                                  lcc05VegTable[,2])]+1)]
    setColors(vegMap, n=12 ) <- vegMapColors
@@ -169,9 +170,14 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
                            as.character(lcc05TrajReclass$Description))
                      , ncol=ncol(trajObj2))
 
-ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
-vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
-trajMapInit <- RasterLayerNamed(trajMap, name="trajMapInit")
+# ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
+# vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
+# trajMapInit <- RasterLayerNamed(trajMap, name="trajMapInit")
+
+ageMapInit <- ageMap
+vegMapInit <- vegMap
+trajMapInit <- trajMap
+
 setColors(vegMapInit, n=12 ) <- vegMapColors
   
 writeRaster(trajMapInit, filename="trajMap.tif", overwrite=TRUE)
@@ -182,14 +188,14 @@ Below here is dynamic
 ```{r prepare_simInit}
 times=list(start=0.0, stop=20)
 parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                   .progress=list(.graphical=TRUE, .progressInterval=1),
+                   .progress=list(.graphical=TRUE, .progressInterval=2),
                    #.loadFileList=fileList,
                    forestSuccession=list(returnInterval=1, startTime=0,
                                    .plotInitialTime=1, .plotInterval=1),
                    forestAge=list(returnInterval=1, startTime=0.5,
                                         .plotInitialTime=1, .plotInterval=1),
-                   fireSpreadLcc=list(nFires= 100, #spreadprob=0.225,
-                                     its=1e6,
+                   fireSpreadLcc=list(nFires= 186, spreadprob=0.23,
+                                     its=1e6, drought=1, 
                                       persistprob=0, returnInterval=1, startTime=1,
                                      .plotInitialTime=1, .plotInterval=1)
 #                   caribouMovement=list(N=1e2, moveInterval=1,
@@ -212,7 +218,7 @@ dev(4)#pdf("test.pdf")
 #   simStopTime(mySim) <- i + 1
 # }
 rm(nPixelsBurned)
-print(system.time(mySim <- spades(mySim, debug=T)))
+print(system.time(mySim <- spades(mySim, debug=F)))
 Plot(vegMapInit, vegMap)
 dev(5)
 if("fireSpreadLcc" %in% simModulesLoaded(mySim))  hist(nPixelsBurned/6.25, xlab="Hectares",
