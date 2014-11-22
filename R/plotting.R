@@ -457,14 +457,18 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
                     name="top")
   plotVps <- list()
   nam = names(extents)
-  rasterNames = names(unlist(lapply(arr@raster, function(x) x)))
+  rasterNames = rep(names(arr@raster),sapply(arr@raster,length))[match(nam,arr@names)]
+  fullName <- paste(rasterNames, nam, sep=".")
   for(extentInd in 1:length(extents)) {
 
     posInd = match(nam[extentInd], arr@names)
-    if(nam[extentInd]=="layer")
-      nam[extentInd]<-rasterNames[extentInd]
+
+    # Comment these next two lines out if the word "layer" is desired in the names of the rasters
+    if(nam[extentInd]=="layer" | (nam[extentInd]==rasterNames[extentInd]))
+      fullName[extentInd]<-rasterNames[extentInd]
+
     plotVps[[extentInd]] <- viewport(
-              name=nam[extentInd],
+              name=fullName[extentInd],
               layout.pos.col = ceiling((posInd-1)%%columns+1)*2,
               layout.pos.row = ceiling(posInd/columns)*2,
               xscale=c(extents[[extentInd]]@xmin,extents[[extentInd]]@xmax),
@@ -747,6 +751,7 @@ setMethod("Plot",
           definition = function(..., new, addTo, gp, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, draw, pch, title, na.color) {
+
             toPlot <- list(...)
             names(toPlot) <- .objectNames()
             lN <- layerNames(toPlot)
@@ -814,13 +819,8 @@ setMethod("Plot",
                                 sapply(toPlot, function(x) length(layerNames(x))))
             }
             names(extsToPlot)<-lN
-#            currentPlusToPlotN <- unique(c(currentNames, addTo))
-#            lNWOLayer <- lN
-
-#            lNWOLayer[lN=="layer"] <- names(lN)[lN=="layer"]
 
             currentPlusToPlotN <- unique(c(currentNames, lN))
-#            currentPlusToPlotN <- unique(c(currentNames, lNWOLayer))
             if(new==TRUE) {
               newArr = TRUE
               vpNames <- addTo
@@ -833,8 +833,6 @@ setMethod("Plot",
                 vpNames = currentPlusToPlotN
                 ind <- vpNames %in% lN + 1
                 grobNames = currentPlusToPlotN
-#                if (any(grobNames[ind==2]=="layer"))
-#                  grobNames[ind==2][grobNames[ind==2]=="layer"] <- names(lN)[grobNames=="layer"]
                 addTo <- grobNames
                 extsUnmerged <- list(extCurrent=arr@extents[match(vpNames,currentNames)],
                                      extlN=extsToPlot[match(vpNames, lN)])
@@ -849,7 +847,6 @@ setMethod("Plot",
                 extsToPlot <- extsToPlot[!(addTo %in% currentNames)]
                 names(extsToPlot) <- vpNames
                 grobNames <- lN
-#               if (any(grobNames=="layer")) grobNames[grobNames=="layer"] <- names(lN)[grobNames=="layer"]
 
               }
             }
@@ -922,11 +919,16 @@ setMethod("Plot",
                 }
               }
 
-              seek <- addTo[whGrobNamesi]
-              if (addTo[whGrobNamesi]=="layer") {
-                rasterNames = names(unlist(lapply(arr@raster, function(x) x)))
-                seek <- rasterNames[whGrobNamesi]
+              rasterNames = rep(names(arr@raster),sapply(arr@raster,length))
+              fullName <- paste(rasterNames[match(addTo[whGrobNamesi],arr@names)], addTo[whGrobNamesi], sep=".")
+
+              # Comment this if statement if the word "layer" is desired in the names of the rasters
+              seek <- if (addTo[whGrobNamesi]=="layer" | (addTo[whGrobNamesi]==rasterNames[whGrobNamesi])) {
+                rasterNames[whGrobNamesi]
+              } else {
+                fullName
               }
+
               a = try(seekViewport(seek,recording=F))
               if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
                                                 "Try new=TRUE or change device to",
