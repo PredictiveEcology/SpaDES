@@ -608,6 +608,8 @@ setClassUnion("namedSpatialPoints", c("SpatialPointsNamed", "SpatialPointsDataFr
 
 #' @exportClass spatialObjects
 setClassUnion("spatialObjects", c("SpatialPointsNamed","SpatialPointsDataFrameNamed",
+                                  "SpatialPoints", "SpatialPointsDataFrame",
+                                  "SpatialPolygons", "SpatialPolygonsDataFrame",
                                   "SpatialPolygonsNamed","SpatialPolygonsDataFrameNamed",
                                   "RasterLayer", "RasterStack"))
 

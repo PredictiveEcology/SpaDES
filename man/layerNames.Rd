@@ -3,8 +3,10 @@
 \name{layerNames}
 \alias{layerNames}
 \alias{layerNames,Raster-method}
+\alias{layerNames,SpatialPoints-method}
 \alias{layerNames,SpatialPointsDataFrameNamed-method}
 \alias{layerNames,SpatialPointsNamed-method}
+\alias{layerNames,SpatialPolygons-method}
 \alias{layerNames,SpatialPolygonsNamed-method}
 \alias{layerNames,list-method}
 \title{extract the layer names in a mixed set of layer objects}
@@ -15,7 +17,11 @@ layerNames(object)
 
 \S4method{layerNames}{SpatialPointsNamed}(object)
 
+\S4method{layerNames}{SpatialPoints}(object)
+
 \S4method{layerNames}{SpatialPolygonsNamed}(object)
+
+\S4method{layerNames}{SpatialPolygons}(object)
 
 \S4method{layerNames}{SpatialPointsDataFrameNamed}(object)
 

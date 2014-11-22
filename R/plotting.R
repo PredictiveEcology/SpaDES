@@ -104,9 +104,29 @@ setMethod("layerNames",
 #' @export
 #' @rdname layerNames
 setMethod("layerNames",
+          signature="SpatialPoints",
+          definition=function(object) {
+
+            layerNamesObject<-as.character(
+              sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern = "^layerNames")[1])][[1]])[2]
+            return(layerNamesObject)
+          })
+
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
           signature="SpatialPolygonsNamed",
           definition=function(object) {
             name(object)
+          })
+
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="SpatialPolygons",
+          definition=function(object) {
+            return(layerNamesObject<-as.character(
+              sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern = "^layerNames")[1])][[1]])[2])
           })
 
 #' @export
@@ -505,8 +525,8 @@ makeViewports <- function(extents, layout, arr, visualSqueeze, newArr = FALSE) {
 #' @rdname drawArrows-method
 #' @examples
 #' # Make 2 objects
-#' caribou1 <- SpatialPointsNamed(cbind(x=runif(10,-50,50),y=runif(10,-50,50)),name="caribou1")
-#' caribou2 <- SpatialPointsNamed(cbind(x=runif(10,-50,50),y=runif(10,-50,50)),name="caribou2")
+#' caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+#' caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 #'
 #' drawArrows(caribou1, caribou2)
 #' seekViewport("caribou1")
@@ -596,7 +616,7 @@ setMethod("drawArrows",
 #####################
 #' Fast, optimally arranged, multipanel plotting function with spades
 #'
-#' The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*Named,
+#' The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*,
 #' and any combination of those.
 #'
 #' If new=TRUE, then a new plot will be generated. When new=FALSE, then any plot that
@@ -617,21 +637,14 @@ setMethod("drawArrows",
 #' \code{col} can be used to set the colors of Raster* objects, but it is preferable to use
 #' setColors to give each layer its own color table. See examples.
 #'
-#' If plotting a single layer from a stack, any rearrangement plotting will fail because
-#' Plot does not know where to look for the original file to replot. The layer is contained within
-#' a stack, but the raster package unstacks the single layer when a single layer is called.
-#' If this layer remained within a stacked object, then Plot would know where to look for it
-#' for subsequent plotting. Recommendation: If single layers are to be plotted, extract them as
-#' RasterLayerNamed objects to Plot them.
 #'
-#'
-#' @param ... Raster* object(s) and or SpatialPoints*Named objects
+#' @param ... Raster* object(s) and or SpatialPoints* objects
 #'
 #' @param new Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
 #' will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.
 #'
 #' @param addTo String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
-#' the plot with the same name, such as plotting a SpatialPoints*Named object on a RasterLayer.
+#' the plot with the same name, such as plotting a SpatialPoints* object on a RasterLayer.
 #'
 #' @param gp A gpar object, created by gpar() function, to change plotting parameters (see grid package)
 #'
@@ -703,9 +716,8 @@ setMethod("drawArrows",
 #' habitatQuality2 <- landscape$habitatQuality ^ 0.3
 #' names(habitatQuality2) <- "habitatQuality2"
 #'
-#' # make a SpatialPointsNamed object
-#' caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
-#'                               name="caribou")
+#' # make a SpatialPoints object
+#' caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 #'
 #' #Plot all maps on a new plot windows - Do not use RStudio window
 #' if(is.null(dev.list())) {
@@ -729,10 +741,10 @@ setMethod("drawArrows",
 #' # can't add a two maps with same name
 #' Plot(landscape, caribou, DEM)
 #'
-#' # can mix stacks, rasters, SpatialPoint*Named
+#' # can mix stacks, rasters, SpatialPoint*
 #' Plot(landscape, habitatQuality2, caribou)
 #'
-#' # can mix stacks, rasters, SpatialPoint*Named
+#' # can mix stacks, rasters, SpatialPoint*
 #' Plot(landscape, caribou)
 #' Plot(habitatQuality2, new=FALSE)
 #' }
@@ -752,9 +764,15 @@ setMethod("Plot",
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, draw, pch, title, na.color) {
 
+
             toPlot <- list(...)
+            isRaster <- sapply(toPlot, function(x) is(x,"Raster"))
             names(toPlot) <- .objectNames()
-            lN <- layerNames(toPlot)
+            numLayers <- pmax(1, sapply(toPlot,nlayers))
+            lN <- rep(names(toPlot), numLayers)
+            lN[rep(isRaster,numLayers)] <- layerNames(toPlot[isRaster])
+
+
 
             # Determine if any in the ... are rasters
             whRasters <- sapply(toPlot, function(x) is(x, "Raster"))

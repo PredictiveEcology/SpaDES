@@ -10,13 +10,13 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   title = TRUE, na.color = "white")
 }
 \arguments{
-\item{...}{Raster* object(s) and or SpatialPoints*Named objects}
+\item{...}{Raster* object(s) and or SpatialPoints* objects}
 
 \item{new}{Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
 will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.}
 
 \item{addTo}{String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
-the plot with the same name, such as plotting a SpatialPoints*Named object on a RasterLayer.}
+the plot with the same name, such as plotting a SpatialPoints* object on a RasterLayer.}
 
 \item{gp}{A gpar object, created by gpar() function, to change plotting parameters (see grid package)}
 
@@ -46,7 +46,7 @@ to be FALSE. Default is TRUE}
 \item{title}{Logical. Whether the names of each plot should be written above plots}
 }
 \description{
-The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*Named,
+The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*,
 and any combination of those.
 }
 \details{
@@ -67,13 +67,6 @@ if the factor for speeding up is not high enough (i.e., >3).
 
 \code{col} can be used to set the colors of Raster* objects, but it is preferable to use
 setColors to give each layer its own color table. See examples.
-
-If plotting a single layer from a stack, any rearrangement plotting will fail because
-Plot does not know where to look for the original file to replot. The layer is contained within
-a stack, but the raster package unstacks the single layer when a single layer is called.
-If this layer remained within a stacked object, then Plot would know where to look for it
-for subsequent plotting. Recommendation: If single layers are to be plotted, extract them as
-RasterLayerNamed objects to Plot them.
 }
 \examples{
 \dontrun{
@@ -110,9 +103,8 @@ setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
 habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 
-# make a SpatialPointsNamed object
-caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
-                              name="caribou")
+# make a SpatialPoints object
+caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 
 #Plot all maps on a new plot windows - Do not use RStudio window
 if(is.null(dev.list())) {
@@ -136,10 +128,10 @@ Plot(caribou, new=FALSE)
 # can't add a two maps with same name
 Plot(landscape, caribou, DEM)
 
-# can mix stacks, rasters, SpatialPoint*Named
+# can mix stacks, rasters, SpatialPoint*
 Plot(landscape, habitatQuality2, caribou)
 
-# can mix stacks, rasters, SpatialPoint*Named
+# can mix stacks, rasters, SpatialPoint*
 Plot(landscape, caribou)
 Plot(habitatQuality2, new=FALSE)
 }

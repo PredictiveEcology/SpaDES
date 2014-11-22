@@ -34,8 +34,8 @@ Plots arrows showing direction of agent movement
 }
 \examples{
 # Make 2 objects
-caribou1 <- SpatialPointsNamed(cbind(x=runif(10,-50,50),y=runif(10,-50,50)),name="caribou1")
-caribou2 <- SpatialPointsNamed(cbind(x=runif(10,-50,50),y=runif(10,-50,50)),name="caribou2")
+caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
+caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 
 drawArrows(caribou1, caribou2)
 seekViewport("caribou1")
