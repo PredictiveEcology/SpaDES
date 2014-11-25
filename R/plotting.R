@@ -1,7 +1,5 @@
 #if(getRversion() >= "3.1.0")  utils::globalVariables(paste0(".spadesArr",1:20))
 
-#' @export
-.spades <- new.env(parent = emptyenv())
 
 ################################################
 #' The \code{SpatialObjects} class
@@ -28,8 +26,7 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #'
 #' @param x   The number of a plot device.
 #'
-#' @param ... Additional arguments passed to \code{\link{quartz}},
-#'            \code{\link{windows}}, or \code{\link{x11}}.
+#' @param ... Additional arguments passed to \code{\link{newPlot}}.
 #'
 #' @return Opens a new plot device on the screen.
 #'
@@ -47,17 +44,12 @@ dev <- function(x, ...) {
 ##############################################################
 #' Open a new plotting window
 #'
-#' Launch a new graphics device based on operating system used.
-#' Mac OS: open device with \code{quartz()}.
-#' Linux: open device with \code{x11()}.
-#' Windows: open device with \code{windows()}.
-#'
 #' @param ... Additional arguments.
 #'
 #' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
 #' window in a platform-generic way, however, this doesn't work in RStudio.
 #'
-#' @seealso \code{\link{quartz}}, \code{\link{windows}}, \code{\link{x11}}.
+#' @seealso \code{\link{dev}}.
 #'
 #' @export
 #' @docType methods
@@ -65,17 +57,8 @@ dev <- function(x, ...) {
 #'
 # @examples
 # needs examples
-newPlot <- function(...) {
-  if (Sys.info()[["sysname"]]=="Darwin") {
-    quartz(...)
-  } else if (Sys.info()[["sysname"]]=="Linux") {
-    x11(...)
-  } else if (Sys.info()[["sysname"]]=="Windows") {
-    windows(...)
-  } else {
-    dev.new(...) # try dev.new() to see if it works
-    warning("Which operating system are you using?")
-  }
+newPlot <- function(noRStudioGD=TRUE, ...) {
+    dev.new(noRStudioGD=TRUE, ...)
 }
 
 
@@ -85,7 +68,7 @@ newPlot <- function(...) {
 #' There are methods for Raster*. All other object classes return 1.
 #'
 #' @export
-#' @name nlayers
+#' @importFrom raster nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="list",
@@ -635,24 +618,23 @@ setMethod("drawArrows",
 setMethod("drawArrows",
                signature=c("SpatialPoints","SpatialPoints","missing"),
                definition=function(from, to, addTo, ..., length=0.1) {
-                 grid.newpage()
-                 extents <- list(extent(
-                   extendrange(c(min(min(from$x),min(to$x)),max(max(from$x,to$x)))),
-                   extendrange(c(min(min(from$y),min(to$y)),max(max(from$y,to$y))))))
-                 names(extents) <- layerNames(from)
-                 arr <- arrangeViewports(extents)#,name=name(from))
-                 lay <- makeLayout(arr=arr, visualSqueeze=0.75)
-                 arr@layout <- lay
-                 vps <- makeViewports(extents, arr=arr, layout=lay,
-                                      visualSqueeze=0.75, newArr = TRUE)
-                 pushViewport(vps)
-                 seekViewport(name(from), recording=FALSE)
-                 grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
-                               default.units="native",
-                               id=rep(1:length(from), 2),
-                               arrow=arrow(length=unit(length, "inches"), ...))
-                 upViewport(0)
-     })
+     grid.newpage()
+     extents <- list(extent(
+       extendrange(c(min(min(from$x),min(to$x)),max(max(from$x,to$x)))),
+       extendrange(c(min(min(from$y),min(to$y)),max(max(from$y,to$y))))))
+     names(extents) <- layerNames(from)
+     arr <- arrangeViewports(extents)#,name=name(from))
+     lay <- makeLayout(arr=arr, visualSqueeze=0.75)
+     arr@layout <- lay
+     vps <- makeViewports(extents, arr=arr, layout=lay, newArr = TRUE)
+     pushViewport(vps)
+     seekViewport(name(from), recording=FALSE)
+     grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
+                   default.units="native",
+                   id=rep(1:length(from), 2),
+                   arrow=arrow(length=unit(length, "inches"), ...))
+     upViewport(0)
+})
 
 
 ##############################################################
@@ -807,7 +789,8 @@ setMethod("drawArrows",
 #' # can add a plot to the plotting window
 #' Plot(caribou, new=FALSE)
 #'
-#' # Can add two maps with same name, if one is in a stack; they are given unique names based on object name
+#' # Can add two maps with same name, if one is in a stack; they are given
+#' #  unique names based on object name
 #' Plot(landscape, caribou, DEM)
 #'
 #' # can mix stacks, rasters, SpatialPoint*
