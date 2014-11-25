@@ -870,7 +870,6 @@ setMethod("Plot",
       addTo <- lN
     } else {
       if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-#      if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
       if(exists(paste0(".spadesArr",dev.cur()), envir=.spades)) {
         if(!any(addTo %in% get(paste0(".spadesArr",dev.cur()), envir=.spades)@names)) {
           stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
@@ -884,7 +883,7 @@ setMethod("Plot",
 
 
 # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
-#    if(!exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
+
     if(!exists(paste0(".spadesArr",dev.cur()),envir=.spades)) {
       new<-TRUE
       arr <- new("arrangement"); arr@columns=0; arr@rows = 0
@@ -941,7 +940,7 @@ setMethod("Plot",
 
     # create get(paste0(".spadesArr",dev.cur())) object - i.e., the arrangement based on number and extents
     if(!newArr) {
-#      if(exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
+
       if(exists(paste0(".spadesArr",dev.cur()),envir=.spades)) {
         arr <- get(paste0(".spadesArr",dev.cur()),envir=.spades)
         arr@names <- append(arr@names, names(extsToPlot))
@@ -1059,7 +1058,6 @@ setMethod("Plot",
       if(yaxis) grid.yaxis(name="yaxis", gp = gp)
     }
 
-    #assign(paste0(".spadesArr",dev.cur()), arr, envir=.GlobalEnv)
     assign(paste0(".spadesArr",dev.cur()), arr, envir=.spades)
   })
 
@@ -1254,7 +1252,6 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 clickCoordinates <- function(n=1) {
 
   dc <- dev.cur()
-#  arr <- get(paste0(".spadesArr",dc), envir=.GlobalEnv)
   arr <- get(paste0(".spadesArr",dc), envir=.spades)
   gl <- grid.layout(nrow=arr@rows*2+1,
                     ncol=arr@columns*2+1,
