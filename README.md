@@ -16,8 +16,8 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 To install the latest master build:
 
-- Source tarball: [Version 0.4.0 tar.gz](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
-- Windows binary: [Version 0.4.0 zip](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.zip)
+- Source tarball: [SpaDES_0.4.0.tar.gz](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
+- Windows binary: [SpaDES_0.4.0.zip](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.zip)
 
 
 To install `SpaDES` directly from github you will need the `devtools` package:
