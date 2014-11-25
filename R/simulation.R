@@ -163,7 +163,6 @@ setGeneric("simModules", function(object) {
     standardGeneric("simModules")
 })
 
-#' get list of simulation modules
 #' @rdname simModules-accessor-methods
 setMethod("simModules",
           signature="simList",
@@ -171,7 +170,6 @@ setMethod("simModules",
               return(object@modules)
 })
 
-#' set list of simulation modules
 #' @export
 #' @rdname simModules-accessor-methods
 setGeneric("simModules<-",
@@ -179,7 +177,6 @@ setGeneric("simModules<-",
                standardGeneric("simModules<-")
 })
 
-#' set list of simulation modules
 #' @name simModules<-
 #' @aliases simModules<-,simList-method
 #' @rdname simModules-accessor-methods
@@ -225,7 +222,6 @@ setGeneric("simModulesLoaded", function(object) {
     standardGeneric("simModulesLoaded")
 })
 
-#' get list of loaded simulation modules
 #' @rdname simModulesLoaded-accessor-methods
 setMethod("simModulesLoaded",
           signature="simList",
@@ -233,7 +229,6 @@ setMethod("simModulesLoaded",
               return(object@.loaded$modules)
 })
 
-#' set list of loaded simulation modules
 #' @export
 #' @rdname simModulesLoaded-accessor-methods
 setGeneric("simModulesLoaded<-",
@@ -241,7 +236,6 @@ setGeneric("simModulesLoaded<-",
                standardGeneric("simModulesLoaded<-")
 })
 
-#' set list of loaded simulation modules
 #' @name simModulesLoaded<-
 #' @aliases simModulesLoaded<-,simList-method
 #' @rdname simModulesLoaded-accessor-methods
@@ -287,7 +281,6 @@ setGeneric("simObjectsLoaded", function(object) {
   standardGeneric("simObjectsLoaded")
 })
 
-#' get list of loaded simulation modules
 #' @rdname simObjectsLoaded-accessor-methods
 setMethod("simObjectsLoaded",
           signature="simList",
@@ -295,7 +288,6 @@ setMethod("simObjectsLoaded",
             return(object@.loaded$objects)
 })
 
-#' set list of loaded simulation modules
 #' @export
 #' @rdname simObjectsLoaded-accessor-methods
 setGeneric("simObjectsLoaded<-",
@@ -303,7 +295,6 @@ setGeneric("simObjectsLoaded<-",
              standardGeneric("simObjectsLoaded<-")
 })
 
-#' set list of loaded simulation modules
 #' @name simObjectsLoaded<-
 #' @aliases simObjectsLoaded<-,simList-method
 #' @rdname simObjectsLoaded-accessor-methods
@@ -350,7 +341,6 @@ setGeneric("simParams", function(object) {
     standardGeneric("simParams")
 })
 
-#' get list of simulation parameters
 #' @rdname simParams-accessor-methods
 setMethod("simParams",
           signature="simList",
@@ -358,7 +348,6 @@ setMethod("simParams",
               return(object@params)
 })
 
-#' set list of simulation parameters
 #' @export
 #' @rdname simParams-accessor-methods
 setGeneric("simParams<-",
@@ -366,7 +355,6 @@ setGeneric("simParams<-",
                standardGeneric("simParams<-")
 })
 
-#' set list of simulation parameters
 #' @name simParams<-
 #' @aliases simParams<-,simList-method
 #' @rdname simParams-accessor-methods
@@ -409,7 +397,6 @@ setGeneric("simCheckpointFile", function(object) {
   standardGeneric("simCheckpointFile")
 })
 
-#' get list of simulation parameters
 #' @rdname simCheckpointFile-accessor-methods
 setMethod("simCheckpointFile",
           signature="simList",
@@ -417,7 +404,6 @@ setMethod("simCheckpointFile",
             return(object@params$.checkpoint$file)
 })
 
-#' set list of simulation parameters
 #' @export
 #' @rdname simCheckpointFile-accessor-methods
 setGeneric("simCheckpointFile<-",
@@ -425,7 +411,6 @@ setGeneric("simCheckpointFile<-",
              standardGeneric("simCheckpointFile<-")
 })
 
-#' set list of simulation parameters
 #' @name simCheckpointFile<-
 #' @aliases simCheckpointFile<-,simList-method
 #' @rdname simCheckpointFile-accessor-methods
@@ -468,7 +453,6 @@ setGeneric("simCheckpointInterval", function(object) {
   standardGeneric("simCheckpointInterval")
 })
 
-#' get list of simulation parameters
 #' @rdname simCheckpointInterval-accessor-methods
 setMethod("simCheckpointInterval",
           signature="simList",
@@ -476,7 +460,6 @@ setMethod("simCheckpointInterval",
             return(object@params$.checkpoint$interval)
 })
 
-#' set list of simulation parameters
 #' @export
 #' @rdname simCheckpointInterval-accessor-methods
 setGeneric("simCheckpointInterval<-",
@@ -484,7 +467,6 @@ setGeneric("simCheckpointInterval<-",
              standardGeneric("simCheckpointInterval<-")
 })
 
-#' set list of simulation parameters
 #' @name simCheckpointInterval<-
 #' @aliases simCheckpointInterval<-,simList-method
 #' @rdname simCheckpointInterval-accessor-methods
@@ -531,7 +513,6 @@ setGeneric("simFileList", function(object) {
   standardGeneric("simFileList")
 })
 
-#' get .loadFileList from simulation parameters
 #' @rdname simFileList-accessor-methods
 setMethod("simFileList",
           signature="simList",
@@ -539,7 +520,6 @@ setMethod("simFileList",
             return(object@params$.loadFileList)
 })
 
-#' set .loadFileList in simulation parameters
 #' @export
 #' @rdname simFileList-accessor-methods
 setGeneric("simFileList<-",
@@ -547,7 +527,6 @@ setGeneric("simFileList<-",
              standardGeneric("simFileList<-")
 })
 
-#' set .loadFileList in simulation parameters
 #' @name simFileList<-
 #' @aliases simFileList<-,simList-method
 #' @rdname simFileList-accessor-methods
@@ -593,7 +572,6 @@ setGeneric("simGlobals", function(object) {
   standardGeneric("simGlobals")
 })
 
-#' get .globals from simulation parameters
 #' @rdname simGlobals-accessor-methods
 setMethod("simGlobals",
           signature="simList",
@@ -601,7 +579,6 @@ setMethod("simGlobals",
             return(object@params$.globals)
 })
 
-#' set .globals in simulation parameters
 #' @export
 #' @rdname simGlobals-accessor-methods
 setGeneric("simGlobals<-",
@@ -609,7 +586,6 @@ setGeneric("simGlobals<-",
              standardGeneric("simGlobals<-")
 })
 
-#' set .globals in simulation parameters
 #' @name simGlobals<-
 #' @aliases simGlobals<-,simList-method
 #' @rdname simGlobals-accessor-methods
@@ -653,7 +629,6 @@ setGeneric("simGlobalsOutputPath", function(object) {
   standardGeneric("simGlobalsOutputPath")
 })
 
-#' get .globals$.outputPath from simulation parameters
 #' @rdname simGlobalsOutputPath-accessor-methods
 setMethod("simGlobalsOutputPath",
           signature="simList",
@@ -661,7 +636,6 @@ setMethod("simGlobalsOutputPath",
             return(object@params$.globals$.outputPath)
 })
 
-#' set .globals$.outputPath in simulation parameters
 #' @export
 #' @rdname simGlobalsOutputPath-accessor-methods
 setGeneric("simGlobalsOutputPath<-",
@@ -669,7 +643,6 @@ setGeneric("simGlobalsOutputPath<-",
              standardGeneric("simGlobalsOutputPath<-")
 })
 
-#' set .globals$.outputPath in simulation parameters
 #' @name simGlobalsOutputPath<-
 #' @aliases simGlobalsOutputPath<-,simList-method
 #' @rdname simGlobalsOutputPath-accessor-methods
@@ -718,7 +691,6 @@ setGeneric("simTimes", function(object) {
     standardGeneric("simTimes")
 })
 
-#' get list of simulation times
 #' @rdname simTimes-accessor-methods
 setMethod("simTimes",
           signature="simList",
@@ -726,7 +698,6 @@ setMethod("simTimes",
               return(object@simtimes)
 })
 
-#' set list of simulation times
 #' @export
 #' @rdname simTimes-accessor-methods
 setGeneric("simTimes<-",
@@ -734,7 +705,6 @@ setGeneric("simTimes<-",
                standardGeneric("simTimes<-")
 })
 
-#' set list of simulation times
 #' @name simTimes<-
 #' @aliases simTimes<-,simList-method
 #' @rdname simTimes-accessor-methods
@@ -779,7 +749,6 @@ setGeneric("simCurrentTime", function(object) {
     standardGeneric("simCurrentTime")
 })
 
-#' get the current simulation time
 #' @rdname simCurrentTime-accessor-methods
 setMethod("simCurrentTime",
           signature="simList",
@@ -787,7 +756,6 @@ setMethod("simCurrentTime",
               return(object@simtimes$current)
 })
 
-#' set the current simulation time
 #' @export
 #' @rdname simCurrentTime-accessor-methods
 setGeneric("simCurrentTime<-",
@@ -795,7 +763,6 @@ setGeneric("simCurrentTime<-",
                standardGeneric("simCurrentTime<-")
 })
 
-#' set the current simulation time
 #' @name simCurrentTime<-
 #' @aliases simCurrentTime<-,simList-method
 #' @rdname simCurrentTime-accessor-methods
@@ -840,7 +807,6 @@ setGeneric("simStartTime", function(object) {
     standardGeneric("simStartTime")
 })
 
-#' get the simulation start time
 #' @rdname simStartTime-accessor-methods
 setMethod("simStartTime",
           signature="simList",
@@ -848,7 +814,6 @@ setMethod("simStartTime",
               return(object@simtimes$start)
 })
 
-#' set the simulation start time
 #' @export
 #' @rdname simStartTime-accessor-methods
 setGeneric("simStartTime<-",
@@ -856,7 +821,6 @@ setGeneric("simStartTime<-",
                standardGeneric("simStartTime<-")
 })
 
-#' set the simulation start time
 #' @name simStartTime<-
 #' @aliases simStartTime<-,simList-method
 #' @rdname simStartTime-accessor-methods
@@ -901,7 +865,6 @@ setGeneric("simStopTime", function(object) {
     standardGeneric("simStopTime")
 })
 
-#' get the simulation stop time
 #' @rdname simStopTime-accessor-methods
 setMethod("simStopTime",
           signature="simList",
@@ -909,7 +872,6 @@ setMethod("simStopTime",
               return(object@simtimes$stop)
 })
 
-#' set the simulation stop time
 #' @export
 #' @rdname simStopTime-accessor-methods
 setGeneric("simStopTime<-",
@@ -917,7 +879,6 @@ setGeneric("simStopTime<-",
                standardGeneric("simStopTime<-")
 })
 
-#' set the simulation stop time
 #' @name simStopTime<-
 #' @aliases simStopTime<-,simList-method
 #' @rdname simStopTime-accessor-methods
@@ -966,7 +927,6 @@ setGeneric("simEvents", function(object) {
     standardGeneric("simEvents")
 })
 
-#' get the simulation event queue
 #' @rdname simEvents-accessor-methods
 setMethod("simEvents",
           signature="simList",
@@ -974,7 +934,6 @@ setMethod("simEvents",
               return(object@events)
 })
 
-#' set the simulation event queue
 #' @export
 #' @rdname simEvents-accessor-methods
 setGeneric("simEvents<-",
@@ -982,7 +941,6 @@ setGeneric("simEvents<-",
                standardGeneric("simEvents<-")
 })
 
-#' set the simulation event queue
 #' @name simEvents<-
 #' @aliases simEvents<-,simList-method
 #' @rdname simEvents-accessor-methods
@@ -1031,7 +989,6 @@ setGeneric("simCompleted", function(object) {
   standardGeneric("simCompleted")
 })
 
-#' get the simulation completed events list
 #' @rdname simCompleted-accessor-methods
 setMethod("simCompleted",
           signature="simList",
@@ -1039,7 +996,6 @@ setMethod("simCompleted",
             return(object@completed)
 })
 
-#' set the simulation completed events list
 #' @export
 #' @rdname simCompleted-accessor-methods
 setGeneric("simCompleted<-",
@@ -1047,7 +1003,6 @@ setGeneric("simCompleted<-",
              standardGeneric("simCompleted<-")
 })
 
-#' set the simulation completed events list
 #' @name simCompleted<-
 #' @aliases simCompleted<-,simList-method
 #' @rdname simCompleted-accessor-methods
