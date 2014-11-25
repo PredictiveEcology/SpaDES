@@ -6,15 +6,19 @@ Development Branch: [![Build Status](https://travis-ci.org/achubaty/SpaDES.svg?b
 
 # Spatial Discrete Event Simulation (SpaDES)
 
-*A package to develop and run spatially explicit discrete event simulation models.*
+*Develop and run spatially explicit discrete event simulation models.*
 
-Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
+Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
 **Website:** [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
 
 ## Installation
 
-To install a prebuilt `SpaDES` binary (.zip file) or source file, go to: [Version 0.4.0 zip](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.zip) or [Version 0.4.0 tar.gz](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.tar.gz).
+To install the latest master build:
+
+- Source tarball: [Version 0.4.0 tar.gz](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
+- Windows binary: [Version 0.4.0 zip](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.zip)
+
 
 To install `SpaDES` directly from github you will need the `devtools` package:
 
