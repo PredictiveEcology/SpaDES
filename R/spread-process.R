@@ -106,11 +106,13 @@ setMethod("spread",
             }
 
             spreads <- rep_len(0, ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
-            if(!is.null(mask)) {
-              masked <- Which(mask==0, cells=TRUE)#getValues(mask)==0
-              #  spreads[masked]<- NaN#[potentials %in% masked]]
 
-            }
+            masked <- if(is.null(mask)) {
+                NULL
+              } else {
+                Which(mask==0, cells=TRUE)
+              }
+
             n <- 1
             if (mapID) {
               spreads[loci] <- 1:length(loci)
@@ -125,10 +127,12 @@ setMethod("spread",
 
             while ( (length(loci)>0) && (iterations>=n) ) {
               if (mapID) {
-                potentials <- matrix(adj(landscape, loci, directions, pairs=TRUE),ncol=2)
+                potentials <- matrix(adj(landscape, loci, directions, pairs=TRUE,
+                                         target=masked),ncol=2)
               } else {
                 # must pad the first column of potentials
-                potentials <- matrix(cbind(NA, adj(landscape, loci, directions, pairs=FALSE)),ncol=2)
+                potentials <- matrix(cbind(NA, adj(landscape, loci, directions,
+                                                   pairs=FALSE, target=masked)),ncol=2)
               }
 
               #if there is only one potential, R converts this to a vector, instead of a matrix.
@@ -139,8 +143,8 @@ setMethod("spread",
 
 
               # drop those ineligible
-              if (!is.null(mask))
-                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
+#              if (!is.null(mask))
+#                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
 
               # Should this be unique?
               # only accept cells that have no fire yet

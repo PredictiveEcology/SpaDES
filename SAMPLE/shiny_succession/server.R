@@ -8,6 +8,8 @@ if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
 } else if (Sys.info()["sysname"]=="Windows") {
   setwd("/shared/shiny_succession")
+} else if (Sys.info()["sysname"]=="Darwin") {
+  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
 }
 
 if(downloadRequired) {
@@ -38,7 +40,7 @@ if(interactiveExtent) {
 }
 
 vegMapLcc <- crop(lcc05, ext)
-if(ncell(vegMapLcc)>1e6) beginCluster(10)
+if(ncell(vegMapLcc)>1e6) beginCluster()
 # age will not run with projectRaster directly. Instead, project the vegMap to age, then crop, then project back to vegMap
 vegMapLcc.crsAge <- projectRaster(vegMapLcc, crs=crs(age))
 age.crsAge <- crop(age, vegMapLcc.crsAge)
@@ -202,6 +204,11 @@ shinyServer(function(input, output) {
                   nPixelsBurned=get("nPixelsBurned", envir=.GlobalEnv),
                   caribouRas=get("caribouRas", envir=.GlobalEnv),
                   caribou=get("caribou", envir=.GlobalEnv)))
+    })
+
+    output$lcc05 <- renderPlot({
+      plot(lcc05)
+      plot(ext, add=TRUE, lwd=3, col="yellow")
     })
 
     output$mapsInit <- renderPlot({

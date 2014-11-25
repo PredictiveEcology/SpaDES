@@ -73,7 +73,6 @@ forestAgeInit <- function(sim) {
 #  beginCluster()
 #  ageMap <- projectRaster(age, to=lcc05.cr, method="ngb")
   setColors(ageMap,n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
-  name(ageMap) <- "ageMap"
   assign("ageMap", ageMap, envir=.GlobalEnv)
   #  endCluster()
 
@@ -95,7 +94,6 @@ forestAgeAge <- function(sim) {
 
     ageMap <- setValues(ageMap, pmin(200, getValues(ageMap)+1))
     ageMap[Fires>0] <- 1
-    name(ageMap) <- "ageMap"
     setColors(ageMap,n=201) <- colorRampPalette(c("LightGreen","darkgreen"))(50)
     assign("ageMap", ageMap, envir=.GlobalEnv)
 #    ageMap[1] <<- 0

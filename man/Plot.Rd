@@ -18,7 +18,7 @@ will be added to the current device, adding or rearranging the plot layout as ne
 \item{addTo}{String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
 the plot with the same name, such as plotting a SpatialPoints* object on a RasterLayer.}
 
-\item{gp}{A gpar object, created by gpar() function, to change plotting parameters (see grid package)}
+\item{gp}{A gpar object, created by gpar() function, to change plotting parameters (see \code{\link{grid}} package)}
 
 \item{axes}{Logical or "L", representing the left and bottom axes, overall plots}
 
@@ -26,7 +26,7 @@ the plot with the same name, such as plotting a SpatialPoints* object on a Raste
 
 \item{size}{Numeric. The size, in points, for SpatialPoints symbols, if using a scalable symbol.}
 
-\item{col}{character vector. Hex codes for colors. See Details.}
+\item{cols}{character vector. Hex codes for colors. See Details.}
 
 \item{zoomExtent}{extent object. Supplying a single extent object that is smaller than the
 rasters will call a crop statement before plotting. Defaults to NULL. This occurs after any
@@ -107,6 +107,7 @@ names(habitatQuality2) <- "habitatQuality2"
 caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 
 #Plot all maps on a new plot windows - Do not use RStudio window
+\\notrun{
 if(is.null(dev.list())) {
   dev(2)
 } else {
@@ -116,16 +117,17 @@ if(is.null(dev.list())) {
     dev(max(dev.list()))
   }
 }
+}
 
 Plot(landscape)
 
 # Can overplot, using addTo
-Plot(caribou, addTo="forestAge", size=4, axes=FALSE)
+Plot(caribou, addTo="landscape.forestAge", size=4, axes=FALSE)
 
 # can add a plot to the plotting window
 Plot(caribou, new=FALSE)
 
-# can't add a two maps with same name
+# Can add two maps with same name, if one is in a stack; they are given unique names based on object name
 Plot(landscape, caribou, DEM)
 
 # can mix stacks, rasters, SpatialPoint*

@@ -2,6 +2,7 @@
 library(dplyr)
 library(raster)
 library(rgdal)
+library(fastshp)
 library(SpaDES)
 
 rasterOptions(maxmemory=2e9)
@@ -35,6 +36,7 @@ loadFiles(fileList=fileList)
 # Saskatchewan
 setwd("S:\\McIntire\\data\\boreal")
 boreal <- readOGR(dsn=".", layer="NABoreal")
+
 setwd("S:\\McIntire\\data")
 load("CAN_adm1.RData")
 canada1 = gadm

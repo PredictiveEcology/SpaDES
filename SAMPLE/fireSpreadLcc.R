@@ -104,7 +104,7 @@ fireSpreadLccInit <- function(sim) {
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(vegMap), ncol=ncol(vegMap),
                   nrow=nrow(vegMap), vals=0)
-  name(Fires) <- "Fires"
+
   setColors(Fires,n=simParams(sim)$fireSpreadLcc$nFires+1) <-
     c("#FFFFFF", rev(heat.colors(simParams(sim)$fireSpreadLcc$nFires)))
   Fires <<- setValues(Fires, 0)
@@ -123,11 +123,10 @@ fireSpreadLccInit <- function(sim) {
 fireSpreadLccBurn <- function(sim) {
  # landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
-  fireSpreadProb <<- RasterLayerNamed(reclassify(x=vegMap,
+  fireSpreadProb <<- reclassify(x=vegMap,
                                                  rcl=cbind(1:11,
                                                            c(0.225,0.225,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0)*
-                                                             simParams(sim)$fireSpreadLcc$drought)),
-                                      name="fireSpreadProb")
+                                                             simParams(sim)$fireSpreadLcc$drought))
   nFires <<- rpois(1,simParams(sim)$fireSpreadLcc$nFires*simParams(sim)$fireSpreadLcc$drought)
   Fires <- spread(fireSpreadProb,
                    loci=as.integer(sample(1:ncell(fireSpreadProb), nFires)),
