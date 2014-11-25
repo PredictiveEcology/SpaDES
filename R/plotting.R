@@ -1,6 +1,20 @@
-if(getRversion() >= "3.1.0")  utils::globalVariables(paste0(".spadesArr",1:20))
+#if(getRversion() >= "3.1.0")  utils::globalVariables(paste0(".spadesArr",1:20))
 
+#' @export
 .spades <- new.env(parent = emptyenv())
+
+################################################
+#' The \code{SpatialObjects} class
+#'
+#' This class contains the plotting arrangement information.
+#'
+#' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, and RasterStack
+#' @name SpatialObjects-class
+#' @rdname spatialObjects-class
+#' @author Eliot McIntire
+#' @exportClass spatialObjects
+setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons",
+                                  "RasterLayer", "RasterStack"))
 
 ##############################################################
 #' Specify where to plot
@@ -102,6 +116,8 @@ setMethod("nlayers",
 #' There are methods for Raster*, SpatialPoints*, and SpatialPolygons*, though the latter
 #' return an empty character vector of length 1.
 #'
+#' @param object a Raster*, SpatialPoints*, SpatialPolygons* or list of these.
+#'
 #' @name layerNames
 #' @rdname layerNames
 #' @export
@@ -117,13 +133,6 @@ setMethod("layerNames",
             unlist(lapply(object, layerNames))
 })
 
-#' @export
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="SpatialPointsNamed",
-          definition=function(object) {
-            name(object)
-})
 
 #' @export
 #' @rdname layerNames
@@ -133,13 +142,6 @@ setMethod("layerNames",
             return("")
           })
 
-#' @export
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="SpatialPolygonsNamed",
-          definition=function(object) {
-            name(object)
-          })
 
 #' @export
 #' @rdname layerNames
@@ -149,13 +151,6 @@ setMethod("layerNames",
               return("")
           })
 
-#' @export
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="SpatialPointsDataFrameNamed",
-          definition=function(object) {
-            name(object)
-})
 
 #' @export
 #' @rdname layerNames
@@ -171,6 +166,7 @@ setMethod("layerNames",
 ##############################################################
 #' Assess whether a list of extents are all equal
 #'
+#' @param extents list of extents objects
 #' @name equalExtent
 #' @rdname equalExtent
 #' @export
@@ -302,6 +298,13 @@ setMethod("arrangeViewports",
 #'
 #' Plot a raster Grob, a points Grob, polygon Grob. This should mostly be called internally.
 #'
+#' \code{speedup} is only used for SpatialPolygons in this function. Attempts have been made
+#' to subsample at a good level that optimizes speed of plotting, without losing visible
+#' quality. From a speed perspective, there appears to be an optimal subsampling
+#' when using \code{thin} from fastshp. Presumably too much thinning requires
+#' large distance matrices to be calculated, slowing plotting down. Too little thinning
+#' causes an overabundance of points to be plotted, slowing plotting down.
+#'
 #' @param grobToPlot Raster*, SpatialPoints*, SpatialPolygons* object
 #'
 #' @param col Currently only used for the legend of a Raster* object.
@@ -321,6 +324,11 @@ setMethod("arrangeViewports",
 #' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
 #'
 #' @param pch for SpatialPoints, as \code{par}
+#'
+#' @param speedup Numeric. The factor by which the number of vertices in SpatialPolygons will be subsampled.
+#' The vertices are already subsampled by default to make plotting faster.
+#'
+#' @param ... additional arguments. Currently nothing.
 #'
 #' @name plotGrob
 #' @rdname plotGrob
@@ -410,7 +418,7 @@ setMethod("plotGrob",
 })
 
 #' @rdname plotGrob
-#' @import fastshp
+#' @importFrom fastshp thin
 #' @export
 setMethod("plotGrob",
           signature=c("SpatialPolygons"),
@@ -454,7 +462,26 @@ setMethod("plotGrob",
           })
 
 
-
+##################
+#' Make an optimal layout of plots
+#'
+#' Using the size of the current device, and number and dimension ratios of the plots,
+#' this function will place them optimally in the plotting region.
+#'
+#' @param arr an object of class \code{arrangement}
+#'
+#' @param visualSqueeze numeric. The proportion of the white space to be used for
+#' plots. Default is 0.75.
+#'
+#' @param legend logical. Whether legend should be included as part of layout
+#' calculation. Default is TRUE.
+#'
+#' @param axes Logical. Whether the axes should be included as part of layout
+#' calculation. Default is TRUE.
+#'
+#' @param title Logical. Whether the names of each plot should be written above
+#' plots and should be included as part of layout calculation.  Default is TRUE.
+#'
 #' @export
 makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
   columns <- arr@columns
@@ -484,6 +511,24 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 }
 
 
+##################
+#' Make viewports
+#'
+#' Given a set of extents, and a layout for these extents, this function will output
+#' a viewport tree to allow plotting.
+#'
+#' This function will either create a totally new set of viewports, or simply add
+#' some nested viewports to an existing arrangement, i.e., is there still white space availabe
+#' to plot.
+#'
+#' @param extents a list of extents objects
+#'
+#' @param layout an object with layouts described, normally created by \code{makeLayouts}
+#'
+#' @param arr an object of class \code{arrangement}
+#'
+#' @param newArr logical Whether this function will create a completely new viewport. Default FALSE.
+#'
 #' @export
 makeViewports <- function(extents, layout, arr, newArr = FALSE) {
 
@@ -615,7 +660,7 @@ setMethod("drawArrows",
 #'
 #' @export
 #' @docType methods
-#' @rdname .objectNames
+#' @rdname objectNames
 .objectNames <- function() {
   # First extract from the sys.calls only the function call to Plot
   PlotArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern="^Plot")[1])][[1]])[-1]
@@ -700,9 +745,9 @@ setMethod("drawArrows",
 #' @export
 #' @import RColorBrewer
 #' @import rgdal
+#' @import grid
 #' @import raster
 #' @import sp
-#' @include named-objects.R
 #' @examples
 #' \dontrun{
 #' library(raster)
@@ -825,8 +870,9 @@ setMethod("Plot",
       addTo <- lN
     } else {
       if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-      if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
-        if(!any(addTo %in% get(paste0(".spadesArr",dev.cur()))@names)) {
+#      if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
+      if(exists(paste0(".spadesArr",dev.cur()), envir=.spades)) {
+        if(!any(addTo %in% get(paste0(".spadesArr",dev.cur()), envir=.spades)@names)) {
           stop(paste("The addTo layer(s) --",addTo,"-- do(es) not exist",collapse=""))
         }
       }
@@ -838,7 +884,8 @@ setMethod("Plot",
 
 
 # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
-    if(!exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
+#    if(!exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
+    if(!exists(paste0(".spadesArr",dev.cur()),envir=.spades)) {
       new<-TRUE
       arr <- new("arrangement"); arr@columns=0; arr@rows = 0
       if(new==FALSE) message("Nothing to add plots to; creating new plots")
@@ -846,7 +893,7 @@ setMethod("Plot",
     } else {
 
       if(!new) {
-        arr <- get(paste0(".spadesArr",dev.cur()))
+        arr <- get(paste0(".spadesArr",dev.cur()), envir=.spades)
       } else {
         arr <- new("arrangement"); arr@columns=0; arr@rows = 0
       }
@@ -894,8 +941,9 @@ setMethod("Plot",
 
     # create get(paste0(".spadesArr",dev.cur())) object - i.e., the arrangement based on number and extents
     if(!newArr) {
-      if(exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
-        arr <- get(paste0(".spadesArr",dev.cur()))
+#      if(exists(paste0(".spadesArr",dev.cur()),envir=.GlobalEnv)) {
+      if(exists(paste0(".spadesArr",dev.cur()),envir=.spades)) {
+        arr <- get(paste0(".spadesArr",dev.cur()),envir=.spades)
         arr@names <- append(arr@names, names(extsToPlot))
         arr@extents <- append(arr@extents, extsToPlot)
       } else {
@@ -1011,7 +1059,8 @@ setMethod("Plot",
       if(yaxis) grid.yaxis(name="yaxis", gp = gp)
     }
 
-    assign(paste0(".spadesArr",dev.cur()), arr, envir=.GlobalEnv)
+    #assign(paste0(".spadesArr",dev.cur()), arr, envir=.GlobalEnv)
+    assign(paste0(".spadesArr",dev.cur()), arr, envir=.spades)
   })
 
 
@@ -1026,6 +1075,8 @@ setMethod("Plot",
 #'
 #' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
 #' a legend that will override the data bounds contained within the grobToPlot
+#'
+#' @param na.color string indicating the color for NA values. Defaults to "white".
 #'
 #' @rdname makeColorMatrix
 #' @export
@@ -1102,9 +1153,14 @@ setMethod("makeColorMatrix",
             list(z=z,minz=minz,maxz=maxz,cols=cols)
           })
 
+#' Convert grid.locator units
+#'
+#' Converts them to meaningful units. Used within \code{.clickCoord}
+#'
+#' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
 #' @export
-unittrim <- function(unit) {
-       as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(unit)))
+unittrim <- function(grid.locator) {
+       as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
    }
 
 
@@ -1130,14 +1186,6 @@ unittrim <- function(unit) {
 #'
 #' @param n The number of mouse clicks to do
 #'
-#' @param devNum The device number for the new plot to be plotted on
-#'
-#' @param plot.it The device number for the new plot to be plotted on
-#'
-#' @param X The raster object whose values will be returned where mouse clicks occur
-#'
-#' @param gl An object created by a call to \code{grid.locator}
-#'
 #' @return \code{clickValues} returns the layer names and values at the clicked points.
 #' \code{clickExtent} invisibly returns the extent object, and optionally plots it
 #' in a new device window. \code{clickCoordinates} returns the xy coordinates in
@@ -1146,7 +1194,7 @@ unittrim <- function(unit) {
 #' @export
 #' @docType methods
 #' @rdname spadesMouseClicks
-clickValues <- function(n=1, ...) {
+clickValues <- function(n=1) {
   coords <- clickCoordinates(n=n)
   objLay <- strsplit(coords[,1],"\\.")
   objNames <- sapply(objLay, function(x) x[1])
@@ -1164,6 +1212,10 @@ clickValues <- function(n=1, ...) {
 #' Click to draw an Extent
 #'
 #' Currently this does not work since update to spades v0.1.0.9000
+#'
+#' @param devNum The device number for the new plot to be plotted on
+#'
+#' @param plot.it The device number for the new plot to be plotted on
 #'
 #' @export
 #' @docType methods
@@ -1199,10 +1251,11 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @export
 #' @docType methods
 #' @rdname spadesMouseClicks
-clickCoordinates <- function(n=1, ...) {
+clickCoordinates <- function(n=1) {
 
   dc <- dev.cur()
-  arr <- get(paste0(".spadesArr",dc), envir=.GlobalEnv)
+#  arr <- get(paste0(".spadesArr",dc), envir=.GlobalEnv)
+  arr <- get(paste0(".spadesArr",dc), envir=.spades)
   gl <- grid.layout(nrow=arr@rows*2+1,
                     ncol=arr@columns*2+1,
                     widths=arr@layout$wdth,
@@ -1258,10 +1311,14 @@ clickCoordinates <- function(n=1, ...) {
 }
 
 
+#' @param X The raster object whose values will be returned where mouse clicks occur
+#'
+#' @param gl An object created by a call to \code{grid.locator}
+#'
 #' @export
 #' @docType methods
 #' @rdname spadesMouseClicks
-.clickCoord <- function(X, n=1, gl=NULL, ...) {
+.clickCoord <- function(X, n=1, gl=NULL) {
 
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
