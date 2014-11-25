@@ -1,5 +1,7 @@
 if(getRversion() >= "3.1.0")  utils::globalVariables(paste0(".spadesArr",1:20))
 
+.spades <- new.env(parent = emptyenv())
+
 ##############################################################
 #' Specify where to plot
 #'
@@ -63,7 +65,14 @@ newPlot <- function(...) {
 }
 
 
+##############################################################
+#' Find the number of layers in a Spatial Object
+#'
+#' There are methods for Raster*. All other object classes return 1.
+#'
 #' @export
+#' @name nlayers
+#' @rdname nlayers
 setMethod("nlayers",
           signature="list",
           function(x) {
@@ -87,7 +96,12 @@ setMethod("nlayers",
           })
 
 
-#' extract the layer names in a mixed set of layer objects
+##############################################################
+#' Extract the layer names of Spatial Objects
+#'
+#' There are methods for Raster*, SpatialPoints*, and SpatialPolygons*, though the latter
+#' return an empty character vector of length 1.
+#'
 #' @name layerNames
 #' @rdname layerNames
 #' @export
@@ -132,7 +146,7 @@ setMethod("layerNames",
 setMethod("layerNames",
           signature="SpatialPolygons",
           definition=function(object) {
-              return(NULL)
+              return("")
           })
 
 #' @export
@@ -154,9 +168,9 @@ setMethod("layerNames",
 
 
 
-
-
+##############################################################
 #' Assess whether a list of extents are all equal
+#'
 #' @name equalExtent
 #' @rdname equalExtent
 #' @export
@@ -191,13 +205,15 @@ setMethod("equalExtent",
 #'
 #' @slot ds  numeric of length 2. The dimensions of the plotting window in inches
 #'
-#' @slot raster  list with 2 elements: a character vector of raster names and
-#' a character vector of the layer names in each of those
+#' @slot objects  list of length number of spatial objects. Each list has a character vector
+#' of the layer names in each of those
+#'
+#' @slot isRaster  logical vector, indicating whether each object is a Raster* object
 #'
 #' @slot names  character vector. The names of the layers in the plot
 #'
 #' @slot extents list of class Extent objects. These are needed to calculate the
-#' \code{ds.dimensionRatio}, which is used to scale the Raster* objects correctly
+#' \code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly
 #'
 #' @slot layout list of length 2, with width and height measurements for layout.
 #'
@@ -217,26 +233,23 @@ setClass("arrangement",
                         names=as.character(NULL),
                         extents=as.list(NULL), layout=as.list(NULL)),
          validity=function(object) {
-           # check for valid sim times and make default list
+           # check for valid extents
            if (any(is.na(object@extents))) {
              stop("must supply a list of extents")
            }
 })
 
-#' Determine optimal plotting arrangement of RasterStack
+#' Determine optimal plotting arrangement of Spatial Objects
 #'
-#' Hidden function.
-#'
-#' This assesses the device geometry, the map geometry, and the number of rasters
-#' to plot and builds an object that will be used by the Plot functions to plot
+#' This assesses the device geometry, the map geometry, and the number of spatial
+#' objects to plot and builds an object that will be used by the Plot functions to plot
 #' them efficiently
 #'
-#' @param toPlot Raster* object
-#' @param axes passed from Plot
+#' @param extents A list of extents from spatial objects to plot
 #' @rdname arrangeViewports
 #' @export
 #' @docType methods
-setGeneric("arrangeViewports", function(extents, name=NULL) {
+setGeneric("arrangeViewports", function(extents){ #, name=NULL) {
   standardGeneric("arrangeViewports")
 })
 
@@ -244,19 +257,15 @@ setGeneric("arrangeViewports", function(extents, name=NULL) {
 #' @export
 setMethod("arrangeViewports",
           signature=c("list"),
-          definition= function(extents, name) {
-    #rasters <- sapply(toPlot,function(x) is(x,"Raster"))
-    #ext <- extent(toPlot[rasters][[1]])
+          definition= function(extents) {
     dimx <- apply(sapply(extents,function(y) apply(bbox(y),1,function(x) diff(range(x)))),1,max)
-    if(is.null(name)) {
+#    if(is.null(name)) {
       nPlots <- length(extents)
-      #vpnames <- paste("vp",names(extents),sep="")
       names <- names(extents)
-    } else {
-      nPlots <- length(name)
-      #vpnames <- paste("vp",name,sep="")
-      names <- name
-    }
+#     } else {
+#       nPlots <- length(name)
+#       names <- name
+#     }
 
     if(dev.cur()==1) {
         dev.new(height=8, width=10)
@@ -265,7 +274,6 @@ setMethod("arrangeViewports",
     ds <- dev.size()
     ds.ratio <- ds[1]/ds[2]
 
-    #dimensionRatio <- dimx[2]/dimx[1]
     dimensionRatio <- dimx[1]/dimx[2]
 
     ds.dimensionRatio <- ds.ratio/dimensionRatio
@@ -284,29 +292,46 @@ setMethod("arrangeViewports",
 
     out <- new("arrangement", rows=rows,columns=columns,
                actual.ratio=actual.ratio,ds.dimensionRatio=ds.dimensionRatio,
-               ds=ds,#prettys=prettys,
+               ds=ds,
                names=names, extents = extents)
-#     out <- list(rows=rows,columns=columns,
-#                 actual.ratio=actual.ratio,ds.dimensionRatio=ds.dimensionRatio,
-#                 ds=ds,#prettys=prettys,
-#                 names=names,ds.ratio=ds.ratio, extents = extents)
     return(out)
 })
 
 ######################################################
-#' Plot either a raster Grob or a points Grob
+#' Plot spatial grobs (using grid package)
 #'
-#' @param grobToPlot Raster* or SpatialPoints* object
+#' Plot a raster Grob, a points Grob, polygon Grob. This should mostly be called internally.
+#'
+#' @param grobToPlot Raster*, SpatialPoints*, SpatialPolygons* object
+#'
+#' @param col Currently only used for the legend of a Raster* object.
+#'
+#' @param size The size of the SpatialPoints
+#'
+#' @param minv The minimum value on a Raster*. Required because not all Rasters
+#' have this defined internally
+#'
+#' @param maxv The maximum value on a Raster*. Required because not all Rasters
+#' have this defined internally
+#'
+#' @param legend logical, whether a legend should be drawn. Default TRUE.
+#'
+#' @param draw logical, whether the grob, after being created should be drawn. Default TRUE.
+#'
+#' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
+#'
+#' @param pch for SpatialPoints, as \code{par}
+#'
 #' @name plotGrob
 #' @rdname plotGrob
 #' @export
 #' @docType methods
 setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
-                                name="plot", minv, maxv,
+                                minv, maxv,
                                 legend=TRUE,
                                 draw=TRUE,
-                                gp=gpar(), vp=NULL, pch=19,
-                                childrenvp=NULL, speedup=1, ...) {
+                                gp=gpar(), pch=19,
+                                speedup=1, ...) {
   standardGeneric("plotGrob")
 })
 
@@ -315,10 +340,9 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
 #' @export
 setMethod("plotGrob",
           signature=c("matrix"),
-          definition= function(grobToPlot, col, size, name, minv, maxv,
+          definition= function(grobToPlot, col, size, minv, maxv,
                                legend, draw,
-                               gp, vp, pch,
-                               childrenvp, ...) {
+                               gp, pch, ...) {
 
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
@@ -338,10 +362,10 @@ setMethod("plotGrob",
             }
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
-                              name=name,
+                             # name=name,
                               pr=pr,col=col,
                               children=gList(
-                                rasterGrob(as.raster(grobToPlot),#, col = col), #maxpixels=maxpixels,
+                                rasterGrob(as.raster(grobToPlot),
                                            interpolate=FALSE,
                                            name="raster"),
                                 if(legend) rasterGrob(as.raster(col[(maxcol):2]),
@@ -361,10 +385,8 @@ setMethod("plotGrob",
                                                     gp=gpar(cex=0.9),
                                                     just="left", check.overlap=T,
                                                     name="legendText")
-                                #if(title) textGrob(names(grobToPlot), name="title", y=1.08, vjust=0.5)
                               ),
                               gp=gp,
-                              #vp=vp,
                               cl="plotRast")
             if(draw) grid.draw(rastGrob)
             return(invisible(rastGrob))
@@ -375,33 +397,25 @@ setMethod("plotGrob",
 setMethod("plotGrob",
           signature=c("SpatialPoints"),
           definition= function(grobToPlot, col, size,
-                               legend, draw, #xaxis, yaxis, title,
-                               gp=gpar(), vp=NULL, pch, #maxpixels,
-                               childrenvp=NULL, ...) {
-            pntGrob <- gTree(grobToPlot=grobToPlot, #title=title,
-                             name=layerNames(grobToPlot),
-                             childrenvp=childrenvp,
+                               legend, draw, gp=gpar(), pch, ...) {
+            pntGrob <- gTree(grobToPlot=grobToPlot,
+                             #name=layerNames(grobToPlot),
                              children=gList(
                                pointsGrob(x=grobToPlot$x, y=grobToPlot$y, pch=pch, size=size)
-#                                if(xaxis) xaxisGrob(name="xaxis"),
-#                                if(yaxis) yaxisGrob(name="yaxis"),
-#                                if(title) textGrob(name(grobToPlot), name="title", y=1.08, vjust=0.5)
                              ),
                              gp=gp,
-                             vp=vp,
                              cl="plotPoint")
             if(draw) grid.draw(pntGrob)
             return(invisible(pntGrob))
 })
 
 #' @rdname plotGrob
+#' @import fastshp
 #' @export
 setMethod("plotGrob",
           signature=c("SpatialPolygons"),
           definition= function(grobToPlot, col, size,
-                               legend, draw, #xaxis, yaxis, title,
-                               gp=gpar(), vp=NULL, pch, #maxpixels,
-                               childrenvp=NULL, ...) {
+                               legend, draw, gp=gpar(), pch, ...) {
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
                 pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
@@ -429,18 +443,12 @@ setMethod("plotGrob",
             idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
 
             gp$fill[hole] <- "#FFFFFF00"
-            polyGrob <- gTree(#name=name(grobToPlot),
-                             #childrenvp=childrenvp,
-                             children=gList(
+            polyGrob <- gTree(children=gList(
                                polygonGrob(x=xyOrd[,1], y=xyOrd[,2], id.lengths=idLength,
                                            gp=gp, default.units="native")
-                               #                                if(xaxis) xaxisGrob(name="xaxis"),
-                               #                                if(yaxis) yaxisGrob(name="yaxis"),
-                               #                                if(title) textGrob(name(grobToPlot), name="title", y=1.08, vjust=0.5)
                              ),
                              gp=gp,
-                             #vp=vp,
-                             cl="plotPoint")
+                             cl="plotPoly")
             if(draw) grid.draw(polyGrob)
             return(invisible(polyGrob))
           })
@@ -587,7 +595,7 @@ setMethod("drawArrows",
                    extendrange(c(min(min(from$x),min(to$x)),max(max(from$x,to$x)))),
                    extendrange(c(min(min(from$y),min(to$y)),max(max(from$y,to$y))))))
                  names(extents) <- layerNames(from)
-                 arr <- arrangeViewports(extents,name=name(from))
+                 arr <- arrangeViewports(extents)#,name=name(from))
                  lay <- makeLayout(arr=arr, visualSqueeze=0.75)
                  arr@layout <- lay
                  vps <- makeViewports(extents, arr=arr, layout=lay,
@@ -602,8 +610,13 @@ setMethod("drawArrows",
      })
 
 
+##############################################################
+#' Extracts the object name inside a call to \code{Plot}
+#'
 #' @export
-.objectNames <- function(...) {
+#' @docType methods
+#' @rdname .objectNames
+.objectNames <- function() {
   # First extract from the sys.calls only the function call to Plot
   PlotArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern="^Plot")[1])][[1]])[-1]
 
@@ -669,6 +682,9 @@ setMethod("drawArrows",
 #' @param visualSqueeze numeric. The proportion of the white space to be used for plots. Default is 0.75.
 #'
 #' @param legend logical. Whether legend should be drawn next to plots. Default is TRUE.
+#'
+#' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
+#' a legend that will override the data bounds contained within the grobToPlot
 #'
 #' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
 #' to be FALSE. Default is TRUE
@@ -775,7 +791,6 @@ setMethod("Plot",
     toPlot <- list(...)
 
 
-
 # Section 1 # Determine object names that were passed and layer names of each
     names(toPlot) <- .objectNames()
     isRaster <- sapply(toPlot, function(x) is(x,"Raster"))
@@ -804,16 +819,6 @@ setMethod("Plot",
 
     if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
                                    "inside RasterStacks for objects"))
-
-    # determine if any of the already plotted objects are in rasters
-#     if(!new | !is.null(addTo)){
-#       if(exists(paste0(".spadesArr",dev.cur()), envir=.GlobalEnv)) {
-# #        mapsInArr <- get(paste0(".spadesArr",dev.cur()))@objects
-# #        isRasterInArr <- get(paste0(".spadesArr",dev.cur()))@isRaster
-#       } else {
-# #        mapsInArr <- list(NULL)
-#       }
-#     }
 
 # Section 2 - assess whether this is an "addTo" situation, i.e., plot one object over another
     if(is.null(addTo)) {
@@ -896,8 +901,6 @@ setMethod("Plot",
       } else {
         message("nothing to add to, creating new plot")
         newArr <- TRUE
-#         arr <- arrangeViewports(extsToPlot)
-#         grid.newpage()
       }
     }
     if (newArr) { # need a new arrangement
@@ -999,7 +1002,7 @@ setMethod("Plot",
       plotGrob(zMat$z, col = zMat$cols, size=unit(size,"points"),
                minv=zMat$minz,
                maxv=zMat$maxz,
-               vp=NULL, pch=pch, name = seek,
+               pch=pch, name = seek,
                legend = legend,
                gp = gp, draw = draw, speedup=speedup)
       if(title) grid.text(seek,
@@ -1016,10 +1019,14 @@ setMethod("Plot",
 #' Convert Raster to color matrix useable by raster function for plotting
 #'
 #' @param grobToPlot a SpatialObject
+#'
 #' @param zoomExtent an extent object for zooming to. Defaults to whole extent of grobToPlot
+#'
 #' @param maxpixels numeric. Number of cells to subsample the complete grobToPlot
+#'
 #' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
 #' a legend that will override the data bounds contained within the grobToPlot
+#'
 #' @rdname makeColorMatrix
 #' @export
 #' @docType methods
@@ -1037,13 +1044,6 @@ setMethod("makeColorMatrix",
                                na.color) {
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
-
-              # If there is a legend that is too long for the number of values, this chops
-              #  off the extraneous ones because the as.raster below will match min-max on
-              #  both col and values, which is not the desired behaviour
-              #   if(length(col)>(maxValue(grobToPlot)+1)) {
-              #     col <- col[1:maxValue(grobToPlot)+1]
-              #   }
             } else {
               cols<-topo.colors(50)
             }
@@ -1148,13 +1148,26 @@ unittrim <- function(unit) {
 #' @rdname spadesMouseClicks
 clickValues <- function(n=1, ...) {
   coords <- clickCoordinates(n=n)
-  coords$value <- sapply(1:n, function(i) get(coords[i,1],envir=.GlobalEnv)[cellFromXY(get(coords[i,1],envir=.GlobalEnv),coords[i,2:3])])
+  objLay <- strsplit(coords[,1],"\\.")
+  objNames <- sapply(objLay, function(x) x[1])
+  layNames <- sapply(objLay, function(x) x[2])
+  for (i in 1:n) {
+    if(!is.na(layNames[i])) {
+      coords$value[i] <- get(objNames[i],envir=.GlobalEnv)[[layNames[i]]][cellFromXY(get(objNames[i],envir=.GlobalEnv)[[layNames[i]]],coords[i,2:3])]
+    } else {
+      coords$value[i] <- get(objNames[i],envir=.GlobalEnv)[cellFromXY(get(objNames[i],envir=.GlobalEnv),coords[i,2:3])]
+    }
+  }
   return(coords)
 }
 
+#' Click to draw an Extent
+#'
+#' Currently this does not work since update to spades v0.1.0.9000
+#'
 #' @export
 #' @docType methods
-#' @rdname spadesMouseClicks
+#' @rdname clickExtent
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners$x), sort(corners$y)))
@@ -1165,6 +1178,15 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     } else {
       dev(devNum)
     }
+    objLay <- strsplit(corners[,1],"\\.")
+    objNames <- unique(sapply(objLay, function(x) x[1]))
+    layNames <- unique(sapply(objLay, function(x) x[2]))
+    if(!is.na(layNames)) {
+      Plot(objNames=get(objNames,envir=.GlobalEnv)[[layNames]], zoomExtent=zoom, new=TRUE)
+    } else {
+      Plot(get(objNames,envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
+    }
+
 
     Plot(get(unique(corners$map), envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
     dev(devActive)
@@ -1178,8 +1200,9 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 clickCoordinates <- function(n=1, ...) {
+
   dc <- dev.cur()
-  arr <- get(paste0(".spadesArr",dc))
+  arr <- get(paste0(".spadesArr",dc), envir=.GlobalEnv)
   gl <- grid.layout(nrow=arr@rows*2+1,
                     ncol=arr@columns*2+1,
                     widths=arr@layout$wdth,
@@ -1228,7 +1251,7 @@ clickCoordinates <- function(n=1, ...) {
     minLayY <- cumsum(heightNpcs)[yInt-1]
     grobLoc$y <- unit((as.numeric(strsplit(as.character(gloc$y),"npc")[[1]])-minLayY)/(maxLayY-minLayY),"npc")
 
-    clickCoords[i,] <- .clickCoord(get(arr@names[map]), n=1, gl=grobLoc)
+    clickCoords[i,] <- .clickCoord(arr@names[map], n=1, gl=grobLoc)
     mapNames[i] <- arr@names[map]
   }
   return(data.frame(map=mapNames, clickCoords, stringsAsFactors = FALSE))
@@ -1241,7 +1264,7 @@ clickCoordinates <- function(n=1, ...) {
 .clickCoord <- function(X, n=1, gl=NULL, ...) {
 
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
-  seekViewport(layerNames(X))
+  seekViewport(X)
   for(i in 1:n) {
     if(is.null(gl)) {
       gl <- grid.locator()

@@ -20,13 +20,15 @@ extents}
 
 \item{\code{ds}}{numeric of length 2. The dimensions of the plotting window in inches}
 
-\item{\code{raster}}{list with 2 elements: a character vector of raster names and
-a character vector of the layer names in each of those}
+\item{\code{objects}}{list of length number of spatial objects. Each list has a character vector
+of the layer names in each of those}
+
+\item{\code{isRaster}}{logical vector, indicating whether each object is a Raster* object}
 
 \item{\code{names}}{character vector. The names of the layers in the plot}
 
 \item{\code{extents}}{list of class Extent objects. These are needed to calculate the
-\code{ds.dimensionRatio}, which is used to scale the Raster* objects correctly}
+\code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly}
 
 \item{\code{layout}}{list of length 2, with width and height measurements for layout.}
 }}

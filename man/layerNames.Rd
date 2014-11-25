@@ -9,7 +9,7 @@
 \alias{layerNames,SpatialPolygons-method}
 \alias{layerNames,SpatialPolygonsNamed-method}
 \alias{layerNames,list-method}
-\title{extract the layer names in a mixed set of layer objects}
+\title{Extract the layer names of Spatial Objects}
 \usage{
 layerNames(object)
 
@@ -28,6 +28,7 @@ layerNames(object)
 \S4method{layerNames}{Raster}(object)
 }
 \description{
-extract the layer names in a mixed set of layer objects
+There are methods for Raster*, SpatialPoints*, and SpatialPolygons*, though the latter
+return an empty character vector of length 1.
 }
 

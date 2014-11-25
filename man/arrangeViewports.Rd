@@ -3,23 +3,18 @@
 \name{arrangeViewports}
 \alias{arrangeViewports}
 \alias{arrangeViewports,list-method}
-\title{Determine optimal plotting arrangement of RasterStack}
+\title{Determine optimal plotting arrangement of Spatial Objects}
 \usage{
-arrangeViewports(extents, name = NULL)
+arrangeViewports(extents)
 
-\S4method{arrangeViewports}{list}(extents, name = NULL)
+\S4method{arrangeViewports}{list}(extents)
 }
 \arguments{
-\item{toPlot}{Raster* object}
-
-\item{axes}{passed from Plot}
+\item{extents}{A list of extents from spatial objects to plot}
 }
 \description{
-Hidden function.
-}
-\details{
-This assesses the device geometry, the map geometry, and the number of rasters
-to plot and builds an object that will be used by the Plot functions to plot
+This assesses the device geometry, the map geometry, and the number of spatial
+objects to plot and builds an object that will be used by the Plot functions to plot
 them efficiently
 }
 

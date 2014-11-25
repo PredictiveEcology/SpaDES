@@ -5,31 +5,45 @@
 \alias{plotGrob,SpatialPoints-method}
 \alias{plotGrob,SpatialPolygons-method}
 \alias{plotGrob,matrix-method}
-\title{Plot either a raster Grob or a points Grob}
+\title{Plot spatial grobs (using grid package)}
 \usage{
-plotGrob(grobToPlot, col = NULL, size = unit(5, "points"), name = "plot",
-  minv, maxv, legend = TRUE, addedNACol = addedNACol, draw = TRUE,
-  gp = gpar(), vp = NULL, pch = 19, childrenvp = NULL, ...)
+plotGrob(grobToPlot, col = NULL, size = unit(5, "points"), minv, maxv,
+  legend = TRUE, draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{matrix}(grobToPlot, col = NULL, size = unit(5,
-  "points"), name = "plot", minv, maxv, legend = TRUE,
-  addedNACol = addedNACol, draw = TRUE, gp = gpar(), vp = NULL,
-  pch = 19, childrenvp = NULL, ...)
+  "points"), minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(),
+  pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, size = unit(5,
-  "points"), name = "plot", minv, maxv, legend = TRUE,
-  addedNACol = addedNACol, draw = TRUE, gp = gpar(), vp = NULL,
-  pch = 19, childrenvp = NULL, ...)
+  "points"), minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(),
+  pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, size = unit(5,
-  "points"), name = "plot", minv, maxv, legend = TRUE,
-  addedNACol = addedNACol, draw = TRUE, gp = gpar(), vp = NULL,
-  pch = 19, childrenvp = NULL, ...)
+  "points"), minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(),
+  pch = 19, speedup = 1, ...)
 }
 \arguments{
-\item{grobToPlot}{Raster* or SpatialPoints* object}
+\item{grobToPlot}{Raster*, SpatialPoints*, SpatialPolygons* object}
+
+\item{col}{Currently only used for the legend of a Raster* object.}
+
+\item{size}{The size of the SpatialPoints}
+
+\item{minv}{The minimum value on a Raster*. Required because not all Rasters
+have this defined internally}
+
+\item{maxv}{The maximum value on a Raster*. Required because not all Rasters
+have this defined internally}
+
+\item{legend}{logical, whether a legend should be drawn. Default TRUE.}
+
+\item{draw}{logical, whether the grob, after being created should be drawn. Default TRUE.}
+
+\item{gp}{grid parameters, usually the output of a call to \code{\link{gpar}}}
+
+\item{pch}{for SpatialPoints, as \code{par}}
 }
 \description{
-Plot either a raster Grob or a points Grob
+Plot a raster Grob, a points Grob, polygon Grob. This should mostly be called internally.
 }
 

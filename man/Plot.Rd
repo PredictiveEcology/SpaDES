@@ -36,6 +36,9 @@ downsampling of rasters, so it may produce very pixelated maps.}
 
 \item{legend}{logical. Whether legend should be drawn next to plots. Default is TRUE.}
 
+\item{legendRange}{numeric vector of length 2, representing the lower and upper bounds of
+a legend that will override the data bounds contained within the grobToPlot}
+
 \item{draw}{logical, whether to actually draw the plots. Currently, there is no reason for this
 to be FALSE. Default is TRUE}
 
