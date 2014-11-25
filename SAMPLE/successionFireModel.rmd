@@ -4,6 +4,7 @@ output: html_document
 ## Succession and Fire
 
 This is a simple fire disturbance and succession model that acts at a fairly coarse scale (250m x 250m pixels). There are several
+
 ```{r load_data, cache=TRUE}
 library(SpaDES)
 rasterOptions(maxmemory=2e9)
@@ -108,7 +109,7 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
   lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
   numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
    lcc05VegTable <- cbind(lcc05VegLabels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-   #vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
+   #vegMap <- reclassify(vegMapLcc, lcc05VegTable)
    vegMap <- reclassify(vegMapLcc, lcc05VegTable)
    vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
                                                                  lcc05VegTable[,2])]+1)]
@@ -170,9 +171,9 @@ writeRaster(ageMap, filename="ageMap.tif", overwrite=TRUE)
                            as.character(lcc05TrajReclass$Description))
                      , ncol=ncol(trajObj2))
 
-# ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
-# vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
-# trajMapInit <- RasterLayerNamed(trajMap, name="trajMapInit")
+# ageMapInit <- ageMap
+# vegMapInit <- vegMap
+# trajMapInit <- trajMap
 
 ageMapInit <- ageMap
 vegMapInit <- vegMap

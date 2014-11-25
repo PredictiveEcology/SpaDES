@@ -227,7 +227,7 @@ setMethod("loadFiles",
                 # The actual load call
                 if(is.na(stackName[x])) {
                   assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
-                  assign(objectNames[x], RasterLayerNamed(get(objectNames[x], envir=.GlobalEnv),name=objectNames[x]),
+                  assign(objectNames[x], get(objectNames[x], envir=.GlobalEnv),
                          , envir=.GlobalEnv)
                 } else {
                   whLayer <- which(names(localStacks[[stackName[x]]])==objectNames[x])

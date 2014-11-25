@@ -92,9 +92,8 @@ caribouMovementInit <- function(sim) {
                   y=runif(N, yrange[1],yrange[2]))
 
   # create the caribou agent object
-  caribou <<- SpatialPointsDataFrameNamed(coords=starts,
-                                     data=data.frame(x1, y1, sex, age),
-                                     name="caribou")
+  caribou <<- SpatialPointsDataFrame(coords=starts,
+                                     data=data.frame(x1, y1, sex, age))
   row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
 
   return(invisible(sim))

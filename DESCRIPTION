@@ -8,7 +8,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps.
 URL: http://github.com/achubaty/SpaDES
-Version: 0.1.0.9000
+Version: 0.5.0.9000
 Date: 2014-11-24
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty",
@@ -24,23 +24,22 @@ Authors@R: c(
 Depends:
     R (>= 3.1.2),
     data.table,
-    grid,
-    sp,
-    RColorBrewer,
-    raster,
-    tkrplot
+    raster
 Suggests:
     knitr,
     Matrix,
     testthat
 Imports:
+    grid,
+    sp,
+    tkrplot,
     CircStats,
-    methods,
     RandomFields,
-    rgdal
+    RColorBrewer,
+    rgdal,
+    fastshp
 License: GPL
 Collate:
-    'named-objects.R'
     'agent-methods.R'
     'SELES.R'
     'checkpoint.R'

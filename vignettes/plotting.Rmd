@@ -53,10 +53,9 @@ There are several features of `Plot` that are worth highlighting.
 Its main purpose is to plot spatial type objects. Specifically, it currently can plot RasterLayers, RasterStacks and SpatialPoints* objects. 
 ```{r first_plot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 Plot(landscape, add=FALSE)
-# make a SpatialPointsNamed object
-caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
-                              name="caribou")
-Plot(caribou, add=FALSE)
+# make a SpatialPoints object
+caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
+Plot(caribou, new=TRUE)
 ```
 
 ## Colors

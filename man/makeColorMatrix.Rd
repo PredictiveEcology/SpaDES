@@ -19,6 +19,8 @@ makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, na.color)
 
 \item{legendRange}{numeric vector of length 2, representing the lower and upper bounds of
 a legend that will override the data bounds contained within the grobToPlot}
+
+\item{na.color}{string indicating the color for NA values. Defaults to "white".}
 }
 \description{
 Convert Raster to color matrix useable by raster function for plotting

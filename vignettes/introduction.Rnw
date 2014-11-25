@@ -269,10 +269,10 @@ A primary goal of developing \texttt{SpaDES} was to facilitate the development o
 As ecologists, we are usually concerned with modelling individuals (agents) in time and space, and whose spatial location (position) can be represented as a single point on a map. These types of agents can easily be represented most simply by a single set of coordinates indicating their current position, and can simulated using a \texttt{SpatialPoints} object. Additionally, a \texttt{SpatialPointsDataFrame} can be used, which provides storage of additional information beyond agents' coordinates as needed.
 
 \paragraph{}
-These objects need to be named to work properly with SpaDES plotting, so you need to used the \texttt{SpatialPoint*Named} classes, which is easily done using \texttt{name}. This converts a \texttt{SpatialPoints*} object to its equivalent \texttt{SpatialPoint*Named}.
+These objects need to be named to work properly with SpaDES plotting, so you need to used the \texttt{SpatialPoint*} classes, which is easily done using \texttt{name}. This converts a \texttt{SpatialPoints*} object to its equivalent \texttt{SpatialPoint*}.
 
 \paragraph{}
-To model mobile point agents, \textit{e.g.}, animals (as opposed to non-mobile agents such as plants), use a \texttt{SpatialPointsDataFrameNamed} containing additional columns for storing agents' previous \texttt{n} positions.
+To model mobile point agents, \textit{e.g.}, animals (as opposed to non-mobile agents such as plants), use a \texttt{SpatialPointsDataFrame} containing additional columns for storing agents' previous \texttt{n} positions.
 
 <<mobile-point-agent, echo=TRUE, eval=TRUE>>=
 N <- 10 # number of agents
@@ -289,9 +289,9 @@ x0 <- rnorm(N, x1, 5)
 y0 <- rnorm(N, y1, 5)
 
 # create the caribou agent object
-# caribou needs to be a named object for plotting, use SpatialPointsDataFrameNamed
-caribou <- SpatialPointsDataFrameNamed(coords=cbind(x=x0, y=y0),
-                                  data=data.frame(x1, y1, sex, age),name="caribou")
+# caribou needs to be a named object for plotting, use SpatialPointsDataFrame
+caribou <- SpatialPointsDataFrame(coords=cbind(x=x0, y=y0),
+                                  data=data.frame(x1, y1, sex, age)
 row.names(caribou) <- IDs
 
 @

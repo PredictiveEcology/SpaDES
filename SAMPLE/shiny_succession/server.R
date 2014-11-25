@@ -90,7 +90,7 @@ lcc05VegReclass <- structure(
 lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","), ",")[[1]])
 numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
 lcc05VegTable <- cbind(lcc05VegLabels, rep(lcc05VegReclass$VEG.reclass, numLccInVeg))
-vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable), name="vegMap")
+vegMap <- reclassify(vegMapLcc, lcc05VegTable)
 vegMapColors <<- getColors(lcc05)[[1]][c(1, lcc05VegTable[,1][match(1:11, lcc05VegTable[,2])]+1)]
 setColors(vegMap, n=12 ) <- vegMapColors
 
@@ -152,8 +152,8 @@ fileList <- data.frame(files=c("data/vegMap.tif", "data/ageMap.tif"),
                        functions="rasterToMemory", packages="SpaDES",
                        stringsAsFactors=FALSE)
 loadFiles(fileList=fileList)
-ageMapInit <<- RasterLayerNamed(ageMap, name="ageMapInit")
-vegMapInit <<- RasterLayerNamed(vegMap, name="vegMapInit")
+ageMapInit <<- ageMap
+vegMapInit <<- vegMap
 setColors(vegMapInit, n=12 ) <- vegMapColors
 setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen", "DarkGreen"))(50)
 
@@ -186,9 +186,9 @@ shinyServer(function(input, output) {
                       if(input$caribouModule) "caribouMovementLcc")
       path <- file.path("modules")
 
-      ageMap <- RasterLayerNamed(get("ageMapInit", envir=.GlobalEnv), name="ageMap")
+      ageMap <- get("ageMapInit", envir=.GlobalEnv)
       assign("ageMap", ageMap, envir=.GlobalEnv)
-      vegMap <- RasterLayerNamed(get("vegMapInit", envir=.GlobalEnv), name="vegMap")
+      vegMap <- get("vegMapInit", envir=.GlobalEnv)
       assign("vegMap", vegMap, envir=.GlobalEnv)
 
       Fires <<- raster(extent(vegMap), ncol=ncol(vegMap),

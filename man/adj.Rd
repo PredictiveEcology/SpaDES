@@ -20,9 +20,14 @@ adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
 
 \item{directions}{the number of directions in which cells should be connected: 4 (rook's case), 8 (queen's case), or 'bishop' to connect cells with one-cell diagonal moves. Or a neigborhood matrix (see Details)}
 
+\item{sort}{logical. Whether the outputs should be sorted or not, using Cell IDs of the
+ from cells (and to cells, if \code{match.adjacent} is TRUE.}
+
 \item{pairs}{logical. If TRUE, a matrix of pairs of adjacent cells is returned. If FALSE, a vector of cells adjacent to cells is returned}
 
 \item{include}{logical. Should the focal cells be included in the result?}
+
+\item{target}{a vector of cells that can be spread to. This is the inverse of a mask.}
 
 \item{numCol}{numeric indicating number of columns in the raster. Using this with numCell is a bit faster execution time.}
 

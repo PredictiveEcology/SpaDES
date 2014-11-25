@@ -5,16 +5,17 @@
 \alias{move}
 \title{Move}
 \usage{
-move(hypothesis = NULL, ...)
+move(hypothesis = "crw", ...)
 
 crw(agent, stepLength, stddev, lonlat)
 }
 \arguments{
-\item{agent}{A SpatialPoints*Named (created by SpatialPointsNamed or
-SpatialPointsDataFrameNamed, of with name(obj) <- "character").}
+\item{hypothesis}{a character vector, length one, indicating which movement hypothesis.
+Currently defaults to crw to call the \code{crw} function.}
 
-\item{agent}{A SpatialPoints*Named (created by SpatialPointsNamed or
-SpatialPointsDataFrameNamed, of with name(obj) <- "character").}
+\item{...}{arguments passed to the function in \code{hypothesis}}
+
+\item{agent}{A SpatialPoints* object.}
 
 \item{stepLength}{Numeric vector of length 1 or number of agents describing
                    step length.}

@@ -4,10 +4,7 @@
 \alias{layerNames}
 \alias{layerNames,Raster-method}
 \alias{layerNames,SpatialPoints-method}
-\alias{layerNames,SpatialPointsDataFrameNamed-method}
-\alias{layerNames,SpatialPointsNamed-method}
 \alias{layerNames,SpatialPolygons-method}
-\alias{layerNames,SpatialPolygonsNamed-method}
 \alias{layerNames,list-method}
 \title{Extract the layer names of Spatial Objects}
 \usage{
@@ -15,17 +12,14 @@ layerNames(object)
 
 \S4method{layerNames}{list}(object)
 
-\S4method{layerNames}{SpatialPointsNamed}(object)
-
 \S4method{layerNames}{SpatialPoints}(object)
-
-\S4method{layerNames}{SpatialPolygonsNamed}(object)
 
 \S4method{layerNames}{SpatialPolygons}(object)
 
-\S4method{layerNames}{SpatialPointsDataFrameNamed}(object)
-
 \S4method{layerNames}{Raster}(object)
+}
+\arguments{
+\item{object}{a Raster*, SpatialPoints*, SpatialPolygons* or list of these.}
 }
 \description{
 There are methods for Raster*, SpatialPoints*, and SpatialPolygons*, though the latter

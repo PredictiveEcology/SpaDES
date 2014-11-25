@@ -25,7 +25,10 @@
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @import RandomFields raster
+#' @importFrom RandomFields RFsimulate
+#' @importFrom RandomFields RFoptions
+#' @importFrom RandomFields RMexp
+#' @import tkrplot
 #' @export
 #' @docType methods
 #' @rdname gaussmap-method

@@ -175,7 +175,7 @@ Bringing data into\textsf{R}is easy, and can be done using any of the built in d
 \begin{Schunk}
 \begin{Sinput}
 > ### Example: loading habitat maps
-> 
+>
 > # use all built-in maps from the SpaDES package
 > pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 > fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern= "tif"),
@@ -257,12 +257,12 @@ We can see that the fires tend to be in the Pines because we made it that way, u
 Call:
 glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
-Deviance Residuals: 
-    Min       1Q   Median       3Q      Max  
--38.524  -15.008   -2.338   10.382   32.495  
+Deviance Residuals:
+    Min       1Q   Median       3Q      Max
+-38.524  -15.008   -2.338   10.382   32.495
 
 Coefficients:
-             Estimate Std. Error z value Pr(>|z|)    
+             Estimate Std. Error z value Pr(>|z|)
 (Intercept)  6.933599   0.019436  356.75   <2e-16 ***
 fire1       -2.477138   0.070350  -35.21   <2e-16 ***
 pine        -0.064018   0.003977  -16.10   <2e-16 ***
@@ -306,10 +306,10 @@ A primary goal of developing \texttt{SpaDES} was to facilitate the development o
 As ecologists, we are usually concerned with modelling individuals (agents) in time and space, and whose spatial location (position) can be represented as a single point on a map. These types of agents can easily be represented most simply by a single set of coordinates indicating their current position, and can simulated using a \texttt{SpatialPoints} object. Additionally, a \texttt{SpatialPointsDataFrame} can be used, which provides storage of additional information beyond agents' coordinates as needed.
 
 \paragraph{}
-These objects need to be named to work properly with SpaDES plotting, so you need to used the \texttt{SpatialPoint*Named} classes, which is easily done using \texttt{name}. This converts a \texttt{SpatialPoints*} object to its equivalent \texttt{SpatialPoint*Named}.
+These objects need to be named to work properly with SpaDES plotting, so you need to used the \texttt{SpatialPoint*} classes, which is easily done using \texttt{name}. This converts a \texttt{SpatialPoints*} object to its equivalent \texttt{SpatialPoint*}.
 
 \paragraph{}
-To model mobile point agents, \textit{e.g.}, animals (as opposed to non-mobile agents such as plants), use a \texttt{SpatialPointsDataFrameNamed} containing additional columns for storing agents' previous \texttt{n} positions.
+To model mobile point agents, \textit{e.g.}, animals (as opposed to non-mobile agents such as plants), use a \texttt{SpatialPointsDataFrame} containing additional columns for storing agents' previous \texttt{n} positions.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -324,11 +324,11 @@ To model mobile point agents, \textit{e.g.}, animals (as opposed to non-mobile a
 > x0 <- rnorm(N, x1, 5)
 > y0 <- rnorm(N, y1, 5)
 > # create the caribou agent object
-> # caribou needs to be a named object for plotting, use SpatialPointsDataFrameNamed
-> caribou <- SpatialPointsDataFrameNamed(coords=cbind(x=x0, y=y0),
-+                                   data=data.frame(x1, y1, sex, age),name="caribou")
+> # caribou needs to be a named object for plotting, use SpatialPointsDataFrame
+> caribou <- SpatialPointsDataFrame(coords=cbind(x=x0, y=y0),
++                                   data=data.frame(x1, y1, sex, age)
 > row.names(caribou) <- IDs
-> 
+>
 \end{Sinput}
 \end{Schunk}
 
@@ -344,16 +344,16 @@ Using a simple landscape-dependent correlated random walk, we simulate the movem
 +   caribou <<- crop(caribou,landscape)
 +   drawArrows(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
 +              to=caribou, length=0.04, addTo="habitatQuality")
-+ 
++
 +   # find out what pixels the individuals are on now
 +   ex <- landscape[["habitatQuality"]][caribou]
-+ 
++
 +   #step length is a function of current cell's landscape quality
 +   sl <- 0.25/ex
-+ 
++
 +   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
 +   sd <- 30 # could be specified globally in params
-+ 
++
 +   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 + }
 \end{Sinput}
@@ -375,7 +375,7 @@ Running multiple simulations with different parameter values is a critical part 
 \begin{Schunk}
 \begin{Sinput}
 > ### WARNING this can take a while to run, especially for large mapSizes.
-> 
+>
 > rasterOptions(maxmemory=1e9)
 > # list all parameter values to run sims with
 > parameters <- list(mapSize=round(sqrt(c(1e4, 1e5, 1e6, 1e7, 1e8))),
@@ -402,12 +402,12 @@ Running multiple simulations with different parameter values is a critical part 
 +                         modules=list("randomLandscapes", "fireSpread"),
 +                         path=system.file("sampleModules", package="SpaDES")))
 +   mySim <- spades(mySim)
-+ 
++
 +   # collect stats for each run
 +   proportionBurned <- with(paramsdf, nPixelsBurned / (mapSize[i]^2))
 +   meanPixelsBurned[i, "pmean"] <- mean(proportionBurned)
 +   meanPixelsBurned[i, "psd"] <- sd(proportionBurned)
-+ 
++
 +   # cleanup between runs
 +   rm(landscape, mySim, nPixelsBurned)
 +   for (j in 1:10) gc()

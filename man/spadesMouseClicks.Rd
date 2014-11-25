@@ -3,24 +3,17 @@
 \name{clickValues}
 \alias{.clickCoord}
 \alias{clickCoordinates}
-\alias{clickExtent}
 \alias{clickValues}
 \title{Mouse interactions with Plots}
 \usage{
-clickValues(n = 1, ...)
+clickValues(n = 1)
 
-clickExtent(devNum = NULL, plot.it = TRUE)
+clickCoordinates(n = 1)
 
-clickCoordinates(n = 1, ...)
-
-.clickCoord(X, n = 1, gl = NULL, ...)
+.clickCoord(X, n = 1, gl = NULL)
 }
 \arguments{
 \item{n}{The number of mouse clicks to do}
-
-\item{devNum}{The device number for the new plot to be plotted on}
-
-\item{plot.it}{The device number for the new plot to be plotted on}
 
 \item{X}{The raster object whose values will be returned where mouse clicks occur}
 

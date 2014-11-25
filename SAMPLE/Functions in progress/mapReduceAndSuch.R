@@ -99,7 +99,7 @@ lcc05VegReclass <- structure(
 lcc05VegLabels <- as.numeric(strsplit(paste(lcc05VegReclass$LCC05.classes, collapse=","),",")[[1]])
 numLccInVeg <- sapply(strsplit(unname(sapply(as.character(lcc05VegReclass$LCC05.classes), function(x) x)), ","), length)
 lcc05VegTable <- cbind(lcc05VegLabels,rep(lcc05VegReclass$VEG.reclass,numLccInVeg))
-vegMap <- RasterLayerNamed(reclassify(vegMapLcc, lcc05VegTable),name="vegMap")
+vegMap <- reclassify(vegMapLcc, lcc05VegTable)
 vegMapColors <<- getColors(lcc05)[[1]][c(1,lcc05VegTable[,1][match(1:11,
                                                                    lcc05VegTable[,2])]+1)]
 setColors(vegMap, n=12 ) <- vegMapColors
@@ -160,9 +160,9 @@ trajObj <<- matrix(match(trajObj2,
                          as.character(lcc05TrajReclass$Description))
                    , ncol=ncol(trajObj2))
 
-ageMapInit <- RasterLayerNamed(ageMap, name="ageMapInit")
-vegMapInit <- RasterLayerNamed(vegMap, name="vegMapInit")
-trajMapInit <- RasterLayerNamed(trajMap, name="trajMapInit")
+ageMapInit <- ageMap
+vegMapInit <- vegMap
+trajMapInit <- trajMap
 setColors(vegMapInit, n=12 ) <- vegMapColors
 
 writeRaster(trajMapInit, filename="trajMap.tif", overwrite=TRUE)
@@ -197,7 +197,7 @@ library(microbenchmark)
 
   #vegVal2 = left_join(d,a, by="label" )
   vegVal2 = inner_join(a,d, by="label" )
-  vegMap0 <- RasterLayerNamed(setValues(vegMap,vegVal2$veg),name="vegMap")
+  vegMap0 <- setValues(vegMap,vegVal2$veg)
   setColors(vegMap0, n=12 ) <- vegMapColors
 } ,
 
@@ -212,7 +212,7 @@ library(microbenchmark)
    }
 
      vegMap <- raster(ageMap)
-   vegMap1 <- RasterLayerNamed(setValues(vegMap,vegMap.v),name="vegMap")
+   vegMap1 <- setValues(vegMap,vegMap.v)
  setColors(vegMap1, n=12 ) <- vegMapColors
  }
  )
@@ -226,6 +226,6 @@ ind = sampleRegular(indexRaster, 3e4,asRaster=TRUE, useGDAL=TRUE)
 
 vegVal2 = inner_join(a[getValues(ind),],d, by="label" )
 smallVeg=raster(ind)
-vegMap3 <- RasterLayerNamed(setValues(smallVeg,vegVal2$veg),name="vegMap")
+vegMap3 <- setValues(smallVeg,vegVal2$veg)
 dev(4);plot(vegMap3)
 

@@ -47,7 +47,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @author Alex Chubaty
 #' @author Eliot McIntire
-#'
+#' @importFrom tcltk tkProgressBar
 #' @export
 #' @docType methods
 #' @rdname newProgressBar
@@ -77,6 +77,7 @@ newProgressBar <- function(sim) {
 }
 
 
+#' @importFrom tcltk setTkProgressBar
 setProgressBar <- function(sim, .pb) {
   OS <- tolower(Sys.info()["sysname"])
   if (simParams(sim)$.progress$.graphical) {

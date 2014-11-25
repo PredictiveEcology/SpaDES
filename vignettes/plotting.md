@@ -65,10 +65,9 @@ Plot(landscape, add=FALSE)
 ![plot of chunk first_plot](figure/first_plot1.png) 
 
 ```r
-# make a SpatialPointsNamed object
-caribou <- SpatialPointsNamed(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)),
-                              name="caribou")
-Plot(caribou, add=FALSE)
+# make a SpatialPoints object
+caribou <- SpatialPointscoords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50))
+Plot(caribou, new=TRUE)
 ```
 
 ![plot of chunk first_plot](figure/first_plot2.png) 
@@ -114,11 +113,10 @@ print(habitatQuality2)
 ```
 
 ```
-## class       : RasterLayerNamed 
+## class       : RasterLayer 
 ## dimensions  : 100, 100, 10000, 1  (nrow, ncol, ncell, nlayers)
 ## resolution  : 1, 1  (x, y)
 ## extent      : -50, 50, -50, 50  (xmin, xmax, ymin, ymax)
-## name        : habitatQuality2 
 ## coord. ref. : NA 
 ## names       : habitatQuality2 
 ## min values  :               1 

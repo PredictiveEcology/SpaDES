@@ -9,6 +9,9 @@ equalExtent(extents)
 
 \S4method{equalExtent}{list}(extents)
 }
+\arguments{
+\item{extents}{list of extents objects}
+}
 \description{
 Assess whether a list of extents are all equal
 }

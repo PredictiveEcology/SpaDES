@@ -5,7 +5,7 @@
 ### code chunk number 1: SpaDES-demo (eval = FALSE)
 ###################################################
 ## library("SpaDES")
-## 
+##
 ## # demo: randomLandscapes, fireSpread, caribouMovement
 ## demo("spades-simulation", package="SpaDES")
 
@@ -135,9 +135,9 @@ x0 <- rnorm(N, x1, 5)
 y0 <- rnorm(N, y1, 5)
 
 # create the caribou agent object
-# caribou needs to be a named object for plotting, use SpatialPointsDataFrameNamed
-caribou <- SpatialPointsDataFrameNamed(coords=cbind(x=x0, y=y0),
-                                  data=data.frame(x1, y1, sex, age),name="caribou")
+# caribou needs to be a named object for plotting, use SpatialPointsDataFrame
+caribou <- SpatialPointsDataFramecoords=cbind(x=x0, y=y0),
+                                  data=data.frame(x1, y1, sex, age)
 row.names(caribou) <- IDs
 
 
@@ -171,20 +171,20 @@ for (t in 1:10) {
 ### code chunk number 10: multiple-simulations (eval = FALSE)
 ###################################################
 ## ### WARNING this can take a while to run, especially for large mapSizes.
-## 
+##
 ## rasterOptions(maxmemory=1e9)
-## 
+##
 ## # list all parameter values to run sims with
 ## parameters <- list(mapSize=round(sqrt(c(1e4, 1e5, 1e6, 1e7, 1e8))),
 ##                    pSpread=seq(0.05, 0.25, 0.05))
-## 
+##
 ## # create data.frame with all parameter combinations
 ## paramsdf <- expand.grid(parameters)
-## 
+##
 ## # outputs
 ## nPixelsBurned <- numeric()
 ## meanPixelsBurned <- cbind(paramsdf, pmean=NA, psd=NA)
-## 
+##
 ## set.seed(42)
 ## for (i in 1:nrow(paramsdf)) {
 ##   # initialize each simulation with a param combo from paramsdf
@@ -202,21 +202,21 @@ for (t in 1:10) {
 ##                         modules=list("randomLandscapes", "fireSpread"),
 ##                         path=system.file("sampleModules", package="SpaDES")))
 ##   mySim <- spades(mySim)
-## 
+##
 ##   # collect stats for each run
 ##   proportionBurned <- with(paramsdf, nPixelsBurned / (mapSize[i]^2))
 ##   meanPixelsBurned[i, "pmean"] <- mean(proportionBurned)
 ##   meanPixelsBurned[i, "psd"] <- sd(proportionBurned)
-## 
+##
 ##   # cleanup between runs
 ##   rm(landscape, mySim, nPixelsBurned)
 ##   for (j in 1:10) gc()
 ## }
-## 
+##
 ## # overall statistics
 ## pch <- c(21:25)
 ## col <- brewer.pal(5, "Set1")
-## 
+##
 ## with(meanPixelsBurned, plot(pmean ~ pSpread, xlab="Spread probability",
 ##                             ylab="Mean proportion of pixels burned",
 ##                             ylim=c(0,1), pch=pch, cex=1.5, col=col))

@@ -27,9 +27,14 @@
 #'
 #' @param directions the number of directions in which cells should be connected: 4 (rook's case), 8 (queen's case), or 'bishop' to connect cells with one-cell diagonal moves. Or a neigborhood matrix (see Details)
 #'
+#' @param sort logical. Whether the outputs should be sorted or not, using Cell IDs of the
+#'  from cells (and to cells, if \code{match.adjacent} is TRUE.
+#'
 #' @param pairs logical. If TRUE, a matrix of pairs of adjacent cells is returned. If FALSE, a vector of cells adjacent to cells is returned
 #'
 #' @param include logical. Should the focal cells be included in the result?
+#'
+#' @param target a vector of cells that can be spread to. This is the inverse of a mask.
 #'
 #' @param numCol numeric indicating number of columns in the raster. Using this with numCell is a bit faster execution time.
 #'
@@ -268,19 +273,17 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 adj <- compiler::cmpfun(adj.raw)
 
 ##############################################################
-#' Identify pixels in a circle around a SpatialPoints*Named object.
+#' Identify pixels in a circle around a SpatialPoints* object.
 #'
 #' identify the pixels and coordinates that are at
-#'  a (set of) buffer distance(s) of the SpatialPoints*Named objects. This can be used
+#'  a (set of) buffer distance(s) of the SpatialPoints* objects. This can be used
 #'  for agents.
 #'
-#' @param spatialPoints SpatialPoints*Named object around which to make circles .
+#' @param spatialPoints SpatialPoints* object around which to make circles .
 #'
 #' @param radii  vector of radii that has same length as spatialPoints
 #'
 #' @param raster    Raster on which the circles are built.
-#'
-#' @param scaleRaster Description of this.
 #'
 #' @return A list of data.frames with x and y coordinates of each
 #' unique pixel of the circle around each individual.

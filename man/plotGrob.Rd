@@ -42,8 +42,21 @@ have this defined internally}
 \item{gp}{grid parameters, usually the output of a call to \code{\link{gpar}}}
 
 \item{pch}{for SpatialPoints, as \code{par}}
+
+\item{speedup}{Numeric. The factor by which the number of vertices in SpatialPolygons will be subsampled.
+The vertices are already subsampled by default to make plotting faster.}
+
+\item{...}{additional arguments. Currently nothing.}
 }
 \description{
 Plot a raster Grob, a points Grob, polygon Grob. This should mostly be called internally.
+}
+\details{
+\code{speedup} is only used for SpatialPolygons in this function. Attempts have been made
+to subsample at a good level that optimizes speed of plotting, without losing visible
+quality. From a speed perspective, there appears to be an optimal subsampling
+when using \code{thin} from fastshp. Presumably too much thinning requires
+large distance matrices to be calculated, slowing plotting down. Too little thinning
+causes an overabundance of points to be plotted, slowing plotting down.
 }
 
