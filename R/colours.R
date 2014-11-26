@@ -47,7 +47,7 @@ setMethod("getColors",
 #'
 #' @import RColorBrewer
 #' @export
-#' @name setColors<-
+# @name setColors<-
 #' @docType methods
 #' @rdname setColors-method
 #' @aliases setColors
