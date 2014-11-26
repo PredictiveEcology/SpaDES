@@ -693,7 +693,7 @@ setMethod("drawArrows",
   }
   # Third, match argument class, via argClass
   callClassedArgs <- sapply(as.character(sapply(callNamedArgs, as.character)), function(x)
-    all(is(try(get(x, envir=envirArgs)),argClass)))
+    all(is(try(get(x, envir=envirArgs),silent=TRUE),argClass)))
 
   # Fourth, return the names directly, if of class argClass;
   #  otherwise, run a get on all elements matching argClass
@@ -703,12 +703,12 @@ setMethod("drawArrows",
       if (any(isRasterInStack)) {
         args1 <- names(callClassedArgs)[!isRasterInStack]
         wh <- which(sapply(args1, function(x)
-          is(try(eval(parse(text=x))),argClass)))
+          is(try(eval(parse(text=x)),silent=TRUE),argClass)))
         argsStack <- strsplit(strsplit(args1[[wh]], "get\\(")[[1]][-1],")$")[[1]]
         return(eval(parse(text=argsStack)))
       } else {
         wh <- which(sapply(names(callClassedArgs), function(x)
-          is(try(get(eval(parse(text=x)), envir=envirArgs)),argClass)))
+          is(try(get(eval(parse(text=x)), envir=envirArgs),silent=TRUE),argClass)))
         return(sapply(wh, function(z) eval(parse(text=names(callClassedArgs)[z]))))
       }
   } else {
