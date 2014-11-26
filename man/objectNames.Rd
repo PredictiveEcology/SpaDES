@@ -2,15 +2,22 @@
 \docType{methods}
 \name{.objectNames}
 \alias{.objectNames}
-\title{Extracts the object name inside a call to \code{Plot}}
+\title{Extracts the object names}
 \usage{
-.objectNames(calledFrom = "Plot")
+.objectNames(calledFrom = "Plot", argClass = "spatialObjects",
+  argName = "")
 }
 \arguments{
 \item{calledFrom}{character vector, length 1, indicating which function call is
 desired. Defaults to \code{Plot}}
+
+\item{argClass}{character vector, length 1, indicating which class is being
+searched for among the arguments. Defaults to \code{spatialObjects}}
+
+\item{argName}{character vector, length 1, or NULL, indicating if the arguments
+to select have a name, no name (empty string) or do not use name (NULL)}
 }
 \description{
-Extracts the object name inside a call to \code{Plot}
+This is primarily used from Plot.
 }
 

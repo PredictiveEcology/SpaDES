@@ -71,7 +71,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
                                 Fires=c("#FFFFFF", rev(heat.colors(9)))
                             )
     assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
-    Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv))
+    Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv), new=TRUE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
