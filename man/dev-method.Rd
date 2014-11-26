@@ -9,8 +9,7 @@ dev(x, ...)
 \arguments{
 \item{x}{The number of a plot device.}
 
-\item{...}{Additional arguments passed to \code{\link{quartz}},
-           \code{\link{windows}}, or \code{\link{x11}}.}
+\item{...}{Additional arguments passed to \code{\link{newPlot}}.}
 }
 \value{
 Opens a new plot device on the screen.

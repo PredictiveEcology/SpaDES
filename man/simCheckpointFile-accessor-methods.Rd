@@ -23,12 +23,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Get and set the simulation checkpoint filename.
-
-get list of simulation parameters
-
-set list of simulation parameters
-
-set list of simulation parameters
 }
 \author{
 Alex Chubaty

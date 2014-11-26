@@ -4,7 +4,11 @@
 \alias{.objectNames}
 \title{Extracts the object name inside a call to \code{Plot}}
 \usage{
-.objectNames()
+.objectNames(calledFrom = "Plot")
+}
+\arguments{
+\item{calledFrom}{character vector, length 1, indicating which function call is
+desired. Defaults to \code{Plot}}
 }
 \description{
 Extracts the object name inside a call to \code{Plot}

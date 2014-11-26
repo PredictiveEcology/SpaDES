@@ -23,12 +23,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Currently, only get and set methods are defined. Subset methods are not.
-
-get .globals from simulation parameters
-
-set .globals in simulation parameters
-
-set .globals in simulation parameters
 }
 \author{
 Alex Chubaty

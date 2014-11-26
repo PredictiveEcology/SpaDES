@@ -3,6 +3,7 @@
 \name{getColors}
 \alias{getColors}
 \alias{getColors,Raster-method}
+\alias{getColours}
 \title{Get colours for plotting Raster* objects.}
 \usage{
 getColors(object)
@@ -10,7 +11,7 @@ getColors(object)
 \S4method{getColors}{Raster}(object)
 }
 \arguments{
-\item{x}{A \code{Raster*} object.}
+\item{object}{A \code{Raster*} object.}
 }
 \value{
 Returns a named list of colors.

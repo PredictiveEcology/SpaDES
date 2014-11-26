@@ -23,12 +23,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Get and set the output path from global simulation parmeters.
-
-get .globals$.outputPath from simulation parameters
-
-set .globals$.outputPath in simulation parameters
-
-set .globals$.outputPath in simulation parameters
 }
 \author{
 Alex Chubaty

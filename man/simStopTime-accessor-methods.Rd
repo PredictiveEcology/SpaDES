@@ -23,12 +23,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Get and set the simulation stop time.
-
-get the simulation stop time
-
-set the simulation stop time
-
-set the simulation stop time
 }
 \author{
 Alex Chubaty

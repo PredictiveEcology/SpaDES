@@ -4,22 +4,22 @@
 \alias{newPlot}
 \title{Open a new plotting window}
 \usage{
-newPlot(...)
+newPlot(noRStudioGD = TRUE, ...)
 }
 \arguments{
 \item{...}{Additional arguments.}
+
+\item{noRStudioGD}{logical Passed to dev.new. Default is TRUE to avoid using
+RStudio graphics device, which is slow.}
 }
 \description{
-Launch a new graphics device based on operating system used.
-Mac OS: open device with \code{quartz()}.
-Linux: open device with \code{x11()}.
-Windows: open device with \code{windows()}.
+Open a new plotting window
 }
 \note{
 \code{\link{dev.new}} is supposed to be the correct way to open a new
 window in a platform-generic way, however, this doesn't work in RStudio.
 }
 \seealso{
-\code{\link{quartz}}, \code{\link{windows}}, \code{\link{x11}}.
+\code{\link{dev}}.
 }
 

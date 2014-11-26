@@ -6,13 +6,13 @@
 \alias{drawArrows,SpatialPoints,SpatialPoints,missing-method}
 \title{Plots arrows showing direction of agent movement}
 \usage{
-drawArrows(from, to, addTo, ...)
+drawArrows(from, to, addTo, title = TRUE, axes = TRUE, ...)
 
 \S4method{drawArrows}{SpatialPoints,SpatialPoints,character}(from, to, addTo,
-  ..., length = 0.1)
+  title, axes, ..., length = 0.1)
 
-\S4method{drawArrows}{SpatialPoints,SpatialPoints,missing}(from, to, addTo, ...,
-  length = 0.1)
+\S4method{drawArrows}{SpatialPoints,SpatialPoints,missing}(from, to, addTo,
+  title, axes, ..., length = 0.1)
 }
 \arguments{
 \item{from}{Starting spatial coordinates (\code{SpatialPointsDataFrame}).}
@@ -20,6 +20,12 @@ drawArrows(from, to, addTo, ...)
 \item{to}{Ending spatial coordinates (\code{SpatialPointsDataFrame})..}
 
 \item{addTo}{Optional character string. The name of a map layer on which to draw the arrows.}
+
+\item{title}{logical Add title to plot. Defaults to TRUE. Since this is also
+the viewport name, it is a good idea to plot it so the viewport can be called
+for later plotting}
+
+\item{axes}{logical Add axes to plot. Defaults to TRUE.}
 
 \item{...}{Additional plotting parameters passed to grid.polyline. Currently
 does not appear to pass anything.}
@@ -38,10 +44,6 @@ caribou1 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 
 drawArrows(caribou1, caribou2)
-seekViewport("caribou1")
-grid.text("caribou1",0.5,1.05)
-grid.xaxis()
-grid.yaxis()
 
 # or  to a previous Plot
 fileList <-

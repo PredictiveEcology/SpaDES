@@ -2,6 +2,7 @@
 \docType{methods}
 \name{spread}
 \alias{spread}
+\alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
 spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,

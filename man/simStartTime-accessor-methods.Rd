@@ -23,12 +23,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Get and set the simulation start time.
-
-get the simulation start time
-
-set the simulation start time
-
-set the simulation start time
 }
 \author{
 Alex Chubaty

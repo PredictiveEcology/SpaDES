@@ -24,12 +24,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 \description{
 The event queue is the list of scheduled (upcoming) events. All completed events
 are moved to to a sepaparte list accessed via \code{simCompleted}.
-
-get the simulation event queue
-
-set the simulation event queue
-
-set the simulation event queue
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.

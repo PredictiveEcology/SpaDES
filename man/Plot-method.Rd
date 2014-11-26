@@ -2,12 +2,19 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
-\title{Fast, optimally arranged, multipanel plotting function with spades}
+\alias{Plot,spatialObjects-method}
+\title{Plot: Fast, optimally arranged, multipanel plotting function with spades}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   speedup = 1, size = 5, cols, zoomExtent = NULL, visualSqueeze = 0.75,
   legend = TRUE, legendRange = NULL, draw = TRUE, pch = 19,
   title = TRUE, na.color = "white")
+
+\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
+  gp = gpar(), axes = "L", speedup = 1, size = 5, cols,
+  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  legendRange = NULL, draw = TRUE, pch = 19, title = TRUE,
+  na.color = "white")
 }
 \arguments{
 \item{...}{Raster* object(s) and or SpatialPoints* objects}
@@ -130,7 +137,8 @@ Plot(caribou, addTo="landscape.forestAge", size=4, axes=FALSE)
 # can add a plot to the plotting window
 Plot(caribou, new=FALSE)
 
-# Can add two maps with same name, if one is in a stack; they are given unique names based on object name
+# Can add two maps with same name, if one is in a stack; they are given
+#  unique names based on object name
 Plot(landscape, caribou, DEM)
 
 # can mix stacks, rasters, SpatialPoint*

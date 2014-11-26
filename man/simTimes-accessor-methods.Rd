@@ -23,12 +23,6 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Currently, only get and set methods are defined. Subset methods are not.
-
-get list of simulation times
-
-set list of simulation times
-
-set list of simulation times
 }
 \details{
 Additonal methods are provided to access the current, start, and stop times of the
