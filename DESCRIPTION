@@ -29,6 +29,7 @@ Depends:
 Suggests:
     knitr,
     Matrix,
+    fastshp,
     testthat
 Imports:
     grid,
@@ -37,8 +38,7 @@ Imports:
     CircStats,
     RandomFields,
     RColorBrewer,
-    rgdal,
-    fastshp
+    rgdal
 License: GPL
 Collate:
     'agent-methods.R'
