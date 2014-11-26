@@ -1,13 +1,15 @@
 ##############################################################
 #' Get colours for plotting Raster* objects.
 #'
-#' @param x     A \code{Raster*} object.
+#' @param object     A \code{Raster*} object.
 #'
 #' @return Returns a named list of colors.
 #'
 #' @export
 #' @docType methods
 #' @rdname getColors-method
+#' @aliases getColours
+#' @aliases getColors
 #'
 #' @seealso \code{\link{setColors}}, \code{\link{brewer.pal}}
 #'
@@ -31,51 +33,56 @@ setMethod("getColors",
 ##############################################################
 #' Set colours for plotting Raster* objects.
 #'
-#' @param x     A \code{Raster*} object.
+#' @param object     A \code{Raster*} object.
 #'
 #' @param ...   Additional arguments to \code{colorRampPalette}.
 #'
-#' @param value  Named list of hex color codes (e.g., from \code{RColorBrewer::brewer.pal}),
-#'              corresponding to the names of RasterLayers in \code{x}.
-#'
 #' @param n     An optional vector of values specifiying the number
 #'              of levels from which to interpolate the color palette.
+#'
+#' @param value  Named list of hex color codes (e.g., from \code{RColorBrewer::brewer.pal}),
+#'              corresponding to the names of RasterLayers in \code{x}.
 #'
 #' @return Returns a Raster with the colortable slot set to values.
 #'
 #' @import RColorBrewer
 #' @export
+#' @name setColors<-
 #' @docType methods
 #' @rdname setColors-method
+#' @aliases setColors
+#' @aliases setColours
 #'
 #' @seealso \code{\link{brewer.pal}}, \code{\link{colorRampPalette}}.
 #'
 #' @author Alex Chubaty
 #'
 setGeneric("setColors<-",
-           function(object, ..., value, n) {
+           function(object, ..., n, value) {
              standardGeneric("setColors<-")
 })
 
-#' set colortable of a raster object
 #' @name setColors<-
-#' @aliases setColors<-RasterLayer,character,numeric-method
+#' @export
+#' @aliases setColors<-RasterLayer,numeric,character-method
 #' @rdname setColors-method
+#' @docType methods
 setReplaceMethod("setColors",
-                 signature("RasterLayer", "character", "numeric"),
-                 function(object, ..., value, n) {
+                 signature("RasterLayer", "numeric", "character"),
+                 function(object, ..., n, value) {
                    pal <- colorRampPalette(value, alpha=TRUE)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
 })
 
-#' set colortable of a raster object
 #' @name setColors<-
-#' @aliases setColors<-RasterLayer,character,missing-method
+#' @export
+#' @aliases setColors<-RasterLayer,missing,character-method
 #' @rdname setColors-method
+#' @docType methods
 setReplaceMethod("setColors",
-                 signature("RasterLayer", "character", "missing"),
+                 signature("RasterLayer", "missing", "character"),
                  function(object, ..., value) {
                    n <- round((maxValue(object)-minValue(object)))+1
                    pal <- colorRampPalette(value, alpha=TRUE)
@@ -84,13 +91,14 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' set colortable of a raster object
 #' @name setColors<-
-#' @aliases setColors<-Raster,list,numeric-method
+#' @export
+#' @aliases setColors<-Raster,numeric,list-method
 #' @rdname setColors-method
+#' @docType methods
 setReplaceMethod("setColors",
-                 signature("Raster", "list", "numeric"),
-                 function(object, ..., value, n) {
+                 signature("Raster", "numeric", "list"),
+                 function(object, ..., n, value) {
                    for(x in names(object)) {
                      setColors(object[[x]], ..., n=n) <- value[[x]]
                    }
@@ -98,12 +106,13 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' set colortable of a raster object
 #' @name setColors<-
-#' @aliases setColors<-Raster,list,missing-method
+#' @export
+#' @aliases setColors<-Raster,missing,list-method
 #' @rdname setColors-method
+#' @docType methods
 setReplaceMethod("setColors",
-                 signature("Raster", "list", "missing"),
+                 signature("Raster", "missing", "list"),
                  function(object, ..., value) {
                    for(x in names(object)) {
                      setColors(object[[x]], ...) <- value[[x]]
@@ -113,17 +122,3 @@ setReplaceMethod("setColors",
 })
 
 
-#
-# .cols = list(
-#   transparentGrey=c("#00000000",paste(RColorBrewer::brewer.pal(8,"Greys"),"66",sep="")[8:1]),
-#   grey = RColorBrewer::brewer.pal(9,"Greys"),
-#   spectral = RColorBrewer::brewer.pal(8,"Spectral"),
-#   terrain = terrain.colors(100),
-#   heat = heat.colors(10),
-#   topo = topo.colors(10),
-#   blueGreen = RColorBrewer::brewer.pal(9,"BuGn"),
-#   greens = RColorBrewer::brewer.pal(9,"Greens"),
-#   yellowBrown = RColorBrewer::brewer.pal(9, "YlOrBr"),
-#   discrete1 = RColorBrewer::brewer.pal(8,"BrBG")
-# )
-#
