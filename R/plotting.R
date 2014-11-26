@@ -439,7 +439,7 @@ setMethod("plotGrob",
             idLength <- unlist(lapply(xyOrd.l, function(i) lapply(i, nrow)))
             xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) do.call(rbind, i)))
 
-            fastshppkg = any(grepl("fastshp",installed.packages()))
+            fastshppkg = requireNamespace("fastshp", quietly=TRUE)
             if (fastshppkg) {
               require(fastshp)
               thinned <- thin(xyOrd[,1], xyOrd[,2], tolerance = speedupScale*speedup)
@@ -1266,7 +1266,9 @@ unittrim <- function(grid.locator) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 clickValues <- function(n=1) {
+
   coords <- clickCoordinates(n=n)
+
   objLay <- strsplit(coords[,1],"\\.")
   objNames <- sapply(objLay, function(x) x[1])
   layNames <- sapply(objLay, function(x) x[2])
@@ -1358,12 +1360,12 @@ clickCoordinates <- function(n=1) {
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x),"npc")[[1]]), c(0,cumsum(widthNpcs)))
     # for the y, grid package treats bottom left as origin, Plot treats top left
     #  as origin... so, require 1-
-    yInt <- findInterval(1-as.numeric(strsplit(as.character(gloc$y),"npc")[[1]]), c(0,cumsum(heightNpcs)))
+    yInt <- findInterval(as.numeric(strsplit(as.character(gloc$y),"npc")[[1]]), c(0,cumsum(heightNpcs)))
     if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")
     }
     column <-  which(xInt==grepNpcsW)
-    row <- which(yInt==grepNpcsH)
+    row <- which((yInt==grepNpcsH)[length(grepNpcsH):1])
     map <- column + (row-1)*arr@columns
 
     maxLayX <- cumsum(widthNpcs)[xInt]
@@ -1389,7 +1391,6 @@ clickCoordinates <- function(n=1) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 .clickCoord <- function(X, n=1, gl=NULL) {
-
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
   for(i in 1:n) {
