@@ -411,12 +411,12 @@ setMethod("plotGrob",
 })
 
 #' @rdname plotGrob
-#' @importFrom fastshp thin
 #' @export
 setMethod("plotGrob",
           signature=c("SpatialPolygons"),
           definition= function(grobToPlot, col, size,
                                legend, draw, gp=gpar(), pch, ...) {
+
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
                 pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
@@ -439,9 +439,20 @@ setMethod("plotGrob",
             idLength <- unlist(lapply(xyOrd.l, function(i) lapply(i, nrow)))
             xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) do.call(rbind, i)))
 
-            thinned <- thin(xyOrd[,1], xyOrd[,2], tolerance = speedupScale*speedup)
-            xyOrd <- xyOrd[thinned,]
-            idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+            fastshppkg = any(grepl("fastshp",installed.packages()))
+            if (fastshppkg) {
+              require(fastshp)
+              thinned <- thin(xyOrd[,1], xyOrd[,2], tolerance = speedupScale*speedup)
+              xyOrd <- xyOrd[thinned,]
+              idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+            } else {
+              warning(paste("To speed up Polygons plotting using Plot please download fastshp",
+                            "#install.packages(\"devtools\")",
+                            "library(\"devtools\")",
+                            "install_github(\"s-u/fastshp\")",sep="\n",
+                            "You may also need to download and install Rtools",
+                            "at http://cran.r-project.org/bin/windows/Rtools/"))
+            }
 
             gp$fill[hole] <- "#FFFFFF00"
             polyGrob <- gTree(children=gList(
@@ -675,6 +686,15 @@ setMethod("drawArrows",
   callArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x)
     grepl(x, pattern=paste0("^",calledFrom))[1])][[1]])[-1]
 
+  # Since it is likely that any call to Plot will have a "sim" object passed,
+  #  this determines what the value of sim is and makes it local
+  hasSim <- sapply(sys.calls(), function(x)
+    any(grepl(x, pattern=paste0("^sim$"))))
+  if (any(hasSim)) {
+    simEnv <- sys.frame(which(hasSim)-1)
+    sim <- get("sim", envir=simEnv)
+  }
+
   # Second, match argument names, via argName, if argName is not null and names exist
   callNamedArgs <- if(!is.null(argName)) {
     if(!is.null(names(callArgs))) {
@@ -695,11 +715,13 @@ setMethod("drawArrows",
   callClassedArgs <- sapply(as.character(sapply(callNamedArgs, as.character)), function(x)
     all(is(try(get(x, envir=envirArgs),silent=TRUE),argClass)))
 
+
+  # check for raster stack calls to a single RasterLayer
+  isRasterInStack <- names(callClassedArgs)=="$" | names(callClassedArgs)=="[["
+
   # Fourth, return the names directly, if of class argClass;
   #  otherwise, run a get on all elements matching argClass
   if(!any(callClassedArgs)) {
-      # check for raster stack calls to a single RasterLayer
-      isRasterInStack <- names(callClassedArgs)=="$"
       if (any(isRasterInStack)) {
         args1 <- names(callClassedArgs)[!isRasterInStack]
         wh <- which(sapply(args1, function(x)
@@ -714,9 +736,14 @@ setMethod("drawArrows",
   } else {
     # Extract the right parts, i.e., only the ..., the stack name if a stack,
     # raster layers can be identified in a stack using $ or [[]] notation. Remove these to get the stack name
-    callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\$"), function(x) x[[1]])
-    callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\["), function(x) x[[1]])
-    return(as.character(callNamedArgs))
+    isRasterInStack <- names(callClassedArgs)=="$" | names(callClassedArgs)=="[["
+    if (any(isRasterInStack)) {
+      return(names(callClassedArgs)[!isRasterInStack & callClassedArgs])
+    } else {
+      callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\$"), function(x) x[[1]])
+      callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\["), function(x) x[[1]])
+      return(as.character(callNamedArgs))
+    }
   }
 
 }
@@ -945,6 +972,7 @@ setMethod("Plot",
     }
 
 # Section 4 # get extents from all SpatialPoints*, Rasters*, including Stacks
+
     if(is.null(zoomExtent)) {
       extsToPlot <- rep(sapply(toPlot, extent), numLayers)
     } else {
