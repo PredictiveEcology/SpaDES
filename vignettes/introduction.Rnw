@@ -122,8 +122,8 @@ parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                         .plotInitialTime=1.01, .plotInterval=1)
                    )
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-path <- system.file("sampleModules", package="SpaDES")
-
+#path <- system.file("sampleModules", package="SpaDES")
+path <- file.path("~","GitHub", "SpaDES", "inst", "sampleModules")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 #dev(4)
@@ -191,7 +191,8 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                    .plotInitialTime = 0, .plotInterval=10)
                  ),
                  modules=list("fireSpread"),
-                 path=system.file("sampleModules", package="SpaDES"))
+                 #  path=system.file("sampleModules", package="SpaDES"))
+                 path <- file.path("~","GitHub", "SpaDES", "inst", "sampleModules"))
 
 spades(mySim)
 @
@@ -364,7 +365,8 @@ for (i in 1:nrow(paramsdf)) {
                                           returnInterval=10, startTime=0)
                           ),
                         modules=list("randomLandscapes", "fireSpread"),
-                        path=system.file("sampleModules", package="SpaDES")))
+                        # path=system.file("sampleModules", package="SpaDES")
+                        path <- file.path("~","GitHub", "SpaDES", "inst", "sampleModules")))
   mySim <- spades(mySim)
 
   # collect stats for each run

@@ -52,7 +52,7 @@ There are several features of `Plot` that are worth highlighting.
 ## Layer types
 Its main purpose is to plot spatial type objects. Specifically, it currently can plot RasterLayers, RasterStacks and SpatialPoints* objects. 
 ```{r first_plot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
-Plot(landscape, add=FALSE)
+Plot(landscape, new=TRUE)
 # make a SpatialPoints object
 caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 Plot(caribou, new=TRUE)
@@ -77,7 +77,7 @@ Plot(landscape[[2:3]])
 ## Mixing Layer Types
 Any combination of RasterStacks, RasterLayers, and SpatialPoints* objects can be plotted.
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, caribou, habitatQuality2, add=FALSE)
+Plot(landscape, caribou, DEM, new=TRUE)
 ```
 
 ## `visualSqueeze`
@@ -85,43 +85,43 @@ Under most circumstances, the plotting regions will be automatically scaled to m
 
 ```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
 # x axis gets cut off in pdf and html
-Plot(DEM, add=FALSE)
-Plot(DEM, visualSqueeze=0.6, add=FALSE)
+Plot(DEM, new=TRUE)
+Plot(DEM, visualSqueeze=0.6, new=TRUE)
 ```
  
 A key reason why the legends or axes are cut off sometimes is because there is a minimum threshold for font size for readability. So, either visualSqueeze can be set or making a larger device will usually also solve these problems.
 
 
 # Modularity
-One of the main purposes of the `Plot` function is modularity. The goal is to enable any `SpaDES` module to be able to add a plot to the plotting device, without being aware of what is already in the plotting device. To do this, there is a hidden global variable (a `.spadesArrN` [where N is the device number] object of S4 class, "arrangement") created when a first Plot function is called. This object keeps the layer names, their extents, and whether they were in a RasterStack (and a few other things). So, when a new `Plot` is called, and `add` is used, then it will simply add the new layer. There may not be space on the plot device for this, in which case, everything will be replotted in a new arrangement, but taking the original R objects. This is different than the grid package engine for replotting. That engine was not designed for large numbers of plots to be added to a region; it slows down immensely as the number of plots increases. 
+One of the main purposes of the `Plot` function is modularity. The goal is to enable any `SpaDES` module to be able to add a plot to the plotting device, without being aware of what is already in the plotting device. To do this, there is a hidden global variable (a `.spadesArrN` [where N is the device number] object of S4 class, "arrangement") created when a first Plot function is called. This object keeps the layer names, their extents, and whether they were in a RasterStack (and a few other things). So, when a new `Plot` is called, and `new` is used, then it will simply add the new layer. There may not be space on the plot device for this, in which case, everything will be replotted in a new arrangement, but taking the original R objects. This is different than the grid package engine for replotting. That engine was not designed for large numbers of plots to be added to a region; it slows down immensely as the number of plots increases. 
 
-## The `add` argument
+## The `new` argument
 There are essentially 3 types of adding that are addressed by this argument, 1) adding a new plot with enough empty space to accommodate the new plot, 2) without this empty space,  and 3) where the device already has a pre-existing plot of the same name. 
 
 ### a new name to a device with enough space
 The `Plot` function simply adds the new plot in the available empty space.
 ```{r simple_add, eval=TRUE, echo=TRUE, fig.height=3}
-Plot(landscape, add=FALSE)
+Plot(landscape, new=TRUE)
 # can add a new plot to the plotting window
-Plot(caribou, add=TRUE, axes=FALSE)
+Plot(caribou, new=FALSE, axes=FALSE)
 ```
 
 ### a new name to a device without enough space
 The `Plot` function creates a new arrangement, keeping the pre-exising order of plots, and adding the new plots afterwards. The plots will all be a little bit smaller (assuming the device has not changed size), and they will be in different locations on the device. 
 ```{r add_with_rearrangement, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape[[1:4]], add=FALSE)
+Plot(landscape[[1:4]], new=TRUE)
 # can add a new plot to the plotting window
-Plot(caribou, add=TRUE, axes=FALSE)
+Plot(caribou, new=FALSE, axes=FALSE)
 ```
 
 ### a pre-existing name to a device
 The `Plot` function will overplot the new layer in the location as the layer with the same name. If colors in the layer are not transparent, then this will effectively block the previous plot. *This will automatically set legend, title and axes to FALSE*. 
 ```{r add_with_same_name, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape[[1:3]], add=FALSE)
+Plot(landscape[[1:3]], new=TRUE)
 landscape$forestAge = (landscape$forestAge +10 %% 100)
 landscape$forestCover = (landscape$forestCover +10 %% 30)
 # can add a new plot to the plotting window
-Plot(landscape[[2:3]], add=TRUE)
+Plot(landscape[[2:3]], new=FALSE)
 ```
 
 
@@ -133,26 +133,21 @@ The `speedup` argument is a *relative* speed increase at the cost of resolution 
 
 For SpatialPoints, the default is to only plot 10,000 points; if there are more than this in the object, then a random sample will be drawn. Speedup is used as the denominator to determine how many to plot `10000/speedup`. 
 
-In the example here, the speedup is "extreme" so that an actual speedup can be observed with such small Rasters. This means that the resulting images are very pixelated. This would not be so extreme when the original Raster had 1e8 pixels, but it will plot faster.
+In the example here, the speedup actually slows down plotting because the rasters are already very small. This would not be the case when the original Raster had 1e8 pixels.
 ```{r speedup, eval=TRUE, echo=TRUE, fig.height=2}
-system.time(Plot(landscape, caribou, habitatQuality2, add=FALSE))
-system.time(Plot(landscape, caribou, habitatQuality2, speedup=200, add=FALSE))
+system.time(Plot(landscape, caribou, DEM, new=TRUE))
+system.time(Plot(landscape, caribou, DEM, speedup=100, new=TRUE))
 # can add a new plot to the plotting window
 ```
 
 # Overplotting: `addTo`
-There are times when it is useful to add a plot to a different plot with a different name. In these cases, the `add` argument will not work. The argument `addTo` will allow plotting of a RasterLayer or SpatialPoints* object on top of a RasterLayer, *that does not share the same name*. This can be useful to see where agents are on a RasterLayer, or if there is transparency on a second RasterLayer, it could be plotted on top of a first RasterLayer.
+There are times when it is useful to add a plot to a different plot with a different name. In these cases, the `new` argument will not work. The argument `addTo` will allow plotting of a RasterLayer or SpatialPoints* object on top of a RasterLayer, *that does not share the same name*. This can be useful to see where agents are on a RasterLayer, or if there is transparency on a second RasterLayer, it could be plotted on top of a first RasterLayer.
 
 ```{r add, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, add=FALSE)
-Plot(caribou, addTo="forestAge", size=2, axes=F)
+Plot(landscape, new=TRUE)
+Plot(caribou, addTo="landscape.forestAge", size=2, axes=F)
 ```
 
-
-There are several situations that do not plot. A call to Plot where there are two RasterLayers with the same name will return an error. This is not true if one of the layers is in a RasterStack, because RasterStacks have their object name prefixed to the plot name. The following code will not create an error.
-```{r, echo=TRUE, eval=FALSE, fig.height=2}
-Plot(landscape, caribou, DEM, add=FALSE)
-```
 
 # Using RStudio Plots window
 The built in RStudio Plot window is particularly slow. It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster. This may change in a future version of RStudio. Until then, we have created a function, `dev` which will add devices up to the number in the parenthesis, or switch to that device if it is already open. If an RStudio plot has not been called, dev(2) will create a new device outside RStudio. If a plot has already occurred in RStudio's embedded plot window, then dev(4) will create a new device outside RStudio. dev(4) on its own will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device.
@@ -181,6 +176,6 @@ if(is.null(dev.list())) {
 This can be used to obtain the values on the plotting device at the locations of the mouse clicks. This will work on multiplanel plots.
 
 ```{r valuesAtClicks, eval=FALSE, echo=TRUE}
-Plot(landscape)
-valuesAtClicks(3) #click at three locations on the Plot device
+Plot(landscape, new=TRUE)
+clickValues(3) #click at three locations on the Plot device
 ```
