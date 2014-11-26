@@ -96,9 +96,9 @@ checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
     load(file)
-    if (exists(".Random.seed")) {
+    if (exists(".Random.seed", envir=.spades)) {
       do.call("RNGkind", as.list(rng.kind))
-      assign(".Random.seed", rng.state, .spades)
+      assign(".Random.seed", rng.state, envir=.spades)
     }
     return(invisible(TRUE))
   } else {
@@ -108,9 +108,9 @@ checkpointLoad = function(file) {
 
 #' @rdname checkpoint
 checkpointSave = function(file) {
-  if (exists(".Random.seed"))  {
-    assign("rng.state", get(".Random.seed", .spades), .spades)
-    assign("rng.kind", RNGkind(), .spades)
+  if (exists(".Random.seed", envir=.spades))  {
+    assign("rng.state", get(".Random.seed", envir=.spades), envir=.spades)
+    assign("rng.kind", RNGkind(), envir=.spades)
   }
   save.image(file) # saves entire workspace
   invisible(TRUE) # return "success" invisibly
