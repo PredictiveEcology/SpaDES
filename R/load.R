@@ -253,7 +253,7 @@ setMethod("loadFiles",
 
               if(!is.na(unique(stackName))) {
                 for(uniqueStacki in unique(stackName)) {
-                  name(localStacks[[uniqueStacki]]) <- uniqueStacki
+                  #name(localStacks[[uniqueStacki]]) <- uniqueStacki
                   assign(uniqueStacki, localStacks[[uniqueStacki]],
                          envir=.GlobalEnv)
                   message(paste("individual files have been stacked into",uniqueStacki,
