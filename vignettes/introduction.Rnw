@@ -110,7 +110,7 @@ demo("spades-simulation", package="SpaDES")
 library("SpaDES")
 
 outputPath=file.path("~", "tmp", "simOutputs")
-times <- list(start=0, stop=0.2)
+times <- list(start=0, stop=100.2)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -127,7 +127,7 @@ path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 #dev(4)
-spades(mySim, debug=TRUE)
+spades(mySim)
 @
 
 \newpage
@@ -221,15 +221,15 @@ landscape[["Fires"]] <-
 
 setColors(landscape$Fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
 
-Plot(landscape[["Fires"]], add=FALSE)
+Plot(landscape[["Fires"]], new=TRUE)
 @
 
 
 <<fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE>>=
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
-Plot(percentPine, add=FALSE)
-#Plot(landscape[["Fires"]], add=TRUE)
+Plot(percentPine, new=TRUE)
+
 Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 @
 
@@ -255,7 +255,7 @@ landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
 landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-Plot(landscape, add=FALSE)
+Plot(landscape, new=TRUE)
 @
 
 \newpage
@@ -300,13 +300,13 @@ Using a simple landscape-dependent correlated random walk, we simulate the movem
 
 <<agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE>>=
 #dev(4)
-Plot(landscape[["habitatQuality"]], add=FALSE)
+Plot(landscape[["habitatQuality"]], new=TRUE)
 
 for (t in 1:10) {
   #crop any caribou that went off maps
   caribou <<- crop(caribou,landscape)
   drawArrows(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
-             to=caribou, length=0.04, addTo="habitatQuality")
+             to=caribou, length=0.04, addTo="landscape.habitatQuality")
 
   # find out what pixels the individuals are on now
   ex <- landscape[["habitatQuality"]][caribou]
