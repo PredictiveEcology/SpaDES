@@ -127,7 +127,7 @@ path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 #dev(4)
-spades(mySim)
+spades(mySim, debug=TRUE)
 @
 
 \newpage
@@ -289,9 +289,8 @@ x0 <- rnorm(N, x1, 5)
 y0 <- rnorm(N, y1, 5)
 
 # create the caribou agent object
-# caribou needs to be a named object for plotting, use SpatialPointsDataFrame
 caribou <- SpatialPointsDataFrame(coords=cbind(x=x0, y=y0),
-                                  data=data.frame(x1, y1, sex, age)
+                                  data=data.frame(x1, y1, sex, age))
 row.names(caribou) <- IDs
 
 @

@@ -70,14 +70,14 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
                                 percentPine=brewer.pal(9,"Greens"),
                                 Fires=c("#FFFFFF", rev(heat.colors(9)))
                             )
-    Plot(maps)
     assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
+    Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(get(simGlobals(sim)$.stackName)$Fires, add=TRUE)
+    Plot(get(simGlobals(sim)$.stackName)$Fires, new=FALSE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")

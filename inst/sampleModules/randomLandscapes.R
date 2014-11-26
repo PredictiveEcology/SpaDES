@@ -83,7 +83,7 @@ randomLandscapesInit <- function(sim) {
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
   names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
-  name(mapStack) <- simGlobals(sim)$.stackName
+
   setColors(mapStack) <- list(DEM=terrain.colors(100),
                               forestAge=brewer.pal(9,"BuGn"),
                               forestCover=brewer.pal(8,"BrBG"),
