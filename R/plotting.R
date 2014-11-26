@@ -95,6 +95,13 @@ setMethod("nlayers",
             return(1)
           })
 
+#' @export
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="SpatialPoints",
+          definition=function(x) {
+            return(1)
+          })
 
 ##############################################################
 #' Extract the layer names of Spatial Objects
@@ -628,7 +635,7 @@ setMethod("drawArrows",
      extents <- list(extent(
        extendrange(c(min(min(from$x),min(to$x)),max(max(from$x,to$x)))),
        extendrange(c(min(min(from$y),min(to$y)),max(max(from$y,to$y))))))
-     names(extents) <- .objectNames("drawArrows")[1]
+     names(extents) <- .objectNames("drawArrows",argName = NULL)[1]
      arr <- arrangeViewports(extents)#,name=name(from))
      lay <- makeLayout(arr=arr, visualSqueeze=0.75)
      arr@layout <- lay
@@ -647,28 +654,71 @@ setMethod("drawArrows",
 
 
 ##############################################################
-#' Extracts the object name inside a call to \code{Plot}
+#' Extracts the object names
+#'
+#' This is primarily used from Plot.
 #'
 #' @param calledFrom character vector, length 1, indicating which function call is
 #' desired. Defaults to \code{Plot}
+#' @param argClass character vector, length 1, indicating which class is being
+#' searched for among the arguments. Defaults to \code{spatialObjects}
+#' @param argName character vector, length 1, or NULL, indicating if the arguments
+#' to select have a name, no name (empty string) or do not use name (NULL)
+#'
 #' @export
 #' @docType methods
 #' @rdname objectNames
-.objectNames <- function(calledFrom="Plot") {
+.objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
+                         argName="") {
 
-  #initialCall <- as.character(sys.call(1))[1]
-  # First extract from the sys.calls only the function call to Plot
-  PlotArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern=paste0("^",calledFrom))[1])][[1]])[-1]
+  # First extract from the sys.calls only the function "calledFrom"
+  callArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x)
+    grepl(x, pattern=paste0("^",calledFrom))[1])][[1]])[-1]
 
-  # Extract the right parts, i.e., only the ..., the stack name if a stack,
-  if(is.null(names(PlotArgs))) return(as.character(PlotArgs)) else {
-    wh <- which(nchar(names(PlotArgs))==0) # Only keep unnamed arguments, i.e., the ... elements
-
-    # raster layers can be identified in a stack using $ or [[]] notation. Remove these to get the stack name
-    PlotArgs <- lapply(strsplit(as.character(PlotArgs[wh]),split="\\$"), function(x) x[[1]])
-    PlotArgs <- lapply(strsplit(as.character(PlotArgs[wh]),split="\\["), function(x) x[[1]])
-    return(as.character(PlotArgs[wh]))
+  # Second, match argument names, via argName, if argName is not null and names exist
+  callNamedArgs <- if(!is.null(argName)) {
+    if(!is.null(names(callArgs))) {
+        callArgs[names(callArgs)==argName]
+      } else {
+        callArgs
+      }
+  } else {
+    callArgs
   }
+  hasEnv <- grepl(names(callNamedArgs[[1]]), pattern="envir")
+  envirArgs <- if(any(hasEnv)) {
+    eval(parse(text=as.character(callNamedArgs[[1]])[hasEnv]))
+  } else {
+    as.environment(-1)
+  }
+  # Third, match argument class, via argClass
+  callClassedArgs <- sapply(as.character(sapply(callNamedArgs, as.character)), function(x)
+    all(is(try(get(x, envir=envirArgs)),argClass)))
+
+  # Fourth, return the names directly, if of class argClass;
+  #  otherwise, run a get on all elements matching argClass
+  if(!any(callClassedArgs)) {
+      # check for raster stack calls to a single RasterLayer
+      isRasterInStack <- names(callClassedArgs)=="$"
+      if (any(isRasterInStack)) {
+        args1 <- names(callClassedArgs)[!isRasterInStack]
+        wh <- which(sapply(args1, function(x)
+          is(try(eval(parse(text=x))),argClass)))
+        argsStack <- strsplit(strsplit(args1[[wh]], "get\\(")[[1]][-1],")$")[[1]]
+        return(eval(parse(text=argsStack)))
+      } else {
+        wh <- which(sapply(names(callClassedArgs), function(x)
+          is(try(get(eval(parse(text=x)), envir=envirArgs)),argClass)))
+        return(sapply(wh, function(z) eval(parse(text=names(callClassedArgs)[z]))))
+      }
+  } else {
+    # Extract the right parts, i.e., only the ..., the stack name if a stack,
+    # raster layers can be identified in a stack using $ or [[]] notation. Remove these to get the stack name
+    callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\$"), function(x) x[[1]])
+    callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\["), function(x) x[[1]])
+    return(as.character(callNamedArgs))
+  }
+
 }
 
 
@@ -853,7 +903,6 @@ setMethod("Plot",
         sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
                       function(x) strsplit(x,"\\.")[[1]]),function(y)y[[1]]) }
     names(lN) <- rep(names(toPlot),numLayers)
-
 
     mapsToPlot <- lapply(toPlot, layerNames)
     mapsToPlot[!isRaster] <- names(toPlot)[!isRaster]
