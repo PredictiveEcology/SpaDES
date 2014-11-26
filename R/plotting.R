@@ -2,12 +2,12 @@
 
 
 ################################################
-#' The \code{SpatialObjects} class
+#' The \code{spatialObjects} class
 #'
 #' This class contains the plotting arrangement information.
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, and RasterStack
-#' @name SpatialObjects-class
+#' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
@@ -54,6 +54,9 @@ dev <- function(x, ...) {
 #' @export
 #' @docType methods
 #' @rdname newPlot-method
+#'
+#' @param noRStudioGD logical Passed to dev.new. Default is TRUE to avoid using
+#' RStudio graphics device, which is slow.
 #'
 # @examples
 # needs examples
@@ -556,12 +559,19 @@ makeViewports <- function(extents, layout, arr, newArr = FALSE) {
 #'
 #' @param addTo Optional character string. The name of a map layer on which to draw the arrows.
 #'
+#' @param title logical Add title to plot. Defaults to TRUE. Since this is also
+#' the viewport name, it is a good idea to plot it so the viewport can be called
+#' for later plotting
+#'
+#' @param axes logical Add axes to plot. Defaults to TRUE.
+#'
 #' @param ...           Additional plotting parameters passed to grid.polyline. Currently
 #' does not appear to pass anything.
 #'
 #' @return Plots the vectors representing agent movement on the specified map.
 #'
 #' @import sp
+#' @import grid
 #' @export
 #' @docType methods
 #' @rdname drawArrows-method
@@ -571,10 +581,6 @@ makeViewports <- function(extents, layout, arr, newArr = FALSE) {
 #' caribou2 <- SpatialPoints(cbind(x=runif(10,-50,50),y=runif(10,-50,50)))
 #'
 #' drawArrows(caribou1, caribou2)
-#' seekViewport("caribou1")
-#' grid.text("caribou1",0.5,1.05)
-#' grid.xaxis()
-#' grid.yaxis()
 #'
 #' # or  to a previous Plot
 #' fileList <-
@@ -594,7 +600,7 @@ makeViewports <- function(extents, layout, arr, newArr = FALSE) {
 #'
 #' Plot(DEM)
 #' drawArrows(caribou1, caribou2, addTo="DEM")
-setGeneric("drawArrows", function(from, to, addTo, ...) {
+setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
   standardGeneric("drawArrows")
 })
 
@@ -604,7 +610,7 @@ setGeneric("drawArrows", function(from, to, addTo, ...) {
 #'
 setMethod("drawArrows",
           signature=c("SpatialPoints","SpatialPoints","character"),
-          definition=function(from, to, addTo, ..., length=0.1) {
+          definition=function(from, to, addTo, title, axes, ..., length=0.1) {
               seekViewport(addTo, recording=FALSE)
               grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
                             default.units="native",
@@ -617,22 +623,25 @@ setMethod("drawArrows",
 #'
 setMethod("drawArrows",
                signature=c("SpatialPoints","SpatialPoints","missing"),
-               definition=function(from, to, addTo, ..., length=0.1) {
+               definition=function(from, to, addTo, title, axes, ..., length=0.1) {
      grid.newpage()
      extents <- list(extent(
        extendrange(c(min(min(from$x),min(to$x)),max(max(from$x,to$x)))),
        extendrange(c(min(min(from$y),min(to$y)),max(max(from$y,to$y))))))
-     names(extents) <- layerNames(from)
+     names(extents) <- .objectNames("drawArrows")[1]
      arr <- arrangeViewports(extents)#,name=name(from))
      lay <- makeLayout(arr=arr, visualSqueeze=0.75)
      arr@layout <- lay
      vps <- makeViewports(extents, arr=arr, layout=lay, newArr = TRUE)
      pushViewport(vps)
-     seekViewport(name(from), recording=FALSE)
+     seekViewport(names(extents), recording=FALSE)
      grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
                    default.units="native",
                    id=rep(1:length(from), 2),
                    arrow=arrow(length=unit(length, "inches"), ...))
+     if (title) grid.text(names(extents),0.5,1.05)
+     if (axes) {grid.xaxis(); grid.yaxis()}
+
      upViewport(0)
 })
 
@@ -640,12 +649,16 @@ setMethod("drawArrows",
 ##############################################################
 #' Extracts the object name inside a call to \code{Plot}
 #'
+#' @param calledFrom character vector, length 1, indicating which function call is
+#' desired. Defaults to \code{Plot}
 #' @export
 #' @docType methods
 #' @rdname objectNames
-.objectNames <- function() {
+.objectNames <- function(calledFrom="Plot") {
+
+  #initialCall <- as.character(sys.call(1))[1]
   # First extract from the sys.calls only the function call to Plot
-  PlotArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern="^Plot")[1])][[1]])[-1]
+  PlotArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x) grepl(x, pattern=paste0("^",calledFrom))[1])][[1]])[-1]
 
   # Extract the right parts, i.e., only the ..., the stack name if a stack,
   if(is.null(names(PlotArgs))) return(as.character(PlotArgs)) else {
@@ -660,7 +673,7 @@ setMethod("drawArrows",
 
 
 #####################
-#' Fast, optimally arranged, multipanel plotting function with spades
+#' Plot: Fast, optimally arranged, multipanel plotting function with spades
 #'
 #' The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*,
 #' and any combination of those.
@@ -722,7 +735,7 @@ setMethod("drawArrows",
 #'
 #' @param title Logical. Whether the names of each plot should be written above plots
 #'
-#' @rdname Plot
+#' @rdname Plot-method
 #' @docType methods
 #' @export
 #' @import RColorBrewer
@@ -809,6 +822,7 @@ setGeneric("Plot", signature="...",
            })
 
 
+#' @rdname Plot-method
 #' @export
 setMethod("Plot",
           signature("spatialObjects"),
@@ -817,7 +831,6 @@ setMethod("Plot",
                                 legend, legendRange, draw, pch, title, na.color) {
 
     toPlot <- list(...)
-
 
 # Section 1 # Determine object names that were passed and layer names of each
     names(toPlot) <- .objectNames()
