@@ -18,7 +18,8 @@
 #' @param persistance   A probability that a burning cell will continue to burn, per time step.
 #'
 #' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
-#'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to".
+#'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
+#'                      not implemented.
 #'
 #' @param maxSize       The maximum number of pixels for a fire. This is currently
 #'                      only a single number, not one for each spread event
@@ -104,11 +105,6 @@ setMethod("spread",
 
             spreads <- rep_len(0, ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
 
-            masked <- if(is.null(mask)) {
-                NULL
-              } else {
-                Which(mask==0, cells=TRUE)
-              }
 
             n <- 1
             if (mapID) {
@@ -122,14 +118,28 @@ setMethod("spread",
               iterations <- Inf # this is a stupid way to do this!
             }
 
-            while ( (length(loci)>0) && (iterations>=n) ) {
+            # Convert mask and NAs to 0 on the spreadProb Raster
+            if (is(spreadProb, "Raster")) {
+              spreadProb[is.na(spreadProb)]<-0
+              if(!is.null(mask)) {
+                spreadProb[mask==1]<-0
+              }
+            } else if (is.numeric(spreadProb)) { # Translate numeric spreadProb into a Raster
+                                                 #  if there is a mask Raster
+              if(!is.null(mask)) {
+                spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
+                spreadProb[mask==1]<-0
+              }
+            }
+
+
+            while ( (length(loci)>0) & (iterations>=n) ) {
               if (mapID) {
-                potentials <- matrix(adj(landscape, loci, directions, pairs=TRUE,
-                                         target=masked),ncol=2)
+                potentials <- matrix(adj(landscape, loci, directions, pairs=TRUE),ncol=2)
               } else {
                 # must pad the first column of potentials
                 potentials <- matrix(cbind(NA, adj(landscape, loci, directions,
-                                                   pairs=FALSE, target=masked)),ncol=2)
+                                                   pairs=FALSE)),ncol=2)
               }
 
               #if there is only one potential, R converts this to a vector, instead of a matrix.
@@ -165,7 +175,7 @@ setMethod("spread",
                   spreadProbs <- spreadProb
                 } else {
                   spreadProbs <- spreadProb[potentials[,2]]
-                  spreadProbs[is.na(spreadProbs)]<-0
+                  #spreadProbs <- spreadProbs[is.na(spreadProbs)]<-0
               }
 
               #If there is only 1 event, R turns the matrix into a vector
