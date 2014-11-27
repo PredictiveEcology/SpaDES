@@ -868,10 +868,11 @@ setMethod("drawArrows",
 #' @rdname Plot-method
 #' @docType methods
 #' @export
+#' @import grid
+#' @importFrom methods is
+#' @import raster
 #' @import RColorBrewer
 #' @import rgdal
-#' @import grid
-#' @import raster
 #' @import sp
 #' @examples
 #' \dontrun{
