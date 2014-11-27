@@ -55,7 +55,8 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
 #' the returned map is the iteration number that the pixel burned
 #'
-#' @import methods raster RColorBrewer
+#' @importFrom methods is
+#' @import raster RColorBrewer
 #' @rdname spread-method
 #'
 #' @examples

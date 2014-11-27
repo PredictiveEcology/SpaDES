@@ -676,7 +676,7 @@ setMethod("drawArrows",
 #' @param argName character vector, length 1, or NULL, indicating if the arguments
 #' to select have a name, no name (empty string) or do not use name (NULL)
 #'
-#' @import methods
+#' @importFrom methods is
 #' @export
 #' @docType methods
 #' @rdname objectNames

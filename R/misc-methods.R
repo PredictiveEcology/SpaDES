@@ -135,7 +135,7 @@ setMethod("checkPath",
 #'
 #' @seealso \code{\link{library}}.
 #'
-#' @import methods
+#' @importFrom methods is
 #' @export
 #' @docType methods
 #' @rdname checkObject-method
