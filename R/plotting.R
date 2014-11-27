@@ -912,6 +912,7 @@ setMethod("drawArrows",
 #' # make a SpatialPoints object
 #' caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 #'
+#'
 #' #Plot all maps on a new plot windows - Do not use RStudio window
 #' \notrun{
 #' if(is.null(dev.list())) {
@@ -940,9 +941,18 @@ setMethod("drawArrows",
 #' # can mix stacks, rasters, SpatialPoint*
 #' Plot(landscape, habitatQuality2, caribou)
 #'
-#' # can mix stacks, rasters, SpatialPoint*
+#' # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
 #' Plot(landscape, caribou)
 #' Plot(habitatQuality2, new=FALSE)
+#' Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2))*20-50)
+#' Sr2 = Polygon(cbind(c(5,4,2,5),c(2,3,2,2))*20-50)
+
+#' Srs1 = Polygons(list(Sr1), "s1")
+#' Srs2 = Polygons(list(Sr2), "s2")
+#' SpP = SpatialPolygons(list(Srs1,Srs2), 1:2)
+#' Plot(SpP)
+#' Plot(SpP, addTo="landscape.Fires", gp=gpar(lwd=2))
+#'
 #' }
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
