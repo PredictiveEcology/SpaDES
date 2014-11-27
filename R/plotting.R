@@ -1,6 +1,3 @@
-#if(getRversion() >= "3.1.0")  utils::globalVariables(paste0(".spadesArr",1:20))
-
-
 ################################################
 #' The \code{spatialObjects} class
 #'
