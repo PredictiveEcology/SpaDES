@@ -1,7 +1,7 @@
 #if(getRversion() >= "3.1.0")  utils::globalVariables(c("rng.kind", "rng.state"))
 
 #' @export
-.spades <- new.env(parent = baseenv())
+.spadesEnv <- new.env(parent = baseenv())
 
 ##############################################################
 #' Simulation checkpoints.
@@ -96,9 +96,9 @@ checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
     load(file)
-    if (exists(".Random.seed", envir=.spades)) {
+    if (exists(".Random.seed", envir=.spadesEnv)) {
       do.call("RNGkind", as.list(rng.kind))
-      assign(".Random.seed", rng.state, envir=.spades)
+      assign(".Random.seed", rng.state, envir=.spadesEnv)
     }
     return(invisible(TRUE))
   } else {
@@ -108,9 +108,9 @@ checkpointLoad = function(file) {
 
 #' @rdname checkpoint
 checkpointSave = function(file) {
-  if (exists(".Random.seed", envir=.spades))  {
-    assign("rng.state", get(".Random.seed", envir=.spades), envir=.spades)
-    assign("rng.kind", RNGkind(), envir=.spades)
+  if (exists(".Random.seed", envir=.spadesEnv))  {
+    assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)
+    assign("rng.kind", RNGkind(), envir=.spadesEnv)
   }
   save.image(file) # saves entire workspace
   invisible(TRUE) # return "success" invisibly
