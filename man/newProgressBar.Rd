@@ -12,6 +12,10 @@ newProgressBar(sim)
 \description{
 Shows a progress bar that is scaled to simulation stop time.
 }
+\details{
+The progress bar object is stored in a separate environment,
+\code{.spadesEnv}.
+}
 \author{
 Alex Chubaty
 
