@@ -3,7 +3,6 @@
 .*\.tar\.gz$
 .*\.zip$
 cache/*
-custom-modules/*
 development/*
 figure/*
 old/*
