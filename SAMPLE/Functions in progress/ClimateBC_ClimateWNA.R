@@ -6,7 +6,7 @@ climBCLcc <- projectRaster(climBC, to=vegMapLcc, method="ngb")
 
 
 grid.newpage()
-Plot(ageMap, add=F)
+Plot(ageMap, new=TRUE)
 pushViewport(vp)
 
 dev(4)
@@ -19,7 +19,7 @@ vp <- viewport(0.1, 0.1, width=0.5, height=0.5,
                yscale=c(0,10))
 
 grid.newpage()
-#Plot(ageMap, add=F)
+#Plot(ageMap, new=TRUE)
 pushViewport(vp1)
 grid.points(1:10/10, 1:10/10, pch=19, default.units="npc")
 pushViewport(vp)

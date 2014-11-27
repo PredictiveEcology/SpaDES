@@ -9,7 +9,7 @@ clickExtent(devNum = NULL, plot.it = TRUE)
 \arguments{
 \item{devNum}{The device number for the new plot to be plotted on}
 
-\item{plot.it}{The device number for the new plot to be plotted on}
+\item{new}{The device number for the new plot to be plotted on}
 }
 \description{
 Currently this does not work since update to spades v0.1.0.9000

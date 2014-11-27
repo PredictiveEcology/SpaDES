@@ -17,7 +17,8 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   na.color = "white")
 }
 \arguments{
-\item{...}{Raster* object(s) and or SpatialPoints* objects}
+\item{...}{Raster* object(s) and or SpatialPoints* objects. See details for
+naming.}
 
 \item{new}{Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
 will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.}
@@ -63,8 +64,16 @@ and any combination of those.
 If new=TRUE, then a new plot will be generated. When new=FALSE, then any plot that
 already exists will be overplotted, while plots that have not already been plotted will be added. This function
 rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
-it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
+it is recommended to make and use a new device because the built in device is not made for rapid redrawing.
 The function is based on the grid package.
+
+Each panel in the multipanel plot must have a name. This name is used to overplot,
+rearrange the plots, or overlay using \code{addTo} when necessary. If the \code{...} are named
+spatialObjects, then \code{Plot} will use these names. If not, then \code{Plot}
+will use the object name and the layer name (in the case of RasterLayers or
+RasterStacks). If plotting a RasterLayer and the layer name is "layer" or the
+same as the object name, then only the object name will be used for simplicity. In
+other words, only enough information is used to uniquely identify the plot.
 
 Silently, one hidden object is made, \code{.spadesArr}, which is used for arranging plots in the
 device window, and identifying the objects to be replotted if rearranging is required,
