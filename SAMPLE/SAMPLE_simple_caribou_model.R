@@ -104,7 +104,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
 
 #loadFiles(fileList = fileList)
 stackName = "landscape"
-outputPath=file.path("~", "tmp", "simOutputs")
+outputPath=file.path(tmpDir(), "simOutputs")
 
 mySim <- simInit(times=list(start=0.0, stop=10.0),
                  params=list(
