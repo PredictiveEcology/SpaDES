@@ -3,10 +3,13 @@
 \name{clickValues}
 \alias{.clickCoord}
 \alias{clickCoordinates}
+\alias{clickExtent}
 \alias{clickValues}
 \title{Mouse interactions with Plots}
 \usage{
 clickValues(n = 1)
+
+clickExtent(devNum = NULL, plot.it = TRUE)
 
 clickCoordinates(n = 1)
 
@@ -14,6 +17,10 @@ clickCoordinates(n = 1)
 }
 \arguments{
 \item{n}{The number of mouse clicks to do}
+
+\item{devNum}{The device number for the new plot to be plotted on}
+
+\item{plot.it}{logical. If TRUE a new windows is made for the new extent. Default TRUE.}
 
 \item{X}{The raster object whose values will be returned where mouse clicks occur}
 
@@ -30,12 +37,17 @@ These functions use \code{grid.locator}. The primary two user-level functions ar
 \code{clickValues} and \code{clickExtent}. These functions automatically select
 the correct viewport (i.e., map) where the mouse clicks occured so the user
 does not have to manually specify which map is being clicked on.
+
+Currently this does not work since update to spades v0.1.0.9000
 }
 \details{
 \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where
 X is the raster being clicked on, in base graphics. This function determines which place in the
 grid.layout was clicked and makes all appropriate calculations to determine the value
-on the raster(s) at that or those location(s)
+on the raster(s) at that or those location(s). It should be noted that when zooming in
+to rasters, plotting of rasters will only allow for complete pixels to be plotted, even
+if the extent is not perfectly in line with pixel edges. As a result, when values
+returned by this function may be slightly off (<0.5 pixel width).
 
 \code{clickExtent} is for drawing an extent with two mouse clicks on a given Plotted map.
 

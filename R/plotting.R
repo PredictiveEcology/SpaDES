@@ -746,8 +746,18 @@ setMethod("drawArrows",
     isGetInner <- lapply(asChar[!isGet], function(x) grepl("get",x))
     if(any(sapply(isGetInner,any))) {
       innerGet <- asChar[!isGet][sapply(isGetInner,any)]
-      fourthSO <- sapply(1:length(innerGet), function(x)
-        eval(parse(text=sub("\\)$","",sub("get\\(","",innerGet[[x]][isGetInner[[x]]])))))
+      insideGet <- lapply(1:length(innerGet), function(x)
+        sub("\\)$","",sub("get\\(","",innerGet[[x]][isGetInner[[x]]])))
+      fourthSO <- lapply(insideGet, function(w) {
+        if(grepl(pattern=",",w)) {
+          insideGetSO <- sapply(strsplit(split="[,= ]",w)[[1]], function(y)
+            is(try(get(eval(parse(text=y),
+                            envir=sys.frame(frameCalledFrom-1))),silent=TRUE),argClass))
+          fourthSO <- sapply(names(insideGetSO)[which(insideGetSO)], function(x)
+            eval(parse(text=x),envir=sys.frame(frameCalledFrom-1)))
+        } else {
+          fourthSO <- eval(parse(text=w),envir=sys.frame(frameCalledFrom-1))
+        }})
       objs[!isGet][sapply(isGetInner,any)] <- fourthSO
     }
   }
@@ -1292,7 +1302,10 @@ unittrim <- function(grid.locator) {
 #' \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where
 #' X is the raster being clicked on, in base graphics. This function determines which place in the
 #' grid.layout was clicked and makes all appropriate calculations to determine the value
-#' on the raster(s) at that or those location(s)
+#' on the raster(s) at that or those location(s). It should be noted that when zooming in
+#' to rasters, plotting of rasters will only allow for complete pixels to be plotted, even
+#' if the extent is not perfectly in line with pixel edges. As a result, when values
+#' returned by this function may be slightly off (<0.5 pixel width).
 #'
 #' \code{clickExtent} is for drawing an extent with two mouse clicks on a given Plotted map.
 #'
@@ -1338,7 +1351,7 @@ clickValues <- function(n=1) {
 #'
 #' @export
 #' @docType methods
-#' @rdname clickExtent
+#' @rdname spadesMouseClicks
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
   corners <- clickCoordinates(2)
