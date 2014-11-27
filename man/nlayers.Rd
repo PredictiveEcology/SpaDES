@@ -12,7 +12,11 @@
 
 \S4method{nlayers}{SpatialPoints}(x)
 }
+\arguments{
+\item{x}{A spatialObjects object or list of these.}
+}
 \description{
-There are methods for Raster*. All other object classes return 1.
+There are already methods for Raster* in the raster package. Adding methods
+for list and SpatialPolygons and SpatialPoints. These latter classes return 1.
 }
 

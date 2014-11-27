@@ -65,7 +65,10 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 ##############################################################
 #' Find the number of layers in a Spatial Object
 #'
-#' There are methods for Raster*. All other object classes return 1.
+#' There are already methods for Raster* in the raster package. Adding methods
+#' for list and SpatialPolygons and SpatialPoints. These latter classes return 1.
+#'
+#' @param x A spatialObjects object or list of these.
 #'
 #' @export
 #' @importFrom raster nlayers
