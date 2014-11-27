@@ -420,7 +420,8 @@ setMethod("plotGrob",
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
                 pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
-                          p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))), lonlat=T)/1.2e10
+                              p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
+                              lonlat=TRUE)/1.2e10
             } else {
               max( ymax(extent(grobToPlot))-ymin(extent(grobToPlot)),
                                 xmax(extent(grobToPlot))-xmin(extent(grobToPlot)))/2.4e4
@@ -439,9 +440,8 @@ setMethod("plotGrob",
             idLength <- unlist(lapply(xyOrd.l, function(i) lapply(i, nrow)))
             xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) do.call(rbind, i)))
 
-            fastshppkg = requireNamespace("fastshp", quietly=TRUE)
-            if (fastshppkg) {
-              thinned <- fastshp::thin(xyOrd[,1], xyOrd[,2], tolerance = speedupScale*speedup)
+            if (requireNamespace("fastshp", quietly=TRUE)) {
+              thinned <- fastshp::thin(xyOrd[,1], xyOrd[,2], tolerance=speedupScale*speedup)
               xyOrd <- xyOrd[thinned,]
               idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
             } else {
