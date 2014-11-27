@@ -313,7 +313,7 @@ setMethod("loadFiles",
                 } else if (is(fileList, "data.frame")) {
                   simFileList(sim) <- fileListdf
                 } else {
-                  error("fileList must be either a list or data.frame")
+                  stop("fileList must be either a list or data.frame")
                 }
 
                 if(nrow(fileListdf)>0) {

@@ -1332,7 +1332,7 @@ clickValues <- function(n=1) {
 #'
 #' @param devNum The device number for the new plot to be plotted on
 #'
-#' @param new The device number for the new plot to be plotted on
+#' @param plot.it logical. If TRUE a new windows is made for the new extent. Default TRUE.
 #'
 #' @export
 #' @docType methods
