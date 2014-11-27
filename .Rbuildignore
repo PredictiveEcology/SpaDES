@@ -3,8 +3,10 @@
 .*\.tar\.gz$
 .*\.zip$
 cache/*
+custom-modules/*
 development/*
 figure/*
-SAMPLE/*
 old/*
+SAMPLE/*
 .travis.yml
+
