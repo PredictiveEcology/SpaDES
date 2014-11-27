@@ -441,8 +441,7 @@ setMethod("plotGrob",
 
             fastshppkg = requireNamespace("fastshp", quietly=TRUE)
             if (fastshppkg) {
-              require(fastshp)
-              thinned <- thin(xyOrd[,1], xyOrd[,2], tolerance = speedupScale*speedup)
+              thinned <- fastshp::thin(xyOrd[,1], xyOrd[,2], tolerance = speedupScale*speedup)
               xyOrd <- xyOrd[thinned,]
               idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
             } else {
