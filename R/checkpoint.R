@@ -95,8 +95,8 @@ checkpointLoad = function(file) {
   if (file.exists(file)) {
     load(file)
     if (exists(".Random.seed", envir=.spadesEnv)) {
-      do.call("RNGkind", as.list(rng.kind))
-      assign(".Random.seed", rng.state, envir=.spadesEnv)
+      do.call("RNGkind", as.list(get("rng.kind", envir=.spadesEnv)))
+      assign(".Random.seed", get("rng.state", envir=.spadesEnv), envir=.spadesEnv)
     }
     return(invisible(TRUE))
   } else {
