@@ -171,15 +171,20 @@ if(is.null(dev.list())) {
 
 # Interacting with plots
 
-## valuesAtClicks
+## `clickValues`
 
-This can be used to obtain the values on the plotting device at the locations of the mouse clicks. This will work on multiplanel plots.
+This can be used to obtain the values on the plotting device at the locations of the mouse clicks. This will work on multiplanel plots. Note that plotting of rasters with the grid package does not allow for partial pixels to be plotted at the edges of the raster. As a result, the edges of pixels may not perfectly line up with the coordinates that they appear with. *Do not rely on exact values when zoomed it*
 
-```{r valuesAtClicks, eval=FALSE, echo=TRUE}
+```{r clickValues, eval=FALSE, echo=TRUE}
 Plot(landscape, new=TRUE)
 clickValues(3) #click at three locations on the Plot device
 ```
 
-## clickExtent
+## `clickExtent`
 
-This can be used like zoom for base plot window. Click two corners of a Plot. 
+This can be used like `zoom` for base package plot window. Click two corners of a Plot. 
+
+```{r clickExtent, eval=FALSE, echo=TRUE}
+Plot(landscape, new=TRUE)
+clickExtent() #click at two locations on the Plot device
+```
