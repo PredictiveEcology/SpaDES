@@ -55,7 +55,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
 #' the returned map is the iteration number that the pixel burned
 #'
-#' @import raster RColorBrewer
+#' @import methods raster RColorBrewer
 #' @rdname spread-method
 #'
 #' @examples
@@ -90,6 +90,7 @@ setGeneric("spread", function(landscape, loci, spreadProb, persistance,
 #' #  use the 5:8 ones)
 #' setColors(fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
 #' Plot(fires,addTo="hab",speedup=3)
+#'
 setMethod("spread",
           signature(landscape="RasterLayer"),
           definition = function(landscape, loci, spreadProb, persistance,

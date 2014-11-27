@@ -79,6 +79,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @name loadFiles
 #' @include simulation.R
+#' @import methods
 #' @import rgdal
 #' @import raster
 #' @import sp

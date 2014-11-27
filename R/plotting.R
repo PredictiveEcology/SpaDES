@@ -72,6 +72,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #'
 #' @export
 #' @importFrom raster nlayers
+#' @importFrom methods is
 #' @rdname nlayers
 setMethod("nlayers",
           signature="list",
@@ -675,6 +676,7 @@ setMethod("drawArrows",
 #' @param argName character vector, length 1, or NULL, indicating if the arguments
 #' to select have a name, no name (empty string) or do not use name (NULL)
 #'
+#' @import methods
 #' @export
 #' @docType methods
 #' @rdname objectNames
