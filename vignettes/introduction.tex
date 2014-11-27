@@ -124,7 +124,8 @@ The static nature of PDFs does not allow us to really show off the simulation vi
 +                                         .plotInitialTime=1.01, .plotInterval=1)
 +                    )
 > modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-> path <- system.file("sampleModules", package="SpaDES")
+> #path <- system.file("sampleModules", package="SpaDES")
+> path <- file.path("~","GitHub", "SpaDES", "inst", "sampleModules")
 > mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 > #dev(4)
 > spades(mySim)
@@ -193,7 +194,8 @@ Bringing data into\textsf{R}is easy, and can be done using any of the built in d
 +                                    .plotInitialTime = 0, .plotInterval=10)
 +                  ),
 +                  modules=list("fireSpread"),
-+                  path=system.file("sampleModules", package="SpaDES"))
++                  #  path=system.file("sampleModules", package="SpaDES"))
++                  path <- file.path("~","GitHub", "SpaDES", "inst", "sampleModules"))
 > spades(mySim)
 \end{Sinput}
 \end{Schunk}
@@ -258,22 +260,22 @@ glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
 
 Deviance Residuals: 
     Min       1Q   Median       3Q      Max  
--38.453  -13.838   -4.123   10.892   32.700  
+-36.961   -6.381    2.116    6.081   26.314  
 
 Coefficients:
              Estimate Std. Error z value Pr(>|z|)    
-(Intercept)  6.930703   0.019527  354.92   <2e-16 ***
-fire1       -2.686357   0.063846  -42.08   <2e-16 ***
-pine        -0.067846   0.004018  -16.89   <2e-16 ***
-fire1:pine   0.295616   0.009762   30.28   <2e-16 ***
+(Intercept)  6.862035   0.018916 362.772   <2e-16 ***
+fire1       -3.624053   0.133019 -27.245   <2e-16 ***
+pine         0.005574   0.003518   1.585    0.113    
+fire1:pine   0.036359   0.035346   1.029    0.304    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 (Dispersion parameter for poisson family taken to be 1)
 
-    Null deviance: 10433.4  on 18  degrees of freedom
-Residual deviance:  6919.5  on 15  degrees of freedom
-AIC: 7062.9
+    Null deviance: 13713.6  on 16  degrees of freedom
+Residual deviance:  4936.3  on 13  degrees of freedom
+AIC: 5060.2
 
 Number of Fisher Scoring iterations: 5
 \end{Soutput}
@@ -398,7 +400,8 @@ Running multiple simulations with different parameter values is a critical part 
 +                                           returnInterval=10, startTime=0)
 +                           ),
 +                         modules=list("randomLandscapes", "fireSpread"),
-+                         path=system.file("sampleModules", package="SpaDES")))
++                         # path=system.file("sampleModules", package="SpaDES")
++                         path <- file.path("~","GitHub", "SpaDES", "inst", "sampleModules")))
 +   mySim <- spades(mySim)
 + 
 +   # collect stats for each run

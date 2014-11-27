@@ -679,70 +679,103 @@ setMethod("drawArrows",
 .objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
                          argName="") {
 
+  #browser()
+  scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
-  callArgs <- as.list(sys.calls()[sapply(sys.calls(), function(x)
-    grepl(x, pattern=paste0("^",calledFrom))[1])][[1]])[-1]
+  frameCalledFrom<-which(sapply(scalls, function(x)
+    grepl(x, pattern=paste0("^",calledFrom))[1]))
+  callArgs <- as.list(scalls[frameCalledFrom][[1]])[-1]
 
-  # Since it is likely that any call to Plot will have a "sim" object passed,
-  #  this determines what the value of sim is and makes it local
-  hasSim <- sapply(sys.calls(), function(x)
+  # Second, match argument names, via argName, if argName is not null and names exist
+  callNamedArgs <- if(!is.null(argName)) {
+    if(!is.null(names(callArgs))) {
+      callArgs[names(callArgs)==argName]
+    } else {
+      callArgs
+    }
+  } else {
+    callArgs
+  }
+
+  # First run through call stack for simple, i.e., calls to Plot that are
+  # just spatialObjects to plot
+  objs <- vector("list", length(callNamedArgs))
+  first <- sapply(as.character(callNamedArgs), function(x)
+    strsplit(split="[[:punct:]]", x)[[1]][1])
+  firstSO <- sapply(first, function(y) is(get(y), argClass))
+  if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
+  # cut short if all are dealt with
+  if(all(!sapply(objs,is.null))) return(objs)
+
+  # Many calls to Plot will use a simList object, which has an argument called
+  #   sim. Search for this, and look up the sim object in the calling frame.
+  #   Make it local here
+  hasSim <- sapply(scalls, function(x)
     any(grepl(x, pattern=paste0("^sim$"))))
   if (any(hasSim)) {
     simEnv <- sys.frame(which(hasSim)-1)
     sim <- get("sim", envir=simEnv)
   }
 
-  # Second, match argument names, via argName, if argName is not null and names exist
-  callNamedArgs <- if(!is.null(argName)) {
-    if(!is.null(names(callArgs))) {
-        callArgs[names(callArgs)==argName]
-      } else {
-        callArgs
-      }
-  } else {
-    callArgs
-  }
-  hasEnv <- grepl(names(callNamedArgs[[1]]), pattern="envir")
-  envirArgs <- if(any(hasEnv)) {
-    eval(parse(text=as.character(callNamedArgs[[1]])[hasEnv]))
-  } else {
-    as.environment(-1)
-  }
-  # Third, match argument class, via argClass
-  callClassedArgs <- sapply(as.character(sapply(callNamedArgs, as.character)), function(x)
-    all(is(try(get(x, envir=envirArgs),silent=TRUE),argClass)))
-
-
-  # check for raster stack calls to a single RasterLayer
-  isRasterInStack <- names(callClassedArgs)=="$" | names(callClassedArgs)=="[["
-
-  # Fourth, return the names directly, if of class argClass;
-  #  otherwise, run a get on all elements matching argClass
-  if(!any(callClassedArgs)) {
-      if (any(isRasterInStack)) {
-        args1 <- names(callClassedArgs)[!isRasterInStack]
-        wh <- which(sapply(args1, function(x)
-          is(try(eval(parse(text=x)),silent=TRUE),argClass)))
-        argsStack <- strsplit(strsplit(args1[[wh]], "get\\(")[[1]][-1],")$")[[1]]
-        return(eval(parse(text=argsStack)))
-      } else {
-        wh <- which(sapply(names(callClassedArgs), function(x)
-          is(try(get(eval(parse(text=x)), envir=envirArgs),silent=TRUE),argClass)))
-        return(sapply(wh, function(z) eval(parse(text=names(callClassedArgs)[z]))))
-      }
-  } else {
-    # Extract the right parts, i.e., only the ..., the stack name if a stack,
-    # raster layers can be identified in a stack using $ or [[]] notation. Remove these to get the stack name
-    isRasterInStack <- names(callClassedArgs)=="$" | names(callClassedArgs)=="[["
-    if (any(isRasterInStack)) {
-      return(names(callClassedArgs)[!isRasterInStack & callClassedArgs])
+  # Look for calls that use "get"; extract them and extract object names
+  asChar <- lapply(callNamedArgs, function(x) as.character(x))
+  isGet <- sapply(asChar, function(x) x[1]=="get")
+  if(any(isGet)) {
+    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2]), silent=TRUE), argClass))
+    if(any(isGetTxt)) {
+      secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
+      thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2])))
+      objs[isGet][isGetTxt] <- secondSO
+      objs[isGet][!isGetTxt] <- thirdSO
     } else {
-      callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\$"), function(x) x[[1]])
-      callNamedArgs <- lapply(strsplit(as.character(callNamedArgs),split="\\["), function(x) x[[1]])
-      return(as.character(callNamedArgs))
+      thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2])))
+      objs[isGet] <- thirdSO
+    }
+  }
+  # cut short if all are dealt with
+  if(all(!sapply(objs,is.null))) return(objs)
+
+
+  # Search for "get" nested within, most commonly because of a call to a layer
+  #   within a stack e.g., get(simGlobals(sim)$.stackname)$Fires
+  if(any(!isGet)) {
+    isGetInner <- lapply(asChar[!isGet], function(x) grepl("get",x))
+    if(any(sapply(isGetInner,any))) {
+      innerGet <- asChar[!isGet][sapply(isGetInner,any)]
+      fourthSO <- sapply(1:length(innerGet), function(x)
+        eval(parse(text=sub("\\)$","",sub("get\\(","",innerGet[[x]][isGetInner[[x]]])))))
+      objs[!isGet][sapply(isGetInner,any)] <- fourthSO
     }
   }
 
+  # cut short if all are dealt with
+  if(all(!sapply(objs,is.null))) return(objs)
+
+  # Look for layer() which is used by shiny to indicate a plot
+  isShinyLayer <- lapply(asChar, function(x) grepl("layer\\(\\)",x))
+#   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner,any)],
+#                        function(x) grepl("layer()",x))
+  if(any(sapply(isShinyLayer, any))) {
+    whIsShinyLayer <- lapply(isShinyLayer[sapply(isShinyLayer,any)], which)
+    shinyLayer <- asChar[sapply(isShinyLayer,any)]
+    fifthSO <- lapply(1:length(shinyLayer), function(x)
+      shinyLayer[[x]][whIsShinyLayer[[x]]+1])
+    objs[sapply(isShinyLayer,any)] <- fifthSO
+  }
+  # cut short if all are dealt with
+  if(all(!sapply(objs,is.null))) return(objs)
+
+  isAdHocStack <- lapply(asChar, function(x) grepl("^stack",x))
+  sixthSO <- rep("stack",sum(sapply(isAdHocStack,any)))
+                    #sixth[[x]][sapply(isAdHocStack,any)][!isAdHocStack[[x]]])
+  objs[sapply(isAdHocStack,any)] <- sixthSO
+
+  # cut short if all are dealt with
+  if(all(!sapply(objs,is.null))) return(objs)
+
+  warning("Please see documentation for Plot to try another way of calling Plot")
+
+  return()
 }
 
 
@@ -755,8 +788,16 @@ setMethod("drawArrows",
 #' If new=TRUE, then a new plot will be generated. When new=FALSE, then any plot that
 #' already exists will be overplotted, while plots that have not already been plotted will be added. This function
 #' rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
-#' it is recommended to makeand use a new device because the built in device is not made for rapid redrawing.
+#' it is recommended to make and use a new device because the built in device is not made for rapid redrawing.
 #' The function is based on the grid package.
+#'
+#' Each panel in the multipanel plot must have a name. This name is used to overplot,
+#' rearrange the plots, or overlay using \code{addTo} when necessary. If the \code{...} are named
+#' spatialObjects, then \code{Plot} will use these names. If not, then \code{Plot}
+#' will use the object name and the layer name (in the case of RasterLayers or
+#' RasterStacks). If plotting a RasterLayer and the layer name is "layer" or the
+#' same as the object name, then only the object name will be used for simplicity. In
+#' other words, only enough information is used to uniquely identify the plot.
 #'
 #' Silently, one hidden object is made, \code{.spadesArr}, which is used for arranging plots in the
 #' device window, and identifying the objects to be replotted if rearranging is required,
@@ -771,7 +812,8 @@ setMethod("drawArrows",
 #' setColors to give each layer its own color table. See examples.
 #'
 #'
-#' @param ... Raster* object(s) and or SpatialPoints* objects
+#' @param ... Raster* object(s) and or SpatialPoints* objects. See details for
+#' naming.
 #'
 #' @param new Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
 #' will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.
@@ -905,9 +947,11 @@ setMethod("Plot",
                                 legend, legendRange, draw, pch, title, na.color) {
 
     toPlot <- list(...)
+    suppliedNames <- names(toPlot)
 
 # Section 1 # Determine object names that were passed and layer names of each
     names(toPlot) <- .objectNames()
+    if(!is.null(suppliedNames)) names(toPlot)[!is.na(suppliedNames)] <- suppliedNames
     isRaster <- sapply(toPlot, function(x) is(x,"Raster"))
     isStack <-  sapply(toPlot, function(x) is(x,"RasterStack"))
     isPolygon <- sapply(toPlot, function(x) is(x,"SpatialPolygons"))
@@ -1286,12 +1330,13 @@ clickValues <- function(n=1) {
 #'
 #' @param devNum The device number for the new plot to be plotted on
 #'
-#' @param plot.it The device number for the new plot to be plotted on
+#' @param new The device number for the new plot to be plotted on
 #'
 #' @export
 #' @docType methods
 #' @rdname clickExtent
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
+
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners$x), sort(corners$y)))
   if(plot.it) {
@@ -1305,13 +1350,13 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
-      Plot(objNames=get(objNames,envir=.GlobalEnv)[[layNames]], zoomExtent=zoom, new=TRUE)
+      Plot(get(objNames,envir=.GlobalEnv)[[layNames]], zoomExtent=zoom, new=TRUE)
     } else {
       Plot(get(objNames,envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
     }
 
 
-    Plot(get(unique(corners$map), envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
+    #Plot(get(unique(corners$map), envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
     dev(devActive)
     return(invisible(zoom))
   } else {
@@ -1389,6 +1434,7 @@ clickCoordinates <- function(n=1) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 .clickCoord <- function(X, n=1, gl=NULL) {
+
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
   for(i in 1:n) {
@@ -1405,6 +1451,7 @@ clickCoordinates <- function(n=1) {
 
 
 identifyGrobToPlot <- function(grobNamesi, toPlot, lN) {
+
   objLayerName <- strsplit(grobNamesi, "\\.")[[1]]
   if(!grobNamesi %in% lN) { # Is this a replot
     if(length(objLayerName)==2 ) {# means it is in a raster

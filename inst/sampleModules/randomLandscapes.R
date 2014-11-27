@@ -24,6 +24,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     # if a required module isn't loaded yet,
     # reschedule this module init for later
 
+    library(tkrplot)
+    library(RandomFields)
+
     if (reloadModuleLater(sim, depends)) {
       sim <- scheduleEvent(sim, simCurrentTime(sim), "randomLandscapes", "init")
     } else {
