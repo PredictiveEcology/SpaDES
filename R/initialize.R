@@ -71,7 +71,8 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
 #'
 #' #@seealso \code{\link{print}} and \code{\link{cat}}
 #'
-#' @import data.table methods raster sp
+#' @import data.table raster sp
+#' @importFrom methods is
 #' @export
 #' @docType methods
 #' @rdname specnumperpatch-probs
