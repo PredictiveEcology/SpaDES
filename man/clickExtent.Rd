@@ -9,7 +9,7 @@ clickExtent(devNum = NULL, plot.it = TRUE)
 \arguments{
 \item{devNum}{The device number for the new plot to be plotted on}
 
-\item{new}{The device number for the new plot to be plotted on}
+\item{plot.it}{logical. If TRUE a new windows is made for the new extent. Default TRUE.}
 }
 \description{
 Currently this does not work since update to spades v0.1.0.9000
