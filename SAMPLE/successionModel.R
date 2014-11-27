@@ -23,7 +23,7 @@ parameters <- list(.globals=list(.stackName="landscape"),
                                         .plotInitialTime=1, .plotInterval=10)
 )
 modules <- list("forestSuccession", "forestAge")
-path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
+path <- file.path("~","GitHub","SpaDES","SAMPLE")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 dev(4)#pdf("test.pdf")

@@ -205,7 +205,7 @@ parameters <- list(.globals=list(burnStats="nPixelsBurned"),
 
 
 modules <- list("forestSuccession", "forestAge", "fireSpreadLcc")
-path <- file.path("C:","Eliot","GitHub","SpaDES","SAMPLE")
+path <- file.path("~","GitHub","SpaDES","SAMPLE")
 ```
 
 ```{r run_spades}

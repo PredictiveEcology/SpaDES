@@ -179,3 +179,7 @@ This can be used to obtain the values on the plotting device at the locations of
 Plot(landscape, new=TRUE)
 clickValues(3) #click at three locations on the Plot device
 ```
+
+## clickExtent
+
+This can be used like zoom for base plot window. Click two corners of a Plot. 
