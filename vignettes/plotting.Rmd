@@ -54,7 +54,18 @@ Its main purpose is to plot spatial type objects. Specifically, it currently can
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
 caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
-Plot(caribou, new=TRUE)
+Plot(caribou)
+Plot(caribou, addTo="landscape.habitatQuality")
+
+Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2))*20-50)
+Sr2 = Polygon(cbind(c(5,4,2,5),c(2,3,2,2))*20-50)
+
+Srs1 = Polygons(list(Sr1), "s1")
+Srs2 = Polygons(list(Sr2), "s2")
+SpP = SpatialPolygons(list(Srs1,Srs2), 1:2)
+Plot(SpP)
+Plot(SpP, addTo="landscape.Fires", gp=gpar(lwd=2))
+
 ```
 
 ## Colors
@@ -74,7 +85,7 @@ Plot(landscape[[2:3]])
 
 
 ## Mixing Layer Types
-Any combination of RasterStacks, RasterLayers, and SpatialPoints* objects can be plotted.
+Any combination of RasterStacks, RasterLayers, SpatialPoints*, and SpatialPolygons* objects can be plotted.
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, caribou, DEM, new=TRUE)
 ```

@@ -912,6 +912,7 @@ setMethod("drawArrows",
 #' # make a SpatialPoints object
 #' caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 #'
+#'
 #' #Plot all maps on a new plot windows - Do not use RStudio window
 #' \notrun{
 #' if(is.null(dev.list())) {
@@ -940,9 +941,18 @@ setMethod("drawArrows",
 #' # can mix stacks, rasters, SpatialPoint*
 #' Plot(landscape, habitatQuality2, caribou)
 #'
-#' # can mix stacks, rasters, SpatialPoint*
+#' # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
 #' Plot(landscape, caribou)
 #' Plot(habitatQuality2, new=FALSE)
+#' Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2))*20-50)
+#' Sr2 = Polygon(cbind(c(5,4,2,5),c(2,3,2,2))*20-50)
+
+#' Srs1 = Polygons(list(Sr1), "s1")
+#' Srs2 = Polygons(list(Sr2), "s2")
+#' SpP = SpatialPolygons(list(Srs1,Srs2), 1:2)
+#' Plot(SpP)
+#' Plot(SpP, addTo="landscape.Fires", gp=gpar(lwd=2))
+#'
 #' }
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
@@ -1018,9 +1028,13 @@ setMethod("Plot",
       if(new==FALSE) message("Nothing to add plots to; creating new plots")
       currentNames <- NULL
     } else {
-
       if(!new) {
         arr <- get(paste0(".spadesArr",dev.cur()), envir=.spadesEnv)
+#          if (!(length(.spadesEnv$.spadesArr4@names)==
+#                  sum(grepl("^GRID",grid.ls(grobs = T, print=FALSE)$name)))) {
+#            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+#            new=TRUE
+#          }
       } else {
         arr <- new("arrangement"); arr@columns=0; arr@rows = 0
       }
@@ -1104,7 +1118,8 @@ setMethod("Plot",
     npixels <- unlist(sapply(toPlot, function(x) if(is(x,"Raster")) ncell(x)))
     maxpixels <- 8e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
     if(!is.null(npixels)) {
-      maxpixels <- min(maxpixels,max(npixels/3))
+      maxpixels <- min(maxpixels*3,npixels)
+      skipSample <- maxpixels==npixels
     }
 
     if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
@@ -1160,7 +1175,7 @@ setMethod("Plot",
           zoom <- zoomExtent
         }
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
-        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
+        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,skipSample)
       } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
         len <- length(grobToPlot)
         if(len<(1e4/speedup)) {
@@ -1206,11 +1221,13 @@ setMethod("Plot",
 #'
 #' @param na.color string indicating the color for NA values. Defaults to "white".
 #'
+#' @param skipSample logical. If no downsampling is necessary, skip. Default TRUE.
+#'
 #' @rdname makeColorMatrix
 #' @export
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                                       na.color) {
+                                       na.color, skipSample=TRUE) {
   standardGeneric("makeColorMatrix")
 })
 
@@ -1220,7 +1237,7 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                               na.color) {
+                               na.color, skipSample) {
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
             } else {
@@ -1232,8 +1249,10 @@ setMethod("makeColorMatrix",
             #  is possible that it is incorrect
 #             minz <- minValue(grobToPlot)
 #             maxz <- maxValue(grobToPlot)
-            grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
+            if(!skipSample) {
+              grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                         ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+            }
             z <- getValues(grobToPlot)
 
              minz <- min(z, na.rm=T)
