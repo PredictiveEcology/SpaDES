@@ -1030,11 +1030,11 @@ setMethod("Plot",
     } else {
       if(!new) {
         arr <- get(paste0(".spadesArr",dev.cur()), envir=.spadesEnv)
-        if (!(length(.spadesEnv$.spadesArr4@names)==
-                sum(grepl("^GRID",grid.ls(grobs = T, print=FALSE)$name)))) {
-          arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-          new=TRUE
-        }
+#          if (!(length(.spadesEnv$.spadesArr4@names)==
+#                  sum(grepl("^GRID",grid.ls(grobs = T, print=FALSE)$name)))) {
+#            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+#            new=TRUE
+#          }
       } else {
         arr <- new("arrangement"); arr@columns=0; arr@rows = 0
       }
