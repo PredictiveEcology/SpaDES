@@ -29,8 +29,7 @@ To demonstrate plotting, we first load some maps. These maps are randomly genera
 library(SpaDES)
 fileList <-
     data.frame(files =
-     dir(file.path(
-                   find.package("SpaDES",
+     dir(file.path(find.package("SpaDES",
                                 lib.loc=getOption("devtools.path"),
                                 quiet=FALSE),
                   "maps"),
