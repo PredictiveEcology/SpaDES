@@ -1028,9 +1028,12 @@ setMethod("Plot",
       if(new==FALSE) message("Nothing to add plots to; creating new plots")
       currentNames <- NULL
     } else {
-
       if(!new) {
         arr <- get(paste0(".spadesArr",dev.cur()), envir=.spadesEnv)
+        if (!(length(.spadesEnv$.spadesArr4@names)==sum(grepl("^GRID",grid.ls(grobs = T)$name)))) {
+          arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+          new=TRUE
+        }
       } else {
         arr <- new("arrangement"); arr@columns=0; arr@rows = 0
       }
@@ -1114,7 +1117,8 @@ setMethod("Plot",
     npixels <- unlist(sapply(toPlot, function(x) if(is(x,"Raster")) ncell(x)))
     maxpixels <- 8e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
     if(!is.null(npixels)) {
-      maxpixels <- min(maxpixels,max(npixels/3))
+      maxpixels <- min(maxpixels*3,npixels)
+      skipSample <- maxpixels==npixels
     }
 
     if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
@@ -1170,7 +1174,7 @@ setMethod("Plot",
           zoom <- zoomExtent
         }
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
-        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color)
+        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,skipSample)
       } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
         len <- length(grobToPlot)
         if(len<(1e4/speedup)) {
@@ -1216,11 +1220,13 @@ setMethod("Plot",
 #'
 #' @param na.color string indicating the color for NA values. Defaults to "white".
 #'
+#' @param skipSample logical. If no downsampling is necessary, skip. Default TRUE.
+#'
 #' @rdname makeColorMatrix
 #' @export
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                                       na.color) {
+                                       na.color, skipSample=TRUE) {
   standardGeneric("makeColorMatrix")
 })
 
@@ -1230,7 +1236,7 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                               na.color) {
+                               na.color, skipSample) {
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
             } else {
@@ -1242,8 +1248,10 @@ setMethod("makeColorMatrix",
             #  is possible that it is incorrect
 #             minz <- minValue(grobToPlot)
 #             maxz <- maxValue(grobToPlot)
-            grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
+            if(!skipSample) {
+              grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                         ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+            }
             z <- getValues(grobToPlot)
 
              minz <- min(z, na.rm=T)
