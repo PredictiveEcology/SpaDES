@@ -45,15 +45,13 @@ setMethod("getColors",
 #'
 #' @return Returns a Raster with the colortable slot set to values.
 #'
-#' @import RColorBrewer
 #' @export
-# @name setColors<-
 #' @docType methods
 #' @rdname setColors-method
 #' @aliases setColors
 #' @aliases setColours
 #'
-#' @seealso \code{\link{brewer.pal}}, \code{\link{colorRampPalette}}.
+#' @seealso \code{\link[RColorBrewer]{brewer.pal}}, \code{\link[RColorBrewer]{colorRampPalette}}.
 #'
 #' @author Alex Chubaty
 #'
