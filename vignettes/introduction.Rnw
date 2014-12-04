@@ -83,7 +83,7 @@ Discrete event simulation (DES) as implement here is ``event driven'', meaning t
 
 \begin{figure}[!htbp]
   \centering
-	\includegraphics[width=5in]{../inst/SpaDES-overview-diagram.pdf}
+	\includegraphics[width=5in]{../inst/doc/SpaDES-overview-diagram.pdf}
 	\caption{Schematic representation of a \texttt{SpaDES} simulation model.}
 	\label{figure-SpaDES-overview}
 \end{figure}
@@ -421,7 +421,7 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=5in]{../inst/plot-area-burned.pdf}
+  \includegraphics[width=5in]{../inst/doc/plot-area-burned.pdf}
 	\caption{Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.}
 	\label{figure-area-burned}
 \end{figure}

@@ -1237,7 +1237,7 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                               na.color, skipSample) {
+                               na.color, skipSample=TRUE) {
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
             } else {
