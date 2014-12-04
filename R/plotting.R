@@ -1120,6 +1120,8 @@ setMethod("Plot",
     if(!is.null(npixels)) {
       maxpixels <- min(maxpixels*3,npixels)
       skipSample <- maxpixels==npixels
+    } else {
+      skipSample <- TRUE
     }
 
     if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
@@ -1175,7 +1177,10 @@ setMethod("Plot",
           zoom <- zoomExtent
         }
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
-        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,skipSample)
+
+        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,
+                                skipSample=is.na(match(strsplit(grobNamesi,"\\.")[[1]][1],
+                                            names(skipSample))))
       } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
         len <- length(grobToPlot)
         if(len<(1e4/speedup)) {
