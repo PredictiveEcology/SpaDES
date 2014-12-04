@@ -59,6 +59,9 @@ setClass("simList",
 
 ### show is already defined in the methods package
 #' show simList
+#'
+#' @param object  Any R object
+#'
 #' @export
 setMethod("show",
           signature="simList",

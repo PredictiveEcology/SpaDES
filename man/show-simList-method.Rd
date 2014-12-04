@@ -6,6 +6,9 @@
 \usage{
 \S4method{show}{simList}(object)
 }
+\arguments{
+\item{object}{Any R object}
+}
 \description{
 show simList
 }
