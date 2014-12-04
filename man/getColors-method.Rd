@@ -23,6 +23,6 @@ Get colours for plotting Raster* objects.
 Alex Chubaty
 }
 \seealso{
-\code{\link{setColors}}, \code{\link{brewer.pal}}
+\code{\link{setColors}}, \code{\link[RColorBrewer]{brewer.pal}}
 }
 

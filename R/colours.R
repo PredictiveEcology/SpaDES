@@ -11,7 +11,7 @@
 #' @aliases getColours
 #' @aliases getColors
 #'
-#' @seealso \code{\link{setColors}}, \code{\link{brewer.pal}}
+#' @seealso \code{\link{setColors}}, \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
 #'
@@ -51,7 +51,7 @@ setMethod("getColors",
 #' @aliases setColors
 #' @aliases setColours
 #'
-#' @seealso \code{\link[RColorBrewer]{brewer.pal}}, \code{\link[RColorBrewer]{colorRampPalette}}.
+#' @seealso \code{\link[RColorBrewer]{brewer.pal}}, \code{\link[grDevices]{colorRampPalette}}.
 #'
 #' @author Alex Chubaty
 #'
