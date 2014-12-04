@@ -40,6 +40,6 @@ Set colours for plotting Raster* objects.
 Alex Chubaty
 }
 \seealso{
-\code{\link{brewer.pal}}, \code{\link{colorRampPalette}}.
+\code{\link[RColorBrewer]{brewer.pal}}, \code{\link[RColorBrewer]{colorRampPalette}}.
 }
 

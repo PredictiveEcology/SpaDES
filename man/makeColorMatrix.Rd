@@ -5,10 +5,11 @@
 \alias{makeColorMatrix,Raster,Extent,numeric-method}
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
-makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, na.color)
+makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, na.color,
+  skipSample = TRUE)
 
 \S4method{makeColorMatrix}{Raster,Extent,numeric}(grobToPlot, zoomExtent,
-  maxpixels, legendRange, na.color)
+  maxpixels, legendRange, na.color, skipSample = TRUE)
 }
 \arguments{
 \item{grobToPlot}{a SpatialObject}
@@ -21,6 +22,8 @@ makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, na.color)
 a legend that will override the data bounds contained within the grobToPlot}
 
 \item{na.color}{string indicating the color for NA values. Defaults to "white".}
+
+\item{skipSample}{logical. If no downsampling is necessary, skip. Default TRUE.}
 }
 \description{
 Convert Raster to color matrix useable by raster function for plotting
