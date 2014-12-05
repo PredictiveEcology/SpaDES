@@ -683,7 +683,7 @@ setMethod("drawArrows",
 .objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
                          argName="") {
 
-  #browser()
+
   scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
   frameCalledFrom<-which(sapply(scalls, function(x)
@@ -706,7 +706,7 @@ setMethod("drawArrows",
   objs <- vector("list", length(callNamedArgs))
   first <- sapply(as.character(callNamedArgs), function(x)
     strsplit(split="[[:punct:]]", x)[[1]][1])
-  firstSO <- sapply(first, function(y) is(get(y), argClass))
+  firstSO <- sapply(first, function(y) is(get(y,sys.frame(frameCalledFrom-1)), argClass))
   if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
   # cut short if all are dealt with
   if(all(!sapply(objs,is.null))) return(objs)
@@ -973,6 +973,7 @@ setMethod("Plot",
 
     toPlot <- list(...)
     suppliedNames <- names(toPlot)
+
 
 # Section 1 # Determine object names that were passed and layer names of each
     names(toPlot) <- .objectNames()
