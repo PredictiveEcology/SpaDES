@@ -725,7 +725,8 @@ setMethod("drawArrows",
   asChar <- lapply(callNamedArgs, function(x) as.character(x))
   isGet <- sapply(asChar, function(x) x[1]=="get")
   if(any(isGet)) {
-    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2]), silent=TRUE), argClass))
+    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2],sys.frame(frameCalledFrom-1)),
+                                                         silent=TRUE), argClass))
     if(any(isGetTxt)) {
       secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
       thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2])))
