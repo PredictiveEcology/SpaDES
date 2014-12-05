@@ -232,9 +232,9 @@ setMethod("spread",
               loci <- c(loci, events)
 
               if (plot.it){
-                top <- raster(landscape)
-                top <- setValues(top,spreads)
-                Plot(top)
+                plotCur <- raster(landscape)
+                plotCur <- setValues(plotCur,spreads)
+                Plot(plotCur)
               }
             }
 
