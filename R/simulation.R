@@ -1269,9 +1269,9 @@ setMethod("doEvent",
 
                 # add to list of completed events
                 if(length(simCompleted(sim))==0) {
-                  simCompleted(sim) <- setkey(nextEvent, eventTime)
+                  simCompleted(sim) <- setkey(nextEvent, "eventTime")
                 } else {
-                  simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), eventTime)
+                  simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), "eventTime")
                 }
               } else {
                 # update current simulated time to
@@ -1336,9 +1336,9 @@ setMethod("scheduleEvent",
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
                 if (length(simEvents(sim))==0) {
-                  simEvents(sim) <- setkey(newEvent, eventTime)
+                  simEvents(sim) <- setkey(newEvent, "eventTime")
                 } else {
-                  simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), eventTime)
+                  simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), "eventTime")
                 }
               }
             } else {

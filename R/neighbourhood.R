@@ -1,3 +1,5 @@
+utils::globalVariables(c("angles", "pixIDs", "x", "y"))
+
 ##############################################################
 #' Fast `adjacent` function, and Just In Time compiled version
 #'
@@ -327,20 +329,20 @@ cir <- function(spatialPoints, radii, raster) {
 
   ### Eliot' added's code:
   DT = data.table(ids, angs, xs, ys, rads)
-  DT[, angles:=cumsum(angs), by=ids] # adds new column `angles` to DT that is the cumsum of angs for each id
-  DT[, x:=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
-  DT[, y:=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
+  DT[, "angles":=cumsum(angs), by="ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
+  DT[, "x":=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
+  DT[, "y":=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
 
   # put the coordinates of the points on the circles from all individuals in the same matrix
   coords.all.ind <- DT[, list(x,y,ids)]
 
   # extract the pixel IDs under the points
-  coords.all.ind[, pixIDs:=cellFromXY(raster,coords.all.ind)]
+  coords.all.ind[, "pixIDs":=cellFromXY(raster,coords.all.ind)]
 
   # use only the unique pixels
-  coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by=ids]
+  coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by="ids"]
   coords.all.ind.unq = na.omit(coords.all.ind.unq)
-  coords.all.ind.unq[, pixIDs.unq:=extract(raster,pixIDs)] # where is `pixIDs.unq` used???
+  coords.all.ind.unq[, "pixIDs.unq":=extract(raster,pixIDs)] # where is `pixIDs.unq` used???
 
   # extract the coordinates for the pixel IDs
   pixels = xyFromCell(raster, coords.all.ind.unq$pixIDs)

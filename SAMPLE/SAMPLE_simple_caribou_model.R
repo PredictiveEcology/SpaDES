@@ -106,7 +106,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES",
 stackName = "landscape"
 outputPath=file.path(tmpDir(), "simOutputs")
 
-mySim <- simInit(times=list(start=0.0, stop=10.0),
+mySim <- simInit(times=list(start=0.0, stop=100.0),
                  params=list(
                    #.checkpoint=list(interval=1000,
                    #                 file=file.path(path, "SpaDES/SAMPLE/chkpnt.RData")),
@@ -124,7 +124,7 @@ mySim <- simInit(times=list(start=0.0, stop=10.0),
                                         #.savePath=file.path("output","caribouMovement"),
                                         #.saveInitialTime=3, .saveInterval=100,
                                         #.plotInitialTime=NA, .plotInterval=NA,
-                                        #.plotInitialTime = 1.01, .plotInterval=1,
+                                        .plotInitialTime = 1.01, .plotInterval=1,
                                         moveInterval=1),
                    fireSpread=list(nFires=1e1, spreadprob=0.225,
                                    persistprob=0, its=1e6,

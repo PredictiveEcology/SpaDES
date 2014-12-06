@@ -1,3 +1,5 @@
+utils::globalVariables("objectNames")
+
 ################################################
 ###
 ### A LOAD MODULE
