@@ -1,5 +1,6 @@
 Known issues: https://github.com/achubaty/SpaDES/issues
-version 0.5.0.9000
+
+version 0.5.0.9002
 =============
 * overhaul to Plot function, now does not need *Named objects.
 * Deprecated all *Named functionality - All code will break that uses *Named objects
