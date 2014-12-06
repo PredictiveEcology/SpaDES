@@ -2,10 +2,12 @@
 ^\.Rproj\.user$
 .*\.tar\.gz$
 .*\.zip$
+.*\.toc$
 cache/*
 development/*
 figure/*
 old/*
 SAMPLE/*
+vignettes/*
 .travis.yml
 

@@ -44,8 +44,9 @@
 #' @aliases spread
 #' @rdname spread-method
 #'
-setGeneric("spread", function(landscape, loci, spreadProb, persistance,
-                              mask, maxSize, directions, iterations, ...) {
+setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.23,
+                              persistance=0, mask=NULL, maxSize=ncell(landscape),
+                              directions=8, iterations=NULL, ...) {
   standardGeneric("spread")
 })
 
@@ -143,6 +144,9 @@ setMethod("spread",
                 potentials <- matrix(cbind(NA, adj(landscape, loci, directions,
                                                    pairs=FALSE)),ncol=2)
               }
+              #browser()
+              potentials <- potentials[!duplicated(potentials[,2]),]
+
 
               #if there is only one potential, R converts this to a vector, instead of a matrix.
               # Force it back to a matrix
@@ -232,9 +236,9 @@ setMethod("spread",
               loci <- c(loci, events)
 
               if (plot.it){
-                top <- raster(landscape)
-                top <- setValues(top,spreads)
-                Plot(top)
+                plotCur <- raster(landscape)
+                plotCur <- setValues(plotCur,spreads)
+                Plot(plotCur, ...)
               }
             }
 

@@ -6,7 +6,7 @@ shinyUI(fluidPage(
 
       sliderInput('stopTime', 'Year to predict',
                   min=2006, max=2050, value=2008, step=1, round=FALSE,
-                  format = "###0"),
+                  format="###0"),
       br(),
 
       h4("Model integration"),

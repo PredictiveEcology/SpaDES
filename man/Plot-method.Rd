@@ -6,12 +6,12 @@
 \title{Plot: Fast, optimally arranged, multipanel plotting function with spades}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
-  speedup = 1, size = 5, cols, zoomExtent = NULL, visualSqueeze = 0.75,
-  legend = TRUE, legendRange = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "white")
+  speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL, draw = TRUE,
+  pch = 19, title = TRUE, na.color = "white")
 
 \S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), axes = "L", speedup = 1, size = 5, cols,
+  gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "white")
