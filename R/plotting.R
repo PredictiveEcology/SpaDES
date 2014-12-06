@@ -345,7 +345,7 @@ setMethod("plotGrob",
           definition= function(grobToPlot, col, size, minv, maxv,
                                legend, draw,
                                gp, pch, ...) {
-
+#browser()
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
@@ -683,7 +683,7 @@ setMethod("drawArrows",
 .objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
                          argName="") {
 
-
+  #browser()
   scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
   frameCalledFrom<-which(sapply(scalls, function(x)
@@ -700,6 +700,8 @@ setMethod("drawArrows",
   } else {
     callArgs
   }
+  callNamedArgs <- callNamedArgs[sapply(callNamedArgs, function(x) x!="...")]
+
 
   # First run through call stack for simple, i.e., calls to Plot that are
   # just spatialObjects to plot
@@ -787,6 +789,10 @@ setMethod("drawArrows",
 
   # cut short if all are dealt with
   if(all(!sapply(objs,is.null))) return(objs)
+
+#   isAdHocOther <- sapply(objs, function(x) length(x)==0)
+#   sixthSO <- rep("stack",sum(sapply(isAdHocStack,any)))
+  #sixth[[x]][sapply(isAdHocStack,any)][!isAdHocStack[[x]]])
 
   warning("Please see documentation for Plot to try another way of calling Plot")
 
@@ -957,7 +963,7 @@ setMethod("drawArrows",
 #' }
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
-                    size=5, cols, zoomExtent=NULL,
+                    size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
                     pch = 19, title=TRUE, na.color="white") {
              standardGeneric("Plot")
@@ -1180,7 +1186,7 @@ setMethod("Plot",
         }
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
 
-        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,
+        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,cols=cols,
                                 skipSample=is.na(match(strsplit(grobNamesi,"\\.")[[1]][1],
                                             names(skipSample))))
       } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
@@ -1226,6 +1232,9 @@ setMethod("Plot",
 #' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
 #' a legend that will override the data bounds contained within the grobToPlot
 #'
+#' @param cols colours specified in a way that can be understood directly or by
+#'  colorRampPalette
+#'
 #' @param na.color string indicating the color for NA values. Defaults to "white".
 #'
 #' @param skipSample logical. If no downsampling is necessary, skip. Default TRUE.
@@ -1234,7 +1243,7 @@ setMethod("Plot",
 #' @export
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                                       na.color, skipSample=TRUE) {
+                                       cols=NULL, na.color, skipSample=TRUE) {
   standardGeneric("makeColorMatrix")
 })
 
@@ -1244,9 +1253,11 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                               na.color, skipSample=TRUE) {
+                               cols, na.color, skipSample=TRUE) {
             if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
+            } else if(!is.null(cols)) {
+              cols <- cols
             } else {
               cols<-topo.colors(50)
             }
