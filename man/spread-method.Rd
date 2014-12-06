@@ -5,8 +5,9 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci, spreadProb, persistance, mask, maxSize, directions,
-  iterations, ...)
+spread(landscape, loci = ncell(landscape)/2, spreadProb = 0.23,
+  persistance = 0, mask = NULL, maxSize = ncell(landscape),
+  directions = 8, iterations = NULL, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistance, mask,
   maxSize = ncell(landscape), directions = 8,
