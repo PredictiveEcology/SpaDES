@@ -27,8 +27,9 @@ setColors(object, ..., n) <- value
 \item{n}{An optional vector of values specifiying the number
              of levels from which to interpolate the color palette.}
 
-\item{value}{Named list of hex color codes (e.g., from \code{RColorBrewer::brewer.pal}),
-             corresponding to the names of RasterLayers in \code{x}.}
+\item{value}{Named list of hex color codes (e.g., from
+              \code{RColorBrewer::brewer.pal}), corresponding to the names
+              of RasterLayers in \code{x}.}
 }
 \value{
 Returns a Raster with the colortable slot set to values.
@@ -40,6 +41,7 @@ Set colours for plotting Raster* objects.
 Alex Chubaty
 }
 \seealso{
-\code{\link[RColorBrewer]{brewer.pal}}, \code{\link[grDevices]{colorRampPalette}}.
+\code{\link[RColorBrewer]{brewer.pal}},
+         \code{\link[grDevices]{colorRampPalette}}.
 }
 

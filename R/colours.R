@@ -40,8 +40,9 @@ setMethod("getColors",
 #' @param n     An optional vector of values specifiying the number
 #'              of levels from which to interpolate the color palette.
 #'
-#' @param value  Named list of hex color codes (e.g., from \code{RColorBrewer::brewer.pal}),
-#'              corresponding to the names of RasterLayers in \code{x}.
+#' @param value  Named list of hex color codes (e.g., from
+#'               \code{RColorBrewer::brewer.pal}), corresponding to the names
+#'               of RasterLayers in \code{x}.
 #'
 #' @return Returns a Raster with the colortable slot set to values.
 #'
@@ -51,7 +52,8 @@ setMethod("getColors",
 #' @aliases setColors
 #' @aliases setColours
 #'
-#' @seealso \code{\link[RColorBrewer]{brewer.pal}}, \code{\link[grDevices]{colorRampPalette}}.
+#' @seealso \code{\link[RColorBrewer]{brewer.pal}},
+#'          \code{\link[grDevices]{colorRampPalette}}.
 #'
 #' @author Alex Chubaty
 #'
@@ -118,5 +120,3 @@ setReplaceMethod("setColors",
                    validObject(object)
                    return(object)
 })
-
-
