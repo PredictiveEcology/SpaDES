@@ -62,7 +62,6 @@ setGeneric("setColors<-",
              standardGeneric("setColors<-")
 })
 
-#' @name setColors<-
 #' @export
 #' @aliases setColors<-RasterLayer,numeric,character-method
 #' @rdname setColors-method
@@ -76,7 +75,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @name setColors<-
 #' @export
 #' @aliases setColors<-RasterLayer,missing,character-method
 #' @rdname setColors-method
@@ -91,7 +89,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @name setColors<-
 #' @export
 #' @aliases setColors<-Raster,numeric,list-method
 #' @rdname setColors-method
@@ -106,7 +103,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @name setColors<-
 #' @export
 #' @aliases setColors<-Raster,missing,list-method
 #' @rdname setColors-method

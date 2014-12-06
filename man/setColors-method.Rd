@@ -3,6 +3,10 @@
 \name{setColors<-}
 \alias{setColors}
 \alias{setColors<-}
+\alias{setColors<-,Raster,missing,list-method}
+\alias{setColors<-,Raster,numeric,list-method}
+\alias{setColors<-,RasterLayer,missing,character-method}
+\alias{setColors<-,RasterLayer,numeric,character-method}
 \alias{setColors<-Raster,missing,list-method}
 \alias{setColors<-Raster,numeric,list-method}
 \alias{setColors<-RasterLayer,missing,character-method}
