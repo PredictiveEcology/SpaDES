@@ -283,7 +283,7 @@ shinyServer(function(input, output) {
       }
     })
 
-    output$caribouMaps <- renderPlot({
+    output$caribouFire <- renderPlot({
       if(input$caribouModule) {
         Plot(layers()$caribouRas, layers()$FiresCumul,
              new=TRUE, title=FALSE, pch=".")
