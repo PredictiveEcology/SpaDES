@@ -107,11 +107,16 @@ fireSpreadLccInit <- function(sim) {
 
   setColors(Fires,n=simParams(sim)$fireSpreadLcc$nFires+1) <-
     c("#FFFFFF", rev(heat.colors(simParams(sim)$fireSpreadLcc$nFires)))
-  Fires <<- setValues(Fires, 0)
+  #Fires <<- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
   #  assign(simGlobals(sim)$.stackName, addLayer(landscapes,Fires), envir=.GlobalEnv)
   assign("Fires", Fires, envir=.GlobalEnv)
+
+  FiresCumul <<- Fires#raster(extent(vegMap), ncol=ncol(vegMap),
+  #                     nrow=nrow(vegMap), vals=0)
+
+  #assign("Fires", Fires, envir=.GlobalEnv)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpreadLcc")
@@ -142,7 +147,11 @@ fireSpreadLccBurn <- function(sim) {
   setColors(Fires,n=nFires+1) <- c("#FFFFFF", rev(heat.colors(nFires)))
   #  landscapes$Fires <- Fires
 
+  FiresCumul[] <- FiresCumul[] + (Fires[]>0)
+  setColors(FiresCumul,maxValue(FiresCumul)+1) <- c("#FFFFFF",
+                                                    colorRampPalette(c("orange", "darkred"))(maxValue(FiresCumul)))
   assign("Fires", Fires, envir=.GlobalEnv)
+  assign("FiresCumul", FiresCumul, envir=.GlobalEnv)
 
   return(invisible(sim))
 }
