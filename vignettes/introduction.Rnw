@@ -83,7 +83,7 @@ Discrete event simulation (DES) as implement here is ``event driven'', meaning t
 
 \begin{figure}[!htbp]
   \centering
-	\includegraphics[width=5in]{../inst/doc/SpaDES-overview-diagram.pdf}
+	\includegraphics[width=5in]{../inst/SpaDES-overview-diagram.pdf}
 	\caption{Schematic representation of a \texttt{SpaDES} simulation model.}
 	\label{figure-SpaDES-overview}
 \end{figure}
@@ -109,8 +109,8 @@ demo("spades-simulation", package="SpaDES")
 <<using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE>>=
 library("SpaDES")
 
-outputPath=file.path(tmpDir(), "simOutputs")
-times <- list(start=0, stop=100.2)
+outputPath=file.path("~", "tmp", "simOutputs")
+times <- list(start=0, stop=10.2)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -122,8 +122,8 @@ parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                         .plotInitialTime=1.01, .plotInterval=1)
                    )
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-#path <- system.file("sampleModules", package="SpaDES")
-path <- file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
+path <- system.file("sampleModules", package="SpaDES")
+
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 #dev(4)
@@ -191,9 +191,7 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                    .plotInitialTime = 0, .plotInterval=10)
                  ),
                  modules=list("fireSpread"),
-                 #path=system.file("sampleModules", package="SpaDES"))
-                 path=file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
-)
+                 path=system.file("sampleModules", package="SpaDES"))
 
 spades(mySim)
 @
@@ -231,7 +229,7 @@ Plot(landscape[["Fires"]], new=TRUE)
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
 Plot(percentPine, new=TRUE)
-
+#Plot(landscape[["Fires"]], new=FALSE)
 Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 @
 
@@ -271,9 +269,6 @@ A primary goal of developing \texttt{SpaDES} was to facilitate the development o
 As ecologists, we are usually concerned with modelling individuals (agents) in time and space, and whose spatial location (position) can be represented as a single point on a map. These types of agents can easily be represented most simply by a single set of coordinates indicating their current position, and can simulated using a \texttt{SpatialPoints} object. Additionally, a \texttt{SpatialPointsDataFrame} can be used, which provides storage of additional information beyond agents' coordinates as needed.
 
 \paragraph{}
-These objects need to be named to work properly with SpaDES plotting, so you need to used the \texttt{SpatialPoint*} classes, which is easily done using \texttt{name}. This converts a \texttt{SpatialPoints*} object to its equivalent \texttt{SpatialPoint*}.
-
-\paragraph{}
 To model mobile point agents, \textit{e.g.}, animals (as opposed to non-mobile agents such as plants), use a \texttt{SpatialPointsDataFrame} containing additional columns for storing agents' previous \texttt{n} positions.
 
 <<mobile-point-agent, echo=TRUE, eval=TRUE>>=
@@ -291,8 +286,8 @@ x0 <- rnorm(N, x1, 5)
 y0 <- rnorm(N, y1, 5)
 
 # create the caribou agent object
-caribou <- SpatialPointsDataFrame(coords=cbind(x=x0, y=y0),
-                                  data=data.frame(x1, y1, sex, age))
+caribou <- data.frame(x1, y1, sex, age)
+coordinates(caribou) <- cbind(x=x0, y=y0)
 row.names(caribou) <- IDs
 
 @
@@ -366,9 +361,7 @@ for (i in 1:nrow(paramsdf)) {
                                           returnInterval=10, startTime=0)
                           ),
                         modules=list("randomLandscapes", "fireSpread"),
-                        #path=system.file("sampleModules", package="SpaDES")
-                        path=file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
-  ))
+                        path=system.file("sampleModules", package="SpaDES")))
   mySim <- spades(mySim)
 
   # collect stats for each run
@@ -421,7 +414,7 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 
 \begin{figure}[!htbp]
   \centering
-  \includegraphics[width=5in]{../inst/doc/plot-area-burned.pdf}
+  \includegraphics[width=5in]{../inst/plot-area-burned.pdf}
 	\caption{Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.}
 	\label{figure-area-burned}
 \end{figure}
