@@ -145,7 +145,6 @@ setMethod("spread",
                                                    pairs=FALSE)),ncol=2)
               }
               #browser()
-              potentials <- potentials[!duplicated(potentials[,2]),]
 
 
               #if there is only one potential, R converts this to a vector, instead of a matrix.
@@ -154,25 +153,17 @@ setMethod("spread",
                 potentials <- matrix(potentials,ncol=2)
               }
 
-
               # drop those ineligible
 #              if (!is.null(mask))
 #                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
 
               # Should this be unique?
               # only accept cells that have no fire yet
-#               if (mergeDuplicates)
-#                 potentials <- potentials[!duplicated(potentials[spreads[potentials[,2]]==0,2]),]
-#
-#                 #potentials <- unique(potentials[spreads[potentials[,2]]==0,2])
-#               else
-              potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
-#               } else {
-#                 if (mergeDuplicates)
-#                   potentials <- unique(potentials[spreads[potentials]==0])
-#                 else
-#                   potentials <- potentials[spreads[potentials]==0]
-#               }
+              #potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
+              potentials <- potentials[spreads[potentials[,2]]==0,]
+              potentials <- potentials[sample.int(nrow(potentials)),]
+              potentials <- potentials[!duplicated(potentials[,2]),]
+
 
               # select which potentials actually happened
               # nrow() only works if potentials is an array
