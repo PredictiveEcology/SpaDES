@@ -15,7 +15,7 @@
 #' @param spreadProb    Numeric or rasterLayer. The overall probability of spreading, or probability raster
 #' driven.
 #'
-#' @param persistance   A probability that a burning cell will continue to burn, per time step.
+#' @param persistence   A probability that a burning cell will continue to burn, per time step.
 #'
 #' @param mask          non-NULL, a \code{RasterLayer} object congruent with \code{landscape}
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
@@ -45,7 +45,7 @@
 #' @rdname spread-method
 #'
 setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.23,
-                              persistance=0, mask=NULL, maxSize=ncell(landscape),
+                              persistence=0, mask=NULL, maxSize=ncell(landscape),
                               directions=8, iterations=NULL, ...) {
   standardGeneric("spread")
 })
@@ -95,7 +95,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #'
 setMethod("spread",
           signature(landscape="RasterLayer"),
-          definition = function(landscape, loci, spreadProb, persistance,
+          definition = function(landscape, loci, spreadProb, persistence,
                                 mask, maxSize=ncell(landscape), directions=8,
                                 iterations=ncell(landscape), mapID=FALSE,
                                 plot.it=FALSE, ...) {
@@ -213,14 +213,14 @@ setMethod("spread",
               }
 
               # drop or keep loci
-              if (is.null(persistance) | is.na(persistance)) {
+              if (is.null(persistence) | is.na(persistence) | persistence == 0) {
                 loci <- NULL
               } else {
-                if (inRange(persistance)) {
-                  loci <- loci[runif(length(loci))<=persistance]
+                if (inRange(persistence)) {
+                  loci <- loci[runif(length(loci))<=persistence]
                 } else {
                   # here is were we would handle methods for raster* or functions
-                  stop("Unsupported type: persistance")
+                  stop("Unsupported type: persistence")
                 }
               }
 
