@@ -345,14 +345,14 @@ setMethod("plotGrob",
           definition= function(grobToPlot, col, size, minv, maxv,
                                legend, draw,
                                gp, pch, ...) {
-#browser()
+#
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv]
             pr <- pr[pr>=minv]
 
-            if(maxv<=1) {
-              if(maxv>0) {
-                maxcol <- maxv*47
+            if(maxv<1) {
+              if(minv>0) { # i.e., a proportion
+                maxcol <- maxv*47 # proportions have sum 1 values
               } else {
                 maxcol<-1
               }
@@ -683,7 +683,7 @@ setMethod("drawArrows",
 .objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
                          argName="") {
 
-  #browser()
+  #
   scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
   frameCalledFrom<-which(sapply(scalls, function(x)
@@ -769,7 +769,7 @@ setMethod("drawArrows",
   if(all(!sapply(objs,is.null))) return(objs)
 
   # Look for layer() which is used by shiny to indicate a plot
-  isShinyLayer <- lapply(asChar, function(x) grepl("layer\\(\\)",x))
+  isShinyLayer <- lapply(asChar, function(x) grepl("layer()",x))
 #   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner,any)],
 #                        function(x) grepl("layer()",x))
   if(any(sapply(isShinyLayer, any))) {
@@ -1186,6 +1186,7 @@ setMethod("Plot",
         }
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
 
+
         zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,cols=cols,
                                 skipSample=is.na(match(strsplit(grobNamesi,"\\.")[[1]][1],
                                             names(skipSample))))
@@ -1203,7 +1204,6 @@ setMethod("Plot",
       }
 
       # Actual plotting
-
       plotGrob(zMat$z, col = zMat$cols, size=unit(size,"points"),
                minv=zMat$minz,
                maxv=zMat$maxz,
