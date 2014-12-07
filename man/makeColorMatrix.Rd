@@ -6,10 +6,11 @@
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
 makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
-  na.color, skipSample = TRUE)
+  na.color = "#FFFFFF00", zero.color = "#FFFFFF00", skipSample = TRUE)
 
 \S4method{makeColorMatrix}{Raster,Extent,numeric}(grobToPlot, zoomExtent,
-  maxpixels, legendRange, cols = NULL, na.color, skipSample = TRUE)
+  maxpixels, legendRange, cols = NULL, na.color = "#FFFFFF00",
+  zero.color = "#FFFFFF00", skipSample = TRUE)
 }
 \arguments{
 \item{grobToPlot}{a SpatialObject}
@@ -24,7 +25,10 @@ a legend that will override the data bounds contained within the grobToPlot}
 \item{cols}{colours specified in a way that can be understood directly or by
  colorRampPalette}
 
-\item{na.color}{string indicating the color for NA values. Defaults to "white".}
+\item{na.color}{string indicating the color for NA values. Default transparent.}
+
+\item{zero.color}{string indicating the color for zero values, when zero is
+the minimum value, otherwise, it is treated as any other color. Default transparent.}
 
 \item{skipSample}{logical. If no downsampling is necessary, skip. Default TRUE.}
 }

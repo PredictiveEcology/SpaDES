@@ -866,7 +866,10 @@ setMethod("drawArrows",
 #' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
 #' to be FALSE. Default is TRUE
 #'
-#' @param na.color string indicating the color for NA values. Defaults to "white".
+#' @param na.color string indicating the color for NA values. Default transparent.
+#'
+#' @param zero.color string indicating the color for zero values, when zero is
+#' the minimum value, otherwise, zero is treated as any other color. Default transparent.
 #'
 #' @param pch see ?par
 #'
@@ -965,7 +968,7 @@ setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
-                    pch = 19, title=TRUE, na.color="white") {
+                    pch = 19, title=TRUE, na.color="#FFFFFF00", zero.color="#FFFFFF00") {
              standardGeneric("Plot")
            })
 
@@ -976,7 +979,8 @@ setMethod("Plot",
           signature("spatialObjects"),
           definition = function(..., new, addTo, gp, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
-                                legend, legendRange, draw, pch, title, na.color) {
+                                legend, legendRange, draw, pch, title, na.color,
+                                zero.color) {
 
     toPlot <- list(...)
     suppliedNames <- names(toPlot)
@@ -1187,7 +1191,8 @@ setMethod("Plot",
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
 
 
-        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,cols=cols,
+        zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,
+                                zero.color=zero.color, cols=cols,
                                 skipSample=is.na(match(strsplit(grobNamesi,"\\.")[[1]][1],
                                             names(skipSample))))
       } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
@@ -1235,7 +1240,10 @@ setMethod("Plot",
 #' @param cols colours specified in a way that can be understood directly or by
 #'  colorRampPalette
 #'
-#' @param na.color string indicating the color for NA values. Defaults to "white".
+#' @param na.color string indicating the color for NA values. Default transparent.
+#'
+#' @param zero.color string indicating the color for zero values, when zero is
+#' the minimum value, otherwise, it is treated as any other color. Default transparent.
 #'
 #' @param skipSample logical. If no downsampling is necessary, skip. Default TRUE.
 #'
@@ -1243,7 +1251,8 @@ setMethod("Plot",
 #' @export
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                                       cols=NULL, na.color, skipSample=TRUE) {
+                                       cols=NULL, na.color="#FFFFFF00",
+                                       zero.color="#FFFFFF00", skipSample=TRUE) {
   standardGeneric("makeColorMatrix")
 })
 
@@ -1253,13 +1262,21 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                               cols, na.color, skipSample=TRUE) {
-            if(sapply(getColors(grobToPlot),length)>0) {
+                               cols, na.color, zero.color, skipSample=TRUE) {
+            if (!is.null(cols)) {
+              if ((minValue(grobToPlot)!=0) & (zero.color!="#FFFFFF00")) {
+                cols <- cols
+              } else {
+                cols<-c(zero.color,cols)
+              }
+            } else if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
-            } else if(!is.null(cols)) {
-              cols <- cols
             } else {
-              cols<-topo.colors(50)
+              if (minValue(grobToPlot)!=0) {
+                cols<-topo.colors(maxValue(grobToPlot)-minValue(grobToPlot)+1)
+              } else {
+                cols<-c(zero.color,topo.colors(maxValue(grobToPlot)-minValue(grobToPlot)+1))
+              }
             }
             zoom <- zoomExtent
             # It is 5x faster to access the min and max from the Raster than to calculate it,
@@ -1313,7 +1330,7 @@ setMethod("makeColorMatrix",
             z <- z + 1 # for the NAs
             z[is.na(z)] <- 1
 
-            cols<-c(na.color,cols) # make first index of colors be white, transparent
+            cols<-c(na.color,cols) # make first index of colors be transparent
             z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
             list(z=z,minz=minz,maxz=maxz,cols=cols)
           })

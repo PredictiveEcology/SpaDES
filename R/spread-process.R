@@ -66,7 +66,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #'
 #' # Make random forest cover map
 #' a <- raster(extent(0,1e2,0,1e2),res=1)
-#' hab <- GaussMap(a,speedup=3)
+#' hab <- GaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 #' names(hab)="hab"
 #' cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
 #' mask <- raster(a)
@@ -77,7 +77,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' directions <- 8
 #'
 #' # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
-#' setColors(hab) <- paste(c("#000000",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
+#' setColors(hab) <- paste(c("#FFFFFF",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
 #'
 #' #dev(4)
 #' Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
@@ -86,12 +86,24 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' # initiate 10 fires at to loci
 #' fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
 #'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
-#' #set colors, adding a transparency factor... i.e., the last 2 characters of an 8 character
-#' #  hex code are transparency, from 00 (fully transparent) to FF (fully opaque)
-#' #  Here, we are using only the darkest end of the Red palette (i.e., of 8 reds,
-#' #  use the 5:8 ones)
-#' setColors(fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
-#' Plot(fires,addTo="hab",speedup=3)
+#' #set colors of raster, including a transparent layer for zeros
+#' setColors(fires, 10)<-c("#00000000",brewer.pal(8,"Reds")[5:8])
+#' Plot(fires)
+#' Plot(fires,addTo="hab")
+#'
+#' #alternatively, set colors using cols= in the Plot function
+#' Plot(hab,new=TRUE)
+#' Plot(fires) # default color range makes zero transparent.
+#' # Instead, to give a color to the zero values, use \code{zero.color=}
+#' Plot(fires, addTo="hab",
+#'      cols=colorRampPalette(c("orange","darkred"))(10))
+#' hab2 <- hab
+#' Plot(hab2)
+#' Plot(fires, addTo="hab2.hab", zero.color="white",
+#'      cols=colorRampPalette(c("orange","darkred"))(10))
+#' # or overplot the original (NOTE: legend stays at original values)
+#' Plot(fires,
+#'      cols=topo.colors(10))
 #'
 setMethod("spread",
           signature(landscape="RasterLayer"),

@@ -8,13 +8,14 @@
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL, draw = TRUE,
-  pch = 19, title = TRUE, na.color = "white")
+  pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = "#FFFFFF00")
 
 \S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
   gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, draw = TRUE, pch = 19, title = TRUE,
-  na.color = "white")
+  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 }
 \arguments{
 \item{...}{Raster* object(s) and or SpatialPoints* objects. See details for
@@ -54,7 +55,10 @@ to be FALSE. Default is TRUE}
 
 \item{title}{Logical. Whether the names of each plot should be written above plots}
 
-\item{na.color}{string indicating the color for NA values. Defaults to "white".}
+\item{na.color}{string indicating the color for NA values. Default transparent.}
+
+\item{zero.color}{string indicating the color for zero values, when zero is
+the minimum value, otherwise, zero is treated as any other color. Default transparent.}
 }
 \description{
 The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*,
