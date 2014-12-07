@@ -1,1 +1,1 @@
-../../caribouMovementLcc.R
+source("../caribouMovementLcc.R")

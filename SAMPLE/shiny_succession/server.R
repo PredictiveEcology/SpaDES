@@ -8,6 +8,7 @@ if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
 } else if (Sys.info()["sysname"]=="Windows") {
   setwd("/shared/shiny_succession")
+#  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
 } else if (Sys.info()["sysname"]=="Darwin") {
   setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
 }
@@ -113,8 +114,7 @@ lcc05TrajTable <- cbind(
 
 #  lcc05TrajTable <- cbind(lcc05TrajLabels, rep(lcc05TrajReclass$Trajectory, numLccInTraj))
 trajMap <<- reclassify(vegMapLcc, lcc05TrajTable)
-setColors(trajMap, n=12) <- brewer.pal(9, "YlGn")
-name(trajMap) <- "trajMap"
+setColors(trajMap, n=12) <- RColorBrewer::brewer.pal(9, "YlGn")
 
 # trajObj.raw <- read.table(file="clipboard", sep="\t", header=TRUE, stringsAsFactors=FALSE)
 # dput(trajObj.raw)
@@ -139,7 +139,8 @@ trajObj.raw <- structure(
   .Names=c("Veg.Type", "X0.2", "X3.20", "X21.60", "X61.80", "X81.120", "X121.160", "X.160"),
   class="data.frame", row.names=c(NA, -7L))
 
-numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw), 2, 9), "\\."), function(x) diff(as.numeric(x))))+1)
+numYearsPer <- na.omit(unlist(lapply(strsplit(substr(colnames(trajObj.raw), 2, 9), "\\."),
+                                     function(x) diff(as.numeric(x))))+1)
 maxAge <- 200
 ages <- 0:maxAge
 
@@ -161,6 +162,14 @@ setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen", "DarkGreen"))(5
 ########################################################################
 ########################################################################
 ########################################################################
+if (Sys.info()["sysname"]=="Linux") {
+  setwd("/mnt/shared/shiny_succession")
+} else if (Sys.info()["sysname"]=="Windows") {
+#  setwd("/shared/shiny_succession")
+  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
+} else if (Sys.info()["sysname"]=="Darwin") {
+  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
+}
 
 shinyServer(function(input, output) {
 
@@ -194,6 +203,8 @@ shinyServer(function(input, output) {
       Fires <<- raster(extent(vegMap), ncol=ncol(vegMap),
                       nrow=nrow(vegMap), vals=0)
 
+       FiresCumul <<- raster(extent(vegMap), ncol=ncol(vegMap),
+                        nrow=nrow(vegMap), vals=0)
 
       mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
@@ -203,7 +214,9 @@ shinyServer(function(input, output) {
                   vegMap=get("vegMap", envir=.GlobalEnv),
                   nPixelsBurned=get("nPixelsBurned", envir=.GlobalEnv),
                   caribouRas=get("caribouRas", envir=.GlobalEnv),
-                  caribou=get("caribou", envir=.GlobalEnv)))
+                  caribou=get("caribou", envir=.GlobalEnv),
+                  FiresCumul=get("FiresCumul", envir=.GlobalEnv)
+))
     })
 
     output$lcc05 <- renderPlot({
@@ -212,20 +225,20 @@ shinyServer(function(input, output) {
     })
 
     output$mapsInit <- renderPlot({
-      Plot(ageMapInit, vegMapInit, add=FALSE, title=FALSE)
+      Plot(ageMapInit, vegMapInit, new=TRUE, title=FALSE)
       seekViewport("top")
       grid.text(y=0.95, "2005", gp=gpar(cex=2.5))
-      seekViewport("ageMapInit")
+      seekViewport("ageMapInit.age")
       grid.text(y=1.05, "Forest Age", gp=gpar(cex=1.5))
       seekViewport("vegMapInit")
       grid.text(y=1.05, "Forest Cover", gp=gpar(cex=1.5))
     })
 
     output$maps <- renderPlot({
-      Plot(layers()$ageMap, layers()$vegMap, add=FALSE, title=FALSE)
+      Plot(layers()$ageMap, layers()$vegMap, new=TRUE, title=FALSE)
       seekViewport("top")
       grid.text(y=0.95, input$stopTime, gp=gpar(cex=2.5))
-      seekViewport("ageMap")
+      seekViewport("ageMap.age")
       grid.text(y=1.05, "Forest Age", gp=gpar(cex=1.5))
       seekViewport("vegMap")
       grid.text(y=1.05, "Forest Cover", gp=gpar(cex=1.5))
@@ -272,12 +285,15 @@ shinyServer(function(input, output) {
 
     output$caribouMaps <- renderPlot({
       if(input$caribouModule) {
-        Plot(layers()$caribouRas, add=FALSE, title=FALSE, pch=".")
+        Plot(layers()$caribouRas, layers()$FiresCumul,
+             new=TRUE, title=FALSE, pch=".")
            seekViewport("top")
-       grid.text(y=0.95, paste("Caribou densities between 2005 and", input$stopTime,
-                               "\nPopulation size =", length(layers()$caribou)), gp=gpar(cex=1.5))
-#       seekViewport("caribou")
-#       grid.text(y=1.05, "Caribou", gp=gpar(cex=1.5))
+       seekViewport("FiresCumul")
+       grid.text(y=1.05, "Cumulative fires burned", gp=gpar(cex=1))
+       seekViewport("caribouRas")
+       grid.text(y=1.1, paste("Caribou densities between 2005 and", input$stopTime,
+                               "\nPopulation size =", length(layers()$caribou)), gp=gpar(cex=1))
+
       }
     })
 })

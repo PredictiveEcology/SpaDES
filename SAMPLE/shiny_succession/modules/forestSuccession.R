@@ -1,1 +1,1 @@
-../../forestSuccession.R
+source("../forestSuccession.R")

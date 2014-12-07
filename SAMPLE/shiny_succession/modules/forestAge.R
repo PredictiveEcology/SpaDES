@@ -1,1 +1,1 @@
-../../forestAge.R
+source("../forestAge.R")

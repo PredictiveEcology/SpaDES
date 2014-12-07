@@ -1,1 +1,1 @@
-../../fireSpreadLcc.R
+source("../fireSpreadLcc.R")

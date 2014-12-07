@@ -71,7 +71,7 @@ doEvent.caribouMovementLcc <- function(sim, eventTime, eventType, debug=FALSE) {
 
 caribouMovementInit <- function(sim) {
   cellsFromXY <<- cellFromXY # the raster Package has a bug
-  caribouRas <<- raster(extent(vegMap), ncol=ncol(vegMap), nrow=nrow(vegMap), vals=0))
+  caribouRas <<- raster(extent(vegMap), ncol=ncol(vegMap), nrow=nrow(vegMap), vals=0)
 
   yrange <- c(ymin(vegMap), ymax(vegMap))
   xrange <- c(xmin(vegMap), xmax(vegMap))
