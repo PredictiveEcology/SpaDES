@@ -11,7 +11,7 @@
 #' @aliases getColours
 #' @aliases getColors
 #'
-#' @seealso \code{\link{setColors}}, \code{\link[RColorBrewer]{brewer.pal}}
+#' @seealso \code{\link{setColors<-}}, \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
 #'
@@ -49,8 +49,7 @@ setMethod("getColors",
 #' @export
 #' @docType methods
 #' @rdname setColors-method
-#' @aliases setColors
-#' @aliases setColours
+#' @aliases setColors<-
 #'
 #' @seealso \code{\link[RColorBrewer]{brewer.pal}},
 #'          \code{\link[grDevices]{colorRampPalette}}.
@@ -69,7 +68,7 @@ setGeneric("setColors<-",
 setReplaceMethod("setColors",
                  signature("RasterLayer", "numeric", "character"),
                  function(object, ..., n, value) {
-                   pal <- colorRampPalette(value, alpha=TRUE)
+                   pal <- colorRampPalette(value, alpha=TRUE, ...)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
@@ -83,7 +82,7 @@ setReplaceMethod("setColors",
                  signature("RasterLayer", "missing", "character"),
                  function(object, ..., value) {
                    n <- round((maxValue(object)-minValue(object)))+1
-                   pal <- colorRampPalette(value, alpha=TRUE)
+                   pal <- colorRampPalette(value, alpha=TRUE, ...)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
@@ -104,6 +103,7 @@ setReplaceMethod("setColors",
 })
 
 #' @export
+#' @aliases setColors<-
 #' @aliases setColors<-Raster,missing,list-method
 #' @rdname setColors-method
 #' @docType methods
