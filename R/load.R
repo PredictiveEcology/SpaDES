@@ -323,8 +323,8 @@ setMethod("loadFiles",
                   sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
                 }
               }
-            } else {
-              message("No files loaded, because no fileList (or empty fileList) provided.")
+#            } else {
+#              message("No files loaded, because no fileList (or empty fileList) provided.")
             }
             message("") ## print empty message to add linebreak to console message output
             return(invisible(sim))
