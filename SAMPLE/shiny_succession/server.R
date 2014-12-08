@@ -2,7 +2,7 @@ library(SpaDES)
 
 rasterOptions(maxmemory=2e9)
 downloadRequired <- FALSE
-interactiveExtent <- FALSE
+interactiveExtent <- TRUE
 
 if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
@@ -35,7 +35,7 @@ loadFiles(fileList=fileList)
 ext <- extent(-1073154, -987285, 7438423, 7512480) # small central Sask 100 Thousand
 
 if(interactiveExtent) {
-  dev(4)
+  dev(2)
   plot(lcc05)
   ext <- drawExtent()
 }
@@ -96,7 +96,7 @@ vegMapColors <<- getColors(lcc05)[[1]][c(1, lcc05VegTable[,1][match(1:11, lcc05V
 setColors(vegMap, n=12 ) <- vegMapColors
 
 # the raster package does not keep colors when writing to a tif file
-writeRaster(vegMap, filename="data/vegMap.tif", overwrite=TRUE)
+#writeRaster(vegMap, filename="data/vegMap.tif", overwrite=TRUE)
 
 lcc05TrajLabels <- as.numeric(strsplit(paste(lcc05TrajReclass$LCC05.classes, collapse=","), ",")[[1]])
 numLccInTraj <- sapply(strsplit(unname(sapply(as.character(lcc05TrajReclass$LCC05.classes), function(x) x)), ","), length)
@@ -176,7 +176,8 @@ shinyServer(function(input, output) {
     layers <- reactive({
       times=list(start=0.0, stop=input$stopTime-2005)
       parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                         .progress=list(NA),
+                         #.progress=list(NA),
+                         .progress=list(.graphical=TRUE, .progressInterval=1),
                          forestSuccession=list(returnInterval=1, startTime=0,
                                                .plotInitialTime=NA, .plotInterval=1),
                          forestAge=list(returnInterval=1, startTime=0.5,
@@ -203,8 +204,8 @@ shinyServer(function(input, output) {
       Fires <<- raster(extent(vegMap), ncol=ncol(vegMap),
                       nrow=nrow(vegMap), vals=0)
 
-       FiresCumul <<- raster(extent(vegMap), ncol=ncol(vegMap),
-                        nrow=nrow(vegMap), vals=0)
+      FiresCumul <<- raster(extent(vegMap), ncol=ncol(vegMap),
+                      nrow=nrow(vegMap), vals=0)
 
       mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
@@ -226,8 +227,8 @@ shinyServer(function(input, output) {
 
     output$mapsInit <- renderPlot({
       Plot(ageMapInit, vegMapInit, new=TRUE, title=FALSE)
-      seekViewport("top")
-      grid.text(y=0.95, "2005", gp=gpar(cex=2.5))
+#       seekViewport("top")
+#       grid.text(y=0.95, "2005", gp=gpar(cex=2.5))
       seekViewport("ageMapInit.age")
       grid.text(y=1.05, "Forest Age", gp=gpar(cex=1.5))
       seekViewport("vegMapInit")
@@ -265,7 +266,7 @@ shinyServer(function(input, output) {
       age <- layers()$ageMap
       hist(getValues(age), freq=FALSE, axes=FALSE, breaks=seq(0, 200, length.out=21),
            col=colorRampPalette(getColors(age)[[1]])(20),
-           main=paste("Forest age in year", input$stopTime), ylim=c(0, 6e3/ncell(age)),
+           main=paste("Forest age in year", input$stopTime), #ylim=c(0, 6e3/ncell(age)),
            cex.main=1.5, ylab="Hectares", xlab="Forest age")
       axis(side=2, at=c(0, 4e3/ncell(age)), labels=round(c(0, 4e3*6.25), 0))
       axis(side=1)
@@ -283,17 +284,31 @@ shinyServer(function(input, output) {
       }
     })
 
-    output$caribouFire <- renderPlot({
-      if(input$caribouModule) {
-        Plot(layers()$caribouRas, layers()$FiresCumul,
+    output$Fire <- renderPlot({
+      if(input$fireModule) {
+        Plot(layers()$FiresCumul,
              new=TRUE, title=FALSE, pch=".")
-           seekViewport("top")
-       seekViewport("FiresCumul")
-       grid.text(y=1.05, "Cumulative fires burned", gp=gpar(cex=1))
-       seekViewport("caribouRas")
-       grid.text(y=1.1, paste("Caribou densities between 2005 and", input$stopTime,
-                               "\nPopulation size =", length(layers()$caribou)), gp=gpar(cex=1))
+        seekViewport("top")
+        seekViewport("FiresCumul")
+        grid.text(y=1.05, "Cumulative fires burned", gp=gpar(cex=1.4))
+      }
+    })
+
+    output$caribou <- renderPlot({
+      if(input$caribouModule) {
+        Plot(layers()$caribouRas,
+             new=TRUE, title=FALSE, pch=".")
+        seekViewport("top")
+        seekViewport("caribouRas")
+        grid.text(y=1.1, paste("Caribou densities between 2005 and", input$stopTime,
+                               "\nPopulation size =", length(layers()$caribou)), gp=gpar(cex=1.4))
 
       }
+    })
+
+    output$numPixels <- renderText({
+      paste("Cropping, reprojecting and simulating an area of", ncell(vegMap)*6.25,
+            "ha, with",ncell(vegMap),"pixels")
+
     })
 })

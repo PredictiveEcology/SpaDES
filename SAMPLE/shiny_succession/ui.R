@@ -36,13 +36,17 @@ shinyUI(fluidPage(
 
       h4("Land Cover Classification, 2005, 250m"),
       plotOutput('lcc05'),
+      h4(textOutput('numPixels')),
       hr(),
+      h4("2005"),
       plotOutput('mapsInit'),
+      h4(textOutput('endYear')),
       plotOutput('maps'),
       plotOutput('initHists', height="200px"),
       plotOutput('endHists', height="200px"),
       plotOutput('fireHist', height="200px"),
-      plotOutput('caribouFire')
+      plotOutput('Fire', height="400px", width = "400px"),
+      plotOutput('caribou', height="400px", width = "400px")
     )
   )
 ))
