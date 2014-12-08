@@ -78,7 +78,7 @@ setwd("C:/shared/data/shared/LandCoverOfCanada2005_V1_4")
 fileList= data.frame(files= dir(pattern = "tif"),stringsAsFactors=FALSE)
 
 # load Pinus Contorta
-system.file("DEM.rda",package="SpaDES")
+system.file("DEM.rda", package="SpaDES")
 setwd("C:/shared/data/shared/kNN")
 fileList = data.frame(files = "NFI_MODIS250m_kNN_Species_Pinu_Con_Lat_v0.tif",stringsAsFactors=FALSE)
 
@@ -141,6 +141,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.0),
                  path=system.file("sampleModules", package="SpaDES"))
 
 dev(4)
+quartz()
 spades(mySim, debug=FALSE)
 print(system.time(spades(mySim, debug=false)))
 print(system.time(mySim <- spades(mySim, debug=FALSE)))
