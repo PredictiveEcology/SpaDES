@@ -33,7 +33,7 @@ doEvent.caribouMovementLcc <- function(sim, eventTime, eventType, debug=FALSE) {
       sim <- caribouMovementInit(sim)
 
       # schedule the next event
-      sim <- scheduleEvent(sim, 1.00, "caribouMovementLcc", "move")
+      sim <- scheduleEvent(sim, simParams(sim)$caribouMovementLcc$startTime, "caribouMovementLcc", "move")
       sim <- scheduleEvent(sim, simParams(sim)$caribouMovementLcc$.plotInitialTime, "caribouMovementLcc", "plot.init")
       sim <- scheduleEvent(sim, simParams(sim)$caribouMovementLcc$.saveInitialTime, "caribouMovementLcc", "save")
     }
@@ -97,6 +97,7 @@ caribouMovementInit <- function(sim) {
                                      data=data.frame(x1, y1, sex, age))
   row.names(caribou) <- IDs # alternatively, add IDs as column in data.frame above
   caribouRas[caribou] <- caribouRas[caribou]+1
+  assign("caribouRas", caribouRas, envir=.GlobalEnv)
   return(invisible(sim))
 }
 
@@ -116,7 +117,7 @@ caribouMovementMove <- function(sim) {
   sd <- 30 # could be specified globally in params
 
   caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
-  caribouRas[caribou] <<- caribouRas[caribou] + 1
+  caribouRas[caribou] <- caribouRas[caribou] + 1
   setColors(caribouRas,maxValue(caribouRas)+1) <- c("#FFFFFF", rev(heat.colors(maxValue(caribouRas))))
   assign("caribouRas",caribouRas,envir=.GlobalEnv)
 
