@@ -7,7 +7,7 @@ cache/*
 development/*
 figure/*
 old/*
-SAMPLE/*
+^SAMPLE$
 vignettes/*
 .travis.yml
 
