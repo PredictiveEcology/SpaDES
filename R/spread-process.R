@@ -169,12 +169,17 @@ setMethod("spread",
 #              if (!is.null(mask))
 #                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
 
-              # Should this be unique?
               # only accept cells that have no fire yet
-              #potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
-              potentials <- potentials[spreads[potentials[,2]]==0,]
-              potentials <- potentials[sample.int(nrow(potentials)),]
-              potentials <- potentials[!duplicated(potentials[,2]),]
+              # Need to call matrix because of the cast where there is only one cell
+              potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
+
+              # If one pixels is selected as potential by more than one source
+              #  Remove the duplication, and reorder the potentials so that it is not
+              #  always the "first one", i.e., closest to top left of map, that is kept.
+              if(nrow(potentials)>0) {
+                potentials <- matrix(potentials[sample.int(nrow(potentials)),], ncol=2)
+              }
+              potentials <- matrix(potentials[!duplicated(potentials[,2]),], ncol=2)
 
 
               # select which potentials actually happened
