@@ -19,7 +19,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
     # if NA then don't use progress bar
     if (any(!is.na(simParams(sim)$.progress))) {
       newProgressBar(sim)
-      sim <- scheduleEvent(sim, 0.00, "progress", "set")
+      sim <- scheduleEvent(sim, simStartTime(sim), "progress", "set")
     }
   } else if (eventType=="set") {
       # update progress bar

@@ -1069,6 +1069,7 @@ setGeneric("simInit", function(times, params, modules, path) {
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="character"),
           definition=function(times, params, modules, path) {
+
             path <- checkPath(path, create=TRUE)
 
             # Delete any previous Plot information at initialization
@@ -1105,7 +1106,7 @@ setMethod("simInit",
               simModulesLoaded(sim) <- append(simModulesLoaded(sim), d)
 
               # schedule each module's init event:
-              sim <- scheduleEvent(sim, 0.00, d, "init")
+              sim <- scheduleEvent(sim, simStartTime(sim), d, "init")
             }
 
             # load user-defined modules
@@ -1114,7 +1115,7 @@ setMethod("simInit",
                 source(paste(path, "/", m, ".R", sep=""),local=.GlobalEnv)
 
                 # schedule each module's init event:
-                sim <- scheduleEvent(sim, 0.00, m, "init")
+                sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
 
                 ### add module name to the loaded list
                 simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
