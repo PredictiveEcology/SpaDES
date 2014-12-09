@@ -1,5 +1,5 @@
 shinyUI(fluidPage(
-  titlePanel("ISA integration platform, SpaDES"),
+  titlePanel("SpaDES - Ecological Simulation Package in R"),
 
   sidebarLayout(
     sidebarPanel(
@@ -34,13 +34,13 @@ shinyUI(fluidPage(
 
     mainPanel(
 
-      h4("Land Cover Classification, 2005, 250m"),
+      h4(align="center", "Land Cover Classification, 2005, 250m"),
       plotOutput('lcc05'),
-      h4(textOutput('numPixels')),
+      h4(align="center", textOutput('numPixels')),
       hr(),
-      h4("2005"),
+      h4(align="center", "2005"),
       plotOutput('mapsInit'),
-      h4(textOutput('endYear')),
+      h3(align="center", textOutput('endYear')),
       plotOutput('maps'),
       plotOutput('initHists', height="200px"),
       plotOutput('endHists', height="200px"),
