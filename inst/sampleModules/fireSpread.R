@@ -28,9 +28,9 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
       stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
-      if (length(npix)>0) {
-        message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
-      }
+#       if (length(npix)>0) {
+#         message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
+#       }
     }
 
     # if a required module isn't loaded yet,
