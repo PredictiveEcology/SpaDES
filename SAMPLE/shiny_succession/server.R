@@ -4,10 +4,11 @@ rasterOptions(maxmemory=2e9)
 downloadRequired <- FALSE
 interactiveExtent <- FALSE
 
+# This is for data loading
 if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
 } else if (Sys.info()["sysname"]=="Windows") {
-  setwd("/shared/shiny_succession")
+  setwd("/shared")
 #  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
 } else if (Sys.info()["sysname"]=="Darwin") {
   setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
@@ -162,6 +163,7 @@ setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen", "DarkGreen"))(5
 ########################################################################
 ########################################################################
 ########################################################################
+# This is for module loading
 if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
 } else if (Sys.info()["sysname"]=="Windows") {
