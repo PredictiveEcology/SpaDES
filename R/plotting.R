@@ -328,7 +328,8 @@ setMethod("arrangeViewports",
 #' @rdname plotGrob
 #' @export
 #' @docType methods
-setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
+setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
+                                size=unit(5,"points"),
                                 minv, maxv,
                                 legend=TRUE,
                                 draw=TRUE,
@@ -342,19 +343,18 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, size=unit(5,"points"),
 #' @export
 setMethod("plotGrob",
           signature=c("matrix"),
-          definition= function(grobToPlot, col, size, minv, maxv,
+          definition= function(grobToPlot, col, real, size, minv, maxv,
                                legend, draw,
                                gp, pch, ...) {
 
             pr <- pretty(range(minv,maxv))
             pr <- pr[pr<=maxv & pr>=minv]
-            #pr <- pr[pr>=minv]
 
-            if(maxv<=1) {
-              if(minv>0) { # i.e., a proportion
-                maxcol <- maxv*47 # proportions have sum 1 values
+            if(maxv<=3 ) {
+              if(minv>=0 & real) { # i.e., a proportion or real numbers between 0 and 3
+                maxcol <- 51 # this 51 corresponds to the 50 in makeColorMatrix, with 1 extra for NAs
               } else {
-                maxcol<-1
+                maxcol<-maxv
               }
             } else {
               maxcol <- maxv - minv + max(1,-minv+1) + 1 # need one for the NA at the bottom,
@@ -375,11 +375,12 @@ setMethod("plotGrob",
                                                       interpolate=FALSE,
                                                       name="legend"),
                                 if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
-                                  if(col[1]=="^#FFFFFF" | col[maxcol]=="^#FFFFFF")
-                                    rectGrob(x=1.04,y=0.5,height=0.5,width=0.03)
+
+                                  if(grepl("^#FFFFFF",col[1]) | grepl("^#FFFFFF",col[maxcol]))
+                                    rectGrob(x=1.04,y=0.5,height=0.5,width=0.03, gp=gpar(fill=NA))
                                 },
                                 if(legend) textGrob(pr, x=1.08,
-                                                    if(maxv>1) {
+                                                    if(maxv>3) {
                                                       y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/diff(range(minv,maxv))/4
                                                     } else {
                                                       y= ((pr-minv)/((maxv)-minv))/2+0.25
@@ -535,7 +536,6 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 #'
 #' @export
 makeViewports <- function(extents, layout, arr, newArr = FALSE) {
-
 
   columns <- arr@columns
   rows <- arr@rows
@@ -1081,12 +1081,10 @@ setMethod("Plot",
     currentPlusToPlotN <- unique(c(currentNames, addTo))
     if(new==TRUE) { # "all new to plot"
       newArr <- TRUE
-      #vpNames <- addTo
       grobNames <- lN
     } else { # new == FALSE, i.e., add in a modular way by keeping previous plots
       if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) { #"replot all existing smaller, rearranging, adding new"
         newArr <- TRUE
-        #vpNames = currentPlusToPlotN
         ind <- currentPlusToPlotN %in% lN + 1
         grobNames <- currentPlusToPlotN
         addTo <- grobNames
@@ -1101,7 +1099,6 @@ setMethod("Plot",
         } else {
           names(extsToPlot) <- NULL
         }
-        #names(extsToPlot) <- vpNames
         grobNames <- lN
       }
     }
@@ -1125,19 +1122,9 @@ setMethod("Plot",
     }
     #end create .spadesArr object
 
-#    if(new==TRUE) {
-#      arr@objects <- mapsToPlot
-#      arr@isRaster <- isRaster
-#    } else {
-#      arr@objects <- append(mapsInArr, mapsToPlot)
-#      arr@isRaster <- append(isRasterInArr, isRaster)
-#      arr@isRaster <- arr@isRaster[!duplicated(arr@objects)]
-#      arr@objects <- arr@objects[!duplicated(arr@objects)]
-#    }
-
 # Section 6 # Plotting scaling, pixels, axes, symbol sizes
     if(is.null(gp$cex)) {
-      gp$cex <- cex <- max(0.6,min(1,prod(arr@ds)/prod(arr@columns,arr@rows)*0.07))
+      gp$cex <- cex <- max(0.6,min(1.2,sqrt(prod(arr@ds)/prod(arr@columns,arr@rows))*0.3))
     }
 
     npixels <- unlist(sapply(toPlot, function(x) if(is(x,"Raster")) ncell(x)))
@@ -1213,7 +1200,6 @@ setMethod("Plot",
         }
         if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
 
-
         zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,
                                 zero.color=zero.color, cols=colour,
                                 skipSample=is.na(match(strsplit(grobNamesi,"\\.")[[1]][1],
@@ -1225,14 +1211,15 @@ setMethod("Plot",
         } else {
           z <- sample(grobToPlot, 1e4/speedup)
         }
-        zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
+        zMat <- list(z=z,minz=0,maxz=0,cols=NULL,real=FALSE)
       } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
         z <- grobToPlot
-        zMat <- list(z=z,minz=0,maxz=0,cols=NULL)
+        zMat <- list(z=z,minz=0,maxz=0,cols=NULL,real=FALSE)
       }
 
       # Actual plotting
       plotGrob(zMat$z, col = zMat$cols, size=unit(size,"points"),
+               real=zMat$real,
                minv=zMat$minz,
                maxv=zMat$maxz,
                pch=pch, name = seek,
@@ -1240,6 +1227,7 @@ setMethod("Plot",
                gp = gp, draw = draw, speedup=speedup)
       if(title) grid.text(seek,
                           name="title", y=1.08, vjust=0.5, gp = gp)
+      browser()
       if(xaxis) grid.xaxis(name="xaxis", gp = gp)
       if(yaxis) grid.yaxis(name="yaxis", gp = gp)
     }
@@ -1301,6 +1289,7 @@ setMethod("makeColorMatrix",
 
             minz <- min(z, na.rm=T)
             maxz <- max(z, na.rm=T)
+            real <- any(z %% 1 != 0) # Test for real values or not
 
 
             if (!is.null(cols)) { # if the cols are defined
@@ -1324,11 +1313,12 @@ setMethod("makeColorMatrix",
 
             #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
             # if data in raster are proportions, must treat colors differently
-            if(maxz <= 1 & minz >= 0) {
+            maxNumCols = 50
+            if(maxz <= 3 & minz >= 0 & real) {
               if(length(unique(z))>length(cols)) {
-                cols <- colorRampPalette(cols)(50)
+                cols <- colorRampPalette(cols)(maxNumCols)
 
-                z <- z*49
+                z <- maxNumCols/maxz*z
               }
             }
 
@@ -1362,7 +1352,7 @@ setMethod("makeColorMatrix",
 
             cols<-c(na.color,cols) # make first index of colors be transparent
             z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
-            list(z=z,minz=minz,maxz=maxz,cols=cols)
+            list(z=z,minz=minz,maxz=maxz,cols=cols,real=real)
           })
 
 #' Convert grid.locator units
