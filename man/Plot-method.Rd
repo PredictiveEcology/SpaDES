@@ -35,7 +35,7 @@ the plot with the same name, such as plotting a SpatialPoints* object on a Raste
 
 \item{size}{Numeric. The size, in points, for SpatialPoints symbols, if using a scalable symbol.}
 
-\item{cols}{character vector. Hex codes for colors. See Details.}
+\item{cols}{character vector or list of character vectors. Default \code{terrain.color()}. See Details.}
 
 \item{zoomExtent}{extent object. Supplying a single extent object that is smaller than the
 rasters will call a crop statement before plotting. Defaults to NULL. This occurs after any
@@ -79,17 +79,31 @@ RasterStacks). If plotting a RasterLayer and the layer name is "layer" or the
 same as the object name, then only the object name will be used for simplicity. In
 other words, only enough information is used to uniquely identify the plot.
 
-Silently, one hidden object is made, \code{.spadesArr}, which is used for arranging plots in the
-device window, and identifying the objects to be replotted if rearranging is required,
-subsequent to an new=FALSE additional plot.
+\code{cols} is a vector of colours that can be understood directly, or by
+\code{colorRampePalette}, such as c("orange", "blue") will give a colour range
+from orange to blue, interploated. If a list, it will be used, in order, for each
+item to be plotted. It will be recycled if it is shorter than the objects to be
+plotted. Note that when this approach to setting colours is used, any overplotting
+will revert to the \code{colortable} slot of the object, or the default for rasters,
+which is \code{terrain.color()}
+
+Silently, one hidden object is made, \code{.spadesArr} in the \code{.spadesEnv}
+environment, which is used for arranging plots
+in the device window, and identifying the objects to be replotted if
+rearranging is required, subsequent to an new=FALSE additional plot.
+
+This function is optimized to allow modular Plotting. This means that several
+behaviours will appear unusual. For instance, if a first call to Plot is made,
+the legend will reflect the current color scheme. If a second or subsequent call
+to Plot is made with the same object but with different colours (e.g., with
+\code{cols}), the legend will not update. This behaviour is made with the decision
+that the original layer takes precedence and all subsequent plots to that same
+frame are overplots only.
 
 \code{speedup} is not a precise number because it is faster to plot an un-resampled
 raster if the new resampling is close to the original number of pixels. At the moment,
-this is set to 1/3 of the original pixels. In other words, \code{speedup} may not do anything
-if the factor for speeding up is not high enough (i.e., >3).
-
-\code{col} can be used to set the colors of Raster* objects, but it is preferable to use
-setColors to give each layer its own color table. See examples.
+this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
+anything if the factor for speeding up is not high enough (i.e., >3).
 }
 \examples{
 \dontrun{
