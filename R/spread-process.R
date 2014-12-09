@@ -140,7 +140,7 @@ setMethod("spread",
                 spreadProb[mask==1]<-0
               }
             } else if (is.numeric(spreadProb)) { # Translate numeric spreadProb into a Raster
-                                                 #  if there is a mask Raster
+              #  if there is a mask Raster
               if(!is.null(mask)) {
                 spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
                 spreadProb[mask==1]<-0
@@ -150,46 +150,48 @@ setMethod("spread",
 
             while ( (length(loci)>0) & (iterations>=n) ) {
               if (mapID) {
-                potentials <- matrix(adj(landscape, loci, directions, pairs=TRUE),ncol=2)
+                potentials <- adj(landscape, loci, directions, pairs=TRUE)
+                #potentials <- adj(landscape, loci, directions, pairs=TRUE)
               } else {
                 # must pad the first column of potentials
-                potentials <- matrix(cbind(NA, adj(landscape, loci, directions,
-                                                   pairs=FALSE)),ncol=2)
+                potentials <- cbind(NA, adj(landscape, loci, directions,
+                                            pairs=FALSE))
               }
               #browser()
 
 
               #if there is only one potential, R converts this to a vector, instead of a matrix.
               # Force it back to a matrix
-              if(length(potentials)==2) {
-                potentials <- matrix(potentials,ncol=2)
-              }
+#              if(length(potentials)==2) {
+#                potentials <- matrix(potentials,ncol=2)
+#              }
 
               # drop those ineligible
-#              if (!is.null(mask))
-#                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
+              #              if (!is.null(mask))
+              #                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
 
               # only accept cells that have no fire yet
               # Need to call matrix because of the cast where there is only one cell
-              potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
+              #potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
+              potentials <- potentials[spreads[potentials[,2]]==0,,drop=FALSE]
 
               # If one pixels is selected as potential by more than one source
               #  Remove the duplication, and reorder the potentials so that it is not
               #  always the "first one", i.e., closest to top left of map, that is kept.
               if(nrow(potentials)>0) {
-                potentials <- matrix(potentials[sample.int(nrow(potentials)),], ncol=2)
+                potentials <- potentials[sample.int(nrow(potentials)),,drop=FALSE]
               }
-              potentials <- matrix(potentials[!duplicated(potentials[,2]),], ncol=2)
+              potentials <- potentials[!duplicated(potentials[,2]),,drop=FALSE]
 
 
               # select which potentials actually happened
               # nrow() only works if potentials is an array
               if (is.numeric(spreadProb)) {
                 #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-                  spreadProbs <- spreadProb
-                } else {
-                  spreadProbs <- spreadProb[potentials[,2]]
-                  #spreadProbs <- spreadProbs[is.na(spreadProbs)]<-0
+                spreadProbs <- spreadProb
+              } else {
+                spreadProbs <- spreadProb[potentials[,2]]
+                #spreadProbs <- spreadProbs[is.na(spreadProbs)]<-0
               }
 
               #If there is only 1 event, R turns the matrix into a vector
