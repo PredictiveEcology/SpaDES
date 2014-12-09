@@ -345,12 +345,12 @@ setMethod("plotGrob",
           definition= function(grobToPlot, col, size, minv, maxv,
                                legend, draw,
                                gp, pch, ...) {
-#
-            pr <- pretty(range(minv,maxv))
-            pr <- pr[pr<=maxv]
-            pr <- pr[pr>=minv]
 
-            if(maxv<1) {
+            pr <- pretty(range(minv,maxv))
+            pr <- pr[pr<=maxv & pr>=minv]
+            #pr <- pr[pr>=minv]
+
+            if(maxv<=1) {
               if(minv>0) { # i.e., a proportion
                 maxcol <- maxv*47 # proportions have sum 1 values
               } else {
@@ -820,18 +820,31 @@ setMethod("drawArrows",
 #' same as the object name, then only the object name will be used for simplicity. In
 #' other words, only enough information is used to uniquely identify the plot.
 #'
-#' Silently, one hidden object is made, \code{.spadesArr}, which is used for arranging plots in the
-#' device window, and identifying the objects to be replotted if rearranging is required,
-#' subsequent to an new=FALSE additional plot.
+#' \code{cols} is a vector of colours that can be understood directly, or by
+#' \code{colorRampePalette}, such as c("orange", "blue") will give a colour range
+#' from orange to blue, interploated. If a list, it will be used, in order, for each
+#' item to be plotted. It will be recycled if it is shorter than the objects to be
+#' plotted. Note that when this approach to setting colours is used, any overplotting
+#' will revert to the \code{colortable} slot of the object, or the default for rasters,
+#' which is \code{terrain.color()}
+#'
+#' Silently, one hidden object is made, \code{.spadesArr} in the \code{.spadesEnv}
+#' environment, which is used for arranging plots
+#' in the device window, and identifying the objects to be replotted if
+#' rearranging is required, subsequent to an new=FALSE additional plot.
+#'
+#' This function is optimized to allow modular Plotting. This means that several
+#' behaviours will appear unusual. For instance, if a first call to Plot is made,
+#' the legend will reflect the current color scheme. If a second or subsequent call
+#' to Plot is made with the same object but with different colours (e.g., with
+#' \code{cols}), the legend will not update. This behaviour is made with the decision
+#' that the original layer takes precedence and all subsequent plots to that same
+#' frame are overplots only.
 #'
 #' \code{speedup} is not a precise number because it is faster to plot an un-resampled
 #' raster if the new resampling is close to the original number of pixels. At the moment,
-#' this is set to 1/3 of the original pixels. In other words, \code{speedup} may not do anything
-#' if the factor for speeding up is not high enough (i.e., >3).
-#'
-#' \code{col} can be used to set the colors of Raster* objects, but it is preferable to use
-#' setColors to give each layer its own color table. See examples.
-#'
+#' this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
+#' anything if the factor for speeding up is not high enough (i.e., >3).
 #'
 #' @param ... Raster* object(s) and or SpatialPoints* objects. See details for
 #' naming.
@@ -850,7 +863,7 @@ setMethod("drawArrows",
 #'
 #' @param size Numeric. The size, in points, for SpatialPoints symbols, if using a scalable symbol.
 #'
-#' @param cols character vector. Hex codes for colors. See Details.
+#' @param cols character vector or list of character vectors. Default \code{terrain.color()}. See Details.
 #'
 #' @param zoomExtent extent object. Supplying a single extent object that is smaller than the
 #' rasters will call a crop statement before plotting. Defaults to NULL. This occurs after any
@@ -1182,6 +1195,16 @@ setMethod("Plot",
       grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN)
       newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
 
+      colour <- if(is.list(cols)) {
+        if(length(cols)==length(lN)) {
+          cols[[match(grobNamesi, lN)]] # use colours as supplied in the list
+        } else {
+          cols[[(match(grobNamesi, lN)-1) %% length(cols)+1]] #recycle colours
+        }
+      } else {
+        cols
+      }
+
       if(is(grobToPlot, "Raster")) { # Rasters require subsampling, using makeColorMatrix fn
         if(is.null(zoomExtent)) {
           zoom <- extent(grobToPlot)
@@ -1192,7 +1215,7 @@ setMethod("Plot",
 
 
         zMat <- makeColorMatrix(grobToPlot,zoom,maxpixels,legendRange,na.color,
-                                zero.color=zero.color, cols=cols,
+                                zero.color=zero.color, cols=colour,
                                 skipSample=is.na(match(strsplit(grobNamesi,"\\.")[[1]][1],
                                             names(skipSample))))
       } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
@@ -1263,35 +1286,42 @@ setMethod("makeColorMatrix",
           signature=c("Raster","Extent","numeric","ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                cols, na.color, zero.color, skipSample=TRUE) {
-            if (!is.null(cols)) {
+
+            zoom <- zoomExtent
+            # It is 5x faster to access the min and max from the Raster than to calculate it,
+            #  but it is also often wrong... it is only metadata on the raster, so it
+            #  is possible that it is incorrect
+            #             minz <- minValue(grobToPlot)
+            #             maxz <- maxValue(grobToPlot)
+            if(!skipSample) {
+              grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
+                                          ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+            }
+            z <- getValues(grobToPlot)
+
+            minz <- min(z, na.rm=T)
+            maxz <- max(z, na.rm=T)
+
+
+            if (!is.null(cols)) { # if the cols are defined
+              # if zero.color is the default value, and the minValue is not zero,
+              #   don't add it
               if ((minValue(grobToPlot)!=0) & (zero.color!="#FFFFFF00")) {
                 cols <- cols
-              } else {
+              } else { # otherwise add it
                 cols<-c(zero.color,cols)
               }
+            # if a colortable is used
             } else if(sapply(getColors(grobToPlot),length)>0) {
               cols <- getColors(grobToPlot)[[1]]
-            } else {
+            } else { # these have no cols and no colortable defined, so these are defaults
               if (minValue(grobToPlot)!=0) {
                 cols<-topo.colors(maxValue(grobToPlot)-minValue(grobToPlot)+1)
               } else {
                 cols<-c(zero.color,topo.colors(maxValue(grobToPlot)-minValue(grobToPlot)+1))
               }
             }
-            zoom <- zoomExtent
-            # It is 5x faster to access the min and max from the Raster than to calculate it,
-            #  but it is also often wrong... it is only metadata on the raster, so it
-            #  is possible that it is incorrect
-#             minz <- minValue(grobToPlot)
-#             maxz <- maxValue(grobToPlot)
-            if(!skipSample) {
-              grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
-                                        ext=zoom, asRaster=TRUE, useGDAL=TRUE)
-            }
-            z <- getValues(grobToPlot)
 
-             minz <- min(z, na.rm=T)
-             maxz <- max(z, na.rm=T)
             #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
             # if data in raster are proportions, must treat colors differently
             if(maxz <= 1 & minz >= 0) {
