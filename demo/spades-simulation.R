@@ -21,7 +21,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                  params=list(
                    .loadFileList=fileList,
                    .progress=list(.graphical=FALSE, .progressInterval = 10),
-                   .globals=list(.stackName=stackName, .outputPath=NA, burnStats="nPixelsBurned"),
+                   .globals=list(.stackName=stackName, burnStats="nPixelsBurned"),
                    randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=stackName,
                                            .plotInitialTime=NA, .plotInterval=NA,
                                            inRAM=TRUE),
