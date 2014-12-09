@@ -2,7 +2,7 @@ library(SpaDES)
 
 rasterOptions(maxmemory=2e9)
 downloadRequired <- FALSE
-interactiveExtent <- TRUE
+interactiveExtent <- FALSE
 
 if (Sys.info()["sysname"]=="Linux") {
   setwd("/mnt/shared/shiny_succession")
@@ -174,19 +174,19 @@ if (Sys.info()["sysname"]=="Linux") {
 shinyServer(function(input, output) {
 
     layers <- reactive({
-      times=list(start=0.0, stop=input$stopTime-2005)
+      times=list(start=2005, stop=input$stopTime)
       parameters <- list(.globals=list(burnStats="nPixelsBurned"),
                          #.progress=list(NA),
                          .progress=list(.graphical=TRUE, .progressInterval=1),
-                         forestSuccession=list(returnInterval=1, startTime=0,
+                         forestSuccession=list(returnInterval=1, startTime=2005,
                                                .plotInitialTime=NA, .plotInterval=1),
-                         forestAge=list(returnInterval=1, startTime=0.5,
+                         forestAge=list(returnInterval=1, startTime=2005.5,
                                         .plotInitialTime=NA, .plotInterval=1),
                          fireSpreadLcc=list(nFires=10,
                                             its=1e6, drought=input$drought,
-                                            persistprob=0, returnInterval=1, startTime=1,
+                                            persistprob=0, returnInterval=1, startTime=2006,
                                             .plotInitialTime=NA, .plotInterval=1),
-                         caribouMovementLcc=list(N=1e4, moveInterval=1,
+                         caribouMovementLcc=list(N=1e4, moveInterval=1, startTime=2006,
                                               .plotInitialTime=NA, .plotInterval=1)
       )
 
@@ -210,7 +210,7 @@ shinyServer(function(input, output) {
       mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
       nPixelsBurned <<- numeric(0)
-      mySim <- spades(mySim)
+      mySim <- spades(mySim, debug=FALSE)
       return(list(ageMap=get("ageMap", envir=.GlobalEnv),
                   vegMap=get("vegMap", envir=.GlobalEnv),
                   nPixelsBurned=get("nPixelsBurned", envir=.GlobalEnv),
@@ -237,8 +237,8 @@ shinyServer(function(input, output) {
 
     output$maps <- renderPlot({
       Plot(layers()$ageMap, layers()$vegMap, new=TRUE, title=FALSE)
-      seekViewport("top")
-      grid.text(y=0.95, input$stopTime, gp=gpar(cex=2.5))
+#       seekViewport("top")
+#       grid.text(y=0.95, input$stopTime, gp=gpar(cex=2.5))
       seekViewport("ageMap.age")
       grid.text(y=1.05, "Forest Age", gp=gpar(cex=1.5))
       seekViewport("vegMap")
@@ -296,7 +296,7 @@ shinyServer(function(input, output) {
 
     output$caribou <- renderPlot({
       if(input$caribouModule) {
-        Plot(layers()$caribouRas,
+        Plot(layers()$caribouRas, cols=rev(heat.colors(maxValue(layers()$caribouRas))),
              new=TRUE, title=FALSE, pch=".")
         seekViewport("top")
         seekViewport("caribouRas")
@@ -311,4 +311,10 @@ shinyServer(function(input, output) {
             "ha, with",ncell(vegMap),"pixels")
 
     })
+
+    output$endYear <- renderText({
+      paste(input$stopTime)
+
+    })
+
 })
