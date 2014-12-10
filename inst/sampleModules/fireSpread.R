@@ -68,7 +68,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
                                 forestCover=brewer.pal(8,"BrBG"),
                                 habitatQuality=brewer.pal(8,"Spectral"),
                                 percentPine=brewer.pal(9,"Greens"),
-                                Fires=c("#FFFFFF", rev(heat.colors(9)))
+                                Fires=c("white", rev(heat.colors(9)))
                             )
     assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
     Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv), new=TRUE)
@@ -77,6 +77,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
+
     Plot(get(simGlobals(sim)$.stackName)$Fires, new=FALSE)
 
     # schedule the next event
@@ -100,7 +101,7 @@ fireSpreadInit <- function(sim) {
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
   names(Fires) <- "Fires"
-  setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
+  setColors(Fires) <- c("white", rev(heat.colors(9)))
   Fires <- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
@@ -127,7 +128,7 @@ fireSpreadBurn <- function(sim) {
                    plot.it=FALSE,
                    mapID=TRUE)
   names(Fires) <- "Fires"
-  setColors(Fires,10) <- c("#FFFFFF", rev(heat.colors(9)))
+  setColors(Fires) <- c("white", rev(heat.colors(9)))
   landscapes$Fires <- Fires
 
   assign(simGlobals(sim)$.stackName, landscapes, envir=.GlobalEnv)
@@ -145,12 +146,12 @@ fireSpreadStats <- function(sim) {
   return(invisible(sim))
 }
 
-fireSpreadStats <- function(sim) {
-  npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
-
-  landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
-
-  assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
-
-  return(sim)
-}
+# fireSpreadStats <- function(sim) {
+#   npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
+#
+#   landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+#
+#   assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
+#
+#   return(sim)
+# }
