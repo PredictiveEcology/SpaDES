@@ -319,6 +319,8 @@ setMethod("arrangeViewports",
 #'
 #' @param pch for SpatialPoints, as \code{par}
 #'
+#' @param real A logical. Whether the data are real numbers (vs. integer or factor)
+#'
 #' @param speedup Numeric. The factor by which the number of vertices in SpatialPolygons will be subsampled.
 #' The vertices are already subsampled by default to make plotting faster.
 #'

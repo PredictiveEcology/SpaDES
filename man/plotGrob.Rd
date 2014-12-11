@@ -28,6 +28,8 @@ plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
 
 \item{col}{Currently only used for the legend of a Raster* object.}
 
+\item{real}{A logical. Whether the data are real numbers (vs. integer or factor)}
+
 \item{size}{The size of the SpatialPoints}
 
 \item{minv}{The minimum value on a Raster*. Required because not all Rasters

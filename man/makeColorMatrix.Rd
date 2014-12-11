@@ -29,7 +29,9 @@ that will override the data bounds contained within the grobToPlot}
 \item{na.color}{string indicating the color for NA values. Default transparent.}
 
 \item{zero.color}{string indicating the color for zero values, when zero is
-the minimum value, otherwise, it is treated as any other color. Default transparent.}
+the minimum value, otherwise, it is treated as any other color. Default transparent.
+Use NULL if zero should be the value given to it by the colortable associated with the
+Raster.}
 
 \item{skipSample}{logical. If no downsampling is necessary, skip. Default TRUE.}
 }
