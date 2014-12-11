@@ -19,8 +19,9 @@ makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
 
 \item{maxpixels}{numeric. Number of cells to subsample the complete grobToPlot}
 
-\item{legendRange}{numeric vector of length 2, representing the lower and upper bounds of
-a legend that will override the data bounds contained within the grobToPlot}
+\item{legendRange}{numeric vector giving values that, representing the lower
+and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
+that will override the data bounds contained within the grobToPlot}
 
 \item{cols}{colours specified in a way that can be understood directly or by
  colorRampPalette}

@@ -7,20 +7,21 @@
 \alias{plotGrob,matrix-method}
 \title{Plot spatial grobs (using grid package)}
 \usage{
-plotGrob(grobToPlot, col = NULL, size = unit(5, "points"), minv, maxv,
-  legend = TRUE, draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
+plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
+  minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(), pch = 19,
+  speedup = 1, ...)
 
-\S4method{plotGrob}{matrix}(grobToPlot, col = NULL, size = unit(5,
-  "points"), minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(),
-  pch = 19, speedup = 1, ...)
+\S4method{plotGrob}{matrix}(grobToPlot, col = NULL, real = FALSE,
+  size = unit(5, "points"), minv, maxv, legend = TRUE, draw = TRUE,
+  gp = gpar(), pch = 19, speedup = 1, ...)
 
-\S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, size = unit(5,
-  "points"), minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(),
-  pch = 19, speedup = 1, ...)
+\S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, real = FALSE,
+  size = unit(5, "points"), minv, maxv, legend = TRUE, draw = TRUE,
+  gp = gpar(), pch = 19, speedup = 1, ...)
 
-\S4method{plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, size = unit(5,
-  "points"), minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(),
-  pch = 19, speedup = 1, ...)
+\S4method{plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, real = FALSE,
+  size = unit(5, "points"), minv, maxv, legend = TRUE, draw = TRUE,
+  gp = gpar(), pch = 19, speedup = 1, ...)
 }
 \arguments{
 \item{grobToPlot}{Raster*, SpatialPoints*, SpatialPolygons* object}

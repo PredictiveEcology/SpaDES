@@ -9,7 +9,7 @@
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons",
-                                  "RasterLayer", "RasterStack"))
+                                               "RasterLayer", "RasterStack"))
 
 ##############################################################
 #' Specify where to plot
@@ -58,7 +58,7 @@ dev <- function(x, ...) {
 # @examples
 # needs examples
 newPlot <- function(noRStudioGD=TRUE, ...) {
-    dev.new(noRStudioGD=TRUE, ...)
+  dev.new(noRStudioGD=TRUE, ...)
 }
 
 
@@ -84,9 +84,9 @@ setMethod("nlayers",
                 x <- 1
               }
               return(x)
-              }))
-          return(y)
-})
+            }))
+            return(y)
+          })
 
 #' @export
 #' @rdname nlayers
@@ -125,7 +125,7 @@ setMethod("layerNames",
           signature="list",
           definition=function(object) {
             unlist(lapply(object, layerNames))
-})
+          })
 
 
 #' @export
@@ -142,7 +142,7 @@ setMethod("layerNames",
 setMethod("layerNames",
           signature="SpatialPolygons",
           definition=function(object) {
-              return("")
+            return("")
           })
 
 
@@ -152,7 +152,7 @@ setMethod("layerNames",
           signature="Raster",
           definition=function(object) {
             names(object)
-})
+          })
 
 
 
@@ -174,10 +174,10 @@ setMethod("equalExtent",
           signature="list",
           definition=function(extents) {
             all(c(sapply(extents, function(x) x@xmin)==extents[[1]]@xmin,
-            sapply(extents, function(x) x@xmax)==extents[[1]]@xmax,
-            sapply(extents, function(x) x@ymin)==extents[[1]]@ymin,
-            sapply(extents, function(x) x@ymax)==extents[[1]]@ymax))
-})
+                  sapply(extents, function(x) x@xmax)==extents[[1]]@xmax,
+                  sapply(extents, function(x) x@ymin)==extents[[1]]@ymin,
+                  sapply(extents, function(x) x@ymax)==extents[[1]]@ymax))
+          })
 
 ###########################################################################
 #' The \code{arrangement} class
@@ -227,7 +227,7 @@ setClass("arrangement",
            if (any(is.na(object@extents))) {
              stop("must supply a list of extents")
            }
-})
+         })
 
 #' Determine optimal plotting arrangement of Spatial Objects
 #'
@@ -248,44 +248,44 @@ setGeneric("arrangeViewports", function(extents){ #, name=NULL) {
 setMethod("arrangeViewports",
           signature=c("list"),
           definition= function(extents) {
-    dimx <- apply(sapply(extents, function(y) apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
-#    if(is.null(name)) {
-      nPlots <- length(extents)
-      names <- names(extents)
-#     } else {
-#       nPlots <- length(name)
-#       names <- name
-#     }
+            dimx <- apply(sapply(extents, function(y) apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
+            #    if(is.null(name)) {
+            nPlots <- length(extents)
+            names <- names(extents)
+            #     } else {
+            #       nPlots <- length(name)
+            #       names <- name
+            #     }
 
-    if(dev.cur()==1) {
-        dev.new(height=8, width=10)
-    }
+            if(dev.cur()==1) {
+              dev.new(height=8, width=10)
+            }
 
-    ds <- dev.size()
-    ds.ratio <- ds[1]/ds[2]
+            ds <- dev.size()
+            ds.ratio <- ds[1]/ds[2]
 
-    dimensionRatio <- dimx[1]/dimx[2]
+            dimensionRatio <- dimx[1]/dimx[2]
 
-    ds.dimensionRatio <- ds.ratio/dimensionRatio
+            ds.dimensionRatio <- ds.ratio/dimensionRatio
 
-    col.by.row <- data.frame(matrix(ncol=2, nrow=nPlots))
+            col.by.row <- data.frame(matrix(ncol=2, nrow=nPlots))
 
-    col.by.row[, 1] <- ceiling(nPlots/(1:nPlots))
-    col.by.row[, 2] <- ceiling(nPlots/col.by.row[, 1])
+            col.by.row[, 1] <- ceiling(nPlots/(1:nPlots))
+            col.by.row[, 2] <- ceiling(nPlots/col.by.row[, 1])
 
-    wh.best <- which.min(abs(apply(col.by.row, 1, function(x) x[1]/x[2]) - ds.dimensionRatio))
+            wh.best <- which.min(abs(apply(col.by.row, 1, function(x) x[1]/x[2]) - ds.dimensionRatio))
 
-    columns <- col.by.row[wh.best, 1]
-    rows <- col.by.row[wh.best, 2]
+            columns <- col.by.row[wh.best, 1]
+            rows <- col.by.row[wh.best, 2]
 
-    actual.ratio <- columns/rows
+            actual.ratio <- columns/rows
 
-    out <- new("arrangement", rows=rows, columns=columns,
-               actual.ratio=actual.ratio, ds.dimensionRatio=ds.dimensionRatio,
-               ds=ds,
-               names=names, extents = extents)
-    return(out)
-})
+            out <- new("arrangement", rows=rows, columns=columns,
+                       actual.ratio=actual.ratio, ds.dimensionRatio=ds.dimensionRatio,
+                       ds=ds,
+                       names=names, extents = extents)
+            return(out)
+          })
 
 ######################################################
 #' Plot spatial grobs (using grid package)
@@ -358,13 +358,13 @@ setMethod("plotGrob",
               }
             } else {
               maxcol <- maxv - minv + max(1, -minv+1) + 1 # need one for the NA at the bottom,
-                            #one for the zero at the bottom, if there, and one
-                            #for when taking a difference between two numbers-- need to include
-                            # both numbers
+              #one for the zero at the bottom, if there, and one
+              #for when taking a difference between two numbers-- need to include
+              # both numbers
             }
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
-                             # name=name,
+                              # name=name,
                               pr=pr, col=col,
                               children=gList(
                                 rasterGrob(as.raster(grobToPlot),
@@ -374,11 +374,11 @@ setMethod("plotGrob",
                                                       x=1.04, y=0.5, height=0.5, width=0.03,
                                                       interpolate=FALSE,
                                                       name="legend"),
-#                                 if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
-#
-#                                   if(grepl("^#FFFFFF", col[1]) | grepl("^#FFFFFF", col[maxcol]))
-#                                     rectGrob(x=1.04, y=0.5, height=0.5, width=0.03, gp=gpar(fill=NA))
-#                                 },
+                                #                                 if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
+                                #
+                                #                                   if(grepl("^#FFFFFF", col[1]) | grepl("^#FFFFFF", col[maxcol]))
+                                #                                     rectGrob(x=1.04, y=0.5, height=0.5, width=0.03, gp=gpar(fill=NA))
+                                #                                 },
                                 if(legend) textGrob(pr, x=1.08,
                                                     if(maxv>3) {
                                                       y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/diff(range(minv, maxv))/4
@@ -410,7 +410,7 @@ setMethod("plotGrob",
                              cl="plotPoint")
             if(draw) grid.draw(pntGrob)
             return(invisible(pntGrob))
-})
+          })
 
 #' @rdname plotGrob
 #' @export
@@ -421,20 +421,20 @@ setMethod("plotGrob",
 
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
-                pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
-                              p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
-                              lonlat=TRUE)/1.2e10
+              pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
+                            p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
+                            lonlat=TRUE)/1.2e10
             } else {
               max( ymax(extent(grobToPlot))-ymin(extent(grobToPlot)),
-                                xmax(extent(grobToPlot))-xmin(extent(grobToPlot)))/2.4e4
+                   xmax(extent(grobToPlot))-xmin(extent(grobToPlot)))/2.4e4
             }
             # For speed of plotting
             xy <- lapply(1:length(grobToPlot),
-                       function(i) lapply(grobToPlot@polygons[[i]]@Polygons,
-                                          function(j) j@coords))
+                         function(i) lapply(grobToPlot@polygons[[i]]@Polygons,
+                                            function(j) j@coords))
             hole <- unlist(lapply(1:length(grobToPlot),
-                       function(x) lapply(grobToPlot@polygons[[x]]@Polygons,
-                                          function(x) x@hole)))
+                                  function(x) lapply(grobToPlot@polygons[[x]]@Polygons,
+                                                     function(x) x@hole)))
             ord <- grobToPlot@plotOrder
             ordInner <- lapply(1:length(grobToPlot), function(x) grobToPlot@polygons[[x]]@plotOrder)
 
@@ -457,11 +457,11 @@ setMethod("plotGrob",
 
             gp$fill[hole] <- "#FFFFFF00"
             polyGrob <- gTree(children=gList(
-                               polygonGrob(x=xyOrd[, 1], y=xyOrd[, 2], id.lengths=idLength,
-                                           gp=gp, default.units="native")
-                             ),
-                             gp=gp,
-                             cl="plotPoly")
+              polygonGrob(x=xyOrd[, 1], y=xyOrd[, 2], id.lengths=idLength,
+                          gp=gp, default.units="native")
+            ),
+            gp=gp,
+            cl="plotPoly")
             if(draw) grid.draw(polyGrob)
             return(invisible(polyGrob))
           })
@@ -499,17 +499,17 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 
   # calculate the visualSqueeze for the width (i.e., vS.w)
   vS.w <- min(visualSqueeze/columns,
-             visualSqueeze/columns*arr@actual.ratio/arr@ds.dimensionRatio)
+              visualSqueeze/columns*arr@actual.ratio/arr@ds.dimensionRatio)
 
   wdth <- unit.c(unit(1.5, "null"), unit(rep(c(vS.w, 1.75), columns),
-                                        rep(c("npc", "null"), columns))[-columns*2],
+                                         rep(c("npc", "null"), columns))[-columns*2],
                  unit(1.5, "null"))
 
   # calculate the visualSqueeze for the height (i.e., vS.h)
   vS.h <- min(visualSqueeze/rows,
               visualSqueeze/rows*arr@ds.dimensionRatio/arr@actual.ratio)
   ht <- unit.c(unit(1, "null"), unit(rep(c(vS.h, 1.75), rows),
-                                    rep(c("npc", "null"), rows))[-rows*2],
+                                     rep(c("npc", "null"), rows))[-rows*2],
                unit(1, "null"))
 
   return(list(wdth=wdth, ht=ht))
@@ -551,11 +551,11 @@ makeViewports <- function(extents, layout, arr, newArr = FALSE) {
     posInd <- match(nam[extentInd], arr@names)
 
     plotVps[[extentInd]] <- viewport(
-              name=nam[extentInd],
-              layout.pos.col = ceiling((posInd-1)%%columns+1)*2,
-              layout.pos.row = ceiling(posInd/columns)*2,
-              xscale=c(extents[[extentInd]]@xmin, extents[[extentInd]]@xmax),
-              yscale=c(extents[[extentInd]]@ymin, extents[[extentInd]]@ymax))
+      name=nam[extentInd],
+      layout.pos.col = ceiling((posInd-1)%%columns+1)*2,
+      layout.pos.row = ceiling(posInd/columns)*2,
+      xscale=c(extents[[extentInd]]@xmin, extents[[extentInd]]@xmax),
+      yscale=c(extents[[extentInd]]@ymin, extents[[extentInd]]@ymax))
 
   }
 
@@ -629,39 +629,39 @@ setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "character"),
           definition=function(from, to, addTo, title, axes, ..., length=0.1) {
-              seekViewport(addTo, recording=FALSE)
-              grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
-                            default.units="native",
-                            id=rep(1:length(from), 2),
-                            arrow=arrow(length=unit(length, "inches"), ...))
-              upViewport(0)
-})
+            seekViewport(addTo, recording=FALSE)
+            grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
+                          default.units="native",
+                          id=rep(1:length(from), 2),
+                          arrow=arrow(length=unit(length, "inches"), ...))
+            upViewport(0)
+          })
 
 #' @rdname drawArrows-method
 #'
 setMethod("drawArrows",
-               signature=c("SpatialPoints", "SpatialPoints", "missing"),
-               definition=function(from, to, addTo, title, axes, ..., length=0.1) {
-     grid.newpage()
-     extents <- list(extent(
-       extendrange(c(min(min(from$x), min(to$x)), max(max(from$x, to$x)))),
-       extendrange(c(min(min(from$y), min(to$y)), max(max(from$y, to$y))))))
-     names(extents) <- .objectNames("drawArrows", argName = NULL)[1]
-     arr <- arrangeViewports(extents)#, name=name(from))
-     lay <- makeLayout(arr=arr, visualSqueeze=0.75)
-     arr@layout <- lay
-     vps <- makeViewports(extents, arr=arr, layout=lay, newArr = TRUE)
-     pushViewport(vps)
-     seekViewport(names(extents), recording=FALSE)
-     grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
-                   default.units="native",
-                   id=rep(1:length(from), 2),
-                   arrow=arrow(length=unit(length, "inches"), ...))
-     if (title) grid.text(names(extents), 0.5, 1.05)
-     if (axes) {grid.xaxis(); grid.yaxis()}
+          signature=c("SpatialPoints", "SpatialPoints", "missing"),
+          definition=function(from, to, addTo, title, axes, ..., length=0.1) {
+            grid.newpage()
+            extents <- list(extent(
+              extendrange(c(min(min(from$x), min(to$x)), max(max(from$x, to$x)))),
+              extendrange(c(min(min(from$y), min(to$y)), max(max(from$y, to$y))))))
+            names(extents) <- .objectNames("drawArrows", argName = NULL)[1]
+            arr <- arrangeViewports(extents)#, name=name(from))
+            lay <- makeLayout(arr=arr, visualSqueeze=0.75)
+            arr@layout <- lay
+            vps <- makeViewports(extents, arr=arr, layout=lay, newArr = TRUE)
+            pushViewport(vps)
+            seekViewport(names(extents), recording=FALSE)
+            grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
+                          default.units="native",
+                          id=rep(1:length(from), 2),
+                          arrow=arrow(length=unit(length, "inches"), ...))
+            if (title) grid.text(names(extents), 0.5, 1.05)
+            if (axes) {grid.xaxis(); grid.yaxis()}
 
-     upViewport(0)
-})
+            upViewport(0)
+          })
 
 
 ##############################################################
@@ -770,8 +770,8 @@ setMethod("drawArrows",
 
   # Look for layer() which is used by shiny to indicate a plot
   isShinyLayer <- lapply(asChar, function(x) grepl("layer()", x))
-#   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner, any)],
-#                        function(x) grepl("layer()", x))
+  #   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner, any)],
+  #                        function(x) grepl("layer()", x))
   if(any(sapply(isShinyLayer, any))) {
     whIsShinyLayer <- lapply(isShinyLayer[sapply(isShinyLayer, any)], which)
     shinyLayer <- asChar[sapply(isShinyLayer, any)]
@@ -784,14 +784,14 @@ setMethod("drawArrows",
 
   isAdHocStack <- lapply(asChar, function(x) grepl("^stack", x))
   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
-                    #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
+  #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
   objs[sapply(isAdHocStack, any)] <- sixthSO
 
   # cut short if all are dealt with
   if(all(!sapply(objs, is.null))) return(objs)
 
-#   isAdHocOther <- sapply(objs, function(x) length(x)==0)
-#   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
+  #   isAdHocOther <- sapply(objs, function(x) length(x)==0)
+  #   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
   #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
 
   warning("Please see documentation for Plot to try another way of calling Plot")
@@ -873,8 +873,9 @@ setMethod("drawArrows",
 #'
 #' @param legend logical. Whether legend should be drawn next to plots. Default is TRUE.
 #'
-#' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
-#' a legend that will override the data bounds contained within the grobToPlot
+#' @param legendRange numeric vector giving values that, representing the lower
+#' and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
+#' that will override the data bounds contained within the grobToPlot
 #'
 #' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
 #' to be FALSE. Default is TRUE
@@ -995,245 +996,248 @@ setMethod("Plot",
                                 legend, legendRange, draw, pch, title, na.color,
                                 zero.color) {
 
-    toPlot <- list(...)
-    suppliedNames <- names(toPlot)
+            toPlot <- list(...)
+            suppliedNames <- names(toPlot)
 
 
-# Section 1 # Determine object names that were passed and layer names of each
-    names(toPlot) <- .objectNames()
-    if(!is.null(suppliedNames)) names(toPlot)[!is.na(suppliedNames)] <- suppliedNames
-    isRaster <- sapply(toPlot, function(x) is(x, "Raster"))
-    isStack <-  sapply(toPlot, function(x) is(x, "RasterStack"))
-    isPolygon <- sapply(toPlot, function(x) is(x, "SpatialPolygons"))
-    numLayers <- pmax(1, sapply(toPlot, nlayers))
-    isRasterLong <- rep(isRaster, numLayers)
-    isStackLong <- rep(isStack, numLayers)
-    objectNamesLong <- rep(names(toPlot), numLayers)
+            # Section 1 # Determine object names that were passed and layer names of each
+            names(toPlot) <- .objectNames()
+            if(!is.null(suppliedNames)) names(toPlot)[!is.na(suppliedNames)] <- suppliedNames
+            isRaster <- sapply(toPlot, function(x) is(x, "Raster"))
+            isStack <-  sapply(toPlot, function(x) is(x, "RasterStack"))
+            isPolygon <- sapply(toPlot, function(x) is(x, "SpatialPolygons"))
+            numLayers <- pmax(1, sapply(toPlot, nlayers))
+            isRasterLong <- rep(isRaster, numLayers)
+            isStackLong <- rep(isStack, numLayers)
+            objectNamesLong <- rep(names(toPlot), numLayers)
 
-    # Full layer names, including object name. If layer name is same as object name
-    #  omit it, and if layer name is "layer", omit it if within a RasterLayer
-    lN <- rep(names(toPlot), numLayers)
-    lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
-                                         layerNames(toPlot[isRaster]), sep=".")
-    useOnlyObjectName <- (layerNames(toPlot)=="layer") | (layerNames(toPlot)==objectNamesLong)
-    if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
-      lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
-        sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
-                      function(x) strsplit(x, "\\.")[[1]]), function(y)y[[1]]) }
-    names(lN) <- rep(names(toPlot), numLayers)
+            # Full layer names, including object name. If layer name is same as object name
+            #  omit it, and if layer name is "layer", omit it if within a RasterLayer
+            lN <- rep(names(toPlot), numLayers)
+            lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
+                                      layerNames(toPlot[isRaster]), sep=".")
+            useOnlyObjectName <- (layerNames(toPlot)=="layer") | (layerNames(toPlot)==objectNamesLong)
+            if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
+              lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
+                sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
+                              function(x) strsplit(x, "\\.")[[1]]), function(y)y[[1]]) }
+            names(lN) <- rep(names(toPlot), numLayers)
 
-    mapsToPlot <- lapply(toPlot, layerNames)
-    mapsToPlot[!isRaster] <- names(toPlot)[!isRaster]
+            mapsToPlot <- lapply(toPlot, layerNames)
+            mapsToPlot[!isRaster] <- names(toPlot)[!isRaster]
 
-    if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
-                                   "inside RasterStacks for objects"))
+            if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
+                                               "inside RasterStacks for objects"))
 
-# Section 2 - assess whether this is an "addTo" situation, i.e., plot one object over another
-    if(is.null(addTo)) {
-      addTo <- lN
-    } else {
-      if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
-      if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-        if(!any(addTo %in% get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)@names)) {
-          stop(paste("The addTo layer(s) --", addTo, "-- do(es) not exist", collapse=""))
-        }
-      }
-      new <- FALSE
-      legend <- FALSE
-      title <- FALSE
-      axes <- FALSE
-    }
-
-
-# Section 3 # check whether .spadesArr exists, meaning that there is already a plot
-
-    if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-      new<-TRUE
-      arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-      if(new==FALSE) message("Nothing to add plots to; creating new plots")
-      currentNames <- NULL
-    } else {
-      if(!new) {
-        arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
-#          if (!(length(.spadesEnv$.spadesArr4@names)==
-#                  sum(grepl("^GRID", grid.ls(grobs = T, print=FALSE)$name)))) {
-#            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-#            new=TRUE
-#          }
-      } else {
-        arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-      }
-      currentNames <- arr@names
-    }
-
-# Section 4 # get extents from all SpatialPoints*, Rasters*, including Stacks
-
-    if(is.null(zoomExtent)) {
-      extsToPlot <- rep(sapply(toPlot, extent), numLayers)
-    } else {
-      extsToPlot <- rep(list(zoomExtent), numLayers)
-    }
-    names(extsToPlot)<-lN
-
-# Section 5 # Manage adding new plots to existing plots, assessing for overlaps
-    # Do set operations to identify if there are "all new to plot", "only add in existing
-    #   white space on device", "replot all existing smaller, rearranging, adding new"
-    currentPlusToPlotN <- unique(c(currentNames, addTo))
-    if(new==TRUE) { # "all new to plot"
-      newArr <- TRUE
-      grobNames <- lN
-    } else { # new == FALSE, i.e., add in a modular way by keeping previous plots
-      if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) { #"replot all existing smaller, rearranging, adding new"
-        newArr <- TRUE
-        ind <- currentPlusToPlotN %in% lN + 1
-        grobNames <- currentPlusToPlotN
-        addTo <- grobNames
-        extsUnmerged <- list(extCurrent=arr@extents[match(currentPlusToPlotN, currentNames)],
-                             extlN=extsToPlot[match(currentPlusToPlotN, lN)])
-        extsToPlot <- sapply(1:length(currentPlusToPlotN), function(x) extsUnmerged[[ind[x]]][x])
-      } else {  # "only add in existing white space on device"
-        newArr <- FALSE
-        extsToPlot <- extsToPlot[!(addTo %in% currentNames)]
-        if(sum(!(addTo %in% currentNames))!=0) {
-          names(extsToPlot) <- addTo[!(addTo %in% currentNames)]
-        } else {
-          names(extsToPlot) <- NULL
-        }
-        grobNames <- lN
-      }
-    }
-
-    # create get(paste0(".spadesArr", dev.cur())) object
-    #  i.e., the arrangement based on number and extents
-    if(!newArr) {
-
-      if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-        arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
-        arr@names <- append(arr@names, names(extsToPlot))
-        arr@extents <- append(arr@extents, extsToPlot)
-      } else {
-        message("nothing to add to, creating new plot")
-        newArr <- TRUE
-      }
-    }
-    if (newArr) { # need a new arrangement
-      arr <- arrangeViewports(extsToPlot)
-      grid.newpage()
-    }
-    #end create .spadesArr object
-
-# Section 6 # Plotting scaling, pixels, axes, symbol sizes
-    if(is.null(gp$cex)) {
-      gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
-    }
-
-    npixels <- unlist(sapply(toPlot, function(x) if(is(x, "Raster")) ncell(x)))
-    maxpixels <- 8e3/(arr@columns*arr@rows)*prod(arr@ds)/speedup
-    if(!is.null(npixels)) {
-      maxpixels <- min(maxpixels*3, npixels)
-      skipSample <- maxpixels==npixels
-    } else {
-      skipSample <- TRUE
-    }
-
-    if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
-    if(axes==FALSE) { xaxis <- FALSE ; yaxis <- FALSE}
-
-# Section 7 # Optimal Layout and viewport making
-    # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
-    #  plotted, and visualSqueeze
-    lay <- makeLayout(arr, visualSqueeze, legend, axes)
-    arr@layout <- lay
-
-    # Create the viewports as per the optimal layout
-    if(length(extsToPlot)>0) {
-      vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
-      if(!new & !newArr)
-        upViewport(1)
-      pushViewport(vps, recording = FALSE)
-      upViewport(2)
-    }
+            # Section 2 - assess whether this is an "addTo" situation, i.e., plot one object over another
+            if(is.null(addTo)) {
+              addTo <- lN
+            } else {
+              if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
+              if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+                if(!any(addTo %in% get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)@names)) {
+                  stop(paste("The addTo layer(s) --", addTo, "-- do(es) not exist", collapse=""))
+                }
+              }
+              new <- FALSE
+              legend <- FALSE
+              title <- FALSE
+              axes <- FALSE
+            }
 
 
-# Section 8 - the actual Plotting
-    # Plot each element passed to Plot function, one at a time
-    for(grobNamesi in grobNames) {
-      whGrobNamesi <- match(grobNamesi, grobNames)
+            # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
 
-      whPlot <- match(addTo[whGrobNamesi], arr@names)
-      if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis <- TRUE } else { xaxis <- FALSE}
-                     if((whPlot-1)%%arr@columns==0) { yaxis <- TRUE } else { yaxis <- FALSE}}
-      if(grobNamesi %in% currentNames) {
-        if (!newArr) {
-          title <- FALSE
-          legend <- FALSE
-          xaxis <- FALSE
-          yaxis <- FALSE
-        }
-      }
+            if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+              new<-TRUE
+              arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+              if(new==FALSE) message("Nothing to add plots to; creating new plots")
+              currentNames <- NULL
+            } else {
+              if(!new) {
+                arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+                #          if (!(length(.spadesEnv$.spadesArr4@names)==
+                #                  sum(grepl("^GRID", grid.ls(grobs = T, print=FALSE)$name)))) {
+                #            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+                #            new=TRUE
+                #          }
+              } else {
+                arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+              }
+              currentNames <- arr@names
+            }
 
-      # Activate correct plot viewport (i.e., subplot)
-      seek <- addTo[whGrobNamesi]
-      a <- try(seekViewport(seek, recording=F))
-      if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
-                                        "Try new=TRUE or change device to",
-                                        "one that has a plot named", addTo[whGrobNamesi]))
+            # Section 4 # get extents from all SpatialPoints*, Rasters*, including Stacks
 
-      grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN)
-      newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
+            if(is.null(zoomExtent)) {
+              extsToPlot <- rep(sapply(toPlot, extent), numLayers)
+            } else {
+              extsToPlot <- rep(list(zoomExtent), numLayers)
+            }
+            names(extsToPlot)<-lN
 
-      colour <- if(is.list(cols)) {
-        if(length(cols)==length(lN)) {
-          cols[[match(grobNamesi, lN)]] # use colours as supplied in the list
-        } else {
-          cols[[(match(grobNamesi, lN)-1) %% length(cols)+1]] #recycle colours
-        }
-      } else {
-        cols
-      }
+            # Section 5 # Manage adding new plots to existing plots, assessing for overlaps
+            # Do set operations to identify if there are "all new to plot", "only add in existing
+            #   white space on device", "replot all existing smaller, rearranging, adding new"
+            currentPlusToPlotN <- unique(c(currentNames, addTo))
+            if(new==TRUE) { # "all new to plot"
+              newArr <- TRUE
+              grobNames <- lN
+            } else { # new == FALSE, i.e., add in a modular way by keeping previous plots
+              if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) { #"replot all existing smaller, rearranging, adding new"
+                newArr <- TRUE
+                ind <- currentPlusToPlotN %in% lN + 1
+                grobNames <- currentPlusToPlotN
+                addTo <- grobNames
+                extsUnmerged <- list(extCurrent=arr@extents[match(currentPlusToPlotN, currentNames)],
+                                     extlN=extsToPlot[match(currentPlusToPlotN, lN)])
+                extsToPlot <- sapply(1:length(currentPlusToPlotN), function(x) extsUnmerged[[ind[x]]][x])
+              } else {  # "only add in existing white space on device"
+                newArr <- FALSE
+                extsToPlot <- extsToPlot[!(addTo %in% currentNames)]
+                if(sum(!(addTo %in% currentNames))!=0) {
+                  names(extsToPlot) <- addTo[!(addTo %in% currentNames)]
+                } else {
+                  names(extsToPlot) <- NULL
+                }
+                grobNames <- lN
+              }
+            }
 
-      if(is(grobToPlot, "Raster")) { # Rasters require subsampling, using makeColorMatrix fn
-        if(is.null(zoomExtent)) {
-          zoom <- extent(grobToPlot)
-        } else {
-          zoom <- zoomExtent
-        }
-        if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
+            # create get(paste0(".spadesArr", dev.cur())) object
+            #  i.e., the arrangement based on number and extents
+            if(!newArr) {
 
-        zMat <- makeColorMatrix(grobToPlot, zoom, maxpixels, legendRange, na.color,
-                                zero.color=zero.color, cols=colour,
-                                skipSample=is.na(match(strsplit(grobNamesi, "\\.")[[1]][1],
-                                            names(skipSample))))
-      } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
-        len <- length(grobToPlot)
-        if(len<(1e4/speedup)) {
-          z <- grobToPlot
-        } else {
-          z <- sample(grobToPlot, 1e4/speedup)
-        }
-        zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
-      } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
-        z <- grobToPlot
-        zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
-      }
+              if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+                arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+                arr@names <- append(arr@names, names(extsToPlot))
+                arr@extents <- append(arr@extents, extsToPlot)
+              } else {
+                message("nothing to add to, creating new plot")
+                newArr <- TRUE
+              }
+            }
+            if (newArr) { # need a new arrangement
+              arr <- arrangeViewports(extsToPlot)
+              grid.newpage()
+            }
+            #end create .spadesArr object
 
-      # Actual plotting
-      plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
-               real=zMat$real,
-               minv=zMat$minz,
-               maxv=zMat$maxz,
-               pch=pch, name = seek,
-               legend = legend,
-               gp = gp, draw = draw, speedup=speedup)
-      if(title) grid.text(seek,
-                          name="title", y=1.08, vjust=0.5, gp = gp)
+            # Section 6 # Plotting scaling, pixels, axes, symbol sizes
+            if(is.null(gp$cex)) {
+              gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+            }
 
-      if(xaxis) grid.xaxis(name="xaxis", gp = gp)
-      if(yaxis) grid.yaxis(name="yaxis", gp = gp)
-    }
+            if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
+            if(axes==FALSE) { xaxis <- FALSE ; yaxis <- FALSE}
 
-    assign(paste0(".spadesArr", dev.cur()), arr, envir=.spadesEnv)
-  })
+            # Section 7 # Optimal Layout and viewport making
+            # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
+            #  plotted, and visualSqueeze
+            lay <- makeLayout(arr, visualSqueeze, legend, axes)
+            arr@layout <- lay
+
+            # Create the viewports as per the optimal layout
+            if(length(extsToPlot)>0) {
+              vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
+              if(!new & !newArr)
+                upViewport(1)
+              pushViewport(vps, recording = FALSE)
+              upViewport(2)
+            }
+
+
+            # Section 8 - the actual Plotting
+            # Plot each element passed to Plot function, one at a time
+            for(grobNamesi in grobNames) {
+              whGrobNamesi <- match(grobNamesi, grobNames)
+
+              whPlot <- match(addTo[whGrobNamesi], arr@names)
+              if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis <- TRUE } else { xaxis <- FALSE}
+                             if((whPlot-1)%%arr@columns==0) { yaxis <- TRUE } else { yaxis <- FALSE}}
+              if(grobNamesi %in% currentNames) {
+                if (!newArr) {
+                  title <- FALSE
+                  legend <- FALSE
+                  xaxis <- FALSE
+                  yaxis <- FALSE
+                }
+              }
+
+              # Activate correct plot viewport (i.e., subplot)
+              seek <- addTo[whGrobNamesi]
+              a <- try(seekViewport(seek, recording=F))
+              if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
+                                                "Try new=TRUE or change device to",
+                                                "one that has a plot named", addTo[whGrobNamesi]))
+
+              grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN)
+              newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
+
+              colour <- if(is.list(cols)) {
+                if(length(cols)==length(lN)) {
+                  cols[[match(grobNamesi, lN)]] # use colours as supplied in the list
+                } else {
+                  cols[[(match(grobNamesi, lN)-1) %% length(cols)+1]] #recycle colours
+                }
+              } else {
+                cols
+              }
+
+              if(is(grobToPlot, "Raster")) { # Rasters require subsampling, using makeColorMatrix fn
+                if(is.null(zoomExtent)) {
+                  zoom <- extent(grobToPlot)
+                  npixels <- ncell(grobToPlot)
+                } else {
+                  zoom <- zoomExtent
+                  npixels <- ncell(crop(grobToPlot,zoom))
+                }
+                if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
+
+
+                maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup
+                if(!is.null(npixels)) {
+                  maxpixels <- min(maxpixels, npixels)
+                  skipSample <- if(is.null(zoomExtent)) {maxpixels>=npixels} else {FALSE}
+                } else {
+                  skipSample <- TRUE
+                }
+
+
+                zMat <- makeColorMatrix(grobToPlot, zoom, maxpixels,
+                                        legendRange, na.color,
+                                        zero.color=zero.color, cols=colour,
+                                        skipSample=skipSample)
+              } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
+                len <- length(grobToPlot)
+                if(len<(1e4/speedup)) {
+                  z <- grobToPlot
+                } else {
+                  z <- sample(grobToPlot, 1e4/speedup)
+                }
+                zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
+                z <- grobToPlot
+                zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              }
+
+              # Actual plotting
+              plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
+                       real=zMat$real,
+                       minv=zMat$minz,
+                       maxv=zMat$maxz,
+                       pch=pch, name = seek,
+                       legend = legend,
+                       gp = gp, draw = draw, speedup=speedup)
+              if(title) grid.text(seek,
+                                  name="title", y=1.08, vjust=0.5, gp = gp)
+
+              if(xaxis) grid.xaxis(name="xaxis", gp = gp)
+              if(yaxis) grid.yaxis(name="yaxis", gp = gp)
+            }
+
+            assign(paste0(".spadesArr", dev.cur()), arr, envir=.spadesEnv)
+          })
 
 
 
@@ -1245,8 +1249,9 @@ setMethod("Plot",
 #'
 #' @param maxpixels numeric. Number of cells to subsample the complete grobToPlot
 #'
-#' @param legendRange numeric vector of length 2, representing the lower and upper bounds of
-#' a legend that will override the data bounds contained within the grobToPlot
+#' @param legendRange numeric vector giving values that, representing the lower
+#' and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
+#' that will override the data bounds contained within the grobToPlot
 #'
 #' @param cols colours specified in a way that can be understood directly or by
 #'  colorRampPalette
@@ -1255,6 +1260,8 @@ setMethod("Plot",
 #'
 #' @param zero.color string indicating the color for zero values, when zero is
 #' the minimum value, otherwise, it is treated as any other color. Default transparent.
+#' Use NULL if zero should be the value given to it by the colortable associated with the
+#' Raster.
 #'
 #' @param skipSample logical. If no downsampling is necessary, skip. Default TRUE.
 #'
@@ -1279,73 +1286,88 @@ setMethod("makeColorMatrix",
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
-            #             minz <- minValue(grobToPlot)
-            #             maxz <- maxValue(grobToPlot)
             if(!skipSample) {
+              colorTable <- getColors(grobToPlot)[[1]]
+              if(!is(try(minValue(grobToPlot)),"try-error")) {
+                minz <- minValue(grobToPlot)
+                maxz <- maxValue(grobToPlot)
+              }
               grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                           ext=zoom, asRaster=TRUE, useGDAL=TRUE)
+              cols=colorTable
             }
             z <- getValues(grobToPlot)
 
-            minz <- min(z, na.rm=T)
+            # If minValue is defined, then use it, otherwise, calculate them.
+            #  This is different than maxz because of the sampleRegular. If the low
+            #  values in the raster are missed in the sampleRegular, then the legend
+            #  will be off by as many as are missing at the bottom; so, use the
+            #  metadata version of minValue, but use the max(z) to accomodate cases
+            #  where there are too many legend values for the number of raster values
+            if(!exists("minz")) {
+              minz <- min(z, na.rm=T)
+            }
+            #
             maxz <- max(z, na.rm=T)
             real <- any(z %% 1 != 0) # Test for real values or not
 
-
-            if (!is.null(cols)) { # if the cols are defined
-              # if zero.color is the default value, and the minValue is not zero,
-              #   don't add it
-              if ((minValue(grobToPlot)!=0) & (zero.color!="#FFFFFF00")) {
-                cols <- cols
-              } else { # otherwise add it
-                cols<-c(zero.color, cols)
-              }
-            # if a colortable is used
-            } else if(sapply(getColors(grobToPlot), length)>0) {
-              cols <- getColors(grobToPlot)[[1]]
-            } else { # these have no cols and no colortable defined, so these are defaults
-              if (minValue(grobToPlot)!=0) {
-                cols<-topo.colors(maxValue(grobToPlot)-minValue(grobToPlot)+1)
-              } else {
-                cols<-c(zero.color, topo.colors(maxValue(grobToPlot)-minValue(grobToPlot)+1))
-              }
-            }
-
-            #cols <- cols[minz:maxz - minz+1] # The actual colors may be fewer in the sampled raster
-            # if data in raster are proportions, must treat colors differently
+            # Deal with colors - This gets all combinations, real vs. integers,
+            #  with zero, with no zero, with NA, with no NA, not enough numbers,
+            #  too many numbers
             maxNumCols = 100
-            if(maxz <= maxNumCols & minz >= 0 & real) {
-              if(length(unique(z))>length(cols)) {
-                cols <- colorRampPalette(cols)(maxNumCols)
-
-                z <- maxNumCols/maxz*z
+            nColors <- ifelse(real,maxNumCols+1, maxz-minz+1)
+            if(is.null(cols)) {
+              if(length(getColors(grobToPlot)[[1]])>0) {
+                cols <- getColors(grobToPlot)[[1]]
+                cols <- if(nColors>length(cols)) {colorRampPalette(cols)(nColors)
+                } else if (nColors<length(cols)) {cols[minz:maxz]
+                } else { cols }
+              } else {
+                cols <- rainbow(nColors)
               }
+            } else {
+              cols <- if(nColors>length(cols)) {colorRampPalette(cols)(nColors)
+              } else if (nColors<length(cols)) {cols[minz:maxz]
+              } else {cols}
             }
 
-            # Single value rasters
-            if((maxz-minz)==0) {
-              legend <- FALSE
-            }
-
-            if ((maxz-minz+1)>length(cols)) { # if not enough colors, make more
-              cols <- colorRampPalette(cols)(maxz-minz+1)
-            }
-
-            if(any(!is.na(legendRange))){
-               if((diff(legendRange)+1)<length(cols)) {
-                 message(paste0("legendRange is not wide enough, using default"))
-               } else {
-                cols <- colorRampPalette(cols)(diff(legendRange)+1)
-                minz <- min(legendRange)
-                maxz <- max(legendRange)
-               }
-            }
 
             # colors are indexed from 1, as with all objects in R, but there are generally
             #  zero values on the rasters, so shift according to the minValue value, if
             # it is below 1. Shift it by 2, 1 to make the zeros into two, the other for the NAs
             #  to be ones
-            z <- z + ((minz<1) * (-minz + 1)) # for the values if below 1
+
+            # If object is real numbers, the default above is to discretize. This is
+            #  particularly bad for numbers below 10. Here, numbers below maxNumCols
+            #  that are reals will be rescaled to max = 100. These are, of course,
+            #  only used for the color matrix, not the values on the Raster
+            if(maxz <= maxNumCols & real) {
+              z <- maxNumCols/maxz*z
+              # rescales so the minimum is 1, not <1
+              z <- z + (((maxNumCols/maxz*minz)<1) * (-(maxNumCols/maxz*minz) + 1)) # for the values if below 1
+            } else { # rescales so that the minimum is 1, not <1
+              z <- z + ((minz<1) * (-minz + 1)) # for the values if below 1
+            }
+
+
+            if(any(!is.na(legendRange))){
+              if((max(legendRange)-min(legendRange)+1)<length(cols)) {
+                message(paste0("legendRange is not wide enough, using default"))
+              } else {
+                minz <- min(legendRange)
+                maxz <- max(legendRange)
+                cols <- colorRampPalette(cols)(maxz-minz+1)
+              }
+            }
+
+
+            # here, the default color (transparent) for zero, if it is the minimum
+            # value, can be overridden
+            if(!is.null(zero.color)) {
+              if(minz==0){
+                cols[1] <- zero.color
+              }
+            }
 
             z <- z + 1 # for the NAs
             z[is.na(z)] <- 1
@@ -1362,8 +1384,8 @@ setMethod("makeColorMatrix",
 #' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
 #' @export
 unittrim <- function(grid.locator) {
-       as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
-   }
+  as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
+}
 
 
 ##############################################################
@@ -1561,4 +1583,3 @@ identifyGrobToPlot <- function(grobNamesi, toPlot, lN) {
     }
   }
 }
-

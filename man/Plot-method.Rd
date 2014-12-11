@@ -45,8 +45,9 @@ downsampling of rasters, so it may produce very pixelated maps.}
 
 \item{legend}{logical. Whether legend should be drawn next to plots. Default is TRUE.}
 
-\item{legendRange}{numeric vector of length 2, representing the lower and upper bounds of
-a legend that will override the data bounds contained within the grobToPlot}
+\item{legendRange}{numeric vector giving values that, representing the lower
+and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
+that will override the data bounds contained within the grobToPlot}
 
 \item{draw}{logical, whether to actually draw the plots. Currently, there is no reason for this
 to be FALSE. Default is TRUE}
@@ -131,17 +132,17 @@ DEM <- landscape$DEM
 
 # can change color palette
 setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
-                           forestCover = RColorBrewer::brewer.pal(9,"Set1"),
-                           forestAge = RColorBrewer::brewer.pal("Blues",n=8),
-                           habitatQuality = RColorBrewer::brewer.pal(9,"Spectral"),
-                           percentPine = RColorBrewer::brewer.pal("GnBu",n=8))
+                           forestCover = RColorBrewer::brewer.pal(9, "Set1"),
+                           forestAge = RColorBrewer::brewer.pal("Blues", n=8),
+                           habitatQuality = RColorBrewer::brewer.pal(9, "Spectral"),
+                           percentPine = RColorBrewer::brewer.pal("GnBu", n=8))
 
 #Make a new raster derived from a previous one; must give it a unique name
 habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
+caribou <- SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
 
 
 #Plot all maps on a new plot windows - Do not use RStudio window
@@ -175,11 +176,11 @@ Plot(landscape, habitatQuality2, caribou)
 # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
 Plot(landscape, caribou)
 Plot(habitatQuality2, new=FALSE)
-Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2))*20-50)
-Sr2 = Polygon(cbind(c(5,4,2,5),c(2,3,2,2))*20-50)
+Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
+Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
 Srs1 = Polygons(list(Sr1), "s1")
 Srs2 = Polygons(list(Sr2), "s2")
-SpP = SpatialPolygons(list(Srs1,Srs2), 1:2)
+SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 Plot(SpP)
 Plot(SpP, addTo="landscape.Fires", gp=gpar(lwd=2))
 
