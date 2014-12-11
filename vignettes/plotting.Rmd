@@ -3,11 +3,11 @@ title: "Plotting with SpaDES"
 author: "Eliot McIntire"
 date: "Friday, September 12, 2014"
 output:
-  html_document:
-    self_contained: no
-    toc: yes
   pdf_document:
     number_sections: yes
+    toc: yes
+  html_document:
+    self_contained: no
     toc: yes
   word_document: default
 ---
@@ -21,7 +21,7 @@ output:
 
 # Plotting in `SpaDES`
 
-One of the major features of the `SpaDES` package is that can take advantage of the numerous visualization tools available natively or through user built packages (e.g., `RgoogleVis`, `ggplot2`, `rgl`). The main plotting function, `Plot` (i.e., with a capital `P`), is built using the grid package. We have specifically built a plotting system that allows for relatively fast plotting of rasters, points, and polygons with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted. In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is. This means that plotting can be treated as modular.  Importantly, conventional R plotting still works fine, so you can use the features provided in this package or you can use base plotting functions without having to relearn a new set of plotting commands. The `Plot` function is therefore intended to be used as a way to interact visually during model development. If fine tuning and customization are desired, other plotting tools may be more suited (e.g., `ggplot2`, or a dedicated GIS program).
+One of the major features of the `SpaDES` package is that can take advantage of the numerous visualization tools available natively or through user built packages (e.g., `RgoogleVis`, `ggplot2`, `rgl`). Nevertheless, none of these was built to be fast, modular, and replottable hundreds, thousands or more times during a simulation model. We therefore built a plotting function to fulfill this need. The main plotting function, `Plot` (i.e., with a capital `P`), is built using the grid package. We have specifically built a plotting system that allows for relatively fast plotting of rasters, points, and polygons with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted. In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is. This means that plotting can be treated as modular.  Importantly, conventional R plotting (e.g., plot, hist, etc.) still works fine, so you can use the features provided in this package or you can use base plotting functions without having to relearn a new set of plotting commands. The `Plot` function is therefore intended to be used as a way to interact visually during model development. If fine tuning and customization are desired, other plotting tools may be more suited (e.g., `ggplot2`, or a dedicated GIS program).
 
 To demonstrate plotting, we first load some maps. These maps are randomly generated maps that come with the `SpaDES` package. In the code snippet below, we create the list of files to load, which is every file in the "maps" subdirectory of the package. Then we load that list of files. Because we specified .stackName in the fileList, the loadFiles function will automatically put the individual layers into a RasterStack; the individual layers will, therefore, not be available as individual objects within the R environment. If `.stackNames` did not exist, then the individual files would be individual objects.
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
@@ -49,7 +49,7 @@ DEM <- landscape$DEM
 There are several features of `Plot` that are worth highlighting. 
 
 ## Layer types
-Its main purpose is to plot spatial type objects. Specifically, it currently can plot RasterLayers, RasterStacks, SpatialPoints*, and SpatialPolygons* objects. 
+Its main purpose is to plot spatial type objects. Specifically, it currently can plot RasterLayers, RasterStacks, SpatialPoints*, and SpatialPolygons* objects. Because `Plot` uses the `grid` package, changing plot parameters is with the `gp=gpar()` designation. See `?gpar` for options.
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
@@ -70,7 +70,7 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 ```
 
 ## Colors
-We likely won't want the default colors for every map. Currently, the best way to change the color of a map is to give it a colortable using the `setColors` function in `SpaDES`. Every RasterLayer can have a colortable, which gives the mapping of raster values to colors. If not already set in the file (many .tif files and other formats already have their colortable set), we can use setColors(Raster*) with a named list of hex colours, if a RasterStack, or just a vector of hex colors if only a single RasterLayer. These can be easily built with the RColorBrewer package, with the function brewer.pal(). But there are many other ways in R, see `colorRampPalette`.
+We likely won't want the default colors for every map. There are two ways to change the color of a map: by adding a `colortable` to a Raster* object (e.g., using the `setColors` function in `SpaDES`), or using the `cols` argument. Adding a colortable to a Raster* will be more persistent (i.e., it will stay with the same color table between calls to `Plot`) than using an argument in the `Plot` function. Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colors. If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colors if only a single `RasterLayer`. These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, or `colorRampPalette` or `heat.colors()` etc.
 
 ```{r set_colors, eval=TRUE, echo=TRUE, fig.height=2}
 # can change color palette
@@ -78,7 +78,7 @@ Plot(landscape, new=TRUE)
 library(RColorBrewer)
 setColors(landscape, n=50) <-
               list(DEM=topo.colors(50),
-                   forestCover=brewer.pal(9, "Set1"),
+                   forestCover=colorRampPalette(c("blue","orange","purple","red"))(50),
                    forestAge=brewer.pal("Blues", n=8),
                    habitatQuality=brewer.pal(9, "Spectral"),
                    percentPine=brewer.pal("GnBu", n=8))
@@ -89,7 +89,7 @@ Plot(landscape[[2:3]])
 ## Mixing Layer Types
 Any combination of RasterStacks, RasterLayers, SpatialPoints*, and SpatialPolygons* objects can be plotted.
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, caribou, DEM, new=TRUE)
+Plot(landscape, caribou, DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5))
 ```
 
 ## `visualSqueeze`
@@ -148,7 +148,7 @@ For SpatialPoints, the default is to only plot 10,000 points; if there are more 
 In the example here, the speedup actually slows down plotting because the rasters are already very small. This would not be the case when the original Raster had 1e8 pixels.
 ```{r speedup, eval=TRUE, echo=TRUE, fig.height=2}
 system.time(Plot(landscape, caribou, DEM, new=TRUE))
-system.time(Plot(landscape, caribou, DEM, speedup=100, new=TRUE))
+system.time(Plot(landscape, caribou, DEM, speedup=10, new=TRUE))
 # can add a new plot to the plotting window
 ```
 

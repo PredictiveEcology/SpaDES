@@ -1286,6 +1286,7 @@ setMethod("makeColorMatrix",
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
+
             if(!skipSample) {
               colorTable <- getColors(grobToPlot)[[1]]
               if(!is(try(minValue(grobToPlot)),"try-error")) {
@@ -1294,7 +1295,7 @@ setMethod("makeColorMatrix",
               }
               grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                           ext=zoom, asRaster=TRUE, useGDAL=TRUE)
-              cols=colorTable
+              if(length(getColors(grobToPlot)[[1]])>0) cols<-colorTable
             }
             z <- getValues(grobToPlot)
 
@@ -1315,6 +1316,7 @@ setMethod("makeColorMatrix",
             #  with zero, with no zero, with NA, with no NA, not enough numbers,
             #  too many numbers
             maxNumCols = 100
+
             nColors <- ifelse(real,maxNumCols+1, maxz-minz+1)
             if(is.null(cols)) {
               if(length(getColors(grobToPlot)[[1]])>0) {
@@ -1323,7 +1325,7 @@ setMethod("makeColorMatrix",
                 } else if (nColors<length(cols)) {cols[minz:maxz]
                 } else { cols }
               } else {
-                cols <- rainbow(nColors)
+                cols <- rev(terrain.colors(nColors))
               }
             } else {
               cols <- if(nColors>length(cols)) {colorRampPalette(cols)(nColors)
