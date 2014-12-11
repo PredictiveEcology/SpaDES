@@ -70,7 +70,7 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 ```
 
 ## Colors
-We likely won't want the default colors for every map. There are two ways to change the color of a map: by adding a `colortable` to a Raster* object (e.g., using the `setColors` function in `SpaDES`), or using the `cols` argument. Adding a colortable to a Raster* will be more persistent (i.e., it will stay with the same color table between calls to `Plot`) than using an argument in the `Plot` function. Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colors. If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colors if only a single `RasterLayer`. These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, or `colorRampPalette` or `heat.colors()` etc.
+We likely won't want the default colors for every map. There are two ways to change the color of a map: by adding a `colortable` to a Raster* object (e.g., using the `setColors` function in `SpaDES`), or using the `cols` argument. Adding a colortable to a Raster* will be more persistent (i.e., it will stay with the same color table between calls to `Plot`) than using an argument in the `Plot` function. Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colors. If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colors if only a single `RasterLayer`. These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, or `colorRampPalette` or `heat.colors()` etc.  Note that overplotting will not overplot the legend; in general, overplotting should be used for cases where the maps are compatible with the underlying map layer. See overplotting below.
 
 ```{r set_colors, eval=TRUE, echo=TRUE, fig.height=2}
 # can change color palette
@@ -130,8 +130,8 @@ Plot(caribou, new=FALSE, axes=FALSE)
 The `Plot` function will overplot the new layer in the location as the layer with the same name. If colors in the layer are not transparent, then this will effectively block the previous plot. *This will automatically set legend, title and axes to FALSE*. 
 ```{r add_with_same_name, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape[[1:3]], new=TRUE)
-landscape$forestAge = (landscape$forestAge +10 %% 100)
-landscape$forestCover = (landscape$forestCover +10 %% 30)
+landscape$forestAge[] = ((landscape$forestAge[] + 10) %% 100)
+landscape$forestCover[] = ((landscape$forestCover[] +10) %% 30)
 # can add a new plot to the plotting window
 Plot(landscape[[2:3]], new=FALSE)
 ```

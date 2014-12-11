@@ -1343,7 +1343,7 @@ setMethod("makeColorMatrix",
             #  particularly bad for numbers below 10. Here, numbers below maxNumCols
             #  that are reals will be rescaled to max = 100. These are, of course,
             #  only used for the color matrix, not the values on the Raster
-            if(maxz <= maxNumCols & real) {
+            if((maxz <= maxNumCols) & real) {
               z <- maxNumCols/maxz*z
               # rescales so the minimum is 1, not <1
               z <- z + (((maxNumCols/maxz*minz)<1) * (-(maxNumCols/maxz*minz) + 1)) # for the values if below 1
