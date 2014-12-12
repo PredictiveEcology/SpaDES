@@ -1,6 +1,8 @@
 shinyUI(fluidPage(
   titlePanel("SpaDES - Ecological Simulation Package in R"),
 
+  tags$script("Shiny.addCustomMessageHandler('messageBox', function(msg){window.alert(msg);})"),
+
   sidebarLayout(
     sidebarPanel(
 

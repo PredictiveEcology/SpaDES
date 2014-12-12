@@ -6,7 +6,7 @@ interactiveExtent <- FALSE
 
 # This is for data loading
 if (Sys.info()["sysname"]=="Linux") {
-  setwd("/mnt/shared/shiny_succession")
+  setwd("/mnt/A105254/shared")
 } else if (Sys.info()["sysname"]=="Windows") {
   setwd("/shared")
 #  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
@@ -165,7 +165,7 @@ setColors(ageMapInit, n=201) <- colorRampPalette(c("LightGreen", "DarkGreen"))(5
 ########################################################################
 # This is for module loading
 if (Sys.info()["sysname"]=="Linux") {
-  setwd("/mnt/shared/shiny_succession")
+  setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
 } else if (Sys.info()["sysname"]=="Windows") {
 #  setwd("/shared/shiny_succession")
   setwd("~/Documents/GitHub/SpaDES/SAMPLE/shiny_succession")
@@ -178,8 +178,8 @@ shinyServer(function(input, output) {
     layers <- reactive({
       times=list(start=2005, stop=input$stopTime)
       parameters <- list(.globals=list(burnStats="nPixelsBurned"),
-                         #.progress=list(NA),
-                         .progress=list(.graphical=TRUE, .progressInterval=1),
+                         .progress=list(NA),
+                         #.progress=list(.graphical=TRUE, .progressInterval=1),
                          forestSuccession=list(returnInterval=1, startTime=2005,
                                                .plotInitialTime=NA, .plotInterval=1),
                          forestAge=list(returnInterval=1, startTime=2005.5,
@@ -239,8 +239,6 @@ shinyServer(function(input, output) {
 
     output$maps <- renderPlot({
       Plot(layers()$ageMap, layers()$vegMap, new=TRUE, title=FALSE)
-#       seekViewport("top")
-#       grid.text(y=0.95, input$stopTime, gp=gpar(cex=2.5))
       seekViewport("ageMap.age")
       grid.text(y=1.05, "Forest Age", gp=gpar(cex=1.5))
       seekViewport("vegMap")
