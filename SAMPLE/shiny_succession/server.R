@@ -288,7 +288,7 @@ shinyServer(function(input, output) {
       if(input$fireModule) {
         Plot(layers()$FiresCumul,
              new=TRUE, title=FALSE, pch=".")
-        seekViewport("top")
+#        seekViewport("top")
         seekViewport("FiresCumul")
         grid.text(y=1.05, "Cumulative fires burned", gp=gpar(cex=1.4))
       }
