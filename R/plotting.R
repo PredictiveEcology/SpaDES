@@ -1312,7 +1312,7 @@ setMethod("makeColorMatrix",
             }
             #
             maxz <- max(z, na.rm=T)
-            real <- any(z %% 1 != 0) # Test for real values or not
+            real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
 
             # Deal with colors - This gets all combinations, real vs. integers,
             #  with zero, with no zero, with NA, with no NA, not enough numbers,
