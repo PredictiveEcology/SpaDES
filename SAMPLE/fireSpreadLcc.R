@@ -148,8 +148,7 @@ fireSpreadLccBurn <- function(sim) {
   #  landscapes$Fires <- Fires
 
   FiresCumul[] <- FiresCumul[] + (Fires[]>0)
-  setColors(FiresCumul,maxValue(FiresCumul)+1) <- c("#FFFFFF",
-                                                    colorRampPalette(c("orange", "darkred"))(maxValue(FiresCumul)))
+  setColors(FiresCumul,maxValue(FiresCumul)+1) <- c(colorRampPalette(c("orange", "darkred"))(maxValue(FiresCumul)))
   assign("Fires", Fires, envir=.GlobalEnv)
   assign("FiresCumul", FiresCumul, envir=.GlobalEnv)
 
