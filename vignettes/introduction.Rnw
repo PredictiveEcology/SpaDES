@@ -219,7 +219,7 @@ landscape[["Fires"]] <-
          plot.it=FALSE,
          mapID=TRUE)
 
-setColors(landscape$Fires)<-paste(c("#000000",brewer.pal(8,"Reds")[5:8]),c("00",rep("FF",4)),sep="")
+setColors(landscape$Fires)<-brewer.pal(8,"Reds")[5:8]
 
 Plot(landscape[["Fires"]], new=TRUE)
 @

@@ -352,18 +352,19 @@ setMethod("plotGrob",
             pr <- pretty(range(minv, maxv))
             pr <- pr[pr<=maxv & pr>=minv]
             maxNumCols=100
-            if(maxv<=maxNumCols ) {
-              if(minv>=0 & real) { # i.e., a proportion or real numbers between 0 and maxNumCols
-                maxcol <- maxNumCols+1 # this corresponds to the maxNumCols in makeColorMatrix, with 1 extra for NAs
-              } else {
-                maxcol<-maxv
-              }
-            } else {
-              maxcol <- maxv - minv + max(1, -minv+1) + 1 # need one for the NA at the bottom,
-              #one for the zero at the bottom, if there, and one
-              #for when taking a difference between two numbers-- need to include
-              # both numbers
-            }
+            maxcol <- length(col)
+#             if(maxv<=maxNumCols ) {
+#               if(minv>=0 & real) { # i.e., a proportion or real numbers between 0 and maxNumCols
+#                 maxcol <- maxNumCols+1 # this corresponds to the maxNumCols in makeColorMatrix, with 1 extra for NAs
+#               } else {
+#                 maxcol<-length(col)#maxv
+#               }
+#             } else {
+#               maxcol <- maxv - minv + max(1, -minv+1) + 1 # need one for the NA at the bottom,
+#               #one for the zero at the bottom, if there, and one
+#               #for when taking a difference between two numbers-- need to include
+#               # both numbers
+#             }
 
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               # name=name,
