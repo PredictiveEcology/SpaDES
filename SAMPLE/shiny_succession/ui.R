@@ -40,7 +40,7 @@ shinyUI(fluidPage(
       plotOutput('lcc05'),
       h4(align="center", textOutput('numPixels')),
       hr(),
-      h4(align="center", "2005"),
+      h3(align="center", "2005"),
       plotOutput('mapsInit'),
       h3(align="center", textOutput('endYear')),
       plotOutput('maps'),
