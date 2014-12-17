@@ -401,3 +401,10 @@ ageMapLg <- projectRaster(age3.crsAge, to=vegMapLcc3, method="ngb")
 
 ```
 Since the raster package can run in "parallel" mode for some of its functions, this reproject raster function reprojected **12 million pixels** in ***`r reproject[3]` seconds*** on a 6 core, hyperthreaded machine (shows up as 12 cores), with a peak 600MB RAM use per core (7.2GB). 
+
+## Links to other benchmark testing with R
+#### Comparing data.table, dplyr, and pandas in Python:
+https://github.com/Rdatatable/data.table/wiki/Benchmarks-%3A-Grouping
+
+#### Comparing data.table and dplyr for split-combine-apply style analysis:
+http://www.brodieg.com/?p=7
