@@ -56,6 +56,7 @@ Collate:
     'probability.R'
     'progress.R'
     'save.R'
+    'spades-package.R'
     'spread-process.R'
 VignetteBuilder: knitr
 BugReports: http://github.com/achubaty/SpaDES/issues

@@ -15,7 +15,7 @@
 #' @name SpaDES-package
 #' @aliases SpaDES spades
 #' @docType package
-#' @author Alex M. Chubaty \email{Alexander.Chubaty@NRCan.gc.ca} and Eliot J. B. McIntire \email{Eliot.McIntire@NRCan.gc.ca}.
+#' @author Alex M. Chubaty \email{Alexander.Chubaty@@NRCan.gc.ca} and Eliot J. B. McIntire \email{Eliot.McIntire@@NRCan.gc.ca}.
 #' @keywords package
 NULL
 
