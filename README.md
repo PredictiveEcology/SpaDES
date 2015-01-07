@@ -16,8 +16,8 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 To install the latest master build:
 
-- Source tarball: [SpaDES_0.4.0.tar.gz](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
-- Windows binary: [SpaDES_0.4.0.zip](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.zip)
+- Source tarball: [SpaDES_0.5.0.tar.gz](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.5.0.tar.gz)
+- Windows binary: [SpaDES_0.5.0.zip](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.5.0.zip)
 
 
 To install `SpaDES` directly from github you will need the `devtools` package:
@@ -26,8 +26,11 @@ To install `SpaDES` directly from github you will need the `devtools` package:
     library("devtools")
 	
     install_github("achubaty/SpaDES")
+    
+    # the suggested package `fastshp` can be installed with:
+    install_github("s-u/fastshp")
 
-**NOTE:** you may get errors relating to not having installed the software tools requried for building R packages on your system:
+**NOTE:** you may get errors relating to not having installed the software tools required for building R packages on your system:
 
 1. For development purposes on a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/);
 2. In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. I recommend [TexLive](https://www.tug.org/texlive/).
