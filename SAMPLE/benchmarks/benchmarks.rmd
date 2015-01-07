@@ -353,8 +353,8 @@ R also has numerous high level functions and packages that allow users to do a d
 
 ```{r download_file, eval=TRUE, echo=TRUE, cache=TRUE}
   library(raster)  
-  lcc05 <- raster("c:/shared/LCC2005_V1_4a.tif")
-  age <- raster("c:/shared/age.tif")
+  lcc05 <- raster("c:/shared/data/LCC2005_V1_4a.tif")
+  age <- raster("c:/shared/data/age.tif")
   
 ```
 
@@ -408,3 +408,52 @@ https://github.com/Rdatatable/data.table/wiki/Benchmarks-%3A-Grouping
 
 #### Comparing data.table and dplyr for split-combine-apply style analysis:
 http://www.brodieg.com/?p=7
+
+## Raster to Polygon
+
+The version of the function to polygonize a raster that exists in the raster package is slow. Thanks to John Baumgartner (http://johnbaumgartner.wordpress.com/2012/07/26/getting-rasters-into-shape-from-r/ ), we can call a GDAL function, if we have python, GDAL core, and GDAL-python bindings installed. This speedup is on the order of 50x-100x, depending on what the output format is. In addition to the instructions on John's web page, there are a few things that need to be done now. First, I used python3.3 because the GDAL python bindings for Windows only existed for 3.3. The current version of python is 3.4.2, so I used a slightly older version for this to work.  And, there are 3 things to install, python, gdal core, and gdal python bindings (available on the gdal web page).
+
+```{r rasterToPolygonsFn, eval=TRUE, echo=FALSE, cache=TRUE}
+gdal_polygonizeR <- function(x, outshape=NULL, gdalformat = 'ESRI Shapefile',
+                             pypath=NULL, readpoly=TRUE, quiet=TRUE) {
+  if (isTRUE(readpoly)) require(rgdal)
+  if (is.null(pypath)) {
+    pypath <- Sys.which('gdal_polygonize.py')
+  }
+  if (!file.exists(pypath)) stop("Can't find gdal_polygonize.py on your system.")
+  owd <- getwd()
+  on.exit(setwd(owd))
+  setwd(dirname(pypath))
+  if (!is.null(outshape)) {
+    outshape <- sub('\\.shp$', '', outshape)
+#     f.exists <- file.exists(paste(outshape, c('shp', 'shx', 'dbf'), sep='.'))
+#     if (any(f.exists))
+#       stop(sprintf('File already exists: %s',
+#                    toString(paste(outshape, c('shp', 'shx', 'dbf'),
+#                                   sep='.')[f.exists])), call.=FALSE)
+  } else outshape <- tempfile()
+  if (is(x, 'Raster')) {
+    require(raster)
+    writeRaster(x, {f <- tempfile(fileext='.asc')})
+    rastpath <- normalizePath(f)
+  } else if (is.character(x)) {
+    rastpath <- normalizePath(x)
+  } else stop('x must be a file path (character string), or a Raster object.')
+  system2('python', args=(sprintf('"%1$s" "%2$s" -f "%3$s" "%4$s.shp"',
+                                  pypath, rastpath, gdalformat, outshape)))
+  if (isTRUE(readpoly)) {
+    shp <- readOGR(dirname(outshape), layer = basename(outshape), verbose=!quiet)
+    return(shp)
+  }
+  return(NULL)
+}
+```
+
+```{r rasterToPolygon, eval=TRUE, echo=TRUE}
+(mbRasterToPoly <- microbenchmark(times=1L,
+#ageMapPoly <- rasterToPolygons(ageMapSmall, dissolve=TRUE),
+ageMapPolypy <- gdal_polygonizeR(ageMapSmall, outshape=file.path("c:","Temp","age"))
+))
+#endCluster()
+
+```
