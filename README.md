@@ -25,7 +25,7 @@ To install `SpaDES` directly from github you will need the `devtools` package:
     install.packages("devtools")
     library("devtools")
 	
-    install_github("achubaty/SpaDES")
+    install_github("achubaty/SpaDES", ref="development")
     
     # the suggested package `fastshp` can be installed with:
     install_github("s-u/fastshp")
