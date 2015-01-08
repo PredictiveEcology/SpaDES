@@ -7,10 +7,10 @@
 
 library("SpaDES")
 
-fileList = data.frame(files = dir(file.path(find.package("SpaDES",
-#                                                         lib.loc=getOption("devtools.path"),
-                                                         quiet=FALSE),"maps"),
-                                  full.names=TRUE, pattern= "tif"),
+fileList = data.frame(files=dir(file.path(find.package("SpaDES",
+                                                       lib.loc=.libPaths(),
+                                                       quiet=FALSE), "maps"),
+                                full.names=TRUE, pattern= "tif"),
                       functions="rasterToMemory",
                       packages="SpaDES",
                       stringsAsFactors=FALSE)
