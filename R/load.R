@@ -343,8 +343,7 @@ setMethod("loadFiles",
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.globals=list(.stackName=stackName),
                                        .loadFileList=fileList),
-                           modules=list(), path="."
-            )
+                           modules=list(), path=".")
             return(invisible(sim))
           })
 

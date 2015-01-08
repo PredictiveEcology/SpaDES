@@ -7,5 +7,6 @@ numbers
 raster
 Rcpp
 rgdal
+rgeos
 snow
 sp
