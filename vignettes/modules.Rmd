@@ -27,7 +27,7 @@ A `SpaDES` module consists of a single `.R` source file, containing the code for
 
 ## Events
 
-### Simulation event list}
+### Simulation event list
 
 The event queue is stored in a slot in a `simList` simulation object. Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`). This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list. Completed events are removed from the queue.
 
@@ -49,16 +49,13 @@ As you build your modules for your simulation, you can use any of `R`'s data typ
 
 ### Global objects
 
-
 `R` passes copies of objects to functions (instead of using pass-by-reference), so the typical `R` function never acts directly on the global copy of the variable. Within a function, all operations are generally performed on a local copy of the object, which is then either discarded or returned back to the parent environment upon when the function completes. This object-copying behaviour has given `R` a reputation of being slow in comparison to languages like C and FORTRAN. However, recent improvements to `R` have made it more memory efficient and faster to execute, in part by minimizing the number of object copies made.
-
 
 One way to reduce object copying is to work directly on objects in the global environment. Although this practice is not common among `R` users, it can be done. Use the superassignment operator (`<<-`) to assign global objects to reduce copying large objects (such as maps), which slows model execution. Altenatively (and more "correctly"), use the `assign` function to assign objects directly to the global environment. Likewise, use `get` to bring global objects into your functions.
 
 ### Module object dependencies
 
 As noted above, modules should not depend on one another for event scheduling. However, it is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. Modules can be designed to rely on outputs (data objects) from other modules. When objects are shared between modules, it is important to state these dependencies explicitly. To check whether global objects upon which a model depends exist, a call to `checkObject` is made during module initilization.
-
 
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
 
