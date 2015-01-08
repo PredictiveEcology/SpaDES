@@ -229,23 +229,17 @@ See above for more details.
 ## Generate random landscapes (`randomLandscapes`)
 
 ```{r randomLandscapes, echo=FALSE, eval=TRUE}
-#source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
-path <- file.path("~", "Documents", "GitHub", "SpaDES", "inst", "sampleModules")
-source(file.path(path, "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
 ## Simulate fire spread on a landscape (`fireSpread`)
 
 ```{r fireSpread, echo=FALSE, eval=TRUE}
-#source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
-path <- file.path("~", "Documents", "GitHub", "SpaDES", "inst", "sampleModules")
-source(file.path(path, "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
 ## Agent based model of caribou movement (`caribouMovement`)
 
 ```{r caribouMovement, echo=FALSE, eval=TRUE}
-#source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
-path <- file.path("~", "Documents", "GitHub", "SpaDES", "inst", "sampleModules")
-source(file.path(path, "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 ```
