@@ -41,7 +41,7 @@ setMethod("loadPackages",
                     install.packages(name, repos="http://cran.r-project.org")
                     library(name, character.only=TRUE)
                     } else {
-                      warning(paste("Warning: unable to load package ", name, ". Is it installed?", sep=""))
+                      message(paste("NOTE: unable to load package ", name, ". Is it installed?", sep=""))
                     }
                   }
                 }
@@ -155,7 +155,7 @@ setMethod("checkObject",
               if (!is.na(match(layer, names(object)))) {
                 return(invisible(TRUE))
               } else {
-                warning(paste(deparse(substitute(object,env=.GlobalEnv)),"exists, but",layer,"is not a layer"))
+                message(paste(deparse(substitute(object,env=.GlobalEnv)),"exists, but",layer,"is not a layer"))
                 return(FALSE)
               }
 })
@@ -167,7 +167,7 @@ setMethod("checkObject",
             if(exists(deparse(substitute(object)),envir=.GlobalEnv)) {
               return(invisible(TRUE))
             } else {
-              warning(paste(deparse(substitute(object,env=.GlobalEnv)),"does not exist"))
+              message(paste(deparse(substitute(object,env=.GlobalEnv)),"does not exist"))
               return(FALSE)
             }
 })
@@ -180,7 +180,7 @@ setMethod("checkObject",
             if (exists(name, envir=.GlobalEnv)) {
                 return(invisible(TRUE))
             } else {
-              warning(paste(name,"does not exist in the global environment"))
+              message(paste(name,"does not exist in the global environment"))
               return(FALSE)
             }
 })
@@ -193,12 +193,12 @@ setMethod("checkObject",
               if(is(get(name, envir=.GlobalEnv),"Raster")) {
                 checkObject(object=get(name, envir=.GlobalEnv), layer=layer, ...)
               } else {
-                warning(paste("The object \"",name,"\" exists, but is not
+                message(paste("The object \"",name,"\" exists, but is not
                               a Raster, so layer is ignored",sep=""))
                 return(invisible(TRUE))
               }
             } else {
-              warning(paste(name,"does not exist in the global environment"))
+              message(paste(name,"does not exist in the global environment"))
               return(FALSE)
             }
 })
@@ -220,7 +220,7 @@ setMethod("checkObject",
 #' @param ...    Additional arguments. Not implemented.
 #'
 #' @return  Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
-#'          Sensible warning messages are be produced identifying missing params.
+#'          Sensible messages are be produced identifying missing params.
 #'
 #' @export
 #' @docType methods
@@ -269,7 +269,7 @@ setMethod("checkParams",
                   result <- grep(uP, readLines(paste(path, "/", uM, ".R", sep="")), value=FALSE)
                   if (length(result)<=0) {
                     allFound <- FALSE
-                    warning(paste("Parameter", uP, "is not used in module", uM))
+                    message(paste("Parameter", uP, "is not used in module", uM))
                   }
                 }
               }
@@ -279,7 +279,7 @@ setMethod("checkParams",
             notFound <- setdiff(names(globalParams), globalsFound)
             if (length(notFound)>0) {
               allFound <- FALSE
-              warning(paste("Global parameters", notFound, "are not used in any module."))
+              message(paste("Global parameters", notFound, "are not used in any module."))
             }
 
             ### check whether each param in a module's .R file occurs in simInit
@@ -326,7 +326,7 @@ setMethod("checkParams",
                     mP <- moduleParams[i]
                     if (!(mP %in% userParams)) {
                       allFound <- FALSE
-                      warning(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
+                      message(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
                     }
                   }
                 }
@@ -336,7 +336,7 @@ setMethod("checkParams",
               notFound <- setdiff(globalsFound, names(globalParams))
               if (length(notFound)>0) {
                 allFound <- FALSE
-                warning(paste("The following global parameters are used in module", uM,
+                message(paste("The following global parameters are used in module", uM,
                               "but not supplied to simInit in .globals:", unlist(notFound)))
               }
             }
