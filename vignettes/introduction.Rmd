@@ -1,7 +1,7 @@
 ---
-title: "Introduction to SpaDES"
+title: "Introduction to `SpaDES`"
 author: "Alex M. Chubaty and Eliot J. B. McIntire"
-date: "January 7, 2015"
+date: "`r paste(strsplit(date(), ' ')[[1]][c(2,3,5)], collapse=' ')`"
 output:
   pdf_document:
     number_sections: yes
@@ -10,14 +10,12 @@ output:
     self_contained: no
     toc: yes
   word_document: default
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Introduction to SpaDES}
+  %\VignetteDepends{SpaDES}
+  %\VignetteKeyword{discrete event simulation}
 ---
-
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Introduction to SpaDES}
-%\VignetteDepends{SpaDES}
-%\VignetteKeyword{discrete event simulation}
--->
 
 **Abstract:** Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 

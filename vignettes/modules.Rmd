@@ -1,7 +1,7 @@
 ---
-title: "Building modules in SpaDES"
+title: "Building modules in `SpaDES`"
 author: "Alex M. Chubaty"
-date: "January 7, 2015"
+date: "`r paste(strsplit(date(), ' ')[[1]][c(2,3,5)], collapse=' ')`"
 output:
   pdf_document:
     number_sections: yes
@@ -10,14 +10,12 @@ output:
     self_contained: no
     toc: yes
   word_document: default
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Building modules in SpaDES}
+  %\VignetteDepends{SpaDES}
+  %\VignetteKeyword{module}
 ---
-
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Building modules in SpaDES}
-%\VignetteDepends{SpaDES}
-%\VignetteKeyword{module}
--->
 
 # Introduction
 
