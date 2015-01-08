@@ -78,8 +78,13 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
+    # e.g., call your custom functions/methods here
+    # you can define your own methods below this `doEvent` function
+
     # schedule future event(s)
-    sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"init\")
+
+    # e.g.,
+    # sim <- scheduleEvent(sim, simCurrentTime(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {
