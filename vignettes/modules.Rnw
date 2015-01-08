@@ -44,7 +44,7 @@
 \subsection{Module overview}
 
 \paragraph{}
-As described in the introductory vignette, \texttt{SpaDES} is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A \texttt{SpaDEs} module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
+As described in the introductory vignette, \texttt{SpaDES} is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A \texttt{SpaDES} module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
 \paragraph{}
 A \texttt{SpaDES} module consists of a single \texttt{.R} source file, containing the code for 1) defining the event types described in the module, and 2) describing what happens during the processing of each event type.
