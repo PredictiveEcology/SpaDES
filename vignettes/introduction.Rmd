@@ -19,15 +19,13 @@ output:
 %\VignetteKeyword{discrete event simulation}
 -->
 
-# Introduction to `SpaDES`
-
 **Abstract:** Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
 **Website:** [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
 
-## Introduction
+# Introduction to `SpaDES`
 
-### Objectives and motivations
+## Objectives and motivations
 
 Building spatial simulation models often involves reusing various components, often having to reimplement similar fuctionality in multiple simulation frameworks (*i.e*, in different programming languages). When various components of a simulaiton model become fragmented across multiple platforms, it becomes increasingly difficult to link these various components, and often solutions for this problem are idiosyncratic and specfic to the model being implemented.
 
@@ -45,7 +43,7 @@ When beginning development of this package, we sought a general simulation platf
 
 We selected `R` as the system within which to build `SpaDES`. `R` is currently the *lingua franca* for scientific data analysis. This means that anything developed in `SpaDES` is simply `R` code and can be easily shared with journals and the scientific community. We can likewise leverage `R`'s strengths as a data platform, its capabilities to run external code such as C and Python, call external software such as databases, its excellent visualization and graphics, and its abilities for high performance computing. We don't have to implement all of these from scratch ourselves!
 
-### Discrete event simulation and `SpaDES`
+## Discrete event simulation and `SpaDES`
 
 Discrete event simulation (DES) as implement here is "event driven", meaning that an activity changes the state of the system at particluar times (called events). This approach assumes that state of the system only changes due to events, therefore there is no change between events. A particular activity may have several events associated with it. Future events are scheduled in an event queue, and then processed in chronological order.  Because the system state doesn't change between events, we do not need to `run the clock' in fixed increments each timestep. Rather, time advances to the time of the next event in the queue.
 
@@ -55,11 +53,11 @@ Discrete event simulation (DES) as implement here is "event driven", meaning tha
 
 ![](../inst/doc/SpaDES-overview-diagram.pdf "Schematic representation of a `SpaDES` simulation model.")
 
-### `SpaDES` demos and sample modules
+## `SpaDES` demos and sample modules
 
 The static nature of PDFs does not allow us to really show off the simulation visualization components of this package, so we invite you to check out the included demos, to run the sample simulation provided in this vignette, and to view the source code for the sample modules included in this package.
 
-#### Demos
+### Demos
 
 ```{r SpaDES-demo, eval=FALSE, echo=TRUE}
 library("SpaDES")
@@ -68,7 +66,7 @@ library("SpaDES")
 demo("spades-simulation", package="SpaDES")
 ```
 
-#### Sample model
+### Sample model
 
 ```{r using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
 library("SpaDES")
@@ -94,15 +92,16 @@ mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 spades(mySim)
 ```
 
-## Using `SpaDES` to build simulations
+# Using `SpaDES` to build simulations
 
 **Requirements:** This packages makes heavy use of the `raster` and `sp` packages, so familiarity with these packages, their classes and methods is recommended. Plotting features are built using the `grid` package.
 
-### Setting up a simulation:
+## Setting up a simulation:
 
 As you can see in the sample simulation code provided above, setting up and running a simulation in `SpaDES` is straightforward using existing modules. You need to specify somethings about the simulation environment including 1) all parameter values passed to the simulation, 2) which modules to use for the sim, and 3) any global data objects that should be used to store the simulation state. Each of these are passed as named lists to the simulation object upon initilization.
 
-**Initializing a simulation:**
+### Initializing a simulation:
+
 The details of each simulation are stored in an S4 `simList` object, including the simulation parameters and modules used, as well as storing the current state of the simulation and the future event queue. A list of all completed events is also stored, which can provide useful debugging information.
 
 
@@ -114,14 +113,13 @@ You can inspect the contents of a `simList` object as you would any other `R` ob
 
 Once a simulation is properly initialized it is executed using the `SpaDES` function. By default, a progress bar is displayed in the console (this can be customized), and any specified files are loaded (via including a fileList dataframe, see examples). Debugging mode (setting `spades(mySim, debug=TRUE)`) prints the contents of the `simList` object after the completion of every event during simulation.
 
-## SpaDES modules}
+## SpaDES modules
 
 `SpaDES` modules are event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of the simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
-
 The power of `SpaDES` is in modularity and the ease with which existing modules can be modified and new modules created. This vignette will highlight general use of the package and its features using the sample modules provided. Creating and customizing modules is a whole topic unto itself, and for that reason we have created a separate [`modules` vignette](modules.html) with more details on module development.
 
-## Simulation and data
+# Simulation and data
 
 Historically, simulation models were built separately from the analysis of input data (*e.g.*, via regression) and outputs of data (*e.g.*, graphically, statistically). On the input data side, this effectively broke the linkage between data (*e.g.*, from field or satellites) and the simulation. This has the undesired effect of creating the appearance of reduced uncertainty in simulation model predictions, by breaking correlations between parameter estimates (that invariably occur in analyses of real data). Conversely, on the data output side, numerous tools, such as optimization (*e.g.*, pattern oriented modeling) or statistical analyses could not directly interact with the simulation model, unless a specific extension was built for that purpose. In R, those tools already exist and are robust. Thus, validation, calibration, and verification of simulation models can become rolled into the simulation model itself. This enhances transparency and reproducibility, both desired properties for scientific studies.
 
@@ -153,9 +151,9 @@ mySim <- simInit(times=list(start=0.0, stop=10),
 spades(mySim)
 ```
 
-## Modelling spread processes}
+# Modelling spread processes
 
-### A simple fire model}
+## A simple fire model
 
 Using the `spread` function, we can simulate fires, and subsequent changes to the various map layers. Here, `spreadProb` can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
 
@@ -211,10 +209,10 @@ landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
 Plot(landscape, new=TRUE)
 ```
 
-## Agent based modelling
+# Agent based modelling
 A primary goal of developing `SpaDES` was to facilitate the development of agent-based models (ABMs), also known as individual-based models (IBMs).
 
-### Point agents
+## Point agents
 
 As ecologists, we are usually concerned with modelling individuals (agents) in time and space, and whose spatial location (position) can be represented as a single point on a map. These types of agents can easily be represented most simply by a single set of coordinates indicating their current position, and can simulated using a `SpatialPoints` object. Additionally, a `SpatialPointsDataFrame` can be used, which provides storage of additional information beyond agents' coordinates as needed.
 
@@ -265,11 +263,11 @@ for (t in 1:10) {
 }
 ```
 
-#### Polygons agents
+## Polygons agents
 
 Analogously, it is possible to use `SpatialPolygons*`, but we haven't built `Plot` plotting methods for these yet.
 
-## Putting it all together
+# Putting it all together
 
 Running multiple simulations with different parameter values is a critical part of sensitivity analysis, simulation experiments, optimization, and pattern oriented modelling. Below is a greatly simplified example, using the sample `randomLandscapes` and `fireSpread` modules. *NB only two parameters are varied; no outputs are saved; and the analyses done here are kept simple for illustrative purposes. This will take a while to run!*
 
@@ -357,9 +355,9 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 
 ![](../inst/doc/plot-area-burned.pdf "Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.")
 
-## Additonal resources
+# Additonal resources
 
-### `SpaDES` documentation and vignettes
+## `SpaDES` documentation and vignettes
 
 **Vignettes:**
 
@@ -368,6 +366,6 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 - [`plotting`](plotting.html): Plotting with `SpaDES`.
 - [`debugging`](debugging.html): Debugging `SpaDES` simulations [Not yet written].
 
-### Reporting bugs
+## Reporting bugs
 
 As with any software, there are likely to be issues. If you believe you have found a bug, please contact us via the package GitHub site: [https://github.com/achubaty/SpaDES/issues](https://github.com/achubaty/SpaDES/issues). Please do not use the issue tracker for general help requests. We will soon be setting up a help mailing list soon for users who seek assistance using `SpaDES`.
