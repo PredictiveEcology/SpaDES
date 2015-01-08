@@ -23,7 +23,7 @@ checkParams(sim, defaultModules, defaultParams, path, ...)
 }
 \value{
 Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
-         Sensible warning messages are be produced identifying missing params.
+         Sensible messages are be produced identifying missing params.
 }
 \description{
 Checks that all parameters passed are used in a module,
