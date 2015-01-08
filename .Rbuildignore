@@ -10,4 +10,4 @@ old/*
 ^SAMPLE$
 vignettes/*
 .travis.yml
-
+cran-comments.md
