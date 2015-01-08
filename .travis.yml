@@ -6,12 +6,18 @@
 
 language: c
 
+env:
+  - BOOTSTRAP_LATEX=0
+  - WARNINGS_ARE_ERRORS=1
+  - _R_CHECK_FORCE_SUGGESTS_=0
+
 before_install:
   - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
 install:
   - ./travis-tool.sh install_r_binary boot chron colorspace dichromat digest ggplot2 gtable labeling lattice latticeextra mass matrix munsell nlme proto randomfields rcolorbrewer rcpp reshape rgdal scales snow sp stringr tkrplot xts zoo
+  - ./travis-tool.sh install_github s-u/fastshp
   - ./travis-tool.sh install_deps
 script: ./travis-tool.sh run_tests
 
