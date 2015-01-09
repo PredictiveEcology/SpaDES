@@ -7,7 +7,7 @@
 ## R CMD check results
 There were no ERRORs or WARNINGs
 
-- automated builds on headless servers (i.e., without X11) may generate warning when loading dependencies (tcltk) due to no DISPLAY variable being set. This is not a problem otherwise.
+- automated builds on headless servers (i.e., without X11) may generate warning when loading dependencies (`tcltk`) due to no DISPLAY variable being set. This is not a problem otherwise.
 
 There were 2 NOTES:
 
