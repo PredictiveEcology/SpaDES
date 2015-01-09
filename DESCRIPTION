@@ -8,8 +8,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps.
 URL: http://github.com/achubaty/SpaDES
-Version: 0.5.0.9011
-Date: 2015-01-08
+Version: 0.5.0.9012
+Date: 2015-01-09
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",
@@ -59,4 +59,5 @@ Collate:
     'spades-package.R'
     'spread-process.R'
 VignetteBuilder: knitr
-BugReports: http://github.com/achubaty/SpaDES/issues
+BugReports: https://github.com/achubaty/SpaDES/issues
+Additional_repositories: https://github.com/s-u/fastshp

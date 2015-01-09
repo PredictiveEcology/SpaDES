@@ -11,3 +11,4 @@ old/*
 vignettes/*
 .travis.yml
 cran-comments.md
+
