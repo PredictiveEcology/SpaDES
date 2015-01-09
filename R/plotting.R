@@ -299,6 +299,12 @@ setMethod("arrangeViewports",
 #' large distance matrices to be calculated, slowing plotting down. Too little thinning
 #' causes an overabundance of points to be plotted, slowing plotting down.
 #'
+#' The suggested package `fastshp` can be installed with:
+#'   \code{devtools::install_github("s-u/fastshp")}
+#' **NOTE:** you may get errors relating to not having installed the software tools required for building R packages on your system:
+#'  1. For development purposes on a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/);
+#'
+#'
 #' @param grobToPlot Raster*, SpatialPoints*, SpatialPolygons* object
 #'
 #' @param col Currently only used for the legend of a Raster* object.

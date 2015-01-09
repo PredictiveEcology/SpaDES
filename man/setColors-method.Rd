@@ -7,9 +7,6 @@
 \alias{setColors<-,Raster,numeric,list-method}
 \alias{setColors<-,RasterLayer,missing,character-method}
 \alias{setColors<-,RasterLayer,numeric,character-method}
-\alias{setColors<-Raster,numeric,list-method}
-\alias{setColors<-RasterLayer,missing,character-method}
-\alias{setColors<-RasterLayer,numeric,character-method}
 \title{Set colours for plotting Raster* objects.}
 \usage{
 setColors(object, ..., n) <- value

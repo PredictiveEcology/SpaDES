@@ -1,11 +1,15 @@
 Known issues: https://github.com/achubaty/SpaDES/issues
 
-version 0.5.0.9003
+version 0.5.0
 =============
 * overhaul to Plot function, now does not need *Named objects.
 * Deprecated all *Named functionality - All code will break that uses *Named objects
 * Reduced number of packages on which SpaDES "depends".
-* Plot now handles SpatialPolygons objects much faster than default plot. Uses package fastshp
+* Plot now handles SpatialPolygons objects much faster than default plot. Uses package fastshp.
+    * The suggested package `fastshp` can be installed with:
+
+        install_github("s-u/fastshp")
+
 * bugfixes
 
 version 0.4.0
