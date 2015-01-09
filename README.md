@@ -14,20 +14,17 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 ## Installation
 
-To install the latest master build:
+Either download the source tarball (.tar.gz) or windows package binary (.zip) from [https://github.com/achubaty/SpaDES/tree/development](https://github.com/achubaty/SpaDES/tree/development).
 
-- Source tarball: [SpaDES_0.5.0.x.tar.gz](https://github.com/achubaty/SpaDES/raw/development/SpaDES_0.5.0.9011.tar.gz)
-- Windows binary: [SpaDES_0.5.0.x.zip](https://github.com/achubaty/SpaDES/raw/development/SpaDES_0.5.0.9011.zip)
-
-
-To install `SpaDES` directly from github you will need the `devtools` package:
+Or install `SpaDES` directly from github you will need the `devtools` package:
 
     install.packages("devtools")
     library("devtools")
 	
     install_github("achubaty/SpaDES", ref="development")
     
-    # the suggested package `fastshp` can be installed with:
+The suggested package `fastshp` can be installed with:
+
     install_github("s-u/fastshp")
 
 **NOTE:** you may get errors relating to not having installed the software tools required for building R packages on your system:
