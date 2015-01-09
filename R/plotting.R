@@ -450,7 +450,7 @@ setMethod("plotGrob",
               xyOrd <- xyOrd[thinned, ]
               idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
             } else {
-              warning(paste("To speed up Polygons plotting using Plot please download fastshp",
+              message(paste("To speed up Polygons plotting using Plot please download fastshp",
                             "#install.packages(\"devtools\")",
                             "library(\"devtools\")",
                             "install_github(\"s-u/fastshp\")", sep="\n",
