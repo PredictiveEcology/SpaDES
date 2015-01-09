@@ -60,4 +60,3 @@ Collate:
     'spread-process.R'
 VignetteBuilder: knitr
 BugReports: https://github.com/achubaty/SpaDES/issues
-Additional_repositories: https://github.com/s-u/fastshp

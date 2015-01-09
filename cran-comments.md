@@ -11,7 +11,7 @@ There were no ERRORs or WARNINGs
 
 There were 2 NOTES:
 
-1. This is a new CRAN package submission. The `fastshp` package in Suggests is not required, though instructions for installation via GitHub are provided to the user via a message.
+1. This is a new CRAN package submission. The `fastshp` package in Suggests is not required, though instructions for installation via GitHub are provided in the README and via a message to the user.
 
         * checking CRAN incoming feasibility ... NOTE
         Maintainer: ‘Alex M Chubaty <Alexander.Chubaty@NRCan.gc.ca>,
@@ -19,9 +19,6 @@ There were 2 NOTES:
         New submission
         Suggests or Enhances not in mainstream repositories:
           fastshp
-          Availability using Additional_repositories specification:
-          fastshp   no
-                         https://github.com/s-u/fastshp
         Package has a VignetteBuilder field but no prebuilt vignette index.
 
 2. We provide helper functions that assist with loading user data into the global environment.
