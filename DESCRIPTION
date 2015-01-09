@@ -6,11 +6,13 @@ Description: Easily implement a variety of simulation models, with a focus on
     built upon a discrete event simulation framework that facilitates
     modularity, and easily enables the user to include additional functionality
     by running user-built simulation modules. Included are numerous tools to
-    visualize raster and other maps. The suggested package `fastshp` can be installed
-    with: install_github("s-u/fastshp").
+    visualize raster and other maps. The suggested package `fastshp` can be
+    installed with `devtools::install_github("s-u/fastshp")`; installation of
+    development packages on Windows requires Rtools (http://cran.r-project.org/bin/windows/Rtools).
+    require Rtools
 URL: http://github.com/achubaty/SpaDES
-Version: 0.5.0.9012
-Date: 2015-01-09
+Version: 0.5.0.9000
+Date: 2015-01-10
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",
