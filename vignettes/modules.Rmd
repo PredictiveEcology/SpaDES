@@ -15,7 +15,7 @@ vignette: >
   %\VignetteIndexEntry{Building modules in SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{module}
-  \usepackage[utf8]{inputenc}
+  %\usepackage[utf8]{inputenc}
 ---
 
 # Introduction

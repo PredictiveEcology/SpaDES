@@ -15,7 +15,7 @@ vignette: >
   %\VignetteIndexEntry{Plotting with SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}
-  \usepackage[utf8]{inputenc}
+  %\usepackage[utf8]{inputenc}
 ---
 
 # Plotting in `SpaDES`
