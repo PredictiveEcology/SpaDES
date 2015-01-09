@@ -97,7 +97,7 @@ spades(mySim)
 
 ## Setting up a simulation:
 
-As you can see in the sample simulation code provided above, setting up and running a simulation in `SpaDES` is straightforward using existing modules. You need to specify somethings about the simulation environment including 1) all parameter values passed to the simulation, 2) which modules to use for the sim, and 3) any global data objects that should be used to store the simulation state. Each of these are passed as named lists to the simulation object upon initilization.
+As you can see in the sample simulation code provided above, setting up and running a simulation in `SpaDES` is straightforward using existing modules. You need to specify some things about the simulation environment including 1) all parameter values passed to the simulation, 2) which modules to use for the sim, and 3) any global data objects that should be used to store the simulation state. Each of these are passed as named lists to the simulation object upon initilization.
 
 ### Initializing a simulation:
 
