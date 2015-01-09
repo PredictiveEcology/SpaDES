@@ -1,0 +1,18 @@
+
+
+Non-temporal Data sources:
+
++ Forest Inventory data
++ KNN Forest Cover by species
+
+
+Time series data sources:
+
++ Forest Inventory data - subsets in Alberta
++ Permanent Sample Plots
++ National Forest Inventory
++ Lansat
+
+
+
+
