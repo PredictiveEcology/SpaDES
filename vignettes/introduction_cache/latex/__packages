@@ -1,9 +1,9 @@
 base
 data.table
 sp
-RColorBrewer
 raster
 SpaDES
-rgdal
+RColorBrewer
 tkrplot
 RandomFields
+rgdal
