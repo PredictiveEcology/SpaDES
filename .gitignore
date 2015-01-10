@@ -10,6 +10,7 @@ output/
 SAMPLE/chkpnt.RData
 SAMPLE/shiny_succession/data
 vignettes/.build.timestamp
+vignettes/*_cache
 
 #################
 ## LaTeX
