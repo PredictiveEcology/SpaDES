@@ -8,8 +8,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps. The suggested package `fastshp` can be
     installed with `devtools::install_github("s-u/fastshp")`; installation of
-    development packages on Windows requires Rtools (http://cran.r-project.org/bin/windows/Rtools).
-    require Rtools
+    development packages on Windows requires Rtools
+    (http://cran.r-project.org/bin/windows/Rtools). require Rtools
 URL: http://github.com/achubaty/SpaDES
 Version: 0.5.0.9000
 Date: 2015-01-10
