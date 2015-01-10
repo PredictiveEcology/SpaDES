@@ -37,8 +37,6 @@ The suggested package `fastshp` can be installed with:
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("achubaty/SpaDES", ref="development", build=FALSE)`.
 
-You can access prebuilt versions of the vignettes from here: [intro](https://github.com/achubaty/SpaDES/blob/development/vignettes/introduction.pdf?raw=true), [modules](https://github.com/achubaty/SpaDES/blob/development/vignettes/modules.pdf?raw=true), [plotting](https://github.com/achubaty/SpaDES/blob/development/vignettes/plotting.pdf?raw=true).
-
 ## Reporting bugs
 
 Contact us via the package GitHub site: [https://github.com/achubaty/SpaDES/issues](https://github.com/achubaty/SpaDES/issues).

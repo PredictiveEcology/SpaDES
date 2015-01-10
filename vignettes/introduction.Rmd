@@ -50,7 +50,7 @@ Discrete event simulation (DES) as implement here is "event driven", meaning tha
 
 `SpaDES` provides such a framework, facilitating interaction between multiple processes (built as "modules") that don't interact with one another directly, but are scheduled in the event queue and carry out operations on shared data objects in the global simulation environment. This package provides tools for building modules natively in `R` that can be reused. Additionally, because of the flexibility`R` provides for interacting with other programming languages and external data sources, modules can also be built using external tools and integrated with `SpaDES`.
 
-![](../inst/doc/SpaDES-overview-diagram.pdf "Schematic representation of a `SpaDES` simulation model.")
+![](../inst/figs/SpaDES-overview-diagram.pdf "Schematic representation of a `SpaDES` simulation model.")
 
 ## `SpaDES` demos and sample modules
 
@@ -352,7 +352,7 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 "pSpread", "pmean", "psd"), row.names = c(NA, -25L), class = "data.frame")
 ```
 
-![](../inst/doc/plot-area-burned.pdf "Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.")
+![](../inst/figs/plot-area-burned.pdf "Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.")
 
 # Additonal resources
 
