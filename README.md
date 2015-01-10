@@ -30,11 +30,11 @@ The suggested package `fastshp` can be installed with:
 **NOTE:** you may get errors relating to not having installed the software tools required for building R packages on your system:
 
 1. For development purposes on a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/);
-2. In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. I recommend [TexLive](https://www.tug.org/texlive/).
+2. In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
-If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("achubaty/SpaDES", ref="development", build=FALSE)`. You can access prebuilt versions of the vignettes from here: [intro](https://github.com/achubaty/SpaDES/blob/development/vignettes/introduction.pdf?raw=true), [modules](https://github.com/achubaty/SpaDES/blob/development/vignettes/modules.pdf?raw=true), [plotting](https://github.com/achubaty/SpaDES/blob/development/vignettes/plotting.pdf?raw=true).
+If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("achubaty/SpaDES", ref="development", build=FALSE)`.
 
-These won't be issues once the package is available via CRAN.
+You can access prebuilt versions of the vignettes from here: [intro](https://github.com/achubaty/SpaDES/blob/development/vignettes/introduction.pdf?raw=true), [modules](https://github.com/achubaty/SpaDES/blob/development/vignettes/modules.pdf?raw=true), [plotting](https://github.com/achubaty/SpaDES/blob/development/vignettes/plotting.pdf?raw=true).
 
 ## Reporting bugs
 

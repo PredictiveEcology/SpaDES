@@ -295,9 +295,16 @@ setMethod("arrangeViewports",
 #' \code{speedup} is only used for SpatialPolygons in this function. Attempts have been made
 #' to subsample at a good level that optimizes speed of plotting, without losing visible
 #' quality. From a speed perspective, there appears to be an optimal subsampling
-#' when using \code{thin} from fastshp. Presumably too much thinning requires
+#' when using \code{thin} from \code{fastshp}. Presumably too much thinning requires
 #' large distance matrices to be calculated, slowing plotting down. Too little thinning
 #' causes an overabundance of points to be plotted, slowing plotting down.
+#'
+#' The suggested package `fastshp` can be installed with:
+#'   \code{devtools::install_github("s-u/fastshp")}
+#'
+#' NOTE: you may get errors relating to not having installed the software tools
+#' required for building R packages on your system. For development purposes on
+#' a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).
 #'
 #' @param grobToPlot Raster*, SpatialPoints*, SpatialPolygons* object
 #'

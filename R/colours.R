@@ -49,7 +49,6 @@ setMethod("getColors",
 #' @export
 #' @docType methods
 #' @rdname setColors-method
-#' @aliases setColors<-
 #'
 #' @seealso \code{\link[RColorBrewer]{brewer.pal}},
 #'          \code{\link[grDevices]{colorRampPalette}}.
@@ -62,7 +61,6 @@ setGeneric("setColors<-",
 })
 
 #' @export
-#' @aliases setColors<-RasterLayer,numeric,character-method
 #' @rdname setColors-method
 #' @docType methods
 setReplaceMethod("setColors",
@@ -75,7 +73,6 @@ setReplaceMethod("setColors",
 })
 
 #' @export
-#' @aliases setColors<-RasterLayer,missing,character-method
 #' @rdname setColors-method
 #' @docType methods
 setReplaceMethod("setColors",
@@ -89,7 +86,6 @@ setReplaceMethod("setColors",
 })
 
 #' @export
-#' @aliases setColors<-Raster,numeric,list-method
 #' @rdname setColors-method
 #' @docType methods
 setReplaceMethod("setColors",
@@ -103,8 +99,6 @@ setReplaceMethod("setColors",
 })
 
 #' @export
-#' @aliases setColors<-
-#' @aliases setColors<-Raster,missing,list-method
 #' @rdname setColors-method
 #' @docType methods
 setReplaceMethod("setColors",

@@ -1,7 +1,7 @@
 ---
 title: "Introduction to `SpaDES`"
 author: "Alex M. Chubaty and Eliot J. B. McIntire"
-date: "`r format(Sys.Date(), format='%B %d %Y')`"
+date: "January 09 2015"
 output:
   pdf_document:
     number_sections: yes
@@ -58,7 +58,8 @@ The static nature of PDFs does not allow us to really show off the simulation vi
 
 ### Demos
 
-```{r SpaDES-demo, eval=FALSE, echo=TRUE}
+
+```r
 library("SpaDES")
 
 # demo: randomLandscapes, fireSpread, caribouMovement
@@ -67,9 +68,21 @@ demo("spades-simulation", package="SpaDES")
 
 ### Sample model
 
-```{r using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
-library("SpaDES")
 
+```r
+library("SpaDES")
+```
+
+```
+## Loading required package: data.table
+## data.table 1.9.4  For help type: ?data.table
+## *** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
+## Loading required package: grid
+## Loading required package: raster
+## Loading required package: sp
+```
+
+```r
 outputPath=file.path(tmpDir(), "simOutputs")
 times <- list(start=0, stop=10.2)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
@@ -86,10 +99,27 @@ modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+```
 
+```
+## Loading required package: RColorBrewer
+```
+
+```
+## Warning in checkParams(sim, defaults, dotParams, path): Global parameters
+## .outputPath are not used in any module.
+```
+
+```r
 #dev(4)
 spades(mySim)
 ```
+
+```
+## Loading required package: tcltk
+```
+
+![plot of chunk using-SpaDES](figure/using-SpaDES-1.png) ![plot of chunk using-SpaDES](figure/using-SpaDES-2.png) 
 
 # Using `SpaDES` to build simulations
 
@@ -124,7 +154,8 @@ Historically, simulation models were built separately from the analysis of input
 
 Bringing data into `R`is easy, and can be done using any of the built in data import tools. To facilitate this, we have provided additional functionality to easily load maps or data from files via the load module. To automatically import a list of files, simply provide it as a parameter named \texttt{.loadFileList} when initializing the simulation. See \texttt{?loadFiles} and the modules vignette for more information on the load module.
 
-```{r load-landscape-maps, echo=TRUE, eval=TRUE, cache=TRUE, fig=TRUE}
+
+```r
 ### Example: loading habitat maps
 
 # use all built-in maps from the SpaDES package
@@ -146,9 +177,29 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                  ),
                  modules=list("fireSpread"),
                  path=system.file("sampleModules", package="SpaDES"))
+```
 
+```
+## rgdal: version: 0.9-1, (SVN revision 518)
+## Geospatial Data Abstraction Library extensions to R successfully loaded
+## Loaded GDAL runtime: GDAL 1.11.0, released 2014/04/16
+## Path to GDAL shared files: C:/Users/achubaty/Documents/R/win-library/3.1/rgdal/gdal
+## GDAL does not use iconv for recoding strings.
+## Loaded PROJ.4 runtime: Rel. 4.8.0, 6 March 2012, [PJ_VERSION: 480]
+## Path to PROJ.4 shared files: C:/Users/achubaty/Documents/R/win-library/3.1/rgdal/proj
+## DEM read from C:/Users/achubaty/Documents/R/win-library/3.1/SpaDES/maps/DEM.tif using rasterToMemory
+## forestAge read from C:/Users/achubaty/Documents/R/win-library/3.1/SpaDES/maps/forestAge.tif using rasterToMemory
+## forestCover read from C:/Users/achubaty/Documents/R/win-library/3.1/SpaDES/maps/forestCover.tif using rasterToMemory
+## habitatQuality read from C:/Users/achubaty/Documents/R/win-library/3.1/SpaDES/maps/habitatQuality.tif using rasterToMemory
+## percentPine read from C:/Users/achubaty/Documents/R/win-library/3.1/SpaDES/maps/percentPine.tif using rasterToMemory
+## individual files have been stacked into landscape and are not individual RasterLayers
+```
+
+```r
 spades(mySim)
 ```
+
+![plot of chunk load-landscape-maps](figure/load-landscape-maps-1.png) 
 
 # Modelling spread processes
 
@@ -156,7 +207,8 @@ spades(mySim)
 
 Using the `spread` function, we can simulate fires, and subsequent changes to the various map layers. Here, `spreadProb` can be a single probability or a raster map where each pixel has a probability. In the example below, each cell's probability is taken from the Percent Pine map layer.
 
-```{r fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
+
+```r
 library(RColorBrewer)
 nFires <- 10
 landscape[["Fires"]] <-
@@ -176,7 +228,10 @@ setColors(landscape$Fires)<-brewer.pal(8,"Reds")[5:8]
 Plot(landscape[["Fires"]], new=TRUE)
 ```
 
-```{r fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE}
+![plot of chunk fire](figure/fire-1.png) 
+
+
+```r
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
 Plot(percentPine, new=TRUE)
@@ -184,9 +239,12 @@ Plot(percentPine, new=TRUE)
 Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 ```
 
+![plot of chunk fire-overlaid](figure/fire-overlaid-1.png) 
+
 We can see that the fires tend to be in the Pines because we made it that way, using an arbitrary weighting with pine abundance:
 
-```{r fire-impacts, eval=TRUE, echo=TRUE, fig=FALSE}
+
+```r
 # Show the burning more strongly over abundant pine
 fire <- reclassify(landscape[["Fires"]], rcl=cbind(0:1, c(0,ncell(landscape)), 0:1))
 pine <- reclassify(landscape[["percentPine"]], rcl=cbind(0:9*10, 1:10*10, 0:9))
@@ -196,17 +254,47 @@ PineByFire$pine <- as.numeric(as.character(PineByFire$pine))
 summary(glm(freq ~ fire*pine, data=PineByFire, family="poisson"))
 ```
 
+```
+## 
+## Call:
+## glm(formula = freq ~ fire * pine, family = "poisson", data = PineByFire)
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -38.176   -9.113    0.313    6.957   28.456  
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)  6.919379   0.018804 367.968  < 2e-16 ***
+## fire1       -4.460931   0.128641 -34.677  < 2e-16 ***
+## pine        -0.018721   0.003611  -5.185 2.17e-07 ***
+## fire1:pine   0.332386   0.018076  18.388  < 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 14044  on 18  degrees of freedom
+## Residual deviance:  5665  on 15  degrees of freedom
+## AIC: 5804
+## 
+## Number of Fisher Scoring iterations: 5
+```
+
 Sure enough, there are more fires as the abundance of pine goes up, as seen by the positive interaction term (the negative `fire1` term means that there are more pixels without fires than with fires).
 
 **Impact some of the forest**
 
-```{r fire-impacts-maps, eval=TRUE, echo=TRUE, fig=TRUE}
+
+```r
 landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
 landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
 Plot(landscape, new=TRUE)
 ```
+
+![plot of chunk fire-impacts-maps](figure/fire-impacts-maps-1.png) 
 
 # Agent based modelling
 A primary goal of developing `SpaDES` was to facilitate the development of agent-based models (ABMs), also known as individual-based models (IBMs).
@@ -217,7 +305,8 @@ As ecologists, we are usually concerned with modelling individuals (agents) in t
 
 To model mobile point agents, *e.g.*, animals (as opposed to non-mobile agents such as plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.
 
-```{r mobile-point-agent, echo=TRUE, eval=TRUE}
+
+```r
 N <- 10 # number of agents
 
 # caribou data vectors
@@ -239,7 +328,8 @@ row.names(caribou) <- IDs
 
 Using a simple landscape-dependent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
-```{r agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE}
+
+```r
 #dev(4)
 Plot(landscape[["habitatQuality"]], new=TRUE)
 
@@ -262,6 +352,8 @@ for (t in 1:10) {
 }
 ```
 
+![plot of chunk agent-crw-trajectory](figure/agent-crw-trajectory-1.png) 
+
 ## Polygons agents
 
 Analogously, it is possible to use `SpatialPolygons*`, but we haven't built `Plot` plotting methods for these yet.
@@ -270,7 +362,8 @@ Analogously, it is possible to use `SpatialPolygons*`, but we haven't built `Plo
 
 Running multiple simulations with different parameter values is a critical part of sensitivity analysis, simulation experiments, optimization, and pattern oriented modelling. Below is a greatly simplified example, using the sample `randomLandscapes` and `fireSpread` modules. *NB only two parameters are varied; no outputs are saved; and the analyses done here are kept simple for illustrative purposes. This will take a while to run!*
 
-```{r multiple-simulations, echo=TRUE, eval=FALSE}
+
+```r
 ### WARNING this can take a while to run, especially for large mapSizes.
 
 rasterOptions(maxmemory=1e9)
@@ -325,32 +418,7 @@ with(parameters, legend("topleft", legend=formatC(mapSize^2, digits=0),
                               pch=pch, col=col, cex=1.2))
 ```
 
-```{r multiple-simulations-outputs, echo=FALSE, eval=FALSE}
-# this is included as the output from the previous chunk,
-# so you don't need to wait for the prev chunk to run
-meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
-316, 1000, 3162, 10000, 100, 316, 1000, 3162, 10000, 100, 316,
-1000, 3162, 10000, 100, 316, 1000, 3162, 10000), pSpread = c(0.05,
-0.05, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.15,
-0.15, 0.15, 0.15, 0.2, 0.2, 0.2, 0.2, 0.2, 0.25, 0.25, 0.25,
-0.25, 0.25), pmean = c(0.1494, 0.0160831597500401, 0.00157566666666667,
-0.000160061440122219, 1.57933333333333e-05, 0.241933333333333,
-0.0301600972066442, 0.00304333333333333, 0.000307687363234317,
-3.14933333333333e-05, 0.4268, 0.0709388185654009, 0.00855766666666667,
-0.000826111731886786, 8.185e-05, 0.673466666666667, 0.271898200074774,
-0.0522476666666667, 0.0057268723054435, 0.000569923333333333,
-0.8551, 0.704143967312931, 0.758393333333333, 0.748152608931462,
-0.755049233333333), psd = c(0.000529150262212918, 0.00034444366932222,
-2.11266025033211e-05, 5.52032923607854e-06, 2.80416357107309e-07,
-0.00248461935381122, 0.00117238603350013, 8.3500499000505e-05,
-5.02117387430545e-06, 6.50640709864774e-08, 0.0103764155660806,
-0.00292733584237083, 0.000185057648675577, 2.23794372722204e-05,
-3.33725935462019e-06, 0.00638931399551884, 0.0181866853325732,
-0.00354059674819561, 6.08251802692677e-05, 3.54532908674686e-05,
-0.00927739187487513, 0.00349463109959475, 0.000899981296101935,
-0.00115857888357641, 0.000319090208300621)), .Names = c("mapSize",
-"pSpread", "pmean", "psd"), row.names = c(NA, -25L), class = "data.frame")
-```
+
 
 ![](../inst/doc/plot-area-burned.pdf "Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.")
 
