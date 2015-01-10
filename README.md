@@ -14,23 +14,26 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 ## Installation
 
-Either download the source tarball (.tar.gz) or windows package binary (.zip) from [https://github.com/achubaty/SpaDES/tree/development](https://github.com/achubaty/SpaDES/tree/development).
+Download the source tarball (.tar.gz) or windows package binary (.zip):
 
-Or install `SpaDES` directly from github you will need the `devtools` package:
++ Current stable release:
+    - [Windows binary (.zip)](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.zip)
+    - [Source package (.tar.gz)](https://github.com/achubaty/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
++ Development version (unstable):
+    - [Windows binary (.zip)](https://github.com/achubaty/SpaDES/raw/development/SpaDES_0.5.0.9000.zip)
+    - [Source package (.tar.gz)](https://github.com/achubaty/SpaDES/raw/development/SpaDES_0.5.0.9000.tar.gz)
+
+Alternatively, install `SpaDES` directly from GitHub. You will need the `devtools` package, as well as the appropriate development libraries for your operating system (e.g., Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
     install.packages("devtools")
     library("devtools")
 	
-    install_github("achubaty/SpaDES", ref="development")
+    install_github("achubaty/SpaDES") # stable
+    install_github("achubaty/SpaDES", ref="development") # unstable
     
 The suggested package `fastshp` can be installed with:
 
     install_github("s-u/fastshp")
-
-**NOTE:** you may get errors relating to not having installed the software tools required for building R packages on your system:
-
-1. For development purposes on a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/);
-2. In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("achubaty/SpaDES", ref="development", build=FALSE)`.
 
