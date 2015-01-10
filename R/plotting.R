@@ -1291,7 +1291,6 @@ setMethod("makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                cols, na.color, zero.color, skipSample=TRUE) {
-browser()
             zoom <- zoomExtent
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
