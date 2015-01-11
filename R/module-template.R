@@ -72,8 +72,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       sim <- ", name, "Init(sim)
     }
-    sim <- scheduleEvent(sim, simParams(sim)$habitat$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, simParams(sim)$habitat$.saveInitialTime, \"", name, "\", \"save\")
+    sim <- scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType==\"templateEvent\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -122,7 +122,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for plot events
-", name, "Event1 = function(sim) {
+", name, "Plot = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   Plot()
