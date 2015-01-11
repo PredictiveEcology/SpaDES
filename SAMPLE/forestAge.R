@@ -72,6 +72,7 @@ doEvent.forestAge <- function(sim, eventTime, eventType, debug=FALSE) {
 forestAgeInit <- function(sim) {
 #  beginCluster()
 #  ageMap <- projectRaster(age, to=lcc05.cr, method="ngb")
+  ageMap <- ageMapInit
   setColors(ageMap,n=201) <- colorRampPalette(c("LightGreen","DarkGreen"))(50)
   assign("ageMap", ageMap, envir=.GlobalEnv)
   #  endCluster()

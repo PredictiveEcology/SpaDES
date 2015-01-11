@@ -54,7 +54,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="plot.init") {
     # do stuff for this event
     #setColors(vegMap) <- vegMapColors[minValue(vegMap):maxValue(vegMap)]
-    Plot(vegMap)
+    Plot(vegMap, new=TRUE)
     Plot(trajMap)
 #     grid.rect(just="topright", y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
 #     grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
@@ -68,13 +68,14 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
     if(simCurrentTime(sim)<=3) {
       seekViewport("vegMap")
       grid.text(x=1.1,y=((minValue(vegMap)-1):(maxValue(vegMap)-1)/(maxValue(vegMap)-1)-0.5)/2.2+0.5,just="left",
-                as.character(lcc05VegReclass[minValue(vegMap):maxValue(vegMap),3]),
+                as.character(lcc05VegReclass[minValue(vegMap):maxValue(vegMap),"Description"]),
                 gp=gpar(cex=0.5))
     }
-    Plot(trajMap)
+    #Plot(trajMap)
     #     grid.rect(y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
 #     grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
-    dev(5); hist(getValues(vegMap)); dev(4)
+    dev.default <- dev.cur()
+    dev(5); hist(getValues(vegMap)); dev(dev.default)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim)+ simParams(sim)$forestSuccession$.plotInterval,
@@ -88,6 +89,9 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
 
 forestSuccessionInit <- function(sim) {
 
+  vegMap <<- vegMapBeacons
+  trajMap <<- trajMapBeacons
+
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "forestSuccession")
 
   return(invisible(sim))
@@ -97,17 +101,9 @@ forestSuccessionSuccession <- function(sim) {
 
   ageMap.v <- round(getValues(ageMap))+1
   trajMap.v <- getValues(trajMap)
-    vegMap.v <- trajObj[cbind(ageMap.v,trajMap.v)]
-#    vegMap <- raster(ageMap)
-    vegMap <- setValues(vegMap,vegMap.v)
-  setColors(vegMap, n=12 ) <- vegMapColors
 
-    assign("vegMap", vegMap, envir=.GlobalEnv)
+  vegMap <<- setValues(vegMap,trajObj[cbind(ageMap.v,trajMap.v)])
 
-
-
-    #vegMap[indStatics] <<- valsStatics
-
-    return(invisible(sim))
+  return(invisible(sim))
 }
 

@@ -70,16 +70,18 @@ doEvent.fireSpreadLcc <- function(sim, eventTime, eventType, debug=FALSE) {
     #                            percentPine=brewer.pal(9,"Greens"),
     #                            Fires=c("#FFFFFF", rev(heat.colors(9)))
     #                        )
-    #Plot(Fires, legendRange=c(0,simParams(sim)$fireSpreadLcc$nFires))
+#    Plot(Fires, legendRange=c(0,qpois(0.95,simParams(sim)$fireSpreadLcc$nFires)))
     #assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpreadLcc$.plotInterval, "fireSpreadLcc", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(Fires, legendRange=c(0,nFires))
+    dev.default <- dev.cur()
+    Plot(FiresCumul)
     dev(6); hist(nPixelsBurned*6.25, xlab="Hectares",
-                 main=paste0("Hectares burned by year ",simCurrentTime(sim))); dev(4)
+                 main=paste0("Hectares burned by year ",simCurrentTime(sim)));
+    dev(dev.default)
 
 
     # schedule the next event
@@ -129,9 +131,9 @@ fireSpreadLccBurn <- function(sim) {
  # landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
 
   fireSpreadProb <<- reclassify(x=vegMap,
-                                                 rcl=cbind(1:11,
-                                                           c(0.225,0.225,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0)*
-                                                             simParams(sim)$fireSpreadLcc$drought))
+                                rcl=cbind(1:11,
+                                          c(0.225,0.225,0.21,0.15,0.15,0.18,0.1,0.1,0,0,0)*
+                                          simParams(sim)$fireSpreadLcc$drought))
   nFires <<- rpois(1,simParams(sim)$fireSpreadLcc$nFires*simParams(sim)$fireSpreadLcc$drought)
   Fires <- spread(fireSpreadProb,
                    loci=as.integer(sample(1:ncell(fireSpreadProb), nFires)),
