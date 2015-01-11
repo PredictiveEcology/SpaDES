@@ -1,8 +1,16 @@
 ---
-title: "Benchmarking with R/SpaDES R 3.1.1"
-author: "Eliot McIntire"
-date: "October 7, 2014"
-output: pdf_document
+title: "Benchmarking R for `SpaDES`"
+author: "Eliot J. B. McIntire"
+output:
+  html_document:
+    self_contained: no
+    toc: yes
+  pdf_document:
+    number_sections: yes
+    toc: yes
+  word_document: default
+vignette: |
+  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{Benchmarking R for SpaDES} %\VignetteDepends{SpaDES} %\VignetteKeyword{discrete event simulation} %\usepackage[utf8]{inputenc}
 ---
 
 The objective of this file is to show some speed comparisons between R and C++ and in some cases, other languages or software. Clearly this is NOT a comparison between R and C++ because many of the functions in R are written in C++ and wrapped in R. This document shows three important points:
@@ -27,7 +35,8 @@ library(Rcpp)
 library(numbers)
 library(magrittr) # for pipe used below
 library(dplyr)
-path <- "~/GitHub/SpaDES/SAMPLE/Functions in progress/"
+path <- "~/GitHub/SpaDES/SAMPLE/benchmarks"
+#path <- system.file("vignettes", package="SpaDES")
 setwd(path)
 sourceCpp(file="meanCPP.cpp")
 ```
