@@ -360,6 +360,7 @@ setMethod("plotGrob",
             pr <- pr[pr<=maxv & pr>=minv]
             maxNumCols=100
             maxcol <- length(col)
+            mincol <- 2
 #             if(maxv<=maxNumCols ) {
 #               if(minv>=0 & real) { # i.e., a proportion or real numbers between 0 and maxNumCols
 #                 maxcol <- maxNumCols+1 # this corresponds to the maxNumCols in makeColorMatrix, with 1 extra for NAs
@@ -380,7 +381,7 @@ setMethod("plotGrob",
                                 rasterGrob(as.raster(grobToPlot),
                                            interpolate=FALSE,
                                            name="raster"),
-                                if(legend) rasterGrob(as.raster(col[(maxcol):2]),
+                                if(legend) rasterGrob(as.raster(col[(maxcol):mincol]),
                                                       x=1.04, y=0.5, height=0.5, width=0.03,
                                                       interpolate=FALSE,
                                                       name="legend"),
@@ -1384,7 +1385,11 @@ setMethod("makeColorMatrix",
             z[is.na(z)] <- 1
 
             cols<-c(na.color, cols) # make first index of colors be transparent
-            z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+            if((minz>1) | (minz<0)) {
+              z <- matrix(cols[z-minz+1], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+            } else {
+              z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+            }
             list(z=z, minz=minz, maxz=maxz, cols=cols, real=real)
           })
 
