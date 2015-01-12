@@ -136,8 +136,8 @@ landscape$forestAge[] = ((landscape$forestAge[] + 10) %% 100)
 landscape$forestCover[] = ((landscape$forestCover[] +10) %% 30)
 # can add a new plot to the plotting window
 Plot(landscape[[2:3]], new=FALSE)
-# note that zeros are treated as no color by default. If this is not the correct behavior, use
-#  zero.color=NULL
+# note that zeros are treated as no color by default. If this is not the correct
+# behavior, use `zero.color=NULL`
 Plot(landscape[[2:3]], new=FALSE, zero.color=NULL)
 
 ```
