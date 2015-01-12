@@ -180,7 +180,6 @@ Plot(landscape[["Fires"]], new=TRUE)
 # Show the burning more strongly over abundant pine
 percentPine<-landscape$percentPine
 Plot(percentPine, new=TRUE)
-#Plot(landscape[["Fires"]], new=FALSE)
 Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
 ```
 

@@ -64,8 +64,6 @@ Note that modules need not be inter-dependent on one another: module B may depen
 
 The parameter list in the `simList` object are used to pass parameters to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
 
-\newpage
-
 # Default `SpaDES` modules
 
 There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot to indicate they are "special".
@@ -77,7 +75,7 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 ```{r checkpoints, echo=TRUE, eval=TRUE}
 library("SpaDES")
 
-# initialize a new simulation, setting the checkpoint interval and checkpoint filename.
+# initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=100)
 outputPath=file.path(tmpDir(), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
