@@ -78,7 +78,7 @@ Schedule automatic simulation checkpointing to allow you to resume a previously 
 library("SpaDES")
 
 # initialize a new simulation, setting the checkpoint interval and checkpoint filename.
-times <- list(start=0, stop=100)
+times <- list(start=0, stop=1000)
 outputPath=file.path(tmpDir(), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),

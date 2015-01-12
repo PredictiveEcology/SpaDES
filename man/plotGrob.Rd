@@ -43,7 +43,7 @@ have this defined internally}
 
 \item{legendText}{Vector of values to use for legend value labels. Defaults to NULL which results
 in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
-package), this will be used by default.}
+package), this will be used by default. Currently, only a single vector is accepted.}
 
 \item{draw}{logical, whether the grob, after being created should be drawn. Default TRUE.}
 

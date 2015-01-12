@@ -52,7 +52,7 @@ that will override the data bounds contained within the grobToPlot}
 
 \item{legendText}{Vector of values to use for legend value labels. Defaults to NULL which results
 in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
-package), this will be used by default.}
+package), this will be used by default. Currently, only a single vector is accepted.}
 
 \item{draw}{logical, whether to actually draw the plots. Currently, there is no reason for this
 to be FALSE. Default is TRUE}

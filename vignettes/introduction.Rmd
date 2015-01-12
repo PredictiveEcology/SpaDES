@@ -71,7 +71,7 @@ demo("spades-simulation", package="SpaDES")
 library("SpaDES")
 
 outputPath=file.path(tmpDir(), "simOutputs")
-times <- list(start=0, stop=10.2)
+times <- list(start=0, stop=100.2)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),

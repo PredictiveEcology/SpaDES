@@ -322,7 +322,7 @@ setMethod("arrangeViewports",
 #'
 #' @param legendText Vector of values to use for legend value labels. Defaults to NULL which results
 #' in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
-#' package), this will be used by default.
+#' package), this will be used by default. Currently, only a single vector is accepted.
 #'
 #' @param draw logical, whether the grob, after being created should be drawn. Default TRUE.
 #'
@@ -406,7 +406,8 @@ setMethod("plotGrob",
                                   txt <- if(is.null(legendText)){
                                     pr
                                   } else {
-                                    legendText[pr]
+                                    legendIndex <- pr-min(pr)+1
+                                    legendText[legendIndex]
                                   }
                                   textGrob(txt, x=1.08,
                                     if(maxv>=3) {
@@ -910,7 +911,7 @@ setMethod("drawArrows",
 #'
 #' @param legendText Vector of values to use for legend value labels. Defaults to NULL which results
 #' in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
-#' package), this will be used by default.
+#' package), this will be used by default. Currently, only a single vector is accepted.
 #'
 #' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
 #' to be FALSE. Default is TRUE
