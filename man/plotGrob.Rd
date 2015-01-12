@@ -9,20 +9,20 @@
 \title{Plot spatial grobs (using grid package)}
 \usage{
 plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
-  minv, maxv, legend = TRUE, draw = TRUE, gp = gpar(), pch = 19,
-  speedup = 1, ...)
+  minv, maxv, legend = TRUE, legendText = NULL, draw = TRUE,
+  gp = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{matrix}(grobToPlot, col = NULL, real = FALSE,
-  size = unit(5, "points"), minv, maxv, legend = TRUE, draw = TRUE,
-  gp = gpar(), pch = 19, speedup = 1, ...)
+  size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
+  draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, real = FALSE,
-  size = unit(5, "points"), minv, maxv, legend = TRUE, draw = TRUE,
-  gp = gpar(), pch = 19, speedup = 1, ...)
+  size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
+  draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, real = FALSE,
-  size = unit(5, "points"), minv, maxv, legend = TRUE, draw = TRUE,
-  gp = gpar(), pch = 19, speedup = 1, ...)
+  size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
+  draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
 }
 \arguments{
 \item{grobToPlot}{Raster*, SpatialPoints*, SpatialPolygons* object}
@@ -40,6 +40,10 @@ have this defined internally}
 have this defined internally}
 
 \item{legend}{logical, whether a legend should be drawn. Default TRUE.}
+
+\item{legendText}{Vector of values to use for legend value labels. Defaults to NULL which results
+in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+package), this will be used by default.}
 
 \item{draw}{logical, whether the grob, after being created should be drawn. Default TRUE.}
 

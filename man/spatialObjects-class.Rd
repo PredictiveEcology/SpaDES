@@ -9,7 +9,7 @@ This class contains the plotting arrangement information.
 \section{Slots}{
 
 \describe{
-\item{\code{members}}{SpatialPoints*, SpatialPolygons*, RasterLayer, and RasterStack}
+\item{\code{members}}{SpatialPoints*, SpatialPolygons*, RasterLayer, RasterStack}
 }}
 \author{
 Eliot McIntire

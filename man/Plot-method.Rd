@@ -8,15 +8,15 @@
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
-  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL, draw = TRUE,
-  pch = 19, title = TRUE, na.color = "#FFFFFF00",
-  zero.color = "#FFFFFF00")
+  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
+  legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
+  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
 \S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
   gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, draw = TRUE, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 }
 \arguments{
 \item{...}{Raster* object(s) and or SpatialPoints* objects. See details for
@@ -49,6 +49,10 @@ downsampling of rasters, so it may produce very pixelated maps.}
 \item{legendRange}{numeric vector giving values that, representing the lower
 and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
 that will override the data bounds contained within the grobToPlot}
+
+\item{legendText}{Vector of values to use for legend value labels. Defaults to NULL which results
+in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+package), this will be used by default.}
 
 \item{draw}{logical, whether to actually draw the plots. Currently, there is no reason for this
 to be FALSE. Default is TRUE}
@@ -183,7 +187,7 @@ Srs1 = Polygons(list(Sr1), "s1")
 Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 Plot(SpP)
-Plot(SpP, addTo="landscape.Fires", gp=gpar(lwd=2))
+Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 
 }
 }

@@ -3,7 +3,7 @@
 #'
 #' This class contains the plotting arrangement information.
 #'
-#' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, and RasterStack
+#' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, RasterStack
 #' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
@@ -320,6 +320,10 @@ setMethod("arrangeViewports",
 #'
 #' @param legend logical, whether a legend should be drawn. Default TRUE.
 #'
+#' @param legendText Vector of values to use for legend value labels. Defaults to NULL which results
+#' in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+#' package), this will be used by default.
+#'
 #' @param draw logical, whether the grob, after being created should be drawn. Default TRUE.
 #'
 #' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
@@ -340,7 +344,7 @@ setMethod("arrangeViewports",
 setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 size=unit(5, "points"),
                                 minv, maxv,
-                                legend=TRUE,
+                                legend=TRUE, legendText=NULL,
                                 draw=TRUE,
                                 gp=gpar(), pch=19,
                                 speedup=1, ...) {
@@ -353,10 +357,18 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
 setMethod("plotGrob",
           signature=c("matrix"),
           definition= function(grobToPlot, col, real, size, minv, maxv,
-                               legend, draw,
+                               legend, legendText, draw,
                                gp, pch, ...) {
 
-            pr <- pretty(range(minv, maxv))
+            pr <- if(real) {
+              pretty(range(minv, maxv))
+            } else {
+              if(!is.null(legendText)) {
+                unique(round(pretty(range(minv, maxv),n=length(legendText))))
+              } else {
+                unique(round(pretty(range(minv, maxv))))
+              }
+            }
             pr <- pr[pr<=maxv & pr>=minv]
             maxNumCols=100
             maxcol <- length(col)
@@ -390,15 +402,23 @@ setMethod("plotGrob",
                                 #                                   if(grepl("^#FFFFFF", col[1]) | grepl("^#FFFFFF", col[maxcol]))
                                 #                                     rectGrob(x=1.04, y=0.5, height=0.5, width=0.03, gp=gpar(fill=NA))
                                 #                                 },
-                                if(legend) textGrob(pr, x=1.08,
-                                                    if(maxv>3) {
-                                                      y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/diff(range(minv, maxv))/4
-                                                    } else {
-                                                      y= ((pr-minv)/((maxv)-minv))/2+0.25
-                                                    },
-                                                    gp=gpar(cex=0.9),
-                                                    just="left", check.overlap=T,
-                                                    name="legendText")
+                                if(legend) {
+                                  txt <- if(is.null(legendText)){
+                                    pr
+                                  } else {
+                                    legendText[pr]
+                                  }
+                                  textGrob(txt, x=1.08,
+                                    if(maxv>=3) {
+                                      y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/(diff(range(minv, maxv))+1)/4
+                                    } else {
+                                      y= ((pr-minv)/((maxv)-minv))/2+0.25
+                                    },
+                                    gp=gpar(cex=0.9),
+                                    just="left", check.overlap=T,
+                                    name="legendText")
+
+                                }
                               ),
                               gp=gp,
                               cl="plotRast")
@@ -888,6 +908,10 @@ setMethod("drawArrows",
 #' and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
 #' that will override the data bounds contained within the grobToPlot
 #'
+#' @param legendText Vector of values to use for legend value labels. Defaults to NULL which results
+#' in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+#' package), this will be used by default.
+#'
 #' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
 #' to be FALSE. Default is TRUE
 #'
@@ -986,14 +1010,15 @@ setMethod("drawArrows",
 #' Srs2 = Polygons(list(Sr2), "s2")
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #' Plot(SpP)
-#' Plot(SpP, addTo="landscape.Fires", gp=gpar(lwd=2))
+#' Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 #'
 #' }
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
-                    visualSqueeze=0.75, legend=TRUE, legendRange=NULL, draw = TRUE,
-                    pch = 19, title=TRUE, na.color="#FFFFFF00", zero.color="#FFFFFF00") {
+                    visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
+                    draw = TRUE, pch = 19, title=TRUE,
+                    na.color="#FFFFFF00", zero.color="#FFFFFF00") {
              standardGeneric("Plot")
            })
 
@@ -1004,7 +1029,7 @@ setMethod("Plot",
           signature("spatialObjects"),
           definition = function(..., new, addTo, gp, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
-                                legend, legendRange, draw, pch, title, na.color,
+                                legend, legendRange, legendText, draw, pch, title, na.color,
                                 zero.color) {
 
             toPlot <- list(...)
@@ -1232,13 +1257,20 @@ setMethod("Plot",
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               }
 
+              # Extract legend text if the raster is a factored raster
+              if(is.factor(grobToPlot) & is.null(legendText)) {
+                legendTxt <- levels(grobToPlot)[[1]][,2]
+              } else {
+                legendTxt <- legendText
+              }
+
               # Actual plotting
               plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
                        real=zMat$real,
                        minv=zMat$minz,
                        maxv=zMat$maxz,
                        pch=pch, name = seek,
-                       legend = legend,
+                       legend = legend, legendText=legendTxt,
                        gp = gp, draw = draw, speedup=speedup)
               if(title) grid.text(seek,
                                   name="title", y=1.08, vjust=0.5, gp = gp)
