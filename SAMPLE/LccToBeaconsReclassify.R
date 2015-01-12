@@ -45,7 +45,7 @@ doEvent.LccToBeaconsReclassify = function(sim, eventTime, eventType, debug=FALSE
     sim <- scheduleEvent(sim, simParams(sim)$LccToBeaconsReclassify$.saveInitialTime,
                          "LccToBeaconsReclassify", "save")
   } else if (eventType=="plot") {
-    Plot(vegMap, trajMap)
+    Plot(vegMapBeacons, trajMapBeacons, new=TRUE)
     # schedule future event(s)
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$LccToBeaconsReclassify$.plotInterval, "LccToBeaconsReclassify", "plot")
   } else if (eventType=="save") {
@@ -165,7 +165,11 @@ LccToBeaconsReclassifyInit = function(sim) {
                            as.character(lcc05TrajReclass$Description))
                      , ncol=ncol(trajObj2))
 
-  vegMap <- reclassify(vegMapLcc, lcc05VegTable)
+  # Make a factor map, allowing for character labels
+
+  vegMap <- ratify(reclassify(vegMapLcc, lcc05VegTable))
+  levels(vegMap)<-data.frame(ID=lcc05VegReclass$VEG.reclass,Class=lcc05VegReclass$Description)
+
   setColors(vegMap, n=12 ) <- getColors(vegMapLcc)[[1]][c(1,lcc05VegTable[,1][match(1:11,
                                                                          lcc05VegTable[,2])]+1)]
   assign("vegMapBeacons", vegMap, envir = .GlobalEnv)
