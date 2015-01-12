@@ -30,7 +30,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
       sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSuccession", "init")
     } else {
         # do stuff for this event
-        sim <- forestSuccessionSuccession(sim)
+        sim <- forestSuccessionInit(sim)
 
         # schedule the next event
 #        sim <- scheduleEvent(sim, 0.5, "forestSuccession", "succession")
@@ -65,15 +65,7 @@ doEvent.forestSuccession <- function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="plot") {
     # do stuff for this event
     Plot(vegMap)
-    if(simCurrentTime(sim)<=3) {
-      seekViewport("vegMap")
-      grid.text(x=1.1,y=((minValue(vegMap)-1):(maxValue(vegMap)-1)/(maxValue(vegMap)-1)-0.5)/2.2+0.5,just="left",
-                as.character(lcc05VegReclass[minValue(vegMap):maxValue(vegMap),"Description"]),
-                gp=gpar(cex=0.5))
-    }
-    #Plot(trajMap)
-    #     grid.rect(y=1.05, width=0.3, height=0.1, gp=gpar(fill="white", col="white"))
-#     grid.text(paste("vegMap: Time",simCurrentTime(sim)),y=1.05)
+
     dev.default <- dev.cur()
     dev(5); hist(getValues(vegMap)); dev(dev.default)
 
