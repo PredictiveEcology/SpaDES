@@ -4,6 +4,7 @@
 #
 
 
+
 #' Develop and run spatially explicit discrete event simulation models
 #'
 #' @description
@@ -17,7 +18,7 @@
 #'
 #' Bug reports: https://github.com/achubaty/SpaDES/issues
 #'
-#' @name SpaDES-package
+#' @name spades-package
 #' @aliases SpaDES spades-package
 #' @docType package
 #' @author Alex M. Chubaty \email{Alexander.Chubaty@@NRCan.gc.ca}
@@ -32,44 +33,56 @@ NULL
 
 #' Dummy maps included with SpaDES
 #'
-#' All 5 maps included with SpaDES are randomly generated maps created by \code{GaussMap()}.
-#' These are located within the /maps folder of the package, and are used in the vignettes.
+#' All maps included with SpaDES are randomly generated maps created by \code{GaussMap()}.
+#' These are located within the \code{maps} folder of the package, and are used in the vignettes.
+#' Use \code{system.file(package="SpaDES", "maps")} to locate the \code{maps} directory on your system.
 #'
 #' @details
-#' DEM.tif: converted to a a small number of
-#' discrete levels (in 100m hypothetical units)
+#' \code{DEM.tif}: converted to a a small number of discrete levels (in 100m hypothetical units)
 #'
+#' @docType data
+#' @keywords maps
 #' @name SpaDES-maps
+#' @aliases spades-maps
 #' @rdname SpaDES-maps
+#' @format raster
 NULL
 
 #' @details
-#' habitatQuality.tif: made to look like a continuous habitat
-#' surface, rescaled to 0 to 1
+#' \code{habitatQuality.tif}: made to look like a continuous habitat surface, rescaled to 0 to 1
 #'
+#' @docType data
+#' @keywords maps
 #' @name SpaDES-maps
 #' @rdname SpaDES-maps
+#' @format raster
 NULL
 
 #' @details
-#' forestAge.tif: rescaled to possible
-#' forest ages in a boreal forest setting
+#' \code{forestAge.tif}: rescaled to possible forest ages in a boreal forest setting
 #'
+#' @docType data
+#' @keywords maps
 #' @name SpaDES-maps
 #' @rdname SpaDES-maps
+#' @format raster
 NULL
 
 #' @details
-#' forestCover.tif: rescaled to possible
-#' forest cover in a boreal forest setting
+#' \code{forestCover.tif}: rescaled to possible forest cover in a boreal forest setting
 #'
+#' @docType data
+#' @keywords maps
 #' @name SpaDES-maps
-#' @rdname SpaDES-maps
+#' @format raster
 NULL
 
 #' @details
-#' percentPine.tif: rescaled to percentages.
+#' \code{percentPine.tif}: rescaled to percentages.
 #'
+#' @docType data
+#' @keywords maps
 #' @name SpaDES-maps
 #' @rdname SpaDES-maps
+#' @format raster
 NULL
