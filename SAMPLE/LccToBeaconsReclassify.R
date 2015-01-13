@@ -1,9 +1,11 @@
-#' MODULE: LccToBeaconsReclassify
-#' DESCRIPTION: Takes the LCC05 classification of 39 land cover classes, and
-#'  reclassifies it to the 11 classes of the Beacon's succession model
-#'  Inputs = vegMapLcc
-#'  Outputs to Global Environment and .tif files:
-#'       2 maps: trajMapBeacons, vegMapBeacons
+
+### MODULE: LccToBeaconsReclassify
+###
+### DESCRIPTION: Takes the LCC05 classification of 39 land cover classes, and
+### reclassifies it to the 11 classes of the Beacon's succession model
+### Inputs = vegMapLcc
+### Outputs to Global Environment and .tif files:
+###     2 maps: trajMapBeacons, vegMapBeacons
 
 
 ### load any required packages
@@ -19,6 +21,7 @@ rm(pkgs)
 #   - keep event functions short and clean, modularize by calling
 #       subroutines from section below.
 
+### template event
 doEvent.LccToBeaconsReclassify = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for module dependencies:
