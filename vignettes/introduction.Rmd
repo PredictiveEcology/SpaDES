@@ -212,9 +212,9 @@ A primary goal of developing `SpaDES` was to facilitate the development of agent
 
 ## Point agents
 
-As ecologists, we are usually concerned with modelling individuals (agents) in time and space, and whose spatial location (position) can be represented as a single point on a map. These types of agents can easily be represented most simply by a single set of coordinates indicating their current position, and can simulated using a `SpatialPoints` object. Additionally, a `SpatialPointsDataFrame` can be used, which provides storage of additional information beyond agents' coordinates as needed.
+As ecologists, we are often concerned with modelling individuals (agents) in time and space, and whose spatial location (position) can be represented as a single point on a map. These types of agents can easily be represented most simply by a single set of coordinates indicating their current position, and can simulated using a `SpatialPoints` object. Additionally, a `SpatialPointsDataFrame` can be used, which provides storage of additional information beyond agents' coordinates as needed.
 
-To model mobile point agents, *e.g.*, animals (as opposed to non-mobile agents such as plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.
+To model point agents (mobile *e.g.*, animals, or non-mobile, *e.g.*, plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.
 
 ```{r mobile-point-agent, echo=TRUE, eval=TRUE}
 N <- 10 # number of agents
@@ -263,7 +263,7 @@ for (t in 1:10) {
 
 ## Polygons agents
 
-Analogously, it is possible to use `SpatialPolygons*`, but we haven't built `Plot` plotting methods for these yet.
+Analogously, it is possible to use `SpatialPolygons*`. Plotting methods using `Plot` are optimized for speed and are much faster than the default `plot` methods for polygons (via spatial subsampling of vectors), so have fewer options for customization than other approaches to visualizing polygons.
 
 # Putting it all together
 
