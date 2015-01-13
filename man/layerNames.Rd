@@ -20,10 +20,10 @@ layerNames(object)
 \S4method{layerNames}{Raster}(object)
 }
 \arguments{
-\item{object}{a Raster*, SpatialPoints*, SpatialPolygons* or list of these.}
+\item{object}{A \code{Raster*}, \code{SpatialPoints*}, or \code{SpatialPolygons*} object; or list of these.}
 }
 \description{
-There are methods for Raster*, SpatialPoints*, and SpatialPolygons*, though the latter
-return an empty character vector of length 1.
+There are methods for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*},
+though the latter return an empty character vector of length 1.
 }
 

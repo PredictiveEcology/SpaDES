@@ -18,18 +18,18 @@ drawArrows(from, to, addTo, title = TRUE, axes = TRUE, ...)
 \arguments{
 \item{from}{Starting spatial coordinates (\code{SpatialPointsDataFrame}).}
 
-\item{to}{Ending spatial coordinates (\code{SpatialPointsDataFrame})..}
+\item{to}{Ending spatial coordinates (\code{SpatialPointsDataFrame}).}
 
 \item{addTo}{Optional character string. The name of a map layer on which to draw the arrows.}
 
-\item{title}{logical Add title to plot. Defaults to TRUE. Since this is also
-the viewport name, it is a good idea to plot it so the viewport can be called
-for later plotting}
+\item{title}{logical. Add title to plot. Defaults to \code{TRUE}.
+Since this is also the viewport name, it is a good idea to plot it so the
+viewport can be called for later plotting.}
 
-\item{axes}{logical Add axes to plot. Defaults to TRUE.}
+\item{axes}{logical Add axes to plot. Defaults to \code{TRUE}.}
 
-\item{...}{Additional plotting parameters passed to grid.polyline. Currently
-does not appear to pass anything.}
+\item{...}{Additional plotting parameters passed to \code{\link{grid.polyline}}.
+Currently does not appear to pass anything.}
 
 \item{length}{The length of the arrows to draw (defaults to 0.1).}
 }

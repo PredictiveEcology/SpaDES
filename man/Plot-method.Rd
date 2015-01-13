@@ -4,7 +4,7 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,spatialObjects-method}
-\title{Plot: Fast, optimally arranged, multipanel plotting function with spades}
+\title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
@@ -19,74 +19,86 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 }
 \arguments{
-\item{...}{Raster* object(s) and or SpatialPoints* objects. See details for
-naming.}
+\item{...}{\code{Raster*} object(s) and/or \code{SpatialPoints* objects}.
+See details for naming.}
 
-\item{new}{Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
-will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.}
+\item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
+if \code{FALSE}, then the \code{...} plots will be added to the current device,
+adding or rearranging the plot layout as necessary. Default is \code{FALSE}.}
 
-\item{addTo}{String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
-the plot with the same name, such as plotting a SpatialPoints* object on a RasterLayer.}
+\item{addTo}{String vector, with same length as \code{...}.
+This is for overplotting, when the overplot is not to occur on the plot with
+the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.}
 
-\item{gp}{A gpar object, created by gpar() function, to change plotting parameters (see \code{\link{grid}} package)}
+\item{gp}{A gpar object, created by \code{\link{gpar}} function,
+to change plotting parameters (see \code{\link{grid}} package).}
 
-\item{axes}{Logical or "L", representing the left and bottom axes, overall plots}
+\item{axes}{Logical or \code{"L"}, representing the left and bottom axes, overall plots.}
 
-\item{speedup}{Numeric. The factor by which the number of pixels is divided by to plot rasters. See Details.}
+\item{speedup}{Numeric. The factor by which the number of pixels is divided by to plot rasters.
+See Details.}
 
-\item{size}{Numeric. The size, in points, for SpatialPoints symbols, if using a scalable symbol.}
+\item{size}{Numeric. The size, in points, for \code{SpatialPoints} symbols,
+if using a scalable symbol.}
 
 \item{cols}{character vector or list of character vectors. Default \code{terrain.color()}. See Details.}
 
 \item{zoomExtent}{extent object. Supplying a single extent object that is smaller than the
-rasters will call a crop statement before plotting. Defaults to NULL. This occurs after any
-downsampling of rasters, so it may produce very pixelated maps.}
+rasters will call a crop statement before plotting. Defaults to \code{NULL}.
+This occurs after any downsampling of rasters, so it may produce very pixelated maps.}
 
 \item{visualSqueeze}{numeric. The proportion of the white space to be used for plots. Default is 0.75.}
 
-\item{legend}{logical. Whether legend should be drawn next to plots. Default is TRUE.}
+\item{legend}{logical. Whether legend should be drawn next to plots. Default is \code{TRUE}.}
 
 \item{legendRange}{numeric vector giving values that, representing the lower
 and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
-that will override the data bounds contained within the grobToPlot}
+that will override the data bounds contained within the \code{grobToPlot}.}
 
-\item{legendText}{Vector of values to use for legend value labels. Defaults to NULL which results
-in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+\item{legendText}{Vector of values to use for legend value labels.
+Defaults to \code{NULL}, which results in a pretty numeric representation.
+If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
 package), this will be used by default. Currently, only a single vector is accepted.}
 
-\item{draw}{logical, whether to actually draw the plots. Currently, there is no reason for this
-to be FALSE. Default is TRUE}
+\item{draw}{logical, whether to actually draw the plots.
+Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE}.}
 
-\item{pch}{see ?par}
+\item{pch}{see \code{?par}.}
 
-\item{title}{Logical. Whether the names of each plot should be written above plots}
+\item{title}{Logical. Whether the names of each plot should be written above plots.}
 
-\item{na.color}{string indicating the color for NA values. Default transparent.}
+\item{na.color}{string indicating the color for \code{NA} values. Default transparent.}
 
 \item{zero.color}{string indicating the color for zero values, when zero is
 the minimum value, otherwise, zero is treated as any other color. Default transparent.}
 }
 \description{
-The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*,
+The main plotting function accompanying \code{SpaDES}.
+This can take objects of type \code{Raster*} or \code{SpatialPoints*},
 and any combination of those.
 }
 \details{
-If new=TRUE, then a new plot will be generated. When new=FALSE, then any plot that
-already exists will be overplotted, while plots that have not already been plotted will be added. This function
-rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
-it is recommended to make and use a new device because the built in device is not made for rapid redrawing.
+If \code{new=TRUE}, a new plot will be generated.
+When \code{new=FALSE}, any plot that already exists will be overplotted,
+while plots that have not already been plotted will be added.
+This function rearranges the plotting device to maximize the size of all the
+plots, minimizing white space.
+If using the RStudio IDE, it is recommended to make and use a new device
+(using \code{\link{dev}}), because the built in device is not made for rapid redrawing.
 The function is based on the grid package.
 
-Each panel in the multipanel plot must have a name. This name is used to overplot,
-rearrange the plots, or overlay using \code{addTo} when necessary. If the \code{...} are named
-spatialObjects, then \code{Plot} will use these names. If not, then \code{Plot}
-will use the object name and the layer name (in the case of RasterLayers or
-RasterStacks). If plotting a RasterLayer and the layer name is "layer" or the
-same as the object name, then only the object name will be used for simplicity. In
-other words, only enough information is used to uniquely identify the plot.
+Each panel in the multipanel plot must have a name.
+This name is used to overplot, rearrange the plots, or overlay using
+\code{addTo} when necessary.
+If the \code{...} are named spatialObjects, then \code{Plot} will use these names.
+If not, then \code{Plot} will use the object name and the layer name (in the
+case of \code{RasterLayer} or \code{RasterStack} objects).
+If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
+then, for simplicity, only the object name will be used.
+In other words, only enough information is used to uniquely identify the plot.
 
 \code{cols} is a vector of colours that can be understood directly, or by
-\code{colorRampePalette}, such as c("orange", "blue") will give a colour range
+\code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a colour range
 from orange to blue, interploated. If a list, it will be used, in order, for each
 item to be plotted. It will be recycled if it is shorter than the objects to be
 plotted. Note that when this approach to setting colours is used, any overplotting
@@ -94,9 +106,9 @@ will revert to the \code{colortable} slot of the object, or the default for rast
 which is \code{terrain.color()}
 
 Silently, one hidden object is made, \code{.spadesArr} in the \code{.spadesEnv}
-environment, which is used for arranging plots
-in the device window, and identifying the objects to be replotted if
-rearranging is required, subsequent to an new=FALSE additional plot.
+environment, which is used for arranging plots in the device window, and
+identifying the objects to be replotted if rearranging is required, subsequent
+to a \code{new=FALSE} additional plot.
 
 This function is optimized to allow modular Plotting. This means that several
 behaviours will appear unusual. For instance, if a first call to Plot is made,

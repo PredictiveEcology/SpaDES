@@ -15,8 +15,8 @@ desired. Defaults to \code{Plot}}
 \item{argClass}{character vector, length 1, indicating which class is being
 searched for among the arguments. Defaults to \code{spatialObjects}}
 
-\item{argName}{character vector, length 1, or NULL, indicating if the arguments
-to select have a name, no name (empty string) or do not use name (NULL)}
+\item{argName}{character vector, length 1, or \code{NULL}, indicating if the
+arguments to select have a name, no name (empty string), or do not use name (NULL).}
 }
 \description{
 This is primarily used from Plot.

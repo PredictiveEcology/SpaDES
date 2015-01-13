@@ -21,20 +21,19 @@ makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
 \item{maxpixels}{numeric. Number of cells to subsample the complete grobToPlot}
 
 \item{legendRange}{numeric vector giving values that, representing the lower
-and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
-that will override the data bounds contained within the grobToPlot}
+and upper bounds of a legend (i.e., \code{1:10} or \code{c(1,10)} will give same result)
+that will override the data bounds contained within the \code{grobToPlot}.}
 
 \item{cols}{colours specified in a way that can be understood directly or by
- colorRampPalette}
+ \code{\link{colorRampPalette}}.}
 
-\item{na.color}{string indicating the color for NA values. Default transparent.}
+\item{na.color}{string indicating the color for \code{NA} values. Default transparent.}
 
 \item{zero.color}{string indicating the color for zero values, when zero is
-the minimum value, otherwise, it is treated as any other color. Default transparent.
-Use NULL if zero should be the value given to it by the colortable associated with the
-Raster.}
+the minimum value. Otherwise, it is treated as any other color. Default transparent.
+Use \code{NULL} if zero should be the value given to it by the colortable associated with the Raster.}
 
-\item{skipSample}{logical. If no downsampling is necessary, skip. Default TRUE.}
+\item{skipSample}{logical. If no downsampling is necessary, skip. Default \code{TRUE}.}
 }
 \description{
 Convert Raster to color matrix useable by raster function for plotting

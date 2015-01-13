@@ -21,11 +21,11 @@ clickCoordinates(n = 1)
 
 \item{devNum}{The device number for the new plot to be plotted on}
 
-\item{plot.it}{logical. If TRUE a new windows is made for the new extent. Default TRUE.}
+\item{plot.it}{logical. If \code{TRUE} a new windows is made for the new extent. Default \code{TRUE}.}
 
-\item{X}{The raster object whose values will be returned where mouse clicks occur}
+\item{X}{The raster object whose values will be returned where mouse clicks occur.}
 
-\item{gl}{An object created by a call to \code{grid.locator}}
+\item{gl}{An object created by a call to \code{grid.locator}.}
 }
 \value{
 \code{clickValues} returns the layer names and values at the clicked points.

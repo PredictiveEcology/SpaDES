@@ -9,17 +9,17 @@ makeLayout(arr, visualSqueeze, legend = TRUE, axes = TRUE, title = TRUE)
 \arguments{
 \item{arr}{an object of class \code{arrangement}}
 
-\item{visualSqueeze}{numeric. The proportion of the white space to be used for
+\item{visualSqueeze}{Numeric. The proportion of the white space to be used for
 plots. Default is 0.75.}
 
 \item{legend}{logical. Whether legend should be included as part of layout
-calculation. Default is TRUE.}
+calculation. Default is \code{TRUE}.}
 
 \item{axes}{Logical. Whether the axes should be included as part of layout
-calculation. Default is TRUE.}
+calculation. Default is \code{TRUE}.}
 
 \item{title}{Logical. Whether the names of each plot should be written above
-plots and should be included as part of layout calculation.  Default is TRUE.}
+plots and should be included as part of layout calculation.  Default is \code{TRUE}.}
 }
 \description{
 Using the size of the current device, and number and dimension ratios of the plots,

@@ -25,11 +25,11 @@ plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
   draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
 }
 \arguments{
-\item{grobToPlot}{Raster*, SpatialPoints*, SpatialPolygons* object}
+\item{grobToPlot}{\code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*} object}
 
-\item{col}{Currently only used for the legend of a Raster* object.}
+\item{col}{Currently only used for the legend of a \code{Raster*} object.}
 
-\item{real}{A logical. Whether the data are real numbers (vs. integer or factor)}
+\item{real}{logical. Whether the data are real numbers (vs. integer or factor).}
 
 \item{size}{The size of the SpatialPoints}
 
@@ -39,19 +39,19 @@ have this defined internally}
 \item{maxv}{The maximum value on a Raster*. Required because not all Rasters
 have this defined internally}
 
-\item{legend}{logical, whether a legend should be drawn. Default TRUE.}
+\item{legend}{logical, whether a legend should be drawn. Default \code{TRUE}.}
 
-\item{legendText}{Vector of values to use for legend value labels. Defaults to NULL which results
-in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+\item{legendText}{Vector of values to use for legend value labels. Defaults to \code{NULL} which results
+in a pretty numeric representation. If \code{Raster*} has a Raster Attribute Table (rat, see raster
 package), this will be used by default. Currently, only a single vector is accepted.}
 
-\item{draw}{logical, whether the grob, after being created should be drawn. Default TRUE.}
+\item{draw}{logical. Whether the grob, after being created should be drawn. Default \code{TRUE}.}
 
 \item{gp}{grid parameters, usually the output of a call to \code{\link{gpar}}}
 
-\item{pch}{for SpatialPoints, as \code{par}}
+\item{pch}{for \code{SpatialPoints}, as \code{par}}
 
-\item{speedup}{Numeric. The factor by which the number of vertices in SpatialPolygons will be subsampled.
+\item{speedup}{Numeric. The factor by which the number of vertices in \code{SpatialPolygons} will be subsampled.
 The vertices are already subsampled by default to make plotting faster.}
 
 \item{...}{additional arguments. Currently nothing.}
@@ -63,15 +63,15 @@ Plot a raster Grob, a points Grob, polygon Grob. This should mostly be called in
 \code{speedup} is only used for SpatialPolygons in this function. Attempts have been made
 to subsample at a good level that optimizes speed of plotting, without losing visible
 quality. From a speed perspective, there appears to be an optimal subsampling
-when using \code{thin} from \code{fastshp}. Presumably too much thinning requires
+when using \code{thin} from the \code{fastshp} package. Presumably too much thinning requires
 large distance matrices to be calculated, slowing plotting down. Too little thinning
 causes an overabundance of points to be plotted, slowing plotting down.
 
-The suggested package `fastshp` can be installed with:
+The suggested package \code{fastshp} can be installed with:
   \code{devtools::install_github("s-u/fastshp")}
 
 NOTE: you may get errors relating to not having installed the software tools
 required for building R packages on your system. For development purposes on
-a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).
+a Windows machine, you'll need to install Rtools from http://cran.r-project.org/bin/windows/Rtools/.
 }
 
