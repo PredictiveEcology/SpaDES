@@ -6,3 +6,4 @@
 .travis.yml
 cran-comments.md
 vignettes/*.log$
+vignettes/*_cache$
