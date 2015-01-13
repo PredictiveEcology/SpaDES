@@ -1,0 +1,12 @@
+base
+data.table
+dplyr
+magrittr
+microbenchmark
+numbers
+raster
+Rcpp
+rgdal
+rgeos
+snow
+sp

@@ -183,7 +183,7 @@ library(microbenchmark)
 
   (a = vegVal %>%
      group_by(traj,age,rand) %>%
-     mutate(label=min(index)))
+     mutate(label=min(index))) 
 
   d = a %>%
     summarise(label=unique(label)) %>%
