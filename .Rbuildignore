@@ -3,8 +3,6 @@
 .*\.tar\.gz$
 .*\.zip$
 .*\.toc$
-cache/*
-figure/*
 .travis.yml
 cran-comments.md
-vignettes/*.log
+vignettes/*.log$
