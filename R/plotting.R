@@ -1259,6 +1259,7 @@ setMethod("Plot",
                                         zero.color=zero.color, cols=colour,
                                         skipSample=skipSample)
               } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
+
                 if(!is.null(zoomExtent)) {
                   grobToPlot <- crop(grobToPlot,zoomExtent)
                 }
@@ -1513,6 +1514,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners$x), sort(corners$y)))
 
+
   if(plot.it) {
     devActive <- dev.cur()
     if(is.null(devNum)) {
@@ -1542,7 +1544,10 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 clickCoordinates <- function(n=1) {
 
   dc <- dev.cur()
-  arr <- get(paste0(".spadesArr", dc), envir=.spadesEnv)
+  arr <- try(get(paste0(".spadesArr", dc), envir=.spadesEnv))
+  if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
+                                      "Try new=TRUE or change device to",
+                                      "one that has a plot named", addTo[whGrobNamesi]))
   gl <- grid.layout(nrow=arr@rows*2+1,
                     ncol=arr@columns*2+1,
                     widths=arr@layout$wdth,
