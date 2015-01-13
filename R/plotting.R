@@ -435,7 +435,6 @@ setMethod("plotGrob",
           definition= function(grobToPlot, col, size,
                                legend, draw, gp=gpar(), pch, ...) {
             pntGrob <- gTree(grobToPlot=grobToPlot,
-                             #name=layerNames(grobToPlot),
                              children=gList(
                                pointsGrob(x=grobToPlot$x, y=grobToPlot$y, pch=pch, size=size)
                              ),
@@ -716,7 +715,6 @@ setMethod("drawArrows",
 .objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
                          argName="") {
 
-  #
   scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
   frameCalledFrom<-which(sapply(scalls, function(x)
@@ -764,11 +762,13 @@ setMethod("drawArrows",
                                                          silent=TRUE), argClass))
     if(any(isGetTxt)) {
       secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
-      thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2])))
+      thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2]),
+                                                                   envir=sys.frame(frameCalledFrom-1)))
       objs[isGet][isGetTxt] <- secondSO
       objs[isGet][!isGetTxt] <- thirdSO
     } else {
-      thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2])))
+      thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2]),
+                                                        envir=sys.frame(frameCalledFrom-1)))
       objs[isGet] <- thirdSO
     }
   }
@@ -1259,6 +1259,10 @@ setMethod("Plot",
                                         zero.color=zero.color, cols=colour,
                                         skipSample=skipSample)
               } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
+                if(!is.null(zoomExtent)) {
+                  grobToPlot <- crop(grobToPlot,zoomExtent)
+                }
+
                 len <- length(grobToPlot)
                 if(len<(1e4/speedup)) {
                   z <- grobToPlot
@@ -1277,7 +1281,6 @@ setMethod("Plot",
               } else {
                 legendTxt <- legendText
               }
-
               # Actual plotting
               plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
                        real=zMat$real,
@@ -1499,10 +1502,6 @@ clickValues <- function(n=1) {
   return(coords)
 }
 
-#' Click to draw an Extent
-#'
-#' Currently this does not work since update to spades v0.1.0.9000
-#'
 #' @param devNum The device number for the new plot to be plotted on
 #'
 #' @param plot.it logical. If \code{TRUE} a new windows is made for the new extent. Default \code{TRUE}.
@@ -1511,9 +1510,9 @@ clickValues <- function(n=1) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
-
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners$x), sort(corners$y)))
+
   if(plot.it) {
     devActive <- dev.cur()
     if(is.null(devNum)) {
@@ -1530,8 +1529,6 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
       Plot(get(objNames, envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
     }
 
-
-    #Plot(get(unique(corners$map), envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
     dev(devActive)
     return(invisible(zoom))
   } else {

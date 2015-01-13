@@ -38,8 +38,6 @@ These functions use \code{grid.locator}. The primary two user-level functions ar
 \code{clickValues} and \code{clickExtent}. These functions automatically select
 the correct viewport (i.e., map) where the mouse clicks occured so the user
 does not have to manually specify which map is being clicked on.
-
-Currently this does not work since update to spades v0.1.0.9000
 }
 \details{
 \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where
