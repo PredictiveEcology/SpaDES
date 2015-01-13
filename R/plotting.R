@@ -65,10 +65,11 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 ##############################################################
 #' Find the number of layers in a Spatial Object
 #'
-#' There are already methods for Raster* in the raster package. Adding methods
-#' for list and SpatialPolygons and SpatialPoints. These latter classes return 1.
+#' There are already methods for \code{Raster*} in the raster package.
+#' Adding methods for \code{list}, \code{SpatialPolygons}, and \code{SpatialPoints}.
+#' These latter classes return 1.
 #'
-#' @param x A spatialObjects object or list of these.
+#' @param x A \code{spatialObjects} object or list of these.
 #'
 #' @export
 #' @importFrom raster nlayers
@@ -107,10 +108,10 @@ setMethod("nlayers",
 ##############################################################
 #' Extract the layer names of Spatial Objects
 #'
-#' There are methods for Raster*, SpatialPoints*, and SpatialPolygons*, though the latter
-#' return an empty character vector of length 1.
+#' There are methods for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*},
+#' though the latter return an empty character vector of length 1.
 #'
-#' @param object a Raster*, SpatialPoints*, SpatialPolygons* or list of these.
+#' @param object A \code{Raster*}, \code{SpatialPoints*}, or \code{SpatialPolygons*} object; or list of these.
 #'
 #' @name layerNames
 #' @rdname layerNames
@@ -295,20 +296,20 @@ setMethod("arrangeViewports",
 #' \code{speedup} is only used for SpatialPolygons in this function. Attempts have been made
 #' to subsample at a good level that optimizes speed of plotting, without losing visible
 #' quality. From a speed perspective, there appears to be an optimal subsampling
-#' when using \code{thin} from \code{fastshp}. Presumably too much thinning requires
+#' when using \code{thin} from the \code{fastshp} package. Presumably too much thinning requires
 #' large distance matrices to be calculated, slowing plotting down. Too little thinning
 #' causes an overabundance of points to be plotted, slowing plotting down.
 #'
-#' The suggested package `fastshp` can be installed with:
+#' The suggested package \code{fastshp} can be installed with:
 #'   \code{devtools::install_github("s-u/fastshp")}
 #'
 #' NOTE: you may get errors relating to not having installed the software tools
 #' required for building R packages on your system. For development purposes on
-#' a Windows machine, you'll need to install [Rtools](http://cran.r-project.org/bin/windows/Rtools/).
+#' a Windows machine, you'll need to install Rtools from http://cran.r-project.org/bin/windows/Rtools/.
 #'
-#' @param grobToPlot Raster*, SpatialPoints*, SpatialPolygons* object
+#' @param grobToPlot \code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*} object
 #'
-#' @param col Currently only used for the legend of a Raster* object.
+#' @param col Currently only used for the legend of a \code{Raster*} object.
 #'
 #' @param size The size of the SpatialPoints
 #'
@@ -318,21 +319,21 @@ setMethod("arrangeViewports",
 #' @param maxv The maximum value on a Raster*. Required because not all Rasters
 #' have this defined internally
 #'
-#' @param legend logical, whether a legend should be drawn. Default TRUE.
+#' @param legend logical, whether a legend should be drawn. Default \code{TRUE}.
 #'
-#' @param legendText Vector of values to use for legend value labels. Defaults to NULL which results
-#' in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+#' @param legendText Vector of values to use for legend value labels. Defaults to \code{NULL} which results
+#' in a pretty numeric representation. If \code{Raster*} has a Raster Attribute Table (rat, see raster
 #' package), this will be used by default. Currently, only a single vector is accepted.
 #'
-#' @param draw logical, whether the grob, after being created should be drawn. Default TRUE.
+#' @param draw logical. Whether the grob, after being created should be drawn. Default \code{TRUE}.
 #'
 #' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
 #'
-#' @param pch for SpatialPoints, as \code{par}
+#' @param pch for \code{SpatialPoints}, as \code{par}
 #'
-#' @param real A logical. Whether the data are real numbers (vs. integer or factor)
+#' @param real logical. Whether the data are real numbers (vs. integer or factor).
 #'
-#' @param speedup Numeric. The factor by which the number of vertices in SpatialPolygons will be subsampled.
+#' @param speedup Numeric. The factor by which the number of vertices in \code{SpatialPolygons} will be subsampled.
 #' The vertices are already subsampled by default to make plotting faster.
 #'
 #' @param ... additional arguments. Currently nothing.
@@ -507,17 +508,17 @@ setMethod("plotGrob",
 #'
 #' @param arr an object of class \code{arrangement}
 #'
-#' @param visualSqueeze numeric. The proportion of the white space to be used for
+#' @param visualSqueeze Numeric. The proportion of the white space to be used for
 #' plots. Default is 0.75.
 #'
 #' @param legend logical. Whether legend should be included as part of layout
-#' calculation. Default is TRUE.
+#' calculation. Default is \code{TRUE}.
 #'
 #' @param axes Logical. Whether the axes should be included as part of layout
-#' calculation. Default is TRUE.
+#' calculation. Default is \code{TRUE}.
 #'
 #' @param title Logical. Whether the names of each plot should be written above
-#' plots and should be included as part of layout calculation.  Default is TRUE.
+#' plots and should be included as part of layout calculation.  Default is \code{TRUE}.
 #'
 #' @export
 makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
@@ -555,16 +556,16 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 #' a viewport tree to allow plotting.
 #'
 #' This function will either create a totally new set of viewports, or simply add
-#' some nested viewports to an existing arrangement, i.e., is there still white space availabe
-#' to plot.
+#' some nested viewports to an existing arrangement, i.e., is there still white
+#' space availabe to plot.
 #'
-#' @param extents a list of extents objects
+#' @param extents a list of extents objects.
 #'
-#' @param layout an object with layouts described, normally created by \code{makeLayouts}
+#' @param layout an object with layouts described, normally created by \code{makeLayouts}.
 #'
-#' @param arr an object of class \code{arrangement}
+#' @param arr an object of class \code{arrangement}.
 #'
-#' @param newArr logical Whether this function will create a completely new viewport. Default FALSE.
+#' @param newArr logical. Whether this function will create a completely new viewport. Default \code{FALSE}.
 #'
 #' @export
 makeViewports <- function(extents, layout, arr, newArr = FALSE) {
@@ -605,18 +606,18 @@ makeViewports <- function(extents, layout, arr, newArr = FALSE) {
 #'
 #' @param from          Starting spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
-#' @param to            Ending spatial coordinates (\code{SpatialPointsDataFrame})..
+#' @param to            Ending spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
 #' @param addTo Optional character string. The name of a map layer on which to draw the arrows.
 #'
-#' @param title logical Add title to plot. Defaults to TRUE. Since this is also
-#' the viewport name, it is a good idea to plot it so the viewport can be called
-#' for later plotting
+#' @param title logical. Add title to plot. Defaults to \code{TRUE}.
+#' Since this is also the viewport name, it is a good idea to plot it so the
+#' viewport can be called for later plotting.
 #'
-#' @param axes logical Add axes to plot. Defaults to TRUE.
+#' @param axes logical Add axes to plot. Defaults to \code{TRUE}.
 #'
-#' @param ...           Additional plotting parameters passed to grid.polyline. Currently
-#' does not appear to pass anything.
+#' @param ...           Additional plotting parameters passed to \code{\link{grid.polyline}}.
+#' Currently does not appear to pass anything.
 #'
 #' @return Plots the vectors representing agent movement on the specified map.
 #'
@@ -705,8 +706,8 @@ setMethod("drawArrows",
 #' desired. Defaults to \code{Plot}
 #' @param argClass character vector, length 1, indicating which class is being
 #' searched for among the arguments. Defaults to \code{spatialObjects}
-#' @param argName character vector, length 1, or NULL, indicating if the arguments
-#' to select have a name, no name (empty string) or do not use name (NULL)
+#' @param argName character vector, length 1, or \code{NULL}, indicating if the
+#' arguments to select have a name, no name (empty string), or do not use name (NULL).
 #'
 #' @importFrom methods is
 #' @export
@@ -833,27 +834,33 @@ setMethod("drawArrows",
 
 
 #####################
-#' Plot: Fast, optimally arranged, multipanel plotting function with spades
+#' Plot: Fast, optimally arranged, multipanel plotting function with SpaDES
 #'
-#' The main plotting function accompanying spades. This can take objects of type Raster* or SpatialPoints*,
+#' The main plotting function accompanying \code{SpaDES}.
+#' This can take objects of type \code{Raster*} or \code{SpatialPoints*},
 #' and any combination of those.
 #'
-#' If new=TRUE, then a new plot will be generated. When new=FALSE, then any plot that
-#' already exists will be overplotted, while plots that have not already been plotted will be added. This function
-#' rearrange the plotting device to maximize the size of all the plots, minimizing white space. If using RStudio,
-#' it is recommended to make and use a new device because the built in device is not made for rapid redrawing.
+#' If \code{new=TRUE}, a new plot will be generated.
+#' When \code{new=FALSE}, any plot that already exists will be overplotted,
+#' while plots that have not already been plotted will be added.
+#' This function rearranges the plotting device to maximize the size of all the
+#' plots, minimizing white space.
+#' If using the RStudio IDE, it is recommended to make and use a new device
+#' (using \code{\link{dev}}), because the built in device is not made for rapid redrawing.
 #' The function is based on the grid package.
 #'
-#' Each panel in the multipanel plot must have a name. This name is used to overplot,
-#' rearrange the plots, or overlay using \code{addTo} when necessary. If the \code{...} are named
-#' spatialObjects, then \code{Plot} will use these names. If not, then \code{Plot}
-#' will use the object name and the layer name (in the case of RasterLayers or
-#' RasterStacks). If plotting a RasterLayer and the layer name is "layer" or the
-#' same as the object name, then only the object name will be used for simplicity. In
-#' other words, only enough information is used to uniquely identify the plot.
+#' Each panel in the multipanel plot must have a name.
+#' This name is used to overplot, rearrange the plots, or overlay using
+#' \code{addTo} when necessary.
+#' If the \code{...} are named spatialObjects, then \code{Plot} will use these names.
+#' If not, then \code{Plot} will use the object name and the layer name (in the
+#' case of \code{RasterLayer} or \code{RasterStack} objects).
+#' If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
+#' then, for simplicity, only the object name will be used.
+#' In other words, only enough information is used to uniquely identify the plot.
 #'
 #' \code{cols} is a vector of colours that can be understood directly, or by
-#' \code{colorRampePalette}, such as c("orange", "blue") will give a colour range
+#' \code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a colour range
 #' from orange to blue, interploated. If a list, it will be used, in order, for each
 #' item to be plotted. It will be recycled if it is shorter than the objects to be
 #' plotted. Note that when this approach to setting colours is used, any overplotting
@@ -861,9 +868,9 @@ setMethod("drawArrows",
 #' which is \code{terrain.color()}
 #'
 #' Silently, one hidden object is made, \code{.spadesArr} in the \code{.spadesEnv}
-#' environment, which is used for arranging plots
-#' in the device window, and identifying the objects to be replotted if
-#' rearranging is required, subsequent to an new=FALSE additional plot.
+#' environment, which is used for arranging plots in the device window, and
+#' identifying the objects to be replotted if rearranging is required, subsequent
+#' to a \code{new=FALSE} additional plot.
 #'
 #' This function is optimized to allow modular Plotting. This means that several
 #' behaviours will appear unusual. For instance, if a first call to Plot is made,
@@ -878,52 +885,58 @@ setMethod("drawArrows",
 #' this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
 #' anything if the factor for speeding up is not high enough (i.e., >3).
 #'
-#' @param ... Raster* object(s) and or SpatialPoints* objects. See details for
-#' naming.
+#' @param ... \code{Raster*} object(s) and/or \code{SpatialPoints* objects}.
+#' See details for naming.
 #'
-#' @param new Logical. If TRUE, then the previous plot is wiped and a new one made; if FALSE, then the ... plots
-#' will be added to the current device, adding or rearranging the plot layout as necessary. Default is FALSE.
+#' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
+#' if \code{FALSE}, then the \code{...} plots will be added to the current device,
+#' adding or rearranging the plot layout as necessary. Default is \code{FALSE}.
 #'
-#' @param addTo String vector, with same length as ...  This is for overplotting, when the overplot is not to occur on
-#' the plot with the same name, such as plotting a SpatialPoints* object on a RasterLayer.
+#' @param addTo String vector, with same length as \code{...}.
+#' This is for overplotting, when the overplot is not to occur on the plot with
+#' the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.
 #'
-#' @param gp A gpar object, created by gpar() function, to change plotting parameters (see \code{\link{grid}} package)
+#' @param gp A gpar object, created by \code{\link{gpar}} function,
+#' to change plotting parameters (see \code{\link{grid}} package).
 #'
-#' @param axes Logical or "L", representing the left and bottom axes, overall plots
+#' @param axes Logical or \code{"L"}, representing the left and bottom axes, overall plots.
 #'
-#' @param speedup Numeric. The factor by which the number of pixels is divided by to plot rasters. See Details.
+#' @param speedup Numeric. The factor by which the number of pixels is divided by to plot rasters.
+#' See Details.
 #'
-#' @param size Numeric. The size, in points, for SpatialPoints symbols, if using a scalable symbol.
+#' @param size Numeric. The size, in points, for \code{SpatialPoints} symbols,
+#' if using a scalable symbol.
 #'
 #' @param cols character vector or list of character vectors. Default \code{terrain.color()}. See Details.
 #'
 #' @param zoomExtent extent object. Supplying a single extent object that is smaller than the
-#' rasters will call a crop statement before plotting. Defaults to NULL. This occurs after any
-#' downsampling of rasters, so it may produce very pixelated maps.
+#' rasters will call a crop statement before plotting. Defaults to \code{NULL}.
+#' This occurs after any downsampling of rasters, so it may produce very pixelated maps.
 #'
 #' @param visualSqueeze numeric. The proportion of the white space to be used for plots. Default is 0.75.
 #'
-#' @param legend logical. Whether legend should be drawn next to plots. Default is TRUE.
+#' @param legend logical. Whether legend should be drawn next to plots. Default is \code{TRUE}.
 #'
 #' @param legendRange numeric vector giving values that, representing the lower
 #' and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
-#' that will override the data bounds contained within the grobToPlot
+#' that will override the data bounds contained within the \code{grobToPlot}.
 #'
-#' @param legendText Vector of values to use for legend value labels. Defaults to NULL which results
-#' in a pretty numeric representation. If Raster* has a Raster Attribute Table (rat, see raster
+#' @param legendText Vector of values to use for legend value labels.
+#' Defaults to \code{NULL}, which results in a pretty numeric representation.
+#' If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
 #' package), this will be used by default. Currently, only a single vector is accepted.
 #'
-#' @param draw logical, whether to actually draw the plots. Currently, there is no reason for this
-#' to be FALSE. Default is TRUE
+#' @param draw logical, whether to actually draw the plots.
+#' Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE}.
 #'
-#' @param na.color string indicating the color for NA values. Default transparent.
+#' @param na.color string indicating the color for \code{NA} values. Default transparent.
 #'
 #' @param zero.color string indicating the color for zero values, when zero is
 #' the minimum value, otherwise, zero is treated as any other color. Default transparent.
 #'
-#' @param pch see ?par
+#' @param pch see \code{?par}.
 #'
-#' @param title Logical. Whether the names of each plot should be written above plots
+#' @param title Logical. Whether the names of each plot should be written above plots.
 #'
 #' @rdname Plot-method
 #' @docType methods
@@ -1294,20 +1307,19 @@ setMethod("Plot",
 #' @param maxpixels numeric. Number of cells to subsample the complete grobToPlot
 #'
 #' @param legendRange numeric vector giving values that, representing the lower
-#' and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
-#' that will override the data bounds contained within the grobToPlot
+#' and upper bounds of a legend (i.e., \code{1:10} or \code{c(1,10)} will give same result)
+#' that will override the data bounds contained within the \code{grobToPlot}.
 #'
 #' @param cols colours specified in a way that can be understood directly or by
-#'  colorRampPalette
+#'  \code{\link{colorRampPalette}}.
 #'
-#' @param na.color string indicating the color for NA values. Default transparent.
+#' @param na.color string indicating the color for \code{NA} values. Default transparent.
 #'
 #' @param zero.color string indicating the color for zero values, when zero is
-#' the minimum value, otherwise, it is treated as any other color. Default transparent.
-#' Use NULL if zero should be the value given to it by the colortable associated with the
-#' Raster.
+#' the minimum value. Otherwise, it is treated as any other color. Default transparent.
+#' Use \code{NULL} if zero should be the value given to it by the colortable associated with the Raster.
 #'
-#' @param skipSample logical. If no downsampling is necessary, skip. Default TRUE.
+#' @param skipSample logical. If no downsampling is necessary, skip. Default \code{TRUE}.
 #'
 #' @rdname makeColorMatrix
 #' @export
@@ -1493,7 +1505,7 @@ clickValues <- function(n=1) {
 #'
 #' @param devNum The device number for the new plot to be plotted on
 #'
-#' @param plot.it logical. If TRUE a new windows is made for the new extent. Default TRUE.
+#' @param plot.it logical. If \code{TRUE} a new windows is made for the new extent. Default \code{TRUE}.
 #'
 #' @export
 #' @docType methods
@@ -1589,9 +1601,9 @@ clickCoordinates <- function(n=1) {
 }
 
 
-#' @param X The raster object whose values will be returned where mouse clicks occur
+#' @param X The raster object whose values will be returned where mouse clicks occur.
 #'
-#' @param gl An object created by a call to \code{grid.locator}
+#' @param gl An object created by a call to \code{grid.locator}.
 #'
 #' @export
 #' @docType methods

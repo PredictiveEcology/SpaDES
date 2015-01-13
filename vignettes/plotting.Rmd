@@ -49,7 +49,7 @@ DEM <- landscape$DEM
 There are several features of `Plot` that are worth highlighting. 
 
 ## Layer types
-Its main purpose is to plot spatial type objects. Specifically, it currently can plot RasterLayers, RasterStacks, SpatialPoints*, and SpatialPolygons* objects. Because `Plot` uses the `grid` package, changing plot parameters is with the `gp=gpar()` designation. See `?gpar` for options.
+Its main purpose is to plot spatial type objects. Specifically, it currently can plot `RasterLayer`, `RasterStack`, `SpatialPoints*`, and `SpatialPolygons*` objects. Because `Plot` uses the `grid` package, changing plot parameters is with the `gp=gpar()` designation. See `?gpar` for options.
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
@@ -89,7 +89,8 @@ Plot(landscape[[2:3]])
 
 
 ## Mixing Layer Types
-Any combination of RasterStacks, RasterLayers, SpatialPoints*, and SpatialPolygons* objects can be plotted.
+Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialPolygons*` objects can be plotted.
+
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, caribou, DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5))
 ```
@@ -142,14 +143,13 @@ Plot(landscape[[2:3]], new=FALSE, zero.color=NULL)
 
 ```
 
-
 # Plotting Speed
-A second main purpose of the `Plot` function is to plot as fast as possible so that visual updates, which may be frequent, take as little time as possible. To do this, several automatic calculations are made upon a call to `Plot`. First, the number of plots is compared to the physical size of the device window. If the layers are RasterLayers, then they are subsampled before plotting, automatically scaled to the number of pixels that would be discernible by the human eye. If the layer is a SpatialPoints* object, then a maximum of 10,000 points will be plotted. These defaults can be adjusted by using the `speedup` argument. Broadly, `speedup` is a number >0, where the default is 1. Numbers >1 will plot faster; numbers between 0 and 1 will plot slower. See below for using the `speedup` argument.
+A second main purpose of the `Plot` function is to plot as fast as possible so that visual updates, which may be frequent, take as little time as possible. To do this, several automatic calculations are made upon a call to `Plot`. First, the number of plots is compared to the physical size of the device window. If the layers are `RasterLayer`s, then they are subsampled before plotting, automatically scaled to the number of pixels that would be discernible by the human eye. If the layer is a `SpatialPoints*` object, then a maximum of 10,000 points will be plotted. These defaults can be adjusted by using the `speedup` argument. Broadly, `speedup` is a number >0, where the default is 1. Numbers >1 will plot faster; numbers between 0 and 1 will plot slower. See below for using the `speedup` argument.
 
 ## `speedup`
 The `speedup` argument is a *relative* speed increase at the cost of resolution if it is >1. If it is between 0 and 1, it will be a relative speed decrease at the gain of resolution. This may be used successfully when the layer texture is particularly coarse, *i.e.*, there are clusters of identical pixels, so subsampling will have little effect. In the examples below, the speedup gains are modest because the Rasters are relatively small (10,000 pixels). This speed gain will be much greater for larger rasters. 
 
-For SpatialPoints, the default is to only plot 10,000 points; if there are more than this in the object, then a random sample will be drawn. Speedup is used as the denominator to determine how many to plot `10000/speedup`. 
+For `SpatialPoints`, the default is to only plot 10,000 points; if there are more than this in the object, then a random sample will be drawn. Speedup is used as the denominator to determine how many to plot, *i.e.*, `10000/speedup`. 
 
 In the example here, the speedup actually slows down plotting because the rasters are already very small. This would not be the case when the original Raster had 1e8 pixels.
 ```{r speedup, eval=TRUE, echo=TRUE, fig.height=2}
@@ -159,7 +159,7 @@ system.time(Plot(landscape, caribou, DEM, speedup=10, new=TRUE))
 ```
 
 # Overplotting: `addTo`
-There are times when it is useful to add a plot to a different plot with a different name. In these cases, the `new` argument will not work. The argument `addTo` will allow plotting of a RasterLayer or SpatialPoints* object on top of a RasterLayer, *that does not share the same name*. This can be useful to see where agents are on a RasterLayer, or if there is transparency on a second RasterLayer, it could be plotted on top of a first RasterLayer.
+There are times when it is useful to add a plot to a different plot with a different name. In these cases, the `new` argument will not work. The argument `addTo` will allow plotting of a `RasterLayer` or `SpatialPoints*` object on top of a `RasterLayer`, *that does not share the same name*. This can be useful to see where agents are on a `RasterLayer`, or if there is transparency on a second `RasterLayer`, it could be plotted on top of a first `RasterLayer`.
 
 ```{r add, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
