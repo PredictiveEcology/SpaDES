@@ -18,6 +18,8 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
+\newpage
+
 # Introduction
 
 ## Module overview
@@ -73,6 +75,7 @@ There are a number of built-in modules that provide useful functionality. These 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE}
+library("raster")
 library("SpaDES")
 
 # initialize a new simulation, setting the checkpoint interval and filename.
@@ -218,21 +221,29 @@ mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 
 See above for more details.
 
+\newpage
+
 # Appendix
 
-## Generate random landscapes (`randomLandscapes`)
+## Sample modules
+
+### Generate random landscapes (`randomLandscapes`)
 
 ```{r randomLandscapes, echo=FALSE, eval=TRUE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
-## Simulate fire spread on a landscape (`fireSpread`)
+\newpage
+
+### Simulate fire spread on a landscape (`fireSpread`)
 
 ```{r fireSpread, echo=FALSE, eval=TRUE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
-## Agent based model of caribou movement (`caribouMovement`)
+\newpage
+
+### Agent based model of caribou movement (`caribouMovement`)
 
 ```{r caribouMovement, echo=FALSE, eval=TRUE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
