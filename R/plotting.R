@@ -1463,6 +1463,7 @@ unittrim <- function(grid.locator) {
 #' \code{clickValues} and \code{clickExtent}. These functions automatically select
 #' the correct viewport (i.e., map) where the mouse clicks occured so the user
 #' does not have to manually specify which map is being clicked on.
+#' This works for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*} objects.
 #'
 #' \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where
 #' X is the raster being clicked on, in base graphics. This function determines which place in the
@@ -1479,16 +1480,16 @@ unittrim <- function(grid.locator) {
 #'
 #' \code{.clickCoord} is intended for internal use and is called by other functions here.
 #'
-#' @param n The number of mouse clicks to do
+#' @param n The number of mouse clicks to do.
 #'
 #' @return \code{clickValues} returns the layer names and values at the clicked points.
-#' \code{clickExtent} invisibly returns the extent object, and optionally plots it
-#' in a new device window. \code{clickCoordinates} returns the xy coordinates in
-#' the units of the plot clicked on.
+#' \code{clickExtent} invisibly returns the extent object, and optionally plots it in a new device window.
+#' \code{clickCoordinates} returns the xy coordinates in the units of the plot clicked on.
 #'
 #' @export
 #' @docType methods
 #' @rdname spadesMouseClicks
+#'
 clickValues <- function(n=1) {
 
   coords <- clickCoordinates(n=n)
