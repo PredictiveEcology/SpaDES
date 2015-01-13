@@ -4,7 +4,8 @@
 \alias{SpaDES-maps}
 \title{Dummy maps included with SpaDES}
 \description{
-All 5 maps included with SpaDES are randomly generated maps created by \code{GaussMap()}
+All 5 maps included with SpaDES are randomly generated maps created by \code{GaussMap()}.
+These are located within the /maps folder of the package, and are used in the vignettes.
 }
 \details{
 DEM.tif: converted to a a small number of
