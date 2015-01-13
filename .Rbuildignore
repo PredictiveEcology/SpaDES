@@ -4,10 +4,8 @@
 .*\.zip$
 .*\.toc$
 cache/*
-development/*
 figure/*
-old/*
-^SAMPLE$
 .travis.yml
 cran-comments.md
+vignettes\*.log
 
