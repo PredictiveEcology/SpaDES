@@ -1272,6 +1272,9 @@ setMethod("Plot",
                 }
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
+                if(!is.null(zoomExtent)) {
+                  grobToPlot <- crop(grobToPlot,zoomExtent)
+                }
                 z <- grobToPlot
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               }
