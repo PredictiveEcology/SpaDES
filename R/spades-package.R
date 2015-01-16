@@ -16,7 +16,7 @@
 #' simulation modules. Included are numerous tools to visualize raster and other
 #' maps.
 #'
-#' Bug reports: https://github.com/achubaty/SpaDES/issues
+#' Bug reports: https://github.com/PredictiveEcology/SpaDES/issues
 #'
 #' @name spades-package
 #' @aliases SpaDES spades-package

@@ -20,7 +20,7 @@ vignette: >
 
 **Abstract:** Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
-**Website:** [https://github.com/achubaty/SpaDES](https://github.com/achubaty/SpaDES)
+**Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
 
 # Introduction to `SpaDES`
 
@@ -366,4 +366,4 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 
 ## Reporting bugs
 
-As with any software, there are likely to be issues. If you believe you have found a bug, please contact us via the package GitHub site: [https://github.com/achubaty/SpaDES/issues](https://github.com/achubaty/SpaDES/issues). Please do not use the issue tracker for general help requests. We will soon be setting up a help mailing list soon for users who seek assistance using `SpaDES`.
+As with any software, there are likely to be issues. If you believe you have found a bug, please contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues). Please do not use the issue tracker for general help requests. We will soon be setting up a help mailing list soon for users who seek assistance using `SpaDES`.
