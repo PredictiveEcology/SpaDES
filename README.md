@@ -1,3 +1,7 @@
+---
+title: SpaDES: Spatial Discrete Event Simulator
+---
+
 Master Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
 
 Development Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
