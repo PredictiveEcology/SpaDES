@@ -17,7 +17,7 @@ clickCoordinates(n = 1)
 .clickCoord(X, n = 1, gl = NULL)
 }
 \arguments{
-\item{n}{The number of mouse clicks to do}
+\item{n}{The number of mouse clicks to do.}
 
 \item{devNum}{The device number for the new plot to be plotted on}
 
@@ -29,16 +29,15 @@ clickCoordinates(n = 1)
 }
 \value{
 \code{clickValues} returns the layer names and values at the clicked points.
-\code{clickExtent} invisibly returns the extent object, and optionally plots it
-in a new device window. \code{clickCoordinates} returns the xy coordinates in
-the units of the plot clicked on.
+\code{clickExtent} invisibly returns the extent object, and optionally plots it in a new device window.
+\code{clickCoordinates} returns the xy coordinates in the units of the plot clicked on.
 }
 \description{
 These functions use \code{grid.locator}. The primary two user-level functions are
 \code{clickValues} and \code{clickExtent}. These functions automatically select
 the correct viewport (i.e., map) where the mouse clicks occured so the user
-does not have to manually specify which map is being clicked on. This works for \code{Raster*},
-\code{SpatialPoints*}, and \code{SpatialPolygons*} objects
+does not have to manually specify which map is being clicked on.
+This works for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*} objects.
 }
 \details{
 \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where

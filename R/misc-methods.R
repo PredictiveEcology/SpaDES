@@ -279,7 +279,7 @@ setMethod("checkParams",
             notFound <- setdiff(names(globalParams), globalsFound)
             if (length(notFound)>0) {
               allFound <- FALSE
-              message(paste("Global parameters", notFound, "are not used in any module."))
+              message("Global parameter(s) not used in any module: ", paste(notFound, collapse=", "), ".")
             }
 
             ### check whether each param in a module's .R file occurs in simInit
