@@ -1,9 +1,0 @@
-^.*\.Rproj$
-^\.Rproj\.user$
-.*\.tar\.gz$
-.*\.zip$
-.*\.toc$
-.travis.yml
-cran-comments.md
-vignettes/*.log$
-vignettes/*_cache$
