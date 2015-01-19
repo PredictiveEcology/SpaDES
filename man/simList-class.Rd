@@ -5,13 +5,15 @@
 \alias{simList-class}
 \title{The \code{simList} class}
 \description{
-This class contains the minimum components of a simulation.
+Contains the minimum components of a SpaDES simulation.
 }
 \details{
 Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
-Here, we implement a simulation in a more modular fashion so it's easier to add
-submodules to the simulation. We use S4 classes and methods, and use `data.table`
-instead of `data.frame` to implement the event queue (because it is much faster).
+Here, we implement a discrete event simulation in a more modular fashion so it's
+easier to add simulation components (i.e., "simulation modules").
+
+We use S4 classes and methods, and use \code{\link{data.table}} instead of
+\code{\link{data.frame}} to implement the event queue (because it is much faster).
 }
 \section{Slots}{
 
@@ -22,14 +24,16 @@ instead of `data.frame` to implement the event queue (because it is much faster)
 
 \item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
 
-\item{\code{events}}{The list of scheduled events, as a data.table class. This is implemented
-                 such that the data.table is always sorted (keyed) by time, making it easy
-                 to insert new events into the table.}
+\item{\code{events}}{The list of scheduled events (aka event queue), as a \code{data.table}.
+                 This event queue is always sorted (keyed) by time,
+                 making it easy to insert new events into the queue.}
 
-\item{\code{completed}}{The list of completed events, as a data.table class.}
+\item{\code{completed}}{The list of completed events, as a \code{data.table}.}
 
-\item{\code{simtimes}}{List of numerical values describing the simulation start and stop timos,
-                 and the current simulation time.}
+\item{\code{depends}}{A list of \code{dependsObj} objects containing module object dependency information.}
+
+\item{\code{simtimes}}{List of numerical values describing the simulation start and stop times;
+                 as well as the current simulation time.}
 }}
 \note{
 Each event is represented by a data.table row consisting of:
@@ -44,6 +48,6 @@ Alex Chubaty
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 }
 \seealso{
-\code{\link{data.table}}
+\code{\link{data.table}}.
 }
 

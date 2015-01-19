@@ -1,12 +1,86 @@
+#' The \code{dependsObj} class
+#'
+#' Contains minimum components of SpaDES module object dependecies.
+#'
+#' Each \code{dependsObj} describes a module's dependency on another object for a simulation.
+#' Multiple \code{dependsObj} objects (i.e., describing multiple dependencies) are typically supplied using a \code{\link{dependsList}}.
+#'
+#' @slot module   Character string naming the module for which object dependencies are being specified.
+#'
+#' @slot objType  Character. One of "input" or "output", describing the relationship of the object to the module.
+#'
+#' @slot objName  Character string naming the object.
+#'
+#' @slot objClass Character vector specifying the object's class(es).
+#'
+#' @slot extent   \code{extent} object specifying the object's spatial extent.
+#'
+#' @slot proj     Character string specifying the spatial projection of the object.
+#'                Usually the output of \code{\link{proj4string}} or \code{\link{crs}}.
+#' @slot translators Character
+#' @rdname dependsObj-class
+#' @importFrom raster extent
+#' @exportClass dependsObj
+#'
+#' @seealso dependsList
+#'
+#' @author Alex Chubaty
+#'
+setClass("dependsObj",
+         slots=list(module="character",
+                    objType="character", objName="character", objClass="character",
+                    extent="Extent", proj="character", translators="character"),
+         prototype=list(module=as.character(NULL),
+                        objType=as.character(NULL), objName=as.character(NULL),
+                        objClass=as.character(NULL), extent=extent(c(0,0,0,0)),
+                        proj=as.character(NULL), translators=as.character(NULL)),
+         validity=function(object) {
+           if (length(object@module)!=1) stop("module must be a single character string.")
+           if (length(object@objType)!=1) stop("objType must be a single character string.")
+           if ( (lower(object@objectName)!="input") || (lower(object@objectName)!="output") ) {
+             stop("moduleType must be one of \'input\' or \'output\'.")
+           }
+           if (length(object@objName)!=1) stop("objName must be a single character string.")
+           if (length(object@objClass)<1) stop("objClass must be specified.")
+           if (length(object@proj)!=1) stop("proj must be a single character string.")
+           if (length(object@translators)<1) stop("translators must be specified, or NA.")
+         }
+)
+
+#' The \code{dependsList} class
+#'
+#' List of SpaDES module object dependecies.
+#'
+#' @slot dependencies   List of \code{\link{dependsObj}} dependency objects.
+#'
+#' @rdname dependsList-class
+#' @exportClass dependsList
+#'
+#' @author Alex Chubaty
+#'
+setClass("dependsList",
+         slots=list(dependencies="list"),
+         prototype=list(dependencies=list(NULL)),
+         validity=function(object) {
+           # remove empty (NULL) elements
+           object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
+
+           # ensure list contains only dependsObj objects
+           lapply(object@dependencies, is, class2="dependsObj")
+         }
+)
+
 ###########################################################################
 #' The \code{simList} class
 #'
-#' This class contains the minimum components of a simulation.
+#' Contains the minimum components of a SpaDES simulation.
 #'
 #' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
-#' Here, we implement a simulation in a more modular fashion so it's easier to add
-#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
-#' instead of `data.frame` to implement the event queue (because it is much faster).
+#' Here, we implement a discrete event simulation in a more modular fashion so it's
+#' easier to add simulation components (i.e., "simulation modules").
+#'
+#' We use S4 classes and methods, and use \code{\link{data.table}} instead of
+#' \code{\link{data.frame}} to implement the event queue (because it is much faster).
 #'
 #' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
 #'
@@ -14,21 +88,23 @@
 #'
 #' @slot params     Named list of potentially other lists specifying simulation parameters.
 #'
-#' @slot events     The list of scheduled events, as a data.table class. This is implemented
-#'                  such that the data.table is always sorted (keyed) by time, making it easy
-#'                  to insert new events into the table.
+#' @slot events     The list of scheduled events (aka event queue), as a \code{data.table}.
+#'                  This event queue is always sorted (keyed) by time,
+#'                  making it easy to insert new events into the queue.
 #'
-#' @slot completed  The list of completed events, as a data.table class.
+#' @slot completed  The list of completed events, as a \code{data.table}.
 #'
-#' @slot simtimes   List of numerical values describing the simulation start and stop timos,
-#'                  and the current simulation time.
+#' @slot depends    A list of \code{dependsObj} objects containing module object dependency information.
+#'
+#' @slot simtimes   List of numerical values describing the simulation start and stop times;
+#'                  as well as the current simulation time.
 #'
 #' @note Each event is represented by a data.table row consisting of:
 #'          eventTime: the time the event is to occur;
 #'          moduleName: the module from which the event is taken;
 #'          eventType: a character string for the programmer-defined event type.
 #'
-#' @seealso \code{\link{data.table}}
+#' @seealso \code{\link{data.table}}.
 #'
 #' @rdname simList-class
 #' @import data.table
@@ -40,10 +116,12 @@
 #'
 setClass("simList",
          slots=list(.loaded="list", modules="list", params="list",
-                    events="data.table", completed="data.table", simtimes="list"),
+                    events="data.table", completed="data.table",
+                    depends="list", simtimes="list"),
          prototype=list(.loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
                         modules=as.list(NULL), params=as.list(NULL),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
+                        depends=list(NULL),
                         simtimes=list(current=0.00, start=0.00, stop=1.00)),
          validity=function(object) {
            # check for valid sim times and make default list
@@ -181,7 +259,6 @@ setGeneric("simModules<-",
 })
 
 #' @name simModules<-
-#' @aliases simModules<-,simList-method
 #' @rdname simModules-accessor-methods
 setReplaceMethod("simModules",
                  signature="simList",
