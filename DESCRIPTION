@@ -37,6 +37,7 @@ Suggests:
 Imports:
     CircStats,
     ggplot2,
+    gridBase,
     methods,
     RandomFields,
     RColorBrewer,

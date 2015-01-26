@@ -1,6 +1,7 @@
 #' @import ggplot2
 setOldClass("gg")
 
+setOldClass("histogram")
 
 ################################################
 #' The \code{spatialObjects} class
@@ -25,7 +26,7 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #' @rdname spadesPlotObjects-class
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
-setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg"))
+setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
 
 
 ##############################################################
@@ -538,6 +539,7 @@ setMethod("plotGrob",
 #'
 #' @export
 makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
+
   columns <- arr@columns
   rows <- arr@rows
 
@@ -583,6 +585,7 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 #'
 #' @export
 makeViewports <- function(extents, arr, newArr = FALSE) {
+
 
   columns <- arr@columns
   rows <- arr@rows
@@ -854,9 +857,11 @@ setMethod("drawArrows",
 #' The main plotting function accompanying \code{SpaDES}.
 #' This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 #' \code{SpatialPolygons*}, and any combination of those.  It can
-#' also handle \code{ggplot2} objects, but they must be the only objects
-#' in the call to Plot (i.e., can't mix and match spatial and
-#' non-spatial objects.
+#' also handle \code{ggplot2} objects or base histogram objects via call to
+#' \code{exHist <- hist(1:10, plot=F)}, but these non-spatial objects
+#' cannot be mixed among types (i.e., can't mix and match spatial and
+#' non-spatial objects, or base histogram and ggplot2 types). At the moment,
+#' ggplot2 plots are smaller than desirable.
 #'
 #' If \code{new=TRUE}, a new plot will be generated.
 #' When \code{new=FALSE}, any plot that already exists will be overplotted,
@@ -961,6 +966,7 @@ setMethod("drawArrows",
 #' @export
 #' @import grid
 #' @importFrom methods is
+#' @importFrom gridBase gridFIG
 #' @import raster
 #' @import RColorBrewer
 #' @import rgdal
@@ -1234,6 +1240,13 @@ setMethod("Plot",
 
               if (is(grobToPlot, "gg")) {
                 print(grobToPlot, vp=seek)
+              } else if(is(grobToPlot, "histogram")) {
+                # Because base plotting is not set up to overplot, must plot a white rectangle
+                grid.rect(gp=gpar(fill="white", col="white"))
+                par(fig=gridFIG())
+                par(new=TRUE)
+                plot(grobToPlot)
+
               } else {
 
                 # Extract legend text if the raster is a factored raster
@@ -1670,7 +1683,7 @@ setGeneric(".makeExtsToPlot", function(toPlot=NULL, zoomExtent=NULL, numLayers=N
 setMethod(".makeExtsToPlot",
           signature="list",
           definition <- function(toPlot, zoomExtent, numLayers, lN) {
-            if(any(sapply(toPlot, function(x) any(is(x, "gg"))))) {
+            if(any(sapply(toPlot, function(x) any(is(x, "gg") | is(x, "histogram"))))) {
               extsToPlot <- lapply(1:length(toPlot), function(x) extent(0,1,0,1))
             } else {
               if(is.null(zoomExtent)) {

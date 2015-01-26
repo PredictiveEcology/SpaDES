@@ -74,8 +74,13 @@ the minimum value, otherwise, zero is treated as any other color. Default transp
 }
 \description{
 The main plotting function accompanying \code{SpaDES}.
-This can take objects of type \code{Raster*} or \code{SpatialPoints*},
-and any combination of those.
+This can take objects of type \code{Raster*}, \code{SpatialPoints*},
+\code{SpatialPolygons*}, and any combination of those.  It can
+also handle \code{ggplot2} objects or base histogram objects via call to
+\code{exHist <- hist(1:10, plot=F)}, but these non-spatial objects
+cannot be mixed among types (i.e., can't mix and match spatial and
+non-spatial objects, or base histogram and ggplot2 types). At the moment,
+ggplot2 plots are smaller than desirable.
 }
 \details{
 If \code{new=TRUE}, a new plot will be generated.
