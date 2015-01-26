@@ -9,7 +9,9 @@
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons",
-                                               "RasterLayer", "RasterStack"))
+                                               "RasterLayer", "RasterStack"
+                                               ))
+
 
 ##############################################################
 #' Specify where to plot
@@ -560,21 +562,19 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 #'
 #' @param extents a list of extents objects.
 #'
-#' @param layout an object with layouts described, normally created by \code{makeLayouts}.
-#'
 #' @param arr an object of class \code{arrangement}.
 #'
 #' @param newArr logical. Whether this function will create a completely new viewport. Default \code{FALSE}.
 #'
 #' @export
-makeViewports <- function(extents, layout, arr, newArr = FALSE) {
+makeViewports <- function(extents, arr, newArr = FALSE) {
 
   columns <- arr@columns
   rows <- arr@rows
   topVp <- viewport(layout=grid.layout(nrow=rows*2+1,
                                        ncol=columns*2+1,
-                                       widths=layout$wdth,
-                                       heights=layout$ht),
+                                       widths=arr@layout$wdth,
+                                       heights=arr@layout$ht),
                     name="top")
   plotVps <- list()
   nam <- names(extents)
@@ -680,9 +680,8 @@ setMethod("drawArrows",
               extendrange(c(min(min(from$y), min(to$y)), max(max(from$y, to$y))))))
             names(extents) <- .objectNames("drawArrows", argName = NULL)[1]
             arr <- arrangeViewports(extents)#, name=name(from))
-            lay <- makeLayout(arr=arr, visualSqueeze=0.75)
-            arr@layout <- lay
-            vps <- makeViewports(extents, arr=arr, layout=lay, newArr = TRUE)
+            arr@layout <- makeLayout(arr=arr, visualSqueeze=0.75)
+            vps <- makeViewports(extents, arr=arr, newArr = TRUE)
             pushViewport(vps)
             seekViewport(names(extents), recording=FALSE)
             grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
@@ -1045,10 +1044,8 @@ setMethod("Plot",
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, draw, pch, title, na.color,
                                 zero.color) {
-
             toPlot <- list(...)
             suppliedNames <- names(toPlot)
-
 
             # Section 1 # Determine object names that were passed and layer names of each
             names(toPlot) <- .objectNames()
@@ -1096,100 +1093,48 @@ setMethod("Plot",
             }
 
 
-            # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
-
-            if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-              new<-TRUE
-              arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-              if(new==FALSE) message("Nothing to add plots to; creating new plots")
-              currentNames <- NULL
-            } else {
-              if(!new) {
-                arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
-                #          if (!(length(.spadesEnv$.spadesArr4@names)==
-                #                  sum(grepl("^GRID", grid.ls(grobs = T, print=FALSE)$name)))) {
-                #            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-                #            new=TRUE
-                #          }
-              } else {
-                arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-              }
-              currentNames <- arr@names
-            }
+            # Section 3 # check whether .spadesArr exists, meaning that there is already a plot,
+            #   If not, create a blank new one
+            spadesArr <-.setOrGetSpadesArr1(new)
+            currentNames <- spadesArr$currentNames
+            arr <- spadesArr$arr
+            new<-spadesArr$new
 
             # Section 4 # get extents from all SpatialPoints*, Rasters*, including Stacks
-
-            if(is.null(zoomExtent)) {
-              extsToPlot <- rep(sapply(toPlot, extent), numLayers)
-            } else {
-              extsToPlot <- rep(list(zoomExtent), numLayers)
-            }
-            names(extsToPlot)<-lN
+            extsToPlot <- .makeExtsToPlot(toPlot, extent, zoomExtent, numLayers, lN)
 
             # Section 5 # Manage adding new plots to existing plots, assessing for overlaps
             # Do set operations to identify if there are "all new to plot", "only add in existing
             #   white space on device", "replot all existing smaller, rearranging, adding new"
-            currentPlusToPlotN <- unique(c(currentNames, addTo))
-            if(new==TRUE) { # "all new to plot"
-              newArr <- TRUE
-              grobNames <- lN
-            } else { # new == FALSE, i.e., add in a modular way by keeping previous plots
-              if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) { #"replot all existing smaller, rearranging, adding new"
-                newArr <- TRUE
-                ind <- currentPlusToPlotN %in% lN + 1
-                grobNames <- currentPlusToPlotN
-                addTo <- grobNames
-                extsUnmerged <- list(extCurrent=arr@extents[match(currentPlusToPlotN, currentNames)],
-                                     extlN=extsToPlot[match(currentPlusToPlotN, lN)])
-                extsToPlot <- sapply(1:length(currentPlusToPlotN), function(x) extsUnmerged[[ind[x]]][x])
-              } else {  # "only add in existing white space on device"
-                newArr <- FALSE
-                extsToPlot <- extsToPlot[!(addTo %in% currentNames)]
-                if(sum(!(addTo %in% currentNames))!=0) {
-                  names(extsToPlot) <- addTo[!(addTo %in% currentNames)]
-                } else {
-                  names(extsToPlot) <- NULL
-                }
-                grobNames <- lN
-              }
-            }
 
-            # create get(paste0(".spadesArr", dev.cur())) object
+            aR <- .assessRearrangement(extsToPlot, currentNames, addTo, new, lN, arr)
+            extsToPlot <- aR$extsToPlot
+            grobNames <- aR$grobNames
+            addTo <- aR$addTo
+            newArr <- aR$newArr
+
+            # create full arr object, which will become .spadesArrx where x is dev.cur()
             #  i.e., the arrangement based on number and extents
-            if(!newArr) {
-
-              if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-                arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
-                arr@names <- append(arr@names, names(extsToPlot))
-                arr@extents <- append(arr@extents, extsToPlot)
-              } else {
-                message("nothing to add to, creating new plot")
-                newArr <- TRUE
-              }
-            }
-            if (newArr) { # need a new arrangement
-              arr <- arrangeViewports(extsToPlot)
-              grid.newpage()
-            }
-            #end create .spadesArr object
+            spadesArr <- .setOrGetSpadesArr2(newArr, extsToPlot)
+            arr <- spadesArr$arr
+            newArr <- spadesArr$newArr
+            #end create full arr object
 
             # Section 6 # Plotting scaling, pixels, axes, symbol sizes
             if(is.null(gp$cex)) {
               gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
             }
-
             if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
             if(axes==FALSE) { xaxis <- FALSE ; yaxis <- FALSE}
 
             # Section 7 # Optimal Layout and viewport making
             # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
             #  plotted, and visualSqueeze
-            lay <- makeLayout(arr, visualSqueeze, legend, axes)
-            arr@layout <- lay
+            arr@layout <- makeLayout(arr, visualSqueeze, legend, axes)
 
             # Create the viewports as per the optimal layout
             if(length(extsToPlot)>0) {
-              vps <- makeViewports(extsToPlot, layout=lay, arr=arr, newArr=newArr)
+              vps <- makeViewports(extsToPlot, arr=arr, newArr=newArr)
               if(!new & !newArr)
                 upViewport(1)
               pushViewport(vps, recording = FALSE)
@@ -1221,43 +1166,19 @@ setMethod("Plot",
                                                 "Try new=TRUE or change device to",
                                                 "one that has a plot named", addTo[whGrobNamesi]))
 
-              grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN)
+              grobToPlot <- .identifyGrobToPlot(grobNamesi, toPlot, lN)
               newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
 
-              colour <- if(is.list(cols)) {
-                if(length(cols)==length(lN)) {
-                  cols[[match(grobNamesi, lN)]] # use colours as supplied in the list
-                } else {
-                  cols[[(match(grobNamesi, lN)-1) %% length(cols)+1]] #recycle colours
-                }
-              } else {
-                cols
-              }
+              colour <- .colsFromList(cols=cols, lN, grobNamesi)
 
-              if(is(grobToPlot, "Raster")) { # Rasters require subsampling, using makeColorMatrix fn
-                if(is.null(zoomExtent)) {
-                  zoom <- extent(grobToPlot)
-                  npixels <- ncell(grobToPlot)
-                } else {
-                  zoom <- zoomExtent
-                  npixels <- ncell(crop(grobToPlot,zoom))
-                }
-                if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
-
-
-                maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup
-                if(!is.null(npixels)) {
-                  maxpixels <- min(maxpixels, npixels)
-                  skipSample <- if(is.null(zoomExtent)) {maxpixels>=npixels} else {FALSE}
-                } else {
-                  skipSample <- TRUE
-                }
-
-
-                zMat <- makeColorMatrix(grobToPlot, zoom, maxpixels,
-                                        legendRange, na.color,
+              if(is(grobToPlot, "Raster")) {
+                # Rasters may be zoomed into and subsampled and have unique legend
+                pR <- .prepareRaster(grobToPlot, zoomExtent, legendRange,
+                                             newplot, arr, speedup)
+                zMat <- makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
+                                        pR$legendRange, na.color,
                                         zero.color=zero.color, cols=colour,
-                                        skipSample=skipSample)
+                                        skipSample=pR$skipSample)
               } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
 
                 if(!is.null(zoomExtent)) {
@@ -1285,6 +1206,7 @@ setMethod("Plot",
               } else {
                 legendTxt <- legendText
               }
+
               # Actual plotting
               plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
                        real=zMat$real,
@@ -1631,7 +1553,7 @@ clickCoordinates <- function(n=1) {
 
 
 
-identifyGrobToPlot <- function(grobNamesi, toPlot, lN) {
+.identifyGrobToPlot <- function(grobNamesi, toPlot, lN) {
   # get the object name associated with this grob
   objLayerName <- strsplit(grobNamesi, "\\.")[[1]]
 
@@ -1649,4 +1571,116 @@ identifyGrobToPlot <- function(grobNamesi, toPlot, lN) {
       grobToPlot <- toPlot[[objLayerName[1]]]
     }
   }
+}
+
+.setOrGetSpadesArr1 <- function(new) {
+  # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
+  if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+    new<-TRUE
+    arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+    if(new==FALSE) message("Nothing to add plots to; creating new plots")
+    currentNames <- NULL
+  } else {
+    if(!new) {
+      arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+    } else {
+      arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+    }
+    currentNames <- arr@names
+  }
+  return(list(arr=arr, new=new, currentNames=currentNames))
+}
+
+.makeExtsToPlot <- function(toPlot, extent, zoomExtent, numLayers, lN) {
+  if(is.null(zoomExtent)) {
+    extsToPlot <- rep(sapply(toPlot, extent), numLayers)
+  } else {
+    extsToPlot <- rep(list(zoomExtent), numLayers)
+  }
+  names(extsToPlot)<-lN
+  return(extsToPlot)
+}
+
+.setOrGetSpadesArr2 <- function(newArr, extsToPlot) {
+  if(!newArr) {
+    if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+      arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+      arr@names <- append(arr@names, names(extsToPlot))
+      arr@extents <- append(arr@extents, extsToPlot)
+    } else {
+      message("nothing to add to, creating new plot")
+      newArr <- TRUE
+    }
+  }
+  if (newArr) { # need a new arrangement
+    arr <- arrangeViewports(extsToPlot)
+    grid.newpage()
+  }
+  return(list(arr=arr, newArr=newArr))
+}
+
+.assessRearrangement <- function(extsToPlot, currentNames, addTo, new, lN, arr) {
+  currentPlusToPlotN <- unique(c(currentNames, addTo))
+  if(new==TRUE) { # "all new to plot"
+    newArr <- TRUE
+    grobNames <- lN
+  } else { # new == FALSE, i.e., add in a modular way by keeping previous plots
+    if(length(currentPlusToPlotN) > prod(arr@columns, arr@rows)) { #"replot all existing smaller, rearranging, adding new"
+      newArr <- TRUE
+      ind <- currentPlusToPlotN %in% lN + 1
+      grobNames <- currentPlusToPlotN
+      addTo <- grobNames
+      extsUnmerged <- list(extCurrent=arr@extents[match(currentPlusToPlotN, currentNames)],
+                           extlN=extsToPlot[match(currentPlusToPlotN, lN)])
+      extsToPlot <- sapply(1:length(currentPlusToPlotN), function(x) extsUnmerged[[ind[x]]][x])
+    } else {  # "only add in existing white space on device"
+      newArr <- FALSE
+      extsToPlot <- extsToPlot[!(addTo %in% currentNames)]
+      if(sum(!(addTo %in% currentNames))!=0) {
+        names(extsToPlot) <- addTo[!(addTo %in% currentNames)]
+      } else {
+        names(extsToPlot) <- NULL
+      }
+      grobNames <- lN
+    }
+  }
+  return(list(grobNames=grobNames, newArr=newArr, extsToPlot=extsToPlot, addTo=addTo))
+}
+
+.colsFromList <- function(cols, lN, grobNamesi) {
+  if(is.list(cols)) {
+    if(length(cols)==length(lN)) {
+      cols[[match(grobNamesi, lN)]] # use colours as supplied in the list
+    } else {
+      cols[[(match(grobNamesi, lN)-1) %% length(cols)+1]] #recycle colours
+    }
+  } else {
+    cols
+  }
+  return(cols)
+}
+
+.prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
+              newplot, arr, speedup) {
+  if(is.null(zoomExtent)) {
+    zoom <- extent(grobToPlot)
+    npixels <- ncell(grobToPlot)
+  } else {
+    zoom <- zoomExtent
+    npixels <- ncell(crop(grobToPlot,zoom))
+  }
+  if(is.null(legendRange) | newplot==FALSE) legendRange <- NA
+
+
+  maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup
+  #if(!is.null(npixels)) {
+  maxpixels <- min(maxpixels, npixels)
+  skipSample <- if(is.null(zoomExtent)) {maxpixels>=npixels} else {FALSE}
+  #} else {
+  #  skipSample <- TRUE
+  #}
+
+  return(list(maxpixels=maxpixels, skipSample=skipSample,
+              legendRange=legendRange, zoom=zoom))
+
 }

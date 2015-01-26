@@ -4,12 +4,10 @@
 \alias{makeViewports}
 \title{Make viewports}
 \usage{
-makeViewports(extents, layout, arr, newArr = FALSE)
+makeViewports(extents, arr, newArr = FALSE)
 }
 \arguments{
 \item{extents}{a list of extents objects.}
-
-\item{layout}{an object with layouts described, normally created by \code{makeLayouts}.}
 
 \item{arr}{an object of class \code{arrangement}.}
 
