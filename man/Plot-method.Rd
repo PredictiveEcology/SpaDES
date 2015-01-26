@@ -3,7 +3,7 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
-\alias{Plot,spatialObjects-method}
+\alias{Plot,spadesPlotObjects-method}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
@@ -12,7 +12,7 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
-\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
+\S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
   gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
@@ -90,7 +90,7 @@ The function is based on the grid package.
 Each panel in the multipanel plot must have a name.
 This name is used to overplot, rearrange the plots, or overlay using
 \code{addTo} when necessary.
-If the \code{...} are named spatialObjects, then \code{Plot} will use these names.
+If the \code{...} are named spadesPlotObjects, then \code{Plot} will use these names.
 If not, then \code{Plot} will use the object name and the layer name (in the
 case of \code{RasterLayer} or \code{RasterStack} objects).
 If plotting a RasterLayer and the layer name is "layer" or the same as the object name,

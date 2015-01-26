@@ -36,6 +36,7 @@ Suggests:
     testthat
 Imports:
     CircStats,
+    ggplot2,
     methods,
     RandomFields,
     RColorBrewer,

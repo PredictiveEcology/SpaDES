@@ -1,3 +1,7 @@
+#' @import ggplot2
+setOldClass("gg")
+
+
 ################################################
 #' The \code{spatialObjects} class
 #'
@@ -9,8 +13,19 @@
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons",
-                                               "RasterLayer", "RasterStack"
-                                               ))
+                                               "RasterLayer", "RasterStack"))
+
+################################################
+#' The \code{spadesPlotObjects} class
+#'
+#' This class contains the plotting arrangement information.
+#'
+#' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, RasterStack
+#' @name spadesPlotObjects-class
+#' @rdname spadesPlotObjects-class
+#' @author Eliot McIntire
+#' @exportClass spadesPlotObjects
+setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg"))
 
 
 ##############################################################
@@ -71,7 +86,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' Adding methods for \code{list}, \code{SpatialPolygons}, and \code{SpatialPoints}.
 #' These latter classes return 1.
 #'
-#' @param x A \code{spatialObjects} object or list of these.
+#' @param x A \code{spadesPlotObjects} object or list of these.
 #'
 #' @export
 #' @importFrom raster nlayers
@@ -703,7 +718,7 @@ setMethod("drawArrows",
 #' @param calledFrom character vector, length 1, indicating which function call is
 #' desired. Defaults to \code{Plot}
 #' @param argClass character vector, length 1, indicating which class is being
-#' searched for among the arguments. Defaults to \code{spatialObjects}
+#' searched for among the arguments. Defaults to \code{spadesPlotObjects}
 #' @param argName character vector, length 1, or \code{NULL}, indicating if the
 #' arguments to select have a name, no name (empty string), or do not use name (NULL).
 #'
@@ -711,8 +726,9 @@ setMethod("drawArrows",
 #' @export
 #' @docType methods
 #' @rdname objectNames
-.objectNames <- function(calledFrom="Plot", argClass="spatialObjects",
+.objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
+
 
   scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
@@ -734,7 +750,7 @@ setMethod("drawArrows",
 
 
   # First run through call stack for simple, i.e., calls to Plot that are
-  # just spatialObjects to plot
+  # just spadesPlotObjects to plot
   objs <- vector("list", length(callNamedArgs))
   first <- sapply(as.character(callNamedArgs), function(x)
     strsplit(split="[[:punct:]]", x)[[1]][1])
@@ -836,8 +852,11 @@ setMethod("drawArrows",
 #' Plot: Fast, optimally arranged, multipanel plotting function with SpaDES
 #'
 #' The main plotting function accompanying \code{SpaDES}.
-#' This can take objects of type \code{Raster*} or \code{SpatialPoints*},
-#' and any combination of those.
+#' This can take objects of type \code{Raster*}, \code{SpatialPoints*},
+#' \code{SpatialPolygons*}, and any combination of those.  It can
+#' also handle \code{ggplot2} objects, but they must be the only objects
+#' in the call to Plot (i.e., can't mix and match spatial and
+#' non-spatial objects.
 #'
 #' If \code{new=TRUE}, a new plot will be generated.
 #' When \code{new=FALSE}, any plot that already exists will be overplotted,
@@ -851,7 +870,7 @@ setMethod("drawArrows",
 #' Each panel in the multipanel plot must have a name.
 #' This name is used to overplot, rearrange the plots, or overlay using
 #' \code{addTo} when necessary.
-#' If the \code{...} are named spatialObjects, then \code{Plot} will use these names.
+#' If the \code{...} are named spadesPlotObjects, then \code{Plot} will use these names.
 #' If not, then \code{Plot} will use the object name and the layer name (in the
 #' case of \code{RasterLayer} or \code{RasterStack} objects).
 #' If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
@@ -1039,39 +1058,52 @@ setGeneric("Plot", signature="...",
 #' @rdname Plot-method
 #' @export
 setMethod("Plot",
-          signature("spatialObjects"),
+          signature("spadesPlotObjects"),
           definition = function(..., new, addTo, gp, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, draw, pch, title, na.color,
                                 zero.color) {
             toPlot <- list(...)
+            isSpatialObjects <- sapply(toPlot, function(x) is(x, "spatialObjects"))
+            if((sum(isSpatialObjects)!=0) & (sum(isSpatialObjects)!=length(isSpatialObjects))) {
+              stop("All objects for Plot call must be either spatialObjects or
+                   none can be")
+            }
+
             suppliedNames <- names(toPlot)
 
             # Section 1 # Determine object names that were passed and layer names of each
             names(toPlot) <- .objectNames()
             if(!is.null(suppliedNames)) names(toPlot)[!is.na(suppliedNames)] <- suppliedNames
-            isRaster <- sapply(toPlot, function(x) is(x, "Raster"))
-            isStack <-  sapply(toPlot, function(x) is(x, "RasterStack"))
-            isPolygon <- sapply(toPlot, function(x) is(x, "SpatialPolygons"))
-            numLayers <- pmax(1, sapply(toPlot, nlayers))
-            isRasterLong <- rep(isRaster, numLayers)
-            isStackLong <- rep(isStack, numLayers)
-            objectNamesLong <- rep(names(toPlot), numLayers)
+            if(all(isSpatialObjects)) {
 
-            # Full layer names, including object name. If layer name is same as object name
-            #  omit it, and if layer name is "layer", omit it if within a RasterLayer
-            lN <- rep(names(toPlot), numLayers)
-            lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
-                                      layerNames(toPlot[isRaster]), sep=".")
-            useOnlyObjectName <- (layerNames(toPlot)=="layer") | (layerNames(toPlot)==objectNamesLong)
-            if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
-              lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
-                sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
-                              function(x) strsplit(x, "\\.")[[1]]), function(y)y[[1]]) }
-            names(lN) <- rep(names(toPlot), numLayers)
+              isRaster <- sapply(toPlot, function(x) is(x, "Raster"))
+              isStack <-  sapply(toPlot, function(x) is(x, "RasterStack"))
+              isPolygon <- sapply(toPlot, function(x) is(x, "SpatialPolygons"))
 
-            mapsToPlot <- lapply(toPlot, layerNames)
-            mapsToPlot[!isRaster] <- names(toPlot)[!isRaster]
+              numLayers <- pmax(1, sapply(toPlot, nlayers))
+              isRasterLong <- rep(isRaster, numLayers)
+              isStackLong <- rep(isStack, numLayers)
+              objectNamesLong <- rep(names(toPlot), numLayers)
+
+              # Full layer names, including object name. If layer name is same as object name
+              #  omit it, and if layer name is "layer", omit it if within a RasterLayer
+              lN <- rep(names(toPlot), numLayers)
+              lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
+                                        layerNames(toPlot[isRaster]), sep=".")
+              useOnlyObjectName <- (layerNames(toPlot)=="layer") | (layerNames(toPlot)==objectNamesLong)
+              if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
+                lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
+                  sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
+                                function(x) strsplit(x, "\\.")[[1]]), function(y)y[[1]]) }
+              names(lN) <- rep(names(toPlot), numLayers)
+            } else {
+              lN <- names(toPlot)
+            }
+
+
+            #mapsToPlot <- lapply(toPlot, layerNames)
+            #mapsToPlot[!isRaster] <- names(toPlot)[!isRaster]
 
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
                                                "inside RasterStacks for objects"))
@@ -1101,7 +1133,7 @@ setMethod("Plot",
             new<-spadesArr$new
 
             # Section 4 # get extents from all SpatialPoints*, Rasters*, including Stacks
-            extsToPlot <- .makeExtsToPlot(toPlot, extent, zoomExtent, numLayers, lN)
+            extsToPlot <- .makeExtsToPlot(toPlot, zoomExtent, numLayers, lN)
 
             # Section 5 # Manage adding new plots to existing plots, assessing for overlaps
             # Do set operations to identify if there are "all new to plot", "only add in existing
@@ -1195,35 +1227,57 @@ setMethod("Plot",
               } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
                 if(!is.null(zoomExtent)) {
                   grobToPlot <- crop(grobToPlot,zoomExtent)
-                }
+                  }
                 z <- grobToPlot
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               }
 
-              # Extract legend text if the raster is a factored raster
-              if(is.factor(grobToPlot) & is.null(legendText)) {
-                legendTxt <- levels(grobToPlot)[[1]][,2]
+              if (is(grobToPlot, "gg")) {
+                print(grobToPlot, vp=seek)
               } else {
-                legendTxt <- legendText
+
+                # Extract legend text if the raster is a factored raster
+                if(is.factor(grobToPlot) & is.null(legendText)) {
+                  legendTxt <- levels(grobToPlot)[[1]][,2]
+                } else {
+                  legendTxt <- legendText
+                }
+
+                # Actual plotting
+                plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
+                         real=zMat$real,
+                         minv=zMat$minz,
+                         maxv=zMat$maxz,
+                         pch=pch, name = seek,
+                         legend = legend, legendText=legendTxt,
+                         gp = gp, draw = draw, speedup=speedup)
+                if(title) grid.text(seek,
+                                    name="title", y=1.08, vjust=0.5, gp = gp)
+
+                if(xaxis) grid.xaxis(name="xaxis", gp = gp)
+                if(yaxis) grid.yaxis(name="yaxis", gp = gp)
               }
-
-              # Actual plotting
-              plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
-                       real=zMat$real,
-                       minv=zMat$minz,
-                       maxv=zMat$maxz,
-                       pch=pch, name = seek,
-                       legend = legend, legendText=legendTxt,
-                       gp = gp, draw = draw, speedup=speedup)
-              if(title) grid.text(seek,
-                                  name="title", y=1.08, vjust=0.5, gp = gp)
-
-              if(xaxis) grid.xaxis(name="xaxis", gp = gp)
-              if(yaxis) grid.yaxis(name="yaxis", gp = gp)
             }
 
             assign(paste0(".spadesArr", dev.cur()), arr, envir=.spadesEnv)
           })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1591,15 +1645,46 @@ clickCoordinates <- function(n=1) {
   return(list(arr=arr, new=new, currentNames=currentNames))
 }
 
-.makeExtsToPlot <- function(toPlot, extent, zoomExtent, numLayers, lN) {
-  if(is.null(zoomExtent)) {
-    extsToPlot <- rep(sapply(toPlot, extent), numLayers)
-  } else {
-    extsToPlot <- rep(list(zoomExtent), numLayers)
-  }
-  names(extsToPlot)<-lN
-  return(extsToPlot)
-}
+
+
+##############################################################
+#' Get dimensions of x and y axes
+#'
+#' For spatial objects, these are the extents. Used internally in Plot methods
+#'
+#' @param toPlot list of objects to plot
+#'
+#' @param zoomExtent an extent object
+#'
+#' @param numLayers numeric indicating number of layers in the list \code{toPlot}
+#'
+#' @param lN character vector of names of these layers
+#'
+#' @name makeExtsToPlot
+#' @rdname internal-Plot
+setGeneric(".makeExtsToPlot", function(toPlot=NULL, zoomExtent=NULL, numLayers=NULL, lN) {
+  standardGeneric(".makeExtsToPlot")
+})
+
+#' @rdname internal-Plot
+setMethod(".makeExtsToPlot",
+          signature="list",
+          definition <- function(toPlot, zoomExtent, numLayers, lN) {
+            if(any(sapply(toPlot, function(x) any(is(x, "gg"))))) {
+              extsToPlot <- lapply(1:length(toPlot), function(x) extent(0,1,0,1))
+            } else {
+              if(is.null(zoomExtent)) {
+                extsToPlot <- rep(sapply(toPlot, extent), numLayers)
+              } else {
+                extsToPlot <- rep(list(zoomExtent), numLayers)
+              }
+            }
+            names(extsToPlot)<-lN
+            return(extsToPlot)
+          }
+)
+
+
 
 .setOrGetSpadesArr2 <- function(newArr, extsToPlot) {
   if(!newArr) {
