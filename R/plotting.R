@@ -235,12 +235,12 @@ setClass("arrangement",
          slots=list(rows="numeric", columns="numeric",
                     actual.ratio="numeric", ds.dimensionRatio="numeric",
                     ds="numeric", objects="list", isRaster="logical", names="character",
-                    extents="list", layout="list"),
+                    extents="list", isSpatialObjects="logical", layout="list"),
          prototype=list(rows=1, columns=1,
                         actual.ratio=1, ds.dimensionRatio=1,
                         ds=c(7, 7), objects=as.list(NULL), isRaster=NA,
                         names=as.character(NULL),
-                        extents=as.list(NULL), layout=as.list(NULL)),
+                        extents=as.list(NULL), isSpatialObjects=NA, layout=as.list(NULL)),
          validity=function(object) {
            # check for valid extents
            if (any(is.na(object@extents))) {
@@ -268,13 +268,8 @@ setMethod("arrangeViewports",
           signature=c("list"),
           definition= function(extents) {
             dimx <- apply(sapply(extents, function(y) apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
-            #    if(is.null(name)) {
             nPlots <- length(extents)
             names <- names(extents)
-            #     } else {
-            #       nPlots <- length(name)
-            #       names <- name
-            #     }
 
             if(dev.cur()==1) {
               dev.new(height=8, width=10)
@@ -581,11 +576,11 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 #'
 #' @param arr an object of class \code{arrangement}.
 #'
-#' @param newArr logical. Whether this function will create a completely new viewport. Default \code{FALSE}.
+#' @param newArr logical. Whether this function will create a completely new viewport.
+#' Default \code{FALSE}.
 #'
 #' @export
 makeViewports <- function(extents, arr, newArr = FALSE) {
-
 
   columns <- arr@columns
   rows <- arr@rows
@@ -600,10 +595,24 @@ makeViewports <- function(extents, arr, newArr = FALSE) {
 
     posInd <- match(nam[extentInd], arr@names)
 
+    lpc = ceiling((posInd-1)%%columns+1)*2
+    lpr = ceiling(posInd/columns)*2
+
+    if(!arr@isSpatialObjects[posInd]) {
+      #emptyWidth <- as.numeric(arr@layout$wdth)
+      #emptyHt <- as.numeric(arr@layout$ht)
+      lpcSum = 0
+      lprSum = 0
+      #if (sum(emptyWidth[as.logical((1:length(emptyWidth)+1)%%2)]) < 0.75) lpcSum=(-1)
+      #if (sum(emptyHt[as.logical((1:length(emptyHt)+1)%%2)]) < 0.75) lprSum=(-1)
+      lpc = c((lpc+lpcSum):(lpc+1))
+      lpr = c((lpr+lprSum):(lpr+1))
+    }
+
     plotVps[[extentInd]] <- viewport(
       name=nam[extentInd],
-      layout.pos.col = ceiling((posInd-1)%%columns+1)*2,
-      layout.pos.row = ceiling(posInd/columns)*2,
+      layout.pos.col = lpc,
+      layout.pos.row = lpr,
       xscale=c(extents[[extentInd]]@xmin, extents[[extentInd]]@xmax),
       yscale=c(extents[[extentInd]]@ymin, extents[[extentInd]]@ymax))
 
@@ -697,7 +706,7 @@ setMethod("drawArrows",
               extendrange(c(min(min(from$x), min(to$x)), max(max(from$x, to$x)))),
               extendrange(c(min(min(from$y), min(to$y)), max(max(from$y, to$y))))))
             names(extents) <- .objectNames("drawArrows", argName = NULL)[1]
-            arr <- arrangeViewports(extents)#, name=name(from))
+            arr <- arrangeViewports(extents)
             arr@layout <- makeLayout(arr=arr, visualSqueeze=0.75)
             vps <- makeViewports(extents, arr=arr, newArr = TRUE)
             pushViewport(vps)
@@ -1090,6 +1099,7 @@ setMethod("Plot",
               numLayers <- pmax(1, sapply(toPlot, nlayers))
               isRasterLong <- rep(isRaster, numLayers)
               isStackLong <- rep(isStack, numLayers)
+              isSpatialObjects <- rep(isSpatialObjects, numLayers)
               objectNamesLong <- rep(names(toPlot), numLayers)
 
               # Full layer names, including object name. If layer name is same as object name
@@ -1153,7 +1163,7 @@ setMethod("Plot",
 
             # create full arr object, which will become .spadesArrx where x is dev.cur()
             #  i.e., the arrangement based on number and extents
-            spadesArr <- .setOrGetSpadesArr2(newArr, extsToPlot)
+            spadesArr <- .setOrGetSpadesArr2(newArr, extsToPlot, isSpatialObjects)
             arr <- spadesArr$arr
             newArr <- spadesArr$newArr
             #end create full arr object
@@ -1169,7 +1179,6 @@ setMethod("Plot",
             # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
             #  plotted, and visualSqueeze
             arr@layout <- makeLayout(arr, visualSqueeze, legend, axes)
-
             # Create the viewports as per the optimal layout
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, arr=arr, newArr=newArr)
@@ -1183,6 +1192,7 @@ setMethod("Plot",
             # Section 8 - the actual Plotting
             # Plot each element passed to Plot function, one at a time
             for(grobNamesi in grobNames) {
+
               whGrobNamesi <- match(grobNamesi, grobNames)
 
               whPlot <- match(addTo[whGrobNamesi], arr@names)
@@ -1239,13 +1249,24 @@ setMethod("Plot",
               }
 
               if (is(grobToPlot, "gg")) {
+                #grobToPlot <- grobToPlot + theme(plot.background=element_rect(fill="transparent",
+                #                                                              colour = NA))
                 print(grobToPlot, vp=seek)
+                a <- try(seekViewport(seek, recording=F))
+                if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
+                                                  "Try new=TRUE or change device to",
+                                                  "one that has a plot named", addTo[whGrobNamesi]))
+                if(title | (names(toPlot) %in% currentNames)) grid.text(seek,
+                                    name="title", y=1, vjust=0.5, gp = gp)
+
               } else if(is(grobToPlot, "histogram")) {
                 # Because base plotting is not set up to overplot, must plot a white rectangle
                 grid.rect(gp=gpar(fill="white", col="white"))
                 par(fig=gridFIG())
                 par(new=TRUE)
                 plot(grobToPlot)
+                if(title) grid.text(seek,
+                                    name="title", y=1.08, vjust=0.5, gp = gp)
 
               } else {
 
@@ -1642,6 +1663,7 @@ clickCoordinates <- function(n=1) {
 
 .setOrGetSpadesArr1 <- function(new) {
   # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
+
   if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
     new<-TRUE
     arr <- new("arrangement"); arr@columns=0; arr@rows = 0
@@ -1652,6 +1674,7 @@ clickCoordinates <- function(n=1) {
       arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
     } else {
       arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+      try(remove(list=paste0(".spadesArr", dev.cur()), envir=.spadesEnv))
     }
     currentNames <- arr@names
   }
@@ -1699,19 +1722,27 @@ setMethod(".makeExtsToPlot",
 
 
 
-.setOrGetSpadesArr2 <- function(newArr, extsToPlot) {
+.setOrGetSpadesArr2 <- function(newArr, extsToPlot, isSpatialObjects) {
+
   if(!newArr) {
     if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
       arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
       arr@names <- append(arr@names, names(extsToPlot))
       arr@extents <- append(arr@extents, extsToPlot)
+      arr@isSpatialObjects <- append(arr@isSpatialObjects, isSpatialObjects)
     } else {
       message("nothing to add to, creating new plot")
       newArr <- TRUE
     }
   }
   if (newArr) { # need a new arrangement
+    if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+      isSpatialObjects <- append(get(paste0(".spadesArr", dev.cur()),
+                                     envir=.spadesEnv)@isSpatialObjects,
+                                 isSpatialObjects)
+    }
     arr <- arrangeViewports(extsToPlot)
+    arr@isSpatialObjects <- isSpatialObjects
     grid.newpage()
   }
   return(list(arr=arr, newArr=newArr))
