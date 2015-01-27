@@ -547,16 +547,16 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
   vS.w <- min(visualSqueeze/columns,
               visualSqueeze/columns*arr@actual.ratio/arr@ds.dimensionRatio)
 
-  wdth <- unit.c(unit(1.5, "null"), unit(rep(c(vS.w, 1.75), columns),
-                                         rep(c("npc", "null"), columns))[-columns*2],
-                 unit(1.5, "null"))
+  wdth <- unit.c(unit(0.2, "null"), unit(rep(c(0.875, vS.w, 0.875), columns),
+                                         rep(c("null","npc", "null"), columns)),
+                 unit(0.2, "null"))
 
   # calculate the visualSqueeze for the height (i.e., vS.h)
   vS.h <- min(visualSqueeze/rows,
               visualSqueeze/rows*arr@ds.dimensionRatio/arr@actual.ratio)
-  ht <- unit.c(unit(1, "null"), unit(rep(c(vS.h, 1.75), rows),
-                                     rep(c("npc", "null"), rows))[-rows*2],
-               unit(1, "null"))
+  ht <- unit.c(unit(0.2, "null"), unit(rep(c(0.875, vS.h, 0.875), rows),
+                                     rep(c("null", "npc", "null"), rows)),
+               unit(0.2, "null"))
 
   return(list(wdth=wdth, ht=ht))
 }
@@ -584,29 +584,24 @@ makeViewports <- function(extents, arr, newArr = FALSE) {
 
   columns <- arr@columns
   rows <- arr@rows
-  topVp <- viewport(layout=grid.layout(nrow=rows*2+1,
-                                       ncol=columns*2+1,
+  topVp <- viewport(layout=grid.layout(nrow=rows*3+2,
+                                       ncol=columns*3+2,
                                        widths=arr@layout$wdth,
                                        heights=arr@layout$ht),
                     name="top")
   plotVps <- list()
   nam <- names(extents)
+
   for(extentInd in 1:length(extents)) {
 
     posInd <- match(nam[extentInd], arr@names)
 
-    lpc = ceiling((posInd-1)%%columns+1)*2
-    lpr = ceiling(posInd/columns)*2
+    lpc = ceiling((posInd-1)%%columns+1)*3
+    lpr = ceiling(posInd/columns)*3
 
     if(!arr@isSpatialObjects[posInd]) {
-      #emptyWidth <- as.numeric(arr@layout$wdth)
-      #emptyHt <- as.numeric(arr@layout$ht)
-      lpcSum = 0
-      lprSum = 0
-      #if (sum(emptyWidth[as.logical((1:length(emptyWidth)+1)%%2)]) < 0.75) lpcSum=(-1)
-      #if (sum(emptyHt[as.logical((1:length(emptyHt)+1)%%2)]) < 0.75) lprSum=(-1)
-      lpc = c((lpc+lpcSum):(lpc+1))
-      lpr = c((lpr+lprSum):(lpr+1))
+      lpc = c((lpc-1):(lpc+1))
+      lpr = c((lpr-1):(lpr+1))
     }
 
     plotVps[[extentInd]] <- viewport(
@@ -1258,7 +1253,7 @@ setMethod("Plot",
                                                   "Try new=TRUE or change device to",
                                                   "one that has a plot named", addTo[whGrobNamesi]))
                 if(title | (names(toPlot) %in% currentNames)) grid.text(seek,
-                                    name="title", y=1, vjust=0.5, gp = gp)
+                                    name="title", y=0.95, vjust=0.5, gp = gp)
 
               } else if(is(grobToPlot, "histogram")) {
                 # Because base plotting is not set up to overplot, must plot a white rectangle
@@ -1563,8 +1558,8 @@ clickCoordinates <- function(n=1) {
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
                                       "Try new=TRUE or change device to",
                                       "one that has objects from a call to Plot()"))
-  gl <- grid.layout(nrow=arr@rows*2+1,
-                    ncol=arr@columns*2+1,
+  gl <- grid.layout(nrow=arr@rows*3+2,
+                    ncol=arr@columns*3+2,
                     widths=arr@layout$wdth,
                     heights=arr@layout$ht)
 
@@ -1707,8 +1702,14 @@ setGeneric(".makeExtsToPlot", function(toPlot=NULL, zoomExtent=NULL, numLayers=N
 setMethod(".makeExtsToPlot",
           signature="list",
           definition <- function(toPlot, zoomExtent, numLayers, lN) {
+
             if(any(sapply(toPlot, function(x) any(is(x, "gg") | is(x, "histogram"))))) {
-              extsToPlot <- lapply(1:length(toPlot), function(x) extent(0,1,0,1))
+
+              extsToPlot <- lapply(1:length(toPlot), function(x) {
+               # if(!is.null(toPlot[[x]]$coordinates$ratio)) {
+                  extent(0,1,0,1)
+               # }
+              })
             } else {
               if(is.null(zoomExtent)) {
                 extsToPlot <- rep(sapply(toPlot, extent), numLayers)
