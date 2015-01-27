@@ -601,7 +601,7 @@ makeViewports <- function(extents, arr, newArr = FALSE) {
 
     if(!arr@isSpatialObjects[posInd]) {
       lpc = c((lpc-1):(lpc+1))
-      lpr = c((lpr-1):(lpr+1))
+      lpr = c((lpr):(lpr+1))
     }
 
     plotVps[[extentInd]] <- viewport(
@@ -1252,8 +1252,8 @@ setMethod("Plot",
                 if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
                                                   "Try new=TRUE or change device to",
                                                   "one that has a plot named", addTo[whGrobNamesi]))
-                if(title | (names(toPlot) %in% currentNames)) grid.text(seek,
-                                    name="title", y=0.95, vjust=0.5, gp = gp)
+                if(title) grid.text(seek,
+                                    name="title", y=1.08, vjust=0.5, gp = gp)
 
               } else if(is(grobToPlot, "histogram")) {
                 # Because base plotting is not set up to overplot, must plot a white rectangle
