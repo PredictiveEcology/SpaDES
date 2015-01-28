@@ -252,7 +252,7 @@ setMethod("spread",
               }
             }
 
-            # Convert the data.table back to raster
+            # Convert the data back to raster
             spre <- raster(landscape)
             spre <- setValues(spre, spreads)
             return(spre)
