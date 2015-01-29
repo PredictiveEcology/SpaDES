@@ -10,9 +10,9 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `devtools::install_github("s-u/fastshp")`; installation of
     development packages on Windows requires Rtools
     (http://cran.r-project.org/bin/windows/Rtools). require Rtools
-URL: http://github.com/achubaty/SpaDES
+URL: http://github.com/PredictiveEcology/SpaDES
 Version: 0.5.0.9000
-Date: 2015-01-10
+Date: 2015-01-16
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",
@@ -62,4 +62,4 @@ Collate:
     'spades-package.R'
     'spread-process.R'
 VignetteBuilder: knitr
-BugReports: https://github.com/achubaty/SpaDES/issues
+BugReports: https://github.com/PredictiveEcology/SpaDES/issues

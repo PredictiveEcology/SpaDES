@@ -1551,7 +1551,7 @@ clickCoordinates <- function(n=1) {
   arr <- try(get(paste0(".spadesArr", dc), envir=.spadesEnv))
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
                                       "Try new=TRUE or change device to",
-                                      "one that has a plot named", addTo[whGrobNamesi]))
+                                      "one that has objects from a call to Plot()"))
   gl <- grid.layout(nrow=arr@rows*2+1,
                     ncol=arr@columns*2+1,
                     widths=arr@layout$wdth,
