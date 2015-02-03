@@ -53,6 +53,7 @@ Collate:
     'load.R'
     'misc-methods.R'
     'module-template.R'
+    'modules-dependecies.R'
     'movement.R'
     'neighbourhood.R'
     'plotting.R'
