@@ -1053,6 +1053,7 @@ setReplaceMethod("simCompleted",
 #'
 #' @seealso \code{\link{spades}}.
 #'
+#' @include module-dependencies.R
 #' @export
 #' @docType methods
 #' @rdname simInit-method

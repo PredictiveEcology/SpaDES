@@ -1,32 +1,51 @@
 ###
-### MODULE: randomLandscapes
+### Specify module (and dependencies) definitions:
 ###
-### DESCRIPTION: generate RasterStack of random maps representative of a forest landscape
-###               - DEM, forestAge, forestCover, habitatQuality, percentPine
+### name:         randomLandscapes
 ###
-
-### load any required packages
-### (use `loadPackages` or similar)
-pkgs <- list("SpaDES", "raster", "RColorBrewer")
-loadPackages(pkgs)
-rm(pkgs)
+### description:  Generate RasterStack of random maps representative of a forest landscape
+###               (DEM, forestAge, forestCover, habitatQuality, percentPine).
+###               Requires a global simulation parameter `.stackName` be set.
+###
+### keywords:     random map; random landscape
+###
+### authors:      Alex M. Chubaty <Alexander.Chubaty@NRCan.gc.ca>
+###               Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
+###
+### spatialExtent: NA
+###
+### timeframe:    NA
+###
+### translators:  NA
+###
+### citation:     NA
+###
+### reqdPkgs:     raster; RColorBrewer; tkrplot; RandomFields
+###
+### inputObjects: NA
+### outputObjects: objectName: simGlobals(sim)$.stackName
+###                objectClass: RasterStack
+###
+defineModule(
+  name="randomLandscapes",
+  description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `.stackName` be set.",
+  keywords=c("random map", "random landscape"),
+  authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
+            person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
+  spatialExtent=raster::extent(rep(NA_real_, 4)),
+  timeframe=as.POSIXlt(c(NA, NA)),
+  translators=list(),
+  citation=list(),
+  reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
+  inputObjects=data.frame(name=NA_character_, class=NA_character_),
+  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack")
+)
 
 ### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### check for module dependencies:
-    ### (use NULL if no dependencies exist)
-    depends <- NULL
-
-    ### check for object dependencies:
-    ### (use `checkObject` or similar)
-
     # if a required module isn't loaded yet,
     # reschedule this module init for later
-
-    library(tkrplot)
-    library(RandomFields)
-
     if (reloadModuleLater(sim, depends)) {
       sim <- scheduleEvent(sim, simCurrentTime(sim), "randomLandscapes", "init")
     } else {
