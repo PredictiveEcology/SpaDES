@@ -4,6 +4,7 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,spatialObjects-method}
+\alias{clearPlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
@@ -17,10 +18,11 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+clearPlot(dev = dev.cur())
 }
 \arguments{
-\item{...}{\code{Raster*} object(s) and/or \code{SpatialPoints* objects}.
-See details for naming.}
+\item{...}{A combination of spatial objects or a ggplot object. See details.}
 
 \item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 if \code{FALSE}, then the \code{...} plots will be added to the current device,
@@ -71,11 +73,22 @@ Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE
 
 \item{zero.color}{string indicating the color for zero values, when zero is
 the minimum value, otherwise, zero is treated as any other color. Default transparent.}
+
+\item{dev}{numeric. Device number to clear.}
 }
 \description{
 The main plotting function accompanying \code{SpaDES}.
-This can take objects of type \code{Raster*} or \code{SpatialPoints*},
-and any combination of those.
+This can take objects of type \code{Raster*}, \code{SpatialPoints*},
+\code{SpatialPolygons*} and any combination of these. It will also accept
+ggplot objects from the ggplot2 package. These must be provided alone, but
+they will ba added to any multipanel plot in the same way as for spatial
+objects.
+
+Under some conditions, a device and its meta data needs to be cleared manually.
+This can be done with either the \code{new=T} argument within the call to \code{Plot}.
+Sometimes, the metadata of a previous plot will prevent correct plotting of
+a new \code{Plot} call. Use \code{clearPlot} to clear the
+device and all the associated metadata manually.
 }
 \details{
 If \code{new=TRUE}, a new plot will be generated.
@@ -90,9 +103,11 @@ The function is based on the grid package.
 Each panel in the multipanel plot must have a name.
 This name is used to overplot, rearrange the plots, or overlay using
 \code{addTo} when necessary.
-If the \code{...} are named spatialObjects, then \code{Plot} will use these names.
-If not, then \code{Plot} will use the object name and the layer name (in the
-case of \code{RasterLayer} or \code{RasterStack} objects).
+If the \code{...} are named spatialObjects, then \code{Plot} will use
+these names. However, this name will not persist when there is a future call
+to \code{Plot} that forces a rearrangement of the plots.
+A more stable way is to use the object names directly, and any layer names
+(in the case of \code{RasterLayer} or \code{RasterStack} objects).
 If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
 then, for simplicity, only the object name will be used.
 In other words, only enough information is used to uniquely identify the plot.
@@ -202,5 +217,8 @@ Plot(SpP)
 Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 
 }
+}
+\seealso{
+\code{\link{clearPlot}}.
 }
 
