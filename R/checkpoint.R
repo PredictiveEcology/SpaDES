@@ -1,6 +1,3 @@
-#' @export
-.spadesEnv <- new.env(parent = baseenv())
-
 ##############################################################
 #' Simulation checkpoints.
 #'
@@ -30,6 +27,8 @@
 #' @seealso \code{\link{.Random.seed}}.
 #'
 #' @author Alex Chubaty
+#'
+#' @include environment.R
 #'
 #' @export
 #' @docType methods

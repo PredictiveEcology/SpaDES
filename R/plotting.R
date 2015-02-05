@@ -947,6 +947,9 @@ setMethod("drawArrows",
 #' @import RColorBrewer
 #' @import rgdal
 #' @import sp
+#'
+#' @include environment.R
+#'
 #' @examples
 #' \dontrun{
 #' library(raster)
@@ -1027,6 +1030,7 @@ setMethod("drawArrows",
 #' Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 #'
 #' }
+#'
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,

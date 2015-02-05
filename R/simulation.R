@@ -1026,13 +1026,12 @@ setReplaceMethod("simCompleted",
 ##############################################################
 #' Initialize a new simulation
 #'
-#' Create a new simulation object, preloaded with parameters,
-#' modules, times, etc.
+#' Create a new simulation object, preloaded with parameters, modules, times, etc.
 #'
-#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
-#' Here, we implement a simulation in a more modular fashion so it's easier to add
-#' submodules to the simulation. We use S4 classes and methods, and use `data.table`
-#' instead of `data.frame` to implement the event queue (because it is much faster).
+#' We implement a discrete event simulation in a more modular fashion so it's
+#' easier to add submodules to the simulation. We use S4 classes and methods,
+#' and use \code{data.table} instead of \code{data.frame} to implement the event
+#' queue (because it is much faster).
 #'
 #' @param times A named list of numeric simulation start and stop times
 #'        (e.g., \code{times=list(start=0.0, stop=10.0)}).
@@ -1045,8 +1044,8 @@ setReplaceMethod("simCompleted",
 #' Example: a module named "caribou" will be sourced form the file \code{caribou.R},
 #' located at the specified \code{path} (see below).
 #'
-#' @param path An optional character string specifying the location of the module source files.
-#' If no path is specified, it defaults to the current working directory.
+#' @param path  An optional character string specifying the location of the module source files.
+#'              If no path is specified, it defaults to the current working directory.
 #'
 #' @return A \code{simList} simulation object, pre-initialized from values specified
 #' in the arguments supplied.

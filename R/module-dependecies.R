@@ -120,6 +120,38 @@ setClass("simDeps",
          }
 )
 
+#' Add simulation dependencies
+#'
+#' Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
+#'
+#' @param x   A \code{moduleDeps} object.
+#'
+#' @include environment.R
+#'
+#' @export
+#' @docType methods
+#' @rdname addSimDep-method
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#'   addSimDep(...)
+#' }
+#'
+setGeneric("addSimDep", function(x) {
+  standardGeneric("addSimDep")
+})
+
+#' @rdname addSimDep-method
+#'
+setMethod("addSimDep",
+          signature(x="moduleDeps"),
+          definition=function(x) {
+            deps <- get(".simDeps", envir=.spadesEnv)
+
+            assign(".simDeps", deps, envir=.spadesEnv)
+})
 
 
 #' Define a new module
@@ -191,5 +223,5 @@ setMethod("defineModule",
                      reqdPkgs=reqdPkgs, inputObjects=inputObjects,
                      outputObjects=outputObjects)
 
-            return(x)
+            addSimDep(x)
 })
