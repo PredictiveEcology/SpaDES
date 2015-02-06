@@ -1073,8 +1073,10 @@ setMethod("simInit",
             path <- checkPath(path, create=TRUE)
 
             # Delete any previous Plot information at initialization
-            rm(list = (ls(all.names = TRUE,envir=.spadesEnv)[grep(
-              ".spadesArr", ls(all.names=TRUE, envir=.spadesEnv))]),
+            rm(list = (ls(all.names = TRUE,
+                          envir = .GlobalEnv)[grep(".spadesArr",
+                                                   ls(all.names = TRUE,
+                                                      envir = .GlobalEnv))]),
                envir=.GlobalEnv)
 
             # default modules
