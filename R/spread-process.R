@@ -118,6 +118,13 @@ setMethod("spread",
               loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
             }
 
+            if(is(spreadProb,"RasterLayer")) {
+              if (minValue(spreadProb)>1) stop("spreadProb is not a probability")
+              if (maxValue(spreadProb)<0) stop("spreadProb is not a probability")
+            } else {
+              if (!inRange(spreadProb)) stop("spreadProb is not a probability")
+            }
+
             spreads <- rep_len(0, ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
 
 
