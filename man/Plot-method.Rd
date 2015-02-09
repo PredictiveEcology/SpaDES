@@ -7,17 +7,18 @@
 \alias{clearPlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
-Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
+Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
+  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
+  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
+  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
-
-\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
 clearPlot(dev = dev.cur())
 }
@@ -33,7 +34,11 @@ This is for overplotting, when the overplot is not to occur on the plot with
 the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.}
 
 \item{gp}{A gpar object, created by \code{\link{gpar}} function,
-to change plotting parameters (see \code{\link{grid}} package).}
+to change plotting parameters (see \code{grid} package).}
+
+\item{gpText}{A gpar object for the title text. Default gpar(col="black")}
+
+\item{gpAxis}{A gpar object for the axes. Default gpar(col="black")}
 
 \item{axes}{Logical or \code{"L"}, representing the left and bottom axes, overall plots.}
 
@@ -137,6 +142,19 @@ frame are overplots only.
 raster if the new resampling is close to the original number of pixels. At the moment,
 this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
 anything if the factor for speeding up is not high enough (i.e., >3).
+
+These \code{gp*} parameters will specify plot parameters that are
+available with \code{gpar()}. \code{gp} will adjust plot parameters,
+\code{gpText} will adjust title and legend text, \code{gpAxis} will
+adjust the axes. \code{size} adjusts point size in a
+\code{SpatialPoints} object. These will persist with the
+original \code{Plot} call for each individual object. Multiple
+entries can be used, but they must be named list elements
+and they must match the \code{...} items to plot. This is true
+for a RasterStack also, i.e., the list of named elements
+must be the same length as the number of layers being
+plotted. The naming convention used is \code{RasterStackName.layerName},
+i.e, \code{landscape.DEM}.
 }
 \examples{
 \dontrun{
@@ -219,6 +237,8 @@ Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 }
 }
 \seealso{
-\code{\link{clearPlot}}.
+\code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
+\code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
+\code{\link{ggplot2}}
 }
 

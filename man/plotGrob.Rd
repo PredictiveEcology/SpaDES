@@ -10,19 +10,22 @@
 \usage{
 plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
   minv, maxv, legend = TRUE, legendText = NULL, draw = TRUE,
-  gp = gpar(), pch = 19, speedup = 1, ...)
+  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{matrix}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
+  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
+  ...)
 
 \S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
+  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
+  ...)
 
 \S4method{plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), pch = 19, speedup = 1, ...)
+  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
+  ...)
 }
 \arguments{
 \item{grobToPlot}{\code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*} object}
@@ -48,6 +51,8 @@ package), this will be used by default. Currently, only a single vector is accep
 \item{draw}{logical. Whether the grob, after being created should be drawn. Default \code{TRUE}.}
 
 \item{gp}{grid parameters, usually the output of a call to \code{\link{gpar}}}
+
+\item{gpText}{gpar object for legend label text}
 
 \item{pch}{for \code{SpatialPoints}, as \code{par}}
 
