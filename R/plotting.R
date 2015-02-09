@@ -185,6 +185,20 @@ setMethod("equalExtent",
 #'
 #' This class contains the plotting arrangement information.
 #'
+#' These \code{gp*} parameters will specify plot parameters that are
+#' available with \code{gpar()}. \code{gp} will adjust plot parameters,
+#' \code{gpText} will adjust title and legend text, \code{gpAxis} will
+#' adjust the axes. \code{size} adjusts point size in a
+#' \code{SpatialPoints} object. These will persist with the
+#' original \code{Plot} call for each individual object. Multiple
+#' entries can be used, but they must be named list elements
+#' and they must match the \code{...} items to plot. This is true
+#' for a RasterStack also, i.e., the list of named elements
+#' must be the same length as the number of layers being
+#' plotted. The naming convention used is
+#'
+#' \code{RasterStackName.layerName}, i.e,   \code{landscape.DEM}.
+#'
 #' @slot rows    numeric. Number of rows in the arrangement.
 #'
 #' @slot columns numeric. Number of columns in the arragnement.
@@ -208,6 +222,18 @@ setMethod("equalExtent",
 #'
 #' @slot layout list of length 2, with width and height measurements for layout.
 #'
+#' @slot gp a gpar object or list of named gpar objects. These names must
+#' match the names of the \code{...} objects. Default is NULL. See details.
+#'
+#' @slot gpText a gpar object or a list of named gpar objects. These names must
+#' match the names of the \code{...} objects. Default is NULL. See details.
+#'
+#' @slot gpAxis a gpar object or a list of named gpar objects. These names must
+#' match the names of the \code{...} objects. Default is NULL. See details.
+#'
+#' @slot size a numeric or a named list of numerics, used for SpatialPoints plots.
+#' Default is 5. See details.
+#'
 #' @rdname arrangement-class
 #' @exportClass arrangement
 #'
@@ -217,12 +243,15 @@ setClass("arrangement",
          slots=list(rows="numeric", columns="numeric",
                     actual.ratio="numeric", ds.dimensionRatio="numeric",
                     ds="numeric", objects="list", isRaster="logical", names="character",
-                    extents="list", layout="list"),
+                    extents="list", layout="list", gp="list",
+                    gpText="list", gpAxis="list", size="list"),
          prototype=list(rows=1, columns=1,
                         actual.ratio=1, ds.dimensionRatio=1,
                         ds=c(7, 7), objects=as.list(NULL), isRaster=NA,
                         names=as.character(NULL),
-                        extents=as.list(NULL), layout=as.list(NULL)),
+                        extents=as.list(NULL), layout=as.list(NULL),
+                        gp=as.list(NULL), gpText=as.list(NULL),
+                        gpAxis=as.list(NULL), size=as.list(NULL)),
          validity=function(object) {
            # check for valid extents
            if (any(is.na(object@extents))) {
@@ -329,6 +358,8 @@ setMethod("arrangeViewports",
 #'
 #' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
 #'
+#' @param gpText gpar object for legend label text
+#'
 #' @param pch for \code{SpatialPoints}, as \code{par}
 #'
 #' @param real logical. Whether the data are real numbers (vs. integer or factor).
@@ -347,7 +378,7 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 minv, maxv,
                                 legend=TRUE, legendText=NULL,
                                 draw=TRUE,
-                                gp=gpar(), pch=19,
+                                gp=gpar(), gpText = gpar(), pch=19,
                                 speedup=1, ...) {
   standardGeneric("plotGrob")
 })
@@ -359,7 +390,7 @@ setMethod("plotGrob",
           signature=c("matrix"),
           definition= function(grobToPlot, col, real, size, minv, maxv,
                                legend, legendText, draw,
-                               gp, pch, ...) {
+                               gp, gpText, pch, ...) {
 
             pr <- if(real) {
               pretty(range(minv, maxv))
@@ -374,19 +405,8 @@ setMethod("plotGrob",
             maxNumCols=100
             maxcol <- length(col)
             mincol <- 2
-#             if(maxv<=maxNumCols ) {
-#               if(minv>=0 & real) { # i.e., a proportion or real numbers between 0 and maxNumCols
-#                 maxcol <- maxNumCols+1 # this corresponds to the maxNumCols in makeColorMatrix, with 1 extra for NAs
-#               } else {
-#                 maxcol<-length(col)#maxv
-#               }
-#             } else {
-#               maxcol <- maxv - minv + max(1, -minv+1) + 1 # need one for the NA at the bottom,
-#               #one for the zero at the bottom, if there, and one
-#               #for when taking a difference between two numbers-- need to include
-#               # both numbers
-#             }
 
+            if (length(gpText)==0) gpText <- gpar(col="black", cex=0.9)
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               # name=name,
                               pr=pr, col=col,
@@ -416,7 +436,7 @@ setMethod("plotGrob",
                                     } else {
                                       y= ((pr-minv)/((maxv)-minv))/2+0.25
                                     },
-                                    gp=gpar(cex=0.9),
+                                    gp=gpText,
                                     just="left", check.overlap=T,
                                     name="legendText")
 
@@ -890,6 +910,20 @@ setMethod("drawArrows",
 #' this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
 #' anything if the factor for speeding up is not high enough (i.e., >3).
 #'
+#' These \code{gp*} parameters will specify plot parameters that are
+#' available with \code{gpar()}. \code{gp} will adjust plot parameters,
+#' \code{gpText} will adjust title and legend text, \code{gpAxis} will
+#' adjust the axes. \code{size} adjusts point size in a
+#' \code{SpatialPoints} object. These will persist with the
+#' original \code{Plot} call for each individual object. Multiple
+#' entries can be used, but they must be named list elements
+#' and they must match the \code{...} items to plot. This is true
+#' for a RasterStack also, i.e., the list of named elements
+#' must be the same length as the number of layers being
+#' plotted. The naming convention used is \code{RasterStackName.layerName},
+#' i.e, \code{landscape.DEM}.
+#'
+#'
 #' @param ... A combination of spatial objects or a ggplot object. See details.
 #'
 #' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
@@ -901,7 +935,11 @@ setMethod("drawArrows",
 #' the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.
 #'
 #' @param gp A gpar object, created by \code{\link{gpar}} function,
-#' to change plotting parameters (see \code{\link{grid}} package).
+#' to change plotting parameters (see \code{grid} package).
+#'
+#' @param gpText A gpar object for the title text. Default gpar(col="black")
+#'
+#' @param gpAxis A gpar object for the axes. Default gpar(col="black")
 #'
 #' @param axes Logical or \code{"L"}, representing the left and bottom axes, overall plots.
 #'
@@ -942,7 +980,9 @@ setMethod("drawArrows",
 #'
 #' @param title Logical. Whether the names of each plot should be written above plots.
 #'
-#' @seealso \code{\link{clearPlot}}.
+#' @seealso \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
+#' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
+#' \code{\link{ggplot2}}, \code{\link{dev}}
 #'
 #' @rdname Plot-method
 #' @docType methods
@@ -1034,7 +1074,8 @@ setMethod("drawArrows",
 #'
 #' }
 setGeneric("Plot", signature="...",
-           function(..., new=FALSE, addTo=NULL, gp=gpar(), axes="L", speedup = 1,
+           function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
+                    axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
                     draw = TRUE, pch = 19, title=TRUE,
@@ -1047,7 +1088,7 @@ setGeneric("Plot", signature="...",
 #' @export
 setMethod("Plot",
           signature("spatialObjects"),
-          definition = function(..., new, addTo, gp, axes, speedup, size,
+          definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, draw, pch, title, na.color,
                                 zero.color) {
@@ -1085,6 +1126,7 @@ setMethod("Plot",
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
                                                "inside RasterStacks for objects"))
 
+
             # Section 2 - assess whether this is an "addTo" situation, i.e., plot one object over another
             if(is.null(addTo)) {
               addTo <- lN
@@ -1103,15 +1145,21 @@ setMethod("Plot",
 
 
             # Section 3 # check whether .spadesArr exists, meaning that there is already a plot
-
-            if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-              new<-TRUE
-              arr <- new("arrangement"); arr@columns=0; arr@rows = 0
-              if(new==FALSE) message("Nothing to add plots to; creating new plots")
-              currentNames <- NULL
-            } else {
+             if(!exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
+               new<-TRUE
+             }
+#               arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+#               if(new==FALSE) message("Nothing to add plots to; creating new plots")
+#               currentNames <- NULL
+#            } else {
               if(!new) {
                 arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+                #Extract current plot info
+                currentNames <- arr@names
+                sizes <- arr@size
+                gps <- arr@gp
+                gpsText <- arr@gpText
+                gpsAxis <- arr@gpAxis
                 #          if (!(length(.spadesEnv$.spadesArr4@names)==
                 #                  sum(grepl("^GRID", grid.ls(grobs = T, print=FALSE)$name)))) {
                 #            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
@@ -1119,9 +1167,14 @@ setMethod("Plot",
                 #          }
               } else {
                 arr <- new("arrangement"); arr@columns=0; arr@rows = 0
+                currentNames <- NULL
+                sizes <- NULL
+                gps <- NULL
+                gpsText <- NULL
+                gpsAxis <- NULL
               }
-              currentNames <- arr@names
-            }
+
+#            }
 
             # Section 4 # get extents from all SpatialPoints*, Rasters*, including Stacks
 
@@ -1179,6 +1232,81 @@ setMethod("Plot",
             }
             #end create .spadesArr object
 
+            # Step 5B - extract and assess gp and size parameters given in this
+              # call to Plot
+            if(is.list(size)) {
+              if(length(size) == length(lN)) {
+                if(all(!is.na(match(lN, names(size))))) {
+                  sizeNew <- size
+                } else { # wrong length list
+                  stop(paste("if size is a list, it must be a named list with",
+                             "same names as", lN))
+                }
+              } else { # list of wrong length
+                stop(paste("if size is a list, it must be a named list of",
+                           "length", length(lN)))
+              }
+            } else { # not a list -> make into a list of correct length and names
+              sizeNew <- rep(as.list(size), length(lN))
+              names(sizeNew) <- lN
+            }
+
+            if(!is(gp, "gpar")) {
+              if(length(gp) == length(lN)) {
+                if(all(!is.na(match(lN, names(gp))))) {
+                  gpNew <- gp
+                } else { # wrong length list
+                  stop(paste("if gp is a list, it must be a named list with",
+                             "same names as", lN))
+                }
+              } else { # list of wrong length
+                stop(paste("if gp is a list, it must be a named list of",
+                           "length", length(lN)))
+              }
+            } else { # not a list -> make into a list of correct length and names
+              gpNew <- rep(list(gp), length(lN))
+              names(gpNew) <- lN
+            }
+
+            if(!is(gpText, "gpar")) {
+              if(length(gpText) == length(lN)) {
+                if(all(!is.na(match(lN, names(gpText))))) {
+                  gpTextNew <- gpText
+                } else { # wrong length list
+                  stop(paste("if gpText is a list, it must be a named list with",
+                             "same names as", lN))
+                }
+              } else { # list of wrong length
+                stop(paste("if gpText is a list, it must be a named list of",
+                           "length", length(lN)))
+              }
+            } else { # not a list -> make into a list of correct length and names
+              gpTextNew <- rep(list(gpText), length(lN))
+              names(gpTextNew) <- lN
+            }
+
+            if(!is(gpAxis, "gpar")) {
+              if(length(gpAxis) == length(lN)) {
+                if(all(!is.na(match(lN, names(gpAxis))))) {
+                  gpAxisNew <- gpAxis
+                } else { # wrong length list
+                  stop(paste("if gpAxis is a list, it must be a named list with",
+                             "same names as", lN))
+                }
+              } else { # list of wrong length
+                stop(paste("if gpAxis is a list, it must be a named list of",
+                           "length", length(lN)))
+              }
+            } else { # not a list -> make into a list of correct length and names
+              gpAxisNew <- rep(list(gpAxis), length(lN))
+              names(gpAxisNew) <- lN
+            }
+
+            arr@size <- c(sizes, sizeNew)
+            arr@gp <- c(gps, gpNew)
+            arr@gpText <- c(gpsText, gpTextNew)
+            arr@gpAxis <- c(gpsAxis, gpAxisNew)
+
             # Section 6 # Plotting scaling, pixels, axes, symbol sizes
             if(is.null(gp$cex)) {
               gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
@@ -1227,8 +1355,13 @@ setMethod("Plot",
                                                 "Try new=TRUE, clearPlot(), or change device to",
                                                 "one that has a plot named", addTo[whGrobNamesi]))
 
-              grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN)
               newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
+              grobToPlot <- identifyGrobToPlot(grobNamesi, toPlot, lN, newplot)
+
+              gp <- arr@gp[[grobNamesi]]
+              size<- arr@size[[grobNamesi]]
+              gpAxis <- arr@gpAxis[[grobNamesi]]
+              gpText <- arr@gpText[[grobNamesi]]
 
               colour <- if(is.list(cols)) {
                 if(length(cols)==length(lN)) {
@@ -1292,18 +1425,19 @@ setMethod("Plot",
                 legendTxt <- legendText
               }
               # Actual plotting
-              plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
+              plotGrob(zMat$z, col = zMat$cols,
+                       size=unit(size, "points"),
                        real=zMat$real,
                        minv=zMat$minz,
                        maxv=zMat$maxz,
                        pch=pch, name = seek,
                        legend = legend, legendText=legendTxt,
-                       gp = gp, draw = draw, speedup=speedup)
+                       gp = gp, gpText = gpText, draw = draw, speedup=speedup)
               if(title) grid.text(seek,
-                                  name="title", y=1.08, vjust=0.5, gp = gp)
+                                  name="title", y=1.08, vjust=0.5, gp = gpText)
 
-              if(xaxis) grid.xaxis(name="xaxis", gp = gp)
-              if(yaxis) grid.yaxis(name="yaxis", gp = gp)
+              if(xaxis) grid.xaxis(name="xaxis", gp = gpAxis)
+              if(yaxis) grid.yaxis(name="yaxis", gp = gpAxis)
             }
 
             assign(paste0(".spadesArr", dev.cur()), arr, envir=.spadesEnv)
@@ -1637,12 +1771,12 @@ clickCoordinates <- function(n=1) {
 
 
 
-identifyGrobToPlot <- function(grobNamesi, toPlot, lN) {
+identifyGrobToPlot <- function(grobNamesi, toPlot, lN, newplot) {
   # get the object name associated with this grob
   objLayerName <- strsplit(grobNamesi, "\\.")[[1]]
 
   # Does it already exist on the plot device or not
-  if(!grobNamesi %in% lN) { # Is this a replot
+  if(!newplot) { # Is this a replot
     if(length(objLayerName)==2 ) {# means it is in a raster
       grobToPlot <- get(objLayerName[1], envir=.GlobalEnv)[[objLayerName[2]]]
     } else {
