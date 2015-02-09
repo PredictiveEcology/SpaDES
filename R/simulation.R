@@ -1073,9 +1073,9 @@ setMethod("simInit",
             path <- checkPath(path, create=TRUE)
 
             # Delete any previous Plot information at initialization
-            rm(list = (ls(all.names = TRUE,envir=.spadesEnv)[grep(
-              ".spadesArr", ls(all.names=TRUE, envir=.spadesEnv))]),
-               envir=.GlobalEnv)
+            spadesArrObjs <- ls(pattern=".spadesArr",all.names = TRUE,envir=.spadesEnv)#[grep(
+              #".spadesArr", ls(all.names=TRUE, envir=.spadesEnv))]
+            if(length(spadesArrObjs)>0) rm(list = spadesArrObjs, envir=.spadesEnv)
 
             # default modules
             defaults <- list("checkpoint", "save", "progress", "load")
