@@ -69,6 +69,10 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 
 ```
 
+## gp, gpText, gpAxis, size
+These parameters will specify plot parameters that are available with gpar(). `gp` will adjust plot parameters, `gpText` will adjust title and legend text, `gpAxis` will adjust the axes. `size` adjusts point size in a `SpatialPoints` object. These will persist with the original `Plot` call for each individual object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. This is true for a RasterStack also, i.e., the list of named elements must be the same length as the number of layers being plotted. The naming convention used is `RasterStackName.layerName`, i.e,   `landscape.DEM`.
+
+
 ## Colors
 We likely won't want the default colors for every map. There are two ways to change the color of a map: by adding a `colortable` to a `Raster*` object (*e.g.*, using the `setColors` function in `SpaDES`), or using the `cols` argument. Adding a colortable to a `Raster*` will be more persistent (*i.e.*, it will stay with the same color table between calls to `Plot`) than using an argument in the `Plot` function. Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colors. If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colors if only a single `RasterLayer`. These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, or `colorRampPalette` or `heat.colors()` etc.  Note that overplotting will not overplot the legend; in general, overplotting should be used for cases where the maps are compatible with the underlying map layer. See overplotting below.  
 
@@ -218,4 +222,13 @@ This can be used like `zoom` for base package plot window. Click two corners of 
 ```{r clickExtent, eval=FALSE, echo=TRUE}
 Plot(landscape, new=TRUE)
 clickExtent() #click at two locations on the Plot device
+```
+
+# ggplot2 objects
+`Plot` can also handle gg objects as created with 
+\code{\link{qplot}} or \code{\link{ggplot}}.
+
+```{r ggplot}
+ggObj <- qplot(rnorm(1e3))
+Plot(ggObj)
 ```
