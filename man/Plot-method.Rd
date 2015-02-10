@@ -4,31 +4,19 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,spadesPlotObjects-method}
-\alias{Plot,spatialObjects-method}
 \alias{clearPlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
-Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
-  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
-
-\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
+Plot(..., new = FALSE, addTo = NULL, gp = gpar(cex = 0.6),
+  gpText = gpar(cex = 0.6), gpAxis = gpar(cex = 0.6), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
-\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
-
 \S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
+  gp = gpar(cex = 0.6), gpText = gpar(cex = 0.6), gpAxis = gpar(cex =
+  0.6), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")

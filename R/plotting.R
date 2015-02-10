@@ -422,8 +422,8 @@ setMethod("plotGrob",
             maxNumCols=100
             maxcol <- length(col)
             mincol <- 2
-
-            if (length(gpText)==0) gpText <- gpar(col="black", cex=0.9)
+browser()
+            if (length(gpText)==0) gpText <- gpar(col="black", cex=0.6)
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               # name=name,
                               pr=pr, col=col,
@@ -1105,7 +1105,7 @@ setMethod("drawArrows",
 #'
 #' }
 setGeneric("Plot", signature="...",
-           function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
+           function(..., new=FALSE, addTo=NULL, gp=gpar(cex=0.6), gpText=gpar(cex=0.6), gpAxis=gpar(cex=0.6),
                     axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
@@ -1294,10 +1294,6 @@ setMethod("Plot",
             arr@gpText <- c(gpsText, gpTextNew)
             arr@gpAxis <- c(gpsAxis, gpAxisNew)
 
-            # Section 6 # Plotting scaling, pixels, axes, symbol sizes
-            if(is.null(gp$cex)) {
-              gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
-            }
             if(axes==TRUE) { xaxis <- TRUE ; yaxis <- TRUE}
             if(axes==FALSE) { xaxis <- FALSE ; yaxis <- FALSE}
 
@@ -1349,6 +1345,18 @@ setMethod("Plot",
               gpText <- arr@gpText[[grobNamesi]]
               colour <- .colsFromList(cols=cols, lN, grobNamesi)
 
+              # Plotting scaling, pixels, axes, symbol sizes
+              if(is.null(gp$cex)) {
+                gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              }
+              if(is.null(gpText$cex)) {
+                gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              }
+              if(is.null(gpAxis$cex)) {
+                gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              }
+
+              browser()
 
               if(is(grobToPlot, "Raster")) {
                 # Rasters may be zoomed into and subsampled and have unique legend
