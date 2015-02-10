@@ -885,9 +885,11 @@ setMethod("drawArrows",
 #' Each panel in the multipanel plot must have a name.
 #' This name is used to overplot, rearrange the plots, or overlay using
 #' \code{addTo} when necessary.
-#' If the \code{...} are named spadesPlotObjects, then \code{Plot} will use these names.
-#' If not, then \code{Plot} will use the object name and the layer name (in the
-#' case of \code{RasterLayer} or \code{RasterStack} objects).
+#' If the \code{...} are named spatialObjects, then \code{Plot} will use
+#' these names. However, this name will not persist when there is a future call
+#' to \code{Plot} that forces a rearrangement of the plots.
+#' A more stable way is to use the object names directly, and any layer names
+#' (in the case of \code{RasterLayer} or \code{RasterStack} objects).
 #' If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
 #' then, for simplicity, only the object name will be used.
 #' In other words, only enough information is used to uniquely identify the plot.
@@ -918,8 +920,7 @@ setMethod("drawArrows",
 #' this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
 #' anything if the factor for speeding up is not high enough (i.e., >3).
 #'
-#' @param ... \code{Raster*} object(s) and/or \code{SpatialPoints* objects}.
-#' See details for naming.
+#' @param ... A combination of spatial objects or a ggplot object. See details.
 #'
 #' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 #' if \code{FALSE}, then the \code{...} plots will be added to the current device,
@@ -970,6 +971,8 @@ setMethod("drawArrows",
 #' @param pch see \code{?par}.
 #'
 #' @param title Logical. Whether the names of each plot should be written above plots.
+#'
+#' @seealso \code{\link{clearPlot}}.
 #'
 #' @rdname Plot-method
 #' @docType methods
@@ -1212,7 +1215,7 @@ setMethod("Plot",
               seek <- addTo[whGrobNamesi]
               a <- try(seekViewport(seek, recording=F))
               if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
-                                                "Try new=TRUE or change device to",
+                                                "Try new=TRUE, clearPlot(), or change device to",
                                                 "one that has a plot named", addTo[whGrobNamesi]))
 
               grobToPlot <- .identifyGrobToPlot(grobNamesi, toPlot, lN)
@@ -1561,7 +1564,7 @@ clickCoordinates <- function(n=1) {
   dc <- dev.cur()
   arr <- try(get(paste0(".spadesArr", dc), envir=.spadesEnv))
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
-                                      "Try new=TRUE or change device to",
+                                      "Try new=TRUE, clearPlot() or change device to",
                                       "one that has objects from a call to Plot()"))
   gl <- grid.layout(nrow=arr@rows*3+2,
                     ncol=arr@columns*3+2,
@@ -1823,3 +1826,24 @@ setMethod(".makeExtsToPlot",
               legendRange=legendRange, zoom=zoom))
 
 }
+#### Clear plotting device
+#'
+#' Under some conditions, a device and its meta data needs to be cleared manually.
+#' This can be done with either the \code{new=T} argument within the call to \code{Plot}.
+#' Sometimes, the metadata of a previous plot will prevent correct plotting of
+#' a new \code{Plot} call. Use \code{clearPlot} to clear the
+#' device and all the associated metadata manually.
+#'
+#' @param dev numeric. Device number to clear.
+#'
+#' @export
+#' @docType methods
+#' @rdname Plot-method
+clearPlot <- function(dev=dev.cur()) {
+  try(rm(list=paste0(".spadesArr", dev), envir=.spadesEnv))
+  devActive <- dev.cur()
+  dev(dev)
+  grid.newpage()
+  dev(devActive)
+}
+

@@ -166,6 +166,19 @@ Plot(landscape, new=TRUE)
 Plot(caribou, addTo="landscape.forestAge", size=2, axes=F)
 ```
 
+# Clearing Plot
+
+A device and all the meta-data associated with that device can be cleared 
+with the `new=T` argument within the call to `Plot`.
+However, sometimes this is not easy enough because the `Plot` call
+may be embedded deep within a module. Sometimes, the metadata will prevent
+correct plotting because it comes from a previous plot that must be removed.
+This function can be used to clear the device and all the associated metadata manually. 
+```{r clearPlot, eval=TRUE, echo=TRUE, fig.height=1}
+clearPlot()
+Plot(caribou)
+```
+
 
 # Using RStudio Plots window
 The built in RStudio Plot window is particularly slow. It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster. This may change in a future version of RStudio. Until then, we have created a function, `dev` which will add devices up to the number in the parenthesis, or switch to that device if it is already open. If an RStudio plot has not been called, dev(2) will create a new device outside RStudio. If a plot has already occurred in RStudio's embedded plot window, then dev(4) will create a new device outside RStudio. dev(4) on its own will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device.
