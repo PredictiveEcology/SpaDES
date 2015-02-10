@@ -228,7 +228,8 @@ clickExtent() #click at two locations on the Plot device
 `Plot` can also handle gg objects as created with 
 \code{\link{qplot}} or \code{\link{ggplot}}.
 
-```{r ggplot}
+```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE}
+library(ggplot2)
 ggObj <- qplot(rnorm(1e3))
 Plot(ggObj)
 ```
