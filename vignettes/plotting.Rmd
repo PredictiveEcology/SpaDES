@@ -206,3 +206,17 @@ This can be used like `zoom` for base package plot window. Click two corners of 
 Plot(landscape, new=TRUE)
 clickExtent() #click at two locations on the Plot device
 ```
+
+
+# ggplot2 objects
+It can handle \code{ggplot2} objects or base histogram objects via call to
+`exHist <- hist(1:10, plot=F)`, but these non-spatial objects
+cannot be mixed among types (i.e., can't mix and match spatial and
+non-spatial objects, or base histogram and ggplot2 types). Customization of the
+ggplot2 elements can be done as a normal ggplot2 plot, then added with
+`Plot(ggplotObject)`
+```{r ggplotObjects, eval=TRUE, echo=TRUE, cache=TRUE}
+ggObj <- ggplot2::qplot(rnorm(1e3))
+Plot(caribou, new=TRUE)
+Plot(ggObj)
+```
