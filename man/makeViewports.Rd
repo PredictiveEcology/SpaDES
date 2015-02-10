@@ -4,7 +4,7 @@
 \alias{makeViewports}
 \title{Make viewports}
 \usage{
-makeViewports(extents, arr, newArr = FALSE, spatialObjects = TRUE)
+makeViewports(extents, arr, newArr = FALSE)
 }
 \arguments{
 \item{extents}{a list of extents objects.}
@@ -13,8 +13,6 @@ makeViewports(extents, arr, newArr = FALSE, spatialObjects = TRUE)
 
 \item{newArr}{logical. Whether this function will create a completely new viewport.
 Default \code{FALSE}.}
-
-\item{spatialObjects}{logical. Whether the objects being plotted are all spatialObjects}
 }
 \description{
 Given a set of extents, and a layout for these extents, this function will output

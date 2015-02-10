@@ -225,7 +225,7 @@ setMethod("equalExtent",
 #' @slot extents list of class Extent objects. These are needed to calculate the
 #' \code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly
 #'
-#' @slot isSpatialObjects logical indicating whether the object(s) are \code{\link{spatialObjects}}
+#' @slot isSpatialObjects logical indicating whether the object(s) are \code{spatialObjects}
 #' or not
 #'
 #' @slot layout list of length 2, with width and height measurements for layout.
