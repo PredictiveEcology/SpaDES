@@ -225,6 +225,9 @@ setMethod("equalExtent",
 #' @slot extents list of class Extent objects. These are needed to calculate the
 #' \code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly
 #'
+#' @slot isSpatialObjects logical indicating whether the object(s) are \code{\link{spatialObjects}}
+#' or not
+#'
 #' @slot layout list of length 2, with width and height measurements for layout.
 #'
 #' @rdname arrangement-class
@@ -1682,9 +1685,10 @@ clickCoordinates <- function(n=1) {
 
 
 ##############################################################
-#' Get dimensions of x and y axes
+#' Create an list of extents
 #'
-#' For spatial objects, these are the extents. Used internally in Plot methods
+#' For spatial objects, these are the extents. For gg and hist objects,
+#' these are artifically extent(0,1,0,1). This is intended to be used internally in Plot methods
 #'
 #' @param toPlot list of objects to plot
 #'
@@ -1694,7 +1698,9 @@ clickCoordinates <- function(n=1) {
 #'
 #' @param lN character vector of names of these layers
 #'
-#' @name makeExtsToPlot
+#' @return A list of \code{extent} objects
+#'
+#' @name .makeExtsToPlot
 #' @rdname internal-Plot
 setGeneric(".makeExtsToPlot", function(toPlot=NULL, zoomExtent=NULL, numLayers=NULL, lN) {
   standardGeneric(".makeExtsToPlot")

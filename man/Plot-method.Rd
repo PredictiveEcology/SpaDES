@@ -79,9 +79,8 @@ This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 also handle \code{ggplot2} objects or base histogram objects via call to
 \code{exHist <- hist(1:10, plot=F)}, but these non-spatial objects
 cannot be mixed among types (i.e., can't mix and match spatial and
-non-spatial objects, or base histogram and ggplot2 types). Customization of the
-ggplot2 elements can be done as a normal ggplot2 plot, then added with
-\code{Plot(ggplotObject)}
+non-spatial objects, or base histogram and ggplot2 types). At the moment,
+ggplot2 plots are smaller than desirable.
 }
 \details{
 If \code{new=TRUE}, a new plot will be generated.
