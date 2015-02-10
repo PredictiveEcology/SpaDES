@@ -422,7 +422,7 @@ setMethod("plotGrob",
             maxNumCols=100
             maxcol <- length(col)
             mincol <- 2
-browser()
+
             if (length(gpText)==0) gpText <- gpar(col="black", cex=0.6)
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               # name=name,
@@ -1356,7 +1356,6 @@ setMethod("Plot",
                 gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
               }
 
-              browser()
 
               if(is(grobToPlot, "Raster")) {
                 # Rasters may be zoomed into and subsampled and have unique legend
