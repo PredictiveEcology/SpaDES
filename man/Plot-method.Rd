@@ -239,6 +239,6 @@ Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
-\code{\link{ggplot2}}
+\code{\link{ggplot2}}, \code{\link{dev}}
 }
 

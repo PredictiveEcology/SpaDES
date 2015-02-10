@@ -229,6 +229,7 @@ clickExtent() #click at two locations on the Plot device
 \code{\link{qplot}} or \code{\link{ggplot}}.
 
 ```{r ggplot}
+library(ggplot2)
 ggObj <- qplot(rnorm(1e3))
 Plot(ggObj)
 ```
