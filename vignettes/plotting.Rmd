@@ -71,6 +71,10 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 
 ## gp, gpText, gpAxis, size
 These parameters will specify plot parameters that are available with gpar(). `gp` will adjust plot parameters, `gpText` will adjust title and legend text, `gpAxis` will adjust the axes. `size` adjusts point size in a `SpatialPoints` object. These will persist with the original `Plot` call for each individual object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. This is true for a RasterStack also, i.e., the list of named elements must be the same length as the number of layers being plotted. The naming convention used is `RasterStackName.layerName`, i.e,   `landscape.DEM`.
+```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
+Plot(caribou, new=T, gpAxis=gpar(cex=0.4), size=1)
+Plot(DEM, gpText=gpar(cex=0.4))
+```
 
 
 ## Colors
@@ -224,6 +228,10 @@ Plot(landscape, new=TRUE)
 clickExtent() #click at two locations on the Plot device
 ```
 
-# ggplot2 objects
-`Plot` can also handle gg objects as created with 
-`qplot` or `ggplot`.
+# `ggplot2` and `histogram` objects
+It can handle `ggplot2` objects or base histogram objects via call to `exHist <- hist(1:10, plot=F)`, but these non-spatial objects cannot be mixed among types (i.e., can't mix and match spatial and non-spatial objects, or base histogram and ggplot2 types). Customization of the ggplot2 elements can be done as a normal ggplot2 plot, then added with `Plot(ggplotObject)`. Note that using ggplot2 means that all plot modifications must be done via the ggplot2 mechanisms, not Plot mechanisms.
+```{r ggplotObjects, eval=TRUE, echo=TRUE, cache=TRUE}
+ggObj <- ggplot2::qplot(rnorm(1e3))
+Plot(caribou, new=TRUE)
+Plot(ggObj)
+```

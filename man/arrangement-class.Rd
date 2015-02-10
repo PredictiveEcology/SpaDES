@@ -46,6 +46,9 @@ of the layer names in each of those}
 \item{\code{extents}}{list of class Extent objects. These are needed to calculate the
 \code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly}
 
+\item{\code{isSpatialObjects}}{logical indicating whether the object(s) are \code{spatialObjects}
+or not}
+
 \item{\code{layout}}{list of length 2, with width and height measurements for layout.}
 
 \item{\code{gp}}{a gpar object or list of named gpar objects. These names must
