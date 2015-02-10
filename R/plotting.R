@@ -1,3 +1,4 @@
+### Allow gg and histogram S3 classes to be used with Plot, an S4 function
 #' @import ggplot2
 setOldClass("gg")
 
@@ -703,6 +704,7 @@ setMethod("drawArrows",
             names(extents) <- .objectNames("drawArrows", argName = NULL)[1]
             arr <- arrangeViewports(extents)
             arr@layout <- makeLayout(arr=arr, visualSqueeze=0.75)
+            arr@isSpatialObjects <- TRUE
             vps <- makeViewports(extents, arr=arr, newArr = TRUE)
             pushViewport(vps)
             seekViewport(names(extents), recording=FALSE)
