@@ -71,6 +71,10 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 
 ## gp, gpText, gpAxis, size
 These parameters will specify plot parameters that are available with gpar(). `gp` will adjust plot parameters, `gpText` will adjust title and legend text, `gpAxis` will adjust the axes. `size` adjusts point size in a `SpatialPoints` object. These will persist with the original `Plot` call for each individual object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. This is true for a RasterStack also, i.e., the list of named elements must be the same length as the number of layers being plotted. The naming convention used is `RasterStackName.layerName`, i.e,   `landscape.DEM`.
+```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
+Plot(caribou, new=T, gpAxis=gpar(cex=0.4), size=1)
+Plot(DEM, gpText=gpar(cex=0.4))
+```
 
 
 ## Colors

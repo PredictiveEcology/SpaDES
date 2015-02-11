@@ -3,22 +3,23 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
-\alias{Plot,spatialObjects-method}
+\alias{Plot,spadesPlotObjects-method}
 \alias{clearPlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
-Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
-  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
-
-\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
+Plot(..., new = FALSE, addTo = NULL, gp = gpar(cex = 0.6),
+  gpText = gpar(cex = 0.6), gpAxis = gpar(cex = 0.6), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+\S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
+  gp = gpar(cex = 0.6), gpText = gpar(cex = 0.6), gpAxis = gpar(cex =
+  0.6), axes = "L", speedup = 1, size = 5, cols = NULL,
+  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
 clearPlot(dev = dev.cur())
 }
@@ -84,10 +85,13 @@ the minimum value, otherwise, zero is treated as any other color. Default transp
 \description{
 The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
-\code{SpatialPolygons*} and any combination of these. It will also accept
-ggplot objects from the ggplot2 package. These must be provided alone, but
-they will ba added to any multipanel plot in the same way as for spatial
-objects.
+\code{SpatialPolygons*}, and any combination of those.  It can
+also handle \code{ggplot2} objects or base histogram objects via call to
+\code{exHist <- hist(1:10, plot=F)}, but these non-spatial objects
+cannot be mixed among types (i.e., can't mix and match spatial and
+non-spatial objects, or base histogram and ggplot2 types). Customization of the
+ggplot2 elements can be done as a normal ggplot2 plot, then added with
+\code{Plot(ggplotObject)}
 
 Under some conditions, a device and its meta data needs to be cleared manually.
 This can be done with either the \code{new=T} argument within the call to \code{Plot}.
