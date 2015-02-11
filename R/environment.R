@@ -2,5 +2,4 @@
 #'
 #' multiple
 #'
-#' @export
 .spadesEnv <- new.env(parent=baseenv())
