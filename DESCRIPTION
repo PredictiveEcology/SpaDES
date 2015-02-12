@@ -38,6 +38,7 @@ Imports:
     CircStats,
     ggplot2,
     gridBase,
+    igraph,
     methods,
     RandomFields,
     RColorBrewer,
