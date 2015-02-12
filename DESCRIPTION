@@ -42,6 +42,7 @@ Imports:
     RandomFields,
     RColorBrewer,
     rgdal,
+    secr,
     sp,
     tkrplot
 License: GPL
