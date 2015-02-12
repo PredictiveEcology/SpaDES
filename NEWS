@@ -7,6 +7,7 @@ version 0.5.0
 * Deprecated all *Named functionality - All code will break that uses *Named objects
 * Reduced number of packages on which SpaDES "depends".
 * A new function, clearPlot can be used to clean all hidden metadata about a plot
+* A new function, randomPolygons, will create random raster maps (not vector maps) of polygons
 * Plot now handles SpatialPolygons objects much faster than default plot. Uses package fastshp.
     * The suggested package `fastshp` can be installed with:
 
