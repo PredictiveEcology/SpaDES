@@ -422,6 +422,7 @@ setMethod("plotGrob",
             maxNumCols=100
             maxcol <- length(col)
             mincol <- 2
+            gpText$cex <- gpText$cex*0.6
 
             if (length(gpText)==0) gpText <- gpar(col="black", cex=0.6)
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
@@ -1105,7 +1106,7 @@ setMethod("drawArrows",
 #'
 #' }
 setGeneric("Plot", signature="...",
-           function(..., new=FALSE, addTo=NULL, gp=gpar(cex=0.6), gpText=gpar(cex=0.6), gpAxis=gpar(cex=0.6),
+           function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
                     axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
@@ -1338,6 +1339,7 @@ setMethod("Plot",
 
               newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
               grobToPlot <- .identifyGrobToPlot(grobNamesi, toPlot, lN, newplot)
+
 
               gp <- arr@gp[[grobNamesi]]
               size<- arr@size[[grobNamesi]]
