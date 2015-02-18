@@ -16,6 +16,8 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
 
+**A live proof of concept version** [https://spades.shinyapps.io/](https://spades.shinyapps.io/ForestChange_ProofOfConcept)
+
 ## Installation
 
 Download the source tarball (.tar.gz) or windows package binary (.zip):
