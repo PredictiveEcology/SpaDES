@@ -7,19 +7,18 @@
 \alias{clearPlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
-Plot(..., new = FALSE, addTo = NULL, gp = gpar(cex = 0.6),
-  gpText = gpar(cex = 0.6), gpAxis = gpar(cex = 0.6), axes = "L",
+Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
+  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
+  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+\S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
+  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
-
-\S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(cex = 0.6), gpText = gpar(cex = 0.6), gpAxis = gpar(cex =
-  0.6), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
 clearPlot(dev = dev.cur())
 }
@@ -94,7 +93,7 @@ ggplot2 elements can be done as a normal ggplot2 plot, then added with
 \code{Plot(ggplotObject)}
 
 Under some conditions, a device and its meta data needs to be cleared manually.
-This can be done with either the \code{new=T} argument within the call to \code{Plot}.
+This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
 Sometimes, the metadata of a previous plot will prevent correct plotting of
 a new \code{Plot} call. Use \code{clearPlot} to clear the
 device and all the associated metadata manually.

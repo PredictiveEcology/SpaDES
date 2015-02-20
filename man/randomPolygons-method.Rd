@@ -44,7 +44,7 @@ values, using code drawn from http://www.guru-gis.net/generate-a-random-landscap
 }
 \examples{
 r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
-Plot(r1, cols=c("white","dark green","blue","dark red"), new=T)
+Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
 }
 \seealso{
 \code{\link{randomHabitat}} and \code{\link{raster}}

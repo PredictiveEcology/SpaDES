@@ -455,7 +455,7 @@ setMethod("plotGrob",
                                       y= ((pr-minv)/((maxv)-minv))/2+0.25
                                     },
                                     gp=gpText,
-                                    just="left", check.overlap=T,
+                                    just="left", check.overlap=TRUE,
                                     name="legendText")
 
                                 }
@@ -1518,10 +1518,10 @@ setMethod("makeColorMatrix",
             #  metadata version of minValue, but use the max(z) to accomodate cases
             #  where there are too many legend values for the number of raster values
             if(!exists("minz")) {
-              minz <- min(z, na.rm=T)
+              minz <- min(z, na.rm=TRUE)
             }
             #
-            maxz <- max(z, na.rm=T)
+            maxz <- max(z, na.rm=TRUE)
             real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
 
             # Deal with colors - This gets all combinations, real vs. integers,
@@ -1588,9 +1588,9 @@ setMethod("makeColorMatrix",
 
             cols<-c(na.color, cols) # make first index of colors be transparent
             if((minz>1) | (minz<0)) {
-              z <- matrix(cols[z-minz+1], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+              z <- matrix(cols[z-minz+1], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=TRUE)
             } else {
-              z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=T)
+              z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=TRUE)
             }
             list(z=z, minz=minz, maxz=maxz, cols=cols, real=real)
           })
@@ -1833,7 +1833,7 @@ clickCoordinates <- function(n=1) {
                 #Extract current plot info
                 currentNames <- arr@names
                 #          if (!(length(.spadesEnv$.spadesArr4@names)==
-                #                  sum(grepl("^GRID", grid.ls(grobs = T, print=FALSE)$name)))) {
+                #                  sum(grepl("^GRID", grid.ls(grobs = TRUE, print=FALSE)$name)))) {
                 #            arr <- new("arrangement"); arr@columns=0; arr@rows = 0
                 #            new=TRUE
                 #          }
@@ -1999,7 +1999,7 @@ setMethod(".makeExtsToPlot",
 #### Clear plotting device
 #'
 #' Under some conditions, a device and its meta data needs to be cleared manually.
-#' This can be done with either the \code{new=T} argument within the call to \code{Plot}.
+#' This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
 #' Sometimes, the metadata of a previous plot will prevent correct plotting of
 #' a new \code{Plot} call. Use \code{clearPlot} to clear the
 #' device and all the associated metadata manually.
