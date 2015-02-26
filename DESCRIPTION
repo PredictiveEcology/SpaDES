@@ -50,6 +50,7 @@ License: GPL
 Collate:
     'agent-methods.R'
     'SELES.R'
+    'environment.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
@@ -57,7 +58,6 @@ Collate:
     'simulation.R'
     'load.R'
     'misc-methods.R'
-    'module-dependecies.R'
     'module-template.R'
     'movement.R'
     'neighbourhood.R'

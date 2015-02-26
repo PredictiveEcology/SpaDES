@@ -1,5 +1,7 @@
 #' The SpaDES environment
 #'
-#' multiple
+#' needs description
+#'
+#' @rdname spadesEnv
 #'
 .spadesEnv <- new.env(parent=baseenv())
