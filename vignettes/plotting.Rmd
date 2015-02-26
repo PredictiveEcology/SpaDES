@@ -69,6 +69,14 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 
 ```
 
+## gp, gpText, gpAxis, size
+These parameters will specify plot parameters that are available with gpar(). `gp` will adjust plot parameters, `gpText` will adjust title and legend text, `gpAxis` will adjust the axes. `size` adjusts point size in a `SpatialPoints` object. These will persist with the original `Plot` call for each individual object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. This is true for a RasterStack also, i.e., the list of named elements must be the same length as the number of layers being plotted. The naming convention used is `RasterStackName.layerName`, i.e,   `landscape.DEM`.
+```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
+Plot(caribou, new=T, gpAxis=gpar(cex=0.4), size=1)
+Plot(DEM, gpText=gpar(cex=0.4))
+```
+
+
 ## Colors
 We likely won't want the default colors for every map. There are two ways to change the color of a map: by adding a `colortable` to a `Raster*` object (*e.g.*, using the `setColors` function in `SpaDES`), or using the `cols` argument. Adding a colortable to a `Raster*` will be more persistent (*i.e.*, it will stay with the same color table between calls to `Plot`) than using an argument in the `Plot` function. Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colors. If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colors if only a single `RasterLayer`. These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, or `colorRampPalette` or `heat.colors()` etc.  Note that overplotting will not overplot the legend; in general, overplotting should be used for cases where the maps are compatible with the underlying map layer. See overplotting below.  
 
@@ -166,6 +174,19 @@ Plot(landscape, new=TRUE)
 Plot(caribou, addTo="landscape.forestAge", size=2, axes=F)
 ```
 
+# Clearing Plot
+
+A device and all the meta-data associated with that device can be cleared 
+with the `new=T` argument within the call to `Plot`.
+However, sometimes this is not easy enough because the `Plot` call
+may be embedded deep within a module. Sometimes, the metadata will prevent
+correct plotting because it comes from a previous plot that must be removed.
+This function can be used to clear the device and all the associated metadata manually. 
+```{r clearPlot, eval=TRUE, echo=TRUE, fig.height=1}
+clearPlot()
+Plot(caribou)
+```
+
 
 # Using RStudio Plots window
 The built in RStudio Plot window is particularly slow. It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster. This may change in a future version of RStudio. Until then, we have created a function, `dev` which will add devices up to the number in the parenthesis, or switch to that device if it is already open. If an RStudio plot has not been called, dev(2) will create a new device outside RStudio. If a plot has already occurred in RStudio's embedded plot window, then dev(4) will create a new device outside RStudio. dev(4) on its own will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device.
@@ -205,4 +226,14 @@ This can be used like `zoom` for base package plot window. Click two corners of 
 ```{r clickExtent, eval=FALSE, echo=TRUE}
 Plot(landscape, new=TRUE)
 clickExtent() #click at two locations on the Plot device
+```
+
+# ggplot2 objects
+`Plot` can also handle gg objects as created with 
+\code{\link{qplot}} or \code{\link{ggplot}}.
+
+```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE}
+library(ggplot2)
+ggObj <- qplot(rnorm(1e3))
+Plot(ggObj)
 ```

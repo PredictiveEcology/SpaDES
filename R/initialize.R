@@ -58,6 +58,89 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
     return(invisible(sim))
 }
 
+
+
+
+##############################################################
+#' randomPolygons
+#'
+#' Produces a raster of with random polygons of varying parameters, using the
+#' The Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
+#'
+#' This is a wrapper for the \code{secr::randomHabitat} function in the secr
+#' package. The two main additions are the \code{speedup} argument which allows
+#' for faster map generation for large rasters and addition of multiple unique polygon
+#' values, using code drawn from http://www.guru-gis.net/generate-a-random-landscape/.
+#'
+#' @param ras A raster that whose extent will be used for the randomPolygons
+#'
+#' @param p numeric vector. Parameter to control fragmentation. If this is a vector,
+#' then there will be a polygon map produced with length(p) unique levels. See \code{randomLandscape}
+#'
+#' @param A numeric vector. Parameter for expected proportion of habitat. If this is a vector,
+#' then there will be a polygon map produced with length(A) unique levels. See \code{randomLandscape}
+#'
+#' @param speedup An index of how much faster than normal to generate maps. This is achieved
+#' by aggregating then disagregating at the end, so that the resulting raster is the
+#' same extent as \code{ras}
+#'
+#' @param numTypes numeric value. The number of unique polygon types to use. This will
+#' be overridden by p, A or minpatch, if any of these are vectors.
+#'
+#' @param minpatch numeric vector. Integer minimum size of patch. If this is a vector,
+#' then there will be a polygon map produced with length(A) unique levels. See \code{randomLandscape}
+#'
+#' @param ... Additional arguments to \code{randomHabitat}.
+#'
+#' @return A map of extent \code{ext} with a random polygons.
+#'
+#' @seealso \code{\link{randomHabitat}} and \code{\link{raster}}
+#'
+#' @importFrom secr make.mask
+#' @importFrom secr randomHabitat
+#'
+#' @import raster
+#' @import igraph
+#'
+#' @export
+#' @docType methods
+#' @rdname randomPolygons-method
+#'
+#' @examples
+#' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
+#' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
+#EXAMPLES NEEDED
+randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, speedup=1, numTypes=1, minpatch=10, ...) {
+  ext <- extent(ras)
+  nx <- ncol(ras)/speedup
+  ny <- nrow(ras)/speedup
+  spacing <- res(ras)
+  if(length(spacing)>1) {
+    warning(paste("assuming square pixels with resolution =",spacing[1]))
+    spacing <- spacing[1]
+  }
+  tempmask <- make.mask(nx = nx, ny = ny, spacing = spacing)
+
+  outMap <- list()
+  r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax), res=res(ras)*speedup)
+  if( (numTypes < length(p)) | (numTypes < length(A)) |  (numTypes < length(minpatch))) {
+    numTypes = max(length(p),length(A),length(minpatch))
+  }
+  r[] <- 0
+
+  for(i in 1:numTypes){
+    r[which(as.vector(raster(randomHabitat(tempmask,
+                                           p = p[(i-1)%%length(p)+1],
+                                           A = A[(i-1)%%length(A)+1],
+                                           minpatch = minpatch[(i-1)%%length(minpatch)+1]),...))==1)]<-(i)
+  }
+  if(speedup>1)
+    return(disaggregate(r, c(speedup, speedup)))
+  else
+    return(invisible(r))
+}
+
+
 ##############################################################
 #' spec.num.per.patch
 #'

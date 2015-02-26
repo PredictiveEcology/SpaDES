@@ -3,24 +3,27 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
-\alias{Plot,spatialObjects-method}
+\alias{Plot,spadesPlotObjects-method}
+\alias{clearPlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
-Plot(..., new = FALSE, addTo = NULL, gp = gpar(), axes = "L",
+Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
+  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
+  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+\S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
+  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
-\S4method{Plot}{spatialObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+clearPlot(dev = dev.cur())
 }
 \arguments{
-\item{...}{\code{Raster*} object(s) and/or \code{SpatialPoints* objects}.
-See details for naming.}
+\item{...}{A combination of spatial objects or a ggplot object. See details.}
 
 \item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 if \code{FALSE}, then the \code{...} plots will be added to the current device,
@@ -31,7 +34,11 @@ This is for overplotting, when the overplot is not to occur on the plot with
 the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.}
 
 \item{gp}{A gpar object, created by \code{\link{gpar}} function,
-to change plotting parameters (see \code{\link{grid}} package).}
+to change plotting parameters (see \code{grid} package).}
+
+\item{gpText}{A gpar object for the title text. Default gpar(col="black")}
+
+\item{gpAxis}{A gpar object for the axes. Default gpar(col="black")}
 
 \item{axes}{Logical or \code{"L"}, representing the left and bottom axes, overall plots.}
 
@@ -71,11 +78,25 @@ Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE
 
 \item{zero.color}{string indicating the color for zero values, when zero is
 the minimum value, otherwise, zero is treated as any other color. Default transparent.}
+
+\item{dev}{numeric. Device number to clear.}
 }
 \description{
 The main plotting function accompanying \code{SpaDES}.
-This can take objects of type \code{Raster*} or \code{SpatialPoints*},
-and any combination of those.
+This can take objects of type \code{Raster*}, \code{SpatialPoints*},
+\code{SpatialPolygons*}, and any combination of those.  It can
+also handle \code{ggplot2} objects or base histogram objects via call to
+\code{exHist <- hist(1:10, plot=F)}, but these non-spatial objects
+cannot be mixed among types (i.e., can't mix and match spatial and
+non-spatial objects, or base histogram and ggplot2 types). Customization of the
+ggplot2 elements can be done as a normal ggplot2 plot, then added with
+\code{Plot(ggplotObject)}
+
+Under some conditions, a device and its meta data needs to be cleared manually.
+This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
+Sometimes, the metadata of a previous plot will prevent correct plotting of
+a new \code{Plot} call. Use \code{clearPlot} to clear the
+device and all the associated metadata manually.
 }
 \details{
 If \code{new=TRUE}, a new plot will be generated.
@@ -90,9 +111,11 @@ The function is based on the grid package.
 Each panel in the multipanel plot must have a name.
 This name is used to overplot, rearrange the plots, or overlay using
 \code{addTo} when necessary.
-If the \code{...} are named spatialObjects, then \code{Plot} will use these names.
-If not, then \code{Plot} will use the object name and the layer name (in the
-case of \code{RasterLayer} or \code{RasterStack} objects).
+If the \code{...} are named spatialObjects, then \code{Plot} will use
+these names. However, this name will not persist when there is a future call
+to \code{Plot} that forces a rearrangement of the plots.
+A more stable way is to use the object names directly, and any layer names
+(in the case of \code{RasterLayer} or \code{RasterStack} objects).
 If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
 then, for simplicity, only the object name will be used.
 In other words, only enough information is used to uniquely identify the plot.
@@ -122,6 +145,19 @@ frame are overplots only.
 raster if the new resampling is close to the original number of pixels. At the moment,
 this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
 anything if the factor for speeding up is not high enough (i.e., >3).
+
+These \code{gp*} parameters will specify plot parameters that are
+available with \code{gpar()}. \code{gp} will adjust plot parameters,
+\code{gpText} will adjust title and legend text, \code{gpAxis} will
+adjust the axes. \code{size} adjusts point size in a
+\code{SpatialPoints} object. These will persist with the
+original \code{Plot} call for each individual object. Multiple
+entries can be used, but they must be named list elements
+and they must match the \code{...} items to plot. This is true
+for a RasterStack also, i.e., the list of named elements
+must be the same length as the number of layers being
+plotted. The naming convention used is \code{RasterStackName.layerName},
+i.e, \code{landscape.DEM}.
 }
 \examples{
 \dontrun{
@@ -202,5 +238,10 @@ Plot(SpP)
 Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 
 }
+}
+\seealso{
+\code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
+\code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
+\code{\link{ggplot2}}, \code{\link{dev}}
 }
 

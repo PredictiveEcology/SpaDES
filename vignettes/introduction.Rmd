@@ -21,6 +21,7 @@ vignette: >
 **Abstract:** Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
+**Website:** [http://spades.PredictiveEcology.org](http://spades.PredictiveEcology.org)
 
 # Introduction to `SpaDES`
 
@@ -71,7 +72,7 @@ demo("spades-simulation", package="SpaDES")
 library("SpaDES")
 
 outputPath=file.path(tmpDir(), "simOutputs")
-times <- list(start=0, stop=100.2)
+times <- list(start=0, stop=10.2)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -174,6 +175,9 @@ landscape[["Fires"]] <-
 setColors(landscape$Fires)<-brewer.pal(8,"Reds")[5:8]
 
 Plot(landscape[["Fires"]], new=TRUE)
+fireSizes <- getValues(landscape[["Fires"]])
+ggHist <- ggplot2::qplot(fireSizes[fireSizes>0])
+Plot(ggHist)
 ```
 
 ```{r fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE}

@@ -14,7 +14,7 @@
 \S4method{nlayers}{SpatialPoints}(x)
 }
 \arguments{
-\item{x}{A \code{spatialObjects} object or list of these.}
+\item{x}{A \code{spadesPlotObjects} object or list of these.}
 }
 \description{
 There are already methods for \code{Raster*} in the raster package.

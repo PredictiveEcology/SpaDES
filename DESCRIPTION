@@ -9,10 +9,10 @@ Description: Easily implement a variety of simulation models, with a focus on
     visualize raster and other maps. The suggested package `fastshp` can be
     installed with `devtools::install_github("s-u/fastshp")`; installation of
     development packages on Windows requires Rtools
-    (http://cran.r-project.org/bin/windows/Rtools). require Rtools
+    (http://cran.r-project.org/bin/windows/Rtools).
 URL: http://github.com/PredictiveEcology/SpaDES
 Version: 0.5.0.9000
-Date: 2015-01-16
+Date: 2015-02-25
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",
@@ -36,10 +36,14 @@ Suggests:
     testthat
 Imports:
     CircStats,
+    ggplot2,
+    gridBase,
+    igraph,
     methods,
     RandomFields,
     RColorBrewer,
     rgdal,
+    secr,
     sp,
     tkrplot
 License: GPL
