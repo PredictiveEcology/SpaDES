@@ -3,51 +3,20 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
-\alias{defineModule,character,character,character,person,Extent,POSIXt,list,list,list,data.frame,data.frame-method}
+\alias{defineModule,character,character,character,person,Extent,POSIXt,character,list,list,list,data.frame,data.frame-method}
 \title{Define a new module}
 \usage{
 defineModule(name, description, keywords, authors, spatialExtent, timeframe,
+  timestep, translators, citation, reqdPkgs, inputObjects, outputObjects)
+
+
+  \S4method{defineModule}{character,character,character,person,Extent,POSIXt,character,list,list,list,data.frame,data.frame}(name,
+  description, keywords, authors, spatialExtent, timeframe, timestep,
   translators, citation, reqdPkgs, inputObjects, outputObjects)
-
-
-  \S4method{defineModule}{character,character,character,person,Extent,POSIXt,list,list,list,data.frame,data.frame}(name,
-  description, keywords, authors, spatialExtent, timeframe, translators,
-  citation, reqdPkgs, inputObjects, outputObjects)
-}
-\arguments{
-\item{name}{Name of the module as a character string.}
-
-\item{description}{Description of the module as a character string.}
-
-\item{keywords}{Character vector containing a module's keywords.}
-
-\item{authors}{The author(s) of the module as a \code{\link{person}} object.}
-
-\item{spatialExtent}{Specifies the module's spatial extent as an \code{\link{Extent}} object.}
-
-\item{timeframe}{Specifies the valid timeframe for which the module was designed to simulate.
-                    Must be a \code{\link{POSIXt}} object of length 2, specifying the start and end times
-                    (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
-                    Defaults to \code{as.POSIXlt(c(NA,NA))}.}
-
-\item{translators}{List of "translators" available for this module, which should include
-                    the name of the "translator" as well as where to find it, e.g., a url.}
-
-\item{citation}{A list giving the citation for the module.}
-
-\item{reqdPkgs}{A list giving the names of packages required for the module.}
-
-\item{objectDeps}{A \code{data.frame} specifying the object dependecies of the module:
-                    each row specifies a directional dependency, with columns
-                    \code{objectName}, \code{objectClass}, and \code{objectType}.
-                    These first two are self-explanatory, and \code{objectType}
-                    should be one of \code{"input"} or \code{"output"}.
-                    For objects that are used within the module as both an input and an output,
-                    each of these should be added as separate entries in the data.frame.}
 }
 \description{
 Specify a new module's metadata as well as object and package dependecies.
-This is simply a constructor method for the \code{\link{moduleDepends}} class.
+This is a constructor method for the \code{\link{moduleDepends}} class.
 }
 \examples{
 \dontrun{

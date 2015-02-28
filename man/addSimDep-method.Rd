@@ -11,7 +11,7 @@ addSimDep(x)
 \S4method{addSimDep}{moduleDeps}(x)
 }
 \arguments{
-\item{x}{A \code{moduleDeps} object.}
+\item{x}{A \code{\link{moduleDeps}} object.}
 }
 \description{
 Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
@@ -23,5 +23,8 @@ Adds a \code{moduleDeps} object to the simulation dependency list stored in \cod
 }
 \author{
 Alex Chubaty
+}
+\seealso{
+moduleDeps
 }
 

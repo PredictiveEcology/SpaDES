@@ -37,6 +37,7 @@ defineModule(
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   translators=list(),
+  timestep=NA_character_,
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   inputObjects=data.frame(name=NA_character_, class=NA_character_),

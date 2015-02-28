@@ -1091,6 +1091,9 @@ setMethod("simInit",
             dotParamsChar = list(".savePath", ".saveObjects")
             dotParams = append(dotParamsChar, dotParamsReal)
 
+            # create new simDeps object
+            assign(".simDeps", new("simDeps"), envir=.spadesEnv)
+
             # create new simList object
             sim <- new("simList", simtimes=list(current=times$start,
                                                 start=times$start,
@@ -1115,7 +1118,7 @@ setMethod("simInit",
             # load user-defined modules
             for (m in simModules(sim)) {
                 # source the code from each module's R file
-                source(paste(path, "/", m, ".R", sep=""),local=.GlobalEnv)
+                source(paste(path, "/", m, ".R", sep=""), local=.GlobalEnv)
 
                 # schedule each module's init event:
                 sim <- scheduleEvent(sim, simStartTime(sim), m, "init")

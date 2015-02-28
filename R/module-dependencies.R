@@ -116,26 +116,60 @@ setClass("simDeps",
            object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
            # ensure list contains only moduleDeps objects
-           lapply(object@dependencies, is, class2="moduleDeps")
-
-           if ( (lower(object@objectDeps$objectType)!="input") ||
-                  (lower(object@objectDeps$objectType)!="output") ) {
-             stop("objectType must be one of \'input\' or \'output\'.")
-           }
+           if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) stop("invalid type: non-moduleDeps object")
          }
 )
+
+#' Get simulation dependencies
+#'
+#' Get the simulation dependency list stored in \code{.spadesEnv}.
+#'
+#' @param x placeholder only. not used.
+#'
+#' @include environment.R
+#'
+#' @export
+#' @docType methods
+#' @rdname getSimDeps-method
+#'
+#' @seealso moduleDeps
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#'   getSimDeps()
+#' }
+#'
+setGeneric("getSimDeps", function(x) {
+  standardGeneric("getSimDeps")
+})
+
+#' @rdname getSimDeps-method
+#'
+setMethod("getSimDeps",
+          signature("missing"),
+          definition=function() {
+            if( (exists(".spadesEnv")) && (exists(".simDeps", envir=.spadesEnv)) ){
+              deps <- get(".simDeps", envir=.spadesEnv)
+            } else {
+              message("No simulation dependency object exists.")
+            }
+})
 
 #' Add simulation dependencies
 #'
 #' Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
 #'
-#' @param x   A \code{moduleDeps} object.
+#' @param x   A \code{\link{moduleDeps}} object.
 #'
 #' @include environment.R
 #'
 #' @export
 #' @docType methods
 #' @rdname addSimDep-method
+#'
+#' @seealso   moduleDeps
 #'
 #' @author Alex Chubaty
 #'
@@ -153,46 +187,22 @@ setGeneric("addSimDep", function(x) {
 setMethod("addSimDep",
           signature(x="moduleDeps"),
           definition=function(x) {
-            deps <- get(".simDeps", envir=.spadesEnv)
-
+            if(exists(".simDeps", envir=.spadesEnv)) {
+              deps <- getSimDeps()
+              deps@dependencies <- append(deps@dependencies, x)
+              deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
+            } else {
+              deps <- new("simDeps", dependencies=list(x))
+            }
             assign(".simDeps", deps, envir=.spadesEnv)
 })
-
 
 #' Define a new module
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
-#' This is simply a constructor method for the \code{\link{moduleDepends}} class.
+#' This is a constructor method for the \code{\link{moduleDepends}} class.
 #'
-#' @param name         Name of the module as a character string.
-#'
-#' @param description  Description of the module as a character string.
-#'
-#' @param keywords     Character vector containing a module's keywords.
-#'
-#' @param authors      The author(s) of the module as a \code{\link{person}} object.
-#'
-#' @param spatialExtent Specifies the module's spatial extent as an \code{\link{Extent}} object.
-#'
-#' @param timeframe    Specifies the valid timeframe for which the module was designed to simulate.
-#'                     Must be a \code{\link{POSIXt}} object of length 2, specifying the start and end times
-#'                     (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
-#'                     Defaults to \code{as.POSIXlt(c(NA,NA))}.
-#'
-#' @param translators  List of "translators" available for this module, which should include
-#'                     the name of the "translator" as well as where to find it, e.g., a url.
-#'
-#' @param citation     A list giving the citation for the module.
-#'
-#' @param reqdPkgs     A list giving the names of packages required for the module.
-#'
-#' @param objectDeps   A \code{data.frame} specifying the object dependecies of the module:
-#'                     each row specifies a directional dependency, with columns
-#'                     \code{objectName}, \code{objectClass}, and \code{objectType}.
-#'                     These first two are self-explanatory, and \code{objectType}
-#'                     should be one of \code{"input"} or \code{"output"}.
-#'                     For objects that are used within the module as both an input and an output,
-#'                     each of these should be added as separate entries in the data.frame.
+#' @inheritParams moduleDeps-class
 #'
 #' @export
 #' @docType methods
@@ -206,7 +216,7 @@ setMethod("addSimDep",
 #' }
 #'
 setGeneric("defineModule", function(name, description, keywords, authors,
-                                    spatialExtent, timeframe, translators,
+                                    spatialExtent, timeframe, timestep, translators,
                                     citation, reqdPkgs, inputObjects, outputObjects) {
   standardGeneric("defineModule")
 })
@@ -216,14 +226,14 @@ setGeneric("defineModule", function(name, description, keywords, authors,
 setMethod("defineModule",
           signature(name="character", description="character", keywords="character",
                     authors="person", spatialExtent="Extent", timeframe="POSIXt",
-                    translators="list", citation="list", reqdPkgs="list",
-                    inputObjects="data.frame", outputObjects="data.frame"),
+                    timestep="character", translators="list", citation="list",
+                    reqdPkgs="list", inputObjects="data.frame", outputObjects="data.frame"),
           definition=function(name, description, keywords, authors, spatialExtent,
-                              timeframe, translators, citation, reqdPkgs,
+                              timeframe, timestep, translators, citation, reqdPkgs,
                               inputObjects, outputObjects) {
             x <- new("moduleDeps", name=name, description=description,
-                     keywords=keywords, authors=authors,
-                     spatialExtent=spatialExtent, timeframe=timeframe,
+                     keywords=keywords, authors=authors, spatialExtent=spatialExtent,
+                     timeframe=timeframe, timestep=timestep,
                      translators=translators, citation=citation,
                      reqdPkgs=reqdPkgs, inputObjects=inputObjects,
                      outputObjects=outputObjects)
