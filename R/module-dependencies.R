@@ -229,5 +229,5 @@ setMethod("defineModule",
           signature(x="list"),
           definition=function(x) {
             m <- do.call(new, c("moduleDeps", x))
-            addSimDep(x)
+            addSimDep(m)
 })
