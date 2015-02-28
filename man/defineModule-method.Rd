@@ -3,24 +3,25 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
-\alias{defineModule,character,character,character,person,Extent,POSIXt,character,list,list,list,data.frame,data.frame-method}
+\alias{defineModule,list-method}
 \title{Define a new module}
 \usage{
-defineModule(name, description, keywords, authors, spatialExtent, timeframe,
-  timestep, translators, citation, reqdPkgs, inputObjects, outputObjects)
+defineModule(x)
 
-
-  \S4method{defineModule}{character,character,character,person,Extent,POSIXt,character,list,list,list,data.frame,data.frame}(name,
-  description, keywords, authors, spatialExtent, timeframe, timestep,
-  translators, citation, reqdPkgs, inputObjects, outputObjects)
+\S4method{defineModule}{list}(x)
+}
+\arguments{
+\item{x}{A named list containing the parameters used to construct a new
+           \code{moduleDeps} object.}
 }
 \description{
 Specify a new module's metadata as well as object and package dependecies.
-This is a constructor method for the \code{\link{moduleDepends}} class.
+This is a constructor method for the \code{\link{moduleDeps}} class.
 }
 \examples{
 \dontrun{
-  defineModule(...)
+  moduleInfo <- list(...)
+  defineModule(moduleInfo)
 }
 }
 \author{

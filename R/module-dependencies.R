@@ -60,7 +60,7 @@ removeClass("person4")
 setClass("moduleDeps",
          slots=list(name="character", description="character", keywords="character",
                     authors="person", spatialExtent="Extent", timeframe="POSIXt",
-                    translators="list", citation="list", reqdPkgs="list",
+                    timestep="character", translators="list", citation="list", reqdPkgs="list",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
                         keywords=character(), authors=person(),
@@ -200,7 +200,10 @@ setMethod("addSimDep",
 #' Define a new module
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
-#' This is a constructor method for the \code{\link{moduleDepends}} class.
+#' This is a constructor method for the \code{\link{moduleDeps}} class.
+#'
+#' @param x   A named list containing the parameters used to construct a new
+#'            \code{moduleDeps} object.
 #'
 #' @inheritParams moduleDeps-class
 #'
@@ -212,31 +215,19 @@ setMethod("addSimDep",
 #'
 #' @examples
 #' \dontrun{
-#'   defineModule(...)
+#'   moduleInfo <- list(...)
+#'   defineModule(moduleInfo)
 #' }
 #'
-setGeneric("defineModule", function(name, description, keywords, authors,
-                                    spatialExtent, timeframe, timestep, translators,
-                                    citation, reqdPkgs, inputObjects, outputObjects) {
+setGeneric("defineModule", function(x) {
   standardGeneric("defineModule")
 })
 
 #' @rdname defineModule-method
 #'
 setMethod("defineModule",
-          signature(name="character", description="character", keywords="character",
-                    authors="person", spatialExtent="Extent", timeframe="POSIXt",
-                    timestep="character", translators="list", citation="list",
-                    reqdPkgs="list", inputObjects="data.frame", outputObjects="data.frame"),
-          definition=function(name, description, keywords, authors, spatialExtent,
-                              timeframe, timestep, translators, citation, reqdPkgs,
-                              inputObjects, outputObjects) {
-            x <- new("moduleDeps", name=name, description=description,
-                     keywords=keywords, authors=authors, spatialExtent=spatialExtent,
-                     timeframe=timeframe, timestep=timestep,
-                     translators=translators, citation=citation,
-                     reqdPkgs=reqdPkgs, inputObjects=inputObjects,
-                     outputObjects=outputObjects)
-
+          signature(x="list"),
+          definition=function(x) {
+            m <- do.call(new, c("moduleDeps", x))
             addSimDep(x)
 })

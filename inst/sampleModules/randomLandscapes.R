@@ -28,7 +28,7 @@
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
-defineModule(
+defineModule(list(
   name="randomLandscapes",
   description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `.stackName` be set.",
   keywords=c("random map", "random landscape"),
@@ -42,7 +42,7 @@ defineModule(
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   inputObjects=data.frame(name=NA_character_, class=NA_character_),
   outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack")
-)
+))
 
 ### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
