@@ -30,6 +30,10 @@ removeClass("person4")
 #'                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
 #'                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.
 #'
+#' @slot timestep       Describes the length of time corresponding to 1.0 simulation time units.
+#'                      Possible values: \code{"second"}, \code{"minute"}, \code{"hour"}, \code{"day"},
+#'                      \code{"week"}, \code{"month"}, \code{"year"}, or \code{NA} (default).
+#'
 #' @slot translators    Character vector describing the "translators" available for this module.
 #'                      Defaults to \code{NA_character_}.
 #'
@@ -60,23 +64,24 @@ setClass("moduleDeps",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
                         keywords=character(), authors=person(),
-                        spatialExtent=extent(as.numeric(c(NA,NA,NA,NA))),
-                        timeframe=as.POSIXlt(c(NA, NA)), translators=list(),
-                        citation=list(), reqdPkgs=list(),
+                        spatialExtent=extent(rep(NA_real_, 4L)),
+                        timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_character_,
+                        translators=list(), citation=list(), reqdPkgs=list(),
                         inputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE),
-                        outputObjects=data.frame(name=character(), class=character()), stringsAsFactors=FALSE),
+                        outputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE)),
          validity=function(object) {
-           if (length(object@name)!=1) stop("name must be a single character string.")
-           if (length(object@description)!=1) stop("description must be a single character string.")
-           if (length(object@keywords)<1) stop("keywords must be supplied.")
-           if (length(object@authors)<1) stop("authors must be specified.")
-           if (length(object@timeframe)!=2) stop("timeframe must be specified using two date-times.")
+           if (length(object@name)!=1L) stop("name must be a single character string.")
+           if (length(object@description)!=1L) stop("description must be a single character string.")
+           if (length(object@keywords)<1L) stop("keywords must be supplied.")
+           if (length(object@authors)<1L) stop("authors must be specified.")
+           if (length(object@timeframe)!=2L) stop("timeframe must be specified using two date-times.")
+           if (length(object@timestep)<1L) stop("timestep must be specified.")
            if (!any(unlist(lapply(object@reqdPkgs, is.character)))) stop("reqdPkgs must be specified as a list of package names.")
 
            object@inputObjects <- as.data.frame(object@inputObjects, stringsAsFactors=FALSE)
            object@outputObjects <- as.data.frame(object@outputObjects, stringsAsFactors=FALSE)
-           if (length(object@inputObjects)<1) stop("input object name and class must be specified, or NA.")
-           if (length(object@outputObjects)<1) stop("output object name and class must be specified, or NA.")
+           if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")
+           if (length(object@outputObjects)<1L) stop("output object name and class must be specified, or NA.")
            if ( !("name" %in% colnames(object@inputObjects)) ||
                   !("class" %in% colnames(object@inputObjects)) ) {
              stop("input object data.frame must use colnames name and class.")

@@ -26,6 +26,10 @@ Descriptor object for specifying SpaDES module dependecies.
                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.}
 
+\item{\code{timestep}}{Describes the length of time corresponding to 1.0 simulation time units.
+                     Possible values: \code{"second"}, \code{"minute"}, \code{"hour"}, \code{"day"},
+                     \code{"week"}, \code{"month"}, \code{"year"}, or \code{NA} (default).}
+
 \item{\code{translators}}{Character vector describing the "translators" available for this module.
                      Defaults to \code{NA_character_}.}
 
