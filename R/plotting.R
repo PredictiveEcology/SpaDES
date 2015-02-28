@@ -1117,7 +1117,7 @@ setGeneric("Plot", signature="...",
                     draw = TRUE, pch = 19, title=TRUE,
                     na.color="#FFFFFF00", zero.color="#FFFFFF00") {
              standardGeneric("Plot")
-           })
+})
 
 
 #' @rdname Plot-method
