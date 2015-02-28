@@ -69,3 +69,4 @@ Collate:
     'spread-process.R'
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
+ByteCompile: yes
