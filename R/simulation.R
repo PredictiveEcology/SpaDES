@@ -1104,7 +1104,7 @@ setMethod("simInit",
 
             # load "default" modules
             for (d in defaults) {
-              ### sourcing the code in each module is already done
+              ### sourcing the code in each default module is already done
               ### because they are loaded with the package
 
               # add default module name to the loaded list:
@@ -1159,6 +1159,9 @@ setMethod("simInit",
 
             # check the parameters supplied by the user
             checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE
+
+            # summary of the simulation: modules, deps, etc.
+            #data.frame()
 
             return(invisible(sim))
 })
@@ -1250,7 +1253,7 @@ setMethod("doEvent",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             # get next event
-            nextEvent <- simEvents(sim)[1, ] # extract the next event from queue
+            nextEvent <- simEvents(sim)[1L, ] # extract the next event from queue
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
              if(any(is.na(nextEvent))) {
@@ -1272,10 +1275,10 @@ setMethod("doEvent",
                 }
 
                 # now that it is run, without error, remove it from the queue
-                simEvents(sim) <- simEvents(sim)[-1,]
+                simEvents(sim) <- simEvents(sim)[-1L,]
 
                 # add to list of completed events
-                if(length(simCompleted(sim))==0) {
+                if(length(simCompleted(sim))) {
                   simCompleted(sim) <- setkey(nextEvent, "eventTime")
                 } else {
                   simCompleted(sim) <- setkey(rbindlist(list(simCompleted(sim), nextEvent)), "eventTime")
@@ -1334,7 +1337,7 @@ setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
-            if (length(eventTime)>0) {
+            if (length(eventTime)) {
               if (!is.na(eventTime)) {
                   newEvent <- as.data.table(list(eventTime=eventTime,
                                                 moduleName=moduleName,
@@ -1342,7 +1345,7 @@ setMethod("scheduleEvent",
 
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
-                if (length(simEvents(sim))==0) {
+                if (length(simEvents(sim))==0L) {
                   simEvents(sim) <- setkey(newEvent, "eventTime")
                 } else {
                   simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), "eventTime")

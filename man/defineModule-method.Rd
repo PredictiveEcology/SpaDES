@@ -16,6 +16,9 @@ defineModule(x)
 }
 \description{
 Specify a new module's metadata as well as object and package dependecies.
+Packages are loaded during this call.
+}
+\details{
 This is a constructor method for the \code{\link{moduleDeps}} class.
 }
 \examples{

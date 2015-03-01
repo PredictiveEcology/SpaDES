@@ -200,6 +200,8 @@ setMethod("addSimDep",
 #' Define a new module
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
+#' Packages are loaded during this call.
+#'
 #' This is a constructor method for the \code{\link{moduleDeps}} class.
 #'
 #' @param x   A named list containing the parameters used to construct a new
@@ -228,6 +230,7 @@ setGeneric("defineModule", function(x) {
 setMethod("defineModule",
           signature(x="list"),
           definition=function(x) {
+            loadPackages(x$reqdPkgs)
             m <- do.call(new, c("moduleDeps", x))
             addSimDep(m)
 })
