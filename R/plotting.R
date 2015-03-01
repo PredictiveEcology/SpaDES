@@ -106,7 +106,7 @@ setMethod("nlayers",
               return(x)
             }))
             return(y)
-          })
+})
 
 #' @export
 #' @rdname nlayers
@@ -114,7 +114,7 @@ setMethod("nlayers",
           signature="SpatialPolygons",
           definition=function(x) {
             return(1)
-          })
+})
 
 #' @export
 #' @rdname nlayers
@@ -122,7 +122,7 @@ setMethod("nlayers",
           signature="SpatialPoints",
           definition=function(x) {
             return(1)
-          })
+})
 
 ##############################################################
 #' Extract the layer names of Spatial Objects
@@ -145,7 +145,7 @@ setMethod("layerNames",
           signature="list",
           definition=function(object) {
             unlist(lapply(object, layerNames))
-          })
+})
 
 
 #' @export
@@ -154,7 +154,7 @@ setMethod("layerNames",
           signature="SpatialPoints",
           definition=function(object) {
             return("")
-          })
+})
 
 
 #' @export
@@ -163,7 +163,7 @@ setMethod("layerNames",
           signature="SpatialPolygons",
           definition=function(object) {
             return("")
-          })
+})
 
 
 #' @export
@@ -172,7 +172,7 @@ setMethod("layerNames",
           signature="Raster",
           definition=function(object) {
             names(object)
-          })
+})
 
 
 
@@ -197,7 +197,7 @@ setMethod("equalExtent",
                   sapply(extents, function(x) x@xmax)==extents[[1]]@xmax,
                   sapply(extents, function(x) x@ymin)==extents[[1]]@ymin,
                   sapply(extents, function(x) x@ymax)==extents[[1]]@ymax))
-          })
+})
 
 ###########################################################################
 #' The \code{arrangement} class
@@ -332,7 +332,7 @@ setMethod("arrangeViewports",
                        ds=ds,
                        names=names, extents = extents)
             return(out)
-          })
+})
 
 ######################################################
 #' Plot spatial grobs (using grid package)
@@ -464,7 +464,7 @@ setMethod("plotGrob",
                               cl="plotRast")
             if(draw) grid.draw(rastGrob)
             return(invisible(rastGrob))
-          })
+})
 
 #' @rdname plotGrob
 #' @export
@@ -480,7 +480,7 @@ setMethod("plotGrob",
                              cl="plotPoint")
             if(draw) grid.draw(pntGrob)
             return(invisible(pntGrob))
-          })
+})
 
 #' @rdname plotGrob
 #' @export
@@ -534,7 +534,7 @@ setMethod("plotGrob",
             cl="plotPoly")
             if(draw) grid.draw(polyGrob)
             return(invisible(polyGrob))
-          })
+})
 
 
 ##################
@@ -714,7 +714,7 @@ setMethod("drawArrows",
                           id=rep(1:length(from), 2),
                           arrow=arrow(length=unit(length, "inches"), ...))
             upViewport(0)
-          })
+})
 
 #' @rdname drawArrows-method
 #'
@@ -740,7 +740,7 @@ setMethod("drawArrows",
             if (axes) {grid.xaxis(); grid.yaxis()}
 
             upViewport(0)
-          })
+})
 
 
 ##############################################################
@@ -1181,7 +1181,7 @@ setMethod("Plot",
             } else {
               if(length(addTo)!=length(lN)) stop("addTo must be same length as objects to plot")
               if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-                if(!any(addTo %in% get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)@names)) {
+                if(!any(addTo %in% getSpaDES(paste0(".spadesArr", dev.cur()))@names)) {
                   stop(paste("The addTo layer(s) --", addTo, "-- do(es) not exist", collapse=""))
                 }
               }
@@ -1437,8 +1437,8 @@ setMethod("Plot",
               }
             }
 
-            assign(paste0(".spadesArr", dev.cur()), arr, envir=.spadesEnv)
-          })
+            assignSpaDES(paste0(".spadesArr", dev.cur()), arr)
+})
 
 
 
@@ -1597,7 +1597,7 @@ setMethod("makeColorMatrix",
               z <- matrix(cols[z], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=TRUE)
             }
             list(z=z, minz=minz, maxz=maxz, cols=cols, real=real)
-          })
+})
 
 #' Convert grid.locator units
 #'
@@ -1653,9 +1653,9 @@ clickValues <- function(n=1) {
   layNames <- sapply(objLay, function(x) x[2])
   for (i in 1:n) {
     if(!is.na(layNames[i])) {
-      coords$value[i] <- get(objNames[i], envir=.GlobalEnv)[[layNames[i]]][cellFromXY(get(objNames[i], envir=.GlobalEnv)[[layNames[i]]], coords[i, 2:3])]
+      coords$value[i] <- getGlobal(objNames[i])[[layNames[i]]][cellFromXY(getGlobal(objNames[i])[[layNames[i]]], coords[i, 2:3])]
     } else {
-      coords$value[i] <- get(objNames[i], envir=.GlobalEnv)[cellFromXY(get(objNames[i], envir=.GlobalEnv), coords[i, 2:3])]
+      coords$value[i] <- getGlobal(objNames[i])[cellFromXY(getGlobal(objNames[i]), coords[i, 2:3])]
     }
   }
   return(coords)
@@ -1684,9 +1684,9 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
-      Plot(get(objNames, envir=.GlobalEnv)[[layNames]], zoomExtent=zoom, new=TRUE)
+      Plot(getGlobal(objNames)[[layNames]], zoomExtent=zoom, new=TRUE)
     } else {
-      Plot(get(objNames, envir=.GlobalEnv), zoomExtent=zoom, new=TRUE)
+      Plot(getGlobal(objNames), zoomExtent=zoom, new=TRUE)
     }
 
     dev(devActive)
@@ -1702,7 +1702,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 clickCoordinates <- function(n=1) {
 
   dc <- dev.cur()
-  arr <- try(get(paste0(".spadesArr", dc), envir=.spadesEnv))
+  arr <- try(getSpaDES(paste0(".spadesArr", dc)))
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
                                       "Try new=TRUE, clearPlot() or change device to",
                                       "one that has objects from a call to Plot()"))
@@ -1792,9 +1792,9 @@ clickCoordinates <- function(n=1) {
   # Does it already exist on the plot device or not
   if(!newplot) { # Is this a replot
     if(length(objLayerName)==2 ) {# means it is in a raster
-      grobToPlot <- get(objLayerName[1], envir=.GlobalEnv)[[objLayerName[2]]]
+      grobToPlot <- getGlobal(objLayerName[1])[[objLayerName[2]]]
     } else {
-      grobToPlot <- get(grobNamesi, envir=.GlobalEnv)
+      grobToPlot <- getGlobal(grobNamesi)
     }
   } else { # Is this a new plot to be added or plotted
     if(length(objLayerName)==2) {
@@ -1815,7 +1815,7 @@ clickCoordinates <- function(n=1) {
 #    currentNames <- NULL
 #  } else {
 #    if(!new) {
-#      arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+#      arr <- getSpaDES(paste0(".spadesArr", dev.cur()))
 #    } else {
 #      arr <- new("arrangement"); arr@columns=0; arr@rows = 0
 #      try(remove(list=paste0(".spadesArr", dev.cur()), envir=.spadesEnv))
@@ -1833,7 +1833,7 @@ clickCoordinates <- function(n=1) {
 #               currentNames <- NULL
 #            } else {
               if(!new) {
-                arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+                arr <- getSpaDES(paste0(".spadesArr", dev.cur()))
                 #Extract current plot info
                 currentNames <- arr@names
                 #          if (!(length(.spadesEnv$.spadesArr4@names)==
@@ -1894,7 +1894,7 @@ setMethod(".makeExtsToPlot",
                # if(!is.null(toPlot[[x]]$coordinates$ratio)) {
                   extent(0,1,0,1)
                # }
-              })
+    })
             } else {
               if(is.null(zoomExtent)) {
                 extsToPlot <- rep(sapply(toPlot, extent), numLayers)
@@ -1913,7 +1913,7 @@ setMethod(".makeExtsToPlot",
 
   if(!newArr) {
     if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-      arr <- get(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)
+      arr <- getSpaDES(paste0(".spadesArr", dev.cur()))
       arr@names <- append(arr@names, names(extsToPlot))
       arr@extents <- append(arr@extents, extsToPlot)
       arr@isSpatialObjects <- append(arr@isSpatialObjects, isSpatialObjects)
@@ -1924,9 +1924,9 @@ setMethod(".makeExtsToPlot",
   }
   if (newArr) { # need a new arrangement
     if(exists(paste0(".spadesArr", dev.cur()), envir=.spadesEnv)) {
-      isSpatialObjects <- append(get(paste0(".spadesArr", dev.cur()),
-                                     envir=.spadesEnv)@isSpatialObjects,
-                                 isSpatialObjects)
+      isSpatialObjects <- append(
+        getSpaDES(paste0(".spadesArr", dev.cur()))@isSpatialObjects,
+        isSpatialObjects)
     }
     arr <- arrangeViewports(extsToPlot)
     arr@isSpatialObjects <- isSpatialObjects

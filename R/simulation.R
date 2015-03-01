@@ -1092,7 +1092,7 @@ setMethod("simInit",
             dotParams = append(dotParamsChar, dotParamsReal)
 
             # create new simDeps object
-            assign(".simDeps", new("simDeps"), envir=.spadesEnv)
+            assignSpaDES(".simDeps", new("simDeps"))
 
             # create new simList object
             sim <- new("simList", simtimes=list(current=times$start,
