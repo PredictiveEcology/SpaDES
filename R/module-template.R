@@ -35,17 +35,47 @@ setMethod("newModule",
             filename <- file.path(path, paste0(name, ".R"))
 
             cat("
-### MODULE: ", name, "
+### Specify module (and dependencies) definitions:
 ###
-### DESCRIPTION: enter a brief description of your module here
+### name:         ", name, "
 ###
+### description:  <provide module description>
 ###
-
-### load any required packages
-### (use `loadPackages`, or `library` directly)
-pkgs <- list(\"SpaDES\")
-loadPackages(pkgs)
-rm(pkgs)
+### keywords:     <provide module keywords>
+###
+### authors:      <author name(s) and email address(es)>
+###
+### spatialExtent: NA
+###
+### timeframe:    NA
+###
+### timestep:     NA
+###
+### translators:  NA
+###
+### citation:     NA
+###
+### reqdPkgs:     NA
+###
+### inputObjects: NA
+###
+### outputObjects: objectName: NA
+###                objectClass: NA
+###
+defineModule(list(
+  name=\"", name, "\",
+  description=\"insert module description here\",
+  keywords=c(\"insert key words here\"),
+  authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  spatialExtent=raster::extent(rep(NA_real_, 4)),
+  timeframe=as.POSIXlt(c(NA, NA)),
+  translators=list(),
+  timestep=NA_character_,
+  citation=list(),
+  reqdPkgs=list(),
+  inputObjects=data.frame(name=NA_character_, class=NA_character_),
+  outputObjects=data.frame(name=NA_character_, class=NA_character_)
+))
 
 ### event functions:
 #   - follow the naming convention `modulenameEventtype()`;
@@ -57,10 +87,6 @@ rm(pkgs)
 ### template event
 doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType==\"init\") {
-    ### check for module dependencies:
-    ### (use or NULL if no dependencies exist)
-    depends <- NULL
-
     ### check for object dependencies:
     ### (use `checkObject` or similar)
 

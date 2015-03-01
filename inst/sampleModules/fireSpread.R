@@ -1,16 +1,53 @@
 ###
-### MODULE: fireSpread
+### Specify module (and dependencies) definitions:
 ###
-### DESCRIPTION: simulate fire ignition and spread on a landscape
-###               - spread probability varies according to percent pine
-###               - stats re: fire size collected immediately after each burn event
+### name:         fireSpread
 ###
-
-### load any required packages
-### (use `loadPackages` or similar)
-pkgs <- list("SpaDES", "raster", "RColorBrewer", "methods")
-loadPackages(pkgs)
-rm(pkgs)
+### description:  Simulate fire ignition and spread on a landscape, where
+###               spread probability varies according to percent pine.
+###               Fire size statistics are collected immediately after each burn event.
+###               Requires a global simulation parameter `.stackName` be set.
+###
+### keywords:     fire; percolation model; spread algorithm
+###
+### authors:      Alex M. Chubaty <Alexander.Chubaty@NRCan.gc.ca>
+###               Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
+###               Steve Cumming <Steve.Cumming@sbf.ulaval.ca>
+###
+### spatialExtent: NA
+###
+### timeframe:    NA
+###
+### timestep:     NA
+###
+### translators:  NA
+###
+### citation:     NA
+###
+### reqdPkgs:     raster; RColorBrewer; tkrplot; RandomFields
+###
+### inputObjects: objectName: simGlobals(sim)$.stackName
+###                objectClass: RasterStack
+###
+### outputObjects: objectName: simGlobals(sim)$.stackName
+###                objectClass: RasterStack
+###
+defineModule(list(
+  name="randomLandscapes",
+  description="Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine. Fire size statistics are collected immediately after each burn event. Requires a global simulation parameter `.stackName` be set.",
+  keywords=c("random map", "random landscape"),
+  authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
+            person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre")),
+            person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca", role=c("aut"))),
+  spatialExtent=raster::extent(rep(NA_real_, 4)),
+  timeframe=as.POSIXlt(c(NA, NA)),
+  translators=list(),
+  timestep=NA_character_,
+  citation=list(),
+  reqdPkgs=list("methods", "raster", "RColorBrewer"),
+  inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack"),
+  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack")
+))
 
 ### event functions
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
@@ -24,9 +61,9 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     checkObject(simGlobals(sim)$.stackName, layer="habitatQuality")
 
     if (!exists(simGlobals(sim)$burnStats, envir=.GlobalEnv)) {
-      assign(simGlobals(sim)$burnStats, numeric(), envir=.GlobalEnv)
+      assignGlobal(simGlobals(sim)$burnStats, numeric())
     } else {
-      npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
+      npix <- getGlobal(simGlobals(sim)$burnStats)
       stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
 #       if (length(npix)>0) {
 #         message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
@@ -62,7 +99,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     ## stats scheduling done by burn event
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    maps <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+    maps <- getGlobal(simGlobals(sim)$.stackName)
     setColors(maps) <- list(DEM=terrain.colors(100),
                                 forestAge=brewer.pal(9,"BuGn"),
                                 forestCover=brewer.pal(8,"BrBG"),
@@ -70,14 +107,13 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
                                 percentPine=brewer.pal(9,"Greens"),
                                 Fires=c("white", rev(heat.colors(9)))
                             )
-    assign(simGlobals(sim)$.stackName, maps, envir=.GlobalEnv)
-    Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv), new=TRUE)
+    assignGlobal(simGlobals(sim)$.stackName, maps)
+    Plot(getGlobal(simGlobals(sim)$.stackName), new=TRUE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-
     Plot(get(simGlobals(sim)$.stackName)$Fires, new=FALSE)
 
     # schedule the next event
@@ -96,7 +132,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 fireSpreadInit <- function(sim) {
-  landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+  landscapes <- getGlobal(simGlobals(sim)$.stackName)
 
   ### create burn map that tracks fire locations over time
   Fires <- raster(extent(landscapes), ncol=ncol(landscapes), nrow=nrow(landscapes), vals=0)
@@ -105,7 +141,7 @@ fireSpreadInit <- function(sim) {
   Fires <- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
-  assign(simGlobals(sim)$.stackName, addLayer(landscapes,Fires), envir=.GlobalEnv)
+  assignGlobal(simGlobals(sim)$.stackName, addLayer(landscapes,Fires))
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
@@ -115,7 +151,7 @@ fireSpreadInit <- function(sim) {
 
 
 fireSpreadBurn <- function(sim) {
-  landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+  landscapes <- getGlobal(simGlobals(sim)$.stackName)
 
   Fires <- spread(landscapes[[1]],
                    loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
@@ -131,27 +167,17 @@ fireSpreadBurn <- function(sim) {
   setColors(Fires) <- c("white", rev(heat.colors(9)))
   landscapes$Fires <- Fires
 
-  assign(simGlobals(sim)$.stackName, landscapes, envir=.GlobalEnv)
+  assignGlobal(simGlobals(sim)$.stackName, landscapes)
 
   return(invisible(sim))
 }
 
 fireSpreadStats <- function(sim) {
-  npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
+  npix <- getGlobal(simGlobals(sim)$burnStats)
 
-  landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+  landscapes <- getGlobal(simGlobals(sim)$.stackName)
 
-  assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
+  assignGlobal("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))))
 
   return(invisible(sim))
 }
-
-# fireSpreadStats <- function(sim) {
-#   npix <- get(simGlobals(sim)$burnStats, envir=.GlobalEnv)
-#
-#   landscapes <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
-#
-#   assign("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))), envir=.GlobalEnv)
-#
-#   return(sim)
-# }

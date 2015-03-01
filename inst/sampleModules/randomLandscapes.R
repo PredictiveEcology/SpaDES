@@ -25,6 +25,7 @@
 ### reqdPkgs:     raster; RColorBrewer; tkrplot; RandomFields
 ###
 ### inputObjects: NA
+###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
@@ -47,6 +48,14 @@ defineModule(list(
 ### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
+    ### check for module dependencies:
+    ### (use NULL if no dependencies exist)
+    depends <- NULL
+
+    ### check for object dependencies:
+    ### (use `checkObject` or similar)
+
+
     # if a required module isn't loaded yet,
     # reschedule this module init for later
     if (reloadModuleLater(sim, depends)) {
@@ -59,7 +68,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(get(simGlobals(sim)$.stackName, envir=.GlobalEnv))
+    Plot(getGlobal(simGlobals(sim)$.stackName))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
@@ -114,7 +123,7 @@ randomLandscapesInit <- function(sim) {
                               forestCover=brewer.pal(8,"BrBG"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
-  assign(simGlobals(sim)$.stackName, mapStack, envir=.GlobalEnv)
+  assignGlobal(simGlobals(sim)$.stackName, mapStack)
 
   # last thing to do is add module name to the loaded list
   simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")

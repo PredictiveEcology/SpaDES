@@ -1,17 +1,49 @@
 ###
-### MODULE: caribouMovement
+### Specify module (and dependencies) definitions:
 ###
-### DESCRIPTION: simulate caribou movement via correlated random walk
-###               - requires a RasterStack object whose name is specified
-###                 by `simGlobals(sim)$.stackName`, containing a RasterLayer
-###                 named `habitatQuality`
+### name:         caribouMovement
 ###
-
-### load any required packages
-### (use `loadPackages`, or `library` directly)
-pkgs <- list("SpaDES", "grid", "raster", "sp")
-loadPackages(pkgs)
-rm(pkgs)
+### description:  Simulate caribou movement via correlated random walk.
+###               Requires a RasterStack object whose name is specified by
+###               `simGlobals(sim)$.stackName`, containing a RasterLayer
+###               named `habitatQuality`.
+###
+### keywords:     caribou; individual based movement model
+###
+### authors:      Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
+###
+### spatialExtent: NA
+###
+### timeframe:    NA
+###
+### timestep:     NA
+###
+### translators:  NA
+###
+### citation:     NA
+###
+### reqdPkgs:     grid; raster; sp
+###
+### inputObjects: objectName: simGlobals(sim)$.stackName
+###                objectClass: RasterStack
+###
+### outputObjects: objectName: simGlobals(sim)$.stackName
+###                objectClass: RasterStack
+###
+defineModule(list(
+  name="caribouMovement",
+  description="simulate caribou movement via correlated random walk. Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.",
+  keywords=c("caribou", "individual based movement model"),
+  authors=c(person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
+  spatialExtent=raster::extent(rep(NA_real_, 4)),
+  timeframe=as.POSIXlt(c(NA, NA)),
+  translators=list(),
+  timestep=NA_character_,
+  citation=list(),
+  reqdPkgs=list("grid", "raster", "sp"),
+  inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack"),
+  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack")
+))
 
 ### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
@@ -71,7 +103,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 caribouMovementInit <- function(sim) {
-  landscape <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+  landscape <- getGlobal(simGlobals(sim)$.stackName)
 
   yrange <- c(ymin(landscape), ymax(landscape))
   xrange <- c(xmin(landscape), xmax(landscape))
@@ -103,7 +135,7 @@ caribouMovementInit <- function(sim) {
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
 
-  landscape <- get(simGlobals(sim)$.stackName, envir=.GlobalEnv)
+  landscape <- getGlobal(simGlobals(sim)$.stackName)
 
   caribou <<- crop(caribou, landscape)
   if(length(caribou)==0) stop("All agents are off map")
