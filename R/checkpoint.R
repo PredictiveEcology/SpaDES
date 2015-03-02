@@ -1,5 +1,5 @@
 #' @export
-.spadesEnv <- new.env(parent = baseenv())
+.spadesEnv <- new.env(parent = emptyenv())
 
 ##############################################################
 #' Simulation checkpoints.
