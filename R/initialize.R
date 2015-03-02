@@ -119,7 +119,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
     warning(paste("assuming square pixels with resolution =",spacing[1]))
     spacing <- spacing[1]
   }
-  tempmask <- make.mask(nx = nx, ny = ny, spacing = spacing)
+  tempmask <- make.mask(nx=nx, ny=ny, spacing=spacing)
 
   outMap <- list()
   r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax), res=res(ras)*speedup)

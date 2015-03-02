@@ -194,7 +194,7 @@ setMethod("addSimDep",
             } else {
               deps <- new("simDeps", dependencies=list(x))
             }
-            assign(".simDeps", deps, envir=.spadesEnv)
+            assignSpaDES(".simDeps", deps)
 })
 
 #' Define a new module
@@ -234,3 +234,10 @@ setMethod("defineModule",
             m <- do.call(new, c("moduleDeps", x))
             addSimDep(m)
 })
+
+#########
+
+# igraph::topological.sort should sort deps, which can be used to get a module load order
+#
+
+# getSpaDES(".simDeps")

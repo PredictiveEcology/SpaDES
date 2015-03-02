@@ -1094,11 +1094,12 @@ setMethod("simInit",
             # create new simDeps object
             assignSpaDES(".simDeps", new("simDeps"))
 
-            # create new simList object
+            # create new simList object in .spadesEnv
+            #  with active binding in .GlobalEnv to the named
+            #  sim object specified by the user
             sim <- new("simList", simtimes=list(current=times$start,
                                                 start=times$start,
                                                 stop=times$stop))
-
             simModules(sim) <- modules[!sapply(modules, is.null)]
             simParams(sim) <- params
 
