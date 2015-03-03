@@ -28,6 +28,7 @@
 #' @seealso \code{\link{spades}}.
 #'
 #' @include module-dependencies.R
+#' @include simList.R
 #' @export
 #' @docType methods
 #' @rdname simInit-method

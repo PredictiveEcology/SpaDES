@@ -1,7 +1,9 @@
-### Allow gg and histogram S3 classes to be used with Plot, an S4 function
-#' @import ggplot2
+### Allow gg S3 class to be used with Plot, an S4 function
+#' @importFrom ggplot2 gg
+#'
 setOldClass("gg")
 
+### Allow histogram S3 class to be used with Plot, an S4 function
 setOldClass("histogram")
 
 ################################################

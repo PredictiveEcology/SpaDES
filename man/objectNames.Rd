@@ -18,7 +18,13 @@ searched for among the arguments. Defaults to \code{spadesPlotObjects}}
 \item{argName}{character vector, length 1, or \code{NULL}, indicating if the
 arguments to select have a name, no name (empty string), or do not use name (NULL).}
 }
+\value{
+\code{NULL}. This function is invoked for its side effects.
+}
 \description{
 This is primarily used from Plot.
+}
+\seealso{
+\code{\link{prevArg}}
 }
 

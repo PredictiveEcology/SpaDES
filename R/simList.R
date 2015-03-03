@@ -35,6 +35,7 @@
 #'
 #' @seealso \code{\link{data.table}}.
 #'
+#' @include module-dependencies.R
 #' @rdname simList-class
 #' @import data.table
 #' @exportClass simList
@@ -136,7 +137,7 @@ setMethod("show",
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
-          })
+})
 
 ################################################################################
 #' Get and set the list of modules to be loaded for a simulation.
@@ -176,14 +177,14 @@ setMethod("simModules",
           signature="simList",
           definition=function(object) {
             return(object@modules)
-          })
+})
 
 #' @export
 #' @rdname simModules-accessor-methods
 setGeneric("simModules<-",
            function(object, value) {
              standardGeneric("simModules<-")
-           })
+})
 
 #' @name simModules<-
 #' @rdname simModules-accessor-methods
@@ -193,7 +194,7 @@ setReplaceMethod("simModules",
                    object@modules <- value
                    validObject(object)
                    return(object)
-                 })
+ })
 
 ################################################################################
 #' Get and set the modules loaded for the simulation.
@@ -234,14 +235,14 @@ setMethod("simModulesLoaded",
           signature="simList",
           definition=function(object) {
             return(object@.loaded$modules)
-          })
+})
 
 #' @export
 #' @rdname simModulesLoaded-accessor-methods
 setGeneric("simModulesLoaded<-",
            function(object, value) {
              standardGeneric("simModulesLoaded<-")
-           })
+})
 
 #' @name simModulesLoaded<-
 #' @aliases simModulesLoaded<-,simList-method
@@ -252,7 +253,7 @@ setReplaceMethod("simModulesLoaded",
                    object@.loaded$modules <- value
                    validObject(object)
                    return(object)
-                 })
+})
 
 ################################################################################
 #' Get and set the objects loaded for the simulation.
@@ -293,14 +294,14 @@ setMethod("simObjectsLoaded",
           signature="simList",
           definition=function(object) {
             return(object@.loaded$objects)
-          })
+})
 
 #' @export
 #' @rdname simObjectsLoaded-accessor-methods
 setGeneric("simObjectsLoaded<-",
            function(object, value) {
              standardGeneric("simObjectsLoaded<-")
-           })
+})
 
 #' @name simObjectsLoaded<-
 #' @aliases simObjectsLoaded<-,simList-method
@@ -311,7 +312,7 @@ setReplaceMethod("simObjectsLoaded",
                    object@.loaded$objects <- value
                    validObject(object)
                    return(object)
-                 })
+})
 
 
 ################################################################################
@@ -384,7 +385,7 @@ setReplaceMethod("simParams",
 #'
 #' @export
 #' @docType methods
-#' @rdname simCheckpointFile-accessor-methods
+#' @rdname simParams-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
 #'          \code{\link{simGlobals}} for accessing the global simulation parameters;
@@ -404,7 +405,7 @@ setGeneric("simCheckpointFile", function(object) {
   standardGeneric("simCheckpointFile")
 })
 
-#' @rdname simCheckpointFile-accessor-methods
+#' @rdname simParams-accessor-methods
 setMethod("simCheckpointFile",
           signature="simList",
           definition=function(object) {
@@ -412,7 +413,7 @@ setMethod("simCheckpointFile",
 })
 
 #' @export
-#' @rdname simCheckpointFile-accessor-methods
+#' @rdname simParams-accessor-methods
 setGeneric("simCheckpointFile<-",
            function(object, value) {
              standardGeneric("simCheckpointFile<-")
@@ -420,7 +421,7 @@ setGeneric("simCheckpointFile<-",
 
 #' @name simCheckpointFile<-
 #' @aliases simCheckpointFile<-,simList-method
-#' @rdname simCheckpointFile-accessor-methods
+#' @rdname simParams-accessor-methods
 setReplaceMethod("simCheckpointFile",
                  signature="simList",
                  function(object, value) {
@@ -440,7 +441,7 @@ setReplaceMethod("simCheckpointFile",
 #'
 #' @export
 #' @docType methods
-#' @rdname simCheckpointInterval-accessor-methods
+#' @rdname simParams-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simGlobals}} for accessing the global simulation parameters;
@@ -460,7 +461,7 @@ setGeneric("simCheckpointInterval", function(object) {
   standardGeneric("simCheckpointInterval")
 })
 
-#' @rdname simCheckpointInterval-accessor-methods
+#' @rdname simParams-accessor-methods
 setMethod("simCheckpointInterval",
           signature="simList",
           definition=function(object) {
@@ -468,7 +469,7 @@ setMethod("simCheckpointInterval",
 })
 
 #' @export
-#' @rdname simCheckpointInterval-accessor-methods
+#' @rdname simParams-accessor-methods
 setGeneric("simCheckpointInterval<-",
            function(object, value) {
              standardGeneric("simCheckpointInterval<-")
@@ -476,7 +477,7 @@ setGeneric("simCheckpointInterval<-",
 
 #' @name simCheckpointInterval<-
 #' @aliases simCheckpointInterval<-,simList-method
-#' @rdname simCheckpointInterval-accessor-methods
+#' @rdname simParams-accessor-methods
 setReplaceMethod("simCheckpointInterval",
                  signature="simList",
                  function(object, value) {
@@ -498,7 +499,7 @@ setReplaceMethod("simCheckpointInterval",
 #'
 #' @export
 #' @docType methods
-#' @rdname simFileList-accessor-methods
+#' @rdname simParams-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
@@ -520,7 +521,7 @@ setGeneric("simFileList", function(object) {
   standardGeneric("simFileList")
 })
 
-#' @rdname simFileList-accessor-methods
+#' @rdname simParams-accessor-methods
 setMethod("simFileList",
           signature="simList",
           definition=function(object) {
@@ -528,7 +529,7 @@ setMethod("simFileList",
 })
 
 #' @export
-#' @rdname simFileList-accessor-methods
+#' @rdname simParams-accessor-methods
 setGeneric("simFileList<-",
            function(object, value) {
              standardGeneric("simFileList<-")
@@ -536,7 +537,7 @@ setGeneric("simFileList<-",
 
 #' @name simFileList<-
 #' @aliases simFileList<-,simList-method
-#' @rdname simFileList-accessor-methods
+#' @rdname simParams-accessor-methods
 setReplaceMethod("simFileList",
                  signature="simList",
                  function(object, value) {
@@ -558,7 +559,7 @@ setReplaceMethod("simFileList",
 #'
 #' @export
 #' @docType methods
-#' @rdname simGlobals-accessor-methods
+#' @rdname simParams-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
@@ -579,7 +580,7 @@ setGeneric("simGlobals", function(object) {
   standardGeneric("simGlobals")
 })
 
-#' @rdname simGlobals-accessor-methods
+#' @rdname simParams-accessor-methods
 setMethod("simGlobals",
           signature="simList",
           definition=function(object) {
@@ -595,7 +596,7 @@ setGeneric("simGlobals<-",
 
 #' @name simGlobals<-
 #' @aliases simGlobals<-,simList-method
-#' @rdname simGlobals-accessor-methods
+#' @rdname simParams-accessor-methods
 setReplaceMethod("simGlobals",
                  signature="simList",
                  function(object, value) {
@@ -615,7 +616,7 @@ setReplaceMethod("simGlobals",
 #'
 #' @export
 #' @docType methods
-#' @rdname simGlobalsOutputPath-accessor-methods
+#' @rdname simParams-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
@@ -636,7 +637,7 @@ setGeneric("simGlobalsOutputPath", function(object) {
   standardGeneric("simGlobalsOutputPath")
 })
 
-#' @rdname simGlobalsOutputPath-accessor-methods
+#' @rdname simParams-accessor-methods
 setMethod("simGlobalsOutputPath",
           signature="simList",
           definition=function(object) {
@@ -644,7 +645,7 @@ setMethod("simGlobalsOutputPath",
 })
 
 #' @export
-#' @rdname simGlobalsOutputPath-accessor-methods
+#' @rdname simParams-accessor-methods
 setGeneric("simGlobalsOutputPath<-",
            function(object, value) {
              standardGeneric("simGlobalsOutputPath<-")
@@ -652,7 +653,7 @@ setGeneric("simGlobalsOutputPath<-",
 
 #' @name simGlobalsOutputPath<-
 #' @aliases simGlobalsOutputPath<-,simList-method
-#' @rdname simGlobalsOutputPath-accessor-methods
+#' @rdname simParams-accessor-methods
 setReplaceMethod("simGlobalsOutputPath",
                  signature="simList",
                  function(object, value) {
@@ -734,7 +735,7 @@ setReplaceMethod("simTimes",
 #'
 #' @export
 #' @docType methods
-#' @rdname simCurrentTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
@@ -756,7 +757,7 @@ setGeneric("simCurrentTime", function(object) {
   standardGeneric("simCurrentTime")
 })
 
-#' @rdname simCurrentTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setMethod("simCurrentTime",
           signature="simList",
           definition=function(object) {
@@ -764,7 +765,7 @@ setMethod("simCurrentTime",
 })
 
 #' @export
-#' @rdname simCurrentTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setGeneric("simCurrentTime<-",
            function(object, value) {
              standardGeneric("simCurrentTime<-")
@@ -772,7 +773,7 @@ setGeneric("simCurrentTime<-",
 
 #' @name simCurrentTime<-
 #' @aliases simCurrentTime<-,simList-method
-#' @rdname simCurrentTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setReplaceMethod("simCurrentTime",
                  signature="simList",
                  function(object, value) {
@@ -792,7 +793,7 @@ setReplaceMethod("simCurrentTime",
 #'
 #' @export
 #' @docType methods
-#' @rdname simStartTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
@@ -814,7 +815,7 @@ setGeneric("simStartTime", function(object) {
   standardGeneric("simStartTime")
 })
 
-#' @rdname simStartTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setMethod("simStartTime",
           signature="simList",
           definition=function(object) {
@@ -822,7 +823,7 @@ setMethod("simStartTime",
 })
 
 #' @export
-#' @rdname simStartTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setGeneric("simStartTime<-",
            function(object, value) {
              standardGeneric("simStartTime<-")
@@ -830,7 +831,7 @@ setGeneric("simStartTime<-",
 
 #' @name simStartTime<-
 #' @aliases simStartTime<-,simList-method
-#' @rdname simStartTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setReplaceMethod("simStartTime",
                  signature="simList",
                  function(object, value) {
@@ -850,7 +851,7 @@ setReplaceMethod("simStartTime",
 #'
 #' @export
 #' @docType methods
-#' @rdname simStopTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 #'
 #' @seealso \code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
 #'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
@@ -872,7 +873,7 @@ setGeneric("simStopTime", function(object) {
   standardGeneric("simStopTime")
 })
 
-#' @rdname simStopTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setMethod("simStopTime",
           signature="simList",
           definition=function(object) {
@@ -880,7 +881,7 @@ setMethod("simStopTime",
 })
 
 #' @export
-#' @rdname simStopTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setGeneric("simStopTime<-",
            function(object, value) {
              standardGeneric("simStopTime<-")
@@ -888,7 +889,7 @@ setGeneric("simStopTime<-",
 
 #' @name simStopTime<-
 #' @aliases simStopTime<-,simList-method
-#' @rdname simStopTime-accessor-methods
+#' @rdname simTimes-accessor-methods
 setReplaceMethod("simStopTime",
                  signature="simList",
                  function(object, value) {
@@ -962,7 +963,7 @@ setReplaceMethod("simEvents",
 ################################################################################
 #' Get and set the list of completed simulation events.
 #'
-#' Upcaming (scheduled) events are stored in the events slot, accessible via
+#' Upcoming (scheduled) events are stored in the events slot, accessible via
 #' \code{simEvents}.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
@@ -1017,6 +1018,68 @@ setReplaceMethod("simCompleted",
                  signature="simList",
                  function(object, value) {
                    object@completed <- value
+                   validObject(object)
+                   return(object)
+})
+
+
+#' Get and set simulation dependencies
+#'
+#' Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
+#'
+#' @param sim A \code{\link{simList}} object.
+#'
+#' @param x   A \code{\link{moduleDeps}} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simDepends-accessor-methods
+#'
+#' @seealso   moduleDeps
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#'   simDepends(sim, x)
+#' }
+#'
+setGeneric("simDepends", function(sim, x) {
+  standardGeneric("simDepends")
+})
+
+#' @rdname simDepends-accessor-methods
+#'
+setMethod("simDepends",
+          signature(x="moduleDeps"),
+          definition=function(sim, x) {
+            deps <- getSimDeps(sim)
+            deps@dependencies <- append(deps@dependencies, x)
+            deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
+            sim <- setSimDeps(sim)
+            return(sim)
+})
+
+#' @export
+#' @rdname simDepends-accessor-methods
+setGeneric("simDepends<-",
+           function(object, add, value) {
+             standardGeneric("simDepends<-")
+})
+
+#' @name simDepends<-
+#' @aliases simDepends<-,simList-method
+#' @rdname simDepends-accessor-methods
+setReplaceMethod("simDepends",
+                 signature("simList", "logical"),
+                 function(object, add=FALSE, value) {
+                   if (add) {
+                     tmp <- append(object@depends, value)
+                     tmp <- object@depends[-which(duplicated(object@depends))]
+                     object@depends <- tmp
+                   } else {
+                     object@depends <- value
+                   }
                    validObject(object)
                    return(object)
 })

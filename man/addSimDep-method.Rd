@@ -3,14 +3,16 @@
 \docType{methods}
 \name{addSimDep}
 \alias{addSimDep}
-\alias{addSimDep,moduleDeps-method}
+\alias{addSimDep,ANY,moduleDeps-method}
 \title{Add simulation dependencies}
 \usage{
-addSimDep(x)
+addSimDep(sim, x)
 
-\S4method{addSimDep}{moduleDeps}(x)
+\S4method{addSimDep}{ANY,moduleDeps}(sim, x)
 }
 \arguments{
+\item{sim}{A \code{\link{simList}} object.}
+
 \item{x}{A \code{\link{moduleDeps}} object.}
 }
 \description{
@@ -18,7 +20,7 @@ Adds a \code{moduleDeps} object to the simulation dependency list stored in \cod
 }
 \examples{
 \dontrun{
-  addSimDep(...)
+  addSimDep(sim, x)
 }
 }
 \author{

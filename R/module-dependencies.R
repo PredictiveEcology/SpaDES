@@ -120,54 +120,18 @@ setClass("simDeps",
          }
 )
 
-#' Add simulation dependencies
-#'
-#' Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
-#'
-#' @param sim A \code{\link{simList}} object.
-#'
-#' @param x   A \code{\link{moduleDeps}} object.
-#'
-#' @export
-#' @docType methods
-#' @rdname addSimDep-method
-#'
-#' @seealso   moduleDeps
-#'
-#' @author Alex Chubaty
-#'
-#' @examples
-#' \dontrun{
-#'   addSimDep(sim, x)
-#' }
-#'
-setGeneric("addSimDep", function(sim, x) {
-  standardGeneric("addSimDep")
-})
-
-#' @rdname addSimDep-method
-#'
-setMethod("addSimDep",
-          signature(x="moduleDeps"),
-          definition=function(sim, x) {
-              deps <- getSimDeps(sim)
-              deps@dependencies <- append(deps@dependencies, x)
-              deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
-              sim <- setSimDeps(sim)
-              return(sim)
-})
-
-#' Define a new module
+#' Define a new module.
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
 #' Packages are loaded during this call.
-#'
-#' This is a constructor method for the \code{\link{moduleDeps}} class.
 #'
 #' @param x   A named list containing the parameters used to construct a new
 #'            \code{moduleDeps} object.
 #'
 #' @inheritParams moduleDeps-class
+#'
+#' @return This is a closure that serves as a wrapper for adding simulation
+#'          dependencies via \code{simDepends(sim, add=TRUE)<-}.
 #'
 #' @export
 #' @docType methods
@@ -192,7 +156,8 @@ setMethod("defineModule",
           definition=function(x) {
             function(sim) {
               loadPackages(x$reqdPkgs)
-              addSimDep(sim, do.call(new, c("moduleDeps", x)))
+              simDepends(sim, add=TRUE, do.call(new, c("moduleDeps", x)))
+              return(sim)
             }
 })
 

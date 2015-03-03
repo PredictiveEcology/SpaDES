@@ -42,9 +42,11 @@ and use \code{data.table} instead of \code{data.frame} to implement the event
 queue (because it is much faster).
 }
 \examples{
-\dontrun{mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-modules=list("habitat", "caribou"), path="/path/to/my/modules/")}
-\dontrun{mySim}
+\dontrun{
+ mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+ modules=list("habitat", "caribou"), path="/path/to/my/modules/")
+ mySim
+}
 }
 \author{
 Alex Chubaty

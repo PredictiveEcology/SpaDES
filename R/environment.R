@@ -120,7 +120,7 @@ setMethod("getSpaDES",
 ################################################################################
 #' Get the arguments from a previously made function call
 #'
-#' @params calledFrom   Name of previounly called function.
+#' @param calledFrom   Name of previounly called function.
 #'
 #' @return List contaning the frame called from and arguments previously passed
 #'         to the function \code{calledFrom}.
