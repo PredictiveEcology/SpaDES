@@ -755,6 +755,10 @@ setMethod("drawArrows",
 #' @param argName character vector, length 1, or \code{NULL}, indicating if the
 #' arguments to select have a name, no name (empty string), or do not use name (NULL).
 #'
+#' @return \code{NULL}. This function is invoked for its side effects.
+#'
+#' @seealso \code{\link{prevArg}}
+#'
 #' @importFrom methods is
 #' @export
 #' @docType methods
@@ -762,23 +766,17 @@ setMethod("drawArrows",
 .objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
 
-
-  scalls <- sys.calls()
-  # First extract from the sys.calls only the function "calledFrom"
-  frameCalledFrom <- which(sapply(scalls, function(x) {
-    grepl(x, pattern=paste0("^", calledFrom))[1])
-  })
-  callArgs <- as.list(scalls[frameCalledFrom][[1]])[-1]
+  prev <- prevArgs(calledFrom)
 
   # Second, match argument names, via argName, if argName is not null and names exist
   callNamedArgs <- if(!is.null(argName)) {
-    if(!is.null(names(callArgs))) {
-      callArgs[names(callArgs)==argName]
+    if(!is.null(names(prev$callArgs))) {
+      prev$callArgs[names(prev$callArgs)==argName]
     } else {
-      callArgs
+      prev$callArgs
     }
   } else {
-    callArgs
+    prev$callArgs
   }
   callNamedArgs <- callNamedArgs[sapply(callNamedArgs, function(x) x!="...")]
 
@@ -788,7 +786,7 @@ setMethod("drawArrows",
   objs <- vector("list", length(callNamedArgs))
   first <- sapply(as.character(callNamedArgs), function(x)
     strsplit(split="[[:punct:]]", x)[[1]][1])
-  firstSO <- sapply(first, function(y) is(get(y, sys.frame(frameCalledFrom-1)), argClass))
+  firstSO <- sapply(first, function(y) is(get(y, sys.frame(prev$frameCalledFrom-1)), argClass))
   if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
   # cut short if all are dealt with
   if(all(!sapply(objs, is.null))) return(objs)
@@ -807,17 +805,17 @@ setMethod("drawArrows",
   asChar <- lapply(callNamedArgs, function(x) as.character(x))
   isGet <- sapply(asChar, function(x) x[1]=="get")
   if(any(isGet)) {
-    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], sys.frame(frameCalledFrom-1)),
+    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], sys.frame(prev$frameCalledFrom-1)),
                                                          silent=TRUE), argClass))
     if(any(isGetTxt)) {
       secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
       thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2]),
-                                                                   envir=sys.frame(frameCalledFrom-1)))
+                                                                   envir=sys.frame(prev$frameCalledFrom-1)))
       objs[isGet][isGetTxt] <- secondSO
       objs[isGet][!isGetTxt] <- thirdSO
     } else {
       thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2]),
-                                                        envir=sys.frame(frameCalledFrom-1)))
+                                                        envir=sys.frame(prev$frameCalledFrom-1)))
       objs[isGet] <- thirdSO
     }
   }
@@ -837,11 +835,11 @@ setMethod("drawArrows",
         if(grepl(pattern=", ", w)) {
           insideGetSO <- sapply(strsplit(split="[, = ]", w)[[1]], function(y)
             is(try(get(eval(parse(text=y),
-                            envir=sys.frame(frameCalledFrom-1))), silent=TRUE), argClass))
+                            envir=sys.frame(prev$frameCalledFrom-1))), silent=TRUE), argClass))
           fourthSO <- sapply(names(insideGetSO)[which(insideGetSO)], function(x)
-            eval(parse(text=x), envir=sys.frame(frameCalledFrom-1)))
+            eval(parse(text=x), envir=sys.frame(prev$frameCalledFrom-1)))
         } else {
-          fourthSO <- eval(parse(text=w), envir=sys.frame(frameCalledFrom-1))
+          fourthSO <- eval(parse(text=w), envir=sys.frame(prev$frameCalledFrom-1))
         }})
       objs[!isGet][sapply(isGetInner, any)] <- fourthSO
     }
