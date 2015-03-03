@@ -120,50 +120,13 @@ setClass("simDeps",
          }
 )
 
-#' Get simulation dependencies
-#'
-#' Get the simulation dependency list stored in \code{.spadesEnv}.
-#'
-#' @param x placeholder only. not used.
-#'
-#' @include environment.R
-#'
-#' @export
-#' @docType methods
-#' @rdname getSimDeps-method
-#'
-#' @seealso moduleDeps
-#'
-#' @author Alex Chubaty
-#'
-#' @examples
-#' \dontrun{
-#'   getSimDeps()
-#' }
-#'
-setGeneric("getSimDeps", function(x) {
-  standardGeneric("getSimDeps")
-})
-
-#' @rdname getSimDeps-method
-#'
-setMethod("getSimDeps",
-          signature("missing"),
-          definition=function() {
-            if( (exists(".spadesEnv")) && (exists(".simDeps", envir=.spadesEnv)) ){
-              deps <- get(".simDeps", envir=.spadesEnv)
-            } else {
-              message("No simulation dependency object exists.")
-            }
-})
-
 #' Add simulation dependencies
 #'
 #' Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
 #'
-#' @param x   A \code{\link{moduleDeps}} object.
+#' @param sim A \code{\link{simList}} object.
 #'
-#' @include environment.R
+#' @param x   A \code{\link{moduleDeps}} object.
 #'
 #' @export
 #' @docType methods
@@ -175,10 +138,10 @@ setMethod("getSimDeps",
 #'
 #' @examples
 #' \dontrun{
-#'   addSimDep(...)
+#'   addSimDep(sim, x)
 #' }
 #'
-setGeneric("addSimDep", function(x) {
+setGeneric("addSimDep", function(sim, x) {
   standardGeneric("addSimDep")
 })
 
@@ -186,15 +149,12 @@ setGeneric("addSimDep", function(x) {
 #'
 setMethod("addSimDep",
           signature(x="moduleDeps"),
-          definition=function(x) {
-            if(exists(".simDeps", envir=.spadesEnv)) {
-              deps <- getSimDeps()
+          definition=function(sim, x) {
+              deps <- getSimDeps(sim)
               deps@dependencies <- append(deps@dependencies, x)
               deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
-            } else {
-              deps <- new("simDeps", dependencies=list(x))
-            }
-            assignSpaDES(".simDeps", deps)
+              sim <- setSimDeps(sim)
+              return(sim)
 })
 
 #' Define a new module
@@ -230,9 +190,10 @@ setGeneric("defineModule", function(x) {
 setMethod("defineModule",
           signature(x="list"),
           definition=function(x) {
-            loadPackages(x$reqdPkgs)
-            m <- do.call(new, c("moduleDeps", x))
-            addSimDep(m)
+            function(sim) {
+              loadPackages(x$reqdPkgs)
+              addSimDep(sim, do.call(new, c("moduleDeps", x)))
+            }
 })
 
 #########
