@@ -765,8 +765,9 @@ setMethod("drawArrows",
 
   scalls <- sys.calls()
   # First extract from the sys.calls only the function "calledFrom"
-  frameCalledFrom<-which(sapply(scalls, function(x)
-    grepl(x, pattern=paste0("^", calledFrom))[1]))
+  frameCalledFrom <- which(sapply(scalls, function(x) {
+    grepl(x, pattern=paste0("^", calledFrom))[1])
+  })
   callArgs <- as.list(scalls[frameCalledFrom][[1]])[-1]
 
   # Second, match argument names, via argName, if argName is not null and names exist
