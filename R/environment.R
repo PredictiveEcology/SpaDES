@@ -4,7 +4,7 @@
 #'
 #' @rdname spadesEnv
 #'
-.spadesEnv <- new.env(parent=emptyEnv())
+.spadesEnv <- new.env(parent=emptyenv())
 
 #' Assign to the global environment
 #'
