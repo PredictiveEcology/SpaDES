@@ -1025,11 +1025,7 @@ setReplaceMethod("simCompleted",
 
 #' Get and set simulation dependencies
 #'
-#' Adds a \code{moduleDeps} object to the simulation dependency list stored in \code{.spadesEnv}.
-#'
 #' @param sim A \code{\link{simList}} object.
-#'
-#' @param x   A \code{\link{moduleDeps}} object.
 #'
 #' @export
 #' @docType methods
@@ -1041,10 +1037,10 @@ setReplaceMethod("simCompleted",
 #'
 #' @examples
 #' \dontrun{
-#'   simDepends(sim, x)
+#'   simDepends(sim)
 #' }
 #'
-setGeneric("simDepends", function(sim, x) {
+setGeneric("simDepends", function(sim) {
   standardGeneric("simDepends")
 })
 
@@ -1052,18 +1048,14 @@ setGeneric("simDepends", function(sim, x) {
 #'
 setMethod("simDepends",
           signature(x="moduleDeps"),
-          definition=function(sim, x) {
-            deps <- getSimDeps(sim)
-            deps@dependencies <- append(deps@dependencies, x)
-            deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
-            sim <- setSimDeps(sim)
-            return(sim)
+          definition=function(sim) {
+            return(object@depends)
 })
 
 #' @export
 #' @rdname simDepends-accessor-methods
 setGeneric("simDepends<-",
-           function(object, add, value) {
+           function(object, value) {
              standardGeneric("simDepends<-")
 })
 
@@ -1071,15 +1063,45 @@ setGeneric("simDepends<-",
 #' @aliases simDepends<-,simList-method
 #' @rdname simDepends-accessor-methods
 setReplaceMethod("simDepends",
-                 signature("simList", "logical"),
-                 function(object, add=FALSE, value) {
-                   if (add) {
-                     tmp <- append(object@depends, value)
-                     tmp <- object@depends[-which(duplicated(object@depends))]
-                     object@depends <- tmp
-                   } else {
-                     object@depends <- value
-                   }
+                 signature("simList",),
+                 function(object, value) {
+                   object@depends <- value
                    validObject(object)
                    return(object)
+})
+
+################################################################################
+#' Add simulation dependencies
+#'
+#' Adds a \code{moduleDeps} object to the simulation dependency list.
+#'
+#' @param sim A \code{\link{simList}} object.
+#'
+#' @param x   A named list containing the parameters used to construct a new
+#'            \code{moduleDeps} object.
+#'
+#' @inheritParams moduleDeps-class
+#'
+#' @return A \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname addSimDep-method
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("addSimDep", function(sim, x) {
+  standardGeneric("addSimDep")
+})
+
+#' @rdname addSimDep-method
+#'
+setMethod("addSimDep",
+          signature(sim="simList", x="moduleDeps"),
+          definition=function(sim, x) {
+            deps <- simDepends(sim)
+            deps <- append(deps, x)
+            deps <- deps[-which(duplicated(deps))]
+            simDepends(sim) <- deps
+            return(sim)
 })

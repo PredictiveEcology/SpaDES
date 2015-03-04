@@ -121,6 +121,7 @@ setClass("simDeps",
          }
 )
 
+################################################################################
 #' Define a new module.
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
@@ -157,7 +158,8 @@ setMethod("defineModule",
           definition=function(x) {
             function(sim) {
               loadPackages(x$reqdPkgs)
-              simDepends(sim, add=TRUE, do.call(new, c("moduleDeps", x)))
+              m <- do.call(new, c("moduleDeps", x))
+              simDepends(sim) <- addSimDep(sim, m))
               return(sim)
             }
 })
