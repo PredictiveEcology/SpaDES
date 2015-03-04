@@ -38,9 +38,6 @@ removeClass("person4")
 #' @slot timestep       Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
 #'                      default is \code{NA}.
 #'
-#' @slot translators    Character vector describing the "translators" available for this module.
-#'                      Defaults to \code{NA_character_}.
-#'
 #' @slot citation       A citation for the module, as a character string. Defaults to \code{NA_character_}.
 #'
 #' @slot reqdPkgs       Character vector of R package names to be loaded. Defaults to \code{NA_character_}.
@@ -64,14 +61,14 @@ removeClass("person4")
 setClass("moduleDeps",
          slots=list(name="character", description="character", keywords="character",
                     authors="person", version="numerical_version", spatialExtent="Extent",
-                    timeframe="POSIXt", timestep="numeric", translators="list",
+                    timeframe="POSIXt", timestep="numeric",
                     citation="list", reqdPkgs="list",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
                         keywords=character(), authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_real_,
-                        translators=list(), citation=list(), reqdPkgs=list(),
+                        citation=list(), reqdPkgs=list(),
                         inputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE),
                         outputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE)),
          validity=function(object) {

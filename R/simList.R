@@ -79,18 +79,23 @@ setMethod("show",
             ### hr
             out[[1]] = capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
 
-            ### simtimes
-            out[[2]] = capture.output(cat(">> Simulation times:\n"))
-            out[[3]] = capture.output(print(rbind(simTimes(object))))
+            ### simulation dependencies
+            out[[2]] = capture.output(cat(">> Simulation dependencies:\n"))
+            out[[3]] = NULL #capture.output(print(rbind(simDepends(object))))
             out[[4]] = capture.output(cat("\n"))
 
+            ### simtimes
+            out[[5]] = capture.output(cat(">> Simulation times:\n"))
+            out[[6]] = capture.output(print(rbind(simTimes(object))))
+            out[[7]] = capture.output(cat("\n"))
+
             ### modules loaded
-            out[[5]] = capture.output(cat(">> Modules:\n"))
-            out[[6]] = capture.output(print(cbind(ModuleName=simModules(object),
+            out[[8]] = capture.output(cat(">> Modules:\n"))
+            out[[9]] = capture.output(print(cbind(ModuleName=simModules(object),
                                                   IsLoaded=simModules(object) %in%
                                                     simModulesLoaded(object)),
                                             quote=FALSE, row.names=FALSE))
-            out[[7]] = capture.output(cat("\n"))
+            out[[10]] = capture.output(cat("\n"))
 
             ### file/objects loaded
             files = simFileList(object)[["files"]]
@@ -101,10 +106,11 @@ setMethod("show",
                 names = objectNames
               }
             }
-            out[[8]] = capture.output(cat(">> Objects Loaded:\n"))
-            out[[9]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
+            out[[11]] = capture.output(cat(">> Objects Loaded:\n"))
+            out[[12]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
                                             quote=FALSE, row.names=FALSE))
-            out[[10]] = capture.output(cat("\n"))
+            out[[13]] = capture.output(cat("\n"))
+
             ### params
             omit = which(names(simParams(object))==".loadFileList" |
                            names(simParams(object))==".progress")
@@ -121,19 +127,19 @@ setMethod("show",
             } else {
               q = cbind(Module=list(), Parameter=list())
             }
-            out[[11]] = capture.output(cat(">> Parameters:\n"))
-            out[[12]] = capture.output(print(q, row.names=FALSE))
-            out[[13]] = capture.output(cat("\n"))
-
-            ### completed events
-            out[[14]] = capture.output(cat(">> Completed Events:\n"))
-            out[[15]] = capture.output(print(simCompleted(object)))
+            out[[14]] = capture.output(cat(">> Parameters:\n"))
+            out[[15]] = capture.output(print(q, row.names=FALSE))
             out[[16]] = capture.output(cat("\n"))
 
-            ### scheduled events
-            out[[17]] = capture.output(cat(">> Scheduled Events:\n"))
-            out[[18]] = capture.output(print(simEvents(object)))
+            ### completed events
+            out[[17]] = capture.output(cat(">> Completed Events:\n"))
+            out[[18]] = capture.output(print(simCompleted(object)))
             out[[19]] = capture.output(cat("\n"))
+
+            ### scheduled events
+            out[[20]] = capture.output(cat(">> Scheduled Events:\n"))
+            out[[21]] = capture.output(print(simEvents(object)))
+            out[[22]] = capture.output(cat("\n"))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
@@ -1040,7 +1046,7 @@ setReplaceMethod("simCompleted",
 #'   simDepends(sim)
 #' }
 #'
-setGeneric("simDepends", function(sim) {
+setGeneric("simDepends", function(object) {
   standardGeneric("simDepends")
 })
 
@@ -1048,7 +1054,7 @@ setGeneric("simDepends", function(sim) {
 #'
 setMethod("simDepends",
           signature("simList"),
-          definition=function(sim) {
+          definition=function(object) {
             return(object@depends)
 })
 

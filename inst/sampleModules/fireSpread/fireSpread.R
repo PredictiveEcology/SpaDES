@@ -22,8 +22,6 @@
 ###
 ### timestep:     NA
 ###
-### translators:  NA
-###
 ### citation:     NA
 ###
 ### reqdPkgs:     raster; RColorBrewer; tkrplot; RandomFields
@@ -44,8 +42,7 @@ defineModule(list(
   version=numeric_version("0.1.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  translators=list(),
-  timestep=NA_character_,
+  timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
   inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack"),
