@@ -36,8 +36,6 @@ setMethod("newModule",
             checkPath(nestedPath, create=TRUE)
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
             filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            filenamePdf <- file.path(nestedPath, paste0(name, ".pdf"))
-            filenameMd <- file.path(nestedPath, paste0(name, ".md"))
             filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
             filenameLICENSE <- file.path(nestedPath, "LICENSE")
             filenameREADME <- file.path(nestedPath, "README.txt")
