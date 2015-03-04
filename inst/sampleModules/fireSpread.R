@@ -14,6 +14,8 @@
 ###               Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
 ###               Steve Cumming <Steve.Cumming@sbf.ulaval.ca>
 ###
+### version:      0.1.0
+###
 ### spatialExtent: NA
 ###
 ### timeframe:    NA
@@ -39,6 +41,7 @@ defineModule(list(
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
             person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre")),
             person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca", role=c("aut"))),
+  version=numeric_version("0.1.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   translators=list(),

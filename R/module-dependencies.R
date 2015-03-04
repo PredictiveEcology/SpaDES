@@ -1,3 +1,6 @@
+# register the S3 `numerical_version` class for use with S4 methods.
+setOldClass("numerical_version")
+
 # register the S3 `person` class for use with S4 methods.
 setClass("person4",
          slots=list(given="character", family="character", middle="character",
@@ -8,8 +11,7 @@ setOldClass("person", S4Class="person4")
 selectMethod("show", "person")
 removeClass("person4")
 
-
-
+################################################################################
 #' The \code{moduleDeps} class
 #'
 #' Descriptor object for specifying SpaDES module dependecies.
@@ -22,6 +24,9 @@ removeClass("person4")
 #'
 #' @slot authors        The author(s) of the module as a \code{\link{person}} object.
 #'
+#' @slot version        The module version as a \code{numeric_version}. Semantic versioning is assumed
+#'                      \url{http://semver.org/}.
+#'
 #' @slot spatialExtent  Specifies the module's spatial extent as an \code{\link{Extent}} object.
 #'                      Defaults to \code{NA}.
 #'
@@ -30,9 +35,8 @@ removeClass("person4")
 #'                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
 #'                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.
 #'
-#' @slot timestep       Describes the length of time corresponding to 1.0 simulation time units.
-#'                      Possible values: \code{"second"}, \code{"minute"}, \code{"hour"}, \code{"day"},
-#'                      \code{"week"}, \code{"month"}, \code{"year"}, or \code{NA} (default).
+#' @slot timestep       Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
+#'                      default is \code{NA}.
 #'
 #' @slot translators    Character vector describing the "translators" available for this module.
 #'                      Defaults to \code{NA_character_}.
@@ -59,13 +63,14 @@ removeClass("person4")
 #'
 setClass("moduleDeps",
          slots=list(name="character", description="character", keywords="character",
-                    authors="person", spatialExtent="Extent", timeframe="POSIXt",
-                    timestep="character", translators="list", citation="list", reqdPkgs="list",
+                    authors="person", version="numerical_version", spatialExtent="Extent",
+                    timeframe="POSIXt", timestep="numeric", translators="list",
+                    citation="list", reqdPkgs="list",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
-                        keywords=character(), authors=person(),
+                        keywords=character(), authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
-                        timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_character_,
+                        timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_real_,
                         translators=list(), citation=list(), reqdPkgs=list(),
                         inputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE),
                         outputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE)),
