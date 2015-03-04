@@ -159,7 +159,7 @@ setMethod("defineModule",
             function(sim) {
               loadPackages(x$reqdPkgs)
               m <- do.call(new, c("moduleDeps", x))
-              simDepends(sim) <- addSimDep(sim, m))
+              simDepends(sim) <- addSimDep(sim, m)
               return(sim)
             }
 })

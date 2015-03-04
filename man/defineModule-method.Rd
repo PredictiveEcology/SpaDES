@@ -4,7 +4,7 @@
 \name{defineModule}
 \alias{defineModule}
 \alias{defineModule,list-method}
-\title{Define a new module}
+\title{Define a new module.}
 \usage{
 defineModule(x)
 
@@ -14,12 +14,13 @@ defineModule(x)
 \item{x}{A named list containing the parameters used to construct a new
            \code{moduleDeps} object.}
 }
+\value{
+This is a closure that serves as a wrapper for adding simulation
+         dependencies via \code{simDepends(sim, add=TRUE)<-}.
+}
 \description{
 Specify a new module's metadata as well as object and package dependecies.
 Packages are loaded during this call.
-}
-\details{
-This is a constructor method for the \code{\link{moduleDeps}} class.
 }
 \examples{
 \dontrun{

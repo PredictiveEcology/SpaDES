@@ -25,7 +25,7 @@ simCompleted(object) <- value
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
-Upcaming (scheduled) events are stored in the events slot, accessible via
+Upcoming (scheduled) events are stored in the events slot, accessible via
 \code{simEvents}.
 }
 \details{

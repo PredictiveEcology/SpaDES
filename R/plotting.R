@@ -1,5 +1,5 @@
 ### Allow gg S3 class to be used with Plot, an S4 function
-#' @importFrom ggplot2 gg
+#' @import ggplot2
 #'
 setOldClass("gg")
 

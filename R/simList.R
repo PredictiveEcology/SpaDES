@@ -588,7 +588,7 @@ setMethod("simGlobals",
 })
 
 #' @export
-#' @rdname simGlobals-accessor-methods
+#' @rdname simParams-accessor-methods
 setGeneric("simGlobals<-",
            function(object, value) {
              standardGeneric("simGlobals<-")
@@ -1047,7 +1047,7 @@ setGeneric("simDepends", function(sim) {
 #' @rdname simDepends-accessor-methods
 #'
 setMethod("simDepends",
-          signature(x="moduleDeps"),
+          signature("simList"),
           definition=function(sim) {
             return(object@depends)
 })
@@ -1063,7 +1063,7 @@ setGeneric("simDepends<-",
 #' @aliases simDepends<-,simList-method
 #' @rdname simDepends-accessor-methods
 setReplaceMethod("simDepends",
-                 signature("simList",),
+                 signature("simList"),
                  function(object, value) {
                    object@depends <- value
                    validObject(object)
