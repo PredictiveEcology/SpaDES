@@ -91,7 +91,7 @@ setMethod("simInit",
             # load user-defined modules
             for (m in simModules(sim)) {
                 # source the code from each module's R file
-                source(paste(path, "/", m, ".R", sep=""), local=.GlobalEnv)
+                source(paste(path, "/", m, "/", m, ".R", sep=""), local=.GlobalEnv)
 
                 # schedule each module's init event:
                 sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
