@@ -104,6 +104,7 @@ setClass("moduleDeps",
 #' @slot dependencies   List of \code{\link{moduleDeps}} dependency objects.
 #'
 #' @rdname simDeps-class
+#' @importFrom methods is
 #' @exportClass simDeps
 #'
 #' @author Alex Chubaty

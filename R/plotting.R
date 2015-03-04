@@ -29,6 +29,7 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #' @rdname spadesPlotObjects-class
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
+#'
 setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
 
 
