@@ -32,7 +32,16 @@ setMethod("newModule",
           signature=c(name="character", path="character", open="logical"),
           definition = function(name, path, open) {
             path <- checkPath(path, create=TRUE)
-            filename <- file.path(path, paste0(name, ".R"))
+            nestedPath <- file.path(path, name)
+            checkPath(nestedPath, create=TRUE)
+            filenameR <- file.path(nestedPath, paste0(name, ".R"))
+            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
+            filenamePdf <- file.path(nestedPath, paste0(name, ".pdf"))
+            filenameMd <- file.path(nestedPath, paste0(name, ".md"))
+            filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
+            filenameLICENSE <- file.path(nestedPath, "LICENSE")
+            filenameREADME <- file.path(nestedPath, "README.txt")
+
 
             cat("
 ### Specify module (and dependencies) definitions:
@@ -185,8 +194,107 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### add additional events as needed by copy/pasting from above\n",
-            file=filename, fill=FALSE, sep="")
-            if(open) file.edit(filename)
+            file=filenameR, fill=FALSE, sep="")
+            if(open) file.edit(filenameR)
+
+### Make Rmarkdown file for module documentation
+             cat("
+---
+title: \"",name,"\"
+author: \"Module Author\"
+date: \"`r Sys.Date()`\"
+output: pdf_document
+---
+
+Module documentation should be written so that others can use your module. This is a default module documentation, and should be changed.
+
+## Module Info
+
+## Styles
+
+The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+
+output:
+rmarkdown::html_vignette:
+css: mystyles.css
+
+## Figures
+
+The figure sizes have been customised so that you can easily put two images side-by-side.
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+output:
+rmarkdown::html_vignette:
+fig_caption: yes
+
+Then you can use the chunk option `fig.cap = \"Your figure caption.\"` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\\beta + \\epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> \"He who gives up [code] safety for [code] speed deserves neither.\"
+([via](https://twitter.com/hadleywickham/status/504368538874703872))
+ ",
+                 file=filenameRmd, fill=FALSE, sep="")
+
+### Make citation.bib file
+cat("
+@Manual{,
+  title = {",name,"},
+  author = {{Authors}},
+  organization = {Organization},
+  address = {Somewhere, Someplace},
+  year = {2015},
+  url = {},
+}
+ ",
+    file=filenameCitation, fill=FALSE, sep="")
+
+### Make LICENSE file
+cat("
+# Provide explicit details of the license for this module
+# A default could be GPL http://www.gnu.org/copyleft/gpl.html",
+    file=filenameLICENSE, fill=FALSE, sep="")
+
+### Make README file
+cat("
+Any other details that a user may need to know, like where to get more information,
+ where to download data etc.",
+    file=filenameREADME, fill=FALSE, sep="")
+
+# If we choose to have the pdf of the documentation file made at this stage, uncomment this.
+#  Requires pandoc to be installed and working
+# knit(filenameRmd, output=filenameMd)
+# system(paste("pandoc",filenameMd,
+#              "--to latex --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash-implicit_figures",
+#              "-o", filenamePdf,
+#              "--template \"C:\\Eliot\\R\\win-library\\3.1\\rmarkdown\\rmd\\latex\\default.tex\"",
+#              "--highlight-style tango",
+#              "--latex-engine pdflatex",
+#              "--variable \"geometry:margin=1in\"
+#              "))
+# file.remove(filenameMd)
+
+# If we choose to have the pdf of the documentation file made at this stage, uncomment this.
+#  Requires pandoc to be installed and working
+# callingWd <- getwd()
+# setwd(path)
+# zip(paste0(name,".zip"), files=name)
+# setwd(callingWd)
+
 })
 
 #' @rdname newModule-method
