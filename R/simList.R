@@ -1106,8 +1106,59 @@ setMethod("addSimDep",
           signature(sim="simList", x="moduleDeps"),
           definition=function(sim, x) {
             deps <- simDepends(sim)
-            deps <- append(deps, x)
-            deps <- deps[-which(duplicated(deps))]
+            n <- length(deps@dependencies)
+            if (n==1) {
+              if (is.null(deps@dependencies)) n <- 0
+            }
+            deps@dependencies[[n+1]] <- x
+            deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
             simDepends(sim) <- deps
             return(sim)
+})
+
+################################################################################
+#' Define a new module.
+#'
+#' Specify a new module's metadata as well as object and package dependecies.
+#' Packages are loaded during this call.
+#'
+#' @param sim A \code{\link{simList}} object.
+#'
+#' @param x   A named list containing the parameters used to construct a new
+#'            \code{moduleDeps} object.
+#'
+#' @inheritParams moduleDeps-class
+#'
+#' @return A list of functions specifying module dependencies, to be  passed to
+#'         and evaluated by \code{addSimDepends(sim, x)}.
+#'
+#' @export
+#' @docType methods
+#' @rdname defineModule-method
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#'   moduleInfo <- list(...)
+#'   defineModule(sim, moduleInfo)
+#' }
+#'
+setGeneric("defineModule", function(sim, x) {
+  standardGeneric("defineModule")
+})
+
+#' @rdname defineModule-method
+#'
+setMethod("defineModule",
+          signature(sim="simList", x="list"),
+          definition=function(sim, x) {
+            loadPackages(x$reqdPkgs)
+            flist <- getSpaDES(".deps")
+            flist[[x$name]] <- function(sim) {
+              m <- do.call(new, c("moduleDeps", x))
+              simDepends(sim) <- addSimDep(sim, m)
+              return(sim)
+            }
+            assignSpaDES(".deps", flist)
 })

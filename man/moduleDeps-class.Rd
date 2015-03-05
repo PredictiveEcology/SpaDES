@@ -32,9 +32,6 @@ Descriptor object for specifying SpaDES module dependecies.
 \item{\code{timestep}}{Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
                      default is \code{NA}.}
 
-\item{\code{translators}}{Character vector describing the "translators" available for this module.
-                     Defaults to \code{NA_character_}.}
-
 \item{\code{citation}}{A citation for the module, as a character string. Defaults to \code{NA_character_}.}
 
 \item{\code{reqdPkgs}}{Character vector of R package names to be loaded. Defaults to \code{NA_character_}.}

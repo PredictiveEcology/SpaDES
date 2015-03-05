@@ -30,7 +30,7 @@
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
-defineModule(list(
+defineModule(sim, list(
   name="caribouMovement",
   description="simulate caribou movement via correlated random walk. Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.",
   keywords=c("caribou", "individual based movement model"),
@@ -41,8 +41,8 @@ defineModule(list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
-  inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack"),
-  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack")
+  inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE),
+  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
 ))
 
 ### event functions

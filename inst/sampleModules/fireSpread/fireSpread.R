@@ -32,7 +32,7 @@
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
-defineModule(list(
+defineModule(sim, list(
   name="randomLandscapes",
   description="Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine. Fire size statistics are collected immediately after each burn event. Requires a global simulation parameter `.stackName` be set.",
   keywords=c("random map", "random landscape"),
@@ -45,8 +45,8 @@ defineModule(list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
-  inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack"),
-  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack")
+  inputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE),
+  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
 ))
 
 ### event functions

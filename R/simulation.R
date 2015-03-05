@@ -65,12 +65,20 @@ setMethod("simInit",
             dotParamsChar = list(".savePath", ".saveObjects")
             dotParams = append(dotParamsChar, dotParamsReal)
 
-            # create new simList object in .spadesEnv
+            # create new simList object
             sim <- new("simList", simtimes=list(current=times$start,
                                                 start=times$start,
                                                 stop=times$stop))
             simModules(sim) <- modules[!sapply(modules, is.null)]
             simParams(sim) <- params
+
+            # create temporary dependency list in .spadesEnv
+            #  this is a list of functions that will evetually be evaluated
+            #  to build the dependency list stored in the simList object
+            deps <- list()
+            deps[1L:length(modules)] <- NA
+            names(deps) <- modules
+            assignSpaDES(".deps", deps)
 
             # load "default" modules
             for (d in defaults) {
@@ -119,6 +127,11 @@ setMethod("simInit",
             }
 
             simModules(sim) <- append(defaults, simModules(sim))
+
+            # get the deps function list and evaluate it, buiding the dependency list
+            deps <- getSpaDES(".deps")
+            lapply(modules, function(m) {deps[[m]](sim)})
+            rm(".deps", envir=.spadesEnv)
 
             # load files in the filelist
             if (is.null(simFileList(sim))) {

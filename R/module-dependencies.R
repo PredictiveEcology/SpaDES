@@ -1,5 +1,5 @@
-# register the S3 `numerical_version` class for use with S4 methods.
-setOldClass("numerical_version")
+# register the S3 `numeric_version` class for use with S4 methods.
+setOldClass("numeric_version")
 
 # register the S3 `person` class for use with S4 methods.
 setClass("person4",
@@ -60,7 +60,7 @@ removeClass("person4")
 #'
 setClass("moduleDeps",
          slots=list(name="character", description="character", keywords="character",
-                    authors="person", version="numerical_version", spatialExtent="Extent",
+                    authors="person", version="numeric_version", spatialExtent="Extent",
                     timeframe="POSIXt", timestep="numeric",
                     citation="list", reqdPkgs="list",
                     inputObjects="data.frame", outputObjects="data.frame"),
@@ -92,10 +92,20 @@ setClass("moduleDeps",
                   !("class" %in% colnames(object@outputObjects)) ) {
              stop("output object data.frame must use colnames name and class.")
            }
-           if (!is.character(object@inputObjects$name)) stop("input object name must be a character string.")
-           if (!is.character(object@inputObjects$class)) stop("input object class must be a character string.")
-           if (!is.character(object@outputObjects$name)) stop("output object name must be a character string.")
-           if (!is.character(object@outputObjects$class)) stop("output object class must be a character string.")
+           # try coercing to character because if data.frame was created without specficying
+           # `stringsAsFactors=FALSE` there will be problems...
+           if (!is.character(object@inputObjects$name)) {
+             object@inputObjects$name <- as.character(object@inputObjects$name)
+           }
+           if (!is.character(object@inputObjects$class)) {
+             object@inputObjects$class <- as.character(object@inputObjects$class)
+           }
+           if (!is.character(object@outputObjects$name)) {
+             object@outputObjects$name <- as.character(object@outputObjects$name)
+           }
+           if (!is.character(object@outputObjects$class)) {
+             object@outputObjects$class <- as.character(object@outputObjects$class)
+           }
          }
 )
 
@@ -122,49 +132,6 @@ setClass("simDeps",
            if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) stop("invalid type: non-moduleDeps object")
          }
 )
-
-################################################################################
-#' Define a new module.
-#'
-#' Specify a new module's metadata as well as object and package dependecies.
-#' Packages are loaded during this call.
-#'
-#' @param x   A named list containing the parameters used to construct a new
-#'            \code{moduleDeps} object.
-#'
-#' @inheritParams moduleDeps-class
-#'
-#' @return This is a closure that serves as a wrapper for adding simulation
-#'          dependencies via \code{simDepends(sim, add=TRUE)<-}.
-#'
-#' @export
-#' @docType methods
-#' @rdname defineModule-method
-#'
-#' @author Alex Chubaty
-#'
-#' @examples
-#' \dontrun{
-#'   moduleInfo <- list(...)
-#'   defineModule(moduleInfo)
-#' }
-#'
-setGeneric("defineModule", function(x) {
-  standardGeneric("defineModule")
-})
-
-#' @rdname defineModule-method
-#'
-setMethod("defineModule",
-          signature(x="list"),
-          definition=function(x) {
-            function(sim) {
-              loadPackages(x$reqdPkgs)
-              m <- do.call(new, c("moduleDeps", x))
-              simDepends(sim) <- addSimDep(sim, m)
-              return(sim)
-            }
-})
 
 #########
 
