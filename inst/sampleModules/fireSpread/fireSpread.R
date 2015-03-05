@@ -49,6 +49,7 @@ defineModule(sim, list(
   outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
 ))
 
+eval({
 ### event functions
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
@@ -181,3 +182,5 @@ fireSpreadStats <- function(sim) {
 
   return(invisible(sim))
 }
+
+}, envir=.GlobalEnv)

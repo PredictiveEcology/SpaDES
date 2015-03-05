@@ -72,14 +72,6 @@ setMethod("simInit",
             simModules(sim) <- modules[!sapply(modules, is.null)]
             simParams(sim) <- params
 
-            # create temporary dependency list in .spadesEnv
-            #  this is a list of functions that will evetually be evaluated
-            #  to build the dependency list stored in the simList object
-            deps <- list()
-            deps[1L:length(modules)] <- NA
-            names(deps) <- modules
-            assignSpaDES(".deps", deps)
-
             # load "default" modules
             for (d in defaults) {
               ### sourcing the code in each default module is already done
@@ -96,7 +88,7 @@ setMethod("simInit",
             # load user-defined modules
             for (m in simModules(sim)) {
                 # source the code from each module's R file
-                source(paste(path, "/", m, "/", m, ".R", sep=""), local=.GlobalEnv)
+                source(paste(path, "/", m, "/", m, ".R", sep=""), local=TRUE)
 
                 # schedule each module's init event:
                 sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
@@ -127,11 +119,6 @@ setMethod("simInit",
             }
 
             simModules(sim) <- append(defaults, simModules(sim))
-
-            # get the deps function list and evaluate it, buiding the dependency list
-            deps <- getSpaDES(".deps")
-            lapply(modules, function(m) {deps[[m]](sim)})
-            rm(".deps", envir=.spadesEnv)
 
             # load files in the filelist
             if (is.null(simFileList(sim))) {

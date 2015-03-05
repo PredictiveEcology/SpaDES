@@ -254,7 +254,7 @@ setMethod("checkParams",
               if (length(globalParams)>0) {
                 for (i in 1:length(globalParams)) {
                   gP <- names(globalParams[i])
-                  result <- grep(gP, readLines(paste(path, "/", uM, ".R", sep="")), value=FALSE)
+                  result <- grep(gP, readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=FALSE)
                   if (length(result)>0) {
                     globalsFound <- append(globalsFound, gP)
                   }
@@ -266,7 +266,7 @@ setMethod("checkParams",
               if (length(userParams)>0) {
                 for (i in 1:length(userParams)) {
                   uP <- names(userParams[i])
-                  result <- grep(uP, readLines(paste(path, "/", uM, ".R", sep="")), value=FALSE)
+                  result <- grep(uP, readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=FALSE)
                   if (length(result)<=0) {
                     allFound <- FALSE
                     message(paste("Parameter", uP, "is not used in module", uM))
@@ -287,7 +287,7 @@ setMethod("checkParams",
             for (uM in userModules) {
               # read in and cleanup/isolate the global params in the module's .R file
               moduleParams <- grep("simGlobals\\(sim\\)\\$",
-                                   readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
+                                   readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=TRUE)
               moduleParams <- strsplit(moduleParams, " ")
               moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
               moduleParams <- grep("simGlobals\\(sim\\)\\$", moduleParams, value=TRUE)
@@ -312,7 +312,7 @@ setMethod("checkParams",
 
               # read in and cleanup/isolate the user params in the module's .R file
               moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
-                                   readLines(paste(path, "/", uM, ".R", sep="")), value=TRUE)
+                                   readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=TRUE)
               moduleParams <- gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
               moduleParams <- gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", moduleParams)
               moduleParams <- gsub("]*", "", moduleParams)

@@ -1092,26 +1092,27 @@ setReplaceMethod("simDepends",
 #'
 #' @export
 #' @docType methods
-#' @rdname addSimDep-method
+#' @rdname addSimDepends-method
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("addSimDep", function(sim, x) {
-  standardGeneric("addSimDep")
+setGeneric("addSimDepends", function(sim, x) {
+  standardGeneric("addSimDepends")
 })
 
-#' @rdname addSimDep-method
+#' @rdname addSimDepends-method
 #'
-setMethod("addSimDep",
+setMethod("addSimDepends",
           signature(sim="simList", x="moduleDeps"),
           definition=function(sim, x) {
             deps <- simDepends(sim)
             n <- length(deps@dependencies)
-            if (n==1) {
-              if (is.null(deps@dependencies)) n <- 0
+            if (n==1L) {
+              if (is.null(deps@dependencies[[1L]])) n <- 0L
             }
-            deps@dependencies[[n+1]] <- x
-            deps@dependencies <- deps@dependencies[-which(duplicated(deps@dependencies))]
+            deps@dependencies[[n+1L]] <- x
+            dupes <- which(duplicated(deps@dependencies))
+            if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
             simDepends(sim) <- deps
             return(sim)
 })
@@ -1129,8 +1130,7 @@ setMethod("addSimDep",
 #'
 #' @inheritParams moduleDeps-class
 #'
-#' @return A list of functions specifying module dependencies, to be  passed to
-#'         and evaluated by \code{addSimDepends(sim, x)}.
+#' @return Updated \code{simList} object.
 #'
 #' @export
 #' @docType methods
@@ -1154,11 +1154,6 @@ setMethod("defineModule",
           signature(sim="simList", x="list"),
           definition=function(sim, x) {
             loadPackages(x$reqdPkgs)
-            flist <- getSpaDES(".deps")
-            flist[[x$name]] <- function(sim) {
-              m <- do.call(new, c("moduleDeps", x))
-              sim <- addSimDep(sim, m)
-              return(sim)
-            }
-            assignSpaDES(".deps", flist)
+            m <- do.call(new, c("moduleDeps", x))
+            return(addSimDepends(sim, m))
 })

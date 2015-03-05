@@ -17,8 +17,7 @@ defineModule(sim, x)
            \code{moduleDeps} object.}
 }
 \value{
-A list of functions specifying module dependencies, to be  passed to
-        and evaluated by \code{addSimDepends(sim, x)}.
+Updated \code{simList} object.
 }
 \description{
 Specify a new module's metadata as well as object and package dependecies.
