@@ -132,10 +132,3 @@ setClass("simDeps",
            if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) stop("invalid type: non-moduleDeps object")
          }
 )
-
-#########
-
-# igraph::topological.sort should sort deps, which can be used to get a module load order
-#
-
-# getSpaDES(".simDeps")

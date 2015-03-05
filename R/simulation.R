@@ -27,7 +27,7 @@
 #'
 #' @seealso \code{\link{spades}}.
 #'
-#' @include module-dependencies.R
+#' @include module-dependencies-class.R
 #' @include simList.R
 #' @export
 #' @docType methods
@@ -87,35 +87,38 @@ setMethod("simInit",
 
             # load user-defined modules
             for (m in simModules(sim)) {
-                # source the code from each module's R file
-                source(paste(path, "/", m, "/", m, ".R", sep=""), local=TRUE)
+              # source module metadata file
+              source(paste(path, "/", m, "/metadata.R", sep=""), local=TRUE)
 
-                # schedule each module's init event:
-                sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
+              # source the code from each module's R file
+              source(paste(path, "/", m, "/", m, ".R", sep=""), local=.GlobalEnv)
 
-                ### add module name to the loaded list
-                simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
+              # schedule each module's init event:
+              sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
 
-                ### add NAs to any of the dotParams that are not specified by user
-                # ensure the modules sublist exists by creating a tmp value in it
-                if(is.null(simParams(sim)[[m]])) {
-                  simParams(sim)[[m]] <- list(.tmp=NA_real_)
+              ### add module name to the loaded list
+              simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
+
+              ### add NAs to any of the dotParams that are not specified by user
+              # ensure the modules sublist exists by creating a tmp value in it
+              if(is.null(simParams(sim)[[m]])) {
+                simParams(sim)[[m]] <- list(.tmp=NA_real_)
+              }
+
+              # add the necessary values to the sublist
+              for(x in dotParamsReal) {
+                if (is.null(simParams(sim)[[m]][[x]])) {
+                  simParams(sim)[[m]][[x]] <- NA_real_
+                } else if (is.na(simParams(sim)[[m]][[x]])) {
+                  simParams(sim)[[m]][[x]] <- NA_real_
                 }
+              }
 
-                # add the necessary values to the sublist
-                for(x in dotParamsReal) {
-                  if (is.null(simParams(sim)[[m]][[x]])) {
-                    simParams(sim)[[m]][[x]] <- NA_real_
-                  } else if (is.na(simParams(sim)[[m]][[x]])) {
-                    simParams(sim)[[m]][[x]] <- NA_real_
-                  }
-                }
+              # remove the tmp value from the module sublist
+              simParams(sim)[[m]]$.tmp <- NULL
 
-                # remove the tmp value from the module sublist
-                simParams(sim)[[m]]$.tmp <- NULL
-
-                ### Currently, everything in dotParamsChar is being checked for NULL
-                ### values where used (i.e., in save.R).
+              ### Currently, everything in dotParamsChar is being checked for NULL
+              ### values where used (i.e., in save.R).
             }
 
             simModules(sim) <- append(defaults, simModules(sim))

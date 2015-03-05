@@ -40,6 +40,7 @@ setMethod("newModule",
             path <- checkPath(path, create=TRUE)
             nestedPath <- file.path(path, name)
             checkPath(nestedPath, create=TRUE)
+            filenameMeta <- file.path(nestedPath, paste0("metadata.R"))
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
             filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
             filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
@@ -77,21 +78,6 @@ setMethod("newModule",
 ### outputObjects: objectName: NA
 ###                objectClass: NA
 ###
-sim <- defineModule(list(
-  name=\"", name, "\",
-  description=\"insert module description here\",
-  keywords=c(\"insert key words here\"),
-  authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
-  version=numeric_version(\"0.0.0\"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  translators=list(),
-  timestep=NA_character_,
-  citation=list(),
-  reqdPkgs=list(),
-  inputObjects=data.frame(name=NA_character_, class=NA_character_),
-  outputObjects=data.frame(name=NA_character_, class=NA_character_)
-))
 
 ### event functions:
 #   - follow the naming convention `modulenameEventtype()`;
@@ -204,8 +190,29 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
             file=filenameR, fill=FALSE, sep="")
             if(open) file.edit(filenameR)
 
-### Make Rmarkdown file for module documentation
-newModuleDocumentation(name=name, path=path, open=open)
+            ### write metadata file template
+            cat("### ", name, " module metadata
+sim <- defineModule(list(
+  name=\"", name, "\",
+  description=\"insert module description here\",
+  keywords=c(\"insert key words here\"),
+  authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  version=numeric_version(\"0.0.0\"),
+  spatialExtent=raster::extent(rep(NA_real_, 4)),
+  timeframe=as.POSIXlt(c(NA, NA)),
+  translators=list(),
+  timestep=NA_character_,
+  citation=list(),
+  reqdPkgs=list(),
+  inputObjects=data.frame(name=NA_character_, class=NA_character_),
+  outputObjects=data.frame(name=NA_character_, class=NA_character_)
+))
+                ",
+            file=filenameMeta, fill=FALSE, sep="")
+            if(open) file.edit(filenameMeta)
+
+            ### Make Rmarkdown file for module documentation
+            newModuleDocumentation(name=name, path=path, open=open)
 
 })
 

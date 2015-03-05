@@ -115,38 +115,3 @@ setMethod("getSpaDES",
           definition=function(x, ...) {
             get(x, envir=.spadesEnv, ...)
 })
-
-################################################################################
-#' Get the arguments from a previously made function call
-#'
-#' @param calledFrom   Name of previounly called function.
-#'
-#' @return List contaning the frame called from and arguments previously passed
-#'         to the function \code{calledFrom}.
-#'
-#' @export
-#' @docType methods
-#' @rdname prevArgs-method
-#'
-#' @author Eliot Mcintire and Alex Chubaty
-#'
-setGeneric("prevArgs", function(calledFrom) {
-  standardGeneric("prevArgs")
-})
-
-#' @rdname prevArgs-method
-#'
-setMethod("prevArgs",
-          signature(calledFrom="character"),
-          definition=function(calledFrom) {
-            out <- list(frameCalledFrom=NULL, callArgs=list())
-            scalls <- sys.calls()
-
-            # Extract from the sys.calls only the function "calledFrom"
-            out$frameCalledFrom <- which(sapply(scalls, function(x) {
-              grepl(x, pattern=paste0("^", calledFrom))[1]
-            }))
-            out$callArgs <- as.list(scalls[out$frameCalledFrom][[1]])[-1]
-
-            return(out)
-})

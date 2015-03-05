@@ -35,7 +35,7 @@
 #'
 #' @seealso \code{\link{data.table}}.
 #'
-#' @include module-dependencies.R
+#' @include module-dependencies-class.R
 #' @rdname simList-class
 #' @import data.table
 #' @exportClass simList
