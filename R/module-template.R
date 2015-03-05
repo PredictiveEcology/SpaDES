@@ -394,9 +394,41 @@ setMethod("newModuleDocumentation",
           })
 
 
-# If we choose to have the pdf of the documentation file made at this stage, uncomment this.
-#  Requires pandoc to be installed and working
-# callingWd <- getwd()
-# setwd(path)
-# zip(paste0(name,".zip"), files=name)
-# setwd(callingWd)
+##############################################################
+#' @export
+#' @docType methods
+#' @rdname newModule-method
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("zipModule", function(name, path, version) {
+  standardGeneric("zipModule")
+})
+
+#' @rdname newModule-method
+setMethod("zipModule",
+          signature=c(name="character", path="character", version="character"),
+          definition = function(name, path, version) {
+            # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
+            #  Requires pandoc to be installed and working
+
+            path <- checkPath(path, create=FALSE)
+
+            callingWd <- getwd()
+            setwd(path)
+            zip(paste0(name,"_",version,".zip"), files=file.path(name))
+            setwd(callingWd)
+
+          })
+
+setMethod("zipModule",
+          signature=c(name="character", path="missing", version="character"),
+          definition = function(name, version) {
+            zipModule(name=name, path=".", version=version)
+          })
+
+setMethod("zipModule",
+          signature=c(name="character", path="missing", version="missing"),
+          definition = function(name) {
+            zipModule(name=name, path=".", version="0.0.0")
+          })
