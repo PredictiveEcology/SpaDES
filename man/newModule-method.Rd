@@ -7,6 +7,11 @@
 \alias{newModule,character,character,missing-method}
 \alias{newModule,character,missing,logical-method}
 \alias{newModule,character,missing,missing-method}
+\alias{newModuleDocumentation}
+\alias{newModuleDocumentation,character,character,logical-method}
+\alias{newModuleDocumentation,character,character,missing-method}
+\alias{newModuleDocumentation,character,missing,logical-method}
+\alias{newModuleDocumentation,character,missing,missing-method}
 \title{Create new module from template.}
 \usage{
 newModule(name, path, open)
@@ -18,6 +23,16 @@ newModule(name, path, open)
 \S4method{newModule}{character,character,missing}(name, path)
 
 \S4method{newModule}{character,missing,missing}(name)
+
+newModuleDocumentation(name, path, open)
+
+\S4method{newModuleDocumentation}{character,character,logical}(name, path, open)
+
+\S4method{newModuleDocumentation}{character,missing,logical}(name, open)
+
+\S4method{newModuleDocumentation}{character,character,missing}(name, path)
+
+\S4method{newModuleDocumentation}{character,missing,missing}(name)
 }
 \arguments{
 \item{name}{Character string. Your module's name.}
@@ -29,10 +44,17 @@ newModule(name, path, open)
              Default \code{TRUE}.}
 }
 \value{
-Nothing is returned. The new module is created at \code{path/name.R}.
+Nothing is returned. The new module file is created at \code{path/name.R}, as
+well as anciliary files for documentation, citation, license, and readme.
 }
 \description{
-Autogenerate a skeleton for a new SpaDES module.
+Autogenerate a skeleton for a new SpaDES module, a template for a documentation file,
+a citation file, a license file, and a readme.txt file. The \code{newModuleDocumentation}
+will not generate the module file, but will create the other 4 files.
+}
+\details{
+All 5 (or 4, if using \code{newModuleDocumentation}) files will created within a
+subfolder named \code{name} within the \code{path}.
 }
 \examples{
 \dontrun{## create a "fastfood" module in the "modules" subdirectory.}
@@ -40,5 +62,7 @@ Autogenerate a skeleton for a new SpaDES module.
 }
 \author{
 Alex Chubaty
+
+Eliot McIntire
 }
 
