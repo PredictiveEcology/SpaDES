@@ -1157,7 +1157,7 @@ setMethod("defineModule",
             flist <- getSpaDES(".deps")
             flist[[x$name]] <- function(sim) {
               m <- do.call(new, c("moduleDeps", x))
-              simDepends(sim) <- addSimDep(sim, m)
+              sim <- addSimDep(sim, m)
               return(sim)
             }
             assignSpaDES(".deps", flist)

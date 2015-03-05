@@ -33,7 +33,7 @@
 ###                objectClass: RasterStack
 ###
 defineModule(sim, list(
-  name="randomLandscapes",
+  name="fireSpread",
   description="Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine. Fire size statistics are collected immediately after each burn event. Requires a global simulation parameter `.stackName` be set.",
   keywords=c("random map", "random landscape"),
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
