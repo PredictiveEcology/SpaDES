@@ -30,7 +30,7 @@
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
-defineModule(sim, list(
+sim <- defineModule(sim, list(
   name="caribouMovement",
   description="simulate caribou movement via correlated random walk. Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.",
   keywords=c("caribou", "individual based movement model"),
@@ -45,7 +45,6 @@ defineModule(sim, list(
   outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
 ))
 
-eval({
 ### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
@@ -159,5 +158,3 @@ caribouMovementMove <- function(sim) {
 
     return(invisible(sim))
 }
-
-}, envir=.GlobalEnv)

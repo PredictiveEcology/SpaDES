@@ -29,7 +29,7 @@
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
-defineModule(sim, list(
+sim <- defineModule(sim, list(
   name="randomLandscapes",
   description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `.stackName` be set.",
   keywords=c("random map", "random landscape"),
@@ -45,7 +45,6 @@ defineModule(sim, list(
   outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
 ))
 
-eval({
 ### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
@@ -131,5 +130,3 @@ randomLandscapesInit <- function(sim) {
 
   return(invisible(sim))
 }
-
-}, envir=.GlobalEnv)

@@ -12,7 +12,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     (http://cran.r-project.org/bin/windows/Rtools).
 URL: http://github.com/PredictiveEcology/SpaDES
 Version: 0.6.0.9000
-Date: 2015-03-03
+Date: 2015-03-05
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",

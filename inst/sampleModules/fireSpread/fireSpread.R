@@ -32,7 +32,7 @@
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###
-defineModule(sim, list(
+sim <- defineModule(sim, list(
   name="fireSpread",
   description="Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine. Fire size statistics are collected immediately after each burn event. Requires a global simulation parameter `.stackName` be set.",
   keywords=c("random map", "random landscape"),
@@ -49,7 +49,6 @@ defineModule(sim, list(
   outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
 ))
 
-eval({
 ### event functions
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
@@ -182,5 +181,3 @@ fireSpreadStats <- function(sim) {
 
   return(invisible(sim))
 }
-
-}, envir=.GlobalEnv)

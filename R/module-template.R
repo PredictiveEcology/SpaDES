@@ -77,7 +77,7 @@ setMethod("newModule",
 ### outputObjects: objectName: NA
 ###                objectClass: NA
 ###
-defineModule(list(
+sim <- defineModule(list(
   name=\"", name, "\",
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),

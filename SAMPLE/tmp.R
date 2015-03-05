@@ -1,32 +1,3 @@
-myEnv = new.env()
-
-.test <- eval({
-  x <- 1
-  function(value) {
-    if (!missing(value)) {
-      x <<- value
-    }
-    x
-  }
-}, envir=myEnv)
-
-test="myTest"
-makeActiveBinding(eval(quote(test)), .test, .GlobalEnv)
-bindingIsActive(eval(quote(test)), .GlobalEnv)
-
-myTest
-myTest <- 2
-myTest
-
-is(myTest)
-
-doTest <- function(y) {
-  y <- 3
-}
-doTest(myTest)
-myTest
-
-#######
 n = 5
 test.mod1.in <- data.frame(name=LETTERS[1:n], class=rep("character", n))
 test.mod1.out <- data.frame(name=LETTERS[23:(23-n+1)], class=rep("character", n))
