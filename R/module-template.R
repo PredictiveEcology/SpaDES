@@ -1,7 +1,12 @@
 ##############################################################
 #' Create new module from template.
 #'
-#' Autogenerate a skeleton for a new SpaDES module.
+#' Autogenerate a skeleton for a new SpaDES module, a template for a documentation file,
+#' a citation file, a license file, and a readme.txt file. The \code{newModuleDocumentation}
+#' will not generate the module file, but will create the other 4 files.
+#'
+#' All 5 (or 4, if using \code{newModuleDocumentation}) files will created within a
+#' subfolder named \code{name} within the \code{path}.
 #'
 #' @param name  Character string. Your module's name.
 #'
@@ -11,7 +16,8 @@
 #' @param open  Logical. Should the new module file be opened after creation?
 #'              Default \code{TRUE}.
 #'
-#' @return Nothing is returned. The new module is created at \code{path/name.R}.
+#' @return Nothing is returned. The new module file is created at \code{path/name.R}, as
+#' well as anciliary files for documentation, citation, license, and readme.
 #'
 #' @export
 #' @docType methods
@@ -196,8 +202,61 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
             if(open) file.edit(filenameR)
 
 ### Make Rmarkdown file for module documentation
-             cat("
----
+newModuleDocumentation(name=name, path=path, open=open)
+
+})
+
+#' @rdname newModule-method
+setMethod("newModule",
+          signature=c(name="character", path="missing", open="logical"),
+          definition = function(name, open) {
+            newModule(name=name, path=".", open=open)
+})
+
+#' @rdname newModule-method
+setMethod("newModule",
+          signature=c(name="character", path="character", open="missing"),
+          definition = function(name, path) {
+            newModule(name=name, path=path, open=TRUE)
+})
+
+#' @rdname newModule-method
+setMethod("newModule",
+          signature=c(name="character", path="missing", open="missing"),
+          definition = function(name) {
+            newModule(name=name, path=".", open=TRUE)
+})
+
+
+#############
+##############################################################
+#' @export
+#' @docType methods
+#' @rdname newModule-method
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("newModuleDocumentation", function(name, path, open) {
+  standardGeneric("newModuleDocumentation")
+})
+
+#' @rdname newModule-method
+setMethod("newModuleDocumentation",
+          signature=c(name="character", path="character", open="logical"),
+          definition = function(name, path, open) {
+            path <- checkPath(path, create=TRUE)
+            nestedPath <- file.path(path, name)
+            checkPath(nestedPath, create=TRUE)
+            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
+            filenameCitation <- file.path(nestedPath, "citation.bib")
+            filenameLICENSE <- file.path(nestedPath, "LICENSE")
+            filenameREADME <- file.path(nestedPath, "README.txt")
+
+
+
+### Make Rmarkdown file for module documentation
+cat(
+"---
 title: \"",name,"\"
 author: \"Module Author\"
 date: \"`r Sys.Date()`\"
@@ -206,10 +265,22 @@ output: pdf_document
 
 Module documentation should be written so that others can use your module. This is a default module documentation, and should be changed.
 
-## Module Info
+## Plotting
 
-## Styles
+Write what is plotted.
 
+## Saving
+
+Write what is saved.
+
+## Input data
+
+## Output data
+
+## Anticipated linkages to other modules
+
+## Other Markdown help
+For help writing in RMarkdown, see http://rmarkdown.rstudio.com/. We have also included
 The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
 
 output:
@@ -245,26 +316,26 @@ Also a quote using `>`:
 
 > \"He who gives up [code] safety for [code] speed deserves neither.\"
 ([via](https://twitter.com/hadleywickham/status/504368538874703872))
- ",
-                 file=filenameRmd, fill=FALSE, sep="")
+",
+file=filenameRmd, fill=FALSE, sep="")
 
 ### Make citation.bib file
 cat("
 @Manual{,
-  title = {",name,"},
-  author = {{Authors}},
-  organization = {Organization},
-  address = {Somewhere, Someplace},
-  year = {2015},
-  url = {},
+title = {",name,"},
+author = {{Authors}},
+organization = {Organization},
+address = {Somewhere, Someplace},
+year = {2015},
+url = {},
 }
- ",
-    file=filenameCitation, fill=FALSE, sep="")
+",
+file=filenameCitation, fill=FALSE, sep="")
 
 ### Make LICENSE file
 cat("
-# Provide explicit details of the license for this module
-# A default could be GPL http://www.gnu.org/copyleft/gpl.html",
+    # Provide explicit details of the license for this module
+    # A default could be GPL http://www.gnu.org/copyleft/gpl.html",
     file=filenameLICENSE, fill=FALSE, sep="")
 
 ### Make README file
@@ -286,32 +357,36 @@ Any other details that a user may need to know, like where to get more informati
 #              "))
 # file.remove(filenameMd)
 
+if(open) file.edit(filenameRmd)
+
+})
+
+
+#' @rdname newModule-method
+setMethod("newModuleDocumentation",
+          signature=c(name="character", path="missing", open="logical"),
+          definition = function(name, open) {
+            newModuleDocumentation(name=name, path=".", open=open)
+          })
+
+#' @rdname newModule-method
+setMethod("newModuleDocumentation",
+          signature=c(name="character", path="character", open="missing"),
+          definition = function(name, path) {
+            newModuleDocumentation(name=name, path=path, open=TRUE)
+          })
+
+#' @rdname newModule-method
+setMethod("newModuleDocumentation",
+          signature=c(name="character", path="missing", open="missing"),
+          definition = function(name) {
+            newModuleDocumentation(name=name, path=".", open=TRUE)
+          })
+
+
 # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
 #  Requires pandoc to be installed and working
 # callingWd <- getwd()
 # setwd(path)
 # zip(paste0(name,".zip"), files=name)
 # setwd(callingWd)
-
-})
-
-#' @rdname newModule-method
-setMethod("newModule",
-          signature=c(name="character", path="missing", open="logical"),
-          definition = function(name, open) {
-            newModule(name=name, path=".", open=open)
-})
-
-#' @rdname newModule-method
-setMethod("newModule",
-          signature=c(name="character", path="character", open="missing"),
-          definition = function(name, path) {
-            newModule(name=name, path=path, open=TRUE)
-})
-
-#' @rdname newModule-method
-setMethod("newModule",
-          signature=c(name="character", path="missing", open="missing"),
-          definition = function(name) {
-            newModule(name=name, path=".", open=TRUE)
-})
