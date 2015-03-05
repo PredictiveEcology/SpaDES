@@ -1,5 +1,18 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 0.6.0
+=============
+* new module metadata structure (#126)
+* new module structure (#125)
+
+            moduleName/
+            |_ moduleName.R    # the actual module code file, incl. module metadata
+            |_ moduleName.Rmd  # longform documentation and usage info, etc.
+            |_ citation.bib    # properly formatted bibtex citation for the module
+            |_ LICENSE         # license file describing the allowed usage etc. of the module
+            |_ README          # incl. module metadata in addition to version change info, etc.
+
+
 version 0.5.0
 =============
 * transfered project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.

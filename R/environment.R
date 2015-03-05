@@ -99,7 +99,6 @@ setMethod("assignSpaDES",
 #'
 #' @param ... Additional arguments to pass to \code{get}.
 #'
-#' @export
 #' @docType methods
 #' @rdname getSpaDES-method
 #'

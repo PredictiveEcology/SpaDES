@@ -58,6 +58,8 @@ setMethod("newModule",
 ###
 ### authors:      <author name(s) and email address(es)>
 ###
+### version:      0.0.0
+###
 ### spatialExtent: NA
 ###
 ### timeframe:    NA
@@ -80,6 +82,7 @@ defineModule(list(
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),
   authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   translators=list(),

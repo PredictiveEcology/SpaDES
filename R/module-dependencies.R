@@ -1,3 +1,6 @@
+# register the S3 `numeric_version` class for use with S4 methods.
+setOldClass("numeric_version")
+
 # register the S3 `person` class for use with S4 methods.
 setClass("person4",
          slots=list(given="character", family="character", middle="character",
@@ -8,8 +11,7 @@ setOldClass("person", S4Class="person4")
 selectMethod("show", "person")
 removeClass("person4")
 
-
-
+################################################################################
 #' The \code{moduleDeps} class
 #'
 #' Descriptor object for specifying SpaDES module dependecies.
@@ -22,6 +24,9 @@ removeClass("person4")
 #'
 #' @slot authors        The author(s) of the module as a \code{\link{person}} object.
 #'
+#' @slot version        The module version as a \code{numeric_version}. Semantic versioning is assumed
+#'                      \url{http://semver.org/}.
+#'
 #' @slot spatialExtent  Specifies the module's spatial extent as an \code{\link{Extent}} object.
 #'                      Defaults to \code{NA}.
 #'
@@ -30,12 +35,8 @@ removeClass("person4")
 #'                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
 #'                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.
 #'
-#' @slot timestep       Describes the length of time corresponding to 1.0 simulation time units.
-#'                      Possible values: \code{"second"}, \code{"minute"}, \code{"hour"}, \code{"day"},
-#'                      \code{"week"}, \code{"month"}, \code{"year"}, or \code{NA} (default).
-#'
-#' @slot translators    Character vector describing the "translators" available for this module.
-#'                      Defaults to \code{NA_character_}.
+#' @slot timestep       Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
+#'                      default is \code{NA}.
 #'
 #' @slot citation       A citation for the module, as a character string. Defaults to \code{NA_character_}.
 #'
@@ -59,14 +60,15 @@ removeClass("person4")
 #'
 setClass("moduleDeps",
          slots=list(name="character", description="character", keywords="character",
-                    authors="person", spatialExtent="Extent", timeframe="POSIXt",
-                    timestep="character", translators="list", citation="list", reqdPkgs="list",
+                    authors="person", version="numeric_version", spatialExtent="Extent",
+                    timeframe="POSIXt", timestep="numeric",
+                    citation="list", reqdPkgs="list",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
-                        keywords=character(), authors=person(),
+                        keywords=character(), authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
-                        timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_character_,
-                        translators=list(), citation=list(), reqdPkgs=list(),
+                        timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_real_,
+                        citation=list(), reqdPkgs=list(),
                         inputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE),
                         outputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE)),
          validity=function(object) {
@@ -90,10 +92,20 @@ setClass("moduleDeps",
                   !("class" %in% colnames(object@outputObjects)) ) {
              stop("output object data.frame must use colnames name and class.")
            }
-           if (!is.character(object@inputObjects$name)) stop("input object name must be a character string.")
-           if (!is.character(object@inputObjects$class)) stop("input object class must be a character string.")
-           if (!is.character(object@outputObjects$name)) stop("output object name must be a character string.")
-           if (!is.character(object@outputObjects$class)) stop("output object class must be a character string.")
+           # try coercing to character because if data.frame was created without specficying
+           # `stringsAsFactors=FALSE` there will be problems...
+           if (!is.character(object@inputObjects$name)) {
+             object@inputObjects$name <- as.character(object@inputObjects$name)
+           }
+           if (!is.character(object@inputObjects$class)) {
+             object@inputObjects$class <- as.character(object@inputObjects$class)
+           }
+           if (!is.character(object@outputObjects$name)) {
+             object@outputObjects$name <- as.character(object@outputObjects$name)
+           }
+           if (!is.character(object@outputObjects$class)) {
+             object@outputObjects$class <- as.character(object@outputObjects$class)
+           }
          }
 )
 
@@ -120,49 +132,6 @@ setClass("simDeps",
            if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) stop("invalid type: non-moduleDeps object")
          }
 )
-
-################################################################################
-#' Define a new module.
-#'
-#' Specify a new module's metadata as well as object and package dependecies.
-#' Packages are loaded during this call.
-#'
-#' @param x   A named list containing the parameters used to construct a new
-#'            \code{moduleDeps} object.
-#'
-#' @inheritParams moduleDeps-class
-#'
-#' @return This is a closure that serves as a wrapper for adding simulation
-#'          dependencies via \code{simDepends(sim, add=TRUE)<-}.
-#'
-#' @export
-#' @docType methods
-#' @rdname defineModule-method
-#'
-#' @author Alex Chubaty
-#'
-#' @examples
-#' \dontrun{
-#'   moduleInfo <- list(...)
-#'   defineModule(moduleInfo)
-#' }
-#'
-setGeneric("defineModule", function(x) {
-  standardGeneric("defineModule")
-})
-
-#' @rdname defineModule-method
-#'
-setMethod("defineModule",
-          signature(x="list"),
-          definition=function(x) {
-            function(sim) {
-              loadPackages(x$reqdPkgs)
-              m <- do.call(new, c("moduleDeps", x))
-              simDepends(sim) <- addSimDep(sim, m)
-              return(sim)
-            }
-})
 
 #########
 

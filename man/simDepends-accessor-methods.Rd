@@ -8,9 +8,9 @@
 \alias{simDepends<-,simList-method}
 \title{Get and set simulation dependencies}
 \usage{
-simDepends(sim)
+simDepends(object)
 
-\S4method{simDepends}{simList}(sim)
+\S4method{simDepends}{simList}(object)
 
 simDepends(object) <- value
 
