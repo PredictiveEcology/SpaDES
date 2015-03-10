@@ -36,6 +36,6 @@ These are similar to their counterparts in \code{base}, except a tolerance
 Alex Chubaty
 }
 \seealso{
-epsilon
+\code{\link{epsilon}}
 }
 

@@ -8,7 +8,7 @@
 #' @return Invoked for its side effect of setting the tolerance value in the package environment.
 #'         This value will be used for relational operations defined in this package.
 #'
-#' @seealso relational-operators
+#' @seealso \code{\link{relational-operators}}
 #'
 #' @include environment.R
 #' @rdname epsilon
@@ -65,7 +65,7 @@ setMethod("getTolerance",
 #' @return A logical vector indicating the result of the element by element comparison.
 #'         The elements of shorter vectors are recycled as necessary.
 #'
-#' @seealso epsilon
+#' @seealso \code{\link{epsilon}}
 #'
 #' @export
 #' @docType methods
@@ -109,5 +109,5 @@ inRange <- function(x, a=0, b=1) {
   if (!is.numeric(a) || !is.numeric(b)) stop("invalid (non-numeric) bounds.")
   if (is.na(a) || is.na(b)) stop("invalid (NA) bounds.")
   if (a>=b) stop("a cannot be greater than b.")
-  return((x - a)  *  (b - x) >= 0) # NAs will propagate -- is this desired?
+  return((x - a) * (b - x) >= 0) # NAs will propagate -- is this desired?
 }
