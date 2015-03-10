@@ -12,6 +12,7 @@ version 0.6.0
             |_ LICENSE         # license file describing the allowed usage etc. of the module
             |_ README          # incl. module metadata in addition to version change info, etc.
 
+* added new relational operators to account for floating point errors
 
 version 0.5.0
 =============
