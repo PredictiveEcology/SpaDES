@@ -1,6 +1,3 @@
-#' @export
-.spadesEnv <- new.env(parent = emptyenv())
-
 ##############################################################
 #' Simulation checkpoints.
 #'
@@ -31,6 +28,7 @@
 #'
 #' @author Alex Chubaty
 #'
+#' @include environment.R
 #' @export
 #' @docType methods
 #' @rdname checkpoint

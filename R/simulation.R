@@ -1072,11 +1072,6 @@ setMethod("simInit",
 
             path <- checkPath(path, create=TRUE)
 
-            ## Delete any previous Plot information at initialization
-            #spadesArrObjs <- ls(pattern=".spadesArr",all.names = TRUE,envir=.spadesEnv)#[grep(
-            #  #".spadesArr", ls(all.names=TRUE, envir=.spadesEnv))]
-            #if(length(spadesArrObjs)>0) rm(list = spadesArrObjs, envir=.spadesEnv)
-
             # default modules
             defaults <- list("checkpoint", "save", "progress", "load")
 
@@ -1248,7 +1243,7 @@ setMethod("doEvent",
              if(any(is.na(nextEvent))) {
                simCurrentTime(sim) <- simStopTime(sim) + 1e-10
              } else {
-              if (nextEvent$eventTime <= simStopTime(sim)) {
+              if (nextEvent$eventTime %<=% simStopTime(sim)) {
                 # update current simulated time
                 simCurrentTime(sim) <- nextEvent$eventTime
 
