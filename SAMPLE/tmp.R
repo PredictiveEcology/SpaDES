@@ -34,3 +34,4 @@ plot(test.graph)
 # resolve dependencies (topological sort)
 tsort <- topological.sort(test.graph) # only works if acyclic!
 loadOrder <- names(test.graph[[tsort,]])
+loadOrder
