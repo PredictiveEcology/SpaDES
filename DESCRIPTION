@@ -19,7 +19,7 @@ Authors@R: c(
     role=c("aut", "cre")),
     person(c("Eliot", "J", "B"), "McIntire",
     email="Eliot.McIntire@NRCan.gc.ca",
-    role=c("aut", "cre")),
+    role=c("aut")),
     person("Steve", "Cumming",
     email="Steve.Cumming@sbf.ulaval.ca",
     role=c("ctb"))
@@ -63,12 +63,14 @@ Collate:
     'module-template.R'
     'movement.R'
     'neighbourhood.R'
+    'numerical-comparisons.R'
     'plotting.R'
     'probability.R'
     'progress.R'
     'save.R'
     'spades-package.R'
     'spread-process.R'
+    'zzz.R'
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes

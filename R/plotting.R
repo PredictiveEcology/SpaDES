@@ -1033,9 +1033,7 @@ setMethod("drawArrows",
 #' @import RColorBrewer
 #' @import rgdal
 #' @import sp
-#'
 #' @include environment.R
-#'
 #' @examples
 #' \dontrun{
 #' library(raster)

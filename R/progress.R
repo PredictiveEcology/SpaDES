@@ -49,6 +49,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 #' @author Alex Chubaty
 #' @author Eliot McIntire
 #' @importFrom tcltk tkProgressBar
+#' @include environment.R
 #' @export
 #' @docType methods
 #' @rdname newProgressBar

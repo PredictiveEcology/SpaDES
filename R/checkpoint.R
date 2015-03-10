@@ -29,7 +29,6 @@
 #' @author Alex Chubaty
 #'
 #' @include environment.R
-#'
 #' @export
 #' @docType methods
 #' @rdname checkpoint

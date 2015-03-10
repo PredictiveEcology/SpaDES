@@ -232,7 +232,7 @@ setMethod("doEvent",
              if(any(is.na(nextEvent))) {
                simCurrentTime(sim) <- simStopTime(sim) + 1e-10
              } else {
-              if (nextEvent$eventTime <= simStopTime(sim)) {
+              if (nextEvent$eventTime %<=% simStopTime(sim)) {
                 # update current simulated time
                 simCurrentTime(sim) <- nextEvent$eventTime
 
