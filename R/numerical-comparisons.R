@@ -21,7 +21,7 @@ setGeneric("setTolerance", function(epsilon) {
 setMethod("setTolerance",
           signature=c(epsilon="missing"),
           definition = function(epsilon) {
-            assign(".epsilon", .Machine$double.eps^0.5, envir=.spadesEnv)
+            assignSpaDES(".epsilon", .Machine$double.eps^0.5)
             return(invisible())
           }
 )
@@ -30,7 +30,7 @@ setMethod("setTolerance",
 setMethod("setTolerance",
           signature=c(epsilon="numeric"),
           definition = function(epsilon) {
-            assign(".epsilon", epsilon, envir=.spadesEnv)
+            assignSpaDES(".epsilon", epsilon)
             return(invisible())
           }
 )
@@ -47,7 +47,7 @@ setGeneric("getTolerance", function(epsilon) {
 setMethod("getTolerance",
           signature=c(epsilon="missing"),
           definition = function(epsilon) {
-            return(get(".epsilon", envir=.spadesEnv))
+            return(getSpaDES(".epsilon"))
           }
 )
 
