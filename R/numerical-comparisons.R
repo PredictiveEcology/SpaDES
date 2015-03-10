@@ -77,7 +77,7 @@ setMethod("getTolerance",
 
 #' @export
 #' @rdname relational-operators
-`%<=%` <- function(x, y) { (x + getTolerance() < y) }
+`%<=%` <- function(x, y) { (x < y + getTolerance()) }
 
 #' @export
 #' @rdname relational-operators
