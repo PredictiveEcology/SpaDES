@@ -19,7 +19,7 @@ Authors@R: c(
     role=c("aut", "cre")),
     person(c("Eliot", "J", "B"), "McIntire",
     email="Eliot.McIntire@NRCan.gc.ca",
-    role=c("aut", "cre")),
+    role=c("aut")),
     person("Steve", "Cumming",
     email="Steve.Cumming@sbf.ulaval.ca",
     role=c("ctb"))
