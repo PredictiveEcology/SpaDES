@@ -229,9 +229,9 @@ setMethod("doEvent",
             nextEvent <- simEvents(sim)[1L, ] # extract the next event from queue
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
-             if(any(is.na(nextEvent))) {
-               simCurrentTime(sim) <- simStopTime(sim) + 1e-10
-             } else {
+            if(any(is.na(nextEvent))) {
+               simCurrentTime(sim) <- simStopTime(sim) + 2*getTolerance()
+            } else {
               if (nextEvent$eventTime %<=% simStopTime(sim)) {
                 # update current simulated time
                 simCurrentTime(sim) <- nextEvent$eventTime
@@ -260,12 +260,12 @@ setMethod("doEvent",
                     head(setkey(rbindlist(list(simCompleted(sim), nextEvent)), "eventTime"), n=10)
                   }
                 }
-              } else {
-                # update current simulated time to
-                simCurrentTime(sim) <- simStopTime(sim) + 1e-10 # .Machine$double.eps
-              }
+                } else {
+                  # update current simulated time to
+                  simCurrentTime(sim) <- simStopTime(sim) + 2*getTolerance()
+                }
             }
-          return(invisible(sim))
+            return(invisible(sim))
 })
 
 #' @rdname doEvent-method
@@ -393,7 +393,7 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            while(simCurrentTime(sim) <= simStopTime(sim)) {
+            while(simCurrentTime(sim) %<=% simStopTime(sim)) {
               sim <- doEvent(sim, debug)  # process the next event
 
               # print debugging info
