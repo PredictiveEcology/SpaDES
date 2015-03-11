@@ -87,7 +87,6 @@ parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath)
                                          .plotInitialTime=0, .plotInterval=1e3))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
-#path <- file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
@@ -109,8 +108,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(.progress=list(.graphical=FALSE, .progressInterval=10),
                              randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE)),
                  modules=list("randomLandscapes"),
-                 # path=system.file("sampleModules", package="SpaDES")
-                 path=file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the checkpoint params from the simulation object
@@ -150,8 +148,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                                 .saveInitialTime=0, .saveInterval=10)
                    ),
                  modules=list("randomLandscapes"),
-                 # path=system.file("sampleModules", package="SpaDES")
-                 path=file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the load and save params from the simulation object
@@ -204,8 +201,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                                 .plotInitialTime=0, .plotInterval=1)
                    ),
                  modules=list("randomLandscapes"),
-                 # path=system.file("sampleModules", package="SpaDES")
-                 path=file.path("~", "GitHub", "SpaDES", "inst", "sampleModules")
+                 path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the plotting params from the simulation object
@@ -230,7 +226,7 @@ See above for more details.
 ### Generate random landscapes (`randomLandscapes`)
 
 ```{r randomLandscapes, echo=FALSE, eval=TRUE}
-source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes", "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
 \newpage
@@ -238,7 +234,7 @@ source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscap
 ### Simulate fire spread on a landscape (`fireSpread`)
 
 ```{r fireSpread, echo=FALSE, eval=TRUE}
-source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread", "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
 \newpage
@@ -246,5 +242,5 @@ source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread.R")
 ### Agent based model of caribou movement (`caribouMovement`)
 
 ```{r caribouMovement, echo=FALSE, eval=TRUE}
-source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
+source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement", "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 ```
