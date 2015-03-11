@@ -296,41 +296,61 @@ setMethod("newModule",
 ##############################################################
 #' Open all modules nested within a base directory
 #'
-#' This is just a convenience wrapper for openning several modules at once, recursively.
+#' This is just a convenience wrapper for openning several modules at once, recursively. A
+#' module is defined as any file that ends in .R or .r and has a directory name identical to
+#' its filename. Thus, this must be case sensitive.
 #'
-#' @param basedir  Character string. The base directory within which there are only 
+#' @param basedir  Character string of length 1. The base directory within which there are only
 #' module subdirectories
+#'
+#' @param names Character vector with names of modules to open. If missing, then all modules
+#' will be opened within the basedir.
 #'
 #' @return Nothing is returned. All file are open via \code{file.edit}.
 #'
 #' @export
 #' @docType methods
-#' @rdname openAllModules-method
+#' @rdname openModules-method
 #'
 #' @author Eliot McIntire
 #'
 #' @examples
-#' \dontrun{openAllModules("~\SpaDESModules")}
+#' \dontrun{openModules("~\SpaDESModules")}
 #'
-setGeneric("openAllModules", function(basedir) {
-  standardGeneric("openAllModules")
+setGeneric("openModules", function(basedir, names) {
+  standardGeneric("openModules")
 })
 
-#' @rdname openAllModules-method
-setMethod("openAllModules",
-          signature=c(basedir="character"),
-          definition = function(basedir) {
+#' @rdname openModules-method
+setMethod("openModules",
+          signature=c(basedir="character", names="character"),
+          definition = function(basedir, names) {
             basedir <- checkPath(basedir, create=FALSE)
             origDir <- getwd()
             setwd(basedir)
-            lapply(dir(pattern=".R$",recursive = TRUE), file.edit)
+            if(any(names=="all")) {
+              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+            } else {
+              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+              Rfiles <- Rfiles[pmatch(names,Rfiles)]
+            }
+            Rfiles <- Rfiles[grep(pattern="[/\\\\]",Rfiles)]
+            Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
+                                    function(x) any(duplicated(x)))]
+            lapply(Rfiles, file.edit)
             setwd(origDir)
 })
-            
-#' @rdname openAllModules-method
-setMethod("openAllModules",
-          signature=c(basedir="missing"),
+
+#' @rdname openModules-method
+setMethod("openModules",
+          signature=c(basedir="missing", names="missing"),
           definition = function() {
-            openAllModules(basedir=".")
+            openModules(basedir=".", names="all")
 })
-          
+
+#' @rdname openModules-method
+setMethod("openModules",
+          signature=c(basedir="character", names="missing"),
+          definition = function(basedir) {
+            openModules(basedir=basedir, names="all")
+          })
