@@ -4,7 +4,7 @@
 ### name:         randomLandscapes
 ###
 ### description:  Generate RasterStack of random maps representative of a forest landscape
-###               (DEM, forestAge, forestCover, habitatQuality, percentPine).
+###               (DEM, forestAge, habitatQuality, percentPine).
 ###               Requires a global simulation parameter `.stackName` be set.
 ###
 ### keywords:     random map; random landscape
@@ -88,7 +88,7 @@ randomLandscapesInit <- function(sim) {
   # Make dummy maps for testing of models
   DEM <- round(GaussMap(template, scale=300, var=0.03, speedup=speedup, inMemory=inMemory), 1)*1000
   forestAge <- round(GaussMap(template, scale=10, var=0.1, speedup=speedup, inMemory=inMemory), 1)*20
-  forestCover <- round(GaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory),2)*10
+#  forestCover <- round(GaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory),2)*10
   percentPine <- round(GaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory),1)
 
   # Scale them as needed
@@ -100,12 +100,14 @@ randomLandscapesInit <- function(sim) {
   habitatQuality <- habitatQuality/maxValue(habitatQuality)
 
   # Stack them into a single stack and assign to global env
-  mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
-  names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
+  mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
+  names(mapStack)<-c("DEM", "forestAge", "habitatQuality", "percentPine")
+  #mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
+  #names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
 
   setColors(mapStack) <- list(DEM=terrain.colors(100),
                               forestAge=brewer.pal(9,"BuGn"),
-                              forestCover=brewer.pal(8,"BrBG"),
+                              #forestCover=brewer.pal(8,"BrBG"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
   assignGlobal(simGlobals(sim)$.stackName, mapStack)

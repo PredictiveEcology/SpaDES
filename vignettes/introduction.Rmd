@@ -205,7 +205,7 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 
 ```{r fire-impacts-maps, eval=TRUE, echo=TRUE, fig=TRUE}
 landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
-landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
+#landscape[["forestCover"]][landscape[["Fires"]]>0] <- 0
 landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
 landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
 Plot(landscape, new=TRUE)
