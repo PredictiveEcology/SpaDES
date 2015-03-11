@@ -291,3 +291,46 @@ setMethod("newModule",
           definition = function(name) {
             newModule(name=name, path=".", open=TRUE)
 })
+
+
+##############################################################
+#' Open all modules nested within a base directory
+#'
+#' This is just a convenience wrapper for openning several modules at once, recursively.
+#'
+#' @param basedir  Character string. The base directory within which there are only 
+#' module subdirectories
+#'
+#' @return Nothing is returned. All file are open via \code{file.edit}.
+#'
+#' @export
+#' @docType methods
+#' @rdname openAllModules-method
+#'
+#' @author Eliot McIntire
+#'
+#' @examples
+#' \dontrun{openAllModules("~\SpaDESModules")}
+#'
+setGeneric("openAllModules", function(basedir) {
+  standardGeneric("openAllModules")
+})
+
+#' @rdname openAllModules-method
+setMethod("openAllModules",
+          signature=c(basedir="character"),
+          definition = function(basedir) {
+            basedir <- checkPath(basedir, create=FALSE)
+            origDir <- getwd()
+            setwd(basedir)
+            lapply(dir(pattern=".R$",recursive = TRUE), file.edit)
+            setwd(origDir)
+})
+            
+#' @rdname openAllModules-method
+setMethod("openAllModules",
+          signature=c(basedir="missing"),
+          definition = function() {
+            openAllModules(basedir=".")
+})
+          
