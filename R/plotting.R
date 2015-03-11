@@ -812,7 +812,7 @@ setMethod("drawArrows",
 
   # Look for calls that use "get"; extract them and extract object names
   asChar <- lapply(callNamedArgs, function(x) as.character(x))
-  isGet <- sapply(asChar, function(x) x[1]=="get")
+  isGet <- sapply(asChar, function(x) grepl(pattern="get",x[1]))
   if(any(isGet)) {
     isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], sys.frame(frameCalledFrom-1)),
                                                          silent=TRUE), argClass))
