@@ -18,6 +18,8 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
+\newpage
+
 # Plotting in `SpaDES`
 
 One of the major features of the `SpaDES` package is that can take advantage of the numerous visualization tools available natively or through user built packages (*e.g.*, `RgoogleVis`, `ggplot2`, `rgl`). Nevertheless, none of these was built to be fast, modular, and replottable hundreds, thousands or more times during a simulation model. We therefore built a plotting function to fulfill this need. The main plotting function, `Plot` (*i.e.*, with a capital `P`), is built using the grid package. We have specifically built a plotting system that allows for relatively fast plotting of rasters, points, and polygons with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted. In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is. This means that plotting can be treated as modular.  Importantly, conventional R plotting (*e.g.*, plot, hist, etc.) still works fine, so you can use the features provided in this package or you can use base plotting functions without having to relearn a new set of plotting commands. The `Plot` function is therefore intended to be used as a way to interact visually during model development. If fine tuning and customization are desired, other plotting tools may be more suited (*e.g.*, `ggplot2`, or a dedicated GIS program).
@@ -26,7 +28,7 @@ To demonstrate plotting, we first load some maps. These maps are randomly genera
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
-library(SpaDES)
+require(SpaDES)
 fileList <-
     data.frame(files =
      dir(file.path(find.package("SpaDES",
@@ -70,12 +72,12 @@ Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
 ```
 
 ## gp, gpText, gpAxis, size
-These parameters will specify plot parameters that are available with gpar(). `gp` will adjust plot parameters, `gpText` will adjust title and legend text, `gpAxis` will adjust the axes. `size` adjusts point size in a `SpatialPoints` object. These will persist with the original `Plot` call for each individual object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. This is true for a RasterStack also, i.e., the list of named elements must be the same length as the number of layers being plotted. The naming convention used is `RasterStackName.layerName`, i.e,   `landscape.DEM`.
+These parameters will specify plot parameters that are available with gpar(). `gp` will adjust plot parameters, `gpText` will adjust title and legend text, `gpAxis` will adjust the axes. `size` adjusts point size in a `SpatialPoints` object. These will persist with the original `Plot` call for each individual object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. This is true for a RasterStack also, i.e., the list of named elements must be the same length as the number of layers being plotted. The naming convention used is `RasterStackName.layerName`, *i.e.*, `landscape.DEM`.
+
 ```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(caribou, new=T, gpAxis=gpar(cex=0.4), size=1)
+Plot(caribou, new=TRUE, gpAxis=gpar(cex=0.4), size=1)
 Plot(DEM, gpText=gpar(cex=0.4))
 ```
-
 
 ## Colors
 We likely won't want the default colors for every map. There are two ways to change the color of a map: by adding a `colortable` to a `Raster*` object (*e.g.*, using the `setColors` function in `SpaDES`), or using the `cols` argument. Adding a colortable to a `Raster*` will be more persistent (*i.e.*, it will stay with the same color table between calls to `Plot`) than using an argument in the `Plot` function. Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colors. If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colors if only a single `RasterLayer`. These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, or `colorRampPalette` or `heat.colors()` etc.  Note that overplotting will not overplot the legend; in general, overplotting should be used for cases where the maps are compatible with the underlying map layer. See overplotting below.  
@@ -148,7 +150,6 @@ Plot(landscape[[2:3]], new=FALSE)
 # note that zeros are treated as no color by default. If this is not the correct
 # behavior, use `zero.color=NULL`
 Plot(landscape[[2:3]], new=FALSE, zero.color=NULL)
-
 ```
 
 # Plotting Speed
@@ -187,16 +188,15 @@ clearPlot()
 Plot(caribou)
 ```
 
-
 # Using RStudio Plots window
-The built in RStudio Plot window is particularly slow. It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster. This may change in a future version of RStudio. Until then, we have created a function, `dev` which will add devices up to the number in the parenthesis, or switch to that device if it is already open. If an RStudio plot has not been called, dev(2) will create a new device outside RStudio. If a plot has already occurred in RStudio's embedded plot window, then dev(4) will create a new device outside RStudio. dev(4) on its own will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device.
+The built-in RStudio plot window is particularly slow. It is recommended to always create a new plotting device whenever real simulations are being done and they will be substantially faster. This may change in a future version of RStudio. Until then, we have created a function, `dev` which will add devices up to the number in the parenthesis, or switch to that device if it is already open. If an RStudio plot has not been called, dev(2) will create a new device outside RStudio. If a plot has already occurred in RStudio's embedded plot window, then dev(4) will create a new device outside RStudio. dev(4) on its own will either create 3 new devices (device numbers 2, 3 and 4 because device number 1 is never used in R), or 1 new device.
 
 ```{r, echo=TRUE, eval=FALSE }
 # simple:
 dev(4)
 
 # better:
-#Plot all maps on a new plot windows - Do not use RStudio window
+#   Plot all maps on a new plot windows - Do not use RStudio window
 if(is.null(dev.list())) {
    dev(2)
 } else {
@@ -216,7 +216,7 @@ This can be used to obtain the values on the plotting device at the locations of
 
 ```{r clickValues, eval=FALSE, echo=TRUE}
 Plot(landscape, new=TRUE)
-clickValues(3) #click at three locations on the Plot device
+clickValues(3) # click at three locations on the Plot device
 ```
 
 ## `clickExtent`
@@ -225,7 +225,7 @@ This can be used like `zoom` for base package plot window. Click two corners of 
 
 ```{r clickExtent, eval=FALSE, echo=TRUE}
 Plot(landscape, new=TRUE)
-clickExtent() #click at two locations on the Plot device
+clickExtent() # click at two locations on the Plot device
 ```
 
 # ggplot2 objects
@@ -233,7 +233,7 @@ clickExtent() #click at two locations on the Plot device
 \code{\link{qplot}} or \code{\link{ggplot}}.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE}
-library(ggplot2)
+require(ggplot2)
 ggObj <- qplot(rnorm(1e3))
 Plot(ggObj)
 ```
