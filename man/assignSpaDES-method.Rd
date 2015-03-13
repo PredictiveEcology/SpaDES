@@ -20,10 +20,7 @@ assignSpaDES(x, value, ...)
 \item{...}{Additional arguments to pass to \code{assign}.}
 }
 \description{
-Simple wrapper for \code{\link{assign}}.
-}
-\details{
-This is an internal function.
+Internal function. Simple wrapper for \code{\link{assign}}.
 }
 \author{
 Alex Chubaty

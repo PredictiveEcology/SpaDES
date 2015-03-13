@@ -30,6 +30,6 @@ Invoked for its side effect of setting the tolerance value in the package enviro
 See \code{\link{all.equal}} for a good idea on default tolerance values for various classes.
 }
 \seealso{
-\code{\link{relational-operators}}
+\code{relational-operators}
 }
 

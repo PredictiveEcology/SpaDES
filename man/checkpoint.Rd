@@ -14,7 +14,7 @@ checkpointLoad(file)
 checkpointSave(file)
 }
 \arguments{
-\item{sim}{A \code{SimList} simulation object.}
+\item{sim}{A \code{simList} simulation object.}
 
 \item{eventTime}{A numeric specifying the time of the next event.}
 
@@ -27,7 +27,7 @@ checkpointSave(file)
 \item{file}{The checkpoint file.}
 }
 \value{
-Returns the modified \code{SimList} object.
+Returns the modified \code{simList} object.
 }
 \description{
 Save and reload the current state of the simulation,

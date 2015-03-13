@@ -760,8 +760,6 @@ setMethod("drawArrows",
 #'
 #' @return \code{NULL}. This function is invoked for its side effects.
 #'
-#' @seealso \code{\link{prevArg}}
-#'
 #' @importFrom methods is
 #' @export
 #' @docType methods

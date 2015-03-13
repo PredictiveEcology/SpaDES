@@ -11,12 +11,11 @@ getGlobal(x, ...)
 \S4method{getGlobal}{ANY}(x, ...)
 }
 \arguments{
-\item{x}{a variable name, given as a character string.
+\item{x}{An object name, given as a character string.
            No coercion is done, and the first element of a character vector
            of length greater than one will be used, with a warning.}
 
-\item{x}{For \code{getGlobal}, an object name (given as a character string).
-           For \code{mgetGlobal}, a character vector of object names.}
+\item{...}{Additional arguments passed to \code{\link{get}}}
 }
 \description{
 Simple wrapper for \code{\link{get}}.

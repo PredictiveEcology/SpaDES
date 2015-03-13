@@ -12,7 +12,7 @@
 #' http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/
 #' https://stackoverflow.com/questions/13997444/
 #'
-#' @param sim           A \code{SimList} simulation object.
+#' @param sim           A \code{simList} simulation object.
 #'
 #' @param eventTime    A numeric specifying the time of the next event.
 #'
@@ -22,7 +22,7 @@
 #' @param debug         Optional logical flag determines whether sim debug info
 #'                      will be printed (default \code{debug=FALSE}.
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{.Random.seed}}.
 #'

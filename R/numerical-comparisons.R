@@ -8,7 +8,7 @@
 #' @return Invoked for its side effect of setting the tolerance value in the package environment.
 #'         This value will be used for relational operations defined in this package.
 #'
-#' @seealso \code{\link{relational-operators}}
+#' @seealso \code{relational-operators}
 #'
 #' @include environment.R
 #' @rdname epsilon
@@ -65,7 +65,7 @@ setMethod("getTolerance",
 #' @return A logical vector indicating the result of the element by element comparison.
 #'         The elements of shorter vectors are recycled as necessary.
 #'
-#' @seealso \code{\link{epsilon}}
+#' @seealso \code{epsilon}
 #'
 #' @export
 #' @docType methods

@@ -11,7 +11,7 @@ defineModule(sim, x)
 \S4method{defineModule}{simList,list}(sim, x)
 }
 \arguments{
-\item{sim}{A \code{\link{simList}} object.}
+\item{sim}{A \code{simList} object.}
 
 \item{x}{A named list containing the parameters used to construct a new
            \code{moduleDeps} object.}

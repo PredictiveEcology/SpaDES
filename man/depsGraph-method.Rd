@@ -11,7 +11,7 @@ depsGraph(sim)
 \S4method{depsGraph}{simList}(sim)
 }
 \arguments{
-\item{sim}{A \code{\link{simList}} object.}
+\item{sim}{A \code{simList} object.}
 }
 \value{
 An \code{\link{igraph}} object.

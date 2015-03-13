@@ -193,6 +193,7 @@ setGeneric("simModules<-",
 })
 
 #' @name simModules<-
+#' @aliases simModules<-,simList-method
 #' @rdname simModules-accessor-methods
 setReplaceMethod("simModules",
                  signature="simList",
@@ -207,9 +208,7 @@ setReplaceMethod("simModules",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -266,9 +265,7 @@ setReplaceMethod("simModulesLoaded",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -326,9 +323,7 @@ setReplaceMethod("simObjectsLoaded",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -383,9 +378,7 @@ setReplaceMethod("simParams",
 ################################################################################
 #' Get and set the simulation checkpoint filename.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -439,9 +432,7 @@ setReplaceMethod("simCheckpointFile",
 ################################################################################
 #' Get and set the simulation checkpoint interval.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -497,9 +488,7 @@ setReplaceMethod("simCheckpointInterval",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -557,9 +546,7 @@ setReplaceMethod("simFileList",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -614,9 +601,7 @@ setReplaceMethod("simGlobals",
 ################################################################################
 #' Get and set the output path from global simulation parmeters.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -676,9 +661,7 @@ setReplaceMethod("simGlobalsOutputPath",
 #' Additonal methods are provided to access the current, start, and stop times of the
 #' simulation: \code{simCurrentTime(sim)}, \code{simStartTime(sim)}, \code{simStopTime(sim)}.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -733,9 +716,7 @@ setReplaceMethod("simTimes",
 ################################################################################
 #' Get and set the current simulation time.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -791,9 +772,7 @@ setReplaceMethod("simCurrentTime",
 ################################################################################
 #' Get and set the simulation start time.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -849,9 +828,7 @@ setReplaceMethod("simStartTime",
 ################################################################################
 #' Get and set the simulation stop time.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -912,9 +889,7 @@ setReplaceMethod("simStopTime",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -974,9 +949,7 @@ setReplaceMethod("simEvents",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simModules
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
@@ -1031,7 +1004,7 @@ setReplaceMethod("simCompleted",
 
 #' Get and set simulation dependencies
 #'
-#' @param sim A \code{\link{simList}} object.
+#' @inheritParams simModules
 #'
 #' @export
 #' @docType methods
@@ -1081,12 +1054,10 @@ setReplaceMethod("simDepends",
 #'
 #' Adds a \code{moduleDeps} object to the simulation dependency list.
 #'
-#' @param sim A \code{\link{simList}} object.
+#' @param sim A \code{simList} object.
 #'
 #' @param x   A named list containing the parameters used to construct a new
 #'            \code{moduleDeps} object.
-#'
-#' @inheritParams moduleDeps-class
 #'
 #' @return A \code{simList} object.
 #'
@@ -1123,12 +1094,7 @@ setMethod("addSimDepends",
 #' Specify a new module's metadata as well as object and package dependecies.
 #' Packages are loaded during this call.
 #'
-#' @param sim A \code{\link{simList}} object.
-#'
-#' @param x   A named list containing the parameters used to construct a new
-#'            \code{moduleDeps} object.
-#'
-#' @inheritParams moduleDeps-class
+#' @inheritParams addSimDepends
 #'
 #' @return Updated \code{simList} object.
 #'

@@ -17,7 +17,9 @@ simDepends(object) <- value
 \S4method{simDepends}{simList}(object) <- value
 }
 \arguments{
-\item{sim}{A \code{\link{simList}} object.}
+\item{object}{A \code{simList} simulation object.}
+
+\item{value}{The object to be stored at the slot.}
 }
 \description{
 Get and set simulation dependencies

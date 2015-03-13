@@ -40,12 +40,11 @@ setMethod("assignGlobal",
 #'
 #' Simple wrapper for \code{\link{get}}.
 #'
-#' @param x   a variable name, given as a character string.
+#' @param x   An object name, given as a character string.
 #'            No coercion is done, and the first element of a character vector
 #'            of length greater than one will be used, with a warning.
 #'
-#' @param x   For \code{getGlobal}, an object name (given as a character string).
-#'            For \code{mgetGlobal}, a character vector of object names.
+#' @param ... Additional arguments passed to \code{\link{get}}
 #'
 #' @export
 #' @docType methods
@@ -67,9 +66,7 @@ setMethod("getGlobal",
 
 #' Assign to the internal SpaDES environment.
 #'
-#' Simple wrapper for \code{\link{assign}}.
-#'
-#' This is an internal function.
+#' Internal function. Simple wrapper for \code{\link{assign}}.
 #'
 #' @inheritParams assignGlobal
 #'

@@ -262,8 +262,6 @@ setMethod("newModuleDocumentation",
             filenameLICENSE <- file.path(nestedPath, "LICENSE")
             filenameREADME <- file.path(nestedPath, "README.txt")
 
-
-
 ### Make Rmarkdown file for module documentation
 cat(
 "---
@@ -371,64 +369,130 @@ if(open) file.edit(filenameRmd)
 
 })
 
-
 #' @rdname newModule-method
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="logical"),
           definition = function(name, open) {
             newModuleDocumentation(name=name, path=".", open=open)
-          })
+})
 
 #' @rdname newModule-method
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="missing"),
           definition = function(name, path) {
             newModuleDocumentation(name=name, path=path, open=TRUE)
-          })
+})
 
 #' @rdname newModule-method
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="missing"),
           definition = function(name) {
             newModuleDocumentation(name=name, path=".", open=TRUE)
-          })
+})
 
-
-##############################################################
+################################################################################
+#' Open all modules nested within a base directory
+#'
+#' This is just a convenience wrapper for openning several modules at once, recursively.
+#' A module is defined as any file that ends in \code{.R} or \code{.r} and has a
+#' directory name identical to its filename. Thus, this must be case sensitive.
+#'
+#' @param basedir  Character string of length 1. The base directory within which there are only
+#' module subdirectories.
+#'
+#' @param names Character vector with names of modules to open. If missing, then all modules
+#' will be opened within the basedir.
+#'
+#' @return Nothing is returned. All file are open via \code{file.edit}.
+#'
 #' @export
 #' @docType methods
-#' @rdname newModule-method
+#' @rdname openModules-method
 #'
 #' @author Eliot McIntire
+#'
+#' @examples
+#' \dontrun{openModules("~\SpaDESModules")}
+#'
+setGeneric("openModules", function(basedir, names) {
+  standardGeneric("openModules")
+})
+
+#' @rdname openModules-method
+setMethod("openModules",
+          signature=c(basedir="character", names="character"),
+          definition = function(basedir, names) {
+            basedir <- checkPath(basedir, create=FALSE)
+            origDir <- getwd()
+            setwd(basedir)
+            if(any(names=="all")) {
+              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+            } else {
+              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+              Rfiles <- Rfiles[pmatch(names,Rfiles)]
+            }
+            Rfiles <- Rfiles[grep(pattern="[/\\\\]",Rfiles)]
+            Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
+                                    function(x) any(duplicated(x)))]
+            lapply(Rfiles, file.edit)
+            setwd(origDir)
+})
+
+#' @rdname openModules-method
+setMethod("openModules",
+          signature=c(basedir="missing", names="missing"),
+          definition = function() {
+            openModules(basedir=".", names="all")
+})
+
+#' @rdname openModules-method
+setMethod("openModules",
+          signature=c(basedir="character", names="missing"),
+          definition = function(basedir) {
+            openModules(basedir=basedir, names="all")
+})
+
+################################################################################
+#' Create a zip archive of a module subdirectory
+#'
+#' @param name  Character string giving the module name.
+#' @param path  A file path to a directory containing the module subdirectory.
+#' @param version The module version
+#'
+#' @author Eliot McIntire and Alex Chubaty
+#'
+#' @export
+#' @rdname zipModule-method
 #'
 setGeneric("zipModule", function(name, path, version) {
   standardGeneric("zipModule")
 })
 
-#' @rdname newModule-method
+#' @rdname zipModule-method
 setMethod("zipModule",
-          signature=c(name="character", path="character", version="character"),
-          definition = function(name, path, version) {
-            # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
-            #  Requires pandoc to be installed and working
+signature=c(name="character", path="character", version="character"),
+definition = function(name, path, version) {
+  # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
+  #  Requires pandoc to be installed and working
 
-            path <- checkPath(path, create=FALSE)
+  path <- checkPath(path, create=FALSE)
 
-            callingWd <- getwd()
-            setwd(path)
-            zip(paste0(name,"_",version,".zip"), files=file.path(name))
-            setwd(callingWd)
+  callingWd <- getwd()
+  setwd(path)
+  zip(paste0(name, "_", version, ".zip"), files=file.path(name))
+  on.exit(setwd(callingWd))
+})
 
-          })
-
+#' @rdname zipModule-method
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="character"),
           definition = function(name, version) {
             zipModule(name=name, path=".", version=version)
-          })
+})
 
+#' @rdname zipModule-method
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),
           definition = function(name) {
             zipModule(name=name, path=".", version="0.0.0")
-          })
+})

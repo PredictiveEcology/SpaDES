@@ -80,26 +80,6 @@ simGlobalsOutputPath(object) <- value
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.

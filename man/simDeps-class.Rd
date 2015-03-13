@@ -10,7 +10,7 @@ Defines all simulation dependencies for all modules within a SpaDES simulation.
 \section{Slots}{
 
 \describe{
-\item{\code{dependencies}}{List of \code{\link{moduleDeps}} dependency objects.}
+\item{\code{dependencies}}{List of \code{moduleDeps} dependency objects.}
 }}
 \author{
 Alex Chubaty

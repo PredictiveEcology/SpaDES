@@ -24,7 +24,4 @@ arguments to select have a name, no name (empty string), or do not use name (NUL
 \description{
 This is primarily used from Plot.
 }
-\seealso{
-\code{\link{prevArg}}
-}
 

@@ -1,7 +1,7 @@
 ################################################################################
 #' Build a module dependency graph
 #'
-#' @param sim A \code{\link{simList}} object.
+#' @param sim A \code{simList} object.
 #'
 #' @inheritParams depsGraph-method
 #'

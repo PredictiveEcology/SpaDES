@@ -43,7 +43,7 @@ removeClass("person4")
 #' @slot reqdPkgs       Character vector of R package names to be loaded. Defaults to \code{NA_character_}.
 #'
 #' @slot inputObjects   A \code{data.frame} specifying the object dependecies of the module,
-#'                      with columns \code{objectName} and \code{objectClass}.
+#'                      with columns \code{objectName}, \code{objectClass}, and \code{other}.
 #'                      For objects that are used within the module as both an input and an output,
 #'                      add the object to each of these \code{data.frame}s.
 #'
@@ -54,7 +54,7 @@ removeClass("person4")
 #' @importFrom raster extent
 #' @exportClass moduleDeps
 #'
-#' @seealso simDeps
+#' @seealso \code{simDeps}
 #'
 #' @author Alex Chubaty
 #'
@@ -113,7 +113,7 @@ setClass("moduleDeps",
 #'
 #' Defines all simulation dependencies for all modules within a SpaDES simulation.
 #'
-#' @slot dependencies   List of \code{\link{moduleDeps}} dependency objects.
+#' @slot dependencies   List of \code{moduleDeps} dependency objects.
 #'
 #' @rdname simDeps-class
 #' @importFrom methods is
@@ -129,6 +129,8 @@ setClass("simDeps",
            object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
            # ensure list contains only moduleDeps objects
-           if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) stop("invalid type: non-moduleDeps object")
+           if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) {
+             stop("invalid type: non-moduleDeps object")
+           }
          }
 )

@@ -13,6 +13,7 @@ version 0.6.0
             |_ README          # incl. module metadata in addition to version change info, etc.
 
 * added new relational operators to account for floating point errors
+* added `dplyr`, `lazyeval`, and `magrittr` to `Imports`
 
 version 0.5.0
 =============
