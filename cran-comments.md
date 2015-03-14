@@ -1,7 +1,8 @@
 ## Test environments
 * local OS X Yosemite install, R 3.1.2
 * local Windows 7 install, R 3.1.2
-* local Ubuntu 14.04, R 3.1.2
+* local Windows 7 install, R 3.1.3
+* local Ubuntu 14.04, R 3.1.3
 * Ubuntu 12.04 (on travis-ci), R 3.1.2
 
 ## R CMD check results
