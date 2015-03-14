@@ -290,7 +290,7 @@ setMethod("checkParams",
               # read in and cleanup/isolate the global params in the module's .R file
               moduleParams <- grep("simGlobals\\(sim\\)\\$",
                                    readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
-                                   value=TRUE)
+                                   value=TRUE) %>%
                 strsplit(., " ") %>%
                 unlist(lapply(., function(x) x[nchar(x)>0] )) %>%
                 grep("simGlobals\\(sim\\)\\$", ., value=TRUE) %>%
