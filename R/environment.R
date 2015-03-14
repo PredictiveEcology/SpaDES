@@ -36,6 +36,34 @@ setMethod("assignGlobal",
             assign(x, value, envir=.GlobalEnv, ...)
 })
 
+#' Is an object defined in the global environment?
+#'
+#' Simple wrapper for \code{\link{exists}}.
+#'
+#' @param x   An object name, given as a character string.
+#'            No coercion is done, and the first element of a character vector
+#'            of length greater than one will be used, with a warning.
+#'
+#' @param ... Additional arguments passed to \code{\link{exists}}
+#'
+#' @export
+#' @docType methods
+#' @rdname existsGlobal-method
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("existsGlobal", function(x, ...) {
+  standardGeneric("existsGlobal")
+})
+
+#' @rdname existsGlobal-method
+#'
+setMethod("existsGlobal",
+          signature(x="ANY"),
+          definition=function(x, ...) {
+            exists(x, envir=.GlobalEnv, ...)
+})
+
 #' Get objects from the global environment
 #'
 #' Simple wrapper for \code{\link{get}}.
@@ -85,6 +113,33 @@ setMethod("assignSpaDES",
           signature(x="character", value="ANY"),
           definition=function(x, value, ...) {
             assign(x, value, envir=.spadesEnv, ...)
+})
+
+#' Is an object defined in the .spades environment?
+#'
+#' Simple wrapper for \code{\link{exists}}.
+#'
+#' @param x   An object name, given as a character string.
+#'            No coercion is done, and the first element of a character vector
+#'            of length greater than one will be used, with a warning.
+#'
+#' @param ... Additional arguments passed to \code{\link{exists}}
+#'
+#' @docType methods
+#' @rdname existsSpaDES-method
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("existsSpaDES", function(x, ...) {
+  standardGeneric("existsSpaDES")
+})
+
+#' @rdname existsSpaDES-method
+#'
+setMethod("existsSpaDES",
+          signature(x="ANY"),
+          definition=function(x, ...) {
+            exists(x, envir=.spadesEnv, ...)
 })
 
 #' Get objects from the internal SpaDES environment

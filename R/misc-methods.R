@@ -64,6 +64,7 @@ setMethod("loadPackages",
 #'
 #' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
 #'
+#' @importFrom magrittr "%>%"
 #' @export
 #' @docType methods
 #' @rdname checkPath-method
@@ -80,9 +81,9 @@ setMethod("checkPath",
           definition=function(path, create) {
             if (!is.na(path)) {
               if (length(path)>0) {
-                path = gsub("\\\\", "/", path)  # use slash instead of backslash
-                path = gsub("/$", "", path)     # remove trailing slash
-                path = gsub("^[.]/", "", path)  # remove leading dotslash
+                path = gsub("\\\\", "/", path) %>%   # use slash instead of backslash
+                       gsub("/$", "", .) %>%         # remove trailing slash
+                       gsub("^[.]/", "", .)          # remove leading dotslash
 
                 if (!file.exists(path)) {
                   if (create==TRUE) {
@@ -164,10 +165,10 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(name="missing", object="ANY", layer="missing"),
           definition = function(name, object, layer, ...) {
-            if(exists(deparse(substitute(object)),envir=.GlobalEnv)) {
+            if(existsGlobal(deparse(substitute(object)))) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object,env=.GlobalEnv)),"does not exist"))
+              message(paste(deparse(substitute(object, env=.GlobalEnv)), "does not exist"))
               return(FALSE)
             }
 })
@@ -177,7 +178,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(name="character", object="missing", layer="missing"),
           definition = function(name, ...) {
-            if (exists(name, envir=.GlobalEnv)) {
+            if (existsGlobal(name)) {
                 return(invisible(TRUE))
             } else {
               message(paste(name,"does not exist in the global environment"))
@@ -189,9 +190,9 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(name="character", object="missing", layer="character"),
           definition = function(name, layer, ...) {
-            if (exists(name, envir=.GlobalEnv)) {
-              if(is(get(name, envir=.GlobalEnv),"Raster")) {
-                checkObject(object=get(name, envir=.GlobalEnv), layer=layer, ...)
+            if (existsGlobal(name)) {
+              if(is(getGlobal(name),"Raster")) {
+                checkObject(object=getGlobal(name), layer=layer, ...)
               } else {
                 message(paste("The object \"",name,"\" exists, but is not
                               a Raster, so layer is ignored",sep=""))
@@ -222,6 +223,7 @@ setMethod("checkObject",
 #' @return  Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
 #'          Sensible messages are be produced identifying missing params.
 #'
+#' @importFrom magrittr "%>%"
 #' @export
 #' @docType methods
 #' @rdname checkParams-method
@@ -287,17 +289,19 @@ setMethod("checkParams",
             for (uM in userModules) {
               # read in and cleanup/isolate the global params in the module's .R file
               moduleParams <- grep("simGlobals\\(sim\\)\\$",
-                                   readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=TRUE)
-              moduleParams <- strsplit(moduleParams, " ")
-              moduleParams <- unlist(lapply(moduleParams, function(x) x[nchar(x)>0] ))
-              moduleParams <- grep("simGlobals\\(sim\\)\\$", moduleParams, value=TRUE)
-              moduleParams <- gsub(",", "", moduleParams)
-              moduleParams <- gsub("\\)\\)", "", moduleParams)
-              moduleParams <- gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", moduleParams)
-              moduleParams <- gsub("^simGlobals\\(sim\\)", "", moduleParams)
-              moduleParams <- gsub("\\)\\$.*", "", moduleParams)
-              moduleParams <- sort(unique(moduleParams))
-              moduleParams <- gsub("\\$", "", moduleParams)
+                                   readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
+                                   value=TRUE)
+                strsplit(., " ") %>%
+                unlist(lapply(., function(x) x[nchar(x)>0] )) %>%
+                grep("simGlobals\\(sim\\)\\$", ., value=TRUE) %>%
+                gsub(",", "", .) %>%
+                gsub("\\)\\)", "", .) %>%
+                gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", .) %>%
+                gsub("^simGlobals\\(sim\\)", "", .) %>%
+                gsub("\\)\\$.*", "", .) %>%
+                unique(.) %>%
+                sort(.) %>%
+                gsub("\\$", "", .)
 
               if (length(moduleParams)>0) {
                 if (length(globalParams)>0) {
@@ -312,11 +316,13 @@ setMethod("checkParams",
 
               # read in and cleanup/isolate the user params in the module's .R file
               moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
-                                   readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=TRUE)
-              moduleParams <- gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", moduleParams)
-              moduleParams <- gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", moduleParams)
-              moduleParams <- gsub("]*", "", moduleParams)
-              moduleParams <- sort(unique(moduleParams))
+                                   readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
+                                   value=TRUE) %>%
+                gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", .) %>%
+                gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
+                gsub("]*", "", .) %>%
+                unique(.) %>%
+                sort(.)
 
               if (length(moduleParams)>0) {
                 # which params does the user supply to simInit?
