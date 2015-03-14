@@ -15,21 +15,38 @@ test.mod2.out$module <- "test2"
 test.sim.in <- rbind(test.mod1.in, test.mod2.in)
 test.sim.out <- rbind(test.mod1.out, test.mod2.out)
 
-i <- which(test.sim.in$name %in% test.sim.out$name)
-j <- which(test.sim.out$name %in% test.sim.in$name)
-test.sim <- data.frame(from=c(rep("_IN_", nrow(test.sim.in[-i,])),
-                              test.sim.out$module[j]),
-                       to=c(test.sim.in$module[-i],
-                            rep(test.sim.in$module[i], length(j))),
-                       stringsAsFactors=FALSE)
-## won't work with >1 module in j
-test.sim <- test.sim[-which(test.sim$from==test.sim$to),]
-test.sim <- test.sim[!duplicated(test.sim),]
+x <- left_join(test.sim.in, test.sim.out, by="name") %>%
+  mutate(module.y=replace(module.y, is.na(module.y), "_IN_"))
+
+test.sim <- with(x, data.frame(from=module.y, to=module.x, objName=name, objClass=class.x, stringsAsFactors=FALSE))
+
+plotting <- FALSE
+if (plotting) {
+  test.sim <- test.sim[!duplicated(test.sim[,1:2]),]
+}
 
 # build deps graph
 library(igraph)
-test.graph <- graph.data.frame(test.sim)
+test.graph <- graph.data.frame(test.sim) # vertices=modules
 plot(test.graph)
+
+# detect cycles
+
+v <- shortest.paths(test.graph, mode="out")
+
+a <- {row in v}
+b <- {col in v}
+
+if (0 < v[a,b] < Inf) && (0 < v[b,a] < Inf) {
+  # cycle detected
+  pth1 = get.shortest.paths(test.graph, from=name(v[a,]), to=name(v[,b]))
+  pth2 = get.shortest.paths(test.graph, from=name(v[,b]), to=name(v[a,]))
+
+  # look at this these paths and see if we can ignore any of them
+
+  # REPEAT until something...yell at user if there are any we can't ignore
+}
+
 
 # resolve dependencies (topological sort)
 tsort <- topological.sort(test.graph) # only works if acyclic!

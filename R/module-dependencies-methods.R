@@ -26,6 +26,6 @@ setMethod("depsGraph",
           signature(sim="simList"),
           definition=function(sim) {
             deps <- simDepends(sim)
-            g <-
-              return(g)
-          })
+            g <- k
+            return(g)
+})
