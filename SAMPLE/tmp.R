@@ -1,51 +1,65 @@
-n = 3
-test.mod1.in <- data.frame(name=c("A","B","C"), class=rep("character", n), stringsAsFactors=FALSE)
-test.mod1.out <- data.frame(name=c("C","W","X"), class=rep("character", n), stringsAsFactors=FALSE)
+require(magrittr)
+require(dplyr)
+require(igraph)
 
-test.mod2.in <- data.frame(name=c("A","D","E"), class=rep("character", n), stringsAsFactors=FALSE)
-test.mod2.out <- data.frame(name=c("C","Y","Z"), class=rep("character", n), stringsAsFactors=FALSE)
+outputPath <- file.path(tempdir(), "simOutputs")
+times <- list(start=0.0, stop=10.01)
+parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
+                                 burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),
+                   fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                   .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=1e2, moveInterval=1,
+                                        .plotInitialTime=1.01, .plotInterval=1)
+)
+modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
 
-# merge deps into single list; add mod name; rm objects in both inputs & outputs
-test.mod1.in$module <- "test1"
-test.mod1.out$module <- "test1"
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-test.mod2.in$module <- "test2"
-test.mod2.out$module <- "test2"
+# check edgeLists
+depsEdgeList(mySim, plot=FALSE)
+depsEdgeList(mySim, plot=TRUE)
 
-test.sim.in <- rbind(test.mod1.in, test.mod2.in)
-test.sim.out <- rbind(test.mod1.out, test.mod2.out)
+# dependency graph (build edgelist internally)
+simGraph.F <- depsGraph(mySim, plot=FALSE)
+simGraph.T <- depsGraph(mySim, plot=TRUE)
 
-x <- left_join(test.sim.in, test.sim.out, by="name") %>%
-  mutate(module.y=replace(module.y, is.na(module.y), "_IN_"))
-
-test.sim <- with(x, data.frame(from=module.y, to=module.x, objName=name, objClass=class.x, stringsAsFactors=FALSE))
-
-plotting <- FALSE
-if (plotting) {
-  test.sim <- test.sim[!duplicated(test.sim[,1:2]),]
-}
-
-# build deps graph
-library(igraph)
-test.graph <- graph.data.frame(test.sim) # vertices=modules
-plot(test.graph)
+# see what it looks like
+plot(simGraph.F)
+plot(simGraph.T) # the version returned to user
 
 # detect cycles
+M <- shortest.paths(simGraph.F, mode="out")
 
-v <- shortest.paths(test.graph, mode="out")
-
-a <- {row in v}
-b <- {col in v}
-
-if (0 < v[a,b] < Inf) && (0 < v[b,a] < Inf) {
-  # cycle detected
-  pth1 = get.shortest.paths(test.graph, from=name(v[a,]), to=name(v[,b]))
-  pth2 = get.shortest.paths(test.graph, from=name(v[,b]), to=name(v[a,]))
-
-  # look at this these paths and see if we can ignore any of them
-
-  # REPEAT until something...yell at user if there are any we can't ignore
+pth <- list()
+for (row in 1L:(nrow(M)-1)) {
+  for (col in (row+1L):ncol(M)) {
+    current = M[row,col]
+    partner = M[col,row]
+    if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
+      pth1 = get.shortest.paths(simGraph.F, from=rownames(M)[row], to=colnames(M)[col])
+      pth2 = get.shortest.paths(simGraph.F, from=colnames(M)[col], to=rownames(M)[row])
+      pth = append(pth, unique(c(pth1$vpath, pth2$vpath)))
+    }
+  }
 }
+lapply(pth, function(x) { rownames(M)[x] })
+
+# a <- {row in M}
+# b <- {col in M}
+#
+# if (0 < M[a,b] < Inf) && (0 < M[b,a] < Inf) {
+#   # cycle detected
+#   pth1 = get.shortest.paths(test.graph, from=name(M[a,]), to=name(M[,b]))
+#   pth2 = get.shortest.paths(test.graph, from=name(M[,b]), to=name(M[a,]))
+#
+#   # look at this these paths and see if we can ignore any of them
+#
+#   # REPEAT until something...yell at user if there are any we can't ignore
+# }
 
 
 # resolve dependencies (topological sort)

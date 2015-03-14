@@ -123,23 +123,23 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 
   outMap <- list()
   r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax), res=res(ras)*speedup)
-  if( (numTypes < length(p)) | (numTypes < length(A)) |  (numTypes < length(minpatch))) {
+  if( (numTypes < length(p)) | (numTypes < length(A)) | (numTypes < length(minpatch))) {
     numTypes = max(length(p),length(A),length(minpatch))
   }
   r[] <- 0
 
-  for(i in 1:numTypes){
+  for(i in 1:numTypes) {
     r[which(as.vector(raster(randomHabitat(tempmask,
                                            p = p[(i-1)%%length(p)+1],
                                            A = A[(i-1)%%length(A)+1],
                                            minpatch = minpatch[(i-1)%%length(minpatch)+1]),...))==1)]<-(i)
   }
-  if(speedup>1)
+  if(speedup>1) {
     return(disaggregate(r, c(speedup, speedup)))
-  else
+  } else {
     return(invisible(r))
+  }
 }
-
 
 ##############################################################
 #' spec.num.per.patch
