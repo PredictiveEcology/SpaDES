@@ -185,7 +185,6 @@ setMethod("depsLoadOrder",
             # only works if simGraph is acyclic!
             # -- ensure depsDetectCycles is called before this function
             tsort <- topological.sort(simGraph)
-            loadOrder <- names(simGraph[[tsort,]])
-            ## need to remove "_INPUT_"
+            loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             return(loadOrder)
 })
