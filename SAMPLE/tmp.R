@@ -19,7 +19,7 @@ path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 # check edgeLists
-depsEdgeList(mySim, plot=FALSE)
+simEdgeList <- depsEdgeList(mySim, plot=FALSE)
 depsEdgeList(mySim, plot=TRUE)
 
 # dependency graph (build edgelist internally)
@@ -33,19 +33,32 @@ plot(simGraph.T) # the version returned to user
 # detect cycles
 M <- shortest.paths(simGraph.F, mode="out")
 
-pth <- list()
+pth <- data.frame(from=character(),to=character())
 for (row in 1L:(nrow(M)-1)) {
   for (col in (row+1L):ncol(M)) {
     current = M[row,col]
     partner = M[col,row]
     if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
-      pth1 = get.shortest.paths(simGraph.F, from=rownames(M)[row], to=colnames(M)[col])
-      pth2 = get.shortest.paths(simGraph.F, from=colnames(M)[col], to=rownames(M)[row])
-      pth = append(pth, unique(c(pth1$vpath, pth2$vpath)))
+      pth1 = get.shortest.paths(simGraph.F, from=rownames(M)[row], to=colnames(M)[col])$vpath[[1]]
+      pth1 <- data.frame(from=rownames(M)[pth1],to=rownames(M)[lead(pth1,1)], stringsAsFactors = FALSE) %>% na.omit
+
+      pth2 = get.shortest.paths(simGraph.F, from=colnames(M)[col], to=rownames(M)[row])$vpath[[1]]
+      pth2 <- data.frame(from=rownames(M)[pth2],to=rownames(M)[lead(pth2,1)], stringsAsFactors = FALSE) %>% na.omit
+
+      pth = bind_rows(pth,bind_rows(pth1,pth2))
     }
   }
 }
-lapply(pth, function(x) { rownames(M)[x] })
+pth = pth %>% inner_join(simEdgeList)
+
+# What is not provided in modules, but needed
+missingObjects <- simEdgeList %>% filter(from!=to) %>% anti_join(d,.)
+
+# What is provided in modules, and can be omitted from simEdgeList object
+newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(d)
+newGraph <- graph.data.frame(newEdgeList)
+depsLoadOrder(newGraph)
+###
 
 # a <- {row in M}
 # b <- {col in M}
