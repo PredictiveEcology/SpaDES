@@ -79,8 +79,10 @@ setMethod("simInit",
 
             # source module metadata and code files
             for (m in simModules(sim)) {
-              source(paste(path, "/", m, "/metadata.R", sep=""), local=TRUE)
-              source(paste(path, "/", m, "/", m, ".R", sep=""), local=.GlobalEnv)
+              parsedFile <- parse(paste(path, "/", m, "/", m, ".R", sep=""))
+              defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+              sim <- eval(parsedFile[defineModuleItem])
+              eval(parsedFile[!defineModuleItem], envir = .GlobalEnv)
             }
 
             # check user-supplied load order
