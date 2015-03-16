@@ -12,6 +12,8 @@ simModulesLoadOrder(object)
 
 \S4method{simModulesLoadOrder}{simList}(object)
 
+simModulesLoadOrder(object) <- value
+
 \S4method{simModulesLoadOrder}{simList}(object) <- value
 }
 \arguments{

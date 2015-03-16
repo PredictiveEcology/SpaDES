@@ -234,7 +234,7 @@ setMethod("simModulesLoadOrder",
           })
 
 #' @export
-#' @rdname simModulesLoadOrderaccessor-methods
+#' @rdname simModulesLoadOrder-accessor-methods
 setGeneric("simModulesLoadOrder<-",
            function(object, value) {
              standardGeneric("simModulesLoadOrder<-")
