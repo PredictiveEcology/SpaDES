@@ -48,7 +48,7 @@ setMethod("depsEdgeList",
             })
 
             dx <- left_join(sim.in, sim.out, by="name") %>%
-              mutate(module.y=replace(module.y, is.na(module.y), "_IN_"))
+              mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
             df <- with(dx, data.frame(from=module.y, to=module.x, objName=name,
                                      objClass=class.x, stringsAsFactors=FALSE))
@@ -81,38 +81,73 @@ setGeneric("depsGraph", function(sim, plot) {
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
-            el <- depsEdgeList(sim, plot)
+            if (plot) {
+              el <- depsEdgeList(sim, plot)
+            } else {
+              el <- depsEdgeList(sim, plot) %>% depsPruneEdges(.)
+            }
             return(graph.data.frame(el))
 })
 
 ################################################################################
-#' Detect cycles in module dependencies
+#' Prune edges to remove cycles in module dependencies
 #'
-#' @inheritParams depsDetectCycles
+#' Attempts to identify cycles in the dependency graph and remove edges representing
+#' object dependencies which are provided by other modules in the simulation.
 #'
-#' @return List of paths corresponding to cycles.
+#' @param simEdgeList An edge list produced by \code{\link{depsEdgeList}}.
+#'
+#' @return An updated edge list object.
 #'
 #' @include simList.R
 #'
 #' @import igraph
 #' @export
 #' @docType methods
-#' @rdname depsDetectCycles-method
+#' @rdname depsPruneEdges-method
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("depsDetectCycles", function(simGraph) {
-  standardGeneric("depsDetectCycles")
+setGeneric("depsPruneEdges", function(simEdgeList) {
+  standardGeneric("depsPruneEdges")
 })
 
-#' @rdname depsDetectCycles-method
+#' @rdname depsPruneEdges-method
 #'
-setMethod("depsDetectCycles",
-          signature(simGraph="igraph"),
-          definition=function(simGraph) {
-            simGraph
-            x <- list(list("banana"))
-            return(x)
+setMethod("depsPruneEdges",
+          signature(simEdgeList="data.frame"),
+          definition=function(simEdgeList) {
+            simGraph <- graph.data.frame(simEdgeList)
+            M <- shortest.paths(simGraph, mode="out")
+            pth <- data.frame(from=character(), to=character())
+            for (row in 1L:(nrow(M)-1)) {
+              for (col in (row+1L):ncol(M)) {
+                current <- M[row,col]
+                partner <- M[col,row]
+                if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
+                  pth1 <- get.shortest.paths(simGraph, from=rownames(M)[row], to=colnames(M)[col])$vpath[[1]]
+                  pth1 <- data.frame(from=rownames(M)[pth1],to=rownames(M)[lead(pth1,1)], stringsAsFactors = FALSE) %>% na.omit
+
+                  pth2 <- get.shortest.paths(simGraph, from=colnames(M)[col], to=rownames(M)[row])$vpath[[1]]
+                  pth2 <- data.frame(from=rownames(M)[pth2],to=rownames(M)[lead(pth2,1)], stringsAsFactors = FALSE) %>% na.omit
+
+                  pth <- bind_rows(pth,bind_rows(pth1, pth2))
+                }
+              }
+            }
+            pth <- pth %>% inner_join(simEdgeList)
+
+            # What is not provided in modules, but needed
+            missingObjects <- simEdgeList %>% filter(from!=to) %>% anti_join(pth,.)
+            if (NROW(missingObjects)) {
+              warning("Problem resolving the module dependencies:\n",
+                      missingObjects)
+            }
+
+            # What is provided in modules, and can be omitted from simEdgeList object
+            newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth)
+
+            return(newEdgeList)
 })
 
 ################################################################################
@@ -125,7 +160,7 @@ setMethod("depsDetectCycles",
 #' Uses \code{\link{topological.sort}} to try to find a load order satisfying
 #' all module object dependencies.
 #'
-#' @inheritParams depsDetectCycles
+#' @inheritParams depsPruneEdges
 #'
 #' @return Character vector of module names, sorted in correct load order.
 #'
@@ -151,5 +186,6 @@ setMethod("depsLoadOrder",
             # -- ensure depsDetectCycles is called before this function
             tsort <- topological.sort(simGraph)
             loadOrder <- names(simGraph[[tsort,]])
+            ## need to remove "_INPUT_"
             return(loadOrder)
 })

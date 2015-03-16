@@ -10,7 +10,7 @@
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
 #' \code{\link{data.frame}} to implement the event queue (because it is much faster).
 #'
-#' @slot .loadOrder List of character names specifying the order in which modules are to be loaded.
+#' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
 #'
 #' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
 #'
@@ -47,11 +47,11 @@
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 setClass("simList",
-         slots=list(.loadOrder="list", .loaded="list",
+         slots=list(.loadOrder="character", .loaded="list",
                     modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends="simDeps", simtimes="list"),
-         prototype=list(.loadOrder=list(),
+         prototype=list(.loadOrder=character(),
                         .loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
                         modules=as.list(NULL), params=as.list(NULL),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
@@ -85,7 +85,7 @@ setMethod("show",
 
             ### simulation dependencies
             out[[2]] = capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] = NULL #capture.output(print(rbind(simDepends(object))))
+            out[[3]] = "use `simDepends(sim)` to view dependencies for each module"
             out[[4]] = capture.output(cat("\n"))
 
             ### simtimes
