@@ -1,4 +1,3 @@
-require(magrittr)
 require(dplyr)
 require(igraph)
 
@@ -63,6 +62,6 @@ lapply(pth, function(x) { rownames(M)[x] })
 
 
 # resolve dependencies (topological sort)
-tsort <- topological.sort(test.graph) # only works if acyclic!
-loadOrder <- names(test.graph[[tsort,]])
-loadOrder
+loadOrder <- depsLoadOrder(simGraph.F)
+simModulesLoadOrder(mySim) <- depsLoadOrder(simGraph.F)
+simModulesLoadOrder(mySim)
