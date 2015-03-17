@@ -32,6 +32,7 @@
 #' @seealso \code{\link{spades}}.
 #'
 #' @include module-dependencies-class.R
+#' @importFrom magrittr '%>%'
 #' @include simList.R
 #' @export
 #' @docType methods

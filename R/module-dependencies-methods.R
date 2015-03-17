@@ -17,8 +17,10 @@ setOldClass("igraph")
 #'
 #' @include simList.R
 #'
-#' @import dplyr
 #' @export
+#' @importFrom magrittr '%>%'
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 #' @docType methods
 #' @rdname depsEdgeList-method
 #'
@@ -46,7 +48,7 @@ setMethod("depsEdgeList",
               if (!all(is.na(z.out[,1:2]))) sim.out <<- rbind(sim.out, z.out)
               return(invisible(NULL))
             })
-
+browser()
             dx <- left_join(sim.in, sim.out, by="name") %>%
               mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
@@ -66,6 +68,7 @@ setMethod("depsEdgeList",
 #' @include simList.R
 #'
 #' @import igraph
+#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname depsGraph-method
@@ -102,6 +105,10 @@ setMethod("depsGraph",
 #' @include simList.R
 #'
 #' @import igraph
+#' @importFrom magrittr '%>%'
+#' @importFrom dplyr anti_join
+#' @importFrom dplyr inner_join
+#' @importFrom dplyr filter
 #' @export
 #' @docType methods
 #' @rdname depsPruneEdges-method
@@ -135,17 +142,18 @@ setMethod("depsPruneEdges",
                 }
               }
             }
-            pth <- pth %>% inner_join(simEdgeList)
+            pth <- pth %>% inner_join(simEdgeList, by=c("from","to"))
 
             # What is not provided in modules, but needed
-            missingObjects <- simEdgeList %>% filter(from!=to) %>% anti_join(pth,.)
+            missingObjects <- simEdgeList %>% filter(from!=to) %>%
+              anti_join(pth,., by=c("from","to"))
             if (NROW(missingObjects)) {
               warning("Problem resolving the module dependencies:\n",
                       missingObjects)
             }
 
             # What is provided in modules, and can be omitted from simEdgeList object
-            newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth)
+            newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth, by=c("from","to"))
 
             return(newEdgeList)
 })
@@ -166,6 +174,7 @@ setMethod("depsPruneEdges",
 #'
 #' @include simList.R
 #'
+#' @importFrom magrittr '%>%'
 #' @import igraph
 #' @export
 #' @docType methods

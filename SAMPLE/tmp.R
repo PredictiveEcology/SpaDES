@@ -1,5 +1,5 @@
-require(dplyr, lib.loc="~/R-dev")
-require(igraph, lib.loc="~/R-dev")
+#require(dplyr, lib.loc="~/R-dev")
+#require(igraph, lib.loc="~/R-dev")
 
 outputPath <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=10.01)

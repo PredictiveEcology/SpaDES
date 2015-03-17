@@ -37,11 +37,10 @@ Suggests:
 Imports:
     CircStats,
     dplyr,
+    magrittr,
     ggplot2,
     gridBase,
     igraph,
-    lazyeval,
-    magrittr,
     methods,
     RandomFields,
     RColorBrewer,

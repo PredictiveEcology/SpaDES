@@ -64,7 +64,7 @@ setMethod("loadPackages",
 #'
 #' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
 #'
-#' @import magrittr
+#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname checkPath-method
@@ -223,7 +223,7 @@ setMethod("checkObject",
 #' @return  Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
 #'          Sensible messages are be produced identifying missing params.
 #'
-#' @import magrittr
+#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname checkParams-method
