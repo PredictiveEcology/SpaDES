@@ -1,9 +1,9 @@
 ## Test environments
-* local OS X Yosemite install, R 3.1.2
-* local Windows 7 install, R 3.1.2
-* local Windows 7 install, R 3.1.3
-* local Ubuntu 14.04, R 3.1.3
+* OS X Yosemite install (local), R 3.1.3
 * Ubuntu 12.04 (on travis-ci), R 3.1.2
+* Ubuntu 14.04 (local), R 3.1.3
+* Windows 7 install (local), R 3.1.2
+* Windows 7 install (local), R 3.1.3
 
 ## R CMD check results
 There were no ERRORs or WARNINGs
@@ -24,9 +24,9 @@ There were 2 NOTES:
         * checking R code for possible problems ... NOTE
         Found the following assignments to the global environment:
         File ‘SpaDES/R/load.R’:
-          assign(objectNames[x], do.call(get(loadFun[x]), args = argument), 
+          assign(objectNames[x], do.call(get(loadFun[x]), args = argument),
             envir = .GlobalEnv)
-          assign(objectNames[x], get(objectNames[x], envir = .GlobalEnv), 
+          assign(objectNames[x], get(objectNames[x], envir = .GlobalEnv),
             , envir = .GlobalEnv)
           assign(uniqueStacki, localStacks[[uniqueStacki]], envir = .GlobalEnv)
 
