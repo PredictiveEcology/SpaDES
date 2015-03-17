@@ -53,11 +53,7 @@ defineModule(sim, list(
 ### event functions
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### check for module dependencies:
-    ### (use NULL if no dependencies exist)
-    depends <- NULL
-
-    ### check for object dependencies:
+    ### check for more object dependencies:
     ### (use `checkObject` or similar)
     checkObject(simGlobals(sim)$.stackName, layer="habitatQuality")
 
@@ -66,25 +62,16 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       npix <- getGlobal(simGlobals(sim)$burnStats)
       stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
-#       if (length(npix)>0) {
-#         message(paste0("Object `", simGlobals(sim)$burnStats, "` already exists and will be overwritten."))
-#       }
     }
 
-    # if a required module isn't loaded yet,
-    # reschedule this module init for later
-    if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, simCurrentTime(sim), "fireSpread", "init")
-    } else {
-      # do stuff for this event
-      sim <- fireSpreadInit(sim)
+    # do stuff for this event
+    sim <- fireSpreadInit(sim)
 
+    # schedule the next events
+    sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, "fireSpread", "burn")
+    sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
+    sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
 
-      # schedule the next event
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$startTime, "fireSpread", "burn")
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.saveInterval, "fireSpread", "save")
-      sim <- scheduleEvent(sim, simParams(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
-    }
   } else if (eventType=="burn") {
     # do stuff for this event
     sim <- fireSpreadBurn(sim)

@@ -75,12 +75,13 @@ There are a number of built-in modules that provide useful functionality. These 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE}
-library("raster")
-library("SpaDES")
+require(RandomFields)
+require(raster)
+require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=100)
-outputPath=file.path(tmpDir(), "simOutputs")
+outputPath <- file.path(tmpDir(), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
@@ -104,12 +105,12 @@ Schedule updates to the simulation progress bar.
 
 ```{r progress, echo=TRUE, eval=FALSE}
 # initialize a new simulation, setting the progress parameters
-mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.progress=list(.graphical=FALSE, .progressInterval=10),
+mySim <- simInit(times=list(start=0.0, stop=100.0),
+                 params=list(.globals=list(.stackName="landscape", .outputPath=outputPath),
+                             .progress=list(.graphical=FALSE, .progressInterval=10),
                              randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE)),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES")
-)
+                 path=system.file("sampleModules", package="SpaDES"))
 
 # retrieve the checkpoint params from the simulation object
 simParams(mySim)$.progress
@@ -138,9 +139,10 @@ Saving objects to file can be done by passing the appropriate arguments as param
 
 ```{r load-save, echo=TRUE, eval=FALSE}
 # initialize a new simulation, setting the load and save parameters
-filelist <- file.path(find.package("SpaDES", quiet=FALSE),"maps")
+filelist <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
+                   .globals=list(.stackName="landscape", .outputPath=outputPath),
                    .loadFileList=data.frame(files=filelist, stringsAsFactors=FALSE),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                 .saveObjects=c("habitat"),

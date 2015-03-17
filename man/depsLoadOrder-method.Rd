@@ -3,15 +3,17 @@
 \docType{methods}
 \name{depsLoadOrder}
 \alias{depsLoadOrder}
-\alias{depsLoadOrder,igraph-method}
+\alias{depsLoadOrder,simList,igraph-method}
 \title{Determine module load order}
 \usage{
-depsLoadOrder(simGraph)
+depsLoadOrder(sim, simGraph)
 
-\S4method{depsLoadOrder}{igraph}(simGraph)
+\S4method{depsLoadOrder}{simList,igraph}(sim, simGraph)
 }
 \arguments{
-\item{An}{\code{\link{igraph}} object produced by \code{\link{depsGraph}}.}
+\item{sim}{A \code{simList} object.}
+
+\item{simGraph}{An \code{\link{igraph}} object produced by \code{\link{depsGraph}}.}
 }
 \value{
 Character vector of module names, sorted in correct load order.

@@ -3,15 +3,15 @@
 \docType{methods}
 \name{depsPruneEdges}
 \alias{depsPruneEdges}
-\alias{depsPruneEdges,data.frame-method}
+\alias{depsPruneEdges,data.table-method}
 \title{Prune edges to remove cycles in module dependencies}
 \usage{
 depsPruneEdges(simEdgeList)
 
-\S4method{depsPruneEdges}{data.frame}(simEdgeList)
+\S4method{depsPruneEdges}{data.table}(simEdgeList)
 }
 \arguments{
-\item{simEdgeList}{An edge list produced by \code{\link{depsEdgeList}}.}
+\item{simEdgeList}{An edge list (\code{data.table}) produced by \code{\link{depsEdgeList}}.}
 }
 \value{
 An updated edge list object.

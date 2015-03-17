@@ -49,21 +49,10 @@ defineModule(sim, list(
 ### event functions
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### check for module dependencies:
-    ### (use NULL if no dependencies exist)
-    depends <- NULL
+    # do stuff for this event
+    sim <- randomLandscapesInit(sim)
 
-    ### check for object dependencies:
-    ### (use `checkObject` or similar)
-
-
-    # if a required module isn't loaded yet,
-    # reschedule this module init for later
-    if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, simCurrentTime(sim), "randomLandscapes", "init")
-    } else {
-      sim <- randomLandscapesInit(sim)
-    }
+    # schedule the next events
     sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime, "randomLandscapes", "plot")
     sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime, "randomLandscapes", "save")
 

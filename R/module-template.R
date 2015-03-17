@@ -104,17 +104,13 @@ defineModule(list(
 ### template event
 doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType==\"init\") {
-    ### check for object dependencies:
+    ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
 
+    # do stuff for this event
+    sim <- ", name, "Init(sim)
 
-    # if a required module isn't loaded yet,
-    # reschedule this module init for later
-    if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"init\")
-    } else {
-      sim <- ", name, "Init(sim)
-    }
+    # schedule future event(s)
     sim <- scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
     sim <- scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType==\"templateEvent\") {

@@ -12,13 +12,14 @@ setOldClass("igraph")
 #'              so that only a single arrow is drawn connecting the modules.
 #'              Default is \code{FALSE}.
 #'
-#' @return A \code{data.frame} whose first two columns give a list of edges
+#' @return A \code{data.table} whose first two columns give a list of edges
 #'          and remaining columns the attributes of the dependency objects
 #'          (object name, class, etc.).
 #'
 #' @include simList.R
 #'
 #' @export
+#' @import data.table
 #' @importFrom magrittr '%>%'
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
@@ -37,25 +38,40 @@ setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
             deps <- simDepends(sim)
-            sim.in <- sim.out <- data.frame(objName=character(),
-                                            objClass=character(),
-                                            module=character())
+            sim.in <- sim.out <- data.frame(name=character(),
+                                            class=character(),
+                                            module=character(),
+                                            stringsAsFactors=FALSE) %>%
+                                 as.data.table()
 
             lapply(deps@dependencies, function(x) {
-              z.in <- x@inputObjects
-              z.out <- x@outputObjects
+              z.in <- as.data.table(x@inputObjects)
+              z.out <- as.data.table(x@outputObjects)
               z.in$module <- z.out$module <- x@name
-              if (!all(is.na(z.in[,1:2]))) sim.in <<- rbind(sim.in, z.in)
-              if (!all(is.na(z.out[,1:2]))) sim.out <<- rbind(sim.out, z.out)
-              return(invisible(NULL))
+              if (!all(is.na(z.in[,name]), is.na(z.in[,class]))) {
+                sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)
+              }
+              if (!all(is.na(z.out[,1:2]), is.na(z.out[,class]))) {
+                sim.out <<- rbindlist(list(sim.out, z.out), use.names=TRUE)
+              }
+              return(invisible(NULL)) # return from the lapply
             })
-            dx <- left_join(sim.in, sim.out, by="name") %>%
-              mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
-            df <- with(dx, data.frame(from=module.y, to=module.x, objName=name,
-                                     objClass=class.x, stringsAsFactors=FALSE))
-            if (plot) df <- df[!duplicated(df[,1:2]),]
-            return(df)
+            if ((nrow(sim.in)) && (nrow(sim.out))) {
+              dx <- left_join(sim.in, sim.out, by="name") %>%
+                mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
+
+              dt <- with(dx, as.data.table(data.frame(from=module.y, to=module.x,
+                                                      objName=name, objClass=class.x,
+                                                      stringsAsFactors=FALSE)))
+              if (plot) dt <- dt[!duplicated(dt[,1:2]),]
+            } else {
+              dt <- data.frame(from=character(), to=character(), objName=character(),
+                               objClass=character(), stringsAsFactors=FALSE) %>%
+                    as.data.table()
+
+            }
+            return(dt)
 })
 
 #' @rdname depsEdgeList-method
@@ -106,12 +122,13 @@ setMethod("depsGraph",
 #' Attempts to identify cycles in the dependency graph and remove edges representing
 #' object dependencies which are provided by other modules in the simulation.
 #'
-#' @param simEdgeList An edge list produced by \code{\link{depsEdgeList}}.
+#' @param simEdgeList An edge list (\code{data.table}) produced by \code{\link{depsEdgeList}}.
 #'
 #' @return An updated edge list object.
 #'
 #' @include simList.R
 #'
+#' @import data.table
 #' @import igraph
 #' @importFrom magrittr '%>%'
 #' @importFrom dplyr anti_join
@@ -132,39 +149,52 @@ setGeneric("depsPruneEdges", function(simEdgeList) {
 #' @rdname depsPruneEdges-method
 #'
 setMethod("depsPruneEdges",
-          signature(simEdgeList="data.frame"),
+          signature(simEdgeList="data.table"),
           definition=function(simEdgeList) {
             simGraph <- graph.data.frame(simEdgeList)
             M <- shortest.paths(simGraph, mode="out")
-            pth <- data.frame(from=character(), to=character())
-            for (row in 1L:(nrow(M)-1)) {
-              for (col in (row+1L):ncol(M)) {
-                current <- M[row,col]
-                partner <- M[col,row]
-                if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
-                  pth1 <- get.shortest.paths(simGraph, from=rownames(M)[row], to=colnames(M)[col])$vpath[[1]]
-                  pth1 <- data.frame(from=rownames(M)[pth1],to=rownames(M)[lead(pth1,1)], stringsAsFactors = FALSE) %>% na.omit
+            if (nrow(M)>1) {
+              pth <- data.frame(from=character(), to=character()) %>% as.data.table()
+              for (row in 1L:(nrow(M)-1)) {
+                for (col in (row+1L):ncol(M)) {
+                  current <- M[row,col]
+                  partner <- M[col,row]
+                  if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
+                    pth1 <- get.shortest.paths(simGraph,
+                                               from=rownames(M)[row],
+                                               to=colnames(M)[col])$vpath[[1]]
+                    pth1 <- data.frame(from=rownames(M)[pth1],
+                                       to=rownames(M)[lead(pth1,1)],
+                                       stringsAsFactors = FALSE) %>%
+                            na.omit %>% as.data.table()
 
-                  pth2 <- get.shortest.paths(simGraph, from=colnames(M)[col], to=rownames(M)[row])$vpath[[1]]
-                  pth2 <- data.frame(from=rownames(M)[pth2],to=rownames(M)[lead(pth2,1)], stringsAsFactors = FALSE) %>% na.omit
+                    pth2 <- get.shortest.paths(simGraph,
+                                               from=colnames(M)[col],
+                                               to=rownames(M)[row])$vpath[[1]]
+                    pth2 <- data.frame(from=rownames(M)[pth2],
+                                       to=rownames(M)[lead(pth2,1)],
+                                       stringsAsFactors = FALSE) %>%
+                            na.omit %>% as.data.table()
 
-                  pth <- bind_rows(pth,bind_rows(pth1, pth2))
+                    pth <- rbindlist(list(pth, rbindlist(list(pth1, pth2))))
+                  }
                 }
               }
+              pth <- pth %>% inner_join(simEdgeList, by=c("from","to"))
+
+              # What is not provided in modules, but needed
+              missingObjects <- simEdgeList %>% filter(from!=to) %>%
+                anti_join(pth,., by=c("from","to"))
+              if (nrow(missingObjects)) {
+                warning("Problem resolving the module dependencies:\n",
+                        missingObjects)
+              }
+
+              # What is provided in modules, and can be omitted from simEdgeList object
+              newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth, by=c("from","to"))
+            } else {
+              newEdgeList <- simEdgeList
             }
-            pth <- pth %>% inner_join(simEdgeList, by=c("from","to"))
-
-            # What is not provided in modules, but needed
-            missingObjects <- simEdgeList %>% filter(from!=to) %>%
-              anti_join(pth,., by=c("from","to"))
-            if (NROW(missingObjects)) {
-              warning("Problem resolving the module dependencies:\n",
-                      missingObjects)
-            }
-
-            # What is provided in modules, and can be omitted from simEdgeList object
-            newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth, by=c("from","to"))
-
             return(newEdgeList)
 })
 
@@ -178,7 +208,9 @@ setMethod("depsPruneEdges",
 #' Uses \code{\link{topological.sort}} to try to find a load order satisfying
 #' all module object dependencies.
 #'
-#' @param An \code{\link{igraph}} object produced by \code{\link{depsGraph}}.
+#' @param sim         A \code{simList} object.
+#'
+#' @param simGraph    An \code{\link{igraph}} object produced by \code{\link{depsGraph}}.
 #'
 #' @return Character vector of module names, sorted in correct load order.
 #'
@@ -192,17 +224,21 @@ setMethod("depsPruneEdges",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("depsLoadOrder", function(simGraph) {
+setGeneric("depsLoadOrder", function(sim, simGraph) {
   standardGeneric("depsLoadOrder")
 })
 
 #' @rdname depsLoadOrder-method
 #'
 setMethod("depsLoadOrder",
-          signature(simGraph="igraph"),
-          definition=function(simGraph) {
+          signature(sim="simList", simGraph="igraph"),
+          definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!
             tsort <- topological.sort(simGraph)
-            loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
+            if (length(tsort)) {
+              loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
+            } else {
+              loadOrder <- unlist(simModules(sim))
+            }
             return(loadOrder)
 })

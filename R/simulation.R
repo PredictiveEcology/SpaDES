@@ -56,7 +56,8 @@ setGeneric("simInit", function(times, params, modules, path, loadOrder) {
 #' @rdname simInit-method
 #'
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="character", loadOrder="character"),
+          signature(times="list", params="list", modules="list",
+                    path="character", loadOrder="character"),
           definition=function(times, params, modules, path, loadOrder) {
 
             path <- checkPath(path, create=TRUE)
@@ -90,7 +91,7 @@ setMethod("simInit",
             if ( length(loadOrder) && all(modules %in% loadOrder) && all(loadOrder %in% modules) ) {
                 simModulesLoadOrder(sim) <- loadOrder
             } else {
-              simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(.)
+              simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(sim, .)
             }
 
             # load "default" modules
@@ -136,7 +137,7 @@ setMethod("simInit",
               ### values where used (i.e., in save.R).
             }
 
-            simModules(sim) <- append(defaults, simModules(sim))
+            simModules(sim) <- append(defaults, simModulesLoadOrder(sim))
 
             # load files in the filelist
             if (is.null(simFileList(sim))) {
@@ -153,17 +154,21 @@ setMethod("simInit",
 
 #' @rdname simInit-method
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="missing", loadOrder="character"),
+          signature(times="list", params="list", modules="list",
+                    path="missing", loadOrder="character"),
           definition=function(times, params, modules, loadOrder) {
-            sim <- simInit(times=times, params=params, modules=modules, path="./", loadOrder=loadOrder)
+            sim <- simInit(times=times, params=params, modules=modules,
+                           path="./", loadOrder=loadOrder)
             return(invisible(sim))
 })
 
 #' @rdname simInit-method
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="character", loadOrder="missing"),
+          signature(times="list", params="list", modules="list",
+                    path="character", loadOrder="missing"),
           definition=function(times, params, modules, path) {
-            sim <- simInit(times=times, params=params, modules=modules, path=path, loadOrder=character())
+            sim <- simInit(times=times, params=params, modules=modules,
+                           path=path, loadOrder=character())
             return(invisible(sim))
 })
 
@@ -182,6 +187,8 @@ setMethod("simInit",
 #' These dependencies need to be loaded first, so if they are not
 #' already loaded, hold off loading the current module until after
 #' dependencies are loaded.
+#'
+#' DEPRECATED
 #'
 #' @param sim     A \code{simList} simulation object.
 #'
@@ -213,6 +220,9 @@ setMethod("reloadModuleLater",
 setMethod("reloadModuleLater",
           signature(sim="simList", depends="character"),
           definition=function(sim, depends) {
+            # deprecated in v0.6.0
+            .Deprecated(msg=paste0("Warning: 'reloadModuleLater' is deprecated.\n",
+                        "Module dependencies should be specified using 'defineModule'"))
             return(!all(depends %in% simModulesLoaded(sim)))
 })
 
