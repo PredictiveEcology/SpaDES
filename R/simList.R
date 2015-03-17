@@ -10,6 +10,8 @@
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
 #' \code{\link{data.frame}} to implement the event queue (because it is much faster).
 #'
+#' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
+#'
 #' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
 #'
 #' @slot modules    List of character names specifying which modules to load.
@@ -45,10 +47,12 @@
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 setClass("simList",
-         slots=list(.loaded="list", modules="list", params="list",
+         slots=list(.loadOrder="character", .loaded="list",
+                    modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends="simDeps", simtimes="list"),
-         prototype=list(.loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
+         prototype=list(.loadOrder=character(),
+                        .loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
                         modules=as.list(NULL), params=as.list(NULL),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new("simDeps", dependencies=list(NULL)),
@@ -81,7 +85,7 @@ setMethod("show",
 
             ### simulation dependencies
             out[[2]] = capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] = NULL #capture.output(print(rbind(simDepends(object))))
+            out[[3]] = "use `simDepends(sim)` to view dependencies for each module"
             out[[4]] = capture.output(cat("\n"))
 
             ### simtimes
@@ -202,6 +206,50 @@ setReplaceMethod("simModules",
                    validObject(object)
                    return(object)
  })
+
+################################################################################
+#' Get and set the module load order for the simulation.
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#'
+#' @inheritParams simModules
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simModulesLoadOrder-accessor-methods
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simModulesLoadOrder", function(object) {
+  standardGeneric("simModulesLoadOrder")
+})
+
+#' @rdname simModulesLoadOrder-accessor-methods
+setMethod("simModulesLoadOrder",
+          signature="simList",
+          definition=function(object) {
+            return(object@.loadOrder)
+          })
+
+#' @export
+#' @rdname simModulesLoadOrder-accessor-methods
+setGeneric("simModulesLoadOrder<-",
+           function(object, value) {
+             standardGeneric("simModulesLoadOrder<-")
+           })
+
+#' @name simModulesLoadOrder<-
+#' @aliases simModulesLoadOrder<-,simList-method
+#' @rdname simModulesLoadOrder-accessor-methods
+setReplaceMethod("simModulesLoadOrder",
+                 signature="simList",
+                 function(object, value) {
+                   object@.loadOrder <- value
+                   validObject(object)
+                   return(object)
+})
 
 ################################################################################
 #' Get and set the modules loaded for the simulation.

@@ -3,15 +3,24 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,list,list,list,character-method}
-\alias{simInit,list,list,list,missing-method}
+\alias{simInit,list,list,list,character,character-method}
+\alias{simInit,list,list,list,character,missing-method}
+\alias{simInit,list,list,list,missing,character-method}
+\alias{simInit,list,list,list,missing,missing-method}
 \title{Initialize a new simulation}
 \usage{
-simInit(times, params, modules, path)
+simInit(times, params, modules, path, loadOrder)
 
-\S4method{simInit}{list,list,list,character}(times, params, modules, path)
+\S4method{simInit}{list,list,list,character,character}(times, params, modules,
+  path, loadOrder)
 
-\S4method{simInit}{list,list,list,missing}(times, params, modules)
+\S4method{simInit}{list,list,list,missing,character}(times, params, modules,
+  loadOrder)
+
+\S4method{simInit}{list,list,list,character,missing}(times, params, modules,
+  path)
+
+\S4method{simInit}{list,list,list,missing,missing}(times, params, modules)
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and stop times
@@ -27,6 +36,10 @@ located at the specified \code{path} (see below).}
 
 \item{path}{An optional character string specifying the location of the module source files.
              If no path is specified, it defaults to the current working directory.}
+
+\item{.loadOrder}{An optional list of module names specfiying the order in
+                   which to load the modules. If not specified, the module
+                   load order will be determined automatically.}
 }
 \value{
 A \code{simList} simulation object, pre-initialized from values specified

@@ -18,8 +18,10 @@ setOldClass("igraph")
 #'
 #' @include simList.R
 #'
-#' @import dplyr
 #' @export
+#' @importFrom magrittr '%>%'
+#' @importFrom dplyr left_join
+#' @importFrom dplyr mutate
 #' @docType methods
 #' @rdname depsEdgeList-method
 #'
@@ -47,9 +49,8 @@ setMethod("depsEdgeList",
               if (!all(is.na(z.out[,1:2]))) sim.out <<- rbind(sim.out, z.out)
               return(invisible(NULL))
             })
-
             dx <- left_join(sim.in, sim.out, by="name") %>%
-              mutate(module.y=replace(module.y, is.na(module.y), "_IN_"))
+              mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
             df <- with(dx, data.frame(from=module.y, to=module.x, objName=name,
                                      objClass=class.x, stringsAsFactors=FALSE))
@@ -75,6 +76,7 @@ setMethod("depsEdgeList",
 #' @include simList.R
 #'
 #' @import igraph
+#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname depsGraph-method
@@ -90,20 +92,80 @@ setGeneric("depsGraph", function(sim, plot) {
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
-            edgeList <- depsEdgeList(sim, plot)
-            if (!plot) {
-              edgeList <- depsPruneCycles(edgeList)
+            if (plot) {
+              el <- depsEdgeList(sim, plot)
+            } else {
+              el <- depsEdgeList(sim, plot) %>% depsPruneEdges(.)
             }
-            return(graph.data.frame(edgeList))
+            return(graph.data.frame(el))
 })
 
-#' @rdname depsGraph-method
+################################################################################
+#' Prune edges to remove cycles in module dependencies
 #'
-setMethod("depsGraph",
-          signature(sim="simList", plot="missing"),
-          definition=function(sim) {
-            edgeList <- depsEdgeList(sim, plot=FALSE)
-            return(graph.data.frame(edgeList))
+#' Attempts to identify cycles in the dependency graph and remove edges representing
+#' object dependencies which are provided by other modules in the simulation.
+#'
+#' @param simEdgeList An edge list produced by \code{\link{depsEdgeList}}.
+#'
+#' @return An updated edge list object.
+#'
+#' @include simList.R
+#'
+#' @import igraph
+#' @importFrom magrittr '%>%'
+#' @importFrom dplyr anti_join
+#' @importFrom dplyr lead
+#' @importFrom dplyr inner_join
+#' @importFrom dplyr filter
+#' @importFrom dplyr bind_rows
+#' @export
+#' @docType methods
+#' @rdname depsPruneEdges-method
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("depsPruneEdges", function(simEdgeList) {
+  standardGeneric("depsPruneEdges")
+})
+
+#' @rdname depsPruneEdges-method
+#'
+setMethod("depsPruneEdges",
+          signature(simEdgeList="data.frame"),
+          definition=function(simEdgeList) {
+            simGraph <- graph.data.frame(simEdgeList)
+            M <- shortest.paths(simGraph, mode="out")
+            pth <- data.frame(from=character(), to=character())
+            for (row in 1L:(nrow(M)-1)) {
+              for (col in (row+1L):ncol(M)) {
+                current <- M[row,col]
+                partner <- M[col,row]
+                if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
+                  pth1 <- get.shortest.paths(simGraph, from=rownames(M)[row], to=colnames(M)[col])$vpath[[1]]
+                  pth1 <- data.frame(from=rownames(M)[pth1],to=rownames(M)[lead(pth1,1)], stringsAsFactors = FALSE) %>% na.omit
+
+                  pth2 <- get.shortest.paths(simGraph, from=colnames(M)[col], to=rownames(M)[row])$vpath[[1]]
+                  pth2 <- data.frame(from=rownames(M)[pth2],to=rownames(M)[lead(pth2,1)], stringsAsFactors = FALSE) %>% na.omit
+
+                  pth <- bind_rows(pth,bind_rows(pth1, pth2))
+                }
+              }
+            }
+            pth <- pth %>% inner_join(simEdgeList, by=c("from","to"))
+
+            # What is not provided in modules, but needed
+            missingObjects <- simEdgeList %>% filter(from!=to) %>%
+              anti_join(pth,., by=c("from","to"))
+            if (NROW(missingObjects)) {
+              warning("Problem resolving the module dependencies:\n",
+                      missingObjects)
+            }
+
+            # What is provided in modules, and can be omitted from simEdgeList object
+            newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth, by=c("from","to"))
+
+            return(newEdgeList)
 })
 
 ################################################################################
@@ -116,12 +178,13 @@ setMethod("depsGraph",
 #' Uses \code{\link{topological.sort}} to try to find a load order satisfying
 #' all module object dependencies.
 #'
-#' @inheritParams depsEdgeList
+#' @param An \code{\link{igraph}} object produced by \code{\link{depsGraph}}.
 #'
 #' @return Character vector of module names, sorted in correct load order.
 #'
 #' @include simList.R
 #'
+#' @importFrom magrittr '%>%'
 #' @import igraph
 #' @export
 #' @docType methods
@@ -140,6 +203,6 @@ setMethod("depsLoadOrder",
           definition=function(simGraph) {
             # only works if simGraph is acyclic!
             tsort <- topological.sort(simGraph)
-            loadOrder <- names(simGraph[[tsort,]])
+            loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             return(loadOrder)
 })

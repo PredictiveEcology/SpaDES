@@ -10,6 +10,9 @@ depsLoadOrder(simGraph)
 
 \S4method{depsLoadOrder}{igraph}(simGraph)
 }
+\arguments{
+\item{An}{\code{\link{igraph}} object produced by \code{\link{depsGraph}}.}
+}
 \value{
 Character vector of module names, sorted in correct load order.
 }

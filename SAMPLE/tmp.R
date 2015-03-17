@@ -1,6 +1,6 @@
-require(magrittr)
-require(dplyr)
-require(igraph)
+#require(Rcpp, lib.loc="~/R-dev")
+#require(dplyr, lib.loc="~/R-dev")
+#require(igraph, lib.loc="~/R-dev")
 
 outputPath <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=10.01)
@@ -19,15 +19,8 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-# check edgeLists
-depsEdgeList(mySim, plot=FALSE)
-depsEdgeList(mySim, plot=TRUE)
-
-# dependency graph (build edgelist internally)
-simGraph.F <- depsGraph(mySim, plot=FALSE)
-simGraph.T <- depsGraph(mySim, plot=TRUE)
-
 # see what it looks like
+<<<<<<< HEAD
 plot(simGraph.F)
 plot(simGraph.T) # the version returned to user
 
@@ -61,8 +54,8 @@ lapply(pth, function(x) { rownames(M)[x] })
 #   # REPEAT until something...yell at user if there are any we can't ignore
 # }
 
+=======
+simGraph = depsGraph(mySim, plot=TRUE) # the version returned to user for plotting
+plot(simGraph)
+>>>>>>> origin/module-deps
 
-# resolve dependencies (topological sort)
-tsort <- topological.sort(test.graph) # only works if acyclic!
-loadOrder <- names(test.graph[[tsort,]])
-loadOrder

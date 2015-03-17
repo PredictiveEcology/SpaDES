@@ -22,12 +22,17 @@
 #' @param path  An optional character string specifying the location of the module source files.
 #'              If no path is specified, it defaults to the current working directory.
 #'
+#' @param .loadOrder  An optional list of module names specfiying the order in
+#'                    which to load the modules. If not specified, the module
+#'                    load order will be determined automatically.
+#'
 #' @return A \code{simList} simulation object, pre-initialized from values specified
 #' in the arguments supplied.
 #'
 #' @seealso \code{\link{spades}}.
 #'
 #' @include module-dependencies-class.R
+#' @importFrom magrittr '%>%'
 #' @include simList.R
 #' @export
 #' @docType methods
@@ -44,15 +49,15 @@
 #'  mySim
 #' }
 #'
-setGeneric("simInit", function(times, params, modules, path) {
+setGeneric("simInit", function(times, params, modules, path, loadOrder) {
     standardGeneric("simInit")
 })
 
 #' @rdname simInit-method
 #'
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="character"),
-          definition=function(times, params, modules, path) {
+          signature(times="list", params="list", modules="list", path="character", loadOrder="character"),
+          definition=function(times, params, modules, path, loadOrder) {
 
             path <- checkPath(path, create=TRUE)
 
@@ -60,17 +65,33 @@ setMethod("simInit",
             defaults <- list("checkpoint", "save", "progress", "load")
 
             # parameters for default modules
-            dotParamsReal = list(".saveInterval", ".saveInitialTime",
+            dotParamsReal <- list(".saveInterval", ".saveInitialTime",
                                  ".plotInterval", ".plotInitialTime")
-            dotParamsChar = list(".savePath", ".saveObjects")
-            dotParams = append(dotParamsChar, dotParamsReal)
+            dotParamsChar <- list(".savePath", ".saveObjects")
+            dotParams <- append(dotParamsChar, dotParamsReal)
 
             # create new simList object
             sim <- new("simList", simtimes=list(current=times$start,
                                                 start=times$start,
                                                 stop=times$stop))
             simModules(sim) <- modules[!sapply(modules, is.null)]
+
             simParams(sim) <- params
+
+            # source module metadata and code files
+            for (m in simModules(sim)) {
+              parsedFile <- parse(paste(path, "/", m, "/", m, ".R", sep=""))
+              defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+              sim <- eval(parsedFile[defineModuleItem])
+              eval(parsedFile[!defineModuleItem], envir = .GlobalEnv)
+            }
+
+            # check user-supplied load order
+            if ( length(loadOrder) && all(modules %in% loadOrder) && all(loadOrder %in% modules) ) {
+                simModulesLoadOrder(sim) <- loadOrder
+            } else {
+              simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(.)
+            }
 
             # load "default" modules
             for (d in defaults) {
@@ -86,13 +107,7 @@ setMethod("simInit",
             }
 
             # load user-defined modules
-            for (m in simModules(sim)) {
-              # source module metadata file
-              source(paste(path, "/", m, "/metadata.R", sep=""), local=TRUE)
-
-              # source the code from each module's R file
-              source(paste(path, "/", m, "/", m, ".R", sep=""), local=.GlobalEnv)
-
+            for (m in simModulesLoadOrder(sim)) {
               # schedule each module's init event:
               sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
 
@@ -133,17 +148,30 @@ setMethod("simInit",
             # check the parameters supplied by the user
             checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE
 
-            # summary of the simulation: modules, deps, etc.
-            #data.frame()
-
             return(invisible(sim))
 })
 
 #' @rdname simInit-method
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="missing"),
+          signature(times="list", params="list", modules="list", path="missing", loadOrder="character"),
+          definition=function(times, params, modules, loadOrder) {
+            sim <- simInit(times=times, params=params, modules=modules, path="./", loadOrder=loadOrder)
+            return(invisible(sim))
+})
+
+#' @rdname simInit-method
+setMethod("simInit",
+          signature(times="list", params="list", modules="list", path="character", loadOrder="missing"),
+          definition=function(times, params, modules, path) {
+            sim <- simInit(times=times, params=params, modules=modules, path=path, loadOrder=character())
+            return(invisible(sim))
+})
+
+#' @rdname simInit-method
+setMethod("simInit",
+          signature(times="list", params="list", modules="list", path="missing", loadOrder="missing"),
           definition=function(times, params, modules) {
-            simInit(times=times, params=params, modules=modules, path="./")
+            sim <- simInit(times=times, params=params, modules=modules, path="./", loadOrder=character())
             return(invisible(sim))
 })
 

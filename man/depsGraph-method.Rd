@@ -4,14 +4,11 @@
 \name{depsGraph}
 \alias{depsGraph}
 \alias{depsGraph,simList,logical-method}
-\alias{depsGraph,simList,missing-method}
 \title{Build a module dependency graph}
 \usage{
 depsGraph(sim, plot)
 
 \S4method{depsGraph}{simList,logical}(sim, plot)
-
-\S4method{depsGraph}{simList,missing}(sim)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}
