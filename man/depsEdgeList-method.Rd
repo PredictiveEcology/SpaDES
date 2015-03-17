@@ -4,11 +4,14 @@
 \name{depsEdgeList}
 \alias{depsEdgeList}
 \alias{depsEdgeList,simList,logical-method}
+\alias{depsEdgeList,simList,missing-method}
 \title{Build edge list for module dependency graph}
 \usage{
 depsEdgeList(sim, plot)
 
 \S4method{depsEdgeList}{simList,logical}(sim, plot)
+
+\S4method{depsEdgeList}{simList,missing}(sim, plot)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}
@@ -16,7 +19,8 @@ depsEdgeList(sim, plot)
 \item{plot}{Logical indicating whether the edgelist (and subsequent graph)
              will be used for plotting. If \code{TRUE}, duplicated rows
              (i.e., multiple object dependencies between modules) are removed
-             so that only a single arrow is drawn connecting the modules.}
+             so that only a single arrow is drawn connecting the modules.
+             Default is \code{FALSE}.}
 }
 \value{
 A \code{data.frame} whose first two columns give a list of edges

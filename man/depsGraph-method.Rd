@@ -4,11 +4,14 @@
 \name{depsGraph}
 \alias{depsGraph}
 \alias{depsGraph,simList,logical-method}
+\alias{depsGraph,simList,missing-method}
 \title{Build a module dependency graph}
 \usage{
 depsGraph(sim, plot)
 
 \S4method{depsGraph}{simList,logical}(sim, plot)
+
+\S4method{depsGraph}{simList,missing}(sim)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}
@@ -16,7 +19,8 @@ depsGraph(sim, plot)
 \item{plot}{Logical indicating whether the edgelist (and subsequent graph)
              will be used for plotting. If \code{TRUE}, duplicated rows
              (i.e., multiple object dependencies between modules) are removed
-             so that only a single arrow is drawn connecting the modules.}
+             so that only a single arrow is drawn connecting the modules.
+             Default is \code{FALSE}.}
 }
 \value{
 An \code{\link{igraph}} object.

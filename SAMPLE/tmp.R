@@ -31,7 +31,7 @@ simGraph.T <- depsGraph(mySim, plot=TRUE)
 plot(simGraph.F)
 plot(simGraph.T) # the version returned to user
 
-# detect cycles
+# detect and prune cycles
 M <- shortest.paths(simGraph.F, mode="out")
 
 pth <- list()

@@ -10,6 +10,7 @@ setOldClass("igraph")
 #'              will be used for plotting. If \code{TRUE}, duplicated rows
 #'              (i.e., multiple object dependencies between modules) are removed
 #'              so that only a single arrow is drawn connecting the modules.
+#'              Default is \code{FALSE}.
 #'
 #' @return A \code{data.frame} whose first two columns give a list of edges
 #'          and remaining columns the attributes of the dependency objects
@@ -56,6 +57,14 @@ setMethod("depsEdgeList",
             return(df)
 })
 
+#' @rdname depsEdgeList-method
+#'
+setMethod("depsEdgeList",
+          signature(sim="simList", plot="missing"),
+          definition=function(sim, plot) {
+            el <- depsEdgeList(sim, plot=FALSE)
+})
+
 ################################################################################
 #' Build a module dependency graph
 #'
@@ -81,38 +90,20 @@ setGeneric("depsGraph", function(sim, plot) {
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
-            el <- depsEdgeList(sim, plot)
-            return(graph.data.frame(el))
+            edgeList <- depsEdgeList(sim, plot)
+            if (!plot) {
+              edgeList <- depsPruneCycles(edgeList)
+            }
+            return(graph.data.frame(edgeList))
 })
 
-################################################################################
-#' Detect cycles in module dependencies
+#' @rdname depsGraph-method
 #'
-#' @inheritParams depsDetectCycles
-#'
-#' @return List of paths corresponding to cycles.
-#'
-#' @include simList.R
-#'
-#' @import igraph
-#' @export
-#' @docType methods
-#' @rdname depsDetectCycles-method
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("depsDetectCycles", function(simGraph) {
-  standardGeneric("depsDetectCycles")
-})
-
-#' @rdname depsDetectCycles-method
-#'
-setMethod("depsDetectCycles",
-          signature(simGraph="igraph"),
-          definition=function(simGraph) {
-            simGraph
-            x <- list(list("banana"))
-            return(x)
+setMethod("depsGraph",
+          signature(sim="simList", plot="missing"),
+          definition=function(sim) {
+            edgeList <- depsEdgeList(sim, plot=FALSE)
+            return(graph.data.frame(edgeList))
 })
 
 ################################################################################
@@ -125,7 +116,7 @@ setMethod("depsDetectCycles",
 #' Uses \code{\link{topological.sort}} to try to find a load order satisfying
 #' all module object dependencies.
 #'
-#' @inheritParams depsDetectCycles
+#' @inheritParams depsEdgeList
 #'
 #' @return Character vector of module names, sorted in correct load order.
 #'
@@ -148,7 +139,6 @@ setMethod("depsLoadOrder",
           signature(simGraph="igraph"),
           definition=function(simGraph) {
             # only works if simGraph is acyclic!
-            # -- ensure depsDetectCycles is called before this function
             tsort <- topological.sort(simGraph)
             loadOrder <- names(simGraph[[tsort,]])
             return(loadOrder)
