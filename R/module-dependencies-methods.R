@@ -48,7 +48,6 @@ setMethod("depsEdgeList",
               if (!all(is.na(z.out[,1:2]))) sim.out <<- rbind(sim.out, z.out)
               return(invisible(NULL))
             })
-browser()
             dx <- left_join(sim.in, sim.out, by="name") %>%
               mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
@@ -107,8 +106,10 @@ setMethod("depsGraph",
 #' @import igraph
 #' @importFrom magrittr '%>%'
 #' @importFrom dplyr anti_join
+#' @importFrom dplyr lead
 #' @importFrom dplyr inner_join
 #' @importFrom dplyr filter
+#' @importFrom dplyr bind_rows
 #' @export
 #' @docType methods
 #' @rdname depsPruneEdges-method

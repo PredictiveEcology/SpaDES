@@ -1,3 +1,4 @@
+#require(Rcpp, lib.loc="~/R-dev")
 #require(dplyr, lib.loc="~/R-dev")
 #require(igraph, lib.loc="~/R-dev")
 
@@ -21,3 +22,4 @@ mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 # see what it looks like
 simGraph = depsGraph(mySim, plot=TRUE) # the version returned to user for plotting
 plot(simGraph)
+
