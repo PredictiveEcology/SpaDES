@@ -53,7 +53,7 @@ a citation file, a license file, and a readme.txt file. The \code{newModuleDocum
 will not generate the module file, but will create the other 4 files.
 }
 \details{
-All 5 (or 4, if using \code{newModuleDocumentation}) files will created within a
+All 5 (or 4, if using \code{newModuleDocumentation}) files will be created within a
 subfolder named \code{name} within the \code{path}.
 }
 \examples{
