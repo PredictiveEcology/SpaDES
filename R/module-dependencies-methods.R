@@ -46,14 +46,16 @@ setMethod("depsEdgeList",
                                  as.data.table
 
             lapply(deps@dependencies, function(x) {
-              z.in <- as.data.table(x@inputObjects)
-              z.out <- as.data.table(x@outputObjects)
-              z.in$module <- z.out$module <- x@name
-              if (!all(is.na(z.in[,name]), is.na(z.in[,class]))) {
-                sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)
-              }
-              if (!all(is.na(z.out[,1:2]), is.na(z.out[,class]))) {
-                sim.out <<- rbindlist(list(sim.out, z.out), use.names=TRUE)
+              if (!is.null(x)) {
+                z.in <- as.data.table(x@inputObjects)
+                z.out <- as.data.table(x@outputObjects)
+                z.in$module <- z.out$module <- x@name
+                if (!all(is.na(z.in[,name]), is.na(z.in[,class]))) {
+                  sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)
+                }
+                if (!all(is.na(z.out[,1:2]), is.na(z.out[,class]))) {
+                  sim.out <<- rbindlist(list(sim.out, z.out), use.names=TRUE)
+                }
               }
               return(invisible(NULL)) # return from the lapply
             })
