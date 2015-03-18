@@ -2,9 +2,11 @@
 #' @import ggplot2
 #'
 setOldClass("gg")
+selectMethod("show", "gg")
 
 ### Allow histogram S3 class to be used with Plot, an S4 function
 setOldClass("histogram")
+selectMethod("show", "histogram")
 
 ################################################
 #' The \code{spatialObjects} class

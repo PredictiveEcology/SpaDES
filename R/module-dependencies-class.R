@@ -1,5 +1,6 @@
 # register the S3 `numeric_version` class for use with S4 methods.
 setOldClass("numeric_version")
+selectMethod("show", "numeric_version")
 
 # register the S3 `person` class for use with S4 methods.
 setClass("person4",
