@@ -17,8 +17,8 @@ fileName = function (x) {
 # - will accept list or charcter vector
 # - outputs character vector
 fileExt = function (x) {
-  f = strsplit(basename(unlist(x)), "^.*\\.")
-  sapply(f, function(y) { y[[length(y)]] })
+  f = strsplit(basename(unlist(x)), "^.*\\.") %>%
+      sapply(., function(y) { y[[length(y)]] })
 }
 
 # Just checks for paths, creates them if they do not exist
@@ -28,7 +28,6 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   }
   return(invisible(sim))
 }
-
 
 ##############################################################
 #' Load simulation objects according to fileList
@@ -215,7 +214,6 @@ setMethod("loadFiles",
                 }
               }
 
-
               # load files
               for (x in 1:length(fl)) {
                 nam = names(arguments[x])
@@ -230,8 +228,7 @@ setMethod("loadFiles",
                 # The actual load call
                 if(is.na(stackName[x])) {
                   assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
-                  assign(objectNames[x], get(objectNames[x], envir=.GlobalEnv),
-                         , envir=.GlobalEnv)
+                  assign(objectNames[x], get(objectNames[x], envir=.GlobalEnv), envir=.GlobalEnv)
                 } else {
                   whLayer <- which(names(localStacks[[stackName[x]]])==objectNames[x])
                   if (length(whLayer)>0) {
@@ -345,14 +342,14 @@ setMethod("loadFiles",
                                        .loadFileList=fileList),
                            modules=list(), path=".")
             return(invisible(sim))
-          })
+})
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",
           signature(sim="missing", fileList="missing"),
           definition = function(sim, fileList, ...) {
             message("no files loaded because sim and fileList are empty")
-          })
+})
 
 #' File extensions map
 #'
@@ -407,4 +404,4 @@ setMethod("rasterToMemory",
             r <- raster(x, ...)
             r <- setValues(r, getValues(r))
             return(r)
-          })
+})

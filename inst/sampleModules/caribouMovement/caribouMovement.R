@@ -49,27 +49,17 @@ defineModule(sim, list(
 ### event functions
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    ### check for module dependencies:
-    ### (use NULL if no dependencies exist)
-    depends <- NULL
-
-    ### check for object dependencies:
+    ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
     checkObject(simGlobals(sim)$.stackName, layer="habitatQuality")
 
-    # if a required module isn't loaded yet,
-    # reschedule this module init for later
-    if (reloadModuleLater(sim, depends)) {
-      sim <- scheduleEvent(sim, simCurrentTime(sim), "caribouMovement", "init")
-    } else  {
-      # do stuff for this event
-      sim <- caribouMovementInit(sim)
+    # do stuff for this event
+    sim <- caribouMovementInit(sim)
 
-      # schedule the next event
-      sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
-      sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
-      sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
-    }
+    # schedule the next event
+    sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
+    sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
+    sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
   } else if (eventType=="move") {
     # do stuff for this event
     sim <- caribouMovementMove(sim)

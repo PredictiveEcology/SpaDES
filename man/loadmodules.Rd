@@ -28,6 +28,9 @@ These dependencies need to be loaded first, so if they are not
 already loaded, hold off loading the current module until after
 dependencies are loaded.
 }
+\details{
+DEPRECATED
+}
 \author{
 Alex Chubaty
 }

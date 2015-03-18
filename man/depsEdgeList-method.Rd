@@ -23,7 +23,7 @@ depsEdgeList(sim, plot)
              Default is \code{FALSE}.}
 }
 \value{
-A \code{data.frame} whose first two columns give a list of edges
+A \code{data.table} whose first two columns give a list of edges
          and remaining columns the attributes of the dependency objects
          (object name, class, etc.).
 }
