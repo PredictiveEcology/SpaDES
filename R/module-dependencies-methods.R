@@ -69,7 +69,6 @@ setMethod("depsEdgeList",
               dt <- data.frame(from=character(), to=character(), objName=character(),
                                objClass=character(), stringsAsFactors=FALSE) %>%
                     as.data.table()
-
             }
             return(dt)
 })

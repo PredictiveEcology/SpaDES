@@ -62,6 +62,8 @@ As noted above, modules should not depend on one another for event scheduling. H
 
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
 
+To view the dependencies for a simulation `plot(depsGraph(mySim, TRUE))`.
+
 ## Parameters
 
 The parameter list in the `simList` object are used to pass parameters to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
