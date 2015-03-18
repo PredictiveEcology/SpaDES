@@ -41,24 +41,52 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
-  nc <- (ext@xmax-ext@xmin)/speedup
-  nr <- (ext@ymax-ext@ymin)/speedup
+  nc <- (ext@xmax-ext@xmin)/resol[1]
+  nr <- (ext@ymax-ext@ymin)/resol[2]
+  wholeNumsCol <- findFactors(nc)
+  wholeNumsRow <- findFactors(nr)
+  ncSpeedup <- wholeNumsCol[findInterval(sqrt(nc), wholeNumsCol)+1]
+  nrSpeedup <- wholeNumsRow[findInterval(sqrt(nr), wholeNumsRow)+1]
+  speedupEffectiveCol <- nc/ncSpeedup
+  speedupEffectiveRow <- nr/nrSpeedup
 
   model <- RMexp(scale=scale, var=var)
   if (inMemory) {
-    sim <- rasterToMemory(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+    sim <- rasterToMemory(RFsimulate(model, y=1:ncSpeedup, x=1:nrSpeedup, grid=TRUE, ...))
   } else {
-    sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+    sim <- raster(RFsimulate(model, y=1:ncSpeedup, x=1:nrSpeedup, grid=TRUE, ...))
   }
   sim <- sim - cellStats(sim, "min")
   extent(sim) <- ext
   if(speedup>1)
-    return(disaggregate(sim, c(speedup, speedup)))
+    return(disaggregate(sim, c(speedupEffectiveCol, speedupEffectiveRow)))
   else
     return(invisible(sim))
 }
 
 
+##############################################################
+#' Find Factors
+#'
+#' Finds the integer factors of an integer
+#'
+#' Used internally in GaussMap
+#'
+#' @param x An integer to factorize
+#'
+#' @return A vector of integer factors
+#'
+#' @seealso \code{\link{GaussMap}}
+#'
+#' @rdname findFactors
+#'
+#@examples
+#EXAMPLES NEEDED
+findFactors <- function(x) {
+  x <- as.integer(x)
+  div <- seq_len(abs(x))
+  return(div[x %% div == 0L])
+}
 
 
 ##############################################################
@@ -112,30 +140,46 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
 #EXAMPLES NEEDED
 randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, speedup=1, numTypes=1, minpatch=10, ...) {
   ext <- extent(ras)
-  nx <- ncol(ras)/speedup
-  ny <- nrow(ras)/speedup
-  spacing <- res(ras)
-  if(length(spacing)>1) {
-    warning(paste("assuming square pixels with resolution =",spacing[1]))
-    spacing <- spacing[1]
+  nc <- ncol(ras)
+  nr <- nrow(ras)
+  resol <- res(ras)
+
+  wholeNumsCol <- findFactors(nc)
+  wholeNumsRow <- findFactors(nr)
+  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol-nc/speedup))]
+  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow-nr/speedup))]
+  speedupEffectiveCol <- nc/ncSpeedup
+  speedupEffectiveRow <- nr/nrSpeedup
+
+  minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
+
+
+  if(length(resol)>1) {
+    message(paste("assuming square pixels with resolution =",resol[1]))
+    resol <- resol[1]
   }
-  tempmask <- make.mask(nx=nx, ny=ny, spacing=spacing)
+  tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)
 
   outMap <- list()
-  r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax), res=res(ras)*speedup)
+  r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
+              res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
   if( (numTypes < length(p)) | (numTypes < length(A)) | (numTypes < length(minpatch))) {
     numTypes = max(length(p),length(A),length(minpatch))
   }
   r[] <- 0
 
   for(i in 1:numTypes) {
-    r[which(as.vector(raster(randomHabitat(tempmask,
-                                           p = p[(i-1)%%length(p)+1],
-                                           A = A[(i-1)%%length(A)+1],
-                                           minpatch = minpatch[(i-1)%%length(minpatch)+1]),...))==1)]<-(i)
+    a = secr::randomHabitat(tempmask,
+                            p = p[(i-1)%%length(p)+1],
+                            A = A[(i-1)%%length(A)+1],
+                            minpatch = minpatch[(i-1)%%length(minpatch)+1])
+    if(nrow(a)==0) {
+      stop("A NULL map was created. Please try again, perhaps with different parameters")
+    }
+    r[as.integer(rownames(a))] <- i
   }
   if(speedup>1) {
-    return(disaggregate(r, c(speedup, speedup)))
+    return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
   } else {
     return(invisible(r))
   }
