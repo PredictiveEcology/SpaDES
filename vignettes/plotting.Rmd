@@ -28,18 +28,13 @@ To demonstrate plotting, we first load some maps. These maps are randomly genera
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
+require(magrittr)
 require(SpaDES)
-fileList <-
-    data.frame(files =
-     dir(file.path(find.package("SpaDES",
-                                lib.loc=getOption("devtools.path"),
-                                quiet=FALSE),
-                  "maps"),
-        full.names=TRUE, pattern= "tif"),
-     functions="rasterToMemory",
-     .stackName="landscape",
-     packages="SpaDES",
-     stringsAsFactors=FALSE)
+fileList <- find.package("SpaDES", lib.loc=getOption("devtools.path"), quiet=FALSE) %>%
+       file.path(., "maps") %>% 
+         dir(., full.names=TRUE, pattern= "tif") %>%
+       data.frame(files=., functions="rasterToMemory", .stackName="landscape",
+                  packages="SpaDES", stringsAsFactors=FALSE)
 
 # Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
 loadFiles(fileList=fileList)
@@ -230,7 +225,7 @@ clickExtent() # click at two locations on the Plot device
 
 # ggplot2 objects
 `Plot` can also handle gg objects as created with 
-\code{\link{qplot}} or \code{\link{ggplot}}.
+`qplot` or `ggplot`.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE}
 require(ggplot2)

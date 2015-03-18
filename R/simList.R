@@ -246,7 +246,11 @@ setGeneric("simModulesLoadOrder<-",
 setReplaceMethod("simModulesLoadOrder",
                  signature="simList",
                  function(object, value) {
-                   object@.loadOrder <- value
+                   if (!is.null(value)) {
+                     object@.loadOrder <- value
+                   } else {
+                     object@.loadOrder <- character()
+                   }
                    validObject(object)
                    return(object)
 })

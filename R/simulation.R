@@ -22,9 +22,9 @@
 #' @param path  An optional character string specifying the location of the module source files.
 #'              If no path is specified, it defaults to the current working directory.
 #'
-#' @param .loadOrder  An optional list of module names specfiying the order in
-#'                    which to load the modules. If not specified, the module
-#'                    load order will be determined automatically.
+#' @param loadOrder  An optional list of module names specfiying the order in
+#'                   which to load the modules. If not specified, the module
+#'                   load order will be determined automatically.
 #'
 #' @return A \code{simList} simulation object, pre-initialized from values specified
 #' in the arguments supplied.

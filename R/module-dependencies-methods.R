@@ -1,5 +1,6 @@
 # register the S3 `igraph` class for use with S4 methods.
 setOldClass("igraph")
+selectMethod("show", "igraph")
 
 ################################################################################
 #' Build edge list for module dependency graph
@@ -42,17 +43,19 @@ setMethod("depsEdgeList",
                                             class=character(),
                                             module=character(),
                                             stringsAsFactors=FALSE) %>%
-                                 as.data.table()
+                                 as.data.table
 
             lapply(deps@dependencies, function(x) {
-              z.in <- as.data.table(x@inputObjects)
-              z.out <- as.data.table(x@outputObjects)
-              z.in$module <- z.out$module <- x@name
-              if (!all(is.na(z.in[,name]), is.na(z.in[,class]))) {
-                sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)
-              }
-              if (!all(is.na(z.out[,1:2]), is.na(z.out[,class]))) {
-                sim.out <<- rbindlist(list(sim.out, z.out), use.names=TRUE)
+              if (!is.null(x)) {
+                z.in <- as.data.table(x@inputObjects)
+                z.out <- as.data.table(x@outputObjects)
+                z.in$module <- z.out$module <- x@name
+                if (!all(is.na(z.in[,name]), is.na(z.in[,class]))) {
+                  sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)
+                }
+                if (!all(is.na(z.out[,1:2]), is.na(z.out[,class]))) {
+                  sim.out <<- rbindlist(list(sim.out, z.out), use.names=TRUE)
+                }
               }
               return(invisible(NULL)) # return from the lapply
             })
@@ -61,14 +64,15 @@ setMethod("depsEdgeList",
               dx <- left_join(sim.in, sim.out, by="name") %>%
                 mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
-              dt <- with(dx, as.data.table(data.frame(from=module.y, to=module.x,
-                                                      objName=name, objClass=class.x,
-                                                      stringsAsFactors=FALSE)))
+              dt <- with(dx, data.frame(from=module.y, to=module.x,
+                                        objName=name, objClass=class.x,
+                                        stringsAsFactors=FALSE)) %>%
+                    as.data.table
               if (plot) dt <- dt[!duplicated(dt[,1:2]),]
             } else {
               dt <- data.frame(from=character(), to=character(), objName=character(),
                                objClass=character(), stringsAsFactors=FALSE) %>%
-                    as.data.table()
+                    as.data.table
             }
             return(dt)
 })
@@ -110,7 +114,7 @@ setMethod("depsGraph",
             if (plot) {
               el <- depsEdgeList(sim, plot)
             } else {
-              el <- depsEdgeList(sim, plot) %>% depsPruneEdges(.)
+              el <- depsEdgeList(sim, plot) %>% depsPruneEdges
             }
             return(graph.data.frame(el))
 })
@@ -154,7 +158,7 @@ setMethod("depsPruneEdges",
             M <- shortest.paths(simGraph, mode="out")
             if (nrow(M)>1) {
               pth <- data.frame(from=character(), to=character()) %>% as.data.table()
-              for (row in 1L:(nrow(M)-1)) {
+              for (row in 1L:(nrow(M)-1L)) {
                 for (col in (row+1L):ncol(M)) {
                   current <- M[row,col]
                   partner <- M[col,row]
@@ -163,17 +167,17 @@ setMethod("depsPruneEdges",
                                                from=rownames(M)[row],
                                                to=colnames(M)[col])$vpath[[1]]
                     pth1 <- data.frame(from=rownames(M)[pth1],
-                                       to=rownames(M)[lead(pth1,1)],
+                                       to=rownames(M)[lead(pth1, 1)],
                                        stringsAsFactors = FALSE) %>%
-                            na.omit %>% as.data.table()
+                            na.omit %>% as.data.table
 
                     pth2 <- get.shortest.paths(simGraph,
                                                from=colnames(M)[col],
                                                to=rownames(M)[row])$vpath[[1]]
                     pth2 <- data.frame(from=rownames(M)[pth2],
-                                       to=rownames(M)[lead(pth2,1)],
+                                       to=rownames(M)[lead(pth2, 1)],
                                        stringsAsFactors = FALSE) %>%
-                            na.omit %>% as.data.table()
+                            na.omit %>% as.data.table
 
                     pth <- rbindlist(list(pth, rbindlist(list(pth1, pth2))))
                   }

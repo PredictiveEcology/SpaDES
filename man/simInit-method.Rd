@@ -37,9 +37,9 @@ located at the specified \code{path} (see below).}
 \item{path}{An optional character string specifying the location of the module source files.
              If no path is specified, it defaults to the current working directory.}
 
-\item{.loadOrder}{An optional list of module names specfiying the order in
-                   which to load the modules. If not specified, the module
-                   load order will be determined automatically.}
+\item{loadOrder}{An optional list of module names specfiying the order in
+                  which to load the modules. If not specified, the module
+                  load order will be determined automatically.}
 }
 \value{
 A \code{simList} simulation object, pre-initialized from values specified
