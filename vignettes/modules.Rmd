@@ -26,7 +26,11 @@ vignette: >
 
 As described in the introductory vignette, `SpaDES` is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A `SpaDES` module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
-A `SpaDES` module consists of a single `.R` source file, containing the code for 1) defining the event types described in the module, and 2) describing what happens during the processing of each event type.
+A `SpaDES` module consists of a single `.R` source file, containing the code for 1) the metadata describing the module and its data dependencies; 2) defining the event types described in the module; and 3) describing what happens during the processing of each event type.
+
+## Metadata
+
+need descripiton!
 
 ## Events
 
@@ -40,7 +44,7 @@ When a call to the event list is made, the event is processed by the module spec
 
 ### Dependencies
 
-Each module schedules its own events (e.g., a "fire" module may schedule "burn" events) and only uses its own data objects (or shared global objects). Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
+Each module schedules its own events (*e.g.*, a "fire" module may schedule "burn" events) and only uses its own data objects (or shared global objects). Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
 
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
 
@@ -54,7 +58,7 @@ As you build your modules for your simulation, you can use any of `R`'s data typ
 
 `R` passes copies of objects to functions (instead of using pass-by-reference), so the typical `R` function never acts directly on the global copy of the variable. Within a function, all operations are generally performed on a local copy of the object, which is then either discarded or returned back to the parent environment upon when the function completes. This object-copying behaviour has given `R` a reputation of being slow in comparison to languages like C and FORTRAN. However, recent improvements to `R` have made it more memory efficient and faster to execute, in part by minimizing the number of object copies made.
 
-One way to reduce object copying is to work directly on objects in the global environment. Although this practice is not common among `R` users, it can be done. Use the superassignment operator (`<<-`) to assign global objects to reduce copying large objects (such as maps), which slows model execution. Altenatively (and more "correctly"), use the `assign` function to assign objects directly to the global environment. Likewise, use `get` to bring global objects into your functions.
+One way to reduce object copying is to work directly on objects in the global environment. Use the `assign()` and `get()` functions, with `envir=.GlobalEnv` to work with objects directly in the global environment (`SpaDES` provides shortcuts `assignGlobal()`, `getGlobal()`). Likewise, to check for the existence of an object in the global environment, use `exists()` (or the `existsGlobal()`). NOTE: Use caution when using the superassignment operator (`<<-`).
 
 ### Module object dependencies
 
@@ -75,12 +79,12 @@ There are a number of built-in modules that provide useful functionality. These 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE}
-library("raster")
-library("SpaDES")
+require("raster")
+require("SpaDES")
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=100)
-outputPath=file.path(tmpDir(), "simOutputs")
+outputPath <- file.path(tempdir(), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
@@ -168,7 +172,7 @@ sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 
 ## Module design considerations
 
-*[perhaps a bit about design phlosophy, relating back to dependencies and how to carefully build modules that actually retain modularity.]*
+*[perhaps a bit about design philosophy, relating back to dependencies and how to carefully build modules that actually retain modularity.]*
 
 As noted above, modules should function as independently as possible so that they retain their modularity. While it may be useful for modules to exhibit indirect dependence on each other via shared data objects (such as maps), modules should not depend directly on each other via event scheduling.
 
