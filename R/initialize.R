@@ -1,4 +1,4 @@
-utils::globalVariables("num.in.pop")
+if(getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 
 ##############################################################
 #' GaussMap

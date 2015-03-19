@@ -20,6 +20,8 @@ whose value will be plotted}
 
 \item{mapcode}{a character, length 1, with the name of the column in \code{reduced} that
 is represented in \code{fullRaster}}
+
+\item{...}{Other arguments.}
 }
 \value{
 A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing

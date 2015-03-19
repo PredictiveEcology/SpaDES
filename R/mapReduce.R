@@ -1,3 +1,5 @@
+if(getRversion() >= "3.1.0") utils::globalVariables("row_number")
+
 #####################
 #' rasterizeReduced - convert reduced representation to full raster
 #'
@@ -12,6 +14,8 @@
 #'
 #' @param mapcode a character, length 1, with the name of the column in \code{reduced} that
 #' is represented in \code{fullRaster}
+#'
+#' @param ... Other arguments.
 #'
 #' @return A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
 #' \code{plotCol} spatially, according to the join between the \code{mapcodeAll} contained within
@@ -54,7 +58,7 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
   }
   fullRasterVals <- data.table(getValues(fullRaster))# %>% data.frame
   setnames(fullRasterVals,1,new=mapcode)
-  fullRasterVals <- fullRasterVals[,row_number:=1L:.N] # %>% mutate(row_number=1L:nrow(.)) %>% data.table
+  fullRasterVals <- fullRasterVals[, row_number:=1L:.N] # %>% mutate(row_number=1L:nrow(.)) %>% data.table
   if(!is.null(key(fullRasterVals))){
     if(key(fullRasterVals)!=mapcode) {
       setkeyv(fullRasterVals, mapcode)

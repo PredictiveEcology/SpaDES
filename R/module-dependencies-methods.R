@@ -1,3 +1,5 @@
+if(getRversion() >= "3.1.0") utils::globalVariables(c(".", "module.x", "module.y", "from", "to", "name"))
+
 # register the S3 `igraph` class for use with S4 methods.
 setOldClass("igraph")
 selectMethod("show", "igraph")
