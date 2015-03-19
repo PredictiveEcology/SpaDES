@@ -45,9 +45,11 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
   nr <- (ext@ymax-ext@ymin)/resol[2]
   wholeNumsCol <- findFactors(nc)
   wholeNumsRow <- findFactors(nr)
-  ncSpeedup <- wholeNumsCol[findInterval(sqrt(nc), wholeNumsCol)+1]
-  nrSpeedup <- wholeNumsRow[findInterval(sqrt(nr), wholeNumsRow)+1]
-  speedupEffectiveCol <- nc/ncSpeedup
+  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol-nc/speedup))]
+  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow-nr/speedup))]
+#   ncSpeedup <- wholeNumsCol[findInterval(speedup, wholeNumsCol)+1]
+#   nrSpeedup <- wholeNumsRow[findInterval(speedup, wholeNumsRow)+1]
+   speedupEffectiveCol <- nc/ncSpeedup
   speedupEffectiveRow <- nr/nrSpeedup
 
   model <- RMexp(scale=scale, var=var)
