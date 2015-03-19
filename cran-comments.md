@@ -1,9 +1,9 @@
 ## Test environments
-* OS X Yosemite install (local), R 3.1.3
-* Ubuntu 12.04 (on travis-ci), R 3.1.2
-* Ubuntu 14.04 (local), R 3.1.3
-* Windows 7 install (local), R 3.1.2
-* Windows 7 install (local), R 3.1.3
+* OS X Yosemite     (local), R 3.1.3
+* Ubuntu 12.04  (travis-ci), R 3.1.2
+* Ubuntu 14.04      (local), R 3.1.3
+* Windows 7         (local), R 3.1.2
+* Windows 7         (local), R 3.1.3
 
 ## R CMD check results
 There were no ERRORs or WARNINGs
