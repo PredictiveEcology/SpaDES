@@ -60,6 +60,7 @@ Collate:
     'simList.R'
     'simulation.R'
     'load.R'
+    'mapReduce.R'
     'misc-methods.R'
     'module-dependencies-methods.R'
     'module-template.R'
