@@ -32,13 +32,19 @@ rasterizeReduced - convert reduced representation to full raster
 \examples{
 \dontrun{
 Ras <- raster(extent(0,100,0,100), res=1)
-fullRas <- randomPolygons(Ras, numTypes=5, speedup=2, minpatch=5)
+fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
 names(fullRas) <- "mapcodeAll"
-reducedDT <- data.table(mapcodeAll=1:10, communities=sample(1:1000,10), biomass=rnbinom(10,mu=4000,0.3))
-biomass <- rasterizeReduced(reducedDT, fullRas, "mapcodeAll", "biomass")
-communities <- rasterizeReduced(reducedDT, fullRas, "mapcodeAll", "communities")
+uniqueComms <- unique(fullRas)
+reducedDT <- data.table(mapcodeAll=uniqueComms,
+   communities=sample(1:1000,length(uniqueComms)),
+   biomass=rnbinom(length(uniqueComms),mu=4000,0.4),
+   ANPP=rpois(length(uniqueComms), 200))
+biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
+communities <- rasterizeReduced(reducedDT, fullRas, "communities")
+ANPP <- rasterizeReduced(reducedDT, fullRas, "ANPP")
 setColors(communities) <- c("blue","orange","red")
-Plot(biomass, communities, new=T)
+setColors(ANPP) <- c("light green", "dark green")
+Plot(biomass, communities, ANPP, fullRas, new=T)
 }
 }
 \author{
