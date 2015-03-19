@@ -38,7 +38,6 @@ utils::globalVariables("num.in.pop")
 #@examples
 #EXAMPLES NEEDED
 GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fast=TRUE, n.unique.pixels=100) {
-  browser()
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
