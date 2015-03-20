@@ -1,0 +1,184 @@
+---
+title: "Getting started with `SpaDES`"
+author: "Eliot J. B. McIntire"
+date: "`r format(Sys.Date(), format='%B %d %Y')`"
+output:
+  pdf_document:
+  number_sections: yes
+toc: yes
+html_document:
+  self_contained: no
+toc: yes
+word_document: default
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{Getting started with SpaDES}
+  %\VignetteDepends{SpaDES}
+  %\VignetteKeyword{}
+  %\usepackage[utf8]{inputenc}
+---
+
+\newpage
+
+# Getting started with `SpaDES`
+
+
+
+
+-----
+
+# Sample model
+
+```{r using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
+require(SpaDES)
+
+outputPath <- file.path(tempdir(), "simOutputs")
+times <- list(start=0.0, stop=20.01)
+parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
+                                 burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),
+                   fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=1e2, moveInterval=1,
+                                        .plotInitialTime=1.01, .plotInterval=1)
+                   )
+modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
+
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+
+if(interactive()) dev()
+spades(mySim)
+```
+
+## fire spread
+```{r fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
+require(ggplot2)
+require(RColorBrewer)
+nFires <- 10
+landscape[["Fires"]] <-
+  spread(landscape[["percentPine"]],
+         loci=as.integer(sample(1:ncell(landscape), nFires)),
+         spreadProb=landscape[["percentPine"]]/(maxValue(landscape[["percentPine"]])*5)+0.1,
+         persistance=0,
+         mask=NULL,
+         maxSize=1e8,
+         directions=8,
+         iterations=1e6,
+         plot.it=FALSE,
+         mapID=TRUE)
+
+setColors(landscape$Fires) <- brewer.pal(8,"Reds")[5:8]
+
+Plot(landscape[["Fires"]], new=TRUE)
+fireSizes <- getValues(landscape[["Fires"]])
+ggHist <- qplot(fireSizes[fireSizes>0])
+Plot(ggHist)
+```
+
+```{r fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE}
+# Show the burning more strongly over abundant pine
+percentPine <- landscape$percentPine
+Plot(percentPine, new=TRUE)
+Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
+```
+
+We can see that the fires tend to be in the Pines because we made it that way, using an arbitrary weighting with pine abundance:
+
+```{r fire-impacts, eval=TRUE, echo=TRUE, fig=FALSE}
+# Show the burning more strongly over abundant pine
+fire <- reclassify(landscape[["Fires"]], rcl=cbind(0:1, c(0,ncell(landscape)), 0:1))
+pine <- reclassify(landscape[["percentPine"]], rcl=cbind(0:9*10, 1:10*10, 0:9))
+PineByFire <- crosstab(fire, pine, long=TRUE)
+colnames(PineByFire) <- c("fire", "pine", "freq")
+PineByFire$pine <- as.numeric(as.character(PineByFire$pine))
+summary(glm(freq ~ fire*pine, data=PineByFire, family="poisson"))
+```
+
+Sure enough, there are more fires as the abundance of pine goes up, as seen by the positive interaction term (the negative `fire1` term means that there are more pixels without fires than with fires).
+
+**Impact some of the forest**
+
+```{r fire-impacts-maps, eval=TRUE, echo=TRUE, fig=TRUE}
+landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
+landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
+landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
+Plot(landscape, new=TRUE)
+```
+
+To model point agents (mobile *e.g.*, animals, or non-mobile, *e.g.*, plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.
+
+```{r mobile-point-agent, echo=TRUE, eval=TRUE}
+N <- 10 # number of agents
+
+# caribou data vectors
+IDs <- letters[1:N]
+sex <- sample(c("female", "male"), N, replace=TRUE)
+age <- round(rnorm(N, mean=8, sd=3))
+x1 <- runif(N, -50, 50) # previous X location
+y1 <- runif(N, -50, 50) # previous Y location
+
+# caribou (current) coordinates
+x0 <- rnorm(N, x1, 5)
+y0 <- rnorm(N, y1, 5)
+
+# create the caribou agent object
+caribou <- data.frame(x1, y1, sex, age)
+coordinates(caribou) <- cbind(x=x0, y=y0)
+row.names(caribou) <- IDs
+```
+
+Using a simple landscape-dependent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
+
+```{r agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE}
+if(interactive()) dev()
+Plot(landscape[["habitatQuality"]], new=TRUE)
+
+for (t in 1:10) {
+  #crop any caribou that went off maps
+  caribou <<- crop(caribou,landscape)
+  drawArrows(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
+             to=caribou, length=0.04, addTo="landscape.habitatQuality")
+
+  # find out what pixels the individuals are on now
+  ex <- landscape[["habitatQuality"]][caribou]
+
+  #step length is a function of current cell's landscape quality
+  sl <- 0.25/ex
+
+  ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
+  sd <- 30 # could be specified globally in params
+
+  caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
+}
+```
+
+---
+
+### loading files (overlaps with modules vignette?)
+
+```{r load-landscape-maps, echo=TRUE, eval=TRUE, cache=TRUE, fig=TRUE}
+### Example: loading habitat maps
+
+# use all built-in maps from the SpaDES package
+pathToMaps <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
+fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern= "tif"),
+                      functions="rasterToMemory", packages="SpaDES",
+                      stringsAsFactors=FALSE)
+
+# this list can be passed to simInit() as an entry in the parameter list
+mySim <- simInit(times=list(start=0.0, stop=10),
+                 params=list(
+                   .loadFileList=fileList,
+                   .progress=list(NA),
+                   .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
+                   fireSpread=list(nFires=1e1, spreadprob=0.225, persistprob=0,
+                                   its=1e6,returnInterval=10, startTime=0.1,
+                                   .plotInitialTime = 0, .plotInterval=10)
+                 ),
+                 modules=list("fireSpread"),
+                 path=system.file("sampleModules", package="SpaDES"))
+spades(mySim)
+```
