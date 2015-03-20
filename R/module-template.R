@@ -261,7 +261,8 @@ date: \"`r Sys.Date()`\"
 output: pdf_document
 ---
 
-Module documentation should be written so that others can use your module. This is a default module documentation, and should be changed.
+Module documentation should be written so that others can use your module.
+This is a template for module documentation, and should be changed.
 
 ## Plotting
 

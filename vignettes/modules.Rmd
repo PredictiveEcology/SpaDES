@@ -72,7 +72,7 @@ To view the dependencies for a simulation `plot(depsGraph(mySim, TRUE))`.
 
 The parameter list in the `simList` object are used to pass parameters to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
 
-# Default `SpaDES` modules
+# Core `SpaDES` modules
 
 There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot to indicate they are "special".
 
@@ -125,7 +125,7 @@ simParams(mySim)$.progress$.progressInterval
 
 ## `.load` and `.save` modules
 
-Schedule object save and file load events by passing parameters to the save and load parameters for each module. Unlike the default modules above, loading and saving is designed to be scheduled by the user from within a module.
+Schedule object save and file load events by passing parameters to the save and load parameters for each module. Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
 Loading files can be done be passing a simulation parameter called `.loadFileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded. Additional columns can also be provided:
 
