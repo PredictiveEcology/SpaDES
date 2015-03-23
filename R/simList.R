@@ -58,7 +58,7 @@ setClass("simList",
                         depends=new("simDeps", dependencies=list(NULL)),
                         simtimes=list(current=0.00, start=0.00, stop=1.00)),
          validity=function(object) {
-           # check for valid sim times and make default list
+           # check for valid sim times
            if (is.na(object@simtimes$stop)) {
              stop("simulation stop time must be specified.")
            } else {

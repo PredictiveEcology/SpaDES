@@ -214,16 +214,16 @@ setMethod("checkObject",
 #'
 #' @param sim    A simList simulation object.
 #'
-#' @param defaultModules List of default modules.
+#' @param coreModules List of core modules.
 #'
-#' @param defaultParams List of default parameters.
+#' @param coreParams List of default core parameters.
 #'
 #' @param path The location of the modules' source files.
 #'
 #' @param ...    Additional arguments. Not implemented.
 #'
-#' @return  Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
-#'          Sensible messages are be produced identifying missing params.
+#' @return  Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
+#'          Sensible messages are be produced identifying missing parameters.
 #'
 #' @importFrom magrittr '%>%'
 #' @export
@@ -235,19 +235,19 @@ setMethod("checkObject",
 # @examples
 # \dontrun{}
 #'
-setGeneric("checkParams", function(sim, defaultModules, defaultParams, path, ...) {
+setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
 })
 
 
 #' @rdname checkParams-method
 setMethod("checkParams",
-          signature(sim="simList", defaultModules="list", defaultParams="list", path="character"),
-          definition=function(sim, defaultModules, defaultParams, path, ...) {
+          signature(sim="simList", coreModules="list", coreParams="list", path="character"),
+          definition=function(sim, coreModules, coreParams, path, ...) {
 
             params <- simParams(sim)
             modules <- simModules(sim)
-            userModules <- modules[-which(defaultModules %in% modules)]
+            userModules <- modules[-which(coreModules %in% modules)]
             globalParams <- simGlobals(sim)
             allFound <- TRUE
 
@@ -267,7 +267,7 @@ setMethod("checkParams",
                 }
 
                 # check user params
-                userParams <- params[[uM]][-which(names(params[[uM]]) %in% defaultParams)]
+                userParams <- params[[uM]][-which(names(params[[uM]]) %in% coreParams)]
                 if (length(userParams)>0) {
                   for (i in 1:length(userParams)) {
                     uP <- names(userParams[i])

@@ -30,7 +30,15 @@ A `SpaDES` module consists of a single `.R` source file, containing the code for
 
 ## Metadata
 
-need descripiton! `defineModule`
+need descripiton!
+
+- dependency checking
+- compatibility checking
+- versioning
+
+### Defining module metadata
+
+`defineModule()`
 
 ## Events
 
@@ -66,23 +74,48 @@ As noted above, modules should not depend on one another for event scheduling. H
 
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
 
-To view the dependencies for a simulation `plot(depsGraph(mySim, TRUE))`.
+To view the dependencies for a simulation:
+
+```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
+require(igraph)
+require(SpaDES)
+outputPath <- file.path(tempdir(), "simOutputs")
+times <- list(start=0.0, stop=20.01)
+parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
+                                 burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),
+                   fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=1e2, moveInterval=1,
+                                        .plotInitialTime=1.01, .plotInterval=1)
+                   )
+modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
+
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+
+plot(depsGraph(mySim, TRUE))
+```
 
 ## Parameters
 
 The parameter list in the `simList` object are used to pass parameters to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
 
-# Default `SpaDES` modules
+\newpage
 
-There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot to indicate they are "special".
+# Core `SpaDES` modules
+
+There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot.
 
 ## `.checkpoint` module
 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE, message=FALSE}
-require("raster")
-require("SpaDES")
+require(raster)
+require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=100)
@@ -125,7 +158,7 @@ simParams(mySim)$.progress$.progressInterval
 
 ## `.load` and `.save` modules
 
-Schedule object save and file load events by passing parameters to the save and load parameters for each module. Unlike the default modules above, loading and saving is designed to be scheduled by the user from within a module.
+Schedule object save and file load events by passing parameters to the save and load parameters for each module. Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
 Loading files can be done be passing a simulation parameter called `.loadFileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded. Additional columns can also be provided:
 
@@ -171,6 +204,53 @@ simParams(mySim)$randomLandscapes$.saveInterval
 nextSave <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.saveInterval
 sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 ```
+
+# Using existing `SpaDES` modules
+
+## Included sample modules
+
+We provide a few modules with this package as samples for demos and the vignettes.
+
+To view the content of a module, use the `openModules` function. Note that you shouldn't edit the sample modules directly, but save them as a copy in another location.
+
+### Generate random landscapes (`randomLandscapes`)
+
+Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, habitatQuality, percentPine).
+Requires a global simulation parameter `.stackName` be set.
+
+```{r randomLandscapes, echo=TRUE, eval=FALSE}
+openModules(system.file("sampleModules", package="SpaDES"), "randomLandscapes")
+```
+
+### Simulate fire spread on a landscape (`fireSpread`)
+
+Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine.
+Fire size statistics are collected immediately after each burn event.
+Requires a global simulation parameter `.stackName` be set.
+
+```{r fireSpread, echo=TRUE, eval=FALSE}
+openModules(system.file("sampleModules", package="SpaDES"), "fireSpread")
+```
+
+### Agent based model of caribou movement (`caribouMovement`)
+
+Simulate caribou movement via correlated random walk.
+Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.
+
+```{r caribouMovement, echo=TRUE, eval=FALSE}
+openModules(system.file("sampleModules", package="SpaDES"), "caribouMovement")
+```
+
+## Other modules
+
+**Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
+
+- check package dependencies
+- check module object dependency (simInit does this)
+- check compatibility (simInit does a basic version of this)
+
+It's up to the modeler (you!) to ensure the scientific validity of using different modules together.
+
 # Creating a new module
 
 ## Module design considerations
@@ -224,11 +304,11 @@ mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 
 See above for more details.
 
-\newpage
+## Contributing modules
 
-# Appendix
+after publication you may wish to make your module more easily accessible for others to use (in fact we encourage it).
 
-## Sample modules
+**Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
 ### Generate random landscapes (`randomLandscapes`)
 
@@ -251,3 +331,5 @@ source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread", "
 ```{r caribouMovement, echo=TRUE, eval=FALSE, message=FALSE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement", "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 ```
+- minimum requirements
+- pull request to the repo

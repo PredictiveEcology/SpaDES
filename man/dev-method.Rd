@@ -8,7 +8,8 @@
 dev(x, ...)
 }
 \arguments{
-\item{x}{The number of a plot device.}
+\item{x}{The number of a plot device. If missing, will open a new
+           non-RStudio plotting device}
 
 \item{...}{Additional arguments passed to \code{\link{newPlot}}.}
 }

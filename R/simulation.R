@@ -64,10 +64,10 @@ setMethod("simInit",
 
             path <- checkPath(path, create=TRUE)
 
-            # default modules
-            defaults <- list("checkpoint", "save", "progress", "load")
+            # core modules
+            core <- list("checkpoint", "save", "progress", "load")
 
-            # parameters for default modules
+            # parameters for core modules
             dotParamsReal <- list(".saveInterval", ".saveInitialTime",
                                  ".plotInterval", ".plotInitialTime")
             dotParamsChar <- list(".savePath", ".saveObjects")
@@ -96,17 +96,17 @@ setMethod("simInit",
               simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(sim, .)
             }
 
-            # load "default" modules
-            for (d in defaults) {
-              ### sourcing the code in each default module is already done
+            # load core modules
+            for (c in core) {
+              ### sourcing the code in each core module is already done
               ### because they are loaded with the package
 
-              # add default module name to the loaded list:
+              # add core module name to the loaded list:
               ### add module name to the loaded list
-              simModulesLoaded(sim) <- append(simModulesLoaded(sim), d)
+              simModulesLoaded(sim) <- append(simModulesLoaded(sim), c)
 
               # schedule each module's init event:
-              sim <- scheduleEvent(sim, simStartTime(sim), d, "init")
+              sim <- scheduleEvent(sim, simStartTime(sim), c, "init")
             }
 
             # load user-defined modules
@@ -139,7 +139,7 @@ setMethod("simInit",
               ### values where used (i.e., in save.R).
             }
 
-            simModules(sim) <- append(defaults, simModulesLoadOrder(sim))
+            simModules(sim) <- append(core, simModulesLoadOrder(sim))
 
             # load files in the filelist
             if (is.null(simFileList(sim))) {
@@ -149,7 +149,7 @@ setMethod("simInit",
             }
 
             # check the parameters supplied by the user
-            checkParams(sim, defaults, dotParams, path) # returns invisible TRUE/FALSE
+            checkParams(sim, core, dotParams, path) # returns invisible TRUE/FALSE
 
             return(invisible(sim))
 })

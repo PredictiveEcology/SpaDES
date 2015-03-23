@@ -45,7 +45,8 @@ setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histo
 #' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
 #' they will be opened too.
 #'
-#' @param x   The number of a plot device.
+#' @param x   The number of a plot device. If missing, will open a new
+#'            non-RStudio plotting device
 #'
 #' @param ... Additional arguments passed to \code{\link{newPlot}}.
 #'
@@ -58,6 +59,17 @@ setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histo
 # @examples
 # needs examples
 dev <- function(x, ...) {
+  if (missing(x)) {
+    if(is.null(dev.list())) {
+      x <- 2L
+    } else {
+      if(any(names(dev.list())=="RStudioGD")) {
+        dev(which(names(dev.list())=="RStudioGD")+3L)
+      } else {
+        dev(max(dev.list()))
+      }
+    }
+  }
   if(is.null(dev.list())) newPlot(...)
   while (dev.set(x)!=x) newPlot(...)
 }

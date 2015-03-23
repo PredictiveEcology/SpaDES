@@ -6,14 +6,22 @@
 
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
-    # Check whether a .progress is specified in the simList
-    defaults = list(.graphical = FALSE, .progressInterval=(simStopTime(sim)-simStartTime(sim))/10)
+    if (interactive()) {
+      defaults = list(.graphical = FALSE,
+                      .progressInterval=(simStopTime(sim)-simStartTime(sim))/10)
 
-    if( !(".progress" %in% names(simParams(sim))) ) {
-      simParams(sim)[[".progress"]] = defaults
+      # Check whether a .progress is specified in the simList
+      if( !(".progress" %in% names(simParams(sim))) ) {
+        simParams(sim)[[".progress"]] = defaults
+      } else {
+        ids = na.omit(match(names(simParams(sim)$.progress),
+                            c(".graphical", ".progressInterval")))
+        simParams(sim)[[".progress"]][names(defaults)[-ids]] = defaults[-ids]
+      }
     } else {
-      ids = na.omit(match(names(simParams(sim)$.progress),c(".graphical", ".progressInterval")))
-      simParams(sim)[[".progress"]][names(defaults)[-ids]] = defaults[-ids]
+      # don't use progress bar when non-interactive
+      defaults = list(.graphical=NA, .progressInterval=NA)
+      simParams(sim)[[".progress"]] = defaults
     }
 
     # if NA then don't use progress bar
