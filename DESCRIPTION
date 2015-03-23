@@ -40,6 +40,7 @@ Imports:
     magrittr,
     ggplot2,
     gridBase,
+    httr,
     igraph,
     methods,
     RandomFields,

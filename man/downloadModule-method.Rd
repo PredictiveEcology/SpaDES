@@ -23,9 +23,17 @@ downloadModule(name, path, version, repo)
                Default is \code{"PredictiveEcology/SpaDES-modules"},
                which is specified by the global option \code{spades.modulesRepo}.}
 }
+\value{
+Invisibly, a character vector containing a list of extracted files.
+}
 \description{
+Download a .zip file of the module and extract (unzip) it to a user-specified location.
+}
+\details{
 Currently only works with a public GitHub repository, where modules are in
 a \code{modules} directory in the root tree on the \code{master} branch.
+
+NOTE: the default is to overwrite any existing files in the case of a conflict.
 }
 \author{
 Alex Chubaty
