@@ -80,7 +80,7 @@ There are a number of built-in modules that provide useful functionality. These 
 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
-```{r checkpoints, echo=TRUE, eval=TRUE}
+```{r checkpoints, echo=TRUE, eval=TRUE, message=FALSE}
 require("raster")
 require("SpaDES")
 
@@ -108,7 +108,7 @@ simParams(mySim)$.checkpoint$file
 
 Schedule updates to the simulation progress bar.
 
-```{r progress, echo=TRUE, eval=FALSE}
+```{r progress, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
                  params=list(.globals=list(.stackName="landscape", .outputPath=outputPath),
@@ -142,7 +142,7 @@ Saving objects to file can be done by passing the appropriate arguments as param
 - `.saveInitialTime`: the time at which the first save is scheduled.
 - `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
 
-```{r load-save, echo=TRUE, eval=FALSE}
+```{r load-save, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 filelist <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
@@ -183,7 +183,7 @@ As noted above, modules should function as independently as possible so that the
 
 Code for new modules can be developed quickly using the template generator function `newModule` which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
 
-```{r create-new-module, eval=FALSE, echo=TRUE}
+```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
 # create a new module called "randomLandscape" in the "custom-modules" subdirectory
 # and open the resulting file immediately for editing.
 newModule(name="randomLandscapes", path="custom-modules", open=TRUE)
@@ -200,7 +200,7 @@ Plotting events can also be scheduled similarly to save events, by passing modul
 - `.saveInitialTime`: the time at which the first save is scheduled.
 - `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
 
-```{r plotting, echo=TRUE, eval=FALSE}
+```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
@@ -232,7 +232,7 @@ See above for more details.
 
 ### Generate random landscapes (`randomLandscapes`)
 
-```{r randomLandscapes, echo=TRUE, eval=FALSE}
+```{r randomLandscapes, echo=TRUE, eval=FALSE, message=FALSE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes", "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
@@ -240,7 +240,7 @@ source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscap
 
 ### Simulate fire spread on a landscape (`fireSpread`)
 
-```{r fireSpread, echo=TRUE, eval=FALSE}
+```{r fireSpread, echo=TRUE, eval=FALSE, message=FALSE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread", "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
 ```
 
@@ -248,6 +248,6 @@ source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread", "
 
 ### Agent based model of caribou movement (`caribouMovement`)
 
-```{r caribouMovement, echo=TRUE, eval=FALSE}
+```{r caribouMovement, echo=TRUE, eval=FALSE, message=FALSE}
 source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement", "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
 ```
