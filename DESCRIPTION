@@ -63,6 +63,7 @@ Collate:
     'mapReduce.R'
     'misc-methods.R'
     'module-dependencies-methods.R'
+    'module-repository.R'
     'module-template.R'
     'movement.R'
     'neighbourhood.R'

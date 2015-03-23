@@ -469,9 +469,9 @@ definition = function(name, path, version) {
   path <- checkPath(path, create=FALSE)
 
   callingWd <- getwd()
+  on.exit(setwd(callingWd))
   setwd(path)
   zip(paste0(name, "_", version, ".zip"), files=file.path(name))
-  on.exit(setwd(callingWd))
 })
 
 #' @rdname zipModule-method

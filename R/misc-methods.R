@@ -83,9 +83,12 @@ setMethod("checkPath",
           definition=function(path, create) {
             if (!is.na(path)) {
               if (length(path)>0) {
-                path = gsub("\\\\", "/", path) %>%            # use slash instead of backslash
-                       normalizePath(path, winslash="/") %>%  # do tilde etc. expansion
-                       gsub("/$", "", .)                      # remove trailing slash
+                # use slash instead of backslash
+                # do tilde etc. expansion
+                # remove trailing slash
+                path = gsub("\\\\", "/", path) %>%
+                       normalizePath(., winslash="/", mustWork=FALSE) %>%
+                       gsub("/$", "", .)
 
                 if (!file.exists(path)) {
                   if (create==TRUE) {
