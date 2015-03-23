@@ -175,7 +175,7 @@ Saving objects to file can be done by passing the appropriate arguments as param
 - `.saveInitialTime`: the time at which the first save is scheduled.
 - `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
 
-```{r load-save, echo=TRUE, eval=FALSE}
+```{r load-save, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 filelist <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
@@ -263,7 +263,7 @@ As noted above, modules should function as independently as possible so that the
 
 Code for new modules can be developed quickly using the template generator function `newModule` which accepts as arguments the name of the new module, a directory path in which to create the new module, and a logical indicating whether to open the newly created module code file for editing.
 
-```{r create-new-module, eval=FALSE, echo=TRUE}
+```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
 # create a new module called "randomLandscape" in the "custom-modules" subdirectory
 # and open the resulting file immediately for editing.
 newModule(name="randomLandscapes", path="custom-modules", open=TRUE)
@@ -280,7 +280,7 @@ Plotting events can also be scheduled similarly to save events, by passing modul
 - `.saveInitialTime`: the time at which the first save is scheduled.
 - `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
 
-```{r plotting, echo=TRUE, eval=FALSE}
+```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
@@ -310,5 +310,26 @@ after publication you may wish to make your module more easily accessible for ot
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
+### Generate random landscapes (`randomLandscapes`)
+
+```{r randomLandscapes, echo=TRUE, eval=FALSE, message=FALSE}
+source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes", "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
+```
+
+\newpage
+
+### Simulate fire spread on a landscape (`fireSpread`)
+
+```{r fireSpread, echo=TRUE, eval=FALSE, message=FALSE}
+source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread", "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
+```
+
+\newpage
+
+### Agent based model of caribou movement (`caribouMovement`)
+
+```{r caribouMovement, echo=TRUE, eval=FALSE, message=FALSE}
+source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement", "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
+```
 - minimum requirements
 - pull request to the repo
