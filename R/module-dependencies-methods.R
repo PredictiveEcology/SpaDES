@@ -26,6 +26,7 @@ selectMethod("show", "igraph")
 #' @importFrom magrittr '%>%'
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
+#' @importFrom dplyr select
 #' @docType methods
 #' @rdname depsEdgeList-method
 #'
@@ -41,21 +42,21 @@ setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
             deps <- simDepends(sim)
-            sim.in <- sim.out <- data.frame(name=character(),
-                                            class=character(),
+            sim.in <- sim.out <- data.frame(objectName=character(),
+                                            objectClass=character(),
                                             module=character(),
                                             stringsAsFactors=FALSE) %>%
                                  as.data.table
 
             lapply(deps@dependencies, function(x) {
               if (!is.null(x)) {
-                z.in <- as.data.table(x@inputObjects)
-                z.out <- as.data.table(x@outputObjects)
+                z.in <- as.data.table(x@inputObjects) %>% select(-other)
+                z.out <- as.data.table(x@outputObjects) %>% select(-other)
                 z.in$module <- z.out$module <- x@name
-                if (!all(is.na(z.in[,name]), is.na(z.in[,class]))) {
+                if (!all(is.na(z.in[,objectName]), is.na(z.in[,objectClass]))) {
                   sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)
                 }
-                if (!all(is.na(z.out[,1:2]), is.na(z.out[,class]))) {
+                if (!all(is.na(z.out[,1:2]), is.na(z.out[,objectClass]))) {
                   sim.out <<- rbindlist(list(sim.out, z.out), use.names=TRUE)
                 }
               }
@@ -63,11 +64,11 @@ setMethod("depsEdgeList",
             })
 
             if ((nrow(sim.in)) && (nrow(sim.out))) {
-              dx <- left_join(sim.in, sim.out, by="name") %>%
+              dx <- left_join(sim.in, sim.out, by="objectName") %>%
                 mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
               dt <- with(dx, data.frame(from=module.y, to=module.x,
-                                        objName=name, objClass=class.x,
+                                        objName=objectName, objClass=objectClass.x,
                                         stringsAsFactors=FALSE)) %>%
                     as.data.table
               if (plot) dt <- dt[!duplicated(dt[,1:2]),]

@@ -58,7 +58,7 @@
 ###                objectClass: RasterStack
 ###                other: NA
 ###
-###                objectName: nPixelsBurned
+###                objectName: simGlobals(sim)$burnStats
 ###                objectClass: numeric
 ###                other= NA
 ###
@@ -77,18 +77,19 @@ defineModule(sim, list(
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
   inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
-                                       "simGlobals(sim)$burnStats",
+                                       simGlobals(sim)$burnStats,
                                        "simParams(sim)$fireSpreadLcc$nFires",
                                        "simParams(sim)$fireSpreadLcc$its",
                                        "simParams(sim)$fireSpreadLcc$persistprob",
                                        "simParams(sim)$fireSpreadLcc$returnInterval",
-                                       "simParams(sim)$fireSpreadLcc$startTime")
+                                       "simParams(sim)$fireSpreadLcc$startTime"),
                           objectClass=c("RasterStack", "numeric", "numeric",
                                         "numeric", "numeric", "numeric", "numeric"),
-                          other=list(NA), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "nPixelsBurned"),
+                          other=rep(NA_character_, 7L), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
+                                        simGlobals(sim)$burnStats),
                            objectClass=c("RasterStack", "numeric"),
-                           other=list(NA), stringsAsFactors=FALSE)
+                           other=c(NA_character_, NA_character_), stringsAsFactors=FALSE)
 ))
 
 ### event functions
@@ -202,7 +203,7 @@ fireSpreadStats <- function(sim) {
 
   landscapes <- getGlobal(simGlobals(sim)$.stackName)
 
-  assignGlobal("nPixelsBurned", c(npix, length(which(values(landscapes$Fires)>0))))
+  assignGlobal(simGlobals(sim)$burnStats, c(npix, length(which(values(landscapes$Fires)>0))))
 
   return(invisible(sim))
 }

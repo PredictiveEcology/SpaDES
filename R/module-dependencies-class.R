@@ -70,8 +70,10 @@ setClass("moduleDeps",
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_real_,
                         citation=list(), reqdPkgs=list(),
-                        inputObjects=data.frame(objectName=character(), objectClass=character(), other=list(), stringsAsFactors=FALSE),
-                        outputObjects=data.frame(objectName=character(), objectClass=character(), other=list(), stringsAsFactors=FALSE)),
+                        inputObjects=data.frame(objectName=character(), objectClass=character(),
+                                                other=character(), stringsAsFactors=FALSE),
+                        outputObjects=data.frame(objectName=character(), objectClass=character(),
+                                                 other=character(), stringsAsFactors=FALSE)),
          validity=function(object) {
            if (length(object@name)!=1L) stop("name must be a single character string.")
            if (length(object@description)!=1L) stop("description must be a single character string.")
@@ -85,27 +87,31 @@ setClass("moduleDeps",
            object@outputObjects <- as.data.frame(object@outputObjects, stringsAsFactors=FALSE)
            if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")
            if (length(object@outputObjects)<1L) stop("output object name and class must be specified, or NA.")
-           if ( !("objectName" %in% colnames(object@inputObjects)) ||
-                  !("objectClass" %in% colnames(object@inputObjects)) ) {
-             stop("input object data.frame must use colnames name and class.")
+           if ( !all(c("objectName", "objectClass", "other") %in% colnames(tmp.list$inputObjects)) ) {
+             stop("input object data.frame must use colnames objectName, objectClass, and other.")
            }
-           if ( !("objectName" %in% colnames(object@outputObjects)) ||
-                  !("objectClass" %in% colnames(object@outputObjects)) ) {
-             stop("output object data.frame must use colnames name and class.")
+           if ( !all(c("objectName", "objectClass", "other") %in% colnames(tmp.list$outputObjects)) ) {
+             stop("output object data.frame must use colnames objectName, objectClass, and other.")
            }
-           # try coercing to character because if data.frame was created without specficying
-           # `stringsAsFactors=FALSE` there will be problems...
+           # try coercing to character because if data.frame was created without specifying
+           # `stringsAsFactors=FALSE`, or used `NA` (logical) there will be problems...
            if (!is.character(object@inputObjects$objectName)) {
              object@inputObjects$objectName <- as.character(object@inputObjects$objectName)
            }
            if (!is.character(object@inputObjects$objectClass)) {
              object@inputObjects$objectClass <- as.character(object@inputObjects$objectClass)
            }
+           if (!is.character(object@inputObjects$other)) {
+             object@inputObjects$other <- as.character(object@inputObjects$other)
+           }
            if (!is.character(object@outputObjects$objectName)) {
              object@outputObjects$objectName <- as.character(object@outputObjects$objectName)
            }
            if (!is.character(object@outputObjects$objectClass)) {
              object@outputObjects$objectClass <- as.character(object@outputObjects$objectClass)
+           }
+           if (!is.character(object@outputObjects$other)) {
+             object@outputObjects$other <- as.character(object@outputObjects$other)
            }
          }
 )

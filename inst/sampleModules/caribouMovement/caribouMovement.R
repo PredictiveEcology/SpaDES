@@ -56,11 +56,13 @@ defineModule(sim, list(
   inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
                                        "simParams(sim)$caribouMovementLcc$moveInterval",
                                        "simParams(sim)$caribouMovement$N"),
-                          objectClass=c("RasterStack","numeric", "numeric"),
-                          other=list(layername="habitatQuality"), stringsAsFactors=FALSE),
+                          objectClass=c("RasterStack", "numeric", "numeric"),
+                          other=c("layername=\"habitatQuality\"", rep(NA_character_, 2L)),
+                          stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "caribou"),
                            objectClass=c("RasterStack", "SpatialPointsDataFrame"),
-                           other=list(layername="habitatQuality"), stringsAsFactors=FALSE)
+                           other=c("layername=\"habitatQuality\"", NA_character_),
+                           stringsAsFactors=FALSE)
 ))
 
 ### event functions

@@ -57,10 +57,10 @@ defineModule(sim, list(
                                        "simParams(sim)$randomLandscapes$ny",
                                        "simParams(sim)$randomLandscapes$inRAM"),
                           objectClass=c("numeric", "numeric", "logical"),
-                          other=list(NA), stringsAsFactors=FALSE),
+                          other=rep(NA_character_, 3), stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
                            objectClass="RasterStack",
-                           other=list(NA), stringsAsFactors=FALSE)
+                           other=NA_character_, stringsAsFactors=FALSE)
 ))
 
 ### event functions
