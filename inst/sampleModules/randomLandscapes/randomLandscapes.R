@@ -24,7 +24,17 @@
 ###
 ### reqdPkgs:     raster; RColorBrewer; tkrplot; RandomFields
 ###
-### inputObjects: NA
+### inputObjects: objectName: simParams(sim)$randomLandscapes$nx
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$randomLandscapes$ny
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$randomLandscapes$inRAM
+###               objectClass: logical
+###               other: NA
 ###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
@@ -43,8 +53,14 @@ defineModule(sim, list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$.stackName, objectClass="RasterStack", other=list(NA), stringsAsFactors=FALSE)
+  inputObjects=data.frame(objectName=c("simParams(sim)$randomLandscapes$nx",
+                                       "simParams(sim)$randomLandscapes$ny",
+                                       "simParams(sim)$randomLandscapes$inRAM"),
+                          objectClass=c("numeric", "numeric", "logical"),
+                          other=list(NA), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
+                           objectClass="RasterStack",
+                           other=list(NA), stringsAsFactors=FALSE)
 ))
 
 ### event functions
@@ -108,18 +124,11 @@ randomLandscapesInit <- function(sim) {
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
   names(mapStack)<-c("DEM", "forestAge", "habitatQuality", "percentPine")
-  #mapStack <- stack(DEM, forestAge, forestCover, habitatQuality, percentPine)
-  #names(mapStack)<-c("DEM", "forestAge", "forestCover", "habitatQuality", "percentPine")
 
   setColors(mapStack) <- list(DEM=terrain.colors(100),
                               forestAge=brewer.pal(9,"BuGn"),
-                              #forestCover=brewer.pal(8,"BrBG"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
   assignGlobal(simGlobals(sim)$.stackName, mapStack)
-
-  # last thing to do is add module name to the loaded list
-  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "randomLandscapes")
-
   return(invisible(sim))
 }

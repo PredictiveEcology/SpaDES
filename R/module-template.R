@@ -144,9 +144,6 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
   # ! ----- STOP EDITING ----- ! #
 
-  # last thing to do is add module name to the loaded list
-  simModulesLoaded(sim) <- append(simModulesLoaded(sim), \"", name, "\")
-
   return(invisible(sim))
 }
 

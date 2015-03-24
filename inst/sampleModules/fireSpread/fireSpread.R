@@ -30,9 +30,37 @@
 ###               objectClass: RasterStack
 ###               other: NA
 ###
+###               objectName: simGlobals(sim)$burnStats
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$fireSpreadLcc$nFires
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$fireSpreadLcc$its
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$fireSpreadLcc$persistprob
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$fireSpreadLcc$returnInterval
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$fireSpreadLcc$startTime
+###               objectClass: numeric
+###               other: NA
+###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###                other: NA
+###
+###                objectName: nPixelsBurned
+###                objectClass: numeric
+###                other= NA
 ###
 ### fireSpread module metadata
 defineModule(sim, list(
@@ -48,8 +76,19 @@ defineModule(sim, list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
-  inputObjects=data.frame(objectName=simGlobals(sim)$.stackName, objectClass="RasterStack", other=list(NA), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$.stackName, objectClass="RasterStack", other=list(NA), stringsAsFactors=FALSE)
+  inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
+                                       "simGlobals(sim)$burnStats",
+                                       "simParams(sim)$fireSpreadLcc$nFires",
+                                       "simParams(sim)$fireSpreadLcc$its",
+                                       "simParams(sim)$fireSpreadLcc$persistprob",
+                                       "simParams(sim)$fireSpreadLcc$returnInterval",
+                                       "simParams(sim)$fireSpreadLcc$startTime")
+                          objectClass=c("RasterStack", "numeric", "numeric",
+                                        "numeric", "numeric", "numeric", "numeric"),
+                          other=list(NA), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "nPixelsBurned"),
+                           objectClass=c("RasterStack", "numeric"),
+                           other=list(NA), stringsAsFactors=FALSE)
 ))
 
 ### event functions
@@ -132,10 +171,6 @@ fireSpreadInit <- function(sim) {
 
   # add Fires map to global$.stackName stack
   assignGlobal(simGlobals(sim)$.stackName, addLayer(landscapes,Fires))
-
-  # last thing to do is add module name to the loaded list
-  simModulesLoaded(sim) <- append(simModulesLoaded(sim), "fireSpread")
-
   return(invisible(sim))
 }
 

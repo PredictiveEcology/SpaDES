@@ -117,6 +117,7 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
+## examine simulation module dependencies
 plot(depsGraph(mySim, TRUE))
 ```
 
@@ -143,6 +144,7 @@ times <- list(start=0, stop=100)
 outputPath <- file.path(tempdir(), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
+                   .progress=list(.graphical=NA, .progressInterval=NA),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                          .plotInitialTime=0, .plotInterval=1e3))
 modules <- list("randomLandscapes")

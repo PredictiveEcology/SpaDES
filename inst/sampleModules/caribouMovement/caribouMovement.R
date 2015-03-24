@@ -4,9 +4,6 @@
 ### name:         caribouMovement
 ###
 ### description:  Simulate caribou movement via correlated random walk.
-###               Requires a RasterStack object whose name is specified by
-###               `simGlobals(sim)$.stackName`, containing a RasterLayer
-###               named `habitatQuality`.
 ###
 ### keywords:     caribou; individual based movement model; correlated random walk
 ###
@@ -18,7 +15,7 @@
 ###
 ### timeframe:    NA
 ###
-### timestep:     NA
+### timestep:     31557600 (1 year)
 ###
 ### citation:     NA
 ###
@@ -28,14 +25,26 @@
 ###               objectClass: RasterStack
 ###               other: layerName="habitatQuality"
 ###
+###               objectName: simParams(sim)$caribouMovementLcc$moveInterval
+###               objectClass: numeric
+###               other: NA
+###
+###               objectName: simParams(sim)$caribouMovement$N
+###               objectClass: numeric (integer)
+###               other: NA
+###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
-###               other: layerName="habitatQuality"
+###                other: layerName="habitatQuality"
+###
+###                objectName: caribou
+###                objectClass: SpatialPointsDataFrame
+###                other: NA
 ###
 ### caribouMovement module metadata
 defineModule(sim, list(
   name="caribouMovement",
-  description="Simulate caribou movement via correlated random walk. Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.",
+  description="Simulate caribou movement via correlated random walk.",
   keywords=c("caribou", "individual based movement model", "correlated random walk"),
   authors=c(person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
   version=numeric_version("0.2.0"),
@@ -44,8 +53,14 @@ defineModule(sim, list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
-  inputObjects=data.frame(objectName=simGlobals(sim)$.stackName, objectClass="RasterStack", other=list(layername="habitatQuality"), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$.stackName, objectClass="RasterStack", other=list(layername="habitatQuality"), stringsAsFactors=FALSE)
+  inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
+                                       "simParams(sim)$caribouMovementLcc$moveInterval",
+                                       "simParams(sim)$caribouMovement$N"),
+                          objectClass=c("RasterStack","numeric", "numeric"),
+                          other=list(layername="habitatQuality"), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "caribou"),
+                           objectClass=c("RasterStack", "SpatialPointsDataFrame"),
+                           other=list(layername="habitatQuality"), stringsAsFactors=FALSE)
 ))
 
 ### event functions
@@ -100,12 +115,6 @@ caribouMovementInit <- function(sim) {
 
   yrange <- c(ymin(landscape), ymax(landscape))
   xrange <- c(xmin(landscape), xmax(landscape))
-#    best <- max(values(landscape))
-#    worst <- min(values(landscape))
-#    good <- Which(landscape>0.8*best)
-#
-#   al <- agentLocation(good)    # good landscape, from above
-#   initialCoords <- probInit(landscape, al)
 
   # initialize caribou agents
   N <- simParams(sim)$caribouMovement$N
@@ -126,10 +135,9 @@ caribouMovementInit <- function(sim) {
 }
 
 caribouMovementMove <- function(sim) {
-  # crop any caribou that went off maps
-
   landscape <- getGlobal(simGlobals(sim)$.stackName)
 
+  # crop any caribou that went off maps
   caribou <<- crop(caribou, landscape)
   if(length(caribou)==0) stop("All agents are off map")
 
@@ -144,10 +152,5 @@ caribouMovementMove <- function(sim) {
 
   caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
-#     #rads <- sample(10:30, length(caribou), replace=TRUE)
-#     #rings <- cir(caribou, radiuses=rads, landscape, 1)
-#     #points(rings$x, rings$y, col=rings$ids, pch=19, cex=0.1)
-#
-
-    return(invisible(sim))
+  return(invisible(sim))
 }
