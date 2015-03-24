@@ -12,7 +12,7 @@
 ### authors:      Alex M. Chubaty <Alexander.Chubaty@NRCan.gc.ca>
 ###               Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
 ###
-### version:      0.1.0
+### version:      0.2.0
 ###
 ### spatialExtent: NA
 ###
@@ -28,6 +28,7 @@
 ###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
+###                other: NA
 ###
 ### randomLandscapes module metadata
 defineModule(sim, list(
@@ -36,14 +37,14 @@ defineModule(sim, list(
   keywords=c("random map", "random landscape"),
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
             person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("0.1.0"),
+  version=numeric_version("0.2.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  inputObjects=data.frame(name=NA_character_, class=NA_character_, stringsAsFactors=FALSE),
-  outputObjects=data.frame(name=simGlobals(sim)$.stackName, class="RasterStack", stringsAsFactors=FALSE)
+  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=simGlobals(sim)$.stackName, objectClass="RasterStack", other=list(NA), stringsAsFactors=FALSE)
 ))
 
 ### event functions

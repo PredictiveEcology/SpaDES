@@ -72,10 +72,13 @@ setMethod("newModule",
 ###
 ### reqdPkgs:     NA
 ###
-### inputObjects: NA
+### inputObjects: objectName: NA
+###               objectClass: NA
+###               other: NA
 ###
 ### outputObjects: objectName: NA
 ###                objectClass: NA
+###                other: NA
 ###
 ### ", name, " module metadata
 defineModule(list(
@@ -90,8 +93,8 @@ defineModule(list(
   timestep=NA_character_,
   citation=list(),
   reqdPkgs=list(),
-  inputObjects=data.frame(name=NA_character_, class=NA_character_),
-  outputObjects=data.frame(name=NA_character_, class=NA_character_)
+  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA)),
+  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA))
 ))
 
 ### event functions:

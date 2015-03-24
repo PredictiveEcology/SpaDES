@@ -22,7 +22,7 @@ vignette: >
 
 # Getting started with `SpaDES`
 
-
+oeuuoiueo
 
 
 -----
@@ -155,9 +155,97 @@ for (t in 1:10) {
 }
 ```
 
+Below is a greatly simplified example, using the sample `randomLandscapes` and `fireSpread` modules. *NB only two parameters are varied; no outputs are saved; and the analyses done here are kept simple for illustrative purposes. This will take a while to run!*
+
+```{r multiple-simulations, echo=TRUE, eval=FALSE}
+### WARNING this can take a while to run, especially for large mapSizes.
+
+rasterOptions(maxmemory=1e9)
+
+# list all parameter values with which to run simulations
+parameters <- list(mapSize=round(sqrt(c(1e4, 1e5, 1e6, 1e7, 1e8))),
+                   pSpread=seq(0.05, 0.25, 0.05))
+
+# create data.frame with all parameter combinations
+paramsdf <- expand.grid(parameters)
+
+# outputs
+nPixelsBurned <- numeric()
+meanPixelsBurned <- cbind(paramsdf, pmean=NA, psd=NA)
+
+set.seed(42)
+for (i in 1:nrow(paramsdf)) {
+  # initialize each simulation with a param combo from paramsdf
+  mySim <- with(paramsdf,
+                simInit(times=list(start=0.0, stop=20.0),
+                        params=list(
+                          .progress=list(.graphical=NA, .progressInterval=NA),
+                          .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
+                          randomLandscapes=list(nx=mapSize[i], ny=mapSize[i],
+                                                inRAM=TRUE),
+                          fireSpread=list(nFires=1000, spreadprob=pSpread[i],
+                                          persistprob=0, its=1e6,
+                                          returnInterval=10, startTime=0)
+                          ),
+                        modules=list("randomLandscapes", "fireSpread"),
+                        path=system.file("sampleModules", package="SpaDES")))
+  mySim <- spades(mySim)
+
+  # collect stats for each run
+  proportionBurned <- with(paramsdf, nPixelsBurned / (mapSize[i]^2))
+  meanPixelsBurned[i, "pmean"] <- mean(proportionBurned)
+  meanPixelsBurned[i, "psd"] <- sd(proportionBurned)
+
+  # cleanup between runs
+  rm(landscape, mySim, nPixelsBurned)
+  for (j in 1:10) gc()
+}
+
+# overall statistics
+pch <- c(21:25)
+col <- brewer.pal(5, "Set1")
+
+with(meanPixelsBurned, plot(pmean ~ pSpread, xlab="Spread probability",
+                            ylab="Mean proportion of pixels burned",
+                            ylim=c(0,1), pch=pch, cex=1.5, col=col))
+with(parameters, legend("topleft", legend=formatC(mapSize^2, digits=0),
+                              pch=pch, col=col, cex=1.2))
+```
+
+```{r multiple-simulations-outputs, echo=FALSE, eval=FALSE}
+# this is included as the output from the previous chunk,
+# so you don't need to wait for the prev chunk to run
+meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
+316, 1000, 3162, 10000, 100, 316, 1000, 3162, 10000, 100, 316,
+1000, 3162, 10000, 100, 316, 1000, 3162, 10000), pSpread = c(0.05,
+0.05, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.15,
+0.15, 0.15, 0.15, 0.2, 0.2, 0.2, 0.2, 0.2, 0.25, 0.25, 0.25,
+0.25, 0.25), pmean = c(0.1494, 0.0160831597500401, 0.00157566666666667,
+0.000160061440122219, 1.57933333333333e-05, 0.241933333333333,
+0.0301600972066442, 0.00304333333333333, 0.000307687363234317,
+3.14933333333333e-05, 0.4268, 0.0709388185654009, 0.00855766666666667,
+0.000826111731886786, 8.185e-05, 0.673466666666667, 0.271898200074774,
+0.0522476666666667, 0.0057268723054435, 0.000569923333333333,
+0.8551, 0.704143967312931, 0.758393333333333, 0.748152608931462,
+0.755049233333333), psd = c(0.000529150262212918, 0.00034444366932222,
+2.11266025033211e-05, 5.52032923607854e-06, 2.80416357107309e-07,
+0.00248461935381122, 0.00117238603350013, 8.3500499000505e-05,
+5.02117387430545e-06, 6.50640709864774e-08, 0.0103764155660806,
+0.00292733584237083, 0.000185057648675577, 2.23794372722204e-05,
+3.33725935462019e-06, 0.00638931399551884, 0.0181866853325732,
+0.00354059674819561, 6.08251802692677e-05, 3.54532908674686e-05,
+0.00927739187487513, 0.00349463109959475, 0.000899981296101935,
+0.00115857888357641, 0.000319090208300621)), .Names = c("mapSize",
+"pSpread", "pmean", "psd"), row.names = c(NA, -25L), class = "data.frame")
+```
+
+![](../inst/figs/plot-area-burned.pdf "Mean proportion of pixels burned for maps of various sizes and fire spread probabilities.")
+
 ---
 
 ### loading files (overlaps with modules vignette?)
+
+Bringing data into `R` is easy, and can be done using any of the built in data import tools. To facilitate this, we have provided additional functionality to easily load maps or data from files via the load module. To automatically import a list of files, simply provide it as a parameter named \texttt{.loadFileList} when initializing the simulation. See \texttt{?loadFiles} and the modules vignette for more information on the load module.
 
 ```{r load-landscape-maps, echo=TRUE, eval=TRUE, cache=TRUE, fig=TRUE}
 ### Example: loading habitat maps

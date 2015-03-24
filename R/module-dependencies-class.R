@@ -70,8 +70,8 @@ setClass("moduleDeps",
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_real_,
                         citation=list(), reqdPkgs=list(),
-                        inputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE),
-                        outputObjects=data.frame(name=character(), class=character(), stringsAsFactors=FALSE)),
+                        inputObjects=data.frame(objectName=character(), objectClass=character(), other=list(), stringsAsFactors=FALSE),
+                        outputObjects=data.frame(objectName=character(), objectClass=character(), other=list(), stringsAsFactors=FALSE)),
          validity=function(object) {
            if (length(object@name)!=1L) stop("name must be a single character string.")
            if (length(object@description)!=1L) stop("description must be a single character string.")
@@ -85,27 +85,27 @@ setClass("moduleDeps",
            object@outputObjects <- as.data.frame(object@outputObjects, stringsAsFactors=FALSE)
            if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")
            if (length(object@outputObjects)<1L) stop("output object name and class must be specified, or NA.")
-           if ( !("name" %in% colnames(object@inputObjects)) ||
-                  !("class" %in% colnames(object@inputObjects)) ) {
+           if ( !("objectName" %in% colnames(object@inputObjects)) ||
+                  !("objectClass" %in% colnames(object@inputObjects)) ) {
              stop("input object data.frame must use colnames name and class.")
            }
-           if ( !("name" %in% colnames(object@outputObjects)) ||
-                  !("class" %in% colnames(object@outputObjects)) ) {
+           if ( !("objectName" %in% colnames(object@outputObjects)) ||
+                  !("objectClass" %in% colnames(object@outputObjects)) ) {
              stop("output object data.frame must use colnames name and class.")
            }
            # try coercing to character because if data.frame was created without specficying
            # `stringsAsFactors=FALSE` there will be problems...
-           if (!is.character(object@inputObjects$name)) {
-             object@inputObjects$name <- as.character(object@inputObjects$name)
+           if (!is.character(object@inputObjects$objectName)) {
+             object@inputObjects$objectName <- as.character(object@inputObjects$objectName)
            }
-           if (!is.character(object@inputObjects$class)) {
-             object@inputObjects$class <- as.character(object@inputObjects$class)
+           if (!is.character(object@inputObjects$objectClass)) {
+             object@inputObjects$objectClass <- as.character(object@inputObjects$objectClass)
            }
-           if (!is.character(object@outputObjects$name)) {
-             object@outputObjects$name <- as.character(object@outputObjects$name)
+           if (!is.character(object@outputObjects$objectName)) {
+             object@outputObjects$objectName <- as.character(object@outputObjects$objectName)
            }
-           if (!is.character(object@outputObjects$class)) {
-             object@outputObjects$class <- as.character(object@outputObjects$class)
+           if (!is.character(object@outputObjects$objectClass)) {
+             object@outputObjects$objectClass <- as.character(object@outputObjects$objectClass)
            }
          }
 )

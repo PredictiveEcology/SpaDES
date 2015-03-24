@@ -26,19 +26,40 @@ vignette: >
 
 As described in the introductory vignette, `SpaDES` is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A `SpaDES` module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
-A `SpaDES` module consists of a single `.R` source file, containing the code for 1) the metadata describing the module and its data dependencies; 2) defining the event types described in the module; and 3) describing what happens during the processing of each event type.
+A `SpaDES` module consists of a single `.R` source file, containing the code for:
+
+1. the metadata describing the module and its data dependencies;
+2. defining the event types described in the module;
+3. describing what happens during the processing of each event type.
 
 ## Metadata
 
-need descripiton!
+[need description of metadata]
 
-- dependency checking
-- compatibility checking
-- versioning
+In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user). During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object. As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
 
-### Defining module metadata
+### Defining module metadata: `defineModule()`
 
-`defineModule()`
+Every module requires complete metadata, structured as a named list, and passed as an argument to the `defineModule` function.
+
+**Element name**      | **Description**
+----------------------|-------------------------------------------------
+**`name`**            | Name of the module as a character string.
+**`description`**     | Description of the module as a character string.
+**`keywords`**        | Character vector containing a module's keywords.
+**`authors`**         | The author(s) of the module as a `person` object.
+**`version`**         | The module version as a `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
+**`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
+**`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
+&nbsp;                | Must be a `POSIXt` object of length 2, specifying the start and end times.
+**`timestep`**        | Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
+**`citation`**        | A citation for the module, as a character string.
+**`reqdPkgs`**        | Character vector of R package names to be loaded.
+**`inputObjects`**    | A `data.frame` specifying the object dependecies of the module, with columns
+&nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
+&nbsp;                | as both an input and an output, add the object to each of these `data.frame`s.
+**`outputObjects`**   | A `data.frame` specifying the objects output by the module, following the format of
+&nbsp;                | `inputObjects`.
 
 ## Events
 
@@ -245,11 +266,17 @@ openModules(system.file("sampleModules", package="SpaDES"), "caribouMovement")
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
-- check package dependencies
-- check module object dependency (simInit does this)
-- check compatibility (simInit does a basic version of this)
+Modules from this (or another suitable GitHub repository) can be downloaded using:
 
-It's up to the modeler (you!) to ensure the scientific validity of using different modules together.
+```{r download-module, echo=TRUE, eval=FALSE}
+downloadModule("moduleName", "path/to/my/modules/directory")
+```
+
+Before using other modules, it is up to the modeler (you!) to ensure the scientific validity of using different modules together. When deciding upon which modules to use, be sure to also:
+
+1. check package dependencies and ensure you have the necesarry packages installed on your system;
+2. check module object dependencies (`simInit` does this);
+3. check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` does a basic version of this).
 
 # Creating a new module
 
@@ -306,30 +333,21 @@ See above for more details.
 
 ## Contributing modules
 
-after publication you may wish to make your module more easily accessible for others to use (in fact we encourage it).
+After publication you may wish to make your module more easily accessible for others to use (in fact we encourage it).
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
-### Generate random landscapes (`randomLandscapes`)
+### Minimum requirements
 
-```{r randomLandscapes, echo=TRUE, eval=FALSE, message=FALSE}
-source(file.path(system.file("sampleModules", package="SpaDES"), "randomLandscapes", "randomLandscapes.R"), echo=TRUE, max.deparse.length=10000)
-```
+All contributed modules should be well documented. In addition to providing *complete* metadata within the module's `.R` file, the following additional components should be included:
 
-\newpage
+- a `citation.bib` file containing a BibTeX-formatted citation for your module (or for the publication describing your module). This citation will be used by others when citing your module.
+- a `LICENSE` file describing how your module code may be used and modified.
+- a `README` file containing an overview of your module and updates that are included with each version.
+- module documentation, such as an Rmarkdown (`.Rmd`) document that can be built as a `PDF`.
 
-### Simulate fire spread on a landscape (`fireSpread`)
+Note that `newModule()` produces skeleton templates of these files. Additionally, `zipModule()` can be used to build the `.zip` file corresponding to a particular version of your module.
 
-```{r fireSpread, echo=TRUE, eval=FALSE, message=FALSE}
-source(file.path(system.file("sampleModules", package="SpaDES"), "fireSpread", "fireSpread.R"), echo=TRUE, max.deparse.length=10000)
-```
+### Module submission
 
-\newpage
-
-### Agent based model of caribou movement (`caribouMovement`)
-
-```{r caribouMovement, echo=TRUE, eval=FALSE, message=FALSE}
-source(file.path(system.file("sampleModules", package="SpaDES"), "caribouMovement", "caribouMovement.R"), echo=TRUE, max.deparse.length=10000)
-```
-- minimum requirements
-- pull request to the repo
+To submit your module for inclusion in our GitHub repository, login to GitHub with your account and initiate a pull request to the repository. See the [GitHub help documentation](https://help.github.com/articles/creating-a-pull-request/) for more details.
