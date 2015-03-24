@@ -56,17 +56,20 @@ setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histo
 #' @docType methods
 #' @rdname dev-method
 #'
-# @examples
-# needs examples
+# @examples# needs examples
 dev <- function(x, ...) {
+
   if (missing(x)) {
     if(is.null(dev.list())) {
       x <- 2L
     } else {
       if(any(names(dev.list())=="RStudioGD")) {
-        dev(which(names(dev.list())=="RStudioGD")+3L)
+        x <- min(max(dev.list())+1,
+                 which(names(dev.list())=="RStudioGD")+3L)
+        dev(x)
       } else {
-        dev(max(dev.list()))
+        x <- max(dev.list())
+        dev(x)
       }
     }
   }
@@ -317,6 +320,7 @@ setGeneric("arrangeViewports", function(extents){ #, name=NULL) {
 setMethod("arrangeViewports",
           signature=c("list"),
           definition= function(extents) {
+
             dimx <- apply(sapply(extents, function(y) apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
             nPlots <- length(extents)
             names <- names(extents)
@@ -507,6 +511,7 @@ setMethod("plotGrob",
                                legend, draw, gp=gpar(), pch, ...) {
 
 
+
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
               pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
                             p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -529,18 +534,21 @@ setMethod("plotGrob",
             idLength <- unlist(lapply(xyOrd.l, function(i) lapply(i, nrow)))
             xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) do.call(rbind, i)))
 
-            if (requireNamespace("fastshp", quietly=TRUE)) {
-              thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup)
-              xyOrd <- xyOrd[thinned, ]
-              idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
-            } else {
-              message(paste("To speed up Polygons plotting using Plot please download fastshp",
-                            "#install.packages(\"devtools\")",
-                            "library(\"devtools\")",
-                            "install_github(\"s-u/fastshp\")", sep="\n",
-                            "You may also need to download and install Rtools",
-                            "at http://cran.r-project.org/bin/windows/Rtools/"))
+            if(nrow(xyOrd) > 1e3) { # thin if fewer than 1000 pts
+              if (requireNamespace("fastshp", quietly=TRUE)) {
+                thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup)
+                xyOrd <- xyOrd[thinned, ]
+                idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+              } else {
+                message(paste("To speed up Polygons plotting using Plot please download fastshp",
+                              "#install.packages(\"devtools\")",
+                              "library(\"devtools\")",
+                              "install_github(\"s-u/fastshp\")", sep="\n",
+                              "You may also need to download and install Rtools",
+                              "at http://cran.r-project.org/bin/windows/Rtools/"))
+              }
             }
+
 
             gp$fill[hole] <- "#FFFFFF00"
             polyGrob <- gTree(children=gList(
@@ -592,7 +600,6 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
   wdth <- unit.c(unit(0.2, "null"), unit(rep(c(0.875, vS.w, 0.875), columns),
                                          rep(c("null","npc", "null"), columns)),
                  unit(0.2, "null"))
-
   # calculate the visualSqueeze for the height (i.e., vS.h)
   vS.h <- min(visualSqueeze/rows,
               visualSqueeze/rows*arr@ds.dimensionRatio/arr@actual.ratio)
@@ -600,7 +607,8 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
                                      rep(c("null", "npc", "null"), rows)),
                unit(0.2, "null"))
 
-  return(list(wdth=wdth, ht=ht))
+  return(list(wdth=wdth, ht=ht,
+              wdthUnits=vS.w, htUnits=vS.h))
 }
 
 
@@ -634,6 +642,10 @@ makeViewports <- function(extents, arr, newArr = FALSE) {
   plotVps <- list()
   nam <- names(extents)
 
+  # This is the biggest of the extents, and is used in makeLayout
+  #  Need to replicate it here because all plots are scaled to this
+  biggestDims <- apply(sapply(extents, function(y) apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
+
   for(extentInd in 1:length(extents)) {
 
     posInd <- match(nam[extentInd], arr@names)
@@ -646,12 +658,36 @@ makeViewports <- function(extents, arr, newArr = FALSE) {
       lpr = c((lpr):(lpr+1))
     }
 
+    # makes equal scale
+    if (abs(((extents[[extentInd]]@ymax- extents[[extentInd]]@ymin) /
+          (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)) -
+          (biggestDims[1]/biggestDims[2]))
+        > (getTolerance())) {
+
+      dimensionRatio <- arr@layout$wdthUnits*arr@ds[1] /
+        (arr@layout$htUnits*arr@ds[2])
+      plotScaleRatio <- (extents[[extentInd]]@xmin - extents[[extentInd]]@xmax) /
+        (extents[[extentInd]]@ymin - extents[[extentInd]]@ymax)
+
+      vS.w <- min(1, plotScaleRatio/dimensionRatio)
+
+      vS.h <- min(1, dimensionRatio/plotScaleRatio)
+
+      addY <- abs(extents[[extentInd]]@ymax- extents[[extentInd]]@ymin -
+                    (extents[[extentInd]]@ymax- extents[[extentInd]]@ymin)/vS.h)/2
+      addX <- abs(extents[[extentInd]]@xmax- extents[[extentInd]]@xmin -
+                    (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)/vS.w)/2
+    } else {
+      addY <- addX <- 1
+    }
+
+    # end equal scale
     plotVps[[extentInd]] <- viewport(
       name=nam[extentInd],
       layout.pos.col = lpc,
       layout.pos.row = lpr,
-      xscale=c(extents[[extentInd]]@xmin, extents[[extentInd]]@xmax),
-      yscale=c(extents[[extentInd]]@ymin, extents[[extentInd]]@ymax))
+      xscale=c(extents[[extentInd]]@xmin-addX, extents[[extentInd]]@xmax+addX),
+      yscale=c(extents[[extentInd]]@ymin-addY, extents[[extentInd]]@ymax+addY))
 
   }
 
@@ -1325,6 +1361,7 @@ setMethod("Plot",
             #  plotted, and visualSqueeze
             arr@layout <- makeLayout(arr, visualSqueeze, legend, axes)
             # Create the viewports as per the optimal layout
+
             if(length(extsToPlot)>0) {
               vps <- makeViewports(extsToPlot, arr=arr, newArr=newArr)
               if(!new & !newArr)
@@ -1341,8 +1378,26 @@ setMethod("Plot",
               whGrobNamesi <- match(grobNamesi, grobNames)
 
               whPlot <- match(addTo[whGrobNamesi], arr@names)
-              if(axes=="L") {if(whPlot>(length(arr@names)-arr@columns)) { xaxis <- TRUE } else { xaxis <- FALSE}
-                             if((whPlot-1)%%arr@columns==0) { yaxis <- TRUE } else { yaxis <- FALSE}}
+              if(axes=="L") {
+
+                if (arr@extents[(whPlot-1)%%arr@columns+1][[1]]==
+                  arr@extents[max(which((1:length(arr@names)-1)%%arr@columns+1==
+                                          (whPlot-1)%%arr@columns+1))][[1]]) {
+                  if(whPlot>(length(arr@names)-arr@columns)) {
+                    xaxis <- TRUE } else { xaxis <- FALSE}
+                } else { #not the same extent as the final one in the column
+                  xaxis <- TRUE
+                }
+
+                if(arr@extents[whPlot][[1]]==
+                     arr@extents[(ceiling(whPlot/arr@columns)-1)*arr@columns+1][[1]]) {
+                  if((whPlot-1)%%arr@columns==0) {
+                    yaxis <- TRUE } else { yaxis <- FALSE}
+                } else {
+                  yaxis <- TRUE
+                }
+              }
+
               if(grobNamesi %in% currentNames) {
                 if (!newArr) {
                   title <- FALSE
