@@ -886,7 +886,7 @@ setMethod("drawArrows",
     if(any(sapply(isGetInner, any))) {
       innerGet <- asChar[!isGet][sapply(isGetInner, any)]
       insideGet <- lapply(1:length(innerGet), function(x)
-        sub("\\)$", "", sub("get\\(", "", innerGet[[x]][isGetInner[[x]]])))
+        sub("\\)$", "", sub("get[[:alpha:]]*\\(", "", innerGet[[x]][isGetInner[[x]]])))
       fourthSO <- lapply(insideGet, function(w) {
         if(grepl(pattern=", ", w)) {
           insideGetSO <- sapply(strsplit(split="[, = ]", w)[[1]], function(y)
