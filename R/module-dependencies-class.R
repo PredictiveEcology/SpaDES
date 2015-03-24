@@ -87,10 +87,10 @@ setClass("moduleDeps",
            object@outputObjects <- as.data.frame(object@outputObjects, stringsAsFactors=FALSE)
            if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")
            if (length(object@outputObjects)<1L) stop("output object name and class must be specified, or NA.")
-           if ( !all(c("objectName", "objectClass", "other") %in% colnames(tmp.list$inputObjects)) ) {
+           if ( !all(c("objectName", "objectClass", "other") %in% colnames(object@inputObjects)) ) {
              stop("input object data.frame must use colnames objectName, objectClass, and other.")
            }
-           if ( !all(c("objectName", "objectClass", "other") %in% colnames(tmp.list$outputObjects)) ) {
+           if ( !all(c("objectName", "objectClass", "other") %in% colnames(object@outputObjects)) ) {
              stop("output object data.frame must use colnames objectName, objectClass, and other.")
            }
            # try coercing to character because if data.frame was created without specifying
