@@ -1728,7 +1728,7 @@ clickValues <- function(n=1) {
 
   coords <- clickCoordinates(n=n)
 
-  objLay <- strsplit(coords[, 1], "\\.")
+  objLay <- strsplit(coords[, 1], "\\$")
   objNames <- sapply(objLay, function(x) x[1])
   layNames <- sapply(objLay, function(x) x[2])
   for (i in 1:n) {
@@ -1760,7 +1760,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     } else {
       dev(devNum)
     }
-    objLay <- strsplit(corners[, 1], "\\.")
+    objLay <- strsplit(corners[, 1], "\\$")
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
