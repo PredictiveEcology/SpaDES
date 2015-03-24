@@ -780,7 +780,6 @@ setMethod("drawArrows",
 #' @rdname objectNames
 .objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
-
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -804,8 +803,9 @@ setMethod("drawArrows",
   # First run through call stack for simple, i.e., calls to Plot that are
   # just spadesPlotObjects to plot
   objs <- vector("list", length(callNamedArgs))
-  first <- sapply(as.character(callNamedArgs), function(x)
-    strsplit(split="[[:punct:]]", x)[[1]][1])
+  first <- as.character(callNamedArgs)
+#  first <- sapply(as.character(callNamedArgs), function(x)
+#    strsplit(split="[[:punct:]]", x)[[1]][1])
   firstSO <- sapply(first, function(y) is(get(y, sys.frame(frameCalledFrom-1)), argClass))
   if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
   # cut short if all are dealt with
@@ -1156,6 +1156,7 @@ setMethod("Plot",
 
             # Section 1 # Determine object names that were passed and layer names of each
             names(toPlot) <- .objectNames()
+
             if(!is.null(suppliedNames)) names(toPlot)[!is.na(suppliedNames)] <- suppliedNames
             if(all(isSpatialObjects)) {
 
@@ -1173,7 +1174,7 @@ setMethod("Plot",
               #  omit it, and if layer name is "layer", omit it if within a RasterLayer
               lN <- rep(names(toPlot), numLayers)
               lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
-                                        layerNames(toPlot[isRaster]), sep=".")
+                                        layerNames(toPlot[isRaster]), sep="$")
               useOnlyObjectName <- (layerNames(toPlot)=="layer") | (layerNames(toPlot)==objectNamesLong)
               if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
                 lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
@@ -1359,6 +1360,8 @@ setMethod("Plot",
                                                 "one that has a plot named", addTo[whGrobNamesi]))
 
               newplot <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
+
+
               grobToPlot <- .identifyGrobToPlot(grobNamesi, toPlot, lN, newplot)
 
 
@@ -1384,6 +1387,7 @@ setMethod("Plot",
                 # Rasters may be zoomed into and subsampled and have unique legend
                 pR <- .prepareRaster(grobToPlot, zoomExtent, legendRange,
                                              newplot, arr, speedup)
+
                 zMat <- makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                         pR$legendRange, na.color,
                                         zero.color=zero.color, cols=colour,
@@ -1516,6 +1520,7 @@ setMethod("makeColorMatrix",
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                cols, na.color, zero.color, skipSample=TRUE) {
             zoom <- zoomExtent
+
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
@@ -1524,7 +1529,7 @@ setMethod("makeColorMatrix",
               colorTable <- getColors(grobToPlot)[[1]]
               if(!is(try(minValue(grobToPlot)),"try-error")) {
                 minz <- minValue(grobToPlot)
-                maxz <- maxValue(grobToPlot)
+#                maxz <- maxValue(grobToPlot)
               }
               grobToPlot <- sampleRegular(x=grobToPlot, size=maxpixels,
                                           ext=zoom, asRaster=TRUE, useGDAL=TRUE)
@@ -1539,6 +1544,9 @@ setMethod("makeColorMatrix",
             #  metadata version of minValue, but use the max(z) to accomodate cases
             #  where there are too many legend values for the number of raster values
             if(!exists("minz")) {
+              minz <- min(z, na.rm=TRUE)
+            }
+            if (is.na(minz)) {
               minz <- min(z, na.rm=TRUE)
             }
             #
@@ -1804,7 +1812,8 @@ clickCoordinates <- function(n=1) {
 
 .identifyGrobToPlot <- function(grobNamesi, toPlot, lN, newplot) {
   # get the object name associated with this grob
-  objLayerName <- strsplit(grobNamesi, "\\.")[[1]]
+
+  objLayerName <- strsplit(grobNamesi, "\\$")[[1]]
 
   # Does it already exist on the plot device or not
   if(!newplot) { # Is this a replot
