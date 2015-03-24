@@ -840,8 +840,8 @@ setMethod("drawArrows",
   # just spadesPlotObjects to plot
   objs <- vector("list", length(callNamedArgs))
   first <- as.character(callNamedArgs)
-#  first <- sapply(as.character(callNamedArgs), function(x)
-#    strsplit(split="[[:punct:]]", x)[[1]][1])
+  first <- sapply(as.character(callNamedArgs), function(x)
+    strsplit(split="\\(", x)[[1]][1])
   firstSO <- sapply(first, function(y) is(get(y, sys.frame(frameCalledFrom-1)), argClass))
   if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
   # cut short if all are dealt with
@@ -886,7 +886,7 @@ setMethod("drawArrows",
     if(any(sapply(isGetInner, any))) {
       innerGet <- asChar[!isGet][sapply(isGetInner, any)]
       insideGet <- lapply(1:length(innerGet), function(x)
-        sub("\\)$", "", sub("get\\(", "", innerGet[[x]][isGetInner[[x]]])))
+        sub("\\)$", "", sub("get[[:alpha:]]*\\(", "", innerGet[[x]][isGetInner[[x]]])))
       fourthSO <- lapply(insideGet, function(w) {
         if(grepl(pattern=", ", w)) {
           insideGetSO <- sapply(strsplit(split="[, = ]", w)[[1]], function(y)
@@ -1728,7 +1728,7 @@ clickValues <- function(n=1) {
 
   coords <- clickCoordinates(n=n)
 
-  objLay <- strsplit(coords[, 1], "\\.")
+  objLay <- strsplit(coords[, 1], "\\$")
   objNames <- sapply(objLay, function(x) x[1])
   layNames <- sapply(objLay, function(x) x[2])
   for (i in 1:n) {
@@ -1760,7 +1760,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     } else {
       dev(devNum)
     }
-    objLay <- strsplit(corners[, 1], "\\.")
+    objLay <- strsplit(corners[, 1], "\\$")
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
