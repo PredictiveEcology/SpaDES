@@ -840,8 +840,8 @@ setMethod("drawArrows",
   # just spadesPlotObjects to plot
   objs <- vector("list", length(callNamedArgs))
   first <- as.character(callNamedArgs)
-#  first <- sapply(as.character(callNamedArgs), function(x)
-#    strsplit(split="[[:punct:]]", x)[[1]][1])
+  first <- sapply(as.character(callNamedArgs), function(x)
+    strsplit(split="\\(", x)[[1]][1])
   firstSO <- sapply(first, function(y) is(get(y, sys.frame(frameCalledFrom-1)), argClass))
   if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
   # cut short if all are dealt with
