@@ -246,5 +246,11 @@ setMethod("depsLoadOrder",
             } else {
               loadOrder <- unlist(simModules(sim))
             }
+            # make sure modules with no deps get added
+            if (!all(simModules(sim) %in% loadOrder)) {
+              ids <- which(simModules(sim) %in% loadOrder)
+              noDeps <- unlist(simModules(sim))[-ids]
+              loadOrder <- c(loadOrder, noDeps)
+            }
             return(loadOrder)
 })
