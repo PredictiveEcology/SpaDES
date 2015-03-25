@@ -2,20 +2,22 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 0.6.0
 =============
-* new module dependency checking and metadata structure (#126)
-* new module structure (#125):
-
-        moduleName/
-        |_ moduleName.R    # the actual module code file, incl. module metadata
-        |_ moduleName.Rmd  # longform documentation and usage info, etc.
-        |_ citation.bib    # properly formatted bibtex citation for the module
-        |_ LICENSE         # license file describing the allowed usage etc. of the module
-        |_ README          # incl. module metadata in addition to version change info, etc.
-
 * modules now require metadata; module code without it will break!
-* deprecated use of `reloadModuleLater`
+    - new module dependency checking and metadata structure (#126)
+        - deprecated use of `reloadModuleLater`
+    - new module structure (#125):
+
+            moduleName/
+            |_ moduleName.R    # the actual module code file, incl. module metadata
+            |_ moduleName.Rmd  # longform documentation and usage info, etc.
+            |_ citation.bib    # properly formatted bibtex citation for the module
+            |_ LICENSE         # license file describing the allowed usage etc. of the module
+            |_ README          # incl. module metadata in addition to version change info, etc.
+
 * added new relational operators to account for floating point errors
 * added `dplyr`, `magrittr`, and `httr` to `Imports`
+* updated vignettes; new `getting-started` vignette
+* bug fixes
 
 version 0.5.0
 =============
