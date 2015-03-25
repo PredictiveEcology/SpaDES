@@ -4,15 +4,16 @@
 #'
 # @demoTitle spades-simulation
 #
-library(dplyr)
-library(SpaDES)
 
-fileList = data_frame(files=dir(file.path(find.package("SpaDES",
+library("SpaDES")
+
+fileList = data.frame(files=dir(file.path(find.package("SpaDES",
                                                        lib.loc=.libPaths(),
                                                        quiet=FALSE), "maps"),
                                 full.names=TRUE, pattern= "tif"),
                       functions="rasterToMemory",
-                      packages="SpaDES")
+                      packages="SpaDES",
+                      stringsAsFactors=FALSE)
 
 stackName = "landscape"
 

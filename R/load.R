@@ -81,7 +81,6 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @name loadFiles
 #' @include simulation.R
-#' @importFrom dplyr data_frame
 #' @importFrom methods is
 #' @import rgdal
 #' @import raster
@@ -148,7 +147,8 @@ setMethod("loadFiles",
               }
 
               if (is(fileList, "list")) {
-                fileListdf <- do.call(data_frame, args=list(fileList[-match("arguments", names(fileList))]))
+                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments", names(fileList))],
+                                                            stringsAsFactors=FALSE))
               } else {
                 fileListdf <- fileList
               }
@@ -359,14 +359,13 @@ setMethod("loadFiles",
 #' @export
 #' @rdname loadFiles-method
 .fileExtensions = function() {
-  .fE <- data.frame(matrix(ncol=3, byrow=TRUE, c(
+  .fE <- data.frame(matrix(ncol=3, byrow=TRUE,c(
     "tif", "raster", "raster" ,
     "png", "raster", "raster" ,
     "csv", "read.csv", "utils" ,
     "shp", "readOGR", "rgdal",
     "txt", "read.table", "utils",
-    "asc", "raster", "raster")),
-    stringsAsFactors=FALSE)
+    "asc", "raster", "raster")))
   colnames(.fE) = c("exts", "functions", "package")
   return(.fE)
 }

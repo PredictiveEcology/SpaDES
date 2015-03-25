@@ -120,7 +120,7 @@ setMethod("show",
                            names(simParams(object))==".progress")
 
             p = mapply(function(x, y) {
-              data_frame(Module=x, Parameter=names(y), Value=unlist(y),
+              data.frame(Module=x, Parameter=names(y), Value=unlist(y),
                          stringsAsFactors=FALSE, row.names=NULL)
             },
             x=names(simParams(object))[-omit], y=simParams(object)[-omit],
