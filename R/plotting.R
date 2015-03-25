@@ -912,10 +912,11 @@ setMethod("drawArrows",
   # First run through call stack for simple, i.e., calls to Plot that are
   # just spadesPlotObjects to plot
   objs <- vector("list", length(callNamedArgs))
-  first <- as.character(callNamedArgs)
+  #first <- as.character(callNamedArgs)
   first <- sapply(as.character(callNamedArgs), function(x)
-    strsplit(split="\\(", x)[[1]][1])
-  firstSO <- sapply(first, function(y) is(get(y, sys.frame(frameCalledFrom-1)), argClass))
+    strsplit(split="[\\(\\[]", x)[[1]][1])
+  firstSO <- sapply(first, function(y) is(try(get(y, sys.frame(frameCalledFrom-1)),
+                                              silent=TRUE), argClass))
   if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
   # cut short if all are dealt with
   if(all(!sapply(objs, is.null))) return(objs)
