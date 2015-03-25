@@ -190,7 +190,7 @@ setMethod("depsPruneEdges",
 
               # What is not provided in modules, but needed
               missingObjects <- simEdgeList %>% filter(from!=to) %>%
-                anti_join(pth,., by=c("from","to"))
+                anti_join(pth, ., by=c("from","to"))
               if (nrow(missingObjects)) {
                 warning("Problem resolving the module dependencies:\n",
                         missingObjects)
