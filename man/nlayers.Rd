@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{methods}
 \name{nlayers,list-method}
+\alias{nlayers,SpatialLines-method}
 \alias{nlayers,SpatialPoints-method}
 \alias{nlayers,SpatialPolygons-method}
 \alias{nlayers,list-method}
@@ -11,6 +12,8 @@
 
 \S4method{nlayers}{SpatialPolygons}(x)
 
+\S4method{nlayers}{SpatialLines}(x)
+
 \S4method{nlayers}{SpatialPoints}(x)
 }
 \arguments{
@@ -18,7 +21,7 @@
 }
 \description{
 There are already methods for \code{Raster*} in the raster package.
-Adding methods for \code{list}, \code{SpatialPolygons}, and \code{SpatialPoints}.
+Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines}, and \code{SpatialPoints}.
 These latter classes return 1.
 }
 

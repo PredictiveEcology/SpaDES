@@ -3,6 +3,7 @@
 \docType{methods}
 \name{plotGrob}
 \alias{plotGrob}
+\alias{plotGrob,SpatialLines-method}
 \alias{plotGrob,SpatialPoints-method}
 \alias{plotGrob,SpatialPolygons-method}
 \alias{plotGrob,matrix-method}
@@ -26,9 +27,15 @@ plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
   draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
   ...)
+
+\S4method{plotGrob}{SpatialLines}(grobToPlot, col = NULL, real = FALSE,
+  size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
+  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
+  ...)
 }
 \arguments{
-\item{grobToPlot}{\code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*} object}
+\item{grobToPlot}{\code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*}, or
+\code{SpatialLines*} object}
 
 \item{col}{Currently only used for the legend of a \code{Raster*} object.}
 
@@ -56,8 +63,9 @@ package), this will be used by default. Currently, only a single vector is accep
 
 \item{pch}{for \code{SpatialPoints}, as \code{par}}
 
-\item{speedup}{Numeric. The factor by which the number of vertices in \code{SpatialPolygons} will be subsampled.
-The vertices are already subsampled by default to make plotting faster.}
+\item{speedup}{Numeric. The factor by which the number of vertices in \code{SpatialPolygons}
+and \code{SpatialLines*} will be subsampled. The vertices are already subsampled
+by default to make plotting faster.}
 
 \item{...}{additional arguments. Currently nothing.}
 }
