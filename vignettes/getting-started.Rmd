@@ -5,10 +5,10 @@ date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
   pdf_document:
   number_sections: yes
-toc: yes
+  toc: yes
 html_document:
   self_contained: no
-toc: yes
+  toc: yes
 word_document: default
 vignette: >
   %\VignetteEngine{knitr::knitr}
@@ -140,7 +140,7 @@ for (t in 1:10) {
   #crop any caribou that went off maps
   caribou <<- crop(caribou,landscape)
   drawArrows(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
-             to=caribou, length=0.04, addTo="landscape.habitatQuality")
+             to=caribou, length=0.04, addTo="landscape$habitatQuality")
 
   # find out what pixels the individuals are on now
   ex <- landscape[["habitatQuality"]][caribou]
