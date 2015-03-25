@@ -1,5 +1,5 @@
 ---
-title: "Plotting with `SpaDES`"
+title: "04 Plotting with `SpaDES`"
 author: "Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
@@ -12,7 +12,7 @@ output:
   word_document: default
 vignette: >
   %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{Plotting with SpaDES}
+  %\VignetteIndexEntry{04 Plotting with SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}
   %\usepackage[utf8]{inputenc}

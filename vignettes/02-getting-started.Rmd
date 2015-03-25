@@ -1,5 +1,5 @@
 ---
-title: "Getting started with `SpaDES`"
+title: "02 Getting started with `SpaDES`"
 author: "Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
@@ -12,7 +12,7 @@ html_document:
 word_document: default
 vignette: >
   %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{Getting started with SpaDES}
+  %\VignetteIndexEntry{02 Getting started with SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{tutorial}
   %\usepackage[utf8]{inputenc}
