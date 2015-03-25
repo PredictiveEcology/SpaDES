@@ -24,7 +24,7 @@
 ###
 ### citation:     NA
 ###
-### reqdPkgs:     methods; raster; RColorBrewer
+### reqdPkgs:     dplyr; methods; raster; RColorBrewer
 ###
 ### inputObjects: objectName: simGlobals(sim)$.stackName
 ###               objectClass: RasterStack
@@ -75,8 +75,8 @@ defineModule(sim, list(
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,
   citation=list(),
-  reqdPkgs=list("methods", "raster", "RColorBrewer"),
-  inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
+  reqdPkgs=list("dplyr", "methods", "raster", "RColorBrewer"),
+  inputObjects=data_frame(objectName=c(simGlobals(sim)$.stackName,
                                        simGlobals(sim)$burnStats,
                                        "simParams(sim)$fireSpreadLcc$nFires",
                                        "simParams(sim)$fireSpreadLcc$its",
@@ -85,11 +85,11 @@ defineModule(sim, list(
                                        "simParams(sim)$fireSpreadLcc$startTime"),
                           objectClass=c("RasterStack", "numeric", "numeric",
                                         "numeric", "numeric", "numeric", "numeric"),
-                          other=rep(NA_character_, 7L), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
+                          other=rep(NA_character_, 7L)),
+  outputObjects=data_frame(objectName=c(simGlobals(sim)$.stackName,
                                         simGlobals(sim)$burnStats),
                            objectClass=c("RasterStack", "numeric"),
-                           other=c(NA_character_, NA_character_), stringsAsFactors=FALSE)
+                           other=c(NA_character_, NA_character_))
 ))
 
 ### event functions

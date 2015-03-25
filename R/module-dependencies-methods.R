@@ -24,6 +24,7 @@ selectMethod("show", "igraph")
 #' @export
 #' @import data.table
 #' @importFrom magrittr '%>%'
+#' @importFrom dplyr data_frame
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
@@ -42,10 +43,9 @@ setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
             deps <- simDepends(sim)
-            sim.in <- sim.out <- data.frame(objectName=character(),
+            sim.in <- sim.out <- data_frame(objectName=character(),
                                             objectClass=character(),
-                                            module=character(),
-                                            stringsAsFactors=FALSE) %>%
+                                            module=character()) %>%
                                  as.data.table
 
             lapply(deps@dependencies, function(x) {
@@ -67,14 +67,13 @@ setMethod("depsEdgeList",
               dx <- left_join(sim.in, sim.out, by="objectName") %>%
                 mutate(module.y=replace(module.y, is.na(module.y), "_INPUT_"))
 
-              dt <- with(dx, data.frame(from=module.y, to=module.x,
-                                        objName=objectName, objClass=objectClass.x,
-                                        stringsAsFactors=FALSE)) %>%
+              dt <- with(dx, data_frame(from=module.y, to=module.x,
+                                        objName=objectName, objClass=objectClass.x)) %>%
                     as.data.table
               if (plot) dt <- dt[!duplicated(dt[,1:2]),]
             } else {
-              dt <- data.frame(from=character(), to=character(), objName=character(),
-                               objClass=character(), stringsAsFactors=FALSE) %>%
+              dt <- data_frame(from=character(), to=character(),
+                               objName=character(), objClass=character()) %>%
                     as.data.table
             }
             return(dt)
@@ -138,6 +137,7 @@ setMethod("depsGraph",
 #' @import igraph
 #' @importFrom magrittr '%>%'
 #' @importFrom dplyr anti_join
+#' @importFrom dplyr data_frame
 #' @importFrom dplyr lead
 #' @importFrom dplyr inner_join
 #' @importFrom dplyr filter
@@ -160,7 +160,7 @@ setMethod("depsPruneEdges",
             simGraph <- graph.data.frame(simEdgeList)
             M <- shortest.paths(simGraph, mode="out")
             if (nrow(M)>1) {
-              pth <- data.frame(from=character(), to=character()) %>% as.data.table()
+              pth <- data_frame(from=character(), to=character()) %>% as.data.table()
               for (row in 1L:(nrow(M)-1L)) {
                 for (col in (row+1L):ncol(M)) {
                   current <- M[row,col]
@@ -169,17 +169,15 @@ setMethod("depsPruneEdges",
                     pth1 <- get.shortest.paths(simGraph,
                                                from=rownames(M)[row],
                                                to=colnames(M)[col])$vpath[[1]]
-                    pth1 <- data.frame(from=rownames(M)[pth1],
-                                       to=rownames(M)[lead(pth1, 1)],
-                                       stringsAsFactors = FALSE) %>%
+                    pth1 <- data_frame(from=rownames(M)[pth1],
+                                       to=rownames(M)[lead(pth1, 1)]) %>%
                             na.omit %>% as.data.table
 
                     pth2 <- get.shortest.paths(simGraph,
                                                from=colnames(M)[col],
                                                to=rownames(M)[row])$vpath[[1]]
-                    pth2 <- data.frame(from=rownames(M)[pth2],
-                                       to=rownames(M)[lead(pth2, 1)],
-                                       stringsAsFactors = FALSE) %>%
+                    pth2 <- data_frame(from=rownames(M)[pth2],
+                                       to=rownames(M)[lead(pth2, 1)]) %>%
                             na.omit %>% as.data.table
 
                     pth <- rbindlist(list(pth, rbindlist(list(pth1, pth2))))
@@ -190,7 +188,7 @@ setMethod("depsPruneEdges",
 
               # What is not provided in modules, but needed
               missingObjects <- simEdgeList %>% filter(from!=to) %>%
-                anti_join(pth,., by=c("from","to"))
+                anti_join(pth, ., by=c("from","to"))
               if (nrow(missingObjects)) {
                 warning("Problem resolving the module dependencies:\n",
                         missingObjects)

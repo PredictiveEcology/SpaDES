@@ -52,15 +52,15 @@ defineModule(sim, list(
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,
   citation=list(),
-  reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  inputObjects=data.frame(objectName=c("simParams(sim)$randomLandscapes$nx",
+  reqdPkgs=list("dplyr", "raster", "RColorBrewer", "tkrplot", "RandomFields"),
+  inputObjects=data_frame(objectName=c("simParams(sim)$randomLandscapes$nx",
                                        "simParams(sim)$randomLandscapes$ny",
                                        "simParams(sim)$randomLandscapes$inRAM"),
                           objectClass=c("numeric", "numeric", "logical"),
-                          other=rep(NA_character_, 3), stringsAsFactors=FALSE),
+                          other=rep(NA_character_, 3)),
   outputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
                            objectClass="RasterStack",
-                           other=NA_character_, stringsAsFactors=FALSE)
+                           other=NA_character_)
 ))
 
 ### event functions

@@ -93,8 +93,8 @@ defineModule(list(
   timestep=NA_character_,
   citation=list(),
   reqdPkgs=list(),
-  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA)),
-  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA))
+  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA), stringsAsFactors=FALSE)
 ))
 
 ### event functions:

@@ -199,12 +199,13 @@ Saving objects to file can be done by passing the appropriate arguments as param
 - `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
 
 ```{r load-save, echo=TRUE, eval=FALSE, message=FALSE}
+require(dplyr)
 # initialize a new simulation, setting the load and save parameters
 filelist <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
                    .globals=list(.stackName="landscape", .outputPath=outputPath),
-                   .loadFileList=data.frame(files=filelist, stringsAsFactors=FALSE),
+                   .loadFileList=data_frame(files=filelist),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                 .saveObjects=c("habitat"),
                                 .savePath=file.path("output", "randomLandscapes"),

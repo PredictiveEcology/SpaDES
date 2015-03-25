@@ -19,7 +19,7 @@
 ###
 ### citation:     NA
 ###
-### reqdPkgs:     grid; raster; sp
+### reqdPkgs:     dplyr; grid; raster; sp
 ###
 ### inputObjects: objectName: simGlobals(sim)$.stackName
 ###               objectClass: RasterStack
@@ -52,17 +52,15 @@ defineModule(sim, list(
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,
   citation=list(),
-  reqdPkgs=list("grid", "raster", "sp"),
-  inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
+  reqdPkgs=list("dplyr", "grid", "raster", "sp"),
+  inputObjects=data_frame(objectName=c(simGlobals(sim)$.stackName,
                                        "simParams(sim)$caribouMovementLcc$moveInterval",
                                        "simParams(sim)$caribouMovement$N"),
                           objectClass=c("RasterStack", "numeric", "numeric"),
-                          other=c("layername=\"habitatQuality\"", rep(NA_character_, 2L)),
-                          stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "caribou"),
+                          other=c("layername=\"habitatQuality\"", rep(NA_character_, 2L))),
+  outputObjects=data_frame(objectName=c(simGlobals(sim)$.stackName, "caribou"),
                            objectClass=c("RasterStack", "SpatialPointsDataFrame"),
-                           other=c("layername=\"habitatQuality\"", NA_character_),
-                           stringsAsFactors=FALSE)
+                           other=c("layername=\"habitatQuality\"", NA_character_))
 ))
 
 ### event functions

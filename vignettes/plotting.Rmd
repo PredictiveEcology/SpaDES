@@ -28,13 +28,12 @@ To demonstrate plotting, we first load some maps. These maps are randomly genera
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
-require(magrittr)
+require(dplyr)
 require(SpaDES)
-fileList <- find.package("SpaDES", lib.loc=getOption("devtools.path"), quiet=FALSE) %>%
-       file.path(., "maps") %>% 
-         dir(., full.names=TRUE, pattern= "tif") %>%
-       data.frame(files=., functions="rasterToMemory", .stackName="landscape",
-                  packages="SpaDES", stringsAsFactors=FALSE)
+fileList <- find.package("SpaDES", quiet=FALSE) %>%
+  file.path(., "maps") %>% 
+  dir(., full.names=TRUE, pattern= "tif") %>%
+  data_frame(files=., functions="rasterToMemory", .stackName="landscape", packages="SpaDES")
 
 # Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
 loadFiles(fileList=fileList)
@@ -47,12 +46,13 @@ There are several features of `Plot` that are worth highlighting.
 
 ## Layer types
 Its main purpose is to plot spatial type objects. Specifically, it currently can plot `RasterLayer`, `RasterStack`, `SpatialPoints*`, and `SpatialPolygons*` objects. Because `Plot` uses the `grid` package, changing plot parameters is with the `gp=gpar()` designation. See `?gpar` for options.
+
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
 caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
 Plot(caribou)
-Plot(caribou, addTo="landscape.habitatQuality")
+Plot(caribou, addTo="landscape$habitatQuality")
 
 # SpatialPolygons
 Sr1 = Polygon(cbind(c(2,4,4,1,2),c(2,3,5,4,2))*20-50)
@@ -62,7 +62,7 @@ Srs1 = Polygons(list(Sr1), "s1")
 Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1,Srs2), 1:2)
 Plot(SpP)
-Plot(SpP, addTo="landscape.habitatQuality", gp=gpar(lwd=2))
+Plot(SpP, addTo="landscape$habitatQuality", gp=gpar(lwd=2))
 
 ```
 
@@ -91,7 +91,6 @@ setColors(landscape, n=50) <-
                    percentPine=brewer.pal("GnBu", n=8))
 Plot(landscape[[2:3]])
 ```
-
 
 ## Mixing Layer Types
 Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialPolygons*` objects can be plotted.
@@ -167,7 +166,7 @@ There are times when it is useful to add a plot to a different plot with a diffe
 
 ```{r add, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
-Plot(caribou, addTo="landscape.forestAge", size=2, axes=F)
+Plot(caribou, addTo="landscape$forestAge", size=2, axes=F)
 ```
 
 # Clearing Plot
