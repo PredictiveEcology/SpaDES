@@ -14,7 +14,7 @@ vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{Getting started with SpaDES}
   %\VignetteDepends{SpaDES}
-  %\VignetteKeyword{}
+  %\VignetteKeyword{tutorial}
   %\usepackage[utf8]{inputenc}
 ---
 
@@ -111,10 +111,10 @@ Plot(landscape, new=TRUE)
 To model point agents (mobile *e.g.*, animals, or non-mobile, *e.g.*, plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.
 
 ```{r mobile-point-agent, echo=TRUE, eval=TRUE}
-N <- 10 # number of agents
+N <- 10L # number of agents
 
 # caribou data vectors
-IDs <- letters[1:N]
+IDs <- letters[1L:N]
 sex <- sample(c("female", "male"), N, replace=TRUE)
 age <- round(rnorm(N, mean=8, sd=3))
 x1 <- runif(N, -50, 50) # previous X location
