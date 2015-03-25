@@ -1215,7 +1215,7 @@ setMethod("Plot",
               if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
                 lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
                   sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
-                                function(x) strsplit(x, "\\.")[[1]]), function(y)y[[1]]) }
+                                function(x) strsplit(x, "\\$")[[1]]), function(y)y[[1]]) }
               names(lN) <- rep(names(toPlot), numLayers)
             } else {
               lN <- names(toPlot)
