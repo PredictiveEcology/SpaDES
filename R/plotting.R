@@ -13,12 +13,12 @@ selectMethod("show", "histogram")
 #'
 #' This class contains the plotting arrangement information.
 #'
-#' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, RasterStack
+#' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
-setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons",
+setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons","SpatialLines",
                                                "RasterLayer", "RasterStack"))
 
 ################################################
@@ -26,7 +26,7 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #'
 #' This class contains the plotting arrangement information.
 #'
-#' @slot members SpatialPoints*, SpatialPolygons*, RasterLayer, RasterStack
+#' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @name spadesPlotObjects-class
 #' @rdname spadesPlotObjects-class
 #' @author Eliot McIntire
@@ -58,7 +58,6 @@ setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histo
 #'
 # @examples# needs examples
 dev <- function(x, ...) {
-
   if (missing(x)) {
     if(is.null(dev.list())) {
       x <- 2L
@@ -74,7 +73,7 @@ dev <- function(x, ...) {
     }
   }
   if(is.null(dev.list())) newPlot(...)
-  while (dev.set(x)!=x) newPlot(...)
+  while (dev.set(x)<x) newPlot(...)
 }
 
 ##############################################################
@@ -105,7 +104,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' Find the number of layers in a Spatial Object
 #'
 #' There are already methods for \code{Raster*} in the raster package.
-#' Adding methods for \code{list}, \code{SpatialPolygons}, and \code{SpatialPoints}.
+#' Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines}, and \code{SpatialPoints}.
 #' These latter classes return 1.
 #'
 #' @param x A \code{spadesPlotObjects} object or list of these.
@@ -139,6 +138,14 @@ setMethod("nlayers",
 #' @export
 #' @rdname nlayers
 setMethod("nlayers",
+          signature="SpatialLines",
+          definition=function(x) {
+            return(1)
+          })
+
+#' @export
+#' @rdname nlayers
+setMethod("nlayers",
           signature="SpatialPoints",
           definition=function(x) {
             return(1)
@@ -147,10 +154,11 @@ setMethod("nlayers",
 ##############################################################
 #' Extract the layer names of Spatial Objects
 #'
-#' There are methods for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*},
+#' There are methods for \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}
+#' and \code{SpatialPolygons*},
 #' though the latter return an empty character vector of length 1.
 #'
-#' @param object A \code{Raster*}, \code{SpatialPoints*}, or \code{SpatialPolygons*} object; or list of these.
+#' @param object A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}, or \code{SpatialPolygons*} object; or list of these.
 #'
 #' @name layerNames
 #' @rdname layerNames
@@ -184,6 +192,14 @@ setMethod("layerNames",
           definition=function(object) {
             return("")
 })
+
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="SpatialLines",
+          definition=function(object) {
+            return("")
+          })
 
 
 #' @export
@@ -374,7 +390,8 @@ setMethod("arrangeViewports",
 #' required for building R packages on your system. For development purposes on
 #' a Windows machine, you'll need to install Rtools from http://cran.r-project.org/bin/windows/Rtools/.
 #'
-#' @param grobToPlot \code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*} object
+#' @param grobToPlot \code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*}, or
+#' \code{SpatialLines*} object
 #'
 #' @param col Currently only used for the legend of a \code{Raster*} object.
 #'
@@ -402,8 +419,9 @@ setMethod("arrangeViewports",
 #'
 #' @param real logical. Whether the data are real numbers (vs. integer or factor).
 #'
-#' @param speedup Numeric. The factor by which the number of vertices in \code{SpatialPolygons} will be subsampled.
-#' The vertices are already subsampled by default to make plotting faster.
+#' @param speedup Numeric. The factor by which the number of vertices in \code{SpatialPolygons}
+#' and \code{SpatialLines*} will be subsampled. The vertices are already subsampled
+#' by default to make plotting faster.
 #'
 #' @param ... additional arguments. Currently nothing.
 #'
@@ -561,6 +579,61 @@ setMethod("plotGrob",
             return(invisible(polyGrob))
 })
 
+
+#' @rdname plotGrob
+#' @export
+setMethod("plotGrob",
+          signature=c("SpatialLines"),
+          definition= function(grobToPlot, col, size,
+                               legend, draw, gp=gpar(), pch, ...) {
+
+            speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
+              pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
+                            p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
+                            lonlat=TRUE)/1.2e10
+            } else {
+              max( ymax(extent(grobToPlot))-ymin(extent(grobToPlot)),
+                   xmax(extent(grobToPlot))-xmin(extent(grobToPlot)))/2.4e4
+            }
+            # For speed of plotting
+            xy <- lapply(1:length(grobToPlot),
+                         function(i) lapply(grobToPlot@lines[[i]]@Lines,
+                                            function(j) j@coords))
+            idLength <- unlist(lapply(xy, function(i) lapply(i, nrow)))
+            xy <- do.call(rbind, lapply(xy, function(i) do.call(rbind, i)))
+
+            if(nrow(xy) > 1e3) { # thin if fewer than 1000 pts
+              if (requireNamespace("fastshp", quietly=TRUE)) {
+                thinned <- fastshp::thin(xy[, 1], xy[, 2], tolerance=speedupScale*speedup)
+
+                #keep first and last points of every polyline
+                lastIDs <- cumsum(idLength)
+                thinned[c(1,lastIDs+1)[-(1+length(lastIDs))]] <- TRUE # THis ensures first point of each line is kept
+                thinned[lastIDs] <- TRUE # THis ensures final point of each line is kept
+
+                xy <- xy[thinned, ]
+                idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+              } else {
+                message(paste("To speed up Lines plotting using Plot please download fastshp",
+                              "#install.packages(\"devtools\")",
+                              "library(\"devtools\")",
+                              "install_github(\"s-u/fastshp\")", sep="\n",
+                              "You may also need to download and install Rtools",
+                              "at http://cran.r-project.org/bin/windows/Rtools/"))
+              }
+            }
+
+
+            #gp$fill[hole] <- "#FFFFFF00"
+            lineGrob <- gTree(children=gList(
+              polylineGrob(x=xy[, 1], y=xy[, 2], id.lengths=idLength,
+                          gp=gp, default.units="native")
+            ),
+            gp=gp,
+            cl="plotLine")
+            if(draw) grid.draw(lineGrob)
+            return(invisible(lineGrob))
+          })
 
 ##################
 #' Make an optimal layout of plots
@@ -904,7 +977,7 @@ setMethod("drawArrows",
   # cut short if all are dealt with
   if(all(!sapply(objs, is.null))) return(objs)
 
-  # Look for layer() which is used by shiny to indicate a plot
+  # Look for layer() which is used by shiny to indicate a plot Plot(layer()$fires)
   isShinyLayer <- lapply(asChar, function(x) grepl("layer()", x))
   #   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner, any)],
   #                        function(x) grepl("layer()", x))
@@ -1464,6 +1537,12 @@ setMethod("Plot",
                 if(!is.null(zoomExtent)) {
                   grobToPlot <- crop(grobToPlot,zoomExtent)
                   }
+                z <- grobToPlot
+                zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              } else if (is(grobToPlot, "SpatialLines")){ # it is a SpatialPolygons object
+                if(!is.null(zoomExtent)) {
+                  grobToPlot <- crop(grobToPlot,zoomExtent)
+                }
                 z <- grobToPlot
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               }
