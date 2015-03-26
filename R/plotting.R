@@ -2175,7 +2175,7 @@ setMethod(".makeExtsToPlot",
 #' @docType methods
 #' @rdname Plot-method
 clearPlot <- function(dev=dev.cur()) {
-  try(rm(list=paste0(".spadesArr", dev), envir=.spadesEnv))
+  suppressWarnings(try(rm(list=paste0(".spadesArr", dev), envir=.spadesEnv)))
   devActive <- dev.cur()
   dev(dev)
   grid.newpage()
