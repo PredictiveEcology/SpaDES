@@ -549,7 +549,7 @@ setMethod("plotGrob",
             ordInner <- lapply(1:length(grobToPlot), function(x) grobToPlot@polygons[[x]]@plotOrder)
 
             xyOrd.l <- lapply(ord, function(i) xy[[i]][ordInner[[i]]])
-            idLength <- unlist(lapply(xyOrd.l, function(i) lapply(i, nrow)))
+            idLength <- unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2
             xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) do.call(rbind, i)))
 
             if(nrow(xyOrd) > 1e3) { # thin if fewer than 1000 pts
@@ -586,7 +586,6 @@ setMethod("plotGrob",
           signature=c("SpatialLines"),
           definition= function(grobToPlot, col, size,
                                legend, draw, gp=gpar(), pch, ...) {
-
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
               pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
                             p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -595,22 +594,23 @@ setMethod("plotGrob",
               max( ymax(extent(grobToPlot))-ymin(extent(grobToPlot)),
                    xmax(extent(grobToPlot))-xmin(extent(grobToPlot)))/2.4e4
             }
+
             # For speed of plotting
             xy <- lapply(1:length(grobToPlot),
-                         function(i) lapply(grobToPlot@lines[[i]]@Lines,
-                                            function(j) j@coords))
-            idLength <- unlist(lapply(xy, function(i) lapply(i, nrow)))
-            xy <- do.call(rbind, lapply(xy, function(i) do.call(rbind, i)))
+               function(i) grobToPlot@lines[[i]]@Lines[[1]]@coords)
+            idLength <- unlist(lapply(xy, length))/2
+            xy <- do.call(rbind,xy)
 
             if(nrow(xy) > 1e3) { # thin if fewer than 1000 pts
               if (requireNamespace("fastshp", quietly=TRUE)) {
                 thinned <- fastshp::thin(xy[, 1], xy[, 2], tolerance=speedupScale*speedup)
 
-                #keep first and last points of every polyline
-                lastIDs <- cumsum(idLength)
-                thinned[c(1,lastIDs+1)[-(1+length(lastIDs))]] <- TRUE # THis ensures first point of each line is kept
-                thinned[lastIDs] <- TRUE # THis ensures final point of each line is kept
-
+                #keep first and last points of every polyline, if there are fewer than 10,000 vertices
+                if(sum(thinned)<1e4) {
+                  lastIDs <- cumsum(idLength)
+                  thinned[c(1,lastIDs+1)[-(1+length(lastIDs))]] <- TRUE # THis ensures first point of each line is kept
+                  thinned[lastIDs] <- TRUE # THis ensures final point of each line is kept
+                }
                 xy <- xy[thinned, ]
                 idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
               } else {
@@ -1746,7 +1746,6 @@ setMethod("makeColorMatrix",
                 cols[1] <- zero.color
               }
             }
-
             z <- z + 1 # for the NAs
             z[is.na(z)] <- max(1, minz)
 
