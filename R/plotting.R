@@ -1748,7 +1748,7 @@ setMethod("makeColorMatrix",
             }
 
             z <- z + 1 # for the NAs
-            z[is.na(z)] <- 1
+            z[is.na(z)] <- max(1, minz)
 
             cols<-c(na.color, cols) # make first index of colors be transparent
             if((minz>1) | (minz<0)) {
