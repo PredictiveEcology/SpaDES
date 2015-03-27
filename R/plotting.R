@@ -1,8 +1,8 @@
 ### Allow gg S3 class to be used with Plot, an S4 function
 #' @import ggplot2
 #'
-setOldClass("ggplot")
-selectMethod("show", "ggplot")
+setOldClass("gg")
+selectMethod("show", "gg")
 
 ### Allow histogram S3 class to be used with Plot, an S4 function
 #' @import graphics
@@ -35,7 +35,7 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
 #'
-setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "ggplot", "histogram"))
+setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
 
 
 ##############################################################
@@ -1552,7 +1552,7 @@ setMethod("Plot",
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               }
 
-              if (is(grobToPlot, "ggplot")) {
+              if (is(grobToPlot, "gg")) {
                 #grobToPlot <- grobToPlot + theme(plot.background=element_rect(fill="transparent",
                 #                                                              colour = NA))
                 print(grobToPlot, vp=seek)
@@ -2053,7 +2053,7 @@ setMethod(".makeExtsToPlot",
           signature="list",
           definition <- function(toPlot, zoomExtent, numLayers, lN) {
 
-            if(any(sapply(toPlot, function(x) any(is(x, "ggplot") | is(x, "histogram"))))) {
+            if(any(sapply(toPlot, function(x) any(is(x, "gg") | is(x, "histogram"))))) {
 
               extsToPlot <- lapply(1:length(toPlot), function(x) {
                # if(!is.null(toPlot[[x]]$coordinates$ratio)) {
