@@ -553,17 +553,21 @@ setMethod("plotGrob",
 
             if(nrow(xyOrd) > 1e3) { # thin if fewer than 1000 pts
               if (requireNamespace("fastshp", quietly=TRUE)) {
-#                browser()
-#                thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup) %>%
-#                  data.table(thinned=.) %>%
-#                  .[,groups:=rep(1:length(idLength), idLength)]
-#                idLength <- thinned[,sum(thinned),by=groups]
-#                xyOrd <- xyOrd[thinned, ]
-#                idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+#                 browser()
+#               a=Sys.time();
+                thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup) %>%
+                  data.table(thinned=.) %>%
+                  .[,groups:=rep(1:length(idLength), idLength)]
+                idLength <- thinned[,sum(thinned),by=groups]
+                xyOrd <- xyOrd[thinned$thinned, ]
+#              b=Sys.time();print(b-a)
+                #idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
 
-                thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup)
-                xyOrd <- xyOrd[thinned, ]
-                idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+#               a=Sys.time()
+#                 thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup)
+#                 xyOrd <- xyOrd[thinned, ]
+#                 idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+#               b=Sys.time(); print(b-a)
               } else {
                 message(paste("To speed up Polygons plotting using Plot please download fastshp",
                               "#install.packages(\"devtools\")",
@@ -577,7 +581,7 @@ setMethod("plotGrob",
 
             gp$fill[hole] <- "#FFFFFF00"
             polyGrob <- gTree(children=gList(
-              polygonGrob(x=xyOrd[, 1], y=xyOrd[, 2], id.lengths=idLength,
+              polygonGrob(x=xyOrd[, 1], y=xyOrd[, 2], id.lengths=idLength$V1,
                           gp=gp, default.units="native")
             ),
             gp=gp,
