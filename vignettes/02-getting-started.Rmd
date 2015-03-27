@@ -22,7 +22,7 @@ vignette: >
 
 # Getting started with `SpaDES`
 
-oeuuoiueo
+- module organization/overview; module development philosophy
 
 
 -----
@@ -270,3 +270,7 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                  path=system.file("sampleModules", package="SpaDES"))
 spades(mySim)
 ```
+
+# Debugging simulations
+
+uoeioeu
