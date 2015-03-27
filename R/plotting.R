@@ -532,7 +532,6 @@ setMethod("plotGrob",
                                legend, draw, gp=gpar(), pch, ...) {
 
 
-
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
               pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
                             p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -557,9 +556,21 @@ setMethod("plotGrob",
 
             if(nrow(xyOrd) > 1e3) { # thin if fewer than 1000 pts
               if (requireNamespace("fastshp", quietly=TRUE)) {
-                thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup)
-                xyOrd <- xyOrd[thinned, ]
-                idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+#                 browser()
+#               a=Sys.time();
+                thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup) %>%
+                  data.table(thinned=.) %>%
+                  .[,groups:=rep(1:length(idLength), idLength)]
+                idLength <- thinned[,sum(thinned),by=groups]
+                xyOrd <- xyOrd[thinned$thinned, ]
+#              b=Sys.time();print(b-a)
+                #idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+
+#               a=Sys.time()
+#                 thinned <- fastshp::thin(xyOrd[, 1], xyOrd[, 2], tolerance=speedupScale*speedup)
+#                 xyOrd <- xyOrd[thinned, ]
+#                 idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
+#               b=Sys.time(); print(b-a)
               } else {
                 message(paste("To speed up Polygons plotting using Plot please download fastshp",
                               "#install.packages(\"devtools\")",
@@ -573,7 +584,7 @@ setMethod("plotGrob",
 
             gp$fill[hole] <- "#FFFFFF00"
             polyGrob <- gTree(children=gList(
-              polygonGrob(x=xyOrd[, 1], y=xyOrd[, 2], id.lengths=idLength,
+              polygonGrob(x=xyOrd[, 1], y=xyOrd[, 2], id.lengths=idLength$V1,
                           gp=gp, default.units="native")
             ),
             gp=gp,

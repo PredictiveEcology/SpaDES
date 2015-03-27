@@ -39,7 +39,8 @@ agentLocation <- function(map) {
 #'
 #' @seealso \code{\link{print}} and \code{\link{cat}}
 #'
-#' @import raster sp
+#' @import raster
+#' @import sp
 #' @include agent-methods.R
 #' @export
 #' @docType methods
