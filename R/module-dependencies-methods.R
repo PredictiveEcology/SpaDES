@@ -72,6 +72,7 @@ setMethod("depsEdgeList",
               dt <- data.table(from=character(), to=character(),
                                objName=character(), objClass=character())
             }
+            setorder(dt, "from", "to", "objName")
             return(dt)
 })
 

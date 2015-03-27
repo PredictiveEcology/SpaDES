@@ -118,7 +118,8 @@ path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 ## examine simulation module dependencies
-plot(depsGraph(mySim, TRUE))
+plot(depsGraph(mySim, TRUE)) # simplified visual representation
+depsEdgeList(mySim, FALSE)   # all dependency relationships
 ```
 
 ## Parameters
