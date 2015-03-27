@@ -20,7 +20,7 @@ before_install:
 
 install:
   - sh -e /etc/init.d/xvfb start
-  - ./travis-tool.sh install_r_binary boot chron circstats colorspace data.table dichromat digest ggplot2 gtable labeling lattice latticeextra knitr mass matrix munsell nlme proto randomfields raster rcolorbrewer rcpp reshape rgdal scales snow sp stringr tkrplot xts zoo
+  - ./travis-tool.sh install_r_binary boot chron circstats colorspace data.table dichromat digest dplyr ggplot2 gtable igraph labeling lattice latticeextra knitr magrittr mass matrix munsell nlme proto randomfields raster rcolorbrewer rcpp reshape rgdal scales secr snow sp stringr tkrplot xts zoo
   - ./travis-tool.sh install_github s-u/fastshp
   - ./travis-tool.sh install_deps
 
