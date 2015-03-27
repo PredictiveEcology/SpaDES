@@ -119,7 +119,7 @@ mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 ## examine simulation module dependencies
 plot(depsGraph(mySim, TRUE)) # simplified visual representation
-depsEdgeList(mySim, FALSE)   # all dependency relationships
+depsEdgeList(mySim, FALSE)   # all object dependency relationships
 ```
 
 ## Parameters
