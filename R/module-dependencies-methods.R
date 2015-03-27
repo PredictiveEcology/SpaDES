@@ -50,8 +50,8 @@ setMethod("depsEdgeList",
 
             lapply(deps@dependencies, function(x) {
               if (!is.null(x)) {
-                z.in <- as.data.table(x@inputObjects) %>% select(-other)
-                z.out <- as.data.table(x@outputObjects) %>% select(-other)
+                z.in <- as.data.table(x@inputObjects) %>% dplyr::select(-other)
+                z.out <- as.data.table(x@outputObjects) %>% dplyr::select(-other)
                 z.in$module <- z.out$module <- x@name
                 if (!all(is.na(z.in[,objectName]), is.na(z.in[,objectClass]))) {
                   sim.in <<- rbindlist(list(sim.in, z.in), use.names=TRUE)

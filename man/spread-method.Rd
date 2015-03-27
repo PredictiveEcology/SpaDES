@@ -82,7 +82,7 @@ Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
 fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
 #set colors of raster, including a transparent layer for zeros
-setColors(fires, 10)<-c("#00000000",brewer.pal(8,"Reds")[5:8])
+setColors(fires, 10)<-c("#00000000", brewer.pal(8,"Reds")[5:8])
 Plot(fires)
 Plot(fires,addTo="hab")
 
@@ -94,7 +94,7 @@ Plot(fires, addTo="hab",
      cols=colorRampPalette(c("orange","darkred"))(10))
 hab2 <- hab
 Plot(hab2)
-Plot(fires, addTo="hab2.hab", zero.color="white",
+Plot(fires, addTo="hab2$hab", zero.color="white",
      cols=colorRampPalette(c("orange","darkred"))(10))
 # or overplot the original (NOTE: legend stays at original values)
 Plot(fires,

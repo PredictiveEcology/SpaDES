@@ -57,7 +57,8 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' the returned map is the iteration number that the pixel burned
 #'
 #' @importFrom methods is
-#' @import raster RColorBrewer
+#' @import raster
+#' @import RColorBrewer
 #' @rdname spread-method
 #'
 #' @examples
@@ -87,7 +88,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
 #'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
 #' #set colors of raster, including a transparent layer for zeros
-#' setColors(fires, 10)<-c("#00000000",brewer.pal(8,"Reds")[5:8])
+#' setColors(fires, 10)<-c("#00000000", brewer.pal(8,"Reds")[5:8])
 #' Plot(fires)
 #' Plot(fires,addTo="hab")
 #'
@@ -99,7 +100,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #'      cols=colorRampPalette(c("orange","darkred"))(10))
 #' hab2 <- hab
 #' Plot(hab2)
-#' Plot(fires, addTo="hab2.hab", zero.color="white",
+#' Plot(fires, addTo="hab2$hab", zero.color="white",
 #'      cols=colorRampPalette(c("orange","darkred"))(10))
 #' # or overplot the original (NOTE: legend stays at original values)
 #' Plot(fires,
@@ -158,7 +159,6 @@ setMethod("spread",
             while ( (length(loci)>0) & (iterations>=n) ) {
               if (mapID) {
                 potentials <- adj(landscape, loci, directions, pairs=TRUE)
-                #potentials <- adj(landscape, loci, directions, pairs=TRUE)
               } else {
                 # must pad the first column of potentials
                 potentials <- cbind(NA, adj(landscape, loci, directions,
@@ -203,10 +203,10 @@ setMethod("spread",
 
               #If there is only 1 event, R turns the matrix into a vector
               if(is(potentials,"matrix")) {
-                ItHappened =runif(nrow(potentials))<=spreadProbs
+                ItHappened <- runif(nrow(potentials))<=spreadProbs
                 events <- potentials[ItHappened,2]
               } else {
-                ItHappened =runif(1)<=spreadProbs
+                ItHappened <- runif(1)<=spreadProbs
                 events <- potentials[2]
               }
 

@@ -129,7 +129,12 @@ findFactors <- function(x) {
 #' @importFrom secr make.mask
 #' @importFrom secr randomHabitat
 #'
-#' @import raster
+#' @importFrom raster disaggregate
+#' @importFrom raster extent
+#' @importFrom raster ncol
+#' @importFrom raster nrow
+#' @importFrom raster raster
+#'
 #' @import igraph
 #'
 #' @export
@@ -141,9 +146,9 @@ findFactors <- function(x) {
 #' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
 #EXAMPLES NEEDED
 randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, speedup=1, numTypes=1, minpatch=10, ...) {
-  ext <- extent(ras)
-  nc <- ncol(ras)
-  nr <- nrow(ras)
+  ext <- raster::extent(ras)
+  nc <- raster::ncol(ras)
+  nr <- raster::nrow(ras)
   resol <- res(ras)
 
   wholeNumsCol <- findFactors(nc)
@@ -181,7 +186,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
     r[as.integer(rownames(a))] <- i
   }
   if(speedup>1) {
-    return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
+    return(raster::disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
   } else {
     return(invisible(r))
   }
