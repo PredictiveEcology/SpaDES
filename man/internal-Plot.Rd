@@ -24,7 +24,7 @@
 A list of \code{extent} objects
 }
 \description{
-For spatial objects, these are the extents. For gg and hist objects,
+For spatial objects, these are the extents. For ggplot and hist objects,
 these are artifically extent(0,1,0,1). This is intended to be used internally in Plot methods
 }
 

@@ -1,10 +1,11 @@
 ### Allow gg S3 class to be used with Plot, an S4 function
 #' @import ggplot2
 #'
-setOldClass("gg")
-selectMethod("show", "gg")
+setOldClass("ggplot")
+selectMethod("show", "ggplot")
 
 ### Allow histogram S3 class to be used with Plot, an S4 function
+#' @import graphics
 setOldClass("histogram")
 selectMethod("show", "histogram")
 
@@ -28,11 +29,13 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @name spadesPlotObjects-class
+#' @import ggplot2
+#' @import graphics
 #' @rdname spadesPlotObjects-class
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
 #'
-setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
+setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "ggplot", "histogram"))
 
 
 ##############################################################
@@ -1152,6 +1155,7 @@ setMethod("drawArrows",
 #' @importFrom gridBase gridFIG
 #' @import raster
 #' @import RColorBrewer
+#' @import ggplot2
 #' @import rgdal
 #' @import sp
 #' @include environment.R
@@ -1548,7 +1552,7 @@ setMethod("Plot",
                 zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
               }
 
-              if (is(grobToPlot, "gg")) {
+              if (is(grobToPlot, "ggplot")) {
                 #grobToPlot <- grobToPlot + theme(plot.background=element_rect(fill="transparent",
                 #                                                              colour = NA))
                 print(grobToPlot, vp=seek)
@@ -2024,7 +2028,7 @@ clickCoordinates <- function(n=1) {
 ##############################################################
 #' Create an list of extents
 #'
-#' For spatial objects, these are the extents. For gg and hist objects,
+#' For spatial objects, these are the extents. For ggplot and hist objects,
 #' these are artifically extent(0,1,0,1). This is intended to be used internally in Plot methods
 #'
 #' @param toPlot list of objects to plot
@@ -2038,6 +2042,7 @@ clickCoordinates <- function(n=1) {
 #' @return A list of \code{extent} objects
 #'
 #' @name .makeExtsToPlot
+#' @import ggplot2
 #' @rdname internal-Plot
 setGeneric(".makeExtsToPlot", function(toPlot=NULL, zoomExtent=NULL, numLayers=NULL, lN) {
   standardGeneric(".makeExtsToPlot")
@@ -2048,7 +2053,7 @@ setMethod(".makeExtsToPlot",
           signature="list",
           definition <- function(toPlot, zoomExtent, numLayers, lN) {
 
-            if(any(sapply(toPlot, function(x) any(is(x, "gg") | is(x, "histogram"))))) {
+            if(any(sapply(toPlot, function(x) any(is(x, "ggplot") | is(x, "histogram"))))) {
 
               extsToPlot <- lapply(1:length(toPlot), function(x) {
                # if(!is.null(toPlot[[x]]$coordinates$ratio)) {
