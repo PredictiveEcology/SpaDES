@@ -1,5 +1,40 @@
 if(getRversion() >= "3.1.0") utils::globalVariables(".")
 
+#' Get the name of a source file
+#'
+#' This will only work for files that are \code{source}d.
+#' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
+#'
+#' @param fullname Logical (default \code{FALSE}) indicating whether the full path should be returned.
+#'
+#' @return Character string representing the filename.
+#'
+#' @importFrom magrittr '%>%'
+#' @export
+#' @docType methods
+#' @rdname getFileName-method
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("getFileName", function(fullname) {
+  standardGeneric("getFileName")
+})
+
+#' @rdname getFileName-method
+setMethod("getFileName",
+          signature="logical",
+          definition=function(fullname) {
+            f <- lapply(sys.frames(), function(i) i$filename) %>%
+              Filter(Negate(is.null), .) %>%
+              unlist
+            if (fullname) {
+              f <- normalizePath(file.path(getwd(), f), winslash="/")
+            } else {
+              f <- basename(f)
+            }
+            return(f)
+})
+
 ##############################################################
 #' Load packages.
 #'
