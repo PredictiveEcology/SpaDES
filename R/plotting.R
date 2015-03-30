@@ -768,6 +768,7 @@ setMethod("plotGrob",
                               ),
                               gp=gp,
                               cl="plotRast")
+browser()
             if(draw) grid.draw(rastGrob)
             return(invisible(rastGrob))
           })
@@ -1492,6 +1493,7 @@ setMethod("drawArrows",
 #' }
 #'
 #' Plot(landscape)
+
 #'
 #' # Can overplot, using addTo
 #' Plot(caribou, addTo="landscape.forestAge", size=4, axes=FALSE)
