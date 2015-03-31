@@ -79,6 +79,27 @@ setMethod("mergeLists",
             }
 })
 
+#' @rdname mergeLists-method
+setMethod("mergeLists",
+          signature=c("NULL", "list"),
+          definition=function(x, y) {
+            return(y[order(names(y))])
+})
+
+#' @rdname mergeLists-method
+setMethod("mergeLists",
+          signature=c("list", "NULL"),
+          definition=function(x, y) {
+            return(x[order(names(x))])
+})
+
+#' @rdname mergeLists-method
+setMethod("mergeLists",
+          signature=c("NULL", "NULL"),
+          definition=function(x, y) {
+            return(list())
+})
+
 ##############################################################
 #' Load packages.
 #'

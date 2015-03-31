@@ -3,12 +3,21 @@
 \docType{methods}
 \name{mergeLists}
 \alias{mergeLists}
+\alias{mergeLists,NULL,NULL-method}
+\alias{mergeLists,NULL,list-method}
+\alias{mergeLists,list,NULL-method}
 \alias{mergeLists,list,list-method}
 \title{Merge named lists}
 \usage{
 mergeLists(x, y)
 
 \S4method{mergeLists}{list,list}(x, y)
+
+\S4method{mergeLists}{`NULL`,list}(x, y)
+
+\S4method{mergeLists}{list,`NULL`}(x, y)
+
+\S4method{mergeLists}{`NULL`,`NULL`}(x, y)
 }
 \arguments{
 \item{x}{a named list}
