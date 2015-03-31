@@ -46,6 +46,22 @@
 ###               paramClass: numeric
 ###               default: 1.0
 ###
+###               paramName: .plotInitialTime
+###               paramClass: numeric
+###               default: 0
+###
+###               paramName: .plotInterval
+###               paramClass: numeric
+###               default: 1
+###
+###               paramName: .saveInitialTime
+###               paramClass: numeric
+###               default: NA
+###
+###               paramName: .saveInterval
+###               paramClass: numeric
+###               default: NA
+###
 ### inputObjects: objectName: simGlobals(sim)$.stackName
 ###               objectClass: RasterStack
 ###               other: NA

@@ -57,6 +57,22 @@
 ###               objectClass: numeric (integer)
 ###               other: NA
 ###
+###               paramName: .plotInitialTime
+###               paramClass: numeric
+###               default: 0
+###
+###               paramName: .plotInterval
+###               paramClass: numeric
+###               default: 1
+###
+###               paramName: .saveInitialTime
+###               paramClass: numeric
+###               default: NA
+###
+###               paramName: .saveInterval
+###               paramClass: numeric
+###               default: NA
+###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###                other: layerName="habitatQuality"
