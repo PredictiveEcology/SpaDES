@@ -556,6 +556,7 @@ setMethod("updateSpadesPlot",
           signature=c(newSpadesPlot="spadesPlot", existingSpadesPlot="spadesPlot"),
           definition= function(newSpadesPlot, existingSpadesPlot, ...) {
 
+
             newNames <- names(newSpadesPlot@spadesGrobList)
             existingNames <- names(existingSpadesPlot@spadesGrobList)
 
@@ -1612,8 +1613,10 @@ setMethod("Plot",
                            prod(existingSpadesPlots@arrangement@columns,
                                 existingSpadesPlots@arrangement@rows))
               if(newArr) {
-                updatesToSpadesPlot$needPlotting <- lapply(updatesToSpadesPlot$needPlotting, function(x) TRUE)
-                updatesToSpadesPlot$isReplot <- lapply(updatesToSpadesPlot$needPlotting, function(x) FALSE)
+                updatesToSpadesPlot$needPlotting <-
+                  lapply(updatesToSpadesPlot$needPlotting, function(x) sapply(x, function(y) TRUE))
+                updatesToSpadesPlot$isReplot <-
+                  lapply(updatesToSpadesPlot$isReplot, function(x) sapply(x, function(y) FALSE))
                 clearPlot()
               }
 
@@ -1664,6 +1667,7 @@ setMethod("Plot",
             for(subPlots in names(spadesSubPlots)) {
               isBaseSubPlot <- TRUE
               spadesGrobCounter <- 0
+
               for(spadesGrob in spadesSubPlots[[subPlots]]) {
                 spadesGrobCounter <- spadesGrobCounter+1
                 needPlot <- updatesToSpadesPlot$needPlotting[[subPlots]][[spadesGrobCounter]]
