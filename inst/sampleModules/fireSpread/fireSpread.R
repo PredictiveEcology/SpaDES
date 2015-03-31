@@ -42,6 +42,10 @@
 ###               paramClass: logical
 ###               default: 10.0
 ###
+###               paramName: spreadprob
+###               paramClass: numeric
+###               default: 0.225
+###
 ###               paramName: startTime
 ###               paramClass: numeric
 ###               default: 1.0
@@ -97,6 +101,7 @@ defineModule(sim, list(
     defineParameter("its", "numeric", 100L),
     defineParameter("persistprob", "numeric", 0.00),
     defineParameter("returnInterval", "numeric", 10.0),
+    defineParameter("spreadprob", "numeric", 0.225),
     defineParameter("startTime", "numeric", 1.0),
     defineParameter(".plotInitialTime", "numeric", 0),
     defineParameter(".plotInterval", "numeric", 1),
