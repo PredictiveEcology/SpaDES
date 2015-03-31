@@ -1175,3 +1175,41 @@ setMethod("defineModule",
             m <- do.call(new, c("moduleDeps", x))
             return(addSimDepends(sim, m))
 })
+
+################################################################################
+#' Define a parameter used in a module
+#'
+#' Used to specify a parameter's name, value, and set a default.
+#'
+#' @param name      Character string giving the parameter name.
+#' @param class     Character string giving the parameter class.
+#' @param default   The default value to use when none is specified by the user.
+#'                  Non-standard evaluation is used for the expression.
+#'
+#' @return data.frame
+#'
+#' @export
+#' @docType methods
+#' @rdname defineParameter-method
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#'   defineParameter("lambda", "numeric", 1e-3)
+#' }
+#'
+setGeneric("defineParameter", function(name, class, default) {
+  standardGeneric("defineParameter")
+})
+
+#' @rdname defineParameter-method
+#'
+setMethod("defineParameter",
+          signature(name="character", class="character", default="ANY"),
+          definition=function(name, class, default) {
+            df <- data.frame(name=name, class=class,
+                             default=I(list(substitute(default))),
+                             stringsAsFactors=FALSE)
+            return(df)
+})

@@ -109,7 +109,7 @@ parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                    fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
                                    persistprob=0, returnInterval=10, startTime=0,
                                   .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=1e2, moveInterval=1,
+                   caribouMovement=list(N=100L, moveInterval=1,
                                         .plotInitialTime=1.01, .plotInterval=1)
                    )
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
@@ -141,8 +141,8 @@ require(raster)
 require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
-times <- list(start=0, stop=100)
-outputPath <- file.path(tempdir(), "simOutputs")
+times <- list(start=0, stop=30)
+outputPath <- file.path(checkPath(tempdir()), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
                    .progress=list(.graphical=NA, .progressInterval=NA),

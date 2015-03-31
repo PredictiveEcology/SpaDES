@@ -21,11 +21,35 @@
 ###
 ### reqdPkgs:     grid; raster; sp
 ###
+### parameters:   paramName: moveInterval
+###               paramClass: numeric
+###               default: 1
+###
+###               paramName: N
+###               paramClass: numeric
+###               default: 100L
+###
+###               paramName: .plotInitialTime
+###               paramClass: numeric
+###               default: 0
+###
+###               paramName: .plotInterval
+###               paramClass: numeric
+###               default: 1
+###
+###               paramName: .saveInitialTime
+###               paramClass: numeric
+###               default: NA
+###
+###               paramName: .saveInterval
+###               paramClass: numeric
+###               default: NA
+###
 ### inputObjects: objectName: simGlobals(sim)$.stackName
 ###               objectClass: RasterStack
 ###               other: layerName="habitatQuality"
 ###
-###               objectName: simParams(sim)$caribouMovementLcc$moveInterval
+###               objectName: simParams(sim)$caribouMovement$moveInterval
 ###               objectClass: numeric
 ###               other: NA
 ###
@@ -53,11 +77,16 @@ defineModule(sim, list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
-  inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
-                                       "simParams(sim)$caribouMovementLcc$moveInterval",
-                                       "simParams(sim)$caribouMovement$N"),
-                          objectClass=c("RasterStack", "numeric", "numeric"),
-                          other=c("layername=\"habitatQuality\"", rep(NA_character_, 2L)),
+  parameters=rbind(
+    defineParameter("moveIntverval", "numeric", 1),
+    defineParameter("N", "numeric", 100L),
+    defineParameter(".plotInitialTime", "numeric", 0),
+    defineParameter(".plotInterval", "numeric", 1),
+    defineParameter(".saveInitialTime", "numeric", NA_real_),
+    defineParameter(".saveInterval", "numeric", NA_real_)),
+  inputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
+                          objectClass="RasterStack",
+                          other="layername=\"habitatQuality\"",
                           stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "caribou"),
                            objectClass=c("RasterStack", "SpatialPointsDataFrame"),

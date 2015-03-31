@@ -24,23 +24,42 @@
 ###
 ### reqdPkgs:     raster; RColorBrewer; tkrplot; RandomFields
 ###
-### inputObjects: objectName: simParams(sim)$randomLandscapes$nx
-###               objectClass: numeric
-###               other: NA
+### parameters:   paramName: nx
+###               paramClass: numeric
+###               default: 1000
 ###
-###               objectName: simParams(sim)$randomLandscapes$ny
-###               objectClass: numeric
-###               other: NA
+###               paramName: ny
+###               paramClass: numeric
+###               default: 1000
 ###
-###               objectName: simParams(sim)$randomLandscapes$inRAM
-###               objectClass: logical
-###               other: NA
+###               paramName: inRAM
+###               paramClass: logical
+###               default: FALSE
+###
+###               paramName: .plotInitialTime
+###               paramClass: numeric
+###               default: 0
+###
+###               paramName: .plotInterval
+###               paramClass: numeric
+###               default: 1
+###
+###               paramName: .saveInitialTime
+###               paramClass: numeric
+###               default: NA
+###
+###               paramName: .saveInterval
+###               paramClass: numeric
+###               default: NA
+###
+### inputObjects: NA
 ###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###                other: NA
 ###
-### randomLandscapes module metadata
+
+# module metadata
 defineModule(sim, list(
   name="randomLandscapes",
   description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `.stackName` be set.",
@@ -53,11 +72,18 @@ defineModule(sim, list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  inputObjects=data.frame(objectName=c("simParams(sim)$randomLandscapes$nx",
-                                       "simParams(sim)$randomLandscapes$ny",
-                                       "simParams(sim)$randomLandscapes$inRAM"),
-                          objectClass=c("numeric", "numeric", "logical"),
-                          other=rep(NA_character_, 3), stringsAsFactors=FALSE),
+  parameters=rbind(
+    defineParameter("stackName", "character", "randomLandscape"),
+    defineParameter("nx", "numeric", 100L),
+    defineParameter("ny", "numeric", 100L),
+    defineParameter("inRAM", "logical", FALSE),
+    defineParameter(".plotInitialTime", "numeric", 0),
+    defineParameter(".plotInterval", "numeric", 1),
+    defineParameter(".saveInitialTime", "numeric", NA_real_),
+    defineParameter(".saveInterval", "numeric", NA_real_)),
+  inputObjects=data.frame(objectName=character(),
+                          objectClass=character(),
+                          other=character(), stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
                            objectClass="RasterStack",
                            other=NA_character_, stringsAsFactors=FALSE)

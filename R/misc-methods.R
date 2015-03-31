@@ -35,6 +35,50 @@ setMethod("getFileName",
             return(f)
 })
 
+
+##############################################################
+#' Merge named lists
+#'
+#' Merge two named list based on their named entries. Where
+#' any element matches in both lists, the value from the
+#' second list is used in the updated list.
+#' Subelements are not examined and are simply replaced.
+#'
+#' @param x   a named list
+#' @param y   a named list
+#'
+#' @return A named list, with elements sorted by name.
+#'          The values of matching elements in list \code{y}
+#'          replace the values in list \code{x}.
+#'
+#' @export
+#' @docType methods
+#' @rdname mergeLists-method
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' tmp1 <- list(a="hst", b=NA_character_, c=43)
+#' tmp2 <- list(a="gst", c=42, d=list(letters))
+#' mergeLists(tmp1, tmp2)
+#'
+setGeneric("mergeLists", function(x, y) {
+  standardGeneric("mergeLists")
+})
+
+#' @rdname mergeLists-method
+setMethod("mergeLists",
+          signature=c("list", "list"),
+          definition=function(x, y) {
+            if (any(is.null(names(x)), is.null(names(y)))) {
+              stop("All elements in lists x,y must be named.")
+            } else {
+              i <- which(names(x) %in% names(y))
+              z <- append(x[-i], y)
+              return(z[order(names(z))])
+            }
+})
+
 ##############################################################
 #' Load packages.
 #'
@@ -196,7 +240,8 @@ setMethod("checkObject",
               if (!is.na(match(layer, names(object)))) {
                 return(invisible(TRUE))
               } else {
-                message(paste(deparse(substitute(object,env=.GlobalEnv)),"exists, but",layer,"is not a layer"))
+                message(paste(deparse(substitute(object, env=.GlobalEnv)), "exists, but",
+                              layer, "is not a layer"))
                 return(FALSE)
               }
 })

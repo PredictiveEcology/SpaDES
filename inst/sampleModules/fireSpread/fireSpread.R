@@ -26,31 +26,31 @@
 ###
 ### reqdPkgs:     methods; raster; RColorBrewer
 ###
+### parameters:   paramName: nfires
+###               paramClass: numeric
+###               default: 10L
+###
+###               paramName: its
+###               paramClass: numeric
+###               default: 100L
+###
+###               paramName: persistprob
+###               paramClass: numeric
+###               default: 0.00
+###
+###               paramName: returnInterval
+###               paramClass: logical
+###               default: 10.0
+###
+###               paramName: startTime
+###               paramClass: numeric
+###               default: 1.0
+###
 ### inputObjects: objectName: simGlobals(sim)$.stackName
 ###               objectClass: RasterStack
 ###               other: NA
 ###
 ###               objectName: simGlobals(sim)$burnStats
-###               objectClass: numeric
-###               other: NA
-###
-###               objectName: simParams(sim)$fireSpreadLcc$nFires
-###               objectClass: numeric
-###               other: NA
-###
-###               objectName: simParams(sim)$fireSpreadLcc$its
-###               objectClass: numeric
-###               other: NA
-###
-###               objectName: simParams(sim)$fireSpreadLcc$persistprob
-###               objectClass: numeric
-###               other: NA
-###
-###               objectName: simParams(sim)$fireSpreadLcc$returnInterval
-###               objectClass: numeric
-###               other: NA
-###
-###               objectName: simParams(sim)$fireSpreadLcc$startTime
 ###               objectClass: numeric
 ###               other: NA
 ###
@@ -76,20 +76,26 @@ defineModule(sim, list(
   timestep=NA_real_,
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
+  parameters=rbind(
+    defineParameter("nFires", "numeric", 10L),
+    defineParameter("its", "numeric", 100L),
+    defineParameter("persistprob", "numeric", 0.00),
+    defineParameter("returnInterval", "numeric", 10.0),
+    defineParameter("startTime", "numeric", 1.0),
+    defineParameter(".plotInitialTime", "numeric", 0),
+    defineParameter(".plotInterval", "numeric", 1),
+    defineParameter(".saveInitialTime", "numeric", NA_real_),
+    defineParameter(".saveInterval", "numeric", NA_real_)),
   inputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
-                                       simGlobals(sim)$burnStats,
-                                       "simParams(sim)$fireSpreadLcc$nFires",
-                                       "simParams(sim)$fireSpreadLcc$its",
-                                       "simParams(sim)$fireSpreadLcc$persistprob",
-                                       "simParams(sim)$fireSpreadLcc$returnInterval",
-                                       "simParams(sim)$fireSpreadLcc$startTime"),
-                          objectClass=c("RasterStack", "numeric", "numeric",
-                                        "numeric", "numeric", "numeric", "numeric"),
-                          other=rep(NA_character_, 7L), stringsAsFactors=FALSE),
+                                       simGlobals(sim)$burnStats),
+                          objectClass=c("RasterStack", "numeric"),
+                          other=c(NA_character_, NA_character_),
+                          stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName,
                                         simGlobals(sim)$burnStats),
                            objectClass=c("RasterStack", "numeric"),
-                           other=c(NA_character_, NA_character_), stringsAsFactors=FALSE)
+                           other=c(NA_character_, NA_character_),
+                           stringsAsFactors=FALSE)
 ))
 
 ### event functions

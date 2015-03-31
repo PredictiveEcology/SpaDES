@@ -156,7 +156,7 @@ setMethod("depsPruneEdges",
             simGraph <- graph.data.frame(simEdgeList)
             M <- shortest.paths(simGraph, mode="out")
             if (nrow(M)>1) {
-              pth <- data.frame(from=character(), to=character()) %>% as.data.table()
+              pth <- data.table(from=character(), to=character())
               for (row in 1L:(nrow(M)-1L)) {
                 for (col in (row+1L):ncol(M)) {
                   current <- M[row,col]

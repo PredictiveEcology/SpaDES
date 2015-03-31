@@ -43,6 +43,11 @@ removeClass("person4")
 #'
 #' @slot reqdPkgs       Character vector of R package names to be loaded. Defaults to \code{NA_character_}.
 #'
+#' @slot parameters     A \code{data.frame} specifying the object dependecies of the module,
+#'                      with columns \code{paramName}, \code{paramClass}, and \code{default},
+#'                      whose values are of type \code{character}, \code{character}, and
+#'                      a list of \code{expression}s, respectively.
+#'
 #' @slot inputObjects   A \code{data.frame} specifying the object dependecies of the module,
 #'                      with columns \code{objectName}, \code{objectClass}, and \code{other}.
 #'                      For objects that are used within the module as both an input and an output,
@@ -63,13 +68,15 @@ setClass("moduleDeps",
          slots=list(name="character", description="character", keywords="character",
                     authors="person", version="numeric_version", spatialExtent="Extent",
                     timeframe="POSIXt", timestep="numeric",
-                    citation="list", reqdPkgs="list",
+                    citation="list", reqdPkgs="list", parameters="data.frame",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
                         keywords=character(), authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timestep=NA_real_,
                         citation=list(), reqdPkgs=list(),
+                        parameters=data.frame(paramName=character(), paramClass=character(),
+                                              default=I(list())),
                         inputObjects=data.frame(objectName=character(), objectClass=character(),
                                                 other=character(), stringsAsFactors=FALSE),
                         outputObjects=data.frame(objectName=character(), objectClass=character(),
@@ -83,8 +90,7 @@ setClass("moduleDeps",
            if (length(object@timestep)<1L) stop("timestep must be specified.")
            if (!any(unlist(lapply(object@reqdPkgs, is.character)))) stop("reqdPkgs must be specified as a list of package names.")
 
-           object@inputObjects <- as.data.frame(object@inputObjects, stringsAsFactors=FALSE)
-           object@outputObjects <- as.data.frame(object@outputObjects, stringsAsFactors=FALSE)
+           # data.frame checking
            if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")
            if (length(object@outputObjects)<1L) stop("output object name and class must be specified, or NA.")
            if ( !all(c("objectName", "objectClass", "other") %in% colnames(object@inputObjects)) ) {

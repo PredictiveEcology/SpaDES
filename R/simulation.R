@@ -79,19 +79,50 @@ setMethod("simInit",
                                                 stop=times$stop))
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
-            simParams(sim) <- params
+            # assign global params only for now
+            simGlobals(sim) <- params$.globals
 
             # source module metadata and code files
             for (m in simModules(sim)) {
-              parsedFile <- parse(paste(path, "/", m, "/", m, ".R", sep=""))
+              filename <- paste(path, "/", m, "/", m, ".R", sep="")
+              parsedFile <- parse(filename)
               defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+
+              # evaluated only the 'defineModule' function of parsedFile
               sim <- eval(parsedFile[defineModuleItem])
-              eval(parsedFile[!defineModuleItem], envir = .GlobalEnv)
+
+              # check that modulename == filename
+              fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
+              i <- which(simModules(sim)==m)
+              mname <- simDepends(sim)@dependencies[[i]]@name
+              if (fname != mname) stop("module name \'", mname, "\'",
+                                       "does not match filename \'", fname, "\'")
+
+              # assign default param values
+              apply(simDepends(sim)@dependencies[[i]]@parameters, 1, function(x) {
+                if (is.character(x$default)) {
+                  tt <- paste0("simParams(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
+                } else {
+                  tt <- paste0("simParams(sim)$", m, "$", x$name, "<<-", x$default)
+                }
+                eval(parse(text=tt), envir=environment())
+              })
+
+              # evaluate the rest of the parsed file
+              eval(parsedFile[!defineModuleItem], envir=.GlobalEnv)
             }
+
+            # assign user-specified non-global params, while
+            # keeping defaults for params not specified by user
+            tmp <- list()
+            lapply(names(simParams(sim)), function(x) {
+              tmp[[x]] <<- mergeLists(simParams(sim)[[x]], params[[x]])
+            })
+            simParams(sim) <- tmp
 
             # check user-supplied load order
             if ( length(loadOrder) && all(modules %in% loadOrder) && all(loadOrder %in% modules) ) {
-                simModulesLoadOrder(sim) <- loadOrder
+              simModulesLoadOrder(sim) <- loadOrder
             } else {
               simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(sim, .)
             }

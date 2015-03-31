@@ -1,11 +1,12 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
-version 0.6.0
+version 0.6.1
 =============
 * added the Queen as copyright holder
 * modules now require metadata; module code without it will break!
 
     - new module dependency checking and metadata structure (#126)
+    - explicit declaration of parameters, and object (data) dependencies
     - deprecated use of `reloadModuleLater`
 
 * new module directory structure (#125):
@@ -17,7 +18,7 @@ version 0.6.0
         |_ LICENSE         # license file describing the allowed usage etc. of the module
         |_ README          # incl. module metadata in addition to version change info, etc.
 
-* added new relational operators to account for floating point errors
+* added new relational operators (`%>=%`, `%<=%`, ``%==%, `%!=%`) to account for floating point errors
 * added `dplyr`, `magrittr`, and `httr` to `Imports`
 * updated vignettes; new `getting-started` vignette
 * bug fixes

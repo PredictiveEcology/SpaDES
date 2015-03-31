@@ -36,6 +36,11 @@ Descriptor object for specifying SpaDES module dependecies.
 
 \item{\code{reqdPkgs}}{Character vector of R package names to be loaded. Defaults to \code{NA_character_}.}
 
+\item{\code{parameters}}{A \code{data.frame} specifying the object dependecies of the module,
+                     with columns \code{paramName}, \code{paramClass}, and \code{default},
+                     whose values are of type \code{character}, \code{character}, and
+                     a list of \code{expression}s, respectively.}
+
 \item{\code{inputObjects}}{A \code{data.frame} specifying the object dependecies of the module,
                      with columns \code{objectName}, \code{objectClass}, and \code{other}.
                      For objects that are used within the module as both an input and an output,
