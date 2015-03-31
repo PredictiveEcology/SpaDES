@@ -1819,13 +1819,15 @@ setMethod("Plot",
   #
   #                 # Actual plotting
 
-                  plotGrob(zMat$z, col = zMat$cols, size=unit(size, "points"),
+                  plotGrob(zMat$z, col = zMat$cols, size=unit(spadesGrob@other$size, "points"),
                            real=zMat$real,
                            minv=zMat$minz,
                            maxv=zMat$maxz,
                            pch=spadesGrob@other$pch, name = subPlots,
                            legend = legend*isBaseSubPlot*!isReplot, legendText=legendTxt,
-                         gp = gp, gpText = gpText, draw = draw, speedup=speedup)
+                           gp = spadesGrob@other$gp,
+                           gpText = spadesGrob@other$gpText,
+                           draw = draw, speedup=spadesGrob@other$speedup)
                   if(title*isBaseSubPlot*!isReplot) grid.text(subPlots,
                                      name="title", y=1.08, vjust=0.5, gp = gpText)
 
@@ -1857,7 +1859,7 @@ setMethod("Plot",
 setMethod("Plot",
           signature=c("missing"),
           definition= function(...) {
-
+            newPlots <- NULL
             return(newPlots)
           })
 
