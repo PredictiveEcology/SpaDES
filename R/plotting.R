@@ -154,6 +154,13 @@ setMethod("nlayers",
             return(1)
           })
 
+#' @export
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="gg",
+          definition=function(x) {
+            return(1)
+          })
 ##############################################################
 #' Extract the layer names of Spatial Objects
 #'
@@ -213,6 +220,15 @@ setMethod("layerNames",
             names(object)
           })
 
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="gg",
+          definition=function(object) {
+
+            .objectNames()
+            #names(object)
+          })
 
 
 
@@ -476,11 +492,12 @@ setMethod("makeSpadesPlot",
                                 function(x) strsplit(x, "\\$")[[1]]), function(y)y[[1]]) }
               names(lN) <- rep(names(plotObjects), numLayers)
             } else {
-              lN <- names(plotObjects)
+              objectNamesLong <- lN <- names(plotObjects)
             }
 
             if(any(duplicated(lN))) stop(paste("Cannot plot two layers with same name slot. Check",
                                                "inside RasterStacks for objects"))
+
 
             # Make new spadesPlot object. This will be merged to existing later
             newPlots <- new("spadesPlot")
@@ -660,9 +677,18 @@ setMethod("arrangeViewports",
 
             sgl <- spadesPlot@spadesGrobList
 
-            dimx <- apply(sapply(sgl, function(y)
-              apply(bbox(getGlobal(y[[1]]@objName)), 1, function(x)
-                diff(range(x)))), 1, max)
+            dimx <- unname(unlist(sapply(sgl, function(x)
+              lapply(x[[1]]@isSpatialObjects, function(z) {
+                if(z==TRUE) {
+                  # for spatial objects
+                  apply(sapply(sgl, function(y)
+                  apply(bbox(getGlobal(y[[1]]@objName)), 1, function(x)
+                    diff(range(x)))), 1, max)
+                } else {
+                  # for non spatial objects
+                  c(1,1)
+                }
+              }))))
             nPlots <- length(sgl)
             names <- names(sgl)
 
@@ -781,6 +807,7 @@ setMethod("plotGrob",
                 unique(round(pretty(range(minv, maxv))))
               }
             }
+
             pr <- pr[pr<=maxv & pr>=minv]
             maxNumCols=100
             maxcol <- length(col)
@@ -1033,7 +1060,19 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
   arr <- spadesPlot@arrangement
   sgl <- spadesPlot@spadesGrobList
 
-  extents <- sapply(sgl, function(y) extent(getGlobal(y[[1]]@objName)))
+  extents <- unlist(sapply(sgl, function(x)
+     lapply(x[[1]]@isSpatialObjects, function(z) {
+       if(z==TRUE) {
+         # for spatial objects
+         sapply(sgl, function(y) extent(getGlobal(y[[1]]@objName)))
+       } else {
+         # for non spatial objects
+         unname(sapply(sgl, function(y)
+           extent(c(xmin=0,xmax=1,ymin=0,ymax=1))))
+       }
+     })))
+
+#  extents <- sapply(sgl, function(y) extent(getGlobal(y[[1]]@objName)))
 
   columns <- arr@columns
   rows <- arr@rows
@@ -1048,8 +1087,17 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
 
   # This is the biggest of the extents, and is used in makeLayout
   #  Need to replicate it here because all plots are scaled to this
-  biggestDims <- apply(sapply(extents, function(y)
-    apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
+  biggestDims <- unname(unlist(sapply(sgl, function(x)
+    lapply(x[[1]]@isSpatialObjects, function(z) {
+      if(z==TRUE) {
+        # for spatial objects
+        apply(sapply(extents, function(y)
+          apply(bbox(y), 1, function(x) diff(range(x)))), 1, max)
+      } else {
+        # for non spatial objects
+        c(xmin=0,xmax=1,ymin=0,ymax=1)
+      }
+    }))))
 
   for(extentInd in 1:length(extents)) {
 
@@ -1062,7 +1110,6 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
       lpc = c((lpc-1):(lpc+1))
       lpr = c((lpr):(lpr+1))
     }
-
     # makes equal scale
     if (abs(((extents[[extentInd]]@ymax- extents[[extentInd]]@ymin) /
                (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)) -
@@ -1221,6 +1268,7 @@ setMethod("drawArrows",
 #' @rdname objectNames
 .objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
+
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -1593,8 +1641,9 @@ setMethod("Plot",
 
             # Section 1 # Determine object names that were passed and layer names of each
 
+
             plotArgs <- mget(names(formals("Plot")),
-                             sys.frame(grep(sys.calls(),pattern="Plot")))[-1]
+                             sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
 
             if (all(new)) clearPlot(dev.cur())
 
@@ -1642,6 +1691,7 @@ setMethod("Plot",
             #  plotted, and visualSqueeze
 
             arr <- updatesToSpadesPlot$existingSpadesPlot@arrangement
+
 
 
             # Create the viewports as per the optimal layout
@@ -1720,12 +1770,10 @@ setMethod("Plot",
   #     #                 }
   #     #               }
   #
-  #     #               takeFromPlotObj <- ifelse(!grobNamesi %in% lN, FALSE, TRUE)  # Is this a replot
-  #     #
-  #     #
 
                       takeFromPlotObj=!(spadesGrob@plotName %in% names(existingSpadesPlots@spadesGrobList))
 
+  browser()
                       grobToPlot <- .identifyGrobToPlot(spadesGrob, plotObjs, takeFromPlotObj)
   #     #
   #     #
@@ -1739,11 +1787,11 @@ setMethod("Plot",
   #     #               if(is.null(gp$cex)) {
   #     #                 gp$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
   #     #               }
-                      if(is.null(gpText$cex)) {
-                        gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+                      if(is.null(spadesGrob@other$gpText$cex)) {
+                        spadesGrob@other$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
                       }
-                      if(is.null(gpAxis$cex)) {
-                        gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+                      if(is.null(spadesGrob@other$gpAxis$cex)) {
+                        spadesGrob@other$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
                       }
   #
   #
@@ -1790,6 +1838,7 @@ setMethod("Plot",
                 if (is(grobToPlot, "gg")) {
                   #grobToPlot <- grobToPlot + theme(plot.background=element_rect(fill="transparent",
                   #                                                              colour = NA))
+
                   print(grobToPlot, vp=subPlots)
                   a <- try(seekViewport(subPlots, recording=F))
                   if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
@@ -1829,11 +1878,11 @@ setMethod("Plot",
                            gpText = spadesGrob@other$gpText,
                            draw = draw, speedup=spadesGrob@other$speedup)
                   if(title*isBaseSubPlot*!isReplot) grid.text(subPlots,
-                                     name="title", y=1.08, vjust=0.5, gp = gpText)
+                                     name="title", y=1.08, vjust=0.5, gp = spadesGrob@other$gpText)
 
 
-                  if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = gpAxis)
-                  if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = gpAxis)
+                  if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = spadesGrob@other$gpAxis)
+                  if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = spadesGrob@other$gpAxis)
 
                   isBaseSubPlot <- FALSE
 
@@ -1845,7 +1894,7 @@ setMethod("Plot",
 
              assignSpaDES(paste0(".spadesPlot", dev.cur()), updatesToSpadesPlot$existingSpadesPlot)
 
-  return(invisible())
+  return(invisible(updatesToSpadesPlot$existingSpadesPlot))
 })
 
 
@@ -2124,10 +2173,10 @@ clickCoordinates <- function(n=1) {
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
                                       "Try new=TRUE, clearPlot() or change device to",
                                       "one that has objects from a call to Plot()"))
-  gl <- grid.layout(nrow=arr@rows*3+2,
-                    ncol=arr@columns*3+2,
-                    widths=arr@layout$wdth,
-                    heights=arr@layout$ht)
+  gl <- grid.layout(nrow=arr@arrangement@rows*3+2,
+                    ncol=arr@arrangement@columns*3+2,
+                    widths=arr@arrangement@layout$wdth,
+                    heights=arr@arrangement@layout$ht)
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
@@ -2162,7 +2211,7 @@ clickCoordinates <- function(n=1) {
     }
     column <-  which(xInt==grepNpcsW)
     row <- which((yInt==grepNpcsH)[length(grepNpcsH):1])
-    map <- column + (row-1)*arr@columns
+    map <- column + (row-1)*arr@arrangement@columns
 
     maxLayX <- cumsum(widthNpcs)[xInt]
     minLayX <- cumsum(widthNpcs)[xInt-1]
@@ -2172,8 +2221,8 @@ clickCoordinates <- function(n=1) {
     minLayY <- cumsum(heightNpcs)[yInt-1]
     grobLoc$y <- unit((as.numeric(strsplit(as.character(gloc$y), "npc")[[1]])-minLayY)/(maxLayY-minLayY), "npc")
 
-    clickCoords[i, ] <- .clickCoord(arr@names[map], n=1, gl=grobLoc)
-    mapNames[i] <- arr@names[map]
+    clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName, n=1, gl=grobLoc)
+    mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
   }
   return(data.frame(map=mapNames, clickCoords, stringsAsFactors = FALSE))
 }

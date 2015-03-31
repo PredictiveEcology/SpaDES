@@ -1,4 +1,4 @@
----
+ ---
 title: "04 Plotting with `SpaDES`"
 author: "Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
