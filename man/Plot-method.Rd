@@ -128,7 +128,7 @@ plotted. Note that when this approach to setting colours is used, any overplotti
 will revert to the \code{colortable} slot of the object, or the default for rasters,
 which is \code{terrain.color()}
 
-Silently, one hidden object is made, \code{.spadesArr} in the \code{.spadesEnv}
+Silently, one hidden object is made, \code{.spadesPlot} in the \code{.spadesEnv}
 environment, which is used for arranging plots in the device window, and
 identifying the objects to be replotted if rearranging is required, subsequent
 to a \code{new=FALSE} additional plot.

@@ -4,12 +4,10 @@
 \alias{makeViewports}
 \title{Make viewports}
 \usage{
-makeViewports(extents, arr, newArr = FALSE)
+makeViewports(spadesPlot, newArr = FALSE)
 }
 \arguments{
-\item{extents}{a list of extents objects.}
-
-\item{arr}{an object of class \code{arrangement}.}
+\item{spadesPlot}{an object of class \code{spadesPlot}}
 
 \item{newArr}{logical. Whether this function will create a completely new viewport.
 Default \code{FALSE}.}

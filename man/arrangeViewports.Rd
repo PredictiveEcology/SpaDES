@@ -3,12 +3,12 @@
 \docType{methods}
 \name{arrangeViewports}
 \alias{arrangeViewports}
-\alias{arrangeViewports,list-method}
+\alias{arrangeViewports,spadesPlot-method}
 \title{Determine optimal plotting arrangement of Spatial Objects}
 \usage{
-arrangeViewports(extents)
+arrangeViewports(spadesPlot)
 
-\S4method{arrangeViewports}{list}(extents)
+\S4method{arrangeViewports}{spadesPlot}(spadesPlot)
 }
 \arguments{
 \item{extents}{A list of extents from spatial objects to plot}
