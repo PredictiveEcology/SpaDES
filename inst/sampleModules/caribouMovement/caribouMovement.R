@@ -75,7 +75,7 @@ defineModule(sim, list(
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
     defineParameter("moveInitialTime", "numeric", 1.0),
-    defineParameter("moveIntverval", "numeric", 1.0),
+    defineParameter("moveInterval", "numeric", 1.0),
     defineParameter("N", "numeric", 100L),
     defineParameter(".plotInitialTime", "numeric", 0),
     defineParameter(".plotInterval", "numeric", 1),
