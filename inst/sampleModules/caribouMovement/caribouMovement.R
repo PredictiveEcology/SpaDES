@@ -21,9 +21,13 @@
 ###
 ### reqdPkgs:     grid; raster; sp
 ###
-### parameters:   paramName: moveInterval
+### parameters:   paramName: moveInitialTime
 ###               paramClass: numeric
-###               default: 1
+###               default: 1.0
+###
+###               paramName: moveInterval
+###               paramClass: numeric
+###               default: 1.0
 ###
 ###               paramName: N
 ###               paramClass: numeric
@@ -49,30 +53,6 @@
 ###               objectClass: RasterStack
 ###               other: layerName="habitatQuality"
 ###
-###               objectName: simParams(sim)$caribouMovement$moveInterval
-###               objectClass: numeric
-###               other: NA
-###
-###               objectName: simParams(sim)$caribouMovement$N
-###               objectClass: numeric (integer)
-###               other: NA
-###
-###               paramName: .plotInitialTime
-###               paramClass: numeric
-###               default: 0
-###
-###               paramName: .plotInterval
-###               paramClass: numeric
-###               default: 1
-###
-###               paramName: .saveInitialTime
-###               paramClass: numeric
-###               default: NA
-###
-###               paramName: .saveInterval
-###               paramClass: numeric
-###               default: NA
-###
 ### outputObjects: objectName: simGlobals(sim)$.stackName
 ###                objectClass: RasterStack
 ###                other: layerName="habitatQuality"
@@ -94,7 +74,8 @@ defineModule(sim, list(
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
-    defineParameter("moveIntverval", "numeric", 1),
+    defineParameter("moveInitialTime", "numeric", 1.0),
+    defineParameter("moveIntverval", "numeric", 1.0),
     defineParameter("N", "numeric", 100L),
     defineParameter(".plotInitialTime", "numeric", 0),
     defineParameter(".plotInterval", "numeric", 1),
@@ -121,7 +102,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- caribouMovementInit(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, 1.00, "caribouMovement", "move")
+    sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$moveInitialTime, "caribouMovement", "move")
     sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
     sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
   } else if (eventType=="move") {

@@ -17,7 +17,7 @@ fileList = data.frame(files=dir(file.path(find.package("SpaDES",
 
 stackName = "landscape"
 
-mySim <- simInit(times=list(start=0.0, stop=100.02),
+mySim <- simInit(times=list(start=0.0, stop=100.00),
                  params=list(
                    .loadFileList=fileList,
                    .progress=list(.graphical=FALSE, .progressInterval = 10),
@@ -36,5 +36,5 @@ mySim <- simInit(times=list(start=0.0, stop=100.02),
                  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
                  path=system.file("sampleModules", package="SpaDES"))
 
-dev(4)
+if (interactive()) dev()
 mySim <- spades(mySim, debug=TRUE)
