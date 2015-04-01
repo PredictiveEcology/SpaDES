@@ -2,7 +2,6 @@
 % Please edit documentation in R/plotting.R
 \docType{methods}
 \name{makeSpadesPlot}
-\alias{Plot,missing-method}
 \alias{makeSpadesPlot}
 \alias{makeSpadesPlot,list,list-method}
 \alias{makeSpadesPlot,list,missing-method}
@@ -16,12 +15,6 @@ makeSpadesPlot(plotObjects, plotArgs, ...)
 \S4method{makeSpadesPlot}{list,missing}(plotObjects, plotArgs, ...)
 
 \S4method{makeSpadesPlot}{missing,missing}(plotObjects, plotArgs, ...)
-
-\S4method{Plot}{missing}(..., new = FALSE, addTo = NULL, gp = gpar(),
-  gpText = gpar(), gpAxis = gpar(), axes = "L", speedup = 1, size = 5,
-  cols = NULL, zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 }
 \arguments{
 \item{plotObjects}{list. Any plot objects, whether a legend should be drawn. Default \code{TRUE}.}

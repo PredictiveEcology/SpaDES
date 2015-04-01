@@ -37,7 +37,6 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #'
 setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
 
-
 ##############################################################
 #' Specify where to plot
 #'
@@ -428,6 +427,21 @@ setClass("spadesPlot",
            }
          })
 
+
+################################################
+#' The \code{spadesPlotables} class
+#'
+#' This class contains the plotting arrangement information.
+#'
+#' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
+#' @name spadesPlotObjects-class
+#' @import ggplot2
+#' @import graphics
+#' @rdname spadesPlotObjects-class
+#' @author Eliot McIntire
+#' @exportClass spadesPlotObjects
+#'
+setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot"))
 
 ######################################################
 #' Make SpaDES Plot object
@@ -1052,7 +1066,7 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
   sgl <- spadesPlot@spadesGrobList
 
   extents <- unlist(sapply(sgl, function(x) {
-     lapply(x[[1]]@isSpatialObjects, function(z) {
+     unname(lapply(x[[1]]@isSpatialObjects, function(z) {
        if(z==TRUE) {
          # for spatial objects
          extent(getGlobal(x[[1]]@objName))
@@ -1060,9 +1074,7 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
          # for non spatial objects
          extent(c(xmin=0,xmax=1,ymin=0,ymax=1))
        }
-     })}))
-
-#  extents <- sapply(sgl, function(y) extent(getGlobal(y[[1]]@objName)))
+     }))}))
 
   columns <- arr@columns
   rows <- arr@rows
@@ -1608,7 +1620,7 @@ setMethod("drawArrows",
 #' }
 #'
 setGeneric("Plot", signature="...",
-           function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
+           function(..., new=FALSE, addTo=NULL, replot=FALSE, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
                     axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
@@ -1622,7 +1634,7 @@ setGeneric("Plot", signature="...",
 #' @export
 setMethod("Plot",
           signature("spadesPlotObjects"),
-          definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
+          definition = function(..., new, addTo, replot, gp, gpText, gpAxis, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, draw, pch, title, na.color,
                                 zero.color) {
@@ -1632,11 +1644,30 @@ setMethod("Plot",
             plotArgs <- mget(names(formals("Plot")),
                              sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
 
-            if (all(new)) clearPlot(dev.cur())
-
             # Create a spadesPlot object from the plotObjs and plotArgs
             newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
-            names(plotObjs) <- .objectNames()
+
+            # Send to generic Plot function which can take a spadesPlot
+            Plot(newSpadesPlots, new=new, ...)
+          })
+
+#' @rdname Plot-method
+#' @export
+setMethod("Plot",
+          signature("spadesPlotables"),
+          definition = function(..., new, addTo, replot, gp, gpText, gpAxis, axes, speedup, size,
+                                cols, zoomExtent, visualSqueeze,
+                                legend, legendRange, legendText, draw, pch, title, na.color,
+                                zero.color) {
+            if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
+
+            plotObjs <- list(...)
+            whichSpadesPlot <- match("spadesPlot", sapply(plotObjs, class))
+            newSpadesPlots <- plotObjs[[whichSpadesPlot]]
+            plotObjs <- plotObjs[-whichSpadesPlot]
+            if(length(plotObjs)>0){
+              names(plotObjs) <- .objectNames()
+            }
 
             if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
               existingSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
@@ -1819,7 +1850,7 @@ setMethod("Plot",
 })
 
 
-#' @rdname makeSpadesPlot
+#' @rdname Plot-method
 #' @export
 setMethod("Plot",
           signature=c("missing"),
@@ -1827,6 +1858,29 @@ setMethod("Plot",
             newPlots <- NULL
             return(newPlots)
           })
+
+#' @param replot logical. If TRUE, then replot the entire spadesPlot object from the
+#' spades environment. Default is FALSE. This should be used on its own, with no objects to plot.
+#'
+#' @rdname Plot-method
+#' @export
+setGeneric("rePlot", function(replot=TRUE) {
+  standardGeneric("rePlot")
+})
+
+setMethod("rePlot",
+          #signature=signature(replot="logical"),
+          definition= function() {
+              if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
+                existingSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
+                Plot(existingSpadesPlots, new=TRUE)
+              } else {
+                stop(paste("Nothing to replot. Need to call Plot first, or change to",
+                     "correct active device with dev(x), where x is the active device number"))
+              }
+
+          })
+
 
 
 #' Convert Raster to color matrix useable by raster function for plotting
@@ -2158,10 +2212,33 @@ clickCoordinates <- function(n=1) {
 
 
 
-.identifyGrobToPlot <- function(grobNamesi, toPlot, takeFromPlotObj) {
-  # get the object name associated with this grob
-  #objLayerName <- strsplit(grobNamesi, "\\$")[[1]]
+##############################################################
+#' identify where to get the grob from
+#'
+#' Because the Plot function can use the global environment as a source of
+#' objects to plot, not just the call itself, this function identifies where
+#' the data for the grob should come from, the current call or the global
+#' environment. This should be called internally only.
+#'
+#' @param grobNamesi name of the object to plot
+#'
+#' @param toPlot list containing the objects to plot, made as a call to the Plot function
+#'
+#' @param takeFromPlotObj logical. If TRUE, then take from the call to Plot, FALSE takes
+#' from global environment
+#'
+#' @rdname identifyGrobToPlot
+#'
+setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
+  standardGeneric(".identifyGrobToPlot")
+})
 
+setMethod(".identifyGrobToPlot",
+          signature=c("spadesGrob", "list", "logical"),
+          function(grobNamesi, toPlot, takeFromPlotObj) {
+  # get the object name associated with this grob
+
+  if (length(toPlot)==0) takeFromPlotObj <- FALSE
   # Does it already exist on the plot device or not
   if(!takeFromPlotObj) { # Is this a replot
     if(nchar(grobNamesi@layerName)>0) {# means it is in a raster
@@ -2176,7 +2253,24 @@ clickCoordinates <- function(n=1) {
       grobToPlot <- toPlot[[grobNamesi@objName]]
     }
   }
-}
+})
+
+
+#' @rdname identifyGrobToPlot
+setMethod(".identifyGrobToPlot",
+          signature=c("spadesGrob", "missing", "logical"),
+          function(grobNamesi, toPlot, takeFromPlotObj) {
+            .identifyGrobToPlot(grobNamesi, list(), FALSE)
+          })
+
+
+
+
+
+
+
+
+
 
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
                            takeFromPlotObj, arr, speedup) {

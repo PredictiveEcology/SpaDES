@@ -3,22 +3,41 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
+\alias{Plot,missing-method}
 \alias{Plot,spadesPlotObjects-method}
+\alias{Plot,spadesPlotables-method}
 \alias{clearPlot}
+\alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
-Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
-  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+Plot(..., new = FALSE, addTo = NULL, replot = FALSE, gp = gpar(),
+  gpText = gpar(), gpAxis = gpar(), axes = "L", speedup = 1, size = 5,
+  cols = NULL, zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
   title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
 \S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
+  replot = FALSE, gp = gpar(), gpText = gpar(), gpAxis = gpar(),
+  axes = "L", speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
+  legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
+  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+\S4method{Plot}{spadesPlotables}(..., new = FALSE, addTo = NULL,
+  replot = FALSE, gp = gpar(), gpText = gpar(), gpAxis = gpar(),
+  axes = "L", speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
+  legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
+  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+\S4method{Plot}{missing}(..., new = FALSE, addTo = NULL, replot = FALSE,
   gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+
+rePlot(replot = TRUE)
 
 clearPlot(dev = dev.cur())
 }
@@ -32,6 +51,9 @@ adding or rearranging the plot layout as necessary. Default is \code{FALSE}.}
 \item{addTo}{String vector, with same length as \code{...}.
 This is for overplotting, when the overplot is not to occur on the plot with
 the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.}
+
+\item{replot}{logical. If TRUE, then replot the entire spadesPlot object from the
+spades environment. Default is FALSE. This should be used on its own, with no objects to plot.}
 
 \item{gp}{A gpar object, created by \code{\link{gpar}} function,
 to change plotting parameters (see \code{grid} package).}
