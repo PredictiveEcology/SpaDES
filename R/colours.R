@@ -91,7 +91,8 @@ setReplaceMethod("setColors",
 setReplaceMethod("setColors",
                  signature("Raster", "numeric", "list"),
                  function(object, ..., n, value) {
-                   for(x in names(object)) {
+                   i <- which(names(object) %in% names(value))
+                   for(x in names(object)[i]) {
                      setColors(object[[x]], ..., n=n) <- value[[x]]
                    }
                    validObject(object)
@@ -104,7 +105,8 @@ setReplaceMethod("setColors",
 setReplaceMethod("setColors",
                  signature("Raster", "missing", "list"),
                  function(object, ..., value) {
-                   for(x in names(object)) {
+                   i <- which(names(object) %in% names(value))
+                   for(x in names(object)[i]) {
                      setColors(object[[x]], ...) <- value[[x]]
                    }
                    validObject(object)
