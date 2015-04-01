@@ -198,7 +198,9 @@ fireSpreadInit <- function(sim) {
   Fires <- setValues(Fires, 0)
 
   # add Fires map to global$.stackName stack
-  assignGlobal(simGlobals(sim)$.stackName, addLayer(landscapes,Fires))
+  landscape$Fires <- Fires
+  assignGlobal(simGlobals(sim)$.stackName, landscapes)
+
   return(invisible(sim))
 }
 
