@@ -215,3 +215,16 @@ require(ggplot2)
 ggObj <- qplot(rnorm(1e3))
 Plot(ggObj)
 ```
+
+# Replotting or redrawing the entire plot window
+
+`rePlot` can be used to redraw the entire plot window, either in the same frame as 
+before (the default) or in a new frame. If in a new frame, the new device will be 
+created, then the entire Plot window will be redrawn in the new device. This function 
+can also be used to redraw everything after a window gets resized manually and objects become
+distorted. 
+
+```{r rePlot, eval=FALSE, echo=TRUE, cache=TRUE}
+rePlot()
+rePlot(4)
+```

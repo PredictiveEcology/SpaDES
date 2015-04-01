@@ -29,7 +29,7 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
-rePlot()
+rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
 clearPlot(dev = dev.cur())
 }
@@ -89,6 +89,11 @@ Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE
 
 \item{zero.color}{string indicating the color for zero values, when zero is
 the minimum value, otherwise, zero is treated as any other color. Default transparent.}
+
+\item{toDev}{numeric. Which device should the new rePlot be plotted to. Default is current device.}
+
+\item{fromDev}{numeric. Which device should the replot information be taken from. Default
+is current device}
 
 \item{dev}{numeric. Device number to clear.}
 }

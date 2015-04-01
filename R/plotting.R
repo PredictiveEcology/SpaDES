@@ -227,6 +227,13 @@ setMethod("layerNames",
             return("")
           })
 
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="histogram",
+          definition=function(object) {
+            return("")
+          })
 
 
 ##############################################################
@@ -1465,7 +1472,7 @@ setMethod("drawArrows",
 #' i.e, \code{landscape.DEM}.
 #'
 #'
-#' @param ... A combination of spatial objects or a ggplot object. See details.
+#' @param ... A combination of \code{spatialObjects} or a single \code{ggplot} object. See details.
 #'
 #' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 #' if \code{FALSE}, then the \code{...} plots will be added to the current device,
@@ -1638,6 +1645,7 @@ setMethod("Plot",
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, draw, pch, title, na.color,
                                 zero.color) {
+
             plotObjs <- list(...)
 
             # Section 1 # Determine object names that were passed and layer names of each
@@ -1648,7 +1656,7 @@ setMethod("Plot",
             newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
 
             # Send to generic Plot function which can take a spadesPlot
-            Plot(newSpadesPlots, new=new, ...)
+            Plot(newSpadesPlots, ..., new=new)
           })
 
 #' @rdname Plot-method
@@ -1661,6 +1669,7 @@ setMethod("Plot",
                                 zero.color) {
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
+
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
       plotObjs <- list(...)
@@ -1674,21 +1683,21 @@ setMethod("Plot",
       if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
         existingSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
 
-        updatesToSpadesPlot <- updateSpadesPlot(newSpadesPlots, existingSpadesPlots)
-        newArr <- (length(updatesToSpadesPlot$existingSpadesPlot@spadesGrobList) >
+        updated <- updateSpadesPlot(newSpadesPlots, existingSpadesPlots)
+        newArr <- (length(updated$existingSpadesPlot@spadesGrobList) >
                      prod(existingSpadesPlots@arrangement@columns,
                           existingSpadesPlots@arrangement@rows))
         if(newArr) {
-          updatesToSpadesPlot$needPlotting <-
-            lapply(updatesToSpadesPlot$needPlotting, function(x) sapply(x, function(y) TRUE))
-          updatesToSpadesPlot$isReplot <-
-            lapply(updatesToSpadesPlot$isReplot, function(x) sapply(x, function(y) FALSE))
+          updated$needPlotting <-
+            lapply(updated$needPlotting, function(x) sapply(x, function(y) TRUE))
+          updated$isReplot <-
+            lapply(updated$isReplot, function(x) sapply(x, function(y) FALSE))
           clearPlot()
         }
 
       } else {
         existingSpadesPlots <- makeSpadesPlot()
-        updatesToSpadesPlot <- updateSpadesPlot(newSpadesPlots)
+        updated <- updateSpadesPlot(newSpadesPlots)
         newArr <- TRUE
       }
 
@@ -1696,18 +1705,18 @@ setMethod("Plot",
       # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
       #  plotted, and visualSqueeze
       if(newArr) {
-        updatesToSpadesPlot$existingSpadesPlot@arrangement <-
-          arrangeViewports(updatesToSpadesPlot$existingSpadesPlot)
-        updatesToSpadesPlot$existingSpadesPlot@arrangement@layout <-
-          makeLayout(updatesToSpadesPlot$existingSpadesPlot@arrangement,
+        updated$existingSpadesPlot@arrangement <-
+          arrangeViewports(updated$existingSpadesPlot)
+        updated$existingSpadesPlot@arrangement@layout <-
+          makeLayout(updated$existingSpadesPlot@arrangement,
                      sapply(visualSqueeze,max), sapply(legend,any),
                      sapply(axes, function(x) !any(x==TRUE)))
       }
-      arr <- updatesToSpadesPlot$existingSpadesPlot@arrangement
+      arr <- updated$existingSpadesPlot@arrangement
 
       # Create the viewports as per the optimal layout
       if(length(newSpadesPlots@spadesGrobList)>0) {
-         vps <- makeViewports(updatesToSpadesPlot$existingSpadesPlot,
+         vps <- makeViewports(updated$existingSpadesPlot,
                               newArr=newArr)
          if(!new & !newArr)
            upViewport(1)
@@ -1715,7 +1724,7 @@ setMethod("Plot",
          upViewport(2)
        }
 
-      spadesSubPlots <- updatesToSpadesPlot$existingSpadesPlot@spadesGrobList
+      spadesSubPlots <- updated$existingSpadesPlot@spadesGrobList
 
       # Section 3 - the actual Plotting
       # Plot each element passed to Plot function, one at a time
@@ -1726,11 +1735,11 @@ setMethod("Plot",
 
         for(spadesGrob in spadesSubPlots[[subPlots]]) {
           spadesGrobCounter <- spadesGrobCounter+1
-          needPlot <- updatesToSpadesPlot$needPlotting[[subPlots]][[spadesGrobCounter]]
-          isReplot <- updatesToSpadesPlot$isReplot[[subPlots]][[spadesGrobCounter]]
+          needPlot <- updated$needPlotting[[subPlots]][[spadesGrobCounter]]
+          isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
 
           if (needPlot) {
-            sgl <- updatesToSpadesPlot$existingSpadesPlot@spadesGrobList
+            sgl <- updated$existingSpadesPlot@spadesGrobList
 
             a <- try(seekViewport(subPlots, recording=F))
             if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
@@ -1804,6 +1813,7 @@ setMethod("Plot",
                                               "one that has a plot named", addTo[whGrobNamesi]))
             if(title) grid.text(subPlots,
                                 name="title", y=1.08, vjust=0.5, gp = gp)
+            a <- try(seekViewport("top", recording=F))
 
           } else if(is(grobToPlot, "histogram")) {
             # Because base plotting is not set up to overplot, must plot a white rectangle
@@ -1845,17 +1855,24 @@ setMethod("Plot",
       } # spadesGrob
     } # subPlots
 
-    assignSpaDES(paste0(".spadesPlot", dev.cur()), updatesToSpadesPlot$existingSpadesPlot)
+    assignSpaDES(paste0(".spadesPlot", dev.cur()), updated$existingSpadesPlot)
 
-    return(invisible(updatesToSpadesPlot$existingSpadesPlot))
+    return(invisible(updated$existingSpadesPlot))
 })
 
 
 #' @rdname Plot-method
+#'
+#' @param toDev numeric. Which device should the new rePlot be plotted to. Default is current device.
+#'
+#' @param fromDev numeric. Which device should the replot information be taken from. Default
+#' is current device
+#'
 #' @export
-rePlot <- function() {
-              if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
+rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
+              if(exists(paste0(".spadesPlot", fromDev),envir=.spadesEnv)) {
                 existingSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
+                dev(toDev)
                 Plot(existingSpadesPlots, new=TRUE)
               } else {
                 stop(paste("Nothing to rePlot. Need to call Plot first, or change to",
@@ -2247,14 +2264,6 @@ setMethod(".identifyGrobToPlot",
           })
 
 
-
-
-
-
-
-
-
-
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
                            takeFromPlotObj, arr, speedup) {
 
@@ -2294,8 +2303,10 @@ setMethod(".identifyGrobToPlot",
 #' @docType methods
 #' @rdname Plot-method
 clearPlot <- function(dev=dev.cur()) {
+
   suppressWarnings(try(rm(list=paste0(".spadesPlot", dev), envir=.spadesEnv)))
   devActive <- dev.cur()
+  if(devActive==1) return(invisible())
   dev(dev)
   grid.newpage()
   dev(devActive)
