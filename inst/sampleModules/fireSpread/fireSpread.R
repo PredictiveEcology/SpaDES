@@ -32,7 +32,7 @@
 ###
 ###               paramName: its
 ###               paramClass: numeric
-###               default: 100L
+###               default: 1e6
 ###
 ###               paramName: persistprob
 ###               paramClass: numeric
@@ -98,7 +98,7 @@ defineModule(sim, list(
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
   parameters=rbind(
     defineParameter("nFires", "numeric", 10L),
-    defineParameter("its", "numeric", 100L),
+    defineParameter("its", "numeric", 1e6),
     defineParameter("persistprob", "numeric", 0.00),
     defineParameter("returnInterval", "numeric", 10.0),
     defineParameter("spreadprob", "numeric", 0.225),
