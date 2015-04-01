@@ -279,6 +279,7 @@ setMethod("reloadModuleLater",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @import data.table
+#' @importFrom magrittr `%>%`
 #' @export
 #' @keywords internal
 #' @docType methods
@@ -323,18 +324,18 @@ setMethod("doEvent",
 
                 # add to list of completed events
                 if(length(simCompleted(sim))) {
-                    setkey(nextEvent, "eventTime")
+                  completed <- list(simCompleted(sim), nextEvent) %>%
+                    rbindlist %>%
+                    setkey("eventTime")
+                  if (!debug) completed <- head(completed, n=10L)
                 } else {
-                  simCompleted(sim) <- if (debug) {
-                    setkey(rbindlist(list(simCompleted(sim), nextEvent)), "eventTime")
-                  } else {
-                    head(setkey(rbindlist(list(simCompleted(sim), nextEvent)), "eventTime"), n=10)
-                  }
+                  completed <- setkey(nextEvent, "eventTime")
                 }
-                } else {
-                  # update current simulated time to
-                  simCurrentTime(sim) <- simStopTime(sim) + 2*getTolerance()
-                }
+                simCompleted(sim) <- completed
+              } else {
+                # update current simulated time to
+                simCurrentTime(sim) <- simStopTime(sim) + 2*getTolerance()
+              }
             }
             return(invisible(sim))
 })
