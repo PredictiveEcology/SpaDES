@@ -279,7 +279,7 @@ setMethod("reloadModuleLater",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @import data.table
-#' @importFrom magrittr `%>%`
+#' @importFrom magrittr '%>%'
 #' @export
 #' @keywords internal
 #' @docType methods
