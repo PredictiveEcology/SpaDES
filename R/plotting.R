@@ -522,14 +522,13 @@ setMethod("makeSpadesPlot",
             # Make new spadesPlot object. This will be merged to existing later
             newPlots <- new("spadesPlot")
             newPlots@arrangement <- new("arrangement")
-
-
+browser()
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
               spadesGrobList <- list()
               spadesGrobList[[lN[x]]] <- new("spadesGrob")
-              spadesGrobList[[lN[x]]]@other <- plotArgs#lapply(plotArgs, function(y) {
-                #y[pmin(length(y),x)]
-              #})
+              spadesGrobList[[lN[x]]]@other <- lapply(plotArgs, function(y) {
+                y[pmin(length(y),x)]
+              })
               spadesGrobList[[lN[x]]]@plotName <- lN[x]
               spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
               spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
@@ -1764,7 +1763,7 @@ setMethod("Plot",
 
             if(is(grobToPlot, "Raster")) {
 
-             # Rasters may be zoomed into and subsampled and have unique legend
+              # Rasters may be zoomed into and subsampled and have unique legend
              pR <- .prepareRaster(grobToPlot, spadesGrob@other$zoomExtent, spadesGrob@other$legendRange,
                                   takeFromPlotObj,
                                   arr,
@@ -1783,10 +1782,10 @@ setMethod("Plot",
             }
 
             len <- length(grobToPlot)
-            if(len<(1e4/speedup)) {
+            if(len<(1e4/spadesGrob@other$speedup)) {
               z <- grobToPlot
             } else {
-              z <- sample(grobToPlot, 1e4/speedup)
+              z <- sample(grobToPlot, 1e4/spadesGrob@other$speedup)
             }
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
