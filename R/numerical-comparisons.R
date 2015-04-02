@@ -23,8 +23,7 @@ setMethod("setTolerance",
           definition = function(epsilon) {
             assignSpaDES(".epsilon", .Machine$double.eps^0.5)
             return(invisible())
-          }
-)
+})
 
 #' @rdname epsilon
 setMethod("setTolerance",
@@ -32,8 +31,7 @@ setMethod("setTolerance",
           definition = function(epsilon) {
             assignSpaDES(".epsilon", epsilon)
             return(invisible())
-          }
-)
+})
 
 #' @export
 #' @rdname epsilon
@@ -48,8 +46,7 @@ setMethod("getTolerance",
           signature=c(epsilon="missing"),
           definition = function(epsilon) {
             return(getSpaDES(".epsilon"))
-          }
-)
+})
 
 ################################################################################
 #' Relational operators

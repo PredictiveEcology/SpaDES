@@ -33,17 +33,16 @@ vignette: >
 require(SpaDES)
 
 outputPath <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=20.01)
+times <- list(start=0.0, stop=20.0)
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
-                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE),
-                   fireSpread=list(nFires= 1e1, spreadprob=0.225, its=1e6,
+                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
+                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
                                    persistprob=0, returnInterval=10, startTime=0,
                                   .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=1e2, moveInterval=1,
-                                        .plotInitialTime=1.01, .plotInterval=1)
-                   )
+                   caribouMovement=list(N=100L, moveInterval=1,
+                                        .plotInitialTime=1.01, .plotInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
@@ -54,22 +53,17 @@ spades(mySim)
 ```
 
 ## fire spread
-```{r fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
+```{r fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE, message=FALSE}
 require(ggplot2)
 require(RColorBrewer)
-nFires <- 10
-landscape[["Fires"]] <-
-  spread(landscape[["percentPine"]],
-         loci=as.integer(sample(1:ncell(landscape), nFires)),
-         spreadProb=landscape[["percentPine"]]/(maxValue(landscape[["percentPine"]])*5)+0.1,
-         persistance=0,
-         mask=NULL,
-         maxSize=1e8,
-         directions=8,
-         iterations=1e6,
-         plot.it=FALSE,
-         mapID=TRUE)
-
+nFires <- 10L
+landscape[["Fires"]] <- spread(landscape[["percentPine"]],
+                               loci=sample(1L:ncell(landscape), nFires),
+                               spreadProb=landscape[["percentPine"]] / 
+                                 (maxValue(landscape[["percentPine"]])*5)+0.1,
+                               persistance=0, mask=NULL, maxSize=1e8,
+                               directions=8, iterations=1e6, plot.it=FALSE,
+                               mapID=TRUE)
 setColors(landscape$Fires) <- brewer.pal(8, "Reds")[5:8]
 
 Plot(landscape[["Fires"]], new=TRUE)
@@ -136,7 +130,7 @@ Using a simple landscape-dependent correlated random walk, we simulate the movem
 if(interactive()) dev()
 Plot(landscape[["habitatQuality"]], new=TRUE)
 
-for (t in 1:10) {
+for (t in 1:30) {
   #crop any caribou that went off maps
   caribou <<- crop(caribou,landscape)
   drawArrows(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
@@ -147,9 +141,8 @@ for (t in 1:10) {
 
   #step length is a function of current cell's landscape quality
   sl <- 0.25/ex
-
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
-  sd <- 30 # could be specified globally in params
+  sd <- 30
 
   caribou <<- crw(caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 }
@@ -158,8 +151,9 @@ for (t in 1:10) {
 Below is a greatly simplified example, using the sample `randomLandscapes` and `fireSpread` modules. *NB only two parameters are varied; no outputs are saved; and the analyses done here are kept simple for illustrative purposes. This will take a while to run!*
 
 ```{r multiple-simulations, echo=TRUE, eval=FALSE}
-### WARNING this can take a while to run, especially for large mapSizes.
-
+###
+### WARNING: this can take a while to run, especially for large mapSizes.
+###
 rasterOptions(maxmemory=1e9)
 
 # list all parameter values with which to run simulations

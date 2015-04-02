@@ -36,9 +36,9 @@ the same name, such as plotting a \code{SpatialPoints*} object on a \code{Raster
 \item{gp}{A gpar object, created by \code{\link{gpar}} function,
 to change plotting parameters (see \code{grid} package).}
 
-\item{gpText}{A gpar object for the title text. Default gpar(col="black")}
+\item{gpText}{A gpar object for the title text. Default \code{gpar(col="black")}}
 
-\item{gpAxis}{A gpar object for the axes. Default gpar(col="black")}
+\item{gpAxis}{A gpar object for the axes. Default \code{gpar(col="black")}}
 
 \item{axes}{Logical or \code{"L"}, representing the left and bottom axes, overall plots.}
 
@@ -59,7 +59,7 @@ This occurs after any downsampling of rasters, so it may produce very pixelated 
 \item{legend}{logical. Whether legend should be drawn next to plots. Default is \code{TRUE}.}
 
 \item{legendRange}{numeric vector giving values that, representing the lower
-and upper bounds of a legend (i.e., 1:10 or c(1,10) will give same result)
+and upper bounds of a legend (i.e., \code{1:10} or \code{c(1,10)} will give same result)
 that will override the data bounds contained within the \code{grobToPlot}.}
 
 \item{legendText}{Vector of values to use for legend value labels.
@@ -86,7 +86,7 @@ The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 \code{SpatialPolygons*}, and any combination of those.  It can
 also handle \code{ggplot2} objects or base histogram objects via call to
-\code{exHist <- hist(1:10, plot=F)}, but these non-spatial objects
+\code{exHist <- hist(1:10, plot=FALSE)}, but these non-spatial objects
 cannot be mixed among types (i.e., can't mix and match spatial and
 non-spatial objects, or base histogram and ggplot2 types). Customization of the
 ggplot2 elements can be done as a normal ggplot2 plot, then added with
