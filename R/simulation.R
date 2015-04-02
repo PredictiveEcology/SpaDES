@@ -79,8 +79,23 @@ setMethod("simInit",
                                                 stop=times$stop))
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
-            # assign global params only for now
+            # assign some core & global params only for now
+            if (".outputPath" %in% names(params$.globals)) {
+              params$.globals$.outputPath <- checkPath(params$.globals$.outputPath, TRUE)
+            }
             simGlobals(sim) <- params$.globals
+
+            # load core modules
+            for (c in core) {
+              ### sourcing the code in each core module is already done
+              ### because they are loaded with the package
+
+              # add core module name to the loaded list:
+              simModulesLoaded(sim) <- append(simModulesLoaded(sim), c)
+
+              # schedule each module's init event:
+              sim <- scheduleEvent(sim, simStartTime(sim), c, "init")
+            }
 
             # source module metadata and code files
             for (m in simModules(sim)) {
@@ -114,8 +129,11 @@ setMethod("simInit",
 
             # assign user-specified non-global params, while
             # keeping defaults for params not specified by user
+            omit <- c(which(core=="load"), which(core=="save"))
+            pnames <- c(paste0(".", core[-omit]), names(simParams(sim)))
+
             tmp <- list()
-            lapply(names(simParams(sim)), function(x) {
+            lapply(pnames, function(x) {
               tmp[[x]] <<- mergeLists(simParams(sim)[[x]], params[[x]])
             })
             simParams(sim) <- tmp
@@ -125,19 +143,6 @@ setMethod("simInit",
               simModulesLoadOrder(sim) <- loadOrder
             } else {
               simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(sim, .)
-            }
-
-            # load core modules
-            for (c in core) {
-              ### sourcing the code in each core module is already done
-              ### because they are loaded with the package
-
-              # add core module name to the loaded list:
-              ### add module name to the loaded list
-              simModulesLoaded(sim) <- append(simModulesLoaded(sim), c)
-
-              # schedule each module's init event:
-              sim <- scheduleEvent(sim, simStartTime(sim), c, "init")
             }
 
             # load user-defined modules

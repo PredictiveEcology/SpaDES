@@ -58,9 +58,9 @@ setMethod("getFileName",
 #' @author Alex Chubaty
 #'
 #' @examples
-#' tmp1 <- list(a="hst", b=NA_character_, c=43)
-#' tmp2 <- list(a="gst", c=42, d=list(letters))
-#' mergeLists(tmp1, tmp2)
+#' L1 <- list(a="hst", b=NA_character_, c=43)
+#' L2 <- list(a="gst", c=42, d=list(letters))
+#' mergeLists(L1, L2)
 #'
 setGeneric("mergeLists", function(x, y) {
   standardGeneric("mergeLists")

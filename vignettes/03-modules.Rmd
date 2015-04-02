@@ -121,7 +121,9 @@ depsEdgeList(mySim, FALSE)   # all object dependency relationships
 
 ## Parameters
 
-The parameter list in the `simList` object are used to pass parameters to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
+Default parameters defined in each module using `defineParameter`.
+
+The parameter list in the `simList` object may be used to pass parameter values to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
 
 \newpage
 

@@ -39,7 +39,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### determine whether to use checkpointing
   ### default is not to use checkpointing if unspecified
   if ( !(".checkpoint" %in% names(simParams(sim))) ) {
-    simParams(sim)$.checkpoint = list(interval=NA_real_, file=NULL)
+    simParams(sim)$.checkpoint <- list(interval=NA_real_, file=NULL)
   }
   useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
 

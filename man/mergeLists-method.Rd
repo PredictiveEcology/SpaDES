@@ -36,9 +36,9 @@ second list is used in the updated list.
 Subelements are not examined and are simply replaced.
 }
 \examples{
-tmp1 <- list(a="hst", b=NA_character_, c=43)
-tmp2 <- list(a="gst", c=42, d=list(letters))
-mergeLists(tmp1, tmp2)
+L1 <- list(a="hst", b=NA_character_, c=43)
+L2 <- list(a="gst", c=42, d=list(letters))
+mergeLists(L, L2)
 }
 \author{
 Alex Chubaty
