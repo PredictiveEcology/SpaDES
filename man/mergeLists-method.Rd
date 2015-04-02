@@ -38,7 +38,7 @@ Subelements are not examined and are simply replaced.
 \examples{
 L1 <- list(a="hst", b=NA_character_, c=43)
 L2 <- list(a="gst", c=42, d=list(letters))
-mergeLists(L, L2)
+mergeLists(L1, L2)
 }
 \author{
 Alex Chubaty
