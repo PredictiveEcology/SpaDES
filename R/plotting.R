@@ -292,7 +292,7 @@ setMethod("equalExtent",
 #' @slot isSpatialObject logical. TRUE if the object is one of the SpaDES recognized
 #' spatialObject classes
 #'
-#' @slot other list. Any other parameters needed for plotting
+#' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
 #'
 #' @rdname spadesGrob-class
 #' @exportClass spadesGrob
@@ -302,10 +302,10 @@ setMethod("equalExtent",
 setClass("spadesGrob",
          slots=list(plotName="character", objName="character", layerName="character",
                     objClass="character", isSpatialObjects="logical",
-                    other="list"),
+                    plotArgs="list"),
          prototype=list(plotName=NA_character_, objName=NA_character_, layerName=NA_character_,
                         objClass=NA_character_, isSpatialObjects=NA,
-                        other=as.list(NULL)),
+                        plotArgs=as.list(NULL)),
          validity=function(object) {
            # check for valid extents
            if (any(is.character(object@objName))) {
@@ -519,16 +519,19 @@ setMethod("makeSpadesPlot",
                                                "inside RasterStacks for objects"))
 
 
+            plotArgs <- makeList(plotArgs, length(lN))
+
             # Make new spadesPlot object. This will be merged to existing later
             newPlots <- new("spadesPlot")
             newPlots@arrangement <- new("arrangement")
-browser()
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
               spadesGrobList <- list()
+
               spadesGrobList[[lN[x]]] <- new("spadesGrob")
-              spadesGrobList[[lN[x]]]@other <- lapply(plotArgs, function(y) {
-                y[pmin(length(y),x)]
-              })
+              spadesGrobList[[lN[x]]]@plotArgs <- lapply(plotArgs, function(y) y[[x]])
+              spadesGrobList[[lN[x]]]@plotArgs$gpText <- plotArgs$gpText[x]
+              spadesGrobList[[lN[x]]]@plotArgs$gpAxis <- plotArgs$gpAxis[x]
+              spadesGrobList[[lN[x]]]@plotArgs$gp <- plotArgs$gp[x]
               spadesGrobList[[lN[x]]]@plotName <- lN[x]
               spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
               spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
@@ -567,6 +570,95 @@ setMethod("makeSpadesPlot",
           })
 
 ######################################################
+#' Convert plotArgs to list of lists
+#'
+#' Take the inputs as plotArgs to the Plot function, and make them list entries
+#' of lists
+#'
+#' @param plotArgs
+#'
+#' @name makeList
+#' @rdname makeList
+#' @docType methods
+setGeneric("makeList", function(plotArgs, numSpadesPlotObjects) {
+  standardGeneric("makeList")
+})
+
+
+#' @rdname makeList
+#' @export
+setMethod("makeList",
+          signature=c("list"),
+          definition= function(plotArgs, numSpadesPlotObjects) {
+            p <- plotArgs
+            n <- numSpadesPlotObjects
+
+            p$new <- if(is.list(p$new)) {if(length(p$new)!=n) {rep(p$new, length.out=n)} else {p$new}
+            } else {
+              if(length(p$new)==n) {as.list(p$new)} else {rep(list(p$new), length.out=n)}}
+
+            # character or logical or numeric of length 1 per entry
+            p$addTo <- if(is.list(p$addTo)) {if(length(p$addTo)!=n) {rep(p$addTo, length.out=n)} else {p$addTo}
+              } else {
+                if(length(p$addTo)==n) {as.list(p$addTo)} else {rep(list(p$addTo), length.out=n)}}
+            p$gp <- if(is.list(p$gp)) {if(length(p$gp)!=n) {rep(p$gp, length.out=n)} else {p$gp}
+            } else {
+              if(length(p$gp)==n) {as.list(p$gp)} else {rep(list(p$gp), length.out=n)}}
+            p$gpText <- if(is.list(p$gpText)) {if(length(p$gpText)!=n) {rep(p$gpText, length.out=n)} else {p$gpText}
+            } else {
+              if(length(p$gpText)==n) {as.list(p$gpText)} else {rep(list(p$gpText), length.out=n)}}
+            p$gpAxis <- if(is.list(p$gpAxis)) {if(length(p$gpAxis)!=n) {rep(p$gpAxis, length.out=n)} else {p$gpAxis}
+            } else {
+              if(length(p$gpAxis)==n) {as.list(p$gpAxis)} else {rep(list(p$gpAxis), length.out=n)}}
+            p$axes <- if(is.list(p$axes)) {if(length(p$axes)!=n) {rep(p$axes, length.out=n)} else {p$axes}
+            } else {
+              if(length(p$axes)==n) {as.list(p$axes)} else {rep(list(p$axes), length.out=n)}}
+            p$speedup <- if(is.list(p$speedup)) {if(length(p$speedup)!=n) {rep(p$speedup, length.out=n)} else {p$speedup}
+            } else {
+              if(length(p$speedup)==n) {as.list(p$speedup)} else {rep(list(p$speedup), length.out=n)}}
+            p$size <- if(is.list(p$size)) {if(length(p$size)!=n) {rep(p$size, length.out=n)} else {p$size}
+            } else {
+              if(length(p$size)==n) {as.list(p$size)} else {rep(list(p$size), length.out=n)}}
+            p$visualSqueeze <- if(is.list(p$visualSqueeze)) {if(length(p$visualSqueeze)!=n) {rep(p$visualSqueeze, length.out=n)} else {p$visualSqueeze}
+            } else {
+              if(length(p$visualSqueeze)==n) {as.list(p$visualSqueeze)} else {rep(list(p$visualSqueeze), length.out=n)}}
+            p$legend <- if(is.list(p$legend)) {if(length(p$legend)!=n) {rep(p$legend, length.out=n)} else {p$legend}
+            } else {
+              if(length(p$legend)==n) {as.list(p$legend)} else {rep(list(p$legend), length.out=n)}}
+            p$pch <- if(is.list(p$pch)) {if(length(p$pch)!=n) {rep(p$pch, length.out=n)} else {p$pch}
+            } else {
+              if(length(p$pch)==n) {as.list(p$pch)} else {rep(list(p$pch), length.out=n)}}
+            p$title <- if(is.list(p$title)) {if(length(p$title)!=n) {rep(p$title, length.out=n)} else {p$title}
+            } else {
+              if(length(p$title)==n) {as.list(p$title)} else {rep(list(p$title), length.out=n)}}
+            p$na.color <- if(is.list(p$na.color)) {if(length(p$na.color)!=n) {rep(p$na.color, length.out=n)} else {p$na.color}
+            } else {
+              if(length(p$na.color)==n) {as.list(p$na.color)} else {rep(list(p$na.color), length.out=n)}}
+            p$zero.color <- if(is.list(p$zero.color)) {if(length(p$zero.color)!=n) {rep(p$zero.color, length.out=n)} else {p$zero.color}
+            } else {
+              if(length(p$zero.color)==n) {as.list(p$zero.color)} else {rep(list(p$zero.color), length.out=n)}}
+
+
+            p$cols <- if(is.list(p$cols)) {p$cols} else {rep(list(p$cols), length.out=n)}
+            p$zoomExtent <- if(is.list(p$zoomExtent)) {p$zoomExtent} else {rep(list(p$zoomExtent), length.out=n)}
+            p$legendText <- if(is.list(p$legendText)) {p$legendText} else {rep(list(p$legendText), length.out=n)}
+            p$legendRange <- if(is.list(p$legendRange)) {p$legendRange} else {rep(list(p$legendRange), length.out=n)}
+
+#             p$axes <- if(is.list(p$axes)) {p$axes} else {if(length(p$axes)==n) {as.list(p$axes)} else {rep(list(p$axes), length.out=n)}}
+#             p$speedup <- if(is.list(p$speedup)) {p$speedup} else {if(length(p$speedup)==n) {as.list(p$speedup)} else {rep(list(p$speedup), length.out=n)}}
+#             p$size <- if(is.list(p$size)) {p$size} else {if(length(p$size)==n) {as.list(p$size)} else {rep(list(p$size), length.out=n)}}
+#             p$visualSqueeze <- if(is.list(p$visualSqueeze)) {p$visualSqueeze} else {if(length(p$visualSqueeze)==n) {as.list(p$visualSqueeze)} else {rep(list(p$visualSqueeze), length.out=n)}}
+#             p$legend <- if(is.list(p$legend)) {p$legend} else {if(length(p$legend)==n) {as.list(p$legend)} else {rep(list(p$legend), length.out=n)}}
+#             p$pch <- if(is.list(p$pch)) {p$pch} else {if(length(p$pch)==n) {as.list(p$pch)} else {rep(list(p$pch), length.out=n)}}
+#             p$title <- if(is.list(p$title)) {p$title} else {if(length(p$title)==n) {as.list(p$title)} else {rep(list(p$title), length.out=n)}}
+#             p$na.color <- if(is.list(p$na.color)) {p$na.color} else {if(length(p$na.color)==n) {as.list(p$na.color)} else {rep(list(p$na.color), length.out=n)}}
+#             p$zero.color <- if(is.list(p$zero.color)) {p$zero.color} else {if(length(p$zero.color)==n) {as.list(p$zero.color)} else {rep(list(p$zero.color), length.out=n)}}
+            return(p)
+          })
+
+
+
+######################################################
 #' Merge two SpaDES Plot objects
 #'
 #' Merges two \code{spadesPlot} objects
@@ -596,9 +688,9 @@ setMethod("updateSpadesPlot",
             existingNames <- names(existingSpadesPlot@spadesGrobList)
 
             addToPlots <- sapply(newSpadesPlot@spadesGrobList,
-                                 function(x) !is.null(x[[1]]@other$addTo))
+                                 function(x) !is.null(x[[1]]@plotArgs$addTo))
             addToPlotsNames <- unlist(sapply(newSpadesPlot@spadesGrobList,
-                                             function(x) x[[1]]@other$addTo))
+                                             function(x) x[[1]]@plotArgs$addTo))
             overplots <- if(is.null(addToPlots)) { match(newNames, existingNames)
             } else {
               na.omit(match(newNames[-match(names(addToPlots), newNames)] , existingNames))
@@ -609,10 +701,10 @@ setMethod("updateSpadesPlot",
 
             whichParamsChanged <- lapply(newNames[overplots],
                                          function(x) {
-                                           sapply(names(newSpadesPlot@spadesGrobList[[x]][[1]]@other),
+                                           sapply(names(newSpadesPlot@spadesGrobList[[x]][[1]]@plotArgs),
                                                   function(y) {
-                                                    changed <- !identical(newSpadesPlot@spadesGrobList[[x]][[1]]@other[[y]],
-                                                      existingSpadesPlot@spadesGrobList[[x]][[1]]@other[[y]])
+                                                    changed <- !identical(newSpadesPlot@spadesGrobList[[x]][[1]]@plotArgs[[y]],
+                                                      existingSpadesPlot@spadesGrobList[[x]][[1]]@plotArgs[[y]])
                                                   }
                                            )
                                          })
@@ -770,8 +862,6 @@ setMethod("arrangeViewports",
 #' in a pretty numeric representation. If \code{Raster*} has a Raster Attribute Table (rat, see raster
 #' package), this will be used by default. Currently, only a single vector is accepted.
 #'
-#' @param draw logical. Whether the grob, after being created should be drawn. Default \code{TRUE}.
-#'
 #' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
 #'
 #' @param gpText gpar object for legend label text
@@ -794,7 +884,6 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 size=unit(5, "points"),
                                 minv, maxv,
                                 legend=TRUE, legendText=NULL,
-                                draw=TRUE,
                                 gp=gpar(), gpText = gpar(), pch=19,
                                 speedup=1, ...) {
   standardGeneric("plotGrob")
@@ -806,8 +895,7 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
 setMethod("plotGrob",
           signature=c("matrix"),
           definition= function(grobToPlot, col, real, size, minv, maxv,
-                               legend, legendText, draw,
-                               gp, gpText, pch, ...) {
+                               legend, legendText, gp, gpText, pch, ...) {
 
             pr <- if(real) {
               pretty(range(minv, maxv))
@@ -823,8 +911,8 @@ setMethod("plotGrob",
             maxNumCols=100
             maxcol <- length(col)
             mincol <- 2
-            gpText$cex <- gpText$cex*0.6
 
+            gpText$cex <- gpText$cex*0.6
             if (length(gpText)==0) gpText <- gpar(col="black", cex=0.6)
             rastGrob <- gTree(grobToPlot=grobToPlot, #title=title,
                               # name=name,
@@ -849,21 +937,21 @@ setMethod("plotGrob",
                                     legendIndex <- pr-min(pr)+1
                                     legendText[legendIndex]
                                   }
-                                  textGrob(txt, x=1.08,
-                                           if(maxv>=3) {
-                                             y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/(diff(range(minv, maxv))+1)/4
-                                           } else {
-                                             y= ((pr-minv)/((maxv)-minv))/2+0.25
-                                           },
-                                           gp=gpText,
-                                           just="left", check.overlap=TRUE,
-                                           name="legendText")
-
+                                   textGrob(txt, x=1.08,
+                                            if(maxv>=3) {
+                                              y= ((pr-minv)/((maxv+1)-minv))/2+0.25+1/(diff(range(minv, maxv))+1)/4
+                                            } else {
+                                              y= ((pr-minv)/((maxv)-minv))/2+0.25
+                                            },
+                                            gp=gpText
+                                            ,
+                                            just="left", check.overlap=TRUE,
+                                            name="legendText")
                                 }
                               ),
                               gp=gp,
                               cl="plotRast")
-            if(draw) grid.draw(rastGrob)
+            grid.draw(rastGrob)
             return(invisible(rastGrob))
           })
 
@@ -872,14 +960,14 @@ setMethod("plotGrob",
 setMethod("plotGrob",
           signature=c("SpatialPoints"),
           definition= function(grobToPlot, col, size,
-                               legend, draw, gp=gpar(), pch, ...) {
+                               legend, gp=gpar(), pch, ...) {
             pntGrob <- gTree(grobToPlot=grobToPlot,
                              children=gList(
                                pointsGrob(x=grobToPlot$x, y=grobToPlot$y, pch=pch, size=size)
                              ),
                              gp=gp,
                              cl="plotPoint")
-            if(draw) grid.draw(pntGrob)
+            grid.draw(pntGrob)
             return(invisible(pntGrob))
           })
 
@@ -888,7 +976,7 @@ setMethod("plotGrob",
 setMethod("plotGrob",
           signature=c("SpatialPolygons"),
           definition= function(grobToPlot, col, size,
-                               legend, draw, gp=gpar(), pch, ...) {
+                               legend, gp=gpar(), pch, ...) {
 
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
@@ -940,7 +1028,7 @@ setMethod("plotGrob",
             ),
             gp=gp,
             cl="plotPoly")
-            if(draw) grid.draw(polyGrob)
+            grid.draw(polyGrob)
             return(invisible(polyGrob))
           })
 
@@ -950,7 +1038,7 @@ setMethod("plotGrob",
 setMethod("plotGrob",
           signature=c("SpatialLines"),
           definition= function(grobToPlot, col, size,
-                               legend, draw, gp=gpar(), pch, ...) {
+                               legend, gp=gpar(), pch, ...) {
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
               pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
                             p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -996,7 +1084,7 @@ setMethod("plotGrob",
             ),
             gp=gp,
             cl="plotLine")
-            if(draw) grid.draw(lineGrob)
+            grid.draw(lineGrob)
             return(invisible(lineGrob))
           })
 
@@ -1515,9 +1603,6 @@ setMethod("drawArrows",
 #' If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
 #' package), this will be used by default. Currently, only a single vector is accepted.
 #'
-#' @param draw logical, whether to actually draw the plots.
-#' Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE}.
-#'
 #' @param na.color string indicating the color for \code{NA} values. Default transparent.
 #'
 #' @param zero.color string indicating the color for zero values, when zero is
@@ -1630,7 +1715,7 @@ setGeneric("Plot", signature="...",
                     axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
-                    draw = TRUE, pch = 19, title=TRUE,
+                    pch = 19, title=TRUE,
                     na.color="#FFFFFF00", zero.color="#FFFFFF00") {
              standardGeneric("Plot")
            })
@@ -1642,7 +1727,7 @@ setMethod("Plot",
           signature("spadesPlotObjects"),
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
-                                legend, legendRange, legendText, draw, pch, title, na.color,
+                                legend, legendRange, legendText, pch, title, na.color,
                                 zero.color) {
 
             plotObjs <- list(...)
@@ -1654,6 +1739,7 @@ setMethod("Plot",
             # Create a spadesPlot object from the plotObjs and plotArgs
             newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
 
+
             # Send to generic Plot function which can take a spadesPlot
             Plot(newSpadesPlots, ..., new=new)
           })
@@ -1664,7 +1750,7 @@ setMethod("Plot",
           signature("spadesPlotables"),
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
-                                legend, legendRange, legendText, draw, pch, title, na.color,
+                                legend, legendRange, legendText, pch, title, na.color,
                                 zero.color) {
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
@@ -1750,55 +1836,66 @@ setMethod("Plot",
             yaxis <- (((whPlotFrame-1)%%arr@columns+1)==1)*(axes=="L") | (axes==TRUE)
             xaxis <- ((length(spadesSubPlots)-whPlotFrame)<arr@columns)*(axes=="L") | (axes==TRUE)
 
+
+
             takeFromPlotObj=!(spadesGrob@plotName %in% names(existingSpadesPlots@spadesGrobList))
 
             grobToPlot <- .identifyGrobToPlot(spadesGrob, plotObjs, takeFromPlotObj)
 
-            if(is.null(spadesGrob@other$gpText$cex)) {
-              spadesGrob@other$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+
+            if(!is(spadesGrob@plotArgs$gpText, "gpar")) {
+              gpTextUnlist <- unlist(spadesGrob@plotArgs$gpText)
+              spadesGrob@plotArgs$gpText <- gpar(gpTextUnlist)
+              names(spadesGrob@plotArgs$gpText) <- names(gpTextUnlist)
             }
-            if(is.null(spadesGrob@other$gpAxis$cex)) {
-              spadesGrob@other$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+
+            if(is.null(spadesGrob@plotArgs$gpText$cex)) {
+
+              spadesGrob@plotArgs$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
             }
+            if(is.null(spadesGrob@plotArgs$gpAxis$cex)) {
+              spadesGrob@plotArgs$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+            }
+
 
             if(is(grobToPlot, "Raster")) {
 
               # Rasters may be zoomed into and subsampled and have unique legend
-             pR <- .prepareRaster(grobToPlot, spadesGrob@other$zoomExtent, spadesGrob@other$legendRange,
+             pR <- .prepareRaster(grobToPlot, spadesGrob@plotArgs$zoomExtent, spadesGrob@plotArgs$legendRange,
                                   takeFromPlotObj,
                                   arr,
-                                  spadesGrob@other$speedup)
+                                  spadesGrob@plotArgs$speedup)
 
              zMat <- makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                      pR$legendRange,
-                                     na.color=spadesGrob@other$na.color,
-                                     zero.color=spadesGrob@other$zero.color,
-                                     cols=spadesGrob@other$cols,
+                                     na.color=spadesGrob@plotArgs$na.color,
+                                     zero.color=spadesGrob@plotArgs$zero.color,
+                                     cols=spadesGrob@plotArgs$cols,
                                      skipSample=pR$skipSample)
            } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
 
-            if(!is.null(spadesGrob@other$zoomExtent)) {
-              grobToPlot <- crop(grobToPlot,spadesGrob@other$zoomExtent)
+            if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
+              grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
             }
 
             len <- length(grobToPlot)
-            if(len<(1e4/spadesGrob@other$speedup)) {
+            if(len<(1e4/spadesGrob@plotArgs$speedup)) {
               z <- grobToPlot
             } else {
-              z <- sample(grobToPlot, 1e4/spadesGrob@other$speedup)
+              z <- sample(grobToPlot, 1e4/spadesGrob@plotArgs$speedup)
             }
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
           } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
-            if(!is.null(spadesGrob@other$zoomExtent)) {
-              grobToPlot <- crop(grobToPlot,spadesGrob@other$zoomExtent)
+            if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
+              grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
               }
             z <- grobToPlot
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
           } else if (is(grobToPlot, "SpatialLines")){ # it is a SpatialPolygons object
-            if(!is.null(spadesGrob@other$zoomExtent)) {
-              grobToPlot <- crop(grobToPlot,spadesGrob@other$zoomExtent)
+            if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
+              grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
             }
             z <- grobToPlot
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
@@ -1832,20 +1929,20 @@ setMethod("Plot",
              }
             legendTxt <- if(!isBaseSubPlot | !isReplot) {NULL}
 
-            plotGrob(zMat$z, col = zMat$cols, size=unit(spadesGrob@other$size, "points"),
+            plotGrob(zMat$z, col = zMat$cols, size=unit(spadesGrob@plotArgs$size, "points"),
                      real=zMat$real,
                      minv=zMat$minz,
                      maxv=zMat$maxz,
-                     pch=spadesGrob@other$pch, name = subPlots,
+                     pch=spadesGrob@plotArgs$pch, name = subPlots,
                      legend = legend*isBaseSubPlot*!isReplot, legendText=legendTxt,
-                     gp = spadesGrob@other$gp,
-                     gpText = spadesGrob@other$gpText,
-                     draw = draw, speedup=spadesGrob@other$speedup)
+                     gp = gpar(spadesGrob@plotArgs$gp),
+                     gpText = spadesGrob@plotArgs$gpText,
+                     speedup=spadesGrob@plotArgs$speedup)
             if(title*isBaseSubPlot*!isReplot) grid.text(subPlots,
-                               name="title", y=1.08, vjust=0.5, gp = spadesGrob@other$gpText)
+                               name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
 
-            if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = spadesGrob@other$gpAxis)
-            if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = spadesGrob@other$gpAxis)
+            if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = gpar(spadesGrob@plotArgs$gpAxis))
+            if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = gpar(spadesGrob@plotArgs$gpAxis))
 
             isBaseSubPlot <- FALSE
 

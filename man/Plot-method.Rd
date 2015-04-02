@@ -34,7 +34,7 @@ rePlot(toDev = dev.cur(), fromDev = dev.cur())
 clearPlot(dev = dev.cur())
 }
 \arguments{
-\item{...}{A combination of spatial objects or a ggplot object. See details.}
+\item{...}{A combination of \code{spatialObjects} or a single \code{ggplot} object. See details.}
 
 \item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 if \code{FALSE}, then the \code{...} plots will be added to the current device,

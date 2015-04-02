@@ -8,6 +8,7 @@
 \alias{layerNames,SpatialPoints-method}
 \alias{layerNames,SpatialPolygons-method}
 \alias{layerNames,gg-method}
+\alias{layerNames,histogram-method}
 \alias{layerNames,list-method}
 \title{Extract the layer names of Spatial Objects}
 \usage{
@@ -24,6 +25,8 @@ layerNames(object)
 \S4method{layerNames}{Raster}(object)
 
 \S4method{layerNames}{gg}(object)
+
+\S4method{layerNames}{histogram}(object)
 }
 \arguments{
 \item{object}{A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}, or \code{SpatialPolygons*} object; or list of these.}
