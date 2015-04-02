@@ -266,6 +266,7 @@ setMethod("spread",
             if(length(maxSize) > 1){
               if(exists("whichID")){
                 events <- events[!spreads[events] %in% whichID]
+                rm(whichID)
               }
         
             } else {
