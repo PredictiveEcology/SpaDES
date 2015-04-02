@@ -12,4 +12,7 @@ unittrim(grid.locator)
 \description{
 Converts them to meaningful units. Used within \code{.clickCoord}
 }
+\author{
+Eliot McIntire
+}
 

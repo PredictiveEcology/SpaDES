@@ -3,12 +3,12 @@
 \docType{methods}
 \name{arrangeViewports}
 \alias{arrangeViewports}
-\alias{arrangeViewports,list-method}
+\alias{arrangeViewports,spadesPlot-method}
 \title{Determine optimal plotting arrangement of Spatial Objects}
 \usage{
-arrangeViewports(extents)
+arrangeViewports(spadesPlot)
 
-\S4method{arrangeViewports}{list}(extents)
+\S4method{arrangeViewports}{spadesPlot}(spadesPlot)
 }
 \arguments{
 \item{extents}{A list of extents from spatial objects to plot}
@@ -17,5 +17,8 @@ arrangeViewports(extents)
 This assesses the device geometry, the map geometry, and the number of spatial
 objects to plot and builds an object that will be used by the Plot functions to plot
 them efficiently
+}
+\author{
+Eliot McIntire
 }
 

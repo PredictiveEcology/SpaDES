@@ -4,12 +4,10 @@
 \alias{makeViewports}
 \title{Make viewports}
 \usage{
-makeViewports(extents, arr, newArr = FALSE)
+makeViewports(spadesPlot, newArr = FALSE)
 }
 \arguments{
-\item{extents}{a list of extents objects.}
-
-\item{arr}{an object of class \code{arrangement}.}
+\item{spadesPlot}{an object of class \code{spadesPlot}}
 
 \item{newArr}{logical. Whether this function will create a completely new viewport.
 Default \code{FALSE}.}
@@ -22,5 +20,8 @@ a viewport tree to allow plotting.
 This function will either create a totally new set of viewports, or simply add
 some nested viewports to an existing arrangement, i.e., is there still white
 space availabe to plot.
+}
+\author{
+Eliot McIntire
 }
 

@@ -4,26 +4,37 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,spadesPlotObjects-method}
+\alias{Plot,spadesPlotables-method}
 \alias{clearPlot}
+\alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
+  na.color = "#FFFFFF00", zero.color = NULL)
 
 \S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
   gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
-  legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = NULL)
+
+\S4method{Plot}{spadesPlotables}(..., new = FALSE, addTo = NULL,
+  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
+  speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = NULL)
+
+rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
 clearPlot(dev = dev.cur())
 }
 \arguments{
-\item{...}{A combination of spatial objects or a ggplot object. See details.}
+\item{...}{A combination of \code{spatialObjects} or a single \code{ggplot} object. See details.}
 
 \item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 if \code{FALSE}, then the \code{...} plots will be added to the current device,
@@ -67,9 +78,6 @@ Defaults to \code{NULL}, which results in a pretty numeric representation.
 If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
 package), this will be used by default. Currently, only a single vector is accepted.}
 
-\item{draw}{logical, whether to actually draw the plots.
-Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE}.}
-
 \item{pch}{see \code{?par}.}
 
 \item{title}{Logical. Whether the names of each plot should be written above plots.}
@@ -79,7 +87,18 @@ Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE
 \item{zero.color}{string indicating the color for zero values, when zero is
 the minimum value, otherwise, zero is treated as any other color. Default transparent.}
 
+\item{toDev}{numeric. Which device should the new rePlot be plotted to. Default is current device.}
+
+\item{fromDev}{numeric. Which device should the replot information be taken from. Default
+is current device}
+
 \item{dev}{numeric. Device number to clear.}
+}
+\value{
+Invisibly returns the \code{spadesPlot} class object. If this is assigned to an
+object, say \code{obj}, then this can be plotted again with \code{Plot(obj)}. This
+object is also stored in the locked \code{.spadesEnv}, so can simply be replotted
+with \code{rePlot()} or on a new device with \code{rePlot(4)}, where 4 is the new device number.
 }
 \description{
 The main plotting function accompanying \code{SpaDES}.
@@ -128,7 +147,7 @@ plotted. Note that when this approach to setting colours is used, any overplotti
 will revert to the \code{colortable} slot of the object, or the default for rasters,
 which is \code{terrain.color()}
 
-Silently, one hidden object is made, \code{.spadesArr} in the \code{.spadesEnv}
+Silently, one hidden object is made, \code{.spadesPlot} in the \code{.spadesEnv}
 environment, which is used for arranging plots in the device window, and
 identifying the objects to be replotted if rearranging is required, subsequent
 to a \code{new=FALSE} additional plot.
@@ -238,6 +257,13 @@ Plot(SpP)
 Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 
 }
+}
+\author{
+Eliot McIntire
+
+Eliot McIntire
+
+Eliot McIntire
 }
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},

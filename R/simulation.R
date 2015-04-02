@@ -121,7 +121,7 @@ setMethod("simInit",
                   tt <- paste0("simParams(sim)$", m, "$", x$name, "<<-", x$default)
                 }
                 eval(parse(text=tt), envir=environment())
-              })
+    })
 
               # evaluate the rest of the parsed file
               eval(parsedFile[!defineModuleItem], envir=.GlobalEnv)
@@ -135,7 +135,7 @@ setMethod("simInit",
             tmp <- list()
             lapply(pnames, function(x) {
               tmp[[x]] <<- mergeLists(simParams(sim)[[x]], params[[x]])
-            })
+  })
             simParams(sim) <- tmp
 
             # check user-supplied load order

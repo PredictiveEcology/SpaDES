@@ -56,7 +56,7 @@ setMethod("depsEdgeList",
                 }
               }
               return(invisible(NULL)) # return from the lapply
-            })
+  })
 
             setkey(sim.in, "objectName")
             setkey(sim.out, "objectName")

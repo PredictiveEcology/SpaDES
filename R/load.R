@@ -326,7 +326,7 @@ setMethod("loadFiles",
             }
             message("") ## print empty message to add linebreak to console message output
             return(invisible(sim))
-          })
+})
 
 #' @rdname loadFiles-method
 setMethod("loadFiles",

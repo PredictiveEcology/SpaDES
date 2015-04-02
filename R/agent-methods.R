@@ -45,7 +45,7 @@ setMethod("heading",
             heading[(ys) & (xs) < 0] = heading[(ys) & (xs) < 0] - 180
             heading[(ys) & (xs) > 0] = heading[(ys) & (xs) > 0] + 180
             return(heading%%360)
-          })
+})
 
 #' @rdname heading
 setMethod("heading",
@@ -58,4 +58,4 @@ setMethod("heading",
             heading[(ys) & (xs) < 0] = heading[(ys) & (xs) < 0] - 180
             heading[(ys) & (xs) > 0] = heading[(ys) & (xs) > 0] + 180
             return(heading%%360)
-          })
+})

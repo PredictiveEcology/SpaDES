@@ -230,14 +230,14 @@ setMethod("simModulesLoadOrder",
           signature="simList",
           definition=function(object) {
             return(object@.loadOrder)
-          })
+})
 
 #' @export
 #' @rdname simModulesLoadOrder-accessor-methods
 setGeneric("simModulesLoadOrder<-",
            function(object, value) {
              standardGeneric("simModulesLoadOrder<-")
-           })
+ })
 
 #' @name simModulesLoadOrder<-
 #' @aliases simModulesLoadOrder<-,simList-method

@@ -14,7 +14,9 @@
 #'            No coercion is done, and the first element of a character vector
 #'            of length greater than one will be used, with a warning.
 #'
-#' @param value The object to assign.
+#' @param value The object to assign. If this is missing, values will be found with
+#' \code{get(x)} in the same environment as the calling environment.
+#'
 #'
 #' @param ... Additional arguments to pass to \code{assign}.
 #'
@@ -34,6 +36,14 @@ setMethod("assignGlobal",
           signature(x="character", value="ANY"),
           definition=function(x, value, ...) {
             assign(x, value, envir=.GlobalEnv, ...)
+})
+
+#' @rdname assignGlobal-method
+#'
+setMethod("assignGlobal",
+          signature(x="character", value="missing"),
+          definition=function(x, value, ...) {
+            assign(x, get(x), envir=.GlobalEnv, ...)
 })
 
 #' Is an object defined in the global environment?
@@ -113,6 +123,14 @@ setMethod("assignSpaDES",
           signature(x="character", value="ANY"),
           definition=function(x, value, ...) {
             assign(x, value, envir=.spadesEnv, ...)
+})
+
+#' @rdname assignSpaDES-method
+#'
+setMethod("assignSpaDES",
+          signature(x="character", value="missing"),
+          definition=function(x, value, ...) {
+            assign(x, get(x), envir=.spadesEnv, ...)
 })
 
 #' Is an object defined in the .spades environment?

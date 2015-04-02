@@ -7,11 +7,11 @@
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
 makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
-  na.color = "#FFFFFF00", zero.color = "#FFFFFF00", skipSample = TRUE)
+  na.color = "#FFFFFF00", zero.color = NULL, skipSample = TRUE)
 
 \S4method{makeColorMatrix}{Raster,Extent,numeric}(grobToPlot, zoomExtent,
   maxpixels, legendRange, cols = NULL, na.color = "#FFFFFF00",
-  zero.color = "#FFFFFF00", skipSample = TRUE)
+  zero.color = NULL, skipSample = TRUE)
 }
 \arguments{
 \item{grobToPlot}{a SpatialObject}
@@ -37,5 +37,8 @@ Use \code{NULL} if zero should be the value given to it by the colortable associ
 }
 \description{
 Convert Raster to color matrix useable by raster function for plotting
+}
+\author{
+Eliot McIntire
 }
 
