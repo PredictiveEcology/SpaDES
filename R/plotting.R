@@ -718,10 +718,8 @@ setMethod("updateSpadesPlot",
                                  function(x) !is.null(x[[1]]@plotArgs$addTo))
             addToPlotsNames <- unlist(sapply(newSP@spadesGrobList,
                                              function(x) x[[1]]@plotArgs$addTo))
-            overplots <- if(is.null(addToPlots)) { match(newNames, currNames)
-            } else {
-              na.omit(match(newNames[-match(names(addToPlots), newNames)] , currNames))
-            }
+
+            overplots <- na.omit(match(currNames, newNames))
 
             needNew <- -c(overplots, which(addToPlots))
             needNew <- if(length(needNew)==0) {1:length(newNames)}
@@ -1062,8 +1060,6 @@ setMethod("plotGrob",
                               "at http://cran.r-project.org/bin/windows/Rtools/"))
               }
             }
-
-            #
 
             gp$fill[hole] <- "#FFFFFF00"
             polyGrob <- gTree(children=gList(
@@ -1825,6 +1821,7 @@ setMethod("Plot",
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arrangement@columns,
                           currSpadesPlots@arrangement@rows))
+
         if(newArr) {
           updated$needPlotting <-
             lapply(updated$needPlotting, function(x) sapply(x, function(y) TRUE))

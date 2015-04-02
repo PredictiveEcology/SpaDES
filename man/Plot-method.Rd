@@ -13,21 +13,21 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  na.color = "#FFFFFF00", zero.color = NULL)
 
 \S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
   gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-  zero.color = "#FFFFFF00")
+  zero.color = NULL)
 
 \S4method{Plot}{spadesPlotables}(..., new = FALSE, addTo = NULL,
   gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
   legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-  zero.color = "#FFFFFF00")
+  zero.color = NULL)
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
