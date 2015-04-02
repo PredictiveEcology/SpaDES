@@ -737,6 +737,7 @@ setMethod("updateSpadesPlot",
                                          })
             names(whichParamsChanged) <- newNames[overplots]
 
+
             # Set FALSE as default for needPlotting
             needPlotting <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
 
@@ -744,7 +745,9 @@ setMethod("updateSpadesPlot",
             isReplot <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
 
             # Set FALSE as default for isBaseLayer
-            isBaseLayer <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
+            isBaseLayer <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) TRUE))
+
+            isNewPlot <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
 
             # For overplots
             for(plots in newNames[overplots]) {
@@ -752,6 +755,7 @@ setMethod("updateSpadesPlot",
               needPlotting[[plots]] <- TRUE
               isReplot[[plots]] <- TRUE
               isBaseLayer[[plots]] <- FALSE
+              isNewPlot[[plots]] <- FALSE
             }
 
             # put addTo plots into list of spadesGrobs that it will be added to
@@ -766,6 +770,7 @@ setMethod("updateSpadesPlot",
                 needPlotting[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- TRUE
                 isReplot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
                 isBaseLayer[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
+                isNewPlot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
               }
             }
 
@@ -775,10 +780,12 @@ setMethod("updateSpadesPlot",
               needPlotting[[plots]] <- TRUE
               isReplot[[plots]] <- FALSE
               isBaseLayer[[plots]] <- TRUE
+              isNewPlot[[plots]] <- TRUE
             }
 
             return(list(curr=curr, whichParamsChanged=whichParamsChanged,
-                        needPlotting=needPlotting, isReplot=isReplot, isBaseLayer=isBaseLayer))
+                        needPlotting=needPlotting, isReplot=isReplot,
+                        isBaseLayer=isBaseLayer, isNewPlot=isNewPlot))
 
           })
 
@@ -789,6 +796,7 @@ setMethod("updateSpadesPlot",
             return(list(curr=newSP, whichParamsChanged=NULL,
                         needPlotting=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) TRUE)),
                         isReplot=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) FALSE)),
+                        isNewPlot=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) TRUE)),
                         isBaseLayer=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) TRUE))))
           })
 
@@ -1762,7 +1770,7 @@ setGeneric("Plot", signature="...",
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
                     pch = 19, title=TRUE,
-                    na.color="#FFFFFF00", zero.color="#FFFFFF00") {
+                    na.color="#FFFFFF00", zero.color=NULL) {
              standardGeneric("Plot")
            })
 
@@ -1814,6 +1822,7 @@ setMethod("Plot",
       if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
         currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
 
+
         updated <- updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arrangement@columns,
@@ -1822,7 +1831,9 @@ setMethod("Plot",
           updated$needPlotting <-
             lapply(updated$needPlotting, function(x) sapply(x, function(y) TRUE))
           updated$isReplot <-
-            lapply(updated$isReplot, function(x) sapply(x, function(y) FALSE))
+            lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
+          updated$isNewPlot <-
+            lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
           clearPlot()
         }
 
@@ -1870,6 +1881,7 @@ setMethod("Plot",
           needPlot <- updated$needPlotting[[subPlots]][[spadesGrobCounter]]
 
           if (needPlot) {
+            isNewPlot <- updated$isNewPlot[[subPlots]][[spadesGrobCounter]]
             isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
             isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
 
@@ -1986,18 +1998,19 @@ setMethod("Plot",
                      minv=zMat$minz,
                      maxv=zMat$maxz,
                      pch=spadesGrob@plotArgs$pch, name = subPlots,
-                     legend = legend*isBaseSubPlot*!isReplot, legendText=legendTxt,
+                     legend = legend*isBaseSubPlot*isReplot | legend*isBaseSubPlot*isNewPlot, legendText=legendTxt,
                      gp = spadesGrob@plotArgs$gp,
                      gpText = spadesGrob@plotArgs$gpText,
                      speedup=spadesGrob@plotArgs$speedup)
-            if(title*isBaseSubPlot*!isReplot) grid.text(subPlots,
+            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
                                name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
 
-            if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = spadesGrob@plotArgs$gpAxis)
-            if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = spadesGrob@plotArgs$gpAxis)
+            if(xaxis*isBaseSubPlot*isReplot | xaxis*isBaseSubPlot*isNewPlot) grid.xaxis(name="xaxis", gp = spadesGrob@plotArgs$gpAxis)
+            if(yaxis*isBaseSubPlot*isReplot | yaxis*isBaseSubPlot*isNewPlot) grid.yaxis(name="yaxis", gp = spadesGrob@plotArgs$gpAxis)
 
           } #gg vs histogram vs spatialObject
         } # needPlot
+        updated$isNewPlot[[subPlots]][[spadesGrobCounter]] <- FALSE
       } # spadesGrob
     } # subPlots
 
@@ -2058,7 +2071,7 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                        cols=NULL, na.color="#FFFFFF00",
-                                       zero.color="#FFFFFF00", skipSample=TRUE) {
+                                       zero.color=NULL, skipSample=TRUE) {
   standardGeneric("makeColorMatrix")
 })
 
