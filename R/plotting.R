@@ -1289,7 +1289,7 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
   } else {
     wholeVp <- do.call(vpList, plotVps)
   }
-  return(wholeVp)
+  return(list(wholeVp=wholeVp, extents=extents))
 }
 
 
@@ -1821,8 +1821,6 @@ setMethod("Plot",
 
       if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
         currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
-
-
         updated <- updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arrangement@columns,
@@ -1854,7 +1852,6 @@ setMethod("Plot",
                      sapply(visualSqueeze,max), sapply(legend,any),
                      sapply(axes, function(x) !any(x==TRUE)))
       }
-      arr <- updated$curr@arrangement
 
       # Create the viewports as per the optimal layout
       if(length(newSpadesPlots@spadesGrobList)>0) {
@@ -1862,9 +1859,12 @@ setMethod("Plot",
                               newArr=newArr)
          if(!new & !newArr)
            upViewport(1)
-         pushViewport(vps, recording = FALSE)
+         pushViewport(vps$wholeVp, recording = FALSE)
          upViewport(2)
        }
+      updated$curr@arrangement@extents <- vps$extents
+      updated$curr@arrangement@names <- names(updated$curr@spadesGrobList)
+      arr <- updated$curr@arrangement
 
       spadesSubPlots <- updated$curr@spadesGrobList
 
@@ -1894,8 +1894,27 @@ setMethod("Plot",
 
             whPlotFrame <- match(spadesGrob@plotName, names(spadesSubPlots))
 
-            yaxis <- (((whPlotFrame-1)%%arr@columns+1)==1)*(axes=="L") | (axes==TRUE)
-            xaxis <- ((length(spadesSubPlots)-whPlotFrame)<arr@columns)*(axes=="L") | (axes==TRUE)
+            # This checks that the extents are equal. If not, then x and y axes are written where
+            # necessary
+            if (arr@extents[(whPlotFrame-1)%%arr@columns+1][[1]]==
+                  arr@extents[max(which((1:length(arr@names)-1)%%arr@columns+1==
+                                          (whPlotFrame-1)%%arr@columns+1))][[1]]) {
+              if(whPlotFrame>(length(arr@names)-arr@columns)) {
+                xaxis <- TRUE } else { xaxis <- FALSE}
+            } else { #not the same extent as the final one in the column
+              xaxis <- TRUE
+            }
+
+            if(arr@extents[whPlotFrame][[1]]==
+                 arr@extents[(ceiling(whPlotFrame/arr@columns)-1)*arr@columns+1][[1]]) {
+              if((whPlotFrame-1)%%arr@columns==0) {
+                yaxis <- TRUE } else { yaxis <- FALSE}
+            } else {
+              yaxis <- TRUE
+            }
+
+            #yaxis <- (((whPlotFrame-1)%%arr@columns+1)==1)*(axes=="L") | (axes==TRUE)
+            #xaxis <- ((length(spadesSubPlots)-whPlotFrame)<arr@columns)*(axes=="L") | (axes==TRUE)
 
 
 
