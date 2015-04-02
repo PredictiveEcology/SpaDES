@@ -10,9 +10,9 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `devtools::install_github("s-u/fastshp")`; installation of
     development packages on Windows requires Rtools
     (http://cran.r-project.org/bin/windows/Rtools).
-URL: http://github.com/PredictiveEcology/SpaDES
+URL: https://github.com/PredictiveEcology/SpaDES
 Version: 0.6.0.9001
-Date: 2015-03-31
+Date: 2015-04-02
 Authors@R: c(
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
     role="cph"),
@@ -51,7 +51,7 @@ Imports:
     secr,
     sp,
     tkrplot
-License: GPL
+License: GPL-3
 Collate:
     'agent-methods.R'
     'SELES.R'
