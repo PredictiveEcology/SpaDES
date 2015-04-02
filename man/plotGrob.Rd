@@ -10,28 +10,24 @@
 \title{Plot spatial grobs (using grid package)}
 \usage{
 plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
-  minv, maxv, legend = TRUE, legendText = NULL, draw = TRUE,
-  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
+  minv, maxv, legend = TRUE, legendText = NULL, gp = gpar(),
+  gpText = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{matrix}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialPoints}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
 
 \S4method{plotGrob}{SpatialLines}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  draw = TRUE, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
 }
 \arguments{
 \item{grobToPlot}{\code{Raster*}, \code{SpatialPoints*}, \code{SpatialPolygons*}, or
@@ -54,8 +50,6 @@ have this defined internally}
 \item{legendText}{Vector of values to use for legend value labels. Defaults to \code{NULL} which results
 in a pretty numeric representation. If \code{Raster*} has a Raster Attribute Table (rat, see raster
 package), this will be used by default. Currently, only a single vector is accepted.}
-
-\item{draw}{logical. Whether the grob, after being created should be drawn. Default \code{TRUE}.}
 
 \item{gp}{grid parameters, usually the output of a call to \code{\link{gpar}}}
 
@@ -86,5 +80,8 @@ The suggested package \code{fastshp} can be installed with:
 NOTE: you may get errors relating to not having installed the software tools
 required for building R packages on your system. For development purposes on
 a Windows machine, you'll need to install Rtools from http://cran.r-project.org/bin/windows/Rtools/.
+}
+\author{
+Eliot McIntire
 }
 

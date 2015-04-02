@@ -16,4 +16,7 @@ equalExtent(extents)
 \description{
 Assess whether a list of extents are all equal
 }
+\author{
+Eliot McIntire
+}
 

@@ -55,4 +55,13 @@ clicked on and passes this plot name and the clicked coordinates to \code{.click
 
 \code{.clickCoord} is intended for internal use and is called by other functions here.
 }
+\author{
+Eliot McIntire
+
+Eliot McIntire
+
+Eliot McIntire
+
+Eliot McIntire
+}
 

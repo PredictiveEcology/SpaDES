@@ -21,4 +21,7 @@ This function will either create a totally new set of viewports, or simply add
 some nested viewports to an existing arrangement, i.e., is there still white
 space availabe to plot.
 }
+\author{
+Eliot McIntire
+}
 

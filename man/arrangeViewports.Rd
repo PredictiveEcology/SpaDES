@@ -18,4 +18,7 @@ This assesses the device geometry, the map geometry, and the number of spatial
 objects to plot and builds an object that will be used by the Plot functions to plot
 them efficiently
 }
+\author{
+Eliot McIntire
+}
 

@@ -6,7 +6,7 @@
 \alias{makeSpadesPlot,list,list-method}
 \alias{makeSpadesPlot,list,missing-method}
 \alias{makeSpadesPlot,missing,missing-method}
-\title{Make SpaDES Plot object}
+\title{Make a \code{spadesPlot} class object}
 \usage{
 makeSpadesPlot(plotObjects, plotArgs, ...)
 
@@ -24,7 +24,15 @@ grob types, e.g., rasterGrob, polygonGrob, etc.}
 
 \item{...}{additional arguments. Currently nothing.}
 }
+\value{
+A \code{\link{spadesPlot}} object, which has 2 slots, one for the plot arrangement
+(i.e., layout and dimensions) and onefor all of the \code{spadesGrobs}
+(stored as a spadesGrobList of lists \code{spadesGrob} objects).
+}
 \description{
-Builds a SpaDES plot object from a list of objects
+Builds a \code{spadesPlot} object from a list of objects.
+}
+\author{
+Eliot McIntire
 }
 

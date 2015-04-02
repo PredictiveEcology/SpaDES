@@ -17,4 +17,7 @@ makeList(plotArgs, numSpadesPlotObjects)
 Take the inputs as plotArgs to the Plot function, and make them list entries
 of lists
 }
+\author{
+Eliot McIntire
+}
 

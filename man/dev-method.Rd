@@ -25,4 +25,7 @@ For example, \code{dev(6)} switches the active plot device to device #6.
 If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
 they will be opened too.
 }
+\author{
+Eliot McIntire and Alex Chubaty
+}
 

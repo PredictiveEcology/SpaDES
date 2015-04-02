@@ -25,4 +25,7 @@ plots and should be included as part of layout calculation.  Default is \code{TR
 Using the size of the current device, and number and dimension ratios of the plots,
 this function will place them optimally in the plotting region.
 }
+\author{
+Eliot McIntire
+}
 

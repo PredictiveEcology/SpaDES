@@ -25,4 +25,7 @@ objects to plot, not just the call itself, this function identifies where
 the data for the grob should come from, the current call or the global
 environment. This should be called internally only.
 }
+\author{
+Eliot McIntire
+}
 

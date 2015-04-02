@@ -57,6 +57,7 @@ setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histo
 #' @export
 #' @docType methods
 #' @rdname dev-method
+#' @author Eliot McIntire and Alex Chubaty
 #'
 # @examples# needs examples
 dev <- function(x, ...) {
@@ -92,6 +93,7 @@ dev <- function(x, ...) {
 #' @docType methods
 #' @rdname newPlot-method
 #'
+#' @author Eliot McIntire and Alex Chubaty
 #' @param noRStudioGD logical Passed to dev.new. Default is TRUE to avoid using
 #' RStudio graphics device, which is slow.
 #'
@@ -114,6 +116,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' @export
 #' @importFrom raster nlayers
 #' @importFrom methods is
+#' @author Eliot McIntire
 #' @rdname nlayers
 setMethod("nlayers",
           signature="list",
@@ -171,6 +174,7 @@ setMethod("nlayers",
 #'
 #' @name layerNames
 #' @rdname layerNames
+#' @author Eliot McIntire
 #' @export
 setGeneric("layerNames", function(object) {
   standardGeneric("layerNames")
@@ -242,6 +246,7 @@ setMethod("layerNames",
 #' @param extents list of extents objects
 #' @name equalExtent
 #' @rdname equalExtent
+#' @author Eliot McIntire
 #' @export
 setGeneric("equalExtent", function(extents) {
   standardGeneric("equalExtent")
@@ -451,9 +456,9 @@ setClass("spadesPlot",
 setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot"))
 
 ######################################################
-#' Make SpaDES Plot object
+#' Make a \code{spadesPlot} class object
 #'
-#' Builds a SpaDES plot object from a list of objects
+#' Builds a \code{spadesPlot} object from a list of objects.
 #'
 #' @param plotObjects list. Any plot objects, whether a legend should be drawn. Default \code{TRUE}.
 #'
@@ -462,9 +467,14 @@ setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot
 #'
 #' @param ... additional arguments. Currently nothing.
 #'
+#' @return A \code{\link{spadesPlot}} object, which has 2 slots, one for the plot arrangement
+#' (i.e., layout and dimensions) and onefor all of the \code{spadesGrobs}
+#' (stored as a spadesGrobList of lists \code{spadesGrob} objects).
+#'
 #' @name makeSpadesPlot
 #' @rdname makeSpadesPlot
 #' @export
+#' @author Eliot McIntire
 #' @docType methods
 setGeneric("makeSpadesPlot", function(plotObjects, plotArgs, ...) {
   standardGeneric("makeSpadesPlot")
@@ -521,6 +531,7 @@ setMethod("makeSpadesPlot",
 
             plotArgs <- makeList(plotArgs, length(lN))
 
+
             # Make new spadesPlot object. This will be merged to existing later
             newPlots <- new("spadesPlot")
             newPlots@arrangement <- new("arrangement")
@@ -569,6 +580,25 @@ setMethod("makeSpadesPlot",
             return(newPlots)
           })
 
+
+
+setOldClass("gpar")
+#selectMethod("show", "gpar")
+setAs(from="list", to="gpar", function(from) {
+  if(length(from[[1]])>0) {
+    gp1 <- gpar(from[[1]][[1]])
+    if(length(from[[1]])>1){
+      for(i in 2:length(from[[1]])) {
+        gp1 <- gpar(sapply(gp1, function(x) x), from[[1]][[i]])
+      }
+    }
+    names(gp1) <- names(from[[1]])
+    gp1
+  } else {
+    gpar()
+  }
+})
+
 ######################################################
 #' Convert plotArgs to list of lists
 #'
@@ -579,6 +609,7 @@ setMethod("makeSpadesPlot",
 #'
 #' @name makeList
 #' @rdname makeList
+#' @author Eliot McIntire
 #' @docType methods
 setGeneric("makeList", function(plotArgs, numSpadesPlotObjects) {
   standardGeneric("makeList")
@@ -601,15 +632,21 @@ setMethod("makeList",
             p$addTo <- if(is.list(p$addTo)) {if(length(p$addTo)!=n) {rep(p$addTo, length.out=n)} else {p$addTo}
               } else {
                 if(length(p$addTo)==n) {as.list(p$addTo)} else {rep(list(p$addTo), length.out=n)}}
-            p$gp <- if(is.list(p$gp)) {if(length(p$gp)!=n) {rep(p$gp, length.out=n)} else {p$gp}
-            } else {
-              if(length(p$gp)==n) {as.list(p$gp)} else {rep(list(p$gp), length.out=n)}}
-            p$gpText <- if(is.list(p$gpText)) {if(length(p$gpText)!=n) {rep(p$gpText, length.out=n)} else {p$gpText}
-            } else {
-              if(length(p$gpText)==n) {as.list(p$gpText)} else {rep(list(p$gpText), length.out=n)}}
-            p$gpAxis <- if(is.list(p$gpAxis)) {if(length(p$gpAxis)!=n) {rep(p$gpAxis, length.out=n)} else {p$gpAxis}
-            } else {
-              if(length(p$gpAxis)==n) {as.list(p$gpAxis)} else {rep(list(p$gpAxis), length.out=n)}}
+
+
+            p$gp <- if(is(p$gp, "gpar")) {rep(list(p$gp), n)
+            } else {if(is.list(p$gp)) {rep(p$gp, n)}}
+            p$gpText <- if(is(p$gpText, "gpar")) {rep(list(p$gpText), n)
+            } else {if(is.list(p$gpText)) {rep(p$gpText, n)}}
+            p$gpAxis <- if(is(p$gpAxis, "gpar")) {rep(list(p$gpAxis), n)
+            } else {if(is.list(p$gpAxis)) {rep(p$gpAxis, n)}}
+
+#             p$gpText <- if(is.list(p$gpText)) {if(length(p$gpText)!=n) {rep(p$gpText, length.out=n)} else {p$gpText}
+#             } else {
+#               if(length(p$gpText)==n) {as.list(p$gpText)} else {rep(list(p$gpText), length.out=n)}}
+#             p$gpAxis <- if(is.list(p$gpAxis)) {if(length(p$gpAxis)!=n) {rep(p$gpAxis, length.out=n)} else {p$gpAxis}
+#             } else {
+#               if(length(p$gpAxis)==n) {as.list(p$gpAxis)} else {rep(list(p$gpAxis), length.out=n)}}
             p$axes <- if(is.list(p$axes)) {if(length(p$axes)!=n) {rep(p$axes, length.out=n)} else {p$axes}
             } else {
               if(length(p$axes)==n) {as.list(p$axes)} else {rep(list(p$axes), length.out=n)}}
@@ -644,36 +681,26 @@ setMethod("makeList",
             p$legendText <- if(is.list(p$legendText)) {p$legendText} else {rep(list(p$legendText), length.out=n)}
             p$legendRange <- if(is.list(p$legendRange)) {p$legendRange} else {rep(list(p$legendRange), length.out=n)}
 
-#             p$axes <- if(is.list(p$axes)) {p$axes} else {if(length(p$axes)==n) {as.list(p$axes)} else {rep(list(p$axes), length.out=n)}}
-#             p$speedup <- if(is.list(p$speedup)) {p$speedup} else {if(length(p$speedup)==n) {as.list(p$speedup)} else {rep(list(p$speedup), length.out=n)}}
-#             p$size <- if(is.list(p$size)) {p$size} else {if(length(p$size)==n) {as.list(p$size)} else {rep(list(p$size), length.out=n)}}
-#             p$visualSqueeze <- if(is.list(p$visualSqueeze)) {p$visualSqueeze} else {if(length(p$visualSqueeze)==n) {as.list(p$visualSqueeze)} else {rep(list(p$visualSqueeze), length.out=n)}}
-#             p$legend <- if(is.list(p$legend)) {p$legend} else {if(length(p$legend)==n) {as.list(p$legend)} else {rep(list(p$legend), length.out=n)}}
-#             p$pch <- if(is.list(p$pch)) {p$pch} else {if(length(p$pch)==n) {as.list(p$pch)} else {rep(list(p$pch), length.out=n)}}
-#             p$title <- if(is.list(p$title)) {p$title} else {if(length(p$title)==n) {as.list(p$title)} else {rep(list(p$title), length.out=n)}}
-#             p$na.color <- if(is.list(p$na.color)) {p$na.color} else {if(length(p$na.color)==n) {as.list(p$na.color)} else {rep(list(p$na.color), length.out=n)}}
-#             p$zero.color <- if(is.list(p$zero.color)) {p$zero.color} else {if(length(p$zero.color)==n) {as.list(p$zero.color)} else {rep(list(p$zero.color), length.out=n)}}
             return(p)
           })
-
-
 
 ######################################################
 #' Merge two SpaDES Plot objects
 #'
 #' Merges two \code{spadesPlot} objects
 #'
-#' @param newSpadesPlot spadesPlot object.
+#' @param newSP "new" spadesPlot object. i.e., the new merges and overwrites into current
 #'
-#' @param existingSpadesPlot spadesPlot object.
+#' @param curr "current" spadesPlot object. i.e., the one to be merged into.
 #'
 #' @param ... additional arguments. Currently nothing.
 #'
 #' @name updateSpadesPlot
 #' @rdname updateSpadesPlot
 #' @export
+#' @author Eliot McIntire
 #' @docType methods
-setGeneric("updateSpadesPlot", function(newSpadesPlot, existingSpadesPlot, ...) {
+setGeneric("updateSpadesPlot", function(newSP, curr, ...) {
   standardGeneric("updateSpadesPlot")
 })
 
@@ -681,19 +708,19 @@ setGeneric("updateSpadesPlot", function(newSpadesPlot, existingSpadesPlot, ...) 
 #' @rdname updateSpadesPlot
 #' @export
 setMethod("updateSpadesPlot",
-          signature=c(newSpadesPlot="spadesPlot", existingSpadesPlot="spadesPlot"),
-          definition= function(newSpadesPlot, existingSpadesPlot, ...) {
+          signature=c(newSP="spadesPlot", curr="spadesPlot"),
+          definition= function(newSP, curr, ...) {
 
-            newNames <- names(newSpadesPlot@spadesGrobList)
-            existingNames <- names(existingSpadesPlot@spadesGrobList)
+            newNames <- names(newSP@spadesGrobList)
+            currNames <- names(curr@spadesGrobList)
 
-            addToPlots <- sapply(newSpadesPlot@spadesGrobList,
+            addToPlots <- sapply(newSP@spadesGrobList,
                                  function(x) !is.null(x[[1]]@plotArgs$addTo))
-            addToPlotsNames <- unlist(sapply(newSpadesPlot@spadesGrobList,
+            addToPlotsNames <- unlist(sapply(newSP@spadesGrobList,
                                              function(x) x[[1]]@plotArgs$addTo))
-            overplots <- if(is.null(addToPlots)) { match(newNames, existingNames)
+            overplots <- if(is.null(addToPlots)) { match(newNames, currNames)
             } else {
-              na.omit(match(newNames[-match(names(addToPlots), newNames)] , existingNames))
+              na.omit(match(newNames[-match(names(addToPlots), newNames)] , currNames))
             }
 
             needNew <- -c(overplots, which(addToPlots))
@@ -701,64 +728,71 @@ setMethod("updateSpadesPlot",
 
             whichParamsChanged <- lapply(newNames[overplots],
                                          function(x) {
-                                           sapply(names(newSpadesPlot@spadesGrobList[[x]][[1]]@plotArgs),
+                                           sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs),
                                                   function(y) {
-                                                    changed <- !identical(newSpadesPlot@spadesGrobList[[x]][[1]]@plotArgs[[y]],
-                                                      existingSpadesPlot@spadesGrobList[[x]][[1]]@plotArgs[[y]])
+                                                    changed <- !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
+                                                      curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
                                                   }
                                            )
                                          })
             names(whichParamsChanged) <- newNames[overplots]
 
             # Set FALSE as default for needPlotting
-            needPlotting <- lapply(existingSpadesPlot@spadesGrobList, function(x) lapply(x, function(y) FALSE))
+            needPlotting <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
 
             # Set FALSE as default for isReplot
-            isReplot <- lapply(existingSpadesPlot@spadesGrobList, function(x) lapply(x, function(y) FALSE))
+            isReplot <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
+
+            # Set FALSE as default for isBaseLayer
+            isBaseLayer <- lapply(curr@spadesGrobList, function(x) lapply(x, function(y) FALSE))
 
             # For overplots
             for(plots in newNames[overplots]) {
-              existingSpadesPlot@spadesGrobList[[plots]] <- newSpadesPlot@spadesGrobList[[plots]]
+              curr@spadesGrobList[[plots]] <- newSP@spadesGrobList[[plots]]
               needPlotting[[plots]] <- TRUE
               isReplot[[plots]] <- TRUE
+              isBaseLayer[[plots]] <- FALSE
             }
 
             # put addTo plots into list of spadesGrobs that it will be added to
             if(!is.null(addToPlotsNames)) {
               for(plots in 1:length(addToPlotsNames)) {
-                len <- length(existingSpadesPlot@spadesGrobList[[addToPlotsNames[plots]]])
-                existingSpadesPlot@spadesGrobList[[addToPlotsNames[plots]]][names(addToPlotsNames[plots])] <-
-                  newSpadesPlot@spadesGrobList[[names(addToPlotsNames[plots])]]
+                len <- length(curr@spadesGrobList[[addToPlotsNames[plots]]])
+                curr@spadesGrobList[[addToPlotsNames[plots]]][names(addToPlotsNames[plots])] <-
+                  newSP@spadesGrobList[[names(addToPlotsNames[plots])]]
                 # change the name of the plotName to the parent object
-                existingSpadesPlot@spadesGrobList[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]]@plotName <-
-                  existingSpadesPlot@spadesGrobList[[addToPlotsNames[plots]]][[1]]@plotName
+                curr@spadesGrobList[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]]@plotName <-
+                  curr@spadesGrobList[[addToPlotsNames[plots]]][[1]]@plotName
                 needPlotting[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- TRUE
                 isReplot[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
+                isBaseLayer[[addToPlotsNames[plots]]][[names(addToPlotsNames[plots])]] <- FALSE
               }
             }
 
             # for new plots
             for(plots in newNames[needNew]) {
-              existingSpadesPlot@spadesGrobList[[plots]] <- newSpadesPlot@spadesGrobList[[plots]]
+              curr@spadesGrobList[[plots]] <- newSP@spadesGrobList[[plots]]
               needPlotting[[plots]] <- TRUE
               isReplot[[plots]] <- FALSE
+              isBaseLayer[[plots]] <- TRUE
             }
 
-            return(list(existingSpadesPlot=existingSpadesPlot, whichParamsChanged=whichParamsChanged,
-                        needPlotting=needPlotting, isReplot=isReplot))
+            return(list(curr=curr, whichParamsChanged=whichParamsChanged,
+                        needPlotting=needPlotting, isReplot=isReplot, isBaseLayer=isBaseLayer))
 
           })
 
 setMethod("updateSpadesPlot",
-          signature=c(newSpadesPlot="spadesPlot", existingSpadesPlot=NULL),
-          definition= function(newSpadesPlot, ...) {
+          signature=c(newSP="spadesPlot", curr=NULL),
+          definition= function(newSP, ...) {
 
-            return(list(existingSpadesPlot=newSpadesPlot, whichParamsChanged=NULL,
-                        needPlotting=lapply(newSpadesPlot@spadesGrobList, function(x) lapply(x, function(y) TRUE)),
-                        isReplot=lapply(newSpadesPlot@spadesGrobList, function(x) lapply(x, function(y) FALSE))))
+            return(list(curr=newSP, whichParamsChanged=NULL,
+                        needPlotting=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) TRUE)),
+                        isReplot=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) FALSE)),
+                        isBaseLayer=lapply(newSP@spadesGrobList, function(x) lapply(x, function(y) TRUE))))
           })
 
-
+####################################################################
 #' Determine optimal plotting arrangement of Spatial Objects
 #'
 #' This assesses the device geometry, the map geometry, and the number of spatial
@@ -768,6 +802,7 @@ setMethod("updateSpadesPlot",
 #' @param extents A list of extents from spatial objects to plot
 #' @rdname arrangeViewports
 #' @export
+#' @author Eliot McIntire
 #' @docType methods
 setGeneric("arrangeViewports", function(spadesPlot){ #, name=NULL) {
   standardGeneric("arrangeViewports")
@@ -878,6 +913,7 @@ setMethod("arrangeViewports",
 #'
 #' @name plotGrob
 #' @rdname plotGrob
+#' @author Eliot McIntire
 #' @export
 #' @docType methods
 setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
@@ -1108,6 +1144,7 @@ setMethod("plotGrob",
 #' @param title Logical. Whether the names of each plot should be written above
 #' plots and should be included as part of layout calculation.  Default is \code{TRUE}.
 #'
+#' @author Eliot McIntire
 #' @export
 makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 
@@ -1153,6 +1190,7 @@ makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 #' @param newArr logical. Whether this function will create a completely new viewport.
 #' Default \code{FALSE}.
 #'
+#' @author Eliot McIntire
 #' @export
 makeViewports <- function(spadesPlot, newArr = FALSE) {
 
@@ -1272,6 +1310,7 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
 #' @export
 #' @docType methods
 #' @rdname drawArrows-method
+#' @author Eliot McIntire
 #' @examples
 #' # Make 2 objects
 #' caribou1 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
@@ -1360,6 +1399,7 @@ setMethod("drawArrows",
 #' @importFrom methods is
 #' @export
 #' @docType methods
+#' @author Eliot McIntire
 #' @rdname objectNames
 .objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
@@ -1612,6 +1652,11 @@ setMethod("drawArrows",
 #'
 #' @param title Logical. Whether the names of each plot should be written above plots.
 #'
+#' @return Invisibly returns the \code{spadesPlot} class object. If this is assigned to an
+#' object, say \code{obj}, then this can be plotted again with \code{Plot(obj)}. This
+#' object is also stored in the locked \code{.spadesEnv}, so can simply be replotted
+#' with \code{rePlot()} or on a new device with \code{rePlot(4)}, where 4 is the new device number.
+#'
 #' @seealso \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 #' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 #' \code{\link{ggplot2}}, \code{\link{dev}}
@@ -1627,6 +1672,7 @@ setMethod("drawArrows",
 #' @import ggplot2
 #' @import rgdal
 #' @import sp
+#' @author Eliot McIntire
 #' @include environment.R
 #' @examples
 #' \dontrun{
@@ -1766,12 +1812,12 @@ setMethod("Plot",
       }
 
       if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
-        existingSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
+        currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
 
-        updated <- updateSpadesPlot(newSpadesPlots, existingSpadesPlots)
-        newArr <- (length(updated$existingSpadesPlot@spadesGrobList) >
-                     prod(existingSpadesPlots@arrangement@columns,
-                          existingSpadesPlots@arrangement@rows))
+        updated <- updateSpadesPlot(newSpadesPlots, currSpadesPlots)
+        newArr <- (length(updated$curr@spadesGrobList) >
+                     prod(currSpadesPlots@arrangement@columns,
+                          currSpadesPlots@arrangement@rows))
         if(newArr) {
           updated$needPlotting <-
             lapply(updated$needPlotting, function(x) sapply(x, function(y) TRUE))
@@ -1781,7 +1827,7 @@ setMethod("Plot",
         }
 
       } else {
-        existingSpadesPlots <- makeSpadesPlot()
+        currSpadesPlots <- makeSpadesPlot()
         updated <- updateSpadesPlot(newSpadesPlots)
         newArr <- TRUE
       }
@@ -1790,18 +1836,18 @@ setMethod("Plot",
       # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
       #  plotted, and visualSqueeze
       if(newArr) {
-        updated$existingSpadesPlot@arrangement <-
-          arrangeViewports(updated$existingSpadesPlot)
-        updated$existingSpadesPlot@arrangement@layout <-
-          makeLayout(updated$existingSpadesPlot@arrangement,
+        updated$curr@arrangement <-
+          arrangeViewports(updated$curr)
+        updated$curr@arrangement@layout <-
+          makeLayout(updated$curr@arrangement,
                      sapply(visualSqueeze,max), sapply(legend,any),
                      sapply(axes, function(x) !any(x==TRUE)))
       }
-      arr <- updated$existingSpadesPlot@arrangement
+      arr <- updated$curr@arrangement
 
       # Create the viewports as per the optimal layout
       if(length(newSpadesPlots@spadesGrobList)>0) {
-         vps <- makeViewports(updated$existingSpadesPlot,
+         vps <- makeViewports(updated$curr,
                               newArr=newArr)
          if(!new & !newArr)
            upViewport(1)
@@ -1809,22 +1855,25 @@ setMethod("Plot",
          upViewport(2)
        }
 
-      spadesSubPlots <- updated$existingSpadesPlot@spadesGrobList
+      spadesSubPlots <- updated$curr@spadesGrobList
 
       # Section 3 - the actual Plotting
       # Plot each element passed to Plot function, one at a time
 
       for(subPlots in names(spadesSubPlots)) {
-        isBaseSubPlot <- TRUE
+
         spadesGrobCounter <- 0
 
         for(spadesGrob in spadesSubPlots[[subPlots]]) {
+
           spadesGrobCounter <- spadesGrobCounter+1
           needPlot <- updated$needPlotting[[subPlots]][[spadesGrobCounter]]
-          isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
 
           if (needPlot) {
-            sgl <- updated$existingSpadesPlot@spadesGrobList
+            isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
+            isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
+
+            sgl <- updated$curr@spadesGrobList
 
             a <- try(seekViewport(subPlots, recording=F))
             if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
@@ -1838,15 +1887,18 @@ setMethod("Plot",
 
 
 
-            takeFromPlotObj=!(spadesGrob@plotName %in% names(existingSpadesPlots@spadesGrobList))
+            takeFromPlotObj=!(spadesGrob@plotName %in% names(currSpadesPlots@spadesGrobList))
 
             grobToPlot <- .identifyGrobToPlot(spadesGrob, plotObjs, takeFromPlotObj)
 
-
             if(!is(spadesGrob@plotArgs$gpText, "gpar")) {
-              gpTextUnlist <- unlist(spadesGrob@plotArgs$gpText)
-              spadesGrob@plotArgs$gpText <- gpar(gpTextUnlist)
-              names(spadesGrob@plotArgs$gpText) <- names(gpTextUnlist)
+              spadesGrob@plotArgs$gpText <- as(spadesGrob@plotArgs$gpText, "gpar")
+            }
+            if(!is(spadesGrob@plotArgs$gpAxis, "gpar")) {
+              spadesGrob@plotArgs$gpAxis <- as(spadesGrob@plotArgs$gpAxis, "gpar")
+            }
+            if(!is(spadesGrob@plotArgs$gp, "gpar")) {
+              spadesGrob@plotArgs$gp <- as(spadesGrob@plotArgs$gp, "gpar")
             }
 
             if(is.null(spadesGrob@plotArgs$gpText$cex)) {
@@ -1935,25 +1987,23 @@ setMethod("Plot",
                      maxv=zMat$maxz,
                      pch=spadesGrob@plotArgs$pch, name = subPlots,
                      legend = legend*isBaseSubPlot*!isReplot, legendText=legendTxt,
-                     gp = gpar(spadesGrob@plotArgs$gp),
+                     gp = spadesGrob@plotArgs$gp,
                      gpText = spadesGrob@plotArgs$gpText,
                      speedup=spadesGrob@plotArgs$speedup)
             if(title*isBaseSubPlot*!isReplot) grid.text(subPlots,
                                name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
 
-            if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = gpar(spadesGrob@plotArgs$gpAxis))
-            if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = gpar(spadesGrob@plotArgs$gpAxis))
-
-            isBaseSubPlot <- FALSE
+            if(xaxis*isBaseSubPlot*!isReplot) grid.xaxis(name="xaxis", gp = spadesGrob@plotArgs$gpAxis)
+            if(yaxis*isBaseSubPlot*!isReplot) grid.yaxis(name="yaxis", gp = spadesGrob@plotArgs$gpAxis)
 
           } #gg vs histogram vs spatialObject
         } # needPlot
       } # spadesGrob
     } # subPlots
 
-    assignSpaDES(paste0(".spadesPlot", dev.cur()), updated$existingSpadesPlot)
+    assignSpaDES(paste0(".spadesPlot", dev.cur()), updated$curr)
 
-    return(invisible(updated$existingSpadesPlot))
+    return(invisible(updated$curr))
 })
 
 
@@ -1965,11 +2015,12 @@ setMethod("Plot",
 #' is current device
 #'
 #' @export
+#' @author Eliot McIntire
 rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
               if(exists(paste0(".spadesPlot", fromDev),envir=.spadesEnv)) {
-                existingSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
+                currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
                 dev(toDev)
-                Plot(existingSpadesPlots, new=TRUE)
+                Plot(currSpadesPlots, new=TRUE)
               } else {
                 stop(paste("Nothing to rePlot. Need to call Plot first, or change to",
                      "correct active device with dev(x), where x is the active device number"))
@@ -2003,7 +2054,7 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
 #' @param skipSample logical. If no downsampling is necessary, skip. Default \code{TRUE}.
 #'
 #' @rdname makeColorMatrix
-#' @export
+#' @author Eliot McIntire
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                        cols=NULL, na.color="#FFFFFF00",
@@ -2013,7 +2064,6 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 
 
 #' @rdname makeColorMatrix
-#' @export
 setMethod("makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
@@ -2126,6 +2176,7 @@ setMethod("makeColorMatrix",
 #' Converts them to meaningful units. Used within \code{.clickCoord}
 #'
 #' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
+#' @author Eliot McIntire
 #' @export
 unittrim <- function(grid.locator) {
   as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
@@ -2164,6 +2215,7 @@ unittrim <- function(grid.locator) {
 #'
 #' @export
 #' @docType methods
+#' @author Eliot McIntire
 #' @rdname spadesMouseClicks
 #'
 clickValues <- function(n=1) {
@@ -2189,6 +2241,7 @@ clickValues <- function(n=1) {
 #'
 #' @export
 #' @docType methods
+#' @author Eliot McIntire
 #' @rdname spadesMouseClicks
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
@@ -2221,6 +2274,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
 #' @export
 #' @docType methods
+#' @author Eliot McIntire
 #' @rdname spadesMouseClicks
 clickCoordinates <- function(n=1) {
 
@@ -2289,6 +2343,7 @@ clickCoordinates <- function(n=1) {
 #' @param gl An object created by a call to \code{grid.locator}.
 #'
 #' @export
+#' @author Eliot McIntire
 #' @docType methods
 #' @rdname spadesMouseClicks
 .clickCoord <- function(X, n=1, gl=NULL) {
@@ -2325,6 +2380,7 @@ clickCoordinates <- function(n=1) {
 #'
 #' @rdname identifyGrobToPlot
 #'
+#' @author Eliot McIntire
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
   standardGeneric(".identifyGrobToPlot")
 })
@@ -2398,6 +2454,7 @@ setMethod(".identifyGrobToPlot",
 #' @export
 #' @docType methods
 #' @rdname Plot-method
+#' @author Eliot McIntire
 clearPlot <- function(dev=dev.cur()) {
 
   suppressWarnings(try(rm(list=paste0(".spadesPlot", dev), envir=.spadesEnv)))

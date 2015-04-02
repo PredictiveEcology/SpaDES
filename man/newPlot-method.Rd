@@ -20,6 +20,9 @@ Open a new plotting window
 \code{\link{dev.new}} is supposed to be the correct way to open a new
 window in a platform-generic way, however, this doesn't work in RStudio.
 }
+\author{
+Eliot McIntire and Alex Chubaty
+}
 \seealso{
 \code{\link{dev}}.
 }

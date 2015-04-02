@@ -36,4 +36,7 @@ There are methods for \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*
 and \code{SpatialPolygons*},
 though the latter return an empty character vector of length 1.
 }
+\author{
+Eliot McIntire
+}
 

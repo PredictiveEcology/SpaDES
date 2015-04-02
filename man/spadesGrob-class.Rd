@@ -38,7 +38,7 @@ used for RasterStacks}
 \item{\code{isSpatialObject}}{logical. TRUE if the object is one of the SpaDES recognized
 spatialObject classes}
 
-\item{\code{other}}{list. Any other parameters needed for plotting}
+\item{\code{plotArgs}}{list. Any parameters needed for plotting, set by Plot call.}
 }}
 \author{
 Eliot McIntire

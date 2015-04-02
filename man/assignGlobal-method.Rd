@@ -3,19 +3,23 @@
 \docType{methods}
 \name{assignGlobal}
 \alias{assignGlobal}
-\alias{assignGlobal,character-method}
+\alias{assignGlobal,character,ANY-method}
+\alias{assignGlobal,character,missing-method}
 \title{Assign to the global environment}
 \usage{
 assignGlobal(x, value, ...)
 
-\S4method{assignGlobal}{character}(x, value, ...)
+\S4method{assignGlobal}{character,ANY}(x, value, ...)
+
+\S4method{assignGlobal}{character,missing}(x, value, ...)
 }
 \arguments{
 \item{x}{a variable name, given as a character string.
            No coercion is done, and the first element of a character vector
            of length greater than one will be used, with a warning.}
 
-\item{value}{The object to assign.}
+\item{value}{The object to assign. If this is missing, values will be found with
+\code{get(x)} in the same environment as the calling environment.}
 
 \item{...}{Additional arguments to pass to \code{assign}.}
 }

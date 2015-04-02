@@ -38,4 +38,7 @@ Use \code{NULL} if zero should be the value given to it by the colortable associ
 \description{
 Convert Raster to color matrix useable by raster function for plotting
 }
+\author{
+Eliot McIntire
+}
 

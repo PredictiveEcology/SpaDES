@@ -6,19 +6,21 @@
 \alias{updateSpadesPlot,spadesPlot,spadesPlot-method}
 \title{Merge two SpaDES Plot objects}
 \usage{
-updateSpadesPlot(newSpadesPlot, existingSpadesPlot, ...)
+updateSpadesPlot(newSP, curr, ...)
 
-\S4method{updateSpadesPlot}{spadesPlot,spadesPlot}(newSpadesPlot,
-  existingSpadesPlot, ...)
+\S4method{updateSpadesPlot}{spadesPlot,spadesPlot}(newSP, curr, ...)
 }
 \arguments{
-\item{newSpadesPlot}{spadesPlot object.}
+\item{newSP}{"new" spadesPlot object. i.e., the new merges and overwrites into current}
 
-\item{existingSpadesPlot}{spadesPlot object.}
+\item{curr}{"current" spadesPlot object. i.e., the one to be merged into.}
 
 \item{...}{additional arguments. Currently nothing.}
 }
 \description{
 Merges two \code{spadesPlot} objects
+}
+\author{
+Eliot McIntire
 }
 

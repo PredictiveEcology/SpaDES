@@ -12,22 +12,22 @@
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
-  legendRange = NULL, legendText = NULL, draw = TRUE, pch = 19,
-  title = TRUE, na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
+  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
 
 \S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
   gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
-  legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = "#FFFFFF00")
 
 \S4method{Plot}{spadesPlotables}(..., new = FALSE, addTo = NULL,
   gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
   speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
   visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
-  legendText = NULL, draw = TRUE, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = "#FFFFFF00")
+  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+  zero.color = "#FFFFFF00")
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
@@ -78,9 +78,6 @@ Defaults to \code{NULL}, which results in a pretty numeric representation.
 If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
 package), this will be used by default. Currently, only a single vector is accepted.}
 
-\item{draw}{logical, whether to actually draw the plots.
-Currently, there is no reason for this to be \code{FALSE}. Default is \code{TRUE}.}
-
 \item{pch}{see \code{?par}.}
 
 \item{title}{Logical. Whether the names of each plot should be written above plots.}
@@ -96,6 +93,12 @@ the minimum value, otherwise, zero is treated as any other color. Default transp
 is current device}
 
 \item{dev}{numeric. Device number to clear.}
+}
+\value{
+Invisibly returns the \code{spadesPlot} class object. If this is assigned to an
+object, say \code{obj}, then this can be plotted again with \code{Plot(obj)}. This
+object is also stored in the locked \code{.spadesEnv}, so can simply be replotted
+with \code{rePlot()} or on a new device with \code{rePlot(4)}, where 4 is the new device number.
 }
 \description{
 The main plotting function accompanying \code{SpaDES}.
@@ -254,6 +257,13 @@ Plot(SpP)
 Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
 
 }
+}
+\author{
+Eliot McIntire
+
+Eliot McIntire
+
+Eliot McIntire
 }
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
