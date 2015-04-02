@@ -66,8 +66,7 @@ setClass("simList",
                stop("simulation start time should occur before stop time.")
              }
            }
-         }
-)
+})
 
 ### show is already defined in the methods package
 #' show simList

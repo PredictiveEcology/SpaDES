@@ -318,7 +318,7 @@ setClass("arrangement",
            if (any(is.na(object@extents))) {
              stop("must supply a list of extents")
            }
-         })
+})
 
 #' Determine optimal plotting arrangement of Spatial Objects
 #'

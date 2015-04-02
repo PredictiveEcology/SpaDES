@@ -119,8 +119,7 @@ setClass("moduleDeps",
            if (!is.character(object@outputObjects$other)) {
              object@outputObjects$other <- as.character(object@outputObjects$other)
            }
-         }
-)
+})
 
 #' The \code{simDeps} class
 #'
@@ -145,5 +144,4 @@ setClass("simDeps",
            if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) {
              stop("invalid type: non-moduleDeps object")
            }
-         }
-)
+})

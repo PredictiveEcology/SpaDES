@@ -1,6 +1,6 @@
 test_that("relational operators within tolerance", {
-  x=.5-.3
-  y=.3-.1
+  x <- .5-.3
+  y <- .3-.1
   #expect_that(x == y,   testthat::equals(FALSE)) # not always FALSE apparently
   expect_that(x %==% y, testthat::equals(TRUE))
   expect_that(x %!=% y, testthat::equals(FALSE))

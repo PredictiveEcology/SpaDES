@@ -13,7 +13,7 @@ output:
 vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{03 Building modules in SpaDES}
-  %\VignetteDepends{SpaDES}
+  %\VignetteDepends{SpaDES, igraph, ggplot2, RColorBrewer}
   %\VignetteKeyword{module development}
   %\usepackage[utf8]{inputenc}
 ---
@@ -139,7 +139,7 @@ require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=30)
-outputPath <- file.path(checkPath(tempdir()), "simOutputs")
+outputPath <- file.path(tempdir(), "simOutputs")
 parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
                    .checkpoint=list(interval=10, file="chkpnt.RData"),
                    .progress=list(.graphical=NA, .progressInterval=NA),

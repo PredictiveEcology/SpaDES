@@ -13,8 +13,8 @@ There were 2 NOTES:
 1. This is a new CRAN package submission. The `fastshp` package in Suggests is not required, though instructions for installation via GitHub are provided in the description, README, and via a message to the user.
 
         * checking CRAN incoming feasibility ... NOTE
-        Maintainer: ‘Alex M Chubaty <Alexander.Chubaty@NRCan.gc.ca>,
-        Eliot J B McIntire <Eliot.McIntire@NRCan.gc.ca>’
+        Maintainer: ‘Alex M Chubaty <achubaty@NRCan.gc.ca>,
+        Eliot J B McIntire <emcintir@NRCan.gc.ca>’
         New submission
         Suggests or Enhances not in mainstream repositories:
           fastshp

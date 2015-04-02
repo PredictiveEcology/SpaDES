@@ -5,7 +5,6 @@
 ###
 ### description:  Generate RasterStack of random maps representative of a forest landscape
 ###               (DEM, forestAge, habitatQuality, percentPine).
-###               Requires a global simulation parameter `.stackName` be set.
 ###
 ### keywords:     random map; random landscape
 ###

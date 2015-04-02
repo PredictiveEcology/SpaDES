@@ -14,28 +14,40 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 ## Installation
 
-Download the source tarball (.tar.gz) or windows package binary (.zip):
+Download the source tarball (.tar.gz) or windows package binary (.zip), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
-+ Current stable release:
-    - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.zip)
-    - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
-+ Development version (unstable):
-    - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/raw/development/SpaDES_0.5.0.9000.zip)
-    - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/raw/development/SpaDES_0.5.0.9000.tar.gz)
-
-Alternatively, install `SpaDES` directly from GitHub. You will need the `devtools` package, as well as the appropriate development libraries for your operating system (e.g., Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
-
-    install.packages("devtools")
-    library("devtools")
-	
-    install_github("PredictiveEcology/SpaDES") # stable
-    install_github("PredictiveEcology/SpaDES", ref="development") # unstable
-    
 The suggested package `fastshp` can be installed with:
 
     install_github("s-u/fastshp")
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)`.
+
++ **Current stable release:**
+    
+    Install from package file:
+    
+    - Download:
+    
+        - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.zip)
+        - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
+    
+    - Install:
+    
+            install.packages("path/to/file", repos=NULL)
+    
+    Install from GitHub:
+    
+        install.packages("devtools")
+        library("devtools")
+        install_github("PredictiveEcology/SpaDES") # stable
+
++ **Development version (unstable):**
+
+    Install from GitHub:
+    
+        install.packages("devtools")
+        library("devtools")
+	      install_github("PredictiveEcology/SpaDES", ref="development") # unstable
 
 ## Reporting bugs
 
