@@ -83,6 +83,9 @@ setMethod("mergeLists",
 setMethod("mergeLists",
           signature=c("NULL", "list"),
           definition=function(x, y) {
+            if (is.null(names(y))) {
+              stop("All elements in list y must be named.")
+            }
             return(y[order(names(y))])
 })
 
@@ -90,6 +93,9 @@ setMethod("mergeLists",
 setMethod("mergeLists",
           signature=c("list", "NULL"),
           definition=function(x, y) {
+            if (is.null(names(x))) {
+              stop("All elements in list x must be named.")
+            }
             return(x[order(names(x))])
 })
 
