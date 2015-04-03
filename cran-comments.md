@@ -1,11 +1,15 @@
 ## Test environments
+
 * OS X Yosemite     (local), R 3.1.3
-* Ubuntu 12.04  (travis-ci), R 3.1.2
+* Ubuntu 12.04  (travis-ci), R 3.1.3
 * Ubuntu 14.04      (local), R 3.1.3
 * Windows 7         (local), R 3.1.2
 * Windows 7         (local), R 3.1.3
+* Windows     (win-builder), R 3.1.3
+* Windows     (win-builder), R 3.2.0 beta
 
 ## R CMD check results
+
 There were no ERRORs or WARNINGs
 
 There were 2 NOTES:
@@ -31,4 +35,5 @@ There were 2 NOTES:
           assign(uniqueStacki, localStacks[[uniqueStacki]], envir = .GlobalEnv)
 
 ## Downstream dependencies
+
 There are currently no downstream dependencies of this package.
