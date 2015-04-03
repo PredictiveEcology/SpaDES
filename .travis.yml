@@ -6,6 +6,8 @@
 
 language: c
 
+sudo: required
+
 env:
   global:
     - DISPLAY=:99.0
