@@ -1,10 +1,8 @@
-#' @importFrom methods loadMethod
-#' @include numerical-comparisons.R
-#' @include environment.R
-#'
-.onLoad <- function(libname, pkgname) {
-  setTolerance()
-}
+# @importFrom methods loadMethod
+#
+#.onLoad <- function(libname, pkgname) {
+#
+#}
 
 #
 #.onUnload <- function(libname, pkgname) {
