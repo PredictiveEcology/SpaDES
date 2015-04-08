@@ -182,8 +182,8 @@ setMethod("simInit",
             simModules(sim) <- append(core, simModulesLoadOrder(sim))
 
             # load files in the filelist
-            if(!is.null(params$.loadFileList)) {
-              simFileList(sim) <- params$.loadFileList
+            if(!is.null(params$.load$fileList)) {
+              simFileList(sim) <- params$.load$fileList
             }
 
             if (is.null(simFileList(sim))) {
