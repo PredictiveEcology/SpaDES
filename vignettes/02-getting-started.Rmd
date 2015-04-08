@@ -173,7 +173,7 @@ for (i in 1:nrow(paramsdf)) {
   mySim <- with(paramsdf,
                 simInit(times=list(start=0.0, stop=20.0),
                         params=list(
-                          .progress=list(.graphical=NA, .progressInterval=NA),
+                          .progress=list(graphical=NA, interval=NA),
                           .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
                           randomLandscapes=list(nx=mapSize[i], ny=mapSize[i],
                                                 inRAM=TRUE),
