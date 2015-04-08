@@ -39,7 +39,8 @@ Descriptor object for specifying SpaDES module dependecies.
 \item{\code{parameters}}{A \code{data.frame} specifying the object dependecies of the module,
                      with columns \code{paramName}, \code{paramClass}, and \code{default},
                      whose values are of type \code{character}, \code{character}, and
-                     a list of \code{expression}s, respectively.}
+                     \code{ANY}, respectively. Default values may be overridden by the user by
+                     passing a list of parameters to \code{\link{simInit}}.}
 
 \item{\code{inputObjects}}{A \code{data.frame} specifying the object dependecies of the module,
                      with columns \code{objectName}, \code{objectClass}, and \code{other}.
