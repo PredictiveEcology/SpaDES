@@ -134,7 +134,7 @@ setMethod("simInit",
 
             if (is.null(params$.progress)) {
               params$.progress <- list(.graphical=NA, .progressInterval=NA_real_)
-            } else if (is.na(params$.progress)) {
+            } else if (any(is.na(params$.progress))) {
               params$.progress <- list(.graphical=NA, .progressInterval=NA_real_)
             }
 
@@ -317,7 +317,7 @@ setMethod("doEvent",
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
             if(any(is.na(nextEvent))) {
-               simCurrentTime(sim) <- simStopTime(sim) + 2*getTolerance()
+               simCurrentTime(sim) <- simStopTime(sim) + 2*getOption("fpCompare.tolerance")
             } else {
               if (nextEvent$eventTime %<=% simStopTime(sim)) {
                 # update current simulated time
@@ -349,7 +349,7 @@ setMethod("doEvent",
                 simCompleted(sim) <- completed
               } else {
                 # update current simulated time to
-                simCurrentTime(sim) <- simStopTime(sim) + 2*getTolerance()
+                simCurrentTime(sim) <- simStopTime(sim) + 2*getOption("fpCompare.tolerance")
               }
             }
             return(invisible(sim))
