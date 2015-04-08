@@ -131,7 +131,10 @@ setMethod("simInit",
             # keeping defaults for params not specified by user
             omit <- c(which(core=="load"), which(core=="save"))
             pnames <- c(paste0(".", core[-omit]), names(simParams(sim)))
-            if (is.na(params$.progress)) {
+
+            if (is.null(params$.progress)) {
+              params$.progress <- list(.graphical=NA, .progressInterval=NA_real_)
+            } else if (is.na(params$.progress)) {
               params$.progress <- list(.graphical=NA, .progressInterval=NA_real_)
             }
 
