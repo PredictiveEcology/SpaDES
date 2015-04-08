@@ -587,7 +587,7 @@ setOldClass("gpar")
 setAs(from="list", to="gpar", function(from) {
   if(length(from[[1]])>0) {
     gp1 <- gpar(from[[1]][[1]])
-    if(length(from[[1]])>1){
+    if(length(from[[1]])>1) {
       for(i in 2:length(from[[1]])) {
         gp1 <- gpar(sapply(gp1, function(x) x), from[[1]][[i]])
       }
@@ -810,7 +810,7 @@ setMethod("updateSpadesPlot",
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric("arrangeViewports", function(spadesPlot){ #, name=NULL) {
+setGeneric("arrangeViewports", function(spadesPlot) { #, name=NULL) {
   standardGeneric("arrangeViewports")
 })
 
@@ -973,7 +973,7 @@ setMethod("plotGrob",
                                 #                                     rectGrob(x=1.04, y=0.5, height=0.5, width=0.03, gp=gpar(fill=NA))
                                 #                                 },
                                 if(legend) {
-                                  txt <- if(is.null(legendText)){
+                                  txt <- if(is.null(legendText)) {
                                     pr
                                   } else {
                                     legendIndex <- pr-min(pr)+1
@@ -1811,7 +1811,7 @@ setMethod("Plot",
       whichSpadesPlot <- match("spadesPlot", sapply(plotObjs, class))
       newSpadesPlots <- plotObjs[[whichSpadesPlot]]
       plotObjs <- plotObjs[-whichSpadesPlot]
-      if(length(plotObjs)>0){
+      if(length(plotObjs)>0) {
         names(plotObjs) <- .objectNames()
       }
 
@@ -1884,7 +1884,7 @@ setMethod("Plot",
 
             sgl <- updated$curr@spadesGrobList
 
-            a <- try(seekViewport(subPlots, recording=F))
+            a <- try(seekViewport(subPlots, recording=FALSE))
             if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
                                              "Try new=TRUE, clearPlot(), or change device to",
                                              "one that has a plot named", addTo[whGrobNamesi]))
@@ -1952,7 +1952,7 @@ setMethod("Plot",
                                      zero.color=spadesGrob@plotArgs$zero.color,
                                      cols=spadesGrob@plotArgs$cols,
                                      skipSample=pR$skipSample)
-           } else if (is(grobToPlot, "SpatialPoints")){ # it is a SpatialPoints object
+           } else if (is(grobToPlot, "SpatialPoints")) { # it is a SpatialPoints object
 
             if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
               grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
@@ -1966,14 +1966,14 @@ setMethod("Plot",
             }
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
-          } else if (is(grobToPlot, "SpatialPolygons")){ # it is a SpatialPolygons object
+          } else if (is(grobToPlot, "SpatialPolygons")) { # it is a SpatialPolygons object
             if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
               grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
               }
             z <- grobToPlot
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
-          } else if (is(grobToPlot, "SpatialLines")){ # it is a SpatialPolygons object
+          } else if (is(grobToPlot, "SpatialLines")) { # it is a SpatialPolygons object
             if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
               grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
             }
@@ -1983,7 +1983,7 @@ setMethod("Plot",
 
           if (is(grobToPlot, "gg")) {
             print(grobToPlot, vp=subPlots)
-            a <- try(seekViewport(subPlots, recording=F))
+            a <- try(seekViewport(subPlots, recording=FALSE))
             if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
                                                "Try new=TRUE or change device to",
                                                "one that has a plot named", addTo[whGrobNamesi]))
@@ -1996,9 +1996,9 @@ setMethod("Plot",
             par(fig=gridFIG())
             par(new=TRUE)
             plot(grobToPlot)
-            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
-                                name="title", y=1.08, vjust=0.5, gp = gp)
-
+            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
+              grid.text(subPlots, name="title", y=1.08, vjust=0.5, gp = gp)
+            }
           } else {
             # Extract legend text if the raster is a factored raster
              if(is.factor(grobToPlot) & is.null(legendText)) {
@@ -2034,7 +2034,6 @@ setMethod("Plot",
     return(invisible(updated$curr))
 })
 
-
 #' @rdname Plot-method
 #'
 #' @param toDev numeric. Which device should the new rePlot be plotted to. Default is current device.
@@ -2054,9 +2053,6 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
                      "correct active device with dev(x), where x is the active device number"))
               }
 }
-
-
-
 
 #' Convert Raster to color matrix useable by raster function for plotting
 #'
@@ -2094,8 +2090,8 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 #' @rdname makeColorMatrix
 setMethod("makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
-          definition= function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                               cols, na.color, zero.color, skipSample=TRUE) {
+          definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
+                              cols, na.color, zero.color, skipSample=TRUE) {
             zoom <- zoomExtent
 
             # It is 5x faster to access the min and max from the Raster than to calculate it,
@@ -2169,7 +2165,7 @@ setMethod("makeColorMatrix",
             }
 
 
-            if(any(!is.na(legendRange))){
+            if(any(!is.na(legendRange))) {
               if((max(legendRange)-min(legendRange)+1)<length(cols)) {
                 message(paste0("legendRange is not wide enough, using default"))
               } else {
@@ -2183,7 +2179,7 @@ setMethod("makeColorMatrix",
             # here, the default color (transparent) for zero, if it is the minimum
             # value, can be overridden
             if(!is.null(zero.color)) {
-              if(minz==0){
+              if(minz==0) {
                 cols[1] <- zero.color
               }
             }
