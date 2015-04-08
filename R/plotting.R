@@ -1984,10 +1984,10 @@ setMethod("Plot",
           if (is(grobToPlot, "gg")) {
             print(grobToPlot, vp=subPlots)
             a <- try(seekViewport(subPlots, recording=F))
-             if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
+            if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
                                                "Try new=TRUE or change device to",
                                                "one that has a plot named", addTo[whGrobNamesi]))
-            if(title) grid.text(subPlots,
+            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
                                 name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
 
           } else if(is(grobToPlot, "histogram")) {
@@ -1997,7 +1997,7 @@ setMethod("Plot",
             par(fig=gridFIG())
             par(new=TRUE)
             plot(grobToPlot)
-            if(title) grid.text(subPlots,
+            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
                                 name="title", y=1.08, vjust=0.5, gp = gp)
 
           } else {
