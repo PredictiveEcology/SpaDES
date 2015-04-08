@@ -1251,7 +1251,7 @@ makeViewports <- function(spadesPlot, newArr = FALSE) {
     if (abs(((extents[[extentInd]]@ymax- extents[[extentInd]]@ymin) /
                (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)) -
               (biggestDims[1]/biggestDims[2]))
-        > (getTolerance())) {
+        > (getOption("fpCompare.tolerance"))) {
 
       dimensionRatio <- arr@layout$wdthUnits*arr@ds[1] /
         (arr@layout$htUnits*arr@ds[2])
