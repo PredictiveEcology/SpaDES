@@ -1992,7 +1992,6 @@ setMethod("Plot",
 
           } else if(is(grobToPlot, "histogram")) {
             # Because base plotting is not set up to overplot, must plot a white rectangle
-            browser()
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
             par(new=TRUE)
