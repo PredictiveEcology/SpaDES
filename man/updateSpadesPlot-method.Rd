@@ -3,12 +3,15 @@
 \docType{methods}
 \name{updateSpadesPlot}
 \alias{updateSpadesPlot}
+\alias{updateSpadesPlot,spadesPlot,ANY-method}
 \alias{updateSpadesPlot,spadesPlot,spadesPlot-method}
 \title{Merge two SpaDES Plot objects}
 \usage{
 updateSpadesPlot(newSP, curr, ...)
 
 \S4method{updateSpadesPlot}{spadesPlot,spadesPlot}(newSP, curr, ...)
+
+\S4method{updateSpadesPlot}{spadesPlot,ANY}(newSP, curr, ...)
 }
 \arguments{
 \item{newSP}{"new" spadesPlot object. i.e., the new merges and overwrites into current}

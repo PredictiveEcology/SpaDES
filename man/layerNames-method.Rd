@@ -29,12 +29,12 @@ layerNames(object)
 \S4method{layerNames}{histogram}(object)
 }
 \arguments{
-\item{object}{A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}, or \code{SpatialPolygons*} object; or list of these.}
+\item{object}{A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*},
+               or \code{SpatialPolygons*} object; or list of these.}
 }
 \description{
 There are methods for \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}
-and \code{SpatialPolygons*},
-though the latter return an empty character vector of length 1.
+and \code{SpatialPolygons*}, though the latter return an empty character vector of length 1.
 }
 \author{
 Eliot McIntire

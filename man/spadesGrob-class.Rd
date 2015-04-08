@@ -20,7 +20,7 @@ for a RasterStack also, i.e., the list of named elements
 must be the same length as the number of layers being
 plotted. The naming convention used is
 
-\code{RasterStackName.layerName}, i.e,   \code{landscape.DEM}.
+\code{RasterStackName.layerName}, i.e, \code{landscape.DEM}.
 }
 \section{Slots}{
 
