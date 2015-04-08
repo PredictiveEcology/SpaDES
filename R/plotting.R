@@ -1984,15 +1984,15 @@ setMethod("Plot",
           if (is(grobToPlot, "gg")) {
             print(grobToPlot, vp=subPlots)
             a <- try(seekViewport(subPlots, recording=F))
-            if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
-                                              "Try new=TRUE or change device to",
-                                              "one that has a plot named", addTo[whGrobNamesi]))
+             if(is(a, "try-error")) stop(paste("Plot does not already exist on current device.",
+                                               "Try new=TRUE or change device to",
+                                               "one that has a plot named", addTo[whGrobNamesi]))
             if(title) grid.text(subPlots,
-                                name="title", y=1.08, vjust=0.5, gp = gp)
-            a <- try(seekViewport("top", recording=F))
+                                name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
 
           } else if(is(grobToPlot, "histogram")) {
             # Because base plotting is not set up to overplot, must plot a white rectangle
+            browser()
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
             par(new=TRUE)
