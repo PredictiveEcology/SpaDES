@@ -36,11 +36,11 @@ by scheduling checkpoint events.
 }
 \details{
 \code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
-https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
+\url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 
 RNG save code adapted from:
-http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/
-https://stackoverflow.com/questions/13997444/
+\url{http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/}
+and \url{https://stackoverflow.com/questions/13997444/}
 }
 \author{
 Alex Chubaty

@@ -1,4 +1,4 @@
-##############################################################
+################################################################################
 #' Simulation checkpoints.
 #'
 #' Save and reload the current state of the simulation,
@@ -6,11 +6,11 @@
 #' by scheduling checkpoint events.
 #'
 #' \code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
-#' https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
+#' \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 #'
 #' RNG save code adapted from:
-#' http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/
-#' https://stackoverflow.com/questions/13997444/
+#' \url{http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/}
+#' and \url{https://stackoverflow.com/questions/13997444/}
 #'
 #' @param sim           A \code{simList} simulation object.
 #'
@@ -31,10 +31,8 @@
 #' @include environment.R
 #' @export
 #' @docType methods
-#' @rdname checkpoint
+#' @rdname checkpoint-methods
 #'
-# @examples
-# need examples
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### determine whether to use checkpointing
   ### default is not to use checkpointing if unspecified
@@ -86,7 +84,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 #' @param file The checkpoint file.
-#' @rdname checkpoint
+#' @rdname checkpoint-methods
 checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
@@ -101,7 +99,7 @@ checkpointLoad = function(file) {
   }
 }
 
-#' @rdname checkpoint
+#' @rdname checkpoint-methods
 checkpointSave = function(file) {
   if (exists(".Random.seed", envir=.spadesEnv))  {
     assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)

@@ -41,7 +41,7 @@ setClassUnion(name="spatialObjects",
 #'
 setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
 
-##############################################################
+################################################################################
 #' Specify where to plot
 #'
 #' Switch to an existing plot device, or if not already open,
@@ -83,7 +83,7 @@ dev <- function(x, ...) {
   while (dev.set(x)<x) newPlot(...)
 }
 
-##############################################################
+################################################################################
 #' Open a new plotting window
 #'
 #' @param noRStudioGD Logical Passed to dev.new. Default is TRUE to avoid using
@@ -106,7 +106,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 }
 
 
-##############################################################
+################################################################################
 #' Find the number of layers in a Spatial Object
 #'
 #' There are already methods for \code{Raster*} in the raster package.
@@ -164,7 +164,7 @@ setMethod("nlayers",
             return(1L)
 })
 
-##############################################################
+################################################################################
 #' Extract the layer names of Spatial Objects
 #'
 #' There are methods for \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}
@@ -234,7 +234,7 @@ setMethod("layerNames",
 })
 
 
-##############################################################
+################################################################################
 #' Assess whether a list of extents are all equal
 #'
 #' @param extents list of extents objects
@@ -1272,7 +1272,7 @@ makeViewports <- function(spadesPlot, newArr=FALSE) {
 }
 
 
-##############################################################
+################################################################################
 #' Plots arrows showing direction of agent movement
 #'
 #' @param from          Starting spatial coordinates (\code{SpatialPointsDataFrame}).
@@ -1369,7 +1369,7 @@ setMethod("drawArrows",
 })
 
 
-##############################################################
+################################################################################
 #' Extracts the object names
 #'
 #' This is primarily used from Plot.
@@ -2190,7 +2190,7 @@ unittrim <- function(grid.locator) {
 }
 
 
-##############################################################
+################################################################################
 #' Mouse interactions with Plots
 #'
 #' These functions use \code{grid.locator}. The primary two user-level functions are
@@ -2370,8 +2370,8 @@ clickCoordinates <- function(n=1) {
 
 
 
-##############################################################
-#' identify where to get the grob from
+################################################################################
+#' Identify where to get the grob from
 #'
 #' Because the Plot function can use the global environment as a source of
 #' objects to plot, not just the call itself, this function identifies where
@@ -2448,7 +2448,9 @@ setMethod(".identifyGrobToPlot",
               legendRange=legendRange, zoom=zoom))
 
 }
-#### Clear plotting device
+
+################################################################################
+#' Clear plotting device
 #'
 #' Under some conditions, a device and its meta data needs to be cleared manually.
 #' This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
@@ -2456,7 +2458,7 @@ setMethod(".identifyGrobToPlot",
 #' a new \code{Plot} call. Use \code{clearPlot} to clear the
 #' device and all the associated metadata manually.
 #'
-#' @param dev numeric. Device number to clear.
+#' @param dev Numeric. Device number to clear.
 #'
 #' @export
 #' @docType methods

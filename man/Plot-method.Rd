@@ -92,7 +92,7 @@ the minimum value, otherwise, zero is treated as any other color. Default transp
 \item{fromDev}{numeric. Which device should the replot information be taken from. Default
 is current device}
 
-\item{dev}{numeric. Device number to clear.}
+\item{dev}{Numeric. Device number to clear.}
 }
 \value{
 Invisibly returns the \code{spadesPlot} class object. If this is assigned to an
