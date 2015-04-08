@@ -183,7 +183,7 @@ simParams(mySim)$.progress$interval
 
 Schedule object save and file load events by passing parameters to the save and load parameters for each module. Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
-Loading files can be done be passing a simulation parameter called `.loadFileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded. Additional columns can also be provided:
+Loading files can be done be passing a simulation parameter called `.load$fileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded. Additional columns can also be provided:
 
 - `objs`: a character string indicating the name of the object once the file is loaded.
 - `fun`: a character string indicating the function to be used to load the file.
@@ -204,7 +204,7 @@ filelist <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
                    .globals=list(.stackName="landscape", .outputPath=outputPath),
-                   .loadFileList=data.frame(files=filelist, stringsAsFactors=FALSE),
+                   .load=list(fileList=data.frame(files=filelist, stringsAsFactors=FALSE)),
                    randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
                                 .saveObjects=c("habitat"),
                                 .savePath=file.path("output", "randomLandscapes"),

@@ -117,7 +117,7 @@ setMethod("show",
             out[[13]] = capture.output(cat("\n"))
 
             ### params
-            omit = which(names(simParams(object))==".loadFileList" |
+            omit = which(names(simParams(object))==".load" |
                            names(simParams(object))==".progress")
 
             p = mapply(function(x, y) {
@@ -573,7 +573,7 @@ setGeneric("simFileList", function(object) {
 setMethod("simFileList",
           signature="simList",
           definition=function(object) {
-            return(object@params$.loadFileList)
+            return(object@params$.load$fileList)
 })
 
 #' @export
@@ -589,7 +589,7 @@ setGeneric("simFileList<-",
 setReplaceMethod("simFileList",
                  signature="simList",
                  function(object, value) {
-                   object@params$.loadFileList <- value
+                   object@params$.load$fileList <- value
                    validObject(object)
                    return(object)
 })

@@ -19,7 +19,7 @@ stackName = "landscape"
 
 mySim <- simInit(times=list(start=0.0, stop=100.00),
                  params=list(
-                   .loadFileList=fileList,
+                   .load=list(fileList=fileList),
                    .progress=list(graphical=FALSE, interval = 10),
                    .globals=list(.stackName=stackName, burnStats="nPixelsBurned"),
                    randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=stackName,
