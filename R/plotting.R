@@ -1985,7 +1985,7 @@ setMethod("Plot",
              pR <- .prepareRaster(grobToPlot, spadesGrob@plotArgs$zoomExtent, spadesGrob@plotArgs$legendRange,
                                   takeFromPlotObj,
                                   arr,
-                                  spadesGrob@plotArgs$speedup)
+                                  spadesGrob@plotArgs$speedup, newArr=newArr)
 
              zMat <- makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                      pR$legendRange,
