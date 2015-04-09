@@ -24,21 +24,60 @@ vignette: >
 
 ## Module overview
 
-As described in the introductory vignette, `SpaDES` is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A `SpaDES` module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
+`SpaDES` is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events. A `SpaDES` module describes the processes or activities that drive simulation state changes. Each activity consists of a collection of events which are scheduled depending on the rules of your simulation. Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
 
-A `SpaDES` module consists of a single `.R` source file, containing the code for:
+**simulation and module design philosophy:**
+
+### Simulation event list
+
+The event queue is stored in a slot in a `simList` simulation object. Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`). This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list. Completed events are removed from the queue.
+
+### Module events
+
+When a call to the event list is made, the event is processed by the module specified by `moduleName`. The module code then determines the event type and executes the code for that event. For each event type within a module: 1) the instructions for what happens for this event get executed; and 2) there is an optional call to `scheduleEvent`, which schedules a future event. A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the "drop-in/replace" modularity of your simulation model.
+
+### Module event dependencies
+
+Each module schedules its own events (*e.g.*, a "fire" module may schedule "burn" events) and only uses its own data objects (or shared global objects). Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
+
+Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
+
+\newpage
+
+# Module structure
+
+## Module directory structure (`moduleName/`)
+
+A module consists of a collection of files that ...
+
+```
+/moduleRepository
+  |_ moduleName/
+      |_ moduleName.R           # the actual module code file, incl. module metadata
+      |_ moduleName.Rmd         # longform documentation and usage info, etc.
+      |_ citation.bib           # properly formatted bibtex citation for the module
+      |_ LICENSE.txt            # license file describing the allowed usage etc. of the module
+      |_ README.txt             # incl. module metadata in addition to version change info, etc.
+      |_ moduleName_x.y.z.zip   # zip archive of previous module versions
+```
+
+-----
+
+## Module code file (`moduleName.R`)
+
+A `SpaDES` module consists of a single `.R` source file, whose name matches the name of the module. This file consists of three parts containing the code for:
 
 1. the metadata describing the module and its data dependencies;
 2. defining the event types described in the module;
 3. describing what happens during the processing of each event type.
 
-## Metadata
+### Metadata
 
 [need description of metadata]
 
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user). During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object. As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
 
-### Defining module metadata: `defineModule()`
+#### Defining module metadata: `defineModule()`
 
 Every module requires complete metadata, structured as a named list, and passed as an argument to the `defineModule` function.
 
@@ -55,41 +94,90 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`timestep`**        | Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
+**`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module parameters,
+&nbsp;                | with columns `paramName`, `paramClass`, and `default`.
+&nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
 **`inputObjects`**    | A `data.frame` specifying the object dependecies of the module, with columns
 &nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
 &nbsp;                | as both an input and an output, add the object to each of these `data.frame`s.
 **`outputObjects`**   | A `data.frame` specifying the objects output by the module, following the format of
 &nbsp;                | `inputObjects`.
 
-## Events
+#### Defining module parameters: `defineParameter()`
 
-### Simulation event list
+* differentiate btw "input parameters" and "object (data) dependencies"
+* use `defineParameter` within `defineModule` to build a data.frame of input parameters (with `rbind`)
+* default param values are overridden by user when passing param list to `simInit`
+* global vs. "local" parameters for each module.
+* specify default parameters
 
-The event queue is stored in a slot in a `simList` simulation object. Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`). This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list. Completed events are removed from the queue.
+The parameter list in the `simList` object (accessed via `simParams`) may be used to pass named parameter values to modules. The general structure of this parameter list is `parameters$moduleName$moduleParameter`. This nested list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
 
-### Module events
+```{r passing-params}
+# NEED SAMPLE CODE HERE
+```
 
-When a call to the event list is made, the event is processed by the module specified by `moduleName`. The module code then determines the event type and executes the code for that event. For each event type within a module: 1) the instructions for what happens for this event get executed; and 2) there is an optional call to `scheduleEvent`, which schedules a future event. A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the "drop-in/replace" modularity of your simulation model.
+### Event types
 
-### Dependencies
+hdaeouhndoeuna
 
-Each module schedules its own events (*e.g.*, a "fire" module may schedule "burn" events) and only uses its own data objects (or shared global objects). Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules. Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
+to keep things clean/readable, keep the definitions of each event type minimal, using functions for the "guts" of what is happening for each event.
 
-Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity. If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
+### Event functions
 
-## Objects
+auaoiao
 
-### Data types
+nseohtaus-oehu
+
+-----
+
+## Module documentation (`moduleName.Rmd`)
+
+longform documentation and usage info, etc.
+
+-----
+
+## Citation (`citation.bib`)
+
+Provides a `BibTeX` formatted citation with which the module can be referenced. Most citation management software can read and output `.bib` format.
+
+-----
+
+## License file (`LICENSE.txt`)
+
+autnehountehaou
+
+-----
+
+## Readme file (`README.txt`)
+
+incl. module metadata in addition to version change info, etc.
+
+-----
+
+## Versioned zip archives (`moduleName_x.y.z.zip`)
+
+Use [semantic versioning](http://semver.org), such that a version number `x.y.z` corresponds to:
+
+- `x` is the **major** version (incremented when you make incompatible API changes)
+- `y` is the **minor** version (incremeted when you add functionality in a backwards-compatible manner)
+- `z` is the **patch** version (incremented when you make backwards-compatible bug fixes)
+
+\newpage
+
+# Passing data between modules
+
+## Data types
 
 As you build your modules for your simulation, you can use any of `R`'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because, as of `R` version 3.1, they are more efficient, reducing your model's memory footprint and speeding up your code's execution. Other useful datatypes include `Raster*` and `SpatialPoints*` objects (see examples below).
 
-### Global objects
+## Global objects
 
 `R` passes copies of objects to functions (instead of using pass-by-reference), so the typical `R` function never acts directly on the global copy of the variable. Within a function, all operations are generally performed on a local copy of the object, which is then either discarded or returned back to the parent environment upon when the function completes. This object-copying behaviour has given `R` a reputation of being slow in comparison to languages like C and FORTRAN. However, recent improvements to `R` have made it more memory efficient and faster to execute, in part by minimizing the number of object copies made.
 
 One way to reduce object copying is to work directly on objects in the global environment. Use the `assign()` and `get()` functions, with `envir=.GlobalEnv` to work with objects directly in the global environment (`SpaDES` provides shortcuts `assignGlobal()`, `getGlobal()`). Likewise, to check for the existence of an object in the global environment, use `exists()` (or the `existsGlobal()`). NOTE: Use caution when using the superassignment operator (`<<-`).
 
-### Module object dependencies
+## Module object dependencies
 
 As noted above, modules should not depend on one another for event scheduling. However, it is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects. Modules can be designed to rely on outputs (data objects) from other modules. When objects are shared between modules, it is important to state these dependencies explicitly. To check whether global objects upon which a model depends exist, a call to `checkObject` is made during module initilization.
 
@@ -98,61 +186,64 @@ Note that modules need not be inter-dependent on one another: module B may depen
 To view the dependencies for a simulation:
 
 ```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
-require(igraph)
+require(igraph) # required for plotting dependencies
 require(SpaDES)
-outputPath <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=20.01)
-parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
-                                 burnStats="nPixelsBurned"),
-                   .progress=list(NA),
-                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
-                   fireSpread=list(nFires= 10L, .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(.plotInitialTime=1.01, .plotInterval=1)
-                   )
+
+times <- list(start=0.0, stop=20)
+parameters <- list(.globals=list(.stackName="landscape", burnStats="nPixelsBurned"))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 ## examine simulation module dependencies
-plot(depsGraph(mySim, TRUE)) # simplified visual representation
-depsEdgeList(mySim, FALSE)   # all object dependency relationships
+depsEdgeList(mySim, FALSE)          # all object dependency relationships
+plot(depsGraph(mySim, FALSE))       # visual representation of all dependencies
+plot(depsGraph(mySim, TRUE))        # simplified visual representation
 ```
 
-## Parameters
-
-Default parameters defined in each module using `defineParameter`.
-
-The parameter list in the `simList` object may be used to pass parameter values to modules. The nested named list structure allows passing as many parameters as needed for your simulation. We suggest passing a list of all the parameters needed for a single module together.
+The output of the `depsEdgeList` is an edgelist describing the relationships between each module. In the example above, line 2 of the output indicates that the `fireSpread` module relies on an object `landscape` provided by the `caribouMovement` module. This edgelist is used inside the `depsGraph` function to produce a dependency graph (network), where each module corresponds to a vertex (node), and object dependencies are denoted by the arrows. When plotting the dependency graph, it's often useful to use the `plot=TRUE` argument to simplify the network by showing no more than one object dependency between modules.
 
 \newpage
 
-# Core `SpaDES` modules
+# Core modules
 
-There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot.
+There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot, and are summarized in the following table and described further below.
+
+**Module Name**   | **Description** | **Parameterization**
+------------------|-----------------|-------------------------------------------
+**`.checkpoint`** | brief summary   | supplied to `simInit` per regular module:
+&nbsp;            |                 | `.checkpoint$file`
+&nbsp;            |                 | `.checkpoint$interval`
+**`.load`**       | brief summary   | supplied to `simInit` per regular module:
+&nbsp;            |                 | `.load$fileList`
+**`.plot`**       | brief summary   | supplied to `simInit` via another module:
+&nbsp;            |                 | `moduleName$.plotInitialTime`
+&nbsp;            |                 | `moduleName$.plotInterval`
+**`.progress`**   | brief summary   | supplied to `simInit` per regular module:
+&nbsp;            |                 | `.progress$graphical`
+&nbsp;            |                 | `.progress$interval`
+**`.save`**       | brief summary   | supplied to `simInit` via another module:
+&nbsp;            |                 | `moduleName$.saveInitialTime`
+&nbsp;            |                 | `moduleName$.saveInterval`
+&nbsp;            |                 | `moduleName$.saveObjects`
+&nbsp;            |                 | `moduleName$.savePath`
 
 ## `.checkpoint` module
 
 Schedule automatic simulation checkpointing to allow you to resume a previously saved simulation. All objects in the global environment including the state of the random number generator are saved and can be reloaded. Checkpoint frequency and filename can be passed as parameters to the simulation object as illustrated below. By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE, message=FALSE}
-require(raster)
 require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=30)
-outputPath <- file.path(tempdir(), "simOutputs")
-parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath),
-                   .checkpoint=list(interval=10, file="chkpnt.RData"),
-                   .progress=list(graphical=NA, interval=NA),
-                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
-                                         .plotInitialTime=0, .plotInterval=1e3))
+parameters <- list(.globals=list(.stackName="landscape"),
+                   .checkpoint=list(interval=10, file="chkpnt.RData"))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
-
-spades(mySim)
 
 # retrieve the checkpoint params from the simulation object
 simParams(mySim)$.checkpoint
@@ -167,9 +258,8 @@ Schedule updates to the simulation progress bar.
 ```{r progress, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
-                 params=list(.globals=list(.stackName="landscape", .outputPath=outputPath),
-                             .progress=list(graphical=FALSE, interval=10),
-                             randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE)),
+                 params=list(.globals=list(.stackName="landscape"),
+                             .progress=list(graphical=FALSE, interval=10)),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES"))
 
@@ -185,45 +275,64 @@ Schedule object save and file load events by passing parameters to the save and 
 
 Loading files can be done be passing a simulation parameter called `.load$fileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded. Additional columns can also be provided:
 
-- `objs`: a character string indicating the name of the object once the file is loaded.
-- `fun`: a character string indicating the function to be used to load the file.
-- `intervals`: a numeric indicating the interval between repeated loading of the same file. This should be `NA` or the column absent if the file is only loaded once.
-- `loadTime`: a numeric indicating when the file should be loaded. Defaults to `simTime = 0`, but this can be any time. The loading will be scheduled to occur at the "loadTime", whatever that is. If the same file is to loaded many times, but not at a regular interval, then there should be separate line, with a unique loadTime for each.
-- `args`: a list of lists of named arguments, one list for each loading function. For example, if raster is a loading function, `args = list(native = TRUE)`. If there is only one list, then it is assumed to apply to all load attempts and will be repeated for each load function.
+**Column Name** | **Description**
+----------------|---------------------------------------------------------------
+**`objs`**      | Character string indicating the name of the object once the file is loaded.
+**`fun`**       | Character string indicating the function to be used to load the file.
+**`intervals`** | Numeric indicating the interval between repeated loading of the same file.
+&nbsp;          | This should be `NA` or the column absent if the file is only loaded once.
+**`loadTime`**  | Numeric indicating when the file should be loaded. Defaults to `simTime = 0`, but this
+&nbsp;          | can be any time. The loading will be scheduled to occur at the `loadTime`.
+&nbsp;          | If the same file is to be loaded many times, but not at a regular interval, then there
+&nbsp;          | should be separate line, with a unique `loadTime` for each.
+**`args`**      | List of lists of named arguments; one list for each loading function.
+&nbsp;          | For example, if `raster` is a loading function, `args = list(native = TRUE)`.
+&nbsp;          | If there is only one list, then it is assumed to apply to all load attempts and will be
+&nbsp;          | repeated for each load function.
 
 Saving objects to file can be done by passing the appropriate arguments as parameters. The key values to include are:
 
-- `.saveObjects`: a character vector naming the objects to be saved.
-- `.savePath`: A path to which the object will be saved.
-- `.saveInitialTime`: the time at which the first save is scheduled.
-- `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
+**Argument**            | **Description**
+------------------------|-------------------------------------------------------
+**`.saveObjects`**      | Character vector naming the objects to be saved.
+**`.savePath`**         | Character giving the path to which the object will be saved.
+**`.saveInitialTime`**  | Numeric specifying the time at which the first save is scheduled.
+**`.saveInterval`**     | Numeric specifying the interval at which objects will be saved.
+&nbsp;                  | Used to schedule save events.
 
 ```{r load-save, echo=TRUE, eval=FALSE, message=FALSE}
+
+### WARNING this simInit code doesn't work...
+
 # initialize a new simulation, setting the load and save parameters
-filelist <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
-mySim <- simInit(times=list(start=0.0, stop=100),
+filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
+mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
-                   .globals=list(.stackName="landscape", .outputPath=outputPath),
+                   .globals=list(.stackName="landscape"),
                    .load=list(fileList=data.frame(files=filelist, stringsAsFactors=FALSE)),
-                   randomLandscapes=list(nx=1e2, ny=1e2, inRAM=TRUE,
-                                .saveObjects=c("habitat"),
-                                .savePath=file.path("output", "randomLandscapes"),
-                                .saveInitialTime=0, .saveInterval=10)
+                   randomLandscapes=list(.saveInitialTime=0,
+                                         .saveInterval=10,
+                                         .saveObjects=c("landscape"),
+                                         .savePath=file.path(tempdir(), "output", "randomLandscapes"))
                    ),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES")
 )
 
 # retrieve the load and save params from the simulation object
-simObjectsLoaded(mySim) # shows what's been loaded
-simFileList(mySim) # returns empty if objects successfully loaded
+simObjectsLoaded(mySim)   # shows what's been loaded
+simFileList(mySim)        # returns empty if objects successfully loaded
 
-simParams(mySim)$randomLandscapes$.saveObjects
-simParams(mySim)$randomLandscapes$.savePath
 simParams(mySim)$randomLandscapes$.saveInitialTime
 simParams(mySim)$randomLandscapes$.saveInterval
+simParams(mySim)$randomLandscapes$.saveObjects
+simParams(mySim)$randomLandscapes$.savePath
+```
 
-# schedule a recurring save event [WITHIN A MODULE]
+```{r save-events, echo=TRUE, eval=FALSE, message=FALSE}
+### WITHIN A MODULE:
+
+# schedule a recurring save event
 nextSave <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.saveInterval
 sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 ```
@@ -278,9 +387,9 @@ Before using other modules, it is up to the modeler (you!) to ensure the scienti
 
 1. check package dependencies and ensure you have the necesarry packages installed on your system;
 2. check module object dependencies (`simInit` does this);
-3. check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` does a basic version of this).
+3. check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` only does a basic version of this).
 
-# Creating a new module
+# Creating new modules
 
 ## Module design considerations
 
@@ -304,17 +413,17 @@ The newly created file can now be modified in the identified sections and custom
 
 Plotting events can also be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events.
 
-- `.saveObjects`: a character vector naming the objects to be saved.
+- `.saveObjects`: A character vector naming the objects to be saved.
 - `.savePath`: A path to which the object will be saved.
-- `.saveInitialTime`: the time at which the first save is scheduled.
-- `.saveInterval`: the interval at which objects will be saved. Used to schedule save events.
+- `.saveInitialTime`: The time at which the first save is scheduled.
+- `.saveInterval`: The interval at which objects will be saved. Used to schedule save events.
 
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
                  params=list(
-                   randomLandscapes=list(nx=1e2, ny=1e2,
-                                .plotInitialTime=0, .plotInterval=1)
+                   randomLandscapes=list(nx=100L, ny=100L,
+                                         .plotInitialTime=0, .plotInterval=1)
                    ),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES")
