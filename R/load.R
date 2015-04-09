@@ -229,7 +229,7 @@ setMethod("loadFiles",
                 # The actual load call
                 if(is.na(stackName[x])) {
                   assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
-                  assign(objectNames[x], get(objectNames[x], envir=.GlobalEnv), envir=.GlobalEnv)
+                  #assign(objectNames[x], get(objectNames[x], envir=.GlobalEnv), envir=.GlobalEnv)
                 } else {
                   whLayer <- which(names(localStacks[[stackName[x]]])==objectNames[x])
                   if (length(whLayer)>0) {
@@ -242,15 +242,16 @@ setMethod("loadFiles",
                 }
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
-                if (loadFun[x]=="raster") {
-                  message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
-                                "(inMemory=",inMemory(get(objectNames[x])),")"))
-#                   message(paste(objectNames[x], "read to", where[inMemory(get(objectNames[x]))+1],
-#                                 "from", fl[x], "using", loadFun[x]))
-                  } else {
-                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
-                 }
+                if(is.na(stackName[x])) {
+                  if (loadFun[x]=="raster") {
+                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
+                                  "(inMemory=",inMemory(get(objectNames[x])),")"))
+                    } else {
+                      message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
+                   }
+                }
               } # end x
+
 
               if(!is.na(unique(stackName))) {
                 for(uniqueStacki in unique(stackName)) {
