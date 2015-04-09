@@ -1895,7 +1895,7 @@ setMethod("Plot",
       if(length(newSpadesPlots@spadesGrobList)>0) {
          vps <- makeViewports(updated$curr,
                               newArr=newArr)
-         if(!new & !newArr)
+         if(!new & !newArr & !is.null(current.parent()))
            upViewport(1)
          pushViewport(vps$wholeVp, recording = FALSE)
          upViewport(2)
@@ -2163,7 +2163,7 @@ setMethod("makeColorMatrix",
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
-
+            
             if(!skipSample) {
               colorTable <- getColors(grobToPlot)[[1]]
               if(!is(try(minValue(grobToPlot)),"try-error")) {
