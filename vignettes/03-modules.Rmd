@@ -9,7 +9,6 @@ output:
   html_document:
     self_contained: no
     toc: yes
-  word_document: default
 vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{03 Building modules in SpaDES}
@@ -198,7 +197,6 @@ mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 ## examine simulation module dependencies
 depsEdgeList(mySim, FALSE)          # all object dependency relationships
-plot(depsGraph(mySim, FALSE))       # visual representation of all dependencies
 plot(depsGraph(mySim, TRUE))        # simplified visual representation
 ```
 
