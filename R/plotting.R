@@ -510,7 +510,12 @@ setMethod("makeSpadesPlot",
             suppliedNames <- names(plotObjects)
             names(plotObjects) <- .objectNames()
 
-            if(!is.null(suppliedNames)) names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
+            if(!is.null(suppliedNames)) {
+              if(all(sapply(suppliedNames, nchar)>0)) { 
+                names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
+              }
+            }
+            
             if(all(isSpatialObjects)) {
 
               isRaster <- sapply(plotObjects, function(x) is(x, "Raster"))
