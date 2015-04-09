@@ -244,7 +244,7 @@ setMethod("layerNames",
           signature="igraph",
           definition=function(object) {
             return("")
-          })
+})
 
 ################################################################################
 #' Assess whether a list of extents are all equal
@@ -501,11 +501,11 @@ setMethod("makeSpadesPlot",
             names(plotObjects) <- .objectNames()
 
             if(!is.null(suppliedNames)) {
-              if(all(sapply(suppliedNames, nchar)>0)) { 
+              if(all(sapply(suppliedNames, nchar)>0)) {
                 names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
               }
             }
-            
+
             if(all(isSpatialObjects)) {
 
               isRaster <- sapply(plotObjects, function(x) is(x, "Raster"))
@@ -1403,7 +1403,7 @@ setMethod("drawArrows",
 #' @importFrom methods is
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname objectNames
+#' @rdname objectNames-method
 .objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
 
@@ -1771,15 +1771,14 @@ setGeneric("Plot", signature="...",
 
 
 # #' @rdname Plot-method
-# #' @export
 # setMethod("Plot",
 #           signature("spadesPlotObjects"),
 #           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
 #                                 cols, zoomExtent, visualSqueeze,
 #                                 legend, legendRange, legendText, pch, title, na.color,
 #                                 zero.color) {
-# 
-#             
+#
+#
 #             dotObjs <- list(...)
 #             #whichSpadesPlot <- match("spadesPlot", sapply(dotObjs, class))
 #             whichSpadesPlot <- as.logical(sapply(dotObjs, function(x) "spadesPlot" %in% is(x)))
@@ -1788,23 +1787,22 @@ setGeneric("Plot", signature="...",
 #             whichSpadesPlotables <- as.logical(sapply(dotObjsNotSpadesPlot, function(x) "spadesPlotables" %in% is(x)))
 #             plotObjs <- dotObjsNotSpadesPlot[whichSpadesPlotables]
 #             nonPlotArgs <- dotObjsNotSpadesPlot[!whichSpadesPlotables]
-# 
+#
 #             #plotObjs <- list(...)
-# 
+#
 #             # Section 1 # Determine object names that were passed and layer names of each
 #             plotArgs <- mget(names(formals("Plot")),
 #                              sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
-# 
+#
 #             # Create a spadesPlot object from the plotObjs and plotArgs
 #             newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
-# 
-# 
+#
+#
 #             # Send to generic Plot function which can take a spadesPlot
 #             Plot(newSpadesPlots, ..., new=new)
 # })
 
 #' @rdname Plot-method
-#' @export
 setMethod("Plot",
           signature("ANY"),
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
@@ -1815,25 +1813,25 @@ setMethod("Plot",
             # which ones need replotting etc.
 
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
-      
+
       dotObjs <- list(...)
       # Section 1 # Determine object names that were passed and layer names of each
       plotArgs <- mget(names(formals("Plot")),
                        sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
-      
+
       whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) "spadesPlotables" %in% is(x)))
       plotObjs <- dotObjs[whichSpadesPlotables]
       nonPlotArgs <- dotObjs[!whichSpadesPlotables]
-      
+
       # Create a spadesPlot object from the plotObjs and plotArgs
       newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
-      
-      
+
+
       #whichSpadesPlot <- match("spadesPlot", sapply(dotObjs, class))
 #       whichSpadesPlot <- as.logical(sapply(dotObjs, function(x) "spadesPlot" %in% is(x)))
 #       newSpadesPlots <- dotObjs[whichSpadesPlot]
 #       dotObjsNotSpadesPlot <- dotObjs[!whichSpadesPlot]
-      
+
       if(length(plotObjs)>0) {
         names(plotObjs) <- .objectNames()
       }
@@ -2039,7 +2037,7 @@ setMethod("Plot",
               mtextArgs <- append(list(text=subPlots, side=3, line=4, xpd=TRUE), spadesGrob@plotArgs$gpText)
               do.call(mtext, args=mtextArgs)
             }
-            
+
           } else {
             # Extract legend text if the raster is a factored raster
              if(is.factor(grobToPlot) & is.null(legendText)) {
@@ -2075,7 +2073,7 @@ setMethod("Plot",
     return(invisible(updated$curr))
 })
 
-#' @rdname Plot-method
+#' Re-plot
 #'
 #' @param toDev numeric. Which device should the new rePlot be plotted to. Default is current device.
 #'
@@ -2083,6 +2081,7 @@ setMethod("Plot",
 #' is current device
 #'
 #' @export
+#' @rdname Plot-method
 #' @author Eliot McIntire
 rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
               if(exists(paste0(".spadesPlot", fromDev),envir=.spadesEnv)) {
@@ -2118,7 +2117,7 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
 #'
 #' @param skipSample logical. If no downsampling is necessary, skip. Default \code{TRUE}.
 #'
-#' @rdname makeColorMatrix
+#' @rdname makeColorMatrix-method
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
@@ -2128,7 +2127,7 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 })
 
 
-#' @rdname makeColorMatrix
+#' @rdname makeColorMatrix-method
 setMethod("makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
@@ -2138,7 +2137,7 @@ setMethod("makeColorMatrix",
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
-            
+
             if(!skipSample) {
               colorTable <- getColors(grobToPlot)[[1]]
               if(!is(try(minValue(grobToPlot)),"try-error")) {
@@ -2172,7 +2171,7 @@ setMethod("makeColorMatrix",
             maxNumCols = 100
 
             nColors <- ifelse(real,maxNumCols+1, maxz-minz+1)
-            
+
             if(is.null(cols)) { #i.e., contained within raster or nothing
               if(length(getColors(grobToPlot)[[1]])>0) {
                 colTable <- getColors(grobToPlot)[[1]]
@@ -2187,7 +2186,7 @@ setMethod("makeColorMatrix",
               } else if (nColors<length(cols)) {cols[minz:maxz+max(0,1-minz)]
               } else {cols}
             }
-            
+
 
             # colors are indexed from 1, as with all objects in R, but there are generally
             #  zero values on the rasters, so shift according to the minValue value, if
@@ -2216,12 +2215,12 @@ setMethod("makeColorMatrix",
                 if(is.null(colTable)) {
                   cols <- colorRampPalette(cols)(maxz-minz+1)
                 } else {
-                  if(length(getColors(grobToPlot)[[1]])>0) {                  
+                  if(length(getColors(grobToPlot)[[1]])>0) {
                     cols <- colorRampPalette(colTable)(maxz-minz+1)
                   } else {
                     cols <- rev(terrain.colors(maxz-minz+1)) # default color if nothing specified
                   }
-                } 
+                }
               }
             }
 
@@ -2290,7 +2289,7 @@ unittrim <- function(grid.locator) {
 #' @export
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname spadesMouseClicks
+#' @rdname spadesMouseClicks-method
 #'
 clickValues <- function(n=1) {
 
@@ -2316,7 +2315,7 @@ clickValues <- function(n=1) {
 #' @export
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname spadesMouseClicks
+#' @rdname spadesMouseClicks-method
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
   corners <- clickCoordinates(2)
@@ -2349,9 +2348,8 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @export
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname spadesMouseClicks
+#' @rdname spadesMouseClicks-method
 clickCoordinates <- function(n=1) {
-
   dc <- dev.cur()
   arr <- try(getSpaDES(paste0(".spadesPlot", dc)))
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
@@ -2419,7 +2417,7 @@ clickCoordinates <- function(n=1) {
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-#' @rdname spadesMouseClicks
+#' @rdname spadesMouseClicks-method
 .clickCoord <- function(X, n=1, gl=NULL) {
 
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
@@ -2452,7 +2450,7 @@ clickCoordinates <- function(n=1) {
 #' @param takeFromPlotObj logical. If TRUE, then take from the call to Plot, FALSE takes
 #' from global environment
 #'
-#' @rdname identifyGrobToPlot
+#' @rdname identifyGrobToPlot-method
 #'
 #' @author Eliot McIntire
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
@@ -2462,8 +2460,8 @@ setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) 
 setMethod(".identifyGrobToPlot",
           signature=c("spadesGrob", "list", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
-            
-            
+
+
   # get the object name associated with this grob
   if (length(toPlot)==0) takeFromPlotObj <- FALSE
   # Does it already exist on the plot device or not
@@ -2482,15 +2480,26 @@ setMethod(".identifyGrobToPlot",
   }
 })
 
-
-#' @rdname identifyGrobToPlot
+#' @rdname identifyGrobToPlot-method
 setMethod(".identifyGrobToPlot",
           signature=c("spadesGrob", "missing", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
             .identifyGrobToPlot(grobNamesi, list(), FALSE)
 })
 
-
+#' Prepare raster for plotting
+#'
+#' @param gropToPlot
+#' @param zoomExtent
+#' @param legendRange
+#' @param takeFromPlotObj
+#' @param arr
+#' @param speedup
+#' @param newArr
+#'
+#' @rdname prepareRaster-method
+#' @author Eliot McIntire
+#'
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
                            takeFromPlotObj, arr, speedup, newArr) {
 

@@ -3,8 +3,7 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
-\alias{Plot,spadesPlotObjects-method}
-\alias{Plot,spadesPlotables-method}
+\alias{Plot,ANY-method}
 \alias{clearPlot}
 \alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
@@ -15,19 +14,11 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = NULL)
 
-\S4method{Plot}{spadesPlotObjects}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
-  speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
-  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
-  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-  zero.color = NULL)
-
-\S4method{Plot}{spadesPlotables}(..., new = FALSE, addTo = NULL,
-  gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = "L",
-  speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
-  visualSqueeze = 0.75, legend = TRUE, legendRange = NULL,
-  legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-  zero.color = NULL)
+\S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
+  gpText = gpar(), gpAxis = gpar(), axes = "L", speedup = 1, size = 5,
+  cols = NULL, zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
+  na.color = "#FFFFFF00", zero.color = NULL)
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
@@ -110,6 +101,10 @@ cannot be mixed among types (i.e., can't mix and match spatial and
 non-spatial objects, or base histogram and ggplot2 types). Customization of the
 ggplot2 elements can be done as a normal ggplot2 plot, then added with
 \code{Plot(ggplotObject)}
+
+#
+
+Re-plot
 
 Under some conditions, a device and its meta data needs to be cleared manually.
 This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
