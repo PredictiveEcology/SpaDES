@@ -2197,21 +2197,22 @@ setMethod("makeColorMatrix",
             maxNumCols = 100
 
             nColors <- ifelse(real,maxNumCols+1, maxz-minz+1)
-            if(is.null(cols)) {
+            
+            if(is.null(cols)) { #i.e., contained within raster or nothing
               if(length(getColors(grobToPlot)[[1]])>0) {
-                cols <- getColors(grobToPlot)[[1]]
-                cols <- if(nColors>length(cols)) {colorRampPalette(cols)(nColors)
-                } else if (nColors<length(cols)) {cols[minz:maxz]
-                } else { cols }
+                colTable <- getColors(grobToPlot)[[1]]
+                cols <- if(nColors>length(colTable)) {colorRampPalette(colTable)(nColors)
+                } else if (nColors<length(colTable)) {colTable[minz:maxz+max(0,1-minz)]
+                } else { colTable }
               } else {
-                cols <- rev(terrain.colors(nColors))
+                cols <- rev(terrain.colors(nColors)) # default color if nothing specified
               }
             } else {
               cols <- if(nColors>length(cols)) {colorRampPalette(cols)(nColors)
-              } else if (nColors<length(cols)) {cols[minz:maxz]
+              } else if (nColors<length(cols)) {cols[minz:maxz+max(0,1-minz)]
               } else {cols}
             }
-
+            
 
             # colors are indexed from 1, as with all objects in R, but there are generally
             #  zero values on the rasters, so shift according to the minValue value, if
@@ -2237,7 +2238,15 @@ setMethod("makeColorMatrix",
               } else {
                 minz <- min(legendRange)
                 maxz <- max(legendRange)
-                cols <- colorRampPalette(cols)(maxz-minz+1)
+                if(is.null(colTable)) {
+                  cols <- colorRampPalette(cols)(maxz-minz+1)
+                } else {
+                  if(length(getColors(grobToPlot)[[1]])>0) {                  
+                    cols <- colorRampPalette(colTable)(maxz-minz+1)
+                  } else {
+                    cols <- rev(terrain.colors(maxz-minz+1)) # default color if nothing specified
+                  }
+                } 
               }
             }
 
@@ -2478,8 +2487,9 @@ setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) 
 setMethod(".identifyGrobToPlot",
           signature=c("spadesGrob", "list", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
+            
+            
   # get the object name associated with this grob
-
   if (length(toPlot)==0) takeFromPlotObj <- FALSE
   # Does it already exist on the plot device or not
   if(!takeFromPlotObj) { # Is this a replot
@@ -2507,7 +2517,7 @@ setMethod(".identifyGrobToPlot",
 
 
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
-                           takeFromPlotObj, arr, speedup) {
+                           takeFromPlotObj, arr, speedup, newArr) {
 
   if(is.null(zoomExtent)) {
     zoom <- extent(grobToPlot)
@@ -2516,7 +2526,7 @@ setMethod(".identifyGrobToPlot",
     zoom <- zoomExtent
     npixels <- ncell(crop(grobToPlot,zoom))
   }
-  if(is.null(legendRange) | takeFromPlotObj==FALSE) legendRange <- NA
+  if(is.null(legendRange) | ((takeFromPlotObj==FALSE)*!newArr)) legendRange <- NA
 
 
   maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup
