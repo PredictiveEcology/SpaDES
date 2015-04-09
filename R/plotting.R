@@ -9,6 +9,11 @@ selectMethod("show", "gg")
 setOldClass("histogram")
 selectMethod("show", "histogram")
 
+### Allow histogram S3 class to be used with Plot, an S4 function
+#' @import igraph
+setOldClass("igraph")
+selectMethod("show", "igraph")
+
 ################################################
 #' The \code{spatialObjects} class
 #'
@@ -35,7 +40,7 @@ setClassUnion(name="spatialObjects", members=c("SpatialPoints", "SpatialPolygons
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
 #'
-setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram"))
+setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histogram", "igraph"))
 
 ##############################################################
 #' Specify where to plot
@@ -238,6 +243,14 @@ setMethod("layerNames",
           definition=function(object) {
             return("")
 })
+
+#' @export
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="igraph",
+          definition=function(object) {
+            return("")
+          })
 
 
 ##############################################################
