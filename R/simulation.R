@@ -1,6 +1,6 @@
 if(getRversion() >= "3.1.0") utils::globalVariables(".")
 
-##############################################################
+################################################################################
 #' Initialize a new simulation
 #'
 #' Create a new simulation object, preloaded with parameters, modules, times, etc.
@@ -132,10 +132,8 @@ setMethod("simInit",
             omit <- c(which(core=="load"), which(core=="save"))
             pnames <- c(paste0(".", core[-omit]), names(simParams(sim)))
 
-            if (is.null(params$.progress)) {
-              params$.progress <- list(.graphical=NA, .progressInterval=NA_real_)
-            } else if (any(is.na(params$.progress))) {
-              params$.progress <- list(.graphical=NA, .progressInterval=NA_real_)
+            if ( (is.null(params$.progress)) || (any(is.na(params$.progress))) ) {
+              params$.progress <- list(graphical=NA, interval=NA_real_)
             }
 
             tmp <- list()
@@ -184,8 +182,8 @@ setMethod("simInit",
             simModules(sim) <- append(core, simModulesLoadOrder(sim))
 
             # load files in the filelist
-            if(!is.null(params$.loadFileList)) {
-              simFileList(sim) <- params$.loadFileList
+            if(!is.null(params$.load$fileList)) {
+              simFileList(sim) <- params$.load$fileList
             }
 
             if (is.null(simFileList(sim))) {
@@ -228,7 +226,7 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-##############################################################
+################################################################################
 #' Load modules for simulation.
 #'
 #' Checks the dependencies of the current module on other modules.
@@ -274,7 +272,7 @@ setMethod("reloadModuleLater",
             return(!all(depends %in% simModulesLoaded(sim)))
 })
 
-##############################################################
+################################################################################
 #' Process a simulation event
 #'
 #' Internal function called from \code{spades}.
@@ -294,6 +292,7 @@ setMethod("reloadModuleLater",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @import data.table
+#' @importFrom fpCompare '%<=%'
 #' @importFrom magrittr '%>%'
 #' @export
 #' @keywords internal
@@ -362,7 +361,7 @@ setMethod("doEvent",
             return(doEvent(sim, debug=FALSE))
 })
 
-##############################################################
+################################################################################
 #' Schedule a simulation event
 #'
 #' Adds a new event to the simulation's event queue, updating the simulation object.
@@ -436,7 +435,7 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
-##############################################################
+################################################################################
 #' Run a spatial discrete event simulation
 #'
 #' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".

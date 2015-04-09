@@ -8,7 +8,7 @@
 newPlot(noRStudioGD = TRUE, ...)
 }
 \arguments{
-\item{noRStudioGD}{logical Passed to dev.new. Default is TRUE to avoid using
+\item{noRStudioGD}{Logical Passed to dev.new. Default is TRUE to avoid using
 RStudio graphics device, which is slow.}
 
 \item{...}{Additional arguments.}

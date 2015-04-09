@@ -4,7 +4,7 @@
 \name{.identifyGrobToPlot}
 \alias{.identifyGrobToPlot}
 \alias{.identifyGrobToPlot,spadesGrob,missing,logical-method}
-\title{identify where to get the grob from}
+\title{Identify where to get the grob from}
 \usage{
 .identifyGrobToPlot(grobNamesi, toPlot, takeFromPlotObj)
 

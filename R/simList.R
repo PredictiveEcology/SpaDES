@@ -55,8 +55,7 @@ setClass("simList",
                         .loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
                         modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
-                                    .progress=list(.graphical=NULL,
-                                                   .progressInterval=NULL)),
+                                    .progress=list(graphical=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new("simDeps", dependencies=list(NULL)),
                         simtimes=list(current=0.00, start=0.00, stop=1.00)),
@@ -118,7 +117,7 @@ setMethod("show",
             out[[13]] = capture.output(cat("\n"))
 
             ### params
-            omit = which(names(simParams(object))==".loadFileList" |
+            omit = which(names(simParams(object))==".load" |
                            names(simParams(object))==".progress")
 
             p = mapply(function(x, y) {
@@ -574,7 +573,7 @@ setGeneric("simFileList", function(object) {
 setMethod("simFileList",
           signature="simList",
           definition=function(object) {
-            return(object@params$.loadFileList)
+            return(object@params$.load$fileList)
 })
 
 #' @export
@@ -590,7 +589,7 @@ setGeneric("simFileList<-",
 setReplaceMethod("simFileList",
                  signature="simList",
                  function(object, value) {
-                   object@params$.loadFileList <- value
+                   object@params$.load$fileList <- value
                    validObject(object)
                    return(object)
 })

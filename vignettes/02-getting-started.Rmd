@@ -173,7 +173,7 @@ for (i in 1:nrow(paramsdf)) {
   mySim <- with(paramsdf,
                 simInit(times=list(start=0.0, stop=20.0),
                         params=list(
-                          .progress=list(.graphical=NA, .progressInterval=NA),
+                          .progress=list(graphical=NA, interval=NA),
                           .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
                           randomLandscapes=list(nx=mapSize[i], ny=mapSize[i],
                                                 inRAM=TRUE),
@@ -239,7 +239,7 @@ meanPixelsBurned <- structure(list(mapSize = c(100, 316, 1000, 3162, 10000, 100,
 
 ### loading files (overlaps with modules vignette?)
 
-Bringing data into `R` is easy, and can be done using any of the built in data import tools. To facilitate this, we have provided additional functionality to easily load maps or data from files via the load module. To automatically import a list of files, simply provide it as a parameter named \texttt{.loadFileList} when initializing the simulation. See \texttt{?loadFiles} and the modules vignette for more information on the load module.
+Bringing data into `R` is easy, and can be done using any of the built in data import tools. To facilitate this, we have provided additional functionality to easily load maps or data from files via the load module. To automatically import a list of files, simply provide it as a parameter named \texttt{.load$fileList} when initializing the simulation. See \texttt{?loadFiles} and the modules vignette for more information on the load module.
 
 ```{r load-landscape-maps, echo=TRUE, eval=TRUE, cache=TRUE, fig=TRUE}
 ### Example: loading habitat maps
@@ -252,7 +252,8 @@ fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern="tif"),
 
 # this list can be passed to simInit() as an entry in the parameter list
 mySim <- simInit(times=list(start=0.0, stop=10),
-                 params=list(.loadFileList=fileList, .progress=list(NA),
+                 params=list(.load=list(fileList=fileList),
+				             .progress=list(NA),
                              .globals=list(.stackName="landscape",
                                            burnStats="nPixelsBurned")),
                  modules=list("fireSpread"),

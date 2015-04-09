@@ -190,7 +190,7 @@ setMethod("loadFiles",
               # raster function sometimes loads file to disk; this will be made explicit
               where <- c("disk", "memory")
               if(length(simGlobals(sim)$.stackName)==1) {
-                stackName=rep(simGlobals(sim)$.stackName,length(objectNames))
+                stackName=rep(simGlobals(sim)$.stackName, length(objectNames))
               } else if (length(simGlobals(sim)$.stackName)==length(objectNames)){
                 stackName=simGlobals(sim)$.stackName
               } else if (is.null(simGlobals(sim)$.stackName)) {
@@ -340,7 +340,7 @@ setMethod("loadFiles",
 
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.globals=list(.stackName=stackName),
-                                       .loadFileList=fileList),
+                                       .load=list(fileList=fileList)),
                            modules=list(), path=".")
             return(invisible(sim))
 })
