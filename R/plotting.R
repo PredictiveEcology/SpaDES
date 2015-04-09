@@ -1419,7 +1419,6 @@ setMethod("drawArrows",
 #' @return \code{NULL}. This function is invoked for its side effects.
 #'
 #' @importFrom methods is
-#' @export
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname objectNames
@@ -1789,33 +1788,43 @@ setGeneric("Plot", signature="...",
  })
 
 
+# #' @rdname Plot-method
+# #' @export
+# setMethod("Plot",
+#           signature("spadesPlotObjects"),
+#           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
+#                                 cols, zoomExtent, visualSqueeze,
+#                                 legend, legendRange, legendText, pch, title, na.color,
+#                                 zero.color) {
+# 
+#             
+#             dotObjs <- list(...)
+#             #whichSpadesPlot <- match("spadesPlot", sapply(dotObjs, class))
+#             whichSpadesPlot <- as.logical(sapply(dotObjs, function(x) "spadesPlot" %in% is(x)))
+#             newSpadesPlots <- dotObjs[whichSpadesPlot]
+#             dotObjsNotSpadesPlot <- dotObjs[!whichSpadesPlot]
+#             whichSpadesPlotables <- as.logical(sapply(dotObjsNotSpadesPlot, function(x) "spadesPlotables" %in% is(x)))
+#             plotObjs <- dotObjsNotSpadesPlot[whichSpadesPlotables]
+#             nonPlotArgs <- dotObjsNotSpadesPlot[!whichSpadesPlotables]
+# 
+#             #plotObjs <- list(...)
+# 
+#             # Section 1 # Determine object names that were passed and layer names of each
+#             plotArgs <- mget(names(formals("Plot")),
+#                              sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
+# 
+#             # Create a spadesPlot object from the plotObjs and plotArgs
+#             newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
+# 
+# 
+#             # Send to generic Plot function which can take a spadesPlot
+#             Plot(newSpadesPlots, ..., new=new)
+# })
+
 #' @rdname Plot-method
 #' @export
 setMethod("Plot",
-          signature("spadesPlotObjects"),
-          definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
-                                cols, zoomExtent, visualSqueeze,
-                                legend, legendRange, legendText, pch, title, na.color,
-                                zero.color) {
-
-            plotObjs <- list(...)
-
-            # Section 1 # Determine object names that were passed and layer names of each
-            plotArgs <- mget(names(formals("Plot")),
-                             sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
-
-            # Create a spadesPlot object from the plotObjs and plotArgs
-            newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
-
-
-            # Send to generic Plot function which can take a spadesPlot
-            Plot(newSpadesPlots, ..., new=new)
-})
-
-#' @rdname Plot-method
-#' @export
-setMethod("Plot",
-          signature("spadesPlotables"),
+          signature("ANY"),
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, pch, title, na.color,
@@ -1824,11 +1833,25 @@ setMethod("Plot",
             # which ones need replotting etc.
 
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
-
-      plotObjs <- list(...)
-      whichSpadesPlot <- match("spadesPlot", sapply(plotObjs, class))
-      newSpadesPlots <- plotObjs[[whichSpadesPlot]]
-      plotObjs <- plotObjs[-whichSpadesPlot]
+      
+      dotObjs <- list(...)
+      # Section 1 # Determine object names that were passed and layer names of each
+      plotArgs <- mget(names(formals("Plot")),
+                       sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
+      
+      whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) "spadesPlotables" %in% is(x)))
+      plotObjs <- dotObjs[whichSpadesPlotables]
+      nonPlotArgs <- dotObjs[!whichSpadesPlotables]
+      
+      # Create a spadesPlot object from the plotObjs and plotArgs
+      newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
+      
+      
+      #whichSpadesPlot <- match("spadesPlot", sapply(dotObjs, class))
+#       whichSpadesPlot <- as.logical(sapply(dotObjs, function(x) "spadesPlot" %in% is(x)))
+#       newSpadesPlots <- dotObjs[whichSpadesPlot]
+#       dotObjsNotSpadesPlot <- dotObjs[!whichSpadesPlot]
+      
       if(length(plotObjs)>0){
         names(plotObjs) <- .objectNames()
       }
@@ -2013,10 +2036,31 @@ setMethod("Plot",
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
             par(new=TRUE)
-            plot(grobToPlot)
-            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
-                                name="title", y=1.08, vjust=0.5, gp = gp)
+            plotCall <- append(list(x=grobToPlot), nonPlotArgs)
+            #names(plotCall)[1] <- "x"
+            do.call(plot, args=plotCall)
+            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
+              par(new=TRUE)
+              mtextArgs <- append(list(text=subPlots, side=3, line=4, xpd=TRUE), spadesGrob@plotArgs$gpText)
+              do.call(mtext, args=mtextArgs)
+            }
 
+          } else if(is(grobToPlot, "igraph")) {
+            # Because base plotting is not set up to overplot, must plot a white rectangle
+            grid.rect(gp=gpar(fill="white", col="white"))
+            par(fig=gridFIG())
+            par(new=TRUE)
+            plotCall <- append(list(x=grobToPlot), nonPlotArgs)
+            #names(plotCall)[1] <- "x"
+            do.call(plot, args=plotCall)
+            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
+              par(new=TRUE)
+              mtextArgs <- append(list(text=subPlots, side=3, line=4, xpd=TRUE), spadesGrob@plotArgs$gpText)
+              do.call(mtext, args=mtextArgs)
+            }
+              
+            
+            
           } else {
             # Extract legend text if the raster is a factored raster
              if(is.factor(grobToPlot) & is.null(legendText)) {
