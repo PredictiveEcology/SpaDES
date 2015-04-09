@@ -238,8 +238,7 @@ setMethod("layerNames",
             return("")
 })
 
-#' @export
-#' @rdname layerNames
+#' @rdname layerNames-method
 setMethod("layerNames",
           signature="igraph",
           definition=function(object) {
