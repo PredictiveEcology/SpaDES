@@ -2,6 +2,7 @@
 % Please edit documentation in R/simList.R
 \docType{class}
 \name{simList-class}
+\alias{simList}
 \alias{simList-class}
 \title{The \code{simList} class}
 \description{

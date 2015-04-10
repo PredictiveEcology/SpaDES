@@ -38,7 +38,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @include simList.R
 #' @export
 #' @docType methods
-#' @rdname simInit-method
+#' @rdname simInit
 #'
 #' @author Alex Chubaty
 #'
@@ -55,7 +55,7 @@ setGeneric("simInit", function(times, params, modules, path, loadOrder) {
     standardGeneric("simInit")
 })
 
-#' @rdname simInit-method
+#' @rdname simInit
 #'
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
@@ -198,7 +198,7 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @rdname simInit-method
+#' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
                     path="missing", loadOrder="character"),
@@ -208,7 +208,7 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @rdname simInit-method
+#' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
                     path="character", loadOrder="missing"),
@@ -218,7 +218,7 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @rdname simInit-method
+#' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing", loadOrder="missing"),
           definition=function(times, params, modules) {
@@ -226,7 +226,7 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @rdname simInit-method
+#' @rdname simInit
 setMethod("simInit",
           signature(times="missing", params="missing", modules="missing", path="missing", loadOrder="missing"),
           definition=function(times, params, modules) {
@@ -309,7 +309,7 @@ setMethod("reloadModuleLater",
 #' @export
 #' @keywords internal
 #' @docType methods
-#' @rdname doEvent-method
+#' @rdname doEvent
 #'
 #' @author Alex Chubaty
 #'
@@ -319,7 +319,7 @@ setGeneric("doEvent", function(sim, debug) {
     standardGeneric("doEvent")
 })
 
-#' @rdname doEvent-method
+#' @rdname doEvent
 setMethod("doEvent",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
@@ -366,7 +366,7 @@ setMethod("doEvent",
             return(invisible(sim))
 })
 
-#' @rdname doEvent-method
+#' @rdname doEvent
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {
@@ -395,7 +395,7 @@ setMethod("doEvent",
 #'
 #' @export
 #' @docType methods
-#' @rdname scheduleEvent-method
+#' @rdname scheduleEvent
 #'
 #' @author Alex Chubaty
 #'
@@ -407,7 +407,7 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
     standardGeneric("scheduleEvent")
 })
 
-#' @rdname scheduleEvent-method
+#' @rdname scheduleEvent
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
@@ -436,7 +436,7 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
-#' @rdname scheduleEvent-method
+#' @rdname scheduleEvent
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="NULL",
                     moduleName="character", eventType="character"),
@@ -470,7 +470,7 @@ setMethod("scheduleEvent",
 #'
 #' @export
 #' @docType methods
-#' @rdname spades-method
+#' @rdname spades
 #'
 #' @author Alex Chubaty
 #'
@@ -487,7 +487,7 @@ setGeneric("spades", function(sim, debug) {
     standardGeneric("spades")
 })
 
-#' @rdname spades-method
+#' @rdname spades
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
@@ -504,7 +504,7 @@ setMethod("spades",
           return(invisible(sim))
 })
 
-#' @rdname spades-method
+#' @rdname spades
 setMethod("spades",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {

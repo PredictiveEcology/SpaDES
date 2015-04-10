@@ -419,7 +419,7 @@ Plotting events can also be scheduled similarly to save events, by passing modul
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(
+                 params=list(.globals=list(.stackName="landscape"),
                    randomLandscapes=list(nx=100L, ny=100L,
                                          .plotInitialTime=0, .plotInterval=1)
                    ),

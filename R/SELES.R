@@ -41,7 +41,7 @@ agentLocation <- function(map) {
 #'
 #' @import raster
 #' @import sp
-#' @include agent-methods.R
+#' @include agent.R
 #' @export
 #' @docType methods
 #' @rdname probInit

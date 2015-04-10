@@ -33,7 +33,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' @import tkrplot
 #' @export
 #' @docType methods
-#' @rdname gaussmap-method
+#' @rdname gaussmap
 #'
 #@examples
 #EXAMPLES NEEDED
@@ -139,7 +139,7 @@ findFactors <- function(x) {
 #'
 #' @export
 #' @docType methods
-#' @rdname randomPolygons-method
+#' @rdname randomPolygons
 #'
 #' @examples
 #' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)

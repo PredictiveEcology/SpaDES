@@ -10,7 +10,7 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname crw-method
+#' @rdname crw
 #'
 #' @author Eliot McIntire
 #'
@@ -54,7 +54,7 @@ move <- function(hypothesis="crw", ...) {
 #'
 #' @export
 #' @docType methods
-#' @rdname crw-method
+#' @rdname crw
 #'
 #' @author Eliot McIntire
 #'

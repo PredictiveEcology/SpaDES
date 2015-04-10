@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{class}
 \name{spadesPlot-class}
+\alias{spadesPlot}
 \alias{spadesPlot-class}
 \title{The \code{spadesPlot} class}
 \description{

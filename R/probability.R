@@ -18,7 +18,7 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname dwrapnorm2-method
+#' @rdname dwrapnorm2
 #'
 #' @author Eliot McIntire
 #'

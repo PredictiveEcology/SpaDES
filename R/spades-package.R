@@ -5,27 +5,39 @@
 
 
 
-#' Develop and run spatially explicit discrete event simulation models
+#' Overview of the functions in the SpaDES package
 #'
 #' @description
 #'
-#' Easily implement a variety of simulation models, with a focus on spatially
-#' explicit agent based models. The core simulation components are built upon
+#' This package allows implementation a variety of simulation-type models, with a focus on spatially
+#' explicit models. The core simulation components are built upon
 #' a discrete event simulation framework that facilitates modularity, and easily
 #' enables the user to include additional functionality by running user-built
-#' simulation modules. Included are numerous tools to visualize raster and other
-#' maps.
+#' simulation modules. Included are numerous tools to visualize various spatial data formats, as well
+#' as non-spatial data.
 #'
 #' Bug reports: https://github.com/PredictiveEcology/SpaDES/issues
 #'
 #' @name spades-package
 #' @aliases SpaDES spades-package
 #' @docType package
-#' @author Alex M. Chubaty \email{Alexander.Chubaty@@NRCan.gc.ca}
-#' @author Eliot J. B. McIntire \email{Eliot.McIntire@@NRCan.gc.ca}
+#' @author Alex M. Chubaty \email{achubaty@@nrcan.gc.ca}
+#' @author Eliot J. B. McIntire \email{Eliot.McIntire@@nrcan.gc.ca}
 #' @keywords package
+#'
+#' @section Plotting:
+#' There are several user-accessible plotting functions that are optimized for modularity
+#' and speed of plotting:
+#'
+#' \tabular{ll}{
+#'   \code{\link{Plot}} \tab The main function. Uses \code{\link[raster:Raster-class]{Raster*}},
+#'     \code{\link[sp:SpatialPoints-class]{SpatialPoints*}}, \code{\link[sp:SpatialPolygons-class]{SpatialPolygons*}},
+#'     \code{gg}, \code{\link[graphics]{hist}}, \code{igraph} objects\cr
+#'   \code{\link{clickValues}} \tab Is for extracting values from a raster object at the mouse click location(s)\cr
+#'   \code{\link{clickExtent}} \tab Used to zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
 NULL
-
 
 ################################################################################
 # data documentation

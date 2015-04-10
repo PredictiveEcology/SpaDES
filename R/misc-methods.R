@@ -12,7 +12,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @rdname getFileName-method
+#' @rdname getFileName
 #'
 #' @author Alex Chubaty
 #'
@@ -20,7 +20,7 @@ setGeneric("getFileName", function(fullname) {
   standardGeneric("getFileName")
 })
 
-#' @rdname getFileName-method
+#' @rdname getFileName
 setMethod("getFileName",
           signature="logical",
           definition=function(fullname) {
@@ -53,7 +53,7 @@ setMethod("getFileName",
 #'
 #' @export
 #' @docType methods
-#' @rdname mergeLists-method
+#' @rdname mergeLists
 #'
 #' @author Alex Chubaty
 #'
@@ -66,7 +66,7 @@ setGeneric("mergeLists", function(x, y) {
   standardGeneric("mergeLists")
 })
 
-#' @rdname mergeLists-method
+#' @rdname mergeLists
 setMethod("mergeLists",
           signature=c("list", "list"),
           definition=function(x, y) {
@@ -79,7 +79,7 @@ setMethod("mergeLists",
             }
 })
 
-#' @rdname mergeLists-method
+#' @rdname mergeLists
 setMethod("mergeLists",
           signature=c("NULL", "list"),
           definition=function(x, y) {
@@ -89,7 +89,7 @@ setMethod("mergeLists",
             return(y[order(names(y))])
 })
 
-#' @rdname mergeLists-method
+#' @rdname mergeLists
 setMethod("mergeLists",
           signature=c("list", "NULL"),
           definition=function(x, y) {
@@ -99,7 +99,7 @@ setMethod("mergeLists",
             return(x[order(names(x))])
 })
 
-#' @rdname mergeLists-method
+#' @rdname mergeLists
 setMethod("mergeLists",
           signature=c("NULL", "NULL"),
           definition=function(x, y) {
@@ -126,7 +126,7 @@ setMethod("mergeLists",
 #'
 #' @export
 #' @docType methods
-#' @rdname loadPackages-method
+#' @rdname loadPackages
 #'
 #' @author Alex Chubaty
 #'
@@ -139,7 +139,7 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
   standardGeneric("loadPackages")
 })
 
-#' @rdname loadPackages-method
+#' @rdname loadPackages
 setMethod("loadPackages",
            signature="list",
             definition=function(packageList, install, quiet) {
@@ -175,7 +175,7 @@ setMethod("loadPackages",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @rdname checkPath-method
+#' @rdname checkPath
 #'
 # @examples
 # need examples
@@ -183,7 +183,7 @@ setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
 
-#' @rdname checkPath-method
+#' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="logical"),
           definition=function(path, create) {
@@ -213,14 +213,14 @@ setMethod("checkPath",
           }
 })
 
-#' @rdname checkPath-method
+#' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="missing"),
           definition=function(path) {
             return(checkPath(path, create=FALSE))
 })
 
-#' @rdname checkPath-method
+#' @rdname checkPath
 setMethod("checkPath",
           signature(path="NULL", create="ANY"),
           definition=function(path) {
@@ -250,7 +250,7 @@ setMethod("checkPath",
 #' @importFrom methods is
 #' @export
 #' @docType methods
-#' @rdname checkObject-method
+#' @rdname checkObject
 #'
 #' @author Alex Chubaty
 #' @author Eliot McIntire
@@ -260,7 +260,7 @@ setGeneric("checkObject", function(name, object, layer, ...) {
 })
 
 
-#' @rdname checkObject-method
+#' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="Raster", layer="character"),
           definition = function(name, object, layer, ...) {
@@ -273,7 +273,7 @@ setMethod("checkObject",
               }
 })
 
-#' @rdname checkObject-method
+#' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="ANY", layer="missing"),
           definition = function(name, object, layer, ...) {
@@ -286,7 +286,7 @@ setMethod("checkObject",
 })
 
 
-#' @rdname checkObject-method
+#' @rdname checkObject
 setMethod("checkObject",
           signature(name="character", object="missing", layer="missing"),
           definition = function(name, ...) {
@@ -298,7 +298,7 @@ setMethod("checkObject",
             }
 })
 
-#' @rdname checkObject-method
+#' @rdname checkObject
 setMethod("checkObject",
           signature(name="character", object="missing", layer="character"),
           definition = function(name, layer, ...) {
@@ -338,7 +338,7 @@ setMethod("checkObject",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @rdname checkParams-method
+#' @rdname checkParams
 #'
 #' @author Alex Chubaty
 #'
@@ -350,7 +350,7 @@ setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
 })
 
 
-#' @rdname checkParams-method
+#' @rdname checkParams
 setMethod("checkParams",
           signature(sim="simList", coreModules="list", coreParams="list", path="character"),
           definition=function(sim, coreModules, coreParams, path, ...) {
@@ -464,3 +464,41 @@ setMethod("checkParams",
             }
             return(invisible(allFound))
 })
+
+
+###############################################################
+#' Convert numeric to character with padding
+#'
+#'
+#' @param x numeric. Number to be converted to character with padding
+#'
+#' @param padL numeric. Desired number of digits on left side of decimal. If not enough,
+#' \code{pad} will be used to pad.
+#'
+#' @param padR numeric. Desired number of digits on right side of decimal. If not enough,
+#' \code{pad} will be used to pad.
+#'
+#' @param pad character to use as padding. Must have be nchar(pad) = 1. Passed to \code{\link[stringr]{str_pad}}
+#'
+#' @return Character string representing the filename.
+#'
+#' @importFrom magrittr '%>%'
+#' @importFrom stringr str_pad
+#' @export
+#' @docType methods
+#' @rdname paddedFloatToChar
+#'
+#' @author Eliot McIntire & Alex Chubaty
+paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
+  xIC <- x %/% 1 %>%
+    format(., trim=TRUE, digits=5,scientific=FALSE) %>%
+    str_pad(., pad=pad, width=padL, side="left")
+  xf <- x %% 1
+  xFC <- if(xf %==% 0) { "" } else {
+    strsplit(format(xf, digits=padR, scientific=FALSE), split="\\.")[[1]][2] %>%
+      str_pad(., width=padR, side="right", pad=pad) %>%
+      paste0(".", .)
+  }
+
+  return(paste0(xIC, xFC))
+}

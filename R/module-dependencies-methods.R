@@ -24,7 +24,7 @@ selectMethod("show", "igraph")
 #' @export
 #' @import data.table
 #' @docType methods
-#' @rdname depsEdgeList-method
+#' @rdname depsEdgeList
 #'
 #' @author Alex Chubaty
 #'
@@ -32,7 +32,7 @@ setGeneric("depsEdgeList", function(sim, plot) {
   standardGeneric("depsEdgeList")
 })
 
-#' @rdname depsEdgeList-method
+#' @rdname depsEdgeList
 #'
 setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
@@ -76,7 +76,7 @@ setMethod("depsEdgeList",
             return(dt)
 })
 
-#' @rdname depsEdgeList-method
+#' @rdname depsEdgeList
 #'
 setMethod("depsEdgeList",
           signature(sim="simList", plot="missing"),
@@ -97,7 +97,7 @@ setMethod("depsEdgeList",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @rdname depsGraph-method
+#' @rdname depsGraph
 #'
 #' @author Alex Chubaty
 #'
@@ -105,7 +105,7 @@ setGeneric("depsGraph", function(sim, plot) {
   standardGeneric("depsGraph")
 })
 
-#' @rdname depsGraph-method
+#' @rdname depsGraph
 #'
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
@@ -140,7 +140,7 @@ setMethod("depsGraph",
 #' @importFrom dplyr bind_rows
 #' @export
 #' @docType methods
-#' @rdname depsPruneEdges-method
+#' @rdname depsPruneEdges
 #'
 #' @author Alex Chubaty
 #'
@@ -148,7 +148,7 @@ setGeneric("depsPruneEdges", function(simEdgeList) {
   standardGeneric("depsPruneEdges")
 })
 
-#' @rdname depsPruneEdges-method
+#' @rdname depsPruneEdges
 #'
 setMethod("depsPruneEdges",
           signature(simEdgeList="data.table"),
@@ -222,7 +222,7 @@ setMethod("depsPruneEdges",
 #' @import igraph
 #' @export
 #' @docType methods
-#' @rdname depsLoadOrder-method
+#' @rdname depsLoadOrder
 #'
 #' @author Alex Chubaty
 #'
@@ -230,7 +230,7 @@ setGeneric("depsLoadOrder", function(sim, simGraph) {
   standardGeneric("depsLoadOrder")
 })
 
-#' @rdname depsLoadOrder-method
+#' @rdname depsLoadOrder
 #'
 setMethod("depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),

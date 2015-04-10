@@ -2,6 +2,7 @@
 % Please edit documentation in R/module-dependencies-class.R
 \docType{class}
 \name{simDeps-class}
+\alias{simDeps}
 \alias{simDeps-class}
 \title{The \code{simDeps} class}
 \description{

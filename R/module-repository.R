@@ -17,13 +17,13 @@ options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
 #' @importFrom httr stop_for_status
 #' @importFrom magrittr '%>%'
 #' @export
-#' @rdname getModuleVersion-method
+#' @rdname getModuleVersion
 #'
 setGeneric("getModuleVersion", function(name, repo) {
   standardGeneric("getModuleVersion")
 })
 
-#' @rdname getModuleVersion-method
+#' @rdname getModuleVersion
 setMethod("getModuleVersion",
           signature=c(name="character", repo="character"),
           definition = function(name, repo) {
@@ -48,7 +48,7 @@ setMethod("getModuleVersion",
             return(current)
 })
 
-#' @rdname getModuleVersion-method
+#' @rdname getModuleVersion
 setMethod("getModuleVersion",
           signature=c(name="character", repo="missing"),
           definition = function(name) {
@@ -78,13 +78,13 @@ setMethod("getModuleVersion",
 #' @author Alex Chubaty
 #'
 #' @export
-#' @rdname downloadModule-method
+#' @rdname downloadModule
 #'
 setGeneric("downloadModule", function(name, path, version, repo) {
   standardGeneric("downloadModule")
 })
 
-#' @rdname downloadModule-method
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="character", repo="character"),
           definition = function(name, path, version, repo) {

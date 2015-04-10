@@ -5,7 +5,7 @@
 \alias{simDepends}
 \alias{simDepends,simList-method}
 \alias{simDepends<-}
-\alias{simDepends<-,simList-method}
+\alias{simDepends<-,simList}
 \title{Get and set simulation dependencies}
 \usage{
 simDepends(object)
