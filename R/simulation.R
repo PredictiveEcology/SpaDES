@@ -226,6 +226,18 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
+#' @rdname simInit-method
+setMethod("simInit",
+          signature(times="missing", params="missing", modules="missing", path="missing", loadOrder="missing"),
+          definition=function(times, params, modules) {
+            sim <- simInit(times=list(start=0, stop=1),
+                           params=list(),
+                           modules=list(),
+                           path="./",
+                           loadOrder=character())
+            return(invisible(sim))
+})
+
 ################################################################################
 #' Load modules for simulation.
 #'

@@ -7,6 +7,7 @@
 \alias{simInit,list,list,list,character,missing-method}
 \alias{simInit,list,list,list,missing,character-method}
 \alias{simInit,list,list,list,missing,missing-method}
+\alias{simInit,missing,missing,missing,missing,missing-method}
 \title{Initialize a new simulation}
 \usage{
 simInit(times, params, modules, path, loadOrder)
@@ -21,6 +22,9 @@ simInit(times, params, modules, path, loadOrder)
   path)
 
 \S4method{simInit}{list,list,list,missing,missing}(times, params, modules)
+
+\S4method{simInit}{missing,missing,missing,missing,missing}(times, params,
+  modules)
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and stop times
