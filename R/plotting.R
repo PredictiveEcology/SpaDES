@@ -1773,39 +1773,6 @@ setGeneric("Plot", signature="...",
              standardGeneric("Plot")
  })
 
-
-# #' @rdname Plot
-# setMethod("Plot",
-#           signature("spadesPlotObjects"),
-#           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
-#                                 cols, zoomExtent, visualSqueeze,
-#                                 legend, legendRange, legendText, pch, title, na.color,
-#                                 zero.color) {
-#
-#
-#             dotObjs <- list(...)
-#             #whichSpadesPlot <- match("spadesPlot", sapply(dotObjs, class))
-#             whichSpadesPlot <- as.logical(sapply(dotObjs, function(x) "spadesPlot" %in% is(x)))
-#             newSpadesPlots <- dotObjs[whichSpadesPlot]
-#             dotObjsNotSpadesPlot <- dotObjs[!whichSpadesPlot]
-#             whichSpadesPlotables <- as.logical(sapply(dotObjsNotSpadesPlot, function(x) "spadesPlotables" %in% is(x)))
-#             plotObjs <- dotObjsNotSpadesPlot[whichSpadesPlotables]
-#             nonPlotArgs <- dotObjsNotSpadesPlot[!whichSpadesPlotables]
-#
-#             #plotObjs <- list(...)
-#
-#             # Section 1 # Determine object names that were passed and layer names of each
-#             plotArgs <- mget(names(formals("Plot")),
-#                              sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
-#
-#             # Create a spadesPlot object from the plotObjs and plotArgs
-#             newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
-#
-#
-#             # Send to generic Plot function which can take a spadesPlot
-#             Plot(newSpadesPlots, ..., new=new)
-# })
-
 #' @rdname Plot
 setMethod("Plot",
           signature("ANY"),
