@@ -23,7 +23,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables("row_number")
 #'
 #' @seealso \code{\link{raster}}
 #'
-#' @rdname rasterizeReduce-method
+#' @rdname rasterizeReduce
 #' @docType methods
 #' @export
 #' @import data.table

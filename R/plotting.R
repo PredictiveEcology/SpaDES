@@ -22,8 +22,9 @@ selectMethod("show", "igraph")
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
 #'
-#' @name spatialObjects-class
 #' @rdname spatialObjects-class
+#' @name spatialObjects-class
+#' @aliases spatialObjects
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects",
@@ -37,10 +38,11 @@ setClassUnion(name="spatialObjects",
 #' This class contains the plotting arrangement information.
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
-#' @name spadesPlotObjects-class
 #' @import ggplot2
 #' @import graphics
 #' @rdname spadesPlotObjects-class
+#' @name spadesPlotObjects-class
+#' @aliases spadesPlotObjects
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
 #'
@@ -65,7 +67,7 @@ setClassUnion(name="spadesPlotObjects", members=c("spatialObjects", "gg", "histo
 #'
 #' @export
 #' @docType methods
-#' @rdname dev-method
+#' @rdname dev
 #' @author Eliot McIntire and Alex Chubaty
 #'
 # @examples# needs examples
@@ -104,7 +106,7 @@ dev <- function(x, ...) {
 #'
 #' @export
 #' @docType methods
-#' @rdname newPlot-method
+#' @rdname newPlot
 #'
 newPlot <- function(noRStudioGD=TRUE, ...) {
   dev.new(noRStudioGD=TRUE, ...)
@@ -124,7 +126,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' @importFrom raster nlayers
 #' @importFrom methods is
 #' @author Eliot McIntire
-#' @rdname nlayers-method
+#' @rdname nlayers
 #'
 setMethod("nlayers",
           signature="list",
@@ -140,7 +142,7 @@ setMethod("nlayers",
             return(y)
 })
 
-#' @rdname nlayers-method
+#' @rdname nlayers
 setMethod("nlayers",
           signature="SpatialPolygons",
           definition=function(x) {
@@ -148,21 +150,21 @@ setMethod("nlayers",
 })
 
 #' @export
-#' @rdname nlayers-method
+#' @rdname nlayers
 setMethod("nlayers",
           signature="SpatialLines",
           definition=function(x) {
             return(1L)
 })
 
-#' @rdname nlayers-method
+#' @rdname nlayers
 setMethod("nlayers",
           signature="SpatialPoints",
           definition=function(x) {
             return(1L)
 })
 
-#' @rdname nlayers-method
+#' @rdname nlayers
 setMethod("nlayers",
           signature="gg",
           definition=function(x) {
@@ -179,7 +181,7 @@ setMethod("nlayers",
 #'                or \code{SpatialPolygons*} object; or list of these.
 #'
 #' @name layerNames
-#' @rdname layerNames-method
+#' @rdname layerNames
 #' @author Eliot McIntire
 #' @export
 #'
@@ -187,7 +189,7 @@ setGeneric("layerNames", function(object) {
   standardGeneric("layerNames")
 })
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="list",
           definition=function(object) {
@@ -195,21 +197,21 @@ setMethod("layerNames",
 })
 
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="SpatialPoints",
           definition=function(object) {
             return("")
 })
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="SpatialPolygons",
           definition=function(object) {
             return("")
 })
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="SpatialLines",
           definition=function(object) {
@@ -217,28 +219,28 @@ setMethod("layerNames",
 })
 
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="Raster",
           definition=function(object) {
             names(object)
 })
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="gg",
           definition=function(object) {
             return("")
 })
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="histogram",
           definition=function(object) {
             return("")
 })
 
-#' @rdname layerNames-method
+#' @rdname layerNames
 setMethod("layerNames",
           signature="igraph",
           definition=function(object) {
@@ -250,14 +252,14 @@ setMethod("layerNames",
 #'
 #' @param extents list of extents objects
 #' @name equalExtent
-#' @rdname equalExtent-method
+#' @rdname equalExtent
 #' @author Eliot McIntire
 #' @export
 setGeneric("equalExtent", function(extents) {
   standardGeneric("equalExtent")
 })
 
-#' @rdname equalExtent-method
+#' @rdname equalExtent
 setMethod("equalExtent",
           signature="list",
           definition=function(extents) {
@@ -304,6 +306,7 @@ setMethod("equalExtent",
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
 #'
 #' @rdname spadesGrob-class
+#' @aliases spadesGrob
 #' @exportClass spadesGrob
 #'
 #' @author Eliot McIntire
@@ -380,6 +383,7 @@ setClass("spadesGrob",
 #' Default is 5. See details.
 #'
 #' @rdname arrangement-class
+#' @aliases arrangement
 #' @exportClass arrangement
 #'
 #' @author Eliot McIntire
@@ -428,6 +432,7 @@ setClass("arrangement",
 #' @slot spadesGrobList list. A list of lists of spadesGrob objects
 #'
 #' @rdname spadesPlot-class
+#' @aliases spadesPlot
 #' @exportClass spadesPlot
 #'
 #' @author Eliot McIntire
@@ -449,10 +454,11 @@ setClass("spadesPlot",
 #' This class contains the plotting arrangement information.
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
-#' @name spadesPlotObjects-class
 #' @import ggplot2
 #' @import graphics
 #' @rdname spadesPlotObjects-class
+#' @name spadesPlotObjects-class
+#' @aliases spadesPlotObjects
 #' @author Eliot McIntire
 #' @exportClass spadesPlotObjects
 #'
@@ -475,7 +481,7 @@ setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot
 #' (stored as a spadesGrobList of lists \code{spadesGrob} objects).
 #'
 #' @name makeSpadesPlot
-#' @rdname makeSpadesPlot-method
+#' @rdname makeSpadesPlot
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -484,7 +490,7 @@ setGeneric("makeSpadesPlot", function(plotObjects, plotArgs, ...) {
 })
 
 
-#' @rdname makeSpadesPlot-method
+#' @rdname makeSpadesPlot
 setMethod("makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="list"),
           definition= function(plotObjects, plotArgs, ...) {
@@ -562,7 +568,7 @@ setMethod("makeSpadesPlot",
             return(newPlots)
 })
 
-#' @rdname makeSpadesPlot-method
+#' @rdname makeSpadesPlot
 setMethod("makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="missing"),
           definition= function(plotObjects, ...) {
@@ -572,7 +578,7 @@ setMethod("makeSpadesPlot",
             return(newPlots)
 })
 
-#' @rdname makeSpadesPlot-method
+#' @rdname makeSpadesPlot
 setMethod("makeSpadesPlot",
           signature=c(plotObjects="missing", plotArgs="missing"),
           definition= function(...) {
@@ -612,14 +618,14 @@ setAs(from="list", to="gpar", function(from) {
 #' @param plotArgs
 #'
 #' @name makeList
-#' @rdname makeList-method
+#' @rdname makeList
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric("makeList", function(plotArgs, numSpadesPlotObjects) {
   standardGeneric("makeList")
 })
 
-#' @rdname makeList-method
+#' @rdname makeList
 setMethod("makeList",
           signature=c("list"),
           definition= function(plotArgs, numSpadesPlotObjects) {
@@ -698,7 +704,7 @@ setMethod("makeList",
 #' @param ... additional arguments. Currently nothing.
 #'
 #' @name updateSpadesPlot
-#' @rdname updateSpadesPlot-method
+#' @rdname updateSpadesPlot
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -707,7 +713,7 @@ setGeneric("updateSpadesPlot", function(newSP, curr, ...) {
 })
 
 
-#' @rdname updateSpadesPlot-method
+#' @rdname updateSpadesPlot
 setMethod("updateSpadesPlot",
           signature=c(newSP="spadesPlot", curr="spadesPlot"),
           definition= function(newSP, curr, ...) {
@@ -788,7 +794,7 @@ setMethod("updateSpadesPlot",
 
 })
 
-#' @rdname updateSpadesPlot-method
+#' @rdname updateSpadesPlot
 setMethod("updateSpadesPlot",
           signature=c(newSP="spadesPlot", curr=NULL),
           definition= function(newSP, ...) {
@@ -809,7 +815,7 @@ setMethod("updateSpadesPlot",
 #'
 #' @param extents A list of extents from spatial objects to plot
 #'
-#' @rdname arrangeViewports-method
+#' @rdname arrangeViewports
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -817,7 +823,7 @@ setGeneric("arrangeViewports", function(spadesPlot) { #, name=NULL) {
   standardGeneric("arrangeViewports")
 })
 
-#' @rdname arrangeViewports-method
+#' @rdname arrangeViewports
 setMethod("arrangeViewports",
           signature=c("spadesPlot"),
           definition= function(spadesPlot) {
@@ -921,7 +927,7 @@ setMethod("arrangeViewports",
 #' @param ... additional arguments. Currently nothing.
 #'
 #' @name plotGrob
-#' @rdname plotGrob-method
+#' @rdname plotGrob
 #' @author Eliot McIntire
 #' @export
 #' @docType methods
@@ -935,7 +941,7 @@ setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
 })
 
 
-#' @rdname plotGrob-method
+#' @rdname plotGrob
 setMethod("plotGrob",
           signature=c("matrix"),
           definition= function(grobToPlot, col, real, size, minv, maxv,
@@ -999,7 +1005,7 @@ setMethod("plotGrob",
             return(invisible(rastGrob))
 })
 
-#' @rdname plotGrob-method
+#' @rdname plotGrob
 setMethod("plotGrob",
           signature=c("SpatialPoints"),
           definition= function(grobToPlot, col, size,
@@ -1014,7 +1020,7 @@ setMethod("plotGrob",
             return(invisible(pntGrob))
 })
 
-#' @rdname plotGrob-method
+#' @rdname plotGrob
 setMethod("plotGrob",
           signature=c("SpatialPolygons"),
           definition= function(grobToPlot, col, size,
@@ -1073,7 +1079,7 @@ setMethod("plotGrob",
 })
 
 
-#' @rdname plotGrob-method
+#' @rdname plotGrob
 setMethod("plotGrob",
           signature=c("SpatialLines"),
           definition= function(grobToPlot, col, size,
@@ -1312,7 +1318,7 @@ makeViewports <- function(spadesPlot, newArr=FALSE) {
 #' @import grid
 #' @export
 #' @docType methods
-#' @rdname drawArrows-method
+#' @rdname drawArrows
 #' @author Eliot McIntire
 #' @examples
 #' # Make 2 objects
@@ -1345,7 +1351,7 @@ setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
 
 #' @param length    The length of the arrows to draw (defaults to 0.1).
 #'
-#' @rdname drawArrows-method
+#' @rdname drawArrows
 #'
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "character"),
@@ -1358,7 +1364,7 @@ setMethod("drawArrows",
             upViewport(0)
 })
 
-#' @rdname drawArrows-method
+#' @rdname drawArrows
 #'
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "missing"),
@@ -1402,7 +1408,7 @@ setMethod("drawArrows",
 #' @importFrom methods is
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname objectNames-method
+#' @rdname objectNames
 .objectNames <- function(calledFrom="Plot", argClass="spadesPlotObjects",
                          argName="") {
 
@@ -1663,8 +1669,7 @@ setMethod("drawArrows",
 #' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 #' \code{\link{ggplot2}}, \code{\link{dev}}
 #'
-#' @rdname Plot-method
-#' @docType methods
+#' @rdname Plot
 #' @export
 #' @import grid
 #' @importFrom methods is
@@ -1769,7 +1774,7 @@ setGeneric("Plot", signature="...",
  })
 
 
-# #' @rdname Plot-method
+# #' @rdname Plot
 # setMethod("Plot",
 #           signature("spadesPlotObjects"),
 #           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
@@ -1801,7 +1806,7 @@ setGeneric("Plot", signature="...",
 #             Plot(newSpadesPlots, ..., new=new)
 # })
 
-#' @rdname Plot-method
+#' @rdname Plot
 setMethod("Plot",
           signature("ANY"),
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
@@ -2072,15 +2077,13 @@ setMethod("Plot",
     return(invisible(updated$curr))
 })
 
-#' Re-plot
-#'
 #' @param toDev numeric. Which device should the new rePlot be plotted to. Default is current device.
 #'
 #' @param fromDev numeric. Which device should the replot information be taken from. Default
 #' is current device
 #'
 #' @export
-#' @rdname Plot-method
+#' @rdname Plot
 #' @author Eliot McIntire
 rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
               if(exists(paste0(".spadesPlot", fromDev),envir=.spadesEnv)) {
@@ -2116,7 +2119,7 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
 #'
 #' @param skipSample logical. If no downsampling is necessary, skip. Default \code{TRUE}.
 #'
-#' @rdname makeColorMatrix-method
+#' @rdname makeColorMatrix
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
@@ -2126,7 +2129,7 @@ setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legend
 })
 
 
-#' @rdname makeColorMatrix-method
+#' @rdname makeColorMatrix
 setMethod("makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
@@ -2288,7 +2291,7 @@ unittrim <- function(grid.locator) {
 #' @export
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname spadesMouseClicks-method
+#' @rdname spadesMouseClicks
 #'
 clickValues <- function(n=1) {
 
@@ -2314,7 +2317,7 @@ clickValues <- function(n=1) {
 #' @export
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname spadesMouseClicks-method
+#' @rdname spadesMouseClicks
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
   corners <- clickCoordinates(2)
@@ -2347,7 +2350,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @export
 #' @docType methods
 #' @author Eliot McIntire
-#' @rdname spadesMouseClicks-method
+#' @rdname spadesMouseClicks
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
   arr <- try(getSpaDES(paste0(".spadesPlot", dc)))
@@ -2416,7 +2419,7 @@ clickCoordinates <- function(n=1) {
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-#' @rdname spadesMouseClicks-method
+#' @rdname spadesMouseClicks
 .clickCoord <- function(X, n=1, gl=NULL) {
 
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
@@ -2449,7 +2452,7 @@ clickCoordinates <- function(n=1) {
 #' @param takeFromPlotObj logical. If TRUE, then take from the call to Plot, FALSE takes
 #' from global environment
 #'
-#' @rdname identifyGrobToPlot-method
+#' @rdname identifyGrobToPlot
 #'
 #' @author Eliot McIntire
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
@@ -2479,7 +2482,7 @@ setMethod(".identifyGrobToPlot",
   }
 })
 
-#' @rdname identifyGrobToPlot-method
+#' @rdname identifyGrobToPlot
 setMethod(".identifyGrobToPlot",
           signature=c("spadesGrob", "missing", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
@@ -2496,7 +2499,7 @@ setMethod(".identifyGrobToPlot",
 #' @param speedup
 #' @param newArr
 #'
-#' @rdname prepareRaster-method
+#' @rdname prepareRaster
 #' @author Eliot McIntire
 #'
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
@@ -2538,7 +2541,7 @@ setMethod(".identifyGrobToPlot",
 #'
 #' @export
 #' @docType methods
-#' @rdname Plot-method
+#' @rdname Plot
 #' @author Eliot McIntire
 clearPlot <- function(dev=dev.cur()) {
 

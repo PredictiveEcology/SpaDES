@@ -292,7 +292,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @import data.table sp raster
 #' @export
-#' @rdname cir-method
+#' @rdname cir
 #'
 # @examples
 #  NEED EXAMPLES

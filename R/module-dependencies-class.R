@@ -58,6 +58,7 @@ removeClass("person4")
 #'                      following the format of \code{inputObjects}.
 #'
 #' @rdname moduleDeps-class
+#' @aliases moduleDeps
 #' @importFrom raster extent
 #' @exportClass moduleDeps
 #'
@@ -129,6 +130,7 @@ setClass("moduleDeps",
 #' @slot dependencies   List of \code{moduleDeps} dependency objects.
 #'
 #' @rdname simDeps-class
+#' @aliases simDeps
 #' @importFrom methods is
 #' @exportClass simDeps
 #'

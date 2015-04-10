@@ -31,7 +31,7 @@
 #' @include environment.R
 #' @export
 #' @docType methods
-#' @rdname checkpoint-methods
+#' @rdname checkpoint
 #'
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### determine whether to use checkpointing
@@ -84,7 +84,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 #' @param file The checkpoint file.
-#' @rdname checkpoint-methods
+#' @rdname checkpoint
 checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
@@ -99,7 +99,7 @@ checkpointLoad = function(file) {
   }
 }
 
-#' @rdname checkpoint-methods
+#' @rdname checkpoint
 checkpointSave = function(file) {
   if (exists(".Random.seed", envir=.spadesEnv))  {
     assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)

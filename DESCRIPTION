@@ -54,7 +54,7 @@ Imports:
     tkrplot
 License: GPL-3
 Collate:
-    'agent-methods.R'
+    'agent.R'
     'SELES.R'
     'environment.R'
     'checkpoint.R'

@@ -2,6 +2,7 @@
 % Please edit documentation in R/module-dependencies-class.R
 \docType{class}
 \name{moduleDeps-class}
+\alias{moduleDeps}
 \alias{moduleDeps-class}
 \title{The \code{moduleDeps} class}
 \description{

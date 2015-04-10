@@ -7,7 +7,7 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname getColors-method
+#' @rdname getColors
 #' @aliases getColours
 #' @aliases getColors
 #'
@@ -19,7 +19,7 @@ setGeneric("getColors", function(object) {
   standardGeneric("getColors")
 })
 
-#' @rdname getColors-method
+#' @rdname getColors
 setMethod("getColors",
           signature="Raster",
           definition=function(object) {
@@ -48,7 +48,7 @@ setMethod("getColors",
 #'
 #' @export
 #' @docType methods
-#' @rdname setColors-method
+#' @rdname setColors
 #'
 #' @seealso \code{\link[RColorBrewer]{brewer.pal}},
 #'          \code{\link[grDevices]{colorRampPalette}}.
@@ -61,7 +61,7 @@ setGeneric("setColors<-",
 })
 
 #' @export
-#' @rdname setColors-method
+#' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
                  signature("RasterLayer", "numeric", "character"),
@@ -73,7 +73,7 @@ setReplaceMethod("setColors",
 })
 
 #' @export
-#' @rdname setColors-method
+#' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
                  signature("RasterLayer", "missing", "character"),
@@ -86,7 +86,7 @@ setReplaceMethod("setColors",
 })
 
 #' @export
-#' @rdname setColors-method
+#' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
                  signature("Raster", "numeric", "list"),
@@ -100,7 +100,7 @@ setReplaceMethod("setColors",
 })
 
 #' @export
-#' @rdname setColors-method
+#' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
                  signature("Raster", "missing", "list"),

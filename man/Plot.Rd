@@ -104,8 +104,6 @@ ggplot2 elements can be done as a normal ggplot2 plot, then added with
 
 #
 
-Re-plot
-
 Under some conditions, a device and its meta data needs to be cleared manually.
 This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
 Sometimes, the metadata of a previous plot will prevent correct plotting of

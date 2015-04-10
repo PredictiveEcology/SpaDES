@@ -22,7 +22,7 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname assignGlobal-method
+#' @rdname assignGlobal
 #'
 #' @author Alex Chubaty
 #'
@@ -30,7 +30,7 @@ setGeneric("assignGlobal", function(x, value, ...) {
   standardGeneric("assignGlobal")
 })
 
-#' @rdname assignGlobal-method
+#' @rdname assignGlobal
 #'
 setMethod("assignGlobal",
           signature(x="character", value="ANY"),
@@ -38,7 +38,7 @@ setMethod("assignGlobal",
             assign(x, value, envir=.GlobalEnv, ...)
 })
 
-#' @rdname assignGlobal-method
+#' @rdname assignGlobal
 #'
 setMethod("assignGlobal",
           signature(x="character", value="missing"),
@@ -58,7 +58,7 @@ setMethod("assignGlobal",
 #'
 #' @export
 #' @docType methods
-#' @rdname existsGlobal-method
+#' @rdname existsGlobal
 #'
 #' @author Alex Chubaty
 #'
@@ -66,7 +66,7 @@ setGeneric("existsGlobal", function(x, ...) {
   standardGeneric("existsGlobal")
 })
 
-#' @rdname existsGlobal-method
+#' @rdname existsGlobal
 #'
 setMethod("existsGlobal",
           signature(x="ANY"),
@@ -86,7 +86,7 @@ setMethod("existsGlobal",
 #'
 #' @export
 #' @docType methods
-#' @rdname getGlobal-method
+#' @rdname getGlobal
 #'
 #' @author Alex Chubaty
 #'
@@ -94,7 +94,7 @@ setGeneric("getGlobal", function(x, ...) {
   standardGeneric("getGlobal")
 })
 
-#' @rdname getGlobal-method
+#' @rdname getGlobal
 #'
 setMethod("getGlobal",
           signature(x="ANY"),
@@ -109,7 +109,7 @@ setMethod("getGlobal",
 #' @inheritParams assignGlobal
 #'
 #' @docType methods
-#' @rdname assignSpaDES-method
+#' @rdname assignSpaDES
 #'
 #' @author Alex Chubaty
 #'
@@ -117,7 +117,7 @@ setGeneric("assignSpaDES", function(x, value, ...) {
   standardGeneric("assignSpaDES")
 })
 
-#' @rdname assignSpaDES-method
+#' @rdname assignSpaDES
 #'
 setMethod("assignSpaDES",
           signature(x="character", value="ANY"),
@@ -125,7 +125,7 @@ setMethod("assignSpaDES",
             assign(x, value, envir=.spadesEnv, ...)
 })
 
-#' @rdname assignSpaDES-method
+#' @rdname assignSpaDES
 #'
 setMethod("assignSpaDES",
           signature(x="character", value="missing"),
@@ -144,7 +144,7 @@ setMethod("assignSpaDES",
 #' @param ... Additional arguments passed to \code{\link{exists}}
 #'
 #' @docType methods
-#' @rdname existsSpaDES-method
+#' @rdname existsSpaDES
 #'
 #' @author Alex Chubaty
 #'
@@ -152,7 +152,7 @@ setGeneric("existsSpaDES", function(x, ...) {
   standardGeneric("existsSpaDES")
 })
 
-#' @rdname existsSpaDES-method
+#' @rdname existsSpaDES
 #'
 setMethod("existsSpaDES",
           signature(x="ANY"),
@@ -170,7 +170,7 @@ setMethod("existsSpaDES",
 #' @param ... Additional arguments to pass to \code{get}.
 #'
 #' @docType methods
-#' @rdname getSpaDES-method
+#' @rdname getSpaDES
 #'
 #' @author Alex Chubaty
 #'
@@ -178,7 +178,7 @@ setGeneric("getSpaDES", function(x, ...) {
   standardGeneric("getSpaDES")
 })
 
-#' @rdname getSpaDES-method
+#' @rdname getSpaDES
 #'
 setMethod("getSpaDES",
           signature(x="ANY"),

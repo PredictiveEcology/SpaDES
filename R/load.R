@@ -87,7 +87,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @import sp
 #' @export
 #' @docType methods
-#' @rdname loadFiles-method
+#' @rdname loadFiles
 #'
 #' @examples
 #' #load random maps included with package
@@ -120,7 +120,7 @@ setGeneric("loadFiles", function(sim, fileList, ...)  {
   standardGeneric("loadFiles")
 })
 
-#' @rdname loadFiles-method
+#' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim="simList", fileList="missing"),
           definition = function(sim, fileList, ...) {
@@ -329,7 +329,7 @@ setMethod("loadFiles",
             return(invisible(sim))
 })
 
-#' @rdname loadFiles-method
+#' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim="missing", fileList="ANY"),
           definition = function(sim, fileList, ...) {
@@ -346,7 +346,7 @@ setMethod("loadFiles",
             return(invisible(sim))
 })
 
-#' @rdname loadFiles-method
+#' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim="missing", fileList="missing"),
           definition = function(sim, fileList, ...) {
@@ -358,7 +358,7 @@ setMethod("loadFiles",
 #' How to load various types of files in R.
 #'
 #' @export
-#' @rdname loadFiles-method
+#' @rdname loadFiles
 .fileExtensions = function() {
   .fE <- data.frame(matrix(ncol=3, byrow=TRUE,c(
     "tif", "raster", "raster" ,
@@ -389,7 +389,7 @@ setMethod("loadFiles",
 #' @importMethodsFrom raster raster
 #' @export
 #' @docType methods
-#' @rdname rasterToMemory-method
+#' @rdname rasterToMemory
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
@@ -399,7 +399,7 @@ setGeneric("rasterToMemory", function(x, ...) {
 })
 
 #' rasterToMemory
-#' @rdname rasterToMemory-method
+#' @rdname rasterToMemory
 setMethod("rasterToMemory",
           signature=c(x="ANY"),
           definition=function(x, ...) {

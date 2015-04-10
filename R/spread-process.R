@@ -42,7 +42,7 @@
 #'
 #' @name spread
 #' @aliases spread
-#' @rdname spread-method
+#' @rdname spread
 #'
 setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.23,
                               persistence=0, mask=NULL, maxSize=ncell(landscape),
@@ -59,7 +59,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' @importFrom methods is
 #' @import raster
 #' @import RColorBrewer
-#' @rdname spread-method
+#' @rdname spread
 #'
 #' @examples
 #' library(raster)
