@@ -456,11 +456,11 @@ setClass("spadesPlot",
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @import ggplot2
 #' @import graphics
-#' @rdname spadesPlotObjects-class
-#' @name spadesPlotObjects-class
-#' @aliases spadesPlotObjects
+#' @rdname spadesPlotables-class
+#' @name spadesPlotables-class
+#' @aliases spadesPlotables
 #' @author Eliot McIntire
-#' @exportClass spadesPlotObjects
+#' @exportClass spadesPlotables
 #'
 setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot"))
 

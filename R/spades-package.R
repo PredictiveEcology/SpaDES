@@ -16,7 +16,7 @@
 #' simulation modules. Included are numerous tools to visualize various spatial data formats, as well
 #' as non-spatial data.
 #'
-#' Bug reports: https://github.com/PredictiveEcology/SpaDES/issues
+#' Bug reports: \url{https://github.com/PredictiveEcology/SpaDES/issues}
 #'
 #' @name spades-package
 #' @aliases SpaDES spades-package
@@ -26,7 +26,11 @@
 #' @keywords package
 #'
 #'
-#' @section I Main SpaDES functions:
+#' @section 1. SpaDES functions:
+#'
+#' A collection of functions for doing discrete event simulation.
+#'
+#' @section 1.1 Main SpaDES functions:
 #'
 #' There are two workhorse functions used in SpaDES. These initialize the simulation
 #' and run the simulation:
@@ -37,7 +41,21 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section II Plotting:
+#' @section 1.2 Discrete Event Simulation:
+#'
+#' \tabular{ll}{
+#'   \code{\link{scheduleEvent}} \tab Schedule a simulation event\cr
+#'   \code{\link{simCurrentTime}} \tab Get and set the list of simulation times\cr
+#'   \code{\link{simStopTime}} \tab Get and set the stop time of a simulation \cr
+#'   \code{\link{simStartTime}} \tab Get and set the start time of a simulation \cr
+#'   \code{\link{simGlobals}} \tab Get and set the global simulation parameters list.\cr
+#'   \code{\link{simParams}} \tab Get and set the simulation parameters list.\cr
+#'   \code{\link{simEvents}} \tab Get and set the event queue\cr
+#'   \code{\link{simFileList}} \tab Get and set files used in a simulation\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 1.3 Plotting:
 #' There are several user-accessible plotting functions that are optimized for modularity
 #' and speed of plotting:
 #'
@@ -51,21 +69,50 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section III Discrete Event Simulation:
+#' @section 1.4 File operations:
 #'
+#' In addition to R's file operations, we have added several here to aid in bulk
+#' loading and saving of files for simulation purposes:
 #'
 #' \tabular{ll}{
-#'   \code{\link{scheduleEvent}} \tab Schedule a simulation event\cr
-#'   \code{\link{simCurrentTime}} \tab Get and set the list of simulation times\cr
-#'   \code{\link{simStopTime}} \tab Get and set the stop time of a simulation \cr
-#'   \code{\link{simStartTime}} \tab Get and set the start time of a simulation \cr
-#'   \code{\link{simGlobals}} \tab Get and set the global simulation parameters list.\cr
-#'   \code{\link{simParams}} \tab Get and set the simulation parameters list.\cr
-#'   \code{\link{simEvents}} \tab Get and set the event queue\cr
-#'   \code{\link{simFileList}} \tab Get and set files used in a simulation\cr
+#'   \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
+#'   \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
+#'   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
-#' @section IV Spatial spreading:
+#'
+#' @section 1.5 Module operations:
+#'
+#' Modules are the basic unit of SpaDES. These are generally created and stored locally,
+#' or are downloaded from remote repositories, including SpaDES-modules repository
+#' on github.com:
+#'
+#' \tabular{ll}{
+#'   \code{\link{newModule}} \tab Create new module from template\cr
+#'   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
+#'   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
+#'   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 1.6 Object classes in SpaDES:
+#'
+#' \tabular{ll}{
+#'   \code{\link{simList}} \tab The 'simList' class\cr
+#'   \code{\link{spadesPlot}} \tab Contains the plotting spadesPlot information.\cr
+#'   \code{\link{spadesGrob}} \tab Contains the plotting spadesGrob information\cr
+#'   \code{\link{arrangement}} \tab The 'arrangement' class\cr
+#'   \code{\link{moduleDeps}} \tab Descriptor object for specifying SpaDES module dependecies\cr
+#'   \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a SpaDES simulation\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' ------------------------------------------------------------------------------------------
+#' @section 2 Module functions:
+#'
+#' A collection of functions that help with making modules, in addition to all the other R packages and code.
+#'
+#' @section 2.1 Spatial spreading:
 #'
 #' Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
 #' be modelled using discrete approaches or continuous approaches. Several SpaDES functions assist
@@ -78,7 +125,7 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section V Spatial agent methods:
+#' @section 2.2 Spatial agent methods:
 #'
 #' Agents have several methods and functions specific to them:
 #'
@@ -88,45 +135,17 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section VI GIS operations:
+#' @section 2.3 GIS operations:
 #'
-#' Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
-#' be modelled using discrete approaches or continuous approaches. Several SpaDES functions assist
-#' with these:
-#'
+#' I addition to the vast amount of GIS operations available in R, mostly from contributed packages, like \code{sp}, \code{raster},
+#' \code{maps}, \code{maptools} and many others
 #' \tabular{ll}{
 #'   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
 #'   \code{\link{setColors}} \tab Set colours for plotting Raster* objects\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section VII File operations:
-#'
-#' In addition to R's file operations, we have added several here to aid in bulk
-#' loading and saving of files for simulation purposes:
-#'
-#' \tabular{ll}{
-#'   \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
-#'   \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
-#'   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#'
-#' @section VIII Module operations:
-#'
-#' Modules are the basic unit of SpaDES. These are generally created and stored locally,
-#' or are downloaded from remote repositories, including SpaDES-modules repository
-#' on github.com:
-#'
-#' \tabular{ll}{
-#'   \code{\link{newModule}} \tab Create new module from template\cr
-#'   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
-#'   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
-#'   \code{\link{zipModule}} \tab \cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#'
-#' @section IX Random Map Generation:
+#' @section 2.4 Random Map Generation:
 #'
 #' Before all data are available, it is often useful to build dummy maps on which to build
 #' simulation models. These can then be replaced later with actual data maps:
@@ -134,14 +153,6 @@
 #' \tabular{ll}{
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
 #'   \code{\link{gaussMap}} \tab Creates a random map upsing gaussian random fields\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#'
-#' @section Object classes in SpaDES:
-#'
-#' \tabular{ll}{
-#'   \code{\link{spadesPlot}} \tab The 'spadesPlot' class\cr
-#'   \code{\link{spadesGrob}} \tab The 'spadesGrob' class\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 NULL
