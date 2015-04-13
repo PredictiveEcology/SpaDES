@@ -1,4 +1,7 @@
-options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
+### deal with spurious httr warnings
+if(getRversion() >= "3.1.0") {
+  utils::globalVariables(c("content"))
+}
 
 ################################################################################
 #' Find the latest module version from a SpaDES module repository
@@ -13,6 +16,7 @@ options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
 #'
 #' @author Alex Chubaty
 #'
+#' @importFrom httr content
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
 #' @importFrom magrittr '%>%'

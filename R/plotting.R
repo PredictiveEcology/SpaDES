@@ -1,3 +1,8 @@
+### deal with spurious data.table warnings
+if(getRversion() >= "3.1.0") {
+  utils::globalVariables(c("groups", "thin", "whGrobNamesi"))
+}
+
 ### Allow gg S3 class to be used with Plot, an S4 function
 #' @import ggplot2
 #'

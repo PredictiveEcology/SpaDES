@@ -482,6 +482,7 @@ setMethod("checkParams",
 #'
 #' @return Character string representing the filename.
 #'
+#' @importFrom fpCompare '%==%'
 #' @importFrom magrittr '%>%'
 #' @importFrom stringr str_pad
 #' @export
