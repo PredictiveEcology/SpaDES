@@ -617,7 +617,7 @@ setAs(from="list", to="gpar", function(from) {
 #'
 #' @param plotArgs
 #'
-#' @name makeList
+#' @name .makeList
 #' @rdname makeList
 #' @author Eliot McIntire
 #' @docType methods
