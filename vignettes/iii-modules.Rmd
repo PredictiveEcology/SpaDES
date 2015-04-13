@@ -27,6 +27,10 @@ vignette: >
 
 **simulation and module design philosophy:**
 
+- oeio
+- module code is `source`d during `simInit` and objects/functions put in global environment.
+- oeuio
+
 ### Simulation event list
 
 The event queue is stored in a slot in a `simList` simulation object. Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`). This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list. Completed events are removed from the queue.
@@ -74,6 +78,9 @@ A `SpaDES` module consists of a single `.R` source file, whose name matches the 
 
 [need description of metadata]
 
+a. provided as comments at the top of the file;
+b. formalized in code as module metadata;
+
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user). During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object. As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
 
 #### Defining module metadata: `defineModule()`
@@ -90,7 +97,7 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
 **`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
 &nbsp;                | Must be a `POSIXt` object of length 2, specifying the start and end times.
-**`timestep`**        | Describes the length of time (in seconds) corresponding to 1.0 simulation time units.
+**`timestep`**        | Describes the time (in seconds) corresponding to 1.0 simulation time units.
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module parameters,
@@ -118,15 +125,24 @@ The parameter list in the `simList` object (accessed via `simParams`) may be use
 
 ### Event types
 
-hdaeouhndoeuna
+contained within `doEvent.moduleName` call: simple `if`/`else` (case/`switch`)
+
+- every module needs "init" event type.
+- optional: "save", "plot" events
 
 to keep things clean/readable, keep the definitions of each event type minimal, using functions for the "guts" of what is happening for each event.
 
+```{r event-types}
+# NEED SAMPLE CODE HERE
+```
+
 ### Event functions
 
-auaoiao
+user-specified functions that plugin to the `doEvent` above
 
-nseohtaus-oehu
+```{r event-functions}
+# NEED SAMPLE CODE HERE
+```
 
 -----
 
@@ -166,9 +182,11 @@ Use [semantic versioning](http://semver.org), such that a version number `x.y.z`
 
 # Passing data between modules
 
+**HOW AND WHY TO PASS DATA**
+
 ## Data types
 
-As you build your modules for your simulation, you can use any of `R`'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because, as of `R` version 3.1, they are more efficient, reducing your model's memory footprint and speeding up your code's execution. Other useful datatypes include `Raster*` and `SpatialPoints*` objects (see examples below).
+As you build your modules for your simulation, you can use any of `R`'s data types to store your objects and data. In particular, matrices (including vectors) and lists work well for this purpose because, as of `R` version `3.1.0`, they are more efficient, reducing your model's memory footprint and speeding up your code's execution. Other useful datatypes include `Raster*` and `SpatialPoints*` objects (see examples below).
 
 ## Global objects
 
@@ -185,7 +203,7 @@ Note that modules need not be inter-dependent on one another: module B may depen
 To view the dependencies for a simulation:
 
 ```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
-require(igraph) # required for plotting dependencies
+require(igraph) # required for plotting dependency graph
 require(SpaDES)
 
 times <- list(start=0.0, stop=20)
@@ -206,26 +224,27 @@ The output of the `depsEdgeList` is an edgelist describing the relationships bet
 
 # Core modules
 
-There are a number of built-in modules that provide useful functionality. These modules have their names prefaced with a dot, and are summarized in the following table and described further below.
+There are a number of built-in modules that provide useful functionality such as plotting and saving. These modules have their names prefaced with a dot (`.`). Parameter values for core modules can be accessed either by using their accessor methods (below); however, these are simply entries in a nested list exactly like the parameters passed to user modules.
 
-**Module Name**   | **Description** | **Parameterization**
-------------------|-----------------|-------------------------------------------
-**`.checkpoint`** | brief summary   | supplied to `simInit` per regular module:
-&nbsp;            |                 | `.checkpoint$file`
-&nbsp;            |                 | `.checkpoint$interval`
-**`.load`**       | brief summary   | supplied to `simInit` per regular module:
-&nbsp;            |                 | `.load$fileList`
-**`.plot`**       | brief summary   | supplied to `simInit` via another module:
-&nbsp;            |                 | `moduleName$.plotInitialTime`
-&nbsp;            |                 | `moduleName$.plotInterval`
-**`.progress`**   | brief summary   | supplied to `simInit` per regular module:
-&nbsp;            |                 | `.progress$graphical`
-&nbsp;            |                 | `.progress$interval`
-**`.save`**       | brief summary   | supplied to `simInit` via another module:
-&nbsp;            |                 | `moduleName$.saveInitialTime`
-&nbsp;            |                 | `moduleName$.saveInterval`
-&nbsp;            |                 | `moduleName$.saveObjects`
-&nbsp;            |                 | `moduleName$.savePath`
+These core modules are summarized in the following table and described further below.
+
+**Module Name**   | **Description** | **Parameterization** | **Accessor Methods**
+------------------|-----------------|----------------------|---------------------
+**`.checkpoint`** | brief summary   | `file`: character.   | `simCheckpointFile()`
+&nbsp;            |                 | `interval`: numeric (or `NA`). | `simCheckpointInterval()`
+&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
+**`.load`**       | brief summary   | `fileList`: character. | `simFileList()`
+&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
+**`.plot`**       | brief summary   | `.plotInitialTime`: numeric (or `NA`) | as list item in your module params.
+&nbsp;            |                 | `.plotInterval`: numeric (or `NA`) | as list item in your module params.
+&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
+**`.progress`**   | brief summary   | `graphical`: logical (or `NA`). | `simProgressGraphical()`
+&nbsp;            |                 | `interval`: numeric (or `NA`). | `simProgressInterval()`
+&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
+**`.save`**       | brief summary   | `.saveInitialTime`: numeric (or `NA`) | as list item in your module params.
+&nbsp;            |                 | `.saveInterval`: numeric (or `NA`) | as list item in your module params.
+&nbsp;            |                 | `.saveObjects`: character | as list item in your module params.
+&nbsp;            |                 | `.savePath`: character | as list item in your module params.
 
 ## `.checkpoint` module
 
@@ -244,9 +263,8 @@ path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 # retrieve the checkpoint params from the simulation object
-simParams(mySim)$.checkpoint
-simParams(mySim)$.checkpoint$interval
-simParams(mySim)$.checkpoint$file
+simCheckpointFile(mySim)
+simCheckpointInterval(mySim)
 ```
 
 ## `.progress` module
@@ -262,9 +280,8 @@ mySim <- simInit(times=list(start=0.0, stop=100.0),
                  path=system.file("sampleModules", package="SpaDES"))
 
 # retrieve the checkpoint params from the simulation object
-simParams(mySim)$.progress
-simParams(mySim)$.progress$graphical
-simParams(mySim)$.progress$interval
+simProgressGraphical(mySim)
+simProgressInterval(mySim)
 ```
 
 ## `.load` and `.save` modules
@@ -292,16 +309,13 @@ Saving objects to file can be done by passing the appropriate arguments as param
 
 **Argument**            | **Description**
 ------------------------|-------------------------------------------------------
-**`.saveObjects`**      | Character vector naming the objects to be saved.
-**`.savePath`**         | Character giving the path to which the object will be saved.
 **`.saveInitialTime`**  | Numeric specifying the time at which the first save is scheduled.
 **`.saveInterval`**     | Numeric specifying the interval at which objects will be saved.
 &nbsp;                  | Used to schedule save events.
+**`.saveObjects`**      | Character vector naming the objects to be saved.
+**`.savePath`**         | Character giving the path to which the object will be saved.
 
-```{r load-save, echo=TRUE, eval=FALSE, message=FALSE}
-
-### WARNING this simInit code doesn't work...
-
+```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
 mySim <- simInit(times=list(start=0.0, stop=10),
@@ -327,6 +341,8 @@ simParams(mySim)$randomLandscapes$.saveObjects
 simParams(mySim)$randomLandscapes$.savePath
 ```
 
+Saving within a module -- scheduling save events.
+
 ```{r save-events, echo=TRUE, eval=FALSE, message=FALSE}
 ### WITHIN A MODULE:
 
@@ -334,6 +350,38 @@ simParams(mySim)$randomLandscapes$.savePath
 nextSave <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.saveInterval
 sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 ```
+
+## `.plot` module
+
+Plotting events can be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events.
+
+- `.plotInitialTime`: The time at which the first plot is scheduled.
+- `.plotInterval`: The interval at which objects will be plotted. Used to schedule plot events.
+
+```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
+# initialize a new simulation, setting the load and save parameters
+mySim <- simInit(times=list(start=0.0, stop=100),
+                 params=list(.globals=list(.stackName="landscape"),
+                   randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
+                   ),
+                 modules=list("randomLandscapes"),
+                 path=system.file("sampleModules", package="SpaDES")
+)
+
+# retrieve the plotting params from the simulation object
+simParams(mySim)$randomLandscapes$.plotInitialTime
+simParams(mySim)$randomLandscapes$.plotInterval
+```
+
+```{r plot-events, echo=TRUE, eval=FALSE, message=FALSE}
+# [WITHIN A MODULE]
+
+# schedule a recurring plot event
+nextPlot <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.plotInterval
+mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
+```
+
+\newpage
 
 # Using existing `SpaDES` modules
 
@@ -387,6 +435,8 @@ Before using other modules, it is up to the modeler (you!) to ensure the scienti
 2. check module object dependencies (`simInit` does this);
 3. check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` only does a basic version of this).
 
+\newpage
+
 # Creating new modules
 
 ## Module design considerations
@@ -407,39 +457,6 @@ newModule(name="randomLandscapes", path="custom-modules", open=TRUE)
 
 The newly created file can now be modified in the identified sections and customized to your module. However, it is very important that you do not edit portions of the file outside of the designated sections or your module may fail to work properly within a simulation.
 
-### Plotting
-
-Plotting events can also be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events.
-
-- `.saveObjects`: A character vector naming the objects to be saved.
-- `.savePath`: A path to which the object will be saved.
-- `.saveInitialTime`: The time at which the first save is scheduled.
-- `.saveInterval`: The interval at which objects will be saved. Used to schedule save events.
-
-```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
-# initialize a new simulation, setting the load and save parameters
-mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.globals=list(.stackName="landscape"),
-                   randomLandscapes=list(nx=100L, ny=100L,
-                                         .plotInitialTime=0, .plotInterval=1)
-                   ),
-                 modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES")
-)
-
-# retrieve the plotting params from the simulation object
-simParams(mySim)$randomLandscapes$.plotInitialTime
-simParams(mySim)$randomLandscapes$.plotInterval
-
-# schedule a recurring save event [WITHIN A MODULE]
-nextPlot <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.plotInterval
-mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
-```
-
-### Saving
-
-See above for more details.
-
 ## Contributing modules
 
 After publication you may wish to make your module more easily accessible for others to use (in fact we encourage it).
@@ -448,7 +465,7 @@ After publication you may wish to make your module more easily accessible for ot
 
 ### Minimum requirements
 
-All contributed modules should be well documented. In addition to providing *complete* metadata within the module's `.R` file, the following additional components should be included:
+All contributed modules should be well documented. In addition to providing *complete* metadata within the module's `.R` file, the following components should be included:
 
 - a `citation.bib` file containing a BibTeX-formatted citation for your module (or for the publication describing your module). This citation will be used by others when citing your module.
 - a `LICENSE` file describing how your module code may be used and modified.
