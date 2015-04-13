@@ -931,7 +931,6 @@ setMethod(".arrangeViewports",
 #' @name .plotGrob
 #' @rdname plotGrob
 #' @author Eliot McIntire
-#' @export
 #' @docType methods
 setGeneric(".plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 size=unit(5, "points"),
@@ -1355,7 +1354,7 @@ makeViewports <- function(spadesPlot, newArr=FALSE) {
 #' loadFiles(fileList=fileList)
 #'
 #' Plot(DEM)
-#' drawArrows(caribou1, caribou2, addTo="DEM")
+#' drawArrows(from, caribou2, addTo="DEM")
 setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
   standardGeneric("drawArrows")
 })
