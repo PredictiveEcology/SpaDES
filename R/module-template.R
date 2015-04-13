@@ -93,6 +93,9 @@ defineModule(list(
   timestep=NA_character_,
   citation=list(),
   reqdPkgs=list(),
+  parameters=rbind(
+    defineParameter(\"paramName\", \"paramClass\", value),
+    defineParameter(\"paramName\", \"paramClass\", value)),
   inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA)),
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA))
 ))
