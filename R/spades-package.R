@@ -163,7 +163,7 @@ NULL
 
 #' Dummy maps included with SpaDES
 #'
-#' All maps included with SpaDES are randomly generated maps created by \code{GaussMap()}.
+#' All maps included with SpaDES are randomly generated maps created by \code{gaussMap()}.
 #' These are located within the \code{maps} folder of the package, and are used in the vignettes.
 #' Use \code{system.file(package="SpaDES", "maps")} to locate the \code{maps} directory on your system.
 #'

@@ -16,9 +16,9 @@ A vector of integer factors
 Finds the integer factors of an integer
 }
 \details{
-Used internally in GaussMap
+Used internally in gaussMap
 }
 \seealso{
-\code{\link{GaussMap}}
+\code{\link{gaussMap}}
 }
 

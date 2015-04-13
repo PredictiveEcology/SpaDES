@@ -1,7 +1,7 @@
 if(getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 
 ##############################################################
-#' GaussMap
+#' gaussMap
 #'
 #' Produces a raster of a random gaussian process.
 #'
@@ -37,7 +37,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #'
 #@examples
 #EXAMPLES NEEDED
-GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fast=TRUE, n.unique.pixels=100) {
+gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fast=TRUE, n.unique.pixels=100) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
@@ -72,13 +72,13 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
 #'
 #' Finds the integer factors of an integer
 #'
-#' Used internally in GaussMap
+#' Used internally in gaussMap
 #'
 #' @param x An integer to factorize
 #'
 #' @return A vector of integer factors
 #'
-#' @seealso \code{\link{GaussMap}}
+#' @seealso \code{\link{gaussMap}}
 #'
 #' @rdname findFactors
 #'
