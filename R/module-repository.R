@@ -1,4 +1,7 @@
-options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
+### deal with spurious httr warnings
+if(getRversion() >= "3.1.0") {
+  utils::globalVariables(c("content"))
+}
 
 ################################################################################
 #' Find the latest module version from a SpaDES module repository
@@ -13,6 +16,7 @@ options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
 #'
 #' @author Alex Chubaty
 #'
+#' @importFrom httr content
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
 #' @importFrom magrittr '%>%'
@@ -98,6 +102,7 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="character", repo="missing"),
           definition = function(name, path, version) {
@@ -105,6 +110,7 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="missing", repo="missing"),
           definition = function(name, path) {
@@ -112,6 +118,7 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="missing", repo="character"),
           definition = function(name, path, repo) {

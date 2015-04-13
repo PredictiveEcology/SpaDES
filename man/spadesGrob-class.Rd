@@ -36,7 +36,7 @@ used for RasterStacks}
 
 \item{\code{objClass}}{character. Class of the object represented by this spadesGrob}
 
-\item{\code{isSpatialObject}}{logical. TRUE if the object is one of the SpaDES recognized
+\item{\code{isSpatialObjects}}{logical. TRUE if the object is one of the SpaDES recognized
 spatialObject classes}
 
 \item{\code{plotArgs}}{list. Any parameters needed for plotting, set by Plot call.}

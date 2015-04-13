@@ -1,4 +1,6 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(c("angles", "pixIDs", "x", "y"))
+if(getRversion() >= "3.1.0") {
+  utils::globalVariables(c("angles", "pixIDs", "x", "y"))
+}
 
 ##############################################################
 #' Fast `adjacent` function, and Just In Time compiled version

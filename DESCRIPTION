@@ -51,6 +51,7 @@ Imports:
     rgdal,
     secr,
     sp,
+    stringr,
     tkrplot
 License: GPL-3
 Collate:

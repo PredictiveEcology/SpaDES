@@ -5,19 +5,19 @@
 \alias{simCurrentTime}
 \alias{simCurrentTime,simList-method}
 \alias{simCurrentTime<-}
-\alias{simCurrentTime<-,simList}
+\alias{simCurrentTime<-,simList-method}
 \alias{simStartTime}
 \alias{simStartTime,simList-method}
 \alias{simStartTime<-}
-\alias{simStartTime<-,simList}
+\alias{simStartTime<-,simList-method}
 \alias{simStopTime}
 \alias{simStopTime,simList-method}
 \alias{simStopTime<-}
-\alias{simStopTime<-,simList}
+\alias{simStopTime<-,simList-method}
 \alias{simTimes}
 \alias{simTimes,simList-method}
 \alias{simTimes<-}
-\alias{simTimes<-,simList}
+\alias{simTimes<-,simList-method}
 \title{Get and set the list of simulation times.}
 \usage{
 simTimes(object)

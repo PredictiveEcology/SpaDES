@@ -1,10 +1,8 @@
-# @importFrom methods loadMethod
-#
-#.onLoad <- function(libname, pkgname) {
-#
-#}
+#' @importFrom methods loadMethod
+.onLoad <- function(libname, pkgname) {
+  options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
+}
 
-#
-#.onUnload <- function(libname, pkgname) {
-#  rm(stuff, envir=.GlobalEnv)
-#}
+.onUnload <- function(libname, pkgname) {
+  options(spades.modulesRepo = NULL)
+}

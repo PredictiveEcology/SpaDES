@@ -19,7 +19,7 @@ version 0.6.1
         |_ README          # incl. module metadata in addition to version change info, etc.
 
 * added new relational operators (`%>=%`, `%<=%`, ``%==%, `%!=%`) to account for floating point errors
-* added `dplyr`, `magrittr`, and `httr` to `Imports`
+* added `dplyr`, `fpCompare`, `httr`, `magrittr`, `stringr` to `Imports`
 * updated vignettes; new `getting-started` vignette
 * bug fixes
 

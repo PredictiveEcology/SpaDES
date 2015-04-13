@@ -1,3 +1,8 @@
+### deal with spurious data.table warnings
+if(getRversion() >= "3.1.0") {
+  utils::globalVariables(c("groups", "thin", "whGrobNamesi"))
+}
+
 ### Allow gg S3 class to be used with Plot, an S4 function
 #' @import ggplot2
 #'
@@ -300,7 +305,7 @@ setMethod("equalExtent",
 #'
 #' @slot objClass character. Class of the object represented by this spadesGrob
 #'
-#' @slot isSpatialObject logical. TRUE if the object is one of the SpaDES recognized
+#' @slot isSpatialObjects logical. TRUE if the object is one of the SpaDES recognized
 #' spatialObject classes
 #'
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.

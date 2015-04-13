@@ -4,12 +4,23 @@
 \name{downloadModule}
 \alias{downloadModule}
 \alias{downloadModule,character,character,character,character-method}
+\alias{downloadModule,character,character,character,missing-method}
+\alias{downloadModule,character,character,missing,character-method}
+\alias{downloadModule,character,character,missing,missing-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
 downloadModule(name, path, version, repo)
 
 \S4method{downloadModule}{character,character,character,character}(name, path,
   version, repo)
+
+\S4method{downloadModule}{character,character,character,missing}(name, path,
+  version)
+
+\S4method{downloadModule}{character,character,missing,missing}(name, path)
+
+\S4method{downloadModule}{character,character,missing,character}(name, path,
+  repo)
 }
 \arguments{
 \item{name}{Character string giving the module name.}
