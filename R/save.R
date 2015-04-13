@@ -43,7 +43,6 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 # need examples
 saveFiles = function(sim) {
   # extract savePaths from modules
-  browser()
   modulePaths <- sapply(simParams(sim), function(y) {
     if (is.null(simGlobalsOutputPath(sim))){
       outputPath <- y$.savePath
