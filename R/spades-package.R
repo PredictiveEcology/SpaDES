@@ -152,7 +152,7 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
-#'   \code{\link{GaussMap}} \tab Creates a random map upsing gaussian random fields\cr
+#'   \code{\link{gaussMap}} \tab Creates a random map upsing gaussian random fields\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 NULL

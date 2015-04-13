@@ -907,11 +907,9 @@ setMethod(".arrangeViewports",
 #'
 #' @param size The size of the SpatialPoints
 #'
-#' @param minv The minimum value on a Raster*. Required because not all Rasters
-#' have this defined internally
+#' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
 #'
-#' @param maxv The maximum value on a Raster*. Required because not all Rasters
-#' have this defined internally
+#' @param gpText gpar object for legend label text
 #'
 #' @param legend logical, whether a legend should be drawn. Default \code{TRUE}.
 #'
@@ -919,9 +917,13 @@ setMethod(".arrangeViewports",
 #' in a pretty numeric representation. If \code{Raster*} has a Raster Attribute Table (rat, see raster
 #' package), this will be used by default. Currently, only a single vector is accepted.
 #'
-#' @param gp grid parameters, usually the output of a call to \code{\link{gpar}}
+#' @param length Numeric.
 #'
-#' @param gpText gpar object for legend label text
+#' @param minv The minimum value on a Raster*. Required because not all Rasters
+#' have this defined internally
+#'
+#' @param maxv The maximum value on a Raster*. Required because not all Rasters
+#' have this defined internally
 #'
 #' @param pch for \code{SpatialPoints}, as \code{par}
 #'
@@ -941,7 +943,7 @@ setGeneric(".plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 size=unit(5, "points"),
                                 minv, maxv,
                                 legend=TRUE, legendText=NULL,
-                                gp=gpar(), gpText = gpar(), pch=19,
+                                gp=gpar(), gpText=gpar(), pch=19,
                                 speedup=1, ...) {
   standardGeneric(".plotGrob")
 })
