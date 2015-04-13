@@ -25,7 +25,7 @@
 \description{
 There are already methods for \code{Raster*} in the raster package.
 Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines},
-and \code{SpatialPoints}. These latter classes return 1.
+and \code{SpatialPoints}, \code{gg}. These latter classes return 1.
 }
 \author{
 Eliot McIntire

@@ -31,10 +31,12 @@ viewport can be called for later plotting.}
 \item{...}{Additional plotting parameters passed to \code{\link{grid.polyline}}.
 Currently does not appear to pass anything.}
 
-\item{length}{The length of the arrows to draw (defaults to 0.1).}
+\item{length}{numeric. Optional length, in inches, of the arrow head.}
 }
 \value{
-Plots the vectors representing agent movement on the specified map.
+Plots the vectors representing agent movement on the specified map. If plotted
+on a blank plot, the plot object will be given the name of the "from" object, with
+the word "Arrows" concatenated on the end.
 }
 \description{
 Plots arrows showing direction of agent movement
@@ -63,7 +65,7 @@ fileList <-
 loadFiles(fileList=fileList)
 
 Plot(DEM)
-drawArrows(caribou1, caribou2, addTo="DEM")
+drawArrows(from, caribou2, addTo="DEM")
 }
 \author{
 Eliot McIntire

@@ -480,18 +480,18 @@ setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot
 #' (i.e., layout and dimensions) and onefor all of the \code{spadesGrobs}
 #' (stored as a spadesGrobList of lists \code{spadesGrob} objects).
 #'
-#' @name makeSpadesPlot
+#' @name .makeSpadesPlot
 #' @rdname makeSpadesPlot
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric("makeSpadesPlot", function(plotObjects, plotArgs, ...) {
-  standardGeneric("makeSpadesPlot")
+setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, ...) {
+  standardGeneric(".makeSpadesPlot")
 })
 
 
 #' @rdname makeSpadesPlot
-setMethod("makeSpadesPlot",
+setMethod(".makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="list"),
           definition= function(plotObjects, plotArgs, ...) {
 
@@ -542,7 +542,7 @@ setMethod("makeSpadesPlot",
                                                "inside RasterStacks for objects"))
 
 
-            plotArgs <- makeList(plotArgs, length(lN))
+            plotArgs <- .makeList(plotArgs, length(lN))
 
 
             # Make new spadesPlot object. This will be merged to existing later
@@ -569,17 +569,17 @@ setMethod("makeSpadesPlot",
 })
 
 #' @rdname makeSpadesPlot
-setMethod("makeSpadesPlot",
+setMethod(".makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="missing"),
           definition= function(plotObjects, ...) {
 
             plotArgs <- formals("Plot")[-1]
-            newPlots <- makeSpadesPlot(plotObjects, plotArgs, ...)
+            newPlots <- .makeSpadesPlot(plotObjects, plotArgs, ...)
             return(newPlots)
 })
 
 #' @rdname makeSpadesPlot
-setMethod("makeSpadesPlot",
+setMethod(".makeSpadesPlot",
           signature=c(plotObjects="missing", plotArgs="missing"),
           definition= function(...) {
 
@@ -621,12 +621,12 @@ setAs(from="list", to="gpar", function(from) {
 #' @rdname makeList
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric("makeList", function(plotArgs, numSpadesPlotObjects) {
-  standardGeneric("makeList")
+setGeneric(".makeList", function(plotArgs, numSpadesPlotObjects) {
+  standardGeneric(".makeList")
 })
 
 #' @rdname makeList
-setMethod("makeList",
+setMethod(".makeList",
           signature=c("list"),
           definition= function(plotArgs, numSpadesPlotObjects) {
             p <- plotArgs
@@ -703,18 +703,18 @@ setMethod("makeList",
 #'
 #' @param ... additional arguments. Currently nothing.
 #'
-#' @name updateSpadesPlot
+#' @name .updateSpadesPlot
 #' @rdname updateSpadesPlot
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric("updateSpadesPlot", function(newSP, curr, ...) {
-  standardGeneric("updateSpadesPlot")
+setGeneric(".updateSpadesPlot", function(newSP, curr, ...) {
+  standardGeneric(".updateSpadesPlot")
 })
 
 
 #' @rdname updateSpadesPlot
-setMethod("updateSpadesPlot",
+setMethod(".updateSpadesPlot",
           signature=c(newSP="spadesPlot", curr="spadesPlot"),
           definition= function(newSP, curr, ...) {
 
@@ -795,7 +795,7 @@ setMethod("updateSpadesPlot",
 })
 
 #' @rdname updateSpadesPlot
-setMethod("updateSpadesPlot",
+setMethod(".updateSpadesPlot",
           signature=c(newSP="spadesPlot", curr=NULL),
           definition= function(newSP, ...) {
 
@@ -819,12 +819,12 @@ setMethod("updateSpadesPlot",
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric("arrangeViewports", function(spadesPlot) { #, name=NULL) {
-  standardGeneric("arrangeViewports")
+setGeneric(".arrangeViewports", function(spadesPlot) { #, name=NULL) {
+  standardGeneric(".arrangeViewports")
 })
 
 #' @rdname arrangeViewports
-setMethod("arrangeViewports",
+setMethod(".arrangeViewports",
           signature=c("spadesPlot"),
           definition= function(spadesPlot) {
 
@@ -926,23 +926,23 @@ setMethod("arrangeViewports",
 #'
 #' @param ... additional arguments. Currently nothing.
 #'
-#' @name plotGrob
+#' @name .plotGrob
 #' @rdname plotGrob
 #' @author Eliot McIntire
 #' @export
 #' @docType methods
-setGeneric("plotGrob", function(grobToPlot, col=NULL, real=FALSE,
+setGeneric(".plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 size=unit(5, "points"),
                                 minv, maxv,
                                 legend=TRUE, legendText=NULL,
                                 gp=gpar(), gpText = gpar(), pch=19,
                                 speedup=1, ...) {
-  standardGeneric("plotGrob")
+  standardGeneric(".plotGrob")
 })
 
 
 #' @rdname plotGrob
-setMethod("plotGrob",
+setMethod(".plotGrob",
           signature=c("matrix"),
           definition= function(grobToPlot, col, real, size, minv, maxv,
                                legend, legendText, gp, gpText, pch, ...) {
@@ -1006,7 +1006,7 @@ setMethod("plotGrob",
 })
 
 #' @rdname plotGrob
-setMethod("plotGrob",
+setMethod(".plotGrob",
           signature=c("SpatialPoints"),
           definition= function(grobToPlot, col, size,
                                legend, gp=gpar(), pch, ...) {
@@ -1021,7 +1021,7 @@ setMethod("plotGrob",
 })
 
 #' @rdname plotGrob
-setMethod("plotGrob",
+setMethod(".plotGrob",
           signature=c("SpatialPolygons"),
           definition= function(grobToPlot, col, size,
                                legend, gp=gpar(), pch, ...) {
@@ -1080,7 +1080,7 @@ setMethod("plotGrob",
 
 
 #' @rdname plotGrob
-setMethod("plotGrob",
+setMethod(".plotGrob",
           signature=c("SpatialLines"),
           definition= function(grobToPlot, col, size,
                                legend, gp=gpar(), pch, ...) {
@@ -1154,8 +1154,9 @@ setMethod("plotGrob",
 #' plots and should be included as part of layout calculation.  Default is \code{TRUE}.
 #'
 #' @author Eliot McIntire
+#' @rdname makeLayout
 #' @export
-makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
+.makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 
   columns <- arr@columns
   rows <- arr@rows
@@ -1228,7 +1229,7 @@ makeViewports <- function(spadesPlot, newArr=FALSE) {
 
   nam <- names(extents)
 
-  # This is the biggest of the extents, and is used in makeLayout
+  # This is the biggest of the extents, and is used in .makeLayout
   #  Need to replicate it here because all plots are scaled to this
   biggestDims <- apply(do.call(rbind,sapply(1:length(sgl), function(x) {
     lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
@@ -1795,13 +1796,7 @@ setMethod("Plot",
       nonPlotArgs <- dotObjs[!whichSpadesPlotables]
 
       # Create a spadesPlot object from the plotObjs and plotArgs
-      newSpadesPlots <- makeSpadesPlot(plotObjs, plotArgs)
-
-
-      #whichSpadesPlot <- match("spadesPlot", sapply(dotObjs, class))
-#       whichSpadesPlot <- as.logical(sapply(dotObjs, function(x) "spadesPlot" %in% is(x)))
-#       newSpadesPlots <- dotObjs[whichSpadesPlot]
-#       dotObjsNotSpadesPlot <- dotObjs[!whichSpadesPlot]
+      newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs)
 
       if(length(plotObjs)>0) {
         names(plotObjs) <- .objectNames()
@@ -1809,7 +1804,7 @@ setMethod("Plot",
 
       if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
         currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
-        updated <- updateSpadesPlot(newSpadesPlots, currSpadesPlots)
+        updated <- .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arrangement@columns,
                           currSpadesPlots@arrangement@rows))
@@ -1825,8 +1820,8 @@ setMethod("Plot",
         }
 
       } else {
-        currSpadesPlots <- makeSpadesPlot()
-        updated <- updateSpadesPlot(newSpadesPlots)
+        currSpadesPlots <- .makeSpadesPlot()
+        updated <- .updateSpadesPlot(newSpadesPlots)
         newArr <- TRUE
       }
 
@@ -1835,9 +1830,9 @@ setMethod("Plot",
       #  plotted, and visualSqueeze
       if(newArr) {
         updated$curr@arrangement <-
-          arrangeViewports(updated$curr)
+          .arrangeViewports(updated$curr)
         updated$curr@arrangement@layout <-
-          makeLayout(updated$curr@arrangement,
+          .makeLayout(updated$curr@arrangement,
                      sapply(visualSqueeze,max), sapply(legend,any),
                      sapply(axes, function(x) !any(x==TRUE)))
       }

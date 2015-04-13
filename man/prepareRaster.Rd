@@ -8,22 +8,23 @@
   speedup, newArr)
 }
 \arguments{
-\item{zoomExtent}{}
+\item{grobToPlot}{spadesGrob}
 
-\item{legendRange}{}
+\item{zoomExtent}{an extent object}
 
-\item{takeFromPlotObj}{}
+\item{legendRange}{a numeric vector of length >=2 indicating the desired legend range.}
 
-\item{arr}{}
+\item{takeFromPlotObj}{logical. Should the object be found in the Plot call or .GlobalEnv}
 
-\item{speedup}{}
+\item{arr}{an \code{arrangement} object}
 
-\item{newArr}{}
+\item{speedup}{numeric, greater than 1 will usually speed up plotting at the expense of resolution}
 
-\item{gropToPlot}{}
+\item{newArr}{logical, whether this is a new arrangement or just adding to a previous one}
 }
 \description{
-Prepare raster for plotting
+This is to be used internally. This takes a raster spadesGrob, and converts zoomExtent
+into a zoom, legendRange into a legend, and calculates the maxpixels to plot for speed.
 }
 \author{
 Eliot McIntire

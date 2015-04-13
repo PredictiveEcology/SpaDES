@@ -12,13 +12,13 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = NULL)
+  na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = "L", speedup = 1, size = 5,
   cols = NULL, zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = NULL)
+  na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
@@ -77,6 +77,8 @@ package), this will be used by default. Currently, only a single vector is accep
 
 \item{zero.color}{string indicating the color for zero values, when zero is
 the minimum value, otherwise, zero is treated as any other color. Default transparent.}
+
+\item{length}{numeric. Optional length, in inches, of the arrow head.}
 
 \item{toDev}{numeric. Which device should the new rePlot be plotted to. Default is current device.}
 
@@ -173,6 +175,8 @@ i.e, \code{landscape.DEM}.
 \dontrun{
 library(raster)
 library(rgdal)
+library(magrittr)
+library(igraph)
 #  Make list of maps from package database to load, and what functions to use to load them
 fileList <-
    data.frame(files =
@@ -221,10 +225,10 @@ if(is.null(dev.list())) {
 }
 }
 
-Plot(landscape)
+Plot(landscape, new=TRUE)
 
 # Can overplot, using addTo
-Plot(caribou, addTo="landscape.forestAge", size=4, axes=FALSE)
+Plot(caribou, addTo="landscape$forestAge", size=4, axes=FALSE)
 
 # can add a plot to the plotting window
 Plot(caribou, new=FALSE)
@@ -245,7 +249,7 @@ Srs1 = Polygons(list(Sr1), "s1")
 Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 Plot(SpP)
-Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
+Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
 
 }
 }

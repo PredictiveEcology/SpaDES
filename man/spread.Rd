@@ -61,7 +61,7 @@ library(RColorBrewer)
 
 # Make random forest cover map
 a <- raster(extent(0,1e2,0,1e2),res=1)
-hab <- GaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
+hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 names(hab)="hab"
 cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
 mask <- raster(a)
