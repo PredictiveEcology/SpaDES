@@ -5,7 +5,7 @@
 \alias{simEvents}
 \alias{simEvents,simList-method}
 \alias{simEvents<-}
-\alias{simEvents<-,simList}
+\alias{simEvents<-,simList-method}
 \title{Get and set the simluation event list (aka event queue).}
 \usage{
 simEvents(object)

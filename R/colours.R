@@ -25,7 +25,7 @@ setMethod("getColors",
           definition=function(object) {
             cols <- lapply(names(object), function(x) {
               as.character(object[[x]]@legend@colortable)
-  })
+            })
             names(cols) <- names(object)
             return(cols)
 })

@@ -621,6 +621,7 @@ setAs(from="list", to="gpar", function(from) {
 #' of lists
 #'
 #' @param plotArgs [description needed]
+#'
 #' @param numSpadesPlotObjects [description needed]
 #'
 #' @name makeList

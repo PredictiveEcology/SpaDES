@@ -5,7 +5,7 @@
 \alias{simModulesLoadOrder}
 \alias{simModulesLoadOrder,simList-method}
 \alias{simModulesLoadOrder<-}
-\alias{simModulesLoadOrder<-,simList}
+\alias{simModulesLoadOrder<-,simList-method}
 \title{Get and set the module load order for the simulation.}
 \usage{
 simModulesLoadOrder(object)

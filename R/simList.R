@@ -199,7 +199,7 @@ setGeneric("simModules<-",
 })
 
 #' @name simModules<-
-#' @aliases simModules<-,simList
+#' @aliases simModules<-,simList-method
 #' @rdname simModules-accessor
 setReplaceMethod("simModules",
                  signature="simList",
@@ -243,7 +243,7 @@ setGeneric("simModulesLoadOrder<-",
  })
 
 #' @name simModulesLoadOrder<-
-#' @aliases simModulesLoadOrder<-,simList
+#' @aliases simModulesLoadOrder<-,simList-method
 #' @rdname simModulesLoadOrder-accessor
 setReplaceMethod("simModulesLoadOrder",
                  signature="simList",
@@ -304,7 +304,7 @@ setGeneric("simModulesLoaded<-",
 })
 
 #' @name simModulesLoaded<-
-#' @aliases simModulesLoaded<-,simList
+#' @aliases simModulesLoaded<-,simList-method
 #' @rdname simModulesLoaded-accessor
 setReplaceMethod("simModulesLoaded",
                  signature="simList",
@@ -361,7 +361,7 @@ setGeneric("simObjectsLoaded<-",
 })
 
 #' @name simObjectsLoaded<-
-#' @aliases simObjectsLoaded<-,simList
+#' @aliases simObjectsLoaded<-,simList-method
 #' @rdname simObjectsLoaded-accessor
 setReplaceMethod("simObjectsLoaded",
                  signature="simList",
@@ -419,7 +419,7 @@ setGeneric("simParams<-",
 })
 
 #' @name simParams<-
-#' @aliases simParams<-,simList
+#' @aliases simParams<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simParams",
                  signature="simList",
@@ -472,7 +472,7 @@ setGeneric("simCheckpointFile<-",
 })
 
 #' @name simCheckpointFile<-
-#' @aliases simCheckpointFile<-,simList
+#' @aliases simCheckpointFile<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simCheckpointFile",
                  signature="simList",
@@ -526,7 +526,7 @@ setGeneric("simCheckpointInterval<-",
 })
 
 #' @name simCheckpointInterval<-
-#' @aliases simCheckpointInterval<-,simList
+#' @aliases simCheckpointInterval<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simCheckpointInterval",
                  signature="simList",
@@ -584,7 +584,7 @@ setGeneric("simFileList<-",
 })
 
 #' @name simFileList<-
-#' @aliases simFileList<-,simList
+#' @aliases simFileList<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simFileList",
                  signature="simList",
@@ -641,7 +641,7 @@ setGeneric("simGlobals<-",
 })
 
 #' @name simGlobals<-
-#' @aliases simGlobals<-,simList
+#' @aliases simGlobals<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simGlobals",
                  signature="simList",
@@ -696,7 +696,7 @@ setGeneric("simGlobalsOutputPath<-",
 })
 
 #' @name simGlobalsOutputPath<-
-#' @aliases simGlobalsOutputPath<-,simList
+#' @aliases simGlobalsOutputPath<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simGlobalsOutputPath",
                  signature="simList",
@@ -756,7 +756,7 @@ setGeneric("simTimes<-",
 })
 
 #' @name simTimes<-
-#' @aliases simTimes<-,simList
+#' @aliases simTimes<-,simList-method
 #' @rdname simTimes-accessor
 setReplaceMethod("simTimes",
                  signature="simList",
@@ -812,7 +812,7 @@ setGeneric("simCurrentTime<-",
 })
 
 #' @name simCurrentTime<-
-#' @aliases simCurrentTime<-,simList
+#' @aliases simCurrentTime<-,simList-method
 #' @rdname simTimes-accessor
 setReplaceMethod("simCurrentTime",
                  signature="simList",
@@ -868,7 +868,7 @@ setGeneric("simStartTime<-",
 })
 
 #' @name simStartTime<-
-#' @aliases simStartTime<-,simList
+#' @aliases simStartTime<-,simList-method
 #' @rdname simTimes-accessor
 setReplaceMethod("simStartTime",
                  signature="simList",
@@ -924,7 +924,7 @@ setGeneric("simStopTime<-",
 })
 
 #' @name simStopTime<-
-#' @aliases simStopTime<-,simList
+#' @aliases simStopTime<-,simList-method
 #' @rdname simTimes-accessor
 setReplaceMethod("simStopTime",
                  signature="simList",
@@ -984,7 +984,7 @@ setGeneric("simEvents<-",
 })
 
 #' @name simEvents<-
-#' @aliases simEvents<-,simList
+#' @aliases simEvents<-,simList-method
 #' @rdname simEvents-accessor
 setReplaceMethod("simEvents",
                  signature="simList",
@@ -1044,6 +1044,7 @@ setGeneric("simCompleted<-",
 })
 
 #' @name simCompleted<-
+#' @aliases simCompleted<-,simList-method
 #' @rdname simCompleted-accessor
 setReplaceMethod("simCompleted",
                  signature="simList",
@@ -1090,7 +1091,7 @@ setGeneric("simDepends<-",
 })
 
 #' @name simDepends<-
-#' @aliases simDepends<-,simList
+#' @aliases simDepends<-,simList-method
 #' @rdname simDepends-accessor
 setReplaceMethod("simDepends",
                  signature("simList"),
