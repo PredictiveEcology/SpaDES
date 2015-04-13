@@ -8,6 +8,8 @@
   speedup, newArr)
 }
 \arguments{
+\item{grobToPlot}{[description needed]}
+
 \item{zoomExtent}{[description needed]}
 
 \item{legendRange}{[description needed]}
@@ -19,8 +21,6 @@
 \item{speedup}{[description needed]}
 
 \item{newArr}{[description needed]}
-
-\item{gropToPlot}{[description needed]}
 }
 \description{
 Prepare raster for plotting

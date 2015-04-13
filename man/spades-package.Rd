@@ -152,7 +152,7 @@ I addition to the vast amount of GIS operations available in R, mostly from cont
 \code{maps}, \code{maptools} and many others
 \tabular{ll}{
   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
-  \code{\link{setColors}} \tab Set colours for plotting Raster* objects\cr
+  \code{SpaDES::'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
