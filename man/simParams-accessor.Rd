@@ -26,6 +26,13 @@
 \alias{simParams,simList-method}
 \alias{simParams<-}
 \alias{simParams<-,simList-method}
+\alias{simProgressGraphical}
+\alias{simProgressGraphical,simList-method}
+\alias{simProgressGraphical<-}
+\alias{simProgressInterval}
+\alias{simProgressInterval,simList-method}
+\alias{simProgressInterval<-}
+\alias{simProgressInterval<-,simList-method}
 \title{Get and set the simulation parameters list.}
 \usage{
 simParams(object)
@@ -60,6 +67,22 @@ simFileList(object) <- value
 
 \S4method{simFileList}{simList}(object) <- value
 
+simProgressGraphical(object)
+
+\S4method{simProgressGraphical}{simList}(object)
+
+simProgressGraphical(object) <- value
+
+\S4method{simProgressGraphical}{simList}(object) <- value
+
+simProgressInterval(object)
+
+\S4method{simProgressInterval}{simList}(object)
+
+simProgressInterval(object) <- value
+
+\S4method{simProgressInterval}{simList}(object) <- value
+
 simGlobals(object)
 
 \S4method{simGlobals}{simList}(object)
@@ -93,6 +116,10 @@ Returns or sets the value of the slot from the \code{simList} object.
 Returns or sets the value of the slot from the \code{simList} object.
 
 Returns or sets the value of the slot from the \code{simList} object.
+
+Returns or sets the value of the slot from the \code{simList} object.
+
+Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Currently, only get and set methods are defined. Subset methods are not.
@@ -103,11 +130,19 @@ Get and set the simulation checkpoint interval.
 
 Currently, only get and set methods are defined. Subset methods are not.
 
+Get and set the simulation progress indicator graphical argument.
+
+Get and set the simulation progress indicator update interval.
+
 Currently, only get and set methods are defined. Subset methods are not.
 
 Get and set the output path from global simulation parmeters.
 }
 \author{
+Alex Chubaty
+
+Alex Chubaty
+
 Alex Chubaty
 
 Alex Chubaty
@@ -166,6 +201,32 @@ Alex Chubaty
          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
          \code{\link{simParams}} for accessing the list of simulation parameters;
+         \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+         \code{\link{simCompleted}} for accessing the list of completed simulation events;
+         \code{\link{simTimes}} for accessing the list of simulation times
+         (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+         to access the simulation current, start, and stop times individually).
+
+\code{\link{simCheckpointFile}} for accessing the simulation checkpoint interval;
+         \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+         \code{\link{simGlobals}} for accessing the global simulation parameters;
+         \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+         \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+         \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+         \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+         \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+         \code{\link{simCompleted}} for accessing the list of completed simulation events;
+         \code{\link{simTimes}} for accessing the list of simulation times
+         (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+         to access the simulation current, start, and stop times individually).
+
+\code{\link{simCheckpointFile}} for accessing the simulation checkpoint interval;
+         \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+         \code{\link{simGlobals}} for accessing the global simulation parameters;
+         \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+         \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+         \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+         \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
          \code{\link{simCompleted}} for accessing the list of completed simulation events;
          \code{\link{simTimes}} for accessing the list of simulation times

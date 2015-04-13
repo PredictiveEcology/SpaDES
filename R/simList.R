@@ -595,6 +595,114 @@ setReplaceMethod("simFileList",
 })
 
 ################################################################################
+#' Get and set the simulation progress indicator graphical argument.
+#'
+#' @inheritParams simModules
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simParams-accessor
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simProgressGraphical", function(object) {
+  standardGeneric("simProgressGraphical")
+})
+
+#' @rdname simParams-accessor
+setMethod("simProgressGraphical",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.progress$graphical)
+})
+
+#' @rdname simParams-accessor
+setGeneric("simProgressGraphical<-",
+           function(object, value) {
+             standardGeneric("simProgressGraphical<-")
+})
+
+#' @name simProgressInterval<-
+#' @aliases simProgressInterval<-,simList-method
+#' @rdname simParams-accessor
+setReplaceMethod("simProgressGraphical",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.progress$graphical <- value
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
+#' Get and set the simulation progress indicator update interval.
+#'
+#' @inheritParams simModules
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simParams-accessor
+#'
+#' @seealso \code{\link{simCheckpointFile}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
+#'          \code{\link{simGlobals}} for accessing the global simulation parameters;
+#'          \code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
+#'          \code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
+#'          \code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
+#'          \code{\link{simModules}} for accessing the list of simulation modules to be loaded;
+#'          \code{\link{simEvents}} for accessing the scheduled simulation event queue;
+#'          \code{\link{simCompleted}} for accessing the list of completed simulation events;
+#'          \code{\link{simTimes}} for accessing the list of simulation times
+#'          (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
+#'          to access the simulation current, start, and stop times individually).
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simProgressInterval", function(object) {
+  standardGeneric("simProgressInterval")
+})
+
+#' @rdname simParams-accessor
+setMethod("simProgressInterval",
+          signature="simList",
+          definition=function(object) {
+            return(object@params$.progress$interval)
+})
+
+#' @rdname simParams-accessor
+setGeneric("simProgressInterval<-",
+           function(object, value) {
+             standardGeneric("simProgressInterval<-")
+})
+
+#' @name simProgressInterval<-
+#' @aliases simProgressInterval<-,simList-method
+#' @rdname simParams-accessor
+setReplaceMethod("simProgressInterval",
+                 signature="simList",
+                 function(object, value) {
+                   object@params$.progress$interval <- value
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
 #' Get and set the list of global simulation parmeters.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
