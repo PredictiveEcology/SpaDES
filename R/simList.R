@@ -465,7 +465,6 @@ setMethod("simCheckpointFile",
             return(object@params$.checkpoint$file)
 })
 
-#' @export
 #' @rdname simParams-accessor
 setGeneric("simCheckpointFile<-",
            function(object, value) {
@@ -1045,7 +1044,6 @@ setGeneric("simCompleted<-",
 })
 
 #' @name simCompleted<-
-#' @aliases simCompleted<-,simList
 #' @rdname simCompleted-accessor
 setReplaceMethod("simCompleted",
                  signature="simList",
@@ -1054,7 +1052,6 @@ setReplaceMethod("simCompleted",
                    validObject(object)
                    return(object)
 })
-
 
 #' Get and set simulation dependencies
 #'

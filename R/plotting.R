@@ -300,7 +300,7 @@ setMethod("equalExtent",
 #'
 #' @slot objClass character. Class of the object represented by this spadesGrob
 #'
-#' @slot isSpatialObject logical. TRUE if the object is one of the SpaDES recognized
+#' @slot isSpatialObjects logical. TRUE if the object is one of the SpaDES recognized
 #' spatialObject classes
 #'
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
@@ -616,6 +616,7 @@ setAs(from="list", to="gpar", function(from) {
 #' of lists
 #'
 #' @param plotArgs
+#' @param numSpadesPlotObjects
 #'
 #' @name makeList
 #' @rdname makeList
@@ -813,7 +814,7 @@ setMethod("updateSpadesPlot",
 #' objects to plot and builds an object that will be used by the Plot functions to plot
 #' them efficiently
 #'
-#' @param extents A list of extents from spatial objects to plot
+#' @param spadesPlot [needs description]
 #'
 #' @rdname arrangeViewports
 #' @export

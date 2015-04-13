@@ -12,6 +12,8 @@ makeList(plotArgs, numSpadesPlotObjects)
 }
 \arguments{
 \item{plotArgs}{}
+
+\item{numSpadesPlotObjects}{}
 }
 \description{
 Take the inputs as plotArgs to the Plot function, and make them list entries

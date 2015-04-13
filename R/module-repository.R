@@ -98,6 +98,7 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="character", repo="missing"),
           definition = function(name, path, version) {
@@ -105,6 +106,7 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="missing", repo="missing"),
           definition = function(name, path) {
@@ -112,6 +114,7 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
+#' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="missing", repo="character"),
           definition = function(name, path, repo) {

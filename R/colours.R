@@ -60,7 +60,6 @@ setGeneric("setColors<-",
              standardGeneric("setColors<-")
 })
 
-#' @export
 #' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
@@ -72,7 +71,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @export
 #' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
@@ -85,7 +83,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @export
 #' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",
@@ -99,7 +96,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @export
 #' @rdname setColors
 #' @docType methods
 setReplaceMethod("setColors",

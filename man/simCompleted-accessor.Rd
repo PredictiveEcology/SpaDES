@@ -5,7 +5,6 @@
 \alias{simCompleted}
 \alias{simCompleted,simList-method}
 \alias{simCompleted<-}
-\alias{simCompleted<-,simList}
 \title{Get and set the list of completed simulation events.}
 \usage{
 simCompleted(object)

@@ -11,7 +11,7 @@ arrangeViewports(spadesPlot)
 \S4method{arrangeViewports}{spadesPlot}(spadesPlot)
 }
 \arguments{
-\item{extents}{A list of extents from spatial objects to plot}
+\item{spadesPlot}{[needs description]}
 }
 \description{
 This assesses the device geometry, the map geometry, and the number of spatial
