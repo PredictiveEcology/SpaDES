@@ -2414,9 +2414,8 @@ clickCoordinates <- function(n=1) {
 #' @param takeFromPlotObj logical. If TRUE, then take from the call to Plot, FALSE takes
 #' from global environment
 #'
-#' @rdname identifyGrobToPlot
-#'
 #' @author Eliot McIntire
+#' @rdname identifyGrobToPlot
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
   standardGeneric(".identifyGrobToPlot")
 })
