@@ -8,19 +8,19 @@
   speedup, newArr)
 }
 \arguments{
-\item{zoomExtent}{}
+\item{zoomExtent}{[description needed]}
 
-\item{legendRange}{}
+\item{legendRange}{[description needed]}
 
-\item{takeFromPlotObj}{}
+\item{takeFromPlotObj}{[description needed]}
 
-\item{arr}{}
+\item{arr}{[description needed]}
 
-\item{speedup}{}
+\item{speedup}{[description needed]}
 
-\item{newArr}{}
+\item{newArr}{[description needed]}
 
-\item{gropToPlot}{}
+\item{gropToPlot}{[description needed]}
 }
 \description{
 Prepare raster for plotting

@@ -11,9 +11,9 @@ makeList(plotArgs, numSpadesPlotObjects)
 \S4method{makeList}{list}(plotArgs, numSpadesPlotObjects)
 }
 \arguments{
-\item{plotArgs}{}
+\item{plotArgs}{[description needed]}
 
-\item{numSpadesPlotObjects}{}
+\item{numSpadesPlotObjects}{[description needed]}
 }
 \description{
 Take the inputs as plotArgs to the Plot function, and make them list entries

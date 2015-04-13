@@ -2464,7 +2464,7 @@ setMethod(".identifyGrobToPlot",
 
 #' Prepare raster for plotting
 #'
-#' @param gropToPlot       [description needed]
+#' @param grobToPlot       [description needed]
 #' @param zoomExtent       [description needed]
 #' @param legendRange      [description needed]
 #' @param takeFromPlotObj  [description needed]
