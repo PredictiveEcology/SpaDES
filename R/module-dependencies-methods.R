@@ -1,7 +1,8 @@
 ### deal with spurious data.table warnings
 if(getRversion() >= "3.1.0") {
   utils::globalVariables(c(".", "module.x", "module.y", "from", "to", "name",
-                           "objectName", "objectClass", "other", "module", "i.module"))
+                           "objectName", "objectClass", "other", "module",
+                           "i.objectClass", "i.module"))
 }
 
 # register the S3 `igraph` class for use with S4 methods.

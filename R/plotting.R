@@ -620,8 +620,8 @@ setAs(from="list", to="gpar", function(from) {
 #' Take the inputs as plotArgs to the Plot function, and make them list entries
 #' of lists
 #'
-#' @param plotArgs
-#' @param numSpadesPlotObjects
+#' @param plotArgs [description needed]
+#' @param numSpadesPlotObjects [description needed]
 #'
 #' @name makeList
 #' @rdname makeList
@@ -2464,13 +2464,13 @@ setMethod(".identifyGrobToPlot",
 
 #' Prepare raster for plotting
 #'
-#' @param gropToPlot
-#' @param zoomExtent
-#' @param legendRange
-#' @param takeFromPlotObj
-#' @param arr
-#' @param speedup
-#' @param newArr
+#' @param gropToPlot       [description needed]
+#' @param zoomExtent       [description needed]
+#' @param legendRange      [description needed]
+#' @param takeFromPlotObj  [description needed]
+#' @param arr              [description needed]
+#' @param speedup          [description needed]
+#' @param newArr           [description needed]
 #'
 #' @rdname prepareRaster
 #' @author Eliot McIntire
