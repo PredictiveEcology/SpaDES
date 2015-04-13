@@ -165,9 +165,8 @@ see why this is importnat in [@Grimm:2005bk; @Thiele:2015oi]
 The following package vignettes are intended to be read in sequence, and follow a progression from higher-level package organization and motivation, to detailed implementation of user-built modules and simulations. To view available vignettes use `browseVignettes(package="SpaDES")`.
 
 1. `introduction`: Introduction to SpaDES. This vignette.
-2. [`getting-started`](getting-started.html): Getting started with `SpaDES`. Provides a more detailed introduction to implementing ecological simulation models, with examples.
-3. [`modules`](modules.html): Building modules in `SpaDES`. A detailed guide to module design, modifying existing modules, and creating new modules.
-4. [`plotting`](plotting.html): Plotting with `SpaDES`. A deeper look at plotting using the `Plot` function.
+2. [`modules`](ii-modules.html): Building modules in `SpaDES`. A detailed guide to module design, modifying existing modules, and creating new modules.
+3. [`plotting`](iii-plotting.html): Plotting with `SpaDES`. A deeper look at plotting using the `Plot` function.
 
 ## `SpaDES` module repository
 
