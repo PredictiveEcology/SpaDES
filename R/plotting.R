@@ -1083,7 +1083,8 @@ setMethod(".plotGrob",
 setMethod(".plotGrob",
           signature=c("SpatialLines"),
           definition= function(grobToPlot, col, size,
-                               legend, gp=gpar(), pch, ...) {
+                               legend, gp=gpar(), pch, length, ...) {
+
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
               pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
                             p2=c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -1121,14 +1122,22 @@ setMethod(".plotGrob",
               }
             }
 
+            if(is.null(length)) {
+              lineGrob <- gTree(children=gList(
+                polylineGrob(x=xy[, 1], y=xy[, 2], id.lengths=idLength,
+                             gp=gp, default.units="native")
+              ),
+              gp=gp,
+              cl="plotLine")
+            } else {
+              lineGrob <- gTree(children=gList(
+                polylineGrob(x=xy[, 1], y=xy[, 2], id.lengths=idLength,
+                             gp=gp, default.units="native", arrow=arrow(length=unit(length, "inches")))
+              ),
+              gp=gp,
+              cl="plotLine")
+            }
 
-            #gp$fill[hole] <- "#FFFFFF00"
-            lineGrob <- gTree(children=gList(
-              polylineGrob(x=xy[, 1], y=xy[, 2], id.lengths=idLength,
-                           gp=gp, default.units="native")
-            ),
-            gp=gp,
-            cl="plotLine")
             grid.draw(lineGrob)
             return(invisible(lineGrob))
 })
@@ -1310,10 +1319,14 @@ makeViewports <- function(spadesPlot, newArr=FALSE) {
 #'
 #' @param axes logical Add axes to plot. Defaults to \code{TRUE}.
 #'
+#' @param length numeric. Optional length, in inches, of the arrow head.
+#'
 #' @param ...           Additional plotting parameters passed to \code{\link{grid.polyline}}.
 #' Currently does not appear to pass anything.
 #'
-#' @return Plots the vectors representing agent movement on the specified map.
+#' @return Plots the vectors representing agent movement on the specified map. If plotted
+#' on a blank plot, the plot object will be given the name of the "from" object, with
+#' the word "Arrows" concatenated on the end.
 #'
 #' @import sp
 #' @import grid
@@ -1350,19 +1363,18 @@ setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
   standardGeneric("drawArrows")
 })
 
-#' @param length    The length of the arrows to draw (defaults to 0.1).
-#'
 #' @rdname drawArrows
-#'
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "character"),
           definition=function(from, to, addTo, title, axes, ..., length=0.1) {
-            seekViewport(addTo, recording=FALSE)
-            grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
-                          default.units="native",
-                          id=rep(1:length(from), 2),
-                          arrow=arrow(length=unit(length, "inches"), ...))
-            upViewport(0)
+            objName <- paste0(.objectNames("drawArrows")[[1]], "Arrows")
+
+            assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
+              Lines(list(Line(coords=rbind(coordinates(from)[x,], coordinates(to)[x,]))),ID=x)
+            })), envir=.GlobalEnv)
+
+            Plot(get(objName, envir=.GlobalEnv), addTo=addTo,
+                 title=title, axes=axes, length=length, ...)
 })
 
 #' @rdname drawArrows
@@ -1370,25 +1382,13 @@ setMethod("drawArrows",
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "missing"),
           definition=function(from, to, addTo, title, axes, ..., length=0.1) {
-            grid.newpage()
-            extents <- list(extent(
-              extendrange(c(min(min(from$x), min(to$x)), max(max(from$x, to$x)))),
-              extendrange(c(min(min(from$y), min(to$y)), max(max(from$y, to$y))))))
-            names(extents) <- .objectNames("drawArrows", argName = NULL)[1]
-            arr <- arrangeViewports(extents)
-            arr@layout <- makeLayout(arr=arr, visualSqueeze=0.75)
-            arr@isSpatialObjects <- TRUE
-            vps <- makeViewports(extents, arr=arr, newArr = TRUE)
-            pushViewport(vps)
-            seekViewport(names(extents), recording=FALSE)
-            grid.polyline(x=c(from$x, to$x), y=c(from$y, to$y),
-                          default.units="native",
-                          id=rep(1:length(from), 2),
-                          arrow=arrow(length=unit(length, "inches"), ...))
-            if (title) grid.text(names(extents), 0.5, 1.05)
-            if (axes) {grid.xaxis(); grid.yaxis()}
+            objName <- paste0(.objectNames("drawArrows")[[1]], "Arrows")
+            assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
+              Lines(list(Line(coords=rbind(coordinates(from)[x,], coordinates(to)[x,]))),ID=x)
+            })), envir=.GlobalEnv)
 
-            upViewport(0)
+            Plot(get(objName, envir=.GlobalEnv),
+                 title=title, axes=axes, length=length, ...)
 })
 
 
@@ -1661,6 +1661,8 @@ setMethod("drawArrows",
 #'
 #' @param title Logical. Whether the names of each plot should be written above plots.
 #'
+#' @param length numeric. Optional length, in inches, of the arrow head.
+#'
 #' @return Invisibly returns the \code{spadesPlot} class object. If this is assigned to an
 #' object, say \code{obj}, then this can be plotted again with \code{Plot(obj)}. This
 #' object is also stored in the locked \code{.spadesEnv}, so can simply be replotted
@@ -1770,7 +1772,7 @@ setGeneric("Plot", signature="...",
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
                     pch = 19, title=TRUE,
-                    na.color="#FFFFFF00", zero.color=NULL) {
+                    na.color="#FFFFFF00", zero.color=NULL, length=NULL) {
              standardGeneric("Plot")
  })
 
@@ -1780,7 +1782,7 @@ setMethod("Plot",
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
                                 cols, zoomExtent, visualSqueeze,
                                 legend, legendRange, legendText, pch, title, na.color,
-                                zero.color) {
+                                zero.color, length) {
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
 
@@ -1897,11 +1899,6 @@ setMethod("Plot",
               yaxis <- TRUE
             }
 
-            #yaxis <- (((whPlotFrame-1)%%arr@columns+1)==1)*(axes=="L") | (axes==TRUE)
-            #xaxis <- ((length(spadesSubPlots)-whPlotFrame)<arr@columns)*(axes=="L") | (axes==TRUE)
-
-
-
             takeFromPlotObj=!(spadesGrob@plotName %in% names(currSpadesPlots@spadesGrobList))
 
             grobToPlot <- .identifyGrobToPlot(spadesGrob, plotObjs, takeFromPlotObj)
@@ -1923,7 +1920,6 @@ setMethod("Plot",
             if(is.null(spadesGrob@plotArgs$gpAxis$cex)) {
               spadesGrob@plotArgs$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
             }
-
 
             if(is(grobToPlot, "Raster")) {
 
@@ -1961,6 +1957,7 @@ setMethod("Plot",
             zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
           } else if (is(grobToPlot, "SpatialLines")) { # it is a SpatialPolygons object
+
             if(!is.null(spadesGrob@plotArgs$zoomExtent)) {
               grobToPlot <- crop(grobToPlot,spadesGrob@plotArgs$zoomExtent)
             }
@@ -2013,7 +2010,7 @@ setMethod("Plot",
              }
             legendTxt <- if(!isBaseSubPlot | !isReplot) {NULL}
 
-            plotGrob(zMat$z, col = zMat$cols, size=unit(spadesGrob@plotArgs$size, "points"),
+            plotGrobCall <- append(list(zMat$z, col = zMat$cols, size=unit(spadesGrob@plotArgs$size, "points"),
                      real=zMat$real,
                      minv=zMat$minz,
                      maxv=zMat$maxz,
@@ -2021,7 +2018,8 @@ setMethod("Plot",
                      legend = legend*isBaseSubPlot*isReplot | legend*isBaseSubPlot*isNewPlot, legendText=legendTxt,
                      gp = spadesGrob@plotArgs$gp,
                      gpText = spadesGrob@plotArgs$gpText,
-                     speedup=spadesGrob@plotArgs$speedup)
+                     speedup=spadesGrob@plotArgs$speedup, length=spadesGrob@plotArgs$length), nonPlotArgs)
+            do.call(.plotGrob, args=plotGrobCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
                                name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
 
