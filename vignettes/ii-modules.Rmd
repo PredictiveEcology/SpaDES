@@ -224,27 +224,27 @@ The output of the `depsEdgeList` is an edgelist describing the relationships bet
 
 # Core modules
 
-There are a number of built-in modules that provide useful functionality such as plotting and saving. These modules have their names prefaced with a dot (`.`). Parameter values for core modules can be accessed either by using their accessor methods (below); however, these are simply entries in a nested list exactly like the parameters passed to user modules.
+There are a number of built-in modules that provide useful functionality such as plotting and saving. These modules have their names prefaced with a dot (`.`). Parameter values for core modules can be accessed by using their accessor methods; however, these are simply entries in a nested list exactly like the parameters passed to user modules, and can be accessed directly as such.
 
 These core modules are summarized in the following table and described further below.
 
-**Module Name**   | **Description** | **Parameterization** | **Accessor Methods**
-------------------|-----------------|----------------------|---------------------
-**`.checkpoint`** | brief summary   | `file`: character.   | `simCheckpointFile()`
-&nbsp;            |                 | `interval`: numeric (or `NA`). | `simCheckpointInterval()`
-&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
-**`.load`**       | brief summary   | `fileList`: character. | `simFileList()`
-&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
-**`.plot`**       | brief summary   | `.plotInitialTime`: numeric (or `NA`) | as list item in your module params.
-&nbsp;            |                 | `.plotInterval`: numeric (or `NA`) | as list item in your module params.
-&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
-**`.progress`**   | brief summary   | `graphical`: logical (or `NA`). | `simProgressGraphical()`
-&nbsp;            |                 | `interval`: numeric (or `NA`). | `simProgressInterval()`
-&nbsp;            | &nbsp;          | &nbsp;               | &nbsp;
-**`.save`**       | brief summary   | `.saveInitialTime`: numeric (or `NA`) | as list item in your module params.
-&nbsp;            |                 | `.saveInterval`: numeric (or `NA`) | as list item in your module params.
-&nbsp;            |                 | `.saveObjects`: character | as list item in your module params.
-&nbsp;            |                 | `.savePath`: character | as list item in your module params.
+**Module Name**   | **Parameterization**                  | **Accessor Methods**
+------------------|---------------------------------------|---------------------
+**`.checkpoint`** | `file`: character.                    | `simCheckpointFile()`
+&nbsp;            | `interval`: numeric (or `NA`).        | `simCheckpointInterval()`
+&nbsp;            | &nbsp;                                | &nbsp;
+**`.load`**       | `fileList`: character.                | `simFileList()`
+&nbsp;            | &nbsp;                                | &nbsp;
+**`.plot`**       | `.plotInitialTime`: numeric (or `NA`) | as list item in your module parameters.
+&nbsp;            | `.plotInterval`: numeric (or `NA`)    | as list item in your module parameters.
+&nbsp;            | &nbsp;                                | &nbsp;
+**`.progress`**   | `graphical`: logical (or `NA`).       | `simProgressGraphical()`
+&nbsp;            | `interval`: numeric (or `NA`).        | `simProgressInterval()`
+&nbsp;            | &nbsp;                                | &nbsp;
+**`.save`**       | `.saveInitialTime`: numeric (or `NA`) | as list item in your module parameters.
+&nbsp;            | `.saveInterval`: numeric (or `NA`)    | as list item in your module parameters.
+&nbsp;            | `.saveObjects`: character.            | as list item in your module parameters.
+&nbsp;            | `.savePath`: character.               | as list item in your module parameters.
 
 ## `.checkpoint` module
 
