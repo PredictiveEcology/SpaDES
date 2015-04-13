@@ -1,5 +1,5 @@
 ---
-title: "03 Building modules in `SpaDES`"
+title: "02 Building modules in `SpaDES`"
 author: "Alex M. Chubaty"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
@@ -11,7 +11,7 @@ output:
     toc: yes
 vignette: >
   %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{03 Building modules in SpaDES}
+  %\VignetteIndexEntry{02 Building modules in SpaDES}
   %\VignetteDepends{SpaDES, igraph, ggplot2, RColorBrewer}
   %\VignetteKeyword{module development}
   %\usepackage[utf8]{inputenc}
