@@ -7,5 +7,5 @@
 cran-comments.md
 LICENSE
 ^SAMPLE$
-vignettes/*.log$
-vignettes/*_cache$
+vignettes/.*\.log$
+vignettes/.*_cache$
