@@ -1359,7 +1359,7 @@ makeViewports <- function(spadesPlot, newArr=FALSE) {
 #' loadFiles(fileList=fileList)
 #'
 #' Plot(DEM)
-#' drawArrows(from, caribou2, addTo="DEM")
+#' drawArrows(caribou1, caribou2, addTo="DEM")
 setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
   standardGeneric("drawArrows")
 })

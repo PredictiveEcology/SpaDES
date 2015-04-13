@@ -65,7 +65,7 @@ fileList <-
 loadFiles(fileList=fileList)
 
 Plot(DEM)
-drawArrows(from, caribou2, addTo="DEM")
+drawArrows(caribou1, caribou2, addTo="DEM")
 }
 \author{
 Eliot McIntire
