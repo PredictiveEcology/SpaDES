@@ -2452,13 +2452,16 @@ setMethod(".identifyGrobToPlot",
 
 #' Prepare raster for plotting
 #'
-#' @param gropToPlot
-#' @param zoomExtent
-#' @param legendRange
-#' @param takeFromPlotObj
-#' @param arr
-#' @param speedup
-#' @param newArr
+#' This is to be used internally. This takes a raster spadesGrob, and converts zoomExtent
+#' into a zoom, legendRange into a legend, and calculates the maxpixels to plot for speed.
+#'
+#' @param grobToPlot spadesGrob
+#' @param zoomExtent an extent object
+#' @param legendRange a numeric vector of length >=2 indicating the desired legend range.
+#' @param takeFromPlotObj logical. Should the object be found in the Plot call or .GlobalEnv
+#' @param arr an \code{arrangement} object
+#' @param speedup numeric, greater than 1 will usually speed up plotting at the expense of resolution
+#' @param newArr logical, whether this is a new arrangement or just adding to a previous one
 #'
 #' @rdname prepareRaster
 #' @author Eliot McIntire
