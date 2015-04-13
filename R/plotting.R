@@ -118,7 +118,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #'
 #' There are already methods for \code{Raster*} in the raster package.
 #' Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines},
-#' and \code{SpatialPoints}. These latter classes return 1.
+#' and \code{SpatialPoints}, \code{gg}. These latter classes return 1.
 #'
 #' @param x A \code{spadesPlotObjects} object or list of these.
 #'
@@ -176,6 +176,8 @@ setMethod("nlayers",
 #'
 #' There are methods for \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}
 #' and \code{SpatialPolygons*}, though the latter return an empty character vector of length 1.
+#' This function was created to give consistent, meaningful results for all classes of objects
+#' plotted by \code{Plot}.
 #'
 #' @param object  A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*},
 #'                or \code{SpatialPolygons*} object; or list of these.
@@ -184,7 +186,6 @@ setMethod("nlayers",
 #' @rdname layerNames
 #' @author Eliot McIntire
 #' @export
-#'
 setGeneric("layerNames", function(object) {
   standardGeneric("layerNames")
 })
@@ -195,7 +196,6 @@ setMethod("layerNames",
           definition=function(object) {
             unlist(lapply(object, layerNames))
 })
-
 
 #' @rdname layerNames
 setMethod("layerNames",
@@ -469,7 +469,7 @@ setClassUnion(name="spadesPlotables", members=c("spadesPlotObjects", "spadesPlot
 #'
 #' Builds a \code{spadesPlot} object from a list of objects.
 #'
-#' @param plotObjects list. Any plot objects, whether a legend should be drawn. Default \code{TRUE}.
+#' @param plotObjects list. Any plot objects.
 #'
 #' @param plotArgs list. Any arguments that the the grid package can accept for the specific
 #' grob types, e.g., rasterGrob, polygonGrob, etc.
@@ -494,7 +494,6 @@ setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, ...) {
 setMethod(".makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="list"),
           definition= function(plotObjects, plotArgs, ...) {
-
 
             isSpatialObjects <- sapply(plotObjects, function(x) is(x, "spatialObjects"))
             if((sum(isSpatialObjects)!=0) & (sum(isSpatialObjects)!=length(isSpatialObjects))) {
@@ -612,10 +611,13 @@ setAs(from="list", to="gpar", function(from) {
 ######################################################
 #' Convert plotArgs to list of lists
 #'
-#' Take the inputs as plotArgs to the Plot function, and make them list entries
-#' of lists
+#' Take the inputs as plotArgs to the Plot function, and make them a list of length
+#' \code{numSpadesPlotObjects} entries of lists. To be called internally only.
 #'
-#' @param plotArgs
+#' @param plotArgs list. The arguments passed to Plot
+#'
+#' @param numSpadesPlotObjects numeric. The number of spadesPlotObjects. This can't
+#' easily be deduced from the plotArgs because of the RasterStacks. So passed manually.
 #'
 #' @name .makeList
 #' @rdname makeList
@@ -811,9 +813,9 @@ setMethod(".updateSpadesPlot",
 #'
 #' This assesses the device geometry, the map geometry, and the number of spatial
 #' objects to plot and builds an object that will be used by the Plot functions to plot
-#' them efficiently
+#' them efficiently. This is meant to be used internally.
 #'
-#' @param extents A list of extents from spatial objects to plot
+#' @param spadesPlot A \code{spadesPlot} object.
 #'
 #' @rdname arrangeViewports
 #' @export
@@ -975,11 +977,6 @@ setMethod(".plotGrob",
                                                       x=1.04, y=0.5, height=0.5, width=0.03,
                                                       interpolate=FALSE,
                                                       name="legend"),
-                                #                                 if(legend) { # if top or bottom entry of legend is white, make a box around it to see it
-                                #
-                                #                                   if(grepl("^#FFFFFF", col[1]) | grepl("^#FFFFFF", col[maxcol]))
-                                #                                     rectGrob(x=1.04, y=0.5, height=0.5, width=0.03, gp=gpar(fill=NA))
-                                #                                 },
                                 if(legend) {
                                   txt <- if(is.null(legendText)) {
                                     pr
@@ -1688,6 +1685,8 @@ setMethod("drawArrows",
 #' \dontrun{
 #' library(raster)
 #' library(rgdal)
+#' library(magrittr)
+#' library(igraph)
 #' #  Make list of maps from package database to load, and what functions to use to load them
 #' fileList <-
 #'    data.frame(files =
@@ -1736,11 +1735,11 @@ setMethod("drawArrows",
 #' }
 #' }
 #'
-#' Plot(landscape)
+#' Plot(landscape, new=TRUE)
 
 #'
 #' # Can overplot, using addTo
-#' Plot(caribou, addTo="landscape.forestAge", size=4, axes=FALSE)
+#' Plot(caribou, addTo="landscape$forestAge", size=4, axes=FALSE)
 #'
 #' # can add a plot to the plotting window
 #' Plot(caribou, new=FALSE)
@@ -1757,15 +1756,13 @@ setMethod("drawArrows",
 #' Plot(habitatQuality2, new=FALSE)
 #' Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
 #' Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
-
 #' Srs1 = Polygons(list(Sr1), "s1")
 #' Srs2 = Polygons(list(Sr2), "s2")
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #' Plot(SpP)
-#' Plot(SpP, addTo="landscape.forestCover", gp=gpar(lwd=2))
+#' Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
 #'
 #' }
-#'
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
                     axes="L", speedup = 1,
@@ -1785,6 +1782,7 @@ setMethod("Plot",
                                 zero.color, length) {
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
+
 
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
@@ -2476,14 +2474,9 @@ setMethod(".identifyGrobToPlot",
   }
   if(is.null(legendRange) | ((takeFromPlotObj==FALSE)*!newArr)) legendRange <- NA
 
-
-  maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup
-  #if(!is.null(npixels)) {
-  maxpixels <- min(maxpixels, npixels)
+  maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%
+    min(., npixels)
   skipSample <- if(is.null(zoomExtent)) {maxpixels>=npixels} else {FALSE}
-  #} else {
-  #  skipSample <- TRUE
-  #}
 
   return(list(maxpixels=maxpixels, skipSample=skipSample,
               legendRange=legendRange, zoom=zoom))
