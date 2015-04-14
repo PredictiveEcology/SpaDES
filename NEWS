@@ -20,7 +20,7 @@ version 0.6.1
         |_ README          # incl. module metadata in addition to version change info, etc.
 
 * added `downloader`, `dplyr`, `fpCompare`, `httr`, `magrittr`, `stringr` to `Imports`
-* updated vignettes
+* updated vignettes and documentation improvements
 * numerous Plotting improvements
 * bug fixes
 
