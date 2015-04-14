@@ -4,7 +4,7 @@
 \name{spades-package}
 \alias{SpaDES}
 \alias{spades-package}
-\title{Overview of the functions in the SpaDES package}
+\title{Categorized view of the functions in the SpaDES package}
 \description{
 This package allows implementation a variety of simulation-type models, with a focus on spatially
 explicit models. The core simulation components are built upon

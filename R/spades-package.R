@@ -3,9 +3,7 @@
 #  Copyright (C) 2015
 #
 
-
-
-#' Overview of the functions in the SpaDES package
+#' Categorized view of the functions in the SpaDES package
 #'
 #' @description
 #'

@@ -100,8 +100,6 @@ agentLocation <- function(map) {
 #'
 #' @return An RasterLayer with probabilities of initialization
 #'
-#' @seealso \code{\link{print}} and \code{\link{cat}}
-#'
 #' @import raster
 #' @import sp
 #' @include agent.R
