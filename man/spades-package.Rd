@@ -60,6 +60,7 @@ and speed of plotting:
   \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
   \code{\link{clickValues}} \tab Extract values from a raster object at the mouse click location(s)\cr
   \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
+  \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
   \code{\link{dev}} \tab Specify which device to plot on, making a non-RStudio one as default\cr
   \code{\link{newPlot}} \tab Open a new default plotting device\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
@@ -118,7 +119,36 @@ on github.com:
 A collection of functions that help with making modules, in addition to all the other R packages and code.
 }
 
-\section{2.1 Spatial spreading}{
+\section{2.1 Module metadata}{
+
+
+Each module requires several items to be defined. These comprise the metadata for that module,
+and are currently written at the top of the module R file, all within the \code{\link{defineModule}}
+function. Functions to help with this:
+
+\tabular{ll}{
+  \code{\link{defineModule}} \tab Define the module metadata\cr
+  \code{\link{defineParameter}} \tab Specify a parameter's name, value and set a default\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{2.2 Module dependencies}{
+
+
+Once a set of modules have been chosen, the dependency information is automatically
+calculated once simInit is run. There are several functions to assist with dependency
+information:
+
+\tabular{ll}{
+  \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
+  \code{\link{depsGraph}} \tab Build a module dependency graph using igraph\cr
+  \code{\link{depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{2.3 Spatial spreading}{
 
 
 Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
@@ -133,7 +163,7 @@ with these:
 }
 }
 
-\section{2.2 Spatial agent methods}{
+\section{2.4 Spatial agent methods}{
 
 
 Agents have several methods and functions specific to them:
@@ -145,7 +175,7 @@ Agents have several methods and functions specific to them:
 }
 }
 
-\section{2.3 GIS operations}{
+\section{2.5 GIS operations}{
 
 
 I addition to the vast amount of GIS operations available in R, mostly from contributed packages, like \code{sp}, \code{raster},
@@ -157,7 +187,7 @@ I addition to the vast amount of GIS operations available in R, mostly from cont
 }
 }
 
-\section{2.4 Random Map Generation}{
+\section{2.6 Random Map Generation}{
 
 
 Before all data are available, it is often useful to build dummy maps on which to build
@@ -166,6 +196,36 @@ simulation models. These can then be replaced later with actual data maps:
 \tabular{ll}{
   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
   \code{\link{gaussMap}} \tab Creates a random map upsing gaussian random fields\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{2.7 Assigning and getting objects}{
+
+
+SpaDES modules are groups of R functions. This means that any objects created within
+a function needs to be returned or manually assigned. Since the structure of SpaDES
+is to use the function calls to return only the simList object, any objects that are
+to be used by any other function, event or module must be assigned to an environment
+where it can be found by those other functions, events, and modules. As shorthand
+wrappers, we have built the following to simplify this:
+
+\tabular{ll}{
+  \code{\link{assignGlobal}} \tab Assign to the global environment\cr
+  \code{\link{getGlobal}} \tab Get from the global environment\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{2.8 Checking for the existence of objects}{
+
+
+SpaDES modules will often require the existence of objects in the global environment.
+These are several helpers for assessing this:
+
+\tabular{ll}{
+  \code{\link{checkObject}} \tab Check for existence of a global object\cr
+  \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }

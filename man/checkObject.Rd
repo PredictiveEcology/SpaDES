@@ -31,7 +31,7 @@ checkObject(name, object, layer, ...)
 \item{...}{Additional arguments. Not implemented.}
 }
 \value{
-Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
+Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 }
 \description{
 Check that a named object exists in the global environment, and optionally has
