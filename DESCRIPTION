@@ -11,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     development packages on Windows requires Rtools
     (http://cran.r-project.org/bin/windows/Rtools).
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.6.0.9001
-Date: 2015-04-02
+Version: 0.6.0.9002
+Date: 2015-04-14
 Authors@R: c(
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
     role="cph"),
