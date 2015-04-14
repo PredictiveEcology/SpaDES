@@ -24,7 +24,10 @@ bibliography: bibliography.bib
 
 ## Package description
 
-Implement a variety of simulation models, with a focus on spatially explicit raster models and agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
+Easily implement a variety of simulation models, with a focus on spatially explicit agent based models.
+The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules.
+Included are numerous tools to visualize raster and other maps.
+The suggested package `fastshp` can be installed with `devtools::install_github("s-u/fastshp")`; installation of development packages on Windows requires Rtools [http://cran.r-project.org/bin/windows/Rtools](http://cran.r-project.org/bin/windows/Rtools).
 
 **Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
 

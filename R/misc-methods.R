@@ -259,7 +259,6 @@ setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
 })
 
-
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="Raster", layer="character"),
@@ -348,7 +347,6 @@ setMethod("checkObject",
 setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
 })
-
 
 #' @rdname checkParams
 setMethod("checkParams",
@@ -472,13 +470,14 @@ setMethod("checkParams",
 #'
 #' @param x numeric. Number to be converted to character with padding
 #'
-#' @param padL numeric. Desired number of digits on left side of decimal. If not enough,
-#' \code{pad} will be used to pad.
+#' @param padL numeric. Desired number of digits on left side of decimal.
+#'              If not enough, \code{pad} will be used to pad.
 #'
-#' @param padR numeric. Desired number of digits on right side of decimal. If not enough,
-#' \code{pad} will be used to pad.
+#' @param padR numeric. Desired number of digits on right side of decimal.
+#'              If not enough, \code{pad} will be used to pad.
 #'
-#' @param pad character to use as padding. Must have be nchar(pad) = 1. Passed to \code{\link[stringr]{str_pad}}
+#' @param pad character to use as padding (\code{nchar(pad)==1} must be \code{TRUE}).
+#'            Passed to \code{\link[stringr]{str_pad}}
 #'
 #' @return Character string representing the filename.
 #'
@@ -500,6 +499,5 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
       str_pad(., width=padR, side="right", pad=pad) %>%
       paste0(".", .)
   }
-
   return(paste0(xIC, xFC))
 }

@@ -224,7 +224,7 @@ that share identical information.
 We likely will not want the default colours for every map.
 Here are several helper functions to add, set and get colors to Raster* objects:
 \tabular{ll}{
-  \code{\link[SpaDES:'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
+  \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting Raster* objects\cr
   \code{\link{getColors}} \tab Get colours in a Raster* objects\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
@@ -238,7 +238,7 @@ simulation models. These can then be replaced later with actual data maps:
 
 \tabular{ll}{
   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
-  \code{\link{gaussMap}} \tab Creates a random map upsing gaussian random fields\cr
+  \code{\link{gaussMap}} \tab Creates a random map using gaussian random fields\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -301,6 +301,8 @@ Functions that may be useful within a SpaDES context
   \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
   \code{\link{updateList}} \tab Update values in a named list\cr
   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
+  \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
+  \code{\link{updateList}} \tab Update values in a named list\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
