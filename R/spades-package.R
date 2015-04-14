@@ -62,6 +62,7 @@
 #' \tabular{ll}{
 #'   \code{\link{Plot}} \tab The workhorse plotting function\cr
 #'   \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
+#'   \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
 #'   \code{\link{clickValues}} \tab Extract values from a raster object at the mouse click location(s)\cr
 #'   \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
 #'   \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
@@ -79,6 +80,7 @@
 #'   \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
 #'   \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
 #'   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
+#'   \code{\link{getFileName}} \tab Get the name of current file\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -93,6 +95,7 @@
 #'   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
 #'   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
 #'   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
+#'   \code{\link{getModuleVersion}} \tab Get the latest module version # from module repository\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -135,6 +138,7 @@
 #'   \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
 #'   \code{\link{depsGraph}} \tab Build a module dependency graph using igraph\cr
 #'   \code{\link{depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
+#'   \code{\link{depsPruneEdges}} \tab Identifies cycles in dependencies and removes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -157,6 +161,7 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{crw}} \tab Simple correlated random walk function\cr
+#'   \code{\link{heading}} \tab Determines the heading between SpatialPoints*\cr
 #'   \code{\link{move}} \tab A meta function that can currently only take "crw"\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
@@ -171,7 +176,18 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.6 Random Map Generation:
+#' @section 2.6 Colors in Raster* objects:
+#'
+#' We likely will not want the default colours for every map.
+#' Here are several helper functions to add, set and get colors to Raster* objects:
+
+#' \tabular{ll}{
+#'   \code{SpaDES::'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
+#'   \code{\link{getColors}} \tab Get colours in a Raster* objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 2.7 Random Map Generation:
 #'
 #' Before all data are available, it is often useful to build dummy maps on which to build
 #' simulation models. These can then be replaced later with actual data maps:
@@ -182,7 +198,7 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.7 Assigning and getting objects:
+#' @section 2.8 Assigning and getting objects:
 #'
 #' SpaDES modules are groups of R functions. This means that any objects created within
 #' a function needs to be returned or manually assigned. Since the structure of SpaDES
@@ -194,10 +210,11 @@
 #' \tabular{ll}{
 #'   \code{\link{assignGlobal}} \tab Assign to the global environment\cr
 #'   \code{\link{getGlobal}} \tab Get from the global environment\cr
+#'   \code{\link{existsGlobal}} \tab Test for existence of an object in .GlobalEnv\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.8 Checking for the existence of objects:
+#' @section 2.9 Checking for the existence of objects:
 #'
 #' SpaDES modules will often require the existence of objects in the global environment.
 #' These are several helpers for assessing this:
@@ -205,6 +222,15 @@
 #' \tabular{ll}{
 #'   \code{\link{checkObject}} \tab Check for existence of a global object\cr
 #'   \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 2.10 Miscellaneous:
+#'
+#' Functions that may be useful within a SpaDES context
+#' \tabular{ll}{
+#'   \code{\link{inRange}} \tab Test whether a number lies within range [a,b]\cr
+#'   \code{\link{layerNames}} \tab Get layer names for numerous object classes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 NULL

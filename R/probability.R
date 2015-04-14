@@ -2,19 +2,9 @@
 #' Vectorized wrapped normal density function
 #'
 #'  This is a modified version of \code{\link{dwrpnorm}} found in \code{CircStats}
-#'  to allow for multiple angles at once (i.e., this wersion is vectorized).
+#'  to allow for multiple angles at once (i.e., vectorized).
 #'
-#' @param theta xxx
-#'
-#' @param mu xxx
-#'
-#' @param rho xxx
-#'
-#' @param sd xxx
-#'
-#' @param acc xxx
-#'
-#' @param tol xxx
+#' @inheritParams CircStats::dwrpnorm
 #'
 #' @export
 #' @docType methods

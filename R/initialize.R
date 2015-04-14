@@ -43,8 +43,8 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
   resol <- res(x)
   nc <- (ext@xmax-ext@xmin)/resol[1]
   nr <- (ext@ymax-ext@ymin)/resol[2]
-  wholeNumsCol <- findFactors(nc)
-  wholeNumsRow <- findFactors(nr)
+  wholeNumsCol <- .findFactors(nc)
+  wholeNumsRow <- .findFactors(nr)
   ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol-nc/speedup))]
   nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow-nr/speedup))]
 #   ncSpeedup <- wholeNumsCol[findInterval(speedup, wholeNumsCol)+1]
@@ -80,11 +80,11 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
 #'
 #' @seealso \code{\link{gaussMap}}
 #'
-#' @rdname findFactors
+#' @rdname .findFactors
 #'
 #@examples
 #EXAMPLES NEEDED
-findFactors <- function(x) {
+.findFactors <- function(x) {
   x <- as.integer(x)
   div <- seq_len(abs(x))
   return(div[x %% div == 0L])
@@ -151,8 +151,8 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
   nr <- raster::nrow(ras)
   resol <- res(ras)
 
-  wholeNumsCol <- findFactors(nc)
-  wholeNumsRow <- findFactors(nr)
+  wholeNumsCol <- .findFactors(nc)
+  wholeNumsRow <- .findFactors(nr)
   ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol-nc/speedup))]
   nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow-nr/speedup))]
   speedupEffectiveCol <- nc/ncSpeedup
