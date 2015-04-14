@@ -155,6 +155,21 @@
 #'   \code{\link{gaussMap}} \tab Creates a random map upsing gaussian random fields\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
+#'
+#' @section 2.5 Assigning and getting objects:
+#'
+#' SpaDES modules are groups of R functions. This means that any objects created within
+#' a function needs to be returned or manually assigned. Since the structure of SpaDES
+#' is to use the function calls to return only the simList object, any objects that are
+#' to be used by any other function, event or module must be assigned to an environment
+#' where it can be found by those other functions, events, and modules. As shorthand
+#' wrappers, we have built the following to simplify this:
+#'
+#' \tabular{ll}{
+#'   \code{\link{assignGlobal}} \tab Assign to the global environment\cr
+#'   \code{\link{getGlobal}} \tab Get from the global environment\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
 NULL
 
 ################################################################################
