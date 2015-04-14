@@ -123,7 +123,9 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #'
 #' There are already methods for \code{Raster*} in the raster package.
 #' Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines},
-#' and \code{SpatialPoints}, \code{gg}. These latter classes return 1.
+#' and \code{SpatialPoints}, \code{gg}, \code{histogram}, \code{igraph}. These latter classes return 1.
+#'
+#' @return The number of layers in the object.
 #'
 #' @param x A \code{spadesPlotObjects} object or list of these.
 #'
@@ -132,7 +134,6 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' @importFrom methods is
 #' @author Eliot McIntire
 #' @rdname nlayers
-#'
 setMethod("nlayers",
           signature="list",
           function(x) {
@@ -175,6 +176,20 @@ setMethod("nlayers",
           definition=function(x) {
             return(1L)
 })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="histogram",
+          definition=function(x) {
+            return(1L)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="igraph",
+          definition=function(x) {
+            return(1L)
+          })
 
 ################################################################################
 #' Extract the layer names of Spatial Objects
