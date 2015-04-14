@@ -2099,7 +2099,6 @@ setMethod("makeColorMatrix",
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
                               cols, na.color, zero.color, skipSample=TRUE) {
             zoom <- zoomExtent
-
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
@@ -2137,6 +2136,7 @@ setMethod("makeColorMatrix",
             maxNumCols = 100
 
             nColors <- ifelse(real,maxNumCols+1, maxz-minz+1)
+            colTable <- NULL
 
             if(is.null(cols)) { #i.e., contained within raster or nothing
               if(length(getColors(grobToPlot)[[1]])>0) {
@@ -2174,7 +2174,8 @@ setMethod("makeColorMatrix",
 
             if(any(!is.na(legendRange))) {
               if((max(legendRange)-min(legendRange)+1)<length(cols)) {
-                message(paste0("legendRange is not wide enough, using default"))
+                message(paste0("legendRange is not wide enough, scaling to min and max",
+                               " raster values"))
               } else {
                 minz <- min(legendRange)
                 maxz <- max(legendRange)
