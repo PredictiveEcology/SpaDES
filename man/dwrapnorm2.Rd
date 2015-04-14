@@ -8,21 +8,24 @@
 dwrpnorm2(theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
 }
 \arguments{
-\item{theta}{xxx}
+\item{theta}{value at which to evaluate the density function, measured in radians.}
 
-\item{mu}{xxx}
+\item{mu}{mean direction of distribution, measured in radians.}
 
-\item{rho}{xxx}
+\item{rho}{mean resultant length of distribution.}
 
-\item{sd}{xxx}
+\item{sd}{different way of select \code{rho}, see details below.}
 
-\item{acc}{xxx}
+\item{acc}{parameter defining the accuracy of the estimation of the
+  density.  Terms are added to the infinite summation that defines the
+  density function until successive estimates are within \code{acc} of each
+  other.}
 
-\item{tol}{xxx}
+\item{tol}{the same as \code{acc}.}
 }
 \description{
 This is a modified version of \code{\link{dwrpnorm}} found in \code{CircStats}
- to allow for multiple angles at once (i.e., this wersion is vectorized).
+ to allow for multiple angles at once (i.e., vectorized).
 }
 \author{
 Eliot McIntire

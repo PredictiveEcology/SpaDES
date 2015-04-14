@@ -36,8 +36,9 @@ layerNames(object)
                or \code{SpatialPolygons*} object; or list of these.}
 }
 \description{
-There are methods for \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*}
-and \code{SpatialPolygons*}, though the latter return an empty character vector of length 1.
+There are already methods for \code{Raster*} objects. This adds methods for
+\code{SpatialPoints*}, \code{SpatialLines*},
+and \code{SpatialPolygons*}, returning an empty character vector of length 1.
 This function was created to give consistent, meaningful results for all classes of objects
 plotted by \code{Plot}.
 }
