@@ -1,26 +1,28 @@
 test_that("Plot - check for errors", {
+  startFileList <- dir()
+
   f <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
          full.names=TRUE, pattern="tif")
+
+  ras <- raster::raster(xmn=0, xmx=40, ymn=0, ymx=40, vals=1, res=1)
+  DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
+  assignGlobal("DEM87654", DEM87654)
+  habitatQuality87654 <- gaussMap(ras, var = 2, speedup=1)
+  assignGlobal("habitatQuality87654", habitatQuality87654)
+  landscape87654 <- stack(DEM87654, habitatQuality87654)
+  assignGlobal("landscape87654", landscape87654)
+  caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+  assignGlobal("caribou87654", caribou87654)
 
   # If any rearrangements are required, Plot searches for objects in Global Env
   # So all tests must run a clearPlot or a new=TRUE to be cleared to
   # prevent rearrangements
   clearPlot()
   expect_error(Plot(asdfd))
-  fileList <- data.frame(files=f,
-                       functions=rep("rasterToMemory", length(f)),
-                       .stackName=rep("landscape87654", length(f)),
-                       packages=rep("SpaDES", length(f)),
-                       stringsAsFactors=FALSE)
-
-  # Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
-  loadFiles(fileList=fileList)
   clearPlot()
   expect_that(Plot(landscape87654), testthat::not(throws_error()))
 
   clearPlot()
-  caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
-  assignGlobal("caribou87654", caribou87654)
   expect_that(Plot(caribou87654), testthat::not(throws_error()))
 
   #   # can add a plot to the plotting window
@@ -30,12 +32,10 @@ test_that("Plot - check for errors", {
 
   # Can add two maps with same name, if one is in a stack; they are given
   #  unique names based on object name
-  assignGlobal(x="DEM87654", landscape87654$DEM)
   clearPlot()
   expect_that(Plot(landscape87654, caribou87654, DEM87654), testthat::not(throws_error()))
 
   # can mix stacks, rasters, SpatialPoint*
-  assignGlobal(x="habitatQuality87654", landscape87654$habitatQuality)
   clearPlot()
   expect_that(Plot(landscape87654, habitatQuality87654, caribou87654), testthat::not(throws_error()))
 
@@ -56,7 +56,7 @@ test_that("Plot - check for errors", {
   expect_that(Plot(landscape87654, caribou87654), testthat::not(throws_error()))
 
   # test addTo
-  expect_that(Plot(SpP87654, addTo="landscape87654$forestCover", gp=gpar(lwd=2)), testthat::not(throws_error()))
+  #expect_that(Plot(SpP87654, addTo="landscape87654$habitatQuality87654", gp=gpar(lwd=2)), testthat::not(throws_error()))
 
   # Test various arguments
   clearPlot()
@@ -90,6 +90,10 @@ test_that("Plot - check for errors", {
   expect_that(Plot(caribou87654, new=TRUE), testthat::not(throws_error()))
   expect_that(Plot(DEM87654), testthat::not(throws_error()))
   expect_that(Plot(habitatQuality87654), testthat::not(throws_error()))
+
+  dev.off()
+  endFileList <- dir()
+  file.remove(endFileList[!(endFileList %in% startFileList)])
 })
 
 
