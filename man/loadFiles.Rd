@@ -74,6 +74,7 @@ fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE
    stringsAsFactors=FALSE)
 
 loadFiles(fileList=fileList)
+clearPlot()
 Plot(DEM)
 
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
