@@ -1820,7 +1820,7 @@ setMethod("Plot",
       }
 
       if(exists(paste0(".spadesPlot", dev.cur()),envir=.spadesEnv)) {
-        currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
+        currSpadesPlots <- .getSpaDES(paste0(".spadesPlot", dev.cur()))
         updated <- .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arrangement@columns,
@@ -2048,7 +2048,7 @@ setMethod("Plot",
       } # spadesGrob
     } # subPlots
 
-    assignSpaDES(paste0(".spadesPlot", dev.cur()), updated$curr)
+    .assignSpaDES(paste0(".spadesPlot", dev.cur()), updated$curr)
 
     return(invisible(updated$curr))
 })
@@ -2063,7 +2063,7 @@ setMethod("Plot",
 #' @author Eliot McIntire
 rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
               if(exists(paste0(".spadesPlot", fromDev),envir=.spadesEnv)) {
-                currSpadesPlots <- getSpaDES(paste0(".spadesPlot", dev.cur()))
+                currSpadesPlots <- .getSpaDES(paste0(".spadesPlot", dev.cur()))
                 dev(toDev)
                 Plot(currSpadesPlots, new=TRUE)
               } else {
@@ -2330,7 +2330,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @rdname spadesMouseClicks
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
-  arr <- try(getSpaDES(paste0(".spadesPlot", dc)))
+  arr <- try(.getSpaDES(paste0(".spadesPlot", dc)))
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
                                       "Try new=TRUE, clearPlot() or change device to",
                                       "one that has objects from a call to Plot()"))

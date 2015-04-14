@@ -109,25 +109,25 @@ setMethod("getGlobal",
 #' @inheritParams assignGlobal
 #'
 #' @docType methods
-#' @rdname assignSpaDES
+#' @rdname .assignSpaDES
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("assignSpaDES", function(x, value, ...) {
-  standardGeneric("assignSpaDES")
+setGeneric(".assignSpaDES", function(x, value, ...) {
+  standardGeneric(".assignSpaDES")
 })
 
-#' @rdname assignSpaDES
+#' @rdname .assignSpaDES
 #'
-setMethod("assignSpaDES",
+setMethod(".assignSpaDES",
           signature(x="character", value="ANY"),
           definition=function(x, value, ...) {
             assign(x, value, envir=.spadesEnv, ...)
 })
 
-#' @rdname assignSpaDES
+#' @rdname .assignSpaDES
 #'
-setMethod("assignSpaDES",
+setMethod(".assignSpaDES",
           signature(x="character", value="missing"),
           definition=function(x, value, ...) {
             assign(x, get(x), envir=.spadesEnv, ...)
@@ -170,17 +170,17 @@ setMethod("existsSpaDES",
 #' @param ... Additional arguments to pass to \code{get}.
 #'
 #' @docType methods
-#' @rdname getSpaDES
+#' @rdname .getSpaDES
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("getSpaDES", function(x, ...) {
-  standardGeneric("getSpaDES")
+setGeneric(".getSpaDES", function(x, ...) {
+  standardGeneric(".getSpaDES")
 })
 
-#' @rdname getSpaDES
+#' @rdname .getSpaDES
 #'
-setMethod("getSpaDES",
+setMethod(".getSpaDES",
           signature(x="ANY"),
           definition=function(x, ...) {
             get(x, envir=.spadesEnv, ...)
