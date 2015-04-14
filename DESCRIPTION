@@ -38,6 +38,7 @@ Suggests:
     testthat
 Imports:
     CircStats,
+    downloader,
     dplyr,
     magrittr,
     fpCompare,
