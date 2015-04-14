@@ -1206,10 +1206,12 @@ setMethod(".plotGrob",
 #' some nested viewports to an existing arrangement, i.e., is there still white
 #' space availabe to plot.
 #'
-#' @param spadesPlot an object of class \code{spadesPlot}
+#' @param spadesPlot An object of class \code{spadesPlot}
 #'
-#' @param newArr logical. Whether this function will create a completely new viewport.
-#' Default \code{FALSE}.
+#' @param zoom    [description needed]
+#'
+#' @param newArr  Logical. Whether this function will create a completely new viewport.
+#'                Default \code{FALSE}.
 #'
 #' @author Eliot McIntire
 #' @rdname makeViewports

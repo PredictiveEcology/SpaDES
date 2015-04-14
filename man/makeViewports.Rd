@@ -9,6 +9,8 @@
 \arguments{
 \item{spadesPlot}{an object of class \code{spadesPlot}}
 
+\item{zoom}{[description needed]}
+
 \item{newArr}{logical. Whether this function will create a completely new viewport.
 Default \code{FALSE}.}
 }
