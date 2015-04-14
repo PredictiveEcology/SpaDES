@@ -1,6 +1,6 @@
 test_that("Plot - check for errors", {
   f <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-           full.names=TRUE, pattern="tif")
+         full.names=TRUE, pattern="tif")
 
   # If any rearrangements are required, Plot searches for objects in Global Env
   # So all tests must run a clearPlot or a new=TRUE to be cleared to
@@ -8,10 +8,10 @@ test_that("Plot - check for errors", {
   clearPlot()
   expect_error(Plot(asdfd))
   fileList <- data.frame(files=f,
-                         functions=rep("rasterToMemory", length(f)),
-                         .stackName=rep("landscape87654", length(f)),
-                         packages=rep("SpaDES", length(f)),
-                         stringsAsFactors=FALSE)
+                       functions=rep("rasterToMemory", length(f)),
+                       .stackName=rep("landscape87654", length(f)),
+                       packages=rep("SpaDES", length(f)),
+                       stringsAsFactors=FALSE)
 
   # Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
   loadFiles(fileList=fileList)
@@ -20,6 +20,7 @@ test_that("Plot - check for errors", {
 
   clearPlot()
   caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+  assignGlobal("caribou87654", caribou87654)
   expect_that(Plot(caribou87654), testthat::not(throws_error()))
 
   #   # can add a plot to the plotting window
@@ -29,12 +30,12 @@ test_that("Plot - check for errors", {
 
   # Can add two maps with same name, if one is in a stack; they are given
   #  unique names based on object name
-  #  assignGlobal(x="DEM87654", landscape87654$DEM)
+  assignGlobal(x="DEM87654", landscape87654$DEM)
   clearPlot()
   expect_that(Plot(landscape87654, caribou87654, DEM87654), testthat::not(throws_error()))
 
   # can mix stacks, rasters, SpatialPoint*
-  #  assignGlobal(x="habitatQuality87654", landscape87654$habitatQuality)
+  assignGlobal(x="habitatQuality87654", landscape87654$habitatQuality)
   clearPlot()
   expect_that(Plot(landscape87654, habitatQuality87654, caribou87654), testthat::not(throws_error()))
 
@@ -48,6 +49,7 @@ test_that("Plot - check for errors", {
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87654 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
+  assignGlobal("SpP87654", SpP87654)
   clearPlot()
   expect_that(Plot(SpP87654), testthat::not(throws_error()))
   clearPlot()
@@ -74,11 +76,20 @@ test_that("Plot - check for errors", {
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  #hist87654 <- hist(rnorm(1e3), plot=FALSE)
-  #assignGlobal("hist87654", hist87654)
-  #Plot(hist87654)
+  hist87654 <- hist(rnorm(1e3), plot=FALSE)
+  assignGlobal("hist87654", hist87654)
+  expect_that(Plot(hist87654, new=TRUE), testthat::not(throws_error()))
 
+  # test ggplot2 and hist -- don't work unless invoke global environment
+  clearPlot()
+  ggplot87654 <- ggplot2::qplot(rnorm(1e3))
+  assignGlobal("ggplot87654", ggplot87654)
+  expect_that(Plot(ggplot87654, new=TRUE), testthat::not(throws_error()))
 
+  # test rearrangements
+  expect_that(Plot(caribou87654, new=TRUE), testthat::not(throws_error()))
+  expect_that(Plot(DEM87654), testthat::not(throws_error()))
+  expect_that(Plot(habitatQuality87654), testthat::not(throws_error()))
 })
 
 
