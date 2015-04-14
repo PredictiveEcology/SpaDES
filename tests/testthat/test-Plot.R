@@ -21,8 +21,7 @@ test_that("Plot - check for errors", {
   clearPlot()
   caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
   expect_that(Plot(caribou87654), testthat::not(throws_error()))
-  #   rm("caribou87654", envir=.GlobalEnv)
-  #
+
   #   # can add a plot to the plotting window
   clearPlot()
   expect_that(Plot(landscape87654), testthat::not(throws_error()))
@@ -30,14 +29,13 @@ test_that("Plot - check for errors", {
 
   # Can add two maps with same name, if one is in a stack; they are given
   #  unique names based on object name
-  #  assignGlobal(x = "DEM87654", landscape87654$DEM)
+  #  assignGlobal(x="DEM87654", landscape87654$DEM)
   clearPlot()
   expect_that(Plot(landscape87654, caribou87654, DEM87654), testthat::not(throws_error()))
 
   # can mix stacks, rasters, SpatialPoint*
-  #  assignGlobal(x = "habitatQuality87654", landscape87654$habitatQuality)
+  #  assignGlobal(x="habitatQuality87654", landscape87654$habitatQuality)
   clearPlot()
-
   expect_that(Plot(landscape87654, habitatQuality87654, caribou87654), testthat::not(throws_error()))
 
   # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
