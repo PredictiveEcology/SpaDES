@@ -21,8 +21,7 @@
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
 #'                      not implemented.
 #'
-#' @param maxSize       The maximum number of pixels for a fire. This is currently
-#'                      only a single number, not one for each spread event
+#' @param maxSize       Vector of the maximum number of pixels for a single or all fires.
 #'
 #' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
 #'
@@ -44,9 +43,9 @@
 #' @aliases spread
 #' @rdname spread-method
 #'
-setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.23,
-                              persistence=0, mask=NULL, maxSize=ncell(landscape),
-                              directions=8, iterations=NULL, ...) {
+setGeneric("spread", function(landscape, loci=ncell(landscape)/2L, spreadProb=0.23,
+                              persistence=0L, mask=NULL, maxSize=rep_len(ncell(landscape), length(loci)),
+                              directions=8L, iterations=NULL, ...) {
   standardGeneric("spread")
 })
 
@@ -108,18 +107,18 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 setMethod("spread",
           signature(landscape="RasterLayer"),
           definition = function(landscape, loci, spreadProb, persistence,
-                                mask, maxSize=rep_len(ncell(landscape), length(loci)), directions=8,
-                                mapID=FALSE, plot.it=FALSE, ...) {
+                                mask, maxSize=rep_len(ncell(landscape), length(loci)), directions=8L,
+                                iterations = NULL, mapID=FALSE, plot.it=FALSE, ...) {
             ### should sanity check map extents
 
             if (is.null(loci))  {
               # start it in the centre cell
-              loci <- (nrow(landscape)/2 + 0.5) * ncol(landscape)
+              loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
             }
             
             if(is(spreadProb,"RasterLayer")) {
-              if (minValue(spreadProb)>1) stop("spreadProb is not a probability")
-              if (maxValue(spreadProb)<0) stop("spreadProb is not a probability")
+              if (minValue(spreadProb)>1L) stop("spreadProb is not a probability")
+              if (maxValue(spreadProb)<0L) stop("spreadProb is not a probability")
             } else {
               if (!inRange(spreadProb)) stop("spreadProb is not a probability")
             }
@@ -127,11 +126,11 @@ setMethod("spread",
             spreads <- vector("integer", ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
             
             
-            n <- 1
+            n <- 1L
             if (mapID) {
-              spreads[loci] <- 1:length(loci)
-              if(length(maxSize) > 1){
-                size <- rep_len(1, length(loci))
+              spreads[loci] <- 1L:length(loci)
+              if(length(maxSize) > 1L){
+                size <- rep_len(1L, length(loci))
               } else {
                 size <- length(loci)
               }      
@@ -148,15 +147,15 @@ setMethod("spread",
             
             # Convert mask and NAs to 0 on the spreadProb Raster
             if (is(spreadProb, "Raster")) {
-              spreadProb[is.na(spreadProb)]<-0
+              spreadProb[is.na(spreadProb)]<-0L
               if(!is.null(mask)) {
-                spreadProb[mask==1]<-0
+                spreadProb[mask==1L]<-0L
               }
             } else if (is.numeric(spreadProb)) { # Translate numeric spreadProb into a Raster
               #  if there is a mask Raster
               if(!is.null(mask)) {
                 spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
-                spreadProb[mask==1]<-0
+                spreadProb[mask==1L]<-0L
               }
             }
             
@@ -186,7 +185,7 @@ setMethod("spread",
               # only accept cells that have no fire yet
               # Need to call matrix because of the cast where there is only one cell
               #potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
-              potentials <- potentials[spreads[potentials[,2]]==0,,drop=FALSE]
+              potentials <- potentials[spreads[potentials[,2L]]==0L,,drop=FALSE]
               
               # If one pixels is selected as potential by more than one source
               #  Remove the duplication, and reorder the potentials so that it is not
@@ -203,7 +202,7 @@ setMethod("spread",
                 #  ItHappened <- runif(nrow(potentials)) <= spreadProb
                 spreadProbs <- spreadProb
               } else {
-                spreadProbs <- spreadProb[potentials[,2]]
+                spreadProbs <- spreadProb[potentials[,2L]]
                 #spreadProbs <- spreadProbs[is.na(spreadProbs)]<-0
               }
               
@@ -218,8 +217,8 @@ setMethod("spread",
               
               potentials <- potentials[runif(NROW(potentials)) <= spreadProbs,,drop=FALSE]
               potentials <- potentials[sample.int(NROW(potentials)),,drop=FALSE]
-              potentials <- potentials[!duplicated(potentials[,2]),,drop=FALSE]  
-              events <- potentials[,2]
+              potentials <- potentials[!duplicated(potentials[,2L]),,drop=FALSE]  
+              events <- potentials[,2L]
               
               #     
               #     potentials <- potentials[ItHappened,2]
@@ -231,7 +230,7 @@ setMethod("spread",
               
               
               # Implement maxSize
-              if(length(maxSize) == 1){
+              if(length(maxSize) == 1L){
                 len <- length(events)
                 if((size+len) > maxSize) {
                   keep <- len - ((size+len) - maxSize)
@@ -244,7 +243,7 @@ setMethod("spread",
                 size <- size + length(events)
               } else {         
                 #      len <- tabulate(spreads[potentials[ItHappened,1]], length(maxSize))      
-                len <- tabulate(spreads[potentials[,1]], length(maxSize))
+                len <- tabulate(spreads[potentials[,1L]], length(maxSize))
                 if(any((size + len) > maxSize & size < maxSize)){
                   whichID <- which(size + len > maxSize)
                   toRm <- (size + len)[whichID] - maxSize[whichID]
@@ -255,10 +254,10 @@ setMethod("spread",
                     #           thisID <- spreads[potentials[whichHappened,1]] == whichID[i]
                     #           ItHappened[whichHappened[thisID]] <- FALSE
                     #           ItHappened[sample(whichHappened[thisID], keep[i])] <- TRUE
-                    thisID <- which(spreads[potentials[,1]] == whichID[i])
+                    thisID <- which(spreads[potentials[,1L]] == whichID[i])
                     potentials <- potentials[-sample(thisID, toRm[i]),,drop = FALSE]         
                   }            
-                  events <- potentials[,2]           
+                  events <- potentials[,2L]           
                   #        events <- potentials[ItHappened,2]        
                 }
                 size <- pmin(size + len, maxSize) ## Quick? and dirty, fast but loose (too flexible)
@@ -266,12 +265,12 @@ setMethod("spread",
               
               # update eligibility map
               
-              n <- n+1
+              n <- n+1L
               
               if (mapID) {
                 #      if(is.matrix(potentials)) {       
                 #        spreads[events] <- spreads[potentials[ItHappened,1]]
-                spreads[events] <- spreads[potentials[,1]]
+                spreads[events] <- spreads[potentials[,1L]]
                 #       } else {
                 #         spreads[events] <- spreads[potentials[1]]
                 #       }
@@ -279,7 +278,7 @@ setMethod("spread",
                 spreads[events] <- n
               }
               
-              if(length(maxSize) > 1){
+              if(length(maxSize) > 1L){
                 if(exists("whichID")){
                   events <- events[!spreads[events] %in% whichID]
                   rm(whichID)
@@ -292,7 +291,7 @@ setMethod("spread",
               }
               
               # drop or keep loci
-              if (is.null(persistence) | is.na(persistence) | persistence == 0) {
+              if (is.null(persistence) | is.na(persistence) | persistence == 0L) {
                 loci <- NULL
               } else {
                 if (inRange(persistence)) {
