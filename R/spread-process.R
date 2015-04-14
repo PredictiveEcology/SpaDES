@@ -21,7 +21,8 @@
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
 #'                      not implemented.
 #'
-#' @param maxSize       Vector of the maximum number of pixels for a single or all fires.
+#' @param maxSize       Vector of the maximum number of pixels for a single or all events to be spread.
+#'                      Recycled to match \code{loci} length.
 #'
 #' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
 #'
@@ -52,8 +53,8 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2L, spreadProb=0.
 #' @param plot.it    If TRUE, then plot the raster at every iteraction, so one can watch the
 #' spread event grow.
 #'
-#' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
-#' the returned map is the iteration number that the pixel burned
+#' @param mapID  Logical. If TRUE, returns a raster of events ids. If FALSE,
+#' returns a raster of iteration numbers, i.e. the spread history of one or more events.
 #'
 #' @importFrom methods is
 #' @import raster RColorBrewer
@@ -123,9 +124,11 @@ setMethod("spread",
               if (!inRange(spreadProb)) stop("spreadProb is not a probability")
             }
             
+            ## Recycling maxSize as needed
+            maxSize <- rep_len(maxSize, length(loci))
+            
             spreads <- vector("integer", ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
-            
-            
+                        
             n <- 1L
             if (mapID) {
               spreads[loci] <- 1L:length(loci)
