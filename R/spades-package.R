@@ -46,11 +46,21 @@
 #' \tabular{ll}{
 #'   \code{\link{scheduleEvent}} \tab Schedule a simulation event\cr
 #'   \code{\link{simCurrentTime}} \tab Get and set the list of simulation times\cr
-#'   \code{\link{simStopTime}} \tab Get and set the stop time of a simulation \cr
 #'   \code{\link{simStartTime}} \tab Get and set the start time of a simulation \cr
+#'   \code{\link{simStopTime}} \tab Get and set the stop time of a simulation \cr
+#'   \code{\link{simTimes}} \tab Get and set simulation times \cr
 #'   \code{\link{simGlobals}} \tab Get and set the global simulation parameters list.\cr
 #'   \code{\link{simParams}} \tab Get and set the simulation parameters list.\cr
+#'   \code{\link{simCheckpointFile}} \tab Get and set the simulation parameters list.\cr
 #'   \code{\link{simEvents}} \tab Get and set the event queue\cr
+#'   \code{\link{simDepends}} \tab Get and set simulation dependencies\cr
+#'   \code{\link{simCompleted}} \tab List of events that have been run and have completed\cr
+#'   \code{\link{simObjectsLoaded}} \tab Get and set list of objects already loaded for simulation\cr
+#'   \code{\link{simModules}} \tab Get and set list of modules to be loaded for simulation\cr
+#'   \code{\link{simModulesLoaded}} \tab Get and set list of modules already loaded for simulation\cr
+#'   \code{\link{simModulesLoadOrder}} \tab Get and set module load order for simulation\cr
+#'   \code{\link{simProgressGraphical}} \tab Get and set graphical progress bar\cr
+#'   \code{\link{simProgressInterval}} \tab Get and set graphical progress bar interval\cr
 #'   \code{\link{simFileList}} \tab Get and set files used in a simulation\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
@@ -92,9 +102,11 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{newModule}} \tab Create new module from template\cr
+#'   \code{\link{newModuleDocumentation}} \tab Create empty documentation for a new module\cr
 #'   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
 #'   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
 #'   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
+#'   \code{\link{reloadModuleLater}} \tab Load modules for simulation, contingent on dependencies loaded\cr
 #'   \code{\link{getModuleVersion}} \tab Get the latest module version # from module repository\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
@@ -103,7 +115,10 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{simList}} \tab The 'simList' class\cr
+#'   \code{\link{spatialObjects}} \tab Contains the union of all spatial objects classes useable\cr
 #'   \code{\link{spadesPlot}} \tab Contains the plotting spadesPlot information.\cr
+#'   \code{\link{spadesPlotObjects}} \tab Contains the plotting arrangement information.\cr
+#'   \code{\link{spadesPlotables}} \tab Contains the union of all classes that can be plotted with \code{\link{Plot}}\cr
 #'   \code{\link{spadesGrob}} \tab Contains the plotting spadesGrob information\cr
 #'   \code{\link{arrangement}} \tab The 'arrangement' class\cr
 #'   \code{\link{moduleDeps}} \tab Descriptor object for specifying SpaDES module dependecies\cr
@@ -175,7 +190,17 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.6 Colors in Raster* objects:
+#' @section 2.6 Map-reduce - type operations:
+#'
+#' These functions convert between reduced and mapped representations of the same data.
+#' This allows compact representation of, say, rasters that have many individual pixels
+#' that share identical information.
+#' \tabular{ll}{
+#'   \code{\link{rasterizeReduced}} \tab Convert reduced representation to full raster\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 2.7 Colors in Raster* objects:
 #'
 #' We likely will not want the default colours for every map.
 #' Here are several helper functions to add, set and get colors to Raster* objects:
@@ -186,7 +211,7 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.7 Random Map Generation:
+#' @section 2.8 Random Map Generation:
 #'
 #' Before all data are available, it is often useful to build dummy maps on which to build
 #' simulation models. These can then be replaced later with actual data maps:
@@ -197,7 +222,7 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.8 Assigning and getting objects:
+#' @section 2.9 Assigning and getting objects:
 #'
 #' SpaDES modules are groups of R functions. This means that any objects created within
 #' a function needs to be returned or manually assigned. Since the structure of SpaDES
@@ -213,7 +238,7 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.9 Checking for the existence of objects:
+#' @section 2.10 Checking for the existence of objects:
 #'
 #' SpaDES modules will often require the existence of objects in the global environment.
 #' These are several helpers for assessing this:
@@ -224,14 +249,38 @@
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 2.10 Miscellaneous:
+#' @section 2.11 SELES-type approach to simulation:
+#'
+#' These functions are essentially skeletons and are not fully implemented.
+#' They are intended to make translations from \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' You must know how to use SELES for these to be useful:
+#' \tabular{ll}{
+#'   \code{\link{probInit}} \tab Probability of intiating an agent or event\cr
+#'   \code{\link{numAgents}} \tab Number of agents\cr
+#'   \code{\link{agentLocation}} \tab Agent location\cr
+#'   \code{\link{transitions}} \tab Transition probability\cr
+#'   \code{\link{specificNumPerPatch}} \tab Initiate a specific number of agents per patch\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 2.12 Miscellaneous:
 #'
 #' Functions that may be useful within a SpaDES context
 #' \tabular{ll}{
 #'   \code{\link{inRange}} \tab Test whether a number lies within range [a,b]\cr
 #'   \code{\link{layerNames}} \tab Get layer names for numerous object classes\cr
+#'   \code{\link{nlayers-method}} \tab Return number of layers\cr
 #'   \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
 #'   \code{\link{updateList}} \tab Update values in a named list\cr
+#'   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
+#' @section 2.13 Data included in package:
+#'
+#' Several dummy data sets are included for testing of functionality
+#' \tabular{ll}{
+#'   \code{\link{SpaDES-maps}} \tab Help showing included maps\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 NULL
