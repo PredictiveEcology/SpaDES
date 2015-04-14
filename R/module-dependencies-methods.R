@@ -231,13 +231,13 @@ setMethod("depsPruneEdges",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("depsLoadOrder", function(sim, simGraph) {
-  standardGeneric("depsLoadOrder")
+setGeneric(".depsLoadOrder", function(sim, simGraph) {
+  standardGeneric(".depsLoadOrder")
 })
 
 #' @rdname depsLoadOrder
 #'
-setMethod("depsLoadOrder",
+setMethod(".depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),
           definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!

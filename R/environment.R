@@ -141,7 +141,7 @@ setMethod(".assignSpaDES",
 #' @param ... Additional arguments passed to \code{\link{exists}}
 #'
 #' @docType methods
-#' @rdname .existsSpaDES
+#' @rdname existsSpaDES
 #'
 #' @author Alex Chubaty
 #'
@@ -149,8 +149,7 @@ setGeneric(".existsSpaDES", function(x, ...) {
   standardGeneric(".existsSpaDES")
 })
 
-#' @rdname .existsSpaDES
-#'
+#' @rdname existsSpaDES
 setMethod(".existsSpaDES",
           signature(x="ANY"),
           definition=function(x, ...) {

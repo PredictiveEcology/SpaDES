@@ -2230,8 +2230,9 @@ setMethod(".makeColorMatrix",
 #'
 #' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
 #' @author Eliot McIntire
+#' @rdname unittrim
 #' @export
-unittrim <- function(grid.locator) {
+.unittrim <- function(grid.locator) {
   as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
 }
 
@@ -2405,7 +2406,7 @@ clickCoordinates <- function(n=1) {
   for(i in 1:n) {
     if(is.null(gl)) {
       gl <- grid.locator()
-      pts[i, ] <- unittrim(gl)
+      pts[i, ] <- .unittrim(gl)
     } else {
       pts[i, ] <- c(convertX(gl$x, "native"), convertY(gl$y, "native"))
     }

@@ -5,7 +5,7 @@
 #' including the state of the random number generator,
 #' by scheduling checkpoint events.
 #'
-#' \code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
+#' \code{\link{.checkpointLoad}} and \code{\link{.checkpointSave}} code from:
 #' \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 #'
 #' RNG save code adapted from:
@@ -61,7 +61,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="load") {
     if (useChkpnt) {
       # load user-specified checkpoint options
-      checkpointLoad(checkpointFile)
+      .checkpointLoad(checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
@@ -69,7 +69,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     }
   } else if (eventType=="save") {
     if (useChkpnt) {
-      checkpointSave(checkpointFile)
+      .checkpointSave(checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
@@ -85,7 +85,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @param file The checkpoint file.
 #' @rdname checkpoint
-checkpointLoad = function(file) {
+.checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
     load(file)
@@ -100,7 +100,7 @@ checkpointLoad = function(file) {
 }
 
 #' @rdname checkpoint
-checkpointSave = function(file) {
+.checkpointSave = function(file) {
   if (exists(".Random.seed", envir=.spadesEnv))  {
     assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)
     assign("rng.kind", RNGkind(), envir=.spadesEnv)
