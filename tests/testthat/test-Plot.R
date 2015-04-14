@@ -1,13 +1,10 @@
 test_that("Plot - check for errors", {
   startFileList <- dir()
 
-  f <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-         full.names=TRUE, pattern="tif")
-
   ras <- raster::raster(xmn=0, xmx=40, ymn=0, ymx=40, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   assignGlobal("DEM87654", DEM87654)
-  habitatQuality87654 <- gaussMap(ras, var = 2, speedup=1)
+  habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   assignGlobal("habitatQuality87654", habitatQuality87654)
   landscape87654 <- stack(DEM87654, habitatQuality87654)
   assignGlobal("landscape87654", landscape87654)
@@ -54,6 +51,19 @@ test_that("Plot - check for errors", {
   expect_that(Plot(SpP87654), testthat::not(throws_error()))
   clearPlot()
   expect_that(Plot(landscape87654, caribou87654), testthat::not(throws_error()))
+
+  # test SpatialLines
+  l1 <- cbind(c(10,2,30),c(30,2,2))
+  l1a <- cbind(l1[,1]+.05,l1[,2]+.05)
+  l2 <- cbind(c(1,20,3),c(10,1.5,1))
+  Sl1 <- sp::Line(l1)
+  Sl1a <- sp::Line(l1a)
+  Sl2 <- sp::Line(l2)
+  S1 <- sp::Lines(list(Sl1, Sl1a), ID="a")
+  S2 <- sp::Lines(list(Sl2), ID="b")
+  Sl87654 <- sp::SpatialLines(list(S1,S2))
+  assignGlobal("Sl87654", Sl87654)
+  expect_that(Plot(Sl87654), testthat::not(throws_error()))
 
   # test addTo
   #expect_that(Plot(SpP87654, addTo="landscape87654$habitatQuality87654", gp=gpar(lwd=2)), testthat::not(throws_error()))

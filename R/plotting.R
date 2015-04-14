@@ -1540,7 +1540,9 @@ setMethod("drawArrows",
   #   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
   #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
 
-  warning("Please see documentation for Plot to try another way of calling Plot")
+  warning(paste("There was an error plotting. It is likely that the object being plotted",
+                "is not defined (looking for it in the wrong environment?",
+                "Please see documentation for Plot to try another way of calling Plot"))
 
   return()
 }
