@@ -1,7 +1,7 @@
 if(getRversion() >= "3.1.0") utils::globalVariables("row_number")
 
 #####################
-#' rasterizeReduced - convert reduced representation to full raster
+#' Convert reduced representation to full raster
 #'
 #' @param reduced \code{data.frame} or \code{data.table} that has at least one column
 #' of codes that are represented in the \code{fullRaster}
@@ -15,7 +15,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables("row_number")
 #' @param mapcode a character, length 1, with the name of the column in \code{reduced} that
 #' is represented in \code{fullRaster}
 #'
-#' @param ... Other arguments.
+#' @param ... Other arguments. None used yet.
 #'
 #' @return A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
 #' \code{plotCol} spatially, according to the join between the \code{mapcodeAll} contained within
