@@ -1323,7 +1323,7 @@ setMethod(".plotGrob",
 #'
 #' @param axes logical Add axes to plot. Defaults to \code{TRUE}.
 #'
-#' @param length numeric. Optional length, in inches, of the arrow head.
+#' @param length numeric. Optional length, in inches, of arrow head on a SpatialLines object.
 #'
 #' @param ...           Additional plotting parameters passed to \code{\link{grid.polyline}}.
 #' Currently does not appear to pass anything.
@@ -1655,6 +1655,8 @@ setMethod("drawArrows",
 #' Defaults to \code{NULL}, which results in a pretty numeric representation.
 #' If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
 #' package), this will be used by default. Currently, only a single vector is accepted.
+#' The length of this must match the length of the legend, so this is mosty useful for
+#' discrete valued rasters.
 #'
 #' @param na.color string indicating the color for \code{NA} values. Default transparent.
 #'
@@ -2015,10 +2017,9 @@ setMethod("Plot",
              }
             legendTxt <- if(!isBaseSubPlot | !isReplot) {NULL}
 
-            plotGrobCall <- append(list(zMat$z, col = zMat$cols, size=unit(spadesGrob@plotArgs$size, "points"),
-                     real=zMat$real,
-                     minv=zMat$minz,
-                     maxv=zMat$maxz,
+            plotGrobCall <- append(list(zMat$z, col = zMat$cols,
+                     size=unit(spadesGrob@plotArgs$size, "points"),
+                     real=zMat$real, minv=zMat$minz, maxv=zMat$maxz,
                      pch=spadesGrob@plotArgs$pch, name = subPlots,
                      legend = legend*isBaseSubPlot*isReplot | legend*isBaseSubPlot*isNewPlot, legendText=legendTxt,
                      gp = spadesGrob@plotArgs$gp,
@@ -2028,6 +2029,7 @@ setMethod("Plot",
             do.call(.plotGrob, args=plotGrobCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
                                name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
+
 
             if(xaxis*isBaseSubPlot*isReplot | xaxis*isBaseSubPlot*isNewPlot) grid.xaxis(name="xaxis", gp = spadesGrob@plotArgs$gpAxis)
             if(yaxis*isBaseSubPlot*isReplot | yaxis*isBaseSubPlot*isNewPlot) grid.yaxis(name="yaxis", gp = spadesGrob@plotArgs$gpAxis)
