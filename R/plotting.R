@@ -2103,7 +2103,7 @@ setGeneric(".makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legen
 })
 
 
-#' @rdname .makeColorMatrix
+#' @rdname makeColorMatrix
 setMethod(".makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
