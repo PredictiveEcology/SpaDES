@@ -1,19 +1,22 @@
 Package: SpaDES
 Type: Package
-Title: Develop and run spatially explicit discrete event simulation models
+Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
 Description: Easily implement a variety of simulation models, with a focus on
     spatially explicit agent based models. The core simulation components are
     built upon a discrete event simulation framework that facilitates
     modularity, and easily enables the user to include additional functionality
     by running user-built simulation modules. Included are numerous tools to
-    visualize raster and other maps.
+    visualize raster and other maps. The suggested package `fastshp` can be
+    installed with `devtools::install_github("s-u/fastshp")`; installation of
+    development packages on Windows requires Rtools
+    (http://cran.r-project.org/bin/windows/Rtools).
 URL: http://github.com/achubaty/SpaDES
 Version: 0.4.0
 Date: 2014-09-19
 Authors@R: c(
     person("Eliot", "McIntire",
     email="Eliot.McIntire@NRCan.gc.ca",
-    role=c("aut", "cre")),
+    role=c("aut")),
     person("Alex", "Chubaty",
     email="Alexander.Chubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
