@@ -1993,12 +1993,12 @@ setMethod("Plot",
             # Because base plotting is not set up to overplot, must plot a white rectangle
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
-            par(new=TRUE)
+            suppressWarnings(par(new=TRUE))
             plotCall <- append(list(x=grobToPlot), nonPlotArgs)
             #names(plotCall)[1] <- "x"
             do.call(plot, args=plotCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
-              par(new=TRUE)
+              suppressWarnings(par(new=TRUE))
               mtextArgs <- append(list(text=subPlots, side=3, line=4, xpd=TRUE), spadesGrob@plotArgs$gpText)
               do.call(mtext, args=mtextArgs)
             }
@@ -2006,12 +2006,12 @@ setMethod("Plot",
             # Because base plotting is not set up to overplot, must plot a white rectangle
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
-            par(new=TRUE)
+            suppressWarnings(par(new=TRUE))
             plotCall <- append(list(x=grobToPlot), nonPlotArgs)
             #names(plotCall)[1] <- "x"
             do.call(plot, args=plotCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
-              par(new=TRUE)
+              suppressWarnings(par(new=TRUE))
               mtextArgs <- append(list(text=subPlots, side=3, line=4, xpd=TRUE), spadesGrob@plotArgs$gpText)
               do.call(mtext, args=mtextArgs)
             }
