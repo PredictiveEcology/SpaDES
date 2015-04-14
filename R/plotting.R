@@ -1212,8 +1212,9 @@ setMethod(".plotGrob",
 #' Default \code{FALSE}.
 #'
 #' @author Eliot McIntire
+#' @rdname makeViewports
 #' @export
-makeViewports <- function(spadesPlot, newArr=FALSE) {
+.makeViewports <- function(spadesPlot, zoom, newArr=FALSE) {
 
   arr <- spadesPlot@arrangement
   sgl <- spadesPlot@spadesGrobList
@@ -1845,7 +1846,7 @@ setMethod("Plot",
 
       # Create the viewports as per the optimal layout
       if(length(newSpadesPlots@spadesGrobList)>0) {
-         vps <- makeViewports(updated$curr,
+         vps <- .makeViewports(updated$curr,
                               newArr=newArr)
          if(!new & !newArr & !is.null(current.parent()))
            upViewport(1)
@@ -1933,7 +1934,7 @@ setMethod("Plot",
                                   arr,
                                   spadesGrob@plotArgs$speedup, newArr=newArr)
 
-             zMat <- makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
+             zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                      pR$legendRange,
                                      na.color=spadesGrob@plotArgs$na.color,
                                      zero.color=spadesGrob@plotArgs$zero.color,
@@ -2022,7 +2023,8 @@ setMethod("Plot",
                      legend = legend*isBaseSubPlot*isReplot | legend*isBaseSubPlot*isNewPlot, legendText=legendTxt,
                      gp = spadesGrob@plotArgs$gp,
                      gpText = spadesGrob@plotArgs$gpText,
-                     speedup=spadesGrob@plotArgs$speedup, length=spadesGrob@plotArgs$length), nonPlotArgs)
+                     speedup=spadesGrob@plotArgs$speedup,
+                     length=spadesGrob@plotArgs$length), nonPlotArgs)
             do.call(.plotGrob, args=plotGrobCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
                                name="title", y=1.08, vjust=0.5, gp = spadesGrob@plotArgs$gpText)
@@ -2086,15 +2088,15 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
 #' @rdname makeColorMatrix
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric("makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
+setGeneric(".makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                        cols=NULL, na.color="#FFFFFF00",
                                        zero.color=NULL, skipSample=TRUE) {
-  standardGeneric("makeColorMatrix")
+  standardGeneric(".makeColorMatrix")
 })
 
 
-#' @rdname makeColorMatrix
-setMethod("makeColorMatrix",
+#' @rdname .makeColorMatrix
+setMethod(".makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
                               cols, na.color, zero.color, skipSample=TRUE) {
