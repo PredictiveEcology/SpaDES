@@ -27,6 +27,7 @@ r_binary_packages:
   - digest
   - ggplot2
   - gtable
+  - knitr
   - labeling
   - lattice
   - latticeextra
