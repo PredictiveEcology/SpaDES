@@ -92,7 +92,7 @@ test_that("Plot - check for errors", {
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  ggplot87654 <- ggplot2::qplot(rnorm(1e3))
+  ggplot87654 <- ggplot2::qplot(rnorm(1e3), binwidth=0.3, geom = "histogram")
   assignGlobal("ggplot87654", ggplot87654)
   expect_that(Plot(ggplot87654, new=TRUE), testthat::not(throws_error()))
 
