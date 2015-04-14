@@ -1221,9 +1221,15 @@ setMethod(".plotGrob",
 
   extents <- unlist(sapply(sgl, function(x) {
      unname(lapply(x[[1]]@isSpatialObjects, function(z) {
+
        if(z==TRUE) {
          # for spatial objects
-         extent(getGlobal(x[[1]]@objName))
+         if(!is.null(x[[1]]@plotArgs$zoomExtent)){
+           x[[1]]@plotArgs$zoomExtent
+         } else {
+           extent(get(x[[1]]@objName, envir=parent.frame()))
+         }
+         #extent(getGlobal(x[[1]]@objName))
        } else {
          # for non spatial objects
          extent(c(xmin=0,xmax=1,ymin=0,ymax=1))
