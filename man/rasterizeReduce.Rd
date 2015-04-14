@@ -3,7 +3,7 @@
 \docType{methods}
 \name{rasterizeReduced}
 \alias{rasterizeReduced}
-\title{rasterizeReduced - convert reduced representation to full raster}
+\title{Convert reduced representation to full raster}
 \usage{
 rasterizeReduced(reduced, fullRaster, plotCol, mapcode = names(fullRaster),
   ...)
@@ -21,7 +21,7 @@ whose value will be plotted}
 \item{mapcode}{a character, length 1, with the name of the column in \code{reduced} that
 is represented in \code{fullRaster}}
 
-\item{...}{Other arguments.}
+\item{...}{Other arguments. None used yet.}
 }
 \value{
 A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
@@ -29,7 +29,7 @@ A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
 \code{reduced} and \code{fullRaster}
 }
 \description{
-rasterizeReduced - convert reduced representation to full raster
+Convert reduced representation to full raster
 }
 \examples{
 \dontrun{

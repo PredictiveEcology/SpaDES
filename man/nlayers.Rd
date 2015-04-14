@@ -6,6 +6,8 @@
 \alias{nlayers,SpatialPoints-method}
 \alias{nlayers,SpatialPolygons-method}
 \alias{nlayers,gg-method}
+\alias{nlayers,histogram-method}
+\alias{nlayers,igraph-method}
 \alias{nlayers,list-method}
 \title{Find the number of layers in a Spatial Object}
 \usage{
@@ -18,14 +20,21 @@
 \S4method{nlayers}{SpatialPoints}(x)
 
 \S4method{nlayers}{gg}(x)
+
+\S4method{nlayers}{histogram}(x)
+
+\S4method{nlayers}{igraph}(x)
 }
 \arguments{
 \item{x}{A \code{spadesPlotObjects} object or list of these.}
 }
+\value{
+The number of layers in the object.
+}
 \description{
 There are already methods for \code{Raster*} in the raster package.
 Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines},
-and \code{SpatialPoints}, \code{gg}. These latter classes return 1.
+and \code{SpatialPoints}, \code{gg}, \code{histogram}, \code{igraph}. These latter classes return 1.
 }
 \author{
 Eliot McIntire

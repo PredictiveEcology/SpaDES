@@ -2,16 +2,16 @@
 % Please edit documentation in R/checkpoint.R
 \docType{methods}
 \name{doEvent.checkpoint}
-\alias{checkpointLoad}
-\alias{checkpointSave}
+\alias{.checkpointLoad}
+\alias{.checkpointSave}
 \alias{doEvent.checkpoint}
 \title{Simulation checkpoints.}
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
 
-checkpointLoad(file)
+.checkpointLoad(file)
 
-checkpointSave(file)
+.checkpointSave(file)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
@@ -35,7 +35,7 @@ including the state of the random number generator,
 by scheduling checkpoint events.
 }
 \details{
-\code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
+\code{\link{.checkpointLoad}} and \code{\link{.checkpointSave}} code from:
 \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 
 RNG save code adapted from:
