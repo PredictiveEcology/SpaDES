@@ -243,7 +243,7 @@ setMethod("checkPath",
 #'
 #' @param ...    Additional arguments. Not implemented.
 #'
-#' @return Invisibly return \code{TRUE} indicating object exists; code{FALSE} if not.
+#' @return Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 #'
 #' @seealso \code{\link{library}}.
 #'
