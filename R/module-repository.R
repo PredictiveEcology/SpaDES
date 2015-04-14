@@ -97,7 +97,7 @@ setMethod("downloadModule",
             zip <- paste0("https://raw.githubusercontent.com/", repo,
                           "/master/modules/", name, "/", name, "_", version, ".zip")
             localzip <- file.path(path, basename(zip))
-            download.file(zip, destfile=localzip)
+            download.file(zip, destfile=localzip, mode="wb", method="curl")
             files <- unzip(localzip, exdir=file.path(path), overwrite=TRUE)
             return(invisible(files))
 })
