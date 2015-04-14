@@ -37,7 +37,7 @@ setMethod("getFileName",
 
 
 ##############################################################
-#' Merge named lists
+#' Update elements of a named list with elements of a second named list
 #'
 #' Merge two named list based on their named entries. Where
 #' any element matches in both lists, the value from the
@@ -53,21 +53,21 @@ setMethod("getFileName",
 #'
 #' @export
 #' @docType methods
-#' @rdname mergeLists
+#' @rdname updateList
 #'
 #' @author Alex Chubaty
 #'
 #' @examples
 #' L1 <- list(a="hst", b=NA_character_, c=43)
 #' L2 <- list(a="gst", c=42, d=list(letters))
-#' mergeLists(L1, L2)
+#' updateList(L1, L2)
 #'
-setGeneric("mergeLists", function(x, y) {
-  standardGeneric("mergeLists")
+setGeneric("updateList", function(x, y) {
+  standardGeneric("updateList")
 })
 
-#' @rdname mergeLists
-setMethod("mergeLists",
+#' @rdname updateList
+setMethod("updateList",
           signature=c("list", "list"),
           definition=function(x, y) {
             if (any(is.null(names(x)), is.null(names(y)))) {
@@ -79,8 +79,8 @@ setMethod("mergeLists",
             }
 })
 
-#' @rdname mergeLists
-setMethod("mergeLists",
+#' @rdname updateList
+setMethod("updateList",
           signature=c("NULL", "list"),
           definition=function(x, y) {
             if (is.null(names(y))) {
@@ -89,8 +89,8 @@ setMethod("mergeLists",
             return(y[order(names(y))])
 })
 
-#' @rdname mergeLists
-setMethod("mergeLists",
+#' @rdname updateList
+setMethod("updateList",
           signature=c("list", "NULL"),
           definition=function(x, y) {
             if (is.null(names(x))) {
@@ -99,8 +99,8 @@ setMethod("mergeLists",
             return(x[order(names(x))])
 })
 
-#' @rdname mergeLists
-setMethod("mergeLists",
+#' @rdname updateList
+setMethod("updateList",
           signature=c("NULL", "NULL"),
           definition=function(x, y) {
             return(list())

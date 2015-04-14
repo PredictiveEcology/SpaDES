@@ -138,7 +138,7 @@ setMethod("simInit",
 
             tmp <- list()
             lapply(pnames, function(x) {
-              tmp[[x]] <<- mergeLists(simParams(sim)[[x]], params[[x]])
+              tmp[[x]] <<- updateList(simParams(sim)[[x]], params[[x]])
             })
             simParams(sim) <- tmp
 
