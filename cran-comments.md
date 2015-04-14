@@ -27,12 +27,22 @@ There were 2 NOTES:
 
         * checking R code for possible problems ... NOTE
         Found the following assignments to the global environment:
-        File ‘SpaDES/R/load.R’:
-          assign(objectNames[x], do.call(get(loadFun[x]), args = argument),
+        File 'SpaDES/R/environment.R':
+          assign(x, value, envir = .GlobalEnv, ...)
+          assign(x, get(x), envir = .GlobalEnv, ...)
+        File 'SpaDES/R/load.R':
+          assign(objectNames[x], do.call(get(loadFun[x]), args = argument), 
             envir = .GlobalEnv)
-          assign(objectNames[x], get(objectNames[x], envir = .GlobalEnv),
-            , envir = .GlobalEnv)
           assign(uniqueStacki, localStacks[[uniqueStacki]], envir = .GlobalEnv)
+        File 'SpaDES/R/plotting.R':
+          assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
+            Lines(list(Line(coords = rbind(coordinates(from)[x, ], coordinates(to)[x, 
+                ]))), ID = x)
+        })), envir = .GlobalEnv)
+          assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
+            Lines(list(Line(coords = rbind(coordinates(from)[x, ], coordinates(to)[x, 
+                ]))), ID = x)
+        })), envir = .GlobalEnv)
 
 ## Downstream dependencies
 
