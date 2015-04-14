@@ -167,7 +167,7 @@
 #' \code{maps}, \code{maptools} and many others
 #' \tabular{ll}{
 #'   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
-#'   \code{SpaDES::'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
+#'   \code{\link[SpaDES:'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
