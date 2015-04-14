@@ -181,7 +181,7 @@
 #' Here are several helper functions to add, set and get colors to Raster* objects:
 
 #' \tabular{ll}{
-#'   \code{\link[SpaDES:'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
+#'   \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting Raster* objects\cr
 #'   \code{\link{getColors}} \tab Get colours in a Raster* objects\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
@@ -193,7 +193,7 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
-#'   \code{\link{gaussMap}} \tab Creates a random map upsing gaussian random fields\cr
+#'   \code{\link{gaussMap}} \tab Creates a random map using gaussian random fields\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'

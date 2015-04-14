@@ -80,7 +80,7 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
 #'
 #' @seealso \code{\link{gaussMap}}
 #'
-#' @rdname .findFactors
+#' @rdname findFactors
 #'
 #@examples
 #EXAMPLES NEEDED
