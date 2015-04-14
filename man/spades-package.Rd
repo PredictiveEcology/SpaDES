@@ -187,7 +187,6 @@ I addition to the vast amount of GIS operations available in R, mostly from cont
 \code{maps}, \code{maptools} and many others
 \tabular{ll}{
   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
-  \code{\link[SpaDES:'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -198,7 +197,7 @@ I addition to the vast amount of GIS operations available in R, mostly from cont
 We likely will not want the default colours for every map.
 Here are several helper functions to add, set and get colors to Raster* objects:
 \tabular{ll}{
-  \code{SpaDES::'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
+  \code{\link[SpaDES:'setColors<-']{setColors}} \tab Set colours for plotting Raster* objects\cr
   \code{\link{getColors}} \tab Get colours in a Raster* objects\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
