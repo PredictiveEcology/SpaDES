@@ -10,13 +10,14 @@ paddedFloatToChar(x, padL = ceiling(log10(x + 1)), padR = 3, pad = "0")
 \arguments{
 \item{x}{numeric. Number to be converted to character with padding}
 
-\item{padL}{numeric. Desired number of digits on left side of decimal. If not enough,
-\code{pad} will be used to pad.}
+\item{padL}{numeric. Desired number of digits on left side of decimal.
+             If not enough, \code{pad} will be used to pad.}
 
-\item{padR}{numeric. Desired number of digits on right side of decimal. If not enough,
-\code{pad} will be used to pad.}
+\item{padR}{numeric. Desired number of digits on right side of decimal.
+             If not enough, \code{pad} will be used to pad.}
 
-\item{pad}{character to use as padding. Must have be nchar(pad) = 1. Passed to \code{\link[stringr]{str_pad}}}
+\item{pad}{character to use as padding (\code{nchar(pad)==1} must be \code{TRUE}).
+           Passed to \code{\link[stringr]{str_pad}}}
 }
 \value{
 Character string representing the filename.

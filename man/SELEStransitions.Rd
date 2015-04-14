@@ -3,7 +3,7 @@
 \docType{methods}
 \name{transitions}
 \alias{transitions}
-\title{Transitioning to next time step}
+\title{SELES - Transitioning to next time step}
 \usage{
 transitions(p, agent)
 }
@@ -19,6 +19,9 @@ Returns new SpatialPoints* object with potentially fewer agents
 A SELES-like function to maintain conceptual backwards compatability with that simulation
 tool. Describes the probability of an agent successfully persisting until next
 time step. THIS IS NOT FULLY IMPLEMENTED.
+This is intended to ease transitinos from
+\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+You must know how to use SELES for these to be useful
 }
 \author{
 Eliot McIntire

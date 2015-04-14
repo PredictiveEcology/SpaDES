@@ -3,7 +3,7 @@
 \docType{methods}
 \name{agentLocation}
 \alias{agentLocation}
-\title{Agent Location at initiation}
+\title{SELES - Agent Location at initiation}
 \usage{
 agentLocation(map)
 }
@@ -17,6 +17,9 @@ to NAs
 \description{
 A SELES-like function to maintain conceptual backwards compatability with that simulation
 tool. Sets the the location of the intiating agents.  THIS IS NOT FULLY IMPLEMENTED.
+This is intended to ease transitinos from
+\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+You must know how to use SELES for these to be useful
 }
 \author{
 Eliot McIntire

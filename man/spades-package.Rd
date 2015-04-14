@@ -301,8 +301,6 @@ Functions that may be useful within a SpaDES context
   \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
   \code{\link{updateList}} \tab Update values in a named list\cr
   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
-  \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
-  \code{\link{updateList}} \tab Update values in a named list\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }

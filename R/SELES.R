@@ -1,9 +1,12 @@
 ##############################################################
-#' Transitioning to next time step
+#' SELES - Transitioning to next time step
 #'
 #' A SELES-like function to maintain conceptual backwards compatability with that simulation
 #' tool. Describes the probability of an agent successfully persisting until next
 #' time step. THIS IS NOT FULLY IMPLEMENTED.
+#' This is intended to ease transitinos from
+#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' You must know how to use SELES for these to be useful
 #'
 #' @param p realized probability of persisting (i.e., either 0 or 1)
 #'
@@ -24,10 +27,13 @@ transitions <- function(p, agent) {
 }
 
 ##############################################################
-#' Number of Agents to initiate
+#' SELES - Number of Agents to initiate
 #'
 #' A SELES-like function to maintain conceptual backwards compatability with that simulation
 #' tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
+#' This is intended to ease transitinos from
+#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' You must know how to use SELES for these to be useful
 #'
 #' @param N Number of agents to intitate
 #'
@@ -46,10 +52,13 @@ numAgents <- function(N) {
 }
 
 ##############################################################
-#' Agent Location at initiation
+#' SELES - Agent Location at initiation
 #'
 #' A SELES-like function to maintain conceptual backwards compatability with that simulation
 #' tool. Sets the the location of the intiating agents.  THIS IS NOT FULLY IMPLEMENTED.
+#' This is intended to ease transitinos from
+#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' You must know how to use SELES for these to be useful
 #'
 #' @param map SpatialPoints*, SpatialPolygons* or Raster*
 #'
@@ -75,10 +84,13 @@ agentLocation <- function(map) {
 }
 
 ##############################################################
-#' Probability of Initiation
+#' SELES - Probability of Initiation
 #'
 #' A SELES-like function to maintain conceptual backwards compatability with that simulation
 #' tool. Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
+#' This is intended to ease transitinos from
+#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' You must know how to use SELES for these to be useful
 #'
 #' @param map A \code{spatialObjects} object. Provides CRS and is related to probabilities.
 #'

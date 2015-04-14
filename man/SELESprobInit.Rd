@@ -3,7 +3,7 @@
 \docType{methods}
 \name{probInit}
 \alias{probInit}
-\title{Probability of Initiation}
+\title{SELES - Probability of Initiation}
 \usage{
 probInit(map, p = NULL, absolute = FALSE)
 }
@@ -20,6 +20,9 @@ An RasterLayer with probabilities of initialization
 \description{
 A SELES-like function to maintain conceptual backwards compatability with that simulation
 tool. Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
+This is intended to ease transitinos from
+\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+You must know how to use SELES for these to be useful
 }
 \author{
 Eliot McIntire
