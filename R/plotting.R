@@ -1208,15 +1208,13 @@ setMethod(".plotGrob",
 #'
 #' @param spadesPlot An object of class \code{spadesPlot}
 #'
-#' @param zoom    [description needed]
-#'
 #' @param newArr  Logical. Whether this function will create a completely new viewport.
 #'                Default \code{FALSE}.
 #'
 #' @author Eliot McIntire
 #' @rdname makeViewports
 #' @export
-.makeViewports <- function(spadesPlot, zoom, newArr=FALSE) {
+.makeViewports <- function(spadesPlot, newArr=FALSE) {
 
   arr <- spadesPlot@arrangement
   sgl <- spadesPlot@spadesGrobList
