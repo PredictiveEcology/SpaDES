@@ -7,12 +7,12 @@
 .makeViewports(spadesPlot, zoom, newArr = FALSE)
 }
 \arguments{
-\item{spadesPlot}{an object of class \code{spadesPlot}}
+\item{spadesPlot}{An object of class \code{spadesPlot}}
 
 \item{zoom}{[description needed]}
 
-\item{newArr}{logical. Whether this function will create a completely new viewport.
-Default \code{FALSE}.}
+\item{newArr}{Logical. Whether this function will create a completely new viewport.
+               Default \code{FALSE}.}
 }
 \description{
 Given a set of extents, and a layout for these extents, this function will output
