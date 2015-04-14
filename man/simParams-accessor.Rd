@@ -29,6 +29,7 @@
 \alias{simProgressGraphical}
 \alias{simProgressGraphical,simList-method}
 \alias{simProgressGraphical<-}
+\alias{simProgressGraphical<-,simList-method}
 \alias{simProgressInterval}
 \alias{simProgressInterval,simList-method}
 \alias{simProgressInterval<-}

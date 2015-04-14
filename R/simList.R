@@ -637,8 +637,8 @@ setGeneric("simProgressGraphical<-",
              standardGeneric("simProgressGraphical<-")
 })
 
-#' @name simProgressInterval<-
-#' @aliases simProgressInterval<-,simList-method
+#' @name simProgressGraphical<-
+#' @aliases simProgressGraphical<-,simList-method
 #' @rdname simParams-accessor
 setReplaceMethod("simProgressGraphical",
                  signature="simList",

@@ -61,6 +61,8 @@ and \code{SpatialLines*} will be subsampled. The vertices are already subsampled
 by default to make plotting faster.}
 
 \item{...}{additional arguments. Currently nothing.}
+
+\item{length}{Numeric.}
 }
 \description{
 Plot a raster Grob, a points Grob, polygon Grob. This should mostly be called internally.
