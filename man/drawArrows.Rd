@@ -31,7 +31,7 @@ viewport can be called for later plotting.}
 \item{...}{Additional plotting parameters passed to \code{\link{grid.polyline}}.
 Currently does not appear to pass anything.}
 
-\item{length}{numeric. Optional length, in inches, of the arrow head.}
+\item{length}{numeric. Optional length, in inches, of arrow head on a SpatialLines object.}
 }
 \value{
 Plots the vectors representing agent movement on the specified map. If plotted

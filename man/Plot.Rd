@@ -67,7 +67,9 @@ that will override the data bounds contained within the \code{grobToPlot}.}
 \item{legendText}{Vector of values to use for legend value labels.
 Defaults to \code{NULL}, which results in a pretty numeric representation.
 If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
-package), this will be used by default. Currently, only a single vector is accepted.}
+package), this will be used by default. Currently, only a single vector is accepted.
+The length of this must match the length of the legend, so this is mosty useful for
+discrete valued rasters.}
 
 \item{pch}{see \code{?par}.}
 
