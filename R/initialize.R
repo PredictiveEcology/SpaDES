@@ -193,7 +193,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 }
 
 ##############################################################
-#' spec.num.per.patch
+#' specificNumPerPatch
 #'
 #' Instantiate a specific number of agents per patch.
 #'
@@ -223,7 +223,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
 #
-spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.map=NULL) {
+specificNumPerPatch <- function(patches, num.per.patch.table=NULL, num.per.patch.map=NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells=TRUE)
   if (!is.null(num.per.patch.table)) {
