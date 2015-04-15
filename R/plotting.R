@@ -24,22 +24,7 @@ selectMethod("show", "igraph")
 #' This class is the union of several spatial objects from raster and sp packages. Notably
 #' missing is RasterBrick, for now.
 #'
-#' @section All non-exported object classes used with \code{\link{Plot}}:
-#'
-#' \tabular{ll}{
-#'   New classes\tab \cr
-#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#' \tabular{ll}{
-#'   Unions of existing classes\tab \cr
-#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
+#' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
@@ -58,22 +43,7 @@ setClassUnion(name=".spatialObjects",
 #' This class contains the union of .spatialObjects and several other plot-type objects.
 #' These are the object classes that the \code{\link{Plot}} function can handle.
 #'
-#' @section All non-exported object classes used with \code{\link{Plot}}:
-#'
-#' \tabular{ll}{
-#'   New classes\tab \cr
-#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#' \tabular{ll}{
-#'   Unions of existing classes\tab \cr
-#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
+#' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @import ggplot2
@@ -352,26 +322,10 @@ setMethod("equalExtent",
 #' plotted. The naming convention used is: \code{RasterStackName$layerName},
 #' i.e, \code{landscape$DEM}.
 #'
-#' @section All non-exported object classes used with \code{\link{Plot}}:
-#'
-#' \tabular{ll}{
-#'   New classes\tab \cr
-#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#' \tabular{ll}{
-#'   Unions of existing classes\tab \cr
-#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
+#' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot plotName  character. Name of the plot frame, which is by default a concatenation
 #' of the \code{objName} and \code{layerName}
-#'
 #'
 #' @slot objName  character. Name of object represented by this .spadesGrob
 #'
@@ -420,21 +374,7 @@ setClass(".spadesGrob",
 #' plotted. The naming convention used is: \code{RasterStackName$layerName},
 #' i.e, \code{landscape$DEM}.
 #'
-#' \tabular{ll}{
-#'   New classes\tab \cr
-#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#' \tabular{ll}{
-#'   Unions of existing classes\tab \cr
-#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#'
+#' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot rows    numeric. Number of rows in the arrangement.
 #'
@@ -525,22 +465,7 @@ setClass(".arrangement",
 #' plotted. The naming convention used is: \code{RasterStackName$layerName},
 #' i.e, \code{landscape$DEM}.
 #'
-#' @section All non-exported object classes used with \code{\link{Plot}}:
-#'
-#' \tabular{ll}{
-#'   New classes\tab \cr
-#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#' \tabular{ll}{
-#'   Unions of existing classes\tab \cr
-#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
+#' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot arr  An .arrangement object
 #'
@@ -567,22 +492,7 @@ setClass(".spadesPlot",
 #' SpatialPoints*, SpatialPolygons*, ggplot, hist etc.) and \code{\link{.spadesPlot}}
 #' class objects.  This allows replotting of a \code{\link{.spadesPlot}} object
 #'
-#' @section All non-exported object classes used with \code{\link{Plot}}:
-#'
-#' \tabular{ll}{
-#'   New classes\tab \cr
-#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
-#' \tabular{ll}{
-#'   Unions of existing classes\tab \cr
-#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-#' }
+#' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
 #' @import ggplot2
