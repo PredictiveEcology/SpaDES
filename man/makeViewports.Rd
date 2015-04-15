@@ -4,10 +4,10 @@
 \alias{.makeViewports}
 \title{Make viewports}
 \usage{
-.makeViewports(spadesPlot, newArr = FALSE)
+.makeViewports(sPlot, newArr = FALSE)
 }
 \arguments{
-\item{spadesPlot}{An object of class \code{spadesPlot}}
+\item{sPlot}{An object of class \code{.spadesPlot}}
 
 \item{newArr}{Logical. Whether this function will create a completely new viewport.
                Default \code{FALSE}.}

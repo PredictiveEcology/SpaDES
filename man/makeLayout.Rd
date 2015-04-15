@@ -7,7 +7,7 @@
 .makeLayout(arr, visualSqueeze, legend = TRUE, axes = TRUE, title = TRUE)
 }
 \arguments{
-\item{arr}{an object of class \code{arrangement}}
+\item{arr}{an object of class \code{.arrangement}}
 
 \item{visualSqueeze}{Numeric. The proportion of the white space to be used for
 plots. Default is 0.75.}

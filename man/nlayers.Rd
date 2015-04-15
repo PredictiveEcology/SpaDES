@@ -26,7 +26,7 @@
 \S4method{nlayers}{igraph}(x)
 }
 \arguments{
-\item{x}{A \code{spadesPlotObjects} object or list of these.}
+\item{x}{A \code{.spadesPlotObjects} object or list of these.}
 }
 \value{
 The number of layers in the object.

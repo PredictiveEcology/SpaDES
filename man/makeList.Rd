@@ -13,7 +13,7 @@
 \arguments{
 \item{plotArgs}{list. The arguments passed to Plot}
 
-\item{numSpadesPlotObjects}{numeric. The number of spadesPlotObjects. This can't
+\item{numSpadesPlotObjects}{numeric. The number of .spadesPlotObjects. This can't
 easily be deduced from the plotArgs because of the RasterStacks. So passed manually.}
 }
 \description{

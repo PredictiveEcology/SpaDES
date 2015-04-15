@@ -3,15 +3,15 @@
 \docType{methods}
 \name{.arrangeViewports}
 \alias{.arrangeViewports}
-\alias{.arrangeViewports,spadesPlot-method}
-\title{Determine optimal plotting arrangement of Spatial Objects}
+\alias{.arrangeViewports,.spadesPlot-method}
+\title{Determine optimal plotting arrangement of plot objects}
 \usage{
-.arrangeViewports(spadesPlot)
+.arrangeViewports(sPlot)
 
-\S4method{.arrangeViewports}{spadesPlot}(spadesPlot)
+\S4method{.arrangeViewports}{.spadesPlot}(sPlot)
 }
 \arguments{
-\item{spadesPlot}{A \code{spadesPlot} object.}
+\item{sPlot}{A \code{.spadesPlot} object.}
 }
 \description{
 This assesses the device geometry, the map geometry, and the number of spatial

@@ -8,7 +8,7 @@
 probInit(map, p = NULL, absolute = FALSE)
 }
 \arguments{
-\item{map}{A \code{spatialObjects} object. Provides CRS and is related to probabilities.}
+\item{map}{A \code{.spatialObjects} object. Provides CRS and is related to probabilities.}
 
 \item{p}{probability, provided as a numeric or raster}
 

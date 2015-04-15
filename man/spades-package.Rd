@@ -4,7 +4,7 @@
 \name{spades-package}
 \alias{SpaDES}
 \alias{spades-package}
-\title{Categorized view of the functions in the SpaDES package}
+\title{Categorized view of the common user functions in the SpaDES package}
 \description{
 This package allows implementation a variety of simulation-type models, with a focus on spatially
 explicit models. The core simulation components are built upon
@@ -14,6 +14,7 @@ simulation modules. Included are numerous tools to visualize various spatial dat
 as non-spatial data.
 
 Bug reports: \url{https://github.com/PredictiveEcology/SpaDES/issues}
+Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 }
 \section{1. SpaDES functions}{
 
@@ -38,6 +39,7 @@ and run the simulation:
 
 
 \tabular{ll}{
+  Common commands \tab \cr
   \code{\link{scheduleEvent}} \tab Schedule a simulation event\cr
   \code{\link{simCurrentTime}} \tab Get and set the list of simulation times\cr
   \code{\link{simStartTime}} \tab Get and set the start time of a simulation \cr
@@ -49,6 +51,10 @@ and run the simulation:
   \code{\link{simEvents}} \tab Get and set the event queue\cr
   \code{\link{simDepends}} \tab Get and set simulation dependencies\cr
   \code{\link{simCompleted}} \tab List of events that have been run and have completed\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+\tabular{ll}{
+  Advanced commands \tab \cr
   \code{\link{simObjectsLoaded}} \tab Get and set list of objects already loaded for simulation\cr
   \code{\link{simModules}} \tab Get and set list of modules to be loaded for simulation\cr
   \code{\link{simModulesLoaded}} \tab Get and set list of modules already loaded for simulation\cr
@@ -112,17 +118,27 @@ on github.com:
 }
 }
 
-\section{1.6 Object classes in SpaDES}{
+\section{1.6 Module dependencies}{
+
+
+Once a set of modules have been chosen, the dependency information is automatically
+calculated once simInit is run. There are several functions to assist with dependency
+information:
+
+\tabular{ll}{
+  \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
+  \code{\link{depsGraph}} \tab Build a module dependency graph using igraph\cr
+  \code{\link{.depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
+  \code{\link{depsPruneEdges}} \tab Identifies cycles in dependencies and removes\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{1.7 Object classes in SpaDES}{
 
 
 \tabular{ll}{
   \code{\link{simList}} \tab The 'simList' class\cr
-  \code{\link{spatialObjects}} \tab Contains the union of all spatial objects classes useable\cr
-  \code{\link{spadesPlot}} \tab Contains the plotting spadesPlot information.\cr
-  \code{\link{spadesPlotObjects}} \tab Contains the plotting arrangement information.\cr
-  \code{\link{spadesPlotables}} \tab Contains the union of all classes that can be plotted with \code{\link{Plot}}\cr
-  \code{\link{spadesGrob}} \tab Contains the plotting spadesGrob information\cr
-  \code{\link{arrangement}} \tab The 'arrangement' class\cr
   \code{\link{moduleDeps}} \tab Descriptor object for specifying SpaDES module dependecies\cr
   \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a SpaDES simulation\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
@@ -151,23 +167,7 @@ function. Functions to help with this:
 }
 }
 
-\section{2.2 Module dependencies}{
-
-
-Once a set of modules have been chosen, the dependency information is automatically
-calculated once simInit is run. There are several functions to assist with dependency
-information:
-
-\tabular{ll}{
-  \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
-  \code{\link{depsGraph}} \tab Build a module dependency graph using igraph\cr
-  \code{\link{.depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
-  \code{\link{depsPruneEdges}} \tab Identifies cycles in dependencies and removes\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
-}
-
-\section{2.3 Spatial spreading}{
+\section{2.2 Spatial spreading}{
 
 
 Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
@@ -182,7 +182,7 @@ with these:
 }
 }
 
-\section{2.4 Spatial agent methods}{
+\section{2.3 Spatial agent methods}{
 
 
 Agents have several methods and functions specific to them:
@@ -195,7 +195,7 @@ Agents have several methods and functions specific to them:
 }
 }
 
-\section{2.5 GIS operations}{
+\section{2.4 GIS operations}{
 
 
 I addition to the vast amount of GIS operations available in R, mostly from contributed packages, like \code{sp}, \code{raster},
@@ -206,7 +206,7 @@ I addition to the vast amount of GIS operations available in R, mostly from cont
 }
 }
 
-\section{2.6 Map-reduce - type operations}{
+\section{2.5 Map-reduce - type operations}{
 
 
 These functions convert between reduced and mapped representations of the same data.
@@ -218,7 +218,7 @@ that share identical information.
 }
 }
 
-\section{2.7 Colors in Raster* objects}{
+\section{2.6 Colors in Raster* objects}{
 
 
 We likely will not want the default colours for every map.
@@ -230,7 +230,7 @@ Here are several helper functions to add, set and get colors to Raster* objects:
 }
 }
 
-\section{2.8 Random Map Generation}{
+\section{2.7 Random Map Generation}{
 
 
 Before all data are available, it is often useful to build dummy maps on which to build
@@ -243,7 +243,7 @@ simulation models. These can then be replaced later with actual data maps:
 }
 }
 
-\section{2.9 Assigning and getting objects}{
+\section{2.8 Assigning and getting objects}{
 
 
 SpaDES modules are groups of R functions. This means that any objects created within
@@ -261,7 +261,7 @@ wrappers, we have built the following to simplify this:
 }
 }
 
-\section{2.10 Checking for the existence of objects}{
+\section{2.9 Checking for the existence of objects}{
 
 
 SpaDES modules will often require the existence of objects in the global environment.
@@ -274,7 +274,7 @@ These are several helpers for assessing this:
 }
 }
 
-\section{2.11 SELES-type approach to simulation}{
+\section{2.10 SELES-type approach to simulation}{
 
 
 These functions are essentially skeletons and are not fully implemented.
@@ -290,7 +290,7 @@ You must know how to use SELES for these to be useful:
 }
 }
 
-\section{2.12 Miscellaneous}{
+\section{2.11 Miscellaneous}{
 
 
 Functions that may be useful within a SpaDES context
@@ -305,7 +305,7 @@ Functions that may be useful within a SpaDES context
 }
 }
 
-\section{2.13 Data included in package}{
+\section{2.12 Data included in package}{
 
 
 Several dummy data sets are included for testing of functionality

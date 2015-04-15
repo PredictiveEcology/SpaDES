@@ -25,7 +25,7 @@ rePlot(toDev = dev.cur(), fromDev = dev.cur())
 clearPlot(dev = dev.cur())
 }
 \arguments{
-\item{...}{A combination of \code{spatialObjects} or a single \code{ggplot} object. See details.}
+\item{...}{A combination of \code{.spatialObjects} or a single \code{ggplot} object. See details.}
 
 \item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
 if \code{FALSE}, then the \code{...} plots will be added to the current device,
@@ -90,7 +90,7 @@ is current device}
 \item{dev}{Numeric. Device number to clear.}
 }
 \value{
-Invisibly returns the \code{spadesPlot} class object. If this is assigned to an
+Invisibly returns the \code{.spadesPlot} class object. If this is assigned to an
 object, say \code{obj}, then this can be plotted again with \code{Plot(obj)}. This
 object is also stored in the locked \code{.spadesEnv}, so can simply be replotted
 with \code{rePlot()} or on a new device with \code{rePlot(4)}, where 4 is the new device number.
@@ -125,7 +125,7 @@ The function is based on the grid package.
 Each panel in the multipanel plot must have a name.
 This name is used to overplot, rearrange the plots, or overlay using
 \code{addTo} when necessary.
-If the \code{...} are named spatialObjects, then \code{Plot} will use
+If the \code{...} are named .spatialObjects, then \code{Plot} will use
 these names. However, this name will not persist when there is a future call
 to \code{Plot} that forces a rearrangement of the plots.
 A more stable way is to use the object names directly, and any layer names
@@ -170,8 +170,8 @@ entries can be used, but they must be named list elements
 and they must match the \code{...} items to plot. This is true
 for a RasterStack also, i.e., the list of named elements
 must be the same length as the number of layers being
-plotted. The naming convention used is \code{RasterStackName.layerName},
-i.e, \code{landscape.DEM}.
+plotted. The naming convention used is \code{RasterStackName$layerName},
+i.e, \code{landscape$DEM}.
 }
 \examples{
 \dontrun{

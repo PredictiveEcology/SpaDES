@@ -5,7 +5,7 @@
 \alias{.objectNames}
 \title{Extracts the object names}
 \usage{
-.objectNames(calledFrom = "Plot", argClass = "spadesPlotObjects",
+.objectNames(calledFrom = "Plot", argClass = ".spadesPlotObjects",
   argName = "")
 }
 \arguments{
@@ -13,7 +13,7 @@
 desired. Defaults to \code{Plot}}
 
 \item{argClass}{character vector, length 1, indicating which class is being
-searched for among the arguments. Defaults to \code{spadesPlotObjects}}
+searched for among the arguments. Defaults to \code{.spadesPlotObjects}}
 
 \item{argName}{character vector, length 1, or \code{NULL}, indicating if the
 arguments to select have a name, no name (empty string), or do not use name (NULL).}
