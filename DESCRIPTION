@@ -78,6 +78,7 @@ Collate:
     'probability.R'
     'progress.R'
     'save.R'
+    'spades-classes.R'
     'spades-package.R'
     'spread-process.R'
     'zzz.R'

@@ -124,46 +124,12 @@ These are included for advanced users.
 }
 }
 
-\section{1.3 Plotting}{
-
-There are several user-accessible plotting functions that are optimized for modularity
-and speed of plotting:
-
-\tabular{ll}{
-  \code{\link{clearPlot}} \tab Reset all elements of plot device and its metadata.\cr
-  \code{\link{clickValues}} \tab Extract values from a raster object at the mouse click location(s)\cr
-  \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
-  \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
-  \code{\link{dev}} \tab Specify which device to plot on, making a non-RStudio one as default\cr
-  \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
-  \code{\link{newPlot}} \tab Open a new default plotting device\cr
-  \code{\link{Plot}} \tab The workhorse plotting function\cr
-  \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
-}
-
-\section{1.4 File operations}{
-
-
-In addition to R's file operations, we have added several here to aid in bulk
-loading and saving of files for simulation purposes:
-
-\tabular{ll}{
-  \code{\link{getFileName}} \tab Get the name of current file\cr
-  \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
-  \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
-  \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
-}
-
-\section{1.5 Module operations}{
+\section{1.3 Module operations}{
 
 
 Modules are the basic unit of \code{SpaDES}.
 These are generally created and stored locally, or are downloaded from remote repositories,
-including our \url{SpaDES-modules repository on GitHub}{https://github.com/PredictiveEcology/SpaDES-modules}.
+including our \href{SpaDES-modules repository on GitHub}{https://github.com/PredictiveEcology/SpaDES-modules}.
 
 \tabular{ll}{
   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
@@ -177,7 +143,7 @@ including our \url{SpaDES-modules repository on GitHub}{https://github.com/Predi
 }
 }
 
-\section{1.6 Module dependencies}{
+\section{1.4 Module dependencies}{
 
 
 Once a set of modules have been chosen, the dependency information is automatically
@@ -193,12 +159,12 @@ information:
 }
 }
 
-\section{1.7 Object classes in \code{SpaDES}}{
+\section{1.5 Object classes in \code{SpaDES}}{
 
 
 \tabular{ll}{
-  \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a \code{SpaDES} simulation\cr
   \code{\link{simList}} \tab The 'simList' class\cr
+  \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a \code{SpaDES} simulation\cr
   \code{\link{moduleDeps}} \tab Descriptor object for specifying \code{SpaDES} module dependecies\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
@@ -363,14 +329,72 @@ Functions that may be useful within a \code{SpaDES} context
   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
+
+------------------------------------------------------------------------------------------
 }
 
-\section{2.12 Data included in package}{
+\section{3 Plotting}{
+
+There are several user-accessible plotting functions that are optimized for modularity
+and speed of plotting:
+
+\tabular{ll}{
+  \code{\link{clearPlot}} \tab Reset all elements of plot device and its metadata.\cr
+  \code{\link{clickValues}} \tab Extract values from a raster object at the mouse click location(s)\cr
+  \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
+  \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
+  \code{\link{dev}} \tab Specify which device to plot on, making a non-RStudio one as default\cr
+  \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
+  \code{\link{newPlot}} \tab Open a new default plotting device\cr
+  \code{\link{Plot}} \tab The workhorse plotting function\cr
+  \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+
+------------------------------------------------------------------------------------------
+}
+
+\section{4 File operations}{
+
+
+In addition to R's file operations, we have added several here to aid in bulk
+loading and saving of files for simulation purposes:
+
+\tabular{ll}{
+  \code{\link{getFileName}} \tab Get the name of current file\cr
+  \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
+  \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
+  \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+
+------------------------------------------------------------------------------------------
+}
+
+\section{5 Sample data and modules included in package}{
+
+
+Five maps and three modules are included within the \code{SpaDES} package
+}
+
+\section{5.1 Data}{
 
 
 Several dummy data sets are included for testing of functionality
 \tabular{ll}{
-  \code{\link{SpaDES-maps}} \tab Help showing included maps\cr
+  \code{\link{spadesMaps}} \tab Help showing included maps\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{5.2 Modules}{
+
+
+Several dummy modules are included for testing of functionality
+\tabular{ll}{
+  \code{randomLandscapes} \tab Imports, updates, and plots several raster map layers\cr
+  \code{caribouMovement} \tab A simple agent-based (a.k.a., individual-based) model\cr
+  \code{fireSpread} \tab A simple model of a spatial spread process\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
