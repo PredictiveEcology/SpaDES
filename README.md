@@ -12,6 +12,8 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
 
+**Wiki:** [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+
 ## Installation
 
 Download the source tarball (.tar.gz) or windows package binary (.zip), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
@@ -47,7 +49,7 @@ If the install from GitHub fails during vignette building, you can skip this ste
     
         install.packages("devtools")
         library("devtools")
-	      install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+	install_github("PredictiveEcology/SpaDES", ref="development") # unstable
 
 ## Reporting bugs
 
