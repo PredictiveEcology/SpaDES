@@ -8,16 +8,18 @@ language: r
 
 sudo: required
 
-display: ":99.0"
+env:
+  global:
+    - DISPLAY=:99.0
+
+install:
+  - sh -e /etc/init.d/xvfb start
 
 r_build_args: " "
 
 r_check_args: "--as-cran"
 
 warnings_are_errors: true
-
-install:
-  - sh -e /etc/init.d/xvfb start
 
 r_binary_packages:
   - boot
@@ -27,7 +29,6 @@ r_binary_packages:
   - digest
   - ggplot2
   - gtable
-  - knitr
   - labeling
   - lattice
   - latticeextra
