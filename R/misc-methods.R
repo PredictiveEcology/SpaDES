@@ -54,6 +54,7 @@ setMethod("getFileName",
 #' @export
 #' @docType methods
 #' @rdname updateList
+#' @name updateList
 #'
 #' @author Alex Chubaty
 #'
@@ -67,6 +68,7 @@ setGeneric("updateList", function(x, y) {
 })
 
 #' @rdname updateList
+#' @name updateList
 setMethod("updateList",
           signature=c("list", "list"),
           definition=function(x, y) {
@@ -80,6 +82,7 @@ setMethod("updateList",
 })
 
 #' @rdname updateList
+#' @name updateList
 setMethod("updateList",
           signature=c("NULL", "list"),
           definition=function(x, y) {
@@ -90,6 +93,7 @@ setMethod("updateList",
 })
 
 #' @rdname updateList
+#' @name updateList
 setMethod("updateList",
           signature=c("list", "NULL"),
           definition=function(x, y) {
@@ -100,6 +104,7 @@ setMethod("updateList",
 })
 
 #' @rdname updateList
+#' @name updateList
 setMethod("updateList",
           signature=c("NULL", "NULL"),
           definition=function(x, y) {

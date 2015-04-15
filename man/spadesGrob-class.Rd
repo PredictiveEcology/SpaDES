@@ -39,25 +39,10 @@ spatialObject classes}
 
 \item{\code{plotArgs}}{list. Any parameters needed for plotting, set by Plot call.}
 }}
-\section{All non-exported object classes used with \code{\link{Plot}}}{
-
-
-\tabular{ll}{
-  New classes\tab \cr
-  \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-  \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-  \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
-\tabular{ll}{
-  Unions of existing classes\tab \cr
-  \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-  \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-  \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
-}
 \author{
 Eliot McIntire
+}
+\seealso{
+\code{\link{spadesClasses}}
 }
 

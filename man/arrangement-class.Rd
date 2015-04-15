@@ -20,21 +20,6 @@ for a RasterStack also, i.e., the list of named elements
 must be the same length as the number of layers being
 plotted. The naming convention used is: \code{RasterStackName$layerName},
 i.e, \code{landscape$DEM}.
-
-\tabular{ll}{
-  New classes\tab \cr
-  \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-  \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-  \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
-\tabular{ll}{
-  Unions of existing classes\tab \cr
-  \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-  \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-  \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
-}
 }
 \section{Slots}{
 
@@ -79,5 +64,8 @@ Default is 5. See details.}
 }}
 \author{
 Eliot McIntire
+}
+\seealso{
+\code{\link{spadesClasses}}
 }
 

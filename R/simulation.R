@@ -462,7 +462,7 @@ setMethod("scheduleEvent",
 #'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
-#' @seealso \code{\link{simInit}}.
+#' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates
@@ -471,6 +471,7 @@ setMethod("scheduleEvent",
 #' @export
 #' @docType methods
 #' @rdname spades
+#' @name spades
 #'
 #' @author Alex Chubaty
 #'
