@@ -12,17 +12,21 @@ These are the object classes that the \code{\link{Plot}} function can handle.
 \describe{
 \item{\code{members}}{SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack}
 }}
-\section{All non-exported object classes in SpaDES}{
+\section{All non-exported object classes used with \code{\link{Plot}}}{
 
 
 \tabular{ll}{
-  \code{\link{.spadesPlot-class}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-  \code{\link{.spadesGrob-class}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-  \code{\link{.arrangement-class}} \tab The layout or "arrangement" of plot objects\cr
-  Unions of classes\tab \cr
-  \code{\link{.spadesPlottables-class}} \tab The union of all object classes Plot can accept\cr
-  \code{\link{.spadesPlotObjects-class}} \tab The union of .spatialObjects and several others\cr
-  \code{\link{.spatialObjects-class}} \tab The union of several spatial classes\cr
+  New classes\tab \cr
+  \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+  \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+  \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+\tabular{ll}{
+  Unions of existing classes\tab \cr
+  \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+  \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+  \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }

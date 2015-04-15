@@ -3,7 +3,6 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
-\alias{Plot,ANY-method}
 \alias{clearPlot}
 \alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
@@ -170,7 +169,7 @@ entries can be used, but they must be named list elements
 and they must match the \code{...} items to plot. This is true
 for a RasterStack also, i.e., the list of named elements
 must be the same length as the number of layers being
-plotted. The naming convention used is \code{RasterStackName$layerName},
+plotted. The naming convention used is: \code{RasterStackName$layerName},
 i.e, \code{landscape$DEM}.
 }
 \examples{

@@ -5,25 +5,24 @@
 \alias{specificNumPerPatch}
 \title{specificNumPerPatch}
 \usage{
-specificNumPerPatch(patches, num.per.patch.table = NULL,
-  num.per.patch.map = NULL)
+specificNumPerPatch(patches, numPerPatchTable = NULL, numPerPatchMap = NULL)
 }
 \arguments{
-\item{patches}{Description of this.}
+\item{patches}{RasterLayer of Patches, with some sort of a patch id}
 
-\item{num.per.patch.table}{Description of this.}
+\item{numPerPatchTable}{A data.frame or data.table with a column named "pops" that
+matches the \code{patches} patch ids}
 
-\item{num.per.patch.map}{Description of this.}
+\item{numPerPatchMap}{A RasterLayer exactly the same as \code{patches} but with
+agent numbers rather than ids as the cell values per patch.}
 }
 \value{
-Decribe what it returns: \code{al}.
-
-#
+A raster with 0s and 1s, where the 1s indicate starting locations of agents
+following the numbers above
 }
 \description{
-Instantiate a specific number of agents per patch.
-}
-\seealso{
-\code{\link{print}} and \code{\link{cat}}
+Instantiate a specific number of agents per patch. The user can either supply
+a table of how many to initiate in each patch, linked by a column in that table
+called "pops"
 }
 

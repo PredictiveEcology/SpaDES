@@ -3,7 +3,6 @@
 \docType{methods}
 \name{.makeColorMatrix}
 \alias{.makeColorMatrix}
-\alias{.makeColorMatrix,Raster,Extent,numeric-method}
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
 .makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,

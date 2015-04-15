@@ -3,10 +3,12 @@
 \docType{methods}
 \name{.identifyGrobToPlot}
 \alias{.identifyGrobToPlot}
-\alias{.identifyGrobToPlot,.spadesGrob,missing,logical-method}
 \title{Identify where to get the grob from}
 \usage{
 .identifyGrobToPlot(grobNamesi, toPlot, takeFromPlotObj)
+
+\S4method{.identifyGrobToPlot}{.spadesGrob,list,logical}(grobNamesi, toPlot,
+  takeFromPlotObj)
 
 \S4method{.identifyGrobToPlot}{.spadesGrob,missing,logical}(grobNamesi, toPlot,
   takeFromPlotObj)
