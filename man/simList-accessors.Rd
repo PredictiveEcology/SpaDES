@@ -194,21 +194,34 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Currently, only get and set methods are defined. Subset methods are not.
+See Details.
 }
 \details{
-\code{\link{simCheckpointFile}} for accessing the name of the checkpoint file;
-\code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval;
-\code{\link{simGlobals}} for accessing the global simulation parameters;
-\code{\link{simGlobalsOutputPath}} for accessing the global simulation output path;
-\code{\link{simModules}} for accessing the list of simulation modules to be loaded;
-\code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules;
-\code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects;
-\code{\link{simParams}} for accessing the list of simulation parameters;
-\code{\link{simProgressGraphical}} for accessing the graphical progress bar parameter;
-\code{\link{simProgressInterval}} for accessing the interval for the progress bar;
-\code{\link{simEvents}} for accessing the scheduled simulation event queue;
-\code{\link{simCompleted}} for accessing the list of completed simulation events;
-\code{\link{simTimes}} for accessing the list of simulation times
+\code{\link{simCheckpointFile}} for accessing the name of the checkpoint file.
+
+\code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval.
+
+\code{\link{simGlobals}} for accessing the global simulation parameters.
+
+\code{\link{simGlobalsOutputPath}} for accessing the global simulation output path.
+
+\code{\link{simModules}} for accessing the list of simulation modules to be loaded.
+
+\code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules.
+
+\code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects.
+
+\code{\link{simParams}} for accessing the list of simulation parameters.
+
+\code{\link{simProgressGraphical}} for accessing the graphical progress bar parameter.
+
+\code{\link{simProgressInterval}} for accessing the interval for the progress bar.
+
+\code{\link{simEvents}} for accessing the scheduled simulation event queue.
+
+\code{\link{simCompleted}} for accessing the list of completed simulation events.
+
+\code{\link{simTimes}} for accessing the list of simulation times.
 (\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
 to access the simulation current, start, and stop times individually).
 }
