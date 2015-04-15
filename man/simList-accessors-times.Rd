@@ -65,7 +65,7 @@ Returns or sets the value of the slot from the \code{simList} object.
 Accessor functions for the \code{simtimes} slot of a \code{simList} object
 and its elements.
 Additonal methods are provided to access the current, start, and stop times
-of the simulation:
+of the simulation.
 \tabular{ll}{
    \code{simCurrentTime} \tab Current simulation time.\cr
    \code{simStartTime} \tab Simulation start time.\cr
