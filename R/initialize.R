@@ -225,7 +225,6 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 #  or 2 maps, patchid and patchnumber. Returns a map with a single unique pixel
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
-#
 specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells=TRUE)
