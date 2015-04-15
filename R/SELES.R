@@ -45,11 +45,41 @@ transitions <- function(p, agent) {
 #' @rdname SELESnumAgents
 #'
 #' @author Eliot McIntire
-numAgents <- function(N) {
+numAgents <- function(N, probInit) {
     if ((length(N) == 1) && (is.numeric(N))) numAgents = N
     else stop("N must be a single integer value, not a vector.")
     return(numAgents)
 }
+
+##############################################################
+#' SELES - Initiate agents
+#'
+#' A SELES-like function to maintain conceptual backwards compatability with that simulation
+#' tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
+#' This is intended to ease transitinos from
+#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' You must know how to use SELES for these to be useful
+#'
+#' @param numAgents numeric resulting from a call to \code{\link{numAgents}}
+#'
+#' @param probInit RasterLayer resulting from a call to \code{\link{probInit}}
+#'
+#' @return A SpatialPointsDataFrame, with each row representing an individual agent
+#'
+#' @include agent.R
+#' @export
+#' @docType methods
+#' @rdname SELESnumAgents
+#'
+#' @author Eliot McIntire
+#' @param probInit a Raster resulting from a \code{\link{probInit}} call
+
+setMethod("initiateAgents",
+          signature=c(NULL, NULL),
+          function(numAgents=NULL, probInit=NULL) {
+
+
+})
 
 ##############################################################
 #' SELES - Agent Location at initiation
@@ -92,13 +122,24 @@ agentLocation <- function(map) {
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
 #' You must know how to use SELES for these to be useful
 #'
-#' @param map A \code{.spatialObjects} object. Provides CRS and is related to probabilities.
+#' @param map A \code{.spatialObjects} object. Currently, only provides CRS and, if p is not
+#' a raster, then all the raster dimensions.
 #'
 #' @param p probability, provided as a numeric or raster
 #'
 #' @param absolute logical. Is \code{p} absolute probabilities or relative?
 #'
-#' @return An RasterLayer with probabilities of initialization
+#' @return An RasterLayer with probabilities of initialization. There are several combinations
+#' of inputs possible and they each result in different behaviors.
+#'
+#' If \code{p} is numeric or Raster and between 0 and 1, it is treated as an absolute probability, and a map
+#' will be produced with the p value(s) everywhere.
+#'
+#' If \code{p} is numeric or Raster and not between 0 and 1, it is treated as a relative probability, and a map
+#' will be produced with p/max(p) value(s) everywhere
+#'
+#' If \code{absolute} is provided, it will override the previous statements, unless \code{absolute}
+#' is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 #'
 #' @import raster
 #' @import sp
@@ -107,16 +148,21 @@ agentLocation <- function(map) {
 #' @docType methods
 #' @rdname SELESprobInit
 #' @author Eliot McIntire
-probInit = function(map, p=NULL, absolute=FALSE) {
-  if (length(p) == 1) {
-    probInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
-    probInit = setValues(probInit, rep(p,length(probInit)))
+probInit = function(map, p=NULL, absolute=NULL) {
+  if(all(inRange(p, 0, 1))) {
+    if(is.null(absolute)) {
+      absolute <- TRUE
+    }
+  } else {
+    absolute <- FALSE
+  }
+  if (is.numeric(p)) {
+    probInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map)) %>%
+      setValues(rep(p/(max(1,max(p)))*(1-absolute)+1*(absolute),length.out=length(.)))
   } else if (is(p,"RasterLayer")) {
     probInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
   } else if (is(map,"SpatialPolygonsDataFrame")) {
     probInit = p/sum(p)
-  } else if (is(p,"NULL"))  {
-    probInit = map/(cellStats(p,sum)*(1-absolute)+1*(absolute))
   } else {
     stop("Error initializing probability map: bad inputs")
   }
