@@ -62,7 +62,7 @@
 \alias{simProgressInterval,simList-method}
 \alias{simProgressInterval<-}
 \alias{simProgressInterval<-,simList-method}
-\title{Get and set slots and elements in a simList object}
+\title{Get and set slots in a \code{simList} object}
 \usage{
 simModules(object)
 
@@ -193,39 +193,87 @@ simDepends(object) <- value
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
+Collection of accessor functions for the slots (and their elements) of a
+\code{\link{simList}} object.
 Currently, only get and set methods are defined. Subset methods are not.
-See Details.
+See details below.
 }
-\details{
-\code{\link{simCheckpointFile}} for accessing the name of the checkpoint file.
+\section{1 Simulation parameters}{
 
-\code{\link{simCheckpointInterval}} for accessing the simulation checkpoint interval.
 
-\code{\link{simGlobals}} for accessing the global simulation parameters.
+Accessor functions for the \code{params} slot and its elements.
+}
 
-\code{\link{simGlobalsOutputPath}} for accessing the global simulation output path.
+\section{1.1 Global parameters}{
 
-\code{\link{simModules}} for accessing the list of simulation modules to be loaded.
 
-\code{\link{simModulesLoaded}} for accessing the list of loaded simulation modules.
+\code{\link{simGlobals}} List of global simulation parameters.
 
-\code{\link{simObjectsLoaded}} for accessing the list of loaded simulation objects.
+\code{\link{simGlobalsOutputPath}} List of global simulation output path.
+}
 
-\code{\link{simParams}} for accessing the list of simulation parameters.
+\section{1.2 Core module parameters}{
 
-\code{\link{simProgressGraphical}} for accessing the graphical progress bar parameter.
 
-\code{\link{simProgressInterval}} for accessing the interval for the progress bar.
+\code{\link{simCheckpointFile}} Name of the checkpoint file.
 
-\code{\link{simEvents}} for accessing the scheduled simulation event queue.
+\code{\link{simCheckpointInterval}} The simulation checkpoint interval.
 
-\code{\link{simCompleted}} for accessing the list of completed simulation events.
+\code{\link{simObjectsLoaded}} List of loaded simulation objects.
 
-\code{\link{simTimes}} for accessing the list of simulation times.
-(\code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
-to access the simulation current, start, and stop times individually).
+\code{\link{simProgressGraphical}} Type of graphical progress bar used.
+
+\code{\link{simProgressInterval}} Interval for the progress bar.
+}
+
+\section{1.3 User module parameters}{
+
+
+\code{\link{simParams}} List of simulation parameters.
+}
+
+\section{2 Simulation modules and dependencies}{
+
+
+Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
+and \code{.loadOrder} slots.
+
+\code{\link{simDepends}} List of simulation module dependencies.
+
+\code{\link{simModules}} List of simulation modules to be loaded.
+
+\code{\link{simModulesLoaded}} List of loaded simulation modules.
+
+\code{\link{simModulesLoadOrder}} List specifying the order in which to load modules.
+}
+
+\section{3 Simulation event queues}{
+
+
+Accessor functions for the \code{events} and \code{completed} slots.
+
+\code{\link{simEvents}} Scheduled simulation events (the event queue).
+
+\code{\link{simCompleted}} Completed simulation events.
+}
+
+\section{4 Simulation times}{
+
+
+Accessor functions for the \code{simtimes} slot and its elements.
+
+\code{\link{simTimes}} List of simulation times (current, start, stop).
+
+\code{\link{simCurrentTime}} Current simulation time.
+
+\code{\link{simStartTime}} Simulation start time.
+
+\code{\link{simStopTime}} Simulation stop time.
 }
 \author{
 Alex Chubaty
+}
+\seealso{
+\code{\link{simList-class}}
 }
 
