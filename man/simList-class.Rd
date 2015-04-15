@@ -27,7 +27,7 @@ We use S4 classes and methods, and use \code{\link{data.table}} instead of
 
 \item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
 
-\item{\code{events}}{The list of scheduled events (aka event queue), as a \code{data.table}.
+\item{\code{events}}{The list of scheduled events (i.e., event queue), as a \code{data.table}.
                  This event queue is always sorted (keyed) by time,
                  making it easy to insert new events into the queue.}
 
@@ -40,10 +40,12 @@ We use S4 classes and methods, and use \code{\link{data.table}} instead of
                  as well as the current simulation time.}
 }}
 \note{
-Each event is represented by a data.table row consisting of:
-         eventTime: the time the event is to occur;
-         moduleName: the module from which the event is taken;
-         eventType: a character string for the programmer-defined event type.
+Each event is represented by a \code{\link{data.table}} row consisting of:
+       \tabular{ll}{
+         \code{eventTime} \tab The time the event is to occur.\cr
+         \code{moduleName} \tab The module from which the event is taken.\cr
+         \code{eventType} \tab A character string for the programmer-defined event type.\cr
+       }
 }
 \author{
 Alex Chubaty

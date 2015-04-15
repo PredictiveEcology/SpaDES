@@ -6,6 +6,7 @@
 \alias{simCurrentTime,simList-method}
 \alias{simCurrentTime<-}
 \alias{simCurrentTime<-,simList-method}
+\alias{simList-accessors-times}
 \alias{simStartTime}
 \alias{simStartTime,simList-method}
 \alias{simStartTime<-}
@@ -61,14 +62,27 @@ simStopTime(object) <- value
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
-Currently, only get and set methods are defined. Subset methods are not.
+Accessor functions for the \code{simtimes} slot of a \code{simList} object
+and its elements.
+Additonal methods are provided to access the current, start, and stop times
+of the simulation:
+\tabular{ll}{
+   \code{simCurrentTime} \tab Current simulation time.\cr
+   \code{simStartTime} \tab Simulation start time.\cr
+   \code{simStopTime} \tab Simulation stop time.\cr
+   \code{simTimes} \tab List of all simulation times (current, start, stop).\cr
+}
 }
 \details{
-Additonal methods are provided to access the current, start, and stop times of the
-simulation: \code{simCurrentTime}, \code{simStartTime}, and \code{simStopTime}
-to access the simulation current, start, and stop times individually.
+Currently, only get and set methods are defined. Subset methods are not.
 }
 \author{
 Alex Chubaty
+}
+\seealso{
+\code{\link{simList-class}},
+         \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-events}}.
 }
 
