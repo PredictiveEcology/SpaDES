@@ -49,7 +49,7 @@ If the install from GitHub fails during vignette building, you can skip this ste
     
         install.packages("devtools")
         library("devtools")
-	install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+        install_github("PredictiveEcology/SpaDES", ref="development") # unstable
 
 ## Reporting bugs
 
