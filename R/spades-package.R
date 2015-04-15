@@ -1,6 +1,7 @@
 #
 #  SpaDES/R/spades-package.R by Alex M Chubaty and Eliot J B McIntire
-#  Copyright (C) 2015
+#  Copyright (C) 2015 Her Majesty the Queen in Right of Canada,
+#   as represented by the Minister of Natural Resources Canada
 #
 
 #' Categorized view of the functions in the SpaDES package
@@ -150,7 +151,7 @@
 #' \tabular{ll}{
 #'   \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
 #'   \code{\link{depsGraph}} \tab Build a module dependency graph using igraph\cr
-#'   \code{\link{depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
+#'   \code{\link{.depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
 #'   \code{\link{depsPruneEdges}} \tab Identifies cycles in dependencies and removes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
@@ -267,7 +268,7 @@
 #' \tabular{ll}{
 #'   \code{\link{inRange}} \tab Test whether a number lies within range [a,b]\cr
 #'   \code{\link{layerNames}} \tab Get layer names for numerous object classes\cr
-#'   \code{\link{nlayers-method}} \tab Return number of layers\cr
+#'   \code{\link{nlayers}} \tab Return number of layers\cr
 #'   \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
 #'   \code{\link{updateList}} \tab Update values in a named list\cr
 #'   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
