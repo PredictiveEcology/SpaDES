@@ -3,7 +3,6 @@
 \docType{methods}
 \name{.arrangeViewports}
 \alias{.arrangeViewports}
-\alias{.arrangeViewports,.spadesPlot-method}
 \title{Determine optimal plotting arrangement of plot objects}
 \usage{
 .arrangeViewports(sPlot)

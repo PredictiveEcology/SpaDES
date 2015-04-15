@@ -5,7 +5,6 @@ if(getRversion() >= "3.1.0") {
 
 ### Allow gg S3 class to be used with Plot, an S4 function
 #' @import ggplot2
-#'
 setOldClass("gg")
 selectMethod("show", "gg")
 
@@ -25,16 +24,20 @@ selectMethod("show", "igraph")
 #' This class is the union of several spatial objects from raster and sp packages. Notably
 #' missing is RasterBrick, for now.
 #'
-#' @section All non-exported object classes in SpaDES:
+#' @section All non-exported object classes used with \code{\link{Plot}}:
 #'
 #' \tabular{ll}{
-#'   \code{\link{.spadesPlot-class}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob-class}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement-class}} \tab The layout or "arrangement" of plot objects\cr
-#'   Unions of classes\tab \cr
-#'   \code{\link{.spadesPlottables-class}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects-class}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects-class}} \tab The union of several spatial classes\cr
+#'   New classes\tab \cr
+#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#' \tabular{ll}{
+#'   Unions of existing classes\tab \cr
+#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -42,7 +45,7 @@ selectMethod("show", "igraph")
 #'                RasterLayer, RasterStack
 #'
 #' @rdname spatialObjects-class
-#' @name .spatialObjects-class
+#' @name .spatialObjects
 #' @author Eliot McIntire
 setClassUnion(name=".spatialObjects",
               members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
@@ -55,16 +58,20 @@ setClassUnion(name=".spatialObjects",
 #' This class contains the union of .spatialObjects and several other plot-type objects.
 #' These are the object classes that the \code{\link{Plot}} function can handle.
 #'
-#' @section All non-exported object classes in SpaDES:
+#' @section All non-exported object classes used with \code{\link{Plot}}:
 #'
 #' \tabular{ll}{
-#'   \code{\link{.spadesPlot-class}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob-class}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement-class}} \tab The layout or "arrangement" of plot objects\cr
-#'   Unions of classes\tab \cr
-#'   \code{\link{.spadesPlottables-class}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects-class}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects-class}} \tab The union of several spatial classes\cr
+#'   New classes\tab \cr
+#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#' \tabular{ll}{
+#'   Unions of existing classes\tab \cr
+#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -134,7 +141,6 @@ dev <- function(x, ...) {
 #' @export
 #' @docType methods
 #' @rdname newPlot
-#'
 newPlot <- function(noRStudioGD=TRUE, ...) {
   dev.new(noRStudioGD=TRUE, ...)
 }
@@ -156,6 +162,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' @importFrom methods is
 #' @author Eliot McIntire
 #' @rdname nlayers
+#' @name nlayers
 setMethod("nlayers",
           signature="list",
           function(x) {
@@ -170,6 +177,7 @@ setMethod("nlayers",
             return(y)
 })
 
+#' @name nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="SpatialPolygons",
@@ -177,7 +185,7 @@ setMethod("nlayers",
             return(1L)
 })
 
-#' @export
+#' @name nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="SpatialLines",
@@ -185,6 +193,7 @@ setMethod("nlayers",
             return(1L)
 })
 
+#' @name nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="SpatialPoints",
@@ -192,6 +201,7 @@ setMethod("nlayers",
             return(1L)
 })
 
+#' @name nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="gg",
@@ -199,6 +209,7 @@ setMethod("nlayers",
             return(1L)
 })
 
+#' @name nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="histogram",
@@ -206,6 +217,7 @@ setMethod("nlayers",
             return(1L)
           })
 
+#' @name nlayers
 #' @rdname nlayers
 setMethod("nlayers",
           signature="igraph",
@@ -233,6 +245,7 @@ setGeneric("layerNames", function(object) {
   standardGeneric("layerNames")
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="list",
@@ -240,6 +253,7 @@ setMethod("layerNames",
             unlist(lapply(object, layerNames))
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="SpatialPoints",
@@ -247,6 +261,7 @@ setMethod("layerNames",
             return("")
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="SpatialPolygons",
@@ -254,6 +269,7 @@ setMethod("layerNames",
             return("")
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="SpatialLines",
@@ -262,6 +278,7 @@ setMethod("layerNames",
 })
 
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="Raster",
@@ -269,6 +286,7 @@ setMethod("layerNames",
             names(object)
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="gg",
@@ -276,6 +294,7 @@ setMethod("layerNames",
             return("")
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="histogram",
@@ -283,6 +302,7 @@ setMethod("layerNames",
             return("")
 })
 
+#' @name layerNames
 #' @rdname layerNames
 setMethod("layerNames",
           signature="igraph",
@@ -302,6 +322,7 @@ setGeneric("equalExtent", function(extents) {
   standardGeneric("equalExtent")
 })
 
+#' @name equalExtent
 #' @rdname equalExtent
 setMethod("equalExtent",
           signature="list",
@@ -328,20 +349,23 @@ setMethod("equalExtent",
 #' and they must match the \code{...} items to plot. This is true
 #' for a RasterStack also, i.e., the list of named elements
 #' must be the same length as the number of layers being
-#' plotted. The naming convention used is:
+#' plotted. The naming convention used is: \code{RasterStackName$layerName},
+#' i.e, \code{landscape$DEM}.
 #'
-#' \code{RasterStackName$layerName}, i.e, \code{landscape$DEM}.
-#'
-#' @section All non-exported object classes in SpaDES:
+#' @section All non-exported object classes used with \code{\link{Plot}}:
 #'
 #' \tabular{ll}{
-#'   \code{\link{.spadesPlot-class}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob-class}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement-class}} \tab The layout or "arrangement" of plot objects\cr
-#'   Unions of classes\tab \cr
-#'   \code{\link{.spadesPlottables-class}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects-class}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects-class}} \tab The union of several spatial classes\cr
+#'   New classes\tab \cr
+#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#' \tabular{ll}{
+#'   Unions of existing classes\tab \cr
+#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -362,6 +386,7 @@ setMethod("equalExtent",
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
 #'
 #' @rdname spadesGrob-class
+#' @name .spadesGrob
 #' @author Eliot McIntire
 setClass(".spadesGrob",
          slots=list(plotName="character", objName="character", layerName="character",
@@ -392,9 +417,24 @@ setClass(".spadesGrob",
 #' and they must match the \code{...} items to plot. This is true
 #' for a RasterStack also, i.e., the list of named elements
 #' must be the same length as the number of layers being
-#' plotted. The naming convention used is
+#' plotted. The naming convention used is: \code{RasterStackName$layerName},
+#' i.e, \code{landscape$DEM}.
 #'
-#' \code{RasterStackName$layerName}, i.e,   \code{landscape$DEM}.
+#' \tabular{ll}{
+#'   New classes\tab \cr
+#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#' \tabular{ll}{
+#'   Unions of existing classes\tab \cr
+#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#'
 #'
 #' @slot rows    numeric. Number of rows in the arrangement.
 #'
@@ -435,6 +475,7 @@ setClass(".spadesGrob",
 #' Default is 5. See details.
 #'
 #' @rdname arrangement-class
+#' @name .arrangement
 #' @author Eliot McIntire
 setClass(".arrangement",
          slots=list(rows="numeric", columns="numeric",
@@ -462,7 +503,9 @@ setClass(".arrangement",
 #' This class contains all necessary information to build a Plot on a device,
 #' except the actual data. Thus, this class differs notably from the grid package,
 #' which keeps a copy of all data *and* information in a hidden location for further
-#' access for rebuilding, erasing etc.
+#' access for rebuilding, erasing etc. This difference allows the Plot function to
+#' be much faster than using the grid methodology directly. The cost to this speed
+#' gain is that the objects *must* be available, by name, in the .GlobalEnv.
 #'
 #' This class contains two slots, one for the overall arrangement of the plots within
 #' the device window, and the second for all the \code{\link{.spadesGrob}} objects within
@@ -479,20 +522,23 @@ setClass(".arrangement",
 #' and they must match the \code{...} items to plot. This is true
 #' for a RasterStack also, i.e., the list of named elements
 #' must be the same length as the number of layers being
-#' plotted. The naming convention used is
+#' plotted. The naming convention used is: \code{RasterStackName$layerName},
+#' i.e, \code{landscape$DEM}.
 #'
-#' \code{RasterStackName$layerName}, i.e,   \code{landscape$DEM}.
-#'
-#' @section All non-exported object classes in SpaDES:
+#' @section All non-exported object classes used with \code{\link{Plot}}:
 #'
 #' \tabular{ll}{
-#'   \code{\link{.spadesPlot-class}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob-class}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement-class}} \tab The layout or "arrangement" of plot objects\cr
-#'   Unions of classes\tab \cr
-#'   \code{\link{.spadesPlottables-class}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects-class}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects-class}} \tab The union of several spatial classes\cr
+#'   New classes\tab \cr
+#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#' \tabular{ll}{
+#'   Unions of existing classes\tab \cr
+#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
@@ -501,7 +547,7 @@ setClass(".arrangement",
 #' @slot spadesGrobList list. A list of lists of .spadesGrob objects
 #'
 #' @rdname spadesPlot-class
-#'
+#' @name .spadesPlot
 #' @author Eliot McIntire
 setClass(".spadesPlot",
          slots=list(arr=".arrangement", spadesGrobList="list"),
@@ -519,26 +565,30 @@ setClass(".spadesPlot",
 #'
 #' This class is the union of all .spadesPlotObjects (e.g., RasterLayer*,
 #' SpatialPoints*, SpatialPolygons*, ggplot, hist etc.) and \code{\link{.spadesPlot}}
-#' class objects.
+#' class objects.  This allows replotting of a \code{\link{.spadesPlot}} object
 #'
-#' @section All non-exported object classes in SpaDES:
+#' @section All non-exported object classes used with \code{\link{Plot}}:
 #'
 #' \tabular{ll}{
-#'   \code{\link{.spadesPlot-class}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
-#'   \code{\link{.spadesGrob-class}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
-#'   \code{\link{.arrangement-class}} \tab The layout or "arrangement" of plot objects\cr
-#'   Unions of classes\tab \cr
-#'   \code{\link{.spadesPlottables-class}} \tab The union of all object classes Plot can accept\cr
-#'   \code{\link{.spadesPlotObjects-class}} \tab The union of .spatialObjects and several others\cr
-#'   \code{\link{.spatialObjects-class}} \tab The union of several spatial classes\cr
+#'   New classes\tab \cr
+#'   \code{\link{.spadesPlot}} \tab Main class for \code{\link{Plot}} - contains .spadesGrob and .arrangement objects\cr
+#'   \code{\link{.spadesGrob}} \tab GRaphical OBject used by SpaDES - smallest unit\cr
+#'   \code{\link{.arrangement}} \tab The layout or "arrangement" of plot objects\cr
+#'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+#' }
+#' \tabular{ll}{
+#'   Unions of existing classes\tab \cr
+#'   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
+#'   \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
+#'   \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
 #' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
 #' @import ggplot2
 #' @import graphics
-#' @rdname spadesPlottables
-#' @name .spadesPlottables-class
+#' @rdname spadesPlottables-class
+#' @name .spadesPlottables
 #' @author Eliot McIntire
 setClassUnion(name=".spadesPlottables", members=c(".spadesPlotObjects", ".spadesPlot"))
 
@@ -558,7 +608,7 @@ setClassUnion(name=".spadesPlottables", members=c(".spadesPlotObjects", ".spades
 #' (i.e., layout and dimensions) and onefor all of the \code{spadesGrobs}
 #' (stored as a spadesGrobList of lists \code{.spadesGrob} objects).
 #'
-#' @name makeSpadesPlot
+#' @name .makeSpadesPlot
 #' @rdname makeSpadesPlot
 #' @export
 #' @author Eliot McIntire
@@ -568,6 +618,7 @@ setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, ...) {
 })
 
 
+#' @name .makeSpadesPlot
 #' @rdname makeSpadesPlot
 setMethod(".makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="list"),
@@ -645,6 +696,7 @@ setMethod(".makeSpadesPlot",
             return(newPlots)
 })
 
+#' @name .makeSpadesPlot
 #' @rdname makeSpadesPlot
 setMethod(".makeSpadesPlot",
           signature=c(plotObjects="list", plotArgs="missing"),
@@ -655,6 +707,7 @@ setMethod(".makeSpadesPlot",
             return(newPlots)
 })
 
+#' @name .makeSpadesPlot
 #' @rdname makeSpadesPlot
 setMethod(".makeSpadesPlot",
           signature=c(plotObjects="missing", plotArgs="missing"),
@@ -705,6 +758,7 @@ setGeneric(".makeList", function(plotArgs, numSpadesPlotObjects) {
   standardGeneric(".makeList")
 })
 
+#' @name .makeList
 #' @rdname makeList
 setMethod(".makeList",
           signature=c("list"),
@@ -793,6 +847,7 @@ setGeneric(".updateSpadesPlot", function(newSP, curr, ...) {
 })
 
 
+#' @name .updateSpadesPlot
 #' @rdname updateSpadesPlot
 setMethod(".updateSpadesPlot",
           signature=c(newSP=".spadesPlot", curr=".spadesPlot"),
@@ -874,6 +929,7 @@ setMethod(".updateSpadesPlot",
 
 })
 
+#' @name .updateSpadesPlot
 #' @rdname updateSpadesPlot
 setMethod(".updateSpadesPlot",
           signature=c(newSP=".spadesPlot", curr=NULL),
@@ -896,6 +952,7 @@ setMethod(".updateSpadesPlot",
 #' @param sPlot A \code{.spadesPlot} object.
 #'
 #' @rdname arrangeViewports
+#' @name .arrangeViewports
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -903,6 +960,7 @@ setGeneric(".arrangeViewports", function(sPlot) { #, name=NULL) {
   standardGeneric(".arrangeViewports")
 })
 
+#' @name .arrangeViewports
 #' @rdname arrangeViewports
 setMethod(".arrangeViewports",
           signature=c(".spadesPlot"),
@@ -1022,6 +1080,7 @@ setGeneric(".plotGrob", function(grobToPlot, col=NULL, real=FALSE,
 })
 
 
+#' @name .plotGrob
 #' @rdname plotGrob
 setMethod(".plotGrob",
           signature=c("matrix"),
@@ -1081,6 +1140,7 @@ setMethod(".plotGrob",
             return(invisible(rastGrob))
 })
 
+#' @name .plotGrob
 #' @rdname plotGrob
 setMethod(".plotGrob",
           signature=c("SpatialPoints"),
@@ -1096,6 +1156,7 @@ setMethod(".plotGrob",
             return(invisible(pntGrob))
 })
 
+#' @name .plotGrob
 #' @rdname plotGrob
 setMethod(".plotGrob",
           signature=c("SpatialPolygons"),
@@ -1155,6 +1216,7 @@ setMethod(".plotGrob",
 })
 
 
+#' @name .plotGrob
 #' @rdname plotGrob
 setMethod(".plotGrob",
           signature=c("SpatialLines"),
@@ -1240,6 +1302,7 @@ setMethod(".plotGrob",
 #'
 #' @author Eliot McIntire
 #' @rdname makeLayout
+#' @name .makeLayout
 #' @export
 .makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 
@@ -1286,6 +1349,7 @@ setMethod(".plotGrob",
 #'
 #' @author Eliot McIntire
 #' @rdname makeViewports
+#' @name .makeViewports
 #' @export
 .makeViewports <- function(sPlot, newArr=FALSE) {
 
@@ -1416,6 +1480,7 @@ setMethod(".plotGrob",
 #' @export
 #' @docType methods
 #' @rdname drawArrows
+#' @name drawArrows
 #' @author Eliot McIntire
 #' @examples
 #' # Make 2 objects
@@ -1446,6 +1511,7 @@ setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
   standardGeneric("drawArrows")
 })
 
+#' @name drawArrows
 #' @rdname drawArrows
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "character"),
@@ -1460,8 +1526,8 @@ setMethod("drawArrows",
                  title=title, axes=axes, length=length, ...)
 })
 
+#' @name drawArrows
 #' @rdname drawArrows
-#'
 setMethod("drawArrows",
           signature=c("SpatialPoints", "SpatialPoints", "missing"),
           definition=function(from, to, addTo, title, axes, ..., length=0.1) {
@@ -1493,6 +1559,7 @@ setMethod("drawArrows",
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname objectNames
+#' @name .objectNames
 .objectNames <- function(calledFrom="Plot", argClass=".spadesPlotObjects",
                          argName="") {
 
@@ -1689,9 +1756,8 @@ setMethod("drawArrows",
 #' and they must match the \code{...} items to plot. This is true
 #' for a RasterStack also, i.e., the list of named elements
 #' must be the same length as the number of layers being
-#' plotted. The naming convention used is \code{RasterStackName$layerName},
+#' plotted. The naming convention used is: \code{RasterStackName$layerName},
 #' i.e, \code{landscape$DEM}.
-#'
 #'
 #' @param ... A combination of \code{.spatialObjects} or a single \code{ggplot} object. See details.
 #'
@@ -1760,6 +1826,7 @@ setMethod("drawArrows",
 #' \code{\link{ggplot2}}, \code{\link{dev}}
 #'
 #' @rdname Plot
+#' @name Plot
 #' @export
 #' @import grid
 #' @importFrom methods is
@@ -1863,6 +1930,7 @@ setGeneric("Plot", signature="...",
              standardGeneric("Plot")
  })
 
+#' @name Plot
 #' @rdname Plot
 setMethod("Plot",
           signature("ANY"),
@@ -2132,6 +2200,7 @@ setMethod("Plot",
 #' is current device
 #'
 #' @export
+#' @name Plot
 #' @rdname Plot
 #' @author Eliot McIntire
 rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
@@ -2169,6 +2238,7 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
 #' @param skipSample logical. If no downsampling is necessary, skip. Default \code{TRUE}.
 #'
 #' @rdname makeColorMatrix
+#' @name .makeColorMatrix
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric(".makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
@@ -2178,6 +2248,7 @@ setGeneric(".makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legen
 })
 
 
+#' @name .makeColorMatrix
 #' @rdname makeColorMatrix
 setMethod(".makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
@@ -2303,6 +2374,7 @@ setMethod(".makeColorMatrix",
 #' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
 #' @author Eliot McIntire
 #' @rdname unittrim
+#' @name .unittrim
 #' @export
 .unittrim <- function(grid.locator) {
   as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
@@ -2343,7 +2415,7 @@ setMethod(".makeColorMatrix",
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
-#'
+#' @name clickValues
 clickValues <- function(n=1) {
 
   coords <- clickCoordinates(n=n)
@@ -2369,6 +2441,7 @@ clickValues <- function(n=1) {
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
+#' @name clickExtent
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
   corners <- clickCoordinates(2)
@@ -2402,6 +2475,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
+#' @name clickCoordinates
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
   arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
@@ -2471,6 +2545,7 @@ clickCoordinates <- function(n=1) {
 #' @author Eliot McIntire
 #' @docType methods
 #' @rdname spadesMouseClicks
+#' @name .clickCoord
 .clickCoord <- function(X, n=1, gl=NULL) {
 
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
@@ -2505,10 +2580,13 @@ clickCoordinates <- function(n=1) {
 #'
 #' @author Eliot McIntire
 #' @rdname identifyGrobToPlot
+#' @name .identifyGrobToPlot
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
   standardGeneric(".identifyGrobToPlot")
 })
 
+#' @rdname identifyGrobToPlot
+#' @name .identifyGrobToPlot
 setMethod(".identifyGrobToPlot",
           signature=c(".spadesGrob", "list", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
@@ -2533,6 +2611,7 @@ setMethod(".identifyGrobToPlot",
 })
 
 #' @rdname identifyGrobToPlot
+#' @name .identifyGrobToPlot
 setMethod(".identifyGrobToPlot",
           signature=c(".spadesGrob", "missing", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
@@ -2553,8 +2632,8 @@ setMethod(".identifyGrobToPlot",
 #' @param newArr logical, whether this is a new arrangement or just adding to a previous one
 #'
 #' @rdname prepareRaster
+#' @name .prepareRaster
 #' @author Eliot McIntire
-#'
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
                            takeFromPlotObj, arr, speedup, newArr) {
 
@@ -2590,6 +2669,7 @@ setMethod(".identifyGrobToPlot",
 #' @export
 #' @docType methods
 #' @rdname Plot
+#' @name clearPlot
 #' @author Eliot McIntire
 clearPlot <- function(dev=dev.cur()) {
   suppressWarnings(try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv)))

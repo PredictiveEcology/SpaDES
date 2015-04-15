@@ -3,7 +3,6 @@
 \docType{methods}
 \name{.makeList}
 \alias{.makeList}
-\alias{.makeList,list-method}
 \title{Convert plotArgs to list of lists}
 \usage{
 .makeList(plotArgs, numSpadesPlotObjects)

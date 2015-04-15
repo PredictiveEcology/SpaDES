@@ -3,14 +3,6 @@
 \docType{methods}
 \name{layerNames}
 \alias{layerNames}
-\alias{layerNames,Raster-method}
-\alias{layerNames,SpatialLines-method}
-\alias{layerNames,SpatialPoints-method}
-\alias{layerNames,SpatialPolygons-method}
-\alias{layerNames,gg-method}
-\alias{layerNames,histogram-method}
-\alias{layerNames,igraph-method}
-\alias{layerNames,list-method}
 \title{Extract the layer names of Spatial Objects}
 \usage{
 layerNames(object)
