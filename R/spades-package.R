@@ -1,6 +1,6 @@
 #
 #  SpaDES/R/spades-package.R by Alex M Chubaty and Eliot J B McIntire
-#  Copyright (C) 2015
+#  Copyright (C) 2015 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
 #
 
 #' Categorized view of the functions in the SpaDES package
@@ -15,6 +15,7 @@
 #' as non-spatial data.
 #'
 #' Bug reports: \url{https://github.com/PredictiveEcology/SpaDES/issues}
+#' Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 #'
 #' @name spades-package
 #' @aliases SpaDES spades-package
