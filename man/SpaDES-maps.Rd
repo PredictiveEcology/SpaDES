@@ -4,7 +4,7 @@
 \name{SpaDES-maps}
 \alias{SpaDES-maps}
 \alias{spades-maps}
-\title{Dummy maps included with SpaDES}
+\title{Dummy maps included with \code{SpaDES}}
 \format{raster}
 \description{
 All maps included with SpaDES are randomly generated maps created by \code{gaussMap()}.

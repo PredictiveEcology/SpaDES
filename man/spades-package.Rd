@@ -4,7 +4,7 @@
 \name{spades-package}
 \alias{SpaDES}
 \alias{spades-package}
-\title{Categorized view of the common user functions in the SpaDES package}
+\title{Categorized overview of the \code{SpaDES} package}
 \description{
 This package allows implementation a variety of simulation-type models, with a focus on spatially
 explicit models. The core simulation components are built upon
@@ -14,19 +14,21 @@ simulation modules. Included are numerous tools to visualize various spatial dat
 as non-spatial data.
 
 Bug reports: \url{https://github.com/PredictiveEcology/SpaDES/issues}
+
+Module repository: \url{https://github.com/PredictiveEcology/SpaDES-modules}
+
 Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 }
-\section{1. SpaDES functions}{
+\section{1. Spatial discrete event simulation (\code{SpaDES})}{
 
 
-A collection of functions for doing discrete event simulation.
+A collection of top-level functions for doing spatial discrete event simulation.
 }
 
-\section{1.1 Main SpaDES functions}{
+\section{1.1 Simulations}{
 
 
-There are two workhorse functions used in SpaDES. These initialize the simulation
-and run the simulation:
+There are two workhorse functions that initialize and run a simulation:
 
 \tabular{ll}{
   \code{\link{simInit}} \tab Initialize a new simulation\cr
@@ -35,33 +37,89 @@ and run the simulation:
 }
 }
 
-\section{1.2 Discrete Event Simulation}{
+\section{1.2 Events}{
 
+
+Within a module, important simulation functions include:
 
 \tabular{ll}{
-  Common commands \tab \cr
   \code{\link{scheduleEvent}} \tab Schedule a simulation event\cr
-  \code{\link{simCurrentTime}} \tab Get and set the list of simulation times\cr
-  \code{\link{simStartTime}} \tab Get and set the start time of a simulation \cr
-  \code{\link{simStopTime}} \tab Get and set the stop time of a simulation \cr
-  \code{\link{simTimes}} \tab Get and set simulation times \cr
-  \code{\link{simGlobals}} \tab Get and set the global simulation parameters list.\cr
-  \code{\link{simParams}} \tab Get and set the simulation parameters list.\cr
-  \code{\link{simCheckpointFile}} \tab Get and set the simulation parameters list.\cr
-  \code{\link{simEvents}} \tab Get and set the event queue\cr
-  \code{\link{simDepends}} \tab Get and set simulation dependencies\cr
-  \code{\link{simCompleted}} \tab List of events that have been run and have completed\cr
+  \code{removeEvent} \tab Remove an event from the simulation queue (not yet implemented)\cr
+}
+}
+
+\section{1.2 \code{simList} accessor methods}{
+
+
+Collections of commonly used accessor functions for the slots (and their elements)
+of a \code{\link{simList}} object are summarized further below.
+}
+
+\section{1.2.1 Simulation parameters}{
+
+
+Accessor functions for the \code{params} slot and its elements.
+
+Commonly used:
+\tabular{ll}{
+   \code{\link{simGlobals}} \tab List of global simulation parameters.\cr
+   \code{\link{simParams}} \tab Nested list of all simulation parameter.\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
+
+Advanced use:
+\tabular{lll}{
+   Accessor method \tab Module \tab Description\cr
+   \code{\link{simCheckpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+   \code{\link{simCheckpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+   \code{\link{simGlobalsOutputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
+   \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
+   \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+   \code{\link{simProgressGraphical}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+   \code{\link{simProgressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+  --------------------------- \tab ----------------------- \tab ------------------------------------------------------------------------------------------ \cr
+}
+}
+
+\section{1.2.2 Simulation times}{
+
+
+Accessor functions for the \code{simtimes} slot and its elements.
+
 \tabular{ll}{
-  Advanced commands \tab \cr
-  \code{\link{simObjectsLoaded}} \tab Get and set list of objects already loaded for simulation\cr
-  \code{\link{simModules}} \tab Get and set list of modules to be loaded for simulation\cr
-  \code{\link{simModulesLoaded}} \tab Get and set list of modules already loaded for simulation\cr
-  \code{\link{simModulesLoadOrder}} \tab Get and set module load order for simulation\cr
-  \code{\link{simProgressGraphical}} \tab Get and set graphical progress bar\cr
-  \code{\link{simProgressInterval}} \tab Get and set graphical progress bar interval\cr
-  \code{\link{simFileList}} \tab Get and set files used in a simulation\cr
+   \code{\link{simCurrentTime}} \tab Current simulation time.\cr
+   \code{\link{simStartTime}} \tab Simulation start time.\cr
+   \code{\link{simStopTime}} \tab Simulation stop time.\cr
+   \code{\link{simTimes}} \tab List of all simulation times (current, start, stop).\cr
+}
+}
+
+\section{1.2.3 Simulation event queues}{
+
+
+Accessor functions for the \code{events} and \code{completed} slots.
+By default, the event lists are shown when the \code{simList} object is printed,
+thus most users will not require direct use of these methods.
+
+\tabular{ll}{
+   \code{\link{simEvents}} \tab Scheduled simulation events (the event queue). (advanced)\cr
+   \code{\link{simCompleted}} \tab Completed simulation events. (advanced)\cr
+}
+}
+
+\section{1.2.4 Modules and dependencies}{
+
+
+Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
+and \code{.loadOrder} slots.
+These are included for advanced users.
+
+\tabular{ll}{
+   \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced)\cr
+   \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced)\cr
+   \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced)\cr
+   \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced)\cr
+   \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -72,14 +130,15 @@ There are several user-accessible plotting functions that are optimized for modu
 and speed of plotting:
 
 \tabular{ll}{
-  \code{\link{Plot}} \tab The workhorse plotting function\cr
-  \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
-  \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
+  \code{\link{clearPlot}} \tab Reset all elements of plot device and its metadata.\cr
   \code{\link{clickValues}} \tab Extract values from a raster object at the mouse click location(s)\cr
   \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
   \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
   \code{\link{dev}} \tab Specify which device to plot on, making a non-RStudio one as default\cr
+  \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
   \code{\link{newPlot}} \tab Open a new default plotting device\cr
+  \code{\link{Plot}} \tab The workhorse plotting function\cr
+  \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -91,10 +150,10 @@ In addition to R's file operations, we have added several here to aid in bulk
 loading and saving of files for simulation purposes:
 
 \tabular{ll}{
-  \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
-  \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
-  \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
   \code{\link{getFileName}} \tab Get the name of current file\cr
+  \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
+  \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
+  \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -102,18 +161,18 @@ loading and saving of files for simulation purposes:
 \section{1.5 Module operations}{
 
 
-Modules are the basic unit of SpaDES. These are generally created and stored locally,
-or are downloaded from remote repositories, including SpaDES-modules repository
-on github.com:
+Modules are the basic unit of \code{SpaDES}.
+These are generally created and stored locally, or are downloaded from remote repositories,
+including our \url{SpaDES-modules repository on GitHub}{https://github.com/PredictiveEcology/SpaDES-modules}.
 
 \tabular{ll}{
+  \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
+  \code{\link{getModuleVersion}} \tab Get the latest module version # from module repository\cr
   \code{\link{newModule}} \tab Create new module from template\cr
   \code{\link{newModuleDocumentation}} \tab Create empty documentation for a new module\cr
-  \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
-  \code{\link{zipModule}} \tab Zip a module and its associated files\cr
   \code{\link{reloadModuleLater}} \tab Load modules for simulation, contingent on dependencies loaded\cr
-  \code{\link{getModuleVersion}} \tab Get the latest module version # from module repository\cr
+  \code{\link{zipModule}} \tab Zip a module and its associated files\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -134,13 +193,13 @@ information:
 }
 }
 
-\section{1.7 Object classes in SpaDES}{
+\section{1.7 Object classes in \code{SpaDES}}{
 
 
 \tabular{ll}{
+  \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a \code{SpaDES} simulation\cr
   \code{\link{simList}} \tab The 'simList' class\cr
-  \code{\link{moduleDeps}} \tab Descriptor object for specifying SpaDES module dependecies\cr
-  \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a SpaDES simulation\cr
+  \code{\link{moduleDeps}} \tab Descriptor object for specifying \code{SpaDES} module dependecies\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 
@@ -156,9 +215,9 @@ A collection of functions that help with making modules, in addition to all the 
 \section{2.1 Module metadata}{
 
 
-Each module requires several items to be defined. These comprise the metadata for that module,
-and are currently written at the top of the module R file, all within the \code{\link{defineModule}}
-function. Functions to help with this:
+Each module requires several items to be defined.
+These comprise the metadata for that module (including default parmater specifications),
+and are currently written at the top of the module's \code{.R} file.
 
 \tabular{ll}{
   \code{\link{defineModule}} \tab Define the module metadata\cr
@@ -171,7 +230,7 @@ function. Functions to help with this:
 
 
 Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
-be modelled using discrete approaches or continuous approaches. Several SpaDES functions assist
+be modelled using discrete approaches or continuous approaches. Several \code{SpaDES} functions assist
 with these:
 
 \tabular{ll}{
@@ -198,8 +257,9 @@ Agents have several methods and functions specific to them:
 \section{2.4 GIS operations}{
 
 
-I addition to the vast amount of GIS operations available in R, mostly from contributed packages, like \code{sp}, \code{raster},
-\code{maps}, \code{maptools} and many others
+In addition to the vast amount of GIS operations available in R (mostly from
+contributed packages such as \code{sp}, \code{raster}, \code{maps}, \code{maptools}
+and many others), we provide the following GIS-related functions:
 \tabular{ll}{
   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
@@ -210,7 +270,7 @@ I addition to the vast amount of GIS operations available in R, mostly from cont
 
 
 These functions convert between reduced and mapped representations of the same data.
-This allows compact representation of, say, rasters that have many individual pixels
+This allows compact representation of, e.g., rasters that have many individual pixels
 that share identical information.
 \tabular{ll}{
   \code{\link{rasterizeReduced}} \tab Convert reduced representation to full raster\cr
@@ -222,10 +282,10 @@ that share identical information.
 
 
 We likely will not want the default colours for every map.
-Here are several helper functions to add, set and get colors to Raster* objects:
+Here are several helper functions to add to, set and get colors of \code{Raster*} objects:
 \tabular{ll}{
-  \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting Raster* objects\cr
-  \code{\link{getColors}} \tab Get colours in a Raster* objects\cr
+  \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting \code{Raster*} objects\cr
+  \code{\link{getColors}} \tab Get colours in a \code{Raster*} objects\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -233,12 +293,12 @@ Here are several helper functions to add, set and get colors to Raster* objects:
 \section{2.7 Random Map Generation}{
 
 
-Before all data are available, it is often useful to build dummy maps on which to build
-simulation models. These can then be replaced later with actual data maps:
+It is often useful to build dummy maps with which to build simulation models before all data are available.
+These dummy maps can later be replaced with actual data maps.
 
 \tabular{ll}{
-  \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
   \code{\link{gaussMap}} \tab Creates a random map using gaussian random fields\cr
+  \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -246,8 +306,8 @@ simulation models. These can then be replaced later with actual data maps:
 \section{2.8 Assigning and getting objects}{
 
 
-SpaDES modules are groups of R functions. This means that any objects created within
-a function needs to be returned or manually assigned. Since the structure of SpaDES
+\code{SpaDES} modules are groups of R functions. This means that any objects created within
+a function needs to be returned or manually assigned. Since the structure of \code{SpaDES}
 is to use the function calls to return only the simList object, any objects that are
 to be used by any other function, event or module must be assigned to an environment
 where it can be found by those other functions, events, and modules. As shorthand
@@ -255,8 +315,8 @@ wrappers, we have built the following to simplify this:
 
 \tabular{ll}{
   \code{\link{assignGlobal}} \tab Assign to the global environment\cr
-  \code{\link{getGlobal}} \tab Get from the global environment\cr
   \code{\link{existsGlobal}} \tab Test for existence of an object in .GlobalEnv\cr
+  \code{\link{getGlobal}} \tab Get from the global environment\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
@@ -264,7 +324,7 @@ wrappers, we have built the following to simplify this:
 \section{2.9 Checking for the existence of objects}{
 
 
-SpaDES modules will often require the existence of objects in the global environment.
+\code{SpaDES} modules will often require the existence of objects in the global environment.
 These are several helpers for assessing this:
 
 \tabular{ll}{
@@ -293,7 +353,7 @@ You must know how to use SELES for these to be useful:
 \section{2.11 Miscellaneous}{
 
 
-Functions that may be useful within a SpaDES context
+Functions that may be useful within a \code{SpaDES} context
 \tabular{ll}{
   \code{\link{inRange}} \tab Test whether a number lies within range [a,b]\cr
   \code{\link{layerNames}} \tab Get layer names for numerous object classes\cr

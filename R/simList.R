@@ -366,22 +366,21 @@ setReplaceMethod("simObjectsLoaded",
 #' Accessor functions for the \code{params} slot of a \code{simList} object
 #' and its elements.
 #' Additonal methods are provided to access core module and global parameters:
+#' Commonly used
 #' \tabular{ll}{
-#'    Global parameters \tab \cr
 #'    \code{simGlobals} \tab List of global simulation parameters.\cr
-#'    \code{simGlobalsOutputPath} \tab List of global simulation output path.\cr
+#'    \code{simParams} \tab Nested list of all simulation parameter.\cr
 #' }
-#' \tabular{ll}{
-#'    User module parameters \tab \cr
-#'    \code{simParams} \tab List of simulation parameters.\cr
-#' }
-#' \tabular{ll}{
-#'    Core module parameters \tab \cr
-#'    \code{simCheckpointFile} \tab Name of the checkpoint file. (advanced)\cr
-#'    \code{simCheckpointInterval} \tab The simulation checkpoint interval. (advanced)\cr
-#'    \code{simObjectsLoaded} \tab List of loaded simulation objects. (advanced)\cr
-#'    \code{simProgressGraphical} \tab Type of graphical progress bar used. (advanced)\cr
-#'    \code{simProgressInterval} \tab Interval for the progress bar. (advanced)\cr
+#' Advanced use
+#' \tabular{lll}{
+#'    Accessor method \tab Module \tab Description \cr
+#'    \code{simCheckpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+#'    \code{simCheckpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+#'    \code{simGlobalsOutputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
+#'    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
+#'    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+#'    \code{simProgressGraphical} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+#'    \code{simProgressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
@@ -675,7 +674,7 @@ setReplaceMethod("simGlobalsOutputPath",
 #' Accessor functions for the \code{simtimes} slot of a \code{simList} object
 #' and its elements.
 #' Additonal methods are provided to access the current, start, and stop times
-#' of the simulation:
+#' of the simulation.
 #' \tabular{ll}{
 #'    \code{simCurrentTime} \tab Current simulation time.\cr
 #'    \code{simStartTime} \tab Simulation start time.\cr
