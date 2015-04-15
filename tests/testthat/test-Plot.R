@@ -1,14 +1,14 @@
 test_that("Plot - check for errors", {
   startFileList <- dir()
 
-  ras <- raster::raster(xmn=0, xmx=40, ymn=0, ymx=40, vals=1, res=1)
+  ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   assignGlobal("DEM87654", DEM87654)
   habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   assignGlobal("habitatQuality87654", habitatQuality87654)
   landscape87654 <- stack(DEM87654, habitatQuality87654)
   assignGlobal("landscape87654", landscape87654)
-  caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+  caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e1, 0, 10), y=runif(1e1, 0, 10)))
   assignGlobal("caribou87654", caribou87654)
 
   # If any rearrangements are required, Plot searches for objects in Global Env

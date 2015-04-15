@@ -92,7 +92,7 @@ agentLocation <- function(map) {
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
 #' You must know how to use SELES for these to be useful
 #'
-#' @param map A \code{spatialObjects} object. Provides CRS and is related to probabilities.
+#' @param map A \code{.spatialObjects} object. Provides CRS and is related to probabilities.
 #'
 #' @param p probability, provided as a numeric or raster
 #'
