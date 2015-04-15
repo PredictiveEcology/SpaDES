@@ -49,6 +49,21 @@ r_binary_packages:
   - xts
   - zoo
 
+r_packages:
+  - data.table
+  - grid
+  - sp
+  - RColorBrewer
+  - raster
+  - tkrplot
+  - knitr
+  - Matrix,
+  - testthat
+  - CircStats,
+  - methods,
+  - RandomFields,
+  - rgdal
+
 r_github_packages:
   - s-u/fastshp
 
