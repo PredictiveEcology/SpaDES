@@ -60,26 +60,91 @@ numAgents <- function(N, probInit) {
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
 #' You must know how to use SELES for these to be useful
 #'
+#' @param map RasterLayer with extent and resolution of desired return object
+#'
 #' @param numAgents numeric resulting from a call to \code{\link{numAgents}}
 #'
 #' @param probInit RasterLayer resulting from a call to \code{\link{probInit}}
 #'
+#' @param asRaster logical. Should returned object be raster or SpatialPointsDataFrame (default)
+#'
+#' @param indices numeric. Indices of where agents should start
+#'
 #' @return A SpatialPointsDataFrame, with each row representing an individual agent
 #'
 #' @include agent.R
+#' @import raster
 #' @export
 #' @docType methods
-#' @rdname SELESnumAgents
+#' @rdname initiateAgents
+#' @name initiateAgents
 #'
 #' @author Eliot McIntire
 #' @param probInit a Raster resulting from a \code{\link{probInit}} call
+setGeneric("initiateAgents",
+          function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
+            standardGeneric("initiateAgents")
+          })
 
+#' @rdname initiateAgents
+#' @name initiateAgents
 setMethod("initiateAgents",
-          signature=c(NULL, NULL),
-          function(numAgents=NULL, probInit=NULL) {
-
-
+          signature=c("Raster", "missing", "missing", "ANY", "missing"),
+          function(map, numAgents, probInit, asSpatialPoints) {
+            initiateAgents(map, indices=1:ncell(map))
 })
+
+#' @rdname initiateAgents
+#' @name initiateAgents
+setMethod("initiateAgents",
+          signature=c("Raster", "missing", "Raster", "ANY", "missing"),
+          function(map, probInit, asSpatialPoints) {
+            wh <- which(runif(ncell(probInit)) < getValues(probInit))
+            initiateAgents(map, indices=wh)
+          })
+
+#' @rdname initiateAgents
+#' @name initiateAgents
+setMethod("initiateAgents",
+          signature=c("Raster", "numeric", "missing", "ANY", "missing"),
+          function(map, numAgents, probInit, asSpatialPoints, indices) {
+            wh <- sample(1:ncell(map), size = numAgents, replace = asSpatialPoints)
+            initiateAgents(map, indices=wh)
+          })
+
+#' @rdname initiateAgents
+#' @name initiateAgents
+setMethod("initiateAgents",
+          signature=c("Raster", "numeric", "Raster", "ANY", "missing"),
+          function(map, numAgents, probInit, asSpatialPoints) {
+            browser()
+            vals <- getValues(probInit)
+            wh <- sample(1:ncell(map), numAgents, replace = asSpatialPoints,
+                   prob=cumsum(vals)/sum(vals))
+#             if(asSpatialPoints) {
+#               wh <- findInterval(runif(numAgents), cumsum(vals)/sum(vals), rightmost.closed = TRUE)+1
+#             } else {
+#
+#             }
+            initiateAgents(map, indices=wh)
+          })
+
+#' @rdname initiateAgents
+#' @name initiateAgents
+setMethod("initiateAgents",
+          signature=c("Raster", "missing", "missing", "ANY", "numeric"),
+          function(map, numAgents, probInit, asSpatialPoints, indices) {
+            if(asSpatialPoints) {
+              if(length(indices>0)) {
+                return(xyFromCell(map, indices, spatial=asSpatialPoints))
+              }
+            } else {
+              tmp <- raster(map)
+              tmp[indices] <- 1
+              return(tmp)
+            }
+          })
+
 
 ##############################################################
 #' SELES - Agent Location at initiation
@@ -157,8 +222,10 @@ probInit = function(map, p=NULL, absolute=NULL) {
     absolute <- FALSE
   }
   if (is.numeric(p)) {
-    probInit = raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map)) %>%
-      setValues(rep(p/(max(1,max(p)))*(1-absolute)+1*(absolute),length.out=length(.)))
+    probInit <- raster(extent(map), nrows=nrow(map), ncols=ncol(map), crs=crs(map))
+    p <- rep(p, length.out=ncell(map))
+    probInit <- setValues(probInit, p/(sum(p)*(1-absolute)+1*(absolute)))
+
   } else if (is(p,"RasterLayer")) {
     probInit = p/(cellStats(p, sum)*(1-absolute)+1*(absolute))
   } else if (is(map,"SpatialPolygonsDataFrame")) {

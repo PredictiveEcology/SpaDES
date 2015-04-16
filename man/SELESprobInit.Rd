@@ -5,17 +5,28 @@
 \alias{probInit}
 \title{SELES - Probability of Initiation}
 \usage{
-probInit(map, p = NULL, absolute = FALSE)
+probInit(map, p = NULL, absolute = NULL)
 }
 \arguments{
-\item{map}{A \code{.spatialObjects} object. Provides CRS and is related to probabilities.}
+\item{map}{A \code{.spatialObjects} object. Currently, only provides CRS and, if p is not
+a raster, then all the raster dimensions.}
 
 \item{p}{probability, provided as a numeric or raster}
 
 \item{absolute}{logical. Is \code{p} absolute probabilities or relative?}
 }
 \value{
-An RasterLayer with probabilities of initialization
+An RasterLayer with probabilities of initialization. There are several combinations
+of inputs possible and they each result in different behaviors.
+
+If \code{p} is numeric or Raster and between 0 and 1, it is treated as an absolute probability, and a map
+will be produced with the p value(s) everywhere.
+
+If \code{p} is numeric or Raster and not between 0 and 1, it is treated as a relative probability, and a map
+will be produced with p/max(p) value(s) everywhere
+
+If \code{absolute} is provided, it will override the previous statements, unless \code{absolute}
+is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 }
 \description{
 A SELES-like function to maintain conceptual backwards compatability with that simulation
