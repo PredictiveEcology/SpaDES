@@ -3,6 +3,7 @@
 \docType{methods}
 \name{newModule}
 \alias{newModule}
+\alias{newModuleDocumentation}
 \title{Create new module from template.}
 \usage{
 newModule(name, path, open)

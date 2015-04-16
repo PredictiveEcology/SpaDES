@@ -240,7 +240,7 @@ setMethod("newModule",
 ###########################################################################
 #' @export
 #' @docType methods
-#' @name newModule
+#' @name newModuleDocumentation
 #' @rdname newModule
 #'
 #' @author Eliot McIntire
@@ -249,7 +249,7 @@ setGeneric("newModuleDocumentation", function(name, path, open) {
   standardGeneric("newModuleDocumentation")
 })
 
-#' @name newModule
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="logical"),
@@ -370,7 +370,7 @@ if(open) file.edit(filenameRmd)
 
 })
 
-#' @name newModule
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="logical"),
@@ -378,7 +378,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=".", open=open)
 })
 
-#' @name newModule
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="missing"),
@@ -386,7 +386,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=path, open=TRUE)
 })
 
-#' @name newModule
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="missing"),
