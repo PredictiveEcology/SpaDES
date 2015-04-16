@@ -1577,15 +1577,21 @@ setMethod("drawArrows",
 #' cannot be mixed among types (i.e., can't mix and match spatial and
 #' non-spatial objects, or base histogram and ggplot2 types). Customization of the
 #' ggplot2 elements can be done as a normal ggplot2 plot, then added with
-#' \code{Plot(ggplotObject)}
+#' \code{Plot(ggplotObject)}.
 #'
-#' If \code{new=TRUE}, a new plot will be generated.
+#' NOTE: Plot uses the grid package; therefore, it is
+#' NOT compatible with base R graphics. Also, because it does not by default wipe
+#' the plotting device before plotting, a call to \code{\link{clearPlot}} could be
+#' helpful to resolve many errors.
+#'
+#' If \code{new=TRUE}, a new plot will be generated. This is equivalent to calling
+#' \code{\link{clearPlot}; Plot(Object)}, i.e,. directly before creating a new Plot.
 #' When \code{new=FALSE}, any plot that already exists will be overplotted,
 #' while plots that have not already been plotted will be added.
 #' This function rearranges the plotting device to maximize the size of all the
 #' plots, minimizing white space.
 #' If using the RStudio IDE, it is recommended to make and use a new device
-#' (using \code{\link{dev}}), because the built in device is not made for rapid redrawing.
+#' with \code{dev()}, because the built in device is not made for rapid redrawing.
 #' The function is based on the grid package.
 #'
 #' Each panel in the multipanel plot must have a name.
