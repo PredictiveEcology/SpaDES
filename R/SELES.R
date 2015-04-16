@@ -91,7 +91,7 @@ setGeneric("initiateAgents",
 setMethod("initiateAgents",
           signature=c("Raster", "missing", "missing", "ANY", "missing"),
           function(map, numAgents, probInit, asSpatialPoints) {
-            initiateAgents(map, indices=1:ncell(map))
+            initiateAgents(map, indices=1:ncell(map), asSpatialPoints=asSpatialPoints)
 })
 
 #' @rdname initiateAgents
@@ -100,7 +100,7 @@ setMethod("initiateAgents",
           signature=c("Raster", "missing", "Raster", "ANY", "missing"),
           function(map, probInit, asSpatialPoints) {
             wh <- which(runif(ncell(probInit)) < getValues(probInit))
-            initiateAgents(map, indices=wh)
+            initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
           })
 
 #' @rdname initiateAgents
@@ -109,7 +109,7 @@ setMethod("initiateAgents",
           signature=c("Raster", "numeric", "missing", "ANY", "missing"),
           function(map, numAgents, probInit, asSpatialPoints, indices) {
             wh <- sample(1:ncell(map), size = numAgents, replace = asSpatialPoints)
-            initiateAgents(map, indices=wh)
+            initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
           })
 
 #' @rdname initiateAgents
@@ -117,16 +117,10 @@ setMethod("initiateAgents",
 setMethod("initiateAgents",
           signature=c("Raster", "numeric", "Raster", "ANY", "missing"),
           function(map, numAgents, probInit, asSpatialPoints) {
-            browser()
             vals <- getValues(probInit)
-            wh <- sample(1:ncell(map), numAgents, replace = asSpatialPoints,
-                   prob=cumsum(vals)/sum(vals))
-#             if(asSpatialPoints) {
-#               wh <- findInterval(runif(numAgents), cumsum(vals)/sum(vals), rightmost.closed = TRUE)+1
-#             } else {
-#
-#             }
-            initiateAgents(map, indices=wh)
+            wh <- sample(1:ncell(probInit), numAgents, replace = asSpatialPoints,
+                   prob=vals/sum(vals))
+            initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
           })
 
 #' @rdname initiateAgents
