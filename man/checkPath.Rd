@@ -3,6 +3,9 @@
 \docType{methods}
 \name{checkPath}
 \alias{checkPath}
+\alias{checkPath,NULL,ANY-method}
+\alias{checkPath,character,logical-method}
+\alias{checkPath,character,missing-method}
 \title{Check filepath.}
 \usage{
 checkPath(path, create)

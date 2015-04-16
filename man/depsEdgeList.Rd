@@ -3,6 +3,8 @@
 \docType{methods}
 \name{depsEdgeList}
 \alias{depsEdgeList}
+\alias{depsEdgeList,simList,logical-method}
+\alias{depsEdgeList,simList,missing-method}
 \title{Build edge list for module dependency graph}
 \usage{
 depsEdgeList(sim, plot)

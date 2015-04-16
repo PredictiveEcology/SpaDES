@@ -3,6 +3,10 @@
 \docType{methods}
 \name{updateList}
 \alias{updateList}
+\alias{updateList,NULL,NULL-method}
+\alias{updateList,NULL,list-method}
+\alias{updateList,list,NULL-method}
+\alias{updateList,list,list-method}
 \title{Update elements of a named list with elements of a second named list}
 \usage{
 updateList(x, y)

@@ -3,6 +3,8 @@
 \docType{methods}
 \name{assignGlobal}
 \alias{assignGlobal}
+\alias{assignGlobal,character,ANY-method}
+\alias{assignGlobal,character,missing-method}
 \title{Assign to the global environment}
 \usage{
 assignGlobal(x, value, ...)
@@ -17,7 +19,7 @@ assignGlobal(x, value, ...)
            of length greater than one will be used, with a warning.}
 
 \item{value}{The object to assign. If this is missing, values will be found with
-\code{get(x)} in the same environment as the calling environment.}
+             \code{get(x)} in the same environment as the calling environment.}
 
 \item{...}{Additional arguments to pass to \code{assign}.}
 }

@@ -3,6 +3,9 @@
 \docType{methods}
 \name{openModules}
 \alias{openModules}
+\alias{openModules,character,character-method}
+\alias{openModules,character,missing-method}
+\alias{openModules,missing,missing-method}
 \title{Open all modules nested within a base directory}
 \usage{
 openModules(basedir, names)

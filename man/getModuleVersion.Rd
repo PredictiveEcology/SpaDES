@@ -3,6 +3,8 @@
 \docType{methods}
 \name{getModuleVersion}
 \alias{getModuleVersion}
+\alias{getModuleVersion,character,character-method}
+\alias{getModuleVersion,character,missing-method}
 \title{Find the latest module version from a SpaDES module repository}
 \usage{
 getModuleVersion(name, repo)

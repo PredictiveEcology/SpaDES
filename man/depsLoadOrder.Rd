@@ -3,7 +3,7 @@
 \docType{methods}
 \name{.depsLoadOrder}
 \alias{.depsLoadOrder}
-\alias{depsLoadOrder}
+\alias{.depsLoadOrder,simList,igraph-method}
 \title{Determine module load order}
 \usage{
 .depsLoadOrder(sim, simGraph)

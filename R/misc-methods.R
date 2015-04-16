@@ -12,7 +12,6 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @name getFileName
 #' @rdname getFileName
 #'
 #' @author Alex Chubaty
@@ -21,7 +20,6 @@ setGeneric("getFileName", function(fullname) {
   standardGeneric("getFileName")
 })
 
-#' @name getFileName
 #' @rdname getFileName
 setMethod("getFileName",
           signature="logical",
@@ -55,7 +53,6 @@ setMethod("getFileName",
 #' @export
 #' @docType methods
 #' @rdname updateList
-#' @name updateList
 #'
 #' @author Alex Chubaty
 #'
@@ -69,7 +66,6 @@ setGeneric("updateList", function(x, y) {
 })
 
 #' @rdname updateList
-#' @name updateList
 setMethod("updateList",
           signature=c("list", "list"),
           definition=function(x, y) {
@@ -83,7 +79,6 @@ setMethod("updateList",
 })
 
 #' @rdname updateList
-#' @name updateList
 setMethod("updateList",
           signature=c("NULL", "list"),
           definition=function(x, y) {
@@ -94,7 +89,6 @@ setMethod("updateList",
 })
 
 #' @rdname updateList
-#' @name updateList
 setMethod("updateList",
           signature=c("list", "NULL"),
           definition=function(x, y) {
@@ -105,7 +99,6 @@ setMethod("updateList",
 })
 
 #' @rdname updateList
-#' @name updateList
 setMethod("updateList",
           signature=c("NULL", "NULL"),
           definition=function(x, y) {
@@ -132,7 +125,6 @@ setMethod("updateList",
 #'
 #' @export
 #' @docType methods
-#' @name loadPackages
 #' @rdname loadPackages
 #'
 #' @author Alex Chubaty
@@ -146,7 +138,6 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
   standardGeneric("loadPackages")
 })
 
-#' @name loadPackages
 #' @rdname loadPackages
 setMethod("loadPackages",
            signature="list",
@@ -183,14 +174,12 @@ setMethod("loadPackages",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @name checkPath
 #' @rdname checkPath
 #'
 setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
 
-#' @name checkPath
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="logical"),
@@ -221,7 +210,6 @@ setMethod("checkPath",
           }
 })
 
-#' @name checkPath
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="missing"),
@@ -229,7 +217,6 @@ setMethod("checkPath",
             return(checkPath(path, create=FALSE))
 })
 
-#' @name checkPath
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="NULL", create="ANY"),
@@ -260,7 +247,6 @@ setMethod("checkPath",
 #' @importFrom methods is
 #' @export
 #' @docType methods
-#' @name checkObject
 #' @rdname checkObject
 #'
 #' @author Alex Chubaty and Eliot McIntire
@@ -269,7 +255,6 @@ setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
 })
 
-#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="Raster", layer="character"),
@@ -283,7 +268,6 @@ setMethod("checkObject",
               }
 })
 
-#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="ANY", layer="missing"),
@@ -297,7 +281,6 @@ setMethod("checkObject",
 })
 
 
-#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="character", object="missing", layer="missing"),
@@ -310,7 +293,6 @@ setMethod("checkObject",
             }
 })
 
-#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="character", object="missing", layer="character"),
@@ -351,7 +333,6 @@ setMethod("checkObject",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @name checkParams
 #' @rdname checkParams
 #'
 #' @author Alex Chubaty
@@ -360,7 +341,6 @@ setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
 })
 
-#' @name checkParams
 #' @rdname checkParams
 setMethod("checkParams",
           signature(sim="simList", coreModules="list", coreParams="list", path="character"),
@@ -499,7 +479,6 @@ setMethod("checkParams",
 #' @importFrom stringr str_pad
 #' @export
 #' @docType methods
-#' @name paddedFloatToChar
 #' @rdname paddedFloatToChar
 #'
 #' @author Eliot McIntire and Alex Chubaty

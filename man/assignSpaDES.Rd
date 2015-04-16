@@ -3,6 +3,8 @@
 \docType{methods}
 \name{.assignSpaDES}
 \alias{.assignSpaDES}
+\alias{.assignSpaDES,character,ANY-method}
+\alias{.assignSpaDES,character,missing-method}
 \title{Assign to the internal SpaDES environment.}
 \usage{
 .assignSpaDES(x, value, ...)
@@ -17,7 +19,7 @@
            of length greater than one will be used, with a warning.}
 
 \item{value}{The object to assign. If this is missing, values will be found with
-\code{get(x)} in the same environment as the calling environment.}
+             \code{get(x)} in the same environment as the calling environment.}
 
 \item{...}{Additional arguments to pass to \code{assign}.}
 }

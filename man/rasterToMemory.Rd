@@ -3,6 +3,7 @@
 \docType{methods}
 \name{rasterToMemory}
 \alias{rasterToMemory}
+\alias{rasterToMemory,ANY-method}
 \title{Read raster to memory}
 \usage{
 rasterToMemory(x, ...)

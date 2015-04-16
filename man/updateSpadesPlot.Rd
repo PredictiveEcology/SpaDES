@@ -3,6 +3,8 @@
 \docType{methods}
 \name{.updateSpadesPlot}
 \alias{.updateSpadesPlot}
+\alias{.updateSpadesPlot,.spadesPlot,.spadesPlot-method}
+\alias{.updateSpadesPlot,.spadesPlot,ANY-method}
 \title{Merge two SpaDES Plot objects}
 \usage{
 .updateSpadesPlot(newSP, curr, ...)

@@ -3,7 +3,13 @@
 \docType{methods}
 \name{simEvents}
 \alias{simCompleted}
+\alias{simCompleted,simList-method}
+\alias{simCompleted<-}
+\alias{simCompleted<-,simList-method}
 \alias{simEvents}
+\alias{simEvents,simList-method}
+\alias{simEvents<-}
+\alias{simEvents<-,simList-method}
 \alias{simList-accessors-events}
 \title{Simulation event lists}
 \usage{

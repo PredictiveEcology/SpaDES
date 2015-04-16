@@ -29,7 +29,6 @@ selectMethod("show", "igraph")
 #' @export
 #' @import data.table
 #' @docType methods
-#' @name depsEdgeList
 #' @rdname depsEdgeList
 #'
 #' @author Alex Chubaty
@@ -38,7 +37,6 @@ setGeneric("depsEdgeList", function(sim, plot) {
   standardGeneric("depsEdgeList")
 })
 
-#' @name depsEdgeList
 #' @rdname depsEdgeList
 setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
@@ -62,7 +60,7 @@ setMethod("depsEdgeList",
                 }
               }
               return(invisible(NULL)) # return from the lapply
-  })
+            })
 
             setkey(sim.in, "objectName")
             setkey(sim.out, "objectName")
@@ -82,7 +80,6 @@ setMethod("depsEdgeList",
             return(dt)
 })
 
-#' @name depsEdgeList
 #' @rdname depsEdgeList
 setMethod("depsEdgeList",
           signature(sim="simList", plot="missing"),
@@ -103,7 +100,6 @@ setMethod("depsEdgeList",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
-#' @name depsGraph
 #' @rdname depsGraph
 #'
 #' @author Alex Chubaty
@@ -112,7 +108,6 @@ setGeneric("depsGraph", function(sim, plot) {
   standardGeneric("depsGraph")
 })
 
-#' @name depsGraph
 #' @rdname depsGraph
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
@@ -148,7 +143,6 @@ setMethod("depsGraph",
 #' @importFrom dplyr bind_rows
 #' @export
 #' @docType methods
-#' @name .depsPruneEdges
 #' @rdname depsPruneEdges
 #'
 #' @author Alex Chubaty
@@ -157,7 +151,6 @@ setGeneric(".depsPruneEdges", function(simEdgeList) {
   standardGeneric(".depsPruneEdges")
 })
 
-#' @name .depsPruneEdges
 #' @rdname depsPruneEdges
 setMethod(".depsPruneEdges",
           signature(simEdgeList="data.table"),
@@ -232,7 +225,6 @@ setMethod(".depsPruneEdges",
 #' @import igraph
 #' @export
 #' @docType methods
-#' @name .depsLoadOrder
 #' @rdname depsLoadOrder
 #'
 #' @author Alex Chubaty
@@ -241,7 +233,6 @@ setGeneric(".depsLoadOrder", function(sim, simGraph) {
   standardGeneric(".depsLoadOrder")
 })
 
-#' @name depsLoadOrder
 #' @rdname depsLoadOrder
 setMethod(".depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),

@@ -3,6 +3,7 @@
 \docType{methods}
 \name{getColors}
 \alias{getColors}
+\alias{getColors,Raster-method}
 \alias{getColours}
 \title{Get colours for plotting Raster* objects.}
 \usage{

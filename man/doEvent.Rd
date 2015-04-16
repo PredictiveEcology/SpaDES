@@ -3,6 +3,8 @@
 \docType{methods}
 \name{doEvent}
 \alias{doEvent}
+\alias{doEvent,simList,logical-method}
+\alias{doEvent,simList,missing-method}
 \title{Process a simulation event}
 \usage{
 doEvent(sim, debug)

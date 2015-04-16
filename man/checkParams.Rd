@@ -3,6 +3,7 @@
 \docType{methods}
 \name{checkParams}
 \alias{checkParams}
+\alias{checkParams,simList,list,list,character-method}
 \title{Check use and existence of params passed to simulation.}
 \usage{
 checkParams(sim, coreModules, coreParams, path, ...)

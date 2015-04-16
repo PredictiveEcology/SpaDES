@@ -57,7 +57,6 @@ removeClass("person4")
 #' @slot outputObjects  A \code{data.frame} specifying the objects output by the module,
 #'                      following the format of \code{inputObjects}.
 #'
-#' @name .moduleDeps
 #' @rdname moduleDeps-class
 #' @importFrom raster extent
 #'
@@ -132,7 +131,6 @@ setClass(".moduleDeps",
 #'
 #' @importFrom methods is
 #'
-#' @name .simDeps
 #' @rdname simDeps-class
 #'
 #' @author Alex Chubaty

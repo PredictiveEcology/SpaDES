@@ -3,6 +3,8 @@
 \docType{methods}
 \name{drawArrows}
 \alias{drawArrows}
+\alias{drawArrows,SpatialPoints,SpatialPoints,character-method}
+\alias{drawArrows,SpatialPoints,SpatialPoints,missing-method}
 \title{Plots arrows showing direction of agent movement}
 \usage{
 drawArrows(from, to, addTo, title = TRUE, axes = TRUE, ...)

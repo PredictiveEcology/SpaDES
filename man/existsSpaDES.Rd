@@ -3,6 +3,7 @@
 \docType{methods}
 \name{.existsSpaDES}
 \alias{.existsSpaDES}
+\alias{.existsSpaDES,ANY-method}
 \title{Is an object defined in the .spades environment?}
 \usage{
 .existsSpaDES(x, ...)

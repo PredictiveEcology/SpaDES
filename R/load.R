@@ -390,7 +390,6 @@ setMethod("loadFiles",
 #' @importMethodsFrom raster raster
 #' @export
 #' @docType methods
-#' @name rasterToMemory
 #' @rdname rasterToMemory
 #'
 #' @author Eliot McIntire and Alex Chubaty
@@ -399,7 +398,6 @@ setGeneric("rasterToMemory", function(x, ...) {
   standardGeneric("rasterToMemory")
 })
 
-#' @name rasterToMemory
 #' @rdname rasterToMemory
 setMethod("rasterToMemory",
           signature=c(x="ANY"),

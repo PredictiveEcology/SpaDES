@@ -3,6 +3,7 @@
 \docType{methods}
 \name{defineParameter}
 \alias{defineParameter}
+\alias{defineParameter,character,character-method}
 \title{Define a parameter used in a module}
 \usage{
 defineParameter(name, class, default)

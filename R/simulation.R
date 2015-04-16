@@ -38,7 +38,6 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @include simList.R
 #' @export
 #' @docType methods
-#' @name simInit
 #' @rdname simInit
 #'
 #' @author Alex Chubaty
@@ -56,7 +55,6 @@ setGeneric("simInit", function(times, params, modules, path, loadOrder) {
     standardGeneric("simInit")
 })
 
-#' @name simInit
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
@@ -199,7 +197,6 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @name simInit
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
@@ -210,7 +207,6 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @name simInit
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
@@ -221,7 +217,6 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @name simInit
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list", path="missing", loadOrder="missing"),
@@ -230,7 +225,6 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
-#' @name simInit
 #' @rdname simInit
 setMethod("simInit",
           signature(times="missing", params="missing", modules="missing", path="missing", loadOrder="missing"),
@@ -262,7 +256,6 @@ setMethod("simInit",
 #'
 #' @export
 #' @docType methods
-#' @name reloadModulesLater
 #' @rdname loadmodules
 #'
 #' @author Alex Chubaty
@@ -271,7 +264,6 @@ setGeneric("reloadModuleLater", function(sim, depends) {
   standardGeneric("reloadModuleLater")
 })
 
-#' @name reloadModulesLater
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
           signature(sim="simList", depends="NULL"),
@@ -279,7 +271,6 @@ setMethod("reloadModuleLater",
             return(FALSE)
 })
 
-#' @name reloadModulesLater
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
           signature(sim="simList", depends="character"),
@@ -315,7 +306,6 @@ setMethod("reloadModuleLater",
 #' @export
 #' @keywords internal
 #' @docType methods
-#' @name doEvent
 #' @rdname doEvent
 #'
 #' @author Alex Chubaty
@@ -326,7 +316,6 @@ setGeneric("doEvent", function(sim, debug) {
     standardGeneric("doEvent")
 })
 
-#' @name doEvent
 #' @rdname doEvent
 setMethod("doEvent",
           signature(sim="simList", debug="logical"),
@@ -374,7 +363,6 @@ setMethod("doEvent",
             return(invisible(sim))
 })
 
-#' @name doEvent
 #' @rdname doEvent
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
@@ -404,7 +392,6 @@ setMethod("doEvent",
 #'
 #' @export
 #' @docType methods
-#' @name scheduleEvent
 #' @rdname scheduleEvent
 #'
 #' @author Alex Chubaty
@@ -417,7 +404,6 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
     standardGeneric("scheduleEvent")
 })
 
-#' @name scheduleEvent
 #' @rdname scheduleEvent
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
@@ -447,7 +433,6 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
-#' @name scheduleEvent
 #' @rdname scheduleEvent
 setMethod("scheduleEvent",
           signature(sim="simList", eventTime="NULL",
@@ -482,7 +467,6 @@ setMethod("scheduleEvent",
 #'
 #' @export
 #' @docType methods
-#' @name spades
 #' @rdname spades
 #'
 #' @author Alex Chubaty
@@ -500,7 +484,6 @@ setGeneric("spades", function(sim, debug) {
     standardGeneric("spades")
 })
 
-#' @name spades
 #' @rdname spades
 setMethod("spades",
           signature(sim="simList", debug="logical"),
@@ -518,7 +501,6 @@ setMethod("spades",
           return(invisible(sim))
 })
 
-#' @name spades
 #' @rdname spades
 setMethod("spades",
           signature(sim="simList", debug="missing"),

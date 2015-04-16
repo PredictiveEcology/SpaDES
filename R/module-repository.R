@@ -19,7 +19,6 @@ if(getRversion() >= "3.1.0") {
 #' @importFrom httr stop_for_status
 #' @importFrom magrittr '%>%'
 #' @export
-#' @name getModuleVersion
 #' @rdname getModuleVersion
 #'
 #' @author Alex Chubaty
@@ -28,7 +27,6 @@ setGeneric("getModuleVersion", function(name, repo) {
   standardGeneric("getModuleVersion")
 })
 
-#' @name getModuleVersion
 #' @rdname getModuleVersion
 setMethod("getModuleVersion",
           signature=c(name="character", repo="character"),
@@ -54,7 +52,6 @@ setMethod("getModuleVersion",
             return(current)
 })
 
-#' @name getModuleVersion
 #' @rdname getModuleVersion
 setMethod("getModuleVersion",
           signature=c(name="character", repo="missing"),
@@ -84,7 +81,6 @@ setMethod("getModuleVersion",
 #'
 #' @importFrom downloader download
 #' @export
-#' @name downloadModule
 #' @rdname downloadModule
 #'
 #' @author Alex Chubaty
@@ -93,7 +89,6 @@ setGeneric("downloadModule", function(name, path, version, repo) {
   standardGeneric("downloadModule")
 })
 
-#' @name downloadModule
 #' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="character", repo="character"),
@@ -108,7 +103,6 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
-#' @name downloadModule
 #' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="character", repo="missing"),
@@ -117,7 +111,6 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
-#' @name downloadModule
 #' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="missing", repo="missing"),
@@ -126,7 +119,6 @@ setMethod("downloadModule",
             return(invisible(files))
 })
 
-#' @name downloadModule
 #' @rdname downloadModule
 setMethod("downloadModule",
           signature=c(name="character", path="character", version="missing", repo="character"),

@@ -3,6 +3,8 @@
 \docType{methods}
 \name{scheduleEvent}
 \alias{scheduleEvent}
+\alias{scheduleEvent,simList,NULL,character,character-method}
+\alias{scheduleEvent,simList,numeric,character,character-method}
 \title{Schedule a simulation event}
 \usage{
 scheduleEvent(sim, eventTime, moduleName, eventType)

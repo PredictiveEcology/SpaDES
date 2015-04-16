@@ -3,6 +3,7 @@
 \docType{methods}
 \name{.addSimDepends}
 \alias{.addSimDepends}
+\alias{.addSimDepends,simList,.moduleDeps-method}
 \title{Add simulation dependencies}
 \usage{
 .addSimDepends(sim, x)

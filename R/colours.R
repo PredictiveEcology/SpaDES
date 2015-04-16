@@ -8,7 +8,6 @@
 #' @export
 #' @docType methods
 #' @aliases getColours
-#' @name getColors
 #' @rdname getColors
 #'
 #' @seealso \code{\link{setColors<-}}, \code{\link[RColorBrewer]{brewer.pal}}
@@ -19,7 +18,6 @@ setGeneric("getColors", function(object) {
   standardGeneric("getColors")
 })
 
-#' @name getColors
 #' @rdname getColors
 setMethod("getColors",
           signature="Raster",
@@ -50,7 +48,6 @@ setMethod("getColors",
 #' @export
 #' @docType methods
 #' @aliases setColours
-#' @name setColors
 #' @rdname setColors
 #'
 #' @seealso \code{\link[RColorBrewer]{brewer.pal}},
@@ -63,7 +60,6 @@ setGeneric("setColors<-",
              standardGeneric("setColors<-")
 })
 
-#' @name setColors
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("RasterLayer", "numeric", "character"),
@@ -74,7 +70,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @name setColors
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("RasterLayer", "missing", "character"),
@@ -86,7 +81,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @name setColors
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("Raster", "numeric", "list"),
@@ -99,7 +93,6 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
-#' @name setColors
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("Raster", "missing", "list"),

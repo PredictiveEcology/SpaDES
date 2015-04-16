@@ -3,11 +3,26 @@
 \docType{methods}
 \name{simModules}
 \alias{simDepends}
+\alias{simDepends,simList-method}
+\alias{simDepends<-}
+\alias{simDepends<-,simList-method}
 \alias{simList-accessors-modules}
 \alias{simModules}
+\alias{simModules,simList-method}
+\alias{simModules<-}
+\alias{simModules<-,simList-method}
 \alias{simModulesLoadOrder}
+\alias{simModulesLoadOrder,simList-method}
+\alias{simModulesLoadOrder<-}
+\alias{simModulesLoadOrder<-,simList-method}
 \alias{simModulesLoaded}
+\alias{simModulesLoaded,simList-method}
+\alias{simModulesLoaded<-}
+\alias{simModulesLoaded<-,simList-method}
 \alias{simObjectsLoaded}
+\alias{simObjectsLoaded,simList-method}
+\alias{simObjectsLoaded<-}
+\alias{simObjectsLoaded<-,simList-method}
 \title{Simulation modules and dependencies}
 \usage{
 simModules(object)

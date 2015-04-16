@@ -3,6 +3,7 @@
 \docType{methods}
 \name{getFileName}
 \alias{getFileName}
+\alias{getFileName,logical-method}
 \title{Get the name of a source file}
 \usage{
 getFileName(fullname)

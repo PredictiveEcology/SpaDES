@@ -3,6 +3,10 @@
 \docType{methods}
 \name{checkObject}
 \alias{checkObject}
+\alias{checkObject,character,missing,character-method}
+\alias{checkObject,character,missing,missing-method}
+\alias{checkObject,missing,ANY,missing-method}
+\alias{checkObject,missing,Raster,character-method}
 \title{Check for existence of a global object}
 \usage{
 checkObject(name, object, layer, ...)

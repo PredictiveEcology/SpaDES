@@ -3,6 +3,10 @@
 \docType{methods}
 \name{.plotGrob}
 \alias{.plotGrob}
+\alias{.plotGrob,SpatialLines-method}
+\alias{.plotGrob,SpatialPoints-method}
+\alias{.plotGrob,SpatialPolygons-method}
+\alias{.plotGrob,matrix-method}
 \title{Plot spatial grobs (using grid package)}
 \usage{
 .plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),

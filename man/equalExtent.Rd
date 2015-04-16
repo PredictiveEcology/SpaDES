@@ -3,6 +3,7 @@
 \docType{methods}
 \name{equalExtent}
 \alias{equalExtent}
+\alias{equalExtent,list-method}
 \title{Assess whether a list of extents are all equal}
 \usage{
 equalExtent(extents)

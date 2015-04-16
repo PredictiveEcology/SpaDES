@@ -3,6 +3,7 @@
 \docType{methods}
 \name{Plot}
 \alias{Plot}
+\alias{Plot,ANY-method}
 \alias{clearPlot}
 \alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}

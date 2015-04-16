@@ -3,6 +3,7 @@
 \docType{methods}
 \name{.depsPruneEdges}
 \alias{.depsPruneEdges}
+\alias{.depsPruneEdges,data.table-method}
 \title{Prune edges to remove cycles in module dependencies}
 \usage{
 .depsPruneEdges(simEdgeList)

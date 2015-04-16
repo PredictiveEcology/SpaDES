@@ -3,6 +3,10 @@
 \docType{methods}
 \name{downloadModule}
 \alias{downloadModule}
+\alias{downloadModule,character,character,character,character-method}
+\alias{downloadModule,character,character,character,missing-method}
+\alias{downloadModule,character,character,missing,character-method}
+\alias{downloadModule,character,character,missing,missing-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
 downloadModule(name, path, version, repo)

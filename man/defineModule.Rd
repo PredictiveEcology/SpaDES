@@ -3,6 +3,7 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
+\alias{defineModule,simList,list-method}
 \title{Define a new module.}
 \usage{
 defineModule(sim, x)

@@ -3,6 +3,14 @@
 \docType{methods}
 \name{layerNames}
 \alias{layerNames}
+\alias{layerNames,Raster-method}
+\alias{layerNames,SpatialLines-method}
+\alias{layerNames,SpatialPoints-method}
+\alias{layerNames,SpatialPolygons-method}
+\alias{layerNames,gg-method}
+\alias{layerNames,histogram-method}
+\alias{layerNames,igraph-method}
+\alias{layerNames,list-method}
 \title{Extract the layer names of Spatial Objects}
 \usage{
 layerNames(object)
@@ -29,10 +37,10 @@ layerNames(object)
 }
 \description{
 There are already methods for \code{Raster*} objects. This adds methods for
-\code{SpatialPoints*}, \code{SpatialLines*},
-and \code{SpatialPolygons*}, returning an empty character vector of length 1.
-This function was created to give consistent, meaningful results for all classes of objects
-plotted by \code{Plot}.
+\code{SpatialPoints*}, \code{SpatialLines*}, and \code{SpatialPolygons*},
+returning an empty character vector of length 1.
+This function was created to give consistent, meaningful results for all
+classes of objects plotted by \code{Plot}.
 }
 \author{
 Eliot McIntire

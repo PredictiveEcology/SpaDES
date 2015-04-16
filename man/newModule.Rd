@@ -3,7 +3,14 @@
 \docType{methods}
 \name{newModule}
 \alias{newModule}
+\alias{newModule,character,character,missing-method}
+\alias{newModule,character,missing,logical-method}
+\alias{newModule,character,missing,missing-method}
 \alias{newModuleDocumentation}
+\alias{newModuleDocumentation,character,character,logical-method}
+\alias{newModuleDocumentation,character,character,missing-method}
+\alias{newModuleDocumentation,character,missing,logical-method}
+\alias{newModuleDocumentation,character,missing,missing-method}
 \title{Create new module from template.}
 \usage{
 newModule(name, path, open)
@@ -53,7 +60,7 @@ subfolder named \code{name} within the \code{path}.
 \dontrun{newModule("fastfood", "modules")}
 }
 \author{
-Alex Chubaty
+Alex Chubaty and Eliot McIntire
 
 Eliot McIntire
 }

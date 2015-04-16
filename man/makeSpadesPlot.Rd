@@ -3,6 +3,9 @@
 \docType{methods}
 \name{.makeSpadesPlot}
 \alias{.makeSpadesPlot}
+\alias{.makeSpadesPlot,list,list-method}
+\alias{.makeSpadesPlot,list,missing-method}
+\alias{.makeSpadesPlot,missing,missing-method}
 \title{Make a \code{.spadesPlot} class object}
 \usage{
 .makeSpadesPlot(plotObjects, plotArgs, ...)
