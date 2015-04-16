@@ -78,7 +78,15 @@ numAgents <- function(N, probInit) {
 #' @docType methods
 #' @rdname initiateAgents
 #' @name initiateAgents
-#'
+#' @examples
+#' map <- raster(xmn=1, xmx=10, ymn=1, ymx=10, val=0, res=1)
+#' map <- randomPolygons(ras = map, p = c(0.1, 0.1, 0.2))
+#' pr <- probInit(map, p=map/maxValue(map))
+#' agents <- initiateAgents(map, 100, pr)
+#' Plot(map, new=T)
+#' Plot(agents, addTo="map")
+#' agentsRas <- initiateAgents(map, 10, pr, asSpatialPoints=FALSE)
+#' Plot(map, agentsRas, new=T)
 #' @author Eliot McIntire
 #' @param probInit a Raster resulting from a \code{\link{probInit}} call
 setGeneric("initiateAgents",
