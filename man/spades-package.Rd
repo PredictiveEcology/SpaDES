@@ -34,7 +34,6 @@ There are two workhorse functions that initialize and run a simulation:
 \tabular{ll}{
   \code{\link{simInit}} \tab Initialize a new simulation\cr
   \code{\link{spades}} \tab Run a discrete event simulation\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -65,7 +64,6 @@ Commonly used:
 \tabular{ll}{
    \code{\link{simGlobals}} \tab List of global simulation parameters.\cr
    \code{\link{simParams}} \tab Nested list of all simulation parameter.\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 
 Advanced use:
@@ -78,7 +76,6 @@ Advanced use:
    \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{\link{simProgressGraphical}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{\link{simProgressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
-  --------------------------- \tab ----------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -121,7 +118,6 @@ These are included for advanced users.
    \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced)\cr
    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced)\cr
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -130,7 +126,8 @@ These are included for advanced users.
 
 Modules are the basic unit of \code{SpaDES}.
 These are generally created and stored locally, or are downloaded from remote repositories,
-including our \href{SpaDES-modules repository on GitHub}{https://github.com/PredictiveEcology/SpaDES-modules}.
+including our
+\href{https://github.com/PredictiveEcology/SpaDES-modules}{SpaDES-modules repository on GitHub}.
 
 \tabular{ll}{
   \code{\link{downloadModule}} \tab Open all modules nested within a base directory\cr
@@ -140,7 +137,6 @@ including our \href{SpaDES-modules repository on GitHub}{https://github.com/Pred
   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
   \code{\link{reloadModuleLater}} \tab Load modules for simulation, contingent on dependencies loaded\cr
   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -154,9 +150,6 @@ information:
 \tabular{ll}{
   \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
   \code{\link{depsGraph}} \tab Build a module dependency graph using \code{igraph}\cr
-  \code{\link{.depsLoadOrder}} \tab Determine load order required to meet dependencies\cr
-  \code{\link{.depsPruneEdges}} \tab Identifies cycles in dependencies; removes offending edges\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -165,7 +158,6 @@ information:
 
 \tabular{ll}{
   \code{\link{simList}} \tab The 'simList' class\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 
 ------------------------------------------------------------------------------------------
@@ -187,7 +179,6 @@ and are currently written at the top of the module's \code{.R} file.
 \tabular{ll}{
   \code{\link{defineModule}} \tab Define the module metadata\cr
   \code{\link{defineParameter}} \tab Specify a parameter's name, value and set a default\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -202,7 +193,6 @@ with these:
   \code{\link{spread}} \tab Contagious cellular automata\cr
   \code{\link{adj}} \tab An optimized (i.e., faster) version of \code{\link[raster]{adjacent}}\cr
   \code{\link{cir}} \tab Identify pixels in a circle around a \code{\link[sp:SpatialPoints-class]{SpatialPoints*}} object\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -215,7 +205,7 @@ Agents have several methods and functions specific to them:
   \code{\link{crw}} \tab Simple correlated random walk function\cr
   \code{\link{heading}} \tab Determines the heading between SpatialPoints*\cr
   \code{\link{move}} \tab A meta function that can currently only take "crw"\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+  \code{\link{specificNumPerPatch}} \tab Initiate a specific number of agents per patch\cr
 }
 }
 
@@ -227,7 +217,6 @@ contributed packages such as \code{sp}, \code{raster}, \code{maps}, \code{maptoo
 and many others), we provide the following GIS-related functions:
 \tabular{ll}{
   \code{\link{equalExtent}} \tab Assess whether a list of extents are all equal\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -239,7 +228,6 @@ This allows compact representation of, e.g., rasters that have many individual p
 that share identical information.
 \tabular{ll}{
   \code{\link{rasterizeReduced}} \tab Convert reduced representation to full raster\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -251,7 +239,6 @@ Here are several helper functions to add to, set and get colors of \code{Raster*
 \tabular{ll}{
   \code{\link[SpaDES:setColors<-]{setColors}} \tab Set colours for plotting \code{Raster*} objects\cr
   \code{\link{getColors}} \tab Get colours in a \code{Raster*} objects\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -264,7 +251,6 @@ These dummy maps can later be replaced with actual data maps.
 \tabular{ll}{
   \code{\link{gaussMap}} \tab Creates a random map using gaussian random fields\cr
   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -282,7 +268,6 @@ wrappers, we have built the following to simplify this:
   \code{\link{assignGlobal}} \tab Assign to the global environment\cr
   \code{\link{existsGlobal}} \tab Test for existence of an object in .GlobalEnv\cr
   \code{\link{getGlobal}} \tab Get from the global environment\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -295,7 +280,6 @@ These are several helpers for assessing this:
 \tabular{ll}{
   \code{\link{checkObject}} \tab Check for existence of a global object\cr
   \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -306,12 +290,11 @@ These functions are essentially skeletons and are not fully implemented.
 They are intended to make translations from \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
 You must know how to use SELES for these to be useful:
 \tabular{ll}{
-  \code{\link{probInit}} \tab Probability of intiating an agent or event\cr
-  \code{\link{numAgents}} \tab Number of agents\cr
   \code{\link{agentLocation}} \tab Agent location\cr
+  \code{\link{initiateAgents}} \tab Initiate agents into a SpatialPointsDataFrame\cr
+  \code{\link{numAgents}} \tab Number of agents\cr
+  \code{\link{probInit}} \tab Probability of intiating an agent or event\cr
   \code{\link{transitions}} \tab Transition probability\cr
-  \code{\link{specificNumPerPatch}} \tab Initiate a specific number of agents per patch\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
@@ -322,11 +305,10 @@ Functions that may be useful within a \code{SpaDES} context
 \tabular{ll}{
   \code{\link{inRange}} \tab Test whether a number lies within range [a,b]\cr
   \code{\link{layerNames}} \tab Get layer names for numerous object classes\cr
-  \code{\link{nlayers}} \tab Return number of layers\cr
   \code{\link{loadPackages}} \tab Simple wrapper for loading packages\cr
-  \code{\link{updateList}} \tab Update values in a named list\cr
+  \code{\link{nlayers}} \tab Return number of layers\cr
   \code{\link{paddedFloatToChar}} \tab Wrapper for padding (e.g., zeros) floating numbers to character\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
+  \code{\link{updateList}} \tab Update values in a named list\cr
 }
 
 ------------------------------------------------------------------------------------------
@@ -337,17 +319,21 @@ Functions that may be useful within a \code{SpaDES} context
 There are several user-accessible plotting functions that are optimized for modularity
 and speed of plotting:
 
+Commonly used:
 \tabular{ll}{
-  \code{\link{clearPlot}} \tab Reset all elements of plot device and its metadata.\cr
+  \code{\link{Plot}} \tab The workhorse plotting function\cr
+}
+
+Other useful plotting functions:
+\tabular{ll}{
+  \code{\link{clearPlot}} \tab Helpful for resolving many errors\cr
   \code{\link{clickValues}} \tab Extract values from a raster object at the mouse click location(s)\cr
   \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
   \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
   \code{\link{dev}} \tab Specify which device to plot on, making a non-RStudio one as default\cr
   \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
   \code{\link{newPlot}} \tab Open a new default plotting device\cr
-  \code{\link{Plot}} \tab The workhorse plotting function\cr
   \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 
 ------------------------------------------------------------------------------------------
@@ -364,7 +350,6 @@ loading and saving of files for simulation purposes:
   \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
   \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 
 ------------------------------------------------------------------------------------------
@@ -382,19 +367,18 @@ Five maps and three modules are included within the \code{SpaDES} package
 Several dummy data sets are included for testing of functionality
 \tabular{ll}{
   \code{\link{spadesMaps}} \tab Help showing included maps\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 
 \section{5.2 Modules}{
 
 
-Several dummy modules are included for testing of functionality
+Several dummy modules are included for testing of functionality. These can be
+found with \code{file.path(find.package("SpaDES"), "sampleModules")}
 \tabular{ll}{
   \code{randomLandscapes} \tab Imports, updates, and plots several raster map layers\cr
   \code{caribouMovement} \tab A simple agent-based (a.k.a., individual-based) model\cr
   \code{fireSpread} \tab A simple model of a spatial spread process\cr
-  --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }
 \author{
@@ -402,5 +386,6 @@ Alex M. Chubaty \email{achubaty@nrcan.gc.ca}
 
 Eliot J. B. McIntire \email{Eliot.McIntire@nrcan.gc.ca}
 }
+\keyword{------------------------------------------------------------------------------------------}
 \keyword{package}
 
