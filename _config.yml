@@ -7,6 +7,8 @@ domain: predictiveecology.org
 author: Eliot McIntire
 email: eliot.mcintire@nrcan.gc.ca
 
+exclude: ["ReadMe.md", "Rakefile", "License.md"]
+
 google_analytics:
    account: UA-58633549-1
 

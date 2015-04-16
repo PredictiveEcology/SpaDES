@@ -5,6 +5,14 @@ description: This is the main web page for the SpaDES R package for spatial disc
 keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, forecasting, ecological forecasting
 ---
 
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+</head>
+
 <div class="wrapper">
     <header>
       <h1>SpaDES</h1>
