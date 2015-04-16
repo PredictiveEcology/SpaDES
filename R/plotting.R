@@ -29,7 +29,8 @@ selectMethod("show", "igraph")
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
 #'
-#' @name .spatialObjects
+#' @aliases .spatialObjects
+#' @name .spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 setClassUnion(name=".spatialObjects",
@@ -48,10 +49,13 @@ setClassUnion(name=".spatialObjects",
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @import ggplot2
 #' @import graphics
-#' @name .spadesPlotObjects
+
+#' @aliases .spadesPlotObjects
+#' @name .spadesPlotObjects-class
 #' @rdname spadesPlotObjects-class
 #' @author Eliot McIntire
-setClassUnion(name=".spadesPlotObjects", members=c(".spatialObjects", "gg", "histogram", "igraph"))
+setClassUnion(name=".spadesPlotObjects",
+              members=c(".spatialObjects", "gg", "histogram", "igraph"))
 
 ################################################################################
 #' Specify where to plot
@@ -322,6 +326,8 @@ setMethod("equalExtent",
 #'
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
 #'
+#' @aliases .spadesGrob
+#' @name .spadesGrob-class
 #' @rdname spadesGrob-class
 #' @author Eliot McIntire
 setClass(".spadesGrob",
@@ -396,6 +402,8 @@ setClass(".spadesGrob",
 #' @slot size a numeric or a named list of numerics, used for SpatialPoints plots.
 #' Default is 5. See details.
 #'
+#' @aliases .arrangement
+#' @name .arrangement-class
 #' @rdname arrangement-class
 #' @author Eliot McIntire
 setClass(".arrangement",
@@ -452,6 +460,8 @@ setClass(".arrangement",
 #'
 #' @slot spadesGrobList list. A list of lists of .spadesGrob objects
 #'
+#' @aliases .spadesPlot
+#' @name .spadesPlot-class
 #' @rdname spadesPlot-class
 #' @author Eliot McIntire
 setClass(".spadesPlot",
@@ -477,10 +487,14 @@ setClass(".spadesPlot",
 #' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
 #' @import ggplot2
 #' @import graphics
-#' @name .spadesPlottables
+#'
+#' @aliases .spadesPlottables
+#' @name .spadesPlottables-class
 #' @rdname spadesPlottables-class
 #' @author Eliot McIntire
-setClassUnion(name=".spadesPlottables", members=c(".spadesPlotObjects", ".spadesPlot"))
+#'
+setClassUnion(name=".spadesPlottables",
+              members=c(".spadesPlotObjects", ".spadesPlot"))
 
 ################################################################################
 #' Make a \code{.spadesPlot} class object
@@ -1300,9 +1314,8 @@ setMethod(".plotGrob",
       addX <- abs(extents[[extentInd]]@xmax- extents[[extentInd]]@xmin -
                     (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)/vS.w)/2
     } else {
-      addY <- addX <- 1
+      addY <- addX <- 0
     }
-
     # end equal scale
     plotVps[[extentInd]] <- viewport(
       name=nam[extentInd],
@@ -1805,7 +1818,6 @@ setMethod("Plot",
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
 
-
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
       dotObjs <- list(...)
@@ -1813,7 +1825,7 @@ setMethod("Plot",
       plotArgs <- mget(names(formals("Plot")),
                        sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
 
-      whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) ".spadesPlottables" %in% is(x)))
+      whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
       plotObjs <- dotObjs[whichSpadesPlotables]
       nonPlotArgs <- dotObjs[!whichSpadesPlotables]
 

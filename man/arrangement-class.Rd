@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{class}
 \name{.arrangement-class}
+\alias{.arrangement}
 \alias{.arrangement-class}
 \title{The \code{.arrangement} class}
 \description{

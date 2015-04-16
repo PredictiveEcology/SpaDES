@@ -5,7 +5,7 @@
 \alias{numAgents}
 \title{SELES - Number of Agents to initiate}
 \usage{
-numAgents(N)
+numAgents(N, probInit)
 }
 \arguments{
 \item{N}{Number of agents to intitate}

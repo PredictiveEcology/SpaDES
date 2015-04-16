@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{class}
 \name{.spadesGrob-class}
+\alias{.spadesGrob}
 \alias{.spadesGrob-class}
 \title{The \code{.spadesGrob} class}
 \description{
