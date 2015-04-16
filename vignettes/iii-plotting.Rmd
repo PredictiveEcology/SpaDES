@@ -125,7 +125,7 @@ However, `ggplot` objects cannot currently be passed to `Plot` with any other ob
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 require(ggplot2)
-ggObj <- qplot(rnorm(1e3))
+ggObj <- qplot(rnorm(1e3), binwidth=0.1)
 Plot(caribou, new=TRUE)
 Plot(ggObj)
 
