@@ -1355,7 +1355,7 @@ setMethod(".plotGrob",
       addX <- abs(extents[[extentInd]]@xmax- extents[[extentInd]]@xmin -
                     (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)/vS.w)/2
     } else {
-      addY <- addX <- 1
+      addY <- addX <- 0
     }
 
     # end equal scale
