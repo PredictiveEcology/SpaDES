@@ -32,7 +32,7 @@ We use S4 classes and methods, and use \code{\link{data.table}} instead of
 
 \item{\code{completed}}{The list of completed events, as a \code{data.table}.}
 
-\item{\code{depends}}{A \code{simDeps} list of \code{moduleDeps} objects containing
+\item{\code{depends}}{A \code{.simDeps} list of \code{.moduleDeps} objects containing
                  module object dependency information.}
 
 \item{\code{simtimes}}{List of numerical values describing the simulation start and stop times;

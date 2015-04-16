@@ -13,14 +13,14 @@
 \item{sim}{A \code{simList} object.}
 
 \item{x}{A named list containing the parameters used to construct a new
-           \code{moduleDeps} object.}
+           \code{.moduleDeps} object.}
 }
 \value{
 A \code{simList} object.
 }
 \description{
 Internal function.
-Adds a \code{moduleDeps} object to the simulation dependency list.
+Adds a \code{.moduleDeps} object to the simulation dependency list.
 }
 \author{
 Alex Chubaty

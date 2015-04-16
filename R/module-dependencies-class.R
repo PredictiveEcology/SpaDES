@@ -144,8 +144,8 @@ setClass(".simDeps",
            # remove empty (NULL) elements
            object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
-           # ensure list contains only moduleDeps objects
-           if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) {
+           # ensure list contains only .moduleDeps objects
+           if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
              stop("invalid type: not a .moduleDeps object")
            }
 })

@@ -24,7 +24,7 @@
 #'
 #' @slot completed  The list of completed events, as a \code{data.table}.
 #'
-#' @slot depends    A \code{simDeps} list of \code{moduleDeps} objects containing
+#' @slot depends    A \code{.simDeps} list of \code{.moduleDeps} objects containing
 #'                  module object dependency information.
 #'
 #' @slot simtimes   List of numerical values describing the simulation start and stop times;
@@ -980,12 +980,12 @@ setReplaceMethod("simCompleted",
 #' Add simulation dependencies
 #'
 #' Internal function.
-#' Adds a \code{moduleDeps} object to the simulation dependency list.
+#' Adds a \code{.moduleDeps} object to the simulation dependency list.
 #'
 #' @param sim A \code{simList} object.
 #'
 #' @param x   A named list containing the parameters used to construct a new
-#'            \code{moduleDeps} object.
+#'            \code{.moduleDeps} object.
 #'
 #' @return A \code{simList} object.
 #'
@@ -1050,7 +1050,7 @@ setMethod("defineModule",
           signature(sim="simList", x="list"),
           definition=function(sim, x) {
             loadPackages(x$reqdPkgs)
-            m <- do.call(new, c("moduleDeps", x))
+            m <- do.call(new, c(".moduleDeps", x))
             return(.addSimDepends(sim, m))
 })
 
