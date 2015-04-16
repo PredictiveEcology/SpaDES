@@ -3,7 +3,6 @@
 \docType{methods}
 \name{loadPackages}
 \alias{loadPackages}
-\alias{loadPackages,list-method}
 \title{Load packages.}
 \usage{
 loadPackages(packageList, install = FALSE, quiet = TRUE)

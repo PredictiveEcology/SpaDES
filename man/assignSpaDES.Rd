@@ -3,8 +3,6 @@
 \docType{methods}
 \name{.assignSpaDES}
 \alias{.assignSpaDES}
-\alias{.assignSpaDES,character,ANY-method}
-\alias{.assignSpaDES,character,missing-method}
 \title{Assign to the internal SpaDES environment.}
 \usage{
 .assignSpaDES(x, value, ...)

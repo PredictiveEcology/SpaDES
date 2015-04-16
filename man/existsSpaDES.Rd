@@ -3,7 +3,6 @@
 \docType{methods}
 \name{.existsSpaDES}
 \alias{.existsSpaDES}
-\alias{.existsSpaDES,ANY-method}
 \title{Is an object defined in the .spades environment?}
 \usage{
 .existsSpaDES(x, ...)
@@ -18,7 +17,7 @@
 \item{...}{Additional arguments passed to \code{\link{exists}}}
 }
 \description{
-Simple wrapper for \code{\link{exists}}.
+Internal function. Simple wrapper for \code{\link{exists}}.
 }
 \author{
 Alex Chubaty

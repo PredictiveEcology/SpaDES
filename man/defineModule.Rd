@@ -3,7 +3,6 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
-\alias{defineModule,simList,list-method}
 \title{Define a new module.}
 \usage{
 defineModule(sim, x)
@@ -14,7 +13,7 @@ defineModule(sim, x)
 \item{sim}{A \code{simList} object.}
 
 \item{x}{A named list containing the parameters used to construct a new
-           \code{moduleDeps} object.}
+           \code{.moduleDeps} object.}
 }
 \value{
 Updated \code{simList} object.

@@ -4,13 +4,13 @@
 \name{.spadesEnv}
 \alias{.spadesEnv}
 \title{The SpaDES environment}
-\format{\preformatted{<environment: 0x000000001e82ae90> 
+\format{\preformatted{<environment: 0x0000000016d6e678>
 }}
 \usage{
 .spadesEnv
 }
 \description{
-needs description
+Environment used internally to store internal package objects and methods.
 }
 \keyword{datasets}
 

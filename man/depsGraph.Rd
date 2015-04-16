@@ -3,7 +3,6 @@
 \docType{methods}
 \name{depsGraph}
 \alias{depsGraph}
-\alias{depsGraph,simList,logical-method}
 \title{Build a module dependency graph}
 \usage{
 depsGraph(sim, plot)

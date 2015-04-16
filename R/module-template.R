@@ -21,6 +21,7 @@
 #'
 #' @export
 #' @docType methods
+#' @name newModule
 #' @rdname newModule
 #'
 #' @author Alex Chubaty
@@ -33,6 +34,7 @@ setGeneric("newModule", function(name, path, open) {
   standardGeneric("newModule")
 })
 
+#' @name newModule
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="logical"),
@@ -209,6 +211,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
 })
 
+#' @name newModule
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="missing", open="logical"),
@@ -216,6 +219,7 @@ setMethod("newModule",
             newModule(name=name, path=".", open=open)
 })
 
+#' @name newModule
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="missing"),
@@ -223,6 +227,7 @@ setMethod("newModule",
             newModule(name=name, path=path, open=TRUE)
 })
 
+#' @name newModule
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="missing", open="missing"),
@@ -231,10 +236,11 @@ setMethod("newModule",
 })
 
 
-#############
-##############################################################
+
+###########################################################################
 #' @export
 #' @docType methods
+#' @name newModuleDocumentation
 #' @rdname newModule
 #'
 #' @author Eliot McIntire
@@ -243,6 +249,7 @@ setGeneric("newModuleDocumentation", function(name, path, open) {
   standardGeneric("newModuleDocumentation")
 })
 
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="logical"),
@@ -363,6 +370,7 @@ if(open) file.edit(filenameRmd)
 
 })
 
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="logical"),
@@ -370,6 +378,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=".", open=open)
 })
 
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="missing"),
@@ -377,6 +386,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=path, open=TRUE)
 })
 
+#' @name newModuleDocumentation
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="missing"),
@@ -401,6 +411,7 @@ setMethod("newModuleDocumentation",
 #'
 #' @export
 #' @docType methods
+#' @name openModules
 #' @rdname openModules
 #'
 #' @author Eliot McIntire
@@ -412,6 +423,7 @@ setGeneric("openModules", function(basedir, names) {
   standardGeneric("openModules")
 })
 
+#' @name openModules
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="character", names="character"),
@@ -432,6 +444,7 @@ setMethod("openModules",
             setwd(origDir)
 })
 
+#' @name openModules
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="missing", names="missing"),
@@ -439,6 +452,7 @@ setMethod("openModules",
             openModules(basedir=".", names="all")
 })
 
+#' @name openModules
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="character", names="missing"),
@@ -456,12 +470,14 @@ setMethod("openModules",
 #' @author Eliot McIntire and Alex Chubaty
 #'
 #' @export
+#' @name zipModule
 #' @rdname zipModule
 #'
 setGeneric("zipModule", function(name, path, version) {
   standardGeneric("zipModule")
 })
 
+#' @name zipModule
 #' @rdname zipModule
 setMethod("zipModule",
 signature=c(name="character", path="character", version="character"),
@@ -477,6 +493,7 @@ definition = function(name, path, version) {
   zip(paste0(name, "_", version, ".zip"), files=file.path(name))
 })
 
+#' @name zipModule
 #' @rdname zipModule
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="character"),
@@ -484,6 +501,7 @@ setMethod("zipModule",
             zipModule(name=name, path=".", version=version)
 })
 
+#' @name zipModule
 #' @rdname zipModule
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),

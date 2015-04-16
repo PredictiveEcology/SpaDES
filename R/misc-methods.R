@@ -12,6 +12,7 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
+#' @name getFileName
 #' @rdname getFileName
 #'
 #' @author Alex Chubaty
@@ -20,6 +21,7 @@ setGeneric("getFileName", function(fullname) {
   standardGeneric("getFileName")
 })
 
+#' @name getFileName
 #' @rdname getFileName
 setMethod("getFileName",
           signature="logical",
@@ -35,8 +37,7 @@ setMethod("getFileName",
             return(f)
 })
 
-
-##############################################################
+################################################################################
 #' Update elements of a named list with elements of a second named list
 #'
 #' Merge two named list based on their named entries. Where
@@ -111,7 +112,7 @@ setMethod("updateList",
             return(list())
 })
 
-##############################################################
+################################################################################
 #' Load packages.
 #'
 #' Load and optionally install additional packages.
@@ -131,6 +132,7 @@ setMethod("updateList",
 #'
 #' @export
 #' @docType methods
+#' @name loadPackages
 #' @rdname loadPackages
 #'
 #' @author Alex Chubaty
@@ -144,6 +146,7 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
   standardGeneric("loadPackages")
 })
 
+#' @name loadPackages
 #' @rdname loadPackages
 setMethod("loadPackages",
            signature="list",
@@ -162,7 +165,7 @@ setMethod("loadPackages",
               if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
-##############################################################
+################################################################################
 #' Check filepath.
 #'
 #' Checks the specified filepath for formatting consistencies,
@@ -180,14 +183,14 @@ setMethod("loadPackages",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
+#' @name checkPath
 #' @rdname checkPath
 #'
-# @examples
-# need examples
 setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
 
+#' @name checkPath
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="logical"),
@@ -218,6 +221,7 @@ setMethod("checkPath",
           }
 })
 
+#' @name checkPath
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="missing"),
@@ -225,6 +229,7 @@ setMethod("checkPath",
             return(checkPath(path, create=FALSE))
 })
 
+#' @name checkPath
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="NULL", create="ANY"),
@@ -232,7 +237,7 @@ setMethod("checkPath",
             stop("Invalid path: cannot be NULL.")
 })
 
-##############################################################
+################################################################################
 #' Check for existence of a global object
 #'
 #' Check that a named object exists in the global environment, and optionally has
@@ -255,15 +260,16 @@ setMethod("checkPath",
 #' @importFrom methods is
 #' @export
 #' @docType methods
+#' @name checkObject
 #' @rdname checkObject
 #'
-#' @author Alex Chubaty
-#' @author Eliot McIntire
+#' @author Alex Chubaty and Eliot McIntire
 #'
 setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
 })
 
+#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="Raster", layer="character"),
@@ -277,6 +283,7 @@ setMethod("checkObject",
               }
 })
 
+#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="missing", object="ANY", layer="missing"),
@@ -290,6 +297,7 @@ setMethod("checkObject",
 })
 
 
+#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="character", object="missing", layer="missing"),
@@ -302,6 +310,7 @@ setMethod("checkObject",
             }
 })
 
+#' @name checkObject
 #' @rdname checkObject
 setMethod("checkObject",
           signature(name="character", object="missing", layer="character"),
@@ -320,7 +329,7 @@ setMethod("checkObject",
             }
 })
 
-##############################################################
+################################################################################
 #' Check use and existence of params passed to simulation.
 #'
 #' Checks that all parameters passed are used in a module,
@@ -342,17 +351,16 @@ setMethod("checkObject",
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
+#' @name checkParams
 #' @rdname checkParams
 #'
 #' @author Alex Chubaty
-#'
-# @examples
-# \dontrun{}
 #'
 setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
 })
 
+#' @name checkParams
 #' @rdname checkParams
 setMethod("checkParams",
           signature(sim="simList", coreModules="list", coreParams="list", path="character"),
@@ -491,9 +499,10 @@ setMethod("checkParams",
 #' @importFrom stringr str_pad
 #' @export
 #' @docType methods
+#' @name paddedFloatToChar
 #' @rdname paddedFloatToChar
 #'
-#' @author Eliot McIntire & Alex Chubaty
+#' @author Eliot McIntire and Alex Chubaty
 paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   xIC <- x %/% 1 %>%
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%

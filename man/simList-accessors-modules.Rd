@@ -3,26 +3,11 @@
 \docType{methods}
 \name{simModules}
 \alias{simDepends}
-\alias{simDepends,simList-method}
-\alias{simDepends<-}
-\alias{simDepends<-,simList-method}
 \alias{simList-accessors-modules}
 \alias{simModules}
-\alias{simModules,simList-method}
-\alias{simModules<-}
-\alias{simModules<-,simList-method}
 \alias{simModulesLoadOrder}
-\alias{simModulesLoadOrder,simList-method}
-\alias{simModulesLoadOrder<-}
-\alias{simModulesLoadOrder<-,simList-method}
 \alias{simModulesLoaded}
-\alias{simModulesLoaded,simList-method}
-\alias{simModulesLoaded<-}
-\alias{simModulesLoaded<-,simList-method}
 \alias{simObjectsLoaded}
-\alias{simObjectsLoaded,simList-method}
-\alias{simObjectsLoaded<-}
-\alias{simObjectsLoaded<-,simList-method}
 \title{Simulation modules and dependencies}
 \usage{
 simModules(object)
@@ -33,14 +18,6 @@ simModules(object) <- value
 
 \S4method{simModules}{simList}(object) <- value
 
-simModulesLoadOrder(object)
-
-\S4method{simModulesLoadOrder}{simList}(object)
-
-simModulesLoadOrder(object) <- value
-
-\S4method{simModulesLoadOrder}{simList}(object) <- value
-
 simModulesLoaded(object)
 
 \S4method{simModulesLoaded}{simList}(object)
@@ -48,6 +25,14 @@ simModulesLoaded(object)
 simModulesLoaded(object) <- value
 
 \S4method{simModulesLoaded}{simList}(object) <- value
+
+simModulesLoadOrder(object)
+
+\S4method{simModulesLoadOrder}{simList}(object)
+
+simModulesLoadOrder(object) <- value
+
+\S4method{simModulesLoadOrder}{simList}(object) <- value
 
 simDepends(object)
 

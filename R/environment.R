@@ -1,7 +1,8 @@
 #' The SpaDES environment
 #'
-#' needs description
+#' Environment used internally to store internal package objects and methods.
 #'
+#' @name .spadesEnv
 #' @rdname spadesEnv
 #'
 .spadesEnv <- new.env(parent=emptyenv())
@@ -22,6 +23,7 @@
 #'
 #' @export
 #' @docType methods
+#' @name assignGlobal
 #' @rdname assignGlobal
 #'
 #' @author Alex Chubaty
@@ -30,16 +32,16 @@ setGeneric("assignGlobal", function(x, value, ...) {
   standardGeneric("assignGlobal")
 })
 
+#' @name assignGlobal
 #' @rdname assignGlobal
-#'
 setMethod("assignGlobal",
           signature(x="character", value="ANY"),
           definition=function(x, value, ...) {
             assign(x, value, envir=.GlobalEnv, ...)
 })
 
+#' @name assignGlobal
 #' @rdname assignGlobal
-#'
 setMethod("assignGlobal",
           signature(x="character", value="missing"),
           definition=function(x, value, ...) {
@@ -58,6 +60,7 @@ setMethod("assignGlobal",
 #'
 #' @export
 #' @docType methods
+#' @name existsGlobal
 #' @rdname existsGlobal
 #'
 #' @author Alex Chubaty
@@ -66,8 +69,8 @@ setGeneric("existsGlobal", function(x, ...) {
   standardGeneric("existsGlobal")
 })
 
+#' @name existsGlobal
 #' @rdname existsGlobal
-#'
 setMethod("existsGlobal",
           signature(x="ANY"),
           definition=function(x, ...) {
@@ -86,6 +89,7 @@ setMethod("existsGlobal",
 #'
 #' @export
 #' @docType methods
+#' @name getGlobal
 #' @rdname getGlobal
 #'
 #' @author Alex Chubaty
@@ -94,8 +98,8 @@ setGeneric("getGlobal", function(x, ...) {
   standardGeneric("getGlobal")
 })
 
+#' @name getGlobal
 #' @rdname getGlobal
-#'
 setMethod("getGlobal",
           signature(x="ANY"),
           definition=function(x, ...) {
@@ -109,6 +113,7 @@ setMethod("getGlobal",
 #' @inheritParams assignGlobal
 #'
 #' @docType methods
+#' @name .assignSpaDES
 #' @rdname assignSpaDES
 #'
 #' @author Alex Chubaty
@@ -116,6 +121,7 @@ setGeneric(".assignSpaDES", function(x, value, ...) {
   standardGeneric(".assignSpaDES")
 })
 
+#' @name .assignSpaDES
 #' @rdname assignSpaDES
 setMethod(".assignSpaDES",
           signature(x="character", value="ANY"),
@@ -123,6 +129,7 @@ setMethod(".assignSpaDES",
             assign(x, value, envir=.spadesEnv, ...)
 })
 
+#' @name .assignSpaDES
 #' @rdname assignSpaDES
 setMethod(".assignSpaDES",
           signature(x="character", value="missing"),
@@ -132,7 +139,7 @@ setMethod(".assignSpaDES",
 
 #' Is an object defined in the .spades environment?
 #'
-#' Simple wrapper for \code{\link{exists}}.
+#' Internal function. Simple wrapper for \code{\link{exists}}.
 #'
 #' @param x   An object name, given as a character string.
 #'            No coercion is done, and the first element of a character vector
@@ -141,6 +148,7 @@ setMethod(".assignSpaDES",
 #' @param ... Additional arguments passed to \code{\link{exists}}
 #'
 #' @docType methods
+#' @name .existsSpaDES
 #' @rdname existsSpaDES
 #'
 #' @author Alex Chubaty
@@ -149,6 +157,7 @@ setGeneric(".existsSpaDES", function(x, ...) {
   standardGeneric(".existsSpaDES")
 })
 
+#' @name .existsSpaDES
 #' @rdname existsSpaDES
 setMethod(".existsSpaDES",
           signature(x="ANY"),
@@ -158,7 +167,7 @@ setMethod(".existsSpaDES",
 
 #' Get objects from the internal SpaDES environment
 #'
-#' Simple wrapper for \code{\link{get}}.
+#' Internal function. Simple wrapper for \code{\link{get}}.
 #'
 #' @param x   For \code{getGlobal}, an object name (given as a character string).
 #'            For \code{mgetGlobal}, a character vector of object names.
@@ -166,6 +175,7 @@ setMethod(".existsSpaDES",
 #' @param ... Additional arguments to pass to \code{get}.
 #'
 #' @docType methods
+#' @name .getSpaDES
 #' @rdname getSpaDES
 #'
 #' @author Alex Chubaty
@@ -174,8 +184,8 @@ setGeneric(".getSpaDES", function(x, ...) {
   standardGeneric(".getSpaDES")
 })
 
+#' @name .getSpaDES
 #' @rdname getSpaDES
-#'
 setMethod(".getSpaDES",
           signature(x="ANY"),
           definition=function(x, ...) {

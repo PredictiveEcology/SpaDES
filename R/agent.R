@@ -12,15 +12,15 @@
 #' @import CircStats sp
 #' @export
 #' @docType methods
+#' @name heading
 #' @rdname heading
 #' @author Eliot McIntire
 #'
-# @examples
-# needs examples
 setGeneric("heading", function(from, to) {
     standardGeneric("heading")
 })
 
+#' @name heading
 #' @rdname heading
 setMethod("heading",
           signature(from="SpatialPoints", to="SpatialPoints"),
@@ -34,6 +34,7 @@ setMethod("heading",
             return(heading%%360)
 })
 
+#' @name heading
 #' @rdname heading
 setMethod("heading",
           signature(from="matrix", to="matrix"),
@@ -47,6 +48,7 @@ setMethod("heading",
             return(heading%%360)
 })
 
+#' @name heading
 #' @rdname heading
 setMethod("heading",
           signature(from="matrix", to="SpatialPoints"),

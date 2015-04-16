@@ -3,9 +3,6 @@
 \docType{methods}
 \name{heading}
 \alias{heading}
-\alias{heading,SpatialPoints,SpatialPoints-method}
-\alias{heading,matrix,SpatialPoints-method}
-\alias{heading,matrix,matrix-method}
 \title{Heading between spatial points.}
 \usage{
 heading(from, to)

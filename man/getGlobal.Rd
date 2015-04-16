@@ -3,7 +3,6 @@
 \docType{methods}
 \name{getGlobal}
 \alias{getGlobal}
-\alias{getGlobal,ANY-method}
 \title{Get objects from the global environment}
 \usage{
 getGlobal(x, ...)

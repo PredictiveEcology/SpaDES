@@ -3,7 +3,6 @@
 \docType{methods}
 \name{.getSpaDES}
 \alias{.getSpaDES}
-\alias{.getSpaDES,ANY-method}
 \title{Get objects from the internal SpaDES environment}
 \usage{
 .getSpaDES(x, ...)
@@ -17,7 +16,7 @@
 \item{...}{Additional arguments to pass to \code{get}.}
 }
 \description{
-Simple wrapper for \code{\link{get}}.
+Internal function. Simple wrapper for \code{\link{get}}.
 }
 \author{
 Alex Chubaty

@@ -3,22 +3,10 @@
 \docType{methods}
 \name{simTimes}
 \alias{simCurrentTime}
-\alias{simCurrentTime,simList-method}
-\alias{simCurrentTime<-}
-\alias{simCurrentTime<-,simList-method}
 \alias{simList-accessors-times}
 \alias{simStartTime}
-\alias{simStartTime,simList-method}
-\alias{simStartTime<-}
-\alias{simStartTime<-,simList-method}
 \alias{simStopTime}
-\alias{simStopTime,simList-method}
-\alias{simStopTime<-}
-\alias{simStopTime<-,simList-method}
 \alias{simTimes}
-\alias{simTimes,simList-method}
-\alias{simTimes<-}
-\alias{simTimes<-,simList-method}
 \title{Get and set simulation times.}
 \usage{
 simTimes(object)
