@@ -8,12 +8,13 @@
 #'
 #' @description
 #'
-#' This package allows implementation a variety of simulation-type models, with a focus on spatially
-#' explicit models. The core simulation components are built upon
-#' a discrete event simulation framework that facilitates modularity, and easily
-#' enables the user to include additional functionality by running user-built
-#' simulation modules. Included are numerous tools to visualize various spatial data formats, as well
-#' as non-spatial data.
+#' This package allows implementation a variety of simulation-type models,
+#' with a focus on spatially explicit models.
+#' The core simulation components are built upon a discrete event simulation
+#' framework that facilitates modularity, and easily enables the user to
+#' include additional functionality by running user-built simulation modules.
+#' Included are numerous tools to visualize various spatial data formats,
+#' as well as non-spatial data.
 #'
 #' Bug reports: \url{https://github.com/PredictiveEcology/SpaDES/issues}
 #'
