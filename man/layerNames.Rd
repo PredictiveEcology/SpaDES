@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{methods}
 \name{layerNames-method}
+\alias{layerNames}
 \alias{layerNames-method}
 \title{Extract the layer names of Spatial Objects}
 \usage{

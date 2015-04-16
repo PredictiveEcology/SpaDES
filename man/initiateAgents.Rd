@@ -46,14 +46,24 @@ This is intended to ease transitinos from
 You must know how to use SELES for these to be useful
 }
 \examples{
-map <- raster(xmn=1, xmx=10, ymn=1, ymx=10, val=0, res=1)
-map <- randomPolygons(ras = map, p = c(0.1, 0.1, 0.2))
-pr <- probInit(map, p=map/maxValue(map))
+map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
+map <- gaussMap(map, scale=1, var = 4, speedup=1)
+pr <- probInit(map, p=(map/maxValue(map))^2)
 agents <- initiateAgents(map, 100, pr)
 Plot(map, new=T)
 Plot(agents, addTo="map")
-agentsRas <- initiateAgents(map, 10, pr, asSpatialPoints=FALSE)
-Plot(map, agentsRas, new=T)
+
+# If producing a Raster, then the number of points produced can't be more than
+# the number of pixels:
+agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints=FALSE)
+Plot(agentsRas)
+
+# Check that the agents are more often at the higher probability areas based on pr
+out <- data.frame(na.omit(crosstab(agentsRas, map)), table(round(map[]))) \%>\%
+   mutate(selectionRatio=Freq/Freq.1) \%>\%
+   select(-Var1, -Var1.1) \%>\%
+   rename(Present=Freq, Avail=Freq.1, Type=Var2)
+print(out)
 }
 \author{
 Eliot McIntire

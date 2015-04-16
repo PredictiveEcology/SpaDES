@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{methods}
 \name{Plot-method}
+\alias{Plot}
 \alias{Plot-method}
 \alias{clearPlot}
 \alias{rePlot}
