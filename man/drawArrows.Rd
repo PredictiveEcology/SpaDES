@@ -3,6 +3,7 @@
 \docType{methods}
 \name{drawArrows}
 \alias{drawArrows}
+\alias{drawArrows-method}
 \title{Plots arrows showing direction of agent movement}
 \usage{
 drawArrows(from, to, addTo, title = TRUE, axes = TRUE, ...)

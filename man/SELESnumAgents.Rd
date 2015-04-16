@@ -2,32 +2,16 @@
 % Please edit documentation in R/SELES.R
 \docType{methods}
 \name{numAgents}
-\alias{initiateAgents}
 \alias{numAgents}
 \title{SELES - Number of Agents to initiate}
 \usage{
 numAgents(N, probInit)
-
-initiateAgents(map, numAgents = NULL, probInit = NULL,
-  asSpatialPoints = TRUE)
 }
 \arguments{
 \item{N}{Number of agents to intitate}
-
-\item{probInit}{RasterLayer resulting from a call to \code{\link{probInit}}}
-
-\item{map}{RasterLayer with extent and resolution of desired return object}
-
-\item{numAgents}{numeric resulting from a call to \code{\link{numAgents}}}
-
-\item{asRaster}{logical. Should returned object be raster or SpatialPointsDataFrame (default)}
-
-\item{probInit}{a Raster resulting from a \code{\link{probInit}} call}
 }
 \value{
 A numeric, indicating number of agents to start
-
-A SpatialPointsDataFrame, with each row representing an individual agent
 }
 \description{
 A SELES-like function to maintain conceptual backwards compatability with that simulation
@@ -35,16 +19,8 @@ tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
 This is intended to ease transitinos from
 \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
 You must know how to use SELES for these to be useful
-
-A SELES-like function to maintain conceptual backwards compatability with that simulation
-tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
-This is intended to ease transitinos from
-\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-You must know how to use SELES for these to be useful
 }
 \author{
-Eliot McIntire
-
 Eliot McIntire
 }
 
