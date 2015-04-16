@@ -3,25 +3,27 @@
 \docType{methods}
 \name{transitions}
 \alias{transitions}
-\title{SELES - Transitioning to next time step}
+\title{\code{SELES} - Transitioning to next time step}
 \usage{
 transitions(p, agent)
 }
 \arguments{
-\item{p}{realized probability of persisting (i.e., either 0 or 1)}
+\item{p}{realized probability of persisting (i.e., either 0 or 1).}
 
-\item{agent}{SpatialPoints* object}
+\item{agent}{\code{SpatialPoints*} object.}
 }
 \value{
-Returns new SpatialPoints* object with potentially fewer agents
+Returns new \code{SpatialPoints*} object with potentially fewer agents.
 }
 \description{
-A SELES-like function to maintain conceptual backwards compatability with that simulation
-tool. Describes the probability of an agent successfully persisting until next
-time step. THIS IS NOT FULLY IMPLEMENTED.
-This is intended to ease transitinos from
+Describes the probability of an agent successfully persisting until next
+time step. THIS IS NOT YET FULLY IMPLEMENTED.
+
+A \code{SELES}-like function to maintain conceptual backwards compatability
+with that simulation tool. This is intended to ease transitions from
 \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-You must know how to use SELES for these to be useful
+
+You must know how to use SELES for these to be useful.
 }
 \author{
 Eliot McIntire

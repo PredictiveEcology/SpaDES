@@ -170,7 +170,6 @@ setGeneric(".getSpaDES", function(x, ...) {
   standardGeneric(".getSpaDES")
 })
 
-#' @name .getSpaDES
 #' @rdname getSpaDES
 setMethod(".getSpaDES",
           signature(x="ANY"),

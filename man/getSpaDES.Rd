@@ -3,6 +3,7 @@
 \docType{methods}
 \name{.getSpaDES}
 \alias{.getSpaDES}
+\alias{.getSpaDES,ANY-method}
 \title{Get objects from the internal SpaDES environment}
 \usage{
 .getSpaDES(x, ...)

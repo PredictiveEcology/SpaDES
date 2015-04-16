@@ -8,17 +8,21 @@
 numAgents(N, probInit)
 }
 \arguments{
-\item{N}{Number of agents to intitate}
+\item{N}{Number of agents to intitate (integer scalar).}
+
+\item{probInit}{Probability of initalizing an agent at the location.}
 }
 \value{
 A numeric, indicating number of agents to start
 }
 \description{
-A SELES-like function to maintain conceptual backwards compatability with that simulation
-tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
-This is intended to ease transitinos from
+Sets the the number of agents to initiate. THIS IS NOT YET FULLY IMPLEMENTED.
+
+A \code{SELES}-like function to maintain conceptual backwards compatability
+with that simulation tool. This is intended to ease transitions from
 \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-You must know how to use SELES for these to be useful
+
+You must know how to use SELES for these to be useful.
 }
 \author{
 Eliot McIntire

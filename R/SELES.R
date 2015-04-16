@@ -1,18 +1,21 @@
-##############################################################
-#' SELES - Transitioning to next time step
+################################################################################
+#' \code{SELES} - Transitioning to next time step
 #'
-#' A SELES-like function to maintain conceptual backwards compatability with that simulation
-#' tool. Describes the probability of an agent successfully persisting until next
-#' time step. THIS IS NOT FULLY IMPLEMENTED.
-#' This is intended to ease transitinos from
+#' @description
+#' Describes the probability of an agent successfully persisting until next
+#' time step. THIS IS NOT YET FULLY IMPLEMENTED.
+#'
+#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-#' You must know how to use SELES for these to be useful
 #'
-#' @param p realized probability of persisting (i.e., either 0 or 1)
+#' You must know how to use SELES for these to be useful.
 #'
-#' @param agent SpatialPoints* object
+#' @param p realized probability of persisting (i.e., either 0 or 1).
 #'
-#' @return Returns new SpatialPoints* object with potentially fewer agents
+#' @param agent \code{SpatialPoints*} object.
+#'
+#' @return Returns new \code{SpatialPoints*} object with potentially fewer agents.
 #'
 #' @import sp
 #' @include agent.R
@@ -29,13 +32,17 @@ transitions <- function(p, agent) {
 ##############################################################
 #' SELES - Number of Agents to initiate
 #'
-#' A SELES-like function to maintain conceptual backwards compatability with that simulation
-#' tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
-#' This is intended to ease transitinos from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-#' You must know how to use SELES for these to be useful
+#' @description
+#' Sets the the number of agents to initiate. THIS IS NOT YET FULLY IMPLEMENTED.
 #'
-#' @param N Number of agents to intitate
+#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' with that simulation tool. This is intended to ease transitions from
+#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#'
+#' You must know how to use SELES for these to be useful.
+#'
+#' @param N         Number of agents to intitate (integer scalar).
+#' @param probInit  Probability of initalizing an agent at the location.
 #'
 #' @return A numeric, indicating number of agents to start
 #'
@@ -46,27 +53,30 @@ transitions <- function(p, agent) {
 #'
 #' @author Eliot McIntire
 numAgents <- function(N, probInit) {
-    if ((length(N) == 1) && (is.numeric(N))) numAgents = N
-    else stop("N must be a single integer value, not a vector.")
-    return(numAgents)
+  stopifnot((length(N) == 1), (is.numeric(N)))
+  return(N)
 }
 
 ##############################################################
-#' SELES - Initiate agents
+#' \code{SELES} - Initiate agents
 #'
-#' A SELES-like function to maintain conceptual backwards compatability with that simulation
-#' tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
-#' This is intended to ease transitinos from
+#' @description
+#' Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
+#'
+#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-#' You must know how to use SELES for these to be useful
+#'
+#' You must know how to use SELES for these to be useful.
 #'
 #' @param map RasterLayer with extent and resolution of desired return object
 #'
 #' @param numAgents numeric resulting from a call to \code{\link{numAgents}}
 #'
-#' @param probInit RasterLayer resulting from a call to \code{\link{probInit}}
+#' @param probInit a Raster resulting from a \code{\link{probInit}} call
 #'
-#' @param asRaster logical. Should returned object be raster or SpatialPointsDataFrame (default)
+#' @param asSpatialPoints logical. Should returned object be \code{RasterLayer}
+#'                        or \code{SpatialPointsDataFrame} (default)
 #'
 #' @param indices numeric. Indices of where agents should start
 #'
@@ -77,13 +87,16 @@ numAgents <- function(N, probInit) {
 #' @export
 #' @docType methods
 #' @rdname initiateAgents
-#' @name initiateAgents
+#'
+#' @author Eliot McIntire
+#'
 #' @examples
+#' library(dplyr)
 #' map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
 #' map <- gaussMap(map, scale=1, var = 4, speedup=1)
 #' pr <- probInit(map, p=(map/maxValue(map))^2)
 #' agents <- initiateAgents(map, 100, pr)
-#' Plot(map, new=T)
+#' Plot(map, new=TRUE)
 #' Plot(agents, addTo="map")
 #'
 #' # If producing a Raster, then the number of points produced can't be more than
@@ -97,15 +110,13 @@ numAgents <- function(N, probInit) {
 #'    select(-Var1, -Var1.1) %>%
 #'    rename(Present=Freq, Avail=Freq.1, Type=Var2)
 #' print(out)
-#' @author Eliot McIntire
-#' @param probInit a Raster resulting from a \code{\link{probInit}} call
+#'
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
             standardGeneric("initiateAgents")
-          })
+})
 
 #' @rdname initiateAgents
-#' @name initiateAgents
 setMethod("initiateAgents",
           signature=c("Raster", "missing", "missing", "ANY", "missing"),
           function(map, numAgents, probInit, asSpatialPoints) {
@@ -113,7 +124,6 @@ setMethod("initiateAgents",
 })
 
 #' @rdname initiateAgents
-#' @name initiateAgents
 setMethod("initiateAgents",
           signature=c("Raster", "missing", "Raster", "ANY", "missing"),
           function(map, probInit, asSpatialPoints) {
@@ -122,27 +132,24 @@ setMethod("initiateAgents",
           })
 
 #' @rdname initiateAgents
-#' @name initiateAgents
 setMethod("initiateAgents",
           signature=c("Raster", "numeric", "missing", "ANY", "missing"),
           function(map, numAgents, probInit, asSpatialPoints, indices) {
-            wh <- sample(1:ncell(map), size = numAgents, replace = asSpatialPoints)
+            wh <- sample(1:ncell(map), size=numAgents, replace=asSpatialPoints)
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
           })
 
 #' @rdname initiateAgents
-#' @name initiateAgents
 setMethod("initiateAgents",
           signature=c("Raster", "numeric", "Raster", "ANY", "missing"),
           function(map, numAgents, probInit, asSpatialPoints) {
             vals <- getValues(probInit)
-            wh <- sample(1:ncell(probInit), numAgents, replace = asSpatialPoints,
+            wh <- sample(1:ncell(probInit), numAgents, replace=asSpatialPoints,
                    prob=vals/sum(vals))
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
           })
 
 #' @rdname initiateAgents
-#' @name initiateAgents
 setMethod("initiateAgents",
           signature=c("Raster", "missing", "missing", "ANY", "numeric"),
           function(map, numAgents, probInit, asSpatialPoints, indices) {
@@ -155,22 +162,24 @@ setMethod("initiateAgents",
               tmp[indices] <- 1
               return(tmp)
             }
-          })
+})
 
-
-##############################################################
-#' SELES - Agent Location at initiation
+################################################################################
+#' \code{SELES} - Agent Location at initiation
 #'
-#' A SELES-like function to maintain conceptual backwards compatability with that simulation
-#' tool. Sets the the location of the intiating agents.  THIS IS NOT FULLY IMPLEMENTED.
-#' This is intended to ease transitinos from
+#' @description
+#' Sets the the location of the intiating agents. NOT YET FULLY IMPLEMENTED.
+#'
+#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-#' You must know how to use SELES for these to be useful
 #'
-#' @param map SpatialPoints*, SpatialPolygons* or Raster*
+#' You must know how to use SELES for these to be useful.
 #'
-#' @return Object of same class as provided as input. If a Raster*, then zeros are converted
-#' to NAs
+#' @param map A \code{SpatialPoints*}, \code{SpatialPolygons*}, or \code{Raster*} object.
+#'
+#' @return Object of same class as provided as input.
+#'          If a \code{Raster*}, then zeros are converted to \code{NA}.
 #'
 #' @include agent.R
 #' @export
@@ -191,13 +200,16 @@ agentLocation <- function(map) {
 }
 
 ##############################################################
-#' SELES - Probability of Initiation
+#' \code{SELES} - Probability of Initiation
 #'
-#' A SELES-like function to maintain conceptual backwards compatability with that simulation
-#' tool. Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
-#' This is intended to ease transitinos from
+#' @description
+#' Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
+#'
+#' A \code{SELES}-like function to maintain conceptual backwards compatability
+#' with that simulation tool. This is intended to ease transitions from
 #' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-#' You must know how to use SELES for these to be useful
+#'
+#' You must know how to use SELES for these to be useful.
 #'
 #' @param map A \code{.spatialObjects} object. Currently, only provides CRS and, if p is not
 #' a raster, then all the raster dimensions.

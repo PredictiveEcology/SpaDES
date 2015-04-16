@@ -3,7 +3,7 @@
 \docType{methods}
 \name{probInit}
 \alias{probInit}
-\title{SELES - Probability of Initiation}
+\title{\code{SELES} - Probability of Initiation}
 \usage{
 probInit(map, p = NULL, absolute = NULL)
 }
@@ -29,11 +29,13 @@ If \code{absolute} is provided, it will override the previous statements, unless
 is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 }
 \description{
-A SELES-like function to maintain conceptual backwards compatability with that simulation
-tool. Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
-This is intended to ease transitinos from
+Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
+
+A \code{SELES}-like function to maintain conceptual backwards compatability
+with that simulation tool. This is intended to ease transitions from
 \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-You must know how to use SELES for these to be useful
+
+You must know how to use SELES for these to be useful.
 }
 \author{
 Eliot McIntire

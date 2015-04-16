@@ -33,7 +33,7 @@ setGeneric("newModule", function(name, path, open) {
   standardGeneric("newModule")
 })
 
-#' @name newModule
+#' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="logical"),
           definition = function(name, path, open) {
@@ -229,8 +229,6 @@ setMethod("newModule",
           definition = function(name) {
             newModule(name=name, path=".", open=TRUE)
 })
-
-
 
 ###########################################################################
 #' @export

@@ -3,7 +3,12 @@
 \docType{methods}
 \name{initiateAgents}
 \alias{initiateAgents}
-\title{SELES - Initiate agents}
+\alias{initiateAgents,Raster,missing,Raster,ANY,missing-method}
+\alias{initiateAgents,Raster,missing,missing,ANY,missing-method}
+\alias{initiateAgents,Raster,missing,missing,ANY,numeric-method}
+\alias{initiateAgents,Raster,numeric,Raster,ANY,missing-method}
+\alias{initiateAgents,Raster,numeric,missing,ANY,missing-method}
+\title{\code{SELES} - Initiate agents}
 \usage{
 initiateAgents(map, numAgents, probInit, asSpatialPoints = TRUE, indices)
 
@@ -27,30 +32,32 @@ initiateAgents(map, numAgents, probInit, asSpatialPoints = TRUE, indices)
 
 \item{numAgents}{numeric resulting from a call to \code{\link{numAgents}}}
 
-\item{probInit}{RasterLayer resulting from a call to \code{\link{probInit}}}
+\item{probInit}{a Raster resulting from a \code{\link{probInit}} call}
+
+\item{asSpatialPoints}{logical. Should returned object be \code{RasterLayer}
+                       or \code{SpatialPointsDataFrame} (default)}
 
 \item{indices}{numeric. Indices of where agents should start}
-
-\item{asRaster}{logical. Should returned object be raster or SpatialPointsDataFrame (default)}
-
-\item{probInit}{a Raster resulting from a \code{\link{probInit}} call}
 }
 \value{
 A SpatialPointsDataFrame, with each row representing an individual agent
 }
 \description{
-A SELES-like function to maintain conceptual backwards compatability with that simulation
-tool. Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
-This is intended to ease transitinos from
+Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
+
+A \code{SELES}-like function to maintain conceptual backwards compatability
+with that simulation tool. This is intended to ease transitions from
 \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-You must know how to use SELES for these to be useful
+
+You must know how to use SELES for these to be useful.
 }
 \examples{
+library(dplyr)
 map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
 map <- gaussMap(map, scale=1, var = 4, speedup=1)
 pr <- probInit(map, p=(map/maxValue(map))^2)
 agents <- initiateAgents(map, 100, pr)
-Plot(map, new=T)
+Plot(map, new=TRUE)
 Plot(agents, addTo="map")
 
 # If producing a Raster, then the number of points produced can't be more than

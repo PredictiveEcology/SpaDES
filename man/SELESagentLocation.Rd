@@ -3,23 +3,25 @@
 \docType{methods}
 \name{agentLocation}
 \alias{agentLocation}
-\title{SELES - Agent Location at initiation}
+\title{\code{SELES} - Agent Location at initiation}
 \usage{
 agentLocation(map)
 }
 \arguments{
-\item{map}{SpatialPoints*, SpatialPolygons* or Raster*}
+\item{map}{A \code{SpatialPoints*}, \code{SpatialPolygons*}, or \code{Raster*} object.}
 }
 \value{
-Object of same class as provided as input. If a Raster*, then zeros are converted
-to NAs
+Object of same class as provided as input.
+         If a \code{Raster*}, then zeros are converted to \code{NA}.
 }
 \description{
-A SELES-like function to maintain conceptual backwards compatability with that simulation
-tool. Sets the the location of the intiating agents.  THIS IS NOT FULLY IMPLEMENTED.
-This is intended to ease transitinos from
+Sets the the location of the intiating agents. NOT YET FULLY IMPLEMENTED.
+
+A \code{SELES}-like function to maintain conceptual backwards compatability
+with that simulation tool. This is intended to ease transitions from
 \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
-You must know how to use SELES for these to be useful
+
+You must know how to use SELES for these to be useful.
 }
 \author{
 Eliot McIntire
