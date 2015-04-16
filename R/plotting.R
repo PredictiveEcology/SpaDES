@@ -30,7 +30,6 @@ selectMethod("show", "igraph")
 #'                RasterLayer, RasterStack
 #'
 #' @aliases .spatialObjects
-#' @exportClass .spatialObjects
 #' @rdname spatialObjects-class
 #' @name .spatialObjects-class
 #' @author Eliot McIntire
@@ -52,7 +51,6 @@ setClassUnion(name=".spatialObjects",
 #' @import graphics
 
 #' @aliases .spadesPlotObjects
-#' @exportClass .spadesPlotObjects
 #' @rdname spadesPlotObjects-class
 #' @name .spadesPlotObjects-class
 #' @author Eliot McIntire
@@ -215,6 +213,7 @@ setMethod("nlayers",
 #'
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 #' @author Eliot McIntire
 #' @export
 setGeneric("layerNames", function(object) {
@@ -223,6 +222,7 @@ setGeneric("layerNames", function(object) {
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="list",
           definition=function(object) {
@@ -231,6 +231,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="SpatialPoints",
           definition=function(object) {
@@ -239,6 +240,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="SpatialPolygons",
           definition=function(object) {
@@ -247,6 +249,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="SpatialLines",
           definition=function(object) {
@@ -256,6 +259,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="Raster",
           definition=function(object) {
@@ -264,6 +268,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="gg",
           definition=function(object) {
@@ -272,6 +277,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="histogram",
           definition=function(object) {
@@ -280,6 +286,7 @@ setMethod("layerNames",
 
 #' @name layerNames-method
 #' @rdname layerNames
+#' @aliases layerNames
 setMethod("layerNames",
           signature="igraph",
           definition=function(object) {
@@ -346,7 +353,6 @@ setMethod("equalExtent",
 #' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
 #'
 #' @aliases .spadesGrob
-#' @exportClass .spadesGrob
 #' @rdname spadesGrob-class
 #' @name .spadesGrob-class
 #' @author Eliot McIntire
@@ -423,7 +429,6 @@ setClass(".spadesGrob",
 #' Default is 5. See details.
 #'
 #' @aliases .arrangement
-#' @exportClass .arrangement
 #' @rdname arrangement-class
 #' @name .arrangement-class
 #' @author Eliot McIntire
@@ -482,7 +487,6 @@ setClass(".arrangement",
 #' @slot spadesGrobList list. A list of lists of .spadesGrob objects
 #'
 #' @aliases .spadesPlot
-#' @exportClass .spadesPlot
 #' @rdname spadesPlot-class
 #' @name .spadesPlot-class
 #' @author Eliot McIntire
@@ -511,7 +515,6 @@ setClass(".spadesPlot",
 #' @import graphics
 #'
 #' @aliases .spadesPlottables
-#' @exportClass .spadesPlottables
 #' @rdname spadesPlottables-class
 #' @name .spadesPlottables-class
 #' @author Eliot McIntire
@@ -1357,7 +1360,6 @@ setMethod(".plotGrob",
     } else {
       addY <- addX <- 0
     }
-
     # end equal scale
     plotVps[[extentInd]] <- viewport(
       name=nam[extentInd],
@@ -1753,6 +1755,7 @@ setMethod("drawArrows",
 #'
 #' @rdname Plot
 #' @name Plot-method
+#' @aliases Plot
 #' @export
 #' @import grid
 #' @importFrom methods is
