@@ -3,8 +3,6 @@
 \docType{methods}
 \name{assignGlobal}
 \alias{assignGlobal}
-\alias{assignGlobal,character,ANY-method}
-\alias{assignGlobal,character,missing-method}
 \title{Assign to the global environment}
 \usage{
 assignGlobal(x, value, ...)

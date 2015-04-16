@@ -143,18 +143,16 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{depsEdgeList}} \tab Build edge list for module dependency graph\cr
-#'   \code{\link{depsGraph}} \tab Build a module dependency graph using igraph\cr
-#'   \code{\link{.depsLoadOrder}} \tab Determine load order required to accommodate dependencies\cr
-#'   \code{\link{depsPruneEdges}} \tab Identifies cycles in dependencies and removes\cr
+#'   \code{\link{depsGraph}} \tab Build a module dependency graph using \code{igraph}\cr
+#'   \code{\link{.depsLoadOrder}} \tab Determine load order required to meet dependencies\cr
+#'   \code{\link{.depsPruneEdges}} \tab Identifies cycles in dependencies; removes offending edges\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'
-#' @section 1.5 Object classes in \code{SpaDES}:
+#' @section 1.5 Exported \code{SpaDES} object classes:
 #'
 #' \tabular{ll}{
 #'   \code{\link{simList}} \tab The 'simList' class\cr
-#'   \code{\link{simDeps}} \tab Defines all simulation dependencies for all modules within a \code{SpaDES} simulation\cr
-#'   \code{\link{moduleDeps}} \tab Descriptor object for specifying \code{SpaDES} module dependecies\cr
 #'   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 #' }
 #'

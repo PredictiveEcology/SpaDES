@@ -3,7 +3,7 @@
 \docType{methods}
 \name{.depsLoadOrder}
 \alias{.depsLoadOrder}
-\alias{.depsLoadOrder,simList,igraph-method}
+\alias{depsLoadOrder}
 \title{Determine module load order}
 \usage{
 .depsLoadOrder(sim, simGraph)
@@ -19,6 +19,7 @@
 Character vector of module names, sorted in correct load order.
 }
 \description{
+Internal function.
 Checks module dependencies and attempts to enusure that cyclic dependencies
 can be resolved, checking objects in the global environment, and finally,
 attempts to determine the load order for modules in the simulation.

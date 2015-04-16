@@ -3,7 +3,6 @@
 \docType{methods}
 \name{existsGlobal}
 \alias{existsGlobal}
-\alias{existsGlobal,ANY-method}
 \title{Is an object defined in the global environment?}
 \usage{
 existsGlobal(x, ...)

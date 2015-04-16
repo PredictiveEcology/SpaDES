@@ -3,8 +3,6 @@
 \docType{methods}
 \name{spades}
 \alias{spades}
-\alias{spades,simList,logical-method}
-\alias{spades,simList,missing-method}
 \title{Run a spatial discrete event simulation}
 \usage{
 spades(sim, debug)

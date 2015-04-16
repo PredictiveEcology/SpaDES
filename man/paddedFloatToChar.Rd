@@ -26,6 +26,6 @@ Character string representing the filename.
 Convert numeric to character with padding
 }
 \author{
-Eliot McIntire & Alex Chubaty
+Eliot McIntire and Alex Chubaty
 }
 

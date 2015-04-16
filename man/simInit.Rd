@@ -3,11 +3,6 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,list,list,list,character,character-method}
-\alias{simInit,list,list,list,character,missing-method}
-\alias{simInit,list,list,list,missing,character-method}
-\alias{simInit,list,list,list,missing,missing-method}
-\alias{simInit,missing,missing,missing,missing,missing-method}
 \title{Initialize a new simulation}
 \usage{
 simInit(times, params, modules, path, loadOrder)

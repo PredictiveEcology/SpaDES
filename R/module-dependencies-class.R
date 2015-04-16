@@ -13,7 +13,7 @@ selectMethod("show", "person")
 removeClass("person4")
 
 ################################################################################
-#' The \code{moduleDeps} class
+#' The \code{.moduleDeps} class
 #'
 #' Descriptor object for specifying SpaDES module dependecies.
 #'
@@ -57,16 +57,15 @@ removeClass("person4")
 #' @slot outputObjects  A \code{data.frame} specifying the objects output by the module,
 #'                      following the format of \code{inputObjects}.
 #'
+#' @name .moduleDeps
 #' @rdname moduleDeps-class
-#' @name moduleDeps
 #' @importFrom raster extent
-#' @exportClass moduleDeps
 #'
-#' @seealso \code{simDeps}, \code{\link{spadesClasses}}
+#' @seealso \code{.simDeps}, \code{\link{spadesClasses}}
 #'
 #' @author Alex Chubaty
 #'
-setClass("moduleDeps",
+setClass(".moduleDeps",
          slots=list(name="character", description="character", keywords="character",
                     authors="person", version="numeric_version", spatialExtent="Extent",
                     timeframe="POSIXt", timestep="numeric",
@@ -123,22 +122,22 @@ setClass("moduleDeps",
            }
 })
 
-#' The \code{simDeps} class
+#' The \code{.simDeps} class
 #'
 #' Defines all simulation dependencies for all modules within a SpaDES simulation.
 #'
-#' @slot dependencies   List of \code{moduleDeps} dependency objects.
+#' @slot dependencies   List of \code{.moduleDeps} dependency objects.
 #'
-#' @seealso \code{\link{moduleDeps}}, \code{\link{spadesClasses}}
+#' @seealso \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 #'
-#' @rdname simDeps-class
-#' @name simDeps
 #' @importFrom methods is
-#' @exportClass simDeps
+#'
+#' @name .simDeps
+#' @rdname simDeps-class
 #'
 #' @author Alex Chubaty
 #'
-setClass("simDeps",
+setClass(".simDeps",
          slots=list(dependencies="list"),
          prototype=list(dependencies=list(NULL)),
          validity=function(object) {
@@ -147,6 +146,6 @@ setClass("simDeps",
 
            # ensure list contains only moduleDeps objects
            if (!all(unlist(lapply(object@dependencies, is, class2="moduleDeps")))) {
-             stop("invalid type: non-moduleDeps object")
+             stop("invalid type: not a .moduleDeps object")
            }
 })
