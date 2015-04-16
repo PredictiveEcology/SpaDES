@@ -13,7 +13,6 @@ keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, fo
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 </head>
 
-<body>
 <div class="wrapper">
   <header>
     <h1>SpaDES</h1>
@@ -107,4 +106,3 @@ keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, fo
 
 <script src="javascripts/scale.fix.js"></script>
 
-</body>
