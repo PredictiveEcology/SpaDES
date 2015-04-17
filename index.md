@@ -13,7 +13,7 @@ keywords: DES, R, spatially explicit models, ABM, agent based model, IBM, indivi
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 </head>
 
-# Spatial Discrete Event Simulation (SpaDES)
+# Spatial Discrete Event Simulation (`SpaDES`)
 
 *Develop and run spatially explicit discrete event simulation models*
 
@@ -25,7 +25,7 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 ## Installation
 
-Download the source tarball (.tar.gz) or windows package binary (.zip), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
+Download the source tarball (`.tar.gz`) or windows package binary (`.zip`), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
 The suggested package `fastshp` can be installed with:
 
