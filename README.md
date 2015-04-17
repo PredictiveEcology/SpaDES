@@ -18,44 +18,44 @@ The suggested package `fastshp` can be installed with:
 install_github("s-u/fastshp")
 ```
 
-+ **Current stable release:** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
+### Current stable release: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
     
-    Install from package file:
+**Install from package file:**
     
-    - Download:
-    
-        - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/zipball/master)
-        - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/tarball/master)
-    
-    - Install:
-    
-        ```r
-        install.packages("path/to/file", repos=NULL)
-        ```
-    
-    Install from GitHub:
+- Download:
+
+    - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/zipball/master)
+    - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/tarball/master)
+
+- Install:
     
     ```r
-    install.packages("devtools")
-    library("devtools")
-    install_github("PredictiveEcology/SpaDES") # stable
+    install.packages("path/to/file", repos=NULL)
     ```
 
-+ **Development version (unstable):** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
-
-    Install from GitHub:
+**Install from GitHub:**
     
-    ```r
-    install.packages("devtools")
-    library("devtools")
-    install_github("PredictiveEcology/SpaDES", ref="development") # unstable
-    ```
+```r
+install.packages("devtools")
+library("devtools")
+install_github("PredictiveEcology/SpaDES") # stable
+```
 
-    If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
-    
-    ```r
-    install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
-    ```
+### Development version (unstable): [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
+
+**Install from GitHub:**
+
+```r
+install.packages("devtools")
+library("devtools")
+install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+```
+
+If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
+
+```r
+install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
+```
 
 ## Getting started
 
