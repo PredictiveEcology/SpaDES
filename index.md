@@ -14,9 +14,9 @@ keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, fo
 </head>
 
 
-Master Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
 
-Development Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
+
+
 
 -----
 
@@ -42,7 +42,7 @@ install_github("s-u/fastshp")
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)`.
 
-+ **Current stable release:**
++ **Current stable release:** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
     
     Install from package file:
     
@@ -69,7 +69,7 @@ If the install from GitHub fails during vignette building, you can skip this ste
     install_github("PredictiveEcology/SpaDES") # stable
     ```
 
-+ **Development version (unstable):**
++ **Development version (unstable):** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
 
     Install from GitHub:
     
