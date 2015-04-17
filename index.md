@@ -13,8 +13,6 @@ keywords: DES, R, spatially explicit models, ABM, agent based model, IBM, indivi
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 </head>
 
------
-
 # Spatial Discrete Event Simulation (SpaDES)
 
 *Develop and run spatially explicit discrete event simulation models*
