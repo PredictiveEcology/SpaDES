@@ -1,12 +1,14 @@
 ## Test environments
 
-* OS X Yosemite     (local), R 3.1.3
-* Ubuntu 12.04  (travis-ci), R 3.1.3
-* Ubuntu 14.04      (local), R 3.1.3
-* Windows 7         (local), R 3.1.2
-* Windows 7         (local), R 3.1.3
-* Windows     (win-builder), R 3.1.3
-* Windows     (win-builder), R 3.2.0 beta
+* OS X Yosemite         (local), R 3.1.3
+* Ubuntu 12.04      (travis-ci), R 3.2.0
+* Ubuntu 14.04          (local), R 3.2.0
+* Ubuntu 14.04 (rocker/r-devel), R 3.3.0 (2015-03-31 r68131)
+* Windows 7             (local), R 3.1.2
+* Windows 7             (local), R 3.1.3
+* Windows 7             (local), R 3.2.0
+* Windows         (win-builder), R 3.2.0
+* Windows         (win-builder), R 3.2.0
 
 ## R CMD check results
 
