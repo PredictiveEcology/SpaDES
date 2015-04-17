@@ -10,7 +10,7 @@ Development Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/Spa
 
 Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
-**Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
+**Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
 
 **Wiki:** [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
@@ -30,8 +30,8 @@ If the install from GitHub fails during vignette building, you can skip this ste
     
     - Download:
     
-        - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.zip)
-        - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
+        - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/zipball/master)
+        - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/tarball/master)
     
     - Install:
     
