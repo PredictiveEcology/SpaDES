@@ -53,32 +53,13 @@ keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, fo
     <h2>
     <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
     
-    <p>Download the source tarball (.tar.gz) or windows package binary (.zip):</p>
-    
-    <ul>
-    <li>Current stable release:
-    
-    <ul>
-    <li><a href="https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.zip">Windows binary (.zip)</a></li>
-    <li><a href="https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.tar.gz">Source package (.tar.gz)</a></li>
-    </ul>
-    </li>
-    <li>Development version (unstable):
-    
-    <ul>
-    <li><a href="https://github.com/PredictiveEcology/SpaDES/raw/development/SpaDES_0.5.0.9000.zip">Windows binary (.zip)</a></li>
-    <li><a href="https://github.com/PredictiveEcology/SpaDES/raw/development/SpaDES_0.5.0.9000.tar.gz">Source package (.tar.gz)</a></li>
-    </ul>
-    </li>
-    </ul>
-    
-    <p>Alternatively, install <code>SpaDES</code> directly from GitHub. You will need the <code>devtools</code> package, as well as the appropriate development libraries for your operating system (e.g., Windows users should install <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend <a href="https://www.tug.org/texlive/">TexLive</a>.</p>
+    <p>To install the development version of <code>SpaDES</code> directly from GitHub, you will need the <code>devtools</code> package, as well as the appropriate development libraries for your operating system (e.g., Windows users should install <a href="http://cran.r-project.org/bin/windows/Rtools/">Rtools</a>). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend <a href="https://www.tug.org/texlive/">TexLive</a>.</p>
     
     <pre><code>install.packages("devtools")
     library("devtools")
     
     install_github("PredictiveEcology/SpaDES") # stable
-    install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+    install_github("PredictiveEcology/SpaDES", ref="development") # active development
     </code></pre>
     
     <p>The suggested package <code>fastshp</code> can be installed with:</p>
