@@ -37,48 +37,47 @@ The suggested package `fastshp` can be installed with:
 install_github("s-u/fastshp")
 ```
 
-+ **Current stable release:** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
+### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
     
-    Install from package file:
+**Install from package file:**
     
-    - Download:
+- Download:
     
-        <ul style="list-style:none; height:40px; padding:0; background: #eee; background: -moz-linear-gradient(top, #f8f8f8 0%, #dddddd 100%); ackground: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd)); background: -webkit-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -o-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -ms-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: linear-gradient(top, #f8f8f8 0%,#dddddd 100%); border-radius:5px;
-      border:1px solid #d2d2d2; box-shadow:inset #fff 0 1px 0, inset rgba(0,0,0,0.03) 0 -1px 0; width:270px;">
-        <li style="width:89px; float:left; border-right:1px solid #d2d2d2; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES/zipball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">Download <strong style="font-size:14px; display:block; color:#222;">ZIP File</strong></a></li>
-        <li style="width:88px; float:left; border-left:1px solid #fff; border-right:1px solid #d2d2d2; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES/tarball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">Download <strong style="font-size:14px; display:block; color:#222;">TAR Ball</strong></a></li>
-        <li style="width:89px; float:left; border-left:1px solid #fff; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">View On <strong style="font-size:14px; display:block; color:#222;">GitHub</strong></a></li>
-        </ul>
-      
-    - Install:
-    
-        ```r
-        install.packages("path/to/file", repos=NULL)
-        ```
-    
-    Install from GitHub:
+    <ul style="list-style:none; height:40px; padding:0; background: #eee; background: -moz-linear-gradient(top, #f8f8f8 0%, #dddddd 100%); ackground: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd)); background: -webkit-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -o-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -ms-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: linear-gradient(top, #f8f8f8 0%,#dddddd 100%); border-radius:5px; border:1px solid #d2d2d2; box-shadow:inset #fff 0 1px 0, inset rgba(0,0,0,0.03) 0 -1px 0; width:270px;">
+    <li style="width:89px; float:left; border-right:1px solid #d2d2d2; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES/zipball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">Download <strong style="font-size:14px; display:block; color:#222;">ZIP File</strong></a></li>
+    <li style="width:88px; float:left; border-left:1px solid #fff; border-right:1px solid #d2d2d2; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES/tarball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">Download <strong style="font-size:14px; display:block; color:#222;">TAR Ball</strong></a></li>
+    <li style="width:89px; float:left; border-left:1px solid #fff; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">View On <strong style="font-size:14px; display:block; color:#222;">GitHub</strong></a></li>
+    </ul>
+  
+- Install:
     
     ```r
-    install.packages("devtools")
-    library("devtools")
-    install_github("PredictiveEcology/SpaDES") # stable
+    install.packages("path/to/file", repos=NULL)
     ```
-
-+ **Development version (unstable):** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
-
-    Install from GitHub:
     
-    ```r
-    install.packages("devtools")
-    library("devtools")
-    install_github("PredictiveEcology/SpaDES", ref="development") # unstable
-    ```
-
-    If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
+**Install from GitHub:**
     
-    ```r
-    install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
-    ```
+```r
+install.packages("devtools")
+library("devtools")
+install_github("PredictiveEcology/SpaDES") # stable
+```
+
+### Development version (unstable): [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
+
+**Install from GitHub:**
+
+```r
+install.packages("devtools")
+library("devtools")
+install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+```
+
+If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
+    
+```r
+install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
+```
 
 ## Getting started
 
