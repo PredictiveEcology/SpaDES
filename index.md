@@ -74,6 +74,18 @@ If the install from GitHub fails during vignette building, you can skip this ste
     install_github("PredictiveEcology/SpaDES", ref="development") # unstable
     ```
 
+## Getting started
+
+**Vignettes:**
+
+```r
+browseVignettes(package="SpaDES")
+```
+
+**Wiki:**
+
+[https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
+
 ## Reporting bugs
 
 Contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
