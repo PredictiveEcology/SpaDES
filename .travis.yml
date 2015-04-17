@@ -6,8 +6,6 @@
 
 language: r
 
-sudo: required
-
 env:
   global:
     - DISPLAY=:99.0
