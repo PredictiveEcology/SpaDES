@@ -38,10 +38,9 @@ keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, fo
     <h1>
     <a id="spatial-discrete-event-simulation-spades" class="anchor" href="#spatial-discrete-event-simulation-spades" aria-hidden="true"><span class="octicon octicon-link"></span></a>Spatial Discrete Event Simulation (SpaDES)</h1>
     
-*Develop and run spatially explicit discrete event simulation models.*
-
-Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
-
+    <p><em>Develop and run spatially explicit discrete event simulation models.</em></p>
+    
+    <p>Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.</p>
     
     <p>This project began at the Canadian Forest Service in 2014.</p>
     
