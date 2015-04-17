@@ -143,7 +143,7 @@ We suggest passing a list of all the parameters needed for a single module toget
 
 ### Event types
 
-contained within `doEvent.moduleName` call: simple `if`/`else` (case/`switch`)
+contained within `doEvent.moduleName` call: simple `if`/`else` (or `switch`/case, which is faster)
 
 - every module needs "init" event type.
 - optional: "save", "plot" events
