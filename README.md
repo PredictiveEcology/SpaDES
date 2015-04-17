@@ -18,12 +18,6 @@ The suggested package `fastshp` can be installed with:
 install_github("s-u/fastshp")
 ```
 
-If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
-
-```r
-install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
-```
-
 + **Current stable release:** [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
     
     Install from package file:
@@ -55,6 +49,12 @@ install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
     install.packages("devtools")
     library("devtools")
     install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+    ```
+
+    If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
+    
+    ```r
+    install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
     ```
 
 ## Getting started
