@@ -14,7 +14,7 @@ env:
 
 install:
   - sh -e /etc/init.d/xvfb start
-  - Rscript -e 'devtools::session_info(); installed.packages()'
+  - Rscript -e 'unlist(installed.packages()[,"Package"]); devtools::session_info()'
 
 r_build_args: " "
 
@@ -26,10 +26,12 @@ r_binary_packages:
   - boot
   - chron
   - colorspace
+  - devtools
   - dichromat
   - digest
   - ggplot2
   - gtable
+  - knitr
   - labeling
   - lattice
   - latticeextra
