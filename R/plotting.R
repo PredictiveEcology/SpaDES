@@ -964,7 +964,7 @@ setMethod(".arrangeViewports",
 setGeneric(".plotGrob", function(grobToPlot, col=NULL, real=FALSE,
                                 size=unit(5, "points"),
                                 minv, maxv,
-                                legend=TRUE, legendText=NULL,
+                                legend=TRUE, legendText=NULL, length=NULL,
                                 gp=gpar(), gpText=gpar(), pch=19,
                                 speedup=1, ...) {
   standardGeneric(".plotGrob")
@@ -1049,7 +1049,7 @@ setMethod(".plotGrob",
 setMethod(".plotGrob",
           signature=c("SpatialPolygons"),
           definition= function(grobToPlot, col, size,
-                               legend, gp=gpar(), pch, ...) {
+                               legend, gp=gpar(), pch, speedup, ...) {
 
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
@@ -1108,7 +1108,7 @@ setMethod(".plotGrob",
 setMethod(".plotGrob",
           signature=c("SpatialLines"),
           definition= function(grobToPlot, col, size,
-                               legend, gp=gpar(), pch, length, ...) {
+                               legend, length, gp=gpar(), pch, speedup, ...) {
 
             speedupScale = if(grepl(proj4string(grobToPlot), pattern="longlat")) {
               pointDistance(p1=c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
@@ -1920,21 +1920,29 @@ setMethod("Plot",
 
             # This checks that the extents are equal. If not, then x and y axes are written where
             # necessary
-            if (arr@extents[(whPlotFrame-1)%%arr@columns+1][[1]]==
-                  arr@extents[max(which((1:length(arr@names)-1)%%arr@columns+1==
-                                          (whPlotFrame-1)%%arr@columns+1))][[1]]) {
-              if(whPlotFrame>(length(arr@names)-arr@columns)) {
-                xaxis <- TRUE } else { xaxis <- FALSE}
-            } else { #not the same extent as the final one in the column
-              xaxis <- TRUE
+            if(axes=="L") {
+              if (arr@extents[(whPlotFrame-1)%%arr@columns+1][[1]]==
+                    arr@extents[max(which((1:length(arr@names)-1)%%arr@columns+1==
+                                            (whPlotFrame-1)%%arr@columns+1))][[1]]) {
+                if(whPlotFrame>(length(arr@names)-arr@columns)) {
+                  xaxis <- TRUE } else { xaxis <- FALSE}
+              } else { #not the same extent as the final one in the column
+                xaxis <- TRUE
+              }
+            } else {
+              xaxis <- axes
             }
 
-            if(arr@extents[whPlotFrame][[1]]==
+            if(axes=="L") {
+              if(arr@extents[whPlotFrame][[1]]==
                  arr@extents[(ceiling(whPlotFrame/arr@columns)-1)*arr@columns+1][[1]]) {
-              if((whPlotFrame-1)%%arr@columns==0) {
-                yaxis <- TRUE } else { yaxis <- FALSE}
+                if((whPlotFrame-1)%%arr@columns==0) {
+                  yaxis <- TRUE } else { yaxis <- FALSE}
+              } else {
+                  yaxis <- TRUE
+              }
             } else {
-              yaxis <- TRUE
+              yaxis <- axes
             }
 
             takeFromPlotObj=!(sGrob@plotName %in% names(currSpadesPlots@spadesGrobList))
@@ -2047,19 +2055,23 @@ setMethod("Plot",
                legendTxt <- legendText
              }
             legendTxt <- if(!isBaseSubPlot | !isReplot) {NULL}
-
             plotGrobCall <- append(list(zMat$z, col = zMat$cols,
                      size=unit(sGrob@plotArgs$size, "points"),
                      real=zMat$real, minv=zMat$minz, maxv=zMat$maxz,
                      pch=sGrob@plotArgs$pch, name = subPlots,
-                     legend = legend*isBaseSubPlot*isReplot | legend*isBaseSubPlot*isNewPlot, legendText=legendTxt,
+                     legend = sGrob@plotArgs$legend*isBaseSubPlot*isReplot |
+                       sGrob@plotArgs$legend*isBaseSubPlot*isNewPlot,
+                     legendText=sGrob@plotArgs$legendTxt,
                      gp = sGrob@plotArgs$gp,
                      gpText = sGrob@plotArgs$gpText,
                      speedup=sGrob@plotArgs$speedup,
                      length=sGrob@plotArgs$length), nonPlotArgs)
             do.call(.plotGrob, args=plotGrobCall)
-            if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) grid.text(subPlots,
-                               name="title", y=1.08, vjust=0.5, gp = sGrob@plotArgs$gpText)
+            if(sGrob@plotArgs$title*isBaseSubPlot*isReplot |
+                 sGrob@plotArgs$title*isBaseSubPlot*isNewPlot) {
+              grid.text(subPlots, name="title", y=1.08, vjust=0.5,
+                        gp = sGrob@plotArgs$gpText)
+            }
 
 
             if(xaxis*isBaseSubPlot*isReplot | xaxis*isBaseSubPlot*isNewPlot) grid.xaxis(name="xaxis", gp = sGrob@plotArgs$gpAxis)
