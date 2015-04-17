@@ -36,7 +36,9 @@ Download the source tarball (.tar.gz) or windows package binary (.zip), or insta
 
 The suggested package `fastshp` can be installed with:
 
-    install_github("s-u/fastshp")
+```r
+install_github("s-u/fastshp")
+```
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)`.
 
@@ -55,13 +57,17 @@ If the install from GitHub fails during vignette building, you can skip this ste
       
     - Install:
     
-            install.packages("path/to/file", repos=NULL)
+        ```r
+        install.packages("path/to/file", repos=NULL)
+        ```
     
     Install from GitHub:
     
+        ```r
         install.packages("devtools")
         library("devtools")
         install_github("PredictiveEcology/SpaDES") # stable
+        ```
 
 + **Development version (unstable):**
 
