@@ -2,7 +2,7 @@
 layout: frontpage
 title: PredictiveEcology - SpaDES
 description: This is the main web page for the SpaDES R package for spatial discrete event simulation.
-keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, forecasting, ecological forecasting
+keywords: DES, R, spatially explicit models, ABM, agent based model, IBM, individual based model, landscape ecology, ecological forecasting
 ---
 
 <head>
@@ -13,20 +13,15 @@ keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, fo
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 </head>
 
-
-
-
-
-
 -----
 
 # Spatial Discrete Event Simulation (SpaDES)
 
-*Develop and run spatially explicit discrete event simulation models.*
+*Develop and run spatially explicit discrete event simulation models*
 
 Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
-**Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
+**Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
 
 **Wiki:** [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
