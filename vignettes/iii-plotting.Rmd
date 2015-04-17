@@ -3,11 +3,11 @@ title: "03 Plotting with `SpaDES`"
 author: "Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
   html_document:
     self_contained: no
+    toc: yes
+  pdf_document:
+    number_sections: yes
     toc: yes
 vignette: >
   %\VignetteEngine{knitr::knitr}
