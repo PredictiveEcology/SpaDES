@@ -1,6 +1,6 @@
 # Spatial Discrete Event Simulation (SpaDES)
 
-*Develop and run spatially explicit discrete event simulation models*
+### Develop and run spatially explicit discrete event simulation models
 
 Easily implement a variety of simulation models, with a focus on spatially explicit agent based models. The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. Included are numerous tools to visualize raster and other maps.
 
@@ -56,6 +56,18 @@ install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
     library("devtools")
     install_github("PredictiveEcology/SpaDES", ref="development") # unstable
     ```
+
+## Getting started
+
+**Vignettes:**
+
+```r
+browseVignettes(package="SpaDES")
+```
+
+**Wiki:**
+
+[https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
 ## Reporting bugs
 
