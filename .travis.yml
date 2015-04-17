@@ -51,6 +51,7 @@ r_binary_packages:
   - snow
   - sp
   - stringr
+  - testthat
   - tkrplot
   - xts
   - zoo
