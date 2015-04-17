@@ -23,7 +23,7 @@ before_install:
 install:
   - sh -e /etc/init.d/xvfb start
   - ./travis-tool.sh install_r_binary boot chron circstats colorspace data.table dichromat digest downloader dplyr ggplot2 gtable httr igraph labeling lattice latticeextra knitr magrittr mass matrix munsell nlme proto randomfields raster rcolorbrewer rcpp reshape rgdal scales secr snow sp stringr tkrplot xts zoo
-  - ./travis-tool.sh install_github s-u/fastshp
+  - ./travis-tool.sh install_github s-u/fastshp jimhester/covr
   - ./travis-tool.sh install_deps
 
 script:
@@ -31,6 +31,9 @@ script:
 
 after_failure:
   - ./travis-tool.sh dump_logs
+
+after_success:
+  - Rscript -e 'library(covr); coveralls()'
 
 notifications:
   email:
