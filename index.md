@@ -63,7 +63,7 @@ library("devtools")
 install_github("PredictiveEcology/SpaDES") # stable
 ```
 
-### Development version (unstable): [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
+### Development version (unstable) [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
 
 **Install from GitHub:**
 
