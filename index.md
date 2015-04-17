@@ -5,40 +5,11 @@ description: This is the main web page for the SpaDES R package for spatial disc
 keywords: DES, Spatial, R, spatially explicit models, ABM, landscape ecology, forecasting, ecological forecasting
 ---
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-</head>
+Master Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
 
-<div class="wrapper">
-  <header>
-    <h1>SpaDES</h1>
-    <p>R package for developing Spatial Discrete Event Simulation models.</p>
+Development Branch: [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
 
-    <p class="view"><a href="https://github.com/PredictiveEcology/SpaDES">View the Project on GitHub <small>PredictiveEcology/SpaDES</small></a></p>
-
-    <ul>
-      <li><a href="https://github.com/PredictiveEcology/SpaDES/zipball/master">Download <strong>ZIP File</strong></a></li>
-      <li><a href="https://github.com/PredictiveEcology/SpaDES/tarball/master">Download <strong>TAR Ball</strong></a></li>
-      <li><a href="https://github.com/PredictiveEcology/SpaDES">View On <strong>GitHub</strong></a></li>
-    </ul>
-  </header>
-  
-  
-  <footer>
-    <p>This project is maintained by
-    <br>
-  	Eliot McIntire (emcintir at nrcan.gc.ca), and
-  	<br>
-  	Alex Chubaty (achubaty at nrcan.gc.ca)</p>
-    <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-  </footer>
-</div>
-
-<script src="javascripts/scale.fix.js"></script>
+-----
 
 # Spatial Discrete Event Simulation (SpaDES)
 
@@ -48,29 +19,56 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
 
-**A live proof of concept version** [https://spades.shinyapps.io/](https://spades.shinyapps.io/ForestChange_ProofOfConcept)
+**Wiki:** [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
 ## Installation
 
-Download the source tarball (.tar.gz) or windows package binary (.zip):
+Download the source tarball (.tar.gz) or windows package binary (.zip), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
-+ Current stable release:
-    - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.zip)
-    - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/raw/master/SpaDES_0.4.0.tar.gz)
-+ Development version (unstable):
-    - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/raw/development/SpaDES_0.5.0.9000.zip)
-    - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/raw/development/SpaDES_0.5.0.9000.tar.gz)
-
-Alternatively, install `SpaDES` directly from GitHub. You will need the `devtools` package, as well as the appropriate development libraries for your operating system (e.g., Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
-
-    install.packages("devtools")
-    library("devtools")
-  
-    install_github("PredictiveEcology/SpaDES") # stable
-    install_github("PredictiveEcology/SpaDES", ref="development") # unstable
-    
 The suggested package `fastshp` can be installed with:
 
     install_github("s-u/fastshp")
 
 If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using `install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)`.
+
++ **Current stable release:**
+    
+    Install from package file:
+    
+    - Download:
+    
+<ul style="list-style:none; height:40px; padding:0; background: #eee; background: -moz-linear-gradient(top, #f8f8f8 0%, #dddddd 100%); ackground: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd)); background: -webkit-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -o-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -ms-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: linear-gradient(top, #f8f8f8 0%,#dddddd 100%); border-radius:5px;
+  border:1px solid #d2d2d2; box-shadow:inset #fff 0 1px 0, inset rgba(0,0,0,0.03) 0 -1px 0; width:270px;">
+  <li style="width:89px; float:left; border-right:1px solid #d2d2d2; height:40px"><a href="https://github.com/PredictiveEcology/SpaDES/zipball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px">Download <strong>ZIP File</strong></a></li>
+  <li><a href="https://github.com/PredictiveEcology/SpaDES/tarball/master">Download <strong>TAR Ball</strong></a></li>
+  <li><a href="https://github.com/PredictiveEcology/SpaDES">View On <strong>GitHub</strong></a></li>
+</ul>
+
+        - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/zipball/master)
+        - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/tarball/master)
+    
+    - Install:
+    
+            install.packages("path/to/file", repos=NULL)
+    
+    Install from GitHub:
+    
+        install.packages("devtools")
+        library("devtools")
+        install_github("PredictiveEcology/SpaDES") # stable
+
++ **Development version (unstable):**
+
+    Install from GitHub:
+    
+        install.packages("devtools")
+        library("devtools")
+        install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+
+## Reporting bugs
+
+Contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
+
+This project is maintained by Eliot McIntire (emcintir at nrcan.gc.ca) and Alex Chubaty (achubaty at nrcan.gc.ca)
+
+<small>Hosted on GitHub Pages</small>
