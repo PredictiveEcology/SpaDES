@@ -1,7 +1,6 @@
 name: Eliot McIntire
 markdown: redcarpet
 pygments: true
-baseurl: /SpaDES
 
 domain: predictiveecology.org
 author: Eliot McIntire
