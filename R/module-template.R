@@ -66,8 +66,6 @@ setMethod("newModule",
 ###
 ### timestep:     NA
 ###
-### translators:  NA
-###
 ### citation:     NA
 ###
 ### reqdPkgs:     NA
@@ -81,7 +79,7 @@ setMethod("newModule",
 ###                other: NA
 ###
 ### ", name, " module metadata
-defineModule(list(
+defineModule(sim, list(
   name=\"", name, "\",
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),
@@ -89,7 +87,6 @@ defineModule(list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  translators=list(),
   timestep=NA_character_,
   citation=list(),
   reqdPkgs=list(),
