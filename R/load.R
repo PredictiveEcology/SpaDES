@@ -148,15 +148,17 @@ setMethod("loadFiles",
               }
 
               if (is(fileList, "list")) {
-                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments", names(fileList))],
+                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments", 
+                                                                            names(fileList))],
                                                             stringsAsFactors=FALSE))
               } else {
                 fileListdf <- fileList
               }
 
-              # fill in columns if they are missing. Assume loadTime = 0 if missing
+              # fill in columns if they are missing. Assume loadTime = 
+              #   simStartTime(sim) if missing
               if(is.na(match("loadTime", names(fileListdf)))) {
-                fileListdf["loadTime"] <- 0
+                fileListdf["loadTime"] <- simStartTime(sim)
               }
 
               # only load those that are to be loaded at their loadTime
@@ -309,7 +311,8 @@ setMethod("loadFiles",
 
               if(!exists("usedFileList")) usedFileList <- FALSE
 
-              # If filename had been provided, then no need to return sim object, just report files loaded
+              # If filename had been provided, then no need to return sim object, 
+              #   just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
                   simFileList(sim) <- c(as.list(fileListdf), arguments=arguments[keepOnFileList])
@@ -339,7 +342,7 @@ setMethod("loadFiles",
             } else {
               stackName = NA
             }
-
+            
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.globals=list(.stackName=stackName),
                                        .load=list(fileList=fileList)),

@@ -105,15 +105,7 @@ setMethod("show",
                                             quote=FALSE, row.names=FALSE))
             out[[10]] = capture.output(cat("\n"))
 
-            ### file/objects loaded
-            files = simFileList(object)[["files"]]
-            if (!is.null(simFileList(object)[["files"]])) {
-              if (is.null(simFileList(object)[["objectNames"]])) {
-                names = fileName(files)
-              } else {
-                names = objectNames
-              }
-            }
+            ### objects loaded
             out[[11]] = capture.output(cat(">> Objects Loaded:\n"))
             out[[12]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
                                             quote=FALSE, row.names=FALSE))
