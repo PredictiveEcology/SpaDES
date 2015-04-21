@@ -151,14 +151,14 @@ setMethod("loadFiles",
               }
 
               if (is(fileList, "list")) {
-                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments", 
+                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments",
                                                                             names(fileList))],
                                                             stringsAsFactors=FALSE))
               } else {
                 fileListdf <- fileList
               }
 
-              # fill in columns if they are missing. Assume loadTime = 
+              # fill in columns if they are missing. Assume loadTime =
               #   simStartTime(sim) if missing
               if(is.na(match("loadTime", names(fileListdf)))) {
                 fileListdf["loadTime"] <- simStartTime(sim)
@@ -250,10 +250,10 @@ setMethod("loadFiles",
 
                 if(is.na(stackName[x])) {
                   if (loadFun[x]=="raster") {
-                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
+                    message(paste0(objectNames[x]," read from ", fl[x], " using ", loadFun[x],
                                   "(inMemory=",inMemory(get(objectNames[x])),")"))
                     } else {
-                      message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
+                      message(paste0(objectNames[x]," read from ", fl[x], " using ", loadFun[x]))
                    }
                 }
               } # end x
@@ -314,7 +314,7 @@ setMethod("loadFiles",
 
               if(!exists("usedFileList")) usedFileList <- FALSE
 
-              # If filename had been provided, then no need to return sim object, 
+              # If filename had been provided, then no need to return sim object,
               #   just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
@@ -345,7 +345,7 @@ setMethod("loadFiles",
             } else {
               stackName = NA
             }
-            
+
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.globals=list(.stackName=stackName),
                                        .load=list(fileList=fileList)),
