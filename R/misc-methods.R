@@ -436,7 +436,7 @@ setMethod("checkParams",
                       mP <- moduleParams[i]
                       if (!(mP %in% userParams)) {
                         allFound <- FALSE
-                        warning(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
+                        message(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
                       }
                     }
                   }
@@ -446,7 +446,7 @@ setMethod("checkParams",
                 notFound <- setdiff(globalsFound, names(globalParams))
                 if (length(notFound)>0) {
                   allFound <- FALSE
-                  warning(paste("The following global parameters are used in module", uM,
+                  message(paste("The following global parameters are used in module", uM,
                                 "but not supplied to simInit in .globals:", unlist(notFound)))
                 }
               }
