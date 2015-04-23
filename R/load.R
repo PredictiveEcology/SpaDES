@@ -246,11 +246,6 @@ setMethod("loadFiles",
 setMethod("loadFiles",
           signature(sim="missing", fileList="ANY"),
           definition = function(sim, fileList, ...) {
-#             if(any(names(fileList)==".stackName")) {
-#               stackName = fileList$.stackName
-#             } else {
-#               stackName = NA
-#             }
 
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.load=list(fileList=fileList)),
