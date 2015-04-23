@@ -33,7 +33,7 @@ require(SpaDES)
 
 outputPath <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=20.0)
-parameters <- list(.globals=list(.stackName="landscape", .outputPath=outputPath,
+parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
@@ -173,7 +173,7 @@ for (i in 1:nrow(paramsdf)) {
                 simInit(times=list(start=0.0, stop=20.0),
                         params=list(
                           .progress=list(graphical=NA, interval=NA),
-                          .globals=list(.stackName="landscape", burnStats="nPixelsBurned"),
+                          .globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                           randomLandscapes=list(nx=mapSize[i], ny=mapSize[i],
                                                 inRAM=TRUE),
                           fireSpread=list(nFires=1000, spreadprob=pSpread[i],
@@ -253,10 +253,14 @@ fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern="tif"),
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(.load=list(fileList=fileList),
 				             .progress=list(NA),
-                             .globals=list(.stackName="landscape",
+                             .globals=list(stackName="landscape",
                                            burnStats="nPixelsBurned")),
                  modules=list("fireSpread"),
                  path=system.file("sampleModules", package="SpaDES"))
+
+# put layers into a single stack for convenience
+landscape <- stack(DEM, forestCover, forestAge, habitatQuality, percentPine)
+
 spades(mySim)
 ```
 

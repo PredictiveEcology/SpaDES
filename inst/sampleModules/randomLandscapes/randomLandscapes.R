@@ -53,7 +53,7 @@
 ###
 ### inputObjects: NA
 ###
-### outputObjects: objectName: simGlobals(sim)$.stackName
+### outputObjects: objectName: simGlobals(sim)$stackName
 ###                objectClass: RasterStack
 ###                other: NA
 ###
@@ -61,7 +61,7 @@
 # module metadata
 defineModule(sim, list(
   name="randomLandscapes",
-  description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `.stackName` be set.",
+  description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
   keywords=c("random map", "random landscape"),
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
             person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
@@ -83,7 +83,7 @@ defineModule(sim, list(
   inputObjects=data.frame(objectName=character(),
                           objectClass=character(),
                           other=character(), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
+  outputObjects=data.frame(objectName=simGlobals(sim)$stackName,
                            objectClass="RasterStack",
                            other=NA_character_, stringsAsFactors=FALSE)
 ))
@@ -95,12 +95,14 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime, "randomLandscapes", "plot")
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime, "randomLandscapes", "save")
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime, 
+                         "randomLandscapes", "plot")
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime, 
+                         "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(getGlobal(simGlobals(sim)$.stackName))
+    Plot(getGlobal(simGlobals(sim)$stackName))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
@@ -135,7 +137,6 @@ randomLandscapesInit <- function(sim) {
   # Make dummy maps for testing of models
   DEM <- round(gaussMap(template, scale=300, var=0.03, speedup=speedup, inMemory=inMemory), 1)*1000
   forestAge <- round(gaussMap(template, scale=10, var=0.1, speedup=speedup, inMemory=inMemory), 1)*20
-#  forestCover <- round(gaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory),2)*10
   percentPine <- round(gaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory),1)
 
   # Scale them as needed
@@ -154,6 +155,6 @@ randomLandscapesInit <- function(sim) {
                               forestAge=brewer.pal(9,"BuGn"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
-  assignGlobal(simGlobals(sim)$.stackName, mapStack)
+  assignGlobal(simGlobals(sim)$stackName, mapStack)
   return(invisible(sim))
 }

@@ -237,7 +237,7 @@ require(igraph) # required for plotting dependency graph
 require(SpaDES)
 
 times <- list(start=0.0, stop=20)
-parameters <- list(.globals=list(.stackName="landscape", burnStats="nPixelsBurned"))
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
@@ -293,7 +293,7 @@ require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=30)
-parameters <- list(.globals=list(.stackName="landscape"),
+parameters <- list(.globals=list(stackName="landscape"),
                    .checkpoint=list(interval=10, file="chkpnt.RData"))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
@@ -312,7 +312,7 @@ Schedule updates to the simulation progress bar.
 ```{r progress, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
-                 params=list(.globals=list(.stackName="landscape"),
+                 params=list(.globals=list(stackName="landscape"),
                              .progress=list(graphical=FALSE, interval=10)),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES"))
@@ -361,14 +361,14 @@ The key values to include are:
 filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
-                   .globals=list(.stackName="landscape"),
+                   .globals=list(stackName="landscape"),
                    .load=list(fileList=data.frame(files=filelist, stringsAsFactors=FALSE)),
                    randomLandscapes=list(.saveInitialTime=0,
                                          .saveInterval=10,
                                          .saveObjects=c("landscape"),
                                          .savePath=file.path(tempdir(), "output", "randomLandscapes"))
                    ),
-                 modules=list("randomLandscapes"),
+                 modules=list("caribouMovement"),
                  path=system.file("sampleModules", package="SpaDES")
 )
 
@@ -402,7 +402,7 @@ Plotting events can be scheduled similarly to save events, by passing module-spe
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.globals=list(.stackName="landscape"),
+                 params=list(.globals=list(stackName="landscape"),
                    randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
                    ),
                  modules=list("randomLandscapes"),
@@ -436,7 +436,7 @@ Note that you shouldn't edit the sample modules directly, but save them as a cop
 ### Generate random landscapes (`randomLandscapes`)
 
 Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, habitatQuality, percentPine).
-Requires a global simulation parameter `.stackName` be set.
+Requires a global simulation parameter `stackName` be set.
 
 ```{r randomLandscapes, echo=TRUE, eval=FALSE}
 openModules(system.file("sampleModules", package="SpaDES"), "randomLandscapes")
@@ -446,7 +446,7 @@ openModules(system.file("sampleModules", package="SpaDES"), "randomLandscapes")
 
 Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine.
 Fire size statistics are collected immediately after each burn event.
-Requires a global simulation parameter `.stackName` be set.
+Requires a global simulation parameter `stackName` be set.
 
 ```{r fireSpread, echo=TRUE, eval=FALSE}
 openModules(system.file("sampleModules", package="SpaDES"), "fireSpread")
@@ -455,7 +455,7 @@ openModules(system.file("sampleModules", package="SpaDES"), "fireSpread")
 ### Agent based model of caribou movement (`caribouMovement`)
 
 Simulate caribou movement via correlated random walk.
-Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.
+Requires a RasterStack object whose name is specified by `simGlobals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
 
 ```{r caribouMovement, echo=TRUE, eval=FALSE}
 openModules(system.file("sampleModules", package="SpaDES"), "caribouMovement")

@@ -1,20 +1,16 @@
 ---
 title: "03 Plotting with `SpaDES`"
 author: "Eliot J. B. McIntire"
-date: "`r format(Sys.Date(), format='%B %d %Y')`"
+date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
-  html_document:
-    self_contained: no
-    toc: yes
   pdf_document:
     number_sections: yes
     toc: yes
-vignette: >
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{03 Plotting with SpaDES}
-  %\VignetteDepends{ggplot2, magrittr, RColorBrewer, SpaDES}
-  %\VignetteKeyword{visualization, plotting, mapping}
-  %\usepackage[utf8]{inputenc}
+  html_document:
+    self_contained: no
+    toc: yes
+vignette: |
+  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{03 Plotting with SpaDES} %\VignetteDepends{ggplot2, magrittr, RColorBrewer, SpaDES} %\VignetteKeyword{visualization, plotting, mapping} %\usepackage[utf8]{inputenc}
 ---
 
 ```{r initial-clearPlot, eval=TRUE, echo=FALSE, message=FALSE}
@@ -44,8 +40,6 @@ If fine tuning and customization are desired, other plotting tools may be more s
 To demonstrate plotting, we first load some maps. These maps are randomly generated maps that come with the `SpaDES` package.
 In the code snippet below, we create the list of files to load, which is every file in the `maps/` subdirectory of the package.
 Then we load that list of files.
-Because we specified `.stackName` in the fileList, the `loadFiles` function will automatically put the individual layers into a `RasterStack`; the individual layers will, therefore, not be available as individual objects within the R environment.
-If `.stackNames` did not exist, then the individual files would be individual objects.
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
@@ -54,15 +48,14 @@ require(SpaDES)
 fileList <- find.package("SpaDES", quiet=FALSE) %>%
   file.path(., "maps") %>%
   dir(., full.names=TRUE, pattern= "tif") %>%
-  data.frame(files=., functions="rasterToMemory", .stackName="landscape",
+  data.frame(files=., functions="rasterToMemory", 
              packages="SpaDES", stringsAsFactors=FALSE)
 fileList <- fileList[-c(2,5),] # omit forestAge and percentPine for simplicity
 
-# Load files to memory (using rasterToMemory) and stack them
-# (because .stackName is provided above)
+# Load files to memory (using rasterToMemory) 
 loadFiles(fileList=fileList)
-# extract a single one of these rasters
-DEM <- landscape$DEM
+# put into a single stack object for ease of use
+landscape <- stack(DEM, forestCover, habitatQuality)
 ```
 
 \newpage

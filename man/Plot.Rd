@@ -195,15 +195,14 @@ fileList <-
                   "maps"),
         full.names=TRUE, pattern= "tif"),
      functions="rasterToMemory",
-     .stackName="landscape",
      packages="SpaDES",
      stringsAsFactors=FALSE)
 
-# Load files to memory (using rasterToMemory) and stack them (because .stackName is provided above)
+# Load files to memory (using rasterToMemory)
 loadFiles(fileList=fileList)
 
-# extract a single one of these rasters
-DEM <- landscape$DEM
+# put layers into a single stack for convenience
+landscape <- stack(DEM, forestCover, forestAge, habitatQuality, percentPine)
 
 # can change color palette
 setColors(landscape, n = 50)<-list(DEM=topo.colors(50),

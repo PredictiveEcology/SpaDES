@@ -42,6 +42,9 @@ Other optional columns are:
 - \code{objectNames}: a character string indicating the name of the object once the
 file is loaded. Default is to use the file names, with file extension removed.
 
+- \code{package}: a character string indicating the package that the function is found in.
+There is no default.
+
 - \code{functions}: a character string indicating the function to be used to load the file.
 Default is to use the mapping between file extensions in the \code{.fileExtensions} function
 and the actual file extensions.
@@ -55,12 +58,6 @@ simTime=0,but this can be any time. The loading will be scheduled to occur
 at the "loadTime", whatever that is. If the same file is to loaded many times,
 but not at a regular interval, then there should be separate line, with a unique
 loadTime for each.
-
-- \code{.stackName}: a character (vector) indicating the name(s) of the RasterStack(s)
-to stack all the RasterLayers into. If left blank, then the individual RasterLayers will
-not be automatically stacked. If this is specified, the individual RasterLayers loaded
-will not actually be created as individual R objects; they will be loaded directly
-into the stack. Finally, the behaviour here is
 
 - \code{arguments}: is a list of lists of named arguments, one list for each loading function.
 For example, if raster is a loading function, arguments = list(native = TRUE). If there is only

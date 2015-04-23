@@ -44,7 +44,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' - \code{objectNames}: a character string indicating the name of the object once the
 #' file is loaded. Default is to use the file names, with file extension removed.
 #'
-#' - \code{package}: a character string indicating the package that the function is found in. 
+#' - \code{package}: a character string indicating the package that the function is found in.
 #' There is no default.
 #'
 #' - \code{functions}: a character string indicating the function to be used to load the file.
@@ -60,12 +60,6 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' at the "loadTime", whatever that is. If the same file is to loaded many times,
 #' but not at a regular interval, then there should be separate line, with a unique
 #' loadTime for each.
-#'
-#' - \code{.stackName}: a character (vector) indicating the name(s) of the RasterStack(s)
-#' to stack all the RasterLayers into. If left blank, then the individual RasterLayers will
-#' not be automatically stacked. If this is specified, the individual RasterLayers loaded
-#' will not actually be created as individual R objects; they will be loaded directly
-#' into the stack. Finally, the behaviour here is
 #'
 #' - \code{arguments}: is a list of lists of named arguments, one list for each loading function.
 #' For example, if raster is a loading function, arguments = list(native = TRUE). If there is only
@@ -151,14 +145,14 @@ setMethod("loadFiles",
               }
 
               if (is(fileList, "list")) {
-                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments", 
+                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments",
                                                                             names(fileList))],
                                                             stringsAsFactors=FALSE))
               } else {
                 fileListdf <- fileList
               }
 
-              # fill in columns if they are missing. Assume loadTime = 
+              # fill in columns if they are missing. Assume loadTime =
               #   simStartTime(sim) if missing
               if(is.na(match("loadTime", names(fileListdf)))) {
                 fileListdf["loadTime"] <- simStartTime(sim)
@@ -168,8 +162,6 @@ setMethod("loadFiles",
               filesCurTime <- fileListdf[fileListdf$loadTime==curTime,]
 
               fl <- filesCurTime$file
-
-              #fl.list <- strsplit(basename(fl), ".", fixed=TRUE)
 
               # extract file extensions, to be used to determine which function to use
               exts <- match(fileExt(fl), .fileExts[,"exts"])
@@ -190,37 +182,6 @@ setMethod("loadFiles",
                  objectNames[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
                }
 
-              # identify arguments
-              #arguments <- filesCurTime$arguments
-
-              # raster function sometimes loads file to disk; this will be made explicit
-              where <- c("disk", "memory")
-              if(length(simGlobals(sim)$.stackName)==1) {
-                stackName=rep(simGlobals(sim)$.stackName, length(objectNames))
-              } else if (length(simGlobals(sim)$.stackName)==length(objectNames)){
-                stackName=simGlobals(sim)$.stackName
-              } else if (is.null(simGlobals(sim)$.stackName)) {
-                stackName=rep(NA, length(objectNames))
-                simGlobals(sim)$.stackName <- NA_character_
-              } else {
-                stop(".stackName must be same length as fileList or length=1")
-              }
-
-              if(any(unique(simGlobals(sim)$.stackName) %in% ls(envir=.GlobalEnv)))
-                rm(list=unique(simGlobals(sim)$.stackName), envir=.GlobalEnv)
-
-              # create empty stack
-              localStacks = list()
-              if(!is.na(unique(stackName))) {
-                for(uniqueStacki in unique(stackName)) {
-                  if(exists(uniqueStacki, envir=.GlobalEnv)) {
-                    localStacks[uniqueStacki] <- get(uniqueStacki)
-                  } else {
-                    localStacks[uniqueStacki] <- stack()
-                  }
-                }
-              }
-
               # load files
               for (x in 1:length(fl)) {
                 nam = names(arguments[x])
@@ -233,72 +194,19 @@ setMethod("loadFiles",
                 }
 
                 # The actual load call
-                if(is.na(stackName[x])) {
-                  assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
-                  #assign(objectNames[x], get(objectNames[x], envir=.GlobalEnv), envir=.GlobalEnv)
-                } else {
-                  whLayer <- which(names(localStacks[[stackName[x]]])==objectNames[x])
-                  if (length(whLayer)>0) {
-                    localStacks[[stackName[x]]][[whLayer]] <- do.call(get(loadFun[x]),
-                                                                      args=argument)
-                  } else {
-                    localStacks[[stackName[x]]] <- stack(localStacks[[stackName[x]]],
-                                                         do.call(get(loadFun[x]), args=argument))
-                  }
-                }
+                assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
+
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
-                if(is.na(stackName[x])) {
-                  if (loadFun[x]=="raster") {
-                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
-                                  "(inMemory=",inMemory(get(objectNames[x])),")"))
-                    } else {
-                      message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
-                   }
-                }
+
+                if (loadFun[x]=="raster") {
+                  message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
+                                "(inMemory=",inMemory(get(objectNames[x])),")"))
+                  } else {
+                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
+                 }
+
               } # end x
-
-
-              if(!is.na(unique(stackName))) {
-                for(uniqueStacki in unique(stackName)) {
-                  #name(localStacks[[uniqueStacki]]) <- uniqueStacki
-                  assign(uniqueStacki, localStacks[[uniqueStacki]],
-                         envir=.GlobalEnv)
-                  message(paste("individual files have been stacked into",uniqueStacki,
-                                "and are not individual RasterLayers"))
-                }
-              }
-
-
-              # rasters sometimes don't load with their min and max values set
-
-              #    israst = sapply(objectNames, function(x) is(get(x), "Raster"))
-              #    a = lapply(objectNames[israst], function(x) {
-              #      assign(x, setMinMax(get(x)), envir=.GlobalEnv)
-              #    })
-
-              #               if(!all(is.na(stackName))) {
-              #                 for(uniqueStacki in unique(stackName)) {
-              #                   whichUniqueStacki <- which(!is.na(match(stackName, uniqueStacki)))
-              #                   extents <- lapply(mget(objectNames[whUniqueStacki],
-              #                                          envir=.GlobalEnv), extent)
-              #                   extents.equal = logical(length(extents)-1)
-              #                   for (i in 1:(length(extents)-1)){
-              #                     extents.equal[i] = (extents[[1]] == extents[[i]])
-              #                   }
-              #                   if (all(extents.equal)) {
-              #                     newStack <- stack(mget(objectNames[whichUniqueStacki], envir=.GlobalEnv))
-              #                     name(newStack) <- uniqueStacki
-              #                     assign(uniqueStacki, newStack, envir=.GlobalEnv)
-              #                   } else {
-              #                     warning("Cannot stack objects because they don't have same extents,
-              #                             Returning individual objects to global environment")
-              #                   }
-              #                   rm(list=objectNames, envir=.GlobalEnv)
-              #                   warning(paste(paste(objectNames, collapse=", "),
-              #                                 "were deleted; they are in the", stackName, "stack"))
-              #                 }
-              #               }
 
               # add new rows of files to load based on fileListdf$Interval
               if(!is.na(match("intervals", names(fileListdf)))) {
@@ -314,7 +222,7 @@ setMethod("loadFiles",
 
               if(!exists("usedFileList")) usedFileList <- FALSE
 
-              # If filename had been provided, then no need to return sim object, 
+              # If filename had been provided, then no need to return sim object,
               #   just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
@@ -329,8 +237,6 @@ setMethod("loadFiles",
                   sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
                 }
               }
-#            } else {
-#              message("No files loaded, because no fileList (or empty fileList) provided.")
             }
             message("") ## print empty message to add linebreak to console message output
             return(invisible(sim))
@@ -340,15 +246,14 @@ setMethod("loadFiles",
 setMethod("loadFiles",
           signature(sim="missing", fileList="ANY"),
           definition = function(sim, fileList, ...) {
-            if(any(names(fileList)==".stackName")) {
-              stackName = fileList$.stackName
-            } else {
-              stackName = NA
-            }
-            
+#             if(any(names(fileList)==".stackName")) {
+#               stackName = fileList$.stackName
+#             } else {
+#               stackName = NA
+#             }
+
             sim <- simInit(times=list(start=0.0, stop=1),
-                           params=list(.globals=list(.stackName=stackName),
-                                       .load=list(fileList=fileList)),
+                           params=list(.load=list(fileList=fileList)),
                            modules=list(), path=".")
             return(invisible(sim))
 })
