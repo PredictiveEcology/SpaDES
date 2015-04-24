@@ -14,17 +14,14 @@ URL: https://github.com/PredictiveEcology/SpaDES
 Version: 0.6.0.9002
 Date: 2015-04-14
 Authors@R: c(
-    person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
-    role="cph"),
-    person(c("Alex", "M"), "Chubaty",
-    email="achubaty@NRCan.gc.ca",
+    person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
-    person(c("Eliot", "J", "B"), "McIntire",
-    email="emcintir@NRCan.gc.ca",
+    person(c("Eliot", "J", "B"), "McIntire", email="emcintir@NRCan.gc.ca",
     role=c("aut")),
-    person("Steve", "Cumming",
-    email="Steve.Cumming@sbf.ulaval.ca",
-    role=c("ctb"))
+    person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
+    role=c("ctb")),
+    person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
+    role="cph")
     )
 Depends:
     R (>= 3.1.2),
