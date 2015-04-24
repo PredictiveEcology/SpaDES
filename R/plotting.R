@@ -2144,6 +2144,7 @@ setMethod(".makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
                               cols, na.color, zero.color, skipSample=TRUE) {
+            
             zoom <- zoomExtent
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
@@ -2247,6 +2248,9 @@ setMethod(".makeColorMatrix",
             }
             z <- z + 1 # for the NAs
             z[is.na(z)] <- max(1, minz)
+            
+            #if there are no zeros in the data, then don't shift colors
+            if(minz!=0) cols <- cols[-1]
 
             cols<-c(na.color, cols) # make first index of colors be transparent
             if((minz>1) | (minz<0)) {
