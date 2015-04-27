@@ -2,8 +2,8 @@
 #' Simulate a spread process on a landscape.
 #'
 #' This can be used to simulated fires or other things. Essentially, it starts from a collection of cells
-#' (\code{loci}) and spreads to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
-#' This can become quite general, if \code{spreadProb} is 1 as it will expand from every loci until all pixels
+#' (\code{loci}) and spreads to neighbours, according to the \code{directions} and \code{spreadProbPixel} arguments.
+#' This can become quite general, if \code{spreadProbPixel} is 1 as it will expand from every loci until all pixels
 #' in the landscape have been covered. With \code{mapID} set to \code{TRUE}, the resulting map will be
 #' classified by the index of the pixel where that event propagated from. This can be used to examine things like
 #' fire size distributions.
@@ -12,7 +12,7 @@
 #'
 #' @param loci          A vector of locations in \code{landscape}
 #'
-#' @param spreadProb    Numeric or rasterLayer. The overall probability of spreading, or probability raster
+#' @param spreadProbPixel    Numeric or rasterLayer. The overall probability of spreading, or probability raster
 #' driven.
 #'
 #' @param persistence   A probability that a burning cell will continue to burn, per time step.
@@ -44,7 +44,7 @@
 #' @aliases spread
 #' @rdname spread
 #'
-setGeneric("spread", function(landscape, loci=ncell(landscape)/2L, spreadProb=0.23,
+setGeneric("spread", function(landscape, loci=ncell(landscape)/2L, spreadProbPixel=0.23,
                               persistence=0L, mask=NULL, maxSize=rep_len(ncell(landscape), length(loci)),
                               directions=8L, iterations=NULL, ...) {
   standardGeneric("spread")
@@ -108,22 +108,21 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2L, spreadProb=0.
 #'
 setMethod("spread",
           signature(landscape="RasterLayer"),
-          definition = function(landscape, loci, spreadProb, persistence,
+          definition = function(landscape, loci, spreadProbPixel, persistence,
                                 mask, maxSize=rep_len(ncell(landscape), length(loci)),
                                 directions=8L, iterations = NULL, mapID=FALSE,
-                                plot.it=FALSE, clusterStopFn, dist, ...) {
+                                plot.it=FALSE, spreadProbCluster, dist, ...) {
             ### should sanity check map extents
-browser()
             if (is.null(loci))  {
               # start it in the centre cell
               loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
             }
 
-            if(is(spreadProb,"RasterLayer")) {
-              if (minValue(spreadProb)>1L) stop("spreadProb is not a probability")
-              if (maxValue(spreadProb)<0L) stop("spreadProb is not a probability")
+            if(is(spreadProbPixel,"RasterLayer")) {
+              if (minValue(spreadProbPixel)>1L) stop("spreadProbPixel is not a probability")
+              if (maxValue(spreadProbPixel)<0L) stop("spreadProbPixel is not a probability")
             } else {
-              if (!inRange(spreadProb)) stop("spreadProb is not a probability")
+              if (!inRange(spreadProbPixel)) stop("spreadProbPixel is not a probability")
             }
 
             ## Recycling maxSize as needed
@@ -144,17 +143,17 @@ browser()
               size <- length(loci)
             }
 
-            # Convert mask and NAs to 0 on the spreadProb Raster
-            if (is(spreadProb, "Raster")) {
-              spreadProb[is.na(spreadProb)]<-0L
+            # Convert mask and NAs to 0 on the spreadProbPixel Raster
+            if (is(spreadProbPixel, "Raster")) {
+              spreadProbPixel[is.na(spreadProbPixel)]<-0L
               if(!is.null(mask)) {
-                spreadProb[mask==1L]<-0L
+                spreadProbPixel[mask==1L]<-0L
               }
-            } else if (is.numeric(spreadProb)) { # Translate numeric spreadProb into a Raster
+            } else if (is.numeric(spreadProbPixel)) { # Translate numeric spreadProbPixel into a Raster
               #  if there is a mask Raster
               if(!is.null(mask)) {
-                spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
-                spreadProb[mask==1L]<-0L
+                spreadProbPixel <- raster(extent(landscape), res=res(landscape), vals=spreadProbPixel)
+                spreadProbPixel[mask==1L]<-0L
               }
             }
 
@@ -173,20 +172,10 @@ browser()
               potentials <- potentials[spreads[potentials[,2L]]==0L,,drop=FALSE]
 
 
-              if (is.numeric(spreadProb)) {
-                spreadProbs <- spreadProb
+              if (is.numeric(spreadProbPixel)) {
+                spreadProbs <- spreadProbPixel
               } else {
-                spreadProbs <- spreadProb[potentials[,2L]]
-              }
-
-              if(dist) {
-                potentials <- cbind(potentials,dist=pointDistance(xyFromCell(hab, potentials[,1]),
-                                                xyFromCell(hab,potentials[,2]),
-                                                lonlat=FALSE))
-              }
-              if(!is.null(clusterStopFn)) {
-                clusterStopFn <- expression(1/potentials[,3]*spreadProbs)
-                potentials <- cbind(potentials,TF=runif(NROW(potentials))<eval(clusterStopFn))
+                spreadProbs <- spreadProbPixel[potentials[,2L]]
               }
 
               potentials <- potentials[runif(NROW(potentials)) <= spreadProbs,,drop=FALSE]
@@ -268,5 +257,168 @@ browser()
             spre <- raster(landscape)
             spre <- setValues(spre, spreads)
             return(spre)
+          }
+)
+
+
+
+
+setGeneric("landisWardSpread", function(seedSrc, loci=ncell(landscape)/2L, spreadProbPixel=0.23,
+                              persistence=0L, mask=NULL, maxSize=rep_len(ncell(landscape), length(loci)),
+                              directions=8L, iterations=NULL, ...) {
+  standardGeneric("landisWardSpread")
+})
+
+
+
+setMethod("landisWardSpread",
+          signature(seedSrc="RasterLayer"),
+          definition = function(seedSrc, loci, spreadProbPixel, persistence,
+                                mask, maxSize=rep_len(ncell(seedSrc), length(loci)),
+                                directions=8L, iterations = NULL, mapID=FALSE,
+                                plot.it=FALSE, spreadProbCluster, dist, ...) {
+            ### should sanity check map extents
+            if (is.null(loci))  {
+              # start it in the centre cell
+              loci <- (nrow(seedSrc)/2L + 0.5) * ncol(seedSrc)
+            }
+            nInitial <- length(loci)
+            lociReturn <- data.table(fromInit=loci,key="fromInit")
+            seedsArrived <- data.table(fromInit=numeric(),key="fromInit")
+
+            if(is(spreadProbPixel,"RasterLayer")) {
+              if (minValue(spreadProbPixel)>1L) stop("spreadProbPixel is not a probability")
+              if (maxValue(spreadProbPixel)<0L) stop("spreadProbPixel is not a probability")
+            } else {
+              if (!inRange(spreadProbPixel)) stop("spreadProbPixel is not a probability")
+            }
+            hab1 <- raster(getGlobal("hab"))
+            assignGlobal("hab1",hab)
+            Plot(seedSrc, new=TRUE)
+
+
+            ## Recycling maxSize as needed
+            maxSize <- rep_len(maxSize, length(loci))
+
+            spreads <- vector("integer", ncell(seedSrc))
+
+            n <- 1L
+            if (mapID) {
+              spreads[loci] <- 1L:length(loci)
+              if(length(maxSize) > 1L){
+                size <- rep_len(1L, length(loci))
+              } else {
+                size <- length(loci)
+              }
+            } else {
+              spreads[loci] <- n
+              size <- length(loci)
+            }
+
+            # Convert mask and NAs to 0 on the spreadProbPixel Raster
+            if (is(spreadProbPixel, "Raster")) {
+              spreadProbPixel[is.na(spreadProbPixel)]<-0L
+              if(!is.null(mask)) {
+                spreadProbPixel[mask==1L]<-0L
+              }
+            } else if (is.numeric(spreadProbPixel)) { # Translate numeric spreadProbPixel into a Raster
+              #  if there is a mask Raster
+              if(!is.null(mask)) {
+                spreadProbPixel <- raster(extent(seedSrc), res=res(seedSrc), vals=spreadProbPixel)
+                spreadProbPixel[mask==1L]<-0L
+              }
+            }
+
+            potentialsInit <- data.table("fromInit"=loci,key="fromInit")
+            potentialsInit[,from:=fromInit]
+            setkey(potentialsInit,"from", "fromInit")
+            potentials <- copy(potentialsInit)
+
+
+            while (length(loci) & (n<=maxDist)) { # while there are active cells
+
+              # identify neighbours
+              adjCells <- adj(seedSrc, loci, directions, pairs=TRUE) %>%
+                    data.table(key="from")
+              if(n>1) {
+                potentials[,`:=`(from=NULL,dis=NULL)][,from:=to][,to:=NULL]
+                setkey(potentials,"from", "fromInit")
+                potentials <- potentials[adjCells]
+              } else {
+                potentials <- potentialsInit[adjCells]
+              }
+              #adjCells[potentials]
+#              potentials
+hab1[potentials[,from]] <- n
+assignGlobal("hab1",hab1)
+Plot(hab1, addTo="seedSrc")
+
+
+              # keep only neighbours that have not been landisWardSpread to yet, within each
+              # cluster. This means that a cell can't spread backwards, but two different
+              # clusters can be on the same cell
+              potentials <- potentials[from!=to,.SD,by="fromInit"]
+              # Don't know how to do next within data.table syntax - remove duplicate "to"
+              #  within a cluster
+              potentials  <- potentials %>%
+                group_by(fromInit) %>%
+                filter(!duplicated(to))
+
+              nr <- NROW(potentials)
+              xys <- xyFromCell(hab, as.matrix(potentials[,list(fromInit,to)]))
+              potentials[,dis:=pointDistance(xys[1:nr,], xys[(nr+1):(2*nr),], lonlat=FALSE)]
+
+              # discard those that more than "n" units from a "from" cell. This keeps spreading
+              #   in a circle. It is somewhat wasteful, because the distances are calculated above
+              #   and then deleted on the next line, but this may be the most efficient way
+              potentials <- potentials[((n-1) < dis) & (dis <= n),]
+              potentialsWithSeed <- as.logical(seedSrc[potentials[,to]])
+              if(any(potentialsWithSeed)) {
+
+                cellFn <- expression(if(cellSize<=effDist) {
+                  ifelse(dis<effDist,
+                                   exp((dis-cellSize)*log(1-k)/effDist)-
+                                         exp(dis*log(1-k)/effDist),
+                                   (1-k)*exp((dis-cellSize-EffDist)*log(b)/maxDist)-
+                                          (1-k)*exp((dis-effDist)*log(b)/maxDist))
+                } else {
+                  ifelse(dis==cellSize,
+                         exp((dis-cellSize)*log(1-k)/effDist)-(1-k)*
+                                         exp((dis-effDist)*log(b)/maxDist),
+                         (1-k)*exp((dis-cellSize-EffDist)*log(b)/maxDist)-
+                                     (1-k)*exp((dis-effDist)*log(b)/maxDist))
+                })
+
+                potentialsWithSeedDT  <- potentials[potentialsWithSeed,]
+                nr <- NROW(potentialsWithSeedDT)
+                setkey(potentialsWithSeedDT, "fromInit")
+                pot <- copy(potentialsWithSeedDT)
+                browser()
+
+                potentialsWithSeedDT[,receivesSeeds:=runif(nr)<eval(cellFn)]
+                receivedSeeds <- potentialsWithSeedDT[,any(receivesSeeds), by="fromInit"]
+                #lociReturn <- lociReturn[receivedSeeds]
+
+
+
+                #drop any that received seeds from potentials, as they are now in lociReturn
+                if(NROW(receivedSeeds[V1==TRUE])>0) {
+                  seedsArrived <- rbindlist(list(seedsArrived,lociReturn[receivedSeeds[V1==TRUE]][,V1:=NULL]))
+                  potentials <- potentials[receivedSeeds[V1==TRUE]]
+                }
+#                  potentials <- potentials[!(potentials[,from] %in% lociReturn[V1==TRUE,from])]
+              }
+
+              loci <- NULL
+
+              events <- potentials[,to]
+
+              n <- n+1L
+
+              loci <- c(loci, events)
+
+            }
+            return(seedsArrived)
+
           }
 )
