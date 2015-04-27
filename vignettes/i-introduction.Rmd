@@ -152,7 +152,15 @@ A list of completed events is also stored, which can provide useful debugging in
 A new simulation is initialized using the `simInit` function, which does all the work of creating the `simList` object for your simulation.
 This function also attempts to provide additional feedback to the user regarding parameters that may be improperly specified.
 
-You can inspect the contents of a `simList` object as you would any other `R` object (*e.g.*, `show(mySim)`).
+You can inspect the contents of a `simList` object as you would any other `R` object (*e.g.*, `show(mySim)`). Simulation module object dependencies can be viewed using:
+
+```{r view-dependencies, eval=FALSE, echo=TRUE}
+library(igraph)
+Plot(depsGraph(mySim, TRUE)) # plots simplified dependency graph
+depsEdgeList(mySim, FALSE)   # data.frame of all object dependencies
+```
+
+function, or viewed directly by printing the output of the `depsEdgeList` function.
 
 ## Running a simulation: the `spades` function
 
