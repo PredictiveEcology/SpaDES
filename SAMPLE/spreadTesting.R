@@ -33,8 +33,8 @@ setColors(seedSrc,1) <- c("white","black")
 load_all()
 seedRcv <- as.integer(sample(1:ncell(hab), 3000))
 rm(seeds)
-system.time(seeds <- landisWardSpread(seedSrc, seedRcv=seedRcv, plot.it=FALSE))
+system.time(seeds <- seedDispRcv(seedSrc, seedRcv=seedRcv, plot.it=FALSE))
 print(length(seeds))
 
-seeds <- landisWardSpread(seedSrc, seedRcv=c(1054,8115),spreadProbCluster=NULL,
+seeds <- seedDispRcv(seedSrc, seedRcv=c(1054,8115),spreadProbCluster=NULL,
                    spreadProbPixel=0.235, 0, NULL, 1e8, 8, 1e6, dist=TRUE)
