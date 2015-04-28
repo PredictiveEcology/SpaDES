@@ -10,6 +10,9 @@
 #'
 #' Simple wrapper for \code{\link{assign}}.
 #'
+#' If value is omitted, then the function will get a local object with
+#' name = \code{x}, via \code{get(x, envir=parent.frame())}
+#'
 #' @param x   a variable name, given as a character string.
 #'            No coercion is done, and the first element of a character vector
 #'            of length greater than one will be used, with a warning.
@@ -40,8 +43,9 @@ setMethod("assignGlobal",
 setMethod("assignGlobal",
           signature(x="character", value="missing"),
           definition=function(x, value, ...) {
-            assign(x, get(x), envir=.GlobalEnv, ...)
+            assign(x, get(x, envir=parent.frame()), envir=.GlobalEnv, ...)
 })
+
 
 #' Is an object defined in the global environment?
 #'
