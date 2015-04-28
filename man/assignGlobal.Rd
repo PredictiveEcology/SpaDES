@@ -26,6 +26,10 @@ assignGlobal(x, value, ...)
 \description{
 Simple wrapper for \code{\link{assign}}.
 }
+\details{
+If value is omitted, then the function will get a local object with
+name = \code{x}, via \code{get(x, envir=parent.frame())}
+}
 \author{
 Alex Chubaty
 }
