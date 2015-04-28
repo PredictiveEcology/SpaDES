@@ -22,18 +22,20 @@ Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
 # so, some details are lost
 
 # initiate 10 fires at to loci
-effDist = 160
-maxDist = 180
+effDist = 5
+maxDist = 10
 b = 0.01
 k = 0.95
-cellSize=1
+cellSize=20
 seedSrc <- hab>5
 setColors(seedSrc,1) <- c("white","black")
-loci <- as.integer(sample(1:ncell(hab), 10))
 
 load_all()
+loci <- as.integer(sample(1:ncell(hab), 30))
+rm(seeds)
 seeds <- landisWardSpread(seedSrc, loci=loci,spreadProbCluster=NULL,
-                spreadProbPixel=0.235, 0, NULL, 1e8, 8, 1e6, dist=TRUE)
+                          spreadProbPixel=0.235, 0, NULL, 1e8, 8, 1e6, dist=TRUE)
+print(length(seeds))
 
 seeds <- landisWardSpread(seedSrc, loci=c(1054,8115),spreadProbCluster=NULL,
                    spreadProbPixel=0.235, 0, NULL, 1e8, 8, 1e6, dist=TRUE)

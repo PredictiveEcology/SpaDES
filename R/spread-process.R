@@ -343,15 +343,15 @@ setMethod("landisWardSpread",
               if(n>1) {
                 potentials[,`:=`(from=NULL,dis=NULL)][,from:=to][,to:=NULL]
                 setkey(potentials,"from", "fromInit")
-                potentials <- potentials[adjCells]
+                potentials <- potentials[adjCells, allow.cartesian=TRUE]
+
               } else {
-                potentials <- potentialsInit[adjCells]
+                potentials <- potentials[adjCells, allow.cartesian=TRUE]
               }
-              #adjCells[potentials]
-#              potentials
-hab1[potentials[,from]] <- n
-assignGlobal("hab1",hab1)
-Plot(hab1, addTo="seedSrc")
+
+               hab1[potentials[,from]] <- n
+               assignGlobal("hab1",hab1)
+               Plot(hab1, addTo="seedSrc")
 
 
               # keep only neighbours that have not been landisWardSpread to yet, within each
@@ -379,13 +379,13 @@ Plot(hab1, addTo="seedSrc")
                   ifelse(dis<effDist,
                                    exp((dis-cellSize)*log(1-k)/effDist)-
                                          exp(dis*log(1-k)/effDist),
-                                   (1-k)*exp((dis-cellSize-EffDist)*log(b)/maxDist)-
+                                   (1-k)*exp((dis-cellSize-effDist)*log(b)/maxDist)-
                                           (1-k)*exp((dis-effDist)*log(b)/maxDist))
                 } else {
                   ifelse(dis==cellSize,
                          exp((dis-cellSize)*log(1-k)/effDist)-(1-k)*
                                          exp((dis-effDist)*log(b)/maxDist),
-                         (1-k)*exp((dis-cellSize-EffDist)*log(b)/maxDist)-
+                         (1-k)*exp((dis-cellSize-effDist)*log(b)/maxDist)-
                                      (1-k)*exp((dis-effDist)*log(b)/maxDist))
                 })
 
@@ -393,32 +393,25 @@ Plot(hab1, addTo="seedSrc")
                 nr <- NROW(potentialsWithSeedDT)
                 setkey(potentialsWithSeedDT, "fromInit")
                 pot <- copy(potentialsWithSeedDT)
-                browser()
 
                 potentialsWithSeedDT[,receivesSeeds:=runif(nr)<eval(cellFn)]
                 receivedSeeds <- potentialsWithSeedDT[,any(receivesSeeds), by="fromInit"]
-                #lociReturn <- lociReturn[receivedSeeds]
-
-
 
                 #drop any that received seeds from potentials, as they are now in lociReturn
                 if(NROW(receivedSeeds[V1==TRUE])>0) {
                   seedsArrived <- rbindlist(list(seedsArrived,lociReturn[receivedSeeds[V1==TRUE]][,V1:=NULL]))
-                  potentials <- potentials[receivedSeeds[V1==TRUE]]
+                  setkey(seedsArrived, "fromInit")
+                  setkey(potentials, "fromInit")
+                  potentials <- potentials[!seedsArrived]
                 }
-#                  potentials <- potentials[!(potentials[,from] %in% lociReturn[V1==TRUE,from])]
               }
 
-              loci <- NULL
-
-              events <- potentials[,to]
-
               n <- n+1L
-
-              loci <- c(loci, events)
+              # refresh so that "to" cells become new "from cells
+              loci <- potentials[,to]
 
             }
-            return(seedsArrived)
+            return(as.matrix(seedsArrived))
 
           }
 )
