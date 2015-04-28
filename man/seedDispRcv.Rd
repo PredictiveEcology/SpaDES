@@ -6,21 +6,19 @@
 \alias{seedDispRcv,RasterLayer-method}
 \title{Simulate a seedDispRcv process on a landscape.}
 \usage{
-seedDispRcv(seedSrc, seedRcv = ncell(seedSrc)/2L, directions = 8L,
-  dispersalFn = Ward, effDist = 4, maxDist = 15, b = 0.01, k = 0.95,
-  plot.it = FALSE, ...)
+seedDispRcv(seedSrc, seedRcv = ncell(seedSrc)/2L, dispersalFn = Ward,
+  effDist = 100, maxDist = 150, b = 0.01, k = 0.95, plot.it = FALSE,
+  ...)
 
 \S4method{seedDispRcv}{RasterLayer}(seedSrc, seedRcv = ncell(seedSrc)/2L,
-  directions = 8L, dispersalFn = Ward, effDist = 4, maxDist = 15,
-  b = 0.01, k = 0.95, plot.it = FALSE, ...)
+  dispersalFn = Ward, effDist = 100, maxDist = 150, b = 0.01,
+  k = 0.95, plot.it = FALSE, ...)
 }
 \arguments{
 \item{seedSrc}{A \code{RasterLayer} object where pixels indicate the presence (or abundance) of seed source
 pixels}
 
 \item{seedRcv}{A vector of indexes (i.e., locations) within the same \code{RasterLayer} as \code{seedSrc}.}
-
-\item{directions}{The number adjacent cells in which to look; default is 8 (Queen case). See \code{\link{adj}}}
 
 \item{dispersalFn}{An expression that can take a "dis" argument. See details. Default is "Ward"}
 
@@ -66,19 +64,16 @@ library(raster)
 library(dplyr)
 
 # Make random forest cover map
-a <- raster(extent(0,1e2,0,1e2),res=1)
+a <- raster(extent(0,1e5,0,1e5),res=100)
 hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 names(hab)="hab"
-cells <- seedRcv <- b <- as.integer(sample(1:ncell(a),1e1))
-numCol <- ncol(a)
-numCell <- ncell(a)
-directions <- 8
 
 seedSrc <- hab>5
 setColors(seedSrc,1) <- c("white","black")
 
-seedRcv <- as.integer(sample(1:ncell(hab), 30))
-system.time(seeds <- seedDispRcv(seedSrc, seedRcv=seedRcv, plot.it=TRUE))
+seedRcv <- as.integer(sample(1:ncell(hab), 1000))
+system.time(seeds <- seedDispRcv(seedSrc, seedRcv=seedRcv,
+  maxDist=250, plot.it=TRUE))
 seedRcvRaster <- raster(seedSrc)
 if(length(seeds)>0) {
   seedRcvRaster[seeds] <- 1

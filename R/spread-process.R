@@ -288,8 +288,6 @@ setMethod("spread",
 #'
 #' @param seedRcv  A vector of indexes (i.e., locations) within the same \code{RasterLayer} as \code{seedSrc}.
 #'
-#' @param directions  The number adjacent cells in which to look; default is 8 (Queen case). See \code{\link{adj}}
-#'
 #' @param dispersalFn  An expression that can take a "dis" argument. See details. Default is "Ward"
 #'
 #' @param plot.it  If TRUE, then plot the raster at every iteraction, so one can watch the
@@ -319,8 +317,8 @@ setMethod("spread",
 #' @aliases seedDispRcv
 #' @rdname seedDispRcv
 setGeneric("seedDispRcv", function(seedSrc, seedRcv=ncell(seedSrc)/2L,
-                              directions=8L, dispersalFn=Ward,
-                              effDist=4, maxDist=15, b=0.01, k=0.95,
+                              dispersalFn=Ward,
+                              effDist=100, maxDist=150, b=0.01, k=0.95,
                               plot.it=FALSE, ...) {
   standardGeneric("seedDispRcv")
 })
@@ -331,19 +329,16 @@ setGeneric("seedDispRcv", function(seedSrc, seedRcv=ncell(seedSrc)/2L,
 #' library(dplyr)
 #'
 #' # Make random forest cover map
-#' a <- raster(extent(0,1e2,0,1e2),res=1)
+#' a <- raster(extent(0,1e5,0,1e5),res=100)
 #' hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 #' names(hab)="hab"
-#' cells <- seedRcv <- b <- as.integer(sample(1:ncell(a),1e1))
-#' numCol <- ncol(a)
-#' numCell <- ncell(a)
-#' directions <- 8
 #'
 #' seedSrc <- hab>5
 #' setColors(seedSrc,1) <- c("white","black")
 #'
-#' seedRcv <- as.integer(sample(1:ncell(hab), 30))
-#' system.time(seeds <- seedDispRcv(seedSrc, seedRcv=seedRcv, plot.it=TRUE))
+#' seedRcv <- as.integer(sample(1:ncell(hab), 1000))
+#' system.time(seeds <- seedDispRcv(seedSrc, seedRcv=seedRcv,
+#'   maxDist=250, plot.it=TRUE))
 #' seedRcvRaster <- raster(seedSrc)
 #' if(length(seeds)>0) {
 #'   seedRcvRaster[seeds] <- 1
@@ -351,7 +346,7 @@ setGeneric("seedDispRcv", function(seedSrc, seedRcv=ncell(seedSrc)/2L,
 #' }
 setMethod("seedDispRcv",
           signature(seedSrc="RasterLayer"),
-          definition = function(seedSrc, seedRcv, directions=8L, dispersalFn,
+          definition = function(seedSrc, seedRcv, dispersalFn,
                                 effDist, maxDist, b, k,
                                 plot.it=FALSE, ...) {
 
@@ -381,7 +376,7 @@ setMethod("seedDispRcv",
             while (length(seedRcv) & (n<=maxDist)) { # while there are active cells and less than maxDistance
 
               # identify neighbours
-              adjCells <- adj(seedSrc, seedRcv, directions, pairs=TRUE) %>%
+              adjCells <- adj(seedSrc, seedRcv, directions=8, pairs=TRUE) %>%
                     data.table(key="from")
               if(n>cellSize) {
                 # replace "from" column with the values from the previous "to" column
@@ -410,22 +405,24 @@ setMethod("seedDispRcv",
               potentials  <- potentials %>%
                 group_by(fromInit) %>%
                 filter(!duplicated(to))
+
               # 3. remove any that are not within a 1 unit doughnut of
+              # discard those that more than "n" units from a "from" cell. This keeps spreading
+              #   in a circle. It is somewhat wasteful, because the distances are calculated above
+              #   and then deleted here, but this may be the most efficient way
               nr <- NROW(potentials)
               xys <- xyFromCell(seedSrc, as.matrix(potentials[,list(fromInit,to)]))
               potentials[,dis:=pointDistance(xys[1:nr,], xys[(nr+1):(2*nr),], lonlat=FALSE)]
-
-              # discard those that more than "n" units from a "from" cell. This keeps spreading
-              #   in a circle. It is somewhat wasteful, because the distances are calculated above
-              #   and then deleted on the next line, but this may be the most efficient way
               potentials <- potentials[((n-cellSize) < dis) & (dis <= n),]
+
+              # for speeding up. If no pixels within the doughnut are a seed source,
+              #  just skip next block
               potentialsWithSeed <- as.logical(seedSrc[potentials[,to]])
               if(any(potentialsWithSeed)) {
 
                 potentialsWithSeedDT  <- potentials[potentialsWithSeed,]
                 nr <- NROW(potentialsWithSeedDT)
                 setkey(potentialsWithSeedDT, "fromInit")
-                pot <- copy(potentialsWithSeedDT)
 
                 potentialsWithSeedDT[,receivesSeeds:=runif(nr)<eval(dispersalFn)]
                 receivedSeeds <- potentialsWithSeedDT[,any(receivesSeeds), by="fromInit"]
