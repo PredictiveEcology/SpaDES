@@ -263,9 +263,8 @@ setMethod("spread",
 
 
 
-setGeneric("landisWardSpread", function(seedSrc, loci=ncell(landscape)/2L, spreadProbPixel=0.23,
-                              persistence=0L, mask=NULL, maxSize=rep_len(ncell(landscape), length(loci)),
-                              directions=8L, iterations=NULL, ...) {
+setGeneric("landisWardSpread", function(seedSrc, seedRcv=ncell(landscape)/2L,
+                              directions=8L, ...) {
   standardGeneric("landisWardSpread")
 })
 
@@ -273,72 +272,55 @@ setGeneric("landisWardSpread", function(seedSrc, loci=ncell(landscape)/2L, sprea
 
 setMethod("landisWardSpread",
           signature(seedSrc="RasterLayer"),
-          definition = function(seedSrc, loci, spreadProbPixel, persistence,
-                                mask, maxSize=rep_len(ncell(seedSrc), length(loci)),
-                                directions=8L, iterations = NULL, mapID=FALSE,
-                                plot.it=FALSE, spreadProbCluster, dist, ...) {
+          definition = function(seedSrc, seedRcv, directions=8L,
+                                plot.it=FALSE, ...) {
             ### should sanity check map extents
-            if (is.null(loci))  {
+            if (is.null(seedRcv))  {
               # start it in the centre cell
-              loci <- (nrow(seedSrc)/2L + 0.5) * ncol(seedSrc)
+              seedRcv <- (nrow(seedSrc)/2L + 0.5) * ncol(seedSrc)
             }
-            nInitial <- length(loci)
-            lociReturn <- data.table(fromInit=loci,key="fromInit")
+#            nInitial <- length(seedRcv)
+            lociReturn <- data.table(fromInit=seedRcv,key="fromInit")
             seedsArrived <- data.table(fromInit=numeric(),key="fromInit")
 
-            if(is(spreadProbPixel,"RasterLayer")) {
-              if (minValue(spreadProbPixel)>1L) stop("spreadProbPixel is not a probability")
-              if (maxValue(spreadProbPixel)<0L) stop("spreadProbPixel is not a probability")
-            } else {
-              if (!inRange(spreadProbPixel)) stop("spreadProbPixel is not a probability")
+#             if(is(spreadProbPixel,"RasterLayer")) {
+#               if (minValue(spreadProbPixel)>1L) stop("spreadProbPixel is not a probability")
+#               if (maxValue(spreadProbPixel)<0L) stop("spreadProbPixel is not a probability")
+#             } else {
+#               if (!inRange(spreadProbPixel)) stop("spreadProbPixel is not a probability")
+#             }
+            if(plot.it) {
+              hab1 <- raster(getGlobal("hab"))
+              assignGlobal("hab1",hab)
+              Plot(seedSrc, new=TRUE)
             }
-            hab1 <- raster(getGlobal("hab"))
-            assignGlobal("hab1",hab)
-            Plot(seedSrc, new=TRUE)
-
-
-            ## Recycling maxSize as needed
-            maxSize <- rep_len(maxSize, length(loci))
-
-            spreads <- vector("integer", ncell(seedSrc))
 
             n <- 1L
-            if (mapID) {
-              spreads[loci] <- 1L:length(loci)
-              if(length(maxSize) > 1L){
-                size <- rep_len(1L, length(loci))
-              } else {
-                size <- length(loci)
-              }
-            } else {
-              spreads[loci] <- n
-              size <- length(loci)
-            }
 
             # Convert mask and NAs to 0 on the spreadProbPixel Raster
-            if (is(spreadProbPixel, "Raster")) {
-              spreadProbPixel[is.na(spreadProbPixel)]<-0L
-              if(!is.null(mask)) {
-                spreadProbPixel[mask==1L]<-0L
-              }
-            } else if (is.numeric(spreadProbPixel)) { # Translate numeric spreadProbPixel into a Raster
-              #  if there is a mask Raster
-              if(!is.null(mask)) {
-                spreadProbPixel <- raster(extent(seedSrc), res=res(seedSrc), vals=spreadProbPixel)
-                spreadProbPixel[mask==1L]<-0L
-              }
-            }
+#             if (is(spreadProbPixel, "Raster")) {
+#               spreadProbPixel[is.na(spreadProbPixel)]<-0L
+#               if(!is.null(mask)) {
+#                 spreadProbPixel[mask==1L]<-0L
+#               }
+#             } else if (is.numeric(spreadProbPixel)) { # Translate numeric spreadProbPixel into a Raster
+#               #  if there is a mask Raster
+#               if(!is.null(mask)) {
+#                 spreadProbPixel <- raster(extent(seedSrc), res=res(seedSrc), vals=spreadProbPixel)
+#                 spreadProbPixel[mask==1L]<-0L
+#               }
+#             }
 
-            potentialsInit <- data.table("fromInit"=loci,key="fromInit")
+            potentialsInit <- data.table("fromInit"=seedRcv,key="fromInit")
             potentialsInit[,from:=fromInit]
             setkey(potentialsInit,"from", "fromInit")
             potentials <- copy(potentialsInit)
 
 
-            while (length(loci) & (n<=maxDist)) { # while there are active cells
+            while (length(seedRcv) & (n<=maxDist)) { # while there are active cells
 
               # identify neighbours
-              adjCells <- adj(seedSrc, loci, directions, pairs=TRUE) %>%
+              adjCells <- adj(seedSrc, seedRcv, directions, pairs=TRUE) %>%
                     data.table(key="from")
               if(n>1) {
                 potentials[,`:=`(from=NULL,dis=NULL)][,from:=to][,to:=NULL]
@@ -349,9 +331,11 @@ setMethod("landisWardSpread",
                 potentials <- potentials[adjCells, allow.cartesian=TRUE]
               }
 
-               hab1[potentials[,from]] <- n
-               assignGlobal("hab1",hab1)
-               Plot(hab1, addTo="seedSrc")
+              if(plot.it) {
+                hab1[potentials[,from]] <- n
+                assignGlobal("hab1",hab1)
+                Plot(hab1, addTo="seedSrc")
+              }
 
 
               # keep only neighbours that have not been landisWardSpread to yet, within each
@@ -408,7 +392,7 @@ setMethod("landisWardSpread",
 
               n <- n+1L
               # refresh so that "to" cells become new "from cells
-              loci <- potentials[,to]
+              seedRcv <- potentials[,to]
 
             }
             return(as.matrix(seedsArrived))
