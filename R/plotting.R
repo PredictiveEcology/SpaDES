@@ -2144,12 +2144,10 @@ setMethod(".makeColorMatrix",
           signature=c("Raster", "Extent", "numeric", "ANY"),
           definition=function(grobToPlot, zoomExtent, maxpixels, legendRange,
                               cols, na.color, zero.color, skipSample=TRUE) {
-            
             zoom <- zoomExtent
             # It is 5x faster to access the min and max from the Raster than to calculate it,
             #  but it is also often wrong... it is only metadata on the raster, so it
             #  is possible that it is incorrect
-
             if(!skipSample) {
               colorTable <- getColors(grobToPlot)[[1]]
               if(!is(try(minValue(grobToPlot)),"try-error")) {
@@ -2182,21 +2180,37 @@ setMethod(".makeColorMatrix",
             #  too many numbers
             maxNumCols = 100
 
-            nColors <- ifelse(real,maxNumCols+1, maxz-minz+1)
+            nValues <- ifelse(real,maxNumCols+1, maxz-minz+1)
             colTable <- NULL
 
             if(is.null(cols)) { #i.e., contained within raster or nothing
               if(length(getColors(grobToPlot)[[1]])>0) {
                 colTable <- getColors(grobToPlot)[[1]]
-                cols <- if(nColors>length(colTable)) {colorRampPalette(colTable)(nColors)
-                } else if (nColors<length(colTable)) {colTable[minz:maxz+max(0,1-minz)]
+                lenColTable <- length(colTable)
+                
+                cols <- if(nValues>lenColTable) { # not enough colors, use colorRamp
+                  colorRampPalette(colTable)(nValues)
+                } else if (nValues<=(lenColTable)) { # one more color than needed: 
+                  #   assume bottom is NA
+                  colTable
+                } else if (nValues<=(lenColTable-1)) { # one more color than needed: 
+                  #   assume bottom is NA
+                  na.color <- colTable[1]
+                  colTable[minz:maxz - minz + 2]
+                  #colTable[minz:maxz+max(0,1-minz)+1]
+                } else if (nValues<=(lenColTable-2)) { # 2 more colors than needed, 
+                  #  assume bottom is NA, second is white
+                  na.color <- colTable[1]
+                  zero.color <- colTable[2]
+                  colTable[minz:maxz - minz + 3]
+                  #colTable[minz:maxz+max(0,1-minz)+1]
                 } else { colTable }
               } else {
-                cols <- rev(terrain.colors(nColors)) # default color if nothing specified
+                cols <- rev(terrain.colors(nValues)) # default color if nothing specified
               }
             } else {
-              cols <- if(nColors>length(cols)) {colorRampPalette(cols)(nColors)
-              } else if (nColors<length(cols)) {cols[minz:maxz+max(0,1-minz)]
+              cols <- if(nValues>length(cols)) {colorRampPalette(cols)(nValues)
+              } else if (nValues<length(cols)) {cols[minz:maxz+max(0,1-minz)]
               } else {cols}
             }
 
@@ -2250,9 +2264,11 @@ setMethod(".makeColorMatrix",
             z[is.na(z)] <- max(1, minz)
             
             #if there are no zeros in the data, then don't shift colors
-            if(minz!=0) cols <- cols[-1]
+            
+            #if(minz!=0) cols <- cols[-1]
 
             cols<-c(na.color, cols) # make first index of colors be transparent
+            
             if((minz>1) | (minz<0)) {
               z <- matrix(cols[z-minz+1], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=TRUE)
             } else {
