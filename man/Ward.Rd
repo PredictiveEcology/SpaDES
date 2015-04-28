@@ -4,7 +4,7 @@
 \name{Ward}
 \alias{Ward}
 \title{Ward Seed Dispersal kernel}
-\format{\preformatted{  expression(if (cellSize <= effDist) \{     ifelse(dis < effDist, exp((dis - cellSize) * log(1 - k)/effDist) -          exp(dis * log(1 - k)/effDist), (1 - k) * exp((dis - cellSize -          effDist) * log(b)/maxDist) - (1 - k) * exp((dis - effDist) * log(b)/maxDist)) \} else \{     ifelse(dis == cellSize, exp((dis - cellSize) * log(1 - k)/effDist) -          (1 - k) * exp((dis - effDist) * log(b)/maxDist), (1 - k) * exp((dis -          cellSize - effDist) * log(b)/maxDist) - (1 - k) * exp((dis - effDist) *          log(b)/maxDist)) \})
+\format{\preformatted{  expression(if (cellSize <= effDist) \{     ifelse(dis <= effDist, exp((dis - cellSize) * log(1 - k)/effDist) -          exp(dis * log(1 - k)/effDist), (1 - k) * exp((dis - cellSize -          effDist) * log(b)/maxDist) - (1 - k) * exp((dis - effDist) * log(b)/maxDist)) \} else \{     ifelse(dis == cellSize, exp((dis - cellSize) * log(1 - k)/effDist) -          (1 - k) * exp((dis - effDist) * log(b)/maxDist), (1 - k) * exp((dis -          cellSize - effDist) * log(b)/maxDist) - (1 - k) * exp((dis - effDist) *          log(b)/maxDist)) \})
 }}
 \usage{
 Ward

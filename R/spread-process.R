@@ -326,7 +326,6 @@ setGeneric("seedDispRcv", function(seedSrc, seedRcv=ncell(seedSrc)/2L,
 #' @rdname seedDispRcv
 #' @examples
 #' library(raster)
-#' library(dplyr)
 #'
 #' # Make random forest cover map
 #' a <- raster(extent(0,1e5,0,1e5),res=100)
@@ -349,7 +348,6 @@ setMethod("seedDispRcv",
           definition = function(seedSrc, seedRcv, dispersalFn,
                                 effDist, maxDist, b, k,
                                 plot.it=FALSE, ...) {
-
             cellSize=unique(res(seedSrc))
             if(length(cellSize)>1) stop("seedSrc resolution must be same in x and y dimension")
             ### should sanity check map extents
@@ -460,7 +458,7 @@ setMethod("seedDispRcv",
 #' @name Ward
 #' @rdname Ward
 Ward <- expression(if(cellSize<=effDist) {
-  ifelse(dis<effDist,
+  ifelse(dis<=effDist,
          exp((dis-cellSize)*log(1-k)/effDist)-
            exp(dis*log(1-k)/effDist),
          (1-k)*exp((dis-cellSize-effDist)*log(b)/maxDist)-

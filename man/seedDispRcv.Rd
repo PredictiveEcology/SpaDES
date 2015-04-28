@@ -61,7 +61,6 @@ Landis documentation.
 }
 \examples{
 library(raster)
-library(dplyr)
 
 # Make random forest cover map
 a <- raster(extent(0,1e5,0,1e5),res=100)
