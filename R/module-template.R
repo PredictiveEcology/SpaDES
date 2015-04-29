@@ -456,7 +456,7 @@ setMethod("openModules",
 #' @export
 #' @rdname zipModule
 #' @examples
-#' dontrun{
+#' \dontrun{
 #' # zip all modules in a directory, with a particular version
 #'  for (f in dir()) {zipModule(name=f, version="0.0.2")}
 #' }
