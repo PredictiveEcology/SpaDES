@@ -24,7 +24,14 @@ zipModule(name, path, version)
 \item{version}{The module version}
 }
 \description{
-Create a zip archive of a module subdirectory
+The most common use of this would be from a "modules" directory, rather than
+inside a given module.
+}
+\examples{
+dontrun{
+# zip all modules in a directory, with a particular version
+ for (f in dir()) {zipModule(name=f, version="0.0.2")}
+}
 }
 \author{
 Eliot McIntire and Alex Chubaty

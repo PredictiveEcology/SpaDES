@@ -444,6 +444,9 @@ setMethod("openModules",
 ################################################################################
 #' Create a zip archive of a module subdirectory
 #'
+#' The most common use of this would be from a "modules" directory, rather than
+#' inside a given module.
+#'
 #' @param name  Character string giving the module name.
 #' @param path  A file path to a directory containing the module subdirectory.
 #' @param version The module version
@@ -452,6 +455,11 @@ setMethod("openModules",
 #'
 #' @export
 #' @rdname zipModule
+#' @examples
+#' dontrun{
+#' # zip all modules in a directory, with a particular version
+#'  for (f in dir()) {zipModule(name=f, version="0.0.2")}
+#' }
 #'
 setGeneric("zipModule", function(name, path, version) {
   standardGeneric("zipModule")
@@ -469,7 +477,10 @@ definition = function(name, path, version) {
   callingWd <- getwd()
   on.exit(setwd(callingWd))
   setwd(path)
-  zip(paste0(name, "_", version, ".zip"), files=file.path(name))
+  zipFileName=paste0(name, "_", version, ".zip")
+  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
+  file.copy(zipFileName, to = paste0(name,"/",zipFileName),overwrite = TRUE)
+  file.remove(zipFileName)
 })
 
 #' @rdname zipModule
