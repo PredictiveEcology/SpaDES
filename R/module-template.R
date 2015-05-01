@@ -153,9 +153,6 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # do stuff for this event
   saveFiles(sim)
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.saveInterval, \"", name, "\", \"save\")
-
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -166,9 +163,6 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # do stuff for this event
   Plot()
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.plotInterval, \"", name, "\", \"plot\")
-
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -178,9 +172,6 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"event1\")
-
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -189,9 +180,6 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"event2\")
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
