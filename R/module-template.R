@@ -143,10 +143,10 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # Functions should get and return global objects, rather than pass them as function arguments
   #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
   #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal("object")
+  # getGlobal(\"object\")
 
-  
-  # assignGlobal("object")
+
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -159,11 +159,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # Functions should get and return global objects, rather than pass them as function arguments
   #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
   #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal("object")
+  # getGlobal(\"object\")
 
   saveFiles(sim)
-  
-  # assignGlobal("object")
+
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -175,11 +175,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # Functions should get and return global objects, rather than pass them as function arguments
   #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
   #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal("object")
+  # getGlobal(\"object\")
 
-  #Plot(getGlobal("object"))
-  
-  # assignGlobal("object")
+  #Plot(getGlobal(\"object\"))
+
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -190,10 +190,10 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # Functions should get and return global objects, rather than pass them as function arguments
   #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
   #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal("object")
+  # getGlobal(\"object\")
 
-  
-  # assignGlobal("object")
+
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -204,10 +204,10 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   # Functions should get and return global objects, rather than pass them as function arguments
   #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
   #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal("object")
+  # getGlobal(\"object\")
 
-  
-  # assignGlobal("object")
+
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
