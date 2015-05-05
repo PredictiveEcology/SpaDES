@@ -286,7 +286,7 @@ setMethod("spread",
 #' @param seedSrc  A \code{RasterLayer} object where pixels indicate the presence (or abundance) of seed source
 #' pixels
 #'
-#' @param seedRcv  A vector of indexes (i.e., locations) within the same \code{RasterLayer} as \code{seedSrc}.
+#' @param seedRcv  A \code{RasterLayer} object where pixels indicate the potential pixels to receive seeds
 #'
 #' @param dispersalFn  An expression that can take a "dis" argument. See details. Default is "Ward"
 #'
@@ -316,10 +316,10 @@ setMethod("spread",
 #' @name seedDispRcv
 #' @aliases seedDispRcv
 #' @rdname seedDispRcv
-setGeneric("seedDispRcv", function(seedSrc, seedRcv=ncell(seedSrc)/2L,
-                              dispersalFn=Ward,
-                              effDist=100, maxDist=150, b=0.01, k=0.95,
-                              plot.it=FALSE, ...) {
+setGeneric("seedDispRcv", function(seedSrc, seedRcv=seedSrc,
+                                   dispersalFn=Ward,
+                                   effDist=100, maxDist=150, b=0.01, k=0.95,
+                                   plot.it=FALSE, ...) {
   standardGeneric("seedDispRcv")
 })
 
@@ -328,14 +328,14 @@ setGeneric("seedDispRcv", function(seedSrc, seedRcv=ncell(seedSrc)/2L,
 #' library(raster)
 #'
 #' # Make random forest cover map
-#' a <- raster(extent(0,1e5,0,1e5),res=100)
+#' a <- raster(extent(0,1e4,0,1e4),res=100)
 #' hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 #' names(hab)="hab"
 #'
 #' seedSrc <- hab>5
 #' setColors(seedSrc,1) <- c("white","black")
 #'
-#' seedRcv <- as.integer(sample(1:ncell(hab), 1000))
+#' seedRcv <- hab>5
 #' system.time(seeds <- seedDispRcv(seedSrc, seedRcv=seedRcv,
 #'   maxDist=250, plot.it=TRUE))
 #' seedRcvRaster <- raster(seedSrc)
@@ -349,6 +349,7 @@ setMethod("seedDispRcv",
                                 effDist, maxDist, b, k,
                                 plot.it=FALSE, ...) {
             cellSize=unique(res(seedSrc))
+            seedRcv <- Which(seedRcv>0, cells=TRUE)
             if(length(cellSize)>1) stop("seedSrc resolution must be same in x and y dimension")
             ### should sanity check map extents
             if (is.null(seedRcv))  {
@@ -375,7 +376,7 @@ setMethod("seedDispRcv",
 
               # identify neighbours
               adjCells <- adj(seedSrc, seedRcv, directions=8, pairs=TRUE) %>%
-                    data.table(key="from")
+                data.table(key="from")
               if(n>cellSize) {
                 # replace "from" column with the values from the previous "to" column
                 potentials[,`:=`(from=NULL,dis=NULL)][,from:=to][,to:=NULL]
