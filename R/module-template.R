@@ -87,14 +87,14 @@ defineModule(sim, list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep=NA_character_,
+  timestep=NA_real_,
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
     defineParameter(\"paramName\", \"paramClass\", value),
     defineParameter(\"paramName\", \"paramClass\", value)),
-  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA)),
-  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA))
+  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
 
 ### event functions:

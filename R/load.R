@@ -56,15 +56,15 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' absent, so files are loaded only at \code{start} in the \code{simList}.
 #'
 #' - \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to
-#' simTime=0,but this can be any time. The loading will be scheduled to occur
+#' \code{simTime=0},but this can be any time. The loading will be scheduled to occur
 #' at the "loadTime", whatever that is. If the same file is to loaded many times,
 #' but not at a regular interval, then there should be separate line, with a unique
 #' loadTime for each.
 #'
 #' - \code{arguments}: is a list of lists of named arguments, one list for each loading function.
-#' For example, if raster is a loading function, arguments = list(native = TRUE). If there is only
-#' one list, then it is assumed to apply to all load attempts and will be repeated
-#' for each load function.
+#' For example, if raster is a loading function, \code{arguments = list(native = TRUE)}.
+#' If there is only one list, then it is assumed to apply to all load attempts
+#' and will be repeated for each load function.
 #'
 #' @param sim A \code{simList} object
 #'
@@ -108,7 +108,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    packages="SpaDES",
 #'    objectNames = NA,
 #'    arguments = arguments,
-#'    loadTimes = 0,
+#'    loadTime = 0,
 #'    intervals = c(rep(NA, length(files)-1), 10),
 #'    stringsAsFactors=FALSE)
 #'
@@ -212,7 +212,7 @@ setMethod("loadFiles",
               if(!is.na(match("intervals", names(fileListdf)))) {
                 if (any(!is.na(fileListdf$intervals))) {
                   keep <- !is.na(fileListdf$interval)
-                  fileListdf$loadTimes[keep] <- curTime + fileListdf$interval[keep]
+                  fileListdf$loadTime[keep] <- curTime + fileListdf$interval[keep]
                 }
               }
 
@@ -234,7 +234,7 @@ setMethod("loadFiles",
                 }
 
                 if(nrow(fileListdf)>0) {
-                  sim <- scheduleEvent(sim, min(fileListdf$loadTimes, na.rm=TRUE), "load", "later")
+                  sim <- scheduleEvent(sim, min(fileListdf$loadTime, na.rm=TRUE), "load", "later")
                 }
               }
             }
