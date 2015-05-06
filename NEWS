@@ -19,7 +19,7 @@ version 0.6.1
         |_ LICENSE         # license file describing the allowed usage etc. of the module
         |_ README          # incl. module metadata in addition to version change info, etc.
 
-* Updated package dependencies:
+* updated package dependencies:
     * added `downloader`, `dplyr`, `fpCompare`, `httr`, `magrittr`, `stringr` to `Imports`
 * updated vignettes and documentation improvements
 * transfered project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.
@@ -32,10 +32,10 @@ version 0.6.1
                     install_github("s-u/fastshp")
 
     * numerous other `Plot` improvements
-* Deprecated all `*Named` functionality
+* deprecated all `*Named` functionality
     * All code will break that uses `*Named` objects
-* New function, `clearPlot` can be used to clean all hidden metadata about a plot
-* New function, `randomPolygons`, will create random raster maps (not vector maps) of polygons
+* new function, `clearPlot` can be used to clean all hidden metadata about a plot
+* new function, `randomPolygons`, will create random raster maps (not vector maps) of polygons
 * numerous bugfixes
 
 version 0.4.0
