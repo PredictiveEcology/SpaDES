@@ -23,16 +23,16 @@ vignette: >
 
 ## Module overview
 
-`SpaDES` is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events.
-A `SpaDES` module describes the processes or activities that drive simulation state changes.
-Each activity consists of a collection of events which are scheduled depending on the rules of your simulation.
-Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
+Recall that `SpaDES` simulations are event-driven, meaning that different actions are performed on data objects based on the order of scheduled events.
+The central design of `SpaDES` promotes modularity, such that collections of related simulation actions can be grouped together as 'modules' and easily reused among multiple simulations.
+Strict modularity requires that modules can act independently, without needing to know about other modules.
+Thus each `SpaDES` module must explicitly state its input dependencies (data, package, and parameterization requirements), data outputs, as well as provide other useful metadata and documentation for the user.
+Upon initialization of a simulation via `simInit`, the dependencies of every module used are examined and evaluated.
+If dependency incompatibilities exists, the initialization fails and the user is notified. Also during this initialization, module code is `source`-ed into the global environment, making all module objects and functions available to the user.
 
-**simulation and module design philosophy:**
-
-- oeio
-- module code is `source`d during `simInit` and objects/functions put in global environment.
-- oeuio
+Each `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the global environment.
+Each activity consists of a collection of events which are scheduled depending on the rules of the simulation.
+Each event may evaluate or modify a simulation data object (*e.g.*, update the values on a raster map), or perform other operations such as saving and loading data objects, plotting, or scheduling other events.
 
 ### Simulation event list
 
@@ -46,11 +46,11 @@ Completed events are removed from the queue.
 When a call to the event list is made, the event is processed by the module specified by `moduleName`.
 The module code then determines the event type and executes the code for that event.
 For each event type within a module: 1) the instructions for what happens for this event get executed; and 2) there is an optional call to `scheduleEvent`, which schedules a future event.
-A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the "drop-in/replace" modularity of your simulation model.
+A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the drop-in/replace modularity of your simulation model.
 
 ### Module event dependencies
 
-Each module schedules its own events (*e.g.*, a "fire" module may schedule "burn" events) and only uses its own data objects (or shared global objects).
+Each module schedules its own events (*e.g.*, a 'fire' module may schedule 'burn' events) and only uses its own data objects (or shared global objects).
 Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules.
 Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
 
@@ -89,11 +89,6 @@ This file consists of three parts containing the code for:
 
 ### Metadata
 
-[need description of metadata]
-
-a. provided as comments at the top of the file;
-b. formalized in code as module metadata;
-
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user).
 During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object.
 As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
@@ -111,14 +106,15 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`version`**         | The module version as a `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
 **`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
 **`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
-&nbsp;                | Must be a `POSIXt` object of length 2, specifying the start and end times.
-**`timestep`**        | Describes the time (in seconds) corresponding to 1.0 simulation time units.
+&nbsp;                | Must be a `POSIXt` object of length `2`, specifying the start and end times.
+&nbsp;                | (NOT YET FULLY IMPLEMENTED.)
+**`timestep`**        | Describes the time (in seconds) corresponding to `1.0` simulation time units.
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module parameters,
 &nbsp;                | with columns `paramName`, `paramClass`, and `default`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
-**`inputObjects`**    | A `data.frame` specifying the object dependecies of the module, with columns
+**`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
 &nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
 &nbsp;                | as both an input and an output, add the object to each of these `data.frame`s.
 **`outputObjects`**   | A `data.frame` specifying the objects output by the module, following the format of
@@ -126,19 +122,37 @@ Every module requires complete metadata, structured as a named list, and passed 
 
 #### Defining module parameters: `defineParameter()`
 
-* differentiate btw "input parameters" and "object (data) dependencies"
-* use `defineParameter` within `defineModule` to build a data.frame of input parameters (with `rbind`)
-* default param values are overridden by user when passing param list to `simInit`
-* global vs. "local" parameters for each module.
-* specify default parameters
+Parameters here differ from input data objects in that the former are intended to be variable across simulation runs, whereas the latter remain constant.
+Parameters are often module-specific, where they are only used within the module they are defined, although it may be useful to globally define some parameters that are intended to be used by multiple modules.
+Module-specific parameters are specified using `defineParameter` (with `rbind`) within `defineModule` to build a `data.frame` of input parameters.
+Global parameters are defined at the simulation level as part of the `simInit` call.
 
 The parameter list in the `simList` object (accessed via `simParams`) may be used to pass named parameter values to modules.
 The general structure of this parameter list is `parameters$moduleName$moduleParameter`.
 This nested list structure allows passing as many parameters as needed for your simulation.
 We suggest passing a list of all the parameters needed for a single module together.
 
-```{r passing-params}
-# NEED SAMPLE CODE HERE
+A module's metadata defines default values for module-specific parameters, and these defaults will be used unless overridden by the user.
+Default parameter values can overridden by passing values in the parameter list to `simInit`.
+
+```{r passing-params, eval=FALSE, echo=TRUE}
+require(SpaDES)
+
+outputPath <- file.path(tempdir(), "simOutputs")
+times <- list(start=0.0, stop=20.0)
+parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
+                                 burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
+                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=100L, moveInterval=1,
+                                        .plotInitialTime=1.01, .plotInterval=1))
+modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
+
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 ```
 
 ### Event types
@@ -200,7 +214,7 @@ Use [semantic versioning](http://semver.org), such that a version number `x.y.z`
 
 # Passing data between modules
 
-**HOW AND WHY TO PASS DATA**
+**[ HOW AND WHY TO PASS DATA ]**
 
 ## Data types
 
