@@ -40,38 +40,54 @@ Building spatial simulation models often involves reusing various model componen
 When various components of a simulation model become fragmented across multiple platforms, it becomes increasingly difficult to link these various components, and often solutions for this problem are idiosyncratic and specific to the model being implemented.
 As a result, developing general insights into complex computational models has, in the field of ecology at least, been hampered by modellers' typically developing models from scratch [@Thiele:2015oi].
 
-`SpaDES` is a generic simulation platform that can be used to create new model components quickly. It also provides a framework to link with existing simulation models, so that an already well described and mature model, *e.g.*, Landis-II [@Scheller:2007em], can be used with *de novo* components. Alternatively one could use several *de novo* models and several existing models in combination. This approach requires a platform that allows for modular reuse of model components (herein called "modules") as hypotheses that can be evaluated and tested in various ways, as advocated by [@Thiele:2015oi].
+`SpaDES` is a generic simulation platform that can be used to create new model components quickly.
+It also provides a framework to link with existing simulation models, so that an already well described and mature model, *e.g.*, Landis-II [@Scheller:2007em], can be used with *de novo* components.
+Alternatively one could use several *de novo* models and several existing models in combination.
+This approach requires a platform that allows for modular reuse of model components (herein called 'modules') as hypotheses that can be evaluated and tested in various ways, as advocated by @Thiele:2015oi.
 
 When beginning development of this package, we sought a general simulation platform at least the following characteristics:
 
-1. Allow rapid building of models of a wide diversity of types (agent-based models, raster models, differential equation models, etc.);
-2. Run faster and more memory efficiently than current systems for doing similar things (NetLogo, SELES, Repast, etc.);
-3. Use a platform that already has strong data analysis and manipulation capacities;
+1. Allow rapid building of models of a wide diversity of types (*e.g.*, agent-based models, raster models, differential equation models);
+2. Run faster and more memory efficiently than current systems for doing similar things (*e.g.*, NetLogo [@NetLogo], SELES [@Fall:2001em]);
+3. Use a platform that already has strong data analysis, manipulation, and visualization capacities;
 4. Be open source, but also make it as easy as possible for many people to easily contribute modules and code;
-5. Be easy to use for a large number of scientists who aren't formally trained as computer programmers;
-6. Should be built around modularity so that models can be seen as modules that are easily replaceable, not just "in theory" replaceable;
+5. Be easy to use for a large number of scientists who aren't formally trained as computer programmers or have limited programming experience;
+6. Should be built around modularity so that models can be seen as modules that are easily replaceable, not just 'in theory' replaceable;
 7. Allow tight coupling between data and model simulations so that the entire work flow from raw data to result generation or even report generation is not actually something that one has to redesign every time there is a new data set.
 
 We selected `R` as the system within which to build `SpaDES`. `R` is currently the *lingua franca* for scientific data analysis. 
 This means that anything developed in `SpaDES` is simply `R` code and can be easily shared with journals and the scientific community. 
-We can likewise leverage `R`'s strengths as a data platform, its excellent visualization and graphics, its capabilities to run external code such as C and Python and call external software such as databases, and its abilities for high performance computing. 
-SpaDES therefore doesn't implement all of these from scratch! Yet, all are doable.
+We can likewise leverage `R`'s strengths as a data platform, its excellent visualization and graphics, its capabilities to run external code such as `C`/`C++` and easily interact external software such as databases, and its abilities for high performance computing.
+`SpaDES` therefore doesn't need to implement all of these from scratch, as they are achievable with already existing `R` packages.
 
 ### Is `R` fast enough?
 
-High-level programming languages are often criticized for being much slower than their low-level counterparts. `R` has definitely received its share of criticism over not just speed but also memory use ([julialang.org](http://julialang.org)). While some of these criticisms are accurate, many of them are overblown and based on test code written for `R` that is not written for how `R` works[^benchmarks]. The best example of this is using traditional `C`-like loops in `R`. `R` is a vectorized language, and code should rarely be written as loops in `R`. It should be vectorized, yet these sorts of biased comparisons get made all of the time, giving the false impression that `R` is too slow. Thus, these tests show that poorly written code can be slow, in any language.
+High-level programming languages are often criticized for being much slower than their low-level counterparts.
+`R` has definitely received its share of criticism over not just speed but also memory use[^julia].
+While some of these criticisms may be legitimate, many of them are overblown.
+They are based on test code that is not written for how `R` works[^benchmarks].
+The best example of this is using traditional `C`-like loops in `R`.
+`R` is a vectorized language, and code should rarely be written as loops in `R`.
+It should be vectorized, yet these sorts of biased comparisons get made all of the time, giving the false impression that `R` is too slow.
+Thus, these tests show that poorly written code can be slow, in any language.
 
-Another major criticism of `R` is its high memory footprint. It's true that similar structures take up less memory in `C` than in `R`. While this is true, the `Rcpp` package now allows easy writing of low memory footprint  `C++` code that can then be called in `R`, with a consistent framework. Likewise, numerous upgrades to R, including minimizing object copying since `R` version `3.0`, and extremely powerful user developed packages, like `data.table` and `dplyr` are eliminating many of these concerns.
+Another major criticism of `R` is its high memory footprint.
+It's true that similar structures take up less memory in `C` than in `R`.
+However, there are various simple optimizations for `R` code, such as explicitly pre-allocating memory to objects, that can drastically improve performance.
+In cases were further improvements are required, the `Rcpp` package [@Eddelbuettel:2011rcpp; @Eddelbuettel:2013rcpp] allows easy writing of low memory footprint `C++` code that can then be called in `R`.
+Likewise, numerous upgrades to R, including minimizing object copying since `R` version `3.0`, and extremely powerful user developed packages, like `data.table` and `dplyr` are eliminating many of these concerns.
+
+[^julia]: http://julialang.org
 
 [^benchmarks]: http://PredictiveEcology.org/benchmarking
 
 ## Discrete event simulation and `SpaDES`
 
-Discrete event simulation (DES) as implemented here is "event driven", meaning that an activity changes the state of the system at particular times (called events).
+Discrete event simulation (DES) as implemented here is 'event driven', meaning that an activity changes the state of the system at particular times (called events).
 This approach assumes that state of the system only changes due to events, therefore there is no change between events.
-A particular activity may have several events associated with it. Future events are scheduled in an event queue, and then processed in chronological order (with ties being resolved using 'first-in-first-out`).
+A particular activity may have several events associated with it. Future events are scheduled in an event queue, and then processed in chronological order (with ties being resolved using 'first-in-first-out').
 Because the system state doesn't change between events, we do not need to 'run the clock' in fixed increments each timestep.
-Rather, time advances to the time of the next event in the queue, effectively optimizing computations especially when different modules have different characteristic time intervals (i.e., "timestep").
+Rather, time advances to the time of the next event in the queue, effectively optimizing computations especially when different modules have different characteristic time intervals (*i.e.*, 'timestep').
 
 'Time' is the core concept linking various simulation components via the event queue.
 Activities schedule events (which change the state of the system according to their programmed rules) and do not need to know about each other.
@@ -80,7 +96,7 @@ Repeated events are simply scheduled repeatedly.
 This not only allows for modularity of simulation components, it also allows complex model dynamics to emerge based on scheduling rules of each activity (module).
 Thus, complex simulations involving multiple processes (activities) can be built fairly easily, provided these processes are modelled using a common DES framework.
 
-`SpaDES` provides such a framework, facilitating interaction between multiple processes (built as "modules") that don't interact with one another directly, but are scheduled in the event queue and carry out operations on shared data objects in the global simulation environment.
+`SpaDES` provides such a framework, facilitating interaction between multiple processes (built as 'modules') that don't interact with one another directly, but are scheduled in the event queue and carry out operations on shared data objects in the global simulation environment.
 This package provides tools for building modules natively in `R` that can be reused.
 Additionally, because of the flexibility `R` provides for interacting with other programming languages and external data sources, modules can also be built using external tools and integrated with `SpaDES`.
 
@@ -93,7 +109,7 @@ Each activity consists of a collection of events which are scheduled depending o
 Each event may evaluate or modify a simulation data object (*e.g.*, update the values on a raster map), or perform other operations such as saving and loading data objects or plotting.
 
 The power of `SpaDES` is in modularity and the relative ease with which existing modules can be modified and new modules created, in native `R` as well as through the incorporation of external simulation modules.
-Creating and customizing modules is a whole topic unto itself, and for that reason we have created a separate [`modules` vignette](ii-modules.html) with more details on module development.
+Creating and customizing modules is a whole topic unto itself, and for that reason we have created a separate [modules vignette](ii-modules.html) with more details on module development.
 
 Strict modularity requires that modules can act independently, without needing to know about other modules.
 However, what if two (or more) modules are incompatible with one another?
@@ -105,7 +121,7 @@ If dependency incompatibilities exists, the initialization fails and the user is
 
 The PDF format does not allow us to demonstrate the simulation visualization components of this package, so we invite you to check out the included demos, to run the sample simulation provided in this vignette, and to view the source code for the sample modules included in this package.
 
-A simple demo is provided with the package that highlights the "real time" graphics capabilities of package's `Plot` function.
+A simple demo is provided with the package that highlights the 'real time' graphics capabilities of package's `Plot` function.
 This demo loads three sample modules provided with the packages: 1) `randomLandscapes`, 2) `fireSpread`, and 3) `caribouMovement`. 
 These sample modules, respectively, highlight several keys features of the package: 1) the import, update, and plotting of raster map layers; 2) the computational speed of modeling spatial spread processes; and 3) the implementation of an agent-based (a.k.a., individual-based) model.
 
@@ -122,7 +138,7 @@ saveTo <- "~/SpaDES-modules" # change this to suit your needs
 downloadModule(name="moduleName", path=saveTo)
 ```
 
-A detailed guide to module development is provided in the [modules](ii-modules.html) vignette.
+A detailed guide to module development is provided in the [modules vignette](ii-modules.html).
 
 # Simulation and data
 
@@ -130,17 +146,17 @@ Historically, simulation models were built separately from the analysis of input
 On the input data side, this effectively broke the linkage between data (*e.g.*, from field or satellites) and the simulation.
 This has the undesired effect of creating the appearance of reduced uncertainty in simulation model predictions, by breaking correlations between parameter estimates (that invariably occur in analyses of real data), or simply by passing an incorrectly specified parameter uncertainty to a simulation model.
 
-Conversely, on the data output side, numerous tools, such as optimization (*e.g.*, pattern oriented modeling [@Grimm:2005sc]) or statistical analyses could not directly interact with the simulation model, unless a specific extension was built for that purpose.
-In R, those tools already exist and are robust. Thus, validation, calibration, and verification of simulation models can become rolled into the simulation model itself.
-This enhances transparency and reproducibility, both desired properties for scientific studies.
+Conversely, on the data output side, numerous tools, such as optimization (*e.g.*, pattern oriented modeling @Grimm:2005sc) or statistical analyses could not directly interact with the simulation model, unless a specific extension was built for that purpose.
+In `R`, those tools already exist and are robust.
+Thus, validation, calibration, and verification of simulation models can become rolled into the simulation model itself, facilitating understanding of models' forecasting performance and thus their predictive capacity.
+All of these enhance transparency and reproducibility, both desired properties for scientific studies.
 
-Linking the raw data, data analysis, validation, calibration (via optimization), simulation forecasting, and output analysis into a single work flow allow for several powerful outcomes.
+Linking the raw data, data analysis, validation, calibration (via optimization), simulation forecasting, and output analyses into a single work flow allow for several powerful outcomes:
 
-1. updates to raw data can be easily propagated into the outputs. 
-2. uncertainty in raw data can be passed through to simulations.
-3. decision makers can be given tools that draw directly on raw data and so lag times between data updates and decision making updates can be dramatically shortened.
-4. disciplinary silos can be more readily topled.
-5. feedbacks between disciplinary silos can be simulated.
+1. updates to raw data can be easily propagated into the outputs;
+2. uncertainty in raw data can be passed through to simulations;
+3. decision makers can be given tools that draw directly on raw data and so lag times between data updates and decision making updates can be dramatically shortened;
+4. feedbacks between disciplinary silos can be simulated, promoting disciplinary integration.
 
 # Using `SpaDES`
 
@@ -187,11 +203,11 @@ As such, its possible to implement and integrate a wide variety of model types a
 - GIS/spatial analyses;
 - and many others.
 
-The common denominator is the idea of an event. If an event can be scheduled, i.e., it can be conceived of as having a "time" at which it occurs, then it can be used with `SpaDES`. This, of course, includes static elements that occur only once, such as a the start of a simulation.
+The common denominator is the idea of an event. If an event can be scheduled, *i.e.*, it can be conceived of as having a 'time' at which it occurs, then it can be used with `SpaDES`. This, of course, includes static elements that occur only once, such as a the start of a simulation.
 
 ## Modelling spread processes
 
-Spatially explicit modules will sometimes contain "contagious" processes, such as spreading (e.g., fires), dispersal (e.g., seeds), flow (e.g., water or wind). At the core of `SpaDES` are a few functions to do these that are relatively fast computationally. More contagious processes are being actively being developed.
+Spatially explicit modules will sometimes contain 'contagious' processes, such as spreading (e.g., fires), dispersal (e.g., seeds), flow (e.g., water or wind). At the core of `SpaDES` are a few functions to do these that are relatively fast computationally. More contagious processes are being actively being developed.
 
 ### A simple fire model
 
@@ -218,7 +234,7 @@ Plotting methods using `Plot` are optimized for speed and are much faster than t
 
 Running multiple simulations with different parameter values is a critical part of sensitivity and robustness analysis, simulation experiments, optimization, and pattern oriented modelling.
 Likewise, greater understanding and evaluation of models and their uncertainty requires simulation replication and repetition [@Grimm:2005bk; @Thiele:2015oi].
-Using `R` as a common platform for data, simulation, and analyses we can do all of these easily and directly as part of our `SpaDES` simulation without breaking the linkages between "model" and "analysis".
+Using `R` as a common platform for data, simulation, and analyses we can do all of these easily and directly as part of our `SpaDES` simulation without breaking the linkages between model and analysis.
 This workflow facilitates and enhances the use of ensemble and consensus modelling, and studies of cumulative effects.
 
 # Additonal resources
@@ -227,7 +243,7 @@ This workflow facilitates and enhances the use of ensemble and consensus modelli
 
 **Organization of `SpaDES` functions**
 
-From within R, typing `"spades-package"`, will give an categorized view of the functions within `SpaDES`.
+From within `R`, typing `"spades-package"`, will give an categorized view of the functions within `SpaDES`.
 
 **Vignettes:**
 
