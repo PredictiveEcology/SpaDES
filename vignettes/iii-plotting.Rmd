@@ -33,7 +33,7 @@ The main plotting function, `Plot` (*i.e.*, with a capital `P`), is built using 
 We have specifically built a plotting system that allows for relatively fast plotting of rasters (in the `raster` package), spatial points, spatial polygons, spatial lines (all within the `sp` package), `ggplot` objects, histogram, and igraph (package `igraph`) objects with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted.
 In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is.
 This means that plotting can be treated as modular.
-Importantly, conventional R plotting (*e.g.*, plot, hist, etc.) can still be used at any time, so you can use the features provided in this package or you can use other R plotting functions without having to relearn a new set of plotting commands.
+Importantly, conventional R plotting (*e.g.*, `plot`, `hist`, etc.) can still be used at any time, so you can use the features provided in this package or you can use other plotting functions without having to relearn a new set of plotting commands.
 The `Plot` function is therefore intended to be used as a way to interact visually during model development.
 If fine tuning and customization are desired, other plotting tools may be more suited (*e.g.*, `ggplot2`, or a dedicated GIS program).
 
