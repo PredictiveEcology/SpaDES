@@ -97,14 +97,9 @@ defineModule(sim, list(
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
 
-### event functions:
-#   - follow the naming convention `modulenameEventtype()`;
-#   - `modulenameInit()` function is required for initiliazation;
-#   - module name and this filename must match;
-#   - keep event functions short and clean, modularize by calling
-#       subroutines from section below.
+## event types
+#   - type `init` is required for initiliazation
 
-### template event
 doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType==\"init\") {
     ### check for more detailed object dependencies:
@@ -135,6 +130,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     }
   return(invisible(sim))
 }
+
+## event functions
+#   - follow the naming convention `modulenameEventtype()`;
+#   - `modulenameInit()` function is required for initiliazation;
+#   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initilization
 ", name, "Init = function(sim) {
@@ -346,8 +346,8 @@ file=filenameCitation, fill=FALSE, sep="")
 
 ### Make LICENSE file
 cat("
-    # Provide explicit details of the license for this module
-    # A default could be GPL http://www.gnu.org/copyleft/gpl.html",
+    # Provide explicit details of the license for this module.
+    # See http://choosealicense.com for help selecting one.",
     file=filenameLICENSE, fill=FALSE, sep="")
 
 ### Make README file

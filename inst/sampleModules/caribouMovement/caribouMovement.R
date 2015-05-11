@@ -60,8 +60,8 @@
 ###                objectName: caribou
 ###                objectClass: SpatialPointsDataFrame
 ###                other: NA
-###
-### caribouMovement module metadata
+
+## caribouMovement module metadata
 defineModule(sim, list(
   name="caribouMovement",
   description="Simulate caribou movement via correlated random walk.",
@@ -91,7 +91,7 @@ defineModule(sim, list(
                            stringsAsFactors=FALSE)
 ))
 
-### event functions
+## event types
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more detailed object dependencies:
@@ -138,6 +138,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
+## event functions
 caribouMovementInit <- function(sim) {
   landscape <- getGlobal(simGlobals(sim)$stackName)
 

@@ -81,8 +81,8 @@
 ###                objectName: simGlobals(sim)$burnStats
 ###                objectClass: numeric
 ###                other= NA
-###
-### fireSpread module metadata
+
+## fireSpread module metadata
 defineModule(sim, list(
   name="fireSpread",
   description="Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine. Fire size statistics are collected immediately after each burn event. Requires a global simulation parameter `stackName` be set.",
@@ -119,7 +119,7 @@ defineModule(sim, list(
                            stringsAsFactors=FALSE)
 ))
 
-### event functions
+## event types
 doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more object dependencies:
@@ -188,6 +188,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
+## event functions
 fireSpreadInit <- function(sim) {
   landscapes <- getGlobal(simGlobals(sim)$stackName)
 

@@ -58,7 +58,7 @@
 ###                other: NA
 ###
 
-# module metadata
+## module metadata
 defineModule(sim, list(
   name="randomLandscapes",
   description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
@@ -88,16 +88,16 @@ defineModule(sim, list(
                            other=NA_character_, stringsAsFactors=FALSE)
 ))
 
-### event functions
+## event types
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # do stuff for this event
     sim <- randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime, 
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
                          "randomLandscapes", "plot")
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime, 
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
@@ -123,6 +123,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
+## event functions
 randomLandscapesInit <- function(sim) {
   if (is.null(simParams(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
