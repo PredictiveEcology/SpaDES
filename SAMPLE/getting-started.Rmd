@@ -23,7 +23,6 @@ vignette: >
 
 - module organization/overview; module development philosophy
 
-
 -----
 
 # Sample model
