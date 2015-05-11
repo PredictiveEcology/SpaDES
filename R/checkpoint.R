@@ -1,20 +1,18 @@
-if(getRversion() >= "3.1.0")  utils::globalVariables(c("rng.kind", "rng.state"))
-
-##############################################################
+################################################################################
 #' Simulation checkpoints.
 #'
 #' Save and reload the current state of the simulation,
 #' including the state of the random number generator,
 #' by scheduling checkpoint events.
 #'
-#' \code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
-#' https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
+#' \code{\link{.checkpointLoad}} and \code{\link{.checkpointSave}} code from:
+#' \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 #'
 #' RNG save code adapted from:
-#' http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/
-#' https://stackoverflow.com/questions/13997444/
+#' \url{http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/}
+#' and \url{https://stackoverflow.com/questions/13997444/}
 #'
-#' @param sim           A \code{SimList} simulation object.
+#' @param sim           A \code{simList} simulation object.
 #'
 #' @param eventTime    A numeric specifying the time of the next event.
 #'
@@ -24,24 +22,22 @@ if(getRversion() >= "3.1.0")  utils::globalVariables(c("rng.kind", "rng.state"))
 #' @param debug         Optional logical flag determines whether sim debug info
 #'                      will be printed (default \code{debug=FALSE}.
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{.Random.seed}}.
 #'
 #' @author Alex Chubaty
 #'
+#' @include environment.R
 #' @export
 #' @docType methods
 #' @rdname checkpoint
 #'
-# @examples
-# need examples
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### determine whether to use checkpointing
   ### default is not to use checkpointing if unspecified
-  if ( !(".checkpoint" %in% names(simParams(sim))) ) {
-    simParams(sim)$.checkpoint = list(interval=NA_real_, file=NULL)
-  }
+  ### - this default is set when a new simList object is initialized
+
   useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
 
   ### determine checkpoint file location, for use in events below
@@ -65,7 +61,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="load") {
     if (useChkpnt) {
       # load user-specified checkpoint options
-      checkpointLoad(checkpointFile)
+      .checkpointLoad(checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
@@ -73,7 +69,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     }
   } else if (eventType=="save") {
     if (useChkpnt) {
-      checkpointSave(checkpointFile)
+      .checkpointSave(checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
@@ -89,13 +85,13 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @param file The checkpoint file.
 #' @rdname checkpoint
-checkpointLoad = function(file) {
+.checkpointLoad = function(file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
     load(file)
-    if (exists(".Random.seed")) {
-      do.call("RNGkind", as.list(rng.kind))
-      assign(".Random.seed", rng.state, .GlobalEnv)
+    if (exists(".Random.seed", envir=.spadesEnv)) {
+      do.call("RNGkind", as.list(get("rng.kind", envir=.spadesEnv)))
+      assign(".Random.seed", get("rng.state", envir=.spadesEnv), envir=.spadesEnv)
     }
     return(invisible(TRUE))
   } else {
@@ -104,10 +100,10 @@ checkpointLoad = function(file) {
 }
 
 #' @rdname checkpoint
-checkpointSave = function(file) {
-  if (exists(".Random.seed"))  {
-    assign("rng.state", get(".Random.seed", .GlobalEnv), .GlobalEnv)
-    assign("rng.kind", RNGkind(), .GlobalEnv)
+.checkpointSave = function(file) {
+  if (exists(".Random.seed", envir=.spadesEnv))  {
+    assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)
+    assign("rng.kind", RNGkind(), envir=.spadesEnv)
   }
   save.image(file) # saves entire workspace
   invisible(TRUE) # return "success" invisibly

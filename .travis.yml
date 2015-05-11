@@ -19,36 +19,6 @@ r_check_args: "--as-cran"
 warnings_are_errors: true
 
 apt_packages:
-  - latex-xcolor
-
-r_binary_packages:
-  - chron
-  - colorspace
-  - dichromat
-  - digest
-  - ggplot2
-  - gtable
-  - labeling
-  - latticeextra
-  - munsell
-  - nlme
-  - proto
-  - randomfields
-  - rcolorbrewer
-  - rcpp
-  - reshape
-  - rgdal
-  - scales
-  - snow
-  - sp
-  - stringr
-  - tkrplot
-  - xts
-  - zoo
-
-r_github_packages:
-  - s-u/fastshp
-  - jimhester/covr
 
 after_success:
   - Rscript -e 'library(covr); coveralls()'

@@ -1,6 +1,0 @@
-for(i in 1:M) new1.mat(tmp.mat)
-for(i in 1:M) new2.mat(tmp.mat)
-for(i in 1:M) new1.df(tmp.df)
-for(i in 1:M) new2.df(tmp.df)
-for(i in 1:M) new1.dt(tmp.dt)
-for(i in 1:M) new2.dt(tmp.dt)

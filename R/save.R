@@ -63,7 +63,7 @@ saveFiles = function(sim) {
     modulePaths[[moduleName]] <- "."
   }
 
-  txtTime = sprintf(paste0("%0", nchar(simStopTime(sim)), "d"), simCurrentTime(sim))
+  txtTime = paddedFloatToChar(simCurrentTime(sim), ceiling(log10(simStopTime(sim)+1)))
 
   # save objects to a filename that has same name as object name, plus current simulation time
   lapply(toSave[[moduleName]], function(objectname) {

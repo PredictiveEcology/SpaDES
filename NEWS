@@ -1,4 +1,43 @@
-Known issues: https://github.com/achubaty/SpaDES/issues
+Known issues: https://github.com/PredictiveEcology/SpaDES/issues
+
+version 0.6.1
+=============
+* added the Queen as copyright holder (#140)
+* explicitly use GPL-3 (previously used GPL) (#140)
+* modules now require metadata; module code without it will break!
+
+    - new module dependency checking and metadata structure (#126)
+    - explicit declaration of parameters, and object (data) dependencies
+    - deprecated use of `reloadModuleLater`
+
+* new module directory structure (#125):
+
+        moduleName/
+        |_ moduleName.R    # the actual module code file, incl. module metadata
+        |_ moduleName.Rmd  # longform documentation and usage info, etc.
+        |_ citation.bib    # properly formatted bibtex citation for the module
+        |_ LICENSE         # license file describing the allowed usage etc. of the module
+        |_ README          # incl. module metadata in addition to version change info, etc.
+
+* updated package dependencies:
+    * added `downloader`, `dplyr`, `fpCompare`, `httr`, `magrittr`, `stringr` to `Imports`
+* updated vignettes and documentation improvements
+* transfered project to `PredictiveEcology/SpaDES` from `achubaty/SpaDES`.
+* overhaul to `Plot` function:
+    * no longer needs `*Named` objects.
+    * now handles `SpatialPolygons` objects much faster than default `plot`:
+        * Uses package `fastshp`.
+            * The suggested package `fastshp` can be installed with:
+
+                    install_github("s-u/fastshp")
+
+    * numerous other `Plot` improvements
+* deprecated all `*Named` functionality
+    * All code will break that uses `*Named` objects
+* new function, `clearPlot` can be used to clean all hidden metadata about a plot
+* new function, `randomPolygons`, will create random raster maps (not vector maps) of polygons
+* numerous bugfixes
+
 version 0.4.0
 =============
 * second public ("beta") release

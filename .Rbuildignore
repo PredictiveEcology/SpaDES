@@ -7,5 +7,6 @@
 cran-comments.md
 LICENSE
 ^SAMPLE$
+^travis_wait_.*\.log$
 vignettes/.*\.log$
 vignettes/.*_cache$

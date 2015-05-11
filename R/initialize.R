@@ -1,5 +1,7 @@
+if(getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
+
 ##############################################################
-#' GaussMap
+#' gaussMap
 #'
 #' Produces a raster of a random gaussian process.
 #'
@@ -25,50 +27,191 @@
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @import RandomFields raster
+#' @importFrom RandomFields RFsimulate
+#' @importFrom RandomFields RFoptions
+#' @importFrom RandomFields RMexp
+#' @import tkrplot
 #' @export
 #' @docType methods
-#' @rdname gaussmap-method
+#' @rdname gaussmap
 #'
 #@examples
 #EXAMPLES NEEDED
-GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fast=TRUE, n.unique.pixels=100) {
+gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fast=TRUE, n.unique.pixels=100) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
   resol <- res(x)
-  nc <- (ext@xmax-ext@xmin)/speedup
-  nr <- (ext@ymax-ext@ymin)/speedup
+  nc <- (ext@xmax-ext@xmin)/resol[1]
+  nr <- (ext@ymax-ext@ymin)/resol[2]
+  wholeNumsCol <- .findFactors(nc)
+  wholeNumsRow <- .findFactors(nr)
+  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol-nc/speedup))]
+  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow-nr/speedup))]
+#   ncSpeedup <- wholeNumsCol[findInterval(speedup, wholeNumsCol)+1]
+#   nrSpeedup <- wholeNumsRow[findInterval(speedup, wholeNumsRow)+1]
+   speedupEffectiveCol <- nc/ncSpeedup
+  speedupEffectiveRow <- nr/nrSpeedup
 
   model <- RMexp(scale=scale, var=var)
   if (inMemory) {
-    sim <- rasterToMemory(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+    sim <- rasterToMemory(RFsimulate(model, y=1:ncSpeedup, x=1:nrSpeedup, grid=TRUE, ...))
   } else {
-    sim <- raster(RFsimulate(model, y=1:nc, x=1:nr, grid=TRUE, ...))
+    sim <- raster(RFsimulate(model, y=1:ncSpeedup, x=1:nrSpeedup, grid=TRUE, ...))
   }
   sim <- sim - cellStats(sim, "min")
   extent(sim) <- ext
   if(speedup>1)
-    return(disaggregate(sim, c(speedup, speedup)))
+    return(disaggregate(sim, c(speedupEffectiveCol, speedupEffectiveRow)))
   else
     return(invisible(sim))
 }
 
+
 ##############################################################
-#' spec.num.per.patch
+#' Find Factors
 #'
-#' Instantiate a specific number of agents per patch.
+#' Finds the integer factors of an integer
 #'
-#' @param patches Description of this.
+#' Used internally in gaussMap
 #'
-#' @param num.per.patch.table Description of this.
+#' @param x An integer to factorize
 #'
-#' @param num.per.patch.map Description of this.
+#' @return A vector of integer factors
 #'
-#' @return Decribe what it returns: \code{al}.
+#' @seealso \code{\link{gaussMap}}
 #'
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' @rdname findFactors
+#'
+#@examples
+#EXAMPLES NEEDED
+.findFactors <- function(x) {
+  x <- as.integer(x)
+  div <- seq_len(abs(x))
+  return(div[x %% div == 0L])
+}
+
+
+##############################################################
+#' randomPolygons
+#'
+#' Produces a raster of with random polygons of varying parameters, using the
+#' The Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
+#'
+#' This is a wrapper for the \code{secr::randomHabitat} function in the secr
+#' package. The two main additions are the \code{speedup} argument which allows
+#' for faster map generation for large rasters and addition of multiple unique polygon
+#' values, using code drawn from http://www.guru-gis.net/generate-a-random-landscape/.
+#'
+#' @param ras A raster that whose extent will be used for the randomPolygons
+#'
+#' @param p numeric vector. Parameter to control fragmentation. If this is a vector,
+#' then there will be a polygon map produced with length(p) unique levels. See \code{randomLandscape}
+#'
+#' @param A numeric vector. Parameter for expected proportion of habitat. If this is a vector,
+#' then there will be a polygon map produced with length(A) unique levels. See \code{randomLandscape}
+#'
+#' @param speedup An index of how much faster than normal to generate maps. This is achieved
+#' by aggregating then disagregating at the end, so that the resulting raster is the
+#' same extent as \code{ras}
+#'
+#' @param numTypes numeric value. The number of unique polygon types to use. This will
+#' be overridden by p, A or minpatch, if any of these are vectors.
+#'
+#' @param minpatch numeric vector. Integer minimum size of patch. If this is a vector,
+#' then there will be a polygon map produced with length(A) unique levels. See \code{randomLandscape}
+#'
+#' @param ... Additional arguments to \code{randomHabitat}.
+#'
+#' @return A map of extent \code{ext} with a random polygons.
+#'
+#' @seealso \code{\link{randomHabitat}} and \code{\link{raster}}
+#'
+#' @importFrom secr make.mask
+#' @importFrom secr randomHabitat
+#'
+#' @importFrom raster disaggregate
+#' @importFrom raster extent
+#' @importFrom raster ncol
+#' @importFrom raster nrow
+#' @importFrom raster raster
+#'
+#' @import igraph
+#'
+#' @export
+#' @docType methods
+#' @rdname randomPolygons
+#'
+#' @examples
+#' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
+#' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
+#EXAMPLES NEEDED
+randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, speedup=1, numTypes=1, minpatch=10, ...) {
+  ext <- raster::extent(ras)
+  nc <- raster::ncol(ras)
+  nr <- raster::nrow(ras)
+  resol <- res(ras)
+
+  wholeNumsCol <- .findFactors(nc)
+  wholeNumsRow <- .findFactors(nr)
+  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol-nc/speedup))]
+  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow-nr/speedup))]
+  speedupEffectiveCol <- nc/ncSpeedup
+  speedupEffectiveRow <- nr/nrSpeedup
+
+  minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
+
+
+  if(length(resol)>1) {
+    message(paste("assuming square pixels with resolution =",resol[1]))
+    resol <- resol[1]
+  }
+  tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)
+
+  outMap <- list()
+  r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
+              res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
+  if( (numTypes < length(p)) | (numTypes < length(A)) | (numTypes < length(minpatch))) {
+    numTypes = max(length(p),length(A),length(minpatch))
+  }
+  r[] <- 0
+
+  for(i in 1:numTypes) {
+    a = secr::randomHabitat(tempmask,
+                            p = p[(i-1)%%length(p)+1],
+                            A = A[(i-1)%%length(A)+1],
+                            minpatch = minpatch[(i-1)%%length(minpatch)+1])
+    if(nrow(a)==0) {
+      stop("A NULL map was created. Please try again, perhaps with different parameters")
+    }
+    r[as.integer(rownames(a))] <- i
+  }
+  if(speedup>1) {
+    return(raster::disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
+  } else {
+    return(invisible(r))
+  }
+}
+
+##############################################################
+#' specificNumPerPatch
+#'
+#' Instantiate a specific number of agents per patch. The user can either supply
+#' a table of how many to initiate in each patch, linked by a column in that table
+#' called "pops"
+#'
+#' @param patches RasterLayer of Patches, with some sort of a patch id
+#'
+#' @param numPerPatchTable A data.frame or data.table with a column named "pops" that
+#' matches the \code{patches} patch ids
+#'
+#' @param numPerPatchMap A RasterLayer exactly the same as \code{patches} but with
+#' agent numbers rather than ids as the cell values per patch.
+#'
+#' @return A raster with 0s and 1s, where the 1s indicate starting locations of agents
+#' following the numbers above
 #'
 #' @import data.table raster sp
+#' @importFrom methods is
 #' @export
 #' @docType methods
 #' @rdname specnumperpatch-probs
@@ -82,27 +225,26 @@ GaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {#, fa
 #  or 2 maps, patchid and patchnumber. Returns a map with a single unique pixel
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
-#
-spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.map=NULL) {
+specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells=TRUE)
-  if (!is.null(num.per.patch.table)) {
+  if (!is.null(numPerPatchTable)) {
     dt1 <- data.table(wh, pops=patchids)
-    setkey(dt1, pops)
-    if (is(num.per.patch.table, "data.table")) {
-      num.per.patch.table <- data.table(num.per.patch.table)
+    setkey(dt1, "pops")
+    if (is(numPerPatchTable, "data.table")) {
+      numPerPatchTable <- data.table(numPerPatchTable)
     }
-    setkey(num.per.patch.table, pops)
-    dt2 <- dt1[num.per.patch.table]
-  } else if (!is.null(num.per.patch.map)) {
-    num.per.patch.table <- as.numeric(na.omit(getValues(num.per.patch.map)))
-    dt2 <- data.table(wh,pops=patchids, num.in.pop=num.per.patch.table)
+    setkey(numPerPatchTable, "pops")
+    dt2 <- dt1[numPerPatchTable]
+  } else if (!is.null(numPerPatchMap)) {
+    numPerPatchTable <- as.numeric(na.omit(getValues(numPerPatchMap)))
+    dt2 <- data.table(wh, pops=patchids, num.in.pop=numPerPatchTable)
   } else {
-    stop("need num.per.patch.map or num.per.patch.table")
+    stop("need numPerPatchMap or numPerPatchTable")
   }
 
   resample <- function(x, ...) x[sample.int(length(x), ...)]
-  dt3 <- dt2[, list(cells=resample(wh, unique(num.in.pop))), by=pops]
+  dt3 <- dt2[, list(cells=resample(wh, unique(num.in.pop))), by="pops"]
   dt3$ids <- rownames(dt3)
 
   al <- raster(patches)
