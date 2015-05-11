@@ -3,7 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 0.6.1
 =============
 * added the Queen as copyright holder (#140)
-* explicitly use GPL-3 (previosly used GPL) (#140)
+* explicitly use GPL-3 (previously used GPL) (#140)
 * modules now require metadata; module code without it will break!
 
     - new module dependency checking and metadata structure (#126)
