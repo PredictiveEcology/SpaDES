@@ -15,7 +15,7 @@ Version: 0.6.1
 Date: 2015-05-11
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
-    role=c("aut")),
+    role=c("aut", "cre")),
     person(c("Eliot", "J", "B"), "McIntire", email="emcintir@NRCan.gc.ca",
     role=c("aut")),
     person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
