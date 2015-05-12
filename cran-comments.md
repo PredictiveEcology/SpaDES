@@ -40,15 +40,6 @@ There were 2 NOTES:
         File 'SpaDES/R/load.R':
           assign(objectNames[x], do.call(get(loadFun[x]), args = argument),
             envir = .GlobalEnv)
-        File 'SpaDES/R/plotting.R':
-          assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
-            Lines(list(Line(coords = rbind(coordinates(from)[x, ], coordinates(to)[x,
-                ]))), ID = x)
-        })), envir = .GlobalEnv)
-          assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
-            Lines(list(Line(coords = rbind(coordinates(from)[x, ], coordinates(to)[x,
-                ]))), ID = x)
-        })), envir = .GlobalEnv)
 
 ## Downstream dependencies
 

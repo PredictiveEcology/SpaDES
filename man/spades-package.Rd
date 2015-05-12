@@ -204,6 +204,7 @@ Agents have several methods and functions specific to them:
 \tabular{ll}{
   \code{\link{crw}} \tab Simple correlated random walk function\cr
   \code{\link{heading}} \tab Determines the heading between SpatialPoints*\cr
+  \code{\link{makeLines}} \tab Makes \code{SpatialLines} object for, e.g., drawing arrows\cr
   \code{\link{move}} \tab A meta function that can currently only take "crw"\cr
   \code{\link{specificNumPerPatch}} \tab Initiate a specific number of agents per patch\cr
 }
@@ -331,7 +332,6 @@ Other useful plotting functions:
   \code{\link{clickExtent}} \tab Zoom into a raster or polygon map that was plotted with \code{\link{Plot}}\cr
   \code{\link{clickCoordinates}} \tab Get the coordinates, in map units, under mouse click\cr
   \code{\link{dev}} \tab Specify which device to plot on, making a non-RStudio one as default\cr
-  \code{\link{drawArrows}} \tab Plots arrows showing direction vectors\cr
   \code{\link{newPlot}} \tab Open a new default plotting device\cr
   \code{\link{rePlot}} \tab Replots all elements of device for refreshing or moving plot\cr
 }
