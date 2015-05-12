@@ -1335,42 +1335,31 @@ setMethod(".plotGrob",
 }
 
 
+
 ################################################################################
-#' Plots arrows showing direction of agent movement
+#' Make \code{SpatialLines} object from two \code{SpatialPoints} objects
+#'
+#' The primary conceived usage of this is to draw arrows following the trajectories of an agent.
 #'
 #' @param from          Starting spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
 #' @param to            Ending spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
-#' @param addTo Optional character string. The name of a map layer on which to draw the arrows.
-#'
-#' @param title logical. Add title to plot. Defaults to \code{TRUE}.
-#' Since this is also the viewport name, it is a good idea to plot it so the
-#' viewport can be called for later plotting.
-#'
-#' @param axes logical Add axes to plot. Defaults to \code{TRUE}.
-#'
-#' @param length numeric. Optional length, in inches, of arrow head on a SpatialLines object.
-#'
-#' @param ...           Additional plotting parameters passed to \code{\link{grid.polyline}}.
-#' Currently does not appear to pass anything.
-#'
-#' @return Plots the vectors representing agent movement on the specified map. If plotted
-#' on a blank plot, the plot object will be given the name of the "from" object, with
-#' the word "Arrows" concatenated on the end.
+#' @return A \code{SpatialLines} object. When this object is used within a \code{Plot} call
+#' and the \code{length} argument is specified, then arrow heads will be drawn. See examples.
 #'
 #' @import sp
-#' @import grid
 #' @export
 #' @docType methods
-#' @rdname drawArrows
+#' @rdname makeLines
 #' @author Eliot McIntire
 #' @examples
 #' # Make 2 objects
 #' caribou1 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
 #' caribou2 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
 #'
-#' drawArrows(caribou1, caribou2)
+#' caribouTraj <- makeLines(caribou1, caribou2)
+#' Plot(caribouTraj, new=TRUE, length=0.1)
 #'
 #' # or  to a previous Plot
 #' fileList <-
@@ -1389,38 +1378,22 @@ setMethod(".plotGrob",
 #' loadFiles(fileList=fileList)
 #'
 #' Plot(DEM)
-#' drawArrows(caribou1, caribou2, addTo="DEM")
-setGeneric("drawArrows", function(from, to, addTo, title=TRUE, axes=TRUE, ...) {
-  standardGeneric("drawArrows")
+#' caribouTraj <- makeLines(caribou1, caribou2)
+#' Plot(caribouTraj, addTo="DEM", length=0.1)
+setGeneric("makeLines", function(from, to) {
+  standardGeneric("makeLines")
 })
 
-#' @rdname drawArrows
-setMethod("drawArrows",
-          signature=c("SpatialPoints", "SpatialPoints", "character"),
-          definition=function(from, to, addTo, title, axes, ..., length=0.1) {
-            objName <- paste0(.objectNames("drawArrows")[[1]], "Arrows")
+#' @rdname makeLines
+setMethod("makeLines",
+          signature=c("SpatialPoints", "SpatialPoints"),
+          definition=function(from, to) {
 
-            assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
+            SpatialLines(lapply(seq_len(length(from)), function(x) {
               Lines(list(Line(coords=rbind(coordinates(from)[x,], coordinates(to)[x,]))),ID=x)
-            })), envir=.GlobalEnv)
+            }), proj4string=crs(from))
 
-            Plot(get(objName, envir=.GlobalEnv), addTo=addTo,
-                 title=title, axes=axes, length=length, ...)
-})
-
-#' @rdname drawArrows
-setMethod("drawArrows",
-          signature=c("SpatialPoints", "SpatialPoints", "missing"),
-          definition=function(from, to, addTo, title, axes, ..., length=0.1) {
-            objName <- paste0(.objectNames("drawArrows")[[1]], "Arrows")
-            assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
-              Lines(list(Line(coords=rbind(coordinates(from)[x,], coordinates(to)[x,]))),ID=x)
-            })), envir=.GlobalEnv)
-
-            Plot(get(objName, envir=.GlobalEnv),
-                 title=title, axes=axes, length=length, ...)
-})
-
+          })
 
 ################################################################################
 #' Extracts the object names
@@ -2187,18 +2160,18 @@ setMethod(".makeColorMatrix",
               if(length(getColors(grobToPlot)[[1]])>0) {
                 colTable <- getColors(grobToPlot)[[1]]
                 lenColTable <- length(colTable)
-                
+
                 cols <- if(nValues>lenColTable) { # not enough colors, use colorRamp
                   colorRampPalette(colTable)(nValues)
-                } else if (nValues<=(lenColTable)) { # one more color than needed: 
+                } else if (nValues<=(lenColTable)) { # one more color than needed:
                   #   assume bottom is NA
                   colTable
-                } else if (nValues<=(lenColTable-1)) { # one more color than needed: 
+                } else if (nValues<=(lenColTable-1)) { # one more color than needed:
                   #   assume bottom is NA
                   na.color <- colTable[1]
                   colTable[minz:maxz - minz + 2]
                   #colTable[minz:maxz+max(0,1-minz)+1]
-                } else if (nValues<=(lenColTable-2)) { # 2 more colors than needed, 
+                } else if (nValues<=(lenColTable-2)) { # 2 more colors than needed,
                   #  assume bottom is NA, second is white
                   na.color <- colTable[1]
                   zero.color <- colTable[2]
@@ -2262,13 +2235,13 @@ setMethod(".makeColorMatrix",
             }
             z <- z + 1 # for the NAs
             z[is.na(z)] <- max(1, minz)
-            
+
             #if there are no zeros in the data, then don't shift colors
-            
+
             #if(minz!=0) cols <- cols[-1]
 
             cols<-c(na.color, cols) # make first index of colors be transparent
-            
+
             if((minz>1) | (minz<0)) {
               z <- matrix(cols[z-minz+1], nrow=nrow(grobToPlot), ncol=ncol(grobToPlot), byrow=TRUE)
             } else {

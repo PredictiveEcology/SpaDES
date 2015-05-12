@@ -131,8 +131,9 @@ Plot(landscape[["habitatQuality"]], new=TRUE)
 for (t in 1:30) {
   #crop any caribou that went off maps
   caribou <<- crop(caribou,landscape)
-  drawArrows(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
-             to=caribou, length=0.04, addTo="landscape$habitatQuality")
+  caribouArrows <- makeLines(from=SpatialPoints(cbind(x=caribou$x1, y=caribou$y1)),
+            to=caribou)
+  Plot(caribouArrows, length=0.04, addTo="landscape$habitatQuality")
 
   # find out what pixels the individuals are on now
   ex <- landscape[["habitatQuality"]][caribou]
