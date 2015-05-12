@@ -465,7 +465,7 @@ Ward <- expression(if(cellSize<=effDist) {
          (1-k)*exp((dis-cellSize-effDist)*log(b)/maxDist)-
            (1-k)*exp((dis-effDist)*log(b)/maxDist))
 } else {
-  ifelse(dis==cellSize,
+  ifelse(dis<=cellSize,
          exp((dis-cellSize)*log(1-k)/effDist)-(1-k)*
            exp((dis-effDist)*log(b)/maxDist),
          (1-k)*exp((dis-cellSize-effDist)*log(b)/maxDist)-
