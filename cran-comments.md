@@ -1,6 +1,7 @@
 ## Test environments
 
 ### Previous R versions
+* Debian Wheezy           (local), R 3.1.2
 * Windows 7               (local), R 3.1.2
 * Windows 7               (local), R 3.1.3
 
