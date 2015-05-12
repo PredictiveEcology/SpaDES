@@ -21,7 +21,14 @@ install_github("s-u/fastshp")
 ```
 
 ### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=master)  [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](http://cran.r-project.org/web/packages/SpaDES)
-    
+
+
+**Install from CRAN:**
+
+```r
+install.packages("SpaDES")
+```
+
 **Install from package file:**
     
 - Download:
