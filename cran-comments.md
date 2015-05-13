@@ -1,14 +1,20 @@
 ## Test environments
 
-* OS X Yosemite         (local), R 3.2.0
-* Ubuntu 12.04      (travis-ci), R 3.2.0
-* Ubuntu 14.04          (local), R 3.2.0
-* Ubuntu 14.04 (rocker/r-devel), R 3.3.0 (2015-03-31 r68131)
-* Windows 7             (local), R 3.1.2
-* Windows 7             (local), R 3.1.3
-* Windows 7             (local), R 3.2.0
-* Windows         (win-builder), R 3.2.0
-* Windows         (win-builder), R 3.2.0
+### Previous R versions
+* Debian Wheezy           (local), R 3.1.2
+* Windows 7               (local), R 3.1.2
+* Windows 7               (local), R 3.1.3
+
+### Current R versions
+* OS X Yosemite           (local), R 3.2.0
+* Ubuntu 12.04        (travis-ci), R 3.2.0
+* Ubuntu 14.04            (local), R 3.2.0
+* Windows 7               (local), R 3.2.0
+* Windows           (win-builder), R 3.2.0
+
+### Development R version
+* Debian:testing (rocker/r-devel), R 3.3.0 (2015-03-31 r68131)
+* Windows           (win-builder), R 3.3.0 (2015-05-11 r68354)
 
 ## R CMD check results
 
@@ -35,15 +41,6 @@ There were 2 NOTES:
         File 'SpaDES/R/load.R':
           assign(objectNames[x], do.call(get(loadFun[x]), args = argument),
             envir = .GlobalEnv)
-        File 'SpaDES/R/plotting.R':
-          assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
-            Lines(list(Line(coords = rbind(coordinates(from)[x, ], coordinates(to)[x,
-                ]))), ID = x)
-        })), envir = .GlobalEnv)
-          assign(objName, SpatialLines(lapply(seq_len(length(from)), function(x) {
-            Lines(list(Line(coords = rbind(coordinates(from)[x, ], coordinates(to)[x,
-                ]))), ID = x)
-        })), envir = .GlobalEnv)
 
 ## Downstream dependencies
 
