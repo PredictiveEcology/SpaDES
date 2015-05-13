@@ -38,7 +38,6 @@ setGeneric("depsEdgeList", function(sim, plot) {
 })
 
 #' @rdname depsEdgeList
-#'
 setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
@@ -61,7 +60,7 @@ setMethod("depsEdgeList",
                 }
               }
               return(invisible(NULL)) # return from the lapply
-  })
+            })
 
             setkey(sim.in, "objectName")
             setkey(sim.out, "objectName")
@@ -82,7 +81,6 @@ setMethod("depsEdgeList",
 })
 
 #' @rdname depsEdgeList
-#'
 setMethod("depsEdgeList",
           signature(sim="simList", plot="missing"),
           definition=function(sim, plot) {
@@ -111,14 +109,13 @@ setGeneric("depsGraph", function(sim, plot) {
 })
 
 #' @rdname depsGraph
-#'
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
             if (plot) {
               el <- depsEdgeList(sim, plot)
             } else {
-              el <- depsEdgeList(sim, plot) %>% depsPruneEdges
+              el <- depsEdgeList(sim, plot) %>% .depsPruneEdges
             }
             return(graph.data.frame(el))
 })
@@ -126,6 +123,7 @@ setMethod("depsGraph",
 ################################################################################
 #' Prune edges to remove cycles in module dependencies
 #'
+#' Internal function.
 #' Attempts to identify cycles in the dependency graph and remove edges representing
 #' object dependencies which are provided by other modules in the simulation.
 #'
@@ -149,13 +147,12 @@ setMethod("depsGraph",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("depsPruneEdges", function(simEdgeList) {
-  standardGeneric("depsPruneEdges")
+setGeneric(".depsPruneEdges", function(simEdgeList) {
+  standardGeneric(".depsPruneEdges")
 })
 
 #' @rdname depsPruneEdges
-#'
-setMethod("depsPruneEdges",
+setMethod(".depsPruneEdges",
           signature(simEdgeList="data.table"),
           definition=function(simEdgeList) {
             simGraph <- graph.data.frame(simEdgeList)
@@ -208,6 +205,7 @@ setMethod("depsPruneEdges",
 ################################################################################
 #' Determine module load order
 #'
+#' Internal function.
 #' Checks module dependencies and attempts to enusure that cyclic dependencies
 #' can be resolved, checking objects in the global environment, and finally,
 #' attempts to determine the load order for modules in the simulation.
@@ -231,13 +229,12 @@ setMethod("depsPruneEdges",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("depsLoadOrder", function(sim, simGraph) {
-  standardGeneric("depsLoadOrder")
+setGeneric(".depsLoadOrder", function(sim, simGraph) {
+  standardGeneric(".depsLoadOrder")
 })
 
 #' @rdname depsLoadOrder
-#'
-setMethod("depsLoadOrder",
+setMethod(".depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),
           definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!

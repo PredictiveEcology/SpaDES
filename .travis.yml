@@ -4,33 +4,64 @@
 # see the wiki:
 #   https://github.com/craigcitro/r-travis/wiki
 
-language: c
+language: r
 
 sudo: required
 
-env:
-  global:
-    - DISPLAY=:99.0
-    - R_BUILD_ARGS=" "
-    - R_CHECK_ARGS="--as-cran"
-    - BOOTSTRAP_LATEX="1"
-
 before_install:
-  - curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-  - chmod 755 ./travis-tool.sh
-  - ./travis-tool.sh bootstrap
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
 
-install:
-  - sh -e /etc/init.d/xvfb start
-  - ./travis-tool.sh install_r_binary boot chron circstats colorspace data.table dichromat digest downloader dplyr ggplot2 gtable httr igraph labeling lattice latticeextra knitr magrittr mass matrix munsell nlme proto randomfields raster rcolorbrewer rcpp reshape rgdal scales secr snow sp stringr tkrplot xts zoo
-  - ./travis-tool.sh install_github s-u/fastshp
-  - ./travis-tool.sh install_deps
+r_build_args: " "
 
-script:
-  - travis_wait ./travis-tool.sh run_tests
+r_check_args: "--as-cran"
 
-after_failure:
-  - ./travis-tool.sh dump_logs
+warnings_are_errors: true
+
+apt_packages:
+  - curl
+  - latex-xcolor
+
+r_binary_packages:
+  - chron
+  - circstats
+  - colorspace
+  - data.table
+  - dichromat
+  - digest
+  - dplyr
+  - ggplot2
+  - gtable
+  - httr
+  - igraph
+  - knitr
+  - labeling
+  - latticeextra
+  - magrittr
+  - munsell
+  - proto
+  - randomfields
+  - raster
+  - rcolorbrewer
+  - rcpp
+  - reshape
+  - rgdal
+  - scales
+  - secr
+  - snow
+  - sp
+  - stringr
+  - testthat
+  - tkrplot
+  - xts
+  - zoo
+
+r_github_packages:
+  - s-u/fastshp
+  - jimhester/covr
+
+after_success:
+  - Rscript -e 'library(covr); coveralls()'
 
 notifications:
   email:

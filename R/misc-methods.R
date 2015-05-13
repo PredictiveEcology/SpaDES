@@ -35,8 +35,7 @@ setMethod("getFileName",
             return(f)
 })
 
-
-##############################################################
+################################################################################
 #' Update elements of a named list with elements of a second named list
 #'
 #' Merge two named list based on their named entries. Where
@@ -106,7 +105,7 @@ setMethod("updateList",
             return(list())
 })
 
-##############################################################
+################################################################################
 #' Load packages.
 #'
 #' Load and optionally install additional packages.
@@ -157,7 +156,7 @@ setMethod("loadPackages",
               if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 
-##############################################################
+################################################################################
 #' Check filepath.
 #'
 #' Checks the specified filepath for formatting consistencies,
@@ -177,8 +176,6 @@ setMethod("loadPackages",
 #' @docType methods
 #' @rdname checkPath
 #'
-# @examples
-# need examples
 setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
@@ -227,7 +224,7 @@ setMethod("checkPath",
             stop("Invalid path: cannot be NULL.")
 })
 
-##############################################################
+################################################################################
 #' Check for existence of a global object
 #'
 #' Check that a named object exists in the global environment, and optionally has
@@ -252,8 +249,7 @@ setMethod("checkPath",
 #' @docType methods
 #' @rdname checkObject
 #'
-#' @author Alex Chubaty
-#' @author Eliot McIntire
+#' @author Alex Chubaty and Eliot McIntire
 #'
 setGeneric("checkObject", function(name, object, layer, ...) {
   standardGeneric("checkObject")
@@ -315,7 +311,7 @@ setMethod("checkObject",
             }
 })
 
-##############################################################
+################################################################################
 #' Check use and existence of params passed to simulation.
 #'
 #' Checks that all parameters passed are used in a module,
@@ -340,9 +336,6 @@ setMethod("checkObject",
 #' @rdname checkParams
 #'
 #' @author Alex Chubaty
-#'
-# @examples
-# \dontrun{}
 #'
 setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
@@ -443,7 +436,7 @@ setMethod("checkParams",
                       mP <- moduleParams[i]
                       if (!(mP %in% userParams)) {
                         allFound <- FALSE
-                        warning(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
+                        message(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
                       }
                     }
                   }
@@ -453,7 +446,7 @@ setMethod("checkParams",
                 notFound <- setdiff(globalsFound, names(globalParams))
                 if (length(notFound)>0) {
                   allFound <- FALSE
-                  warning(paste("The following global parameters are used in module", uM,
+                  message(paste("The following global parameters are used in module", uM,
                                 "but not supplied to simInit in .globals:", unlist(notFound)))
                 }
               }
@@ -488,7 +481,7 @@ setMethod("checkParams",
 #' @docType methods
 #' @rdname paddedFloatToChar
 #'
-#' @author Eliot McIntire & Alex Chubaty
+#' @author Eliot McIntire and Alex Chubaty
 paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   xIC <- x %/% 1 %>%
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%

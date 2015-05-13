@@ -49,19 +49,19 @@
 ###               paramClass: numeric
 ###               default: NA
 ###
-### inputObjects: objectName: simGlobals(sim)$.stackName
+### inputObjects: objectName: simGlobals(sim)$stackName
 ###               objectClass: RasterStack
 ###               other: layerName="habitatQuality"
 ###
-### outputObjects: objectName: simGlobals(sim)$.stackName
+### outputObjects: objectName: simGlobals(sim)$stackName
 ###                objectClass: RasterStack
 ###                other: layerName="habitatQuality"
 ###
 ###                objectName: caribou
 ###                objectClass: SpatialPointsDataFrame
 ###                other: NA
-###
-### caribouMovement module metadata
+
+## caribouMovement module metadata
 defineModule(sim, list(
   name="caribouMovement",
   description="Simulate caribou movement via correlated random walk.",
@@ -81,22 +81,22 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1),
     defineParameter(".saveInitialTime", "numeric", NA_real_),
     defineParameter(".saveInterval", "numeric", NA_real_)),
-  inputObjects=data.frame(objectName=simGlobals(sim)$.stackName,
+  inputObjects=data.frame(objectName=simGlobals(sim)$stackName,
                           objectClass="RasterStack",
                           other="layername=\"habitatQuality\"",
                           stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=c(simGlobals(sim)$.stackName, "caribou"),
+  outputObjects=data.frame(objectName=c(simGlobals(sim)$stackName, "caribou"),
                            objectClass=c("RasterStack", "SpatialPointsDataFrame"),
                            other=c("layername=\"habitatQuality\"", NA_character_),
                            stringsAsFactors=FALSE)
 ))
 
-### event functions
+## event types
 doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simGlobals(sim)$.stackName, layer="habitatQuality")
+    checkObject(simGlobals(sim)$stackName, layer="habitatQuality")
 
     # do stuff for this event
     sim <- caribouMovementInit(sim)
@@ -138,8 +138,9 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
+## event functions
 caribouMovementInit <- function(sim) {
-  landscape <- getGlobal(simGlobals(sim)$.stackName)
+  landscape <- getGlobal(simGlobals(sim)$stackName)
 
   yrange <- c(ymin(landscape), ymax(landscape))
   xrange <- c(xmin(landscape), xmax(landscape))
@@ -163,7 +164,7 @@ caribouMovementInit <- function(sim) {
 }
 
 caribouMovementMove <- function(sim) {
-  landscape <- getGlobal(simGlobals(sim)$.stackName)
+  landscape <- getGlobal(simGlobals(sim)$stackName)
 
   # crop any caribou that went off maps
   caribou <<- crop(caribou, landscape)

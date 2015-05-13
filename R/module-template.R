@@ -23,7 +23,7 @@
 #' @docType methods
 #' @rdname newModule
 #'
-#' @author Alex Chubaty
+#' @author Alex Chubaty and Eliot McIntire
 #'
 #' @examples
 #' \dontrun{## create a "fastfood" module in the "modules" subdirectory.}
@@ -66,8 +66,6 @@ setMethod("newModule",
 ###
 ### timestep:     NA
 ###
-### translators:  NA
-###
 ### citation:     NA
 ###
 ### reqdPkgs:     NA
@@ -81,7 +79,7 @@ setMethod("newModule",
 ###                other: NA
 ###
 ### ", name, " module metadata
-defineModule(list(
+defineModule(sim, list(
   name=\"", name, "\",
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),
@@ -89,25 +87,19 @@ defineModule(list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  translators=list(),
-  timestep=NA_character_,
+  timestep=NA_real_,
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
     defineParameter(\"paramName\", \"paramClass\", value),
     defineParameter(\"paramName\", \"paramClass\", value)),
-  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA)),
-  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=list(NA))
+  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
 
-### event functions:
-#   - follow the naming convention `modulenameEventtype()`;
-#   - `modulenameInit()` function is required for initiliazation;
-#   - module name and this filename must match;
-#   - keep event functions short and clean, modularize by calling
-#       subroutines from section below.
+## event types
+#   - type `init` is required for initiliazation
 
-### template event
 doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType==\"init\") {
     ### check for more detailed object dependencies:
@@ -139,12 +131,22 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
+## event functions
+#   - follow the naming convention `modulenameEventtype()`;
+#   - `modulenameInit()` function is required for initiliazation;
+#   - keep event functions short and clean, modularize by calling subroutines from section below.
+
 ### template initilization
 ", name, "Init = function(sim) {
 
   # # ! ----- EDIT BELOW ----- ! #
+  # Functions should get and return global objects, rather than pass them as function arguments
+  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
+  #  sim argument if parameters are passed within the simInit call and are needed within the function
+  # getGlobal(\"object\")
 
 
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -154,11 +156,14 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
+  # Functions should get and return global objects, rather than pass them as function arguments
+  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
+  #  sim argument if parameters are passed within the simInit call and are needed within the function
+  # getGlobal(\"object\")
+
   saveFiles(sim)
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.saveInterval, \"", name, "\", \"save\")
-
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -167,11 +172,14 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Plot = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  Plot()
+  # Functions should get and return global objects, rather than pass them as function arguments
+  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
+  #  sim argument if parameters are passed within the simInit call and are needed within the function
+  # getGlobal(\"object\")
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$", name, "$.plotInterval, \"", name, "\", \"plot\")
+  #Plot(getGlobal(\"object\"))
 
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -179,11 +187,13 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template for your event1
 ", name, "Event1 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
+  # Functions should get and return global objects, rather than pass them as function arguments
+  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
+  #  sim argument if parameters are passed within the simInit call and are needed within the function
+  # getGlobal(\"object\")
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"event1\")
 
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -191,11 +201,13 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template for your event2
 ", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  # do stuff for this event
+  # Functions should get and return global objects, rather than pass them as function arguments
+  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
+  #  sim argument if parameters are passed within the simInit call and are needed within the function
+  # getGlobal(\"object\")
 
-  # schedule future event(s)
-  sim <- scheduleEvent(sim, simCurrentTime(sim), \"", name, "\", \"event2\")
 
+  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -230,9 +242,7 @@ setMethod("newModule",
             newModule(name=name, path=".", open=TRUE)
 })
 
-
-#############
-##############################################################
+###########################################################################
 #' @export
 #' @docType methods
 #' @rdname newModule
@@ -336,8 +346,8 @@ file=filenameCitation, fill=FALSE, sep="")
 
 ### Make LICENSE file
 cat("
-    # Provide explicit details of the license for this module
-    # A default could be GPL http://www.gnu.org/copyleft/gpl.html",
+    # Provide explicit details of the license for this module.
+    # See http://choosealicense.com for help selecting one.",
     file=filenameLICENSE, fill=FALSE, sep="")
 
 ### Make README file
@@ -449,6 +459,9 @@ setMethod("openModules",
 ################################################################################
 #' Create a zip archive of a module subdirectory
 #'
+#' The most common use of this would be from a "modules" directory, rather than
+#' inside a given module.
+#'
 #' @param name  Character string giving the module name.
 #' @param path  A file path to a directory containing the module subdirectory.
 #' @param version The module version
@@ -457,6 +470,11 @@ setMethod("openModules",
 #'
 #' @export
 #' @rdname zipModule
+#' @examples
+#' \dontrun{
+#' # zip all modules in a directory, with a particular version
+#'  for (f in dir()) {zipModule(name=f, version="0.0.2")}
+#' }
 #'
 setGeneric("zipModule", function(name, path, version) {
   standardGeneric("zipModule")
@@ -474,7 +492,10 @@ definition = function(name, path, version) {
   callingWd <- getwd()
   on.exit(setwd(callingWd))
   setwd(path)
-  zip(paste0(name, "_", version, ".zip"), files=file.path(name))
+  zipFileName=paste0(name, "_", version, ".zip")
+  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
+  file.copy(zipFileName, to = paste0(name,"/",zipFileName),overwrite = TRUE)
+  file.remove(zipFileName)
 })
 
 #' @rdname zipModule

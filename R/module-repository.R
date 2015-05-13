@@ -14,14 +14,14 @@ if(getRversion() >= "3.1.0") {
 #'                Default is \code{"PredictiveEcology/SpaDES-modules"},
 #'                which is specified by the global option \code{spades.modulesRepo}.
 #'
-#' @author Alex Chubaty
-#'
 #' @importFrom httr content
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
 #' @importFrom magrittr '%>%'
 #' @export
 #' @rdname getModuleVersion
+#'
+#' @author Alex Chubaty
 #'
 setGeneric("getModuleVersion", function(name, repo) {
   standardGeneric("getModuleVersion")
@@ -79,11 +79,11 @@ setMethod("getModuleVersion",
 #'
 #' @return Invisibly, a character vector containing a list of extracted files.
 #'
-#' @author Alex Chubaty
-#'
 #' @importFrom downloader download
 #' @export
 #' @rdname downloadModule
+#'
+#' @author Alex Chubaty
 #'
 setGeneric("downloadModule", function(name, path, version, repo) {
   standardGeneric("downloadModule")

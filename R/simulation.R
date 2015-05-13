@@ -56,7 +56,6 @@ setGeneric("simInit", function(times, params, modules, path, loadOrder) {
 })
 
 #' @rdname simInit
-#'
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
                     path="character", loadOrder="character"),
@@ -146,7 +145,7 @@ setMethod("simInit",
             if ( length(loadOrder) && all(modules %in% loadOrder) && all(loadOrder %in% modules) ) {
               simModulesLoadOrder(sim) <- loadOrder
             } else {
-              simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% depsLoadOrder(sim, .)
+              simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
             }
 
             # load user-defined modules
@@ -239,14 +238,12 @@ setMethod("simInit",
 })
 
 ################################################################################
-#' Load modules for simulation.
+#' Load modules for simulation (deprecated).
 #'
-#' Checks the dependencies of the current module on other modules.
+#' DEPRECATED. Checks the dependencies of the current module on other modules.
 #' These dependencies need to be loaded first, so if they are not
 #' already loaded, hold off loading the current module until after
 #' dependencies are loaded.
-#'
-#' DEPRECATED
 #'
 #' @param sim     A \code{simList} simulation object.
 #'
@@ -462,7 +459,7 @@ setMethod("scheduleEvent",
 #'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
-#' @seealso \code{\link{simInit}}.
+#' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates

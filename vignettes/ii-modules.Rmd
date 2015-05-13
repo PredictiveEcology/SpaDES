@@ -23,16 +23,16 @@ vignette: >
 
 ## Module overview
 
-`SpaDES` is event-driven, meaning that different actions are performed on data objects based on the order of scheduled events.
-A `SpaDES` module describes the processes or activities that drive simulation state changes.
-Each activity consists of a collection of events which are scheduled depending on the rules of your simulation.
-Each event may evaluate or modify a simulation data object, or perform other operations such as saving and loading data objects or plotting.
+Recall that `SpaDES` simulations are event-driven, meaning that different actions are performed on data objects based on the order of scheduled events.
+The central design of `SpaDES` promotes modularity, such that collections of related simulation actions can be grouped together as 'modules' and easily reused among multiple simulations.
+Strict modularity requires that modules can act independently, without needing to know about other modules.
+Thus each `SpaDES` module must explicitly state its input dependencies (data, package, and parameterization requirements), data outputs, as well as provide other useful metadata and documentation for the user.
+Upon initialization of a simulation via `simInit`, the dependencies of every module used are examined and evaluated.
+If dependency incompatibilities exists, the initialization fails and the user is notified. Also during this initialization, module code is `source`-ed into the global environment, making all module objects and functions available to the user.
 
-**simulation and module design philosophy:**
-
-- oeio
-- module code is `source`d during `simInit` and objects/functions put in global environment.
-- oeuio
+Each `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the global environment.
+Each activity consists of a collection of events which are scheduled depending on the rules of the simulation.
+Each event may evaluate or modify a simulation data object (*e.g.*, update the values on a raster map), or perform other operations such as saving and loading data objects, plotting, or scheduling other events.
 
 ### Simulation event list
 
@@ -46,11 +46,11 @@ Completed events are removed from the queue.
 When a call to the event list is made, the event is processed by the module specified by `moduleName`.
 The module code then determines the event type and executes the code for that event.
 For each event type within a module: 1) the instructions for what happens for this event get executed; and 2) there is an optional call to `scheduleEvent`, which schedules a future event.
-A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the "drop-in/replace" modularity of your simulation model.
+A module can schedule other event types from within the same module, and should not call other modules because this introduces module dependencies, which breaks the drop-in/replace modularity of your simulation model.
 
 ### Module event dependencies
 
-Each module schedules its own events (*e.g.*, a "fire" module may schedule "burn" events) and only uses its own data objects (or shared global objects).
+Each module schedules its own events (*e.g.*, a 'fire' module may schedule 'burn' events) and only uses its own data objects (or shared global objects).
 Modules that behave in this way are independent of one another, which is the preferred way to design and implement modules.
 Maintaining strict modularity allows the removal, additon, and replacement of modules without having to rewrite your code.
 
@@ -85,14 +85,9 @@ This file consists of three parts containing the code for:
 
 1. the metadata describing the module and its data dependencies;
 2. defining the event types described in the module;
-3. describing what happens during the processing of each event type.
+3. functions describing what happens during the processing of each event type.
 
 ### Metadata
-
-[need description of metadata]
-
-a. provided as comments at the top of the file;
-b. formalized in code as module metadata;
 
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user).
 During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object.
@@ -111,62 +106,201 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`version`**         | The module version as a `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
 **`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
 **`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
-&nbsp;                | Must be a `POSIXt` object of length 2, specifying the start and end times.
-**`timestep`**        | Describes the time (in seconds) corresponding to 1.0 simulation time units.
+&nbsp;                | Must be a `POSIXt` object of length `2`, specifying the start and end times.
+&nbsp;                | (NOT YET FULLY IMPLEMENTED.)
+**`timestep`**        | Describes the time (in seconds) corresponding to `1.0` simulation time units.
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module parameters,
 &nbsp;                | with columns `paramName`, `paramClass`, and `default`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
-**`inputObjects`**    | A `data.frame` specifying the object dependecies of the module, with columns
+**`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
 &nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
 &nbsp;                | as both an input and an output, add the object to each of these `data.frame`s.
 **`outputObjects`**   | A `data.frame` specifying the objects output by the module, following the format of
 &nbsp;                | `inputObjects`.
 
+```{r module-metadata, eval=FALSE, echo=TRUE}
+## sample module metadata for the default `randomLandscapes` module
+## NOTE: long lines have been truncated
+defineModule(sim, list(
+  name="randomLandscapes",
+  description="Generate RasterStack of random maps representative of a forest landscape ...",
+  keywords=c("random map", "random landscape"),
+  authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca",
+                   role=c("aut", "cre")),
+            person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca",
+                   role=c("aut", "cre"))),
+  version=numeric_version("0.2.0"),
+  spatialExtent=raster::extent(rep(NA_real_, 4)),
+  timeframe=as.POSIXlt(c(NA, NA)),
+  timestep=NA_real_,
+  citation=list(),
+  reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
+  parameters=rbind(
+    defineParameter("stackName", "character", "randomLandscape"),
+    defineParameter("nx", "numeric", 100L),
+    defineParameter("ny", "numeric", 100L),
+    defineParameter("inRAM", "logical", FALSE),
+    defineParameter(".plotInitialTime", "numeric", 0),
+    defineParameter(".plotInterval", "numeric", 1),
+    defineParameter(".saveInitialTime", "numeric", NA_real_),
+    defineParameter(".saveInterval", "numeric", NA_real_)),
+  inputObjects=data.frame(objectName=character(),
+                          objectClass=character(),
+                          other=character(), stringsAsFactors=FALSE),
+  outputObjects=data.frame(objectName=simGlobals(sim)$stackName,
+                           objectClass="RasterStack",
+                           other=NA_character_, stringsAsFactors=FALSE)
+))
+```
+
 #### Defining module parameters: `defineParameter()`
 
-* differentiate btw "input parameters" and "object (data) dependencies"
-* use `defineParameter` within `defineModule` to build a data.frame of input parameters (with `rbind`)
-* default param values are overridden by user when passing param list to `simInit`
-* global vs. "local" parameters for each module.
-* specify default parameters
+Parameters here differ from input data objects in that the former are intended to be variable across simulation runs, whereas the latter remain constant.
+Parameters are often module-specific, where they are only used within the module they are defined, although it may be useful to globally define some parameters that are intended to be used by multiple modules.
+Module-specific parameters are specified using `defineParameter` (with `rbind`) within `defineModule` to build a `data.frame` of input parameters.
+Global parameters are defined at the simulation level as part of the `simInit` call.
 
 The parameter list in the `simList` object (accessed via `simParams`) may be used to pass named parameter values to modules.
 The general structure of this parameter list is `parameters$moduleName$moduleParameter`.
 This nested list structure allows passing as many parameters as needed for your simulation.
 We suggest passing a list of all the parameters needed for a single module together.
 
-```{r passing-params}
-# NEED SAMPLE CODE HERE
+A module's metadata defines default values for module-specific parameters, and these defaults will be used unless overridden by the user.
+Default parameter values can overridden by passing values in the parameter list to `simInit`.
+
+```{r passing-params, eval=FALSE, echo=TRUE}
+require(SpaDES)
+
+outputPath <- file.path(tempdir(), "simOutputs")
+times <- list(start=0.0, stop=20.0)
+parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
+                                 burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
+                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=100L, moveInterval=1,
+                                        .plotInitialTime=1.01, .plotInterval=1))
+modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
+
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 ```
 
 ### Event types
 
-contained within `doEvent.moduleName` call: simple `if`/`else` (case/`switch`)
+Each module may contain an arbitrary number of event types.
+Each of these event types are defined within the `doEvent.moduleName` call, and are wrapped in a simple `if`/`else` stanza that matches the called event type (NOTE: when several event types are defined, `switch`/case can faster than `if`/`else`).
+To keep the `doEvent.moduleName` code block as clear and readable as possible, keep the definitions of each event type minimal, using functions (defined outside of the block) for the details of what is happening for each event.
 
-- every module needs "init" event type.
-- optional: "save", "plot" events
+```{r event-types, echo=TRUE, eval=FALSE}
+## sample event type definitions from the default `randomLandscapes` module
+doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
+  if (eventType=="init") {
+    # do stuff for this event
+    sim <- randomLandscapesInit(sim)
 
-to keep things clean/readable, keep the definitions of each event type minimal, using functions for the "guts" of what is happening for each event.
+    # schedule the next events
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
+                         "randomLandscapes", "plot")
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
+                         "randomLandscapes", "save")
 
-```{r event-types}
-# NEED SAMPLE CODE HERE
+  } else if (eventType=="plot") {
+    # do stuff for this event
+    Plot(getGlobal(simGlobals(sim)$stackName))
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$randomLandscapes$.plotInterval,
+                         "randomLandscapes", "plot")
+  } else if (eventType=="save") {
+
+    # do stuff for this event
+    saveFiles(sim)
+
+    # schedule the next event
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$randomLandscapes$.saveInterval,
+                         "randomLandscapes", "save")
+
+  } else {
+    warning(paste("Undefined event type: \'",
+                  simEvents(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'",
+                  simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
+  }
+  return(invisible(sim))
+}
 ```
 
 ### Event functions
 
-user-specified functions that plugin to the `doEvent` above
+Event functions should be defined below the `doEvent.moduleName` code block and follow the naming convention `modulenameEventtype()`.
+Keep these function definitions as short and clean as possible (you can further modularize your functions by calling additional subroutines).
 
-```{r event-functions}
-# NEED SAMPLE CODE HERE
+Functions should get and return global objects, rather than pass them as function arguments.
+This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call and are needed within the function `getGlobal("object")`.
+
+Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
+As such, the `modulenameInit()` function is required for initiliazation.
+Modules may also include `"save"` and `"plot"` events, though these are optional.
+
+```{r event-functions, echo=TRUE, eval=FALSE}
+## sample event functions from the default `randomLandscapes` module
+randomLandscapesInit <- function(sim) {
+  if (is.null(simParams(sim)$randomLandscapes$inRAM)) {
+    inMemory <- FALSE
+  } else {
+    inMemory <- simParams(sim)$randomLandscapes$inRAM
+  }
+  # Give dimensions of dummy raster
+  nx <- simParams(sim)$randomLandscapes$nx
+  ny <- simParams(sim)$randomLandscapes$ny
+  template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
+  speedup <- max(1, nx/5e2)
+  # Make dummy maps for testing of models
+  DEM <- round(gaussMap(template, scale=300, var=0.03, speedup=speedup,
+                        inMemory=inMemory), 1)*1000
+  forestAge <- round(gaussMap(template, scale=10, var=0.1, speedup=speedup,
+                              inMemory=inMemory), 1)*20
+  percentPine <- round(gaussMap(template, scale=50, var=1, speedup=speedup,
+                                inMemory=inMemory),1)
+
+  # Scale them as needed
+  forestAge <- forestAge/maxValue(forestAge)*100
+  percentPine <- percentPine/maxValue(percentPine)*100
+
+  # Make layers that are derived from other layers
+  habitatQuality <- (DEM+10 + (forestAge+2.5)*10)/100
+  habitatQuality <- habitatQuality/maxValue(habitatQuality)
+
+  # Stack them into a single stack and assign to global env
+  mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
+  names(mapStack)<-c("DEM", "forestAge", "habitatQuality", "percentPine")
+
+  setColors(mapStack) <- list(DEM=terrain.colors(100),
+                              forestAge=brewer.pal(9,"BuGn"),
+                              habitatQuality=brewer.pal(8,"Spectral"),
+                              percentPine=brewer.pal(9,"Greens"))
+  assignGlobal(simGlobals(sim)$stackName, mapStack)
+  return(invisible(sim))
+}
 ```
 
 -----
 
 ## Module documentation (`moduleName.Rmd`)
 
-longform documentation and usage info, etc.
+Module documentation should be written so that others can use your module.
+As such, this documentation should include a high-level overview of the module as well as low-level, detailed descriptions of its usage.
+
+We strongly recommend using RMarkdown (`.Rmd`) for this documentation, as it is easily human-readible while also being machine-readible and easily converted to a wide variety of file formats including `PDF`, `HTML`, and `DOCX`.
+Another benefit of using a text-based file format is to facilitate transparent document versioning and history using version control systems like `git`.
+For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 
 -----
 
@@ -178,13 +312,14 @@ Provides a `BibTeX` formatted citation with which the module can be referenced. 
 
 ## License file (`LICENSE.txt`)
 
-autnehountehaou
+This file describes how your module can be redistributed and used by others.
+For help selecting a license, see [choosealicense.com](http://choosealicense.com).
 
 -----
 
 ## Readme file (`README.txt`)
 
-incl. module metadata in addition to version change info, etc.
+It is useful to include module metadata in addition to version change information in this file.
 
 -----
 
@@ -200,7 +335,7 @@ Use [semantic versioning](http://semver.org), such that a version number `x.y.z`
 
 # Passing data between modules
 
-**HOW AND WHY TO PASS DATA**
+Modularity in `SpaDES` simulations is maintained by ensuring modules interact indirectly with one another by reading in and modifying objects in the global environment.
 
 ## Data types
 
@@ -215,10 +350,11 @@ Within a function, all operations are generally performed on a local copy of the
 This object-copying behaviour has given `R` a reputation of being slow in comparison to languages like `C` and `FORTRAN`.
 However, recent improvements to `R` have made it more memory efficient and faster to execute, in part by minimizing the number of object copies made and lazy loading.
 
-One way to reduce object copying is to work directly on objects in the global environment.
-Use the `assign()` and `get()` functions, with `envir=.GlobalEnv` to work with objects directly in the global environment (`SpaDES` provides shortcuts `assignGlobal()`, `getGlobal()`).
+One way to reduce object copying and speed up [scoping](http://adv-r.had.co.nz/Functions.html#lexical-scoping) is to work directly on objects in the global environment.
+Use the `assign()` and `get()` functions, with `envir=.GlobalEnv` to work with objects directly in the global environment (`SpaDES` provides the shortcuts `assignGlobal()` and `getGlobal()`).
 Likewise, to check for the existence of an object in the global environment, use `exists()` (or the `existsGlobal()`).
-NOTE: Use caution when using the superassignment operator (`<<-`).
+
+*NOTE:* Use caution when using the superassignment operator (`<<-`).
 
 ## Module object dependencies
 
@@ -237,7 +373,7 @@ require(igraph) # required for plotting dependency graph
 require(SpaDES)
 
 times <- list(start=0.0, stop=20)
-parameters <- list(.globals=list(.stackName="landscape", burnStats="nPixelsBurned"))
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
@@ -293,7 +429,7 @@ require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=30)
-parameters <- list(.globals=list(.stackName="landscape"),
+parameters <- list(.globals=list(stackName="landscape"),
                    .checkpoint=list(interval=10, file="chkpnt.RData"))
 modules <- list("randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
@@ -312,7 +448,7 @@ Schedule updates to the simulation progress bar.
 ```{r progress, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
-                 params=list(.globals=list(.stackName="landscape"),
+                 params=list(.globals=list(stackName="landscape"),
                              .progress=list(graphical=FALSE, interval=10)),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES"))
@@ -361,14 +497,15 @@ The key values to include are:
 filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
-                   .globals=list(.stackName="landscape"),
+                   .globals=list(stackName="landscape"),
                    .load=list(fileList=data.frame(files=filelist, stringsAsFactors=FALSE)),
                    randomLandscapes=list(.saveInitialTime=0,
                                          .saveInterval=10,
                                          .saveObjects=c("landscape"),
-                                         .savePath=file.path(tempdir(), "output", "randomLandscapes"))
+                                         .savePath=file.path(tempdir(), "output",
+                                                             "randomLandscapes"))
                    ),
-                 modules=list("randomLandscapes"),
+                 modules=list("caribouMovement"),
                  path=system.file("sampleModules", package="SpaDES")
 )
 
@@ -402,7 +539,7 @@ Plotting events can be scheduled similarly to save events, by passing module-spe
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.globals=list(.stackName="landscape"),
+                 params=list(.globals=list(stackName="landscape"),
                    randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
                    ),
                  modules=list("randomLandscapes"),
@@ -415,7 +552,7 @@ simParams(mySim)$randomLandscapes$.plotInterval
 ```
 
 ```{r plot-events, echo=TRUE, eval=FALSE, message=FALSE}
-# [WITHIN A MODULE]
+### WITHIN A MODULE:
 
 # schedule a recurring plot event
 nextPlot <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.plotInterval
@@ -426,17 +563,30 @@ mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 
 # Using existing `SpaDES` modules
 
+One of the primary motivations of developing the `SpaDES` package is to facilitate module reuse.
+We provide a few modules with this package as samples for demos and the vignettes, which can be used as a starting point for your own module development.
+We also maintain a publically accessible repository of `SpaDES` modules (details below).
+
+Before using other modules, it is up to the modeler (you!) to understand the technical and scientific limitations of these modules.
+Although `SpaDES` provides some built-in functionality to ensure different modules will work together, and warn the user if certain module combinations are invalid, when deciding upon which modules to use, be sure to also:
+
+1. Ensure you are using a suitable `R` version;
+2. Check package dependencies and ensure you have the necesary packages installed on your system;
+3. Check module object dependencies (`simInit` does this);
+4. Check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` only does a basic version of this).
+
+See the `SpaDES` wiki ([https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)) for more detailed information on getting started.
+
 ## Included sample modules
 
-We provide a few modules with this package as samples for demos and the vignettes.
-
-To view the content of a module, use the `openModules` function. 
+Use `system.file("sampleModules", package="SpaDES")` to get the path to the `sampleModules` directory.
+To view the contents of a module, use the `openModules` function.
 Note that you shouldn't edit the sample modules directly, but save them as a copy in another location.
 
 ### Generate random landscapes (`randomLandscapes`)
 
 Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, habitatQuality, percentPine).
-Requires a global simulation parameter `.stackName` be set.
+Requires a global simulation parameter `stackName` be set.
 
 ```{r randomLandscapes, echo=TRUE, eval=FALSE}
 openModules(system.file("sampleModules", package="SpaDES"), "randomLandscapes")
@@ -446,7 +596,7 @@ openModules(system.file("sampleModules", package="SpaDES"), "randomLandscapes")
 
 Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine.
 Fire size statistics are collected immediately after each burn event.
-Requires a global simulation parameter `.stackName` be set.
+Requires a global simulation parameter `stackName` be set.
 
 ```{r fireSpread, echo=TRUE, eval=FALSE}
 openModules(system.file("sampleModules", package="SpaDES"), "fireSpread")
@@ -455,13 +605,13 @@ openModules(system.file("sampleModules", package="SpaDES"), "fireSpread")
 ### Agent based model of caribou movement (`caribouMovement`)
 
 Simulate caribou movement via correlated random walk.
-Requires a RasterStack object whose name is specified by `simGlobals(sim)$.stackName`, containing a RasterLayer named `habitatQuality`.
+Requires a RasterStack object whose name is specified by `simGlobals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
 
 ```{r caribouMovement, echo=TRUE, eval=FALSE}
 openModules(system.file("sampleModules", package="SpaDES"), "caribouMovement")
 ```
 
-## Other modules
+## `SpaDES` module repository
 
 **Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
@@ -471,20 +621,11 @@ Modules from this (or another suitable GitHub repository) can be downloaded usin
 downloadModule("moduleName", "path/to/my/modules/directory")
 ```
 
-Before using other modules, it is up to the modeler (you!) to ensure the scientific validity of using different modules together. 
-When deciding upon which modules to use, be sure to also:
-
-1. check package dependencies and ensure you have the necesarry packages installed on your system;
-2. check module object dependencies (`simInit` does this);
-3. check module compatibility (*e.g.*, spatial extent, timeframe, etc.) (`simInit` only does a basic version of this).
-
 \newpage
 
 # Creating new modules
 
 ## Module design considerations
-
-*[perhaps a bit about design philosophy, relating back to dependencies and how to carefully build modules that actually retain modularity.]*
 
 As noted above, modules should function as independently as possible so that they retain their modularity.
 While it may be useful for modules to exhibit indirect dependence on each other via shared data objects (such as maps), modules should not depend directly on each other via event scheduling.
@@ -511,12 +652,12 @@ After publication you may wish to make your module more easily accessible for ot
 ### Minimum requirements
 
 All contributed modules should be well documented. 
-In addition to providing *complete* metadata within the module's `.R` file, the following components should be included:
+In addition to providing *complete* metadata within the module's `.R` file, the following components (see details above) should be included:
 
-- a `citation.bib` file containing a BibTeX-formatted citation for your module (or for the publication describing your module). This citation will be used by others when citing your module.
-- a `LICENSE` file describing how your module code may be used and modified.
-- a `README` file containing an overview of your module and updates that are included with each version.
-- module documentation, such as an Rmarkdown (`.Rmd`) document that can be built as a `PDF`.
+1. Complete module documentation, such as an Rmarkdown (`.Rmd`) document that can be built as a `PDF`.
+2. A `citation.bib` file containing a BibTeX-formatted citation for your module (or for the publication describing your module). This citation will be used by others when citing your module.
+3. A `LICENSE` file describing how your module code may be used and modified.
+4. A `README` file containing an overview of your module and updates that are included with each version.
 
 Note that `newModule()` produces skeleton templates of these files.
 Additionally, `zipModule()` can be used to build the `.zip` file corresponding to a particular version of your module.

@@ -15,8 +15,6 @@
 #' @rdname heading
 #' @author Eliot McIntire
 #'
-# @examples
-# needs examples
 setGeneric("heading", function(from, to) {
     standardGeneric("heading")
 })

@@ -11,20 +11,17 @@ Description: Easily implement a variety of simulation models, with a focus on
     development packages on Windows requires Rtools
     (http://cran.r-project.org/bin/windows/Rtools).
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.6.0.9002
-Date: 2015-04-14
+Version: 0.6.1.9000
+Date: 2015-05-11
 Authors@R: c(
-    person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
-    role="cph"),
-    person(c("Alex", "M"), "Chubaty",
-    email="achubaty@NRCan.gc.ca",
+    person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
-    person(c("Eliot", "J", "B"), "McIntire",
-    email="emcintir@NRCan.gc.ca",
+    person(c("Eliot", "J", "B"), "McIntire", email="emcintir@NRCan.gc.ca",
     role=c("aut")),
-    person("Steve", "Cumming",
-    email="Steve.Cumming@sbf.ulaval.ca",
-    role=c("ctb"))
+    person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
+    role=c("ctb")),
+    person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
+    role="cph")
     )
 Depends:
     R (>= 3.1.2),
@@ -78,6 +75,7 @@ Collate:
     'probability.R'
     'progress.R'
     'save.R'
+    'spades-classes.R'
     'spades-package.R'
     'spread-process.R'
     'zzz.R'

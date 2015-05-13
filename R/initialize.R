@@ -193,19 +193,22 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 }
 
 ##############################################################
-#' spec.num.per.patch
+#' specificNumPerPatch
 #'
-#' Instantiate a specific number of agents per patch.
+#' Instantiate a specific number of agents per patch. The user can either supply
+#' a table of how many to initiate in each patch, linked by a column in that table
+#' called "pops"
 #'
-#' @param patches Description of this.
+#' @param patches RasterLayer of Patches, with some sort of a patch id
 #'
-#' @param num.per.patch.table Description of this.
+#' @param numPerPatchTable A data.frame or data.table with a column named "pops" that
+#' matches the \code{patches} patch ids
 #'
-#' @param num.per.patch.map Description of this.
+#' @param numPerPatchMap A RasterLayer exactly the same as \code{patches} but with
+#' agent numbers rather than ids as the cell values per patch.
 #'
-#' @return Decribe what it returns: \code{al}.
-#'
-#' #@seealso \code{\link{print}} and \code{\link{cat}}
+#' @return A raster with 0s and 1s, where the 1s indicate starting locations of agents
+#' following the numbers above
 #'
 #' @import data.table raster sp
 #' @importFrom methods is
@@ -222,23 +225,22 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 #  or 2 maps, patchid and patchnumber. Returns a map with a single unique pixel
 #  within each patch representing an agent to start. This means that the number
 #  of pixels per patch must be greater than the number of agents per patch
-#
-spec.num.per.patch <- function(patches, num.per.patch.table=NULL, num.per.patch.map=NULL) {
+specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
   wh <- Which(patches, cells=TRUE)
-  if (!is.null(num.per.patch.table)) {
+  if (!is.null(numPerPatchTable)) {
     dt1 <- data.table(wh, pops=patchids)
     setkey(dt1, "pops")
-    if (is(num.per.patch.table, "data.table")) {
-      num.per.patch.table <- data.table(num.per.patch.table)
+    if (is(numPerPatchTable, "data.table")) {
+      numPerPatchTable <- data.table(numPerPatchTable)
     }
-    setkey(num.per.patch.table, "pops")
-    dt2 <- dt1[num.per.patch.table]
-  } else if (!is.null(num.per.patch.map)) {
-    num.per.patch.table <- as.numeric(na.omit(getValues(num.per.patch.map)))
-    dt2 <- data.table(wh, pops=patchids, num.in.pop=num.per.patch.table)
+    setkey(numPerPatchTable, "pops")
+    dt2 <- dt1[numPerPatchTable]
+  } else if (!is.null(numPerPatchMap)) {
+    numPerPatchTable <- as.numeric(na.omit(getValues(numPerPatchMap)))
+    dt2 <- data.table(wh, pops=patchids, num.in.pop=numPerPatchTable)
   } else {
-    stop("need num.per.patch.map or num.per.patch.table")
+    stop("need numPerPatchMap or numPerPatchTable")
   }
 
   resample <- function(x, ...) x[sample.int(length(x), ...)]

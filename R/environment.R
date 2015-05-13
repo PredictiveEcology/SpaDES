@@ -1,6 +1,6 @@
 #' The SpaDES environment
 #'
-#' needs description
+#' Environment used internally to store internal package objects and methods.
 #'
 #' @rdname spadesEnv
 #'
@@ -10,13 +10,15 @@
 #'
 #' Simple wrapper for \code{\link{assign}}.
 #'
+#' If value is omitted, then the function will get a local object with
+#' name = \code{x}, via \code{get(x, envir=parent.frame())}
+#'
 #' @param x   a variable name, given as a character string.
 #'            No coercion is done, and the first element of a character vector
 #'            of length greater than one will be used, with a warning.
 #'
 #' @param value The object to assign. If this is missing, values will be found with
-#' \code{get(x)} in the same environment as the calling environment.
-#'
+#'              \code{get(x)} in the same environment as the calling environment.
 #'
 #' @param ... Additional arguments to pass to \code{assign}.
 #'
@@ -31,7 +33,6 @@ setGeneric("assignGlobal", function(x, value, ...) {
 })
 
 #' @rdname assignGlobal
-#'
 setMethod("assignGlobal",
           signature(x="character", value="ANY"),
           definition=function(x, value, ...) {
@@ -39,12 +40,12 @@ setMethod("assignGlobal",
 })
 
 #' @rdname assignGlobal
-#'
 setMethod("assignGlobal",
           signature(x="character", value="missing"),
           definition=function(x, value, ...) {
-            assign(x, get(x), envir=.GlobalEnv, ...)
+            assign(x, get(x, envir=parent.frame()), envir=.GlobalEnv, ...)
 })
+
 
 #' Is an object defined in the global environment?
 #'
@@ -67,7 +68,6 @@ setGeneric("existsGlobal", function(x, ...) {
 })
 
 #' @rdname existsGlobal
-#'
 setMethod("existsGlobal",
           signature(x="ANY"),
           definition=function(x, ...) {
@@ -95,7 +95,6 @@ setGeneric("getGlobal", function(x, ...) {
 })
 
 #' @rdname getGlobal
-#'
 setMethod("getGlobal",
           signature(x="ANY"),
           definition=function(x, ...) {
@@ -132,7 +131,7 @@ setMethod(".assignSpaDES",
 
 #' Is an object defined in the .spades environment?
 #'
-#' Simple wrapper for \code{\link{exists}}.
+#' Internal function. Simple wrapper for \code{\link{exists}}.
 #'
 #' @param x   An object name, given as a character string.
 #'            No coercion is done, and the first element of a character vector
@@ -150,7 +149,6 @@ setGeneric(".existsSpaDES", function(x, ...) {
 })
 
 #' @rdname existsSpaDES
-#'
 setMethod(".existsSpaDES",
           signature(x="ANY"),
           definition=function(x, ...) {
@@ -159,7 +157,7 @@ setMethod(".existsSpaDES",
 
 #' Get objects from the internal SpaDES environment
 #'
-#' Simple wrapper for \code{\link{get}}.
+#' Internal function. Simple wrapper for \code{\link{get}}.
 #'
 #' @param x   For \code{getGlobal}, an object name (given as a character string).
 #'            For \code{mgetGlobal}, a character vector of object names.
@@ -167,6 +165,7 @@ setMethod(".existsSpaDES",
 #' @param ... Additional arguments to pass to \code{get}.
 #'
 #' @docType methods
+#' @name .getSpaDES
 #' @rdname getSpaDES
 #'
 #' @author Alex Chubaty
@@ -176,7 +175,6 @@ setGeneric(".getSpaDES", function(x, ...) {
 })
 
 #' @rdname getSpaDES
-#'
 setMethod(".getSpaDES",
           signature(x="ANY"),
           definition=function(x, ...) {

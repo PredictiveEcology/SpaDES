@@ -7,9 +7,8 @@
 #'
 #' @export
 #' @docType methods
-#' @rdname getColors
 #' @aliases getColours
-#' @aliases getColors
+#' @rdname getColors
 #'
 #' @seealso \code{\link{setColors<-}}, \code{\link[RColorBrewer]{brewer.pal}}
 #'
@@ -44,10 +43,11 @@ setMethod("getColors",
 #'               \code{RColorBrewer::brewer.pal}), corresponding to the names
 #'               of RasterLayers in \code{x}.
 #'
-#' @return Returns a Raster with the colortable slot set to values.
+#' @return Returns a Raster with the \code{colortable} slot set to \code{values}.
 #'
 #' @export
 #' @docType methods
+#' @aliases setColours
 #' @rdname setColors
 #'
 #' @seealso \code{\link[RColorBrewer]{brewer.pal}},
@@ -61,7 +61,6 @@ setGeneric("setColors<-",
 })
 
 #' @rdname setColors
-#' @docType methods
 setReplaceMethod("setColors",
                  signature("RasterLayer", "numeric", "character"),
                  function(object, ..., n, value) {
@@ -72,7 +71,6 @@ setReplaceMethod("setColors",
 })
 
 #' @rdname setColors
-#' @docType methods
 setReplaceMethod("setColors",
                  signature("RasterLayer", "missing", "character"),
                  function(object, ..., value) {
@@ -84,7 +82,6 @@ setReplaceMethod("setColors",
 })
 
 #' @rdname setColors
-#' @docType methods
 setReplaceMethod("setColors",
                  signature("Raster", "numeric", "list"),
                  function(object, ..., n, value) {
@@ -97,7 +94,6 @@ setReplaceMethod("setColors",
 })
 
 #' @rdname setColors
-#' @docType methods
 setReplaceMethod("setColors",
                  signature("Raster", "missing", "list"),
                  function(object, ..., value) {
