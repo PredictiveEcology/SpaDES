@@ -53,7 +53,11 @@ saveFiles = function(sim) {
   # extract savePaths from modules
   modulePaths <- sapply(simParams(sim), function(y) {
     if (is.null(simGlobalsOutputPath(sim))){
-      outputPath <- y$.savePath
+      if(is.null(y$.savePath)) {
+        outputPath <- "."
+      } else {
+        outputPath <- y$.savePath
+      }
     } else {
       outputPath <- file.path(simGlobalsOutputPath(sim), y$.savePath)
     }
