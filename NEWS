@@ -1,5 +1,11 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 0.6.2
+=============
+This is a minor release update to satisfy CRAN submission requirements.
+
+* bug fix when saving files
+
 version 0.6.1
 =============
 * added the Queen as copyright holder (#140)
