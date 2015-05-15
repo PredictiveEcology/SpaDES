@@ -20,7 +20,7 @@ This is a resubmission. In this version I have:
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.3.0 (2015-03-31 r68131)
-* Windows           (win-builder), R 3.3.0 (2015-05-14 r68368
+* Windows           (win-builder), R 3.3.0 (2015-05-14 r68368)
 
 ## R CMD check results
 
