@@ -308,6 +308,7 @@ setMethod("spread",
 #'
 #' @import data.table
 #' @import raster
+#' @import dplyr
 #' @export
 #' @docType methods
 #'
