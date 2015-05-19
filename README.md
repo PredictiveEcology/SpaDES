@@ -12,11 +12,13 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 ## Installation
 
-Download the source tarball (`.tar.gz`) or Windows package binary (`.zip`), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
+Download the source tarball (`.tar.gz`) or Windows package binary (`.zip`), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a `LaTeX` distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
 
 The suggested package `fastshp` can be installed with:
 
 ```r
+#install.packages("devtools")
+library(devtools)
 install_github("s-u/fastshp")
 ```
 
@@ -30,12 +32,12 @@ install.packages("SpaDES")
 
 **Install from package file:**
     
-- Download:
+1. Download:
 
     - [Windows binary (.zip)](https://github.com/PredictiveEcology/SpaDES/zipball/master)
     - [Source package (.tar.gz)](https://github.com/PredictiveEcology/SpaDES/tarball/master)
 
-- Install:
+2. Install:
     
     ```r
     install.packages("path/to/file", repos=NULL)
@@ -44,7 +46,7 @@ install.packages("SpaDES")
 **Install from GitHub:**
     
 ```r
-install.packages("devtools")
+#install.packages("devtools")
 library("devtools")
 install_github("PredictiveEcology/SpaDES") # stable
 ```
@@ -54,12 +56,12 @@ install_github("PredictiveEcology/SpaDES") # stable
 **Install from GitHub:**
 
 ```r
-install.packages("devtools")
+#install.packages("devtools")
 library("devtools")
 install_github("PredictiveEcology/SpaDES", ref="development") # unstable
 ```
 
-If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
+If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install `LaTeX`) by using:
 
 ```r
 install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
