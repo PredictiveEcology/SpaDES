@@ -8,46 +8,46 @@
 \alias{simDepends<-,simList-method}
 \alias{simList-accessors-modules}
 \alias{simModules}
-\alias{simModules,simList-method}
+\alias{simModules,simEnv-method}
 \alias{simModules<-}
 \alias{simModules<-,simList-method}
 \alias{simModulesLoadOrder}
-\alias{simModulesLoadOrder,simList-method}
+\alias{simModulesLoadOrder,simEnv-method}
 \alias{simModulesLoadOrder<-}
 \alias{simModulesLoadOrder<-,simList-method}
 \alias{simModulesLoaded}
-\alias{simModulesLoaded,simList-method}
+\alias{simModulesLoaded,simEnv-method}
 \alias{simModulesLoaded<-}
 \alias{simModulesLoaded<-,simList-method}
 \alias{simObjectsLoaded}
-\alias{simObjectsLoaded,simList-method}
+\alias{simObjectsLoaded,simEnv-method}
 \alias{simObjectsLoaded<-}
 \alias{simObjectsLoaded<-,simList-method}
 \title{Simulation modules and dependencies}
 \usage{
 simModules(object)
 
-\S4method{simModules}{simList}(object)
+\S4method{simModules}{simEnv}(object)
 
 simModules(object) <- value
 
-\S4method{simModules}{simList}(object) <- value
+\S4method{simModules}{simEnv}(object) <- value
 
 simModulesLoaded(object)
 
-\S4method{simModulesLoaded}{simList}(object)
+\S4method{simModulesLoaded}{simEnv}(object)
 
 simModulesLoaded(object) <- value
 
-\S4method{simModulesLoaded}{simList}(object) <- value
+\S4method{simModulesLoaded}{simEnv}(object) <- value
 
 simModulesLoadOrder(object)
 
-\S4method{simModulesLoadOrder}{simList}(object)
+\S4method{simModulesLoadOrder}{simEnv}(object)
 
 simModulesLoadOrder(object) <- value
 
-\S4method{simModulesLoadOrder}{simList}(object) <- value
+\S4method{simModulesLoadOrder}{simEnv}(object) <- value
 
 simDepends(object)
 
@@ -55,15 +55,15 @@ simDepends(object)
 
 simDepends(object) <- value
 
-\S4method{simDepends}{simList}(object) <- value
+\S4method{simDepends}{environment}(object) <- value
 
 simObjectsLoaded(object)
 
-\S4method{simObjectsLoaded}{simList}(object)
+\S4method{simObjectsLoaded}{simEnv}(object)
 
 simObjectsLoaded(object) <- value
 
-\S4method{simObjectsLoaded}{simList}(object) <- value
+\S4method{simObjectsLoaded}{simEnv}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}

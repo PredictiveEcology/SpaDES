@@ -3,15 +3,15 @@
 \docType{methods}
 \name{doEvent}
 \alias{doEvent}
-\alias{doEvent,simList,logical-method}
-\alias{doEvent,simList,missing-method}
+\alias{doEvent,simEnv,logical-method}
+\alias{doEvent,simEnv,missing-method}
 \title{Process a simulation event}
 \usage{
 doEvent(sim, debug)
 
-\S4method{doEvent}{simList,logical}(sim, debug)
+\S4method{doEvent}{simEnv,logical}(sim, debug)
 
-\S4method{doEvent}{simList,missing}(sim)
+\S4method{doEvent}{simEnv,missing}(sim)
 }
 \arguments{
 \item{sim}{Character string for the \code{simList} simulation object.}

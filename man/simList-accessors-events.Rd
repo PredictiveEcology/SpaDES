@@ -3,11 +3,11 @@
 \docType{methods}
 \name{simEvents}
 \alias{simCompleted}
-\alias{simCompleted,simList-method}
+\alias{simCompleted,simEnv-method}
 \alias{simCompleted<-}
 \alias{simCompleted<-,simList-method}
 \alias{simEvents}
-\alias{simEvents,simList-method}
+\alias{simEvents,simEnv-method}
 \alias{simEvents<-}
 \alias{simEvents<-,simList-method}
 \alias{simList-accessors-events}
@@ -15,19 +15,19 @@
 \usage{
 simEvents(object)
 
-\S4method{simEvents}{simList}(object)
+\S4method{simEvents}{simEnv}(object)
 
 simEvents(object) <- value
 
-\S4method{simEvents}{simList}(object) <- value
+\S4method{simEvents}{simEnv}(object) <- value
 
 simCompleted(object)
 
-\S4method{simCompleted}{simList}(object)
+\S4method{simCompleted}{simEnv}(object)
 
 simCompleted(object) <- value
 
-\S4method{simCompleted}{simList}(object) <- value
+\S4method{simCompleted}{simEnv}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}

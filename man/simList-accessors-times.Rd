@@ -3,55 +3,55 @@
 \docType{methods}
 \name{simTimes}
 \alias{simCurrentTime}
-\alias{simCurrentTime,simList-method}
+\alias{simCurrentTime,simEnv-method}
 \alias{simCurrentTime<-}
 \alias{simCurrentTime<-,simList-method}
 \alias{simList-accessors-times}
 \alias{simStartTime}
-\alias{simStartTime,simList-method}
+\alias{simStartTime,simEnv-method}
 \alias{simStartTime<-}
 \alias{simStartTime<-,simList-method}
 \alias{simStopTime}
-\alias{simStopTime,simList-method}
+\alias{simStopTime,simEnv-method}
 \alias{simStopTime<-}
 \alias{simStopTime<-,simList-method}
 \alias{simTimes}
-\alias{simTimes,simList-method}
+\alias{simTimes,simEnv-method}
 \alias{simTimes<-}
 \alias{simTimes<-,simList-method}
 \title{Get and set simulation times.}
 \usage{
 simTimes(object)
 
-\S4method{simTimes}{simList}(object)
+\S4method{simTimes}{simEnv}(object)
 
 simTimes(object) <- value
 
-\S4method{simTimes}{simList}(object) <- value
+\S4method{simTimes}{simEnv}(object) <- value
 
 simCurrentTime(object)
 
-\S4method{simCurrentTime}{simList}(object)
+\S4method{simCurrentTime}{simEnv}(object)
 
 simCurrentTime(object) <- value
 
-\S4method{simCurrentTime}{simList}(object) <- value
+\S4method{simCurrentTime}{simEnv}(object) <- value
 
 simStartTime(object)
 
-\S4method{simStartTime}{simList}(object)
+\S4method{simStartTime}{simEnv}(object)
 
 simStartTime(object) <- value
 
-\S4method{simStartTime}{simList}(object) <- value
+\S4method{simStartTime}{simEnv}(object) <- value
 
 simStopTime(object)
 
-\S4method{simStopTime}{simList}(object)
+\S4method{simStopTime}{simEnv}(object)
 
 simStopTime(object) <- value
 
-\S4method{simStopTime}{simList}(object) <- value
+\S4method{simStopTime}{simEnv}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}

@@ -1,4 +1,4 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") utils::globalVariables(".")
 
 ################################################################################
 #' Initialize a new simulation
@@ -72,10 +72,9 @@ setMethod("simInit",
             dotParamsChar <- list(".savePath", ".saveObjects")
             dotParams <- append(dotParamsChar, dotParamsReal)
 
-            # create new simList object
-            sim <- new("simList", simtimes=list(current=times$start,
-                                                start=times$start,
-                                                stop=times$stop))
+            # create new simEnv object and populate the simList values
+            sim <- new("simEnv")
+            simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
             # assign some core & global params only for now
@@ -266,15 +265,17 @@ setGeneric("reloadModuleLater", function(sim, depends) {
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
-          signature(sim="simList", depends="NULL"),
-          definition=function(sim, depends) {
-            return(FALSE)
+          signature(sim="simEnv", depends="NULL"),
+            definition=function(sim, depends) {
+              stopifnot(class(sim) == "simEnv")
+              return(FALSE)
 })
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
-          signature(sim="simList", depends="character"),
+        signature(sim="simEnv", depends="character"),
           definition=function(sim, depends) {
+            stopifnot(class(sim) == "simEnv")
             # deprecated in v0.6.0
             .Deprecated(msg=paste0("Warning: 'reloadModuleLater' is deprecated.\n",
                         "Module dependencies should be specified using 'defineModule'"))
@@ -318,8 +319,10 @@ setGeneric("doEvent", function(sim, debug) {
 
 #' @rdname doEvent
 setMethod("doEvent",
-          signature(sim="simList", debug="logical"),
+          signature(sim="simEnv", debug="logical"),
           definition=function(sim, debug) {
+            stopifnot(class(sim) == "simEnv")
+
             # get next event
             nextEvent <- simEvents(sim)[1L, ] # extract the next event from queue
 
@@ -365,8 +368,9 @@ setMethod("doEvent",
 
 #' @rdname doEvent
 setMethod("doEvent",
-          signature(sim="simList", debug="missing"),
+          signature(sim="simEnv", debug="missing"),
           definition=function(sim) {
+            stopifnot(class(sim) == "simEnv")
             return(doEvent(sim, debug=FALSE))
 })
 
@@ -406,7 +410,7 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 
 #' @rdname scheduleEvent
 setMethod("scheduleEvent",
-          signature(sim="simList", eventTime="numeric",
+          signature(sim="simEnv", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
             if (length(eventTime)) {
@@ -435,9 +439,10 @@ setMethod("scheduleEvent",
 
 #' @rdname scheduleEvent
 setMethod("scheduleEvent",
-          signature(sim="simList", eventTime="NULL",
+          signature(sim="simEnv", eventTime="NULL",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
+            stopifnot(class(sim) == "simEnv")
             warning(paste("Invalid or missing eventTime. This is usually",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
@@ -486,8 +491,9 @@ setGeneric("spades", function(sim, debug) {
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim="simList", debug="logical"),
+          signature(sim="simEnv", debug="logical"),
           definition=function(sim, debug) {
+            stopifnot(class(sim) == "simEnv")
             while(simCurrentTime(sim) %<=% simStopTime(sim)) {
               sim <- doEvent(sim, debug)  # process the next event
 
@@ -503,7 +509,8 @@ setMethod("spades",
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim="simList", debug="missing"),
+          signature(sim="simEnv", debug="missing"),
           definition=function(sim) {
+            stopifnot(class(sim) == "simEnv")
             return(spades(sim, debug=FALSE))
 })

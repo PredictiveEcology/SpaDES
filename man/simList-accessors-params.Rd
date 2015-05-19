@@ -3,103 +3,103 @@
 \docType{methods}
 \name{simParams}
 \alias{simCheckpointFile}
-\alias{simCheckpointFile,simList-method}
+\alias{simCheckpointFile,simEnv-method}
 \alias{simCheckpointFile<-}
 \alias{simCheckpointFile<-,simList-method}
 \alias{simCheckpointInterval}
-\alias{simCheckpointInterval,simList-method}
+\alias{simCheckpointInterval,simEnv-method}
 \alias{simCheckpointInterval<-}
 \alias{simCheckpointInterval<-,simList-method}
 \alias{simFileList}
-\alias{simFileList,simList-method}
+\alias{simFileList,simEnv-method}
 \alias{simFileList<-}
 \alias{simFileList<-,simList-method}
 \alias{simGlobals}
-\alias{simGlobals,simList-method}
+\alias{simGlobals,simEnv-method}
 \alias{simGlobals<-}
 \alias{simGlobals<-,simList-method}
 \alias{simGlobalsOutputPath}
-\alias{simGlobalsOutputPath,simList-method}
+\alias{simGlobalsOutputPath,simEnv-method}
 \alias{simGlobalsOutputPath<-}
 \alias{simGlobalsOutputPath<-,simList-method}
 \alias{simList-accessors-params}
 \alias{simParams}
-\alias{simParams,simList-method}
+\alias{simParams,simEnv-method}
 \alias{simParams<-}
 \alias{simParams<-,simList-method}
 \alias{simProgressGraphical}
-\alias{simProgressGraphical,simList-method}
+\alias{simProgressGraphical,simEnv-method}
 \alias{simProgressGraphical<-}
 \alias{simProgressGraphical<-,simList-method}
 \alias{simProgressInterval}
-\alias{simProgressInterval,simList-method}
+\alias{simProgressInterval,simEnv-method}
 \alias{simProgressInterval<-}
 \alias{simProgressInterval<-,simList-method}
 \title{Get and set simulation parameters.}
 \usage{
 simParams(object)
 
-\S4method{simParams}{simList}(object)
+\S4method{simParams}{simEnv}(object)
 
 simParams(object) <- value
 
-\S4method{simParams}{simList}(object) <- value
+\S4method{simParams}{simEnv}(object) <- value
 
 simCheckpointFile(object)
 
-\S4method{simCheckpointFile}{simList}(object)
+\S4method{simCheckpointFile}{simEnv}(object)
 
 simCheckpointFile(object) <- value
 
-\S4method{simCheckpointFile}{simList}(object) <- value
+\S4method{simCheckpointFile}{simEnv}(object) <- value
 
 simCheckpointInterval(object)
 
-\S4method{simCheckpointInterval}{simList}(object)
+\S4method{simCheckpointInterval}{simEnv}(object)
 
 simCheckpointInterval(object) <- value
 
-\S4method{simCheckpointInterval}{simList}(object) <- value
+\S4method{simCheckpointInterval}{simEnv}(object) <- value
 
 simFileList(object)
 
-\S4method{simFileList}{simList}(object)
+\S4method{simFileList}{simEnv}(object)
 
 simFileList(object) <- value
 
-\S4method{simFileList}{simList}(object) <- value
+\S4method{simFileList}{simEnv}(object) <- value
 
 simProgressGraphical(object)
 
-\S4method{simProgressGraphical}{simList}(object)
+\S4method{simProgressGraphical}{simEnv}(object)
 
 simProgressGraphical(object) <- value
 
-\S4method{simProgressGraphical}{simList}(object) <- value
+\S4method{simProgressGraphical}{simEnv}(object) <- value
 
 simProgressInterval(object)
 
-\S4method{simProgressInterval}{simList}(object)
+\S4method{simProgressInterval}{simEnv}(object)
 
 simProgressInterval(object) <- value
 
-\S4method{simProgressInterval}{simList}(object) <- value
+\S4method{simProgressInterval}{simEnv}(object) <- value
 
 simGlobals(object)
 
-\S4method{simGlobals}{simList}(object)
+\S4method{simGlobals}{simEnv}(object)
 
 simGlobals(object) <- value
 
-\S4method{simGlobals}{simList}(object) <- value
+\S4method{simGlobals}{simEnv}(object) <- value
 
 simGlobalsOutputPath(object)
 
-\S4method{simGlobalsOutputPath}{simList}(object)
+\S4method{simGlobalsOutputPath}{simEnv}(object)
 
 simGlobalsOutputPath(object) <- value
 
-\S4method{simGlobalsOutputPath}{simList}(object) <- value
+\S4method{simGlobalsOutputPath}{simEnv}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
