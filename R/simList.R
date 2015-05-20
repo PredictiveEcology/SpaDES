@@ -102,7 +102,7 @@ setMethod("show",
           signature="simEnv",
           definition=function(object) {
 
-            out = list()
+            out <- list()
 
             ### hr
             out[[1]] <- capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
