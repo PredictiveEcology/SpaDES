@@ -494,3 +494,25 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   }
   return(paste0(xIC, xFC))
 }
+
+###############################################################################
+#' Generate random strings
+#'
+#' Generate a vector of random alphanumeric strings each of an arbitrary length.
+#'
+#' @param n Number of strings to generate (default 1).
+#'
+#' @param len Length of strings to generate (default 8).
+#'
+#' @return Character vector of random strings.
+#'
+#' @export
+#' @docType methods
+#' @rdname rndstr
+#'
+#' @author Alex Chubaty
+rndstr <- function(n=1, len=8) {
+  unlist(lapply(character(n), function(x) {
+    x <- paste0(sample(c(0:9, letters, LETTERS), size=len, replace=TRUE), collapse="")
+  }))
+}
