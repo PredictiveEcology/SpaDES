@@ -5,36 +5,36 @@
 \alias{simCheckpointFile}
 \alias{simCheckpointFile,simEnv-method}
 \alias{simCheckpointFile<-}
-\alias{simCheckpointFile<-,simList-method}
+\alias{simCheckpointFile<-,simEnv-method}
 \alias{simCheckpointInterval}
 \alias{simCheckpointInterval,simEnv-method}
 \alias{simCheckpointInterval<-}
-\alias{simCheckpointInterval<-,simList-method}
+\alias{simCheckpointInterval<-,simEnv-method}
 \alias{simEnv-accessors-params}
 \alias{simFileList}
 \alias{simFileList,simEnv-method}
 \alias{simFileList<-}
-\alias{simFileList<-,simList-method}
+\alias{simFileList<-,simEnv-method}
 \alias{simGlobals}
 \alias{simGlobals,simEnv-method}
 \alias{simGlobals<-}
-\alias{simGlobals<-,simList-method}
+\alias{simGlobals<-,simEnv-method}
 \alias{simGlobalsOutputPath}
 \alias{simGlobalsOutputPath,simEnv-method}
 \alias{simGlobalsOutputPath<-}
-\alias{simGlobalsOutputPath<-,simList-method}
+\alias{simGlobalsOutputPath<-,simEnv-method}
 \alias{simParams}
 \alias{simParams,simEnv-method}
 \alias{simParams<-}
-\alias{simParams<-,simList-method}
+\alias{simParams<-,simEnv-method}
 \alias{simProgressGraphical}
 \alias{simProgressGraphical,simEnv-method}
 \alias{simProgressGraphical<-}
-\alias{simProgressGraphical<-,simList-method}
+\alias{simProgressGraphical<-,simEnv-method}
 \alias{simProgressInterval}
 \alias{simProgressInterval,simEnv-method}
 \alias{simProgressInterval<-}
-\alias{simProgressInterval<-,simList-method}
+\alias{simProgressInterval<-,simEnv-method}
 \title{Get and set simulation parameters.}
 \usage{
 simParams(object)
@@ -102,7 +102,7 @@ simGlobalsOutputPath(object) <- value
 \S4method{simGlobalsOutputPath}{simEnv}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{object}{A \code{simEnv} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -111,7 +111,7 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Accessor functions for the \code{params} slot of a \code{simList} object
-and its elements.
+and its elements, within a \code{simEnv} object.
 Additonal methods are provided to access core module and global parameters:
 Commonly used
 \tabular{ll}{

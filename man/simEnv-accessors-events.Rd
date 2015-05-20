@@ -5,12 +5,12 @@
 \alias{simCompleted}
 \alias{simCompleted,simEnv-method}
 \alias{simCompleted<-}
-\alias{simCompleted<-,simList-method}
+\alias{simCompleted<-,simEnv-method}
 \alias{simEnv-accessors-events}
 \alias{simEvents}
 \alias{simEvents,simEnv-method}
 \alias{simEvents<-}
-\alias{simEvents<-,simList-method}
+\alias{simEvents<-,simEnv-method}
 \title{Simulation event lists}
 \usage{
 simEvents(object)
@@ -30,7 +30,7 @@ simCompleted(object) <- value
 \S4method{simCompleted}{simEnv}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{object}{A \code{simEnv} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -39,8 +39,8 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Accessor functions for the \code{events} and \code{completed} slots of a
-\code{simList} object.
-By default, the event lists are shown when the \code{simList} object is printed,
+\code{simList} object, within a \code{simEnv} object.
+By default, the event lists are shown when the \code{simEnv} object is printed,
 thus most users will not require direct use of these methods.
 \tabular{ll}{
    \code{simEvents} \tab Scheduled simulation events (the event queue).\cr

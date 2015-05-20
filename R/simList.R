@@ -76,7 +76,8 @@ setClass("simList",
 ###
 #' The \code{simEnv} class
 #'
-#' This class is simply an environment that contains a \code{simList} object.
+#' This class is simply an environment that contains a \code{simList} object,
+#' and any user data objects created/modified during a SpaDES simulation.
 #'
 #' @aliases simEnv
 #' @rdname simEnv-class
@@ -175,7 +176,7 @@ setMethod("show",
 #' Simulation modules and dependencies
 #'
 #' Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
-#' and \code{.loadOrder} slots in a \code{simList} object.
+#' and \code{.loadOrder} slots in a \code{simList} object, within a \code{simEnv} object.
 #' These are included for advanced users.
 #' \tabular{ll}{
 #'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
@@ -187,7 +188,7 @@ setMethod("show",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -223,7 +224,7 @@ setGeneric("simModules<-",
 })
 
 #' @name simModules<-
-#' @aliases simModules<-,simList-method
+#' @aliases simModules<-,simEnv-method
 #' @rdname simEnv-accessors-modules
 setReplaceMethod("simModules",
                  signature="simEnv",
@@ -258,7 +259,7 @@ setGeneric("simModulesLoaded<-",
 })
 
 #' @name simModulesLoaded<-
-#' @aliases simModulesLoaded<-,simList-method
+#' @aliases simModulesLoaded<-,simEnv-method
 #' @rdname simEnv-accessors-modules
 setReplaceMethod("simModulesLoaded",
                  signature="simEnv",
@@ -293,7 +294,7 @@ setGeneric("simModulesLoadOrder<-",
  })
 
 #' @name simModulesLoadOrder<-
-#' @aliases simModulesLoadOrder<-,simList-method
+#' @aliases simModulesLoadOrder<-,simEnv-method
 #' @rdname simEnv-accessors-modules
 setReplaceMethod("simModulesLoadOrder",
                  signature="simEnv",
@@ -319,7 +320,7 @@ setGeneric("simDepends", function(object) {
 
 #' @rdname simEnv-accessors-modules
 setMethod("simDepends",
-          signature("simList"),
+          signature("simEnv"),
           definition=function(object) {
             return(object$.sim@depends)
 })
@@ -332,10 +333,10 @@ setGeneric("simDepends<-",
 })
 
 #' @name simDepends<-
-#' @aliases simDepends<-,simList-method
+#' @aliases simDepends<-,simEnv-method
 #' @rdname simEnv-accessors-modules
 setReplaceMethod("simDepends",
-                 signature("environment"),
+                 signature("simEnv"),
                  function(object, value) {
                    object$.sim@depends <- value
                    validObject(object)
@@ -367,7 +368,7 @@ setGeneric("simObjects<-",
 })
 
 #' @name simObjects<-
-#' @aliases simObjects<-,simList-method
+#' @aliases simObjects<-,simEnv-method
 #' @rdname simEnv-accessors-modules
 setReplaceMethod("simObjects",
                  signature="simEnv",
@@ -408,7 +409,7 @@ setGeneric("simObjectsLoaded<-",
 })
 
 #' @name simObjectsLoaded<-
-#' @aliases simObjectsLoaded<-,simList-method
+#' @aliases simObjectsLoaded<-,simEnv-method
 #' @rdname simEnv-accessors-modules
 setReplaceMethod("simObjectsLoaded",
                  signature="simEnv",
@@ -422,7 +423,7 @@ setReplaceMethod("simObjectsLoaded",
 #' Get and set simulation parameters.
 #'
 #' Accessor functions for the \code{params} slot of a \code{simList} object
-#' and its elements.
+#' and its elements, within a \code{simEnv} object.
 #' Additonal methods are provided to access core module and global parameters:
 #' Commonly used
 #' \tabular{ll}{
@@ -443,7 +444,7 @@ setReplaceMethod("simObjectsLoaded",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -477,7 +478,7 @@ setGeneric("simParams<-",
 })
 
 #' @name simParams<-
-#' @aliases simParams<-,simList-method
+#' @aliases simParams<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simParams",
                  signature="simEnv",
@@ -511,7 +512,7 @@ setGeneric("simCheckpointFile<-",
 })
 
 #' @name simCheckpointFile<-
-#' @aliases simCheckpointFile<-,simList-method
+#' @aliases simCheckpointFile<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simCheckpointFile",
                  signature="simEnv",
@@ -546,7 +547,7 @@ setGeneric("simCheckpointInterval<-",
 })
 
 #' @name simCheckpointInterval<-
-#' @aliases simCheckpointInterval<-,simList-method
+#' @aliases simCheckpointInterval<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simCheckpointInterval",
                  signature="simEnv",
@@ -581,7 +582,7 @@ setGeneric("simFileList<-",
 })
 
 #' @name simFileList<-
-#' @aliases simFileList<-,simList-method
+#' @aliases simFileList<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simFileList",
                  signature="simEnv",
@@ -615,7 +616,7 @@ setGeneric("simProgressGraphical<-",
 })
 
 #' @name simProgressGraphical<-
-#' @aliases simProgressGraphical<-,simList-method
+#' @aliases simProgressGraphical<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simProgressGraphical",
                  signature="simEnv",
@@ -650,7 +651,7 @@ setGeneric("simProgressInterval<-",
 })
 
 #' @name simProgressInterval<-
-#' @aliases simProgressInterval<-,simList-method
+#' @aliases simProgressInterval<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simProgressInterval",
                  signature="simEnv",
@@ -685,7 +686,7 @@ setGeneric("simGlobals<-",
 })
 
 #' @name simGlobals<-
-#' @aliases simGlobals<-,simList-method
+#' @aliases simGlobals<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simGlobals",
                  signature="simEnv",
@@ -720,7 +721,7 @@ setGeneric("simGlobalsOutputPath<-",
 })
 
 #' @name simGlobalsOutputPath<-
-#' @aliases simGlobalsOutputPath<-,simList-method
+#' @aliases simGlobalsOutputPath<-,simEnv-method
 #' @rdname simEnv-accessors-params
 setReplaceMethod("simGlobalsOutputPath",
                  signature="simEnv",
@@ -733,8 +734,8 @@ setReplaceMethod("simGlobalsOutputPath",
 ################################################################################
 #' Get and set simulation times.
 #'
-#' Accessor functions for the \code{simtimes} slot of a \code{simList} object
-#' and its elements.
+#' Accessor functions for the \code{simtimes} slot of a \code{simEnv} object
+#' and its elements, within a \code{simEnv} object.
 #' Additonal methods are provided to access the current, start, and stop times
 #' of the simulation.
 #' \tabular{ll}{
@@ -746,7 +747,7 @@ setReplaceMethod("simGlobalsOutputPath",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -782,7 +783,7 @@ setGeneric("simTimes<-",
 })
 
 #' @name simTimes<-
-#' @aliases simTimes<-,simList-method
+#' @aliases simTimes<-,simEnv-method
 #' @rdname simEnv-accessors-times
 setReplaceMethod("simTimes",
                  signature="simEnv",
@@ -817,7 +818,7 @@ setGeneric("simCurrentTime<-",
 })
 
 #' @name simCurrentTime<-
-#' @aliases simCurrentTime<-,simList-method
+#' @aliases simCurrentTime<-,simEnv-method
 #' @rdname simEnv-accessors-times
 setReplaceMethod("simCurrentTime",
                  signature="simEnv",
@@ -852,7 +853,7 @@ setGeneric("simStartTime<-",
 })
 
 #' @name simStartTime<-
-#' @aliases simStartTime<-,simList-method
+#' @aliases simStartTime<-,simEnv-method
 #' @rdname simEnv-accessors-times
 setReplaceMethod("simStartTime",
                  signature="simEnv",
@@ -887,7 +888,7 @@ setGeneric("simStopTime<-",
 })
 
 #' @name simStopTime<-
-#' @aliases simStopTime<-,simList-method
+#' @aliases simStopTime<-,simEnv-method
 #' @rdname simEnv-accessors-times
 setReplaceMethod("simStopTime",
                  signature="simEnv",
@@ -901,8 +902,8 @@ setReplaceMethod("simStopTime",
 #' Simulation event lists
 #'
 #' Accessor functions for the \code{events} and \code{completed} slots of a
-#' \code{simList} object.
-#' By default, the event lists are shown when the \code{simList} object is printed,
+#' \code{simList} object, within a \code{simEnv} object.
+#' By default, the event lists are shown when the \code{simEnv} object is printed,
 #' thus most users will not require direct use of these methods.
 #' \tabular{ll}{
 #'    \code{simEvents} \tab Scheduled simulation events (the event queue).\cr
@@ -918,7 +919,7 @@ setReplaceMethod("simStopTime",
 #'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
 #'        }
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -952,7 +953,7 @@ setGeneric("simEvents<-",
 })
 
 #' @name simEvents<-
-#' @aliases simEvents<-,simList-method
+#' @aliases simEvents<-,simEnv-method
 #' @rdname simEnv-accessors-events
 setReplaceMethod("simEvents",
                  signature="simEnv",
@@ -987,7 +988,7 @@ setGeneric("simCompleted<-",
 })
 
 #' @name simCompleted<-
-#' @aliases simCompleted<-,simList-method
+#' @aliases simCompleted<-,simEnv-method
 #' @rdname simEnv-accessors-events
 setReplaceMethod("simCompleted",
                  signature="simEnv",
@@ -1003,12 +1004,12 @@ setReplaceMethod("simCompleted",
 #' Internal function.
 #' Adds a \code{.moduleDeps} object to the simulation dependency list.
 #'
-#' @param sim A \code{simList} object.
+#' @param sim A \code{simEnv} object.
 #'
 #' @param x   A named list containing the parameters used to construct a new
 #'            \code{.moduleDeps} object.
 #'
-#' @return A \code{simList} object.
+#' @return A \code{simEnv} object.
 #'
 #' @export
 #' @docType methods
@@ -1022,7 +1023,7 @@ setGeneric(".addSimDepends", function(sim, x) {
 
 #' @rdname addSimDepends
 setMethod(".addSimDepends",
-          signature(sim="simList", x=".moduleDeps"),
+          signature(sim="simEnv", x=".moduleDeps"),
           definition=function(sim, x) {
             deps <- simDepends(sim)
             n <- length(deps@dependencies)
@@ -1044,7 +1045,7 @@ setMethod(".addSimDepends",
 #'
 #' @inheritParams .addSimDepends
 #'
-#' @return Updated \code{simList} object.
+#' @return Updated \code{simEnv} object.
 #'
 #' @export
 #' @docType methods
@@ -1064,7 +1065,7 @@ setGeneric("defineModule", function(sim, x) {
 
 #' @rdname defineModule
 setMethod("defineModule",
-          signature(sim="simList", x="list"),
+          signature(sim="simEnv", x="list"),
           definition=function(sim, x) {
             loadPackages(x$reqdPkgs)
             m <- do.call(new, c(".moduleDeps", x))
@@ -1091,7 +1092,11 @@ setMethod("defineModule",
 #'
 #' @examples
 #' \dontrun{
-#'   defineParameter("lambda", "numeric", 1e-3)
+#'   rbind(
+#'    defineParameter("lambda", "numeric", 1.23),
+#'    defineParameter("mu", "numeric", 1e-3),
+#'    defineParameter("nu", "numeric", 1e-2)
+#'   )
 #' }
 #'
 setGeneric("defineParameter", function(name, class, default) {

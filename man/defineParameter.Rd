@@ -26,7 +26,11 @@ Used to specify a parameter's name, value, and set a default.
 }
 \examples{
 \dontrun{
-  defineParameter("lambda", "numeric", 1e-3)
+  rbind(
+   defineParameter("lambda", "numeric", 1.23),
+   defineParameter("mu", "numeric", 1e-3),
+   defineParameter("nu", "numeric", 1e-2)
+  )
 }
 }
 \author{

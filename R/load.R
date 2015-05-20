@@ -120,7 +120,7 @@ setGeneric("loadFiles", function(sim, fileList, ...)  {
 
 #' @rdname loadFiles
 setMethod("loadFiles",
-          signature(sim="simList", fileList="missing"),
+          signature(sim="simEnv", fileList="missing"),
           definition = function(sim, fileList, ...) {
 
             # Pull .fileExtensions() into function so that scoping is faster

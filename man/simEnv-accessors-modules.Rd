@@ -3,30 +3,30 @@
 \docType{methods}
 \name{simModules}
 \alias{simDepends}
-\alias{simDepends,simList-method}
+\alias{simDepends,simEnv-method}
 \alias{simDepends<-}
-\alias{simDepends<-,simList-method}
+\alias{simDepends<-,simEnv-method}
 \alias{simEnv-accessors-modules}
 \alias{simModules}
 \alias{simModules,simEnv-method}
 \alias{simModules<-}
-\alias{simModules<-,simList-method}
+\alias{simModules<-,simEnv-method}
 \alias{simModulesLoadOrder}
 \alias{simModulesLoadOrder,simEnv-method}
 \alias{simModulesLoadOrder<-}
-\alias{simModulesLoadOrder<-,simList-method}
+\alias{simModulesLoadOrder<-,simEnv-method}
 \alias{simModulesLoaded}
 \alias{simModulesLoaded,simEnv-method}
 \alias{simModulesLoaded<-}
-\alias{simModulesLoaded<-,simList-method}
+\alias{simModulesLoaded<-,simEnv-method}
 \alias{simObjects}
 \alias{simObjects,simEnv-method}
 \alias{simObjects<-}
-\alias{simObjects<-,simList-method}
+\alias{simObjects<-,simEnv-method}
 \alias{simObjectsLoaded}
 \alias{simObjectsLoaded,simEnv-method}
 \alias{simObjectsLoaded<-}
-\alias{simObjectsLoaded<-,simList-method}
+\alias{simObjectsLoaded<-,simEnv-method}
 \title{Simulation modules and dependencies}
 \usage{
 simModules(object)
@@ -55,11 +55,11 @@ simModulesLoadOrder(object) <- value
 
 simDepends(object)
 
-\S4method{simDepends}{simList}(object)
+\S4method{simDepends}{simEnv}(object)
 
 simDepends(object) <- value
 
-\S4method{simDepends}{environment}(object) <- value
+\S4method{simDepends}{simEnv}(object) <- value
 
 simObjects(object)
 
@@ -78,7 +78,7 @@ simObjectsLoaded(object) <- value
 \S4method{simObjectsLoaded}{simEnv}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{object}{A \code{simEnv} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -87,7 +87,7 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
-and \code{.loadOrder} slots in a \code{simList} object.
+and \code{.loadOrder} slots in a \code{simList} object, within a \code{simEnv} object.
 These are included for advanced users.
 \tabular{ll}{
    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr

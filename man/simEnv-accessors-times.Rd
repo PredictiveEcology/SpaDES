@@ -5,20 +5,20 @@
 \alias{simCurrentTime}
 \alias{simCurrentTime,simEnv-method}
 \alias{simCurrentTime<-}
-\alias{simCurrentTime<-,simList-method}
+\alias{simCurrentTime<-,simEnv-method}
 \alias{simEnv-accessors-times}
 \alias{simStartTime}
 \alias{simStartTime,simEnv-method}
 \alias{simStartTime<-}
-\alias{simStartTime<-,simList-method}
+\alias{simStartTime<-,simEnv-method}
 \alias{simStopTime}
 \alias{simStopTime,simEnv-method}
 \alias{simStopTime<-}
-\alias{simStopTime<-,simList-method}
+\alias{simStopTime<-,simEnv-method}
 \alias{simTimes}
 \alias{simTimes,simEnv-method}
 \alias{simTimes<-}
-\alias{simTimes<-,simList-method}
+\alias{simTimes<-,simEnv-method}
 \title{Get and set simulation times.}
 \usage{
 simTimes(object)
@@ -54,7 +54,7 @@ simStopTime(object) <- value
 \S4method{simStopTime}{simEnv}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simList} simulation object.}
+\item{object}{A \code{simEnv} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -62,8 +62,8 @@ simStopTime(object) <- value
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
-Accessor functions for the \code{simtimes} slot of a \code{simList} object
-and its elements.
+Accessor functions for the \code{simtimes} slot of a \code{simEnv} object
+and its elements, within a \code{simEnv} object.
 Additonal methods are provided to access the current, start, and stop times
 of the simulation.
 \tabular{ll}{

@@ -3,12 +3,12 @@
 \docType{methods}
 \name{depsGraph}
 \alias{depsGraph}
-\alias{depsGraph,simList,logical-method}
+\alias{depsGraph,simEnv,logical-method}
 \title{Build a module dependency graph}
 \usage{
 depsGraph(sim, plot)
 
-\S4method{depsGraph}{simList,logical}(sim, plot)
+\S4method{depsGraph}{simEnv,logical}(sim, plot)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

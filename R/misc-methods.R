@@ -343,7 +343,7 @@ setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
 
 #' @rdname checkParams
 setMethod("checkParams",
-          signature(sim="simList", coreModules="list", coreParams="list", path="character"),
+          signature(sim="simEnv", coreModules="list", coreParams="list", path="character"),
           definition=function(sim, coreModules, coreParams, path, ...) {
 
             params <- simParams(sim)

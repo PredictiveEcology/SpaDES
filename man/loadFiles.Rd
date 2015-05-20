@@ -6,12 +6,12 @@
 \alias{loadFiles}
 \alias{loadFiles,missing,ANY-method}
 \alias{loadFiles,missing,missing-method}
-\alias{loadFiles,simList,missing-method}
+\alias{loadFiles,simEnv,missing-method}
 \title{Load simulation objects according to fileList}
 \usage{
 loadFiles(sim, fileList, ...)
 
-\S4method{loadFiles}{simList,missing}(sim, fileList, ...)
+\S4method{loadFiles}{simEnv,missing}(sim, fileList, ...)
 
 \S4method{loadFiles}{missing,ANY}(sim, fileList, ...)
 

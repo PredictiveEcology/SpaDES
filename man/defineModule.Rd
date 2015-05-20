@@ -3,21 +3,21 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
-\alias{defineModule,simList,list-method}
+\alias{defineModule,simEnv,list-method}
 \title{Define a new module.}
 \usage{
 defineModule(sim, x)
 
-\S4method{defineModule}{simList,list}(sim, x)
+\S4method{defineModule}{simEnv,list}(sim, x)
 }
 \arguments{
-\item{sim}{A \code{simList} object.}
+\item{sim}{A \code{simEnv} object.}
 
 \item{x}{A named list containing the parameters used to construct a new
            \code{.moduleDeps} object.}
 }
 \value{
-Updated \code{simList} object.
+Updated \code{simEnv} object.
 }
 \description{
 Specify a new module's metadata as well as object and package dependecies.
