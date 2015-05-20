@@ -17,7 +17,7 @@ getFileName(fullname)
 Character string representing the filename.
 }
 \description{
-This will only work for files that are \code{source}d.
+This will only work for files that are \code{source}-ed.
 Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
 }
 \author{

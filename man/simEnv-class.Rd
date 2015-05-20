@@ -6,8 +6,7 @@
 \alias{simEnv-class}
 \title{The \code{simEnv} class}
 \description{
-This class is simply an environment that contains a \code{simList} object,
-and any user data objects created/modified during a SpaDES simulation.
+This class is simply an environment that contains a \code{simList} object.
 }
 \author{
 Alex Chubaty

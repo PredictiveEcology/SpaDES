@@ -1,8 +1,8 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") utils::globalVariables(".")
 
 #' Get the name of a source file
 #'
-#' This will only work for files that are \code{source}d.
+#' This will only work for files that are \code{source}-ed.
 #' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
 #'
 #' @param fullname Logical (default \code{FALSE}) indicating whether the full path should be returned.

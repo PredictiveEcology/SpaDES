@@ -73,11 +73,9 @@ setClass("simList",
            }
 })
 
-###
 #' The \code{simEnv} class
 #'
-#' This class is simply an environment that contains a \code{simList} object,
-#' and any user data objects created/modified during a SpaDES simulation.
+#' This class is simply an environment that contains a \code{simList} object.
 #'
 #' @aliases simEnv
 #' @rdname simEnv-class
@@ -88,7 +86,7 @@ setClass("simList",
 setClass("simEnv", contains = "environment")
 
 setMethod("initialize",
-          signature(.Object="simEnv"),
+          signature(.Object = "simEnv"),
           definition=function(.Object) {
             .Object$.sim <- new("simList")
             return(.Object)
@@ -111,7 +109,7 @@ setMethod("show",
 
             ### simulation dependencies
             out[[2]] <- capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] = "use `simDepends(sim)` to view dependencies for each module"
+            out[[3]] <- "use `simDepends(sim)` to view dependencies for each module"
             out[[4]] <- capture.output(cat("\n"))
 
             ### simtimes
@@ -130,7 +128,7 @@ setMethod("show",
             ### objects loaded
             out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
             out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
-                                              quote=FALSE, row.names=FALSE))
+                                             quote=FALSE, row.names=FALSE))
             out[[13]] <- capture.output(cat("\n"))
 
             ### params

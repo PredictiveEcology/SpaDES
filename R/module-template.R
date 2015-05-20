@@ -58,7 +58,7 @@ setMethod("newModule",
 ###
 ### authors:      <author name(s) and email address(es)>
 ###
-### version:      0.0.0
+### version:      0.0.1
 ###
 ### spatialExtent: NA
 ###
