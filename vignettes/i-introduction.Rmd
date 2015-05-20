@@ -171,11 +171,25 @@ Each of these are passed as named lists to the simulation object upon initializa
 
 The details of each simulation are stored in a `simList` object, including the simulation parameters and modules used, as well as storing the current state of the simulation and the future event queue.
 A list of completed events is also stored, which can provide useful debugging information.
+This `simList` object is stored inside a `simEnv` object, along with data used/created during the simulation.
+The `simEnv` object is simply an environment, which means objects stored in it are updated using reference semantics (so objects don't need to be copied).
+You can access objects stored in environments using the same syntax as for lists (*e.g.*, `$`, `[[`), in addition to `get()`, which makes working with simulated data easy to do inside modules.
 
-A new simulation is initialized using the `simInit` function, which does all the work of creating the `simList` object for your simulation.
+A new simulation is initialized using the `simInit` function, which does all the work of creating the `simEnv` and `simList` objects for your simulation.
 This function also attempts to provide additional feedback to the user regarding parameters that may be improperly specified.
 
-You can inspect the contents of a `simList` object as you would any other `R` object (*e.g.*, `show(mySim)`). Simulation module object dependencies can be viewed using:
+Once a simulation is initialized you can inspect the contents of a `simEnv` object using:
+
+```{r view-sim, eval=FALSE, echo=TRUE}
+# full simulation details
+mySim                         # simList object info + simulation data
+
+# less detail
+ls.str(mySim)                 # simList object isn't shown
+ls.str(mySim, all.names=TRUE) # shows the simList object, but not it's info
+```
+
+Simulation module object dependencies can be viewed using:
 
 ```{r view-dependencies, eval=FALSE, echo=TRUE}
 library(igraph)
