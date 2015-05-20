@@ -10,6 +10,7 @@
 \alias{simCheckpointInterval,simEnv-method}
 \alias{simCheckpointInterval<-}
 \alias{simCheckpointInterval<-,simList-method}
+\alias{simEnv-accessors-params}
 \alias{simFileList}
 \alias{simFileList,simEnv-method}
 \alias{simFileList<-}
@@ -22,7 +23,6 @@
 \alias{simGlobalsOutputPath,simEnv-method}
 \alias{simGlobalsOutputPath<-}
 \alias{simGlobalsOutputPath<-,simList-method}
-\alias{simList-accessors-params}
 \alias{simParams}
 \alias{simParams,simEnv-method}
 \alias{simParams<-}
@@ -135,8 +135,8 @@ Currently, only get and set methods are defined. Subset methods are not.
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-times}}.
+         \code{\link{simEnv-accessors-modules}},
+         \code{\link{simEnv-accessors-events}},
+         \code{\link{simEnv-accessors-times}}.
 }
 

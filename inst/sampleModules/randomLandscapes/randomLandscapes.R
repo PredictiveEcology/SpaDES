@@ -102,7 +102,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(getGlobal(simGlobals(sim)$stackName))
+    Plot(sim[[simGlobals(sim)$stackName]])
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
@@ -150,12 +150,12 @@ randomLandscapesInit <- function(sim) {
 
   # Stack them into a single stack and assign to global env
   mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
-  names(mapStack)<-c("DEM", "forestAge", "habitatQuality", "percentPine")
+  names(mapStack) <- c("DEM", "forestAge", "habitatQuality", "percentPine")
 
   setColors(mapStack) <- list(DEM=terrain.colors(100),
                               forestAge=brewer.pal(9,"BuGn"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
-  assignGlobal(simGlobals(sim)$stackName, mapStack)
+  sim[[simGlobals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }

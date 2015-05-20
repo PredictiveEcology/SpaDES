@@ -6,11 +6,11 @@
 \alias{simCompleted,simEnv-method}
 \alias{simCompleted<-}
 \alias{simCompleted<-,simList-method}
+\alias{simEnv-accessors-events}
 \alias{simEvents}
 \alias{simEvents,simEnv-method}
 \alias{simEvents<-}
 \alias{simEvents<-,simList-method}
-\alias{simList-accessors-events}
 \title{Simulation event lists}
 \usage{
 simEvents(object)
@@ -60,8 +60,8 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-times}}.
+         \code{\link{simEnv-accessors-params}},
+         \code{\link{simEnv-accessors-modules}},
+         \code{\link{simEnv-accessors-times}}.
 }
 

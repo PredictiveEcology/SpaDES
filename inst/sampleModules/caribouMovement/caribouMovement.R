@@ -113,14 +113,14 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(caribou, addTo="landscape$habitatQuality", new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
+    Plot(sim$caribou, addTo="landscape$habitatQuality", new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(caribou, addTo="landscape$habitatQuality", new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
-    Plot(caribou, new=FALSE, pch=19, size=0.1, gp=gpar(cex=0.6))
+    Plot(sim$caribou, addTo="landscape$habitatQuality", new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
+    Plot(sim$caribou, new=FALSE, pch=19, size=0.1, gp=gpar(cex=0.6))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
@@ -140,7 +140,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
 ## event functions
 caribouMovementInit <- function(sim) {
-  landscape <- getGlobal(simGlobals(sim)$stackName)
+  landscape <- sim[[simGlobals(sim)$stackName]]
 
   yrange <- c(ymin(landscape), ymax(landscape))
   xrange <- c(xmin(landscape), xmax(landscape))
@@ -156,22 +156,22 @@ caribouMovementInit <- function(sim) {
                   y=runif(N, yrange[1],yrange[2]))
 
   # create the caribou agent object
-  caribou <<- SpatialPointsDataFrame(coords=starts,
-                                     data=data.frame(x1, y1, sex, age))
-  row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
+  sim$caribou <- SpatialPointsDataFrame(coords=starts,
+                                        data=data.frame(x1, y1, sex, age))
+  row.names(sim$caribou) <- IDs # alternatively, add IDs as column in data.frame above
 
   return(invisible(sim))
 }
 
 caribouMovementMove <- function(sim) {
-  landscape <- getGlobal(simGlobals(sim)$stackName)
+  landscape <- sim[[simGlobals(sim)$stackName]]
 
   # crop any caribou that went off maps
-  caribou <<- crop(caribou, landscape)
-  if(length(caribou)==0) stop("All agents are off map")
+  sim$caribou <- crop(sim$caribou, landscape)
+  if(length(sim$caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- landscape[["habitatQuality"]][caribou]
+  ex <- landscape[["habitatQuality"]][sim$caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -179,7 +179,7 @@ caribouMovementMove <- function(sim) {
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
   sd <- 30 # could be specified globally in params
 
-  caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
+  sim$caribou <- move("crw", sim$caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
   return(invisible(sim))
 }

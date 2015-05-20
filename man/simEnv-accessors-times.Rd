@@ -6,7 +6,7 @@
 \alias{simCurrentTime,simEnv-method}
 \alias{simCurrentTime<-}
 \alias{simCurrentTime<-,simList-method}
-\alias{simList-accessors-times}
+\alias{simEnv-accessors-times}
 \alias{simStartTime}
 \alias{simStartTime,simEnv-method}
 \alias{simStartTime<-}
@@ -81,8 +81,8 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-events}}.
+         \code{\link{simEnv-accessors-params}},
+         \code{\link{simEnv-accessors-modules}},
+         \code{\link{simEnv-accessors-events}}.
 }
 

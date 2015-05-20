@@ -94,13 +94,13 @@ setMethod("initialize",
 })
 
 ### show is already defined in the methods package
-#' show simList
+#' show simEnv
 #'
 #' @param object  Any R object
 #'
 #' @export
 setMethod("show",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
 
             out = list()
@@ -121,20 +121,20 @@ setMethod("show",
             ### modules loaded
             out[[8]] <- capture.output(cat(">> Modules:\n"))
             out[[9]] <- capture.output(print(cbind(ModuleName=simModules(object),
-                                                  IsLoaded=simModules(object) %in%
-                                                    simModulesLoaded(object)),
-                                            quote=FALSE, row.names=FALSE))
+                                                   IsLoaded=simModules(object) %in%
+                                                     simModulesLoaded(object)),
+                                             quote=FALSE, row.names=FALSE))
             out[[10]] <- capture.output(cat("\n"))
 
             ### objects loaded
             out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
             out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
-                                             quote=FALSE, row.names=FALSE))
+                                              quote=FALSE, row.names=FALSE))
             out[[13]] <- capture.output(cat("\n"))
 
             ### params
             omit <- which(names(simParams(object))==".load" |
-                           names(simParams(object))==".progress")
+                            names(simParams(object))==".progress")
 
             p <- mapply(function(x, y) {
               data.frame(Module=x, Parameter=names(y), Value=unlist(y),
@@ -161,6 +161,11 @@ setMethod("show",
             out[[20]] <- capture.output(cat(">> Scheduled Events:\n"))
             out[[21]] <- capture.output(print(simEvents(object)))
             out[[22]] <- capture.output(cat("\n"))
+
+            ### list stored objects
+            out[[23]] <- capture.output(cat(">> Objects stored:\n"))
+            out[[24]] <- capture.output(print(ls.str(object)))
+            out[[25]] <- capture.output(cat("\n"))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")

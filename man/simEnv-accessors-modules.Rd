@@ -6,7 +6,7 @@
 \alias{simDepends,simList-method}
 \alias{simDepends<-}
 \alias{simDepends<-,simList-method}
-\alias{simList-accessors-modules}
+\alias{simEnv-accessors-modules}
 \alias{simModules}
 \alias{simModules,simEnv-method}
 \alias{simModules<-}
@@ -19,6 +19,10 @@
 \alias{simModulesLoaded,simEnv-method}
 \alias{simModulesLoaded<-}
 \alias{simModulesLoaded<-,simList-method}
+\alias{simObjects}
+\alias{simObjects,simEnv-method}
+\alias{simObjects<-}
+\alias{simObjects<-,simList-method}
 \alias{simObjectsLoaded}
 \alias{simObjectsLoaded,simEnv-method}
 \alias{simObjectsLoaded<-}
@@ -57,6 +61,14 @@ simDepends(object) <- value
 
 \S4method{simDepends}{environment}(object) <- value
 
+simObjects(object)
+
+\S4method{simObjects}{simEnv}(object)
+
+simObjects(object) <- value
+
+\S4method{simObjects}{simEnv}(object) <- value
+
 simObjectsLoaded(object)
 
 \S4method{simObjectsLoaded}{simEnv}(object)
@@ -93,8 +105,8 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-times}}.
+         \code{\link{simEnv-accessors-params}},
+         \code{\link{simEnv-accessors-events}},
+         \code{\link{simEnv-accessors-times}}.
 }
 
