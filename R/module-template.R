@@ -1,4 +1,4 @@
-##############################################################
+###############################################################################
 #' Create new module from template.
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a documentation file,
@@ -140,13 +140,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Init = function(sim) {
 
   # # ! ----- EDIT BELOW ----- ! #
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
 
 
-  # assignGlobal(\"object\")
+
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -156,14 +152,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
-
   saveFiles(sim)
 
-  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -172,14 +162,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Plot = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
-
   #Plot(getGlobal(\"object\"))
 
-  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -187,13 +171,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template for your event1
 ", name, "Event1 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
 
 
-  # assignGlobal(\"object\")
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -201,13 +181,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template for your event2
 ", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
 
 
-  # assignGlobal(\"object\")
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -270,7 +246,7 @@ cat(
 "---
 title: \"",name,"\"
 author: \"Module Author\"
-date: \"`r Sys.Date()`\"
+date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
 
