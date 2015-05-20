@@ -11,7 +11,7 @@
 ### authors:      Alex M. Chubaty <Alexander.Chubaty@NRCan.gc.ca>
 ###               Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
 ###
-### version:      0.2.0
+### version:      1.0.0
 ###
 ### spatialExtent: NA
 ###
@@ -65,7 +65,7 @@ defineModule(sim, list(
   keywords=c("random map", "random landscape"),
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
             person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("0.2.0"),
+  version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,

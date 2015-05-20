@@ -9,7 +9,7 @@
 ###
 ### authors:      Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
 ###
-### version:      0.2.0
+### version:      1.0.0
 ###
 ### spatialExtent: NA
 ###
@@ -67,7 +67,7 @@ defineModule(sim, list(
   description="Simulate caribou movement via correlated random walk.",
   keywords=c("caribou", "individual based movement model", "correlated random walk"),
   authors=c(person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("0.2.0"),
+  version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,

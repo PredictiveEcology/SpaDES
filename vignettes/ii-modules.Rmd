@@ -185,9 +185,10 @@ parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                    caribouMovement=list(N=100L, moveInterval=1,
                                         .plotInitialTime=1.01, .plotInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+objects <- list()
 path <- system.file("sampleModules", package="SpaDES")
 
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, objects=objects, path=path)
 ```
 
 ### Event types

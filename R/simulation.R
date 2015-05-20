@@ -21,6 +21,8 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #' Example: a module named "caribou" will be sourced form the file \code{caribou.R},
 #' located at the specified \code{path} (see below).
 #'
+#' @param objects A list of data objects to be used in the simulation.
+#'
 #' @param path  An optional character string specifying the location of the module source files.
 #'              If no path is specified, it defaults to the current working directory.
 #'
@@ -51,15 +53,15 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #'  mySim
 #' }
 #'
-setGeneric("simInit", function(times, params, modules, path, loadOrder) {
+setGeneric("simInit", function(times, params, modules, objects, path, loadOrder) {
     standardGeneric("simInit")
 })
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="list", params="list", modules="list",
+          signature(times="list", params="list", modules="list", objects="list",
                     path="character", loadOrder="character"),
-          definition=function(times, params, modules, path, loadOrder) {
+          definition=function(times, params, modules, objects, path, loadOrder) {
 
             path <- checkPath(path, create=TRUE)
 
@@ -198,27 +200,28 @@ setMethod("simInit",
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="list", params="list", modules="list",
+          signature(times="list", params="list", modules="list", objects="list",
                     path="missing", loadOrder="character"),
-          definition=function(times, params, modules, loadOrder) {
-            sim <- simInit(times=times, params=params, modules=modules,
+          definition=function(times, params, modules, objects, loadOrder) {
+            sim <- simInit(times=times, params=params, modules=modules, objects=objects,
                            path="./", loadOrder=loadOrder)
             return(invisible(sim))
 })
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="list", params="list", modules="list",
+          signature(times="list", params="list", modules="list", objects="list",
                     path="character", loadOrder="missing"),
-          definition=function(times, params, modules, path) {
-            sim <- simInit(times=times, params=params, modules=modules,
+          definition=function(times, params, modules, objects, path) {
+            sim <- simInit(times=times, params=params, modules=modules, objects=objects,
                            path=path, loadOrder=character())
             return(invisible(sim))
 })
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="missing", loadOrder="missing"),
+          signature(times="list", params="list", modules="list", objects="missing",
+                    path="missing", loadOrder="missing"),
           definition=function(times, params, modules) {
             sim <- simInit(times=times, params=params, modules=modules, path="./", loadOrder=character())
             return(invisible(sim))
@@ -226,8 +229,19 @@ setMethod("simInit",
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="missing", params="missing", modules="missing", path="missing", loadOrder="missing"),
-          definition=function(times, params, modules) {
+          signature(times="list", params="list", modules="list", objects="list",
+                    path="missing", loadOrder="missing"),
+          definition=function(times, params, modules, objects) {
+            sim <- simInit(times=times, params=params, modules=modules, objects=objects,
+                           path="./", loadOrder=character())
+            return(invisible(sim))
+})
+
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="missing", params="missing", modules="missing",
+                    objects="missing", path="missing", loadOrder="missing"),
+          definition=function() {
             sim <- simInit(times=list(start=0, stop=1),
                            params=list(),
                            modules=list(),
