@@ -7,6 +7,9 @@
 \alias{simInit,list,list,list,list,character,missing-method}
 \alias{simInit,list,list,list,list,missing,character-method}
 \alias{simInit,list,list,list,list,missing,missing-method}
+\alias{simInit,list,list,list,missing,character,character-method}
+\alias{simInit,list,list,list,missing,character,missing-method}
+\alias{simInit,list,list,list,missing,missing,character-method}
 \alias{simInit,list,list,list,missing,missing,missing-method}
 \alias{simInit,missing,missing,missing,missing,missing,missing-method}
 \title{Initialize a new simulation}
@@ -16,17 +19,26 @@ simInit(times, params, modules, objects, path, loadOrder)
 \S4method{simInit}{list,list,list,list,character,character}(times, params,
   modules, objects, path, loadOrder)
 
-\S4method{simInit}{list,list,list,list,missing,character}(times, params,
-  modules, objects, loadOrder)
-
 \S4method{simInit}{list,list,list,list,character,missing}(times, params,
   modules, objects, path)
 
-\S4method{simInit}{list,list,list,missing,missing,missing}(times, params,
-  modules)
+\S4method{simInit}{list,list,list,list,missing,character}(times, params,
+  modules, objects, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,character,character}(times, params,
+  modules, path, loadOrder)
 
 \S4method{simInit}{list,list,list,list,missing,missing}(times, params, modules,
   objects)
+
+\S4method{simInit}{list,list,list,missing,missing,character}(times, params,
+  modules, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,character,missing}(times, params,
+  modules, path)
+
+\S4method{simInit}{list,list,list,missing,missing,missing}(times, params,
+  modules)
 
 \S4method{simInit}{missing,missing,missing,missing,missing,missing}()
 }
