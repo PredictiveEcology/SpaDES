@@ -73,73 +73,98 @@ setClass("simList",
            }
 })
 
+#' The \code{simEnv} class
+#'
+#' This class is simply an environment that contains a \code{simList} object.
+#'
+#' @aliases simEnv
+#' @rdname simEnv-class
+#' @exportClass simEnv
+#'
+#' @author Alex Chubaty
+#'
+setClass("simEnv", contains = "environment")
+
+setMethod("initialize",
+          signature(.Object = "simEnv"),
+          definition=function(.Object) {
+            .Object$.sim <- new("simList")
+            return(.Object)
+})
+
 ### show is already defined in the methods package
-#' show simList
+#' show simEnv
 #'
 #' @param object  Any R object
 #'
 #' @export
 setMethod("show",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            out = list()
+
+            out <- list()
 
             ### hr
-            out[[1]] = capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
+            out[[1]] <- capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
 
             ### simulation dependencies
-            out[[2]] = capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] = "use `simDepends(sim)` to view dependencies for each module"
-            out[[4]] = capture.output(cat("\n"))
+            out[[2]] <- capture.output(cat(">> Simulation dependencies:\n"))
+            out[[3]] <- "use `simDepends(sim)` to view dependencies for each module"
+            out[[4]] <- capture.output(cat("\n"))
 
             ### simtimes
-            out[[5]] = capture.output(cat(">> Simulation times:\n"))
-            out[[6]] = capture.output(print(rbind(simTimes(object))))
-            out[[7]] = capture.output(cat("\n"))
+            out[[5]] <- capture.output(cat(">> Simulation times:\n"))
+            out[[6]] <- capture.output(print(rbind(simTimes(object))))
+            out[[7]] <- capture.output(cat("\n"))
 
             ### modules loaded
-            out[[8]] = capture.output(cat(">> Modules:\n"))
-            out[[9]] = capture.output(print(cbind(ModuleName=simModules(object),
-                                                  IsLoaded=simModules(object) %in%
-                                                    simModulesLoaded(object)),
-                                            quote=FALSE, row.names=FALSE))
-            out[[10]] = capture.output(cat("\n"))
+            out[[8]] <- capture.output(cat(">> Modules:\n"))
+            out[[9]] <- capture.output(print(cbind(ModuleName=simModules(object),
+                                                   IsLoaded=simModules(object) %in%
+                                                     simModulesLoaded(object)),
+                                             quote=FALSE, row.names=FALSE))
+            out[[10]] <- capture.output(cat("\n"))
 
             ### objects loaded
-            out[[11]] = capture.output(cat(">> Objects Loaded:\n"))
-            out[[12]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
-                                            quote=FALSE, row.names=FALSE))
-            out[[13]] = capture.output(cat("\n"))
+            out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
+            out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
+                                             quote=FALSE, row.names=FALSE))
+            out[[13]] <- capture.output(cat("\n"))
 
             ### params
-            omit = which(names(simParams(object))==".load" |
-                           names(simParams(object))==".progress")
+            omit <- which(names(simParams(object))==".load" |
+                            names(simParams(object))==".progress")
 
-            p = mapply(function(x, y) {
+            p <- mapply(function(x, y) {
               data.frame(Module=x, Parameter=names(y), Value=unlist(y),
                          stringsAsFactors=FALSE, row.names=NULL)
             },
             x=names(simParams(object))[-omit], y=simParams(object)[-omit],
             USE.NAMES=TRUE, SIMPLIFY=FALSE)
-            if (length(p)>0) {
+            if (length(p)) {
               q = do.call(rbind, p)
               q = q[order(q$Module, q$Parameter),]
             } else {
               q = cbind(Module=list(), Parameter=list())
             }
-            out[[14]] = capture.output(cat(">> Parameters:\n"))
-            out[[15]] = capture.output(print(q, row.names=FALSE))
-            out[[16]] = capture.output(cat("\n"))
+            out[[14]] <- capture.output(cat(">> Parameters:\n"))
+            out[[15]] <- capture.output(print(q, row.names=FALSE))
+            out[[16]] <- capture.output(cat("\n"))
 
             ### completed events
-            out[[17]] = capture.output(cat(">> Completed Events:\n"))
-            out[[18]] = capture.output(print(simCompleted(object)))
-            out[[19]] = capture.output(cat("\n"))
+            out[[17]] <- capture.output(cat(">> Completed Events:\n"))
+            out[[18]] <- capture.output(print(simCompleted(object)))
+            out[[19]] <- capture.output(cat("\n"))
 
             ### scheduled events
-            out[[20]] = capture.output(cat(">> Scheduled Events:\n"))
-            out[[21]] = capture.output(print(simEvents(object)))
-            out[[22]] = capture.output(cat("\n"))
+            out[[20]] <- capture.output(cat(">> Scheduled Events:\n"))
+            out[[21]] <- capture.output(print(simEvents(object)))
+            out[[22]] <- capture.output(cat("\n"))
+
+            ### list stored objects
+            out[[23]] <- capture.output(cat(">> Objects stored:\n"))
+            out[[24]] <- capture.output(print(ls.str(object)))
+            out[[25]] <- capture.output(cat("\n"))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
@@ -149,7 +174,7 @@ setMethod("show",
 #' Simulation modules and dependencies
 #'
 #' Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
-#' and \code{.loadOrder} slots in a \code{simList} object.
+#' and \code{.loadOrder} slots in a \code{simList} object, within a \code{simEnv} object.
 #' These are included for advanced users.
 #' \tabular{ll}{
 #'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
@@ -161,20 +186,20 @@ setMethod("show",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-times}}.
+#'          \code{\link{simEnv-accessors-params}},
+#'          \code{\link{simEnv-accessors-events}},
+#'          \code{\link{simEnv-accessors-times}}.
 #' @export
 #' @docType methods
-#' @aliases simList-accessors-modules
-#' @rdname simList-accessors-modules
+#' @aliases simEnv-accessors-modules
+#' @rdname simEnv-accessors-modules
 #'
 #' @author Alex Chubaty
 #'
@@ -182,27 +207,27 @@ setGeneric("simModules", function(object) {
   standardGeneric("simModules")
 })
 
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setMethod("simModules",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@modules)
+            return(object$.sim@modules)
 })
 
 #' @export
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setGeneric("simModules<-",
            function(object, value) {
              standardGeneric("simModules<-")
 })
 
 #' @name simModules<-
-#' @aliases simModules<-,simList-method
-#' @rdname simList-accessors-modules
+#' @aliases simModules<-,simEnv-method
+#' @rdname simEnv-accessors-modules
 setReplaceMethod("simModules",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@modules <- value
+                   object$.sim@modules <- value
                    validObject(object)
                    return(object)
  })
@@ -211,33 +236,33 @@ setReplaceMethod("simModules",
 #' @inheritParams simModules
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 #'
 setGeneric("simModulesLoaded", function(object) {
   standardGeneric("simModulesLoaded")
 })
 
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setMethod("simModulesLoaded",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@.loaded$modules)
+            return(object$.sim@.loaded$modules)
 })
 
 #' @export
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setGeneric("simModulesLoaded<-",
            function(object, value) {
              standardGeneric("simModulesLoaded<-")
 })
 
 #' @name simModulesLoaded<-
-#' @aliases simModulesLoaded<-,simList-method
-#' @rdname simList-accessors-modules
+#' @aliases simModulesLoaded<-,simEnv-method
+#' @rdname simEnv-accessors-modules
 setReplaceMethod("simModulesLoaded",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@.loaded$modules <- value
+                   object$.sim@.loaded$modules <- value
                    validObject(object)
                    return(object)
 })
@@ -246,36 +271,36 @@ setReplaceMethod("simModulesLoaded",
 #' @inheritParams simModules
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 #'
 setGeneric("simModulesLoadOrder", function(object) {
   standardGeneric("simModulesLoadOrder")
 })
 
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setMethod("simModulesLoadOrder",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@.loadOrder)
+            return(object$.sim@.loadOrder)
 })
 
 #' @export
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setGeneric("simModulesLoadOrder<-",
            function(object, value) {
              standardGeneric("simModulesLoadOrder<-")
  })
 
 #' @name simModulesLoadOrder<-
-#' @aliases simModulesLoadOrder<-,simList-method
-#' @rdname simList-accessors-modules
+#' @aliases simModulesLoadOrder<-,simEnv-method
+#' @rdname simEnv-accessors-modules
 setReplaceMethod("simModulesLoadOrder",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
                    if (!is.null(value)) {
-                     object@.loadOrder <- value
+                     object$.sim@.loadOrder <- value
                    } else {
-                     object@.loadOrder <- character()
+                     object$.sim@.loadOrder <- character()
                    }
                    validObject(object)
                    return(object)
@@ -285,33 +310,33 @@ setReplaceMethod("simModulesLoadOrder",
 #' @inheritParams simModules
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 #'
 setGeneric("simDepends", function(object) {
   standardGeneric("simDepends")
 })
 
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setMethod("simDepends",
-          signature("simList"),
+          signature("simEnv"),
           definition=function(object) {
-            return(object@depends)
+            return(object$.sim@depends)
 })
 
 #' @export
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setGeneric("simDepends<-",
            function(object, value) {
              standardGeneric("simDepends<-")
 })
 
 #' @name simDepends<-
-#' @aliases simDepends<-,simList-method
-#' @rdname simList-accessors-modules
+#' @aliases simDepends<-,simEnv-method
+#' @rdname simEnv-accessors-modules
 setReplaceMethod("simDepends",
-                 signature("simList"),
+                 signature("simEnv"),
                  function(object, value) {
-                   object@depends <- value
+                   object$.sim@depends <- value
                    validObject(object)
                    return(object)
 })
@@ -320,33 +345,74 @@ setReplaceMethod("simDepends",
 #' @inheritParams simModules
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
+#'
+setGeneric("simObjects", function(object) {
+  standardGeneric("simObjects")
+})
+
+#' @rdname simEnv-accessors-modules
+setMethod("simObjects",
+          signature="simEnv",
+          definition=function(object) {
+            return(ls.str(object))
+})
+
+#' @export
+#' @rdname simEnv-accessors-modules
+setGeneric("simObjects<-",
+           function(object, value) {
+             standardGeneric("simObjects<-")
+})
+
+#' @name simObjects<-
+#' @aliases simObjects<-,simEnv-method
+#' @rdname simEnv-accessors-modules
+setReplaceMethod("simObjects",
+                 signature="simEnv",
+                 function(object, value) {
+                   if (is.list(value)) {
+                     lapply(value, function(x) {
+                       object[[names(x)]] <- x
+                     })
+                   } else {
+                     object[[names(value)]] <- value
+                   }
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
+#' @inheritParams simModules
+#' @export
+#' @docType methods
+#' @rdname simEnv-accessors-modules
 #'
 setGeneric("simObjectsLoaded", function(object) {
   standardGeneric("simObjectsLoaded")
 })
 
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setMethod("simObjectsLoaded",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@.loaded$objects)
+            return(object$.sim@.loaded$objects)
 })
 
 #' @export
-#' @rdname simList-accessors-modules
+#' @rdname simEnv-accessors-modules
 setGeneric("simObjectsLoaded<-",
            function(object, value) {
              standardGeneric("simObjectsLoaded<-")
 })
 
 #' @name simObjectsLoaded<-
-#' @aliases simObjectsLoaded<-,simList-method
-#' @rdname simList-accessors-modules
+#' @aliases simObjectsLoaded<-,simEnv-method
+#' @rdname simEnv-accessors-modules
 setReplaceMethod("simObjectsLoaded",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@.loaded$objects <- value
+                   object$.sim@.loaded$objects <- value
                    validObject(object)
                    return(object)
 })
@@ -355,7 +421,7 @@ setReplaceMethod("simObjectsLoaded",
 #' Get and set simulation parameters.
 #'
 #' Accessor functions for the \code{params} slot of a \code{simList} object
-#' and its elements.
+#' and its elements, within a \code{simEnv} object.
 #' Additonal methods are provided to access core module and global parameters:
 #' Commonly used
 #' \tabular{ll}{
@@ -376,46 +442,46 @@ setReplaceMethod("simObjectsLoaded",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-times}}.
+#'          \code{\link{simEnv-accessors-modules}},
+#'          \code{\link{simEnv-accessors-events}},
+#'          \code{\link{simEnv-accessors-times}}.
 #' @export
 #' @docType methods
-#' @aliases simList-accessors-params
-#' @rdname simList-accessors-params
+#' @aliases simEnv-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simParams", function(object) {
   standardGeneric("simParams")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simParams",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params)
+            return(object$.sim@params)
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simParams<-",
            function(object, value) {
              standardGeneric("simParams<-")
 })
 
 #' @name simParams<-
-#' @aliases simParams<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simParams<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simParams",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params <- value
+                   object$.sim@params <- value
                    validObject(object)
                    return(object)
 })
@@ -424,32 +490,32 @@ setReplaceMethod("simParams",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simCheckpointFile", function(object) {
   standardGeneric("simCheckpointFile")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simCheckpointFile",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.checkpoint$file)
+            return(object$.sim@params$.checkpoint$file)
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simCheckpointFile<-",
            function(object, value) {
              standardGeneric("simCheckpointFile<-")
 })
 
 #' @name simCheckpointFile<-
-#' @aliases simCheckpointFile<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simCheckpointFile<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simCheckpointFile",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.checkpoint$file <- value
+                   object$.sim@params$.checkpoint$file <- value
                    validObject(object)
                    return(object)
 })
@@ -458,33 +524,33 @@ setReplaceMethod("simCheckpointFile",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simCheckpointInterval", function(object) {
   standardGeneric("simCheckpointInterval")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simCheckpointInterval",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.checkpoint$interval)
+            return(object$.sim@params$.checkpoint$interval)
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simCheckpointInterval<-",
            function(object, value) {
              standardGeneric("simCheckpointInterval<-")
 })
 
 #' @name simCheckpointInterval<-
-#' @aliases simCheckpointInterval<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simCheckpointInterval<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simCheckpointInterval",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.checkpoint$interval <- value
+                   object$.sim@params$.checkpoint$interval <- value
                    validObject(object)
                    return(object)
 })
@@ -493,33 +559,33 @@ setReplaceMethod("simCheckpointInterval",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simFileList", function(object) {
   standardGeneric("simFileList")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simFileList",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.load$fileList)
+            return(object$.sim@params$.load$fileList)
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simFileList<-",
            function(object, value) {
              standardGeneric("simFileList<-")
 })
 
 #' @name simFileList<-
-#' @aliases simFileList<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simFileList<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simFileList",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.load$fileList <- value
+                   object$.sim@params$.load$fileList <- value
                    validObject(object)
                    return(object)
 })
@@ -528,32 +594,32 @@ setReplaceMethod("simFileList",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simProgressGraphical", function(object) {
   standardGeneric("simProgressGraphical")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simProgressGraphical",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.progress$graphical)
+            return(object$.sim@params$.progress$graphical)
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simProgressGraphical<-",
            function(object, value) {
              standardGeneric("simProgressGraphical<-")
 })
 
 #' @name simProgressGraphical<-
-#' @aliases simProgressGraphical<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simProgressGraphical<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simProgressGraphical",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.progress$graphical <- value
+                   object$.sim@params$.progress$graphical <- value
                    validObject(object)
                    return(object)
 })
@@ -562,33 +628,33 @@ setReplaceMethod("simProgressGraphical",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simProgressInterval", function(object) {
   standardGeneric("simProgressInterval")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simProgressInterval",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.progress$interval)
+            return(object$.sim@params$.progress$interval)
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simProgressInterval<-",
            function(object, value) {
              standardGeneric("simProgressInterval<-")
 })
 
 #' @name simProgressInterval<-
-#' @aliases simProgressInterval<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simProgressInterval<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simProgressInterval",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.progress$interval <- value
+                   object$.sim@params$.progress$interval <- value
                    validObject(object)
                    return(object)
 })
@@ -597,33 +663,33 @@ setReplaceMethod("simProgressInterval",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simGlobals", function(object) {
   standardGeneric("simGlobals")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simGlobals",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.globals)
+            return(object$.sim@params$.globals)
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simGlobals<-",
            function(object, value) {
              standardGeneric("simGlobals<-")
 })
 
 #' @name simGlobals<-
-#' @aliases simGlobals<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simGlobals<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simGlobals",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.globals <- value
+                   object$.sim@params$.globals <- value
                    validObject(object)
                    return(object)
 })
@@ -632,33 +698,33 @@ setReplaceMethod("simGlobals",
 #' @inheritParams simParams
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 #'
 setGeneric("simGlobalsOutputPath", function(object) {
   standardGeneric("simGlobalsOutputPath")
 })
 
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setMethod("simGlobalsOutputPath",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@params$.globals$.outputPath)
+            return(object$.sim@params$.globals$.outputPath)
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simEnv-accessors-params
 setGeneric("simGlobalsOutputPath<-",
            function(object, value) {
              standardGeneric("simGlobalsOutputPath<-")
 })
 
 #' @name simGlobalsOutputPath<-
-#' @aliases simGlobalsOutputPath<-,simList-method
-#' @rdname simList-accessors-params
+#' @aliases simGlobalsOutputPath<-,simEnv-method
+#' @rdname simEnv-accessors-params
 setReplaceMethod("simGlobalsOutputPath",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@params$.globals$.outputPath <- value
+                   object$.sim@params$.globals$.outputPath <- value
                    validObject(object)
                    return(object)
 })
@@ -666,8 +732,8 @@ setReplaceMethod("simGlobalsOutputPath",
 ################################################################################
 #' Get and set simulation times.
 #'
-#' Accessor functions for the \code{simtimes} slot of a \code{simList} object
-#' and its elements.
+#' Accessor functions for the \code{simtimes} slot of a \code{simEnv} object
+#' and its elements, within a \code{simEnv} object.
 #' Additonal methods are provided to access the current, start, and stop times
 #' of the simulation.
 #' \tabular{ll}{
@@ -679,20 +745,20 @@ setReplaceMethod("simGlobalsOutputPath",
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-events}}.
+#'          \code{\link{simEnv-accessors-params}},
+#'          \code{\link{simEnv-accessors-modules}},
+#'          \code{\link{simEnv-accessors-events}}.
 #' @export
 #' @docType methods
-#' @aliases simList-accessors-times
-#' @rdname simList-accessors-times
+#' @aliases simEnv-accessors-times
+#' @rdname simEnv-accessors-times
 #'
 #' @author Alex Chubaty
 #'
@@ -700,27 +766,27 @@ setGeneric("simTimes", function(object) {
   standardGeneric("simTimes")
 })
 
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setMethod("simTimes",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@simtimes)
+            return(object$.sim@simtimes)
 })
 
 #' @export
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setGeneric("simTimes<-",
            function(object, value) {
              standardGeneric("simTimes<-")
 })
 
 #' @name simTimes<-
-#' @aliases simTimes<-,simList-method
-#' @rdname simList-accessors-times
+#' @aliases simTimes<-,simEnv-method
+#' @rdname simEnv-accessors-times
 setReplaceMethod("simTimes",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@simtimes <- value
+                   object$.sim@simtimes <- value
                    validObject(object)
                    return(object)
 })
@@ -729,33 +795,33 @@ setReplaceMethod("simTimes",
 #' @inheritParams simTimes
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 #'
 setGeneric("simCurrentTime", function(object) {
   standardGeneric("simCurrentTime")
 })
 
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setMethod("simCurrentTime",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@simtimes$current)
+            return(object$.sim@simtimes$current)
 })
 
 #' @export
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setGeneric("simCurrentTime<-",
            function(object, value) {
              standardGeneric("simCurrentTime<-")
 })
 
 #' @name simCurrentTime<-
-#' @aliases simCurrentTime<-,simList-method
-#' @rdname simList-accessors-times
+#' @aliases simCurrentTime<-,simEnv-method
+#' @rdname simEnv-accessors-times
 setReplaceMethod("simCurrentTime",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@simtimes$current <- value
+                   object$.sim@simtimes$current <- value
                    validObject(object)
                    return(object)
 })
@@ -764,33 +830,33 @@ setReplaceMethod("simCurrentTime",
 #' @inheritParams simTimes
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 #'
 setGeneric("simStartTime", function(object) {
   standardGeneric("simStartTime")
 })
 
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setMethod("simStartTime",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@simtimes$start)
+            return(object$.sim@simtimes$start)
 })
 
 #' @export
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setGeneric("simStartTime<-",
            function(object, value) {
              standardGeneric("simStartTime<-")
 })
 
 #' @name simStartTime<-
-#' @aliases simStartTime<-,simList-method
-#' @rdname simList-accessors-times
+#' @aliases simStartTime<-,simEnv-method
+#' @rdname simEnv-accessors-times
 setReplaceMethod("simStartTime",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@simtimes$start <- value
+                   object$.sim@simtimes$start <- value
                    validObject(object)
                    return(object)
 })
@@ -799,33 +865,33 @@ setReplaceMethod("simStartTime",
 #' @inheritParams simTimes
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 #'
 setGeneric("simStopTime", function(object) {
   standardGeneric("simStopTime")
 })
 
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setMethod("simStopTime",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@simtimes$stop)
+            return(object$.sim@simtimes$stop)
 })
 
 #' @export
-#' @rdname simList-accessors-times
+#' @rdname simEnv-accessors-times
 setGeneric("simStopTime<-",
            function(object, value) {
              standardGeneric("simStopTime<-")
 })
 
 #' @name simStopTime<-
-#' @aliases simStopTime<-,simList-method
-#' @rdname simList-accessors-times
+#' @aliases simStopTime<-,simEnv-method
+#' @rdname simEnv-accessors-times
 setReplaceMethod("simStopTime",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@simtimes$stop <- value
+                   object$.sim@simtimes$stop <- value
                    validObject(object)
                    return(object)
 })
@@ -834,8 +900,8 @@ setReplaceMethod("simStopTime",
 #' Simulation event lists
 #'
 #' Accessor functions for the \code{events} and \code{completed} slots of a
-#' \code{simList} object.
-#' By default, the event lists are shown when the \code{simList} object is printed,
+#' \code{simList} object, within a \code{simEnv} object.
+#' By default, the event lists are shown when the \code{simEnv} object is printed,
 #' thus most users will not require direct use of these methods.
 #' \tabular{ll}{
 #'    \code{simEvents} \tab Scheduled simulation events (the event queue).\cr
@@ -851,46 +917,46 @@ setReplaceMethod("simStopTime",
 #'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
 #'        }
 #'
-#' @param object A \code{simList} simulation object.
+#' @param object A \code{simEnv} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-times}}.
+#'          \code{\link{simEnv-accessors-params}},
+#'          \code{\link{simEnv-accessors-modules}},
+#'          \code{\link{simEnv-accessors-times}}.
 #' @export
 #' @docType methods
-#' @aliases simList-accessors-events
-#' @rdname simList-accessors-events
+#' @aliases simEnv-accessors-events
+#' @rdname simEnv-accessors-events
 #'
 setGeneric("simEvents", function(object) {
   standardGeneric("simEvents")
 })
 
-#' @rdname simList-accessors-events
+#' @rdname simEnv-accessors-events
 setMethod("simEvents",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@events)
+            return(object$.sim@events)
 })
 
 #' @export
-#' @rdname simList-accessors-events
+#' @rdname simEnv-accessors-events
 setGeneric("simEvents<-",
            function(object, value) {
              standardGeneric("simEvents<-")
 })
 
 #' @name simEvents<-
-#' @aliases simEvents<-,simList-method
-#' @rdname simList-accessors-events
+#' @aliases simEvents<-,simEnv-method
+#' @rdname simEnv-accessors-events
 setReplaceMethod("simEvents",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@events <- value
+                   object$.sim@events <- value
                    validObject(object)
                    return(object)
 })
@@ -899,33 +965,33 @@ setReplaceMethod("simEvents",
 #' @inheritParams simEvents
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-events
+#' @rdname simEnv-accessors-events
 #'
 setGeneric("simCompleted", function(object) {
   standardGeneric("simCompleted")
 })
 
-#' @rdname simList-accessors-events
+#' @rdname simEnv-accessors-events
 setMethod("simCompleted",
-          signature="simList",
+          signature="simEnv",
           definition=function(object) {
-            return(object@completed)
+            return(object$.sim@completed)
 })
 
 #' @export
-#' @rdname simList-accessors-events
+#' @rdname simEnv-accessors-events
 setGeneric("simCompleted<-",
            function(object, value) {
              standardGeneric("simCompleted<-")
 })
 
 #' @name simCompleted<-
-#' @aliases simCompleted<-,simList-method
-#' @rdname simList-accessors-events
+#' @aliases simCompleted<-,simEnv-method
+#' @rdname simEnv-accessors-events
 setReplaceMethod("simCompleted",
-                 signature="simList",
+                 signature="simEnv",
                  function(object, value) {
-                   object@completed <- value
+                   object$.sim@completed <- value
                    validObject(object)
                    return(object)
 })
@@ -936,12 +1002,12 @@ setReplaceMethod("simCompleted",
 #' Internal function.
 #' Adds a \code{.moduleDeps} object to the simulation dependency list.
 #'
-#' @param sim A \code{simList} object.
+#' @param sim A \code{simEnv} object.
 #'
 #' @param x   A named list containing the parameters used to construct a new
 #'            \code{.moduleDeps} object.
 #'
-#' @return A \code{simList} object.
+#' @return A \code{simEnv} object.
 #'
 #' @export
 #' @docType methods
@@ -955,7 +1021,7 @@ setGeneric(".addSimDepends", function(sim, x) {
 
 #' @rdname addSimDepends
 setMethod(".addSimDepends",
-          signature(sim="simList", x=".moduleDeps"),
+          signature(sim="simEnv", x=".moduleDeps"),
           definition=function(sim, x) {
             deps <- simDepends(sim)
             n <- length(deps@dependencies)
@@ -977,7 +1043,7 @@ setMethod(".addSimDepends",
 #'
 #' @inheritParams .addSimDepends
 #'
-#' @return Updated \code{simList} object.
+#' @return Updated \code{simEnv} object.
 #'
 #' @export
 #' @docType methods
@@ -997,7 +1063,7 @@ setGeneric("defineModule", function(sim, x) {
 
 #' @rdname defineModule
 setMethod("defineModule",
-          signature(sim="simList", x="list"),
+          signature(sim="simEnv", x="list"),
           definition=function(sim, x) {
             loadPackages(x$reqdPkgs)
             m <- do.call(new, c(".moduleDeps", x))
@@ -1024,7 +1090,11 @@ setMethod("defineModule",
 #'
 #' @examples
 #' \dontrun{
-#'   defineParameter("lambda", "numeric", 1e-3)
+#'   rbind(
+#'    defineParameter("lambda", "numeric", 1.23),
+#'    defineParameter("mu", "numeric", 1e-3),
+#'    defineParameter("nu", "numeric", 1e-2)
+#'   )
 #' }
 #'
 setGeneric("defineParameter", function(name, class, default) {

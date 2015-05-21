@@ -36,7 +36,7 @@ Each event may evaluate or modify a simulation data object (*e.g.*, update the v
 
 ### Simulation event list
 
-The event queue is stored in a slot in a `simList` simulation object.
+The event queue is stored in a slot in a `simList` simulation object, which is itself stored in a `simEnv` object.
 Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`).
 This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list. 
 Completed events are removed from the queue.
@@ -90,7 +90,7 @@ This file consists of three parts containing the code for:
 ### Metadata
 
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user).
-During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object.
+During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object inside the `simEnv`.
 As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
 
 #### Defining module metadata: `defineModule()`
@@ -185,9 +185,10 @@ parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                    caribouMovement=list(N=100L, moveInterval=1,
                                         .plotInitialTime=1.01, .plotInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
+objects <- list()
 path <- system.file("sampleModules", package="SpaDES")
 
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, objects=objects, path=path)
 ```
 
 ### Event types

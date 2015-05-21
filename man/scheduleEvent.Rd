@@ -3,16 +3,16 @@
 \docType{methods}
 \name{scheduleEvent}
 \alias{scheduleEvent}
-\alias{scheduleEvent,simList,NULL,character,character-method}
-\alias{scheduleEvent,simList,numeric,character,character-method}
+\alias{scheduleEvent,simEnv,NULL,character,character-method}
+\alias{scheduleEvent,simEnv,numeric,character,character-method}
 \title{Schedule a simulation event}
 \usage{
 scheduleEvent(sim, eventTime, moduleName, eventType)
 
-\S4method{scheduleEvent}{simList,numeric,character,character}(sim, eventTime,
+\S4method{scheduleEvent}{simEnv,numeric,character,character}(sim, eventTime,
   moduleName, eventType)
 
-\S4method{scheduleEvent}{simList,`NULL`,character,character}(sim, eventTime,
+\S4method{scheduleEvent}{simEnv,`NULL`,character,character}(sim, eventTime,
   moduleName, eventType)
 }
 \arguments{

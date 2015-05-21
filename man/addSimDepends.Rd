@@ -3,21 +3,21 @@
 \docType{methods}
 \name{.addSimDepends}
 \alias{.addSimDepends}
-\alias{.addSimDepends,simList,.moduleDeps-method}
+\alias{.addSimDepends,simEnv,.moduleDeps-method}
 \title{Add simulation dependencies}
 \usage{
 .addSimDepends(sim, x)
 
-\S4method{.addSimDepends}{simList,.moduleDeps}(sim, x)
+\S4method{.addSimDepends}{simEnv,.moduleDeps}(sim, x)
 }
 \arguments{
-\item{sim}{A \code{simList} object.}
+\item{sim}{A \code{simEnv} object.}
 
 \item{x}{A named list containing the parameters used to construct a new
            \code{.moduleDeps} object.}
 }
 \value{
-A \code{simList} object.
+A \code{simEnv} object.
 }
 \description{
 Internal function.

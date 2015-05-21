@@ -1,8 +1,8 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") utils::globalVariables(".")
 
 #' Get the name of a source file
 #'
-#' This will only work for files that are \code{source}d.
+#' This will only work for files that are \code{source}-ed.
 #' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
 #'
 #' @param fullname Logical (default \code{FALSE}) indicating whether the full path should be returned.
@@ -343,7 +343,7 @@ setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
 
 #' @rdname checkParams
 setMethod("checkParams",
-          signature(sim="simList", coreModules="list", coreParams="list", path="character"),
+          signature(sim="simEnv", coreModules="list", coreParams="list", path="character"),
           definition=function(sim, coreModules, coreParams, path, ...) {
 
             params <- simParams(sim)
@@ -493,4 +493,26 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
       paste0(".", .)
   }
   return(paste0(xIC, xFC))
+}
+
+###############################################################################
+#' Generate random strings
+#'
+#' Generate a vector of random alphanumeric strings each of an arbitrary length.
+#'
+#' @param n Number of strings to generate (default 1).
+#'
+#' @param len Length of strings to generate (default 8).
+#'
+#' @return Character vector of random strings.
+#'
+#' @export
+#' @docType methods
+#' @rdname rndstr
+#'
+#' @author Alex Chubaty
+rndstr <- function(n=1, len=8) {
+  unlist(lapply(character(n), function(x) {
+    x <- paste0(sample(c(0:9, letters, LETTERS), size=len, replace=TRUE), collapse="")
+  }))
 }

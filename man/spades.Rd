@@ -3,15 +3,15 @@
 \docType{methods}
 \name{spades}
 \alias{spades}
-\alias{spades,simList,logical-method}
-\alias{spades,simList,missing-method}
+\alias{spades,simEnv,logical-method}
+\alias{spades,simEnv,missing-method}
 \title{Run a spatial discrete event simulation}
 \usage{
 spades(sim, debug)
 
-\S4method{spades}{simList,logical}(sim, debug)
+\S4method{spades}{simEnv,logical}(sim, debug)
 
-\S4method{spades}{simList,missing}(sim)
+\S4method{spades}{simEnv,missing}(sim)
 }
 \arguments{
 \item{sim}{Character string for the \code{simList} simulation object.}

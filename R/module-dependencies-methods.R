@@ -39,7 +39,7 @@ setGeneric("depsEdgeList", function(sim, plot) {
 
 #' @rdname depsEdgeList
 setMethod("depsEdgeList",
-          signature(sim="simList", plot="logical"),
+          signature(sim="simEnv", plot="logical"),
           definition=function(sim, plot) {
 
             deps <- simDepends(sim)
@@ -82,7 +82,7 @@ setMethod("depsEdgeList",
 
 #' @rdname depsEdgeList
 setMethod("depsEdgeList",
-          signature(sim="simList", plot="missing"),
+          signature(sim="simEnv", plot="missing"),
           definition=function(sim, plot) {
             el <- depsEdgeList(sim, plot=FALSE)
 })
@@ -110,7 +110,7 @@ setGeneric("depsGraph", function(sim, plot) {
 
 #' @rdname depsGraph
 setMethod("depsGraph",
-          signature(sim="simList", plot="logical"),
+          signature(sim="simEnv", plot="logical"),
           definition=function(sim, plot) {
             if (plot) {
               el <- depsEdgeList(sim, plot)
@@ -235,7 +235,7 @@ setGeneric(".depsLoadOrder", function(sim, simGraph) {
 
 #' @rdname depsLoadOrder
 setMethod(".depsLoadOrder",
-          signature(sim="simList", simGraph="igraph"),
+          signature(sim="simEnv", simGraph="igraph"),
           definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!
             tsort <- topological.sort(simGraph)
