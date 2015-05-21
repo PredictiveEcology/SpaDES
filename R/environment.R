@@ -329,7 +329,7 @@ setMethod(".getSimEnvNames",
 #'
 #' @param fromEnv environment to copy or move from
 #'
-#' @param rmSrc should the source copies of the objects be removed. Default is TRUE to save memory.
+#' @param rmSrc should the source copies of the objects be removed. Default is FALSE.
 #'
 #' @docType methods
 #' @name changeObjEnv
@@ -356,8 +356,15 @@ setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc){
 setMethod("changeObjEnv",
           signature = c("character", "environment", "missing", "missing"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, .GlobalEnv, TRUE)
+            changeObjEnv(x, toEnv, .GlobalEnv, FALSE)
 })
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "missing", "environment", "missing"),
+          definition = function(x, toEnv, fromEnv, rmSrc) {
+            changeObjEnv(x, .GlobalEnv, fromEnv, FALSE)
+          })
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
@@ -368,9 +375,16 @@ setMethod("changeObjEnv",
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
+          signature = c("character", "missing", "environment", "logical"),
+          definition = function(x, toEnv, fromEnv, rmSrc) {
+            changeObjEnv(x, .GlobalEnv, fromEnv, rmSrc)
+          })
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
           signature = c("character", "environment", "environment", "missing"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, fromEnv, rmSrc=TRUE)
+            changeObjEnv(x, toEnv, fromEnv, rmSrc=FALSE)
           })
 
 #' @rdname changeObjEnv
@@ -381,31 +395,3 @@ setMethod("changeObjEnv",
             if(rmSrc) rm(list=x, envir=fromEnv)
           })
 
-#' @rdname changeObjEnv
-setMethod("changeObjEnv",
-          signature = c("character", "simEnv", "missing", "missing"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, .GlobalEnv, TRUE)
-          })
-
-#' @rdname changeObjEnv
-setMethod("changeObjEnv",
-          signature = c("character", "simEnv", "missing", "logical"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, .GlobalEnv, rmSrc)
-          })
-
-#' @rdname changeObjEnv
-setMethod("changeObjEnv",
-          signature = c("character", "simEnv", "environment", "missing"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, fromEnv, rmSrc=TRUE)
-          })
-
-#' @rdname changeObjEnv
-setMethod("changeObjEnv",
-          signature = c("character", "simEnv", "environment", "logical"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            lapply(x, function(obj) {assign(obj, envir=toEnv, value=get(obj, envir=fromEnv)); return(invisible())})
-            if(rmSrc) rm(list=x, envir=fromEnv)
-          })
