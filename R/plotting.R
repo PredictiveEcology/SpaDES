@@ -465,7 +465,7 @@ setClass(".arrangement",
 #' @rdname spadesPlot-class
 #' @author Eliot McIntire
 setClass(".spadesPlot",
-         slots=list(arr=".arrangement", spadesGrobList="list"),
+         slots=list(arr=".arrangement", simEnv="simEnv", spadesGrobList="list"),
          prototype=list(arr=new(".arrangement"),
                         spadesGrobList=as.list(NULL)),
          validity=function(object) {
@@ -577,6 +577,7 @@ setMethod(".makeSpadesPlot",
             # Make new .spadesPlot object. This will be merged to existing later
             newPlots <- new(".spadesPlot")
             newPlots@arr <- new(".arrangement")
+            newPlots@simEnv <-
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
               spadesGrobList <- list()
 
