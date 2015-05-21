@@ -504,6 +504,9 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #'
 #' @param len Length of strings to generate (default 8).
 #'
+#' @param characterFirst Logical, if TRUE, then a letter will be the first character of the string.
+#' This is useful if this random string is being used for object ames.
+#'
 #' @return Character vector of random strings.
 #'
 #' @export
@@ -511,8 +514,16 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #' @rdname rndstr
 #'
 #' @author Alex Chubaty
-rndstr <- function(n=1, len=8) {
+rndstr <- function(n=1, len=8, characterFirst=TRUE) {
   unlist(lapply(character(n), function(x) {
-    x <- paste0(sample(c(0:9, letters, LETTERS), size=len, replace=TRUE), collapse="")
+    if(as.logical(characterFirst)) {
+      x <- paste0(c(sample(c(letters,LETTERS), size=as.numeric(characterFirst)),
+                    sample(c((0:9), letters, LETTERS), size=len-as.numeric(characterFirst), replace=TRUE)),
+                  collapse="")
+    } else {
+      x <- paste0(sample(c((0:9), letters, LETTERS), size=len, replace=TRUE), collapse="")
+    }
   }))
 }
+
+
