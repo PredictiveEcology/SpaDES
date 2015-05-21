@@ -465,7 +465,8 @@ setClass(".arrangement",
 #' @rdname spadesPlot-class
 #' @author Eliot McIntire
 setClass(".spadesPlot",
-         slots=list(arr=".arrangement", simEnv="simEnv", spadesGrobList="list"),
+         slots=list(arr=".arrangement", #simEnv="simEnv",
+                    spadesGrobList="list"),
          prototype=list(arr=new(".arrangement"),
                         spadesGrobList=as.list(NULL)),
          validity=function(object) {
@@ -577,7 +578,7 @@ setMethod(".makeSpadesPlot",
             # Make new .spadesPlot object. This will be merged to existing later
             newPlots <- new(".spadesPlot")
             newPlots@arr <- new(".arrangement")
-            newPlots@simEnv <-
+            #newPlots@simEnv <-
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
               spadesGrobList <- list()
 
@@ -1416,12 +1417,20 @@ setMethod("makeLines",
 #' @rdname objectNames
 .objectNames <- function(calledFrom="Plot", argClass=".spadesPlotObjects",
                          argName="") {
-
+browser()
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
     grepl(x, pattern=paste0("^", calledFrom,"$"))[1]
   }))
+  e <- sys.frame(-sys.nframe()+frameCalledFrom - 1)
+
+# if(sys.parents()[frameCalledFrom]==0) {
+#     e <- .GlobalEnv
+#   } else if (sys.parents()==1) {
+#     e <- sys.frames()[frameCalledFrom]
+#   }
+
   callArgs <- as.list(scalls[frameCalledFrom][[1]])[-1]
 
   # Second, match argument names, via argName, if argName is not null and names exist
@@ -1436,6 +1445,7 @@ setMethod("makeLines",
   }
   callNamedArgs <- callNamedArgs[sapply(callNamedArgs, function(x) x!="...")]
 
+if(exists("mySim", envir=e, inherits=FALSE)
 
   # First run through call stack for simple, i.e., calls to Plot that are
   # just .spadesPlotObjects to plot
@@ -1797,6 +1807,7 @@ setMethod("Plot",
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
 
+            browser()
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
       dotObjs <- list(...)
