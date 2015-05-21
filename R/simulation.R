@@ -76,7 +76,7 @@ setMethod("simInit",
 
             # create new simEnv object and populate the simList values
             sim <- new("simEnv")
-            attr(sim, "name") <- paste(sample(c(LETTERS,letters,0:9), 8, replace=TRUE), collapse="")
+            attr(sim, "name") <- rndstr()
 
             simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
