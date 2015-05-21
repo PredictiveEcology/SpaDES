@@ -250,7 +250,7 @@ setMethod(".getSimEnvNames",
 #'   #move objects back to .GlobalEnv from e
 #'   changeObjEnv(objs, .GlobalEnv, e)
 #'   rm(e)
-setGeneric("changeObjEnv", function(x, toEnv, fromEnv=.GlobalEnv, rmSrc=TRUE){
+setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc){
   standardGeneric("changeObjEnv")
 })
 
@@ -258,7 +258,7 @@ setGeneric("changeObjEnv", function(x, toEnv, fromEnv=.GlobalEnv, rmSrc=TRUE){
 setMethod("changeObjEnv",
           signature = c("character","environment", "missing", "missing"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, .GlobalEnv, rmSrc=TRUE)
+            changeObjEnv(x, toEnv, .GlobalEnv, TRUE)
 })
 
 #' @rdname changeObjEnv
@@ -271,14 +271,14 @@ setMethod("changeObjEnv",
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character","environment", "environment", "missing"),
-          definition = function(x, toEnv, fromEnv=.GlobalEnv, rmSrc=TRUE) {
-            lapply(x, function(obj) {assign(obj, envir=toEnv, value=get(obj, envir=fromEnv)); return(invisible())})
-            if(rmSrc) rm(list=x, envir=fromEnv)
+          definition = function(x, toEnv, fromEnv, rmSrc) {
+            changeObjEnv(x, toEnv, fromEnv, rmSrc=TRUE)
           })
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character","environment", "environment", "logical"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, fromEnv, rmSrc)
+            lapply(x, function(obj) {assign(obj, envir=toEnv, value=get(obj, envir=fromEnv)); return(invisible())})
+            if(rmSrc) rm(list=x, envir=fromEnv)
           })
