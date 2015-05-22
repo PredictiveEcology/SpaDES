@@ -49,10 +49,10 @@ simInit(times, params, modules, objects, path, loadOrder)
 \item{params}{A named list of simulation parameters and their values.}
 
 \item{modules}{A named list of character strings specfying the names
-of modules to be loaded for the simulation. **Note:** the module name
+of modules to be loaded for the simulation. Note: the module name
 should correspond to the R source file from which the module is loaded.
-Example: a module named "caribou" will be sourced form the file \code{caribou.R},
-located at the specified \code{path} (see below).}
+Example: a module named "caribou" will be sourced form the file
+\code{caribou.R}, located at the specified \code{path} (see below).}
 
 \item{objects}{A list of data objects to be used in the simulation.}
 
@@ -64,8 +64,8 @@ located at the specified \code{path} (see below).}
                   load order will be determined automatically.}
 }
 \value{
-A \code{simList} simulation object, pre-initialized from values specified
-in the arguments supplied.
+A \code{simList} simulation object, pre-initialized from values
+specified in the arguments supplied.
 }
 \description{
 Create a new simulation object, preloaded with parameters, modules, times, etc.
