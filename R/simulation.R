@@ -16,10 +16,10 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @param params A named list of simulation parameters and their values.
 #'
 #' @param modules A named list of character strings specfying the names
-#' of modules to be loaded for the simulation. **Note:** the module name
+#' of modules to be loaded for the simulation. Note: the module name
 #' should correspond to the R source file from which the module is loaded.
-#' Example: a module named "caribou" will be sourced form the file \code{caribou.R},
-#' located at the specified \code{path} (see below).
+#' Example: a module named "caribou" will be sourced form the file
+#' \code{caribou.R}, located at the specified \code{path} (see below).
 #'
 #' @param objects A list of data objects to be used in the simulation.
 #'
@@ -30,8 +30,8 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #'                   which to load the modules. If not specified, the module
 #'                   load order will be determined automatically.
 #'
-#' @return A \code{simList} simulation object, pre-initialized from values specified
-#' in the arguments supplied.
+#' @return A \code{simList} simulation object, pre-initialized from values
+#' specified in the arguments supplied.
 #'
 #' @seealso \code{\link{spades}}.
 #'
