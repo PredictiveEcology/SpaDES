@@ -1430,6 +1430,7 @@ setMethod("makeLines",
   frameCalledFrom <- which(sapply(scalls, function(x) {
     grepl(x, pattern=paste0("^", calledFrom,"$"))[1]
   }))
+
   #e <- sys.frame(-sys.nframe()+frameCalledFrom - 1)
   e <- sys.frame(frameCalledFrom-1)
 
@@ -1446,6 +1447,8 @@ setMethod("makeLines",
     callArgs
   }
   callNamedArgs <- callNamedArgs[sapply(callNamedArgs, function(x) x!="...")]
+
+  browser(expr = sapply(callNamedArgs, function(x) any(grepl(pattern="Fires",x))))
 
   # First run through call stack for simple, i.e., calls to Plot that are
   # just .spadesPlotObjects to plot
@@ -1560,7 +1563,7 @@ setMethod("makeLines",
   isSimGlobals <- sapply(asChar, function(x) any(grepl(pattern="simGlobals",x)))
   if(any(isSimGlobals)) {
 
-    isSimGlobalsTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], e),
+    isSimGlobalsTxt <- sapply(asChar[isSimGlobals], function(x) is(try(get(x[2], e),
                                                          silent=TRUE), argClass))
     isSimGlobalsSO <- sapply(asChar[isSimGlobals], function(x)
       is(try(get(eval(parse(text=x[grep(x, pattern="simGlobals")])), envir=e),
