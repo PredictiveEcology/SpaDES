@@ -316,6 +316,8 @@ setMethod("equalExtent",
 #'
 #' @slot objName  character. Name of object represented by this .spadesGrob
 #'
+#' @slot envir environment. The environment in which to find the objName
+#'
 #' @slot layerName character. Name of the layer represented by this .spadesGrob. Primarily
 #' used for RasterStacks
 #'
@@ -331,7 +333,8 @@ setMethod("equalExtent",
 #' @rdname spadesGrob-class
 #' @author Eliot McIntire
 setClass(".spadesGrob",
-         slots=list(plotName="character", objName="character", layerName="character",
+         slots=list(plotName="character", objName="character", envir="environment",
+                    layerName="character",
                     objClass="character", isSpatialObjects="logical",
                     plotArgs="list"),
          prototype=list(plotName=NA_character_, objName=NA_character_, layerName=NA_character_,
@@ -465,7 +468,7 @@ setClass(".arrangement",
 #' @rdname spadesPlot-class
 #' @author Eliot McIntire
 setClass(".spadesPlot",
-         slots=list(arr=".arrangement", #simEnv="simEnv",
+         slots=list(arr=".arrangement",
                     spadesGrobList="list"),
          prototype=list(arr=new(".arrangement"),
                         spadesGrobList=as.list(NULL)),
@@ -533,7 +536,8 @@ setMethod(".makeSpadesPlot",
             }
 
             suppliedNames <- names(plotObjects)
-            names(plotObjects) <- .objectNames()
+            objs <- .objectNames()
+            names(plotObjects) <- objs$objs
 
             if(!is.null(suppliedNames)) {
               if(all(sapply(suppliedNames, nchar)>0)) {
@@ -556,6 +560,7 @@ setMethod(".makeSpadesPlot",
               # Full layer names, including object name. If layer name is same as object name
               #  omit it, and if layer name is "layer", omit it if within a RasterLayer
               lN <- rep(names(plotObjects), numLayers)
+              lEnvs <- rep(objs$envs, numLayers)
               lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
                                         layerNames(plotObjects[isRaster]), sep="$")
               useOnlyObjectName <- (layerNames(plotObjects)=="layer") | (layerNames(plotObjects)==objectNamesLong)
@@ -578,8 +583,10 @@ setMethod(".makeSpadesPlot",
             # Make new .spadesPlot object. This will be merged to existing later
             newPlots <- new(".spadesPlot")
             newPlots@arr <- new(".arrangement")
+
             #newPlots@simEnv <-
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
+
               spadesGrobList <- list()
 
               spadesGrobList[[lN[x]]] <- new(".spadesGrob")
@@ -589,8 +596,9 @@ setMethod(".makeSpadesPlot",
               spadesGrobList[[lN[x]]]@plotArgs$gp <- plotArgs$gp[x]
               spadesGrobList[[lN[x]]]@plotName <- lN[x]
               spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
+              spadesGrobList[[lN[x]]]@envir <- lEnvs[[x]]
               spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
-              spadesGrobList[[lN[x]]]@objClass <- class(get(objectNamesLong[x]))
+              spadesGrobList[[lN[x]]]@objClass <- class(get(objectNamesLong[x], lEnvs[[x]]))
               spadesGrobList[[lN[x]]]@isSpatialObjects <- isSpatialObjects[x]
               return(spadesGrobList)
             })
@@ -859,14 +867,13 @@ setGeneric(".arrangeViewports", function(sPlot) { #, name=NULL) {
 setMethod(".arrangeViewports",
           signature=c(".spadesPlot"),
           definition= function(sPlot) {
-
             sgl <- sPlot@spadesGrobList
 
             dimx <- apply(do.call(rbind,sapply(1:length(sgl), function(x) {
               lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
                 if(z==TRUE) {
                   # for spatial objects
-                  apply(bbox(getGlobal(sgl[[x]][[1]]@objName)),1,function(y) diff(range(y)))
+                  apply(bbox(get(sgl[[x]][[1]]@objName, envir=sgl[[x]][[1]]@envir)),1,function(y) diff(range(y)))
                 } else {
                   # for non spatial objects
                   c(1,1)
@@ -1251,7 +1258,7 @@ setMethod(".plotGrob",
          if(!is.null(x[[1]]@plotArgs$zoomExtent)){
            x[[1]]@plotArgs$zoomExtent
          } else {
-           extent(get(x[[1]]@objName, envir=parent.frame()))
+           extent(get(x[[1]]@objName, envir=x[[1]]@envir))
          }
          #extent(getGlobal(x[[1]]@objName))
        } else {
@@ -1417,19 +1424,15 @@ setMethod("makeLines",
 #' @rdname objectNames
 .objectNames <- function(calledFrom="Plot", argClass=".spadesPlotObjects",
                          argName="") {
-browser()
+
+
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
     grepl(x, pattern=paste0("^", calledFrom,"$"))[1]
   }))
-  e <- sys.frame(-sys.nframe()+frameCalledFrom - 1)
-
-# if(sys.parents()[frameCalledFrom]==0) {
-#     e <- .GlobalEnv
-#   } else if (sys.parents()==1) {
-#     e <- sys.frames()[frameCalledFrom]
-#   }
+  #e <- sys.frame(-sys.nframe()+frameCalledFrom - 1)
+  e <- sys.frame(frameCalledFrom-1)
 
   callArgs <- as.list(scalls[frameCalledFrom][[1]])[-1]
 
@@ -1445,17 +1448,52 @@ browser()
   }
   callNamedArgs <- callNamedArgs[sapply(callNamedArgs, function(x) x!="...")]
 
-if(exists("mySim", envir=e, inherits=FALSE)
-
   # First run through call stack for simple, i.e., calls to Plot that are
   # just .spadesPlotObjects to plot
-  objs <- vector("list", length(callNamedArgs))
-  #first <- as.character(callNamedArgs)
-  first <- sapply(as.character(callNamedArgs), function(x)
-    strsplit(split="[\\(\\[\\$]", x)[[1]][1])
-  firstSO <- sapply(first, function(y) is(try(get(y, sys.frame(frameCalledFrom-1)),
-                                              silent=TRUE), argClass))
-  if(any(firstSO)) { objs[firstSO] <- first[firstSO] }
+  objs <- list(objs=vector("list", length(callNamedArgs)), envs=vector("list", length(callNamedArgs)))
+
+
+  callNamedArgsSplit <- sapply(as.character(callNamedArgs), function(x)
+    strsplit(split="[\\(\\[\\$]", x))
+  firstIsEnv <- sapply(seq_len(length(callNamedArgsSplit)), function(x)
+     is.environment(get(callNamedArgsSplit[[x]][1], envir=e)))
+
+  #test whether the objects are in the Local env, if so need to make a copy in the .spadesEnv.
+  # If not, then check if it is in Global Env. If yes, then use that. If neither, then also need to
+  # make a copy of it into the .spadesEnv
+  needSpadesEnvCopy <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=e, inherits=FALSE))
+  inEnvGl <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=.GlobalEnv, inherits=FALSE))
+  needSpadesEnvCopy[!needSpadesEnvCopy & !inEnvGl] <- TRUE
+
+  #if not, then create a new environment, copy them to .spadesEnv for later recall by Plot
+  if(any(needSpadesEnvCopy)) {
+    newEnv <- rndstr(characterFirst=TRUE)
+    # create a new environment inside of .spadesEnv
+    assign(newEnv, envir=.spadesEnv, new.env(parent = emptyenv()))
+    # copy the local object to the hidden .spadesEnv so it can be found again by Plot later
+    changeObjEnv(sapply(callNamedArgsSplit, function(x) x[1])[needSpadesEnvCopy], fromEnv=e, toEnv=.spadesEnv[[newEnv]])
+    innerEnv <- sapply(callNamedArgsSplit, function(x) x[1])
+    envs <- list(e,e,e,e)
+    envs[!needSpadesEnvCopy][[1]] <- .GlobalEnv
+    envs[firstIsEnv & needSpadesEnvCopy] <- lapply(innerEnv[firstIsEnv & needSpadesEnvCopy], function(x)
+      .spadesEnv[[newEnv]][[x]])
+  }
+
+  objName <- sapply(seq_len(length(callNamedArgsSplit)), function(x) {
+    if(firstIsEnv[x]){
+      callNamedArgsSplit[[x]][2]
+    } else {
+      callNamedArgsSplit[[x]][1]
+    }
+  })
+
+  # Is the first non-environment object name (i.e,. before a $ or [[), a member of a spatial object (SO)?
+  firstSO <- sapply(seq_len(length(objName)), function(y)
+    is(try(get(objName[y], envir=envs[[y]]), silent=TRUE), argClass))
+  if(any(firstSO)) {
+    objs$objs[firstSO] <- objName[firstSO]
+    objs$envs[firstSO] <- envs[firstSO]
+  }
   # cut short if all are dealt with
   if(all(!sapply(objs, is.null))) return(objs)
 
@@ -1473,17 +1511,17 @@ if(exists("mySim", envir=e, inherits=FALSE)
   asChar <- lapply(callNamedArgs, function(x) as.character(x))
   isGet <- sapply(asChar, function(x) grepl(pattern="get",x[1]))
   if(any(isGet)) {
-    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], sys.frame(frameCalledFrom-1)),
+    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], e),
                                                          silent=TRUE), argClass))
     if(any(isGetTxt)) {
       secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
       thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2]),
-                                                                   envir=sys.frame(frameCalledFrom-1)))
+                                                                   envir=e))
       objs[isGet][isGetTxt] <- secondSO
       objs[isGet][!isGetTxt] <- thirdSO
     } else {
       thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2]),
-                                                        envir=sys.frame(frameCalledFrom-1)))
+                                                        envir=e))
       objs[isGet] <- thirdSO
     }
   }
@@ -1503,11 +1541,11 @@ if(exists("mySim", envir=e, inherits=FALSE)
         if(grepl(pattern=", ", w)) {
           insideGetSO <- sapply(strsplit(split="[, = ]", w)[[1]], function(y)
             is(try(get(eval(parse(text=y),
-                            envir=sys.frame(frameCalledFrom-1))), silent=TRUE), argClass))
+                            envir=e)), silent=TRUE), argClass))
           fourthSO <- sapply(names(insideGetSO)[which(insideGetSO)], function(x)
-            eval(parse(text=x), envir=sys.frame(frameCalledFrom-1)))
+            eval(parse(text=x), envir=e))
         } else {
-          fourthSO <- eval(parse(text=w), envir=sys.frame(frameCalledFrom-1))
+          fourthSO <- eval(parse(text=w), envir=e)
         }})
       objs[!isGet][sapply(isGetInner, any)] <- fourthSO
     }
@@ -1548,6 +1586,7 @@ if(exists("mySim", envir=e, inherits=FALSE)
 
   return()
 }
+
 
 
 ################################################################################
@@ -1807,7 +1846,7 @@ setMethod("Plot",
       # Section 1 - extract object names, and determine which ones need plotting,
             # which ones need replotting etc.
 
-            browser()
+
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
       dotObjs <- list(...)
@@ -1825,6 +1864,7 @@ setMethod("Plot",
       if(length(plotObjs)>0) {
         names(plotObjs) <- .objectNames()
       }
+
 
       if(exists(paste0("spadesPlot", dev.cur()),envir=.spadesEnv)) {
         currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -1879,6 +1919,7 @@ setMethod("Plot",
       # Section 3 - the actual Plotting
       # Plot each element passed to Plot function, one at a time
 
+      browser()
       for(subPlots in names(spadesSubPlots)) {
 
         spadesGrobCounter <- 0
