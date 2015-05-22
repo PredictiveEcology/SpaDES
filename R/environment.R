@@ -18,18 +18,16 @@
 #'
 setClass("simEnv", contains = "environment")
 
+### `initialize` generic is already defined in the methods package
+#' @export
 setMethod("initialize",
           signature(.Object = "simEnv"),
           definition=function(.Object) {
             .Object$.sim <- new("simList")
             return(.Object)
-          })
+})
 
-### show is already defined in the methods package
-#' show simEnv
-#'
-#' @param object  Any R object
-#'
+### `show` generic is already defined in the methods package
 #' @export
 setMethod("show",
           signature="simEnv",
