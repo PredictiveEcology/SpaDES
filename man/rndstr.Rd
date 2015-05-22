@@ -3,17 +3,43 @@
 \docType{methods}
 \name{rndstr}
 \alias{rndstr}
+\alias{rndstr,missing,missing,logical-method}
+\alias{rndstr,missing,missing,missing-method}
+\alias{rndstr,missing,numeric,logical-method}
+\alias{rndstr,missing,numeric,missing-method}
+\alias{rndstr,numeric,missing,logical-method}
+\alias{rndstr,numeric,missing,missing-method}
+\alias{rndstr,numeric,numeric,logical-method}
+\alias{rndstr,numeric,numeric,missing-method}
 \title{Generate random strings}
 \usage{
-rndstr(n = 1, len = 8, characterFirst = TRUE)
+rndstr(n, len, characterFirst)
+
+\S4method{rndstr}{numeric,numeric,logical}(n, len, characterFirst)
+
+\S4method{rndstr}{numeric,numeric,missing}(n, len)
+
+\S4method{rndstr}{numeric,missing,logical}(n, characterFirst)
+
+\S4method{rndstr}{missing,numeric,logical}(len, characterFirst)
+
+\S4method{rndstr}{numeric,missing,missing}(n)
+
+\S4method{rndstr}{missing,numeric,missing}(len)
+
+\S4method{rndstr}{missing,missing,logical}(characterFirst)
+
+\S4method{rndstr}{missing,missing,missing}(n, len, characterFirst)
 }
 \arguments{
-\item{n}{Number of strings to generate (default 1).}
+\item{n}{Number of strings to generate (default 1).
+           Will attempt to coerce to integer value.}
 
-\item{len}{Length of strings to generate (default 8).}
+\item{len}{Length of strings to generate (default 8).
+           Will attempt to coerce to integer value.}
 
-\item{characterFirst}{Logical, if TRUE, then a letter will be the first character of the string.
-This is useful if this random string is being used for object ames.}
+\item{characterFirst}{Logical, if \code{TRUE}, then a letter will be the
+       first character of the string (useful if being used for object names).}
 }
 \value{
 Character vector of random strings.
@@ -22,6 +48,6 @@ Character vector of random strings.
 Generate a vector of random alphanumeric strings each of an arbitrary length.
 }
 \author{
-Alex Chubaty
+Alex Chubaty and Eliot McIntire
 }
 

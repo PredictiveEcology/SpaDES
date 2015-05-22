@@ -500,12 +500,14 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #'
 #' Generate a vector of random alphanumeric strings each of an arbitrary length.
 #'
-#' @param n Number of strings to generate (default 1).
+#' @param n   Number of strings to generate (default 1).
+#'            Will attempt to coerce to integer value.
 #'
 #' @param len Length of strings to generate (default 8).
+#'            Will attempt to coerce to integer value.
 #'
-#' @param characterFirst Logical, if TRUE, then a letter will be the first character of the string.
-#' This is useful if this random string is being used for object ames.
+#' @param characterFirst Logical, if \code{TRUE}, then a letter will be the
+#'        first character of the string (useful if being used for object names).
 #'
 #' @return Character vector of random strings.
 #'
@@ -513,17 +515,69 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #' @docType methods
 #' @rdname rndstr
 #'
-#' @author Alex Chubaty
-rndstr <- function(n=1, len=8, characterFirst=TRUE) {
-  unlist(lapply(character(n), function(x) {
-    if(as.logical(characterFirst)) {
-      x <- paste0(c(sample(c(letters,LETTERS), size=as.numeric(characterFirst)),
-                    sample(c((0:9), letters, LETTERS), size=len-as.numeric(characterFirst), replace=TRUE)),
-                  collapse="")
-    } else {
-      x <- paste0(sample(c((0:9), letters, LETTERS), size=len, replace=TRUE), collapse="")
-    }
-  }))
-}
+#' @author Alex Chubaty and Eliot McIntire
+setGeneric("rndstr", function(n, len, characterFirst) {
+  standardGeneric("rndstr")
+})
 
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="numeric", characterFirst="logical"),
+          definition=function(n, len, characterFirst) {
+            unlist(lapply(character(as.integer(n)), function(x) {
+              i <- as.numeric(characterFirst)
+              x <- paste0(c(sample(c(letters, LETTERS), size=i),
+                            sample(c((0:9), letters, LETTERS),
+                                   size=as.integer(len)-i, replace=TRUE)),
+                          collapse="")
+              }))
+})
 
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="numeric", characterFirst="missing"),
+          definition=function(n, len) {
+            rndstr(n=n, len=len, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="missing", characterFirst="logical"),
+          definition=function(n, characterFirst) {
+            rndstr(n=n, len=8, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="numeric", characterFirst="logical"),
+          definition=function(len, characterFirst) {
+            rndstr(n=1, len=len, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="missing", characterFirst="missing"),
+          definition=function(n) {
+            rndstr(n=n, len=8, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="numeric", characterFirst="missing"),
+          definition=function(len) {
+            rndstr(n=1, len=len, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="missing", characterFirst="logical"),
+          definition=function(characterFirst) {
+            rndstr(n=1, len=8, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="missing", characterFirst="missing"),
+          definition=function(n, len, characterFirst) {
+            rndstr(n=1, len=8, characterFirst=TRUE)
+})
