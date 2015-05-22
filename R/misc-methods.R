@@ -526,7 +526,7 @@ setMethod("rndstr",
           definition=function(n, len, characterFirst) {
             stopifnot(n>0, len>0)
             unlist(lapply(character(as.integer(n)), function(x) {
-              i <- as.numeric(characterFirst)
+              i <- as.integer(characterFirst)
               x <- paste0(c(sample(c(letters, LETTERS), size=i),
                             sample(c((0:9), letters, LETTERS),
                                    size=as.integer(len)-i, replace=TRUE)),
