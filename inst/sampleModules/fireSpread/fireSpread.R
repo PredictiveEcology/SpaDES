@@ -87,6 +87,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
+    browser()
     Plot(sim[[simGlobals(sim)$stackName]]$Fires, new=FALSE)
 
     # schedule the next event

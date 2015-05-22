@@ -1425,7 +1425,6 @@ setMethod("makeLines",
 .objectNames <- function(calledFrom="Plot", argClass=".spadesPlotObjects",
                          argName="") {
 
-
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -1473,13 +1472,15 @@ setMethod("makeLines",
     # copy the local object to the hidden .spadesEnv so it can be found again by Plot later
     changeObjEnv(sapply(callNamedArgsSplit, function(x) x[1])[needSpadesEnvCopy], fromEnv=e, toEnv=.spadesEnv[[newEnv]])
     innerEnv <- sapply(callNamedArgsSplit, function(x) x[1])
-    envs <- list(e,e,e,e)
+    envs <- lapply(seq_len(length(callNamedArgsSplit)), function(x) e)
     envs[!needSpadesEnvCopy][[1]] <- .GlobalEnv
     envs[firstIsEnv & needSpadesEnvCopy] <- lapply(innerEnv[firstIsEnv & needSpadesEnvCopy], function(x)
       .spadesEnv[[newEnv]][[x]])
   }
 
-  objName <- sapply(seq_len(length(callNamedArgsSplit)), function(x) {
+  isSimEnv <- sapply(envs, is, "simEnv")
+
+  objName <- lapply(seq_len(length(callNamedArgsSplit)), function(x) {
     if(firstIsEnv[x]){
       callNamedArgsSplit[[x]][2]
     } else {
@@ -1489,13 +1490,13 @@ setMethod("makeLines",
 
   # Is the first non-environment object name (i.e,. before a $ or [[), a member of a spatial object (SO)?
   firstSO <- sapply(seq_len(length(objName)), function(y)
-    is(try(get(objName[y], envir=envs[[y]]), silent=TRUE), argClass))
+    is(try(get(objName[[y]], envir=envs[[y]]), silent=TRUE), argClass))
   if(any(firstSO)) {
     objs$objs[firstSO] <- objName[firstSO]
     objs$envs[firstSO] <- envs[firstSO]
   }
   # cut short if all are dealt with
-  if(all(!sapply(objs, is.null))) return(objs)
+  if(all(!sapply(objs$objs, is.null))) return(objs)
 
   # Many calls to Plot will use a simList object, which has an argument called
   #   sim. Search for this, and look up the sim object in the calling frame.
@@ -1503,8 +1504,8 @@ setMethod("makeLines",
   hasSim <- sapply(scalls, function(x)
     any(grepl(x, pattern=paste0("^sim$"))))
   if (any(hasSim)) {
-    simEnv <- sys.frame(which(hasSim)-1)
-    sim <- get("sim", envir=simEnv)
+    #simEnv <- sys.frame(which(hasSim)-1)
+    sim <- get("sim", envir=e)
   }
 
   # Look for calls that use "get"; extract them and extract object names
@@ -1517,16 +1518,16 @@ setMethod("makeLines",
       secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
       thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2]),
                                                                    envir=e))
-      objs[isGet][isGetTxt] <- secondSO
-      objs[isGet][!isGetTxt] <- thirdSO
+      objs$objs[isGet][isGetTxt] <- secondSO
+      objs$objs[isGet][!isGetTxt] <- thirdSO
     } else {
       thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2]),
                                                         envir=e))
-      objs[isGet] <- thirdSO
+      objs$objs[isGet] <- thirdSO
     }
   }
   # cut short if all are dealt with
-  if(all(!sapply(objs, is.null))) return(objs)
+  if(all(!sapply(objs$objs, is.null))) return(objs)
 
 
   # Search for "get" nested within, most commonly because of a call to a layer
@@ -1547,12 +1548,42 @@ setMethod("makeLines",
         } else {
           fourthSO <- eval(parse(text=w), envir=e)
         }})
-      objs[!isGet][sapply(isGetInner, any)] <- fourthSO
+      objs$objs[!isGet][sapply(isGetInner, any)] <- fourthSO
     }
   }
 
   # cut short if all are dealt with
-  if(all(!sapply(objs, is.null))) return(objs)
+  if(all(!sapply(objs$objs, is.null))) return(objs)
+
+  # if in sim environment
+  asChar <- lapply(callNamedArgs, function(x) as.character(x))
+  isSimGlobals <- sapply(asChar, function(x) any(grepl(pattern="simGlobals",x)))
+  if(any(isSimGlobals)) {
+
+    isSimGlobalsTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], e),
+                                                         silent=TRUE), argClass))
+    isSimGlobalsSO <- sapply(asChar[isSimGlobals], function(x)
+      is(try(get(eval(parse(text=x[grep(x, pattern="simGlobals")])), envir=e),
+             silent=TRUE), argClass))
+    if(any(isSimGlobalsTxt)) {
+      secondSO <- lapply(asChar[isSimGlobals][isSimGlobalsTxt], function(x) x[grep(x, pattern="simGlobals")])
+      thirdSO <- lapply(asChar[isSimGlobals][!isSimGlobalsTxt], function(x) eval(parse(text=x[grep(x,pattern="simGlobals")]),
+                                                                   envir=e))
+      objs$objs[isSimGlobals][isSimGlobalsTxt] <- secondSO
+      objs$objs[isSimGlobals][!isSimGlobalsTxt] <- thirdSO
+      objs$envs[isSimGlobals][isSimGlobalsTxt] <- envs[isSimGlobals][isSimGlobalsTxt]
+      objs$envs[isSimGlobals][!isSimGlobalsTxt] <- envs[isSimGlobals][!isSimGlobalsTxt]
+
+    } else {
+      thirdSO <- lapply(asChar[isSimGlobals], function(x) eval(parse(text=x[grep(x,pattern="simGlobals")]),
+                                                        envir=e))
+      objs$objs[isSimGlobals] <- thirdSO
+      objs$envs[isSimGlobals] <- envs[isSimGlobals]
+    }
+  }
+  # cut short if all are dealt with
+  if(all(!sapply(objs$objs, is.null))) return(objs)
+
 
   # Look for layer() which is used by shiny to indicate a plot Plot(layer()$fires)
   isShinyLayer <- lapply(asChar, function(x) grepl("layer()", x))
@@ -1563,18 +1594,18 @@ setMethod("makeLines",
     shinyLayer <- asChar[sapply(isShinyLayer, any)]
     fifthSO <- lapply(1:length(shinyLayer), function(x)
       shinyLayer[[x]][whIsShinyLayer[[x]]+1])
-    objs[sapply(isShinyLayer, any)] <- fifthSO
+    objs$objs[sapply(isShinyLayer, any)] <- fifthSO
   }
   # cut short if all are dealt with
-  if(all(!sapply(objs, is.null))) return(objs)
+  if(all(!sapply(objs$objs, is.null))) return(objs)
 
   isAdHocStack <- lapply(asChar, function(x) grepl("^stack", x))
   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
   #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
-  objs[sapply(isAdHocStack, any)] <- sixthSO
+  objs$objs[sapply(isAdHocStack, any)] <- sixthSO
 
   # cut short if all are dealt with
-  if(all(!sapply(objs, is.null))) return(objs)
+  if(all(!sapply(objs$objs, is.null))) return(objs)
 
   #   isAdHocOther <- sapply(objs, function(x) length(x)==0)
   #   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
@@ -1862,7 +1893,7 @@ setMethod("Plot",
       newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs)
 
       if(length(plotObjs)>0) {
-        names(plotObjs) <- .objectNames()
+        names(plotObjs) <- unlist(.objectNames()$objs)
       }
 
 
@@ -1919,7 +1950,6 @@ setMethod("Plot",
       # Section 3 - the actual Plotting
       # Plot each element passed to Plot function, one at a time
 
-      browser()
       for(subPlots in names(spadesSubPlots)) {
 
         spadesGrobCounter <- 0
@@ -2518,23 +2548,22 @@ setMethod(".identifyGrobToPlot",
           signature=c(".spadesGrob", "list", "logical"),
           function(grobNamesi, toPlot, takeFromPlotObj) {
 
-
   # get the object name associated with this grob
   if (length(toPlot)==0) takeFromPlotObj <- FALSE
   # Does it already exist on the plot device or not
-  if(!takeFromPlotObj) { # Is this a replot
+  #if(!takeFromPlotObj) { # Is this a replot
     if(nchar(grobNamesi@layerName)>0) {# means it is in a raster
-      grobToPlot <- getGlobal(grobNamesi@objName)[[grobNamesi@layerName]]
+      grobToPlot <- get(grobNamesi@objName, grobNamesi@envir)[[grobNamesi@layerName]]
     } else {
-      grobToPlot <- getGlobal(grobNamesi@objName)
+      grobToPlot <- get(grobNamesi@objName, grobNamesi@envir)
     }
-  } else { # Is this a new plot to be added or plotted
-    if(nchar(grobNamesi@layerName)>0) {
-      grobToPlot <- toPlot[[grobNamesi@objName]][[grobNamesi@layerName]]
-    } else {
-      grobToPlot <- toPlot[[grobNamesi@objName]]
-    }
-  }
+  #} else { # Is this a new plot to be added or plotted
+  #  if(nchar(grobNamesi@layerName)>0) {
+  #    grobToPlot <- toPlot[[grobNamesi@objName]][[grobNamesi@layerName]]
+  #  } else {
+  #    grobToPlot <- toPlot[[grobNamesi@objName]]
+  #  }
+  #}
 })
 
 #' @rdname identifyGrobToPlot
