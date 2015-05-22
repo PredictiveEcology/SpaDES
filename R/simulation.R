@@ -36,8 +36,9 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @seealso \code{\link{spades}}.
 #'
 #' @include module-dependencies-class.R
-#' @importFrom magrittr '%>%'
 #' @include simList.R
+#' @include environment.R
+#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname simInit
