@@ -1404,6 +1404,45 @@ setMethod("makeLines",
 
           })
 
+
+deSquareBr <- function(y, e) {
+  elems <- list()
+  i = 1
+  parseTxt <- parse(text=y)[[1]]
+  elems[[i]] <- parseTxt
+
+  while(length(parse(text=deparse(parseTxt))[[1]])!=1){
+    if(is.call(parseTxt[[3]])){
+      parseTxt[[3]] <- eval(parseTxt[[3]], envir=e)
+    }
+    if(grepl(deparse(parseTxt[[1]]), pattern="^get")) {
+      parseTxt[[3]] <- match.call(definition = get, call = parseTxt)$x
+    }
+    if(is.character(parseTxt[[3]])) {
+      parseTxt[[3]] <- as.name(parseTxt[[3]])
+    }
+    elems[[i]] <- parseTxt[[3]] # This overrides previous elems entry if parseTxt is longer than 1
+    parseTxt <- parse(text=deparse(parseTxt[[2]]))[[1]]
+    i = i + 1
+  }
+
+  inLocalEnv <- exists(deparse(parseTxt), envir=eminus1, inherit=FALSE)
+  inGlobalEnv <- exists(deparse(parseTxt), envir=.GlobalEnv, inherit=FALSE)
+
+
+#   if(is(eval(parse(text=deparse(parseTxt)), envir=eminus1), "simEnv")){
+#     envs[[i]] <-
+#   }
+#
+#   needSpadesEnvCopy <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=e, inherits=FALSE))
+#   inEnvGl <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=.GlobalEnv, inherits=FALSE))
+#   needSpadesEnvCopy[!needSpadesEnvCopy & !inEnvGl] <- TRUE
+
+
+  #return(list(objs=paste(sapply(rev(elems),deparse),collapse="$"), envs=envs))
+  return(list(objs=paste(sapply(rev(elems),deparse),collapse="$")))
+}
+
 ################################################################################
 #' Extracts the object names
 #'
@@ -1425,40 +1464,36 @@ setMethod("makeLines",
 .objectNames <- function(calledFrom="Plot", argClass=".spadesPlotObjects",
                          argName="") {
 
+  browser()
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
     grepl(x, pattern=paste0("^", calledFrom,"$"))[1]
   }))
+  e <- sys.frame(frameCalledFrom)
+  eminus1 <- sys.frame(frameCalledFrom-1)
 
-  #e <- sys.frame(-sys.nframe()+frameCalledFrom - 1)
-  e <- sys.frame(frameCalledFrom-1)
+  callNamedArgs <- as.character(substitute(list(...), env=e))[-1]
+  #callNamedArgs <- deparse(substitute(list(...), env=e))
 
-  callArgs <- as.list(scalls[frameCalledFrom][[1]])[-1]
+  # get Environment
 
-  # Second, match argument names, via argName, if argName is not null and names exist
-  callNamedArgs <- if(!is.null(argName)) {
-    if(!is.null(names(callArgs))) {
-      callArgs[names(callArgs)==argName]
-    } else {
-      callArgs
-    }
-  } else {
-    callArgs
-  }
-  callNamedArgs <- callNamedArgs[sapply(callNamedArgs, function(x) x!="...")]
+  #browser(expr = sapply(callNamedArgs, function(x) any(grepl(pattern="Fires",x))))
 
-  browser(expr = sapply(callNamedArgs, function(x) any(grepl(pattern="Fires",x))))
-
-  # First run through call stack for simple, i.e., calls to Plot that are
-  # just .spadesPlotObjects to plot
+  # Make object for return
   objs <- list(objs=vector("list", length(callNamedArgs)), envs=vector("list", length(callNamedArgs)))
+  objs$objs <- lapply(callNamedArgs, deSquareBr, e)
 
 
-  callNamedArgsSplit <- sapply(as.character(callNamedArgs), function(x)
-    strsplit(split="[\\(\\[\\$]", x))
+
+  #callNamedArgsSplit <- sapply(as.character(callNamedArgs), function(x)
+  #  strsplit(split="[\\(\\[\\$]", x))
   firstIsEnv <- sapply(seq_len(length(callNamedArgsSplit)), function(x)
      is.environment(get(callNamedArgsSplit[[x]][1], envir=e)))
+  hasSquareBr <- sapply(callNamedArgs, function(x) grepl(x=x, pattern="\\[\\[")[1])
+
+
+  lapply(callNamedArgs[hasSquareBr], function(x) strsplit(x, split="\\[\\["))
 
   #test whether the objects are in the Local env, if so need to make a copy in the .spadesEnv.
   # If not, then check if it is in Global Env. If yes, then use that. If neither, then also need to
