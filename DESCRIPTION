@@ -7,9 +7,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     modularity, and easily enables the user to include additional functionality
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps. The suggested package `fastshp` can be
-    installed with `devtools::install_github("s-u/fastshp")`; installation of
-    development packages on Windows requires Rtools
-    (http://cran.r-project.org/bin/windows/Rtools).
+    installed with `install.packages("fastshp", repos="http://rforge.net",
+    type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
 Version: 1.0.0.9000
 Date: 2015-05-20
@@ -23,7 +22,7 @@ Authors@R: c(
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
     role="cph")
     )
-Additional_repositories: https://github.com/s-u/fastshp
+Additional_repositories: http://rforge.net
 Depends:
     R (>= 3.1.2),
     data.table,

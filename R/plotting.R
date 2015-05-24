@@ -929,7 +929,7 @@ setMethod(".arrangeViewports",
 #' causes an overabundance of points to be plotted, slowing plotting down.
 #'
 #' The suggested package \code{fastshp} can be installed with:
-#'   \code{devtools::install_github("s-u/fastshp")}
+#'  \code{install.packages("fastshp", repos="http://rforge.net", type="source")}
 #'
 #' NOTE: you may get errors relating to not having installed the software tools
 #' required for building R packages on your system. For development purposes on
@@ -1096,9 +1096,7 @@ setMethod(".plotGrob",
                 xyOrd <- xyOrd[thinned$thin, ]
               } else {
                 message(paste("To speed up Polygons plotting using Plot please download fastshp",
-                              "#install.packages(\"devtools\")",
-                              "library(\"devtools\")",
-                              "install_github(\"s-u/fastshp\")", sep="\n",
+                              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")",
                               "You may also need to download and install Rtools",
                               "at http://cran.r-project.org/bin/windows/Rtools/"))
               }
@@ -1151,9 +1149,7 @@ setMethod(".plotGrob",
                 idLength <- tapply(thinned, rep(1:length(idLength), idLength), sum)
               } else {
                 message(paste("To speed up Lines plotting using Plot please download fastshp",
-                              "#install.packages(\"devtools\")",
-                              "library(\"devtools\")",
-                              "install_github(\"s-u/fastshp\")", sep="\n",
+                              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")",
                               "You may also need to download and install Rtools",
                               "at http://cran.r-project.org/bin/windows/Rtools/"))
               }

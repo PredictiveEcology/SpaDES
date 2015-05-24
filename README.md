@@ -17,9 +17,7 @@ Download the source tarball (`.tar.gz`) or Windows package binary (`.zip`), or i
 The suggested package `fastshp` can be installed with:
 
 ```r
-#install.packages("devtools")
-library(devtools)
-install_github("s-u/fastshp")
+install.packages("fastshp", repos="http://rforge.net", type="source")
 ```
 
 ### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=master) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](http://cran.r-project.org/web/packages/SpaDES)
