@@ -389,7 +389,7 @@ setMethod("changeObjEnv",
 setMethod("changeObjEnv",
           signature = c("character", "environment", "environment", "logical"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            lapply(x, function(obj) {assign(obj, envir=toEnv, value=get(obj, envir=fromEnv)); return(invisible())})
+            lapply(x, function(obj) {assign(`obj`, envir=toEnv, value=eval(parse(text=obj), envir=fromEnv)); return(invisible())})
             if(rmSrc) rm(list=x, envir=fromEnv)
           })
 

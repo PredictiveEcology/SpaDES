@@ -537,7 +537,8 @@ setMethod(".makeSpadesPlot",
 
             suppliedNames <- names(plotObjects)
             objs <- .objectNames()
-            names(plotObjects) <- objs$objs
+
+            names(plotObjects) <- sapply(objs,function(x) x$objs)
 
             if(!is.null(suppliedNames)) {
               if(all(sapply(suppliedNames, nchar)>0)) {
@@ -560,9 +561,9 @@ setMethod(".makeSpadesPlot",
               # Full layer names, including object name. If layer name is same as object name
               #  omit it, and if layer name is "layer", omit it if within a RasterLayer
               lN <- rep(names(plotObjects), numLayers)
-              lEnvs <- rep(objs$envs, numLayers)
-              lN[isRasterLong] <- paste(objectNamesLong[isRasterLong],
-                                        layerNames(plotObjects[isRaster]), sep="$")
+              lEnvs <- rep(sapply(objs, function(x) x$envs), numLayers)
+              lN[isRasterLong & isStackLong] <- paste(objectNamesLong[isRasterLong & isStackLong],
+                                        layerNames(plotObjects[isRaster & isStack]), sep="$")
               useOnlyObjectName <- (layerNames(plotObjects)=="layer") | (layerNames(plotObjects)==objectNamesLong)
               if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
                 lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
@@ -573,8 +574,10 @@ setMethod(".makeSpadesPlot",
               objectNamesLong <- lN <- names(plotObjects)
             }
 
-            if(any(duplicated(lN))) {
-              stop(paste("Cannot plot two layers with same name slot. Check",
+
+
+            if(any(duplicated(paste(lN,lEnvs)))) {
+              stop(paste("Cannot plot two layers with same name from the same environment. Check",
                          "inside RasterStacks for objects"))
             }
 
@@ -584,7 +587,6 @@ setMethod(".makeSpadesPlot",
             newPlots <- new(".spadesPlot")
             newPlots@arr <- new(".arrangement")
 
-            #newPlots@simEnv <-
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
 
               spadesGrobList <- list()
@@ -598,7 +600,7 @@ setMethod(".makeSpadesPlot",
               spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
               spadesGrobList[[lN[x]]]@envir <- lEnvs[[x]]
               spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
-              spadesGrobList[[lN[x]]]@objClass <- class(get(objectNamesLong[x], lEnvs[[x]]))
+              spadesGrobList[[lN[x]]]@objClass <- class(eval(parse(text=objectNamesLong[x]), lEnvs[[x]]))
               spadesGrobList[[lN[x]]]@isSpatialObjects <- isSpatialObjects[x]
               return(spadesGrobList)
             })
@@ -867,13 +869,14 @@ setGeneric(".arrangeViewports", function(sPlot) { #, name=NULL) {
 setMethod(".arrangeViewports",
           signature=c(".spadesPlot"),
           definition= function(sPlot) {
+
             sgl <- sPlot@spadesGrobList
 
             dimx <- apply(do.call(rbind,sapply(1:length(sgl), function(x) {
               lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
                 if(z==TRUE) {
                   # for spatial objects
-                  apply(bbox(get(sgl[[x]][[1]]@objName, envir=sgl[[x]][[1]]@envir)),1,function(y) diff(range(y)))
+                  apply(bbox(eval(parse(text=sgl[[x]][[1]]@objName), envir=sgl[[x]][[1]]@envir)),1,function(y) diff(range(y)))
                 } else {
                   # for non spatial objects
                   c(1,1)
@@ -1258,7 +1261,7 @@ setMethod(".plotGrob",
          if(!is.null(x[[1]]@plotArgs$zoomExtent)){
            x[[1]]@plotArgs$zoomExtent
          } else {
-           extent(get(x[[1]]@objName, envir=x[[1]]@envir))
+           extent(eval(parse(text=x[[1]]@objName), envir=x[[1]]@envir))
          }
          #extent(getGlobal(x[[1]]@objName))
        } else {
@@ -1405,7 +1408,7 @@ setMethod("makeLines",
           })
 
 
-deSquareBr <- function(y, e) {
+deSquareBr <- function(y, e, eminus1) {
   elems <- list()
   i = 1
   parseTxt <- parse(text=y)[[1]]
@@ -1426,21 +1429,26 @@ deSquareBr <- function(y, e) {
     i = i + 1
   }
 
-  inLocalEnv <- exists(deparse(parseTxt), envir=eminus1, inherit=FALSE)
-  inGlobalEnv <- exists(deparse(parseTxt), envir=.GlobalEnv, inherit=FALSE)
+  envs <- append(.GlobalEnv, sys.frames())[c(TRUE,sapply(sys.frames(), function(x)
+    exists(deparse(parseTxt), envir=x, inherit=FALSE)))] %>%
+    .[[length(.)]]
 
+  inGlobal <- identical(envs,.GlobalEnv)
+  if(is(eval(parse(text=deparse(parseTxt)), envir=envs), "environment")) {
+    envs <- eval(parse(text=deparse(parseTxt)), envir=envs)
+  } else {
+    elems[[i]] <- parseTxt
+  }
 
-#   if(is(eval(parse(text=deparse(parseTxt)), envir=eminus1), "simEnv")){
-#     envs[[i]] <-
-#   }
-#
-#   needSpadesEnvCopy <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=e, inherits=FALSE))
-#   inEnvGl <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=.GlobalEnv, inherits=FALSE))
-#   needSpadesEnvCopy[!needSpadesEnvCopy & !inEnvGl] <- TRUE
+  if(!inGlobal) {
+    if(!exists(paste0("dev",dev.cur()), envir=.spadesEnv)) {
+      .spadesEnv[[paste0("dev",dev.cur())]] <- new.env(parent = emptyenv())
+    }
+    changeObjEnv(paste(sapply(rev(elems),deparse),collapse="$"),
+                   fromEnv=envs, toEnv=.spadesEnv[[paste0("dev",dev.cur())]])
+  }
 
-
-  #return(list(objs=paste(sapply(rev(elems),deparse),collapse="$"), envs=envs))
-  return(list(objs=paste(sapply(rev(elems),deparse),collapse="$")))
+  return(list(objs=paste(sapply(rev(elems),deparse),collapse="$"), envs=envs))
 }
 
 ################################################################################
@@ -1464,7 +1472,6 @@ deSquareBr <- function(y, e) {
 .objectNames <- function(calledFrom="Plot", argClass=".spadesPlotObjects",
                          argName="") {
 
-  browser()
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -1481,174 +1488,175 @@ deSquareBr <- function(y, e) {
   #browser(expr = sapply(callNamedArgs, function(x) any(grepl(pattern="Fires",x))))
 
   # Make object for return
-  objs <- list(objs=vector("list", length(callNamedArgs)), envs=vector("list", length(callNamedArgs)))
-  objs$objs <- lapply(callNamedArgs, deSquareBr, e)
+  #objs <- list(objs=vector("list", length(callNamedArgs)), envs=vector("list", length(callNamedArgs)))
 
-
-
-  #callNamedArgsSplit <- sapply(as.character(callNamedArgs), function(x)
-  #  strsplit(split="[\\(\\[\\$]", x))
-  firstIsEnv <- sapply(seq_len(length(callNamedArgsSplit)), function(x)
-     is.environment(get(callNamedArgsSplit[[x]][1], envir=e)))
-  hasSquareBr <- sapply(callNamedArgs, function(x) grepl(x=x, pattern="\\[\\[")[1])
-
-
-  lapply(callNamedArgs[hasSquareBr], function(x) strsplit(x, split="\\[\\["))
-
-  #test whether the objects are in the Local env, if so need to make a copy in the .spadesEnv.
-  # If not, then check if it is in Global Env. If yes, then use that. If neither, then also need to
-  # make a copy of it into the .spadesEnv
-  needSpadesEnvCopy <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=e, inherits=FALSE))
-  inEnvGl <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=.GlobalEnv, inherits=FALSE))
-  needSpadesEnvCopy[!needSpadesEnvCopy & !inEnvGl] <- TRUE
-
-  #if not, then create a new environment, copy them to .spadesEnv for later recall by Plot
-  if(any(needSpadesEnvCopy)) {
-    newEnv <- rndstr(characterFirst=TRUE)
-    # create a new environment inside of .spadesEnv
-    assign(newEnv, envir=.spadesEnv, new.env(parent = emptyenv()))
-    # copy the local object to the hidden .spadesEnv so it can be found again by Plot later
-    changeObjEnv(sapply(callNamedArgsSplit, function(x) x[1])[needSpadesEnvCopy], fromEnv=e, toEnv=.spadesEnv[[newEnv]])
-    innerEnv <- sapply(callNamedArgsSplit, function(x) x[1])
-    envs <- lapply(seq_len(length(callNamedArgsSplit)), function(x) e)
-    envs[!needSpadesEnvCopy][[1]] <- .GlobalEnv
-    envs[firstIsEnv & needSpadesEnvCopy] <- lapply(innerEnv[firstIsEnv & needSpadesEnvCopy], function(x)
-      .spadesEnv[[newEnv]][[x]])
-  }
-
-  isSimEnv <- sapply(envs, is, "simEnv")
-
-  objName <- lapply(seq_len(length(callNamedArgsSplit)), function(x) {
-    if(firstIsEnv[x]){
-      callNamedArgsSplit[[x]][2]
-    } else {
-      callNamedArgsSplit[[x]][1]
-    }
-  })
-
-  # Is the first non-environment object name (i.e,. before a $ or [[), a member of a spatial object (SO)?
-  firstSO <- sapply(seq_len(length(objName)), function(y)
-    is(try(get(objName[[y]], envir=envs[[y]]), silent=TRUE), argClass))
-  if(any(firstSO)) {
-    objs$objs[firstSO] <- objName[firstSO]
-    objs$envs[firstSO] <- envs[firstSO]
-  }
-  # cut short if all are dealt with
-  if(all(!sapply(objs$objs, is.null))) return(objs)
-
-  # Many calls to Plot will use a simList object, which has an argument called
-  #   sim. Search for this, and look up the sim object in the calling frame.
-  #   Make it local here
-  hasSim <- sapply(scalls, function(x)
-    any(grepl(x, pattern=paste0("^sim$"))))
-  if (any(hasSim)) {
-    #simEnv <- sys.frame(which(hasSim)-1)
-    sim <- get("sim", envir=e)
-  }
-
-  # Look for calls that use "get"; extract them and extract object names
-  asChar <- lapply(callNamedArgs, function(x) as.character(x))
-  isGet <- sapply(asChar, function(x) grepl(pattern="get",x[1]))
-  if(any(isGet)) {
-    isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], e),
-                                                         silent=TRUE), argClass))
-    if(any(isGetTxt)) {
-      secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
-      thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2]),
-                                                                   envir=e))
-      objs$objs[isGet][isGetTxt] <- secondSO
-      objs$objs[isGet][!isGetTxt] <- thirdSO
-    } else {
-      thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2]),
-                                                        envir=e))
-      objs$objs[isGet] <- thirdSO
-    }
-  }
-  # cut short if all are dealt with
-  if(all(!sapply(objs$objs, is.null))) return(objs)
-
-
-  # Search for "get" nested within, most commonly because of a call to a layer
-  #   within a stack e.g., get(simGlobals(sim)$.stackname)$Fires
-  if(any(!isGet)) {
-    isGetInner <- lapply(asChar[!isGet], function(x) grepl("get", x))
-    if(any(sapply(isGetInner, any))) {
-      innerGet <- asChar[!isGet][sapply(isGetInner, any)]
-      insideGet <- lapply(1:length(innerGet), function(x)
-        sub("\\)$", "", sub("get[[:alpha:]]*\\(", "", innerGet[[x]][isGetInner[[x]]])))
-      fourthSO <- lapply(insideGet, function(w) {
-        if(grepl(pattern=", ", w)) {
-          insideGetSO <- sapply(strsplit(split="[, = ]", w)[[1]], function(y)
-            is(try(get(eval(parse(text=y),
-                            envir=e)), silent=TRUE), argClass))
-          fourthSO <- sapply(names(insideGetSO)[which(insideGetSO)], function(x)
-            eval(parse(text=x), envir=e))
-        } else {
-          fourthSO <- eval(parse(text=w), envir=e)
-        }})
-      objs$objs[!isGet][sapply(isGetInner, any)] <- fourthSO
-    }
-  }
-
-  # cut short if all are dealt with
-  if(all(!sapply(objs$objs, is.null))) return(objs)
-
-  # if in sim environment
-  asChar <- lapply(callNamedArgs, function(x) as.character(x))
-  isSimGlobals <- sapply(asChar, function(x) any(grepl(pattern="simGlobals",x)))
-  if(any(isSimGlobals)) {
-
-    isSimGlobalsTxt <- sapply(asChar[isSimGlobals], function(x) is(try(get(x[2], e),
-                                                         silent=TRUE), argClass))
-    isSimGlobalsSO <- sapply(asChar[isSimGlobals], function(x)
-      is(try(get(eval(parse(text=x[grep(x, pattern="simGlobals")])), envir=e),
-             silent=TRUE), argClass))
-    if(any(isSimGlobalsTxt)) {
-      secondSO <- lapply(asChar[isSimGlobals][isSimGlobalsTxt], function(x) x[grep(x, pattern="simGlobals")])
-      thirdSO <- lapply(asChar[isSimGlobals][!isSimGlobalsTxt], function(x) eval(parse(text=x[grep(x,pattern="simGlobals")]),
-                                                                   envir=e))
-      objs$objs[isSimGlobals][isSimGlobalsTxt] <- secondSO
-      objs$objs[isSimGlobals][!isSimGlobalsTxt] <- thirdSO
-      objs$envs[isSimGlobals][isSimGlobalsTxt] <- envs[isSimGlobals][isSimGlobalsTxt]
-      objs$envs[isSimGlobals][!isSimGlobalsTxt] <- envs[isSimGlobals][!isSimGlobalsTxt]
-
-    } else {
-      thirdSO <- lapply(asChar[isSimGlobals], function(x) eval(parse(text=x[grep(x,pattern="simGlobals")]),
-                                                        envir=e))
-      objs$objs[isSimGlobals] <- thirdSO
-      objs$envs[isSimGlobals] <- envs[isSimGlobals]
-    }
-  }
-  # cut short if all are dealt with
-  if(all(!sapply(objs$objs, is.null))) return(objs)
-
-
-  # Look for layer() which is used by shiny to indicate a plot Plot(layer()$fires)
-  isShinyLayer <- lapply(asChar, function(x) grepl("layer()", x))
-  #   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner, any)],
-  #                        function(x) grepl("layer()", x))
-  if(any(sapply(isShinyLayer, any))) {
-    whIsShinyLayer <- lapply(isShinyLayer[sapply(isShinyLayer, any)], which)
-    shinyLayer <- asChar[sapply(isShinyLayer, any)]
-    fifthSO <- lapply(1:length(shinyLayer), function(x)
-      shinyLayer[[x]][whIsShinyLayer[[x]]+1])
-    objs$objs[sapply(isShinyLayer, any)] <- fifthSO
-  }
-  # cut short if all are dealt with
-  if(all(!sapply(objs$objs, is.null))) return(objs)
-
-  isAdHocStack <- lapply(asChar, function(x) grepl("^stack", x))
-  sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
-  #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
-  objs$objs[sapply(isAdHocStack, any)] <- sixthSO
-
-  # cut short if all are dealt with
-  if(all(!sapply(objs$objs, is.null))) return(objs)
-
-  #   isAdHocOther <- sapply(objs, function(x) length(x)==0)
-  #   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
-  #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
-
+  objs <- lapply(callNamedArgs, deSquareBr, e, eminus1)
+  return(objs)
+#
+#
+#   #callNamedArgsSplit <- sapply(as.character(callNamedArgs), function(x)
+#   #  strsplit(split="[\\(\\[\\$]", x))
+#   firstIsEnv <- sapply(seq_len(length(callNamedArgsSplit)), function(x)
+#      is.environment(get(callNamedArgsSplit[[x]][1], envir=e)))
+#   hasSquareBr <- sapply(callNamedArgs, function(x) grepl(x=x, pattern="\\[\\[")[1])
+#
+#
+#   lapply(callNamedArgs[hasSquareBr], function(x) strsplit(x, split="\\[\\["))
+#
+#   #test whether the objects are in the Local env, if so need to make a copy in the .spadesEnv.
+#   # If not, then check if it is in Global Env. If yes, then use that. If neither, then also need to
+#   # make a copy of it into the .spadesEnv
+#   needSpadesEnvCopy <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=e, inherits=FALSE))
+#   inEnvGl <- sapply(callNamedArgsSplit, function(y) exists(y[1], envir=.GlobalEnv, inherits=FALSE))
+#   needSpadesEnvCopy[!needSpadesEnvCopy & !inEnvGl] <- TRUE
+#
+#   #if not, then create a new environment, copy them to .spadesEnv for later recall by Plot
+#   if(any(needSpadesEnvCopy)) {
+#     newEnv <- rndstr(characterFirst=TRUE)
+#     # create a new environment inside of .spadesEnv
+#     assign(newEnv, envir=.spadesEnv, new.env(parent = emptyenv()))
+#     # copy the local object to the hidden .spadesEnv so it can be found again by Plot later
+#     changeObjEnv(sapply(callNamedArgsSplit, function(x) x[1])[needSpadesEnvCopy], fromEnv=e, toEnv=.spadesEnv[[newEnv]])
+#     innerEnv <- sapply(callNamedArgsSplit, function(x) x[1])
+#     envs <- lapply(seq_len(length(callNamedArgsSplit)), function(x) e)
+#     envs[!needSpadesEnvCopy][[1]] <- .GlobalEnv
+#     envs[firstIsEnv & needSpadesEnvCopy] <- lapply(innerEnv[firstIsEnv & needSpadesEnvCopy], function(x)
+#       .spadesEnv[[newEnv]][[x]])
+#   }
+#
+#   isSimEnv <- sapply(envs, is, "simEnv")
+#
+#   objName <- lapply(seq_len(length(callNamedArgsSplit)), function(x) {
+#     if(firstIsEnv[x]){
+#       callNamedArgsSplit[[x]][2]
+#     } else {
+#       callNamedArgsSplit[[x]][1]
+#     }
+#   })
+#
+#   # Is the first non-environment object name (i.e,. before a $ or [[), a member of a spatial object (SO)?
+#   firstSO <- sapply(seq_len(length(objName)), function(y)
+#     is(try(get(objName[[y]], envir=envs[[y]]), silent=TRUE), argClass))
+#   if(any(firstSO)) {
+#     objs$objs[firstSO] <- objName[firstSO]
+#     objs$envs[firstSO] <- envs[firstSO]
+#   }
+#   # cut short if all are dealt with
+#   if(all(!sapply(objs$objs, is.null))) return(objs)
+#
+#   # Many calls to Plot will use a simList object, which has an argument called
+#   #   sim. Search for this, and look up the sim object in the calling frame.
+#   #   Make it local here
+#   hasSim <- sapply(scalls, function(x)
+#     any(grepl(x, pattern=paste0("^sim$"))))
+#   if (any(hasSim)) {
+#     #simEnv <- sys.frame(which(hasSim)-1)
+#     sim <- get("sim", envir=e)
+#   }
+#
+#   # Look for calls that use "get"; extract them and extract object names
+#   asChar <- lapply(callNamedArgs, function(x) as.character(x))
+#   isGet <- sapply(asChar, function(x) grepl(pattern="get",x[1]))
+#   if(any(isGet)) {
+#     isGetTxt <- sapply(asChar[isGet], function(x) is(try(get(x[2], e),
+#                                                          silent=TRUE), argClass))
+#     if(any(isGetTxt)) {
+#       secondSO <- lapply(asChar[isGet][isGetTxt], function(x) x[2])
+#       thirdSO <- lapply(asChar[isGet][!isGetTxt], function(x) eval(parse(text=x[2]),
+#                                                                    envir=e))
+#       objs$objs[isGet][isGetTxt] <- secondSO
+#       objs$objs[isGet][!isGetTxt] <- thirdSO
+#     } else {
+#       thirdSO <- lapply(asChar[isGet], function(x) eval(parse(text=x[2]),
+#                                                         envir=e))
+#       objs$objs[isGet] <- thirdSO
+#     }
+#   }
+#   # cut short if all are dealt with
+#   if(all(!sapply(objs$objs, is.null))) return(objs)
+#
+#
+#   # Search for "get" nested within, most commonly because of a call to a layer
+#   #   within a stack e.g., get(simGlobals(sim)$.stackname)$Fires
+#   if(any(!isGet)) {
+#     isGetInner <- lapply(asChar[!isGet], function(x) grepl("get", x))
+#     if(any(sapply(isGetInner, any))) {
+#       innerGet <- asChar[!isGet][sapply(isGetInner, any)]
+#       insideGet <- lapply(1:length(innerGet), function(x)
+#         sub("\\)$", "", sub("get[[:alpha:]]*\\(", "", innerGet[[x]][isGetInner[[x]]])))
+#       fourthSO <- lapply(insideGet, function(w) {
+#         if(grepl(pattern=", ", w)) {
+#           insideGetSO <- sapply(strsplit(split="[, = ]", w)[[1]], function(y)
+#             is(try(get(eval(parse(text=y),
+#                             envir=e)), silent=TRUE), argClass))
+#           fourthSO <- sapply(names(insideGetSO)[which(insideGetSO)], function(x)
+#             eval(parse(text=x), envir=e))
+#         } else {
+#           fourthSO <- eval(parse(text=w), envir=e)
+#         }})
+#       objs$objs[!isGet][sapply(isGetInner, any)] <- fourthSO
+#     }
+#   }
+#
+#   # cut short if all are dealt with
+#   if(all(!sapply(objs$objs, is.null))) return(objs)
+#
+#   # if in sim environment
+#   asChar <- lapply(callNamedArgs, function(x) as.character(x))
+#   isSimGlobals <- sapply(asChar, function(x) any(grepl(pattern="simGlobals",x)))
+#   if(any(isSimGlobals)) {
+#
+#     isSimGlobalsTxt <- sapply(asChar[isSimGlobals], function(x) is(try(get(x[2], e),
+#                                                          silent=TRUE), argClass))
+#     isSimGlobalsSO <- sapply(asChar[isSimGlobals], function(x)
+#       is(try(get(eval(parse(text=x[grep(x, pattern="simGlobals")])), envir=e),
+#              silent=TRUE), argClass))
+#     if(any(isSimGlobalsTxt)) {
+#       secondSO <- lapply(asChar[isSimGlobals][isSimGlobalsTxt], function(x) x[grep(x, pattern="simGlobals")])
+#       thirdSO <- lapply(asChar[isSimGlobals][!isSimGlobalsTxt], function(x) eval(parse(text=x[grep(x,pattern="simGlobals")]),
+#                                                                    envir=e))
+#       objs$objs[isSimGlobals][isSimGlobalsTxt] <- secondSO
+#       objs$objs[isSimGlobals][!isSimGlobalsTxt] <- thirdSO
+#       objs$envs[isSimGlobals][isSimGlobalsTxt] <- envs[isSimGlobals][isSimGlobalsTxt]
+#       objs$envs[isSimGlobals][!isSimGlobalsTxt] <- envs[isSimGlobals][!isSimGlobalsTxt]
+#
+#     } else {
+#       thirdSO <- lapply(asChar[isSimGlobals], function(x) eval(parse(text=x[grep(x,pattern="simGlobals")]),
+#                                                         envir=e))
+#       objs$objs[isSimGlobals] <- thirdSO
+#       objs$envs[isSimGlobals] <- envs[isSimGlobals]
+#     }
+#   }
+#   # cut short if all are dealt with
+#   if(all(!sapply(objs$objs, is.null))) return(objs)
+#
+#
+#   # Look for layer() which is used by shiny to indicate a plot Plot(layer()$fires)
+#   isShinyLayer <- lapply(asChar, function(x) grepl("layer()", x))
+#   #   isShinyLayer <- lapply(asChar[!isGet][!sapply(isGetInner, any)],
+#   #                        function(x) grepl("layer()", x))
+#   if(any(sapply(isShinyLayer, any))) {
+#     whIsShinyLayer <- lapply(isShinyLayer[sapply(isShinyLayer, any)], which)
+#     shinyLayer <- asChar[sapply(isShinyLayer, any)]
+#     fifthSO <- lapply(1:length(shinyLayer), function(x)
+#       shinyLayer[[x]][whIsShinyLayer[[x]]+1])
+#     objs$objs[sapply(isShinyLayer, any)] <- fifthSO
+#   }
+#   # cut short if all are dealt with
+#   if(all(!sapply(objs$objs, is.null))) return(objs)
+#
+#   isAdHocStack <- lapply(asChar, function(x) grepl("^stack", x))
+#   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
+#   #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
+#   objs$objs[sapply(isAdHocStack, any)] <- sixthSO
+#
+#   # cut short if all are dealt with
+#   if(all(!sapply(objs$objs, is.null))) return(objs)
+#
+#   #   isAdHocOther <- sapply(objs, function(x) length(x)==0)
+#   #   sixthSO <- rep("stack", sum(sapply(isAdHocStack, any)))
+#   #sixth[[x]][sapply(isAdHocStack, any)][!isAdHocStack[[x]]])
+#
   warning(paste("There was an error plotting. It is likely that the object being plotted",
                 "is not defined (looking for it in the wrong environment?",
                 "Please see documentation for Plot to try another way of calling Plot"))
@@ -1916,6 +1924,7 @@ setMethod("Plot",
             # which ones need replotting etc.
 
 
+
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
       dotObjs <- list(...)
@@ -1929,6 +1938,7 @@ setMethod("Plot",
 
       # Create a .spadesPlot object from the plotObjs and plotArgs
       newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs)
+
 
       if(length(plotObjs)>0) {
         names(plotObjs) <- unlist(.objectNames()$objs)
@@ -1949,7 +1959,7 @@ setMethod("Plot",
             lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
           updated$isNewPlot <-
             lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
-          clearPlot()
+          clearPlot(removeData=FALSE)
         }
 
       } else {
@@ -1961,6 +1971,7 @@ setMethod("Plot",
       # Section 2 # Optimal Layout and viewport making
       # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
       #  plotted, and visualSqueeze
+
       if(newArr) {
         updated$curr@arr <-
           .arrangeViewports(updated$curr)
@@ -2421,15 +2432,14 @@ setMethod(".makeColorMatrix",
 clickValues <- function(n=1) {
 
   coords <- clickCoordinates(n=n)
-
-  objLay <- strsplit(coords[, 1], "\\$")
+  objLay <- strsplit(coords$map, "\\$")
   objNames <- sapply(objLay, function(x) x[1])
   layNames <- sapply(objLay, function(x) x[2])
   for (i in 1:n) {
     if(!is.na(layNames[i])) {
-      coords$value[i] <- getGlobal(objNames[i])[[layNames[i]]][cellFromXY(getGlobal(objNames[i])[[layNames[i]]], coords[i, 2:3])]
+      coords$value[i] <- eval(parse(text=objNames[i]), envir=coords$envir[[i]])[[layNames[i]]][cellFromXY(eval(parse(text=objNames[i]),envir=coords$envir[[i]])[[layNames[i]]], coords[[3]][1:2])]
     } else {
-      coords$value[i] <- getGlobal(objNames[i])[cellFromXY(getGlobal(objNames[i]), coords[i, 2:3])]
+      coords$value[i] <- eval(parse(text=objNames[i]), envir=coords$envir[[i]])[cellFromXY(eval(parse(text=objNames[i]),envir=coords$envir[[i]])[[layNames[i]]], coords[[3]][1:2])]
     }
   }
   return(coords)
@@ -2445,8 +2455,9 @@ clickValues <- function(n=1) {
 #' @rdname spadesMouseClicks
 clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
+  browser()
   corners <- clickCoordinates(2)
-  zoom <- extent(c(sort(corners$x), sort(corners$y)))
+  zoom <- extent(c(sort(corners[[3]]$x), sort(corners[[3]]$y)))
 
 
   if(plot.it) {
@@ -2456,13 +2467,14 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     } else {
       dev(devNum)
     }
-    objLay <- strsplit(corners[, 1], "\\$")
+
+    objLay <- strsplit(corners$map, "\\$")
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
-      Plot(getGlobal(objNames)[[layNames]], zoomExtent=zoom, new=TRUE)
+      Plot(get(objNames, envir=corners$envir[[1]])[[layNames]], zoomExtent=zoom, new=TRUE)
     } else {
-      Plot(getGlobal(objNames), zoomExtent=zoom, new=TRUE)
+      Plot(get(objNames, envir=corners$envir[[1]]), zoomExtent=zoom, new=TRUE)
     }
 
     dev(devActive)
@@ -2478,6 +2490,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @rdname spadesMouseClicks
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
+
   arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
   if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
                                       "Try new=TRUE, clearPlot() or change device to",
@@ -2505,6 +2518,7 @@ clickCoordinates <- function(n=1) {
 
   clickCoords <- data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   mapNames <- character(n)
+  envs <- list()
 
   grobLoc <- list()
 
@@ -2532,8 +2546,9 @@ clickCoordinates <- function(n=1) {
 
     clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName, n=1, gl=grobLoc)
     mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
+    envs[[i]] <- arr@spadesGrobList[[map]][[1]]@envir
   }
-  return(data.frame(map=mapNames, clickCoords, stringsAsFactors = FALSE))
+  return(list(map=mapNames, envir=envs, clickCoords))
 }
 
 
@@ -2546,6 +2561,7 @@ clickCoordinates <- function(n=1) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 .clickCoord <- function(X, n=1, gl=NULL) {
+
 
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
@@ -2591,9 +2607,9 @@ setMethod(".identifyGrobToPlot",
   # Does it already exist on the plot device or not
   #if(!takeFromPlotObj) { # Is this a replot
     if(nchar(grobNamesi@layerName)>0) {# means it is in a raster
-      grobToPlot <- get(grobNamesi@objName, grobNamesi@envir)[[grobNamesi@layerName]]
+      grobToPlot <- eval(parse(text=grobNamesi@objName), grobNamesi@envir)[[grobNamesi@layerName]]
     } else {
-      grobToPlot <- get(grobNamesi@objName, grobNamesi@envir)
+      grobToPlot <- eval(parse(text=grobNamesi@objName), grobNamesi@envir)
     }
   #} else { # Is this a new plot to be added or plotted
   #  if(nchar(grobNamesi@layerName)>0) {
@@ -2662,8 +2678,10 @@ setMethod(".identifyGrobToPlot",
 #' @docType methods
 #' @rdname Plot
 #' @author Eliot McIntire
-clearPlot <- function(dev=dev.cur()) {
+clearPlot <- function(dev=dev.cur(), removeData=TRUE) {
   suppressWarnings(try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv)))
+  if(removeData) suppressWarnings(try(rm(list=ls(.spadesEnv[[paste0("dev",dev)]]),
+                          envir=.spadesEnv[[paste0("dev",dev)]]), silent=TRUE))
   devActive <- dev.cur()
   if(devActive==1) return(invisible())
   dev(dev)
