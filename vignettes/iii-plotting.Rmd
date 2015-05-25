@@ -119,12 +119,8 @@ However, `ggplot` objects cannot currently be passed to `Plot` with any other ob
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 require(ggplot2)
 ggObj <- qplot(rnorm(1e3), binwidth=0.1)
-Plot(caribou, new=TRUE)
-Plot(ggObj)
 
-try({
-  Plot(caribou, ggObj, new=TRUE) # won't work; this is a known bug (#169)
-}, silent=TRUE)
+Plot(caribou, ggObj, new=TRUE) # won't work; this is a known bug (#169)
 ```
 
 ### Colours
@@ -155,7 +151,7 @@ mapColours <- list(DEM=topo.colors(50),
                    forestCover=colorRampPalette(c("blue","orange","purple","red"))(50),
                    habitatQuality=brewer.pal(9, "Spectral"))
 setColors(landscape, n=50) <- mapColours
-Plot(landscape) # oh, how pretty!
+Plot(landscape, new=TRUE) # oh, how pretty!
 ```
 
 ## `Plot` arguments
