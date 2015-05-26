@@ -20,6 +20,7 @@ setClass("simEnv", contains = "environment")
 
 ### `initialize` generic is already defined in the methods package
 #' @export
+#' @rdname simEnv-class
 setMethod("initialize",
           signature(.Object = "simEnv"),
           definition=function(.Object) {
@@ -29,6 +30,7 @@ setMethod("initialize",
 
 ### `show` generic is already defined in the methods package
 #' @export
+#' @rdname simEnv-class
 setMethod("show",
           signature="simEnv",
           definition=function(object) {

@@ -2,9 +2,16 @@
 % Please edit documentation in R/environment.R
 \docType{class}
 \name{simEnv-class}
+\alias{initialize,simEnv-method}
+\alias{show,simEnv-method}
 \alias{simEnv}
 \alias{simEnv-class}
 \title{The \code{simEnv} class}
+\usage{
+\S4method{initialize}{simEnv}(.Object)
+
+\S4method{show}{simEnv}(object)
+}
 \description{
 This class is simply an environment that contains a \code{simList} object.
 }
