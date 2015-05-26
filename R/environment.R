@@ -321,7 +321,7 @@ setMethod(".getSimEnvNames",
 #' different environment. This is used with a \code{spades} call to copy or move objects to the
 #' \code{simEnv} environment object.
 #'
-#' @param x objects either passed as character string vector or list of objects
+#' @param x objects passed as character string vector
 #'
 #' @param toEnv environment to copy or move to
 #'
@@ -389,7 +389,10 @@ setMethod("changeObjEnv",
 setMethod("changeObjEnv",
           signature = c("character", "environment", "environment", "logical"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            lapply(x, function(obj) {assign(`obj`, envir=toEnv, value=eval(parse(text=obj), envir=fromEnv)); return(invisible())})
-            if(rmSrc) rm(list=x, envir=fromEnv)
+            lapply(x, function(obj) {tryCatch(assign(`obj`, envir=toEnv,
+                                            value=eval(parse(text=obj), envir=fromEnv)),
+                                            error=function(x) invisible());
+                                     return(invisible())})
+            if(rmSrc) suppressWarnings(tryCatch(rm(list=x, envir=fromEnv), error=function(x) invisible()))
           })
 
