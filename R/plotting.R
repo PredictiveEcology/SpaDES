@@ -273,7 +273,9 @@ setMethod("layerNames",
 setMethod("layerNames",
           signature=".spadesPlot",
           definition=function(object) {
-            return(object@arr@names)
+            return(sapply(object@spadesGrobList, function(x) {
+                sapply(x, function(y) y@layerName)
+              }))
           })
 
 #' @rdname layerNames
