@@ -57,256 +57,6 @@ setClassUnion(name=".spatialObjects",
 setClassUnion(name=".spadesPlotObjects",
               members=c(".spatialObjects", "gg", "histogram", "igraph"))
 
-################################################################################
-#' Specify where to plot
-#'
-#' Switch to an existing plot device, or if not already open,
-#' launch a new graphics device based on operating system used.
-#'
-#' For example, \code{dev(6)} switches the active plot device to device #6.
-#' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
-#' they will be opened too.
-#'
-#' @param x   The number of a plot device. If missing, will open a new
-#'            non-RStudio plotting device
-#'
-#' @param ... Additional arguments passed to \code{\link{newPlot}}.
-#'
-#' @return Opens a new plot device on the screen.
-#'
-#' @export
-#' @docType methods
-#' @rdname dev
-#' @author Eliot McIntire and Alex Chubaty
-#'
-dev <- function(x, ...) {
-  if (missing(x)) {
-    if(is.null(dev.list())) {
-      x <- 2L
-    } else {
-      if(any(names(dev.list())=="RStudioGD")) {
-        x <- min(max(dev.list())+1,
-                 which(names(dev.list())=="RStudioGD")+3L)
-        dev(x)
-      } else {
-        x <- max(dev.list())
-        dev(x)
-      }
-    }
-  }
-  if(is.null(dev.list())) newPlot(...)
-  while (dev.set(x)<x) newPlot(...)
-}
-
-################################################################################
-#' Open a new plotting window
-#'
-#' @param noRStudioGD Logical Passed to dev.new. Default is TRUE to avoid using
-#'                    RStudio graphics device, which is slow.
-#' @param ...         Additional arguments.
-#'
-#' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
-#' window in a platform-generic way, however, this doesn't work in RStudio.
-#'
-#' @seealso \code{\link{dev}}.
-#'
-#' @author Eliot McIntire and Alex Chubaty
-#'
-#' @export
-#' @docType methods
-#' @rdname newPlot
-newPlot <- function(noRStudioGD=TRUE, ...) {
-  dev.new(noRStudioGD=TRUE, ...)
-}
-
-
-################################################################################
-#' Find the number of layers in a Spatial Object
-#'
-#' There are already methods for \code{Raster*} in the raster package.
-#' Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines},
-#' and \code{SpatialPoints}, \code{gg}, \code{histogram}, \code{igraph}.
-#' These latter classes return \code{1}.
-#'
-#' @param x A \code{.spadesPlotObjects} object or list of these.
-#'
-#' @return The number of layers in the object.
-#'
-#' @export
-#' @importFrom raster nlayers
-#' @importFrom methods is
-#' @author Eliot McIntire
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="list",
-          function(x) {
-            y <- sum(sapply(x, function(x) {
-              if(is(x, "RasterStack")) {
-                x <- nlayers(x)
-                } else {
-                  x <- 1L
-                }
-              return(x)
-              }))
-            return(y)
-})
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="SpatialPolygons",
-          definition=function(x) {
-            return(1L)
-})
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="SpatialLines",
-          definition=function(x) {
-            return(1L)
-})
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="SpatialPoints",
-          definition=function(x) {
-            return(1L)
-})
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="gg",
-          definition=function(x) {
-            return(1L)
-})
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="histogram",
-          definition=function(x) {
-            return(1L)
-})
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature=".spadesPlot",
-          definition=function(x) {
-            return(length(x@arr@extents))
-          })
-
-#' @rdname nlayers
-setMethod("nlayers",
-          signature="igraph",
-          definition=function(x) {
-            return(1L)
-})
-
-################################################################################
-#' Extract the layer names of Spatial Objects
-#'
-#' There are already methods for \code{Raster*} objects. This adds methods for
-#' \code{SpatialPoints*}, \code{SpatialLines*}, and \code{SpatialPolygons*},
-#' returning an empty character vector of length 1.
-#' This function was created to give consistent, meaningful results for all
-#' classes of objects plotted by \code{Plot}.
-#'
-#' @param object  A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*},
-#'                or \code{SpatialPolygons*} object; or list of these.
-#'
-#' @rdname layerNames
-#' @author Eliot McIntire
-#' @export
-setGeneric("layerNames", function(object) {
-  standardGeneric("layerNames")
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="list",
-          definition=function(object) {
-            unlist(lapply(object, layerNames))
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="SpatialPoints",
-          definition=function(object) {
-            return("")
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="SpatialPolygons",
-          definition=function(object) {
-            return("")
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="SpatialLines",
-          definition=function(object) {
-            return("")
-})
-
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="Raster",
-          definition=function(object) {
-            names(object)
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="gg",
-          definition=function(object) {
-            return("")
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="histogram",
-          definition=function(object) {
-            return("")
-})
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature=".spadesPlot",
-          definition=function(object) {
-            return(sapply(object@spadesGrobList, function(x) {
-                sapply(x, function(y) y@layerName)
-              }))
-          })
-
-#' @rdname layerNames
-setMethod("layerNames",
-          signature="igraph",
-          definition=function(object) {
-            return("")
-})
-
-################################################################################
-#' Assess whether a list of extents are all equal
-#'
-#' @param extents list of extents objects
-#' @rdname equalExtent
-#' @author Eliot McIntire
-#' @export
-setGeneric("equalExtent", function(extents) {
-  standardGeneric("equalExtent")
-})
-
-#' @rdname equalExtent
-setMethod("equalExtent",
-          signature="list",
-          definition=function(extents) {
-            all(c(sapply(extents, function(x) x@xmin)==extents[[1]]@xmin,
-                  sapply(extents, function(x) x@xmax)==extents[[1]]@xmax,
-                  sapply(extents, function(x) x@ymin)==extents[[1]]@ymin,
-                  sapply(extents, function(x) x@ymax)==extents[[1]]@ymax))
-})
-
-
 ###########################################################################
 #' The \code{.spadesGrob} class
 #'
@@ -516,6 +266,264 @@ setClass(".spadesPlot",
 setClassUnion(name=".spadesPlottables",
               members=c(".spadesPlotObjects", ".spadesPlot"))
 
+
+###########################################################################
+# Classes
+###########################################################################
+
+################################################################################
+#' Specify where to plot
+#'
+#' Switch to an existing plot device, or if not already open,
+#' launch a new graphics device based on operating system used.
+#'
+#' For example, \code{dev(6)} switches the active plot device to device #6.
+#' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
+#' they will be opened too.
+#'
+#' @param x   The number of a plot device. If missing, will open a new
+#'            non-RStudio plotting device
+#'
+#' @param ... Additional arguments passed to \code{\link{newPlot}}.
+#'
+#' @return Opens a new plot device on the screen.
+#'
+#' @export
+#' @docType methods
+#' @rdname dev
+#' @author Eliot McIntire and Alex Chubaty
+#'
+dev <- function(x, ...) {
+  if (missing(x)) {
+    if(is.null(dev.list())) {
+      x <- 2L
+    } else {
+      if(any(names(dev.list())=="RStudioGD")) {
+        x <- min(max(dev.list())+1,
+                 which(names(dev.list())=="RStudioGD")+3L)
+        dev(x)
+      } else {
+        x <- max(dev.list())
+        dev(x)
+      }
+    }
+  }
+  if(is.null(dev.list())) newPlot(...)
+  while (dev.set(x)<x) newPlot(...)
+}
+
+################################################################################
+#' Open a new plotting window
+#'
+#' @param noRStudioGD Logical Passed to dev.new. Default is TRUE to avoid using
+#'                    RStudio graphics device, which is slow.
+#' @param ...         Additional arguments.
+#'
+#' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
+#' window in a platform-generic way, however, this doesn't work in RStudio.
+#'
+#' @seealso \code{\link{dev}}.
+#'
+#' @author Eliot McIntire and Alex Chubaty
+#'
+#' @export
+#' @docType methods
+#' @rdname newPlot
+newPlot <- function(noRStudioGD=TRUE, ...) {
+  dev.new(noRStudioGD=TRUE, ...)
+}
+
+
+################################################################################
+#' Find the number of layers in a Spatial Object
+#'
+#' There are already methods for \code{Raster*} in the raster package.
+#' Adding methods for \code{list}, \code{SpatialPolygons}, \code{SpatialLines},
+#' and \code{SpatialPoints}, \code{gg}, \code{histogram}, \code{igraph}.
+#' These latter classes return \code{1}.
+#'
+#' @param x A \code{.spadesPlotObjects} object or list of these.
+#'
+#' @return The number of layers in the object.
+#'
+#' @export
+#' @importFrom raster nlayers
+#' @importFrom methods is
+#' @author Eliot McIntire
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="list",
+          function(x) {
+            y <- sum(sapply(x, function(x) {
+              if(is(x, "RasterStack")) {
+                x <- nlayers(x)
+              } else {
+                x <- 1L
+              }
+              return(x)
+            }))
+            return(y)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="SpatialPolygons",
+          definition=function(x) {
+            return(1L)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="SpatialLines",
+          definition=function(x) {
+            return(1L)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="SpatialPoints",
+          definition=function(x) {
+            return(1L)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="gg",
+          definition=function(x) {
+            return(1L)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="histogram",
+          definition=function(x) {
+            return(1L)
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature=".spadesPlot",
+          definition=function(x) {
+            return(length(x@arr@extents))
+          })
+
+#' @rdname nlayers
+setMethod("nlayers",
+          signature="igraph",
+          definition=function(x) {
+            return(1L)
+          })
+
+################################################################################
+#' Extract the layer names of Spatial Objects
+#'
+#' There are already methods for \code{Raster*} objects. This adds methods for
+#' \code{SpatialPoints*}, \code{SpatialLines*}, and \code{SpatialPolygons*},
+#' returning an empty character vector of length 1.
+#' This function was created to give consistent, meaningful results for all
+#' classes of objects plotted by \code{Plot}.
+#'
+#' @param object  A \code{Raster*}, \code{SpatialPoints*}, \code{SpatialLines*},
+#'                or \code{SpatialPolygons*} object; or list of these.
+#'
+#' @rdname layerNames
+#' @author Eliot McIntire
+#' @export
+setGeneric("layerNames", function(object) {
+  standardGeneric("layerNames")
+})
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="list",
+          definition=function(object) {
+            unlist(lapply(object, layerNames))
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="SpatialPoints",
+          definition=function(object) {
+            return("")
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="SpatialPolygons",
+          definition=function(object) {
+            return("")
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="SpatialLines",
+          definition=function(object) {
+            return("")
+          })
+
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="Raster",
+          definition=function(object) {
+            names(object)
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="gg",
+          definition=function(object) {
+            return("")
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="histogram",
+          definition=function(object) {
+            return("")
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature=".spadesPlot",
+          definition=function(object) {
+            return(sapply(object@spadesGrobList, function(x) {
+              sapply(x, function(y) y@layerName)
+            }))
+          })
+
+#' @rdname layerNames
+setMethod("layerNames",
+          signature="igraph",
+          definition=function(object) {
+            return("")
+          })
+
+################################################################################
+#' Assess whether a list of extents are all equal
+#'
+#' @param extents list of extents objects
+#' @rdname equalExtent
+#' @author Eliot McIntire
+#' @export
+setGeneric("equalExtent", function(extents) {
+  standardGeneric("equalExtent")
+})
+
+#' @rdname equalExtent
+setMethod("equalExtent",
+          signature="list",
+          definition=function(extents) {
+            all(c(sapply(extents, function(x) x@xmin)==extents[[1]]@xmin,
+                  sapply(extents, function(x) x@xmax)==extents[[1]]@xmax,
+                  sapply(extents, function(x) x@ymin)==extents[[1]]@ymin,
+                  sapply(extents, function(x) x@ymax)==extents[[1]]@ymax))
+          })
+
+
+
+################################################################################
+# Methods
 ################################################################################
 #' Make a \code{.spadesPlot} class object
 #'
@@ -2012,7 +2020,7 @@ setMethod("Plot",
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
             suppressWarnings(par(new=TRUE))
-            plotCall <- append(list(x=grobToPlot), nonPlotArgs)
+            plotCall <- list(grobToPlot)#, nonPlotArgs)
             #names(plotCall)[1] <- "x"
             do.call(plot, args=plotCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
@@ -2025,7 +2033,7 @@ setMethod("Plot",
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
             suppressWarnings(par(new=TRUE))
-            plotCall <- list(grobToPlot)#, nonPlotArgs)
+            plotCall <- append(list(x=grobToPlot), nonPlotArgs)
             #names(plotCall)[1] <- "x"
             do.call(plot, args=plotCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
