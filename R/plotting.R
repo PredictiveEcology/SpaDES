@@ -582,15 +582,15 @@ setMethod(".makeSpadesPlot",
 
             # Full layer names, including object name. If layer name is same as object name
             #  omit it, and if layer name is "layer", omit it if within a RasterLayer
-            lN[isRasterLong & isStackLong] <- paste(objectNamesLong[isRasterLong & isStackLong],
-                                      layerNames(plotObjects[isRaster & isStack]), sep="$")
-            useOnlyObjectName <- (layerNames(plotObjects)=="layer") |
-              (layerNames(plotObjects)==objectNamesLong)
-            if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
-              lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
-                sapply(seq_len(length(lN[(!isStackLong) & isRasterLong & useOnlyObjectName])),
-                              function(x) paste(lN[(!isStackLong) & isRasterLong & !useOnlyObjectName][[x]],
-                              layerNames(plotObjects)[[x]], sep="$")) }
+            lN[isStackLong] <- paste(objectNamesLong[isStackLong],
+                                      layerNames(plotObjects[isStack]), sep="$")
+#             useOnlyObjectName <- (layerNames(plotObjects)=="layer") |
+#               (layerNames(plotObjects)==objectNamesLong)
+#             if(any(!isStackLong)) {
+#               lN[(!isStackLong)] <-
+#                 sapply(seq_len(length(lN[(!isStackLong)])),
+#                               function(x) paste(lN[(!isStackLong)][[x]],
+#                               layerNames(plotObjects)[[x]], sep="$")) }
             names(lN) <- rep(names(plotObjects), numLayers)
             names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
