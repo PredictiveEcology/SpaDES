@@ -548,10 +548,10 @@ setMethod(".makeSpadesPlot",
           definition= function(plotObjects, plotArgs, ...) {
 
             isSpatialObjects <- sapply(plotObjects, function(x) is(x, ".spatialObjects"))
-#             if((sum(isSpatialObjects)!=0) & (sum(isSpatialObjects)!=length(isSpatialObjects))) {
-#               stop("All objects for Plot call must be either .spatialObjects or
-#                    none can be")
-#             }
+            #             if((sum(isSpatialObjects)!=0) & (sum(isSpatialObjects)!=length(isSpatialObjects))) {
+            #               stop("All objects for Plot call must be either .spatialObjects or
+            #                    none can be")
+            #             }
 
             suppliedNames <- names(plotObjects)
             objs <- .objectNames()
@@ -1435,7 +1435,6 @@ setMethod("makeLines",
 
 deSquareBr <- function(y, e, eminus1) {
   elems <- list()
-
   i <- 1
   parseTxt <- parse(text=y)[[1]]
   elems[[i]] <- parseTxt
