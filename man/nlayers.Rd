@@ -2,6 +2,7 @@
 % Please edit documentation in R/plotting.R
 \docType{methods}
 \name{nlayers,list-method}
+\alias{nlayers,.spadesPlot-method}
 \alias{nlayers,SpatialLines-method}
 \alias{nlayers,SpatialPoints-method}
 \alias{nlayers,SpatialPolygons-method}
@@ -22,6 +23,8 @@
 \S4method{nlayers}{gg}(x)
 
 \S4method{nlayers}{histogram}(x)
+
+\S4method{nlayers}{.spadesPlot}(x)
 
 \S4method{nlayers}{igraph}(x)
 }

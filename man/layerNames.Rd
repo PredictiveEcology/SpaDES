@@ -3,6 +3,7 @@
 \docType{methods}
 \name{layerNames}
 \alias{layerNames}
+\alias{layerNames,.spadesPlot-method}
 \alias{layerNames,Raster-method}
 \alias{layerNames,SpatialLines-method}
 \alias{layerNames,SpatialPoints-method}
@@ -28,6 +29,8 @@ layerNames(object)
 \S4method{layerNames}{gg}(object)
 
 \S4method{layerNames}{histogram}(object)
+
+\S4method{layerNames}{.spadesPlot}(object)
 
 \S4method{layerNames}{igraph}(object)
 }

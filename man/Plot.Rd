@@ -22,7 +22,7 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur())
 
-clearPlot(dev = dev.cur())
+clearPlot(dev = dev.cur(), removeData = TRUE)
 }
 \arguments{
 \item{...}{A combination of \code{.spatialObjects} or a single \code{ggplot} object. See details.}

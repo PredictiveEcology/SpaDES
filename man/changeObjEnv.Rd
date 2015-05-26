@@ -32,7 +32,7 @@ changeObjEnv(x, toEnv, fromEnv, rmSrc)
   fromEnv, rmSrc)
 }
 \arguments{
-\item{x}{objects either passed as character string vector or list of objects}
+\item{x}{objects passed as character string vector}
 
 \item{toEnv}{environment to copy or move to}
 

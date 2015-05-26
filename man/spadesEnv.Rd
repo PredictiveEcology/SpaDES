@@ -4,7 +4,7 @@
 \name{.spadesEnv}
 \alias{.spadesEnv}
 \title{The SpaDES environment}
-\format{\preformatted{<environment: 0x7fdcfe01e8b0> 
+\format{\preformatted{<environment: 0x000000001123a1d0> 
 }}
 \usage{
 .spadesEnv
