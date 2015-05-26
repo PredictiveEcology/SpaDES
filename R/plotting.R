@@ -488,7 +488,7 @@ setMethod("layerNames",
           signature=".spadesPlot",
           definition=function(object) {
             return(sapply(object@spadesGrobList, function(x) {
-              sapply(x, function(y) y@layerName)
+              sapply(x, function(y) y@plotName)
             }))
           })
 
@@ -534,8 +534,6 @@ setMethod("equalExtent",
 #' @param plotArgs list. Any arguments that the the grid package can accept for the specific
 #' grob types, e.g., rasterGrob, polygonGrob, etc.
 #'
-#' @param an option environment to pass to find plotObjects
-#'
 #' @param ... additional arguments. Currently nothing.
 #'
 #' @return A \code{\link{.spadesPlot}} object, which has 2 slots, one for the plot arrangement
@@ -546,7 +544,7 @@ setMethod("equalExtent",
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, envir, ...) {
+setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, ...) {
   standardGeneric(".makeSpadesPlot")
 })
 
@@ -808,7 +806,7 @@ setMethod(".updateSpadesPlot",
             overplots <- na.omit(match(currNames, newNames))
 
             needNew <- -c(overplots, which(addToPlots))
-            needNew <- if(length(needNew)==0) {1:length(newNames)}
+            if(length(needNew)==0) {needNew <- 1:length(newNames)}
 
             whichParamsChanged <- lapply(newNames[overplots],
                                          function(x) {
@@ -1260,7 +1258,8 @@ setMethod(".plotGrob",
                unit(0.2, "null"))
 
   return(list(wdth=wdth, ht=ht,
-              wdthUnits=vS.w, htUnits=vS.h))
+              wdthUnits=vS.w, htUnits=vS.h,
+              visualSqueeze=visualSqueeze))
 }
 
 ################################################################################
@@ -1794,7 +1793,7 @@ setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
                     axes="L", speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
-                    visualSqueeze=0.75, legend=TRUE, legendRange=NULL, legendText=NULL,
+                    visualSqueeze=NULL, legend=TRUE, legendRange=NULL, legendText=NULL,
                     pch = 19, title=TRUE,
                     na.color="#FFFFFF00", zero.color=NULL, length=NULL) {
              standardGeneric("Plot")
@@ -1826,12 +1825,13 @@ setMethod("Plot",
       # Create a .spadesPlot object from the plotObjs and plotArgs
 
       isSpadesPlot <- sapply(plotObjs, function(x) is(x,".spadesPlot"))
-      if(any(!isSpadesPlot)) {
+      #if(any(!isSpadesPlot)) {
         newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs)
-      }
+      #}
 
       if(exists(paste0("spadesPlot", dev.cur()),envir=.spadesEnv)) {
         currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
+        visualSqueeze <- if(is.null(visualSqueeze)) {currSpadesPlots@arr@layout$visualSqueeze} else {visualSqueeze}
         updated <- .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arr@columns,
@@ -1844,12 +1844,15 @@ setMethod("Plot",
             lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
           updated$isNewPlot <-
             lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
+          updated$isBaseLayer <-
+            lapply(updated$isReplot, function(x) sapply(x, function(y) TRUE))
           clearPlot(removeData=FALSE)
         }
 
       } else if(all(isSpadesPlot)) {
         currSpadesPlots <- .makeSpadesPlot()
         newSpadesPlots <- plotObjs[[1]]
+        visualSqueeze <- if(is.null(visualSqueeze)) {newSpadesPlots@arr@layout$visualSqueeze} else {visualSqueeze}
         updated <- .updateSpadesPlot(newSpadesPlots)
         newArr <- TRUE
       } else {
@@ -1861,8 +1864,8 @@ setMethod("Plot",
       # Section 2 # Optimal Layout and viewport making
       # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
       #  plotted, and visualSqueeze
-
       if(newArr) {
+        if(is.null(visualSqueeze)) {visualSqueeze <- 0.75}
         updated$curr@arr <-
           .arrangeViewports(updated$curr)
         updated$curr@arr@layout <-
@@ -2079,7 +2082,6 @@ setMethod("Plot",
     } # subPlots
 
     .assignSpaDES(paste0("spadesPlot", dev.cur()), updated$curr)
-
     return(invisible(updated$curr))
 })
 
@@ -2091,11 +2093,11 @@ setMethod("Plot",
 #' @export
 #' @rdname Plot
 #' @author Eliot McIntire
-rePlot <- function(toDev=dev.cur(), fromDev=dev.cur()) {
+rePlot <- function(toDev=dev.cur(), fromDev=dev.cur(), ...) {
               if(exists(paste0("spadesPlot", fromDev),envir=.spadesEnv)) {
                 currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
                 dev(toDev)
-                Plot(currSpadesPlots, new=TRUE)
+                Plot(currSpadesPlots, new=TRUE, ...)
               } else {
                 stop(paste("Nothing to rePlot. Need to call Plot first, or change to",
                      "correct active device with dev(x), where x is the active device number"))
@@ -2572,6 +2574,9 @@ setMethod(".identifyGrobToPlot",
 #' device and all the associated metadata manually.
 #'
 #' @param dev Numeric. Device number to clear.
+#'
+#' @param removeData Logical whether any data that was stored in the \code{.spadesEnv} should also
+#' be removed, i.e., not just the plot window wiped.
 #'
 #' @export
 #' @docType methods
