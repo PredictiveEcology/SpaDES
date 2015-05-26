@@ -1,4 +1,5 @@
-## fireSpread module metadata
+stopifnot(packageVersion("SpaDES") >= "1.0.0")
+
 defineModule(sim, list(
   name="fireSpread",
   description="Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine. Fire size statistics are collected immediately after each burn event. Requires a global simulation parameter `stackName` be set.",
@@ -40,12 +41,12 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simGlobals(sim)$stackName, layer="habitatQuality")
+    checkObject(sim, simGlobals(sim)$stackName, layer="habitatQuality")
 
     if (is.null(sim[[simGlobals(sim)$burnStats]])) {
       sim[[simGlobals(sim)$burnStats]] <- numeric()
     } else {
-      npix <- getGlobal(simGlobals(sim)$burnStats)
+      npix <- sim[[(simGlobals(sim)$burnStats)]]
       stopifnot("numeric" %in% is(npix), "vector" %in% is(npix))
     }
 
@@ -72,22 +73,20 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     ## stats scheduling done by burn event
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    maps <- sim[[simGlobals(sim)$stackName]]
-    setColors(maps) <- list(DEM=terrain.colors(100),
+    setColors(sim[[simGlobals(sim)$stackName]]) <- list(DEM=terrain.colors(100),
                                 forestAge=brewer.pal(9,"BuGn"),
                                 forestCover=brewer.pal(8,"BrBG"),
                                 habitatQuality=brewer.pal(8,"Spectral"),
                                 percentPine=brewer.pal(9,"Greens"),
                                 Fires=c("white", rev(heat.colors(9)))
                             )
-    sim[[simGlobals(sim)$stackName]] <- maps
-    Plot(maps, new=TRUE)
+
+    Plot(sim[[simGlobals(sim)$stackName]], new=TRUE)
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    browser()
     Plot(sim[[simGlobals(sim)$stackName]]$Fires, new=FALSE)
 
     # schedule the next event

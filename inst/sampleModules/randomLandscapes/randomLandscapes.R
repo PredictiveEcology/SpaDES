@@ -1,4 +1,5 @@
-## module metadata
+stopifnot(packageVersion("SpaDES") >= "1.0.0")
+
 defineModule(sim, list(
   name="randomLandscapes",
   description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
@@ -32,12 +33,12 @@ defineModule(sim, list(
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # do stuff for this event
-    sim <- randomLandscapesInit(sim)
+    randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
+    scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
                          "randomLandscapes", "plot")
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
+    scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
@@ -45,7 +46,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     Plot(sim[[simGlobals(sim)$stackName]])
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
+    scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
   } else if (eventType=="save") {
 
@@ -53,7 +54,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
+    scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {
