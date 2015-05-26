@@ -588,8 +588,9 @@ setMethod(".makeSpadesPlot",
               (layerNames(plotObjects)==objectNamesLong)
             if(any((!isStackLong) & isRasterLong & useOnlyObjectName)) {
               lN[(!isStackLong) & isRasterLong & useOnlyObjectName] <-
-                sapply(lapply(lN[(!isStackLong) & isRasterLong & useOnlyObjectName],
-                              function(x) strsplit(x, "\\$")[[1]]), function(y)y[[1]]) }
+                sapply(seq_len(length(lN[(!isStackLong) & isRasterLong & useOnlyObjectName])),
+                              function(x) paste(lN[(!isStackLong) & isRasterLong & !useOnlyObjectName][[x]],
+                              layerNames(plotObjects)[[x]], sep="$")) }
             names(lN) <- rep(names(plotObjects), numLayers)
             names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
