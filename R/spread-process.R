@@ -194,7 +194,6 @@ setMethod("spread",
                 }
                 size <- size + length(events)
               } else {
-                browser()
                 len <- tabulate(spreads[potentials[,1L]], length(maxSize))
                 if(any((size + len) > maxSize & size < maxSize)){
                   whichID <- which(size + len > maxSize)
@@ -209,7 +208,7 @@ setMethod("spread",
                 size <- pmin(size + len, maxSize) ## Quick? and dirty, fast but loose (too flexible)
               }
 
-              size <- size + length(unique(events))
+              # size <- size + length(unique(events))
 
               # update eligibility map
 
