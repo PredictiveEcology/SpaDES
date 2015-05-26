@@ -1295,7 +1295,6 @@ setMethod(".plotGrob",
          } else {
            extent(eval(parse(text=x[[1]]@objName), envir=x[[1]]@envir))
          }
-         #extent(getGlobal(x[[1]]@objName))
        } else {
          # for non spatial objects
          extent(c(xmin=0,xmax=1,ymin=0,ymax=1))
@@ -1440,7 +1439,25 @@ setMethod("makeLines",
           })
 
 
-deSquareBr <- function(y, e, eminus1) {
+
+################################################################################
+#' Parse arguments and find environments
+#'
+#' Internal function used within .objectNames.
+#'
+#' @param y      a character representation of the arguments passed to a function, e.g., \code{Plot}
+#'
+#' @param e     environment in which the function (e.g., \code{Plot}) was called
+#'
+#' @param eminus1   environment. The parent of e.
+#'
+#' @return A list of length 2, with names \code{objs} and \code{envs} giving the standardized representation (i.e., replacing [[]] with
+#' $ notation for objects) of objects and their layers (if \code{RasterStacks}).
+#'
+#' @docType methods
+#' @rdname .parseArgs
+#' @author Eliot McIntire and Alex Chubaty
+.parseArgs <- function(y, e, eminus1) {
   elems <- list()
   i <- 1
   parseTxt <- parse(text=y)[[1]]
@@ -1486,7 +1503,7 @@ deSquareBr <- function(y, e, eminus1) {
   }
 
   envs <- append(.GlobalEnv, sys.frames())[c(TRUE,sapply(sys.frames(), function(x)
-    exists(deparse(parseTxt), envir=x, inherit=FALSE)))] %>%
+    exists(deparse(parseTxt), envir=x, inherits=FALSE)))] %>%
     .[[length(.)]]
 
   inGlobal <- identical(envs,.GlobalEnv)
@@ -1541,13 +1558,8 @@ deSquareBr <- function(y, e, eminus1) {
   eminus1 <- sys.frame(frameCalledFrom-1)
 
   callNamedArgs <- as.character(substitute(list(...), env=e))[-1]
-  objs <- lapply(callNamedArgs, deSquareBr, e, eminus1)
+  objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
   return(objs)
-#   warning(paste("There was an error plotting. It is likely that the object being plotted",
-#                 "is not defined (looking for it in the wrong environment?",
-#                 "Please see documentation for Plot to try another way of calling Plot"))
-#
-#   return()
 }
 
 
