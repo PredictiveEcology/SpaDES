@@ -354,10 +354,33 @@ clickExtent() # click at two locations on the Plot device
 `rePlot` can be used to redraw the entire plot window, either in the same frame as before (the default) or in a new frame.
 If in a new frame, the new device will be created, then the entire Plot window will be redrawn in the new device.
 This function can also be used to redraw everything after a window gets resized manually and objects become distorted.
-This cannot be used to "update" a plot with new values of an argument.
-That will likely be in a future update.
+Some plot arguments can be passed via `rePlot`, such as `visualSqueeze`, `axes`, but not all.
+Further functionality like this will likely be in a future update.K
 
 ```{r rePlot, eval=FALSE, echo=TRUE, cache=TRUE}
 rePlot()
 rePlot(4)
+rePlot(visualSqueeze=1, axes=FALSE)
+```
+
+# Assigning `Plot()` to object
+
+The output of a `Plot` call can be assigned to an object for future plotting. Simply pass the object name as if it were a Plot object. 
+Any data changes made to the objects contained within the plot, if they are in the `.GlobalEnv` or a `simEnv` will be reflected in the new plot, because the data are replotted from their original source.
+This provides the same behavior as a call to `rePlot()`.
+
+```{r Plot a .spadesPlot object, eval=FALSE, echo=TRUE, cache=TRUE}
+plots <- Plot(landscape, new=TRUE)
+
+# change values
+landscape$forestCover[landscape$habitatQuality>0.9] <- 0
+
+Plot(plots)
+# same as:
+rePlot()
+
+# but can be combined with other objects
+Plot(caribou, plots, new=TRUE)
+Plot(caribou, plots, Sl)
+
 ```
