@@ -1,15 +1,11 @@
 test_that("Plot - check for errors", {
-  startFileList <- dir()
+#  startFileList <- dir()
 
   ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
-  assignGlobal("DEM87654", DEM87654)
   habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
-  assignGlobal("habitatQuality87654", habitatQuality87654)
   landscape87654 <- stack(DEM87654, habitatQuality87654)
-  assignGlobal("landscape87654", landscape87654)
   caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e1, 0, 10), y=runif(1e1, 0, 10)))
-  assignGlobal("caribou87654", caribou87654)
 
   # If any rearrangements are required, Plot searches for objects in Global Env
   # So all tests must run a clearPlot or a new=TRUE to be cleared to
@@ -46,11 +42,10 @@ test_that("Plot - check for errors", {
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87654 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
-  assignGlobal("SpP87654", SpP87654)
   clearPlot()
   expect_that(Plot(SpP87654), testthat::not(throws_error()))
   clearPlot()
-  expect_that(Plot(landscape87654, caribou87654), testthat::not(throws_error()))
+  expect_that(Plot(landscape87654, caribou87654, SpP87654), testthat::not(throws_error()))
 
   # test SpatialLines
   l1 <- cbind(c(10,2,30),c(30,2,2))
@@ -62,7 +57,6 @@ test_that("Plot - check for errors", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID="a")
   S2 <- sp::Lines(list(Sl2), ID="b")
   Sl87654 <- sp::SpatialLines(list(S1,S2))
-  assignGlobal("Sl87654", Sl87654)
   expect_that(Plot(Sl87654), testthat::not(throws_error()))
 
   # test addTo
@@ -87,13 +81,11 @@ test_that("Plot - check for errors", {
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
   hist87654 <- hist(rnorm(1e3), plot=FALSE)
-  assignGlobal("hist87654", hist87654)
   expect_that(Plot(hist87654, new=TRUE), testthat::not(throws_error()))
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
   ggplot87654 <- ggplot2::qplot(rnorm(1e3), binwidth=0.3, geom = "histogram")
-  assignGlobal("ggplot87654", ggplot87654)
   expect_that(Plot(ggplot87654, new=TRUE), testthat::not(throws_error()))
 
   # test rearrangements
@@ -102,8 +94,8 @@ test_that("Plot - check for errors", {
   expect_that(Plot(habitatQuality87654), testthat::not(throws_error()))
 
   dev.off()
-  endFileList <- dir()
-  file.remove(endFileList[!(endFileList %in% startFileList)])
+#  endFileList <- dir()
+#  file.remove(endFileList[!(endFileList %in% startFileList)])
 })
 
 
