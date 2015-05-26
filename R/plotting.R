@@ -2025,7 +2025,7 @@ setMethod("Plot",
             grid.rect(gp=gpar(fill="white", col="white"))
             par(fig=gridFIG())
             suppressWarnings(par(new=TRUE))
-            plotCall <- append(list(x=grobToPlot), nonPlotArgs)
+            plotCall <- list(grobToPlot)#, nonPlotArgs)
             #names(plotCall)[1] <- "x"
             do.call(plot, args=plotCall)
             if(title*isBaseSubPlot*isReplot | title*isBaseSubPlot*isNewPlot) {
