@@ -331,6 +331,7 @@ setMethod(".getSimEnvNames",
 #'
 #' @docType methods
 #' @name changeObjEnv
+#' @export
 #' @rdname changeObjEnv
 #'
 #' @author Eliot Mcintire
