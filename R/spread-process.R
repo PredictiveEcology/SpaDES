@@ -111,7 +111,7 @@ setMethod("spread",
           definition = function(landscape, loci, spreadProbPixel, persistence,
                                 mask, maxSize=rep_len(ncell(landscape), length(loci)),
                                 directions=8L, iterations = NULL, mapID=FALSE,
-                                plot.it=FALSE, spreadProbCluster, dist, ...) {
+                                plot.it=FALSE, ...) {
             ### should sanity check map extents
             if (is.null(loci))  {
               # start it in the centre cell
