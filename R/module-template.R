@@ -162,7 +162,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Plot = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  #Plot(getGlobal(\"object\"))
+  #Plot(\"object\")
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))

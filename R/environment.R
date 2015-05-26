@@ -19,6 +19,7 @@
 setClass("simEnv", contains = "environment")
 
 ### `initialize` generic is already defined in the methods package
+#' @param .Object  An object.
 #' @export
 #' @rdname simEnv-class
 setMethod("initialize",
@@ -29,6 +30,8 @@ setMethod("initialize",
 })
 
 ### `show` generic is already defined in the methods package
+#' @param object  Any R object.
+#'
 #' @export
 #' @rdname simEnv-class
 setMethod("show",
@@ -104,13 +107,18 @@ setMethod("show",
           })
 
 
-
-
 #' Assign to the internal SpaDES environment.
 #'
 #' Internal function. Simple wrapper for \code{\link{assign}}.
 #'
-#' @inheritParams assignGlobal
+#' @param x   a variable name, given as a character string.
+#'            No coercion is done, and the first element of a character vector
+#'            of length greater than one will be used, with a warning.
+#'
+#' @param value The object to assign. If this is missing, values will be found with
+#'              \code{get(x)} in the same environment as the calling environment.
+#'
+#' @param ... Additional arguments to pass to \code{assign}.
 #'
 #' @docType methods
 #' @rdname assignSpaDES
@@ -164,8 +172,7 @@ setMethod(".existsSpaDES",
 #'
 #' Internal function. Simple wrapper for \code{\link{get}}.
 #'
-#' @param x   For \code{getGlobal}, an object name (given as a character string).
-#'            For \code{mgetGlobal}, a character vector of object names.
+#' @param x   an object name (given as a character string).
 #'
 #' @param ... Additional arguments to pass to \code{get}.
 #'

@@ -225,10 +225,12 @@ setMethod("checkPath",
 })
 
 ################################################################################
-#' Check for existence of a global object
+#' Check for existence of object(s) within a \code{simEnv} environment
 #'
-#' Check that a named object exists in the global environment, and optionally has
+#' Check that a named object exists in the provide simEnv environment, and optionally has
 #' desired attributes.
+#'
+#' @param sim     The name of the \code{simEnv} to search for object.
 #'
 #' @param name    A character string specifying the name of an object to be checked.
 #'
@@ -251,18 +253,18 @@ setMethod("checkPath",
 #'
 #' @author Alex Chubaty and Eliot McIntire
 #'
-setGeneric("checkObject", function(name, object, layer, ...) {
+setGeneric("checkObject", function(sim, name, object, layer, ...) {
   standardGeneric("checkObject")
 })
 
 #' @rdname checkObject
 setMethod("checkObject",
-          signature(name="missing", object="Raster", layer="character"),
-          definition = function(name, object, layer, ...) {
+          signature(sim="simEnv", name="missing", object="Raster", layer="character"),
+          definition = function(sim, object, layer, ...) {
               if (!is.na(match(layer, names(object)))) {
                 return(invisible(TRUE))
               } else {
-                message(paste(deparse(substitute(object, env=.GlobalEnv)), "exists, but",
+                message(paste(deparse(substitute(object, env=sim)), "exists, but",
                               layer, "is not a layer"))
                 return(FALSE)
               }
@@ -270,12 +272,12 @@ setMethod("checkObject",
 
 #' @rdname checkObject
 setMethod("checkObject",
-          signature(name="missing", object="ANY", layer="missing"),
-          definition = function(name, object, layer, ...) {
-            if(existsGlobal(deparse(substitute(object)))) {
+          signature(sim="simEnv", name="missing", object="ANY", layer="missing"),
+          definition = function(sim, name, object, ...) {
+            if(exists(deparse(substitute(object)), envir=sim)) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object, env=.GlobalEnv)), "does not exist"))
+              message(paste(deparse(substitute(object, env=sim)), "does not exist"))
               return(FALSE)
             }
 })
@@ -283,32 +285,40 @@ setMethod("checkObject",
 
 #' @rdname checkObject
 setMethod("checkObject",
-          signature(name="character", object="missing", layer="missing"),
-          definition = function(name, ...) {
-            if (existsGlobal(name)) {
+          signature(sim="simEnv", name="character", object="missing", layer="missing"),
+          definition = function(sim, name, ...) {
+            if (exists(name, envir=sim)) {
                 return(invisible(TRUE))
             } else {
-              message(paste(name,"does not exist in the global environment"))
+              message(paste(name,"does not exist in",sim))
               return(FALSE)
             }
 })
 
 #' @rdname checkObject
 setMethod("checkObject",
-          signature(name="character", object="missing", layer="character"),
-          definition = function(name, layer, ...) {
-            if (existsGlobal(name)) {
-              if(is(getGlobal(name),"Raster")) {
-                checkObject(object=getGlobal(name), layer=layer, ...)
+          signature(sim="simEnv", name="character", object="missing", layer="character"),
+          definition = function(sim, name, layer, ...) {
+            if (exists(name, envir=sim)) {
+              if(is(sim[[name]],"Raster")) {
+                checkObject(sim=sim, object=sim[[name]], layer=layer, ...)
               } else {
                 message(paste("The object \"",name,"\" exists, but is not
                               a Raster, so layer is ignored",sep=""))
                 return(invisible(TRUE))
               }
             } else {
-              message(paste(name,"does not exist in the global environment"))
+              message(paste(name,"does not exist in",sim))
               return(FALSE)
             }
+})
+
+#' @rdname checkObject
+setMethod("checkObject",
+          signature(sim="missing", name="ANY", object="missing", layer="ANY"),
+          definition = function(name, object, layer, ...) {
+              stop(paste("Must provide a simEnv"))
+              return(FALSE)
 })
 
 ################################################################################
