@@ -18,6 +18,7 @@
 #'
 setClass("simEnv", contains = "environment")
 
+
 ### `initialize` generic is already defined in the methods package
 #' @param .Object  An object.
 #' @export
@@ -26,6 +27,7 @@ setMethod("initialize",
           signature(.Object = "simEnv"),
           definition=function(.Object) {
             .Object$.sim <- new("simList")
+            rm(list=ls(envir=.Object), envir=.Object)
             return(.Object)
 })
 
