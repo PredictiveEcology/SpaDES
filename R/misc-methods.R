@@ -466,10 +466,8 @@ setMethod("checkParams",
             return(invisible(allFound))
 })
 
-
 ###############################################################
 #' Convert numeric to character with padding
-#'
 #'
 #' @param x numeric. Number to be converted to character with padding
 #'

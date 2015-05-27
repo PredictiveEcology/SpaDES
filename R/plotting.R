@@ -1317,7 +1317,7 @@ setMethod(".plotGrob",
   #  Need to replicate it here because all plots are scaled to this
   biggestDims <- apply(do.call(rbind,sapply(1:length(sgl), function(x) {
     lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
-      if(z==TRUE) {
+      if (z==TRUE) {
         # for spatial objects
         apply(bbox(extents[[x]]),1,function(y) diff(range(y)))
       } else {
@@ -1327,19 +1327,17 @@ setMethod(".plotGrob",
     })})),2,max)
 
   for(extentInd in 1:length(extents)) {
-
     posInd <- match(nam[extentInd], names(sgl))
-
-    lpc = ceiling((posInd-1)%%columns+1)*3
-    lpr = ceiling(posInd/columns)*3
+    lpc <- ceiling((posInd-1)%%columns+1)*3
+    lpr <- ceiling(posInd/columns)*3
 
     if(!sgl[[posInd]][[1]]@isSpatialObjects) {
-      lpc = c((lpc-1):(lpc+1))
-      lpr = c((lpr):(lpr+1))
+      lpc <- c((lpc-1):(lpc+1))
+      lpr <- c((lpr):(lpr+1))
     }
     # makes equal scale
-    if (abs(((extents[[extentInd]]@ymax- extents[[extentInd]]@ymin) /
-               (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)) -
+    if (abs(((extents[[extentInd]]@ymax - extents[[extentInd]]@ymin) /
+               (extents[[extentInd]]@xmax - extents[[extentInd]]@xmin)) -
               (biggestDims[1]/biggestDims[2]))
         > (getOption("fpCompare.tolerance"))) {
 
@@ -1366,7 +1364,6 @@ setMethod(".plotGrob",
       layout.pos.row = lpr,
       xscale=c(extents[[extentInd]]@xmin-addX, extents[[extentInd]]@xmax+addX),
       yscale=c(extents[[extentInd]]@ymin-addY, extents[[extentInd]]@ymax+addY))
-
   }
 
   if(newArr) {
@@ -1377,16 +1374,14 @@ setMethod(".plotGrob",
   return(list(wholeVp=wholeVp, extents=extents))
 }
 
-
-
 ################################################################################
 #' Make \code{SpatialLines} object from two \code{SpatialPoints} objects
 #'
 #' The primary conceived usage of this is to draw arrows following the trajectories of an agent.
 #'
-#' @param from          Starting spatial coordinates (\code{SpatialPointsDataFrame}).
+#' @param from  Starting spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
-#' @param to            Ending spatial coordinates (\code{SpatialPointsDataFrame}).
+#' @param to    Ending spatial coordinates (\code{SpatialPointsDataFrame}).
 #'
 #' @return A \code{SpatialLines} object. When this object is used within a \code{Plot} call
 #' and the \code{length} argument is specified, then arrow heads will be drawn. See examples.
@@ -1431,14 +1426,10 @@ setGeneric("makeLines", function(from, to) {
 setMethod("makeLines",
           signature=c("SpatialPoints", "SpatialPoints"),
           definition=function(from, to) {
-
             SpatialLines(lapply(seq_len(length(from)), function(x) {
               Lines(list(Line(coords=rbind(coordinates(from)[x,], coordinates(to)[x,]))),ID=x)
             }), proj4string=crs(from))
-
-          })
-
-
+})
 
 ################################################################################
 #' Parse arguments and find environments
@@ -1455,6 +1446,7 @@ setMethod("makeLines",
 #' $ notation for objects) of objects and their layers (if \code{RasterStacks}).
 #'
 #' @docType methods
+#' @importFrom magrittr '%>%'
 #' @rdname parseArgs
 #' @author Eliot McIntire and Alex Chubaty
 .parseArgs <- function(y, e, eminus1) {
@@ -1502,7 +1494,7 @@ setMethod("makeLines",
     i = i + 1
   }
 
-  envs <- append(.GlobalEnv, sys.frames())[c(TRUE,sapply(sys.frames(), function(x)
+  envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
     exists(deparse(parseTxt), envir=x, inherits=FALSE)))] %>%
     .[[length(.)]]
 
@@ -2464,7 +2456,6 @@ clickCoordinates <- function(n=1) {
   return(list(map=mapNames, envir=envs, coords=clickCoords))
 }
 
-
 #' @param X The raster object whose values will be returned where mouse clicks occur.
 #'
 #' @param gl An object created by a call to \code{grid.locator}.
@@ -2474,8 +2465,6 @@ clickCoordinates <- function(n=1) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 .clickCoord <- function(X, n=1, gl=NULL) {
-
-
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
   for(i in 1:n) {

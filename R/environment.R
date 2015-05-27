@@ -104,8 +104,7 @@ setMethod("show",
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
-          })
-
+})
 
 #' Assign to the internal SpaDES environment.
 #'
@@ -193,7 +192,6 @@ setMethod(".getSpaDES",
             get(x, envir=.spadesEnv, ...)
 })
 
-
 #' Get all simEnv names that exist in an environment
 #'
 #' Internal function. Get names of simEnv environments. Primarily used within
@@ -228,8 +226,7 @@ setMethod(".getSimEnvNames",
           signature = "missing",
           definition = function() {
             .getSimEnvNames(.GlobalEnv)
-          })
-
+})
 
 #' Copy or move objects from one environment to another
 #'
@@ -285,21 +282,21 @@ setMethod("changeObjEnv",
               options(spades.lowMemory=FALSE)
             }
             changeObjEnv(x, .GlobalEnv, fromEnv, rmSrc=getOption("spades.lowMemory"))
-          })
+})
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "environment", "missing", "logical"),
           definition = function(x, toEnv, rmSrc) {
             changeObjEnv(x, toEnv, .GlobalEnv, rmSrc)
-          })
+})
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "missing", "environment", "logical"),
           definition = function(x, fromEnv, rmSrc) {
             stop("Must provide a fromEnv")
-          })
+})
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
@@ -309,14 +306,14 @@ setMethod("changeObjEnv",
               options(spades.lowMemory=FALSE)
             }
             changeObjEnv(x, toEnv, fromEnv, rmSrc=getOption("spades.lowMemory"))
-          })
+})
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("list", "ANY", "ANY", "ANY"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
             changeObjEnv(unlist(x), toEnv, fromEnv, rmSrc)
-          })
+})
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
@@ -326,6 +323,5 @@ setMethod("changeObjEnv",
                                             value=eval(parse(text=obj), envir=fromEnv)),
                                             error=function(x) warning(paste("object",obj,"not found and not copied")));
                                      return(invisible())})
-            if(rmSrc) rm(list=x, envir=fromEnv)
-          })
-
+            if (rmSrc) rm(list=x, envir=fromEnv)
+})
