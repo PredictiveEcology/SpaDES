@@ -1,5 +1,14 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.0.0
+=============
+Major changes to satisfy CRAN requirements.
+
+* no longer rely on side effects to update objects in global environment; instead uses simulation environments (not backwards compatible!)
+* sample modules rewritten to use simulation enviroments (not backwards compatible!).
+* `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
+* bug fixes
+
 version 0.6.2
 =============
 This is a minor release update to satisfy CRAN submission requirements.
