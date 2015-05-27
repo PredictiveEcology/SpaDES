@@ -1455,7 +1455,7 @@ setMethod("makeLines",
 #' $ notation for objects) of objects and their layers (if \code{RasterStacks}).
 #'
 #' @docType methods
-#' @rdname .parseArgs
+#' @rdname parseArgs
 #' @author Eliot McIntire and Alex Chubaty
 .parseArgs <- function(y, e, eminus1) {
   elems <- list()
