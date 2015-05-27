@@ -198,6 +198,10 @@ setMethod("simInit",
             # check the parameters supplied by the user
             checkParams(sim, core, dotParams, path) # returns invisible TRUE/FALSE
 
+            if(length(objects)>0) {
+              changeObjEnv(x = objects, toEnv = sim, fromEnv = .GlobalEnv,
+                         rmSrc=getOption("spades.lowMemory"))
+            }
             return(invisible(sim))
 })
 
