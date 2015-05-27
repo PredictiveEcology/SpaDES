@@ -270,36 +270,52 @@ setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc){
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "environment", "missing", "missing"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, .GlobalEnv, FALSE)
+          definition = function(x, toEnv) {
+            if(is.null(getOption("spades.lowMemory"))) {
+              options(spades.lowMemory=FALSE)
+            }
+            changeObjEnv(x, toEnv, .GlobalEnv, rmSrc=getOption("spades.lowMemory"))
 })
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "missing", "environment", "missing"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, .GlobalEnv, fromEnv, FALSE)
+          definition = function(x, fromEnv) {
+            if(is.null(getOption("spades.lowMemory"))) {
+              options(spades.lowMemory=FALSE)
+            }
+            changeObjEnv(x, .GlobalEnv, fromEnv, rmSrc=getOption("spades.lowMemory"))
           })
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "environment", "missing", "logical"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
+          definition = function(x, toEnv, rmSrc) {
             changeObjEnv(x, toEnv, .GlobalEnv, rmSrc)
           })
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "missing", "environment", "logical"),
-          definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, .GlobalEnv, fromEnv, rmSrc)
+          definition = function(x, fromEnv, rmSrc) {
+            stop("Must provide a fromEnv")
           })
 
 #' @rdname changeObjEnv
 setMethod("changeObjEnv",
           signature = c("character", "environment", "environment", "missing"),
+          definition = function(x, toEnv, fromEnv) {
+            if(is.null(getOption("spades.lowMemory"))) {
+              options(spades.lowMemory=FALSE)
+            }
+            changeObjEnv(x, toEnv, fromEnv, rmSrc=getOption("spades.lowMemory"))
+          })
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("list", "ANY", "ANY", "ANY"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            changeObjEnv(x, toEnv, fromEnv, rmSrc=FALSE)
+            changeObjEnv(unlist(x), toEnv, fromEnv, rmSrc)
           })
 
 #' @rdname changeObjEnv
@@ -308,8 +324,8 @@ setMethod("changeObjEnv",
           definition = function(x, toEnv, fromEnv, rmSrc) {
             lapply(x, function(obj) {tryCatch(assign(`obj`, envir=toEnv,
                                             value=eval(parse(text=obj), envir=fromEnv)),
-                                            error=function(x) invisible());
+                                            error=function(x) warning(paste("object",obj,"not found and not copied")));
                                      return(invisible())})
-            if(rmSrc) suppressWarnings(tryCatch(rm(list=x, envir=fromEnv), error=function(x) invisible()))
+            if(rmSrc) rm(list=x, envir=fromEnv)
           })
 
