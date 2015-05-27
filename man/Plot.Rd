@@ -10,17 +10,17 @@
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
-  zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = "L", speedup = 1, size = 5,
-  cols = NULL, zoomExtent = NULL, visualSqueeze = 0.75, legend = TRUE,
+  cols = NULL, zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
-rePlot(toDev = dev.cur(), fromDev = dev.cur())
+rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 
 clearPlot(dev = dev.cur(), removeData = TRUE)
 }
@@ -88,6 +88,9 @@ the minimum value, otherwise, zero is treated as any other color. Default transp
 is current device}
 
 \item{dev}{Numeric. Device number to clear.}
+
+\item{removeData}{Logical whether any data that was stored in the \code{.spadesEnv} should also
+be removed, i.e., not just the plot window wiped.}
 }
 \value{
 Invisibly returns the \code{.spadesPlot} class object. If this is assigned to an

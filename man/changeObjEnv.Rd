@@ -9,24 +9,24 @@
 \alias{changeObjEnv,character,environment,missing,missing-method}
 \alias{changeObjEnv,character,missing,environment,logical-method}
 \alias{changeObjEnv,character,missing,environment,missing-method}
+\alias{changeObjEnv,list,ANY,ANY,ANY-method}
 \title{Copy or move objects from one environment to another}
 \usage{
 changeObjEnv(x, toEnv, fromEnv, rmSrc)
 
-\S4method{changeObjEnv}{character,environment,missing,missing}(x, toEnv,
-  fromEnv, rmSrc)
+\S4method{changeObjEnv}{character,environment,missing,missing}(x, toEnv)
 
-\S4method{changeObjEnv}{character,missing,environment,missing}(x, toEnv,
-  fromEnv, rmSrc)
+\S4method{changeObjEnv}{character,missing,environment,missing}(x, fromEnv)
 
-\S4method{changeObjEnv}{character,environment,missing,logical}(x, toEnv,
-  fromEnv, rmSrc)
+\S4method{changeObjEnv}{character,environment,missing,logical}(x, toEnv, rmSrc)
 
-\S4method{changeObjEnv}{character,missing,environment,logical}(x, toEnv,
-  fromEnv, rmSrc)
+\S4method{changeObjEnv}{character,missing,environment,logical}(x, fromEnv,
+  rmSrc)
 
 \S4method{changeObjEnv}{character,environment,environment,missing}(x, toEnv,
-  fromEnv, rmSrc)
+  fromEnv)
+
+\S4method{changeObjEnv}{list,ANY,ANY,ANY}(x, toEnv, fromEnv, rmSrc)
 
 \S4method{changeObjEnv}{character,environment,environment,logical}(x, toEnv,
   fromEnv, rmSrc)

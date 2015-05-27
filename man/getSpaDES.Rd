@@ -11,8 +11,7 @@
 \S4method{.getSpaDES}{ANY}(x, ...)
 }
 \arguments{
-\item{x}{For \code{getGlobal}, an object name (given as a character string).
-           For \code{mgetGlobal}, a character vector of object names.}
+\item{x}{an object name (given as a character string).}
 
 \item{...}{Additional arguments to pass to \code{get}.}
 }

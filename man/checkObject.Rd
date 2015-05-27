@@ -3,23 +3,32 @@
 \docType{methods}
 \name{checkObject}
 \alias{checkObject}
-\alias{checkObject,character,missing,character-method}
-\alias{checkObject,character,missing,missing-method}
-\alias{checkObject,missing,ANY,missing-method}
-\alias{checkObject,missing,Raster,character-method}
-\title{Check for existence of a global object}
+\alias{checkObject,missing,ANY,missing,ANY-method}
+\alias{checkObject,simEnv,character,missing,character-method}
+\alias{checkObject,simEnv,character,missing,missing-method}
+\alias{checkObject,simEnv,missing,ANY,missing-method}
+\alias{checkObject,simEnv,missing,Raster,character-method}
+\title{Check for existence of object(s) within a \code{simEnv} environment}
 \usage{
-checkObject(name, object, layer, ...)
+checkObject(sim, name, object, layer, ...)
 
-\S4method{checkObject}{missing,Raster,character}(name, object, layer, ...)
+\S4method{checkObject}{simEnv,missing,Raster,character}(sim, name, object,
+  layer, ...)
 
-\S4method{checkObject}{missing,ANY,missing}(name, object, layer, ...)
+\S4method{checkObject}{simEnv,missing,ANY,missing}(sim, name, object, layer,
+  ...)
 
-\S4method{checkObject}{character,missing,missing}(name, object, layer, ...)
+\S4method{checkObject}{simEnv,character,missing,missing}(sim, name, object,
+  layer, ...)
 
-\S4method{checkObject}{character,missing,character}(name, object, layer, ...)
+\S4method{checkObject}{simEnv,character,missing,character}(sim, name, object,
+  layer, ...)
+
+\S4method{checkObject}{missing,ANY,missing,ANY}(sim, name, object, layer, ...)
 }
 \arguments{
+\item{sim}{The name of the \code{simEnv} to search for object.}
+
 \item{name}{A character string specifying the name of an object to be checked.}
 
 \item{object}{An object. This is mostly used internally, or with layer,
@@ -34,7 +43,7 @@ checkObject(name, object, layer, ...)
 Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 }
 \description{
-Check that a named object exists in the global environment, and optionally has
+Check that a named object exists in the provide simEnv environment, and optionally has
 desired attributes.
 }
 \author{

@@ -6,21 +6,19 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci = ncell(landscape)/2L, spreadProbPixel = 0.23,
-  persistence = 0L, mask = NULL, maxSize = rep_len(ncell(landscape),
-  length(loci)), directions = 8L, iterations = NULL, ...)
+spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
+  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL, ...)
 
-\S4method{spread}{RasterLayer}(landscape, loci, spreadProbPixel, persistence,
-  mask, maxSize = rep_len(ncell(landscape), length(loci)), directions = 8L,
-  iterations = NULL, mapID = FALSE, plot.it = FALSE, spreadProbCluster,
-  dist, ...)
+\S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
+  maxSize, directions = 8L, iterations = NULL, mapID = FALSE,
+  plot.it = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
 
 \item{loci}{A vector of locations in \code{landscape}}
 
-\item{spreadProbPixel}{Numeric or rasterLayer. The overall probability of spreading, or probability raster
+\item{spreadProb}{Numeric or rasterLayer. The overall probability of spreading, or probability raster
 driven.}
 
 \item{persistence}{A probability that a burning cell will continue to burn, per time step.}
@@ -50,8 +48,8 @@ A \code{RasterLayer} indicating the spread of the process in the landscape.
 }
 \description{
 This can be used to simulated fires or other things. Essentially, it starts from a collection of cells
-(\code{loci}) and spreads to neighbours, according to the \code{directions} and \code{spreadProbPixel} arguments.
-This can become quite general, if \code{spreadProbPixel} is 1 as it will expand from every loci until all pixels
+(\code{loci}) and spreads to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
+This can become quite general, if \code{spreadProb} is 1 as it will expand from every loci until all pixels
 in the landscape have been covered. With \code{mapID} set to \code{TRUE}, the resulting map will be
 classified by the index of the pixel where that event propagated from. This can be used to examine things like
 fire size distributions.

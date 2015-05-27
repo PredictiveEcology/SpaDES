@@ -12,6 +12,11 @@
 
 \S4method{show}{simEnv}(object)
 }
+\arguments{
+\item{.Object}{An object.}
+
+\item{object}{Any R object.}
+}
 \description{
 This class is simply an environment that contains a \code{simList} object.
 }

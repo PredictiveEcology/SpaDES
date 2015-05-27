@@ -8,13 +8,13 @@
 \alias{.makeSpadesPlot,missing,missing-method}
 \title{Make a \code{.spadesPlot} class object}
 \usage{
-.makeSpadesPlot(plotObjects, plotArgs, envir, ...)
+.makeSpadesPlot(plotObjects, plotArgs, ...)
 
-\S4method{.makeSpadesPlot}{list,list}(plotObjects, plotArgs, envir, ...)
+\S4method{.makeSpadesPlot}{list,list}(plotObjects, plotArgs, ...)
 
-\S4method{.makeSpadesPlot}{list,missing}(plotObjects, plotArgs, envir, ...)
+\S4method{.makeSpadesPlot}{list,missing}(plotObjects, plotArgs, ...)
 
-\S4method{.makeSpadesPlot}{missing,missing}(plotObjects, plotArgs, envir, ...)
+\S4method{.makeSpadesPlot}{missing,missing}(plotObjects, plotArgs, ...)
 }
 \arguments{
 \item{plotObjects}{list. Any plot objects.}
@@ -23,8 +23,6 @@
 grob types, e.g., rasterGrob, polygonGrob, etc.}
 
 \item{...}{additional arguments. Currently nothing.}
-
-\item{an}{option environment to pass to find plotObjects}
 }
 \value{
 A \code{\link{.spadesPlot}} object, which has 2 slots, one for the plot arrangement
