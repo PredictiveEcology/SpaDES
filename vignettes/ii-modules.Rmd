@@ -243,8 +243,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 Event functions should be defined below the `doEvent.moduleName` code block and follow the naming convention `modulenameEventtype()`.
 Keep these function definitions as short and clean as possible (you can further modularize your functions by calling additional subroutines).
 
-Functions should get and return global objects, rather than pass them as function arguments.
-This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call and are needed within the function `getGlobal("object")`.
+Functions should get and return objects in the simulation environment (`simEnv`), rather than pass them as function arguments.
+This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call.
+Accessing objects in the `simEnv` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=sim)`.
 
 Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
 As such, the `modulenameInit()` function is required for initiliazation.
