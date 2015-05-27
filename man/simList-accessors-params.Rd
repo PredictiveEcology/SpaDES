@@ -3,106 +3,106 @@
 \docType{methods}
 \name{simParams}
 \alias{simCheckpointFile}
-\alias{simCheckpointFile,simEnv-method}
+\alias{simCheckpointFile,simList-method}
 \alias{simCheckpointFile<-}
-\alias{simCheckpointFile<-,simEnv-method}
+\alias{simCheckpointFile<-,simList-method}
 \alias{simCheckpointInterval}
-\alias{simCheckpointInterval,simEnv-method}
+\alias{simCheckpointInterval,simList-method}
 \alias{simCheckpointInterval<-}
-\alias{simCheckpointInterval<-,simEnv-method}
-\alias{simEnv-accessors-params}
+\alias{simCheckpointInterval<-,simList-method}
 \alias{simFileList}
-\alias{simFileList,simEnv-method}
+\alias{simFileList,simList-method}
 \alias{simFileList<-}
-\alias{simFileList<-,simEnv-method}
+\alias{simFileList<-,simList-method}
 \alias{simGlobals}
-\alias{simGlobals,simEnv-method}
+\alias{simGlobals,simList-method}
 \alias{simGlobals<-}
-\alias{simGlobals<-,simEnv-method}
+\alias{simGlobals<-,simList-method}
 \alias{simGlobalsOutputPath}
-\alias{simGlobalsOutputPath,simEnv-method}
+\alias{simGlobalsOutputPath,simList-method}
 \alias{simGlobalsOutputPath<-}
-\alias{simGlobalsOutputPath<-,simEnv-method}
+\alias{simGlobalsOutputPath<-,simList-method}
+\alias{simList-accessors-params}
 \alias{simParams}
-\alias{simParams,simEnv-method}
+\alias{simParams,simList-method}
 \alias{simParams<-}
-\alias{simParams<-,simEnv-method}
+\alias{simParams<-,simList-method}
 \alias{simProgressGraphical}
-\alias{simProgressGraphical,simEnv-method}
+\alias{simProgressGraphical,simList-method}
 \alias{simProgressGraphical<-}
-\alias{simProgressGraphical<-,simEnv-method}
+\alias{simProgressGraphical<-,simList-method}
 \alias{simProgressInterval}
-\alias{simProgressInterval,simEnv-method}
+\alias{simProgressInterval,simList-method}
 \alias{simProgressInterval<-}
-\alias{simProgressInterval<-,simEnv-method}
+\alias{simProgressInterval<-,simList-method}
 \title{Get and set simulation parameters.}
 \usage{
 simParams(object)
 
-\S4method{simParams}{simEnv}(object)
+\S4method{simParams}{simList}(object)
 
 simParams(object) <- value
 
-\S4method{simParams}{simEnv}(object) <- value
+\S4method{simParams}{simList}(object) <- value
 
 simCheckpointFile(object)
 
-\S4method{simCheckpointFile}{simEnv}(object)
+\S4method{simCheckpointFile}{simList}(object)
 
 simCheckpointFile(object) <- value
 
-\S4method{simCheckpointFile}{simEnv}(object) <- value
+\S4method{simCheckpointFile}{simList}(object) <- value
 
 simCheckpointInterval(object)
 
-\S4method{simCheckpointInterval}{simEnv}(object)
+\S4method{simCheckpointInterval}{simList}(object)
 
 simCheckpointInterval(object) <- value
 
-\S4method{simCheckpointInterval}{simEnv}(object) <- value
+\S4method{simCheckpointInterval}{simList}(object) <- value
 
 simFileList(object)
 
-\S4method{simFileList}{simEnv}(object)
+\S4method{simFileList}{simList}(object)
 
 simFileList(object) <- value
 
-\S4method{simFileList}{simEnv}(object) <- value
+\S4method{simFileList}{simList}(object) <- value
 
 simProgressGraphical(object)
 
-\S4method{simProgressGraphical}{simEnv}(object)
+\S4method{simProgressGraphical}{simList}(object)
 
 simProgressGraphical(object) <- value
 
-\S4method{simProgressGraphical}{simEnv}(object) <- value
+\S4method{simProgressGraphical}{simList}(object) <- value
 
 simProgressInterval(object)
 
-\S4method{simProgressInterval}{simEnv}(object)
+\S4method{simProgressInterval}{simList}(object)
 
 simProgressInterval(object) <- value
 
-\S4method{simProgressInterval}{simEnv}(object) <- value
+\S4method{simProgressInterval}{simList}(object) <- value
 
 simGlobals(object)
 
-\S4method{simGlobals}{simEnv}(object)
+\S4method{simGlobals}{simList}(object)
 
 simGlobals(object) <- value
 
-\S4method{simGlobals}{simEnv}(object) <- value
+\S4method{simGlobals}{simList}(object) <- value
 
 simGlobalsOutputPath(object)
 
-\S4method{simGlobalsOutputPath}{simEnv}(object)
+\S4method{simGlobalsOutputPath}{simList}(object)
 
 simGlobalsOutputPath(object) <- value
 
-\S4method{simGlobalsOutputPath}{simEnv}(object) <- value
+\S4method{simGlobalsOutputPath}{simList}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simEnv} simulation object.}
+\item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -111,7 +111,7 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Accessor functions for the \code{params} slot of a \code{simList} object
-and its elements, within a \code{simEnv} object.
+and its elements.
 Additonal methods are provided to access core module and global parameters:
 Commonly used
 \tabular{ll}{
@@ -135,8 +135,8 @@ Currently, only get and set methods are defined. Subset methods are not.
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simEnv-accessors-modules}},
-         \code{\link{simEnv-accessors-events}},
-         \code{\link{simEnv-accessors-times}}.
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-times}}.
 }
 

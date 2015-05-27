@@ -3,15 +3,15 @@
 \docType{methods}
 \name{depsEdgeList}
 \alias{depsEdgeList}
-\alias{depsEdgeList,simEnv,logical-method}
-\alias{depsEdgeList,simEnv,missing-method}
+\alias{depsEdgeList,simList,logical-method}
+\alias{depsEdgeList,simList,missing-method}
 \title{Build edge list for module dependency graph}
 \usage{
 depsEdgeList(sim, plot)
 
-\S4method{depsEdgeList}{simEnv,logical}(sim, plot)
+\S4method{depsEdgeList}{simList,logical}(sim, plot)
 
-\S4method{depsEdgeList}{simEnv,missing}(sim, plot)
+\S4method{depsEdgeList}{simList,missing}(sim, plot)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

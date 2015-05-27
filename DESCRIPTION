@@ -11,7 +11,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
 Version: 1.0.0.9000
-Date: 2015-05-20
+Date: 2015-05-27
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -55,16 +55,17 @@ License: GPL-3
 Collate:
     'agent.R'
     'SELES.R'
+    'module-dependencies-class.R'
+    'misc-methods.R'
+    'simList.R'
+    'check.R'
     'environment.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
-    'module-dependencies-class.R'
-    'simList.R'
     'simulation.R'
     'load.R'
     'mapReduce.R'
-    'misc-methods.R'
     'module-dependencies-methods.R'
     'module-repository.R'
     'module-template.R'

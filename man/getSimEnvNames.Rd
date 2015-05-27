@@ -5,7 +5,7 @@
 \alias{.getSimEnvNames}
 \alias{.getSimEnvNames,environment-method}
 \alias{.getSimEnvNames,missing-method}
-\title{Get all simEnv names that exist in an environment}
+\title{Get names of simulation environments}
 \usage{
 .getSimEnvNames(envir)
 
@@ -17,8 +17,7 @@
 \item{envir}{The environment to search for simEnvs within. Default is .GlobalEnv}
 }
 \description{
-Internal function. Get names of simEnv environments. Primarily used within
-Plot function.
+Internal function. Primarily used within \code{Plot}.
 }
 \author{
 Eliot McIntire

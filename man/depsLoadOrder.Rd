@@ -3,12 +3,12 @@
 \docType{methods}
 \name{.depsLoadOrder}
 \alias{.depsLoadOrder}
-\alias{.depsLoadOrder,simEnv,igraph-method}
+\alias{.depsLoadOrder,simList,igraph-method}
 \title{Determine module load order}
 \usage{
 .depsLoadOrder(sim, simGraph)
 
-\S4method{.depsLoadOrder}{simEnv,igraph}(sim, simGraph)
+\S4method{.depsLoadOrder}{simList,igraph}(sim, simGraph)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

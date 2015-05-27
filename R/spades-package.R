@@ -65,7 +65,7 @@
 #' Commonly used:
 #' \tabular{ll}{
 #'    \code{\link{simGlobals}} \tab List of global simulation parameters.\cr
-#'    \code{\link{simObjects}} \tab List of objects contained within simEnv\cr
+#'    \code{\link{simObjects}} \tab List of objects referenced by the simulation environment.\cr
 #'    \code{\link{simParams}} \tab Nested list of all simulation parameter.\cr
 #' }
 #'

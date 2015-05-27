@@ -3,15 +3,15 @@
 \docType{methods}
 \name{reloadModuleLater}
 \alias{reloadModuleLater}
-\alias{reloadModuleLater,simEnv,NULL-method}
-\alias{reloadModuleLater,simEnv,character-method}
+\alias{reloadModuleLater,simList,NULL-method}
+\alias{reloadModuleLater,simList,character-method}
 \title{Load modules for simulation (deprecated).}
 \usage{
 reloadModuleLater(sim, depends)
 
-\S4method{reloadModuleLater}{simEnv,`NULL`}(sim, depends)
+\S4method{reloadModuleLater}{simList,`NULL`}(sim, depends)
 
-\S4method{reloadModuleLater}{simEnv,character}(sim, depends)
+\S4method{reloadModuleLater}{simList,character}(sim, depends)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}

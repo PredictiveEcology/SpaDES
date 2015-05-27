@@ -6,108 +6,6 @@
 #'
 .spadesEnv <- new.env(parent=emptyenv())
 
-#' The \code{simEnv} class
-#'
-#' This class is simply an environment that contains a \code{simList} object.
-#'
-#' @aliases simEnv
-#' @rdname simEnv-class
-#' @exportClass simEnv
-#'
-#' @author Alex Chubaty
-#'
-setClass("simEnv", contains = "environment")
-
-
-### `initialize` generic is already defined in the methods package
-#' @param .Object  An object.
-#' @export
-#' @rdname simEnv-class
-setMethod("initialize",
-          signature(.Object = "simEnv"),
-          definition=function(.Object) {
-            .Object$.sim <- new("simList")
-            rm(list=ls(envir=.Object), envir=.Object)
-            return(.Object)
-})
-
-### `show` generic is already defined in the methods package
-#' @param object  Any R object.
-#'
-#' @export
-#' @rdname simEnv-class
-setMethod("show",
-          signature="simEnv",
-          definition=function(object) {
-
-            out <- list()
-
-            ### hr
-            out[[1]] <- capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
-
-            ### simulation dependencies
-            out[[2]] <- capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] <- "use `simDepends(sim)` to view dependencies for each module"
-            out[[4]] <- capture.output(cat("\n"))
-
-            ### simtimes
-            out[[5]] <- capture.output(cat(">> Simulation times:\n"))
-            out[[6]] <- capture.output(print(rbind(simTimes(object))))
-            out[[7]] <- capture.output(cat("\n"))
-
-            ### modules loaded
-            out[[8]] <- capture.output(cat(">> Modules:\n"))
-            out[[9]] <- capture.output(print(cbind(ModuleName=simModules(object),
-                                                   IsLoaded=simModules(object) %in%
-                                                     simModulesLoaded(object)),
-                                             quote=FALSE, row.names=FALSE))
-            out[[10]] <- capture.output(cat("\n"))
-
-            ### objects loaded
-            out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
-            out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
-                                              quote=FALSE, row.names=FALSE))
-            out[[13]] <- capture.output(cat("\n"))
-
-            ### params
-            omit <- which(names(simParams(object))==".load" |
-                            names(simParams(object))==".progress")
-
-            p <- mapply(function(x, y) {
-              data.frame(Module=x, Parameter=names(y), Value=unlist(y),
-                         stringsAsFactors=FALSE, row.names=NULL)
-            },
-            x=names(simParams(object))[-omit], y=simParams(object)[-omit],
-            USE.NAMES=TRUE, SIMPLIFY=FALSE)
-            if (length(p)) {
-              q = do.call(rbind, p)
-              q = q[order(q$Module, q$Parameter),]
-            } else {
-              q = cbind(Module=list(), Parameter=list())
-            }
-            out[[14]] <- capture.output(cat(">> Parameters:\n"))
-            out[[15]] <- capture.output(print(q, row.names=FALSE))
-            out[[16]] <- capture.output(cat("\n"))
-
-            ### completed events
-            out[[17]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[18]] <- capture.output(print(simCompleted(object)))
-            out[[19]] <- capture.output(cat("\n"))
-
-            ### scheduled events
-            out[[20]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[21]] <- capture.output(print(simEvents(object)))
-            out[[22]] <- capture.output(cat("\n"))
-
-            ### list stored objects
-            out[[23]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[24]] <- capture.output(print(ls.str(object)))
-            out[[25]] <- capture.output(cat("\n"))
-
-            ### print result
-            cat(unlist(out), fill=FALSE, sep="\n")
-})
-
 #' Assign to the internal SpaDES environment.
 #'
 #' Internal function. Simple wrapper for \code{\link{assign}}.
@@ -194,10 +92,9 @@ setMethod(".getSpaDES",
             get(x, envir=.spadesEnv, ...)
 })
 
-#' Get all simEnv names that exist in an environment
+#' Get names of simulation environments
 #'
-#' Internal function. Get names of simEnv environments. Primarily used within
-#' Plot function.
+#' Internal function. Primarily used within \code{Plot}.
 #'
 #' @param envir The environment to search for simEnvs within. Default is .GlobalEnv
 #'
@@ -216,7 +113,7 @@ setMethod(".getSimEnvNames",
           signature = "environment",
           definition = function(envir) {
           ls(envir=envir) %>%
-            sapply(., function(x) is(get(x), "simEnv")) %>%
+            sapply(., function(x) is(get(x), "environment")) %>%
             which %>%
             names %>%
             mget(envir=.GlobalEnv) %>%

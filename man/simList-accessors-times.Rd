@@ -3,58 +3,58 @@
 \docType{methods}
 \name{simTimes}
 \alias{simCurrentTime}
-\alias{simCurrentTime,simEnv-method}
+\alias{simCurrentTime,simList-method}
 \alias{simCurrentTime<-}
-\alias{simCurrentTime<-,simEnv-method}
-\alias{simEnv-accessors-times}
+\alias{simCurrentTime<-,simList-method}
+\alias{simList-accessors-times}
 \alias{simStartTime}
-\alias{simStartTime,simEnv-method}
+\alias{simStartTime,simList-method}
 \alias{simStartTime<-}
-\alias{simStartTime<-,simEnv-method}
+\alias{simStartTime<-,simList-method}
 \alias{simStopTime}
-\alias{simStopTime,simEnv-method}
+\alias{simStopTime,simList-method}
 \alias{simStopTime<-}
-\alias{simStopTime<-,simEnv-method}
+\alias{simStopTime<-,simList-method}
 \alias{simTimes}
-\alias{simTimes,simEnv-method}
+\alias{simTimes,simList-method}
 \alias{simTimes<-}
-\alias{simTimes<-,simEnv-method}
+\alias{simTimes<-,simList-method}
 \title{Get and set simulation times.}
 \usage{
 simTimes(object)
 
-\S4method{simTimes}{simEnv}(object)
+\S4method{simTimes}{simList}(object)
 
 simTimes(object) <- value
 
-\S4method{simTimes}{simEnv}(object) <- value
+\S4method{simTimes}{simList}(object) <- value
 
 simCurrentTime(object)
 
-\S4method{simCurrentTime}{simEnv}(object)
+\S4method{simCurrentTime}{simList}(object)
 
 simCurrentTime(object) <- value
 
-\S4method{simCurrentTime}{simEnv}(object) <- value
+\S4method{simCurrentTime}{simList}(object) <- value
 
 simStartTime(object)
 
-\S4method{simStartTime}{simEnv}(object)
+\S4method{simStartTime}{simList}(object)
 
 simStartTime(object) <- value
 
-\S4method{simStartTime}{simEnv}(object) <- value
+\S4method{simStartTime}{simList}(object) <- value
 
 simStopTime(object)
 
-\S4method{simStopTime}{simEnv}(object)
+\S4method{simStopTime}{simList}(object)
 
 simStopTime(object) <- value
 
-\S4method{simStopTime}{simEnv}(object) <- value
+\S4method{simStopTime}{simList}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simEnv} simulation object.}
+\item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -62,8 +62,8 @@ simStopTime(object) <- value
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
-Accessor functions for the \code{simtimes} slot of a \code{simEnv} object
-and its elements, within a \code{simEnv} object.
+Accessor functions for the \code{simtimes} slot of a \code{simList} object
+and its elements.
 Additonal methods are provided to access the current, start, and stop times
 of the simulation.
 \tabular{ll}{
@@ -81,8 +81,8 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simEnv-accessors-params}},
-         \code{\link{simEnv-accessors-modules}},
-         \code{\link{simEnv-accessors-events}}.
+         \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-events}}.
 }
 

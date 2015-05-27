@@ -75,10 +75,6 @@ setMethod("simInit",
             dotParamsChar <- list(".savePath", ".saveObjects")
             dotParams <- append(dotParamsChar, dotParamsReal)
 
-            # create new simEnv object and populate the simList values
-            sim <- new("simEnv")
-            attr(sim, "name") <- rndstr()
-
             simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
@@ -316,17 +312,17 @@ setGeneric("reloadModuleLater", function(sim, depends) {
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
-          signature(sim="simEnv", depends="NULL"),
+          signature(sim="simList", depends="NULL"),
             definition=function(sim, depends) {
-              stopifnot(class(sim) == "simEnv")
+              stopifnot(class(sim) == "simList")
               return(FALSE)
 })
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
-        signature(sim="simEnv", depends="character"),
+        signature(sim="simList", depends="character"),
           definition=function(sim, depends) {
-            stopifnot(class(sim) == "simEnv")
+            stopifnot(class(sim) == "simList")
             # deprecated in v0.6.0
             .Deprecated(msg=paste0("Warning: 'reloadModuleLater' is deprecated.\n",
                         "Module dependencies should be specified using 'defineModule'"))
@@ -370,9 +366,9 @@ setGeneric("doEvent", function(sim, debug) {
 
 #' @rdname doEvent
 setMethod("doEvent",
-          signature(sim="simEnv", debug="logical"),
+          signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            stopifnot(class(sim) == "simEnv")
+            stopifnot(class(sim) == "simList")
 
             # get next event
             nextEvent <- simEvents(sim)[1L, ] # extract the next event from queue
@@ -419,9 +415,9 @@ setMethod("doEvent",
 
 #' @rdname doEvent
 setMethod("doEvent",
-          signature(sim="simEnv", debug="missing"),
+          signature(sim="simList", debug="missing"),
           definition=function(sim) {
-            stopifnot(class(sim) == "simEnv")
+            stopifnot(class(sim) == "simList")
             return(doEvent(sim, debug=FALSE))
 })
 
@@ -461,7 +457,7 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 
 #' @rdname scheduleEvent
 setMethod("scheduleEvent",
-          signature(sim="simEnv", eventTime="numeric",
+          signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
             if (length(eventTime)) {
@@ -490,10 +486,10 @@ setMethod("scheduleEvent",
 
 #' @rdname scheduleEvent
 setMethod("scheduleEvent",
-          signature(sim="simEnv", eventTime="NULL",
+          signature(sim="simList", eventTime="NULL",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
-            stopifnot(class(sim) == "simEnv")
+            stopifnot(class(sim) == "simList")
             warning(paste("Invalid or missing eventTime. This is usually",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
@@ -542,9 +538,9 @@ setGeneric("spades", function(sim, debug) {
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim="simEnv", debug="logical"),
+          signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            stopifnot(class(sim) == "simEnv")
+            stopifnot(class(sim) == "simList")
             while(simCurrentTime(sim) %<=% simStopTime(sim)) {
               sim <- doEvent(sim, debug)  # process the next event
 
@@ -560,8 +556,8 @@ setMethod("spades",
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim="simEnv", debug="missing"),
+          signature(sim="simList", debug="missing"),
           definition=function(sim) {
-            stopifnot(class(sim) == "simEnv")
+            stopifnot(class(sim) == "simList")
             return(spades(sim, debug=FALSE))
 })

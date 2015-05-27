@@ -2,9 +2,21 @@
 % Please edit documentation in R/simList.R
 \docType{class}
 \name{simList-class}
+\alias{initialize,simList-method}
+\alias{show,simList-method}
 \alias{simList}
 \alias{simList-class}
 \title{The \code{simList} class}
+\usage{
+\S4method{initialize}{simList}(.Object)
+
+\S4method{show}{simList}(object)
+}
+\arguments{
+\item{.Object}{An object.}
+
+\item{object}{Any R object.}
+}
 \description{
 Contains the minimum components of a SpaDES simulation.
 }
@@ -26,6 +38,8 @@ We use S4 classes and methods, and use \code{\link{data.table}} instead of
 \item{\code{modules}}{List of character names specifying which modules to load.}
 
 \item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
+
+\item{\code{objects}}{Environment referencing the objects used in the simulation.}
 
 \item{\code{events}}{The list of scheduled events (i.e., event queue), as a \code{data.table}.
                  This event queue is always sorted (keyed) by time,

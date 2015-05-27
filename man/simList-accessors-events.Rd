@@ -3,34 +3,34 @@
 \docType{methods}
 \name{simEvents}
 \alias{simCompleted}
-\alias{simCompleted,simEnv-method}
+\alias{simCompleted,simList-method}
 \alias{simCompleted<-}
-\alias{simCompleted<-,simEnv-method}
-\alias{simEnv-accessors-events}
+\alias{simCompleted<-,simList-method}
 \alias{simEvents}
-\alias{simEvents,simEnv-method}
+\alias{simEvents,simList-method}
 \alias{simEvents<-}
-\alias{simEvents<-,simEnv-method}
+\alias{simEvents<-,simList-method}
+\alias{simList-accessors-events}
 \title{Simulation event lists}
 \usage{
 simEvents(object)
 
-\S4method{simEvents}{simEnv}(object)
+\S4method{simEvents}{simList}(object)
 
 simEvents(object) <- value
 
-\S4method{simEvents}{simEnv}(object) <- value
+\S4method{simEvents}{simList}(object) <- value
 
 simCompleted(object)
 
-\S4method{simCompleted}{simEnv}(object)
+\S4method{simCompleted}{simList}(object)
 
 simCompleted(object) <- value
 
-\S4method{simCompleted}{simEnv}(object) <- value
+\S4method{simCompleted}{simList}(object) <- value
 }
 \arguments{
-\item{object}{A \code{simEnv} simulation object.}
+\item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
@@ -39,8 +39,8 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Accessor functions for the \code{events} and \code{completed} slots of a
-\code{simList} object, within a \code{simEnv} object.
-By default, the event lists are shown when the \code{simEnv} object is printed,
+\code{simList} object.
+By default, the event lists are shown when the \code{simList} object is printed,
 thus most users will not require direct use of these methods.
 \tabular{ll}{
    \code{simEvents} \tab Scheduled simulation events (the event queue).\cr
@@ -60,8 +60,8 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simEnv-accessors-params}},
-         \code{\link{simEnv-accessors-modules}},
-         \code{\link{simEnv-accessors-times}}.
+         \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-times}}.
 }
 
