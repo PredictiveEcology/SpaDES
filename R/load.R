@@ -194,14 +194,14 @@ setMethod("loadFiles",
                 }
 
                 # The actual load call
-                assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
+                sim[[objectNames[x]]] <- do.call(get(loadFun[x]), args=argument)
 
                 simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
 
 
                 if (loadFun[x]=="raster") {
                   message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
-                                "(inMemory=",inMemory(get(objectNames[x])),")"))
+                                "(inMemory=",inMemory(sim[[objectNames[x]]]),")"))
                   } else {
                     message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
                  }
@@ -234,7 +234,7 @@ setMethod("loadFiles",
                 }
 
                 if(nrow(fileListdf)>0) {
-                  sim <- scheduleEvent(sim, min(fileListdf$loadTime, na.rm=TRUE), "load", "later")
+                  scheduleEvent(sim, min(fileListdf$loadTime, na.rm=TRUE), "load", "later")
                 }
               }
             }
