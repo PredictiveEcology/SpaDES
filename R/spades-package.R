@@ -65,6 +65,7 @@
 #' Commonly used:
 #' \tabular{ll}{
 #'    \code{\link{simGlobals}} \tab List of global simulation parameters.\cr
+#'    \code{\link{simObjects}} \tab List of objects contained within simEnv\cr
 #'    \code{\link{simParams}} \tab Nested list of all simulation parameter.\cr
 #' }
 #'
@@ -229,22 +230,7 @@
 #'   \code{\link{randomPolygons}} \tab Creates a random polygon with specified number of classes\cr
 #' }
 #'
-#' @section 2.8 Assigning and getting objects:
-#'
-#' \code{SpaDES} modules are groups of R functions. This means that any objects created within
-#' a function needs to be returned or manually assigned. Since the structure of \code{SpaDES}
-#' is to use the function calls to return only the simList object, any objects that are
-#' to be used by any other function, event or module must be assigned to an environment
-#' where it can be found by those other functions, events, and modules. As shorthand
-#' wrappers, we have built the following to simplify this:
-#'
-#' \tabular{ll}{
-#'   \code{\link{assignGlobal}} \tab Assign to the global environment\cr
-#'   \code{\link{existsGlobal}} \tab Test for existence of an object in .GlobalEnv\cr
-#'   \code{\link{getGlobal}} \tab Get from the global environment\cr
-#' }
-#'
-#' @section 2.9 Checking for the existence of objects:
+#' @section 2.8 Checking for the existence of objects:
 #'
 #' \code{SpaDES} modules will often require the existence of objects in the global environment.
 #' These are several helpers for assessing this:
@@ -254,7 +240,7 @@
 #'   \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
 #' }
 #'
-#' @section 2.10 SELES-type approach to simulation:
+#' @section 2.9 SELES-type approach to simulation:
 #'
 #' These functions are essentially skeletons and are not fully implemented.
 #' They are intended to make translations from \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
@@ -267,7 +253,7 @@
 #'   \code{\link{transitions}} \tab Transition probability\cr
 #' }
 #'
-#' @section 2.11 Miscellaneous:
+#' @section 2.10 Miscellaneous:
 #'
 #' Functions that may be useful within a \code{SpaDES} context
 #' \tabular{ll}{
