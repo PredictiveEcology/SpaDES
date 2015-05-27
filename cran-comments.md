@@ -1,9 +1,9 @@
 ## Resubmission
 
-This is a resubmission. In this version I have:
+This is a resubmission. In this version we:
 
-* create a new environment for storing simulation objects, instead of modifying the global enviroment
-* use `Additional_repositories` for installation of the suggested package `fastshp`, which is not available on CRAN
+* create a new environment for storing simulation objects, instead of modifying the global environment;
+* use `Additional_repositories` for installation of the suggested package `fastshp`, which is not available on CRAN.
 
 ## Test environments
 
