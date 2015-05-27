@@ -1,3 +1,5 @@
+stopifnot(packageVersion("SpaDES") >= "1.0.0")
+
 ## module metadata
 defineModule(sim, list(
   name="caribouMovement",
