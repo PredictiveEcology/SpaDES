@@ -248,19 +248,20 @@ setReplaceMethod("simDepends",
 
 ################################################################################
 #' @inheritParams simModules
+#' @param ... arguments passed to \code{ls.str}, allowing, e.g. \code{all.names=TRUE}
 #' @export
 #' @docType methods
 #' @rdname simEnv-accessors-modules
 #'
-setGeneric("simObjects", function(object) {
+setGeneric("simObjects", function(object, ...) {
   standardGeneric("simObjects")
 })
 
 #' @rdname simEnv-accessors-modules
 setMethod("simObjects",
           signature="simEnv",
-          definition=function(object) {
-            return(ls.str(object))
+          definition=function(object, ...) {
+            return(ls.str(object, ...))
 })
 
 #' @export
