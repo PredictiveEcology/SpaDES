@@ -48,37 +48,6 @@ setMethod("newModule",
 
 
             cat("
-### Specify module (and dependencies) definitions:
-###
-### name:         ", name, "
-###
-### description:  <provide module description>
-###
-### keywords:     <provide module keywords>
-###
-### authors:      <author name(s) and email address(es)>
-###
-### version:      0.0.1
-###
-### spatialExtent: NA
-###
-### timeframe:    NA
-###
-### timestep:     NA
-###
-### citation:     NA
-###
-### reqdPkgs:     NA
-###
-### inputObjects: objectName: NA
-###               objectClass: NA
-###               other: NA
-###
-### outputObjects: objectName: NA
-###                objectClass: NA
-###                other: NA
-###
-### ", name, " module metadata
 defineModule(sim, list(
   name=\"", name, "\",
   description=\"insert module description here\",
@@ -106,11 +75,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    sim <- ", name, "Init(sim)
+    ", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+    scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType==\"templateEvent\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -121,7 +90,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, simCurrentTime(sim) + increment, \"", name, "\", \"templateEvent\")
+    # scheduleEvent(sim, simCurrentTime(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {
