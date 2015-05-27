@@ -1,7 +1,7 @@
 ################################################################################
-#' Check for existence of object(s) refernced by a \code{simEnv} environment
+#' Check for existence of object(s) referenced by a \code{objects} slot of a \code{simList} object
 #'
-#' Check that a named object exists in the provide simEnv environment, and optionally has
+#' Check that a named object exists in the provide simList@@objects environment, and optionally has
 #' desired attributes.
 #'
 #' @param sim     A \code{\link{simList}} object.
@@ -39,7 +39,7 @@ setMethod("checkObject",
             if (!is.na(match(layer, names(object)))) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object, env=simEnv(sim))), "exists, but",
+              message(paste(deparse(substitute(object, env=simObjects(sim))), "exists, but",
                             layer, "is not a layer"))
               return(FALSE)
             }
@@ -49,10 +49,10 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="ANY", layer="missing"),
           definition = function(sim, name, object, ...) {
-            if(exists(deparse(substitute(object)), envir=simEnv(sim))) {
+            if(exists(deparse(substitute(object)), envir=simObjects(sim))) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object, env=simEnv(sim))), "does not exist"))
+              message(paste(deparse(substitute(object, env=simObjects(sim))), "does not exist"))
               return(FALSE)
             }
 })
@@ -62,7 +62,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="missing"),
           definition = function(sim, name, ...) {
-            if (exists(name, envir=simEnv(sim))) {
+            if (exists(name, envir=simObjects(sim))) {
               return(invisible(TRUE))
             } else {
               message(paste(name,"does not exist in",sim))
@@ -74,7 +74,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="character"),
           definition = function(sim, name, layer, ...) {
-            if (exists(name, envir=simEnv(sim))) {
+            if (exists(name, envir=simObjects(sim))) {
               if(is(sim[[name]],"Raster")) {
                 checkObject(sim=sim, object=sim[[name]], layer=layer, ...)
               } else {
@@ -92,7 +92,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="missing", name="ANY", object="missing", layer="ANY"),
           definition = function(name, object, layer, ...) {
-            stop(paste("Must provide a simEnv"))
+            stop(paste("Must provide a simList object"))
             return(FALSE)
 })
 

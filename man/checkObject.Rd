@@ -8,7 +8,7 @@
 \alias{checkObject,simList,character,missing,missing-method}
 \alias{checkObject,simList,missing,ANY,missing-method}
 \alias{checkObject,simList,missing,Raster,character-method}
-\title{Check for existence of object(s) refernced by a \code{simEnv} environment}
+\title{Check for existence of object(s) referenced by a \code{objects} slot of a \code{simList} object}
 \usage{
 checkObject(sim, name, object, layer, ...)
 
@@ -43,7 +43,7 @@ checkObject(sim, name, object, layer, ...)
 Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 }
 \description{
-Check that a named object exists in the provide simEnv environment, and optionally has
+Check that a named object exists in the provide simList@objects environment, and optionally has
 desired attributes.
 }
 \author{

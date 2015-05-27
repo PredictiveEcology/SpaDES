@@ -10,6 +10,8 @@
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
 #' \code{\link{data.frame}} to implement the event queue (because it is much faster).
 #'
+#' @slot .envir     Environment referencing the objects used in the simulation.
+#'
 #' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
 #'
 #' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
@@ -17,8 +19,6 @@
 #' @slot modules    List of character names specifying which modules to load.
 #'
 #' @slot params     Named list of potentially other lists specifying simulation parameters.
-#'
-#' @slot objects    Environment referencing the objects used in the simulation.
 #'
 #' @slot events     The list of scheduled events (i.e., event queue), as a \code{data.table}.
 #'                  This event queue is always sorted (keyed) by time,
@@ -52,17 +52,16 @@
 #' @author Alex Chubaty
 #'
 setClass("simList",
-         slots=list(.loadOrder="character", .loaded="list",
-                    modules="list", params="list", objects="environment",
+         slots=list(.envir="environment", .loadOrder="character", .loaded="list",
+                    modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends=".simDeps", simtimes="list"),
          prototype=list(.envir=new.env(parent=emptyenv()),
                         .loadOrder=character(),
-                        .loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
+                        .loaded=list(modules=as.list(NULL),
                         modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
                                     .progress=list(graphical=NULL, interval=NULL)),
-                        objects=new.env(parent=.GlobalEnv),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
                         simtimes=list(current=0.00, start=0.00, stop=1.00)),
@@ -85,8 +84,7 @@ setClass("simList",
 setMethod("initialize",
           signature(.Object = "simList"),
           definition=function(.Object) {
-            .Object@objects <- new.env(parent=.GlobalEnv)
-            attr(.Object@objects, "name") <- rndstr(1, 10, TRUE)
+            .Object@.envir <- new.env(parent=.GlobalEnv)
             return(.Object)
 })
 
@@ -160,7 +158,7 @@ setMethod("show",
 
             ### list stored objects
             out[[23]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[24]] <- capture.output(print(simObjects(object)))
+            out[[24]] <- capture.output(print(ls(object)))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
@@ -176,7 +174,7 @@ setMethod("show",
 #' @rdname simList-extract-methods
 setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
           definition=function(x, i, j, ..., drop) {
-            return(x@objects[[i]])
+            return(x@.envir[[i]])
 })
 
 #' @name $
@@ -184,7 +182,7 @@ setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
 #' @rdname simList-extract-methods
 setMethod("$", signature(x="simList"),
           definition=function(x, name) {
-            return(x@objects$name)
+            return(x@.envir$name)
 })
 
 #' Replace objects referenced in the simulation environment
@@ -194,7 +192,7 @@ setMethod("$", signature(x="simList"),
 #' @rdname simList-replace-methods
 setReplaceMethod("[[", signature(x="simList", value="ANY"),
                  definition=function(x, i, value) {
-                   assign(i, value, envir=x@objects, inherits=FALSE)
+                   assign(i, value, envir=x@.envir, inherits=FALSE)
                    return(x)
 })
 
@@ -203,7 +201,7 @@ setReplaceMethod("[[", signature(x="simList", value="ANY"),
 #' @rdname simList-replace-methods
 setReplaceMethod("$", signature(x="simList", value="ANY"),
                  definition=function(x, name, value) {
-                   x@objects[[name]] <- value
+                   x@.envir[[name]] <- value
                    return(x)
 })
 
@@ -243,7 +241,7 @@ setGeneric("simObjects", function(object, ...) {
 setMethod("simObjects",
           signature="simList",
           definition=function(object, ...) {
-            return(ls.str(object@objects, ...))
+            return(ls.str(object@.envir, ...))
 })
 
 #' @export
@@ -259,7 +257,7 @@ setGeneric("simObjects<-",
 setReplaceMethod("simObjects",
                  signature="simList",
                  function(object, value) {
-                   object@objects <- value
+                   object@.envir <- value
                    validObject(object)
                    return(object)
 })

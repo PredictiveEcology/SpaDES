@@ -92,40 +92,6 @@ setMethod(".getSpaDES",
             get(x, envir=.spadesEnv, ...)
 })
 
-#' Get names of simulation environments
-#'
-#' Internal function. Primarily used within \code{Plot}.
-#'
-#' @param envir The environment to search for simEnvs within. Default is .GlobalEnv
-#'
-#' @docType methods
-#' @name .getSimEnvNames
-#' @rdname getSimEnvNames
-#'
-#' @author Eliot McIntire
-#'
-setGeneric(".getSimEnvNames", function(envir){
-  standardGeneric(".getSimEnvNames")
-})
-
-#' @rdname getSimEnvNames
-setMethod(".getSimEnvNames",
-          signature = "environment",
-          definition = function(envir) {
-          ls(envir=envir) %>%
-            sapply(., function(x) is(get(x), "environment")) %>%
-            which %>%
-            names %>%
-            mget(envir=.GlobalEnv) %>%
-            sapply(., function(y) attr(y, "name"))
-})
-
-#' @rdname getSimEnvNames
-setMethod(".getSimEnvNames",
-          signature = "missing",
-          definition = function() {
-            .getSimEnvNames(.GlobalEnv)
-})
 
 #' Copy or move objects from one environment to another
 #'
@@ -218,7 +184,7 @@ setMethod("changeObjEnv",
 setMethod("changeObjEnv",
           signature = c("character", "environment", "environment", "logical"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
-            lapply(x, function(obj) {tryCatch(assign(`obj`, envir=toEnv,
+            lapply(x, function(obj) {tryCatch(assign(obj, envir=toEnv,
                                             value=eval(parse(text=obj), envir=fromEnv)),
                                             error=function(x) warning(paste("object",obj,"not found and not copied")));
                                      return(invisible())})
