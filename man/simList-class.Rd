@@ -31,6 +31,8 @@ We use S4 classes and methods, and use \code{\link{data.table}} instead of
 \section{Slots}{
 
 \describe{
+\item{\code{.envir}}{Environment referencing the objects used in the simulation.}
+
 \item{\code{.loadOrder}}{Character vector of names specifying the order in which modules are to be loaded.}
 
 \item{\code{.loaded}}{List of character names specifying which modules and objects are currently loaded.}
@@ -38,8 +40,6 @@ We use S4 classes and methods, and use \code{\link{data.table}} instead of
 \item{\code{modules}}{List of character names specifying which modules to load.}
 
 \item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
-
-\item{\code{objects}}{Environment referencing the objects used in the simulation.}
 
 \item{\code{events}}{The list of scheduled events (i.e., event queue), as a \code{data.table}.
                  This event queue is always sorted (keyed) by time,

@@ -33,12 +33,12 @@ defineModule(sim, list(
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # do stuff for this event
-    randomLandscapesInit(sim)
+    sim <- randomLandscapesInit(sim)
 
     # schedule the next events
-    scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
                          "randomLandscapes", "plot")
-    scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
+    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
@@ -46,15 +46,14 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     Plot(sim[[simGlobals(sim)$stackName]])
 
     # schedule the next event
-    scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
   } else if (eventType=="save") {
-
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {

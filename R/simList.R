@@ -58,7 +58,7 @@ setClass("simList",
                     depends=".simDeps", simtimes="list"),
          prototype=list(.envir=new.env(parent=emptyenv()),
                         .loadOrder=character(),
-                        .loaded=list(modules=as.list(NULL),
+                        .loaded=list(modules=as.list(NULL)),
                         modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
                                     .progress=list(graphical=NULL, interval=NULL)),
@@ -206,16 +206,14 @@ setReplaceMethod("$", signature(x="simList", value="ANY"),
 })
 
 ################################################################################
-#' Simulation objects
+#' Simulation environment
 #'
-#' Accessor functions for the \code{objects} slot in a \code{simList} object.
+#' Accessor functions for the \code{.envir} slot in a \code{simList} object.
 #' These are included for advanced users.
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
 #'
 #' @param object A \code{simList} simulation object.
-#'
-#' @param ...    Additional arguments passed to \code{ls.str}.
 #'
 #' @param value The object to be stored at the slot.
 #'
@@ -228,33 +226,33 @@ setReplaceMethod("$", signature(x="simList", value="ANY"),
 #'          \code{\link{simList-accessors-times}}.
 #' @export
 #' @docType methods
-#' @aliases simList-accessors-modules
-#' @rdname simList-accessors-modules
+#' @aliases simList-accessors-simEnv
+#' @rdname simList-accessors-simEnv
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("simObjects", function(object, ...) {
-  standardGeneric("simObjects")
+setGeneric("simEnv", function(object) {
+  standardGeneric("simEnv")
 })
 
-#' @rdname simList-accessors-simObjects
-setMethod("simObjects",
+#' @rdname simList-accessors-simEnv
+setMethod("simEnv",
           signature="simList",
-          definition=function(object, ...) {
-            return(ls.str(object@.envir, ...))
+          definition=function(object) {
+            return(object@.envir)
 })
 
 #' @export
-#' @rdname simList-accessors-simObjects
-setGeneric("simObjects<-",
+#' @rdname simList-accessors-simEnv
+setGeneric("simEnv<-",
            function(object, value) {
-             standardGeneric("simObjects<-")
+             standardGeneric("simEnv<-")
 })
 
-#' @name simObjects<-
-#' @aliases simObjects<-,simList-method
-#' @rdname simList-accessors-simObjects
-setReplaceMethod("simObjects",
+#' @name simEnv<-
+#' @aliases simEnv<-,simList-method
+#' @rdname simList-accessors-simEnv
+setReplaceMethod("simEnv",
                  signature="simList",
                  function(object, value) {
                    object@.envir <- value
@@ -464,6 +462,56 @@ setReplaceMethod("simObjectsLoaded",
                  signature="simList",
                  function(object, value) {
                    object@.loaded$objects <- value
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
+#' Show objects referenced in the simulation environment
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @param ... arguments passed to \code{ls.str}, allowing, e.g. \code{all.names=TRUE}
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-modules
+#'
+setGeneric("simObjects", function(object, ...) {
+  standardGeneric("simObjects")
+})
+
+#' @rdname simList-accessors-modules
+setMethod("simObjects",
+          signature="simList",
+          definition=function(object, ...) {
+            return(ls.str(object@.envir, ...))
+})
+
+#' @export
+#' @rdname simList-accessors-modules
+setGeneric("simObjects<-",
+           function(object, value) {
+             standardGeneric("simObjects<-")
+})
+
+#' @name simObjects<-
+#' @aliases simObjects<-,simList-method
+#' @rdname simList-accessors-modules
+setReplaceMethod("simObjects",
+                 signature="simList",
+                 function(object, value) {
+                   if (is.list(value)) {
+                     lapply(value, function(x) {
+                       object@.envir[[names(x)]] <- x
+                     })
+                   } else {
+                     object@.envir[[names(value)]] <- value
+                   }
                    validObject(object)
                    return(object)
 })

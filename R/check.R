@@ -39,7 +39,7 @@ setMethod("checkObject",
             if (!is.na(match(layer, names(object)))) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object, env=simObjects(sim))), "exists, but",
+              message(paste(deparse(substitute(object, env=simEnv(sim))), "exists, but",
                             layer, "is not a layer"))
               return(FALSE)
             }
@@ -49,10 +49,10 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="ANY", layer="missing"),
           definition = function(sim, name, object, ...) {
-            if(exists(deparse(substitute(object)), envir=simObjects(sim))) {
+            if(exists(deparse(substitute(object)), envir=simEnv(sim))) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object, env=simObjects(sim))), "does not exist"))
+              message(paste(deparse(substitute(object, env=simEnv(sim))), "does not exist"))
               return(FALSE)
             }
 })
@@ -62,7 +62,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="missing"),
           definition = function(sim, name, ...) {
-            if (exists(name, envir=simObjects(sim))) {
+            if (exists(name, envir=simEnv(sim))) {
               return(invisible(TRUE))
             } else {
               message(paste(name,"does not exist in",sim))
@@ -74,7 +74,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="character"),
           definition = function(sim, name, layer, ...) {
-            if (exists(name, envir=simObjects(sim))) {
+            if (exists(name, envir=simEnv(sim))) {
               if(is(sim[[name]],"Raster")) {
                 checkObject(sim=sim, object=sim[[name]], layer=layer, ...)
               } else {

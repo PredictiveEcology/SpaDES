@@ -75,6 +75,8 @@ setMethod("simInit",
             dotParamsChar <- list(".savePath", ".saveObjects")
             dotParams <- append(dotParamsChar, dotParamsReal)
 
+            sim <- new("simList")
+
             simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
