@@ -177,9 +177,8 @@ setMethod("show",
 #' @param value  Any R object.
 #'
 #' @export
-#'
 #' @name [[
-#' @aliases [[,simList-method
+#' @aliases [[,simList,ANY,ANY-method
 #' @docType methods
 #' @rdname simList-extract-methods
 setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
@@ -189,7 +188,7 @@ setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
 
 #' @export
 #' @name [[<-
-#' @aliases [[<-,simList-method
+#' @aliases [[<-,simList,ANY,ANY-method
 #' @rdname simList-extract-methods
 setReplaceMethod("[[", signature(x="simList", value="ANY"),
                  definition=function(x, i, value) {
