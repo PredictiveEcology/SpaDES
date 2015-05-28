@@ -19,10 +19,6 @@
 \alias{simModulesLoaded,simList-method}
 \alias{simModulesLoaded<-}
 \alias{simModulesLoaded<-,simList-method}
-\alias{simObjects}
-\alias{simObjects,simList-method}
-\alias{simObjects<-}
-\alias{simObjects<-,simList-method}
 \alias{simObjectsLoaded}
 \alias{simObjectsLoaded,simList-method}
 \alias{simObjectsLoaded<-}
@@ -68,29 +64,13 @@ simObjectsLoaded(object)
 simObjectsLoaded(object) <- value
 
 \S4method{simObjectsLoaded}{simList}(object) <- value
-
-simObjects(object, ...)
-
-\S4method{simObjects}{simList}(object, ...)
-
-simObjects(object) <- value
-
-\S4method{simObjects}{simList}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
-
-\item{...}{arguments passed to \code{ls.str}, allowing, e.g. \code{all.names=TRUE}}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
 }
 \value{
-Returns or sets the value of the slot from the \code{simList} object.
-
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
@@ -104,8 +84,6 @@ These are included for advanced users.
    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced) \cr
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
 }
-
-Show objects referenced in the simulation environment
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.

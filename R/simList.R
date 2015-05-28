@@ -166,7 +166,17 @@ setMethod("show",
 })
 
 ################################################################################
-#' Extract objects from the simulation environment
+#' Extract or replace parts of an object from the simulation environment
+#'
+#' @param x      object from which to extract element(s) or in which to replace element(s).
+#' @param i      indices specifying elements to extract or replace.
+#' @param j      see \code{i}.
+#' @param ...    see \code{i}.
+#' @param name   A literal character string or a \code{\link{name}}.
+#' @param drop   not implemented.
+#' @param value  Any R object.
+#'
+#' @export
 #'
 #' @name [[
 #' @aliases [[,simList-method
@@ -177,6 +187,17 @@ setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
             return(x@.envir[[i]])
 })
 
+#' @export
+#' @name [[<-
+#' @aliases [[<-,simList-method
+#' @rdname simList-extract-methods
+setReplaceMethod("[[", signature(x="simList", value="ANY"),
+                 definition=function(x, i, value) {
+                   assign(i, value, envir=x@.envir, inherits=FALSE)
+                   return(x)
+})
+
+#' @export
 #' @name $
 #' @aliases $,simList-method
 #' @rdname simList-extract-methods
@@ -185,20 +206,10 @@ setMethod("$", signature(x="simList"),
             return(x@.envir[[name]])
 })
 
-#' Replace objects referenced in the simulation environment
-#'
-#' @name [[
-#' @aliases [[<-,simList-method
-#' @rdname simList-replace-methods
-setReplaceMethod("[[", signature(x="simList", value="ANY"),
-                 definition=function(x, i, value) {
-                   assign(i, value, envir=x@.envir, inherits=FALSE)
-                   return(x)
-})
-
-#' @name $
+#' @export
+#' @name $<-
 #' @aliases $<-,simList-method
-#' @rdname simList-replace-methods
+#' @rdname simList-extract-methods
 setReplaceMethod("$", signature(x="simList", value="ANY"),
                  definition=function(x, name, value) {
                    x@.envir[[name]] <- value
