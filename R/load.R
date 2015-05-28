@@ -122,7 +122,6 @@ setMethod("loadFiles",
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
               fileList <- simFileList(sim)
-              #            if(!is.null(fileList) & length(fileList$file)>0) {
               curTime <- simCurrentTime(sim)
               arguments <- fileList$arguments
 
@@ -140,15 +139,15 @@ setMethod("loadFiles",
               }
 
               if (is(fileList, "list")) {
-                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments",
-                                                                            names(fileList))],
-                                                            stringsAsFactors=FALSE))
+                fileListdf <- do.call(data.frame,
+                                      args=list(fileList[-match("arguments", names(fileList))],
+                                                stringsAsFactors=FALSE))
               } else {
                 fileListdf <- fileList
               }
 
-              # fill in columns if they are missing. Assume loadTime =
-              #   simStartTime(sim) if missing
+              # Fill in columns if they are missing:
+              #  assume loadTime = simStartTime(sim) if missing
               if(is.na(match("loadTime", names(fileListdf)))) {
                 fileListdf["loadTime"] <- simStartTime(sim)
               }
