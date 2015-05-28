@@ -158,7 +158,7 @@ setMethod("show",
 
             ### list stored objects
             out[[23]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[24]] <- capture.output(print(ls(object)))
+            out[[24]] <- capture.output(print(simObjects(object)))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
@@ -182,7 +182,7 @@ setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
 #' @rdname simList-extract-methods
 setMethod("$", signature(x="simList"),
           definition=function(x, name) {
-            return(x@.envir$name)
+            return(x@.envir[[name]])
 })
 
 #' Replace objects referenced in the simulation environment
