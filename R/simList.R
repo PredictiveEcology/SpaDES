@@ -479,13 +479,13 @@ setReplaceMethod("simObjectsLoaded",
 #'
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-modules
+#' @rdname simList-accessors-objects
 #'
 setGeneric("simObjects", function(object, ...) {
   standardGeneric("simObjects")
 })
 
-#' @rdname simList-accessors-modules
+#' @rdname simList-accessors-objects
 setMethod("simObjects",
           signature="simList",
           definition=function(object, ...) {
@@ -493,7 +493,7 @@ setMethod("simObjects",
 })
 
 #' @export
-#' @rdname simList-accessors-modules
+#' @rdname simList-accessors-objects
 setGeneric("simObjects<-",
            function(object, value) {
              standardGeneric("simObjects<-")
@@ -501,7 +501,7 @@ setGeneric("simObjects<-",
 
 #' @name simObjects<-
 #' @aliases simObjects<-,simList-method
-#' @rdname simList-accessors-modules
+#' @rdname simList-accessors-objects
 setReplaceMethod("simObjects",
                  signature="simList",
                  function(object, value) {
