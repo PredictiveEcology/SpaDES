@@ -7,7 +7,7 @@
 \alias{loadFiles,missing,ANY-method}
 \alias{loadFiles,missing,missing-method}
 \alias{loadFiles,simList,missing-method}
-\title{Load simulation objects according to fileList}
+\title{Load simulation objects according to \code{fileList}}
 \usage{
 loadFiles(sim, fileList, ...)
 
@@ -20,21 +20,22 @@ loadFiles(sim, fileList, ...)
 .fileExtensions()
 }
 \arguments{
-\item{sim}{A \code{simList} object}
+\item{sim}{\code{simList} object.}
 
-\item{fileList}{List or data.frame to call loadFiles directly from the fileList as
-described in Details}
+\item{fileList}{\code{list} or \code{data.frame} to call \code{loadFiles} directly from the
+                 \code{fileList} as described in Details}
 
 \item{...}{Additional arguments.}
 }
 \description{
-This function takes the fileList argument in the simList object and loads all the files
-using the identified functions and arguments
+This function takes the fileList argument in the \code{simList} object and
+loads all the files using the identified functions and arguments.
 
 How to load various types of files in R.
 }
 \details{
-In the fileList object, either a list or a data.frame, there will be minimally a column called "files".
+In the \code{fileList} object, either a \code{list} or a \code{data.frame},
+there will be minimally a column called "files".
 All other columns are optional.
 
 Other optional columns are:
@@ -65,14 +66,14 @@ If there is only one list, then it is assumed to apply to all load attempts
 and will be repeated for each load function.
 }
 \examples{
-#load random maps included with package
-fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-   full.names=TRUE, pattern= "tif"), functions="rasterToMemory", package="SpaDES",
+# Load random maps included with package
+fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+   full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES",
    stringsAsFactors=FALSE)
 
-loadFiles(fileList=fileList)
+sim1 <- loadFiles(fileList=fileList)
 clearPlot()
-Plot(DEM)
+Plot(sim1$DEM)
 
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
@@ -90,7 +91,7 @@ fileList = data.frame(
    intervals = c(rep(NA, length(files)-1), 10),
    stringsAsFactors=FALSE)
 
-loadFiles(fileList=fileList)
+sim2 <- loadFiles(fileList=fileList)
 }
 \author{
 Eliot McIntire
