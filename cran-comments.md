@@ -7,10 +7,6 @@ This is a resubmission. In this version we:
 
 ## Test environments
 
-### Previous R versions
-* Windows 7               (local), R 3.1.2
-* Windows 7               (local), R 3.1.3
-
 ### Current R versions
 * Debian Jessie           (local), R 3.2.0
 * OS X Yosemite           (local), R 3.2.0

@@ -24,7 +24,7 @@ Authors@R: c(
     )
 Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.1.2),
+    R (>= 3.2.0),
     data.table,
     grid,
     raster
