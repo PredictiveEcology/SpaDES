@@ -31,10 +31,8 @@ caribouTraj <- makeLines(caribou1, caribou2)
 Plot(caribouTraj, new=TRUE, length=0.1)
 
 # or  to a previous Plot
-fileList <-
-   data.frame(files =
-     dir(file.path(
-                   find.package("SpaDES",
+fileList <- data.frame(files =
+     dir(file.path(find.package("SpaDES",
                                 lib.loc=getOption("devtools.path"),
                                 quiet=FALSE),
                   "maps"),
@@ -44,11 +42,11 @@ fileList <-
      stringsAsFactors=FALSE)
 
 # Load files to memory (using rasterToMemory)
-loadFiles(fileList=fileList)
+sim1 <- loadFiles(fileList=fileList)
 
-Plot(DEM)
+Plot(sim1$DEM)
 caribouTraj <- makeLines(caribou1, caribou2)
-Plot(caribouTraj, addTo="DEM", length=0.1)
+Plot(caribouTraj, addTo="sim$DEM", length=0.1)
 }
 \author{
 Eliot McIntire
