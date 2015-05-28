@@ -53,9 +53,9 @@ fileList <- find.package("SpaDES", quiet=FALSE) %>%
 fileList <- fileList[-c(2,5),] # omit forestAge and percentPine for simplicity
 
 # Load files to memory (using rasterToMemory) 
-loadFiles(fileList=fileList)
+mySim <- loadFiles(fileList=fileList)
 # put into a single stack object for ease of use
-landscape <- stack(DEM, forestCover, habitatQuality)
+landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```
 
 \newpage
@@ -104,7 +104,7 @@ Plot(Sl, gp=gpar(col = c("red", "blue"), lwd=2), addTo="landscape$DEM")
 Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialPolygons*` objects can be plotted from a single invocation of `Plot`:
 
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, caribou, DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5), visualSqueeze=0.7)
+Plot(landscape, caribou, mySim$DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5), visualSqueeze=0.7)
 ```
 
 \newpage
@@ -162,7 +162,7 @@ These parameters will specify plot parameters that are available with `gpar()`. 
 
 ```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(caribou, new=TRUE, gpAxis=gpar(cex=0.4), size=1)
-Plot(DEM, gpText=gpar(cex=0.4))
+Plot(mySim$DEM, gpText=gpar(cex=0.4))
 ```
 
 ### `visualSqueeze`
@@ -175,8 +175,8 @@ If the plots need to be slightly smaller, this could be set to 0.6; if they can 
 
 ```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
 # x axis gets cut off in pdf and html
-Plot(DEM, new=TRUE)
-Plot(DEM, visualSqueeze=0.6, new=TRUE)
+Plot(mySim$DEM, new=TRUE)
+Plot(mySim$DEM, visualSqueeze=0.6, new=TRUE)
 ```
  
 A key reason why the legends or axes are cut off sometimes is because there is a minimum threshold for font size for readability.
@@ -190,7 +190,7 @@ Since the default is to automatically scale the legend to the values contained i
 Adding `legendRange=0:20`, where `0:20` covers the expected range of all stages of that raster, will work.
 
 ```{r legendRange, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
-Plot(DEM, legendRange=c(0,500), new=TRUE)
+Plot(mySim$DEM, legendRange=c(0,500), new=TRUE)
 ```
 
 ### `zoomExtent`
@@ -202,7 +202,7 @@ Then call `Plot(obj, zoomExtent=newZoom)`.
 This new zoom will persist with rearrangements.
 
 ```{r zoomExtent, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
-Plot(DEM, zoomExtent=extent(c(-1, 10, -1, 20)), new=TRUE)
+Plot(mySim$DEM, zoomExtent=extent(c(-1, 10, -1, 20)), new=TRUE)
 ```
 
 ### `length`
@@ -284,8 +284,8 @@ In the example here, the speedup actually slows down plotting because the raster
 This would not be the case when the original Raster had `1e8` pixels.
 
 ```{r speedup, eval=TRUE, echo=TRUE, fig.height=2}
-system.time(Plot(landscape, caribou, DEM, new=TRUE))
-system.time(Plot(landscape, caribou, DEM, speedup=10, new=TRUE))
+system.time(Plot(landscape, caribou, mySim$DEM, new=TRUE))
+system.time(Plot(landscape, caribou, mySim$DEM, speedup=10, new=TRUE))
 # can add a new plot to the plotting window
 ```
 
