@@ -147,7 +147,8 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
-      adj<-adj[target,]
+      #adj<-adj[target,]
+      adj<-adj[na.omit(adj[,"to"] %in% target),]
     }
 
     if (sort){
