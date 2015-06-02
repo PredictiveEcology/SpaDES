@@ -53,14 +53,16 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
                            simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(sim$caribou, addTo="landscape$habitatQuality", new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
+    Plot(sim$caribou, addTo=paste("sim", simGlobals(sim)$stackName, "habitatQuality", sep="$"),
+         new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
 
     # schedule the next event
     sim <- scheduleEvent(sim, simCurrentTime(sim) +
                            simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(sim$caribou, addTo="landscape$habitatQuality", new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
+    Plot(sim$caribou, addTo=paste("sim", simGlobals(sim)$stackName, "habitatQuality", sep="$"),
+         new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
     Plot(sim$caribou, new=FALSE, pch=19, size=0.1, gp=gpar(cex=0.6))
 
     # schedule the next event

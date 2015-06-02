@@ -125,7 +125,7 @@ setMethod("simInit",
               })
 
               # evaluate the rest of the parsed file
-              eval(parsedFile[!defineModuleItem], envir=.GlobalEnv)
+              eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
             }
 
             # assign user-specified non-global params, while
@@ -542,6 +542,7 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
+            attach(simEnv(sim)); on.exit(detach(simEnv(sim)))
             stopifnot(class(sim) == "simList")
             while(simCurrentTime(sim) %<=% simStopTime(sim)) {
               sim <- doEvent(sim, debug)  # process the next event
