@@ -1497,7 +1497,7 @@ setMethod("makeLines",
     exists(deparse(parseTxt), envir=x, inherits=FALSE)))] %>%
     .[[length(.)]]
 
-  inGlobal <- identical(envs,.GlobalEnv)
+  inGlobal <- identical(envs, .GlobalEnv)
   if(is(eval(parse(text=deparse(parseTxt)), envir=envs), "environment")) {
     envs <- eval(parse(text=deparse(parseTxt)), envir=envs)
   } else {
@@ -1513,7 +1513,7 @@ setMethod("makeLines",
       .spadesEnv[[paste0("dev",dev.cur())]] <- new.env(parent = emptyenv())
     }
     changeObjEnv(paste(sapply(rev(elems),deparse),collapse="$"),
-                   fromEnv=envs, toEnv=.spadesEnv[[paste0("dev",dev.cur())]])
+                 fromEnv=envs, toEnv=.spadesEnv[[paste0("dev",dev.cur())]])
   }
 
   return(list(objs=paste(sapply(rev(elems),deparse),collapse="$"), envs=envs))
