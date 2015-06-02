@@ -96,7 +96,7 @@ Repeated events are simply scheduled repeatedly.
 This not only allows for modularity of simulation components, it also allows complex model dynamics to emerge based on scheduling rules of each activity (module).
 Thus, complex simulations involving multiple processes (activities) can be built fairly easily, provided these processes are modelled using a common DES framework.
 
-`SpaDES` provides such a framework, facilitating interaction between multiple processes (built as 'modules') that don't interact with one another directly, but are scheduled in the event queue and carry out operations on shared data objects in the global simulation environment.
+`SpaDES` provides such a framework, facilitating interaction between multiple processes (built as 'modules') that don't interact with one another directly, but are scheduled in the event queue and carry out operations on shared data objects in the simulation environment.
 This package provides tools for building modules natively in `R` that can be reused.
 Additionally, because of the flexibility `R` provides for interacting with other programming languages and external data sources, modules can also be built using external tools and integrated with `SpaDES`.
 
@@ -104,7 +104,7 @@ Additionally, because of the flexibility `R` provides for interacting with other
 
 ## `SpaDES` modules
 
-A `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the global environment.
+A `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the simulation environment.
 Each activity consists of a collection of events which are scheduled depending on the rules of the simulation. 
 Each event may evaluate or modify a simulation data object (*e.g.*, update the values on a raster map), or perform other operations such as saving and loading data objects or plotting.
 
@@ -164,7 +164,7 @@ Linking the raw data, data analysis, validation, calibration (via optimization),
 Plotting features that are within `SpaDES` are built using the `grid` package, those it is not required to use these.
 
 As you can see in the sample simulation code provided above, setting up and running a simulation in `SpaDES` is straightforward using existing modules. 
-You need to specify some things about the simulation environment including 1) which modules to use for the simulation, and 2) any global data objects (*e.g.*, parameter values) that should be used to store the simulation state. 
+You need to specify some things about the simulation environment including 1) which modules to use for the simulation, and 2) any data objects (*e.g.*, parameter values) that should be used to store the simulation state. 
 Each of these are passed as named lists to the simulation object upon initialization.
 
 ## Initializing a simulation: the `simInit` function

@@ -28,7 +28,8 @@ The central design of `SpaDES` promotes modularity, such that collections of rel
 Strict modularity requires that modules can act independently, without needing to know about other modules.
 Thus each `SpaDES` module must explicitly state its input dependencies (data, package, and parameterization requirements), data outputs, as well as provide other useful metadata and documentation for the user.
 Upon initialization of a simulation via `simInit`, the dependencies of every module used are examined and evaluated.
-If dependency incompatibilities exists, the initialization fails and the user is notified. Also during this initialization, module code is `source`-ed into the global environment, making all module objects and functions available to the user.
+If dependency incompatibilities exists, the initialization fails and the user is notified.
+Also during this initialization, module code is `source`-ed into the simulation environment, making all module objects and functions available during the simulation.
 
 Each `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the global environment.
 Each activity consists of a collection of events which are scheduled depending on the rules of the simulation.
