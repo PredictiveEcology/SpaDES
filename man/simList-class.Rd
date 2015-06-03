@@ -4,6 +4,7 @@
 \name{simList-class}
 \alias{initialize,simList-method}
 \alias{ls.simList}
+\alias{ls.str.simList}
 \alias{show,simList-method}
 \alias{simList}
 \alias{simList-class}
@@ -14,11 +15,15 @@
 \S4method{show}{simList}(object)
 
 ls.simList(x)
+
+ls.str.simList(name)
 }
 \arguments{
 \item{.Object}{An object.}
 
 \item{object}{Any R object.}
+
+\item{x}{A \code{simList} object.}
 
 \item{x}{A \code{simList} object.}
 }

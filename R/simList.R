@@ -180,6 +180,20 @@ setMethod("ls",
             ls.simList(name)
 })
 
+### `ls.str` generic is already defined in the utils package
+#' @param x  A \code{simList} object.
+#'
+#' @export
+#' @rdname simList-class
+ls.str.simList <- function(name) {
+  ls.str(simEnv(name))
+}
+
+setMethod("ls.str",
+          signature(pos="missing", name="simList"),
+          definition=function(name) {
+            ls.str.simList(name=name)
+})
 
 ###############################################################################
 #' Extract or replace parts of an object from the simulation environment
