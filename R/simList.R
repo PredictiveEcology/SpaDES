@@ -550,9 +550,7 @@ setReplaceMethod("simObjectsLoaded",
 ################################################################################
 #' Show objects referenced in the simulation environment
 #'
-#' @param object A \code{simList} simulation object.
-#'
-#' @param value The object to be stored at the slot.
+#' @inheritParams simEnv
 #'
 #' @param ... arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}
 #'

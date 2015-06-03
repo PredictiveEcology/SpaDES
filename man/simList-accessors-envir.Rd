@@ -35,10 +35,6 @@ simObjects(object) <- value
 \item{value}{The object to be stored at the slot.}
 
 \item{...}{arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{value}{The object to be stored at the slot.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
