@@ -68,7 +68,7 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
   }
 
   BsumVec <- reduced[fullRasterVals]
-  BsumVec[is.na(get(plotCol)), c(plotCol):=0]
+  BsumVec[is.na(get(plotCol)), c(plotCol):=NA]
   setkey(BsumVec, row_number)
   ras <- as.character(match.call(expand.dots=TRUE)$reduced)
   assign(ras,

@@ -21,6 +21,7 @@ warnings_are_errors: true
 apt_packages:
   - curl
   - latex-xcolor
+  - libcurl4-openssl-dev
 
 r_binary_packages:
   - chron
