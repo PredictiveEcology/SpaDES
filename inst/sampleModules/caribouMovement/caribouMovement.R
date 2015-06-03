@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "1.0.0")
+stopifnot(packageVersion("SpaDES") >= "0.99.0")
 
 ## module metadata
 defineModule(sim, list(
