@@ -158,14 +158,30 @@ setMethod("show",
 
             ### list stored objects
             out[[23]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[24]] <- capture.output(print(simObjects(object)))
+            out[[24]] <- capture.output(print(ls.str(simEnv(sim))))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
 })
 
-################################################################################
+### `ls` generic is already defined in the base package
+#' @param x  A \code{simList} object.
+#'
+#' @export
+#' @rdname simList-class
+ls.simList <- function(x) {
+  ls(simEnv(x))
+}
+
+setMethod("ls",
+          signature(name="simList"),
+          definition=function(name) {
+            ls.simList(name)
+})
+
+
+###############################################################################
 #' Extract or replace parts of an object from the simulation environment
 #'
 #' @param x      object from which to extract element(s) or in which to replace element(s).
@@ -483,9 +499,9 @@ setReplaceMethod("simObjectsLoaded",
 #'
 #' @param value The object to be stored at the slot.
 #'
-#' @param ... arguments passed to \code{ls.str}, allowing, e.g. \code{all.names=TRUE}
+#' @param ... arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}
 #'
-#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' @return Returns or sets a list of objects in the \code{simList} environment.
 #'
 #' @export
 #' @docType methods
@@ -499,7 +515,11 @@ setGeneric("simObjects", function(object, ...) {
 setMethod("simObjects",
           signature="simList",
           definition=function(object, ...) {
-            return(ls.str(object@.envir, ...))
+            x <- lapply(ls(simEnv(object), ...), function(x) {
+              eval(parse(text=x), envir=simEnv(object))
+            })
+            names(x) <- ls(simEnv(object), ...)
+            return(x)
 })
 
 #' @export
