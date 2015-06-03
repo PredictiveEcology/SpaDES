@@ -8,9 +8,17 @@
 #' easier to add simulation components (i.e., "simulation modules").
 #'
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
-#' \code{\link{data.frame}} to implement the event queue (because it is much faster).
+#' \code{\link{data.frame}} to implement the event queue (because it is much
+#' more efficient).
+#'
+#' Various slot accessor methods (i.e., get and set functions) are provided.
 #'
 #' @slot .envir     Environment referencing the objects used in the simulation.
+#'                  Several "shortcuts" to accessing objects referenced by this
+#'                  environment are provided, and can be used on the
+#'                  \code{simList} object directly instead of specifying the
+#'                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
+#'                  \code{ls.str}, \code{simObjects}. See examples.
 #'
 #' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
 #'
@@ -39,7 +47,11 @@
 #'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
 #'        }
 #'
-#' @seealso \code{\link{data.table}}.
+#' @seealso \code{\link{simList-accessors-envir}},
+#'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-events}},
+#'          \code{\link{simList-accessors-times}}.
 #'
 #' @include module-dependencies-class.R
 #' @aliases simList
@@ -77,10 +89,16 @@ setClass("simList",
 })
 
 ### `initialize` generic is already defined in the methods package
-#' @param .Object  An object.
+#' Generate a \code{simList} object
+#'
+#' Given the name or the definition of a class, plus optionally data to be
+#' included in the object, \code{new} returns an object from that class.
+#'
+#' @param .Object  A \code{simList} object.
 #' @include misc-methods.R
 #' @export
-#' @rdname simList-class
+#' @docType methods
+#' @rdname initialize-method
 setMethod("initialize",
           signature(.Object = "simList"),
           definition=function(.Object) {
@@ -89,10 +107,13 @@ setMethod("initialize",
 })
 
 ### `show` generic is already defined in the methods package
-#' @param object  Any R object.
+#' Show an Object
+#'
+#' @param object  \code{simList}
 #'
 #' @export
-#' @rdname simList-class
+#' @docType methods
+#' @rdname show-method
 setMethod("show",
           signature="simList",
           definition=function(object) {
@@ -166,14 +187,24 @@ setMethod("show",
 })
 
 ### `ls` generic is already defined in the base package
-#' @param x  A \code{simList} object.
+#' List simulation objects
+#'
+#' Return a vector of character strings giving the names of the objects in the
+#' specified simulation environment.
+#' Can be used with a \code{simList} object, because the method for this class
+#' is simply a wrapper for calling \code{ls} on the simulation environment
+#' stored in the \code{simList} object.
+#'
+#' @param name  A \code{simList} object.
 #'
 #' @export
-#' @rdname simList-class
-ls.simList <- function(x) {
-  ls(simEnv(x))
+#' @docType methods
+#' @rdname ls-method
+ls.simList <- function(name) {
+  ls(simEnv(name))
 }
 
+#' @rdname ls-method
 setMethod("ls",
           signature(name="simList"),
           definition=function(name) {
@@ -181,14 +212,23 @@ setMethod("ls",
 })
 
 ### `ls.str` generic is already defined in the utils package
-#' @param x  A \code{simList} object.
+#' List simulation objects and their structure
+#'
+#' A variation of applying \code{\link{str}} to each matched name.
+#' Can be used with a \code{simList} object, because the method for this class
+#' is simply a wrapper for calling \code{ls} on the simulation environment
+#' stored in the \code{simList} object.
+
+#' @param name  A \code{simList} object.
 #'
 #' @export
-#' @rdname simList-class
+#' @docType methods
+#' @rdname ls_str-method
 ls.str.simList <- function(name) {
   ls.str(simEnv(name))
 }
 
+#' @rdname ls_str-method
 setMethod("ls.str",
           signature(pos="missing", name="simList"),
           definition=function(name) {
@@ -266,8 +306,8 @@ setReplaceMethod("$", signature(x="simList", value="ANY"),
 #'          \code{\link{simList-accessors-times}}.
 #' @export
 #' @docType methods
-#' @aliases simList-accessors-simEnv
-#' @rdname simList-accessors-simEnv
+#' @aliases simList-accessors-envir
+#' @rdname simList-accessors-envir
 #'
 #' @author Alex Chubaty
 #'
@@ -275,7 +315,7 @@ setGeneric("simEnv", function(object) {
   standardGeneric("simEnv")
 })
 
-#' @rdname simList-accessors-simEnv
+#' @rdname simList-accessors-envir
 setMethod("simEnv",
           signature="simList",
           definition=function(object) {
@@ -283,7 +323,7 @@ setMethod("simEnv",
 })
 
 #' @export
-#' @rdname simList-accessors-simEnv
+#' @rdname simList-accessors-envir
 setGeneric("simEnv<-",
            function(object, value) {
              standardGeneric("simEnv<-")
@@ -291,7 +331,7 @@ setGeneric("simEnv<-",
 
 #' @name simEnv<-
 #' @aliases simEnv<-,simList-method
-#' @rdname simList-accessors-simEnv
+#' @rdname simList-accessors-envir
 setReplaceMethod("simEnv",
                  signature="simList",
                  function(object, value) {
@@ -323,6 +363,7 @@ setReplaceMethod("simEnv",
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
+#'          \code{\link{simList-accessors-envir}},
 #'          \code{\link{simList-accessors-params}},
 #'          \code{\link{simList-accessors-events}},
 #'          \code{\link{simList-accessors-times}}.
@@ -517,15 +558,20 @@ setReplaceMethod("simObjectsLoaded",
 #'
 #' @return Returns or sets a list of objects in the \code{simList} environment.
 #'
+#' @seealso \code{\link{simList-class}},
+#'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-events}},
+#'          \code{\link{simList-accessors-times}}.
+#'
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-objects
-#'
+#' @rdname simList-accessors-envir
 setGeneric("simObjects", function(object, ...) {
   standardGeneric("simObjects")
 })
 
-#' @rdname simList-accessors-objects
+#' @rdname simList-accessors-envir
 setMethod("simObjects",
           signature="simList",
           definition=function(object, ...) {
@@ -537,7 +583,7 @@ setMethod("simObjects",
 })
 
 #' @export
-#' @rdname simList-accessors-objects
+#' @rdname simList-accessors-envir
 setGeneric("simObjects<-",
            function(object, value) {
              standardGeneric("simObjects<-")
@@ -545,7 +591,7 @@ setGeneric("simObjects<-",
 
 #' @name simObjects<-
 #' @aliases simObjects<-,simList-method
-#' @rdname simList-accessors-objects
+#' @rdname simList-accessors-envir
 setReplaceMethod("simObjects",
                  signature="simList",
                  function(object, value) {
@@ -895,9 +941,11 @@ setReplaceMethod("simGlobalsOutputPath",
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-envir}},
 #'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
 #'          \code{\link{simList-accessors-events}}.
+#'
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-times
@@ -1067,9 +1115,11 @@ setReplaceMethod("simStopTime",
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-envir}},
 #'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
 #'          \code{\link{simList-accessors-times}}.
+#'
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-events

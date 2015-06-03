@@ -6,7 +6,11 @@
 \alias{simEnv,simList-method}
 \alias{simEnv<-}
 \alias{simEnv<-,simList-method}
-\alias{simList-accessors-simEnv}
+\alias{simList-accessors-envir}
+\alias{simObjects}
+\alias{simObjects,simList-method}
+\alias{simObjects<-}
+\alias{simObjects<-,simList-method}
 \title{Simulation environment}
 \usage{
 simEnv(object)
@@ -16,18 +20,36 @@ simEnv(object)
 simEnv(object) <- value
 
 \S4method{simEnv}{simList}(object) <- value
+
+simObjects(object, ...)
+
+\S4method{simObjects}{simList}(object, ...)
+
+simObjects(object) <- value
+
+\S4method{simObjects}{simList}(object) <- value
 }
 \arguments{
+\item{object}{A \code{simList} simulation object.}
+
+\item{value}{The object to be stored at the slot.}
+
+\item{...}{arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}}
+
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
+
+Returns or sets a list of objects in the \code{simList} environment.
 }
 \description{
 Accessor functions for the \code{.envir} slot in a \code{simList} object.
 These are included for advanced users.
+
+Show objects referenced in the simulation environment
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
@@ -36,6 +58,12 @@ Currently, only get and set methods are defined. Subset methods are not.
 Alex Chubaty
 }
 \seealso{
+\code{\link{simList-class}},
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-times}}.
+
 \code{\link{simList-class}},
          \code{\link{simList-accessors-modules}},
          \code{\link{simList-accessors-params}},
