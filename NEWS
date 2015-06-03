@@ -4,8 +4,8 @@ version 1.0.0
 =============
 Major changes to satisfy CRAN requirements.
 
-* no longer rely on side effects to update objects in global environment; instead uses simulation environments (not backwards compatible!)
-* sample modules rewritten to use simulation enviroments (not backwards compatible!).
+* no longer rely on side effects to update objects in global environment; instead uses simulation environments (#185) (not backwards compatible!)
+* sample modules rewritten to use simulation enviroments (#185) (not backwards compatible!).
 * `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
 * software requirements changed: depends R (>=3.2.0)
 * bug fixes
