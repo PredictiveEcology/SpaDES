@@ -7,10 +7,14 @@ output:
     number_sections: yes
     toc: yes
   html_document:
-    self_contained: no
+    self_contained: yes
     toc: yes
-vignette: |
-  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{03 Plotting with SpaDES} %\VignetteDepends{ggplot2, magrittr, RColorBrewer, SpaDES} %\VignetteKeyword{visualization, plotting, mapping} %\usepackage[utf8]{inputenc}
+vignette: >
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteIndexEntry{03 Plotting with SpaDES}
+  %\VignetteDepends{ggplot2, magrittr, RColorBrewer, SpaDES}
+  %\VignetteKeyword{visualization, plotting, mapping}
+  %\usepackage[utf8]{inputenc}
 ---
 
 ```{r initial-clearPlot, eval=TRUE, echo=FALSE, message=FALSE}
