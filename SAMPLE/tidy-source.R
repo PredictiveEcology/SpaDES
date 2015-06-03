@@ -11,7 +11,7 @@ options("formatR.arrow" = TRUE,
         "formatR.indent" = 2)
 
 path <- if (.os == "windows") { "~/GitHub/SpaDES/R" } else { "~/Documents/GitHub/SpaDES/R" }
-files <- dir(path, pattern="[.]r|R", full.names=TRUE)
+files <- dir(path, pattern="[.][r|R]", full.names=TRUE)
 lapply(files, function(f) {
   tidy_source(f, arrow=TRUE, file=f, indent=2, width=80)
 })

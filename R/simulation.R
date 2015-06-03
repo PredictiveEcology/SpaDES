@@ -1,4 +1,4 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") utils::globalVariables(".")
 
 ################################################################################
 #' Initialize a new simulation
@@ -16,10 +16,12 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #' @param params A named list of simulation parameters and their values.
 #'
 #' @param modules A named list of character strings specfying the names
-#' of modules to be loaded for the simulation. **Note:** the module name
+#' of modules to be loaded for the simulation. Note: the module name
 #' should correspond to the R source file from which the module is loaded.
-#' Example: a module named "caribou" will be sourced form the file \code{caribou.R},
-#' located at the specified \code{path} (see below).
+#' Example: a module named "caribou" will be sourced form the file
+#' \code{caribou.R}, located at the specified \code{path} (see below).
+#'
+#' @param objects A list of data objects to be used in the simulation.
 #'
 #' @param path  An optional character string specifying the location of the module source files.
 #'              If no path is specified, it defaults to the current working directory.
@@ -28,14 +30,15 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #'                   which to load the modules. If not specified, the module
 #'                   load order will be determined automatically.
 #'
-#' @return A \code{simList} simulation object, pre-initialized from values specified
-#' in the arguments supplied.
+#' @return A \code{simList} simulation object, pre-initialized from values
+#' specified in the arguments supplied.
 #'
 #' @seealso \code{\link{spades}}.
 #'
 #' @include module-dependencies-class.R
-#' @importFrom magrittr '%>%'
 #' @include simList.R
+#' @include environment.R
+#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -51,15 +54,15 @@ if(getRversion() >= "3.1.0") utils::globalVariables(".")
 #'  mySim
 #' }
 #'
-setGeneric("simInit", function(times, params, modules, path, loadOrder) {
+setGeneric("simInit", function(times, params, modules, objects, path, loadOrder) {
     standardGeneric("simInit")
 })
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="list", params="list", modules="list",
+          signature(times="list", params="list", modules="list", objects="list",
                     path="character", loadOrder="character"),
-          definition=function(times, params, modules, path, loadOrder) {
+          definition=function(times, params, modules, objects, path, loadOrder) {
 
             path <- checkPath(path, create=TRUE)
 
@@ -72,10 +75,9 @@ setMethod("simInit",
             dotParamsChar <- list(".savePath", ".saveObjects")
             dotParams <- append(dotParamsChar, dotParamsReal)
 
-            # create new simList object
-            sim <- new("simList", simtimes=list(current=times$start,
-                                                start=times$start,
-                                                stop=times$stop))
+            sim <- new("simList")
+
+            simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
             # assign some core & global params only for now
@@ -123,7 +125,7 @@ setMethod("simInit",
               })
 
               # evaluate the rest of the parsed file
-              eval(parsedFile[!defineModuleItem], envir=.GlobalEnv)
+              eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
             }
 
             # assign user-specified non-global params, while
@@ -194,46 +196,92 @@ setMethod("simInit",
             # check the parameters supplied by the user
             checkParams(sim, core, dotParams, path) # returns invisible TRUE/FALSE
 
+            if(length(objects)>0) {
+              changeObjEnv(x = objects, toEnv = simEnv(sim), fromEnv = .GlobalEnv,
+                         rmSrc=getOption("spades.lowMemory"))
+            }
             return(invisible(sim))
 })
 
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    path="missing", loadOrder="character"),
+                    objects="list", path="character", loadOrder="missing"),
+          definition=function(times, params, modules, objects, path) {
+            sim <- simInit(times=times, params=params, modules=modules,
+                           objects=objects, path=path, loadOrder=character())
+            return(invisible(sim))
+})
+
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="list", params="list", modules="list",
+                    objects="list", path="missing", loadOrder="character"),
+          definition=function(times, params, modules, objects, loadOrder) {
+            sim <- simInit(times=times, params=params, modules=modules,
+                           objects=objects, path="./", loadOrder=loadOrder)
+            return(invisible(sim))
+})
+
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="list", params="list", modules="list",
+                    objects="missing", path="character", loadOrder="character"),
+          definition=function(times, params, modules, path, loadOrder) {
+            sim <- simInit(times=times, params=params, modules=modules,
+                           objects=list(), path=path, loadOrder=loadOrder)
+            return(invisible(sim))
+})
+
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="list", params="list", modules="list",
+                    objects="list", path="missing", loadOrder="missing"),
+          definition=function(times, params, modules, objects) {
+            sim <- simInit(times=times, params=params, modules=modules,
+                           objects=objects, path="./", loadOrder=character())
+            return(invisible(sim))
+})
+
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="list", params="list", modules="list",
+                    objects="missing", path="missing", loadOrder="character"),
           definition=function(times, params, modules, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           path="./", loadOrder=loadOrder)
+                           objects=list(), path="./", loadOrder=loadOrder)
             return(invisible(sim))
 })
 
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    path="character", loadOrder="missing"),
+                    objects="missing", path="character", loadOrder="missing"),
           definition=function(times, params, modules, path) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           path=path, loadOrder=character())
+                           objects=list(), path=path, loadOrder=character())
             return(invisible(sim))
 })
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="list", params="list", modules="list", path="missing", loadOrder="missing"),
+          signature(times="list", params="list", modules="list",
+                    objects="missing", path="missing", loadOrder="missing"),
           definition=function(times, params, modules) {
-            sim <- simInit(times=times, params=params, modules=modules, path="./", loadOrder=character())
+            sim <- simInit(times=times, params=params, modules=modules,
+                           objects=list(), path="./", loadOrder=character())
             return(invisible(sim))
 })
 
 #' @rdname simInit
 setMethod("simInit",
-          signature(times="missing", params="missing", modules="missing", path="missing", loadOrder="missing"),
-          definition=function(times, params, modules) {
+          signature(times="missing", params="missing", modules="missing",
+                    objects="missing", path="missing", loadOrder="missing"),
+          definition=function() {
             sim <- simInit(times=list(start=0, stop=1),
                            params=list(),
                            modules=list(),
-                           path="./",
-                           loadOrder=character())
+                           objects=list(), path="./", loadOrder=character())
             return(invisible(sim))
 })
 
@@ -267,14 +315,16 @@ setGeneric("reloadModuleLater", function(sim, depends) {
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
           signature(sim="simList", depends="NULL"),
-          definition=function(sim, depends) {
-            return(FALSE)
+            definition=function(sim, depends) {
+              stopifnot(class(sim) == "simList")
+              return(FALSE)
 })
 
 #' @rdname loadmodules
 setMethod("reloadModuleLater",
-          signature(sim="simList", depends="character"),
+        signature(sim="simList", depends="character"),
           definition=function(sim, depends) {
+            stopifnot(class(sim) == "simList")
             # deprecated in v0.6.0
             .Deprecated(msg=paste0("Warning: 'reloadModuleLater' is deprecated.\n",
                         "Module dependencies should be specified using 'defineModule'"))
@@ -320,6 +370,8 @@ setGeneric("doEvent", function(sim, debug) {
 setMethod("doEvent",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
+            stopifnot(class(sim) == "simList")
+
             # get next event
             nextEvent <- simEvents(sim)[1L, ] # extract the next event from queue
 
@@ -367,6 +419,7 @@ setMethod("doEvent",
 setMethod("doEvent",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {
+            stopifnot(class(sim) == "simList")
             return(doEvent(sim, debug=FALSE))
 })
 
@@ -438,6 +491,7 @@ setMethod("scheduleEvent",
           signature(sim="simList", eventTime="NULL",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
+            stopifnot(class(sim) == "simList")
             warning(paste("Invalid or missing eventTime. This is usually",
                           "caused by an attempt to scheduleEvent at time NULL",
                           "or by using an undefined parameter."))
@@ -488,16 +542,18 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            while(simCurrentTime(sim) %<=% simStopTime(sim)) {
-              sim <- doEvent(sim, debug)  # process the next event
+            with(simEnv(sim),
+              while(simCurrentTime(sim) %<=% simStopTime(sim)) {
+                sim <- doEvent(sim, debug)  # process the next event
 
-              # print debugging info
-              #  this can, and should, be more sophisticated;
-              #  i.e., don't simply print the entire object
-              if (debug) {
-                  print(sim)
+                # print debugging info
+                #  this can, and should, be more sophisticated;
+                #  i.e., don't simply print the entire object
+                if (debug) {
+                    print(sim)
+                }
               }
-            }
+            )
           return(invisible(sim))
 })
 
@@ -505,5 +561,6 @@ setMethod("spades",
 setMethod("spades",
           signature(sim="simList", debug="missing"),
           definition=function(sim) {
+            stopifnot(class(sim) == "simList")
             return(spades(sim, debug=FALSE))
 })

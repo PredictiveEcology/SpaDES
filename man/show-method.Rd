@@ -3,14 +3,14 @@
 \docType{methods}
 \name{show,simList-method}
 \alias{show,simList-method}
-\title{show simList}
+\title{Show an Object}
 \usage{
 \S4method{show}{simList}(object)
 }
 \arguments{
-\item{object}{Any R object}
+\item{object}{\code{simList}}
 }
 \description{
-show simList
+Show an Object
 }
 

@@ -93,6 +93,7 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{simList-class}},
+         \code{\link{simList-accessors-envir}},
          \code{\link{simList-accessors-params}},
          \code{\link{simList-accessors-events}},
          \code{\link{simList-accessors-times}}.

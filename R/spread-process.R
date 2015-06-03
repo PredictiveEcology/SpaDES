@@ -21,8 +21,8 @@
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
 #'                      not implemented.
 #'
-#' @param maxSize       The maximum number of pixels for a fire. This is currently
-#'                      only a single number, not one for each spread event
+#' @param maxSize       Vector of the maximum number of pixels for a single or all events to be spread.
+#'                      Recycled to match \code{loci} length.
 #'
 #' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
 #'
@@ -44,17 +44,17 @@
 #' @aliases spread
 #' @rdname spread
 #'
-setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.23,
-                              persistence=0, mask=NULL, maxSize=ncell(landscape),
-                              directions=8, iterations=NULL, ...) {
+setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
+                              persistence=0L, mask=NULL, maxSize=NULL,
+                              directions=8L, iterations=NULL, ...) {
   standardGeneric("spread")
 })
 
 #' @param plot.it    If TRUE, then plot the raster at every iteraction, so one can watch the
 #' spread event grow.
 #'
-#' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
-#' the returned map is the iteration number that the pixel burned
+#' @param mapID  Logical. If TRUE, returns a raster of events ids. If FALSE,
+#' returns a raster of iteration numbers, i.e. the spread history of one or more events.
 #'
 #' @importFrom methods is
 #' @import raster
@@ -109,54 +109,57 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 setMethod("spread",
           signature(landscape="RasterLayer"),
           definition = function(landscape, loci, spreadProb, persistence,
-                                mask, maxSize=ncell(landscape), directions=8,
-                                iterations=ncell(landscape), mapID=FALSE,
+                                mask, maxSize,
+                                directions=8L, iterations = NULL, mapID=FALSE,
                                 plot.it=FALSE, ...) {
             ### should sanity check map extents
-
             if (is.null(loci))  {
               # start it in the centre cell
-              loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
+              loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
             }
 
             if(is(spreadProb,"RasterLayer")) {
-              if (minValue(spreadProb)>1) stop("spreadProb is not a probability")
-              if (maxValue(spreadProb)<0) stop("spreadProb is not a probability")
+              if (minValue(spreadProb)>1L) stop("spreadProb is not a probability")
+              if (maxValue(spreadProb)<0L) stop("spreadProb is not a probability")
             } else {
               if (!inRange(spreadProb)) stop("spreadProb is not a probability")
             }
 
-            spreads <- rep_len(0, ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
+            ## Recycling maxSize as needed
+            maxSize <- if(!is.null(maxSize)) { rep_len(maxSize, length(loci))} else {10*ncell(landscape)}
 
+            spreads <- vector("integer", ncell(landscape))
 
-            n <- 1
+            n <- 1L
             if (mapID) {
-              spreads[loci] <- 1:length(loci)
+              spreads[loci] <- 1L:length(loci)
+              if(length(maxSize) > 1L){
+                size <- rep_len(1L, length(loci))
+              } else {
+                size <- length(loci)
+              }
             } else {
               spreads[loci] <- n
-            }
-            size <- length(loci)
-
-            if (is.null(iterations)) {
-              iterations <- Inf # this is a stupid way to do this!
+              size <- length(loci)
             }
 
             # Convert mask and NAs to 0 on the spreadProb Raster
             if (is(spreadProb, "Raster")) {
-              spreadProb[is.na(spreadProb)]<-0
+              spreadProb[is.na(spreadProb)]<-0L
               if(!is.null(mask)) {
-                spreadProb[mask==1]<-0
+                spreadProb[mask==1L]<-0L
               }
             } else if (is.numeric(spreadProb)) { # Translate numeric spreadProb into a Raster
               #  if there is a mask Raster
               if(!is.null(mask)) {
                 spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
-                spreadProb[mask==1]<-0
+                spreadProb[mask==1L]<-0L
               }
             }
 
+            while (length(loci)) { # while there are active cells
 
-            while ( (length(loci)>0) & (iterations>=n) ) {
+              # identify neighbours
               if (mapID) {
                 potentials <- adj(landscape, loci, directions, pairs=TRUE)
               } else {
@@ -164,82 +167,73 @@ setMethod("spread",
                 potentials <- cbind(NA, adj(landscape, loci, directions,
                                             pairs=FALSE))
               }
-              #browser()
+
+              # keep only neighbours that have not been spread to yet
+              potentials <- potentials[spreads[potentials[,2L]]==0L,,drop=FALSE]
 
 
-              #if there is only one potential, R converts this to a vector, instead of a matrix.
-              # Force it back to a matrix
-#              if(length(potentials)==2) {
-#                potentials <- matrix(potentials,ncol=2)
-#              }
-
-              # drop those ineligible
-              #              if (!is.null(mask))
-              #                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
-
-              # only accept cells that have no fire yet
-              # Need to call matrix because of the cast where there is only one cell
-              #potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
-              potentials <- potentials[spreads[potentials[,2]]==0,,drop=FALSE]
-
-              # If one pixels is selected as potential by more than one source
-              #  Remove the duplication, and reorder the potentials so that it is not
-              #  always the "first one", i.e., closest to top left of map, that is kept.
-              if(nrow(potentials)>0) {
-                potentials <- potentials[sample.int(nrow(potentials)),,drop=FALSE]
-              }
-              potentials <- potentials[!duplicated(potentials[,2]),,drop=FALSE]
-
-
-              # select which potentials actually happened
-              # nrow() only works if potentials is an array
               if (is.numeric(spreadProb)) {
-                #  ItHappened <- runif(nrow(potentials)) <= spreadProb
                 spreadProbs <- spreadProb
               } else {
-                spreadProbs <- spreadProb[potentials[,2]]
-                #spreadProbs <- spreadProbs[is.na(spreadProbs)]<-0
+                spreadProbs <- spreadProb[potentials[,2L]]
               }
 
-              #If there is only 1 event, R turns the matrix into a vector
-              if(is(potentials,"matrix")) {
-                ItHappened <- runif(nrow(potentials))<=spreadProbs
-                events <- potentials[ItHappened,2]
-              } else {
-                ItHappened <- runif(1)<=spreadProbs
-                events <- potentials[2]
-              }
+              potentials <- potentials[runif(NROW(potentials)) <= spreadProbs,,drop=FALSE]
+              potentials <- potentials[sample.int(NROW(potentials)),,drop=FALSE]
+              potentials <- potentials[!duplicated(potentials[,2L]),,drop=FALSE]
+              events <- potentials[,2L]
 
               # Implement maxSize
-              len <- length(events)
-              if((size+len) > maxSize) {
-                keep<-len - ((size+len) - maxSize)
-                events<-events[sample(len,keep)]
+              if(length(maxSize) == 1L){
+                len <- length(events)
+                if((size+len) > maxSize) {
+                  keep <- len - ((size+len) - maxSize)
+                  samples <- sample(len,keep)
+                  events <- events[samples]
+                  potentials <- potentials[samples,,drop=FALSE]
+                }
+                size <- size + length(events)
+              } else {
+                len <- tabulate(spreads[potentials[,1L]], length(maxSize))
+                if(any((size + len) > maxSize & size < maxSize)){
+                  whichID <- which(size + len > maxSize)
+                  toRm <- (size + len)[whichID] - maxSize[whichID]
+
+                  for(i in 1:length(whichID)){
+                    thisID <- which(spreads[potentials[,1L]] == whichID[i])
+                    potentials <- potentials[-sample(thisID, toRm[i]),,drop = FALSE]
+                  }
+                  events <- potentials[,2L]
+                }
+                size <- pmin(size + len, maxSize) ## Quick? and dirty, fast but loose (too flexible)
               }
 
-              size <- size + length(unique(events))
+              # size <- size + length(unique(events))
 
               # update eligibility map
 
-              n <- n+1
+              n <- n+1L
 
               if (mapID) {
-                if(is(potentials,"matrix")) {
-                  spreads[events] <- spreads[potentials[ItHappened,1]]
-                } else {
-                  spreads[events] <- spreads[potentials[1]]
-                }
+                spreads[events] <- spreads[potentials[,1L]]
               } else {
                 spreads[events] <- n
               }
 
+              if(length(maxSize) > 1L){
+                if(exists("whichID")){
+                  events <- events[!spreads[events] %in% whichID]
+                  rm(whichID)
+                }
 
-              if(size >= maxSize) {
-                events <- NULL
+              } else {
+                if(size >= maxSize) {
+                  events <- NULL
+                }
               }
 
               # drop or keep loci
-              if (is.null(persistence) | is.na(persistence) | persistence == 0) {
+              if (is.null(persistence) | is.na(persistence) | persistence == 0L) {
                 loci <- NULL
               } else {
                 if (inRange(persistence)) {

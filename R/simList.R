@@ -8,7 +8,17 @@
 #' easier to add simulation components (i.e., "simulation modules").
 #'
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
-#' \code{\link{data.frame}} to implement the event queue (because it is much faster).
+#' \code{\link{data.frame}} to implement the event queue (because it is much
+#' more efficient).
+#'
+#' Various slot accessor methods (i.e., get and set functions) are provided.
+#'
+#' @slot .envir     Environment referencing the objects used in the simulation.
+#'                  Several "shortcuts" to accessing objects referenced by this
+#'                  environment are provided, and can be used on the
+#'                  \code{simList} object directly instead of specifying the
+#'                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
+#'                  \code{ls.str}, \code{simObjects}. See examples.
 #'
 #' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
 #'
@@ -37,7 +47,11 @@
 #'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
 #'        }
 #'
-#' @seealso \code{\link{data.table}}.
+#' @seealso \code{\link{simList-accessors-envir}},
+#'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-events}},
+#'          \code{\link{simList-accessors-times}}.
 #'
 #' @include module-dependencies-class.R
 #' @aliases simList
@@ -50,12 +64,13 @@
 #' @author Alex Chubaty
 #'
 setClass("simList",
-         slots=list(.loadOrder="character", .loaded="list",
+         slots=list(.envir="environment", .loadOrder="character", .loaded="list",
                     modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends=".simDeps", simtimes="list"),
-         prototype=list(.loadOrder=character(),
-                        .loaded=list(modules=as.list(NULL), objects=as.list(NULL)),
+         prototype=list(.envir=new.env(parent=emptyenv()),
+                        .loadOrder=character(),
+                        .loaded=list(modules=as.list(NULL)),
                         modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
                                     .progress=list(graphical=NULL, interval=NULL)),
@@ -73,76 +88,256 @@ setClass("simList",
            }
 })
 
-### show is already defined in the methods package
-#' show simList
+### `initialize` generic is already defined in the methods package
+#' Generate a \code{simList} object
 #'
-#' @param object  Any R object
+#' Given the name or the definition of a class, plus optionally data to be
+#' included in the object, \code{new} returns an object from that class.
+#'
+#' @param .Object  A \code{simList} object.
+#' @include misc-methods.R
+#' @export
+#' @docType methods
+#' @rdname initialize-method
+setMethod("initialize",
+          signature(.Object = "simList"),
+          definition=function(.Object) {
+            .Object@.envir <- new.env(parent=.GlobalEnv)
+            return(.Object)
+})
+
+### `show` generic is already defined in the methods package
+#' Show an Object
+#'
+#' @param object  \code{simList}
 #'
 #' @export
+#' @docType methods
+#' @rdname show-method
 setMethod("show",
           signature="simList",
           definition=function(object) {
-            out = list()
+
+            out <- list()
 
             ### hr
-            out[[1]] = capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
+            out[[1]] <- capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
 
             ### simulation dependencies
-            out[[2]] = capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] = "use `simDepends(sim)` to view dependencies for each module"
-            out[[4]] = capture.output(cat("\n"))
+            out[[2]] <- capture.output(cat(">> Simulation dependencies:\n"))
+            out[[3]] <- "use `simDepends(sim)` to view dependencies for each module"
+            out[[4]] <- capture.output(cat("\n"))
 
             ### simtimes
-            out[[5]] = capture.output(cat(">> Simulation times:\n"))
-            out[[6]] = capture.output(print(rbind(simTimes(object))))
-            out[[7]] = capture.output(cat("\n"))
+            out[[5]] <- capture.output(cat(">> Simulation times:\n"))
+            out[[6]] <- capture.output(print(rbind(simTimes(object))))
+            out[[7]] <- capture.output(cat("\n"))
 
             ### modules loaded
-            out[[8]] = capture.output(cat(">> Modules:\n"))
-            out[[9]] = capture.output(print(cbind(ModuleName=simModules(object),
-                                                  IsLoaded=simModules(object) %in%
-                                                    simModulesLoaded(object)),
-                                            quote=FALSE, row.names=FALSE))
-            out[[10]] = capture.output(cat("\n"))
+            out[[8]] <- capture.output(cat(">> Modules:\n"))
+            out[[9]] <- capture.output(print(cbind(ModuleName=simModules(object),
+                                                   IsLoaded=simModules(object) %in%
+                                                     simModulesLoaded(object)),
+                                             quote=FALSE, row.names=FALSE))
+            out[[10]] <- capture.output(cat("\n"))
 
             ### objects loaded
-            out[[11]] = capture.output(cat(">> Objects Loaded:\n"))
-            out[[12]] = capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
-                                            quote=FALSE, row.names=FALSE))
-            out[[13]] = capture.output(cat("\n"))
+            out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
+            out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
+                                              quote=FALSE, row.names=FALSE))
+            out[[13]] <- capture.output(cat("\n"))
 
             ### params
-            omit = which(names(simParams(object))==".load" |
-                           names(simParams(object))==".progress")
+            omit <- which(names(simParams(object))==".load" |
+                            names(simParams(object))==".progress")
 
-            p = mapply(function(x, y) {
+            p <- mapply(function(x, y) {
               data.frame(Module=x, Parameter=names(y), Value=unlist(y),
                          stringsAsFactors=FALSE, row.names=NULL)
             },
             x=names(simParams(object))[-omit], y=simParams(object)[-omit],
             USE.NAMES=TRUE, SIMPLIFY=FALSE)
-            if (length(p)>0) {
+            if (length(p)) {
               q = do.call(rbind, p)
               q = q[order(q$Module, q$Parameter),]
             } else {
               q = cbind(Module=list(), Parameter=list())
             }
-            out[[14]] = capture.output(cat(">> Parameters:\n"))
-            out[[15]] = capture.output(print(q, row.names=FALSE))
-            out[[16]] = capture.output(cat("\n"))
+            out[[14]] <- capture.output(cat(">> Parameters:\n"))
+            out[[15]] <- capture.output(print(q, row.names=FALSE))
+            out[[16]] <- capture.output(cat("\n"))
 
             ### completed events
-            out[[17]] = capture.output(cat(">> Completed Events:\n"))
-            out[[18]] = capture.output(print(simCompleted(object)))
-            out[[19]] = capture.output(cat("\n"))
+            out[[17]] <- capture.output(cat(">> Completed Events:\n"))
+            out[[18]] <- capture.output(print(simCompleted(object)))
+            out[[19]] <- capture.output(cat("\n"))
 
             ### scheduled events
-            out[[20]] = capture.output(cat(">> Scheduled Events:\n"))
-            out[[21]] = capture.output(print(simEvents(object)))
-            out[[22]] = capture.output(cat("\n"))
+            out[[20]] <- capture.output(cat(">> Scheduled Events:\n"))
+            out[[21]] <- capture.output(print(simEvents(object)))
+            out[[22]] <- capture.output(cat("\n"))
+
+            ### list stored objects
+            out[[23]] <- capture.output(cat(">> Objects stored:\n"))
+            out[[24]] <- capture.output(print(ls.str(simEnv(object))))
+            out[[25]] <- capture.output(cat("\n"))
 
             ### print result
             cat(unlist(out), fill=FALSE, sep="\n")
+})
+
+### `ls` generic is already defined in the base package
+#' List simulation objects
+#'
+#' Return a vector of character strings giving the names of the objects in the
+#' specified simulation environment.
+#' Can be used with a \code{simList} object, because the method for this class
+#' is simply a wrapper for calling \code{ls} on the simulation environment
+#' stored in the \code{simList} object.
+#'
+#' @param name  A \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname ls-method
+ls.simList <- function(name) {
+  ls(simEnv(name))
+}
+
+#' @rdname ls-method
+setMethod("ls",
+          signature(name="simList"),
+          definition=function(name) {
+            ls.simList(name)
+})
+
+### `ls.str` generic is already defined in the utils package
+#' List simulation objects and their structure
+#'
+#' A variation of applying \code{\link{str}} to each matched name.
+#' Can be used with a \code{simList} object, because the method for this class
+#' is simply a wrapper for calling \code{ls} on the simulation environment
+#' stored in the \code{simList} object.
+
+#' @param name  A \code{simList} object.
+#'
+#' @export
+#' @docType methods
+#' @rdname ls_str-method
+ls.str.simList <- function(name) {
+  ls.str(simEnv(name))
+}
+
+#' @rdname ls_str-method
+setMethod("ls.str",
+          signature(pos="missing", name="simList"),
+          definition=function(name) {
+            ls.str.simList(name=name)
+})
+
+###############################################################################
+#' Extract or replace parts of an object from the simulation environment
+#'
+#' @param x      object from which to extract element(s) or in which to replace element(s).
+#' @param i      indices specifying elements to extract or replace.
+#' @param j      see \code{i}.
+#' @param ...    see \code{i}.
+#' @param name   A literal character string or a \code{\link{name}}.
+#' @param drop   not implemented.
+#' @param value  Any R object.
+#'
+#' @export
+#' @name [[
+#' @aliases [[,simList,ANY,ANY-method
+#' @docType methods
+#' @rdname simList-extract-methods
+setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
+          definition=function(x, i, j, ..., drop) {
+            return(x@.envir[[i]])
+})
+
+#' @export
+#' @name [[<-
+#' @aliases [[<-,simList,ANY,ANY-method
+#' @rdname simList-extract-methods
+setReplaceMethod("[[", signature(x="simList", value="ANY"),
+                 definition=function(x, i, value) {
+                   assign(i, value, envir=x@.envir, inherits=FALSE)
+                   return(x)
+})
+
+#' @export
+#' @name $
+#' @aliases $,simList-method
+#' @rdname simList-extract-methods
+setMethod("$", signature(x="simList"),
+          definition=function(x, name) {
+            return(x@.envir[[name]])
+})
+
+#' @export
+#' @name $<-
+#' @aliases $<-,simList-method
+#' @rdname simList-extract-methods
+setReplaceMethod("$", signature(x="simList", value="ANY"),
+                 definition=function(x, name, value) {
+                   x@.envir[[name]] <- value
+                   return(x)
+})
+
+################################################################################
+#' Simulation environment
+#'
+#' Accessor functions for the \code{.envir} slot in a \code{simList} object.
+#' These are included for advanced users.
+#'
+#' Currently, only get and set methods are defined. Subset methods are not.
+#'
+#' @param object A \code{simList} simulation object.
+#'
+#' @param value The object to be stored at the slot.
+#'
+#' @return Returns or sets the value of the slot from the \code{simList} object.
+#'
+#' @seealso \code{\link{simList-class}},
+#'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-events}},
+#'          \code{\link{simList-accessors-times}}.
+#' @export
+#' @docType methods
+#' @aliases simList-accessors-envir
+#' @rdname simList-accessors-envir
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("simEnv", function(object) {
+  standardGeneric("simEnv")
+})
+
+#' @rdname simList-accessors-envir
+setMethod("simEnv",
+          signature="simList",
+          definition=function(object) {
+            return(object@.envir)
+})
+
+#' @export
+#' @rdname simList-accessors-envir
+setGeneric("simEnv<-",
+           function(object, value) {
+             standardGeneric("simEnv<-")
+})
+
+#' @name simEnv<-
+#' @aliases simEnv<-,simList-method
+#' @rdname simList-accessors-envir
+setReplaceMethod("simEnv",
+                 signature="simList",
+                 function(object, value) {
+                   object@.envir <- value
+                   validObject(object)
+                   return(object)
 })
 
 ################################################################################
@@ -168,6 +363,7 @@ setMethod("show",
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
+#'          \code{\link{simList-accessors-envir}},
 #'          \code{\link{simList-accessors-params}},
 #'          \code{\link{simList-accessors-events}},
 #'          \code{\link{simList-accessors-times}}.
@@ -347,6 +543,63 @@ setReplaceMethod("simObjectsLoaded",
                  signature="simList",
                  function(object, value) {
                    object@.loaded$objects <- value
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
+#' Show objects referenced in the simulation environment
+#'
+#' @inheritParams simEnv
+#'
+#' @param ... arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}
+#'
+#' @return Returns or sets a list of objects in the \code{simList} environment.
+#'
+#' @seealso \code{\link{simList-class}},
+#'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-events}},
+#'          \code{\link{simList-accessors-times}}.
+#'
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-envir
+setGeneric("simObjects", function(object, ...) {
+  standardGeneric("simObjects")
+})
+
+#' @rdname simList-accessors-envir
+setMethod("simObjects",
+          signature="simList",
+          definition=function(object, ...) {
+            x <- lapply(ls(simEnv(object), ...), function(x) {
+              eval(parse(text=x), envir=simEnv(object))
+            })
+            names(x) <- ls(simEnv(object), ...)
+            return(x)
+})
+
+#' @export
+#' @rdname simList-accessors-envir
+setGeneric("simObjects<-",
+           function(object, value) {
+             standardGeneric("simObjects<-")
+})
+
+#' @name simObjects<-
+#' @aliases simObjects<-,simList-method
+#' @rdname simList-accessors-envir
+setReplaceMethod("simObjects",
+                 signature="simList",
+                 function(object, value) {
+                   if (is.list(value)) {
+                     lapply(value, function(x) {
+                       object@.envir[[names(x)]] <- x
+                     })
+                   } else {
+                     object@.envir[[names(value)]] <- value
+                   }
                    validObject(object)
                    return(object)
 })
@@ -686,9 +939,11 @@ setReplaceMethod("simGlobalsOutputPath",
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-envir}},
 #'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
 #'          \code{\link{simList-accessors-events}}.
+#'
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-times
@@ -858,9 +1113,11 @@ setReplaceMethod("simStopTime",
 #' @return Returns or sets the value of the slot from the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
-#'          \code{\link{simList-accessors-params}},
+#'          \code{\link{simList-accessors-envir}},
 #'          \code{\link{simList-accessors-modules}},
+#'          \code{\link{simList-accessors-params}},
 #'          \code{\link{simList-accessors-times}}.
+#'
 #' @export
 #' @docType methods
 #' @aliases simList-accessors-events
@@ -1024,7 +1281,11 @@ setMethod("defineModule",
 #'
 #' @examples
 #' \dontrun{
-#'   defineParameter("lambda", "numeric", 1e-3)
+#'   rbind(
+#'    defineParameter("lambda", "numeric", 1.23),
+#'    defineParameter("mu", "numeric", 1e-3),
+#'    defineParameter("nu", "numeric", 1e-2)
+#'   )
 #' }
 #'
 setGeneric("defineParameter", function(name, class, default) {

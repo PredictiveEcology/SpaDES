@@ -30,6 +30,8 @@ of the \code{objName} and \code{layerName}}
 
 \item{\code{objName}}{character. Name of object represented by this .spadesGrob}
 
+\item{\code{envir}}{environment. The environment in which to find the objName}
+
 \item{\code{layerName}}{character. Name of the layer represented by this .spadesGrob. Primarily
 used for RasterStacks}
 

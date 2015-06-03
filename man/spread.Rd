@@ -6,13 +6,12 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci = ncell(landscape)/2, spreadProb = 0.23,
-  persistence = 0, mask = NULL, maxSize = ncell(landscape),
-  directions = 8, iterations = NULL, ...)
+spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
+  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
-  maxSize = ncell(landscape), directions = 8,
-  iterations = ncell(landscape), mapID = FALSE, plot.it = FALSE, ...)
+  maxSize, directions = 8L, iterations = NULL, mapID = FALSE,
+  plot.it = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -28,8 +27,8 @@ driven.}
                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
                      not implemented.}
 
-\item{maxSize}{The maximum number of pixels for a fire. This is currently
-                     only a single number, not one for each spread event}
+\item{maxSize}{Vector of the maximum number of pixels for a single or all events to be spread.
+                     Recycled to match \code{loci} length.}
 
 \item{directions}{The number adjacent cells in which to look; default is 8 (Queen case).}
 
@@ -38,8 +37,8 @@ driven.}
 
 \item{...}{Additional parameters.}
 
-\item{mapID}{Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
-the returned map is the iteration number that the pixel burned}
+\item{mapID}{Logical. If TRUE, returns a raster of events ids. If FALSE,
+returns a raster of iteration numbers, i.e. the spread history of one or more events.}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction, so one can watch the
 spread event grow.}

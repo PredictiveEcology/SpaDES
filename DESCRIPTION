@@ -7,12 +7,11 @@ Description: Easily implement a variety of simulation models, with a focus on
     modularity, and easily enables the user to include additional functionality
     by running user-built simulation modules. Included are numerous tools to
     visualize raster and other maps. The suggested package `fastshp` can be
-    installed with `devtools::install_github("s-u/fastshp")`; installation of
-    development packages on Windows requires Rtools
-    (http://cran.r-project.org/bin/windows/Rtools).
+    installed with `install.packages("fastshp", repos="http://rforge.net",
+    type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.6.2.9000
-Date: 2015-05-15
+Version: 1.0.0.9002
+Date: 2015-06-01
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -23,8 +22,9 @@ Authors@R: c(
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
     role="cph")
     )
+Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.1.2),
+    R (>= 3.2.0),
     data.table,
     grid,
     raster
@@ -55,16 +55,17 @@ License: GPL-3
 Collate:
     'agent.R'
     'SELES.R'
+    'module-dependencies-class.R'
+    'misc-methods.R'
+    'simList.R'
+    'check.R'
     'environment.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
-    'module-dependencies-class.R'
-    'simList.R'
     'simulation.R'
     'load.R'
     'mapReduce.R'
-    'misc-methods.R'
     'module-dependencies-methods.R'
     'module-repository.R'
     'module-template.R'

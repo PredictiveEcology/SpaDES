@@ -1,4 +1,8 @@
-################################################################################
+##
+## NOTE: we also use the `fpCompare` package for numerical comparisons
+##
+
+###############################################################################
 #' Test whether a number lies within range \code{[a,b]}
 #'
 #' Default values of \code{a=0; b=1} allow for quick test if

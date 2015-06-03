@@ -3,28 +3,44 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,list,list,list,character,character-method}
-\alias{simInit,list,list,list,character,missing-method}
-\alias{simInit,list,list,list,missing,character-method}
-\alias{simInit,list,list,list,missing,missing-method}
-\alias{simInit,missing,missing,missing,missing,missing-method}
+\alias{simInit,list,list,list,list,character,character-method}
+\alias{simInit,list,list,list,list,character,missing-method}
+\alias{simInit,list,list,list,list,missing,character-method}
+\alias{simInit,list,list,list,list,missing,missing-method}
+\alias{simInit,list,list,list,missing,character,character-method}
+\alias{simInit,list,list,list,missing,character,missing-method}
+\alias{simInit,list,list,list,missing,missing,character-method}
+\alias{simInit,list,list,list,missing,missing,missing-method}
+\alias{simInit,missing,missing,missing,missing,missing,missing-method}
 \title{Initialize a new simulation}
 \usage{
-simInit(times, params, modules, path, loadOrder)
+simInit(times, params, modules, objects, path, loadOrder)
 
-\S4method{simInit}{list,list,list,character,character}(times, params, modules,
-  path, loadOrder)
+\S4method{simInit}{list,list,list,list,character,character}(times, params,
+  modules, objects, path, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,character}(times, params, modules,
-  loadOrder)
+\S4method{simInit}{list,list,list,list,character,missing}(times, params,
+  modules, objects, path)
 
-\S4method{simInit}{list,list,list,character,missing}(times, params, modules,
-  path)
+\S4method{simInit}{list,list,list,list,missing,character}(times, params,
+  modules, objects, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,missing}(times, params, modules)
+\S4method{simInit}{list,list,list,missing,character,character}(times, params,
+  modules, path, loadOrder)
 
-\S4method{simInit}{missing,missing,missing,missing,missing}(times, params,
+\S4method{simInit}{list,list,list,list,missing,missing}(times, params, modules,
+  objects)
+
+\S4method{simInit}{list,list,list,missing,missing,character}(times, params,
+  modules, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,character,missing}(times, params,
+  modules, path)
+
+\S4method{simInit}{list,list,list,missing,missing,missing}(times, params,
   modules)
+
+\S4method{simInit}{missing,missing,missing,missing,missing,missing}()
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and stop times
@@ -33,10 +49,12 @@ simInit(times, params, modules, path, loadOrder)
 \item{params}{A named list of simulation parameters and their values.}
 
 \item{modules}{A named list of character strings specfying the names
-of modules to be loaded for the simulation. **Note:** the module name
+of modules to be loaded for the simulation. Note: the module name
 should correspond to the R source file from which the module is loaded.
-Example: a module named "caribou" will be sourced form the file \code{caribou.R},
-located at the specified \code{path} (see below).}
+Example: a module named "caribou" will be sourced form the file
+\code{caribou.R}, located at the specified \code{path} (see below).}
+
+\item{objects}{A list of data objects to be used in the simulation.}
 
 \item{path}{An optional character string specifying the location of the module source files.
              If no path is specified, it defaults to the current working directory.}
@@ -46,8 +64,8 @@ located at the specified \code{path} (see below).}
                   load order will be determined automatically.}
 }
 \value{
-A \code{simList} simulation object, pre-initialized from values specified
-in the arguments supplied.
+A \code{simList} simulation object, pre-initialized from values
+specified in the arguments supplied.
 }
 \description{
 Create a new simulation object, preloaded with parameters, modules, times, etc.

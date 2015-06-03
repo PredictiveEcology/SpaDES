@@ -1,73 +1,12 @@
-###
-### Specify module (and dependencies) definitions:
-###
-### name:         caribouMovement
-###
-### description:  Simulate caribou movement via correlated random walk.
-###
-### keywords:     caribou; individual based movement model; correlated random walk
-###
-### authors:      Eliot J. B. McIntire <Eliot.McIntire@NRCan.gc.ca>
-###
-### version:      0.2.0
-###
-### spatialExtent: NA
-###
-### timeframe:    NA
-###
-### timestep:     31557600 (1 year)
-###
-### citation:     NA
-###
-### reqdPkgs:     grid; raster; sp
-###
-### parameters:   paramName: moveInitialTime
-###               paramClass: numeric
-###               default: 1.0
-###
-###               paramName: moveInterval
-###               paramClass: numeric
-###               default: 1.0
-###
-###               paramName: N
-###               paramClass: numeric
-###               default: 100L
-###
-###               paramName: .plotInitialTime
-###               paramClass: numeric
-###               default: 0
-###
-###               paramName: .plotInterval
-###               paramClass: numeric
-###               default: 1
-###
-###               paramName: .saveInitialTime
-###               paramClass: numeric
-###               default: NA
-###
-###               paramName: .saveInterval
-###               paramClass: numeric
-###               default: NA
-###
-### inputObjects: objectName: simGlobals(sim)$stackName
-###               objectClass: RasterStack
-###               other: layerName="habitatQuality"
-###
-### outputObjects: objectName: simGlobals(sim)$stackName
-###                objectClass: RasterStack
-###                other: layerName="habitatQuality"
-###
-###                objectName: caribou
-###                objectClass: SpatialPointsDataFrame
-###                other: NA
+stopifnot(packageVersion("SpaDES") >= "1.0.0")
 
-## caribouMovement module metadata
+## module metadata
 defineModule(sim, list(
   name="caribouMovement",
   description="Simulate caribou movement via correlated random walk.",
   keywords=c("caribou", "individual based movement model", "correlated random walk"),
   authors=c(person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("0.2.0"),
+  version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timestep=NA_real_,
@@ -96,7 +35,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(simGlobals(sim)$stackName, layer="habitatQuality")
+    checkObject(sim, simGlobals(sim)$stackName, layer="habitatQuality")
 
     # do stuff for this event
     sim <- caribouMovementInit(sim)
@@ -110,26 +49,32 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- caribouMovementMove(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(caribou, addTo="landscape$habitatQuality", new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
+    Plot(sim$caribou, addTo=paste("sim", simGlobals(sim)$stackName, "habitatQuality", sep="$"),
+         new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(caribou, addTo="landscape$habitatQuality", new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
-    Plot(caribou, new=FALSE, pch=19, size=0.1, gp=gpar(cex=0.6))
+    Plot(sim$caribou, addTo=paste("sim", simGlobals(sim)$stackName, "habitatQuality", sep="$"),
+         new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
+    Plot(sim$caribou, new=FALSE, pch=19, size=0.1, gp=gpar(cex=0.6))
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
 
   } else {
     warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
@@ -140,7 +85,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
 ## event functions
 caribouMovementInit <- function(sim) {
-  landscape <- getGlobal(simGlobals(sim)$stackName)
+  landscape <- sim[[simGlobals(sim)$stackName]]
 
   yrange <- c(ymin(landscape), ymax(landscape))
   xrange <- c(xmin(landscape), xmax(landscape))
@@ -156,22 +101,21 @@ caribouMovementInit <- function(sim) {
                   y=runif(N, yrange[1],yrange[2]))
 
   # create the caribou agent object
-  caribou <<- SpatialPointsDataFrame(coords=starts,
-                                     data=data.frame(x1, y1, sex, age))
-  row.names(caribou) <<- IDs # alternatively, add IDs as column in data.frame above
+  sim$caribou <- SpatialPointsDataFrame(coords=starts, data=data.frame(x1, y1, sex, age))
+  row.names(sim$caribou) <- IDs # alternatively, add IDs as column in data.frame above
 
   return(invisible(sim))
 }
 
 caribouMovementMove <- function(sim) {
-  landscape <- getGlobal(simGlobals(sim)$stackName)
+  landscape <- sim[[simGlobals(sim)$stackName]]
 
   # crop any caribou that went off maps
-  caribou <<- crop(caribou, landscape)
-  if(length(caribou)==0) stop("All agents are off map")
+  sim$caribou <- crop(sim$caribou, landscape)
+  if(length(sim$caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- landscape[["habitatQuality"]][caribou]
+  ex <- landscape[["habitatQuality"]][sim$caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -179,7 +123,7 @@ caribouMovementMove <- function(sim) {
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
   sd <- 30 # could be specified globally in params
 
-  caribou <<- move("crw", caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
+  sim$caribou <- move("crw", sim$caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
 
   return(invisible(sim))
 }

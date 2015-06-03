@@ -14,11 +14,21 @@ Here, we implement a discrete event simulation in a more modular fashion so it's
 easier to add simulation components (i.e., "simulation modules").
 
 We use S4 classes and methods, and use \code{\link{data.table}} instead of
-\code{\link{data.frame}} to implement the event queue (because it is much faster).
+\code{\link{data.frame}} to implement the event queue (because it is much
+more efficient).
+
+Various slot accessor methods (i.e., get and set functions) are provided.
 }
 \section{Slots}{
 
 \describe{
+\item{\code{.envir}}{Environment referencing the objects used in the simulation.
+                 Several "shortcuts" to accessing objects referenced by this
+                 environment are provided, and can be used on the
+                 \code{simList} object directly instead of specifying the
+                 \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
+                 \code{ls.str}, \code{simObjects}. See examples.}
+
 \item{\code{.loadOrder}}{Character vector of names specifying the order in which modules are to be loaded.}
 
 \item{\code{.loaded}}{List of character names specifying which modules and objects are currently loaded.}
@@ -54,6 +64,10 @@ Alex Chubaty
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 }
 \seealso{
-\code{\link{data.table}}.
+\code{\link{simList-accessors-envir}},
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-times}}.
 }
 

@@ -6,12 +6,9 @@
 #'
 .spadesEnv <- new.env(parent=emptyenv())
 
-#' Assign to the global environment
+#' Assign to the internal SpaDES environment.
 #'
-#' Simple wrapper for \code{\link{assign}}.
-#'
-#' If value is omitted, then the function will get a local object with
-#' name = \code{x}, via \code{get(x, envir=parent.frame())}
+#' Internal function. Simple wrapper for \code{\link{assign}}.
 #'
 #' @param x   a variable name, given as a character string.
 #'            No coercion is done, and the first element of a character vector
@@ -21,91 +18,6 @@
 #'              \code{get(x)} in the same environment as the calling environment.
 #'
 #' @param ... Additional arguments to pass to \code{assign}.
-#'
-#' @export
-#' @docType methods
-#' @rdname assignGlobal
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("assignGlobal", function(x, value, ...) {
-  standardGeneric("assignGlobal")
-})
-
-#' @rdname assignGlobal
-setMethod("assignGlobal",
-          signature(x="character", value="ANY"),
-          definition=function(x, value, ...) {
-            assign(x, value, envir=.GlobalEnv, ...)
-})
-
-#' @rdname assignGlobal
-setMethod("assignGlobal",
-          signature(x="character", value="missing"),
-          definition=function(x, value, ...) {
-            assign(x, get(x, envir=parent.frame()), envir=.GlobalEnv, ...)
-})
-
-
-#' Is an object defined in the global environment?
-#'
-#' Simple wrapper for \code{\link{exists}}.
-#'
-#' @param x   An object name, given as a character string.
-#'            No coercion is done, and the first element of a character vector
-#'            of length greater than one will be used, with a warning.
-#'
-#' @param ... Additional arguments passed to \code{\link{exists}}
-#'
-#' @export
-#' @docType methods
-#' @rdname existsGlobal
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("existsGlobal", function(x, ...) {
-  standardGeneric("existsGlobal")
-})
-
-#' @rdname existsGlobal
-setMethod("existsGlobal",
-          signature(x="ANY"),
-          definition=function(x, ...) {
-            exists(x, envir=.GlobalEnv, ...)
-})
-
-#' Get objects from the global environment
-#'
-#' Simple wrapper for \code{\link{get}}.
-#'
-#' @param x   An object name, given as a character string.
-#'            No coercion is done, and the first element of a character vector
-#'            of length greater than one will be used, with a warning.
-#'
-#' @param ... Additional arguments passed to \code{\link{get}}
-#'
-#' @export
-#' @docType methods
-#' @rdname getGlobal
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("getGlobal", function(x, ...) {
-  standardGeneric("getGlobal")
-})
-
-#' @rdname getGlobal
-setMethod("getGlobal",
-          signature(x="ANY"),
-          definition=function(x, ...) {
-            get(x, envir=.GlobalEnv, ...)
-})
-
-#' Assign to the internal SpaDES environment.
-#'
-#' Internal function. Simple wrapper for \code{\link{assign}}.
-#'
-#' @inheritParams assignGlobal
 #'
 #' @docType methods
 #' @rdname assignSpaDES
@@ -159,8 +71,7 @@ setMethod(".existsSpaDES",
 #'
 #' Internal function. Simple wrapper for \code{\link{get}}.
 #'
-#' @param x   For \code{getGlobal}, an object name (given as a character string).
-#'            For \code{mgetGlobal}, a character vector of object names.
+#' @param x   an object name (given as a character string).
 #'
 #' @param ... Additional arguments to pass to \code{get}.
 #'
@@ -179,4 +90,103 @@ setMethod(".getSpaDES",
           signature(x="ANY"),
           definition=function(x, ...) {
             get(x, envir=.spadesEnv, ...)
+})
+
+
+#' Copy or move objects from one environment to another
+#'
+#' This will copy or move (if \code{rmSrc=TRUE}) objects passed as a character string to a
+#' different environment. This is used with a \code{spades} call to copy or move objects to the
+#' \code{simEnv} environment object.
+#'
+#' @param x objects passed as character string vector
+#'
+#' @param toEnv environment to copy or move to
+#'
+#' @param fromEnv environment to copy or move from
+#'
+#' @param rmSrc should the source copies of the objects be removed. Default is FALSE.
+#'
+#' @docType methods
+#' @name changeObjEnv
+#' @export
+#' @rdname changeObjEnv
+#'
+#' @author Eliot Mcintire
+#'
+#' @examples
+#'   a1 <- a2 <- a3 <- a4<- 1:1e3
+#'   objs <- c("a1", "a2", "a3", "a4")
+#'   e <- new.env()
+#'
+#'   #move objects from .GlobalEnv to e
+#'   changeObjEnv(objs, e)
+#'
+#'   #move objects back to .GlobalEnv from e
+#'   changeObjEnv(objs, .GlobalEnv, e)
+#'   rm(e)
+setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc){
+  standardGeneric("changeObjEnv")
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "environment", "missing", "missing"),
+          definition = function(x, toEnv) {
+            if(is.null(getOption("spades.lowMemory"))) {
+              options(spades.lowMemory=FALSE)
+            }
+            changeObjEnv(x, toEnv, .GlobalEnv, rmSrc=getOption("spades.lowMemory"))
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "missing", "environment", "missing"),
+          definition = function(x, fromEnv) {
+            if(is.null(getOption("spades.lowMemory"))) {
+              options(spades.lowMemory=FALSE)
+            }
+            changeObjEnv(x, .GlobalEnv, fromEnv, rmSrc=getOption("spades.lowMemory"))
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "environment", "missing", "logical"),
+          definition = function(x, toEnv, rmSrc) {
+            changeObjEnv(x, toEnv, .GlobalEnv, rmSrc)
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "missing", "environment", "logical"),
+          definition = function(x, fromEnv, rmSrc) {
+            stop("Must provide a fromEnv")
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "environment", "environment", "missing"),
+          definition = function(x, toEnv, fromEnv) {
+            if(is.null(getOption("spades.lowMemory"))) {
+              options(spades.lowMemory=FALSE)
+            }
+            changeObjEnv(x, toEnv, fromEnv, rmSrc=getOption("spades.lowMemory"))
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("list", "ANY", "ANY", "ANY"),
+          definition = function(x, toEnv, fromEnv, rmSrc) {
+            changeObjEnv(unlist(x), toEnv, fromEnv, rmSrc)
+})
+
+#' @rdname changeObjEnv
+setMethod("changeObjEnv",
+          signature = c("character", "environment", "environment", "logical"),
+          definition = function(x, toEnv, fromEnv, rmSrc) {
+            lapply(x, function(obj) {tryCatch(assign(obj, envir=toEnv,
+                                            value=eval(parse(text=obj), envir=fromEnv)),
+                                            error=function(x) warning(paste("object",obj,"not found and not copied")));
+                                     return(invisible())})
+            if (rmSrc) rm(list=x, envir=fromEnv)
 })

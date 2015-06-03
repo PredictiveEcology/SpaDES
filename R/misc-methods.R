@@ -1,8 +1,8 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") utils::globalVariables(".")
 
 #' Get the name of a source file
 #'
-#' This will only work for files that are \code{source}d.
+#' This will only work for files that are \code{source}-ed.
 #' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
 #'
 #' @param fullname Logical (default \code{FALSE}) indicating whether the full path should be returned.
@@ -224,242 +224,8 @@ setMethod("checkPath",
             stop("Invalid path: cannot be NULL.")
 })
 
-################################################################################
-#' Check for existence of a global object
-#'
-#' Check that a named object exists in the global environment, and optionally has
-#' desired attributes.
-#'
-#' @param name    A character string specifying the name of an object to be checked.
-#'
-#' @param object  An object. This is mostly used internally, or with layer,
-#'                  because it will fail if the object does not exist.
-#'
-#' @param layer   Character string, specifying a layer name in a Raster, if the
-#'                \code{name} is a Raster* object.
-#'
-#' @param ...    Additional arguments. Not implemented.
-#'
-#' @return Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
-#'
-#' @seealso \code{\link{library}}.
-#'
-#' @importFrom methods is
-#' @export
-#' @docType methods
-#' @rdname checkObject
-#'
-#' @author Alex Chubaty and Eliot McIntire
-#'
-setGeneric("checkObject", function(name, object, layer, ...) {
-  standardGeneric("checkObject")
-})
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="missing", object="Raster", layer="character"),
-          definition = function(name, object, layer, ...) {
-              if (!is.na(match(layer, names(object)))) {
-                return(invisible(TRUE))
-              } else {
-                message(paste(deparse(substitute(object, env=.GlobalEnv)), "exists, but",
-                              layer, "is not a layer"))
-                return(FALSE)
-              }
-})
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="missing", object="ANY", layer="missing"),
-          definition = function(name, object, layer, ...) {
-            if(existsGlobal(deparse(substitute(object)))) {
-              return(invisible(TRUE))
-            } else {
-              message(paste(deparse(substitute(object, env=.GlobalEnv)), "does not exist"))
-              return(FALSE)
-            }
-})
-
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="character", object="missing", layer="missing"),
-          definition = function(name, ...) {
-            if (existsGlobal(name)) {
-                return(invisible(TRUE))
-            } else {
-              message(paste(name,"does not exist in the global environment"))
-              return(FALSE)
-            }
-})
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="character", object="missing", layer="character"),
-          definition = function(name, layer, ...) {
-            if (existsGlobal(name)) {
-              if(is(getGlobal(name),"Raster")) {
-                checkObject(object=getGlobal(name), layer=layer, ...)
-              } else {
-                message(paste("The object \"",name,"\" exists, but is not
-                              a Raster, so layer is ignored",sep=""))
-                return(invisible(TRUE))
-              }
-            } else {
-              message(paste(name,"does not exist in the global environment"))
-              return(FALSE)
-            }
-})
-
-################################################################################
-#' Check use and existence of params passed to simulation.
-#'
-#' Checks that all parameters passed are used in a module,
-#' and that all parameters used in a module are passed.
-#'
-#' @param sim    A simList simulation object.
-#'
-#' @param coreModules List of core modules.
-#'
-#' @param coreParams List of default core parameters.
-#'
-#' @param path The location of the modules' source files.
-#'
-#' @param ...    Additional arguments. Not implemented.
-#'
-#' @return  Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
-#'          Sensible messages are be produced identifying missing parameters.
-#'
-#' @importFrom magrittr '%>%'
-#' @export
-#' @docType methods
-#' @rdname checkParams
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
-  standardGeneric("checkParams")
-})
-
-#' @rdname checkParams
-setMethod("checkParams",
-          signature(sim="simList", coreModules="list", coreParams="list", path="character"),
-          definition=function(sim, coreModules, coreParams, path, ...) {
-
-            params <- simParams(sim)
-            modules <- simModules(sim)
-            userModules <- modules[-which(coreModules %in% modules)]
-            globalParams <- simGlobals(sim)
-            allFound <- TRUE
-
-            if (length(userModules)) {
-              ### check whether each param in simInit occurs in a module's .R file
-              globalsFound <- list()
-              for (uM in userModules) {
-                # check global params
-                if (length(globalParams)>0) {
-                  for (i in 1:length(globalParams)) {
-                    gP <- names(globalParams[i])
-                    result <- grep(gP, readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=FALSE)
-                    if (length(result)>0) {
-                      globalsFound <- append(globalsFound, gP)
-                    }
-                  }
-                }
-
-                # check user params
-                userParams <- params[[uM]][-which(names(params[[uM]]) %in% coreParams)]
-                if (length(userParams)>0) {
-                  for (i in 1:length(userParams)) {
-                    uP <- names(userParams[i])
-                    result <- grep(uP, readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=FALSE)
-                    if (length(result)<=0) {
-                      allFound <- FALSE
-                      message(paste("Parameter", uP, "is not used in module", uM))
-                    }
-                  }
-                }
-              }
-
-              globalsFound <- unique(globalsFound)
-              notFound <- setdiff(names(globalParams), globalsFound)
-              if (length(notFound)>0) {
-                allFound <- FALSE
-                message("Global parameter(s) not used in any module: ", paste(notFound, collapse=", "), ".")
-              }
-
-              ### check whether each param in a module's .R file occurs in simInit
-              globalsFound <- list()
-              for (uM in userModules) {
-                # read in and cleanup/isolate the global params in the module's .R file
-                moduleParams <- grep("simGlobals\\(sim\\)\\$",
-                                     readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
-                                     value=TRUE) %>%
-                  strsplit(., " ") %>%
-                  unlist(lapply(., function(x) x[nchar(x)>0] )) %>%
-                  grep("simGlobals\\(sim\\)\\$", ., value=TRUE) %>%
-                  gsub(",", "", .) %>%
-                  gsub("\\)\\)", "", .) %>%
-                  gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", .) %>%
-                  gsub("^simGlobals\\(sim\\)", "", .) %>%
-                  gsub("\\)\\$.*", "", .) %>%
-                  unique(.) %>%
-                  sort(.) %>%
-                  gsub("\\$", "", .)
-
-                if (length(moduleParams)>0) {
-                  if (length(globalParams)>0) {
-                    for (i in 1:length(moduleParams)) {
-                      mP <- moduleParams[i]
-                      if (mP %in% names(globalParams)) {
-                        globalsFound <- append(globalsFound, mP)
-                      }
-                    }
-                  }
-                }
-
-                # read in and cleanup/isolate the user params in the module's .R file
-                moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
-                                     readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
-                                     value=TRUE) %>%
-                  gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", .) %>%
-                  gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
-                  gsub("]*", "", .) %>%
-                  unique(.) %>%
-                  sort(.)
-
-                if (length(moduleParams)>0) {
-                  # which params does the user supply to simInit?
-                  userParams <- sort(unlist(names(params[[uM]])))
-                  if (length(userParams)>0) {
-                    for (i in 1:length(moduleParams)) {
-                      mP <- moduleParams[i]
-                      if (!(mP %in% userParams)) {
-                        allFound <- FALSE
-                        message(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
-                      }
-                    }
-                  }
-                }
-
-                globalsFound <- unique(globalsFound)
-                notFound <- setdiff(globalsFound, names(globalParams))
-                if (length(notFound)>0) {
-                  allFound <- FALSE
-                  message(paste("The following global parameters are used in module", uM,
-                                "but not supplied to simInit in .globals:", unlist(notFound)))
-                }
-              }
-            } else {
-              allFound <- FALSE
-            }
-            return(invisible(allFound))
-})
-
-
 ###############################################################
 #' Convert numeric to character with padding
-#'
 #'
 #' @param x numeric. Number to be converted to character with padding
 #'
@@ -494,3 +260,91 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   }
   return(paste0(xIC, xFC))
 }
+
+###############################################################################
+#' Generate random strings
+#'
+#' Generate a vector of random alphanumeric strings each of an arbitrary length.
+#'
+#' @param n   Number of strings to generate (default 1).
+#'            Will attempt to coerce to integer value.
+#'
+#' @param len Length of strings to generate (default 8).
+#'            Will attempt to coerce to integer value.
+#'
+#' @param characterFirst Logical, if \code{TRUE}, then a letter will be the
+#'        first character of the string (useful if being used for object names).
+#'
+#' @return Character vector of random strings.
+#'
+#' @export
+#' @docType methods
+#' @rdname rndstr
+#'
+#' @author Alex Chubaty and Eliot McIntire
+setGeneric("rndstr", function(n, len, characterFirst) {
+  standardGeneric("rndstr")
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="numeric", characterFirst="logical"),
+          definition=function(n, len, characterFirst) {
+            stopifnot(n>0, len>0)
+            unlist(lapply(character(as.integer(n)), function(x) {
+              i <- as.integer(characterFirst)
+              x <- paste0(c(sample(c(letters, LETTERS), size=i),
+                            sample(c((0:9), letters, LETTERS),
+                                   size=as.integer(len)-i, replace=TRUE)),
+                          collapse="")
+              }))
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="numeric", characterFirst="missing"),
+          definition=function(n, len) {
+            rndstr(n=n, len=len, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="missing", characterFirst="logical"),
+          definition=function(n, characterFirst) {
+            rndstr(n=n, len=8, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="numeric", characterFirst="logical"),
+          definition=function(len, characterFirst) {
+            rndstr(n=1, len=len, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="missing", characterFirst="missing"),
+          definition=function(n) {
+            rndstr(n=n, len=8, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="numeric", characterFirst="missing"),
+          definition=function(len) {
+            rndstr(n=1, len=len, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="missing", characterFirst="logical"),
+          definition=function(characterFirst) {
+            rndstr(n=1, len=8, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="missing", characterFirst="missing"),
+          definition=function(n, len, characterFirst) {
+            rndstr(n=1, len=8, characterFirst=TRUE)
+})
