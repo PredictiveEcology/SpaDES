@@ -542,7 +542,6 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-#            attach(simEnv(sim)); on.exit(detach(simEnv(sim)))
             with(simEnv(sim),
               while(simCurrentTime(sim) %<=% simStopTime(sim)) {
                 sim <- doEvent(sim, debug)  # process the next event
