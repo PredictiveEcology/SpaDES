@@ -26,11 +26,11 @@ Rather, they are designed to build publication-quality or interactive figures th
 Plotting requirements for simulation modeling are different.
 Changes to data, maps, objects can happen rapidly and repeatedly.
 Visualizing this can be critical, especially during the model building phase.
-Furthermore, no plotting method has been designed for modularity -- the ability to do something without being aware of what is already there. 
+Furthermore, no plotting method has been designed for modularity -- the ability to plot something without being aware of what is already there. 
 
 `SpaDES` comes with a plotting function to fulfill these two gaps.
 The main plotting function, `Plot` (*i.e.*, with a capital `P`), is built using the grid package.
-We have specifically built a plotting system that allows for relatively fast plotting of rasters (in the `raster` package), spatial points, spatial polygons, spatial lines (all within the `sp` package), `ggplot` objects, histogram, and igraph (package `igraph`) objects with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted.
+We have specifically built a plotting system that allows for relatively fast plotting of rasters (in the `raster` package), `SpatialPoints`, `SpatialPolygons`, `SpatialLines` (all within the `sp` package), `ggplot` objects, histogram, and igraph (package `igraph`) objects with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted.
 In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is.
 This means that plotting can be treated as modular.
 Importantly, conventional R plotting (*e.g.*, `plot`, `hist`, etc.) can still be used at any time, so you can use the features provided in this package or you can use other plotting functions without having to relearn a new set of plotting commands.
@@ -52,9 +52,9 @@ fileList <- find.package("SpaDES", quiet=FALSE) %>%
              packages="SpaDES", stringsAsFactors=FALSE)
 fileList <- fileList[-c(2,5),] # omit forestAge and percentPine for simplicity
 
-# Load files to memory (using rasterToMemory) 
+# Load files to memory (using rasterToMemory), assign to a simList we call mySim 
 mySim <- loadFiles(fileList=fileList)
-# put into a single stack object for ease of use
+# put into a single stack object in the user's global environment for ease of use below
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```
 
@@ -62,12 +62,12 @@ landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 
 # The `Plot` function
 
-There are several features of `Plot` that are worth highlighting. Note that the core functionality has been build using the `grid` graphics system.
+There are several features of `Plot` that are worth highlighting. 
+A primary purpose of `Plot` is to plot spatial type objects; however, as noted below, other object types can also be plotted. Spatial objects can be layered on top of one another; non-spatial objects can not.
 
-## Layer types
+## Spatial layer types
 
-The primary purpose of `Plot` is to plot spatial type objects; however, as noted below, other object types can also be plotted.
-Specifically, it currently can plot `RasterLayer`, `RasterStack`, `SpatialPoints*`, `SpatialPolygons*`, and `SpatialLines*` objects.
+Specifically, it currently can plot `RasterLayer`, `RasterStack`, `SpatialPoints*`, `SpatialPolygons*`, and `SpatialLines*` spatial objects.
 Because `Plot` uses the `grid` graphics system, changing plot parameters is done with the `gp=gpar()` designation.
 See `?gpar` for options.
 
@@ -113,25 +113,25 @@ Plot(landscape, caribou, mySim$DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5), 
 
 ### `ggplot2` objects
 
-`Plot` can also handle gg objects as created with `qplot` or `ggplot`.
-However, `ggplot` objects cannot currently be passed to `Plot` with any other objects ([#169](https://github.com/PredictiveEcology/SpaDES/issues/169)).
+`Plot` can also handle gg objects as created with `qplot` or `ggplot`. 
+These can be combined with spatial objects as well.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 require(ggplot2)
 ggObj <- qplot(rnorm(1e3), binwidth=0.1)
 
-Plot(caribou, ggObj, new=TRUE) # won't work; this is a known bug (#169)
+Plot(caribou, ggObj, new=TRUE) 
 ```
 
 ### Colours
 
 We likely won't want the default colours for every map.
-There are two ways to change the colour of a map: by adding a `colortable` to a `Raster*` object (*e.g.*, using the `setColors` function in `SpaDES`), or using the `cols` argument.
-Adding a `colortable` to a `Raster*` will be more persistent (*i.e.*, it will stay with the same colour table between calls to `Plot`) than using an argument in the `Plot` function.
+There are two ways to change the colour of a map: by adding a `colortable` to a `Raster*` object (*e.g.*, using the `setColors` function in `SpaDES`), or using the `cols` argument of the `Plot` function.
+Adding a `colortable` to a `Raster*` will be more persistent (*i.e.*, it will stay with the same colour table even if the device is wiped clean or a new device is created. 
 Every `RasterLayer` can have a `colortable`, which gives the mapping of raster values to colours.
-If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of hex colours, if a `RasterStack`, or just a vector of hex colours if only a single `RasterLayer`.
+If not already set in the file (many `.tif` files and other formats already have their `colortable` set), we can use `setColors(Raster*)` with a named list of colours, if a `RasterStack`, or just a vector of colours if only a single `RasterLayer`.
 These can be easily built with the `RColorBrewer` package, with the function `brewer.pal()`, `colorRampPalette`, `heat.colors()`, or just a character vector of colours that will be interpolated.
-Note that overplotting will not overplot the legend; in general, overplotting should be used for cases where the maps are compatible with the underlying map layer.
+Note that overplotting (accomplished with `addTo=`) will not overplot the legend; in general, overplotting should be used for cases where the maps are compatible with the underlying map layer.
 See overplotting below.  
 
 `zero.color` is an optional string indicating the colour for zero values, when zero is the minimum value, otherwise, it is treated as any other colour.
@@ -158,20 +158,21 @@ Plot(landscape, new=TRUE) # oh, how pretty!
 
 ### `grid` graphical parameters: `gp`, `gpText`, `gpAxis`, `size`
 
-These parameters will specify plot parameters that are available with `gpar()`. `gp` will adjust plot parameters, `gpText` will adjust the title and legend text only, `gpAxis` will adjust the axes only. `size` adjusts point size in a `SpatialPoints` object. Multiple entries can be used, but they must be named list elements and they must match the `...` items to plot. The naming convention used is `RasterStackName.$layerName`, *i.e.*, `landscape$DEM`.
+These parameters will specify plot parameters that are available with `gpar()`. `gp` will adjust plot parameters, `gpText` will adjust the title and legend text only, `gpAxis` will adjust the axes only. `size` adjusts point size in a `SpatialPoints` object. Multiple entries can be used, but they must be passed as list elements and they will be matched to the `...` items to plot. 
 
 ```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(caribou, new=TRUE, gpAxis=gpar(cex=0.4), size=1)
 Plot(mySim$DEM, gpText=gpar(cex=0.4))
+Plot(mySim$DEM, caribou, gpText=list(gpar(cex=2), gpar(cex=0.1)), new=T)
 ```
 
 ### `visualSqueeze`
 
 Under most circumstances, the plotting regions will be automatically scaled to maximize the area taken by the map layers, minimizing white space, but allowing axes, legends and titles to be visible when they are plotted.
-In some devices, this automatic scaling is imperfect, so axes or legends may be squished.
+In some devices and some situations, this automatic scaling is imperfect, so axes or legends may be squished.
 The `visualSqueeze` argument is an easy way to shrink or grow the plots on the device.
 The default value is 0.75 representing ~75% of the area.
-If the plots need to be slightly smaller, this could be set to 0.6; if they can be larger, `visualSqueeze` could be set to 0.8. 
+If the plots need to be slightly smaller, this could be set to 0.6; if they can be larger, `visualSqueeze` could be set to 0.8.  `visualSqueeze` is 1 for fully filled device.
 
 ```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
 # x axis gets cut off in pdf and html
@@ -184,7 +185,8 @@ So, either `visualSqueeze` can be set or making a larger device will usually als
 
 ### `legend` and `legendRange`
 
-`legend` is a logical indicating whether a legend should automatically be added (the default). `legendRange` will allow overriding of the default automatic legend creation.
+`legend` is a logical indicating whether a legend should automatically be added (the default). 
+`legendRange` will allow overriding of the default automatic legend creation.
 This is useful in situations where, say, an version of a raster at the initial stage of a simulation does not cover the range of the eventual values of that raster.
 Since the default is to automatically scale the legend to the values contained in the raster at the first time it is drawn, the legend will not cover the whole necessary range.
 Adding `legendRange=0:20`, where `0:20` covers the expected range of all stages of that raster, will work.
@@ -208,6 +210,11 @@ Plot(mySim$DEM, zoomExtent=extent(c(-1, 10, -1, 20)), new=TRUE)
 ### `length`
 
 For `SpatialLines*` objects, length will give arrow head length, in inches, meaning that the lines will be arrows.
+```{r arrows, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
+Plot(mySim$DEM, new=TRUE)
+Plot(Sl, addTo="mySim$DEM", length=0.2)
+```
+
 
 # Modularity
 
