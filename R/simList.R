@@ -158,7 +158,7 @@ setMethod("show",
 
             ### list stored objects
             out[[23]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[24]] <- capture.output(print(ls.str(simEnv(sim))))
+            out[[24]] <- capture.output(print(ls.str(simEnv(object))))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
