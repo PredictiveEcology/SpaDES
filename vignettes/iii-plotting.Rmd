@@ -54,7 +54,7 @@ fileList <- fileList[-c(2,5),] # omit forestAge and percentPine for simplicity
 
 # Load files to memory (using rasterToMemory), assign to a simList we call mySim 
 mySim <- loadFiles(fileList=fileList)
-# put into a single stack object in the user's global environment for ease of use below
+# put into a single stack object in the simulation environment for ease of use below
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```
 
