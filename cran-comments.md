@@ -23,7 +23,7 @@ This is a resubmission. In this version we:
 
 There were no ERRORs or WARNINGs
 
-There were 2 NOTES:
+There were 1 NOTES:
 
 1. There are two parts to this note:
 
@@ -40,14 +40,6 @@ There were 2 NOTES:
         
         Availability using Additional_repositories specification:
           fastshp   yes   http://rforge.net
-
-2. We provide helper functions that assist with loading user data into the global environment, and additionally provides a wrapper function for assigning objects to the global environment. This functionality is documented and is invoked by the user.
-
-        * checking R code for possible problems ... NOTE
-        Found the following assignments to the global environment:
-        File ‘SpaDES/R/load.R’:
-          assign(objectNames[x], do.call(get(loadFun[x]), args = argument), 
-            envir = .GlobalEnv)
 
 ## Downstream dependencies
 
