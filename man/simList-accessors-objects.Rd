@@ -19,12 +19,12 @@ simObjects(object) <- value
 \arguments{
 \item{object}{A \code{simList} simulation object.}
 
-\item{...}{arguments passed to \code{ls.str}, allowing, e.g. \code{all.names=TRUE}}
+\item{...}{arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}}
 
 \item{value}{The object to be stored at the slot.}
 }
 \value{
-Returns or sets the value of the slot from the \code{simList} object.
+Returns or sets a list of objects in the \code{simList} environment.
 }
 \description{
 Show objects referenced in the simulation environment

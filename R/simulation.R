@@ -542,18 +542,19 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            attach(simEnv(sim)); on.exit(detach(simEnv(sim)))
-            stopifnot(class(sim) == "simList")
-            while(simCurrentTime(sim) %<=% simStopTime(sim)) {
-              sim <- doEvent(sim, debug)  # process the next event
+#            attach(simEnv(sim)); on.exit(detach(simEnv(sim)))
+            with(simEnv(sim),
+              while(simCurrentTime(sim) %<=% simStopTime(sim)) {
+                sim <- doEvent(sim, debug)  # process the next event
 
-              # print debugging info
-              #  this can, and should, be more sophisticated;
-              #  i.e., don't simply print the entire object
-              if (debug) {
-                  print(sim)
+                # print debugging info
+                #  this can, and should, be more sophisticated;
+                #  i.e., don't simply print the entire object
+                if (debug) {
+                    print(sim)
+                }
               }
-            }
+            )
           return(invisible(sim))
 })
 

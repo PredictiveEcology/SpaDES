@@ -3,6 +3,7 @@
 \docType{class}
 \name{simList-class}
 \alias{initialize,simList-method}
+\alias{ls.simList}
 \alias{show,simList-method}
 \alias{simList}
 \alias{simList-class}
@@ -11,11 +12,15 @@
 \S4method{initialize}{simList}(.Object)
 
 \S4method{show}{simList}(object)
+
+ls.simList(x)
 }
 \arguments{
 \item{.Object}{An object.}
 
 \item{object}{Any R object.}
+
+\item{x}{A \code{simList} object.}
 }
 \description{
 Contains the minimum components of a SpaDES simulation.
