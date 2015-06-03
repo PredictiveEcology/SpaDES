@@ -213,27 +213,22 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(get(simGlobals(sim)$stackName, envir=.GlobalEnv))
+    Plot(sim[[simGlobals(sim)$stackName]])
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$randomLandscapes$.plotInterval,
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
   } else if (eventType=="save") {
-
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {
-    warning(paste("Undefined event type: \'",
-                  simEvents(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'",
-                  simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
+    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
   }
   return(invisible(sim))
 }

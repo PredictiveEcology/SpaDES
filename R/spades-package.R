@@ -232,11 +232,11 @@
 #'
 #' @section 2.8 Checking for the existence of objects:
 #'
-#' \code{SpaDES} modules will often require the existence of objects in the global environment.
-#' These are several helpers for assessing this:
+#' \code{SpaDES} modules will often require the existence of objects in the \code{simList}.
+#' These are helpers for assessing this:
 #'
 #' \tabular{ll}{
-#'   \code{\link{checkObject}} \tab Check for existence of a global object\cr
+#'   \code{\link{checkObject}} \tab Check for a existence of an object within a \code{simList} \cr
 #'   \code{\link{checkPath}} \tab Checks the specified filepath for formatting consistencies\cr
 #' }
 #'

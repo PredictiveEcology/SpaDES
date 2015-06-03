@@ -196,7 +196,7 @@ Plot(mySim$DEM, legendRange=c(0,500), new=TRUE)
 ### `zoomExtent`
 
 A plot can be made with a custom zoom.
-This can either be done by cropping the object at in the global environment, or by doing a `Plot` call, passing an extent object via `zoomExtent`.
+This can either be done by cropping the object, or by doing a `Plot` call, passing an extent object via `zoomExtent`.
 A common way of using this would be to initially `Plot` an object, then use `clickExtent`, assigning the new extent to an object.
 Then call `Plot(obj, zoomExtent=newZoom)`.
 This new zoom will persist with rearrangements.
@@ -212,7 +212,7 @@ For `SpatialLines*` objects, length will give arrow head length, in inches, mean
 # Modularity
 
 One of the main purposes of the `Plot` function is modularity. The goal is to enable any `SpaDES` module to be able to add a plot to the plotting device, without being aware of what is already in the plotting device.
-To do this, there is a hidden global variable (a `.spadesArrN` [where N is the device number] object of S4 class, "arrangement") created when a first Plot function is called.
+To do this, each open plotting device has a corresponding `.spadesPlot` object in the `.spadesEnv`, that gets created when a first Plot function is called.
 This object keeps the layer names, their extents, and whether they were in a RasterStack (and a few other things).
 So, when a new `Plot` is called, and `new` is used, then it will simply add the new layer.
 There may not be space on the plot device for this, in which case, everything will be replotted in a new arrangement, but taking the original R objects.
