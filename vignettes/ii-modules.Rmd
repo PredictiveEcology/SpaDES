@@ -39,7 +39,7 @@ Each event may evaluate or modify a simulation data object (*e.g.*, update the v
 
 The event queue is stored in a slot in a `simList` simulation object, which is itself stored in a `simEnv` object.
 Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`).
-This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list. 
+This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list.
 Completed events are removed from the queue.
 
 ### Module events
@@ -300,7 +300,8 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 
 ## Citation (`citation.bib`)
 
-Provides a `BibTeX` formatted citation with which the module can be referenced. Most citation management software can read and output `.bib` format.
+Provides a `BibTeX` formatted citation with which the module can be referenced.
+Most citation management software can read and output `.bib` format.
 
 -----
 
@@ -451,10 +452,10 @@ simProgressInterval(mySim)
 
 ## `.load` and `.save` modules
 
-Schedule object save and file load events by passing parameters to the save and load parameters for each module. 
+Schedule object save and file load events by passing parameters to the save and load parameters for each module.
 Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
-Loading files can be done be passing a simulation parameter called `.load$fileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded. 
+Loading files can be done be passing a simulation parameter called `.load$fileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded.
 Additional columns can also be provided:
 
 **Column Name** | **Description**
@@ -472,7 +473,7 @@ Additional columns can also be provided:
 &nbsp;          | If there is only one list, then it is assumed to apply to all load attempts and will be
 &nbsp;          | repeated for each load function.
 
-Saving objects to file can be done by passing the appropriate arguments as parameters. 
+Saving objects to file can be done by passing the appropriate arguments as parameters.
 The key values to include are:
 
 **Argument**            | **Description**
@@ -642,7 +643,7 @@ After publication you may wish to make your module more easily accessible for ot
 
 ### Minimum requirements
 
-All contributed modules should be well documented. 
+All contributed modules should be well documented.
 In addition to providing *complete* metadata within the module's `.R` file, the following components (see details above) should be included:
 
 1. Complete module documentation, such as an Rmarkdown (`.Rmd`) document that can be built as a `PDF`.
@@ -655,5 +656,5 @@ Additionally, `zipModule()` can be used to build the `.zip` file corresponding t
 
 ### Module submission
 
-To submit your module for inclusion in our GitHub repository, login to GitHub with your account and initiate a pull request to the repository. 
+To submit your module for inclusion in our GitHub repository, login to GitHub with your account and initiate a pull request to the repository.
 See the [GitHub help documentation](https://help.github.com/articles/creating-a-pull-request/) for more details.
