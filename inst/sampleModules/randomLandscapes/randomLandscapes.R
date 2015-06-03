@@ -45,9 +45,6 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     # do stuff for this event
     Plot(sim[[simGlobals(sim)$stackName]])
 
-    # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
-                         "randomLandscapes", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
     saveFiles(sim)
