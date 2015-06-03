@@ -6,6 +6,8 @@
 
 language: r
 
+cran: http://cran.rstudio.com/
+
 sudo: required
 
 before_install:
