@@ -1227,6 +1227,40 @@ setMethod(".addSimDepends",
 })
 
 ################################################################################
+#' Get simulation package dependencies
+#'
+#' Internal function.
+#'
+#' @param sim A \code{simList} object.
+#'
+#' @return A sorted character vector of package names.
+#'
+#' @importFrom magrittr '%>%'
+#' @export
+#' @docType methods
+#' @rdname simReqdPkgs
+#'
+#' @author Alex Chubaty
+#'
+setGeneric(".simReqdPkgs", function(sim) {
+  standardGeneric(".simReqdPkgs")
+})
+
+#' @rdname simReqdPkgs
+setMethod(".simReqdPkgs",
+          signature(sim="simList"),
+          definition=function(sim) {
+            pkgs <- lapply(simDepends(mySim)@dependencies, function(x) {
+              x@reqdPkgs
+              }) %>%
+              unlist %>%
+              append("SpaDES") %>%
+              unique %>%
+              sort
+            return(pkgs)
+})
+
+################################################################################
 #' Define a new module.
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
