@@ -145,7 +145,12 @@ setMethod("loadPackages",
               load <- function(name, install) {
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
-                    install.packages(name, repos="http://cran.r-project.org")
+                    cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
+                      "http://cran.rstudio.com"
+                    } else {
+                      getOption("repos")[[1]]
+                    }
+                    install.packages(name, repos=cran)
                     library(name, character.only=TRUE)
                     } else {
                       message(paste("NOTE: unable to load package ", name, ". Is it installed?", sep=""))
@@ -154,6 +159,13 @@ setMethod("loadPackages",
                 }
               lapply(packageList, load, install)
               if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
+})
+
+#' @rdname loadPackages
+setMethod("loadPackages",
+          signature="character",
+          definition=function(packageList, install, quiet) {
+            loadPackages(as.list(packageList), install, quiet)
 })
 
 ################################################################################
