@@ -299,9 +299,9 @@ Additional guides for getting started with `SpaDES` are provided at our wiki:
 
 ## `SpaDES` module repository
 
-We provide a number of modules to facilitate getting started.
+We provide a number of modules to facilitate getting started:
 
-**Website** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
+[https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
 Modules from this (or another suitable GitHub repository) can be downloaded using:
 
