@@ -1,24 +1,26 @@
 ################################################################################
 #' The \code{simList} class
 #'
-#' Contains the minimum components of a SpaDES simulation.
+#' Contains the minimum components of a \code{SpaDES} simulation.
 #'
 #' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
 #' Here, we implement a discrete event simulation in a more modular fashion so it's
 #' easier to add simulation components (i.e., "simulation modules").
-#'
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
 #' \code{\link{data.frame}} to implement the event queue (because it is much
 #' more efficient).
 #'
-#' Various slot accessor methods (i.e., get and set functions) are provided.
+#' Various slot accessor methods (i.e., get and set functions) are provided
+#' (see 'Accessor Methods' below).
 #'
-#' @slot .envir     Environment referencing the objects used in the simulation.
-#'                  Several "shortcuts" to accessing objects referenced by this
-#'                  environment are provided, and can be used on the
-#'                  \code{simList} object directly instead of specifying the
-#'                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
-#'                  \code{ls.str}, \code{simObjects}. See examples.
+#' @note The \code{simList} class extends the \code{.simList} superclass by adding
+#' a slot \code{.envir} to store the simulation environment containing references
+#' to simulation objects.
+#' The \code{\link{simList_}} class extends the \code{.simList} superclass, by
+#' adding a slot \code{.list} containing the simulation objects.
+#' Thus, \code{simList} is identical to \code{simList_}, except that the former
+#' uses an environment for objects and the latter uses a list.
+#' The class \code{simList_} is only used internally.
 #'
 #' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
 #'
@@ -29,47 +31,54 @@
 #' @slot params     Named list of potentially other lists specifying simulation parameters.
 #'
 #' @slot events     The list of scheduled events (i.e., event queue), as a \code{data.table}.
-#'                  This event queue is always sorted (keyed) by time,
-#'                  making it easy to insert new events into the queue.
+#'                  See 'Event Lists' for more information.
 #'
 #' @slot completed  The list of completed events, as a \code{data.table}.
+#'                  See 'Event Lists' for more information.
 #'
-#' @slot depends    A \code{.simDeps} list of \code{.moduleDeps} objects containing
-#'                  module object dependency information.
+#' @slot depends    A \code{.simDeps} list of \code{.moduleDeps} objects
+#'                  containing module object dependency information.
 #'
-#' @slot simtimes   List of numerical values describing the simulation start and stop times;
-#'                  as well as the current simulation time.
+#' @slot simtimes   List of numerical values describing the simulation start
+#'                  and stop times; as well as the current simulation time.
 #'
-#' @note Each event is represented by a \code{\link{data.table}} row consisting of:
-#'        \tabular{ll}{
-#'          \code{eventTime} \tab The time the event is to occur.\cr
-#'          \code{moduleName} \tab The module from which the event is taken.\cr
-#'          \code{eventType} \tab A character string for the programmer-defined event type.\cr
-#'        }
+#' @section Accessor Methods:
 #'
-#' @seealso \code{\link{simList-accessors-envir}},
-#'          \code{\link{simList-accessors-modules}},
-#'          \code{\link{simList-accessors-params}},
-#'          \code{\link{simList-accessors-events}},
-#'          \code{\link{simList-accessors-times}}.
+#' Several slot (and sub-slot) accessor methods are provided for use, and
+#' categorized into separate help pages:
+#' \tabular{ll}{
+#'   \code{\link{simList-accessors-envir}} \tab Simulation enviroment and objects. \cr
+#'   \code{\link{simList-accessors-events}} \tab Scheduled and completed events. \cr
+#'   \code{\link{simList-accessors-modules}} \tab Modules loaded and used; module dependencies. \cr
+#'   \code{\link{simList-accessors-params}} \tab Global and module-specific parameters. \cr
+#'   \code{\link{simList-accessors-times}} \tab Simulation times. \cr
+#' }
+#'
+#' @section Event Lists:
+#'
+#' Event lists are sorted (keyed) by time.
+#' Each event is represented by a \code{\link{data.table}} row consisting of:
+#' \tabular{ll}{
+#'   \code{eventTime} \tab The time the event is to occur.\cr
+#'   \code{moduleName} \tab The module from which the event is taken.\cr
+#'   \code{eventType} \tab A character string for the programmer-defined event type.\cr
+#' }
 #'
 #' @include module-dependencies-class.R
-#' @aliases simList
+#' @aliases .simList
 #' @rdname simList-class
 #' @import data.table
-#' @exportClass simList
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @author Alex Chubaty
 #'
-setClass("simList",
-         slots=list(.envir="environment", .loadOrder="character", .loaded="list",
+setClass(".simList",
+         slots=list(.loadOrder="character", .loaded="list",
                     modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends=".simDeps", simtimes="list"),
-         prototype=list(.envir=new.env(parent=emptyenv()),
-                        .loadOrder=character(),
+         prototype=list(.loadOrder=character(),
                         .loaded=list(modules=as.list(NULL)),
                         modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
@@ -86,6 +95,64 @@ setClass("simList",
                stop("simulation start time should occur before stop time.")
              }
            }
+})
+
+################################################################################
+#'
+#' @inheritParams .simList
+#'
+#' @slot .envir     Environment referencing the objects used in the simulation.
+#'                  Several "shortcuts" to accessing objects referenced by this
+#'                  environment are provided, and can be used on the
+#'                  \code{simList} object directly instead of specifying the
+#'                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
+#'                  \code{ls.str}, \code{simObjects}. See examples.
+#'
+#' @aliases simList
+#' @rdname simList-class
+#' @exportClass simList
+#'
+setClass("simList",
+         contains=".simList",
+         slots=list(.envir="environment"),
+         prototype=list(.envir=new.env(parent=emptyenv()))
+)
+
+################################################################################
+#' The \code{simList_} class
+#'
+#' Internal use only. Used when saving/loading a \code{simList}.
+#'
+#' This is identical to class \code{simList}, except that the \code{.envir} slot
+#' is replaced by a \code{.list} containing a list to store the objects from the
+#' environment contained within the \code{simList}.
+#' Saving/loading a list behaves more reliably than saving/loading an environment.
+#'
+#' @inheritParams .simList
+#'
+#' @seealso \code{\link{simList}}
+#'
+#' @aliases simList_
+#' @rdname simList_-class
+#'
+#' @author Alex Chubaty
+#'
+setClass("simList_",
+         contains=".simList",
+         slots=list(.list="list"),
+         prototype=list(.list=list())
+)
+
+setAs(from="simList_", to="simList", def=function(from) {
+  x <- as(as(from, ".simList"), "simList")
+  x@.envir <- as.environment(from@.list)
+  return(x)
+})
+
+setAs(from="simList", to="simList_", def=function(from) {
+  x <- as(as(from, ".simList"), "simList_")
+  x@.list <- as.list(simEnv(from))
+  return(x)
 })
 
 ### `initialize` generic is already defined in the methods package
