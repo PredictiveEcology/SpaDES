@@ -519,6 +519,7 @@ setMethod("scheduleEvent",
 #' models by the user. Will print additional outputs informing the user of updates
 #' to the values of various simList slot components.
 #'
+#' @importFrom fpCompare '%<=%'
 #' @export
 #' @docType methods
 #' @rdname spades
