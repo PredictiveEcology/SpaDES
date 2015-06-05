@@ -77,8 +77,6 @@ A module consists of a collection of files that ...
       |_ moduleName_x.y.z.zip   # zip archive of previous module versions
 ```
 
------
-
 ## Module code file (`moduleName.R`)
 
 A `SpaDES` module consists of a single `.R` source file, whose name matches the name of the module.
@@ -112,8 +110,8 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`timestep`**        | Describes the time (in seconds) corresponding to `1.0` simulation time units.
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
-**`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module parameters,
-&nbsp;                | with columns `paramName`, `paramClass`, and `default`.
+**`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
+&nbsp;                | parameters, with columns `paramName`, `paramClass`, and `default`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
 **`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
 &nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
@@ -126,7 +124,7 @@ Every module requires complete metadata, structured as a named list, and passed 
 ## NOTE: long lines have been truncated
 defineModule(sim, list(
   name="randomLandscapes",
-  description="Generate RasterStack of random maps representative of a forest landscape ...",
+  description="Generate RasterStack of random maps representative of a forest landsc...",
   keywords=c("random map", "random landscape"),
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca",
                    role=c("aut", "cre")),
@@ -189,7 +187,8 @@ modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
 path <- system.file("sampleModules", package="SpaDES")
 
-mySim <- simInit(times=times, params=parameters, modules=modules, objects=objects, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules,
+                 objects=objects, path=path)
 ```
 
 ### Event types
@@ -216,19 +215,24 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     Plot(sim[[simGlobals(sim)$stackName]])
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.plotInterval,
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, simCurrentTime(sim) +
+                           simParams(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {
-    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
+    warning(paste("Undefined event type: \'",
+                  simEvents(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'",
+                  simEvents(sim)[1, "moduleName", with=FALSE],
+                  "\'", sep=""))
   }
   return(invisible(sim))
 }
@@ -241,7 +245,7 @@ Keep these function definitions as short and clean as possible (you can further 
 
 Functions should get and return objects in the simulation environment (`simEnv`), rather than pass them as function arguments.
 This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call.
-Accessing objects in the `simEnv` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=sim)`.
+Accessing objects in the `simEnv` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=simEnv(sim))`.
 
 Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
 As such, the `modulenameInit()` function is required for initiliazation.
@@ -258,12 +262,15 @@ randomLandscapesInit <- function(sim) {
   # Give dimensions of dummy raster
   nx <- simParams(sim)$randomLandscapes$nx
   ny <- simParams(sim)$randomLandscapes$ny
-  template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
+  r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
   speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
-  DEM <- round(gaussMap(template, scale=300, var=0.03, speedup=speedup, inMemory=inMemory), 1)*1000
-  forestAge <- round(gaussMap(template, scale=10, var=0.1, speedup=speedup, inMemory=inMemory), 1)*20
-  percentPine <- round(gaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory),1)
+  DEM <- round(gaussMap(r, scale=300, var=0.03, speedup=speedup,
+                        inMemory=inMemory), 1)*1000
+  forestAge <- round(gaussMap(r, scale=10, var=0.1, speedup=speedup,
+                              inMemory=inMemory), 1)*20
+  percentPine <- round(gaussMap(r, scale=50, var=1, speedup=speedup,
+                                inMemory=inMemory),1)
 
   # Scale them as needed
   forestAge <- forestAge/maxValue(forestAge)*100
@@ -285,8 +292,6 @@ randomLandscapesInit <- function(sim) {
 }
 ```
 
------
-
 ## Module documentation (`moduleName.Rmd`)
 
 Module documentation should be written so that others can use your module.
@@ -296,27 +301,15 @@ We strongly recommend using RMarkdown (`.Rmd`) for this documentation, as it is 
 Another benefit of using a text-based file format is to facilitate transparent document versioning and history using version control systems like `git`.
 For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 
------
+## Citation, License, and Readme files
 
-## Citation (`citation.bib`)
-
-Provides a `BibTeX` formatted citation with which the module can be referenced.
+-  `citation.bib` provides a `BibTeX` formatted citation with which the module can be referenced.
 Most citation management software can read and output `.bib` format.
 
------
-
-## License file (`LICENSE.txt`)
-
-This file describes how your module can be redistributed and used by others.
+- `LICENSE.txt` describes how your module can be redistributed and used by others.
 For help selecting a license, see [choosealicense.com](http://choosealicense.com).
 
------
-
-## Readme file (`README.txt`)
-
-It is useful to include module metadata in addition to version change information in this file.
-
------
+- `README.txt` is used to briefly document module metadata and version change information.
 
 ## Versioned zip archives (`moduleName_x.y.z.zip`)
 
@@ -437,7 +430,7 @@ simCheckpointInterval(mySim)
 
 Schedule updates to the simulation progress bar.
 
-```{r progress, echo=TRUE, eval=FALSE, message=FALSE}
+```{r progress, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
                  params=list(.globals=list(stackName="landscape"),
@@ -497,7 +490,7 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                          .savePath=file.path(tempdir(), "output",
                                                              "randomLandscapes"))
                    ),
-                 modules=list("caribouMovement"),
+                 modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES")
 )
 
@@ -531,9 +524,10 @@ Plotting events can be scheduled similarly to save events, by passing module-spe
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
 mySim <- simInit(times=list(start=0.0, stop=100),
-                 params=list(.globals=list(stackName="landscape"),
+                 params=list(
+                   .globals=list(stackName="landscape"),
                    randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
-                   ),
+                 ),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES")
 )
@@ -575,33 +569,22 @@ Use `system.file("sampleModules", package="SpaDES")` to get the path to the `sam
 To view the contents of a module, use the `openModules` function.
 Note that you shouldn't edit the sample modules directly, but save them as a copy in another location.
 
-### Generate random landscapes (`randomLandscapes`)
-
-Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, habitatQuality, percentPine).
-Requires a global simulation parameter `stackName` be set.
-
-```{r randomLandscapes, echo=TRUE, eval=FALSE}
-openModules(system.file("sampleModules", package="SpaDES"), "randomLandscapes")
+```{r caribouMovement, echo=TRUE, eval=FALSE}
+openModules(system.file("sampleModules", package="SpaDES"), "moduleName")
 ```
 
-### Simulate fire spread on a landscape (`fireSpread`)
+1. `randomLandscapes`:
+Generate RasterStack of random maps representative of a forest landscape (`DEM`, `forestAge`, `habitatQuality`, `percentPine`).
+Requires a global simulation parameter `stackName` be set.
 
+2. `fireSpread`:
 Simulate fire ignition and spread on a landscape, where spread probability varies according to percent pine.
 Fire size statistics are collected immediately after each burn event.
 Requires a global simulation parameter `stackName` be set.
 
-```{r fireSpread, echo=TRUE, eval=FALSE}
-openModules(system.file("sampleModules", package="SpaDES"), "fireSpread")
-```
-
-### Agent based model of caribou movement (`caribouMovement`)
-
-Simulate caribou movement via correlated random walk.
+3. `caribouMovement`:
+Agent based model of caribou movement via correlated random walk.
 Requires a RasterStack object whose name is specified by `simGlobals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
-
-```{r caribouMovement, echo=TRUE, eval=FALSE}
-openModules(system.file("sampleModules", package="SpaDES"), "caribouMovement")
-```
 
 ## `SpaDES` module repository
 
@@ -638,8 +621,7 @@ However, it is very important that you do not edit portions of the file outside 
 ## Contributing modules
 
 After publication you may wish to make your module more easily accessible for others to use (in fact we encourage it).
-
-**Website:** [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
+We maintain a repository of `SpaDES` modules at the following site: [https://github.com/PredictiveEcology/SpaDES-modules](https://github.com/PredictiveEcology/SpaDES-modules)
 
 ### Minimum requirements
 
