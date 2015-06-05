@@ -1838,7 +1838,8 @@ setMethod("Plot",
         updated <- .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arr@columns,
-                          currSpadesPlots@arr@rows))
+                          currSpadesPlots@arr@rows)) |
+          !identical(currSpadesPlots@arr@ds,dev.size())
 
         if(newArr) {
           updated$needPlotting <-
