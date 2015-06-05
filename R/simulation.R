@@ -544,19 +544,18 @@ setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             browser()
-            envName <- paste("SpaDES",deparse(substitute(sim)),sep="_")
-            attach(simEnv(sim), name=envName) 
-            on.exit(detach( pos=match(envName, search()) ))
+            envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
+            attach(simEnv(sim), name=envName)
+            on.exit(detach(pos=match(envName, search())))
             while(simCurrentTime(sim) %<=% simStopTime(sim)) {
               sim <- doEvent(sim, debug)  # process the next event
 
-              # print debugging info
+              # print debugging info:
               #  this can, and should, be more sophisticated;
               #  i.e., don't simply print the entire object
               if (debug) {
                   print(sim)
               }
-              #})
             }
             return(invisible(sim))
 })
