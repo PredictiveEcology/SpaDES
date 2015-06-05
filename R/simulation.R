@@ -543,7 +543,6 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            browser()
             envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
             attach(simEnv(sim), name=envName)
             on.exit(detach(pos=match(envName, search())))
