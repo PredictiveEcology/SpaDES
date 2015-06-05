@@ -543,19 +543,22 @@ setGeneric("spades", function(sim, debug) {
 setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
-            with(simEnv(sim),
-              while(simCurrentTime(sim) %<=% simStopTime(sim)) {
-                sim <- doEvent(sim, debug)  # process the next event
+            browser()
+            envName <- paste("SpaDES",deparse(substitute(sim)),sep="_")
+            attach(simEnv(sim), name=envName) 
+            on.exit(detach( pos=match(envName, search()) ))
+            while(simCurrentTime(sim) %<=% simStopTime(sim)) {
+              sim <- doEvent(sim, debug)  # process the next event
 
-                # print debugging info
-                #  this can, and should, be more sophisticated;
-                #  i.e., don't simply print the entire object
-                if (debug) {
-                    print(sim)
-                }
+              # print debugging info
+              #  this can, and should, be more sophisticated;
+              #  i.e., don't simply print the entire object
+              if (debug) {
+                  print(sim)
               }
-            )
-          return(invisible(sim))
+              #})
+            }
+            return(invisible(sim))
 })
 
 #' @rdname spades
