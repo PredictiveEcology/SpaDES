@@ -61,7 +61,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="load") {
     if (useChkpnt) {
       # load user-specified checkpoint options
-      .checkpointLoad(checkpointFile)
+      .checkpointLoad(sim, checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
@@ -69,30 +69,31 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     }
   } else if (eventType=="save") {
     if (useChkpnt) {
-      .checkpointSave(checkpointFile)
+      .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
-    warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
+    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
 
   }
   return(invisible(sim))
 }
 
+#' @param sim A \code{simList} object.
 #' @param file The checkpoint file.
 #' @rdname checkpoint
-.checkpointLoad = function(file) {
+.checkpointLoad = function(sim, file) {
   # check for previous checkpoint file
   if (file.exists(file)) {
-    load(file)
-    if (exists(".Random.seed", envir=.spadesEnv)) {
-      do.call("RNGkind", as.list(get("rng.kind", envir=.spadesEnv)))
-      assign(".Random.seed", get("rng.state", envir=.spadesEnv), envir=.spadesEnv)
-    }
+    load(file, envir=.GlobalEnv)
+    load(fobj, envir=simEnv(sim))
+    do.call("RNGkind", as.list(sim$.rng.kind))
+    assign(".Random.seed", sim$.rng.state, envir=.GlobalEnv)
+    with(sim, rm(.rng.kind, .rng.state, .timestamp))
     return(invisible(TRUE))
   } else {
     return(invisible(FALSE))
@@ -100,11 +101,14 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 #' @rdname checkpoint
-.checkpointSave = function(file) {
-  if (exists(".Random.seed", envir=.spadesEnv))  {
-    assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)
-    assign("rng.kind", RNGkind(), envir=.spadesEnv)
-  }
-  save.image(file) # saves entire workspace
+.checkpointSave = function(sim, file) {
+  sim$.timestamp <- Sys.time()
+  sim$.rng.state <- get(".Random.seed", envir=.GlobalEnv)
+  sim$.rng.kind <- RNGkind()
+
+  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  fobj <- paste0(f, "_objs", ".RData")
+  save(list=ls(all.names=TRUE), file=file, envir=.GlobalEnv) # saves entire workspace
+  save(list=ls(simEnv(sim), all.names=TRUE), file=fobj, envir=simEnv(sim))
   invisible(TRUE) # return "success" invisibly
 }
