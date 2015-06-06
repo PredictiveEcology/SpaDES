@@ -416,7 +416,7 @@ require(SpaDES)
 times <- list(start=0, stop=30)
 parameters <- list(.globals=list(stackName="landscape"),
                    .checkpoint=list(interval=10, file="chkpnt.RData"))
-modules <- list("randomLandscapes")
+modules <- list("randomLandscapes", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)

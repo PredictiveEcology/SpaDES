@@ -96,7 +96,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     load(fobj, envir=simEnv(sim))
     do.call("RNGkind", as.list(sim$.rng.kind))
     assign(".Random.seed", sim$.rng.state, envir=.GlobalEnv)
-    with(sim, rm(.rng.kind, .rng.state, .timestamp))
+    rm(list=c(".rng.kind", ".rng.state", ".timestamp"), envir=simEnv(sim))
     return(invisible(TRUE))
   } else {
     return(invisible(FALSE))
