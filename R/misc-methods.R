@@ -145,7 +145,12 @@ setMethod("loadPackages",
               load <- function(name, install) {
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
-                    install.packages(name, repos="http://cran.r-project.org")
+                    cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
+                      "http://cran.rstudio.com"
+                    } else {
+                      getOption("repos")[[1]]
+                    }
+                    install.packages(name, repos=cran)
                     library(name, character.only=TRUE)
                     } else {
                       message(paste("NOTE: unable to load package ", name, ". Is it installed?", sep=""))
@@ -154,6 +159,13 @@ setMethod("loadPackages",
                 }
               lapply(packageList, load, install)
               if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
+})
+
+#' @rdname loadPackages
+setMethod("loadPackages",
+          signature="character",
+          definition=function(packageList, install, quiet) {
+            loadPackages(as.list(packageList), install, quiet)
 })
 
 ################################################################################
@@ -347,4 +359,79 @@ setMethod("rndstr",
           signature(n="missing", len="missing", characterFirst="missing"),
           definition=function(n, len, characterFirst) {
             rndstr(n=1, len=8, characterFirst=TRUE)
+})
+
+###############################################################################
+#' Filter objects by class
+#'
+#' Based on \url{http://stackoverflow.com/a/5158978/1380598}.
+#'
+#' @param x Character vector of object names to filter, possibly from \code{ls}.
+#'
+#' @param include   Class(es) to include, as a character vector.
+#'
+#' @param exclude   Optional class(es) to exclude, as a character vector.
+#'
+#' @note Currently only searches for objects in the global enviroment.
+#'
+#' @return Vector of object names matching the class filter.
+#'
+#' @note \code{\link{inherits}} is used internally to check the object class,
+#' which can, in some cases, return results inconsistent with \code{is}.
+#' See \url{http://stackoverflow.com/a/27923346/1380598}.
+#' These (known) cases are checked manually and corrected.
+#'
+#' @export
+#' @docType methods
+#' @rdname classFilter
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' a <- list(1:10)     # class `list`
+#' b <- letters        # class `character`
+#' d <- runif(10)      # class `numeric`
+#' f <- sample(1L:10L) # class `numeric`, `integer`
+#' g <- lm( jitter(d) ~ d ) # class `lm`
+#' h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
+#' classFilter(ls(), include=c("character", "list"))
+#' classFilter(ls(), include="numeric")
+#' classFilter(ls(), include="numeric", exclude="integer")
+#' classFilter(ls(), include="lm")
+#' classFilter(ls(), include="lm", exclude="glm")
+#' rm(a, b, d, f, g, h)
+#'
+setGeneric("classFilter", function(x, include, exclude) {
+  standardGeneric("classFilter")
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="character"),
+          definition=function(x, include, exclude) {
+            f <- function(w) {
+              # -------------------- #
+              # using `inherits` doesn't work as expected in some cases,
+              #  so we tweak the 'include' to work with those cases:
+              if ( ("numeric" %in% include) &
+                   (inherits(get(w, envir=.GlobalEnv), "integer")) ) {
+                     include <- c(include, "integer")
+              }
+              # --- end tweaking --- #
+
+              if (is.na(exclude)) {
+                inherits(get(w, envir=.GlobalEnv), include)
+              } else {
+                inherits(get(w, envir=.GlobalEnv), include) &
+                  !inherits(get(w, envir=.GlobalEnv), exclude)
+              }
+            }
+            return(Filter(f, x))
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="missing"),
+          definition=function(x, include) {
+            return(classFilter(x, include, exclude=NA_character_))
 })

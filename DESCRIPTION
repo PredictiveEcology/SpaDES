@@ -2,7 +2,8 @@ Package: SpaDES
 Type: Package
 Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
 Description: Easily implement a variety of simulation models, with a focus on
-    spatially explicit agent based models. The core simulation components are
+    spatially explicit agent based models. These include raster-based,
+    event-based, and agent-based models. The core simulation components are
     built upon a discrete event simulation framework that facilitates
     modularity, and easily enables the user to include additional functionality
     by running user-built simulation modules. Included are numerous tools to
@@ -10,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.99.0.9003
-Date: 2015-06-02
+Version: 0.99.0.9005
+Date: 2015-06-05
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -37,12 +38,12 @@ Imports:
     CircStats,
     downloader,
     dplyr,
-    magrittr,
     fpCompare,
     ggplot2,
     gridBase,
     httr,
     igraph,
+    magrittr,
     methods,
     RandomFields,
     RColorBrewer,

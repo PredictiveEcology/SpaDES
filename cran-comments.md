@@ -23,7 +23,7 @@ This is a resubmission. In this version we:
 
 There were no ERRORs or WARNINGs
 
-There were 1 NOTES:
+There were 2 NOTES:
 
 1. There are two parts to this note:
 
@@ -40,6 +40,13 @@ There were 1 NOTES:
         
         Availability using Additional_repositories specification:
           fastshp   yes   http://rforge.net
+
+2. Where we attach the simulation environment, we follow best practices by 1) following the call to `attach()` with `on.exit(detach())`; 2) assigning a unique name to the attached enviroment.
+
+        Found the following calls to attach():
+        File ‘SpaDES/R/simulation.R’:
+          attach(simEnv(sim), name = envName)
+        See section ‘Good practice’ in ‘?attach’.
 
 ## Downstream dependencies
 

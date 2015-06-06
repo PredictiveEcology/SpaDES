@@ -9,9 +9,9 @@
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
 
-.checkpointLoad(file)
+.checkpointLoad(sim, file)
 
-.checkpointSave(file)
+.checkpointSave(sim, file)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
