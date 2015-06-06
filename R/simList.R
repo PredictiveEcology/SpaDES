@@ -1317,7 +1317,7 @@ setGeneric(".simReqdPkgs", function(sim) {
 setMethod(".simReqdPkgs",
           signature(sim="simList"),
           definition=function(sim) {
-            pkgs <- lapply(simDepends(mySim)@dependencies, function(x) {
+            pkgs <- lapply(simDepends(sim)@dependencies, function(x) {
               x@reqdPkgs
               }) %>%
               unlist %>%

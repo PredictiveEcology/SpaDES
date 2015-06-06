@@ -25,8 +25,6 @@ doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
                      will be printed (default \code{debug=FALSE}.}
 
 \item{file}{The checkpoint file.}
-
-\item{sim}{A \code{simList} object.}
 }
 \value{
 Returns the modified \code{simList} object.

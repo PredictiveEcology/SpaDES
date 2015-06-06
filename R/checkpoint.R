@@ -83,7 +83,6 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
-#' @param sim A \code{simList} object.
 #' @param file The checkpoint file.
 #' @rdname checkpoint
 .checkpointLoad = function(sim, file) {
