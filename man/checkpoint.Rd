@@ -9,9 +9,9 @@
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
 
-.checkpointLoad(file)
+.checkpointLoad(sim, file)
 
-.checkpointSave(file)
+.checkpointSave(sim, file)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
@@ -25,6 +25,8 @@ doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
                      will be printed (default \code{debug=FALSE}.}
 
 \item{file}{The checkpoint file.}
+
+\item{sim}{A \code{simList} object.}
 }
 \value{
 Returns the modified \code{simList} object.
