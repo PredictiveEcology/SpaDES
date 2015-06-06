@@ -87,8 +87,11 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 #' @param file The checkpoint file.
 #' @rdname checkpoint
 .checkpointLoad = function(sim, file) {
-  # check for previous checkpoint file
-  if (file.exists(file)) {
+  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  fobj <- paste0(f, "_objs", ".RData")
+
+  # check for previous checkpoint files
+  if (file.exists(file) && file.exists(fobj)) {
     load(file, envir=.GlobalEnv)
     load(fobj, envir=simEnv(sim))
     do.call("RNGkind", as.list(sim$.rng.kind))
@@ -108,7 +111,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
   f <- strsplit(file, split = "[.][R|r][D|d]ata$")
   fobj <- paste0(f, "_objs", ".RData")
-  save(list=ls(all.names=TRUE), file=file, envir=.GlobalEnv) # saves entire workspace
+  save(list=ls(.GlobalEnv, all.names=TRUE), file=file, envir=.GlobalEnv) # saves entire workspace
   save(list=ls(simEnv(sim), all.names=TRUE), file=fobj, envir=simEnv(sim))
   invisible(TRUE) # return "success" invisibly
 }
