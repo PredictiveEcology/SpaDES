@@ -1794,7 +1794,7 @@ setMethod("makeLines",
 #' }
 setGeneric("Plot", signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
-                    axes="L", speedup = 1,
+                    axes=FALSE, speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
                     visualSqueeze=NULL, legend=TRUE, legendRange=NULL, legendText=NULL,
                     pch = 19, title=TRUE,
@@ -1838,7 +1838,8 @@ setMethod("Plot",
         updated <- .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
         newArr <- (length(updated$curr@spadesGrobList) >
                      prod(currSpadesPlots@arr@columns,
-                          currSpadesPlots@arr@rows))
+                          currSpadesPlots@arr@rows)) |
+          !identical(currSpadesPlots@arr@ds,dev.size())
 
         if(newArr) {
           updated$needPlotting <-

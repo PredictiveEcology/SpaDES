@@ -9,16 +9,17 @@
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
-  gpAxis = gpar(), axes = "L", speedup = 1, size = 5, cols = NULL,
+  gpAxis = gpar(), axes = FALSE, speedup = 1, size = 5, cols = NULL,
   zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
   legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
-  gpText = gpar(), gpAxis = gpar(), axes = "L", speedup = 1, size = 5,
-  cols = NULL, zoomExtent = NULL, visualSqueeze = NULL, legend = TRUE,
-  legendRange = NULL, legendText = NULL, pch = 19, title = TRUE,
-  na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
+  gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
+  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
+  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
+  length = NULL)
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 
