@@ -56,16 +56,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### event definitions
   if (eventType=="init") {
     if (useChkpnt) {
-      sim <- scheduleEvent(sim, 0.00, "checkpoint", "load")
-    }
-  } else if (eventType=="load") {
-    if (useChkpnt) {
-      # load user-specified checkpoint options
-      .checkpointLoad(sim, checkpointFile)
-
-      # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
-      sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
+      sim <- scheduleEvent(sim, 0.00, "checkpoint", "save")
     }
   } else if (eventType=="save") {
     if (useChkpnt) {
@@ -85,14 +76,16 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @param file The checkpoint file.
 #' @rdname checkpoint
-.checkpointLoad = function(sim, file) {
+checkpointLoad = function(file) {
   f <- strsplit(file, split = "[.][R|r][D|d]ata$")
   fobj <- paste0(f, "_objs", ".RData")
 
   # check for previous checkpoint files
   if (file.exists(file) && file.exists(fobj)) {
-    load(file, envir=.GlobalEnv)
+    simListName = load(file, envir=.GlobalEnv)
+    sim <- get(simListName, envir=.GlobalEnv)
     load(fobj, envir=simEnv(sim))
+
     do.call("RNGkind", as.list(sim$.rng.kind))
     assign(".Random.seed", sim$.rng.state, envir=.GlobalEnv)
     rm(list=c(".rng.kind", ".rng.state", ".timestamp"), envir=simEnv(sim))
@@ -110,7 +103,11 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
   f <- strsplit(file, split = "[.][R|r][D|d]ata$")
   fobj <- paste0(f, "_objs", ".RData")
-  save(list=ls(.GlobalEnv, all.names=TRUE), file=file, envir=.GlobalEnv) # saves entire workspace
+
+  tmpEnv <- new.env()
+  assign(.objectNames("spades","simList","sim")[[1]]$objs, sim, envir=tmpEnv)
+
+  save(list=ls(tmpEnv, all.names=TRUE), file=file, envir=tmpEnv)
   save(list=ls(simEnv(sim), all.names=TRUE), file=fobj, envir=simEnv(sim))
   invisible(TRUE) # return "success" invisibly
 }
