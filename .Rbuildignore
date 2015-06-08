@@ -6,7 +6,7 @@
 .travis.yml
 cran-comments.md
 LICENSE
-^SAMPLE$
+^_ignore$
 ^travis_wait_.*\.log$
 vignettes/.*\.log$
 vignettes/.*_cache$

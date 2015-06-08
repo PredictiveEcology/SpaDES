@@ -7,8 +7,6 @@
 cache/
 figure/
 output/
-SAMPLE/chkpnt.RData
-SAMPLE/shiny_succession/data
 tests/testthat/*.pdf
 vignettes/.build.timestamp
 vignettes/*_cache
