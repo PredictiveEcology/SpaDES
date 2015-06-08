@@ -2,14 +2,14 @@
 % Please edit documentation in R/checkpoint.R
 \docType{methods}
 \name{doEvent.checkpoint}
-\alias{.checkpointLoad}
 \alias{.checkpointSave}
+\alias{checkpointLoad}
 \alias{doEvent.checkpoint}
 \title{Simulation checkpoints.}
 \usage{
 doEvent.checkpoint(sim, eventTime, eventType, debug = FALSE)
 
-.checkpointLoad(sim, file)
+checkpointLoad(file)
 
 .checkpointSave(sim, file)
 }
