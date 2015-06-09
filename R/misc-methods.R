@@ -372,7 +372,8 @@ setMethod("rndstr",
 #'
 #' @param exclude   Optional class(es) to exclude, as a character vector.
 #'
-#' @note Currently only searches for objects in the global enviroment.
+#' @param envir     The environment ins which to search for objects.
+#'                  Default is the calling environment.
 #'
 #' @return Vector of object names matching the class filter.
 #'
@@ -388,6 +389,7 @@ setMethod("rndstr",
 #' @author Alex Chubaty
 #'
 #' @examples
+#' ## from global environment
 #' a <- list(1:10)     # class `list`
 #' b <- letters        # class `character`
 #' d <- runif(10)      # class `numeric`
@@ -401,29 +403,45 @@ setMethod("rndstr",
 #' classFilter(ls(), include="lm", exclude="glm")
 #' rm(a, b, d, f, g, h)
 #'
-setGeneric("classFilter", function(x, include, exclude) {
+#' ## from another environment
+#' e = new.env(parent = emptyenv())
+#' e$a <- list(1:10)     # class `list`
+#' e$b <- letters        # class `character`
+#' e$d <- runif(10)      # class `numeric`
+#' e$f <- sample(1L:10L) # class `numeric`, `integer`
+#' e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
+#' e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`
+#' classFilter(ls(e), include=c("character", "list"), envir=e)
+#' classFilter(ls(e), include="numeric", envir=e)
+#' classFilter(ls(e), include="numeric", exclude="integer", envir=e)
+#' classFilter(ls(e), include="lm", envir=e)
+#' classFilter(ls(e), include="lm", exclude="glm", envir=e)
+#' rm(a, b, d, f, g, h, envir=e)
+#' rm(e)
+#'
+setGeneric("classFilter", function(x, include, exclude, envir) {
   standardGeneric("classFilter")
 })
 
 #' @rdname classFilter
 setMethod("classFilter",
-          signature(x="character", include="character", exclude="character"),
-          definition=function(x, include, exclude) {
+          signature(x="character", include="character", exclude="character", envir="environment"),
+          definition=function(x, include, exclude, envir) {
             f <- function(w) {
               # -------------------- #
               # using `inherits` doesn't work as expected in some cases,
               #  so we tweak the 'include' to work with those cases:
               if ( ("numeric" %in% include) &
-                   (inherits(get(w, envir=.GlobalEnv), "integer")) ) {
+                   (inherits(get(w, envir=envir), "integer")) ) {
                      include <- c(include, "integer")
               }
               # --- end tweaking --- #
 
               if (is.na(exclude)) {
-                inherits(get(w, envir=.GlobalEnv), include)
+                inherits(get(w, envir=envir), include)
               } else {
-                inherits(get(w, envir=.GlobalEnv), include) &
-                  !inherits(get(w, envir=.GlobalEnv), exclude)
+                inherits(get(w, envir=envir), include) &
+                  !inherits(get(w, envir=envir), exclude)
               }
             }
             return(Filter(f, x))
@@ -431,7 +449,21 @@ setMethod("classFilter",
 
 #' @rdname classFilter
 setMethod("classFilter",
-          signature(x="character", include="character", exclude="missing"),
+          signature(x="character", include="character", exclude="character", envir="missing"),
+          definition=function(x, include, exclude) {
+            return(classFilter(x, include, exclude, envir=sys.frame(-1)))
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="missing", envir="environment"),
+          definition=function(x, include, envir) {
+            return(classFilter(x, include, exclude=NA_character_, envir=envir))
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="missing", envir="missing"),
           definition=function(x, include) {
-            return(classFilter(x, include, exclude=NA_character_))
+            return(classFilter(x, include, exclude=NA_character_, envir=sys.frame(-1)))
 })

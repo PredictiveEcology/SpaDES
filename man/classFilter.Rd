@@ -3,15 +3,24 @@
 \docType{methods}
 \name{classFilter}
 \alias{classFilter}
-\alias{classFilter,character,character,character-method}
-\alias{classFilter,character,character,missing-method}
+\alias{classFilter,character,character,character,environment-method}
+\alias{classFilter,character,character,character,missing-method}
+\alias{classFilter,character,character,missing,environment-method}
+\alias{classFilter,character,character,missing,missing-method}
 \title{Filter objects by class}
 \usage{
-classFilter(x, include, exclude)
+classFilter(x, include, exclude, envir)
 
-\S4method{classFilter}{character,character,character}(x, include, exclude)
+\S4method{classFilter}{character,character,character,environment}(x, include,
+  exclude, envir)
 
-\S4method{classFilter}{character,character,missing}(x, include)
+\S4method{classFilter}{character,character,character,missing}(x, include,
+  exclude)
+
+\S4method{classFilter}{character,character,missing,environment}(x, include,
+  envir)
+
+\S4method{classFilter}{character,character,missing,missing}(x, include)
 }
 \arguments{
 \item{x}{Character vector of object names to filter, possibly from \code{ls}.}
@@ -19,6 +28,9 @@ classFilter(x, include, exclude)
 \item{include}{Class(es) to include, as a character vector.}
 
 \item{exclude}{Optional class(es) to exclude, as a character vector.}
+
+\item{envir}{The environment ins which to search for objects.
+                 Default is the calling environment.}
 }
 \value{
 Vector of object names matching the class filter.
@@ -27,14 +39,13 @@ Vector of object names matching the class filter.
 Based on \url{http://stackoverflow.com/a/5158978/1380598}.
 }
 \note{
-Currently only searches for objects in the global enviroment.
-
 \code{\link{inherits}} is used internally to check the object class,
 which can, in some cases, return results inconsistent with \code{is}.
 See \url{http://stackoverflow.com/a/27923346/1380598}.
 These (known) cases are checked manually and corrected.
 }
 \examples{
+## from global environment
 a <- list(1:10)     # class `list`
 b <- letters        # class `character`
 d <- runif(10)      # class `numeric`
@@ -47,6 +58,22 @@ classFilter(ls(), include="numeric", exclude="integer")
 classFilter(ls(), include="lm")
 classFilter(ls(), include="lm", exclude="glm")
 rm(a, b, d, f, g, h)
+
+## from another environment
+e = new.env(parent = emptyenv())
+e$a <- list(1:10)     # class `list`
+e$b <- letters        # class `character`
+e$d <- runif(10)      # class `numeric`
+e$f <- sample(1L:10L) # class `numeric`, `integer`
+e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
+e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`
+classFilter(ls(e), include=c("character", "list"), envir=e)
+classFilter(ls(e), include="numeric", envir=e)
+classFilter(ls(e), include="numeric", exclude="integer", envir=e)
+classFilter(ls(e), include="lm", envir=e)
+classFilter(ls(e), include="lm", exclude="glm", envir=e)
+rm(a, b, d, f, g, h, envir=e)
+rm(e)
 }
 \author{
 Alex Chubaty
