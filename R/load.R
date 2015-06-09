@@ -164,10 +164,12 @@ setMethod("loadFiles",
               loadFun <- as.character(.fileExts[exts, "functions"])#[,functions])
               loadPackage <- as.character(.fileExts[exts, "package"])#[,functions])
 
-              # correct those for which a specific function is given in fileListdf$functions
-              if(!is.na(match("functions",names(fileListdf)))) {
-                loadFun[!is.na(fileListdf$functions)] <- fileListdf$functions[!is.na(fileListdf$functions)]
-                loadPackage[!is.na(fileListdf$package)] <- fileListdf$package[!is.na(fileListdf$package)]
+              # correct those for which a specific function is given in fileListDT$functions
+              if("functions" %in% names(fileListDT)) {
+                loadFun[!is.na(fileListDT$functions)] <- fileListDT$functions[!is.na(fileListDT$functions)]
+                loadPackage[!is.na(fileListDT[,package])] <- fileListDT$package[!is.na(fileListDT$package)]
+                loadPackage[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+                loadFun[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
               }
 
               # use filenames as object names, unless alternative provided in fileListdf$objectNames
