@@ -389,19 +389,38 @@ setMethod("rndstr",
 #' @author Alex Chubaty
 #'
 #' @examples
-#' ## from global environment
-#' a <- list(1:10)     # class `list`
-#' b <- letters        # class `character`
-#' d <- runif(10)      # class `numeric`
-#' f <- sample(1L:10L) # class `numeric`, `integer`
-#' g <- lm( jitter(d) ~ d ) # class `lm`
-#' h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
-#' classFilter(ls(), include=c("character", "list"))
-#' classFilter(ls(), include="numeric")
-#' classFilter(ls(), include="numeric", exclude="integer")
-#' classFilter(ls(), include="lm")
-#' classFilter(ls(), include="lm", exclude="glm")
-#' rm(a, b, d, f, g, h)
+#' \dontrun{
+#'   ## from global environment
+#'   a <- list(1:10)     # class `list`
+#'   b <- letters        # class `character`
+#'   d <- runif(10)      # class `numeric`
+#'   f <- sample(1L:10L) # class `numeric`, `integer`
+#'   g <- lm( jitter(d) ~ d ) # class `lm`
+#'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
+#'   classFilter(ls(), include=c("character", "list"))
+#'   classFilter(ls(), include="numeric")
+#'   classFilter(ls(), include="numeric", exclude="integer")
+#'   classFilter(ls(), include="lm")
+#'   classFilter(ls(), include="lm", exclude="glm")
+#'   rm(a, b, d, f, g, h)
+#' }
+#'
+#' ## from local (e.g., function) environment
+#' local({
+#'   e <- environment()
+#'   a <- list(1:10)     # class `list`
+#'   b <- letters        # class `character`
+#'   d <- runif(10)      # class `numeric`
+#'   f <- sample(1L:10L) # class `numeric`, `integer`
+#'   g <- lm( jitter(d) ~ d ) # class `lm`
+#'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
+#'   classFilter(ls(), include=c("character", "list"), envir=e)
+#'   classFilter(ls(), include="numeric", envir=e)
+#'   classFilter(ls(), include="numeric", exclude="integer", envir=e)
+#'   classFilter(ls(), include="lm", envir=e)
+#'   classFilter(ls(), include="lm", exclude="glm", envir=e)
+#'   rm(a, b, d, e, f, g, h)
+#' })
 #'
 #' ## from another environment
 #' e = new.env(parent = emptyenv())
