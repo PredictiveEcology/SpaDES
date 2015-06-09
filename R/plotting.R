@@ -405,6 +405,7 @@ setMethod("nlayers",
           signature=".spadesPlot",
           definition=function(x) {
             return(length(x@arr@extents))
+            #return(sum(sapply(x@spadesGrobList, function(y) length(y))))
           })
 
 #' @rdname nlayers
@@ -488,7 +489,7 @@ setMethod("layerNames",
           signature=".spadesPlot",
           definition=function(object) {
             return(sapply(object@spadesGrobList, function(x) {
-              sapply(x, function(y) y@plotName)
+              sapply(x, function(y) y@plotName)[[1]]
             }))
           })
 
@@ -534,6 +535,8 @@ setMethod("equalExtent",
 #' @param plotArgs list. Any arguments that the the grid package can accept for the specific
 #' grob types, e.g., rasterGrob, polygonGrob, etc.
 #'
+#' @param whichSpadesPlotables A logical indicating which objects in the Plot call can be plotted by Plot
+#'
 #' @param ... additional arguments. Currently nothing.
 #'
 #' @return A \code{\link{.spadesPlot}} object, which has 2 slots, one for the plot arrangement
@@ -544,7 +547,7 @@ setMethod("equalExtent",
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
-setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, ...) {
+setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, whichSpadesPlotables, ...) {
   standardGeneric(".makeSpadesPlot")
 })
 
@@ -560,7 +563,7 @@ setMethod(".makeSpadesPlot",
             #             }
 
             suppliedNames <- names(plotObjects)
-            objs <- .objectNames()
+            objs <- .objectNames()[whichSpadesPlotables]
 
             names(plotObjects) <- sapply(objs,function(x) x$objs)
 
@@ -577,6 +580,11 @@ setMethod(".makeSpadesPlot",
             isStack <-  sapply(plotObjects, function(x) is(x, "RasterStack"))
             isPolygon <- sapply(plotObjects, function(x) is(x, "SpatialPolygons"))
 
+            # stacks are like lists in that they are a single object, with many layers
+            # Plot must treat these as any other layers, except that they are stored in
+            # single objects. The following set of objects are the "long" versions of the
+            # layers, i.e,. a call to say Plot(stack1, layerB) would have two objects, but maybe 5
+            # layers, if the stack had 4 layers in it.
             isSpadesPlotLong <- rep(isSpadesPlot, numLayers)
             isRasterLong <- rep(isRaster, numLayers)
             isStackLong <- rep(isStack, numLayers)
@@ -590,25 +598,16 @@ setMethod(".makeSpadesPlot",
             #  omit it, and if layer name is "layer", omit it if within a RasterLayer
             lN[isStackLong] <- paste(objectNamesLong[isStackLong],
                                       layerNames(plotObjects[isStack]), sep="$")
-#             useOnlyObjectName <- (layerNames(plotObjects)=="layer") |
-#               (layerNames(plotObjects)==objectNamesLong)
-#             if(any(!isStackLong)) {
-#               lN[(!isStackLong)] <-
-#                 sapply(seq_len(length(lN[(!isStackLong)])),
-#                               function(x) paste(lN[(!isStackLong)][[x]],
-#                               layerNames(plotObjects)[[x]], sep="$")) }
             names(lN) <- rep(names(plotObjects), numLayers)
             names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
-            # For non spatial objects, like ggplot
-            #objectNamesLong[!isSpatialObjects] <- lN[!isSpatialObjects] <- names(plotObjects)[!isSpatialObjects]
-
+            # Create long version of environments
             lEnvs <- rep(sapply(objs, function(x) x$envs), numLayers)
 
-            if(any(duplicated(paste(lN,lEnvs)))) {
-              stop(paste("Cannot plot two layers with same name from the same environment. Check",
-                         "inside RasterStacks for objects"))
-            }
+#             if(any(duplicated(paste(lN,lEnvs)))) {
+#               stop(paste("Cannot plot two layers with same name from the same environment. Check",
+#                          "inside RasterStacks for objects"))
+#             }
 
             plotArgs <- .makeList(plotArgs, length(lN))
 
@@ -620,6 +619,7 @@ setMethod(".makeSpadesPlot",
             newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
 
               spadesGrobList <- list()
+
               if(isSpadesPlotLong[x]) {
                 spadesGrobList[[lN[x]]] <- plotObjects[[match(names(isSpadesPlotLong)[x],names(plotObjects))]]@
                   spadesGrobList[[match(lN[x], layerNames(plotObjects[isSpadesPlot]))]][[1]]
@@ -1548,7 +1548,11 @@ setMethod("makeLines",
   e <- sys.frame(frameCalledFrom)
   eminus1 <- sys.frame(frameCalledFrom-1)
 
-  callNamedArgs <- as.character(substitute(list(...), env=e))[-1]
+  if(nchar(argName)==0){
+    callNamedArgs <- as.character(substitute(list(...), env=e))[-1]
+  } else {
+    callNamedArgs <- as.character(substitute(parse(text=sim), env=e))[-1]
+  }
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
   return(objs)
 }
@@ -1810,9 +1814,7 @@ setMethod("Plot",
                                 legend, legendRange, legendText, pch, title, na.color,
                                 zero.color, length) {
       # Section 1 - extract object names, and determine which ones need plotting,
-            # which ones need replotting etc.
-
-
+      # which ones need replotting etc.
 
       if (all(sapply(new, function(x) x))) clearPlot(dev.cur())
 
@@ -1822,14 +1824,35 @@ setMethod("Plot",
                        sys.frame(grep(sys.calls(),pattern="^Plot")))[-1]
 
       whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
+
+      if(!all(whichSpadesPlotables)) {
+        message(paste("Plot can only plot objects of class .spadesPlottables. ",
+                      "Type 'showClass(\".spadesPlottables\")' to see current available",
+                      "classes"))
+      }
+
       plotObjs <- dotObjs[whichSpadesPlotables]
+
+      if(length(plotObjs)==0){
+        stop("Nothing to Plot")
+      }
       nonPlotArgs <- dotObjs[!whichSpadesPlotables]
+
+      # intercept cases that don't make sense, and give meaningful error
+      if(!is.null(addTo)) {
+        if( !tryCatch(addTo %in% unlist(layerNames(get(paste0("spadesPlot", dev.cur()),envir=.spadesEnv))) ,
+                 error=function(x) FALSE)) {
+          message(paste("Plot called with 'addTo' argument specified, but that layer does not exist.",
+                        "Plotting object on its own plot"))
+          plotArgs$addTo <- NULL
+        }
+      }
 
       # Create a .spadesPlot object from the plotObjs and plotArgs
 
       isSpadesPlot <- sapply(plotObjs, function(x) is(x,".spadesPlot"))
       #if(any(!isSpadesPlot)) {
-        newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs)
+        newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlotables)
       #}
 
       if(exists(paste0("spadesPlot", dev.cur()),envir=.spadesEnv)) {
