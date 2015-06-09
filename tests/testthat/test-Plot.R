@@ -3,7 +3,9 @@ test_that("Plot - check for errors", {
 
   ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
+  names(DEM87654) <- "DEM87654"
   habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
+  names(habitatQuality87654) <- "habitatQuality87654"
   landscape87654 <- stack(DEM87654, habitatQuality87654)
   caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e1, 0, 10), y=runif(1e1, 0, 10)))
 
@@ -37,15 +39,15 @@ test_that("Plot - check for errors", {
   expect_that(Plot(landscape87654, caribou87654), testthat::not(throws_error()))
 
   #expect_that(Plot(habitatQuality2, new=FALSE), not(throws_error()))
-  Sr1 <- sp::Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
-  Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
+  Sr1 <- sp::Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2)))
+  Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)))
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87654 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
   clearPlot()
   expect_that(Plot(SpP87654), testthat::not(throws_error()))
   clearPlot()
-  expect_that(Plot(landscape87654, caribou87654, SpP87654), testthat::not(throws_error()))
+  expect_that(Plot(landscape87654, caribou87654, SpP87654, new=TRUE), testthat::not(throws_error()))
 
   # test SpatialLines
   l1 <- cbind(c(10,2,30),c(30,2,2))
@@ -60,7 +62,7 @@ test_that("Plot - check for errors", {
   expect_that(Plot(Sl87654), testthat::not(throws_error()))
 
   # test addTo
-  #expect_that(Plot(SpP87654, addTo="landscape87654$habitatQuality87654", gp=gpar(lwd=2)), testthat::not(throws_error()))
+  expect_that(Plot(SpP87654, addTo="landscape87654$habitatQuality87654", gp=gpar(lwd=2)), testthat::not(throws_error()))
 
   # Test various arguments
   clearPlot()
@@ -92,6 +94,16 @@ test_that("Plot - check for errors", {
   expect_that(Plot(caribou87654, new=TRUE), testthat::not(throws_error()))
   expect_that(Plot(DEM87654), testthat::not(throws_error()))
   expect_that(Plot(habitatQuality87654), testthat::not(throws_error()))
+
+  testPlot <- Plot(habitatQuality87654)
+  expect_that(Plot(testPlot), testthat::not(throws_error()))
+  expect_message(Plot(ls(), habitatQuality87654),
+                 "Plot can only plot objects of class .spadesPlottables")
+  expect_message(Plot(habitatQuality87654, addTo="test"),
+                 "Plot called with 'addTo' argument specified")
+  expect_error(Plot(ls()),
+                 "Nothing to Plot")
+  expect_that(rePlot, testthat::not(throws_error()))
 
   dev.off()
 #  endFileList <- dir()
