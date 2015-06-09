@@ -3,15 +3,10 @@ test_that("adj results identical to adjacent", {
 
   # smaller sample (should use matrix)
   s <- sample(1:length(a), 3)
-#  expect_that(identical(adj(a, s, directions=8,match.adjacent=TRUE),
-#                        adjacent(a, s, directions=8)), is_true())
-  expect_that(sum(adj(a, s, directions=8, sort=TRUE,match.adjacent=TRUE)-
-                        adjacent(a, s, directions=8, sorted=TRUE)), testthat::equals(0))
+  expect_equal(sum(adj(a, s, directions=8, sort=TRUE, match.adjacent=TRUE) -
+                        adjacent(a, s, directions=8, sorted=TRUE)), 0)
 
   # larger sample (should use data.table)
   s <- sample(1:length(a), 1e5)
-  expect_that(sum(adj(a, s, directions=8)-
-                        adjacent(a, s, directions=8)), testthat::equals(0))
-#   expect_that(identical(adj(a, s, directions=8, sort=TRUE),
-#                         adjacent(a, s, directions=8, sorted=TRUE)), is_true())
+  expect_equal(sum(adj(a, s, directions=8) - adjacent(a, s, directions=8)), 0)
 })
