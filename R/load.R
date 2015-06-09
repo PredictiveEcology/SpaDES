@@ -83,32 +83,40 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @examples
 #' # Load random maps included with package
-#' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-#'    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES",
-#'    stringsAsFactors=FALSE)
+#' \dontrun{
+#' fileList = data.table(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+#'    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
+#'
+#' times <- list(start=0, stop=3)
+#' parameters <- list(.globals=list(stackName="landscape"),
+#'                    .load=list(fileList=fileList))
+#' modules <- list("randomLandscapes", "caribouMovement")
+#' path <- system.file("sampleModules", package="SpaDES")
+#' mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+#' ls(mySim)
 #'
 #' sim1 <- loadFiles(fileList=fileList)
 #' clearPlot()
 #' Plot(sim1$DEM)
 #'
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#' #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
+#' #  at time = 10 and 20 (via "intervals"). Also, pass the single argument as a list to all functions...
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
 #'      full.names=TRUE, pattern= "tif")
-#' fileList = data.frame(
+#' fileList = data.table(
 #'    files = files,
-#'    functions="rasterToMemory",
-#'    packages="SpaDES",
+#'    functions="raster::raster",
 #'    objectNames = NA,
 #'    arguments = arguments,
 #'    loadTime = 0,
-#'    intervals = c(rep(NA, length(files)-1), 10),
-#'    stringsAsFactors=FALSE)
+#'    intervals = c(rep(NA, length(files)-1), 10))
 #'
 #' sim2 <- loadFiles(fileList=fileList)
-#'
+#' simStopTime(sim2) <- 20
+#' sim2 <- spades(sim2)
+#' }
 setGeneric("loadFiles", function(sim, fileList, ...)  {
   standardGeneric("loadFiles")
 })
@@ -139,24 +147,27 @@ setMethod("loadFiles",
               }
 
               if (is(fileList, "list")) {
-                fileListdf <- do.call(data.frame,
-                                      args=list(fileList[-match("arguments", names(fileList))],
-                                                stringsAsFactors=FALSE))
+                fileListDT <- do.call(data.table,
+                                      args=list(fileList[-match("arguments", names(fileList))]))
               } else {
-                fileListdf <- fileList
+                fileListDT <- data.table(fileList)
               }
 
+
               # Fill in columns if they are missing:
+              if (!("package" %in% names(fileListDT))) {
+                fileList[,package:=NA]
+              }
+
               #  assume loadTime = simStartTime(sim) if missing
-              if(is.na(match("loadTime", names(fileListdf)))) {
-                fileListdf["loadTime"] <- simStartTime(sim)
+              if(!("loadTime" %in% names(fileListDT))) {
+                fileListDT[,loadTime:=simStartTime(sim)]
               }
 
               # only load those that are to be loaded at their loadTime
-              filesCurTime <- fileListdf[fileListdf$loadTime==curTime,]
+              filesCurTime <- fileListDT[loadTime==curTime]
 
               fl <- filesCurTime$file
-
               # extract file extensions, to be used to determine which function to use
               exts <- match(fileExt(fl), .fileExts[,"exts"])
 
@@ -164,16 +175,18 @@ setMethod("loadFiles",
               loadFun <- as.character(.fileExts[exts, "functions"])#[,functions])
               loadPackage <- as.character(.fileExts[exts, "package"])#[,functions])
 
-              # correct those for which a specific function is given in fileListdf$functions
-              if(!is.na(match("functions",names(fileListdf)))) {
-                loadFun[!is.na(fileListdf$functions)] <- fileListdf$functions[!is.na(fileListdf$functions)]
-                loadPackage[!is.na(fileListdf$package)] <- fileListdf$package[!is.na(fileListdf$package)]
+              # correct those for which a specific function is given in fileListDT$functions
+              if("functions" %in% names(fileListDT)) {
+                loadFun[!is.na(fileListDT$functions)] <- fileListDT$functions[!is.na(fileListDT$functions)]
+                loadPackage[!is.na(fileListDT[,package])] <- fileListDT$package[!is.na(fileListDT$package)]
+                loadPackage[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+                loadFun[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
               }
 
-              # use filenames as object names, unless alternative provided in fileListdf$objectNames
+              # use filenames as object names, unless alternative provided in fileListDT$objectNames
               objectNames <- fileName(fl)#sapply(fl.list, function(x) paste(x[-length(x)], collapse="."))
-               if(!is.na(match("objectNames", names(fileListdf)))) {
-                 objectNames[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
+               if(!is.na(match("objectNames", names(fileListDT)))) {
+                 objectNames[!is.na(fileListDT$objectNames)] <- fileListDT$objectNames
                }
 
               # load files
@@ -201,18 +214,17 @@ setMethod("loadFiles",
                  }
 
               } # end x
-
-              # add new rows of files to load based on fileListdf$Interval
-              if(!is.na(match("intervals", names(fileListdf)))) {
-                if (any(!is.na(fileListdf$intervals))) {
-                  keep <- !is.na(fileListdf$interval)
-                  fileListdf$loadTime[keep] <- curTime + fileListdf$interval[keep]
+              # add new rows of files to load based on fileListDT$Interval
+              if(!is.na(match("intervals", names(fileListDT)))) {
+                if (any(!is.na(fileListDT$intervals))) {
+                  keep <- !is.na(fileListDT$interval)
+                  fileListDT$loadTime[keep] <- curTime + fileListDT$interval[keep]
                 }
               }
 
-              # remove files that have been loaded from fileListdf
-              keepOnFileList <- fileListdf$loadTime!=curTime
-              fileListdf = fileListdf[keepOnFileList,]
+              # remove files that have been loaded from fileListDT
+              keepOnFileList <- fileListDT$loadTime!=curTime
+              fileListDT = fileListDT[keepOnFileList,]
 
               if(!exists("usedFileList")) usedFileList <- FALSE
 
@@ -220,15 +232,15 @@ setMethod("loadFiles",
               #   just report files loaded
               if (!usedFileList) {
                 if(is(fileList, "list")) {
-                  simFileList(sim) <- c(as.list(fileListdf), arguments=arguments[keepOnFileList])
+                  simFileList(sim) <- c(as.list(fileListDT), arguments=arguments[keepOnFileList])
                 } else if (is(fileList, "data.frame")) {
-                  simFileList(sim) <- fileListdf
+                  simFileList(sim) <- fileListDT
                 } else {
                   stop("fileList must be either a list or data.frame")
                 }
 
-                if(nrow(fileListdf)>0) {
-                  scheduleEvent(sim, min(fileListdf$loadTime, na.rm=TRUE), "load", "later")
+                if(nrow(fileListDT)>0) {
+                  sim <- scheduleEvent(sim, min(fileListDT$loadTime, na.rm=TRUE), "load", "later")
                 }
               }
             }

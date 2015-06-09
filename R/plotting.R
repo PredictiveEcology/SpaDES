@@ -1400,22 +1400,23 @@ setMethod(".plotGrob",
 #' Plot(caribouTraj, new=TRUE, length=0.1)
 #'
 #' # or  to a previous Plot
-#' fileList <- data.frame(files =
+#' \dontrun{
+#' fileList <- data.table(files =
 #'      dir(file.path(find.package("SpaDES",
 #'                                 lib.loc=getOption("devtools.path"),
 #'                                 quiet=FALSE),
 #'                   "maps"),
 #'         full.names=TRUE, pattern= "tif"),
 #'      functions="rasterToMemory",
-#'      packages="SpaDES",
-#'      stringsAsFactors=FALSE)
+#'      packages="SpaDES")
 #'
 #' # Load files to memory (using rasterToMemory)
 #' sim1 <- loadFiles(fileList=fileList)
 #'
-#' Plot(sim1$DEM)
+#' Plot(sim1$DEM, new=TRUE)
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' Plot(caribouTraj, addTo="sim$DEM", length=0.1)
+#' Plot(caribouTraj, addTo="sim1$DEM", length=0.1)
+#' }
 #'
 setGeneric("makeLines", function(from, to) {
   standardGeneric("makeLines")
