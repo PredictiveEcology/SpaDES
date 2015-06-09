@@ -1,4 +1,4 @@
-if (getRversion() >= "3.1.0") utils::globalVariables("objectNames")
+if (getRversion() >= "3.1.0") utils::globalVariables(c("loadTime", "objectNames", "package"))
 
 # extract filename (without extension) of a file
 # - will accept list or charcter vector
@@ -100,7 +100,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' \dontrun{
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#' #  at time = 10 and 20 (via "intervals"). Also, pass the single argument as a list to all functions...
+#' #  at time = 10 and 20 (via "intervals").
+#' # Also, pass the single argument as a list to all functions...
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),

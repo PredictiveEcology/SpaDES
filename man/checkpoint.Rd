@@ -35,7 +35,7 @@ including the state of the random number generator,
 by scheduling checkpoint events.
 }
 \details{
-\code{\link{.checkpointLoad}} and \code{\link{.checkpointSave}} code from:
+\code{\link{checkpointLoad}} and \code{\link{.checkpointSave}} code based on:
 \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 
 RNG save code adapted from:

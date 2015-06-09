@@ -84,7 +84,8 @@ Plot(sim1$DEM)
 
 \dontrun{
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#  at time = 10 and 20 (via "intervals"). Also, pass the single argument as a list to all functions...
+#  at time = 10 and 20 (via "intervals").
+# Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
 arguments = list(native=TRUE)
 files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),

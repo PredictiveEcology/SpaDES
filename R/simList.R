@@ -271,6 +271,7 @@ ls.simList <- function(name) {
   ls(simEnv(name))
 }
 
+#' @export
 #' @rdname ls-method
 setMethod("ls",
           signature(name="simList"),
@@ -1373,7 +1374,7 @@ setMethod("defineModule",
 #'                  Non-standard evaluation is used for the expression.
 #' @param min       With \code{max}, used to define a suitable range of values.
 #'                  Non-standard evaluation is used for the expression.
-#' @param min       With \code{min}, used to define a suitable range of values.
+#' @param max       With \code{min}, used to define a suitable range of values.
 #'                  Non-standard evaluation is used for the expression.
 #'
 #' @return data.frame

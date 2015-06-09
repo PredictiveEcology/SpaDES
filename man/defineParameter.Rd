@@ -26,7 +26,7 @@ Non-standard evaluation is used for the expression.}
 \item{min}{With \code{max}, used to define a suitable range of values.
 Non-standard evaluation is used for the expression.}
 
-\item{min}{With \code{min}, used to define a suitable range of values.
+\item{max}{With \code{min}, used to define a suitable range of values.
                  Non-standard evaluation is used for the expression.}
 }
 \value{
