@@ -8,19 +8,24 @@
 \alias{.makeSpadesPlot,missing,missing-method}
 \title{Make a \code{.spadesPlot} class object}
 \usage{
-.makeSpadesPlot(plotObjects, plotArgs, ...)
+.makeSpadesPlot(plotObjects, plotArgs, whichSpadesPlotables, ...)
 
-\S4method{.makeSpadesPlot}{list,list}(plotObjects, plotArgs, ...)
+\S4method{.makeSpadesPlot}{list,list}(plotObjects, plotArgs,
+  whichSpadesPlotables, ...)
 
-\S4method{.makeSpadesPlot}{list,missing}(plotObjects, plotArgs, ...)
+\S4method{.makeSpadesPlot}{list,missing}(plotObjects, plotArgs,
+  whichSpadesPlotables, ...)
 
-\S4method{.makeSpadesPlot}{missing,missing}(plotObjects, plotArgs, ...)
+\S4method{.makeSpadesPlot}{missing,missing}(plotObjects, plotArgs,
+  whichSpadesPlotables, ...)
 }
 \arguments{
 \item{plotObjects}{list. Any plot objects.}
 
 \item{plotArgs}{list. Any arguments that the the grid package can accept for the specific
 grob types, e.g., rasterGrob, polygonGrob, etc.}
+
+\item{whichSpadesPlotables}{A logical indicating which objects in the Plot call can be plotted by Plot}
 
 \item{...}{additional arguments. Currently nothing.}
 }
