@@ -62,7 +62,7 @@ test_that("Plot - check for errors", {
   # test addTo
   #expect_that(Plot(SpP87654, addTo="landscape87654$habitatQuality87654", gp=gpar(lwd=2)), testthat::not(throws_error()))
 
-  # Test various arguments
+  # test various arguments
   clearPlot()
   expect_that(Plot(caribou87654, new=TRUE, gpAxis=gpar(cex=0.4), size=1), testthat::not(throws_error()))
   clearPlot()

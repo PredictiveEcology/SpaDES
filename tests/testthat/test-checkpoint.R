@@ -1,6 +1,6 @@
-test_that("testing checkpoint, passed", {
+test_that("test checkpointing", {
 
-  ####################
+  ## save checkpoints; no load/restore
   set.seed(1234)
   times <- list(start=0, stop=10)
   parameters <- list(.globals=list(stackName="landscape"),
@@ -9,20 +9,20 @@ test_that("testing checkpoint, passed", {
                      caribouMovement=list(.plotInitialTime=NA))
   modules <- list("randomLandscapes", "caribouMovement")
   path <- system.file("sampleModules", package="SpaDES")
-  mySimFirst <- simInit(times=times, params=parameters, modules=modules, path=path)
-  mySimFirst <- spades(mySimFirst)
+  sim1 <- simInit(times=times, params=parameters, modules=modules, path=path)
+  sim1 <- spades(sim1)
 
-  ####################
+  ## save checkpoints; with load/restore
   set.seed(1234)
   times <- list(start=0, stop=5)
-  mySimSecond <- simInit(times=times, params=parameters, modules=modules, path=path)
-  mySimSecond <- spades(mySimSecond)
-  rm(mySimSecond)
+  sim2 <- simInit(times=times, params=parameters, modules=modules, path=path)
+  sim2 <- spades(sim2)
+  rm(sim2)
 
   checkpointLoad(file="chkpnt.rdata")
-  simStopTime(mySimSecond) <- 10
-  mySimSecond <- spades(mySimSecond)
+  simStopTime(sim2) <- 10
+  sim2 <- spades(sim2)
 
-expect_true(all.equal(as(mySimFirst,"simList_"), as(mySimSecond,"simList_")))
-
+  ## both versions above should yield identical results
+  expect_true(all.equal(as(sim1,"simList_"), as(sim2,"simList_")))
 })
