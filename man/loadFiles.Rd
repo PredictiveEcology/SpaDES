@@ -67,31 +67,40 @@ and will be repeated for each load function.
 }
 \examples{
 # Load random maps included with package
-fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-   full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES",
-   stringsAsFactors=FALSE)
+\dontrun{
+fileList = data.table(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+   full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
+
+times <- list(start=0, stop=3)
+parameters <- list(.globals=list(stackName="landscape"),
+                   .load=list(fileList=fileList))
+modules <- list("randomLandscapes", "caribouMovement")
+path <- system.file("sampleModules", package="SpaDES")
+mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+ls(mySim)
 
 sim1 <- loadFiles(fileList=fileList)
 clearPlot()
 Plot(sim1$DEM)
 
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
+#  at time = 10 and 20 (via "intervals"). Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
 arguments = list(native=TRUE)
 files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
      full.names=TRUE, pattern= "tif")
-fileList = data.frame(
+fileList = data.table(
    files = files,
-   functions="rasterToMemory",
-   packages="SpaDES",
+   functions="raster::raster",
    objectNames = NA,
    arguments = arguments,
    loadTime = 0,
-   intervals = c(rep(NA, length(files)-1), 10),
-   stringsAsFactors=FALSE)
+   intervals = c(rep(NA, length(files)-1), 10))
 
 sim2 <- loadFiles(fileList=fileList)
+simStopTime(sim2) <- 20
+sim2 <- spades(sim2)
+}
 }
 \author{
 Eliot McIntire
