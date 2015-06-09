@@ -119,7 +119,7 @@ setMethod("updateList",
 #' @param quiet Logical flag. Should the final "packages loaded"
 #' message be suppressed?
 #'
-#' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+#' @return Specified packages are loaded and attached using \code{library()}.
 #'
 #' @seealso \code{\link{library}}.
 #'
@@ -169,6 +169,50 @@ setMethod("loadPackages",
 })
 
 ################################################################################
+#' Normalize filepath.
+#'
+#' Checks the specified filepath for formatting consistencies:
+#'  1) use slash instead of backslash;
+#'  2) do tilde etc. expansion;
+#'  3) remove trailing slash.
+#'
+#' @param path A character vector of filepaths.
+#'
+#' @return Character vector of cleaned up filepaths.
+#'
+#' @importFrom magrittr '%>%'
+#' @export
+#' @docType methods
+#' @rdname normPath
+#'
+setGeneric("normPath", function(path) {
+  standardGeneric("normPath")
+})
+
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="character"),
+          definition=function(path) {
+            lapply(path, normalizePath, winslash="/", mustWork=FALSE) %>%
+              unlist %>%
+              gsub("/$", "", .)
+})
+
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="list"),
+          definition=function(path) {
+            return(normPath(unlist(path)))
+})
+
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="missing"),
+          definition=function() {
+            return(character())
+})
+
+################################################################################
 #' Check filepath.
 #'
 #' Checks the specified filepath for formatting consistencies,
@@ -198,19 +242,13 @@ setMethod("checkPath",
           definition=function(path, create) {
             if (!is.na(path)) {
               if (length(path)>0) {
-                # use slash instead of backslash
-                # do tilde etc. expansion
-                # remove trailing slash
-                path = gsub("\\\\", "/", path) %>%
-                       normalizePath(., winslash="/", mustWork=FALSE) %>%
-                       gsub("/$", "", .)
-
+                path = normPath(path)
                 if (!file.exists(path)) {
                   if (create==TRUE) {
                     dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
                   } else {
-                    stop(paste("Specified path", normalizePath(path, winslash="/"),
-                               "doesn't exist. Create it and try again."))
+                    stop(paste("Specified path", path, "doesn't exist.",
+                               "Create it and try again."))
                   }
                 }
               return(path)
