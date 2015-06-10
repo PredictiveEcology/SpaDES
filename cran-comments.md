@@ -16,7 +16,7 @@ This is a resubmission. In this version we:
 * Windows           (win-builder), R 3.2.0
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.3.0 (2015-03-31 r68131)
+* Debian:testing (rocker/r-devel), R 3.3.0 (2015-06-06 r68484)
 * Windows           (win-builder), R 3.3.0 (2015-05-14 r68368)
 
 ## R CMD check results
