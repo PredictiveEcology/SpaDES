@@ -1,7 +1,8 @@
 ##############################################################
-#' Split a raster into multiple tiles
+#' Split a raster into multiple tiles.
 #'
 #' Divides up a raster into an arbitrary number of pieces.
+#' Split rasters can be recombined using \code{do.call(merge, x)}.
 #'
 #' @param x   The raster to be split.
 #'
@@ -9,62 +10,82 @@
 #'
 #' @param ny  The number of tiles to make along the y-axis.
 #'
-#' @param crop  Logical. Should the raster be cropped into tiles,
-#'              or simply masked? Default is \code{TRUE}.
+#' @return A list of cropped raster tiles.
 #'
-#' @param ... Additional arguments.
+#' @seealso \code{\link{do.call}}, \code{\link{merge}}.
 #'
-#' @return Opens a new plot device on the screen.
-#'
+#' @importFrom magrittr '%>%'
 #' @import raster
 #' @export
 #' @docType methods
-#' @rdname splitRaster-method
+#' @rdname splitRaster
+#'
+#' @author Alex Chubaty
 #'
 #' @examples
 #' # an example with dimensions:
 #' # nrow = 77
 #' # ncol = 101
 #' # nlayers = 3
-#' x <- brick(system.file("external/rlogo.grd", package="raster"))
-#' x1 <- x[[1]] # use first layer only
-#' nx=3; ny=4
-#' y = splitRaster(x1, nx, ny)
+#' b <- brick(system.file("external/rlogo.grd", package="raster"))
+#' r <- b[[1]] # use first layer only
+#' nx <- 3
+#' ny <- 4
+#' y <- splitRaster(r, nx, ny)
 #'
+#' # the original raster:
+#' plot(r) # may require a call to `dev()` if using RStudio
+#'
+#' # the split raster:
 #' layout(mat=matrix(seq_len(nx*ny), ncol=nx, nrow=ny))
-#' lapply(y, plot)
+#' plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
+#' invisible(lapply(y[plotOrder], plot))
 #'
-splitRaster = function(x, nx, ny, crop=TRUE, ...) {
-    ext = extent(x)
-    masked = vector("list", length=nx*ny)
-    tiles = vector("list", length=nx*ny)
+#' # can be recombined using `raster::merge`
+#' m <- do.call(merge, y)
+#' all.equal(m, r)
+#'
+setGeneric("splitRaster", function(x, nx, ny) {
+  standardGeneric("splitRaster")
+})
 
-    n=1
-    for (i in seq_len(nx)-1) {
-        for (j in seq_len(ny)-1) {
-            x0 = ext@xmin + i*(ext@xmax / nx)
-            x1 = ext@xmin + (i+1)*(ext@xmax / nx)
-            y0 = ext@ymin + j*(ext@ymax / ny)
-            y1 = ext@ymin + (j+1)*(ext@ymax / ny)
+#' @export
+#' @rdname splitRaster
+setMethod("splitRaster",
+          signature=signature(x="RasterLayer", nx="integer", ny="integer"),
+          definition=function(x, nx, ny) {
+            ext <- extent(x)
+            tiles <- vector("list", length=nx*ny)
 
-            x.coords = c(x0, x1, x1, x0, x0)
-            y.coords = c(y0, y0, y1, y1, y0)
+            n <- 1L
+            for (i in seq_len(nx)-1L) {
+                for (j in seq_len(ny)-1L) {
+                    x0 <- ext@xmin + i*(ext@xmax / nx)
+                    x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
+                    y0 <- ext@ymin + j*(ext@ymax / ny)
+                    y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
 
-            square = Polygon(cbind(x.coords, y.coords))
-            square = Polygons(list(square), "square")
-            square = SpatialPolygons(list(square))
+                    x.coords <- c(x0, x1, x1, x0, x0)
+                    y.coords <- c(y0, y0, y1, y1, y0)
 
-            tiles[[n]] = rasterize(square, x[[n]], silent=TRUE)
-            n = n+1
-        }
-    }
+                    box <- Polygon(cbind(x.coords, y.coords)) %>%
+                           list %>%
+                           Polygons("box") %>%
+                           list %>%
+                           SpatialPolygons
 
-    # for each tile, mask or crop:
-    if (crop) {
-      cropped = lapply(tiles, function(y) { crop(x, y) } )
-      newExtent = lapply(tiles, function(y) { extent(crop(x, y)) } )
-    } else {
-      masked = lapply(tiles, function(y) { mask(x, y) } )
-    }
-    return(masked)
-}
+                    tiles[[n]] <- rasterize(box, x, mask=TRUE, silent=TRUE) %>%
+                                  crop(box)
+                    n <- n + 1L
+                }
+            }
+            return(tiles)
+})
+
+#' @export
+#' @rdname splitRaster
+setMethod("splitRaster",
+          signature=signature(x="RasterLayer", nx="numeric", ny="numeric"),
+          definition=function(x, nx, ny) {
+            return(splitRaster(x, as.integer(nx), as.integer(ny)))
+})
