@@ -1,62 +1,87 @@
 Package: SpaDES
 Type: Package
-Title: Develop and run spatially explicit discrete event simulation models
+Title: Develop and Run Spatially Explicit Discrete Event Simulation Models
 Description: Easily implement a variety of simulation models, with a focus on
-    spatially explicit agent based models. The core simulation components are
+    spatially explicit agent based models. These include raster-based,
+    event-based, and agent-based models. The core simulation components are
     built upon a discrete event simulation framework that facilitates
     modularity, and easily enables the user to include additional functionality
     by running user-built simulation modules. Included are numerous tools to
-    visualize raster and other maps.
-URL: http://github.com/achubaty/SpaDES
-Version: 0.4.1
-Date: 2014-11-13
+    visualize raster and other maps. The suggested package `fastshp` can be
+    installed with `install.packages("fastshp", repos="http://rforge.net",
+    type="source")`.
+URL: https://github.com/PredictiveEcology/SpaDES
+Version: 0.99.0.9006
+Date: 2015-06-09
 Authors@R: c(
-    person("Eliot", "McIntire",
-    email="Eliot.McIntire@NRCan.gc.ca",
+    person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
-    person("Alex", "Chubaty",
-    email="Alexander.Chubaty@NRCan.gc.ca",
-    role=c("aut", "cre")),
-    person("Steve", "Cumming",
-    email="Steve.Cumming@sbf.ulaval.ca",
-    role=c("ctb"))
+    person(c("Eliot", "J", "B"), "McIntire", email="emcintir@NRCan.gc.ca",
+    role=c("aut")),
+    person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
+    role=c("ctb")),
+    person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
+    role="cph")
     )
+Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.1.1),
+    R (>= 3.2.0),
     data.table,
     grid,
-    sp,
-    RColorBrewer,
-    raster,
-    tkrplot
+    raster
 Suggests:
     knitr,
     Matrix,
+    fastshp,
     testthat
 Imports:
     CircStats,
+    downloader,
+    dplyr,
+    fpCompare,
+    ggplot2,
+    gridBase,
+    httr,
+    igraph,
+    magrittr,
     methods,
     RandomFields,
-    rgdal
-License: GPL
+    RColorBrewer,
+    rgdal,
+    secr,
+    sp,
+    stringr,
+    tkrplot
+License: GPL-3
 Collate:
-    'named-objects.R'
-    'agent-methods.R'
+    'agent.R'
     'SELES.R'
+    'module-dependencies-class.R'
+    'misc-methods.R'
+    'simList.R'
+    'check.R'
+    'environment.R'
     'checkpoint.R'
     'colours.R'
     'initialize.R'
     'simulation.R'
     'load.R'
-    'misc-methods.R'
+    'mapReduce.R'
+    'module-dependencies-methods.R'
+    'module-repository.R'
     'module-template.R'
     'movement.R'
     'neighbourhood.R'
+    'numerical-comparisons.R'
     'plotting.R'
     'probability.R'
     'progress.R'
     'save.R'
+    'spades-classes.R'
+    'spades-package.R'
     'splitRaster.R'
     'spread-process.R'
+    'zzz.R'
 VignetteBuilder: knitr
-BugReports: http://github.com/achubaty/SpaDES/issues
+BugReports: https://github.com/PredictiveEcology/SpaDES/issues
+ByteCompile: yes

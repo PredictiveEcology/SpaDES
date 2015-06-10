@@ -30,6 +30,12 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 ##############################################################
 #' Save simulation objects according to simParams
 #'
+#' If there is a list entry with \code{.saveObjects} as a character string vector of
+#' object names to save, then these objects will be saved with a call to saveFiles.
+#' The file names will be equal to the object name plus
+#' \code{simCurrentTime(sim)} is appended at the end. The files are saved as \code{.rds} files,
+#' meaning, only one object gets saved per file.
+#'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
@@ -39,13 +45,19 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #' @docType methods
 #' @rdname saveFiles
 #'
-# @examples
-# need examples
+#' @examples
+#' \dontrun{
+#'   saveFiles(mySim)
+#' }
 saveFiles = function(sim) {
   # extract savePaths from modules
   modulePaths <- sapply(simParams(sim), function(y) {
     if (is.null(simGlobalsOutputPath(sim))){
-      outputPath <- y$.savePath
+      if(is.null(y$.savePath)) {
+        outputPath <- "."
+      } else {
+        outputPath <- y$.savePath
+      }
     } else {
       outputPath <- file.path(simGlobalsOutputPath(sim), y$.savePath)
     }
@@ -63,7 +75,7 @@ saveFiles = function(sim) {
     modulePaths[[moduleName]] <- "."
   }
 
-  txtTime = sprintf(paste0("%0", nchar(simStopTime(sim)), "d"), simCurrentTime(sim))
+  txtTime = paddedFloatToChar(simCurrentTime(sim), ceiling(log10(simStopTime(sim)+1)))
 
   # save objects to a filename that has same name as object name, plus current simulation time
   lapply(toSave[[moduleName]], function(objectname) {

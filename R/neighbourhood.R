@@ -1,3 +1,7 @@
+if(getRversion() >= "3.1.0") {
+  utils::globalVariables(c("angles", "pixIDs", "x", "y"))
+}
+
 ##############################################################
 #' Fast `adjacent` function, and Just In Time compiled version
 #'
@@ -27,9 +31,14 @@
 #'
 #' @param directions the number of directions in which cells should be connected: 4 (rook's case), 8 (queen's case), or 'bishop' to connect cells with one-cell diagonal moves. Or a neigborhood matrix (see Details)
 #'
+#' @param sort logical. Whether the outputs should be sorted or not, using Cell IDs of the
+#'  from cells (and to cells, if \code{match.adjacent} is TRUE.
+#'
 #' @param pairs logical. If TRUE, a matrix of pairs of adjacent cells is returned. If FALSE, a vector of cells adjacent to cells is returned
 #'
 #' @param include logical. Should the focal cells be included in the result?
+#'
+#' @param target a vector of cells that can be spread to. This is the inverse of a mask.
 #'
 #' @param numCol numeric indicating number of columns in the raster. Using this with numCell is a bit faster execution time.
 #'
@@ -138,7 +147,8 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
-      adj<-adj[target,]
+      #adj<-adj[target,]
+      adj<-adj[na.omit(adj[,"to"] %in% target),]
     }
 
     if (sort){
@@ -155,12 +165,12 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
       return(adj[
         !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
             ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-        ,])
+        ,,drop=FALSE])
     } else {
       return(adj[
         !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
             ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-        ,2])
+        ,2,drop=FALSE])
     }
   } else {
 
@@ -268,26 +278,24 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 adj <- compiler::cmpfun(adj.raw)
 
 ##############################################################
-#' Identify pixels in a circle around a SpatialPoints*Named object.
+#' Identify pixels in a circle around a SpatialPoints* object.
 #'
 #' identify the pixels and coordinates that are at
-#'  a (set of) buffer distance(s) of the SpatialPoints*Named objects. This can be used
+#'  a (set of) buffer distance(s) of the SpatialPoints* objects. This can be used
 #'  for agents.
 #'
-#' @param spatialPoints SpatialPoints*Named object around which to make circles .
+#' @param spatialPoints SpatialPoints* object around which to make circles .
 #'
 #' @param radii  vector of radii that has same length as spatialPoints
 #'
 #' @param raster    Raster on which the circles are built.
-#'
-#' @param scaleRaster Description of this.
 #'
 #' @return A list of data.frames with x and y coordinates of each
 #' unique pixel of the circle around each individual.
 #'
 #' @import data.table sp raster
 #' @export
-#' @rdname cir-method
+#' @rdname cir
 #'
 # @examples
 #  NEED EXAMPLES
@@ -324,20 +332,20 @@ cir <- function(spatialPoints, radii, raster) {
 
   ### Eliot' added's code:
   DT = data.table(ids, angs, xs, ys, rads)
-  DT[, angles:=cumsum(angs), by=ids] # adds new column `angles` to DT that is the cumsum of angs for each id
-  DT[, x:=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
-  DT[, y:=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
+  DT[, "angles":=cumsum(angs), by="ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
+  DT[, "x":=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
+  DT[, "y":=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
 
   # put the coordinates of the points on the circles from all individuals in the same matrix
   coords.all.ind <- DT[, list(x,y,ids)]
 
   # extract the pixel IDs under the points
-  coords.all.ind[, pixIDs:=cellFromXY(raster,coords.all.ind)]
+  coords.all.ind[, "pixIDs":=cellFromXY(raster,coords.all.ind)]
 
   # use only the unique pixels
-  coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by=ids]
+  coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by="ids"]
   coords.all.ind.unq = na.omit(coords.all.ind.unq)
-  coords.all.ind.unq[, pixIDs.unq:=extract(raster,pixIDs)] # where is `pixIDs.unq` used???
+  coords.all.ind.unq[, "pixIDs.unq":=extract(raster,pixIDs)] # where is `pixIDs.unq` used???
 
   # extract the coordinates for the pixel IDs
   pixels = xyFromCell(raster, coords.all.ind.unq$pixIDs)

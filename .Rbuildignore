@@ -2,9 +2,11 @@
 ^\.Rproj\.user$
 .*\.tar\.gz$
 .*\.zip$
-cache/*
-figure/*
-old/*
-SAMPLE/*
-development/*
+.*\.toc$
 .travis.yml
+cran-comments.md
+LICENSE
+^_ignore$
+^travis_wait_.*\.log$
+vignettes/.*\.log$
+vignettes/.*_cache$

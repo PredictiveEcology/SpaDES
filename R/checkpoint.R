@@ -1,20 +1,18 @@
-if(getRversion() >= "3.1.0")  utils::globalVariables(c("rng.kind", "rng.state"))
-
-##############################################################
+################################################################################
 #' Simulation checkpoints.
 #'
 #' Save and reload the current state of the simulation,
 #' including the state of the random number generator,
 #' by scheduling checkpoint events.
 #'
-#' \code{\link{checkpointLoad}} and \code{\link{checkpointSave}} code from:
-#' https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R
+#' \code{\link{checkpointLoad}} and \code{\link{.checkpointSave}} code based on:
+#' \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 #'
 #' RNG save code adapted from:
-#' http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/
-#' https://stackoverflow.com/questions/13997444/
+#' \url{http://www.cookbook-r.com/Numbers/Saving_the_state_of_the_random_number_generator/}
+#' and \url{https://stackoverflow.com/questions/13997444/}
 #'
-#' @param sim           A \code{SimList} simulation object.
+#' @param sim           A \code{simList} simulation object.
 #'
 #' @param eventTime    A numeric specifying the time of the next event.
 #'
@@ -24,24 +22,22 @@ if(getRversion() >= "3.1.0")  utils::globalVariables(c("rng.kind", "rng.state"))
 #' @param debug         Optional logical flag determines whether sim debug info
 #'                      will be printed (default \code{debug=FALSE}.
 #'
-#' @return Returns the modified \code{SimList} object.
+#' @return Returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{.Random.seed}}.
 #'
 #' @author Alex Chubaty
 #'
+#' @include environment.R
 #' @export
 #' @docType methods
 #' @rdname checkpoint
 #'
-# @examples
-# need examples
 doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### determine whether to use checkpointing
   ### default is not to use checkpointing if unspecified
-  if ( !(".checkpoint" %in% names(simParams(sim))) ) {
-    simParams(sim)$.checkpoint = list(interval=NA_real_, file=NULL)
-  }
+  ### - this default is set when a new simList object is initialized
+
   useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
 
   ### determine checkpoint file location, for use in events below
@@ -60,27 +56,18 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### event definitions
   if (eventType=="init") {
     if (useChkpnt) {
-      sim <- scheduleEvent(sim, 0.00, "checkpoint", "load")
-    }
-  } else if (eventType=="load") {
-    if (useChkpnt) {
-      # load user-specified checkpoint options
-      checkpointLoad(checkpointFile)
-
-      # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
-      sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
+      sim <- scheduleEvent(sim, 0.00, "checkpoint", "save")
     }
   } else if (eventType=="save") {
     if (useChkpnt) {
-      checkpointSave(checkpointFile)
+      .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
       timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
-    warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
+    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
                   "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
 
   }
@@ -90,13 +77,18 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 #' @param file The checkpoint file.
 #' @rdname checkpoint
 checkpointLoad = function(file) {
-  # check for previous checkpoint file
-  if (file.exists(file)) {
-    load(file)
-    if (exists(".Random.seed")) {
-      do.call("RNGkind", as.list(rng.kind))
-      assign(".Random.seed", rng.state, .GlobalEnv)
-    }
+  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  fobj <- paste0(f, "_objs", ".RData")
+
+  # check for previous checkpoint files
+  if (file.exists(file) && file.exists(fobj)) {
+    simListName = load(file, envir=.GlobalEnv)
+    sim <- get(simListName, envir=.GlobalEnv)
+    load(fobj, envir=simEnv(sim))
+
+    do.call("RNGkind", as.list(sim$.rng.kind))
+    assign(".Random.seed", sim$.rng.state, envir=.GlobalEnv)
+    rm(list=c(".rng.kind", ".rng.state", ".timestamp"), envir=simEnv(sim))
     return(invisible(TRUE))
   } else {
     return(invisible(FALSE))
@@ -104,11 +96,18 @@ checkpointLoad = function(file) {
 }
 
 #' @rdname checkpoint
-checkpointSave = function(file) {
-  if (exists(".Random.seed"))  {
-    assign("rng.state", get(".Random.seed", .GlobalEnv), .GlobalEnv)
-    assign("rng.kind", RNGkind(), .GlobalEnv)
-  }
-  save.image(file) # saves entire workspace
+.checkpointSave = function(sim, file) {
+  sim$.timestamp <- Sys.time()
+  sim$.rng.state <- get(".Random.seed", envir=.GlobalEnv)
+  sim$.rng.kind <- RNGkind()
+
+  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  fobj <- paste0(f, "_objs", ".RData")
+
+  tmpEnv <- new.env()
+  assign(.objectNames("spades","simList","sim")[[1]]$objs, sim, envir=tmpEnv)
+
+  save(list=ls(tmpEnv, all.names=TRUE), file=file, envir=tmpEnv)
+  save(list=ls(simEnv(sim), all.names=TRUE), file=fobj, envir=simEnv(sim))
   invisible(TRUE) # return "success" invisibly
 }

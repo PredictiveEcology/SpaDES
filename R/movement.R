@@ -3,16 +3,18 @@
 #'
 #' Wrapper for selecting different animal movement methods.
 #'
-#' @param agent       A SpatialPoints*Named (created by SpatialPointsNamed or
-#' SpatialPointsDataFrameNamed, of with name(obj) <- "character").
+#' @param hypothesis  a character vector, length one, indicating which movement hypothesis.
+#' Currently defaults to crw to call the \code{crw} function.
+#'
+#' @param ... arguments passed to the function in \code{hypothesis}
 #'
 #' @export
 #' @docType methods
-#' @rdname crw-method
+#' @rdname crw
 #'
 #' @author Eliot McIntire
 #'
-move <- function(hypothesis=NULL,...) {
+move <- function(hypothesis="crw", ...) {
      #if (hypothesis == "TwoDT") move <- "TwoDT"
      if (hypothesis == "crw") move <- "crw"
      if (is.null(hypothesis) ) stop("Must specify a movement hypothesis")
@@ -29,8 +31,7 @@ move <- function(hypothesis=NULL,...) {
 #' was presented in Turchin 1998, but it was also used with bias modifications
 #' in McIntire, Schultz, Crone 2007.
 #'
-#' @param agent       A SpatialPoints*Named (created by SpatialPointsNamed or
-#' SpatialPointsDataFrameNamed, of with name(obj) <- "character").
+#' @param agent       A SpatialPoints* object.
 #'
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.
@@ -53,7 +54,7 @@ move <- function(hypothesis=NULL,...) {
 #'
 #' @export
 #' @docType methods
-#' @rdname crw-method
+#' @rdname crw
 #'
 #' @author Eliot McIntire
 #'
