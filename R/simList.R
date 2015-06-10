@@ -286,7 +286,7 @@ setMethod("ls",
 #' Can be used with a \code{simList} object, because the method for this class
 #' is simply a wrapper for calling \code{ls} on the simulation environment
 #' stored in the \code{simList} object.
-
+#'
 #' @param name  A \code{simList} object.
 #'
 #' @export
