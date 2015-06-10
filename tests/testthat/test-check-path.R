@@ -1,7 +1,8 @@
 test_that("normPath consistency", {
   currdir <- getwd()
   on.exit(setwd(currdir))
-  setwd(tmpdir <- tempdir())
+  tmpdir <- normalizePath(tempdir(), winslash="/", mustWork=FALSE)
+  setwd(tmpdir)
 
   paths <- list("./aaa/zzz",
                 "./aaa/zzz/",
