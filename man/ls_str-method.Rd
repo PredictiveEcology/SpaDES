@@ -3,20 +3,29 @@
 \docType{methods}
 \name{ls.str.simList}
 \alias{ls.str,missing,simList-method}
+\alias{ls.str,simList,missing-method}
 \alias{ls.str.simList}
 \title{List simulation objects and their structure}
 \usage{
 ls.str.simList(name)
 
 \S4method{ls.str}{missing,simList}(name)
+
+\S4method{ls.str}{simList,missing}(pos)
 }
 \arguments{
 \item{name}{A \code{simList} object.}
+
+\item{pos}{A \code{simList} object, used only if \code{name} not provided.}
 }
 \description{
 A variation of applying \code{\link{str}} to each matched name.
 Can be used with a \code{simList} object, because the method for this class
 is simply a wrapper for calling \code{ls} on the simulation environment
 stored in the \code{simList} object.
+
+export
+
+export
 }
 
