@@ -1,5 +1,7 @@
 # Spatial Discrete Event Simulation (SpaDES)
 
+Copyright (C) 2015 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+
 ### Develop and run spatially explicit discrete event simulation models
 
 Easily implement a variety of simulation models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models.
