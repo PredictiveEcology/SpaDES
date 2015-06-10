@@ -10,7 +10,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep=NA_real_,
+  timestep="year",
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
   parameters=rbind(
@@ -42,6 +42,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     ### check for more object dependencies:
     ### (use `checkObject` or similar)
     checkObject(sim, simGlobals(sim)$stackName, layer="habitatQuality")
+    #    checkObject(sim, simGlobals(sim)$burnStats)
 
     if (is.null(sim[[simGlobals(sim)$burnStats]])) {
       sim[[simGlobals(sim)$burnStats]] <- numeric()

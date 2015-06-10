@@ -106,6 +106,7 @@ setMethod("simInit",
 
               # evaluated only the 'defineModule' function of parsedFile
               sim <- eval(parsedFile[defineModuleItem])
+              browser()
 
               # check that modulename == filename
               fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
@@ -462,11 +463,21 @@ setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
+            browser()
             if (length(eventTime)) {
               if (!is.na(eventTime)) {
-                  newEvent <- as.data.table(list(eventTime=eventTime,
-                                                moduleName=moduleName,
-                                                eventType=eventType))
+                # if there is no information about dependencies, meaning for the first
+                #  modules...
+                if(!is.null(simDepends(sim)@dependencies[[1]])) {
+                  eventTimeInSeconds <- eventTime*timestepInSeconds(sim, moduleName)
+                } else {
+                  eventTimeInSeconds <- eventTime
+                }
+
+
+                newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
+                                              moduleName=moduleName,
+                                              eventType=eventType))
 
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
@@ -498,6 +509,52 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
+###################
+################################################################################
+#' Convert a schedule event to seconds
+#'
+#' As a common unit
+#'
+#' @param sim          A \code{simList} simulation object.
+#'
+#' @param moduleName   A character string specifying the module from which to call the event.
+#'
+#' @return Returns the eventTime in seconds, based on the default \code{timestep} of
+#' the \code{moduleName}.
+#'
+#' @export
+#' @docType methods
+#' @rdname timestepInSeconds
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("timestepInSeconds", function(sim, moduleName) {
+  standardGeneric("timestepInSeconds")
+})
+
+#' @rdname timestepInSeconds
+setMethod("timestepInSeconds",
+          signature(sim="simList", moduleName="character"),
+          definition=function(sim, moduleName) {
+            browser()
+  a = sapply(simDepends(sim)@dependencies,function(x) x@name)
+  wh <- which(a==moduleName)
+  timestep <- simDepends(sim)@dependencies[[wh]]@timestep
+  if(is.character(timestep)) {
+    timestep <- lubridate::period_to_seconds(as.period(1,unit=timestep))+
+        ddays(0.25)*(timestep=="year")
+    return(timestep)
+  }
+  if(is.na(timestep)) {
+    return(lubridate::period_to_seconds(as.period(1,unit="year")))
+  } else {
+    return(timestep)
+  }
+})
+
+largestTimestep <- function(sim) {
+  return(max(sapply(simDepends(sim)@dependencies, function(x) x@timestep), na.rm=TRUE))
+}
 ################################################################################
 #' Run a spatial discrete event simulation
 #'

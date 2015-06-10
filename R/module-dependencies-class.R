@@ -68,7 +68,7 @@ removeClass("person4")
 setClass(".moduleDeps",
          slots=list(name="character", description="character", keywords="character",
                     authors="person", version="numeric_version", spatialExtent="Extent",
-                    timeframe="POSIXt", timestep="numeric",
+                    timeframe="POSIXt", timestep="ANY",
                     citation="list", reqdPkgs="list", parameters="data.frame",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),

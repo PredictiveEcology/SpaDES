@@ -9,7 +9,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep=NA_real_,
+  timestep=period_to_seconds(as.period(1,unit="day")),
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
