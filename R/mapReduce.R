@@ -1,10 +1,10 @@
-if(getRversion() >= "3.1.0") utils::globalVariables("row_number")
+if (getRversion() >= "3.1.0") utils::globalVariables("row_number")
 
-#####################
+###############################################################################
 #' Convert reduced representation to full raster
 #'
-#' @param reduced \code{data.frame} or \code{data.table} that has at least one column
-#' of codes that are represented in the \code{fullRaster}
+#' @param reduced \code{data.frame} or \code{data.table} that has at least one
+#' column of codes that are represented in the \code{fullRaster}.
 #'
 #' @param fullRaster \code{RasterLayer} of codes used in \code{reduced} that represents
 #' a spatial representation of the data

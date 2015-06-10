@@ -9,8 +9,8 @@ rasterizeReduced(reduced, fullRaster, plotCol, mapcode = names(fullRaster),
   ...)
 }
 \arguments{
-\item{reduced}{\code{data.frame} or \code{data.table} that has at least one column
-of codes that are represented in the \code{fullRaster}}
+\item{reduced}{\code{data.frame} or \code{data.table} that has at least one
+column of codes that are represented in the \code{fullRaster}.}
 
 \item{fullRaster}{\code{RasterLayer} of codes used in \code{reduced} that represents
 a spatial representation of the data}
