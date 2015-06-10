@@ -1,4 +1,4 @@
-if (getRversion() >= "3.1.0") utils::globalVariables("objectNames")
+if (getRversion() >= "3.1.0") utils::globalVariables(c("loadTime", "objectNames", "package"))
 
 # extract filename (without extension) of a file
 # - will accept list or charcter vector
@@ -83,8 +83,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @examples
 #' # Load random maps included with package
-#' \dontrun{
-#' fileList = data.table(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+#' fileList = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
 #'    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
 #'
 #' times <- list(start=0, stop=3)
@@ -99,8 +98,10 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' clearPlot()
 #' Plot(sim1$DEM)
 #'
+#' \dontrun{
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#' #  at time = 10 and 20 (via "intervals"). Also, pass the single argument as a list to all functions...
+#' #  at time = 10 and 20 (via "intervals").
+#' # Also, pass the single argument as a list to all functions...
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
@@ -124,7 +125,7 @@ setGeneric("loadFiles", function(sim, fileList, ...)  {
 #' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim="simList", fileList="missing"),
-          definition = function(sim, fileList, ...) {
+          definition = function(sim, ...) {
 
             # Pull .fileExtensions() into function so that scoping is faster
             .fileExts = .fileExtensions()
@@ -152,7 +153,6 @@ setMethod("loadFiles",
               } else {
                 fileListDT <- data.table(fileList)
               }
-
 
               # Fill in columns if they are missing:
               if (!("package" %in% names(fileListDT))) {
@@ -251,7 +251,7 @@ setMethod("loadFiles",
 #' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim="missing", fileList="ANY"),
-          definition = function(sim, fileList, ...) {
+          definition = function(fileList, ...) {
 
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(.load=list(fileList=fileList)),
@@ -262,7 +262,7 @@ setMethod("loadFiles",
 #' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim="missing", fileList="missing"),
-          definition = function(sim, fileList, ...) {
+          definition = function(...) {
             message("no files loaded because sim and fileList are empty")
 })
 

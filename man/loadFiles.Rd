@@ -67,8 +67,7 @@ and will be repeated for each load function.
 }
 \examples{
 # Load random maps included with package
-\dontrun{
-fileList = data.table(files = dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+fileList = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
 
 times <- list(start=0, stop=3)
@@ -83,8 +82,10 @@ sim1 <- loadFiles(fileList=fileList)
 clearPlot()
 Plot(sim1$DEM)
 
+\dontrun{
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#  at time = 10 and 20 (via "intervals"). Also, pass the single argument as a list to all functions...
+#  at time = 10 and 20 (via "intervals").
+# Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
 arguments = list(native=TRUE)
 files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),

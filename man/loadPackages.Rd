@@ -25,7 +25,7 @@ already installed, should they be installed?}
 message be suppressed?}
 }
 \value{
-Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+Specified packages are loaded and attached using \code{library()}.
 }
 \description{
 Load and optionally install additional packages.

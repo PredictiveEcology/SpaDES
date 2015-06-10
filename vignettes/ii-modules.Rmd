@@ -483,7 +483,7 @@ filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.nam
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),
-                   .load=list(fileList=data.frame(files=filelist, stringsAsFactors=FALSE)),
+                   .load=list(fileList=data.table(files=filelist)),
                    randomLandscapes=list(.saveInitialTime=0,
                                          .saveInterval=10,
                                          .saveObjects=c("landscape"),

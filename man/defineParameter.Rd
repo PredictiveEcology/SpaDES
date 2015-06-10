@@ -3,12 +3,17 @@
 \docType{methods}
 \name{defineParameter}
 \alias{defineParameter}
-\alias{defineParameter,character,character-method}
+\alias{defineParameter,character,character,ANY,ANY,ANY-method}
+\alias{defineParameter,character,character,ANY,missing,missing-method}
 \title{Define a parameter used in a module}
 \usage{
-defineParameter(name, class, default)
+defineParameter(name, class, default, min, max)
 
-\S4method{defineParameter}{character,character}(name, class, default)
+\S4method{defineParameter}{character,character,ANY,ANY,ANY}(name, class,
+  default, min, max)
+
+\S4method{defineParameter}{character,character,ANY,missing,missing}(name, class,
+  default)
 }
 \arguments{
 \item{name}{Character string giving the parameter name.}
@@ -16,6 +21,12 @@ defineParameter(name, class, default)
 \item{class}{Character string giving the parameter class.}
 
 \item{default}{The default value to use when none is specified by the user.
+Non-standard evaluation is used for the expression.}
+
+\item{min}{With \code{max}, used to define a suitable range of values.
+Non-standard evaluation is used for the expression.}
+
+\item{max}{With \code{min}, used to define a suitable range of values.
                  Non-standard evaluation is used for the expression.}
 }
 \value{
@@ -25,13 +36,10 @@ data.frame
 Used to specify a parameter's name, value, and set a default.
 }
 \examples{
-\dontrun{
-  rbind(
-   defineParameter("lambda", "numeric", 1.23),
-   defineParameter("mu", "numeric", 1e-3),
-   defineParameter("nu", "numeric", 1e-2)
-  )
-}
+parameters = rbind(
+  defineParameter("lambda", "numeric", 1.23),
+  defineParameter("p", "numeric", 0.2, 0, 1)
+)
 }
 \author{
 Alex Chubaty

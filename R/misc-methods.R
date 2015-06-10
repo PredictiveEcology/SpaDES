@@ -5,9 +5,10 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #' This will only work for files that are \code{source}-ed.
 #' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
 #'
-#' @param fullname Logical (default \code{FALSE}) indicating whether the full path should be returned.
+#' @param fullname   Logical (default \code{FALSE}) indicating whether the full
+#'                   path should be returned.
 #'
-#' @return Character string representing the filename.
+#' @return Character String representing the filename.
 #'
 #' @importFrom magrittr '%>%'
 #' @export
@@ -142,7 +143,7 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
 setMethod("loadPackages",
            signature="list",
             definition=function(packageList, install, quiet) {
-              load <- function(name, install) {
+              loadPkg <- function(name, install) {
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
                     cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
@@ -157,7 +158,7 @@ setMethod("loadPackages",
                     }
                   }
                 }
-              lapply(packageList, load, install)
+              lapply(packageList, loadPkg, install)
               if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
 })
 

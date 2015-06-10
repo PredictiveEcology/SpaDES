@@ -11,10 +11,11 @@ getFileName(fullname)
 \S4method{getFileName}{logical}(fullname)
 }
 \arguments{
-\item{fullname}{Logical (default \code{FALSE}) indicating whether the full path should be returned.}
+\item{fullname}{Logical (default \code{FALSE}) indicating whether the full
+                  path should be returned.}
 }
 \value{
-Character string representing the filename.
+Character String representing the filename.
 }
 \description{
 This will only work for files that are \code{source}-ed.
