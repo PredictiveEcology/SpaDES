@@ -95,12 +95,14 @@ setProgressBar <- function(sim) {
   if (simParams(sim)$.progress$graphical) {
     if (OS=="windows") {
       setWinProgressBar(pb, simCurrentTime(sim),
-                        title=paste("Current simulation time",
+                        title=paste("Current simulation time:",
+                                    simTimestepUnit(sim),
                                     simCurrentTime(sim),
                                     "of total", simStopTime(sim)))
     } else {
       setTkProgressBar(pb, simCurrentTime(sim),
-                       title=paste("Current simulation time",
+                       title=paste("Current simulation time:",
+                                   simTimestepUnit(sim),
                                    simCurrentTime(sim),
                                    "of total", simStopTime(sim)))
     }
