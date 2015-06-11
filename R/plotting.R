@@ -1336,26 +1336,32 @@ setMethod(".plotGrob",
       lpr <- c((lpr):(lpr+1))
     }
     # makes equal scale
-    if (abs(((extents[[extentInd]]@ymax - extents[[extentInd]]@ymin) /
-               (extents[[extentInd]]@xmax - extents[[extentInd]]@xmin)) -
-              (biggestDims[1]/biggestDims[2]))
-        > (getOption("fpCompare.tolerance"))) {
+    yrange <- extents[[extentInd]]@ymax - extents[[extentInd]]@ymin
+    if(yrange>0) {
+      if (abs((yrange /
+                 (extents[[extentInd]]@xmax - extents[[extentInd]]@xmin)) -
+                (biggestDims[1]/biggestDims[2]))
+          > (getOption("fpCompare.tolerance"))) {
 
-      dimensionRatio <- arr@layout$wdthUnits*arr@ds[1] /
-        (arr@layout$htUnits*arr@ds[2])
-      plotScaleRatio <- (extents[[extentInd]]@xmin - extents[[extentInd]]@xmax) /
-        (extents[[extentInd]]@ymin - extents[[extentInd]]@ymax)
+        dimensionRatio <- arr@layout$wdthUnits*arr@ds[1] /
+          (arr@layout$htUnits*arr@ds[2])
+        plotScaleRatio <- (extents[[extentInd]]@xmin - extents[[extentInd]]@xmax) /
+          (extents[[extentInd]]@ymin - extents[[extentInd]]@ymax)
 
-      vS.w <- min(1, plotScaleRatio/dimensionRatio)
+        vS.w <- min(1, plotScaleRatio/dimensionRatio)
 
-      vS.h <- min(1, dimensionRatio/plotScaleRatio)
+        vS.h <- min(1, dimensionRatio/plotScaleRatio)
 
-      addY <- abs(extents[[extentInd]]@ymax- extents[[extentInd]]@ymin -
-                    (extents[[extentInd]]@ymax- extents[[extentInd]]@ymin)/vS.h)/2
-      addX <- abs(extents[[extentInd]]@xmax- extents[[extentInd]]@xmin -
-                    (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)/vS.w)/2
+        addY <- abs(extents[[extentInd]]@ymax- extents[[extentInd]]@ymin -
+                      (extents[[extentInd]]@ymax- extents[[extentInd]]@ymin)/vS.h)/2
+        addX <- abs(extents[[extentInd]]@xmax- extents[[extentInd]]@xmin -
+                      (extents[[extentInd]]@xmax- extents[[extentInd]]@xmin)/vS.w)/2
+      } else {
+        addY <- addX <- 0
+      }
     } else {
-      addY <- addX <- 0
+      addX <- extents[[extentInd]]@xmin *0.05
+      addY <- extents[[extentInd]]@ymin *0.05
     }
     # end equal scale
     plotVps[[extentInd]] <- viewport(
