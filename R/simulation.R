@@ -677,8 +677,8 @@ setMethod("spades",
 #' New time units
 #'
 #' SpaDES commonly needs generic durations, like "year" which will round neatly over
-#' a century (i.e., leap years are integrated as 1/4 day within each year), months are
-#' defined as year/12, weeks as year/52
+#' a century (i.e., leap years are added within each year with an extra 1/4 day,
+#' i.e., year=365.25 days), months are defined as year/12, weeks as year/52
 #'
 #' @param x numeric. Number of the desired units
 #'
@@ -712,7 +712,7 @@ setGeneric("dmonths", function(x) {
 setMethod("dmonths",
           signature(x="numeric"),
           definition=function(x){
-            new_duration(x * 60 * 60 * 24 * 365.25/12)
+            new_duration(x * as.numeric(SpaDES::dyears(1))/12)
           })
 
 #' @inheritParams dyears
@@ -727,7 +727,7 @@ setGeneric("dweeks", function(x) {
 setMethod("dweeks",
           signature(x="numeric"),
           definition=function(x){
-            new_duration(x * 60 * 60 * 24 * 365.25/52)
+            new_duration(x * as.numeric(SpaDES::dyears(1))/52)
           })
 
 #' @export
