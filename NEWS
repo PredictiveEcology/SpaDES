@@ -34,8 +34,9 @@ version 1.0.0
 
 * improved test coverage (see #139)
 * improved documentation and vignettes
+* fixed progress bar bug (#147)
 * prepend copyright info to `LICENSE` and `README` (with #140)
-* various bug fixes
+* various other bug fixes
 
 version 0.6.2
 =============
