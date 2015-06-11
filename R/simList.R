@@ -305,7 +305,7 @@ setMethod("ls.str",
             ls.str.simList(name)
 })
 
-#' export
+#' @export
 #' @rdname ls_str-method
 setMethod("ls.str",
           signature(pos="simList", name="missing"),
