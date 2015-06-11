@@ -17,7 +17,7 @@ defineModule(sim, list(
     defineParameter("nFires", "numeric", 10L, NA, NA),
     defineParameter("its", "numeric", 1e6, NA, NA),
     defineParameter("persistprob", "numeric", 0.00, 0, 1),
-    defineParameter("returnInterval", "numeric", 10.0, NA, NA),
+    defineParameter("returnInterval", "numeric", 1.0, NA, NA),
     defineParameter("spreadprob", "numeric", 0.225, 0, 1),
     defineParameter("startTime", "numeric", 1.0, 0, NA),
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA),

@@ -9,13 +9,14 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep=period_to_seconds(as.period(1,unit="day")),
+  timestep="week",
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
     defineParameter("moveInitialTime", "numeric", 1.0, NA, NA),
     defineParameter("moveInterval", "numeric", 1.0, NA, NA),
     defineParameter("N", "numeric", 100L, NA, NA),
+    defineParameter("torus", "logical", FALSE, NA, NA),
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA),
     defineParameter(".plotInterval", "numeric", 1, NA, NA),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA),
@@ -85,10 +86,10 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
 ## event functions
 caribouMovementInit <- function(sim) {
-  landscape <- sim[[simGlobals(sim)$stackName]]
+  #landscape <- sim[[simGlobals(sim)$stackName]]
 
-  yrange <- c(ymin(landscape), ymax(landscape))
-  xrange <- c(xmin(landscape), xmax(landscape))
+  yrange <- c(ymin(sim[[simGlobals(sim)$stackName]]), ymax(sim[[simGlobals(sim)$stackName]]))
+  xrange <- c(xmin(sim[[simGlobals(sim)$stackName]]), xmax(sim[[simGlobals(sim)$stackName]]))
 
   # initialize caribou agents
   N <- simParams(sim)$caribouMovement$N
@@ -108,14 +109,14 @@ caribouMovementInit <- function(sim) {
 }
 
 caribouMovementMove <- function(sim) {
-  landscape <- sim[[simGlobals(sim)$stackName]]
+  #landscape <- sim[[simGlobals(sim)$stackName]]
 
   # crop any caribou that went off maps
-  sim$caribou <- crop(sim$caribou, landscape)
+  sim$caribou <- crop(sim$caribou, sim[[simGlobals(sim)$stackName]])
   if(length(sim$caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- landscape[["habitatQuality"]][sim$caribou]
+  ex <- sim[[simGlobals(sim)$stackName]][["habitatQuality"]][sim$caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -123,7 +124,10 @@ caribouMovementMove <- function(sim) {
   ln <- rlnorm(length(ex), sl, 0.02) # log normal step length
   sd <- 30 # could be specified globally in params
 
-  sim$caribou <- move("crw", sim$caribou, stepLength=ln, stddev=sd, lonlat=FALSE)
+  sim$caribou <- move("crw", agent=sim$caribou,
+                      extent=extent(sim[[simGlobals(sim)$stackName]]),
+                      stepLength=ln, stddev=sd, lonlat=FALSE,
+                      torus=simParams(sim)$caribouMovement$torus)
 
   return(invisible(sim))
 }
