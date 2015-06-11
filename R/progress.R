@@ -1,9 +1,3 @@
-################################################
-###
-### A PROGRESS BAR MODULE
-###
-###############################################
-
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     if (interactive()) {
@@ -28,6 +22,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
     if (any(!is.na(simParams(sim)$.progress))) {
       newProgressBar(sim)
       sim <- scheduleEvent(sim, simStartTime(sim), "progress", "set")
+      sim <- scheduleEvent(sim, simStopTime(sim), "progress", "set")
     }
   } else if (eventType=="set") {
       # update progress bar
@@ -85,7 +80,6 @@ newProgressBar <- function(sim) {
             }
             assign(".pb", pb, envir=.spadesEnv)
 }
-
 
 #' @importFrom tcltk setTkProgressBar
 setProgressBar <- function(sim) {
