@@ -19,6 +19,10 @@
 \alias{simTimes,simList-method}
 \alias{simTimes<-}
 \alias{simTimes<-,simList-method}
+\alias{simTimestepUnit}
+\alias{simTimestepUnit,simList-method}
+\alias{simTimestepUnit<-}
+\alias{simTimestepUnit<-,simList-method}
 \title{Get and set simulation times.}
 \usage{
 simTimes(object)
@@ -52,6 +56,14 @@ simStopTime(object)
 simStopTime(object) <- value
 
 \S4method{simStopTime}{simList}(object) <- value
+
+simTimestepUnit(object)
+
+\S4method{simTimestepUnit}{simList}(object)
+
+simTimestepUnit(object) <- value
+
+\S4method{simTimestepUnit}{simList}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -75,6 +87,12 @@ of the simulation.
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
+
+\code{simTimestepUnit} will extract the current units of the time used in a spades call. If
+it is set within a \code{simInit} as say, \code{times=list(start=0, stop=52, timestep="week")}
+it will set the units for that simulation. But default, a simInit call will use the largest
+units contained within the meta data for the modules being used. NA for timestep defaults to
+"year"
 }
 \author{
 Alex Chubaty

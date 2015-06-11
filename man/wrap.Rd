@@ -69,7 +69,7 @@ sd <- 30 # could be specified globally in params
 
 Plot(hab, zero.color="white", new=TRUE, axes="L")
 for(i in 1:10) {
-  caribou <- crw(agent=caribou,
+  caribou <- SpaDES::crw(agent=caribou,
                  extent=extent(hab), stepLength=ln,
                  stddev=sd, lonlat=FALSE,
                  torus=TRUE)
