@@ -85,7 +85,7 @@ setClass(".simList",
                                     .progress=list(graphical=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, stop=1.00)),
+                        simtimes=list(current=0.00, start=0.00, stop=1.00, timestep="year")),
          validity=function(object) {
            # check for valid sim times
            if (is.na(object@simtimes$stop)) {
@@ -1253,7 +1253,50 @@ setReplaceMethod("simCompleted",
                    object@completed <- value
                    validObject(object)
                    return(object)
+
+
+
+
+################################################################################
+#' @details \code{simTimestepUnit} will extract the current units of the time used in a spades call. If
+#' it is set within a \code{simInit} as say, \code{times=list(start=0, stop=52, timestep="week")}
+#' it will set the units for that simulation. But default, a simInit call will use the largest
+#' units contained within the meta data for the modules being used. NA for timestep defaults to
+#' "year"
+#'
+#' @inheritParams simTimes
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+#'
+setGeneric("simTimestepUnit", function(object) {
+  standardGeneric("simTimestepUnit")
 })
+
+#' @rdname simList-accessors-times
+setMethod("simTimestepUnit",
+          signature="simList",
+          definition=function(object) {
+            return(object@simtimes$timestep)
+          })
+
+#' @export
+#' @rdname simList-accessors-times
+setGeneric("simTimestepUnit<-",
+           function(object, value) {
+             standardGeneric("simTimestepUnit<-")
+           })
+
+#' @name simTimestepUnit<-
+#' @aliases simTimestepUnit<-,simList-method
+#' @rdname simList-accessors-times
+setReplaceMethod("simTimestepUnit",
+                 signature="simList",
+                 function(object, value) {
+                   object@simtimes$timestep <- value
+                   validObject(object)
+                   return(object)
+                 })
 
 ################################################################################
 #' Add simulation dependencies

@@ -106,7 +106,6 @@ setMethod("simInit",
 
               # evaluated only the 'defineModule' function of parsedFile
               sim <- eval(parsedFile[defineModuleItem])
-              browser()
 
               # check that modulename == filename
               fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
@@ -127,6 +126,13 @@ setMethod("simInit",
 
               # evaluate the rest of the parsed file
               eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
+            }
+
+            # timestep has no meaning until all modules are loaded, so this has to be after loading
+            simTimestepUnit(sim) <- if(!is.null(times$timestep)) {
+              times$timestep
+            } else {
+              largestTimestepUnit(sim)
             }
 
             # assign user-specified non-global params, while
@@ -150,6 +156,7 @@ setMethod("simInit",
             } else {
               simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
             }
+
 
             # load user-defined modules
             for (m in simModulesLoadOrder(sim)) {
@@ -201,6 +208,7 @@ setMethod("simInit",
               changeObjEnv(x=objects, toEnv=simEnv(sim), fromEnv=.GlobalEnv,
                            rmSrc=getOption("spades.lowMemory"))
             }
+
             return(invisible(sim))
 })
 
@@ -445,6 +453,8 @@ setMethod("doEvent",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @export
+#' @importFrom lubridate ddays
+#' @importFrom lubridate dminutes
 #' @docType methods
 #' @rdname scheduleEvent
 #'
@@ -463,19 +473,27 @@ setMethod("scheduleEvent",
           signature(sim="simList", eventTime="numeric",
                     moduleName="character", eventType="character"),
           definition=function(sim, eventTime, moduleName, eventType) {
-            browser()
             if (length(eventTime)) {
               if (!is.na(eventTime)) {
-                # if there is no information about dependencies, meaning for the first
-                #  modules...
-                if(!is.null(simDepends(sim)@dependencies[[1]])) {
-                  eventTimeInSeconds <- eventTime*timestepInSeconds(sim, moduleName)
+                # if there is no metadata, meaning for the first
+                #  "default" modules...load, save, checkpoint, progress
+                if(!is.null(simDepends(sim)@dependencies[[1]])){
+                  # first check if this moduleName matches the name of a module with meta-data
+                  #   (i.e., simDepends(sim)@dependencies filled)
+                  if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
+                    eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
+                      timestepInSeconds(sim, moduleName)
+                    eventTimeInLargestUnit <- suppressMessages(simCurrentTime(sim)+
+                      eventTimeIncrementSec/as.numeric(
+                        eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
+                  } else {
+                    eventTimeInLargestUnit <- eventTime
+                  }
                 } else {
-                  eventTimeInSeconds <- eventTime
+                  eventTimeInLargestUnit <- eventTime
                 }
 
-
-                newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
+                newEvent <- as.data.table(list(eventTime=eventTimeInLargestUnit,
                                               moduleName=moduleName,
                                               eventType=eventType))
 
@@ -536,25 +554,56 @@ setGeneric("timestepInSeconds", function(sim, moduleName) {
 setMethod("timestepInSeconds",
           signature(sim="simList", moduleName="character"),
           definition=function(sim, moduleName) {
-            browser()
   a = sapply(simDepends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
   timestep <- simDepends(sim)@dependencies[[wh]]@timestep
   if(is.character(timestep)) {
-    timestep <- lubridate::period_to_seconds(as.period(1,unit=timestep))+
-        ddays(0.25)*(timestep=="year")
-    return(timestep)
+    return(as.numeric(eval(parse(text=paste0("d",timestep,"(1)")))))
   }
   if(is.na(timestep)) {
-    return(lubridate::period_to_seconds(as.period(1,unit="year")))
+    # use value of the sim object, if NA specified
+    return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
   } else {
     return(timestep)
   }
 })
 
-largestTimestep <- function(sim) {
-  return(max(sapply(simDepends(sim)@dependencies, function(x) x@timestep), na.rm=TRUE))
-}
+################################################################################
+#' Determine what the the largest timestep units
+#'
+#' When modules have different timestep units, SpaDES automatically takes the
+#' largest (e.g., "year") as the unit for a simulation. This function determines which
+#' is the largest unit
+#'
+#' @param sim          A \code{simList} simulation object.
+#'
+#' @return The timestep unit as a character string
+#'
+#' @export
+#' @docType methods
+#' @rdname largestTimestepUnit
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("largestTimestepUnit", function(sim) {
+  standardGeneric("largestTimestepUnit")
+})
+
+#' @rdname largestTimestepUnit
+setMethod("largestTimestepUnit",
+          signature(sim="simList"),
+          definition=function(sim) {
+  timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestep)
+  #timesteps[!sapply(timesteps, is.na)] <-
+  #  lapply(timesteps[!sapply(timesteps, is.na)], function(x) x[grepl(pattern="[^s]$", x)] <- paste0(x,"s"))
+  if(all(sapply(timesteps, is.na))) {
+    return("year")
+  } else {
+    return(timesteps[!is.na(timesteps)][[which.max(sapply(timesteps[sapply(timesteps, is.character)],
+                                       function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
+
+  }
+})
 ################################################################################
 #' Run a spatial discrete event simulation
 #'
@@ -623,3 +672,96 @@ setMethod("spades",
             stopifnot(class(sim) == "simList")
             return(spades(sim, debug=FALSE))
 })
+
+################################################################################
+#' New time units
+#'
+#' SpaDES commonly needs generic durations, like "year" which will round neatly over
+#' a century (i.e., leap years are integrated as 1/4 day within each year), months are
+#' defined as year/12, weeks as year/52
+#'
+#' @param x numeric. Number of the desired units
+#'
+#' @return Number of seconds within each unit
+#'
+#' @export
+#' @importFrom lubridate new_duration
+#' @docType methods
+#' @rdname spadesTimeUnits
+#'
+#' @author Eliot McIntire
+setGeneric("dyears", function(x) {
+  standardGeneric("dyears")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("dyears",
+          signature(x="numeric"),
+          definition=function(x){
+  new_duration(x * 60 * 60 * 24 * 365.25)
+})
+
+#' @inheritParams dyears
+#' @export
+#' @rdname spadesTimeUnits
+setGeneric("dmonths", function(x) {
+  standardGeneric("dmonths")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("dmonths",
+          signature(x="numeric"),
+          definition=function(x){
+            new_duration(x * 60 * 60 * 24 * 365.25/12)
+          })
+
+#' @inheritParams dyears
+#' @export
+#' @aliases dweek
+#' @rdname spadesTimeUnits
+setGeneric("dweeks", function(x) {
+  standardGeneric("dweeks")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("dweeks",
+          signature(x="numeric"),
+          definition=function(x){
+            new_duration(x * 60 * 60 * 24 * 365.25/52)
+          })
+
+#' @export
+dweek <- function(x) {
+  dweeks(x)
+}
+
+#' @export
+dmonth <- function(x) {
+  dmonths(x)
+}
+
+#' @export
+dyear <- function(x) {
+  dyears(x)
+}
+
+#' @export
+#' @importFrom lubridate dseconds
+dsecond <- function(x) {
+  dseconds(x)
+}
+#' @export
+#' @importFrom lubridate ddays
+dday <- function(x) {
+  ddays(x)
+}
+#' @export
+#' @importFrom lubridate dhours
+dhour <- function(x) {
+  dhours(x)
+}
+#' @export
+#' @importFrom lubridate dseconds
+dsecond <- function(x) {
+  dseconds(x)
+}
