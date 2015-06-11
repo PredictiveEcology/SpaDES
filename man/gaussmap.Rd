@@ -35,6 +35,7 @@ progressively faster as the number increases, at the expense of coarser
 pixel resolution of the pattern generated
 }
 \examples{
+require(RandomFields)
 nx <- ny <- 100L
 r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 speedup <- max(1, nx/5e2)

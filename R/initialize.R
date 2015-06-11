@@ -39,6 +39,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' @rdname gaussmap
 #'
 #' @examples
+#' require(RandomFields)
 #' nx <- ny <- 100L
 #' r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 #' speedup <- max(1, nx/5e2)
