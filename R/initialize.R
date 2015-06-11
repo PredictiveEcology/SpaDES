@@ -67,7 +67,7 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
   } else {
     map <- raster(RFsimulate(model, y=1:ncSpeedup, x=1:nrSpeedup, grid=TRUE, ...))
   }
-  map <- map - cellStats(sim, "min")
+  map <- map - cellStats(map, "min")
   extent(map) <- ext
   if(speedup>1)
     return(disaggregate(map, c(speedupEffectiveCol, speedupEffectiveRow)))
