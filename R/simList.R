@@ -286,8 +286,9 @@ setMethod("ls",
 #' Can be used with a \code{simList} object, because the method for this class
 #' is simply a wrapper for calling \code{ls} on the simulation environment
 #' stored in the \code{simList} object.
-
+#'
 #' @param name  A \code{simList} object.
+#' @param pos   A \code{simList} object, used only if \code{name} not provided.
 #'
 #' @export
 #' @docType methods
@@ -296,11 +297,20 @@ ls.str.simList <- function(name) {
   ls.str(simEnv(name))
 }
 
+#' export
 #' @rdname ls_str-method
 setMethod("ls.str",
           signature(pos="missing", name="simList"),
           definition=function(name) {
-            ls.str.simList(name=name)
+            ls.str.simList(name)
+})
+
+#' export
+#' @rdname ls_str-method
+setMethod("ls.str",
+          signature(pos="simList", name="missing"),
+          definition=function(pos) {
+            ls.str.simList(pos)
 })
 
 ###############################################################################

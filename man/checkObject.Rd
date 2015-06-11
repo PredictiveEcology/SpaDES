@@ -43,8 +43,8 @@ checkObject(sim, name, object, layer, ...)
 Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 }
 \description{
-Check that a named object exists in the provide simList@objects environment, and optionally has
-desired attributes.
+Check that a named object exists in the provide simList@objects environment,
+and optionally has desired attributes.
 }
 \author{
 Alex Chubaty and Eliot McIntire

@@ -108,6 +108,7 @@ setGeneric("depsGraph", function(sim, plot) {
   standardGeneric("depsGraph")
 })
 
+#' @export
 #' @rdname depsGraph
 setMethod("depsGraph",
           signature(sim="simList", plot="logical"),
@@ -118,6 +119,14 @@ setMethod("depsGraph",
               el <- depsEdgeList(sim, plot) %>% .depsPruneEdges
             }
             return(graph.data.frame(el))
+})
+
+#' @export
+#' @rdname depsGraph
+setMethod("depsGraph",
+          signature(sim="simList", plot="missing"),
+          definition=function(sim) {
+            return(depsGraph(sim, FALSE))
 })
 
 ################################################################################

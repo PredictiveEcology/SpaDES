@@ -2,13 +2,41 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.0.0
 =============
-Major changes to satisfy CRAN requirements.
-
 * no longer rely on side effects to update objects in global environment; instead uses simulation environments (#185) (not backwards compatible!)
 * sample modules rewritten to use simulation enviroments (#185) (not backwards compatible!).
+* redefined `simList` class:
+
+    - new superclass `.simList` contains all previous `simList` slots except `.envir`
+    - class `simList` extends `.simList` by adding slot `.envir`
+    - new class `simList_` extends `.simList` by adding slot `.list`
+    - `simList_` can be used internally to save a `simList` object,
+    because saving lists of objects to file is more reliable that saving environments.
+
 * `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
 * software requirements changed: depends R (>=3.2.0)
-* bug fixes
+* simulation checkpointing fixed (#191, #130)
+* `ls` and `ls.str` can now be used with `simList` objects to list objects in the simulation environment
+* `simObjects` returns a list containing all the objects in the simulation enviroment
+* new function `splitRaster` to divide `RasterLayer` into several tiles
+* new function `normPath` (extracted from `checkPath`) to more strictly normalize filepaths without checking that they exist.
+* new function `classFilter` to filter list of objects by their type
+* new internal function `.simReqdPkgs` to get all packages required by a simulation
+* new function `rndstr` to generate random strings
+* improved `loadPackages`
+* improved `.objectNames`
+* `defineParameter` now accepts `min` and `max` values (#172)
+* `Plot` improvements
+* improvements to `loadFiles`:
+
+    - use `data.table`
+    - allow `package::function` notation in load (#174)
+    - bug fixes
+
+* improved test coverage (see #139)
+* improved documentation and vignettes
+* fixed progress bar bug (#147)
+* prepend copyright info to `LICENSE` and `README` (with #140)
+* various other bug fixes
 
 version 0.6.2
 =============

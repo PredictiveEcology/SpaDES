@@ -190,15 +190,20 @@ setGeneric("normPath", function(path) {
   standardGeneric("normPath")
 })
 
+#' @export
 #' @rdname normPath
 setMethod("normPath",
           signature(path="character"),
           definition=function(path) {
             lapply(path, normalizePath, winslash="/", mustWork=FALSE) %>%
               unlist %>%
+              gsub("^[.]", paste0(getwd()), .) %>%
+              gsub("\\\\", "/", .) %>%
+              gsub("//", "/", .) %>%
               gsub("/$", "", .)
 })
 
+#' @export
 #' @rdname normPath
 setMethod("normPath",
           signature(path="list"),
@@ -206,6 +211,7 @@ setMethod("normPath",
             return(normPath(unlist(path)))
 })
 
+#' @export
 #' @rdname normPath
 setMethod("normPath",
           signature(path="missing"),
