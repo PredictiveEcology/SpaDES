@@ -31,12 +31,15 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RFoptions
 #' @importFrom RandomFields RMexp
+#' @importFrom RandomFields round
+#' @import raster
 #' @import tkrplot
 #' @export
 #' @docType methods
 #' @rdname gaussmap
 #'
 #' @examples
+#' require(RandomFields)
 #' nx <- ny <- 100L
 #' r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 #' speedup <- max(1, nx/5e2)
@@ -65,7 +68,7 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
   } else {
     map <- raster(RFsimulate(model, y=1:ncSpeedup, x=1:nrSpeedup, grid=TRUE, ...))
   }
-  map <- map - cellStats(sim, "min")
+  map <- map - cellStats(map, "min")
   extent(map) <- ext
   if(speedup>1)
     return(disaggregate(map, c(speedupEffectiveCol, speedupEffectiveRow)))
@@ -109,12 +112,10 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #' @param p   Numeric vector. Parameter to control fragmentation.
 #'            If this is a vector, then there will be a polygon map produced
 #'            with length(p) unique levels.
-#'            See \code{\link{randomLandscape}}.
 #'
 #' @param A   Numeric vector. Parameter for expected proportion of habitat.
 #'            If this is a vector, then there will be a polygon map produced
 #'            with \code{length(A)} unique levels.
-#'            See \code{\link{randomLandscape}}.
 #'
 #' @param speedup  An index of how much faster than normal to generate maps.
 #'                 This is achieved by aggregating then disagregating, so
@@ -127,7 +128,6 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #' @param minpatch Numeric vector. Integer minimum size of patch.
 #'                 If this is a vector, there will be a polygon map produced
 #'                 with \code{length(A)} unique levels.
-#'                 See \code{\link{randomLandscape}}.
 #'
 #' @param ...      Additional arguments to \code{\link{randomHabitat}}.
 #'

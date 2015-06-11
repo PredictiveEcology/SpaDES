@@ -188,6 +188,8 @@ setMethod("simInit",
               ### values where used (i.e., in save.R).
             }
 
+            sim$.sessionInfo <- sessionInfo()
+
             simModules(sim) <- append(core, simModulesLoadOrder(sim))
 
             # load files in the filelist

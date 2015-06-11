@@ -47,3 +47,4 @@ vignettes/*_cache
 *.vrb
 *.xdy
 *.tdo
+tests/testthat/last.dump.rda

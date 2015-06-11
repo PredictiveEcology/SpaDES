@@ -8,21 +8,21 @@
 specificNumPerPatch(patches, numPerPatchTable = NULL, numPerPatchMap = NULL)
 }
 \arguments{
-\item{patches}{RasterLayer of Patches, with some sort of a patch id}
+\item{patches}{\code{RasterLayer} of patches, with some sort of a patch id.}
 
-\item{numPerPatchTable}{A data.frame or data.table with a column named "pops" that
-matches the \code{patches} patch ids}
+\item{numPerPatchTable}{A \code{data.frame} or \code{data.table} with a
+ column named \code{pops} that matches the \code{patches} patch ids}
 
-\item{numPerPatchMap}{A RasterLayer exactly the same as \code{patches} but with
-agent numbers rather than ids as the cell values per patch.}
+\item{numPerPatchMap}{A \code{RasterLayer} exactly the same as \code{patches}
+but with agent numbers rather than ids as the cell values per patch.}
 }
 \value{
-A raster with 0s and 1s, where the 1s indicate starting locations of agents
-following the numbers above
+A raster with 0s and 1s, where the 1s indicate starting locations of
+agents following the numbers above.
 }
 \description{
-Instantiate a specific number of agents per patch. The user can either supply
-a table of how many to initiate in each patch, linked by a column in that table
-called "pops"
+Instantiate a specific number of agents per patch.
+The user can either supply a table of how many to initiate in each patch,
+linked by a column in that table called \code{pops}.
 }
 
