@@ -31,6 +31,8 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RFoptions
 #' @importFrom RandomFields RMexp
+#' @importFrom RandomFields round
+#' @import raster
 #' @import tkrplot
 #' @export
 #' @docType methods

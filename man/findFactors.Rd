@@ -2,7 +2,7 @@
 % Please edit documentation in R/initialize.R
 \name{.findFactors}
 \alias{.findFactors}
-\title{Find Factors}
+\title{Find factors}
 \usage{
 .findFactors(x)
 }
@@ -13,12 +13,7 @@
 A vector of integer factors
 }
 \description{
-Finds the integer factors of an integer
-}
-\details{
-Used internally in gaussMap
-}
-\seealso{
-\code{\link{gaussMap}}
+Internal function (used in \code{link{gaussMap}}).
+Finds the integer factors of an integer.
 }
 

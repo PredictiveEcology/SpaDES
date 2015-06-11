@@ -74,9 +74,9 @@ randomLandscapesInit <- function(sim) {
   speedup <- max(1, nx/5e2)
 
   # Make dummy maps for testing of models
-  DEM <- round(gaussMap(template, scale=300, var=0.03, speedup=speedup, inMemory=inMemory), 1)*1000
-  forestAge <- round(gaussMap(template, scale=10, var=0.1, speedup=speedup, inMemory=inMemory), 1)*20
-  percentPine <- round(gaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory), 1)
+  DEM <- RandomFields::round(gaussMap(template, scale=300, var=0.03, speedup=speedup, inMemory=inMemory), 1)*1000
+  forestAge <- RandomFields::round(gaussMap(template, scale=10, var=0.1, speedup=speedup, inMemory=inMemory), 1)*20
+  percentPine <- RandomFields::round(gaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory), 1)
 
   # Scale them as needed
   forestAge <- forestAge/maxValue(forestAge)*100

@@ -11,40 +11,52 @@ randomPolygons(ras = raster(extent(0, 100, 0, 100), res = 1), p = 0.1,
 \arguments{
 \item{ras}{A raster that whose extent will be used for the randomPolygons}
 
-\item{p}{numeric vector. Parameter to control fragmentation. If this is a vector,
-then there will be a polygon map produced with length(p) unique levels. See \code{randomLandscape}}
+\item{p}{Numeric vector. Parameter to control fragmentation.
+           If this is a vector, then there will be a polygon map produced
+           with length(p) unique levels.
+           See \code{\link{randomLandscape}}.}
 
-\item{A}{numeric vector. Parameter for expected proportion of habitat. If this is a vector,
-then there will be a polygon map produced with length(A) unique levels. See \code{randomLandscape}}
+\item{A}{Numeric vector. Parameter for expected proportion of habitat.
+           If this is a vector, then there will be a polygon map produced
+           with \code{length(A)} unique levels.
+           See \code{\link{randomLandscape}}.}
 
-\item{speedup}{An index of how much faster than normal to generate maps. This is achieved
-by aggregating then disagregating at the end, so that the resulting raster is the
-same extent as \code{ras}}
+\item{speedup}{An index of how much faster than normal to generate maps.
+                This is achieved by aggregating then disagregating, so
+                that the resulting raster is the same extent as \code{ras}.}
 
-\item{numTypes}{numeric value. The number of unique polygon types to use. This will
-be overridden by p, A or minpatch, if any of these are vectors.}
+\item{numTypes}{Numeric value. The number of unique polygon types to use.
+                This will be overridden by \code{p}, \code{A} or
+                \code{minpatch}, if any of these are vectors.}
 
-\item{minpatch}{numeric vector. Integer minimum size of patch. If this is a vector,
-then there will be a polygon map produced with length(A) unique levels. See \code{randomLandscape}}
+\item{minpatch}{Numeric vector. Integer minimum size of patch.
+                If this is a vector, there will be a polygon map produced
+                with \code{length(A)} unique levels.
+                See \code{\link{randomLandscape}}.}
 
-\item{...}{Additional arguments to \code{randomHabitat}.}
+\item{...}{Additional arguments to \code{\link{randomHabitat}}.}
 }
 \value{
-A map of extent \code{ext} with a random polygons.
+A map of extent \code{ext} with random polygons.
 }
 \description{
 Produces a raster of with random polygons of varying parameters, using the
-The Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
+Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
 }
 \details{
-This is a wrapper for the \code{secr::randomHabitat} function in the secr
-package. The two main additions are the \code{speedup} argument which allows
-for faster map generation for large rasters and addition of multiple unique polygon
-values, using code drawn from http://www.guru-gis.net/generate-a-random-landscape/.
+This is a wrapper for the \code{\link[secr]{randomHabitat}} function in the
+\code{secr} package.
+The two main additions are the \code{speedup} argument which allows for
+faster map generation for large rasters and addition of multiple unique
+polygon values, using code drawn from
+\url{http://www.guru-gis.net/generate-a-random-landscape/}.
 }
 \examples{
 r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
 Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
+}
+\references{
+Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.
 }
 \seealso{
 \code{\link{randomHabitat}} and \code{\link{raster}}
