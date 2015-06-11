@@ -1387,8 +1387,15 @@ setMethod("defineModule",
                 x$spatialExtent <- raster::extent(rep(NA_real_, 4))
               }
             }
-            if (any(is.na(x$timeframe))) {
-              x$timeframe <- as.POSIXlt(c(NA, NA))
+            if (!is.numeric.POSIXt(x$timeframe)) {
+              x$timeframe <- as.POSIXlt(x$timeframe)
+              if (length(x$timeframe)==1) {
+                if (is.na(x$timeframe)) {
+                  x$timeframe <- as.POSIXlt(c(NA,NA))
+                } else {
+                  x$timeframe <- as.POSIXlt(c(x$timeframe[[1]],NA))
+                }
+              }
             }
             if (is.na(x$timestep)) {
               x$timestep <- NA_real_
