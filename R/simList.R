@@ -85,7 +85,7 @@ setClass(".simList",
                                     .progress=list(graphical=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, stop=1.00, timestep="year")),
+                        simtimes=list(current=0.00, start=0.00, stop=1.00, timestep=NA_character_)),
          validity=function(object) {
            # check for valid sim times
            if (is.na(object@simtimes$stop)) {
