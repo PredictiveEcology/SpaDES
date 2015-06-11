@@ -1391,6 +1391,7 @@ setMethod(".simReqdPkgs",
 #'
 #' @return Updated \code{simList} object.
 #'
+#' @importFrom raster extent
 #' @export
 #' @docType methods
 #' @rdname defineModule
@@ -1412,6 +1413,52 @@ setMethod("defineModule",
           signature(sim="simList", x="list"),
           definition=function(sim, x) {
             loadPackages(x$reqdPkgs)
+
+            ## enforce/coerce types for the user-supplied param list
+            x$name <- as.character(x$name)
+            x$description <- as.character(x$description)
+            x$keywords <- as.character(x$keywords)
+            if (!is(x$authors, "person")) {
+              stop("invalid module definition: ", x$name,
+                   ": authors must be a `person` class.")
+            }
+            if (is.character(x$version) || is.numeric(x$version)) {
+              x$version <- as.numeric_version(x$version)
+            }
+            if (!is(x$spatialExtent, "Extent")) {
+              if (is.na(x$spatialExtent)) {
+                x$spatialExtent <- raster::extent(rep(NA_real_, 4))
+              }
+            }
+            if (!is.numeric.POSIXt(x$timeframe)) {
+              x$timeframe <- as.POSIXlt(x$timeframe)
+              if (length(x$timeframe)==1) {
+                if (is.na(x$timeframe)) {
+                  x$timeframe <- as.POSIXlt(c(NA,NA))
+                } else {
+                  x$timeframe <- as.POSIXlt(c(x$timeframe[[1]],NA))
+                }
+              }
+            }
+            if (is.na(x$timestep)) {
+              x$timestep <- NA_real_
+            }
+            x$reqdPkgs <- as.list(x$reqdPkgs)
+            x$citation <- as.list(x$citation)
+            if (!is(x$parameters, "data.frame")) {
+              stop("invalid module definition: ", x$name,
+                   ": parameters must be a `data.frame`.")
+            }
+            if (!is(x$inputObjects, "data.frame")) {
+              stop("invalid module definition: ", x$name,
+                   ": inputObjects must be a `data.frame`.")
+            }
+            if (!is(x$outputObjects, "data.frame")) {
+              stop("invalid module definition: ", x$name,
+                   ": outputObjects must be a `data.frame`.")
+            }
+
+            ## create module deps object and add to sim deps
             m <- do.call(new, c(".moduleDeps", x))
             return(.addSimDepends(sim, m))
 })

@@ -60,8 +60,8 @@ defineModule(sim, list(
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
-    defineParameter(\"paramName\", \"paramClass\", value),
-    defineParameter(\"paramName\", \"paramClass\", value)),
+    defineParameter(\"paramName\", \"paramClass\", value, min, max),
+    defineParameter(\"paramName\", \"paramClass\", value, min, max)),
   inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
