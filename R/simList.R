@@ -1253,7 +1253,7 @@ setReplaceMethod("simCompleted",
                    object@completed <- value
                    validObject(object)
                    return(object)
-
+})
 
 
 
