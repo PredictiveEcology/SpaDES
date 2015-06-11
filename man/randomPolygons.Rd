@@ -13,13 +13,11 @@ randomPolygons(ras = raster(extent(0, 100, 0, 100), res = 1), p = 0.1,
 
 \item{p}{Numeric vector. Parameter to control fragmentation.
            If this is a vector, then there will be a polygon map produced
-           with length(p) unique levels.
-           See \code{\link{randomLandscape}}.}
+           with length(p) unique levels.}
 
 \item{A}{Numeric vector. Parameter for expected proportion of habitat.
            If this is a vector, then there will be a polygon map produced
-           with \code{length(A)} unique levels.
-           See \code{\link{randomLandscape}}.}
+           with \code{length(A)} unique levels.}
 
 \item{speedup}{An index of how much faster than normal to generate maps.
                 This is achieved by aggregating then disagregating, so
@@ -31,8 +29,7 @@ randomPolygons(ras = raster(extent(0, 100, 0, 100), res = 1), p = 0.1,
 
 \item{minpatch}{Numeric vector. Integer minimum size of patch.
                 If this is a vector, there will be a polygon map produced
-                with \code{length(A)} unique levels.
-                See \code{\link{randomLandscape}}.}
+                with \code{length(A)} unique levels.}
 
 \item{...}{Additional arguments to \code{\link{randomHabitat}}.}
 }
