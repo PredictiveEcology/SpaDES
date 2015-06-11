@@ -66,6 +66,7 @@ If there is only one list, then it is assumed to apply to all load attempts
 and will be repeated for each load function.
 }
 \examples{
+\dontrun{
 # Load random maps included with package
 fileList = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
@@ -81,6 +82,7 @@ ls(mySim)
 sim1 <- loadFiles(fileList=fileList)
 clearPlot()
 Plot(sim1$DEM)
+}
 
 \dontrun{
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded

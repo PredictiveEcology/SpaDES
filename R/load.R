@@ -82,6 +82,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @rdname loadFiles
 #'
 #' @examples
+#' \dontrun{
 #' # Load random maps included with package
 #' fileList = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
 #'    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
@@ -97,6 +98,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' sim1 <- loadFiles(fileList=fileList)
 #' clearPlot()
 #' Plot(sim1$DEM)
+#' }
 #'
 #' \dontrun{
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
