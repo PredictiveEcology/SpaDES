@@ -17,7 +17,7 @@ test_that("simList object initializes correctly", {
                sort(names(as(mySim, "simList_")@.list)))
   #expect_equal(simObjects(mySim), as(mySim, "simList_")@.list) # not sorted
   expect_equal(ls(mySim), sort(names(simObjects(mySim))))
-  expect_equal(ls.str(mySim), ls.str(simObjects(mySim)))
+  expect_equivalent(ls.str(mySim), ls.str(simObjects(mySim)))
 
   ### SLOT .loadOrder
   expect_is(simModulesLoadOrder(mySim), "character")
