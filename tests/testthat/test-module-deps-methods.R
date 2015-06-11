@@ -1,3 +1,102 @@
+test_that("defineModule correctly handles different inputs", {
+  tmp <- simInit()
+
+  x1 <- list(
+    name="testModule",
+    description="this is a test.",
+    keywords=c("test"),
+    authors=c(person(c("Alex", "M"), "Chubaty", email="achubaty@nrcan.gc.ca", role=c("aut", "cre"))),
+    version=numeric_version("0.0.1"),
+    spatialExtent=raster::extent(rep(NA_real_, 4)),
+    timeframe=as.POSIXlt(c(NA, NA)),
+    timestep=NA_real_,
+    citation=list(),
+    reqdPkgs=list("grid", "raster", "sp"),
+    parameters=rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA)),
+    inputObjects=data.frame(objectName="testInput",
+                            objectClass="list",
+                            other=NA_character_,
+                            stringsAsFactors=FALSE),
+    outputObjects=data.frame(objectName="testOutput",
+                             objectClass="list",
+                             other=NA_character_,
+                             stringsAsFactors=FALSE)
+  )
+
+  ## check name
+  x2 <- x1
+  x2$name <- list("testModule") # not a character
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check description
+  x2 <- x1
+  x2$description <- list("this is a test.") # not a character vector
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check keywords
+  x2 <- x1
+  x2$keywords <- list("test") # not a character vector
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check authors
+  x2 <- x1
+  x2$authors <- "not a person class"
+  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
+                                             x2$name,
+                                             ": authors must be a `person` class."))
+
+  ## check version
+  x2 <- x1
+  x2$version <- "0.0.1"
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check spatialExtent
+  x2 <- x1
+  x2$spatialExtent <- NA
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check timeframe
+  x2 <- x1
+  x2$timeframe <- NA
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check timestep
+  x2 <- x1
+  x2$timestep <- NA
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check citation
+  x2 <- x1
+  x2$citation <- character() # not a list
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check reqdPkgs
+  x2 <- x1
+  x2$reqdPkgs <- c("grid", "raster", "sp") # not a list
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
+  ## check parameters
+  x2 <- x1
+  x2$parameters <- "not a data.frame"
+  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
+                                             x2$name,
+                                             ": parameters must be a `data.frame`."))
+
+  ## check inputObjects
+  x2 <- x1
+  x2$inputObjects <- "not a data.frame"
+  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
+                                             x2$name,
+                                             ": inputObjects must be a `data.frame`."))
+  ## check authors
+  x2 <- x1
+  x2$outputObjects <- "not a person class"
+  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
+                                             x2$name,
+                                             ": outputObjects must be a `data.frame`."))
+})
+
+
 test_that("depsEdgeList and depsGraph work", {
   times <- list(start=0.0, stop=10)
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"),
