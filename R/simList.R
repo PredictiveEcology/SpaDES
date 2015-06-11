@@ -214,6 +214,11 @@ setMethod("show",
                                               quote=FALSE, row.names=FALSE))
             out[[13]] <- capture.output(cat("\n"))
 
+            ### list stored objects
+            out[[14]] <- capture.output(cat(">> Objects stored:\n"))
+            out[[15]] <- capture.output(print(ls.str(simEnv(object))))
+            out[[16]] <- capture.output(cat("\n"))
+
             ### params
             omit <- which(names(simParams(object))==".load" |
                             names(simParams(object))==".progress")
@@ -230,23 +235,18 @@ setMethod("show",
             } else {
               q = cbind(Module=list(), Parameter=list())
             }
-            out[[14]] <- capture.output(cat(">> Parameters:\n"))
-            out[[15]] <- capture.output(print(q, row.names=FALSE))
-            out[[16]] <- capture.output(cat("\n"))
-
-            ### completed events
-            out[[17]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[18]] <- capture.output(print(simCompleted(object)))
+            out[[17]] <- capture.output(cat(">> Parameters:\n"))
+            out[[18]] <- capture.output(print(q, row.names=FALSE))
             out[[19]] <- capture.output(cat("\n"))
 
-            ### scheduled events
-            out[[20]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[21]] <- capture.output(print(simEvents(object)))
+            ### completed events
+            out[[20]] <- capture.output(cat(">> Completed Events:\n"))
+            out[[21]] <- capture.output(print(simCompleted(object)))
             out[[22]] <- capture.output(cat("\n"))
 
-            ### list stored objects
-            out[[23]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[24]] <- capture.output(print(ls.str(simEnv(object))))
+            ### scheduled events
+            out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
+            out[[24]] <- capture.output(print(simEvents(object)))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
