@@ -18,7 +18,7 @@ Open a new plotting window
 }
 \note{
 \code{\link{dev.new}} is supposed to be the correct way to open a new
-window in a platform-generic way, however, this doesn't work in RStudio.
+window in a platform-generic way; however, doesn't work in RStudio (#116).
 }
 \author{
 Eliot McIntire and Alex Chubaty

@@ -266,11 +266,6 @@ setClass(".spadesPlot",
 setClassUnion(name=".spadesPlottables",
               members=c(".spadesPlotObjects", ".spadesPlot"))
 
-
-###########################################################################
-# Classes
-###########################################################################
-
 ################################################################################
 #' Specify where to plot
 #'
@@ -320,7 +315,7 @@ dev <- function(x, ...) {
 #' @param ...         Additional arguments.
 #'
 #' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
-#' window in a platform-generic way, however, this doesn't work in RStudio.
+#' window in a platform-generic way; however, doesn't work in RStudio (#116).
 #'
 #' @seealso \code{\link{dev}}.
 #'
@@ -332,7 +327,6 @@ dev <- function(x, ...) {
 newPlot <- function(noRStudioGD=TRUE, ...) {
   dev.new(noRStudioGD=TRUE, ...)
 }
-
 
 ################################################################################
 #' Find the number of layers in a Spatial Object
