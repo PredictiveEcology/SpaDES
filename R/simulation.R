@@ -132,7 +132,7 @@ setMethod("simInit",
             simTimestepUnit(sim) <- if(!is.null(times$timestep)) {
               times$timestep
             } else {
-              largestTimestepUnit(sim)
+              smallestTimestepUnit(sim)
             }
 
             # assign user-specified non-global params, while
@@ -583,28 +583,32 @@ setMethod("timestepInSeconds",
 #'
 #' @export
 #' @docType methods
-#' @rdname largestTimestepUnit
+#' @rdname smallestTimestepUnit
 #'
 #' @author Eliot McIntire
 #'
-setGeneric("largestTimestepUnit", function(sim) {
-  standardGeneric("largestTimestepUnit")
+setGeneric("smallestTimestepUnit", function(sim) {
+  standardGeneric("smallestTimestepUnit")
 })
 
-#' @rdname largestTimestepUnit
-setMethod("largestTimestepUnit",
+#' @rdname smallestTimestepUnit
+setMethod("smallestTimestepUnit",
           signature(sim="simList"),
           definition=function(sim) {
-  timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestep)
-  #timesteps[!sapply(timesteps, is.na)] <-
-  #  lapply(timesteps[!sapply(timesteps, is.na)], function(x) x[grepl(pattern="[^s]$", x)] <- paste0(x,"s"))
-  if(all(sapply(timesteps, is.na))) {
-    return("year")
-  } else {
-    return(timesteps[!is.na(timesteps)][[which.max(sapply(timesteps[sapply(timesteps, is.character)],
-                                       function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
+  if(!is.null(simDepends(sim)@dependencies[[1]])) {
 
+    timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestep)
+    #timesteps[!sapply(timesteps, is.na)] <-
+    #  lapply(timesteps[!sapply(timesteps, is.na)], function(x) x[grepl(pattern="[^s]$", x)] <- paste0(x,"s"))
+    if(all(sapply(timesteps, is.na))) {
+      return(NA_character_)
+    } else {
+      return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[sapply(timesteps, is.character)],
+                                         function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
+
+    }
   }
+  return(NA_character_)
 })
 ################################################################################
 #' Run a spatial discrete event simulation
@@ -680,7 +684,8 @@ setMethod("spades",
 #'
 #' SpaDES commonly needs generic durations, like "year" which will round neatly over
 #' a century (i.e., leap years are added within each year with an extra 1/4 day,
-#' i.e., year=365.25 days), months are defined as year/12, weeks as year/52
+#' i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
+#' year is also known as the "astronomical" or "Julian" year.
 #'
 #' @param x numeric. Number of the desired units
 #'

@@ -1303,7 +1303,12 @@ setGeneric("simTimestepUnit<-",
 setReplaceMethod("simTimestepUnit",
                  signature="simList",
                  function(object, value) {
-                   object@simtimes$timestep <- value
+                   if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"), pattern=value))) {
+                     object@simtimes$timestep <- value
+                   } else {
+                     object@simtimes$timestep <- NA_character_
+                     warning("unknown timestep unit: ", value)
+                   }
                    validObject(object)
                    return(object)
                  })

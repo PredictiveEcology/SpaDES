@@ -65,6 +65,11 @@ test_that("defineModule correctly handles different inputs", {
   x2$timestep <- NA
   expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
 
+  ## check timestep
+  x2 <- x1
+  x2$timestep <- "holyDay"
+  expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
+
   ## check citation
   x2 <- x1
   x2$citation <- character() # not a list
