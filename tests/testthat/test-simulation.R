@@ -58,14 +58,14 @@ test_that("simList object initializes correctly", {
   # not going to go though each level...object validity checking does types
 
   ### SLOT simtimes
-  expect_equal(simTimes(mySim), list(current=0.0, start=0.0, stop=10.0, timestep="week"))
+  expect_equal(simTimes(mySim), list(current=0.0, start=0.0, stop=10.0, timestepUnit="week"))
   expect_equal(simCurrentTime(mySim), 0.0)
   expect_equal(simStartTime(mySim), 0.0)
   expect_equal(simStopTime(mySim), 10.0)
 })
 
 test_that("simulation runs with simInit and spades", {
-  times <- list(start=0.0, stop=10, timestep="year")
+  times <- list(start=0.0, stop=10, timestepUnit="year")
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"),
                  randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),
                  caribouMovement=list(.plotInitialTime=NA, .plotInterval=NA, torus=TRUE),
