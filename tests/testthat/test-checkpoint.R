@@ -1,10 +1,14 @@
 test_that("test checkpointing", {
 
+  file <- "chkpnt.RData"
+  fobj <- "chkpnt_objs.RData"
+  on.exit(unlink(c(file, fobj)))
+
   ## save checkpoints; no load/restore
   set.seed(1234)
   times <- list(start=0, stop=10)
   parameters <- list(.globals=list(stackName="landscape"),
-                     .checkpoint=list(interval=1, file="chkpnt.rdata"),
+                     .checkpoint=list(interval=1, file=file),
                      randomLandscapes=list(.plotInitialTime=NA),
                      caribouMovement=list(.plotInitialTime=NA))
   modules <- list("randomLandscapes", "caribouMovement")
@@ -19,7 +23,7 @@ test_that("test checkpointing", {
   sim2 <- spades(sim2)
   rm(sim2)
 
-  checkpointLoad(file="chkpnt.rdata")
+  checkpointLoad(file=file)
   simStopTime(sim2) <- 10
   sim2 <- spades(sim2)
 
