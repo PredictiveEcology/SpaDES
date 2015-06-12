@@ -10,5 +10,3 @@ LICENSE
 ^travis_wait_.*\.log$
 vignettes/.*\.log$
 vignettes/.*_cache$
-man/spadesEnv.Rd
-
