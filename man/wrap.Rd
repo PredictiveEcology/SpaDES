@@ -9,6 +9,7 @@
 \alias{wrap,SpatialPointsDataFrame,matrix,logical-method}
 \alias{wrap,matrix,Extent,missing-method}
 \alias{wrap,matrix,Raster,missing-method}
+\alias{wrap,matrix,matrix,missing-method}
 \title{Wrap coordinates or pixels in a torus-like fashion}
 \usage{
 wrap(X, bounds, withHeading)
@@ -20,6 +21,8 @@ wrap(X, bounds, withHeading)
 \S4method{wrap}{matrix,Raster,missing}(X, bounds)
 
 \S4method{wrap}{matrix,Raster,missing}(X, bounds)
+
+\S4method{wrap}{matrix,matrix,missing}(X, bounds)
 
 \S4method{wrap}{SpatialPointsDataFrame,Extent,logical}(X, bounds, withHeading)
 

@@ -412,6 +412,7 @@ setGeneric("wrap", function(X, bounds, withHeading) {
   standardGeneric("wrap")
 })
 
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="matrix", bounds="Extent", withHeading="missing"),
@@ -424,37 +425,37 @@ setMethod("wrap",
             } else {
               stop("When X is a matrix, it must have 2 columns, x and y, as from say, coordinates(SpatialPointsObj)")
             }
+})
 
-
-
-          })
-
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="SpatialPoints", bounds="ANY", withHeading="missing"),
           definition=function(X, bounds) {
             X@coords <- wrap(X@coords, bounds=bounds)
             return(X)
-          })
+})
 
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="matrix", bounds="Raster", withHeading="missing"),
           definition=function(X, bounds) {
             X <- wrap(X, bounds=extent(bounds))
             return(X)
+})
 
-          })
-
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="matrix", bounds="Raster", withHeading="missing"),
           definition=function(X, bounds) {
             X <- wrap(X, bounds=extent(bounds))
             return(X)
+})
 
-          })
-
+#' @export
+#' @rdname wrap
 setMethod("wrap",
           signature(X="matrix", bounds="matrix", withHeading="missing"),
           definition=function(X, bounds) {
@@ -468,6 +469,7 @@ setMethod("wrap",
 
           })
 
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="SpatialPointsDataFrame", bounds="Extent", withHeading="logical"),
@@ -489,17 +491,18 @@ setMethod("wrap",
                 (bounds@ymin-bounds@ymax) + bounds@ymin
             }
             return(wrap(X, bounds=bounds))
-          })
+})
 
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="SpatialPointsDataFrame", bounds="Raster", withHeading="logical"),
           definition=function(X, bounds, withHeading) {
               X <- wrap(X, bounds=extent(bounds), withHeading=withHeading)
               return(X)
+})
 
-            })
-
+#' @export
 #' @rdname wrap
 setMethod("wrap",
           signature(X="SpatialPointsDataFrame", bounds="matrix", withHeading="logical"),
@@ -511,5 +514,4 @@ setMethod("wrap",
             } else {
               stop("Must use either a bbox, Raster*, or Extent for 'bounds'")
             }
-
-          })
+})
