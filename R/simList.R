@@ -1334,8 +1334,8 @@ setGeneric("simModuleTimestepUnits", function(object) {
 setMethod("simModuleTimestepUnits",
           signature="simList",
           definition=function(object) {
-            timestepUnits <- lapply(simDepends(mySim)@dependencies, function(x) x@timestepUnit)
-            names(timestepUnits) <- sapply(simDepends(mySim)@dependencies, function(x) x@name)
+            timestepUnits <- lapply(simDepends(object)@dependencies, function(x) x@timestepUnit)
+            names(timestepUnits) <- sapply(simDepends(object)@dependencies, function(x) x@name)
             return(timestepUnits)
           })
 

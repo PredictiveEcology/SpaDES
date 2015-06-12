@@ -729,6 +729,7 @@ setGeneric("dweeks", function(x) {
   standardGeneric("dweeks")
 })
 
+#' @export
 #' @rdname spadesTimeUnits
 setMethod("dweeks",
           signature(x="numeric"),
@@ -737,31 +738,39 @@ setMethod("dweeks",
           })
 
 #' @export
+#' @rdname spadesTimeUnits
 dweek <- function(x) {
   dweeks(x)
 }
 
 #' @export
+#' @rdname spadesTimeUnits
 dmonth <- function(x) {
   dmonths(x)
 }
 
 #' @export
+#' @rdname spadesTimeUnits
 dyear <- function(x) {
   dyears(x)
 }
 
 #' @export
+#' @rdname spadesTimeUnits
 #' @importFrom lubridate dseconds
 dsecond <- function(x) {
   lubridate::dseconds(x)
 }
+
 #' @export
+#' @rdname spadesTimeUnits
 #' @importFrom lubridate ddays
 dday <- function(x) {
   lubridate::ddays(x)
 }
+
 #' @export
+#' @rdname spadesTimeUnits
 #' @importFrom lubridate dhours
 dhour <- function(x) {
   lubridate::dhours(x)

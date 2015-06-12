@@ -406,7 +406,7 @@ cir <- function(spatialPoints, radii, raster) {
 #'                  extent=extent(hab), stepLength=ln,
 #'                  stddev=sd, lonlat=FALSE,
 #'                  torus=TRUE)
-#'   Plot(caribou, addTo="hab", axes=T)
+#'   Plot(caribou, addTo="hab", axes=TRUE)
 #' }
 setGeneric("wrap", function(X, bounds, withHeading) {
   standardGeneric("wrap")
