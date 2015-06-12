@@ -404,7 +404,7 @@ setMethod("doEvent",
                   completed <- list(simCompleted(sim), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
-                  if (!debug) completed <- head(completed, n=10L)
+                  if (!debug) completed <- tail(completed, n=10L)
                 } else {
                   completed <- setkey(nextEvent, "eventTime")
                 }
