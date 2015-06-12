@@ -36,6 +36,10 @@ move <- function(hypothesis="crw", ...) {
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.
 #'
+#' @param extent      An optional extent object that will be used for \code{torus}
+#'
+#' @param torus       Logical. Should the crw movement be wrapped to the opposite side
+#' of the map, as determined by the \code{extent} argument. Default FALSE.
 #' @param stddev          Numeric vector of length 1 or number of agents describing
 #'                    standard deviation of wrapped normal turn angles.
 #'
@@ -60,7 +64,7 @@ move <- function(hypothesis="crw", ...) {
 #'
 #@examples
 #NEED EXAMPLES
-crw = function(agent, stepLength, stddev, lonlat) {
+crw = function(agent, extent, stepLength, stddev, lonlat, torus=FALSE) {
 
   if (is.null(lonlat)) {
     stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
@@ -74,12 +78,16 @@ crw = function(agent, stepLength, stddev, lonlat) {
   rndDir[rndDir>180] <- rndDir[rndDir>180]-360
   rndDir[rndDir<=180 & rndDir<(-180)] <- 360+rndDir[rndDir<=180 & rndDir<(-180)]
 
-  agent@data[,c("x1","y1")] <- coordinates(agent)
-  agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
-                        y=agent$y + cos(rad(rndDir)) * stepLength)
+    agent@data[,c("x1","y1")] <- coordinates(agent)
+    agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
+                          y=agent$y + cos(rad(rndDir)) * stepLength)
 
+  if(torus) {
+    return(wrap(X=agent, bounds=extent, withHeading=TRUE))
+  } else {
+    return(agent)
+  }
 
-  return(agent)
 }
 
 crw3 = function(agent, stepLength, stddev, lonlat) {

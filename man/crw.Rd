@@ -8,7 +8,7 @@
 \usage{
 move(hypothesis = "crw", ...)
 
-crw(agent, stepLength, stddev, lonlat)
+crw(agent, extent, stepLength, stddev, lonlat, torus = FALSE)
 }
 \arguments{
 \item{hypothesis}{a character vector, length one, indicating which movement hypothesis.
@@ -17,6 +17,8 @@ Currently defaults to crw to call the \code{crw} function.}
 \item{...}{arguments passed to the function in \code{hypothesis}}
 
 \item{agent}{A SpatialPoints* object.}
+
+\item{extent}{An optional extent object that will be used for \code{torus}}
 
 \item{stepLength}{Numeric vector of length 1 or number of agents describing
                    step length.}
@@ -27,6 +29,9 @@ Currently defaults to crw to call the \code{crw} function.}
 \item{lonlat}{Logical. If \code{TRUE}, coordinates should be in degrees.
                    If \code{FALSE} coordinates represent planar ('Euclidean')
                    space (e.g. units of meters)}
+
+\item{torus}{Logical. Should the crw movement be wrapped to the opposite side
+of the map, as determined by the \code{extent} argument. Default FALSE.}
 }
 \value{
 An agent object with updated spatial position defined by a single

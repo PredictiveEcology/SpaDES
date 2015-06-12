@@ -354,3 +354,162 @@ cir <- function(spatialPoints, radii, raster) {
   # list of df with x and y coordinates of each unique pixel of the circle of each individual
   return(pixelsIndIdsMerged)
 }
+
+
+################################################################################
+#' Wrap coordinates or pixels in a torus-like fashion
+#'
+#' Generally for model development purposes.
+#'
+#' If \code{withHeading} used, then X must be a SpatialPointsDataFrame that contains
+#' two columns, x1 and y1, with the immediately previous agent locations.
+#'
+#' @param X A SpatialPoints* object, or matrix of coordinates
+#'
+#' @param bounds Either a Raster*, Extent, or bbox object defining bounds to wrap around
+#'
+#' @param withHeading logical. If TRUE, then the previous points must be wrapped also
+#' so that the subsequent heading calculation will work. Default if FALSE. See details
+#'
+#' @return Same class as X, but with coordinates updated to reflect the wrapping
+#'
+#' @export
+#' @docType methods
+#' @rdname wrap
+#'
+#' @author Eliot McIntire
+#' @examples
+#' xrange <- yrange <- c(-50,50)
+#' hab <- raster(extent(c(xrange,yrange)))
+#' hab[] <- 0
+#'
+#' # initialize caribou agents
+#' N <- 10
+#'
+#' # previous points
+#' x1 <- rep(0, N)
+#' y1 <- rep(0, N)
+#' # initial points
+#' starts <- cbind(x=runif(N, xrange[1],xrange[2]),
+#'                 y=runif(N, yrange[1],yrange[2]))
+#'
+#' # create the caribou agent object
+#' caribou <- SpatialPointsDataFrame(coords=starts, data=data.frame(x1, y1))
+#'
+#'
+#' ln <- rlnorm(N, 1, 0.02) # log normal step length
+#' sd <- 30 # could be specified globally in params
+#'
+#' Plot(hab, zero.color="white", new=TRUE, axes="L")
+#' for(i in 1:10) {
+#'   caribou <- SpaDES::crw(agent=caribou,
+#'                  extent=extent(hab), stepLength=ln,
+#'                  stddev=sd, lonlat=FALSE,
+#'                  torus=TRUE)
+#'   Plot(caribou, addTo="hab", axes=TRUE)
+#' }
+setGeneric("wrap", function(X, bounds, withHeading) {
+  standardGeneric("wrap")
+})
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="matrix", bounds="Extent", withHeading="missing"),
+          definition=function(X, bounds) {
+            if(identical(colnames(X),c("x","y"))) {
+              return(
+                cbind(x=(X[,"x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) - bounds@xmax,
+                      y=(X[,"y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) - bounds@ymax)
+              )
+            } else {
+              stop("When X is a matrix, it must have 2 columns, x and y, as from say, coordinates(SpatialPointsObj)")
+            }
+
+
+
+          })
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="SpatialPoints", bounds="ANY", withHeading="missing"),
+          definition=function(X, bounds) {
+            X@coords <- wrap(X@coords, bounds=bounds)
+            return(X)
+          })
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="matrix", bounds="Raster", withHeading="missing"),
+          definition=function(X, bounds) {
+            X <- wrap(X, bounds=extent(bounds))
+            return(X)
+
+          })
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="matrix", bounds="Raster", withHeading="missing"),
+          definition=function(X, bounds) {
+            X <- wrap(X, bounds=extent(bounds))
+            return(X)
+
+          })
+
+setMethod("wrap",
+          signature(X="matrix", bounds="matrix", withHeading="missing"),
+          definition=function(X, bounds) {
+            if(identical(colnames(bounds),c("min","max")) &
+                 (identical(rownames(bounds),c("s1","s2")))) {
+              X <- wrap(X, bounds=extent(bounds))
+              return(X)
+            } else {
+              stop("Must use either a bbox, Raster*, or Extent for 'bounds'")
+            }
+
+          })
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="SpatialPointsDataFrame", bounds="Extent", withHeading="logical"),
+          definition=function(X, bounds, withHeading) {
+            if(withHeading) {
+              # This requires that previous points be "moved" as if they are
+              #  off the bounds, so that the heading is correct
+              X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] <-
+                (X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] + bounds@xmin) %%
+                (bounds@xmax-bounds@xmin) + bounds@xmax
+              X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] <-
+                (X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] + bounds@xmax) %%
+                (bounds@xmin-bounds@xmax) + bounds@xmin
+              X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] <-
+                (X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] + bounds@ymin) %%
+                (bounds@ymax-bounds@ymin) + bounds@ymax
+              X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] <-
+                (X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] + bounds@ymax) %%
+                (bounds@ymin-bounds@ymax) + bounds@ymin
+            }
+            return(wrap(X, bounds=bounds))
+          })
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="SpatialPointsDataFrame", bounds="Raster", withHeading="logical"),
+          definition=function(X, bounds, withHeading) {
+              X <- wrap(X, bounds=extent(bounds), withHeading=withHeading)
+              return(X)
+
+            })
+
+#' @rdname wrap
+setMethod("wrap",
+          signature(X="SpatialPointsDataFrame", bounds="matrix", withHeading="logical"),
+          definition=function(X, bounds, withHeading) {
+            if(identical(colnames(bounds),c("min","max")) &
+                 (identical(rownames(bounds),c("s1","s2")))) {
+              X <- wrap(X, bounds=extent(bounds), withHeading=withHeading)
+              return(X)
+            } else {
+              stop("Must use either a bbox, Raster*, or Extent for 'bounds'")
+            }
+
+          })

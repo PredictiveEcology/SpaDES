@@ -56,7 +56,7 @@ defineModule(sim, list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep=NA_real_,
+  timestepUnit=NA_character_,
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(

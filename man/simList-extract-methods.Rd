@@ -14,7 +14,7 @@
 \usage{
 \S4method{[[}{simList,ANY,ANY}(x, i, j, ..., drop)
 
-\S4method{[[}{simList,ANY,ANY}(x, i) <- value
+\S4method{[[}{simList,ANY,ANY,ANY}(x, i) <- value
 
 \S4method{$}{simList}(x, name)
 

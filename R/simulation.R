@@ -128,6 +128,13 @@ setMethod("simInit",
               eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
             }
 
+            # timestepUnit has no meaning until all modules are loaded, so this has to be after loading
+            simTimestepUnit(sim) <- if(!is.null(times$timestepUnit)) {
+              times$timestepUnit
+            } else {
+              smallestTimestepUnit(sim)
+            }
+
             # assign user-specified non-global params, while
             # keeping defaults for params not specified by user
             omit <- c(which(core=="load"), which(core=="save"))
@@ -149,6 +156,7 @@ setMethod("simInit",
             } else {
               simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
             }
+
 
             # load user-defined modules
             for (m in simModulesLoadOrder(sim)) {
@@ -202,6 +210,7 @@ setMethod("simInit",
               changeObjEnv(x=objects, toEnv=simEnv(sim), fromEnv=.GlobalEnv,
                            rmSrc=getOption("spades.lowMemory"))
             }
+
             return(invisible(sim))
 })
 
@@ -466,9 +475,28 @@ setMethod("scheduleEvent",
           definition=function(sim, eventTime, moduleName, eventType) {
             if (length(eventTime)) {
               if (!is.na(eventTime)) {
-                  newEvent <- as.data.table(list(eventTime=eventTime,
-                                                moduleName=moduleName,
-                                                eventType=eventType))
+                # if there is no metadata, meaning for the first
+                #  "default" modules...load, save, checkpoint, progress
+                if(!is.null(simDepends(sim)@dependencies[[1]])){
+                  # first check if this moduleName matches the name of a module with meta-data
+                  #   (i.e., simDepends(sim)@dependencies filled)
+                  if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
+                    eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
+                      timestepInSeconds(sim, moduleName)
+
+                    eventTimeInLargestUnit <- suppressMessages(simCurrentTime(sim)+
+                      eventTimeIncrementSec/as.numeric(
+                        eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
+                  } else {
+                    eventTimeInLargestUnit <- eventTime
+                  }
+                } else {
+                  eventTimeInLargestUnit <- eventTime
+                }
+
+                newEvent <- as.data.table(list(eventTime=eventTimeInLargestUnit,
+                                              moduleName=moduleName,
+                                              eventType=eventType))
 
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
@@ -500,6 +528,87 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
+###################
+################################################################################
+#' Convert a schedule event to seconds
+#'
+#' As a common unit
+#'
+#' @param sim          A \code{simList} simulation object.
+#'
+#' @param moduleName   A character string specifying the module from which to call the event.
+#'
+#' @return Returns the eventTime in seconds, based on the default \code{timestepUnit} of
+#' the \code{moduleName}.
+#'
+#' @export
+#' @docType methods
+#' @rdname timestepInSeconds
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("timestepInSeconds", function(sim, moduleName) {
+  standardGeneric("timestepInSeconds")
+})
+
+#' @rdname timestepInSeconds
+setMethod("timestepInSeconds",
+          signature(sim="simList", moduleName="character"),
+          definition=function(sim, moduleName) {
+  a = sapply(simDepends(sim)@dependencies,function(x) x@name)
+  wh <- which(a==moduleName)
+  timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
+
+  if(is.character(timestepUnit)) {
+    return(as.numeric(eval(parse(text=paste0("d",timestepUnit,"(1)")))))
+  }
+  if(is.na(timestepUnit)) {
+    return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
+  } else {
+    return(timestepUnit)
+  }
+})
+
+################################################################################
+#' Determine what the smallest timestepUnit in a simObject
+#'
+#' When modules have different timestepUnit, SpaDES automatically takes the
+#' largest (e.g., "year") as the unit for a simulation. This function determines which
+#' is the largest unit
+#'
+#' @param sim          A \code{simList} simulation object.
+#'
+#' @return The timestepUnit as a character string
+#'
+#' @export
+#' @docType methods
+#' @rdname smallestTimestepUnit
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("smallestTimestepUnit", function(sim) {
+  standardGeneric("smallestTimestepUnit")
+})
+
+#' @rdname smallestTimestepUnit
+setMethod("smallestTimestepUnit",
+          signature(sim="simList"),
+          definition=function(sim) {
+  if(!is.null(simDepends(sim)@dependencies[[1]])) {
+
+    timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestepUnit)
+    #timesteps[!sapply(timesteps, is.na)] <-
+    #  lapply(timesteps[!sapply(timesteps, is.na)], function(x) x[grepl(pattern="[^s]$", x)] <- paste0(x,"s"))
+    if(all(sapply(timesteps, is.na))) {
+      return(NA_character_)
+    } else {
+      return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[!sapply(timesteps, is.na)],
+                                         function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
+
+    }
+  }
+  return(NA_character_)
+})
 ################################################################################
 #' Run a spatial discrete event simulation
 #'
@@ -568,3 +677,115 @@ setMethod("spades",
             stopifnot(class(sim) == "simList")
             return(spades(sim, debug=FALSE))
 })
+
+################################################################################
+#' New time units
+#'
+#' SpaDES commonly needs generic durations, like "year" which will round neatly over
+#' a century (i.e., leap years are added within each year with an extra 1/4 day,
+#' i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
+#' year is also known as the "astronomical" or "Julian" year.
+#'
+#' @param x numeric. Number of the desired units
+#'
+#' @return Number of seconds within each unit
+#'
+#' @export
+#' @docType methods
+#' @rdname spadesTimeUnits
+#'
+#' @author Eliot McIntire
+setGeneric("dyears", function(x) {
+  standardGeneric("dyears")
+})
+
+#' @importFrom lubridate new_duration
+#' @rdname spadesTimeUnits
+setMethod("dyears",
+          signature(x="numeric"),
+          definition=function(x){
+  lubridate::new_duration(x * 60 * 60 * 24 * 365.25)
+})
+
+#' @inheritParams dyears
+#' @export
+#' @rdname spadesTimeUnits
+setGeneric("dmonths", function(x) {
+  standardGeneric("dmonths")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("dmonths",
+          signature(x="numeric"),
+          definition=function(x){
+            lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/12)
+          })
+
+#' @inheritParams dyears
+#' @export
+#' @aliases dweek
+#' @rdname spadesTimeUnits
+setGeneric("dweeks", function(x) {
+  standardGeneric("dweeks")
+})
+
+#' @export
+#' @rdname spadesTimeUnits
+setMethod("dweeks",
+          signature(x="numeric"),
+          definition=function(x){
+            lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/52)
+          })
+
+#' @export
+#' @rdname spadesTimeUnits
+dweek <- function(x) {
+  dweeks(x)
+}
+
+#' @export
+#' @rdname spadesTimeUnits
+dmonth <- function(x) {
+  dmonths(x)
+}
+
+#' @export
+#' @rdname spadesTimeUnits
+dyear <- function(x) {
+  dyears(x)
+}
+
+#' @export
+#' @rdname spadesTimeUnits
+#' @importFrom lubridate dseconds
+dsecond <- function(x) {
+  lubridate::dseconds(x)
+}
+
+#' @export
+#' @rdname spadesTimeUnits
+#' @importFrom lubridate ddays
+dday <- function(x) {
+  lubridate::ddays(x)
+}
+
+#' @export
+#' @rdname spadesTimeUnits
+#' @importFrom lubridate dhours
+dhour <- function(x) {
+  lubridate::dhours(x)
+}
+
+#' @inheritParams dyears
+#' @export
+#' @rdname spadesTimeUnits
+setGeneric("dNA", function(x) {
+  standardGeneric("dNA")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("dNA",
+          signature(x="ANY"),
+          definition=function(x){
+            lubridate::new_duration(0)
+          })

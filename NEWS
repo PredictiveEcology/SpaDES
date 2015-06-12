@@ -14,6 +14,9 @@ version 1.0.0
 
 * `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
 * software requirements changed: depends R (>=3.2.0)
+* add `lubridate` to Imports (with #151)
+* simulations now use `timestepUnit` (instead of `timestep`) specified in metadata (#151)
+* `defineModule` requires `timestepUnit` to be a character string instead of numeric (with #151)
 * simulation checkpointing fixed (#191, #130)
 * `ls` and `ls.str` can now be used with `simList` objects to list objects in the simulation environment
 * `simObjects` returns a list containing all the objects in the simulation enviroment

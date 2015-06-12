@@ -65,7 +65,8 @@ setMethod("checkObject",
             if (exists(name, envir=simEnv(sim))) {
               return(invisible(TRUE))
             } else {
-              message(paste(name,"does not exist in",sim))
+              simName <- .objectNames("spades", "simList", "sim")[[1]]$objs
+              message(paste(name,"does not exist in",simName))
               return(FALSE)
             }
 })
