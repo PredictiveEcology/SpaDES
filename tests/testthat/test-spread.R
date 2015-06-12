@@ -19,12 +19,11 @@ test_that("spread produces legal RasterLayer", {
 
   # checks if maxSize is working properly
   # One process spreading
-  expect_equal(ncell(a), tabulate(spread(a, spreadProb = 1, mapID = TRUE)[]))
+  expect_equal(ncell(a), tabulate(spread(a, spreadProb=1, mapID=TRUE)[]))
 
   # several processes spreading
   expect_equal(rep_len(3300,3),
-               tabulate(spread(a, loci=c(100, 3500, 8000),
-                               spreadProb = 1, mapID = TRUE,
-                               maxSize = rep_len(3300,3))[]))
+               tabulate(spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+                               mapID = TRUE, maxSize = rep_len(3300,3))[]))
 
 })

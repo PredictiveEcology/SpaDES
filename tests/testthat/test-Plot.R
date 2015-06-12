@@ -1,5 +1,5 @@
-test_that("Plot - check for errors", {
-#  startFileList <- dir()
+test_that("Plot is error-free", {
+  on.exit({dev.off(); if (file.exists("Rplot.pdf")) unlink("Rplots.pdf") })
 
   ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
@@ -101,13 +101,6 @@ test_that("Plot - check for errors", {
                  "Plot can only plot objects of class .spadesPlottables")
   expect_message(Plot(habitatQuality87654, addTo="test"),
                  "Plot called with 'addTo' argument specified")
-  expect_error(Plot(ls()),
-                 "Nothing to Plot")
+  expect_error(Plot(ls()), "Nothing to Plot")
   expect_that(rePlot, testthat::not(throws_error()))
-
-  dev.off()
-#  endFileList <- dir()
-#  file.remove(endFileList[!(endFileList %in% startFileList)])
 })
-
-

@@ -27,6 +27,7 @@ version 1.0.0
 * `defineParameter` now accepts `min` and `max` values (#172)
 * `defineModule` better handles `NA` values (#138)
 * `Plot` improvements
+* improved `simList` show and debug methods (#57; #73)
 * improvements to `loadFiles`:
 
     - use `data.table`

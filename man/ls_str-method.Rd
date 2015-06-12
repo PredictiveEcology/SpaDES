@@ -25,7 +25,5 @@ is simply a wrapper for calling \code{ls} on the simulation environment
 stored in the \code{simList} object.
 
 export
-
-export
 }
 
