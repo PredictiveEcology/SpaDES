@@ -85,7 +85,7 @@ setClass(".simList",
                                     .progress=list(graphical=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, stop=1.00, timestep=NA_character_)),
+                        simtimes=list(current=0.00, start=0.00, stop=1.00, timestepUnit=NA_character_)),
          validity=function(object) {
            # check for valid sim times
            if (is.na(object@simtimes$stop)) {
@@ -1269,9 +1269,9 @@ setReplaceMethod("simCompleted",
 
 ################################################################################
 #' @details \code{simTimestepUnit} will extract the current units of the time used in a spades call. If
-#' it is set within a \code{simInit} as say, \code{times=list(start=0, stop=52, timestep="week")}
+#' it is set within a \code{simInit} as say, \code{times=list(start=0, stop=52, timestepUnit="week")}
 #' it will set the units for that simulation. But default, a simInit call will use the largest
-#' units contained within the meta data for the modules being used. NA for timestep defaults to
+#' units contained within the meta data for the modules being used. NA for timestepUnit defaults to
 #' "year"
 #'
 #' @inheritParams simTimes
@@ -1287,7 +1287,7 @@ setGeneric("simTimestepUnit", function(object) {
 setMethod("simTimestepUnit",
           signature="simList",
           definition=function(object) {
-            return(object@simtimes$timestep)
+            return(object@simtimes$timestepUnit)
           })
 
 #' @export
@@ -1303,15 +1303,42 @@ setGeneric("simTimestepUnit<-",
 setReplaceMethod("simTimestepUnit",
                  signature="simList",
                  function(object, value) {
-                   if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"), pattern=value))) {
-                     object@simtimes$timestep <- value
+                   if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"),
+                                 pattern=value), na.rm=TRUE)) {
+                     object@simtimes$timestepUnit <- value
                    } else {
-                     object@simtimes$timestep <- NA_character_
-                     warning("unknown timestep unit: ", value)
+                     object@simtimes$timestepUnit <- NA_character_
+                     if(!is.na(value)){
+                       message("unknown timestepUnit provided: ", value)
+                     }
                    }
                    validObject(object)
                    return(object)
                  })
+
+################################################################################
+#' @details \code{simModuleTimestepUnits} will extract the current units of the time of all
+#' modules used in a simObject. This is different from \code{simTimestepUnits} because it
+#' is not necessarily associated with a spades call
+#'
+#' @inheritParams simTimes
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+#'
+setGeneric("simModuleTimestepUnits", function(object) {
+  standardGeneric("simModuleTimestepUnits")
+})
+
+#' @rdname simList-accessors-times
+setMethod("simModuleTimestepUnits",
+          signature="simList",
+          definition=function(object) {
+            timestepUnits <- lapply(simDepends(mySim)@dependencies, function(x) x@timestepUnit)
+            names(timestepUnits) <- sapply(simDepends(mySim)@dependencies, function(x) x@name)
+            return(timestepUnits)
+          })
+
 
 ################################################################################
 #' Add simulation dependencies
@@ -1445,8 +1472,8 @@ setMethod("defineModule",
                 }
               }
             }
-            if (is.na(x$timestep)) {
-              x$timestep <- NA_real_
+            if (is.na(x$timestepUnit)) {
+              x$timestepUnit <- NA_character_
             }
             x$reqdPkgs <- as.list(x$reqdPkgs)
             x$citation <- as.list(x$citation)

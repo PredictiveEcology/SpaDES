@@ -10,7 +10,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep="year",
+  timestepUnit="year",
   citation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
   parameters=rbind(

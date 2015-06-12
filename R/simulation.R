@@ -128,9 +128,9 @@ setMethod("simInit",
               eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
             }
 
-            # timestep has no meaning until all modules are loaded, so this has to be after loading
-            simTimestepUnit(sim) <- if(!is.null(times$timestep)) {
-              times$timestep
+            # timestepUnit has no meaning until all modules are loaded, so this has to be after loading
+            simTimestepUnit(sim) <- if(!is.null(times$timestepUnit)) {
+              times$timestepUnit
             } else {
               smallestTimestepUnit(sim)
             }
@@ -539,7 +539,7 @@ setMethod("scheduleEvent",
 #'
 #' @param moduleName   A character string specifying the module from which to call the event.
 #'
-#' @return Returns the eventTime in seconds, based on the default \code{timestep} of
+#' @return Returns the eventTime in seconds, based on the default \code{timestepUnit} of
 #' the \code{moduleName}.
 #'
 #' @export
@@ -558,28 +558,28 @@ setMethod("timestepInSeconds",
           definition=function(sim, moduleName) {
   a = sapply(simDepends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
-  timestep <- simDepends(sim)@dependencies[[wh]]@timestep
-  if(is.character(timestep)) {
-    return(as.numeric(eval(parse(text=paste0("d",timestep,"(1)")))))
+  timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
+  if(is.character(timestepUnit) & !is.na(timestepUnit)) {
+    return(as.numeric(eval(parse(text=paste0("d",timestepUnit,"(1)")))))
   }
-  if(is.na(timestep)) {
+  if(is.na(timestepUnit)) {
     # use value of the sim object, if NA specified
     return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
   } else {
-    return(timestep)
+    return(timestepUnit)
   }
 })
 
 ################################################################################
-#' Determine what the the largest timestep units
+#' Determine what the smallest timestepUnit in a simObject
 #'
-#' When modules have different timestep units, SpaDES automatically takes the
+#' When modules have different timestepUnit, SpaDES automatically takes the
 #' largest (e.g., "year") as the unit for a simulation. This function determines which
 #' is the largest unit
 #'
 #' @param sim          A \code{simList} simulation object.
 #'
-#' @return The timestep unit as a character string
+#' @return The timestepUnit as a character string
 #'
 #' @export
 #' @docType methods
@@ -597,13 +597,13 @@ setMethod("smallestTimestepUnit",
           definition=function(sim) {
   if(!is.null(simDepends(sim)@dependencies[[1]])) {
 
-    timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestep)
+    timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestepUnit)
     #timesteps[!sapply(timesteps, is.na)] <-
     #  lapply(timesteps[!sapply(timesteps, is.na)], function(x) x[grepl(pattern="[^s]$", x)] <- paste0(x,"s"))
     if(all(sapply(timesteps, is.na))) {
       return(NA_character_)
     } else {
-      return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[sapply(timesteps, is.character)],
+      return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[!sapply(timesteps, is.na)],
                                          function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
 
     }
