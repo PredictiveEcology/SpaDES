@@ -73,5 +73,4 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
          value = raster(res=res(fullRaster),ext=extent(fullRaster), vals=BsumVec[[plotCol]])
   )
   return(get(ras))
-  #Plot(get(ras), ...)
 }
