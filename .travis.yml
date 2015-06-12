@@ -65,7 +65,7 @@ r_github_packages:
   - jimhester/covr
 
 after_success:
-  - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE)))'
+  - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE))); devtools::session_info()'
 
 notifications:
   email:
