@@ -73,11 +73,7 @@ for(i in 1:10) {
                  extent=extent(hab), stepLength=ln,
                  stddev=sd, lonlat=FALSE,
                  torus=TRUE)
-<<<<<<< HEAD
   Plot(caribou, addTo="hab", axes=TRUE)
-=======
-  Plot(caribou, addTo="hab", axes=T)
->>>>>>> origin/development
 }
 }
 \author{

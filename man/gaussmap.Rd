@@ -38,7 +38,6 @@ pixel resolution of the pattern generated
 nx <- ny <- 100L
 r <- raster::raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 speedup <- max(1, nx/5e2)
-<<<<<<< HEAD
 map1 <- RandomFields::round(gaussMap(r, scale=300, var=0.03,
   speedup=speedup, inMemory=TRUE), 1)*1000
 map2 <- RandomFields::round(gaussMap(r, scale=10, var=0.1,
@@ -47,12 +46,6 @@ map3 <- RandomFields::round(gaussMap(r, scale=50, var=1,
   speedup=speedup, inMemory=TRUE), 1)
 map4 <- RandomFields::round(gaussMap(r, scale=500, var=10,
   speedup=speedup, inMemory=TRUE), 1)/10
-=======
-map1 <- RandomFields::round(gaussMap(r, scale=300, var=0.03, speedup=speedup, inMemory=TRUE), 1)*1000
-map2 <- RandomFields::round(gaussMap(r, scale=10, var=0.1, speedup=speedup, inMemory=TRUE), 1)*20
-map3 <- RandomFields::round(gaussMap(r, scale=50, var=1, speedup=speedup, inMemory=TRUE), 1)
-map4 <- RandomFields::round(gaussMap(r, scale=500, var=10, speedup=speedup, inMemory=TRUE), 1)/10
->>>>>>> origin/development
 Plot(map1, map2, map3, map4)
 }
 \seealso{

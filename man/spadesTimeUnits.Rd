@@ -4,7 +4,6 @@
 \name{dyears}
 \alias{dNA}
 \alias{dNA,ANY-method}
-<<<<<<< HEAD
 \alias{dday}
 \alias{dhour}
 \alias{dmonth}
@@ -15,13 +14,6 @@
 \alias{dweeks}
 \alias{dweeks,numeric-method}
 \alias{dyear}
-=======
-\alias{dmonths}
-\alias{dmonths,numeric-method}
-\alias{dweek}
-\alias{dweeks}
-\alias{dweeks,numeric-method}
->>>>>>> origin/development
 \alias{dyears}
 \alias{dyears,numeric-method}
 \title{New time units}
@@ -38,7 +30,6 @@ dweeks(x)
 
 \S4method{dweeks}{numeric}(x)
 
-<<<<<<< HEAD
 dweek(x)
 
 dmonth(x)
@@ -51,8 +42,6 @@ dday(x)
 
 dhour(x)
 
-=======
->>>>>>> origin/development
 dNA(x)
 
 \S4method{dNA}{ANY}(x)
