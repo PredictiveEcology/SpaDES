@@ -32,7 +32,6 @@ A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
 Convert reduced representation to full raster
 }
 \examples{
-\dontrun{
 Ras <- raster(extent(0,100,0,100), res=1)
 fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
 names(fullRas) <- "mapcodeAll"
@@ -47,7 +46,6 @@ ANPP <- rasterizeReduced(reducedDT, fullRas, "ANPP")
 setColors(communities) <- c("blue","orange","red")
 setColors(ANPP) <- c("light green", "dark green")
 Plot(biomass, communities, ANPP, fullRas, new=T)
-}
 }
 \author{
 Eliot McIntire
