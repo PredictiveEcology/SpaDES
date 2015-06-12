@@ -1288,14 +1288,14 @@ setMethod("simTimestepUnit",
           signature="simList",
           definition=function(object) {
             return(object@simtimes$timestepUnit)
-          })
+})
 
 #' @export
 #' @rdname simList-accessors-times
 setGeneric("simTimestepUnit<-",
            function(object, value) {
              standardGeneric("simTimestepUnit<-")
-           })
+})
 
 #' @name simTimestepUnit<-
 #' @aliases simTimestepUnit<-,simList-method
@@ -1314,7 +1314,7 @@ setReplaceMethod("simTimestepUnit",
                    }
                    validObject(object)
                    return(object)
-                 })
+})
 
 ################################################################################
 #' @details \code{simModuleTimestepUnits} will extract the current units of the time of all
