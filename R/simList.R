@@ -336,7 +336,7 @@ setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
 
 #' @export
 #' @name [[<-
-#' @aliases [[<-,simList,ANY,ANY-method
+#' @aliases [[<-,simList,ANY,ANY,ANY-method
 #' @rdname simList-extract-methods
 setReplaceMethod("[[", signature(x="simList", value="ANY"),
                  definition=function(x, i, value) {

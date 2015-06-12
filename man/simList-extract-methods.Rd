@@ -9,7 +9,7 @@
 \alias{[[}
 \alias{[[,simList,ANY,ANY-method}
 \alias{[[<-}
-\alias{[[<-,simList,ANY,ANY-method}
+\alias{[[<-,simList,ANY,ANY,ANY-method}
 \title{Extract or replace parts of an object from the simulation environment}
 \usage{
 \S4method{[[}{simList,ANY,ANY}(x, i, j, ..., drop)
