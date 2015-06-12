@@ -158,7 +158,7 @@ setMethod("loadFiles",
 
               # Fill in columns if they are missing:
               if (!("package" %in% names(fileListDT))) {
-                fileList[,package:=NA]
+                fileListDT[,package:=NA]
               }
 
               #  assume loadTime = simStartTime(sim) if missing
