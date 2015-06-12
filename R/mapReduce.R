@@ -31,7 +31,6 @@ if (getRversion() >= "3.1.0") utils::globalVariables("row_number")
 #' @include environment.R
 #' @author Eliot McIntire
 #' @examples
-#' \dontrun{
 #' Ras <- raster(extent(0,100,0,100), res=1)
 #' fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
 #' names(fullRas) <- "mapcodeAll"
@@ -46,7 +45,6 @@ if (getRversion() >= "3.1.0") utils::globalVariables("row_number")
 #' setColors(communities) <- c("blue","orange","red")
 #' setColors(ANPP) <- c("light green", "dark green")
 #' Plot(biomass, communities, ANPP, fullRas, new=T)
-#' }
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
   reduced <- data.table(reduced)
   if(!is.null(key(reduced))){
