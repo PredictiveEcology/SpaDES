@@ -31,8 +31,9 @@ Number of seconds within each unit
 }
 \description{
 SpaDES commonly needs generic durations, like "year" which will round neatly over
-a century (i.e., leap years are integrated as 1/4 day within each year), months are
-defined as year/12, weeks as year/52
+a century (i.e., leap years are added within each year with an extra 1/4 day,
+i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
+year is also known as the "astronomical" or "Julian" year.
 }
 \author{
 Eliot McIntire

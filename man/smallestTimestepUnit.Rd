@@ -4,7 +4,7 @@
 \name{smallestTimestepUnit}
 \alias{smallestTimestepUnit}
 \alias{smallestTimestepUnit,simList-method}
-\title{Determine what the the largest timestep units}
+\title{Determine what the smallest timestepUnit in a simObject}
 \usage{
 smallestTimestepUnit(sim)
 
@@ -14,10 +14,10 @@ smallestTimestepUnit(sim)
 \item{sim}{A \code{simList} simulation object.}
 }
 \value{
-The timestep unit as a character string
+The timestepUnit as a character string
 }
 \description{
-When modules have different timestep units, SpaDES automatically takes the
+When modules have different timestepUnit, SpaDES automatically takes the
 largest (e.g., "year") as the unit for a simulation. This function determines which
 is the largest unit
 }

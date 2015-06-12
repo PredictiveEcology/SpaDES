@@ -16,7 +16,7 @@ timestepInSeconds(sim, moduleName)
 \item{moduleName}{A character string specifying the module from which to call the event.}
 }
 \value{
-Returns the eventTime in seconds, based on the default \code{timestep} of
+Returns the eventTime in seconds, based on the default \code{timestepUnit} of
 the \code{moduleName}.
 }
 \description{
