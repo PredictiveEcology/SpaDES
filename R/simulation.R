@@ -455,8 +455,6 @@ setMethod("doEvent",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @export
-#' @importFrom lubridate ddays
-#' @importFrom lubridate dminutes
 #' @docType methods
 #' @rdname scheduleEvent
 #'
@@ -706,7 +704,7 @@ setGeneric("dyears", function(x) {
 setMethod("dyears",
           signature(x="numeric"),
           definition=function(x){
-  new_duration(x * 60 * 60 * 24 * 365.25)
+  lubridate::new_duration(x * 60 * 60 * 24 * 365.25)
 })
 
 #' @inheritParams dyears
@@ -720,7 +718,7 @@ setGeneric("dmonths", function(x) {
 setMethod("dmonths",
           signature(x="numeric"),
           definition=function(x){
-            new_duration(x * as.numeric(SpaDES::dyears(1))/12)
+            lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/12)
           })
 
 #' @inheritParams dyears
@@ -735,7 +733,7 @@ setGeneric("dweeks", function(x) {
 setMethod("dweeks",
           signature(x="numeric"),
           definition=function(x){
-            new_duration(x * as.numeric(SpaDES::dyears(1))/52)
+            lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/52)
           })
 
 #' @export
@@ -768,13 +766,6 @@ dday <- function(x) {
 dhour <- function(x) {
   dhours(x)
 }
-#' @export
-#' @importFrom lubridate dseconds
-dsecond <- function(x) {
-  dseconds(x)
-}
-#' @export
-#' @importFrom lubridate dseconds
 
 #' @inheritParams dyears
 #' @export
