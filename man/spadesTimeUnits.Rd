@@ -2,6 +2,8 @@
 % Please edit documentation in R/simulation.R
 \docType{methods}
 \name{dyears}
+\alias{dNA}
+\alias{dNA,ANY-method}
 \alias{dmonths}
 \alias{dmonths,numeric-method}
 \alias{dweek}
@@ -22,6 +24,10 @@ dmonths(x)
 dweeks(x)
 
 \S4method{dweeks}{numeric}(x)
+
+dNA(x)
+
+\S4method{dNA}{ANY}(x)
 }
 \arguments{
 \item{x}{numeric. Number of the desired units}

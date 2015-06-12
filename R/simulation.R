@@ -485,6 +485,7 @@ setMethod("scheduleEvent",
                   if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
                     eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
                       timestepInSeconds(sim, moduleName)
+
                     eventTimeInLargestUnit <- suppressMessages(simCurrentTime(sim)+
                       eventTimeIncrementSec/as.numeric(
                         eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
@@ -559,11 +560,11 @@ setMethod("timestepInSeconds",
   a = sapply(simDepends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
   timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
-  if(is.character(timestepUnit) & !is.na(timestepUnit)) {
+
+  if(is.character(timestepUnit)) {
     return(as.numeric(eval(parse(text=paste0("d",timestepUnit,"(1)")))))
   }
   if(is.na(timestepUnit)) {
-    # use value of the sim object, if NA specified
     return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
   } else {
     return(timestepUnit)
@@ -772,3 +773,19 @@ dhour <- function(x) {
 dsecond <- function(x) {
   dseconds(x)
 }
+#' @export
+#' @importFrom lubridate dseconds
+
+#' @inheritParams dyears
+#' @export
+#' @rdname spadesTimeUnits
+setGeneric("dNA", function(x) {
+  standardGeneric("dNA")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("dNA",
+          signature(x="ANY"),
+          definition=function(x){
+            lubridate::new_duration(0)
+          })
