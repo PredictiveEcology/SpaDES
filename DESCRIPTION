@@ -43,6 +43,7 @@ Imports:
     gridBase,
     httr,
     igraph,
+    lubridate,
     magrittr,
     methods,
     RandomFields,
