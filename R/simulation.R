@@ -691,7 +691,6 @@ setMethod("spades",
 #' @return Number of seconds within each unit
 #'
 #' @export
-#' @importFrom lubridate new_duration
 #' @docType methods
 #' @rdname spadesTimeUnits
 #'
@@ -700,6 +699,7 @@ setGeneric("dyears", function(x) {
   standardGeneric("dyears")
 })
 
+#' @importFrom lubridate new_duration
 #' @rdname spadesTimeUnits
 setMethod("dyears",
           signature(x="numeric"),
@@ -754,17 +754,17 @@ dyear <- function(x) {
 #' @export
 #' @importFrom lubridate dseconds
 dsecond <- function(x) {
-  dseconds(x)
+  lubridate::dseconds(x)
 }
 #' @export
 #' @importFrom lubridate ddays
 dday <- function(x) {
-  ddays(x)
+  lubridate::ddays(x)
 }
 #' @export
 #' @importFrom lubridate dhours
 dhour <- function(x) {
-  dhours(x)
+  lubridate::dhours(x)
 }
 
 #' @inheritParams dyears
