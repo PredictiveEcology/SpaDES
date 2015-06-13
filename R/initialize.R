@@ -1,7 +1,7 @@
 if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 
 ###############################################################################
-#' Produces a raster of a random gaussian process.
+#' Produce a \code{raster} of a random Gaussian process.
 #'
 #' This is a wrapper for the \code{RFsimulate} function in the RandomFields
 #' package. The main addition is the \code{speedup} argument which allows
@@ -9,7 +9,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' progressively faster as the number increases, at the expense of coarser
 #' pixel resolution of the pattern generated
 #'
-#' @param x        A spatial object (e.g., a raster).
+#' @param x        A spatial object (e.g., a \code{RasterLayer}).
 #'
 #' @param scale    The spatial scale in map units of the Gaussian pattern.
 #'
@@ -22,7 +22,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #'
 #' @param ... Additional arguments to \code{raster}.
 #'
-#' @return A map of extent \code{ext} with a Gaussian random pattern.
+#' @return A raster map of extent \code{ext} with a Gaussian random pattern.
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'

@@ -3,12 +3,12 @@
 \docType{methods}
 \name{gaussMap}
 \alias{gaussMap}
-\title{Produces a raster of a random gaussian process.}
+\title{Produce a \code{raster} of a random Gaussian process.}
 \usage{
 gaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
 }
 \arguments{
-\item{x}{A spatial object (e.g., a raster).}
+\item{x}{A spatial object (e.g., a \code{RasterLayer}).}
 
 \item{scale}{The spatial scale in map units of the Gaussian pattern.}
 
@@ -22,7 +22,7 @@ gaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
 \item{...}{Additional arguments to \code{raster}.}
 }
 \value{
-A map of extent \code{ext} with a Gaussian random pattern.
+A raster map of extent \code{ext} with a Gaussian random pattern.
 }
 \description{
 This is a wrapper for the \code{RFsimulate} function in the RandomFields
