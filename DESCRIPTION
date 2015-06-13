@@ -64,7 +64,6 @@ Collate:
     'environment.R'
     'checkpoint.R'
     'colours.R'
-    'device.R'
     'initialize.R'
     'simulation.R'
     'load.R'

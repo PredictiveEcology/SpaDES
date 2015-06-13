@@ -1,8 +1,6 @@
 if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 
 ###############################################################################
-#' gaussMap
-#'
 #' Produces a raster of a random gaussian process.
 #'
 #' This is a wrapper for the \code{RFsimulate} function in the RandomFields

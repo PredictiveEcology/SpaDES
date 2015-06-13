@@ -3,7 +3,7 @@
 \docType{methods}
 \name{gaussMap}
 \alias{gaussMap}
-\title{gaussMap}
+\title{Produces a raster of a random gaussian process.}
 \usage{
 gaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
 }
@@ -25,9 +25,6 @@ gaussMap(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...)
 A map of extent \code{ext} with a Gaussian random pattern.
 }
 \description{
-Produces a raster of a random gaussian process.
-}
-\details{
 This is a wrapper for the \code{RFsimulate} function in the RandomFields
 package. The main addition is the \code{speedup} argument which allows
 for faster map generation. A \code{speedup} of 1 is normal and will get
