@@ -4,6 +4,7 @@
 .Rproj.user
 .csv
 .log
+last.dump.rda
 cache/
 figure/
 man/spadesEnv.Rd
@@ -48,4 +49,3 @@ vignettes/*_cache
 *.vrb
 *.xdy
 *.tdo
-tests/testthat/last.dump.rda
