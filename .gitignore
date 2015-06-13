@@ -6,12 +6,12 @@
 .log
 cache/
 figure/
+man/spadesEnv.Rd
 output/
 tests/testthat/*.pdf
 tests/testthat/*.RData
 vignettes/.build.timestamp
 vignettes/*_cache
-man/spadesEnv.Rd
 
 #################
 ## LaTeX
