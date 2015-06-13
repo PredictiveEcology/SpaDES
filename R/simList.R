@@ -1100,15 +1100,28 @@ setMethod("simCurrentTime",
 #                 }
 #               }
 #             }
-#             browser(expr=if(is.null(getModule(object))){
-#                 FALSE
-#               } else {
-#                 if(getModule(object)=="progress") {TRUE} else {FALSE}
-#               })
-             return((object@simtimes$current-object@simtimes$start)*
-                     as.numeric(inSecs(simTimestepUnit(object))/
-                     inSecs(moduleTimestepUnit(object)) %>% ifelse(.==0,inSecs(simTimestepUnit(object)),.))+
-                      object@simtimes$start)
+#              browser(expr=if(is.null(getModule(object))){
+#                  FALSE
+#                } else {
+#                  if(getModule(object)=="progress") {TRUE} else {FALSE}
+#                })
+             mUnit <- moduleTimestepUnit(object)
+             if(!is.null(mUnit)) {
+               if(!is.na(mUnit)) {
+               #} else if (is.na(mUnit) | simTimestepUnit(object)==mUnit) {
+               #  cur <- object@simtimes$current
+                 if (simTimestepUnit(object)!=mUnit) {
+                   return((object@simtimes$current-object@simtimes$start)*
+                       as.numeric(inSecs(simTimestepUnit(object))/
+                                  inSecs(moduleTimestepUnit(object))# %>%
+                                    #ifelse(.==0,inSecs(simTimestepUnit(object)),.)
+                                  ) +
+                       object@simtimes$start)
+                 }
+               }
+            }
+            return(object@simtimes$current)
+
             #return(object@simtimes$current)
 
 })
