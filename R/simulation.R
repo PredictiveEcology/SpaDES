@@ -486,9 +486,14 @@ setMethod("scheduleEvent",
                     eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
                       timestepInSeconds(sim, moduleName)
 
-                    eventTimeInLargestUnit <- suppressMessages(simCurrentTime(sim)*inSecs(getModTimestepUnit(sim))/inSecs(simTimestepUnit(sim))+
-                      eventTimeIncrementSec/as.numeric(inSecs(simTimestepUnit(sim))))#*
-                      #inSecs(getModTimestepUnit(sim))/inSecs(simTimestepUnit(sim)))
+                    eventTimeInLargestUnit <-
+                      suppressMessages((simCurrentTime(sim)-simStartTime(sim))*
+                                       inSecs(moduleTimestepUnit(sim))/
+                                         inSecs(simTimestepUnit(sim))+
+                                       eventTimeIncrementSec/
+                                         as.numeric(inSecs(simTimestepUnit(sim)))+
+                                         simStartTime(sim)) #*
+                      #inSecs(moduleTimestepUnit(sim))/inSecs(simTimestepUnit(sim)))
 #                    print(eventTimeInLargestUnit)
 
                   } else {
