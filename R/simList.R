@@ -1072,8 +1072,6 @@ setGeneric("simCurrentTime", function(object) {
 setMethod("simCurrentTime",
           signature="simList",
           definition=function(object) {
-
-
             # must determine whether this is in a spades call or not
             #  NOTE: this is done in two steps, because text searching on sys.call(1)
             #   is 3 times faster than text searching on sys.calls()
@@ -1083,30 +1081,35 @@ setMethod("simCurrentTime",
             #     to find what module was called,
             # 4. then extract the timestepUnits for that module
 
-            # 1.
-            if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
-              # 2.
-              if(any(stri_detect_fixed(as.character(sys.calls()), pattern="doEvent"))) {
-                # 3.
-                modTimestepUnit <- getModTimestepUnit(object)
-#                     strsplit(eval(parse(text="moduleCall"),
-#                                                envir=sys.frame(which(stri_detect_fixed(
-#                                                  as.character(sys.calls()), pattern = "moduleCall"))[1]-1)),
-#                                             split="\\.")[[1]][2] %>%
-#                   # 4.
-#                                    simModuleTimestepUnits(object)[[.]]
-              } else {
-                modTimestepUnit=NULL
-              }
-              if(!is.null(modTimestepUnit)) {
-                if(!is.na(modTimestepUnit)) {
-                return(object@simtimes$current*
-                                  inSecs(simTimestepUnit(object))/
-                                  inSecs(modTimestepUnit))
-                }
-              }
-            }
-            return(object@simtimes$current)
+            #browser()
+#
+#             # 1.
+#             if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
+#               # 2.
+#               if(any(stri_detect_fixed(as.character(sys.calls()), pattern="doEvent"))) {
+#                 # 3. & 4.
+#                 modTimestepUnit <- moduleTimestepUnit(object)
+#               } else {
+#                 modTimestepUnit=NULL
+#               }
+#               if(!is.null(modTimestepUnit)) {
+#                 if(!is.na(modTimestepUnit)) {
+#                 return(object@simtimes$current*
+#                                   inSecs(simTimestepUnit(object))/
+#                                   inSecs(modTimestepUnit))
+#                 }
+#               }
+#             }
+#             browser(expr=if(is.null(getModule(object))){
+#                 FALSE
+#               } else {
+#                 if(getModule(object)=="progress") {TRUE} else {FALSE}
+#               })
+             return((object@simtimes$current-object@simtimes$start)*
+                     as.numeric(inSecs(simTimestepUnit(object))/
+                     inSecs(moduleTimestepUnit(object)) %>% ifelse(.==0,inSecs(simTimestepUnit(object)),.))+
+                      object@simtimes$start)
+            #return(object@simtimes$current)
 
 })
 
@@ -1129,18 +1132,27 @@ setReplaceMethod("simCurrentTime",
 })
 
 
-getModTimestepUnit <- function(object) {
-  #browser()
-  st <- stri_detect_fixed(
-    as.character(sys.calls()), pattern = "moduleCall")
-  if(any(st)) {
-    strsplit(eval(parse(text="moduleCall"),
-                envir=sys.frame(which(st)[1]-1)),
-           split="\\.")[[1]][2] %>%
-    simModuleTimestepUnits(object)[[.]]
+moduleTimestepUnit <- function(object) {
+  mod <- getModule(object)
+  if(!is.null(mod)) {
+    simModuleTimestepUnits(object)[[mod]]
   } else {
     simTimestepUnit(object)
   }
+}
+
+getModule <- function(object) {
+  st <- stri_detect_fixed(
+    as.character(sys.calls()), pattern = "moduleCall")
+  # if the this call is from a Module, otherwise, return no module
+  if(any(st)) {
+    mod <- strsplit(eval(parse(text="moduleCall"),
+                  envir=sys.frame(which(st)[1]-1)),
+             split="\\.")[[1]][2]
+  } else {
+    mod <- NULL
+  }
+  return(mod)
 }
 
 inSecs <- function(unit) {
