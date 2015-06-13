@@ -44,7 +44,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("row_number")
 #' ANPP <- rasterizeReduced(reducedDT, fullRas, "ANPP")
 #' setColors(communities) <- c("blue","orange","red")
 #' setColors(ANPP) <- c("light green", "dark green")
-#' Plot(biomass, communities, ANPP, fullRas, new=T)
+#' Plot(biomass, communities, ANPP, fullRas, new=TRUE)
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
   reduced <- data.table(reduced)
   if(!is.null(key(reduced))){

@@ -36,7 +36,7 @@ pixel resolution of the pattern generated
 }
 \examples{
 nx <- ny <- 100L
-r <- raster::raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
+r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 speedup <- max(1, nx/5e2)
 map1 <- gaussMap(r, scale=300, var=0.03, speedup=speedup, inMemory=TRUE)
 map2 <- gaussMap(r, scale=10, var=0.1, speedup=speedup, inMemory=TRUE)
