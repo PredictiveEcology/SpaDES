@@ -9,7 +9,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestepUnit="week",
+  timestepUnit="month",
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
@@ -47,6 +47,9 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
   } else if (eventType=="move") {
     # do stuff for this event
+    #browser(expr=simCurrentTime(sim)>11)
+    print(paste("caribou",simCurrentTime(sim)))
+
     sim <- caribouMovementMove(sim)
 
     # schedule the next event

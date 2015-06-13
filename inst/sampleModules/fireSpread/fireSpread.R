@@ -61,6 +61,8 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="burn") {
     # do stuff for this event
+    #browser()
+    print(paste("fire",simCurrentTime(sim)))
     sim <- fireSpreadBurn(sim)
 
     # schedule the next events

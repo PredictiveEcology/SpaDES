@@ -1072,7 +1072,42 @@ setGeneric("simCurrentTime", function(object) {
 setMethod("simCurrentTime",
           signature="simList",
           definition=function(object) {
+
+
+            # must determine whether this is in a spades call or not
+            #  NOTE: this is done in two steps, because text searching on sys.call(1)
+            #   is 3 times faster than text searching on sys.calls()
+            # 1. Search for spades call
+            # 2. Search for doEvent call
+            # 3. Search for moduleCall, evaluate it in the correct environment
+            #     to find what module was called,
+            # 4. then extract the timestepUnits for that module
+
+            # 1.
+            if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
+              # 2.
+              if(any(stri_detect_fixed(as.character(sys.calls()), pattern="doEvent"))) {
+                # 3.
+                modTimestepUnit <- getModTimestepUnit(object)
+#                     strsplit(eval(parse(text="moduleCall"),
+#                                                envir=sys.frame(which(stri_detect_fixed(
+#                                                  as.character(sys.calls()), pattern = "moduleCall"))[1]-1)),
+#                                             split="\\.")[[1]][2] %>%
+#                   # 4.
+#                                    simModuleTimestepUnits(object)[[.]]
+              } else {
+                modTimestepUnit=NULL
+              }
+              if(!is.null(modTimestepUnit)) {
+                if(!is.na(modTimestepUnit)) {
+                return(object@simtimes$current*
+                                  inSecs(simTimestepUnit(object))/
+                                  inSecs(modTimestepUnit))
+                }
+              }
+            }
             return(object@simtimes$current)
+
 })
 
 #' @export
@@ -1093,6 +1128,19 @@ setReplaceMethod("simCurrentTime",
                    return(object)
 })
 
+
+getModTimestepUnit <- function(object) {
+  browser()
+  strsplit(eval(parse(text="moduleCall"),
+                envir=sys.frame(which(stri_detect_fixed(
+                  as.character(sys.calls()), pattern = "moduleCall"))[1]-1)),
+           split="\\.")[[1]][2] %>%
+    simModuleTimestepUnits(object)[[.]]
+}
+
+inSecs <- function(unit) {
+  eval(parse(text=paste0("d",unit,"(1)")))
+}
 ################################################################################
 #' @inheritParams simTimes
 #' @export

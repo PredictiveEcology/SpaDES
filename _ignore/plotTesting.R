@@ -4,7 +4,7 @@ dev()
 clearPlot()
 #library(SpaDES)
 library(fpCompare)
-times <- list(start=0, stop=3)
+times <- list(start=0, stop=53)
 parameters <- list(.globals=list(stackName="landscape", burnStats="burnStats"),#
                    .progress=list(graphical=TRUE, interval = 1),
                    randomLandscapes=list(.plotInitialTime=times$start),
@@ -18,6 +18,6 @@ modules <- list("fireSpread", "caribouMovement","randomLandscapes")
 path <- system.file("sampleModules", package="SpaDES")
 path <- file.path("~","GitHub","SpaDES","inst","sampleModules")
 
-mySim6 <- simInit(times=times, params=parameters, modules=modules, path=path)
-system.time(spades(mySim6))
+my <- simInit(times=times, params=parameters, modules=modules, path=path)
+system.time(spades(my))
 

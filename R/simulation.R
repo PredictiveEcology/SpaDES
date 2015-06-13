@@ -481,12 +481,16 @@ setMethod("scheduleEvent",
                   # first check if this moduleName matches the name of a module with meta-data
                   #   (i.e., simDepends(sim)@dependencies filled)
                   if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
+#                    browser(expr=simEvents(sim)[1,moduleName]=="fireSpread")
+#                    if(simEvents(sim)[1,moduleName]=="fireSpread") print(paste("fire",simCurrentTime(sim)))
                     eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
                       timestepInSeconds(sim, moduleName)
 
-                    eventTimeInLargestUnit <- suppressMessages(simCurrentTime(sim)+
-                      eventTimeIncrementSec/as.numeric(
-                        eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
+                    eventTimeInLargestUnit <- suppressMessages(simCurrentTime(sim)*inSecs(getModTimestepUnit(sim))/inSecs(simTimestepUnit(sim))+
+                      eventTimeIncrementSec/as.numeric(inSecs(simTimestepUnit(sim))))#*
+                      #inSecs(getModTimestepUnit(sim))/inSecs(simTimestepUnit(sim)))
+#                    print(eventTimeInLargestUnit)
+
                   } else {
                     eventTimeInLargestUnit <- eventTime
                   }
