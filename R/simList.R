@@ -1113,7 +1113,7 @@ setMethod("simCurrentTime",
                  if (simTimestepUnit(object)!=mUnit) {
                    return((object@simtimes$current-object@simtimes$start)*
                        as.numeric(inSecs(simTimestepUnit(object))/
-                                  inSecs(moduleTimestepUnit(object))# %>%
+                                  inSecs(mUnit)# %>%
                                     #ifelse(.==0,inSecs(simTimestepUnit(object)),.)
                                   ) +
                        object@simtimes$start)
