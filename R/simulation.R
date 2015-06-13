@@ -483,6 +483,7 @@ setMethod("scheduleEvent",
                   if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
 #                    browser(expr=simEvents(sim)[1,moduleName]=="fireSpread")
 #                    if(simEvents(sim)[1,moduleName]=="fireSpread") print(paste("fire",simCurrentTime(sim)))
+                    #browser(expr=moduleTimestepUnit(sim)=="month")
                     eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
                       timestepInSeconds(sim, moduleName)
 
@@ -794,6 +795,20 @@ setGeneric("dNA", function(x) {
 
 #' @rdname spadesTimeUnits
 setMethod("dNA",
+          signature(x="ANY"),
+          definition=function(x){
+            lubridate::new_duration(0)
+          })
+
+#' @inheritParams dyears
+#' @export
+#' @rdname spadesTimeUnits
+setGeneric("d", function(x) {
+  standardGeneric("d")
+})
+
+#' @rdname spadesTimeUnits
+setMethod("d",
           signature(x="ANY"),
           definition=function(x){
             lubridate::new_duration(0)
