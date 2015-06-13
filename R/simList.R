@@ -1130,12 +1130,17 @@ setReplaceMethod("simCurrentTime",
 
 
 getModTimestepUnit <- function(object) {
-  browser()
-  strsplit(eval(parse(text="moduleCall"),
-                envir=sys.frame(which(stri_detect_fixed(
-                  as.character(sys.calls()), pattern = "moduleCall"))[1]-1)),
+  #browser()
+  st <- stri_detect_fixed(
+    as.character(sys.calls()), pattern = "moduleCall")
+  if(any(st)) {
+    strsplit(eval(parse(text="moduleCall"),
+                envir=sys.frame(which(st)[1]-1)),
            split="\\.")[[1]][2] %>%
     simModuleTimestepUnits(object)[[.]]
+  } else {
+    simTimestepUnit(object)
+  }
 }
 
 inSecs <- function(unit) {
