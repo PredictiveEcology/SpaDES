@@ -27,7 +27,7 @@ version 1.0.0
 * new function `rndstr` to generate random strings
 * improved `loadPackages`
 * improved `.objectNames`
-* `defineParameter` now accepts `min` and `max` values (#172)
+* `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
 * `defineModule` better handles `NA` values (#138)
 * `Plot` improvements
 * improved `simList` show and debug methods (#57; #73)
