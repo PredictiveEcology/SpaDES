@@ -47,8 +47,6 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
   } else if (eventType=="move") {
     # do stuff for this event
-    print(paste("caribou:",simModuleTimestepUnits(sim)$caribouMovement, simCurrentTime(sim)))
-
     sim <- caribouMovementMove(sim)
 
     # schedule the next event
