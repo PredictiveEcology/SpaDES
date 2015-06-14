@@ -1645,6 +1645,7 @@ setMethod("defineModule",
 #'                  Non-standard evaluation is used for the expression.
 #' @param max       With \code{min}, used to define a suitable range of values.
 #'                  Non-standard evaluation is used for the expression.
+#' @param desc      Text string providing a brief description of the parameter.
 #'
 #' @return data.frame
 #'
@@ -1656,19 +1657,19 @@ setMethod("defineModule",
 #'
 #' @examples
 #' parameters = rbind(
-#'   defineParameter("lambda", "numeric", 1.23),
-#'   defineParameter("p", "numeric", 0.2, 0, 1)
+#'   defineParameter("lambda", "numeric", 1.23, desc="intrinsic rate of increase"),
+#'   defineParameter("p", "numeric", 0.2, 0, 1, "probability of attack")
 #' )
 #'
-setGeneric("defineParameter", function(name, class, default, min, max) {
+setGeneric("defineParameter", function(name, class, default, min, max, desc) {
   standardGeneric("defineParameter")
 })
 
 #' @rdname defineParameter
 setMethod("defineParameter",
           signature(name="character", class="character",
-                    default="ANY", min="ANY", max="ANY"),
-          definition=function(name, class, default, min, max) {
+                    default="ANY", min="ANY", max="ANY", desc="character"),
+          definition=function(name, class, default, min, max, desc) {
             # coerce `min` and `max` to same type as `default`
             min <- as(min, class)
             max <- as(max, class)
@@ -1677,6 +1678,7 @@ setMethod("defineParameter",
                              default=I(list(substitute(default))),
                              min=I(list(substitute(min))),
                              max=I(list(substitute(max))),
+                             desc=desc,
                              stringsAsFactors=FALSE)
             return(df)
 })
@@ -1684,8 +1686,9 @@ setMethod("defineParameter",
 #' @rdname defineParameter
 setMethod("defineParameter",
           signature(name="character", class="character",
-                    default="ANY", min="missing", max="missing"),
-          definition=function(name, class, default) {
+                    default="ANY", min="missing", max="missing",
+                    desc="character"),
+          definition=function(name, class, default, desc) {
             # coerce `min` and `max` to same type as `default`
             min <- as(NA, class)
             max <- as(NA, class)
@@ -1694,6 +1697,7 @@ setMethod("defineParameter",
                              default=I(list(default)),
                              min=I(list(substitute(min))),
                              max=I(list(substitute(max))),
+                             desc=desc,
                              stringsAsFactors=FALSE)
             return(df)
 })

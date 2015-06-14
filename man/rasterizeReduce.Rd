@@ -45,7 +45,7 @@ communities <- rasterizeReduced(reducedDT, fullRas, "communities")
 ANPP <- rasterizeReduced(reducedDT, fullRas, "ANPP")
 setColors(communities) <- c("blue","orange","red")
 setColors(ANPP) <- c("light green", "dark green")
-Plot(biomass, communities, ANPP, fullRas, new=T)
+Plot(biomass, communities, ANPP, fullRas, new=TRUE)
 }
 \author{
 Eliot McIntire

@@ -1,9 +1,7 @@
 if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 
 ###############################################################################
-#' gaussMap
-#'
-#' Produces a raster of a random gaussian process.
+#' Produce a \code{raster} of a random Gaussian process.
 #'
 #' This is a wrapper for the \code{RFsimulate} function in the RandomFields
 #' package. The main addition is the \code{speedup} argument which allows
@@ -11,7 +9,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' progressively faster as the number increases, at the expense of coarser
 #' pixel resolution of the pattern generated
 #'
-#' @param x        A spatial object (e.g., a raster).
+#' @param x        A spatial object (e.g., a \code{RasterLayer}).
 #'
 #' @param scale    The spatial scale in map units of the Gaussian pattern.
 #'
@@ -24,7 +22,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #'
 #' @param ... Additional arguments to \code{raster}.
 #'
-#' @return A map of extent \code{ext} with a Gaussian random pattern.
+#' @return A raster map of extent \code{ext} with a Gaussian random pattern.
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
@@ -40,16 +38,12 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #'
 #' @examples
 #' nx <- ny <- 100L
-#' r <- raster::raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
+#' r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 #' speedup <- max(1, nx/5e2)
-#' map1 <- gaussMap(r, scale=300, var=0.03,
-#'   speedup=speedup, inMemory=TRUE)
-#' map2 <- gaussMap(r, scale=10, var=0.1,
-#'   speedup=speedup, inMemory=TRUE)
-#' map3 <- gaussMap(r, scale=50, var=1,
-#'   speedup=speedup, inMemory=TRUE)
-#' map4 <- gaussMap(r, scale=500, var=10,
-#'   speedup=speedup, inMemory=TRUE)
+#' map1 <- gaussMap(r, scale=300, var=0.03, speedup=speedup, inMemory=TRUE)
+#' map2 <- gaussMap(r, scale=10, var=0.1, speedup=speedup, inMemory=TRUE)
+#' map3 <- gaussMap(r, scale=50, var=1, speedup=speedup, inMemory=TRUE)
+#' map4 <- gaussMap(r, scale=500, var=10, speedup=speedup, inMemory=TRUE)
 #' Plot(map1, map2, map3, map4)
 #'
 gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {

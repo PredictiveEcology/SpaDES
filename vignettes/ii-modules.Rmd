@@ -111,7 +111,7 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
-&nbsp;                | parameters, with columns `paramName`, `paramClass`, and `default`.
+&nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
 **`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
 &nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
@@ -137,14 +137,14 @@ defineModule(sim, list(
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   parameters=rbind(
-    defineParameter("stackName", "character", "randomLandscape"),
-    defineParameter("nx", "numeric", 100L, NA, NA),
-    defineParameter("ny", "numeric", 100L, NA, NA),
-    defineParameter("inRAM", "logical", FALSE, NA, NA),
-    defineParameter(".plotInitialTime", "numeric", 0, NA, NA),
-    defineParameter(".plotInterval", "numeric", 1, NA, NA),
-    defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA),
-    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA)),
+    defineParameter("stackName", "character", "randomLandscape", NA, NA, "..."),
+    defineParameter("nx", "numeric", 100L, NA, NA, "size of map (number ..."),
+    defineParameter("ny", "numeric", 100L, NA, NA, "size of map (number ..."),
+    defineParameter("inRAM", "logical", FALSE, NA, NA, "should the raster ..."),
+    defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to ..."),
+    defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval ..."),
+    defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
+    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")),
   inputObjects=data.frame(objectName=character(),
                           objectClass=character(),
                           other=character(), stringsAsFactors=FALSE),

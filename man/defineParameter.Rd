@@ -3,17 +3,18 @@
 \docType{methods}
 \name{defineParameter}
 \alias{defineParameter}
-\alias{defineParameter,character,character,ANY,ANY,ANY-method}
-\alias{defineParameter,character,character,ANY,missing,missing-method}
+\alias{defineParameter,character,character,ANY,ANY,ANY,character-method}
+\alias{defineParameter,character,character,ANY,missing,missing,character-method}
 \title{Define a parameter used in a module}
 \usage{
-defineParameter(name, class, default, min, max)
+defineParameter(name, class, default, min, max, desc)
 
-\S4method{defineParameter}{character,character,ANY,ANY,ANY}(name, class,
-  default, min, max)
+\S4method{defineParameter}{character,character,ANY,ANY,ANY,character}(name,
+  class, default, min, max, desc)
 
-\S4method{defineParameter}{character,character,ANY,missing,missing}(name, class,
-  default)
+
+  \S4method{defineParameter}{character,character,ANY,missing,missing,character}(name,
+  class, default, desc)
 }
 \arguments{
 \item{name}{Character string giving the parameter name.}
@@ -27,7 +28,9 @@ Non-standard evaluation is used for the expression.}
 Non-standard evaluation is used for the expression.}
 
 \item{max}{With \code{min}, used to define a suitable range of values.
-                 Non-standard evaluation is used for the expression.}
+Non-standard evaluation is used for the expression.}
+
+\item{desc}{Text string providing a brief description of the parameter.}
 }
 \value{
 data.frame
@@ -37,8 +40,8 @@ Used to specify a parameter's name, value, and set a default.
 }
 \examples{
 parameters = rbind(
-  defineParameter("lambda", "numeric", 1.23),
-  defineParameter("p", "numeric", 0.2, 0, 1)
+  defineParameter("lambda", "numeric", 1.23, desc="intrinsic rate of increase"),
+  defineParameter("p", "numeric", 0.2, 0, 1, "probability of attack")
 )
 }
 \author{

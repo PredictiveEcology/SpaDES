@@ -4,14 +4,15 @@
 .Rproj.user
 .csv
 .log
+last.dump.rda
 cache/
 figure/
+man/spadesEnv.Rd
 output/
 tests/testthat/*.pdf
 tests/testthat/*.RData
 vignettes/.build.timestamp
 vignettes/*_cache
-man/spadesEnv.Rd
 
 #################
 ## LaTeX
@@ -48,4 +49,3 @@ man/spadesEnv.Rd
 *.vrb
 *.xdy
 *.tdo
-tests/testthat/last.dump.rda
