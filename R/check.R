@@ -32,24 +32,32 @@ setGeneric("checkObject", function(sim, name, object, layer, ...) {
   standardGeneric("checkObject")
 })
 
+#' @export
 #' @rdname checkObject
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="Raster", layer="character"),
           definition = function(sim, object, layer, ...) {
-            if (!is.na(match(layer, names(object)))) {
-              return(invisible(TRUE))
+            if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
+              if (!is.na(match(layer, names(object)))) {
+                return(invisible(TRUE))
+              } else {
+                message(paste(deparse(substitute(object, env=simEnv(sim))),
+                              "exists, but", layer, "is not a layer"))
+                return(FALSE)
+              }
             } else {
-              message(paste(deparse(substitute(object, env=simEnv(sim))), "exists, but",
-                            layer, "is not a layer"))
+              message(paste(deparse(substitute(object, env=simEnv(sim))),
+                            "does not exist."))
               return(FALSE)
             }
 })
 
+#' @export
 #' @rdname checkObject
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="ANY", layer="missing"),
           definition = function(sim, name, object, ...) {
-            if(exists(deparse(substitute(object)), envir=simEnv(sim))) {
+            if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
               return(invisible(TRUE))
             } else {
               message(paste(deparse(substitute(object, env=simEnv(sim))), "does not exist"))
@@ -57,7 +65,7 @@ setMethod("checkObject",
             }
 })
 
-
+#' @export
 #' @rdname checkObject
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="missing"),
@@ -71,6 +79,7 @@ setMethod("checkObject",
             }
 })
 
+#' @export
 #' @rdname checkObject
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="character"),
@@ -79,16 +88,17 @@ setMethod("checkObject",
               if(is(sim[[name]],"Raster")) {
                 checkObject(sim=sim, object=sim[[name]], layer=layer, ...)
               } else {
-                message(paste("The object \"",name,"\" exists, but is not
-                              a Raster, so layer is ignored",sep=""))
+                message(paste("The object \"", name, "\" exists, but is not
+                              a Raster, so layer is ignored", sep=""))
                 return(invisible(TRUE))
               }
             } else {
-              message(paste(name,"does not exist in",sim))
+              message(paste(name, "does not exist in", sim))
               return(FALSE)
             }
 })
 
+#' @export
 #' @rdname checkObject
 setMethod("checkObject",
           signature(sim="missing", name="ANY", object="missing", layer="ANY"),
