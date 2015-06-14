@@ -667,7 +667,9 @@ setMethod("spades",
             envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
             attach(simEnv(sim), name=envName)
             on.exit(detach(pos=match(envName, search())))
+
             while(simCurrentTime(sim) %<=% simStopTime(sim)) {
+
               sim <- doEvent(sim, debug)  # process the next event
 
               # print debugging info:
@@ -689,12 +691,23 @@ setMethod("spades",
 })
 
 ################################################################################
-#' New time units
+#' SpaDES time units
 #'
-#' SpaDES commonly needs generic durations, like "year" which will round neatly over
-#' a century (i.e., leap years are added within each year with an extra 1/4 day,
-#' i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
+#' SpaDES modules commonly use approximate durations that divide with no remainder
+#' among themselves. For example, models that simulate based on a "week" timestep,
+#' will likely want to fall in lock step with a second module that is a "year"
+#' timestep. Since, weeks, months, years don't really have this behaviour because
+#' of leap years, leap seconds, not quite 52 weeks in a year, months that are of
+#' different duration, we have generated a set of units that work well together
+#' that are based on the astronomical year. In an astronomical year, leap years
+#' are added within each year with an extra 1/4 day, i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
 #' year is also known as the "astronomical" or "Julian" year.
+#'
+#' When these units are not correct, a module developer can create their own time
+#' unit using, and create a function to calculate the number of seconds in that
+#' unit using the "d" prefix (for duration), following the \code{lubridate} package standard:
+#' \code{dfortNight <- function(x) lubridate::new_duration(dday(14))}. Then the
+#' module developer can use "fortNight" as the unit of time for the module.
 #'
 #' @param x numeric. Number of the desired units
 #'
@@ -710,6 +723,8 @@ setGeneric("dyears", function(x) {
 })
 
 #' @importFrom lubridate new_duration
+#' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setMethod("dyears",
           signature(x="numeric"),
@@ -719,11 +734,14 @@ setMethod("dyears",
 
 #' @inheritParams dyears
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setGeneric("dmonths", function(x) {
   standardGeneric("dmonths")
 })
 
+#' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setMethod("dmonths",
           signature(x="numeric"),
@@ -733,13 +751,14 @@ setMethod("dmonths",
 
 #' @inheritParams dyears
 #' @export
-#' @aliases dweek
+#' @docType methods
 #' @rdname spadesTimeUnits
 setGeneric("dweeks", function(x) {
   standardGeneric("dweeks")
 })
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setMethod("dweeks",
           signature(x="numeric"),
@@ -748,24 +767,28 @@ setMethod("dweeks",
           })
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 dweek <- function(x) {
   dweeks(x)
 }
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 dmonth <- function(x) {
   dmonths(x)
 }
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 dyear <- function(x) {
   dyears(x)
 }
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 #' @importFrom lubridate dseconds
 dsecond <- function(x) {
@@ -773,6 +796,7 @@ dsecond <- function(x) {
 }
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 #' @importFrom lubridate ddays
 dday <- function(x) {
@@ -780,6 +804,7 @@ dday <- function(x) {
 }
 
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 #' @importFrom lubridate dhours
 dhour <- function(x) {
@@ -788,11 +813,14 @@ dhour <- function(x) {
 
 #' @inheritParams dyears
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setGeneric("dNA", function(x) {
   standardGeneric("dNA")
 })
 
+#' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setMethod("dNA",
           signature(x="ANY"),
@@ -802,11 +830,14 @@ setMethod("dNA",
 
 #' @inheritParams dyears
 #' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setGeneric("d", function(x) {
   standardGeneric("d")
 })
 
+#' @export
+#' @docType methods
 #' @rdname spadesTimeUnits
 setMethod("d",
           signature(x="ANY"),
