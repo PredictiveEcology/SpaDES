@@ -2,8 +2,11 @@
 % Please edit documentation in R/simList.R
 \docType{methods}
 \name{simTimes}
+\alias{moduleTimestepUnit}
+\alias{moduleTimestepUnit,simList-method}
 \alias{simCurrentTime}
-\alias{simCurrentTime,simList-method}
+\alias{simCurrentTime,simList,character-method}
+\alias{simCurrentTime,simList,missing-method}
 \alias{simCurrentTime<-}
 \alias{simCurrentTime<-,simList-method}
 \alias{simList-accessors-times}
@@ -14,7 +17,8 @@
 \alias{simStartTime<-}
 \alias{simStartTime<-,simList-method}
 \alias{simStopTime}
-\alias{simStopTime,simList-method}
+\alias{simStopTime,simList,character-method}
+\alias{simStopTime,simList,missing-method}
 \alias{simStopTime<-}
 \alias{simStopTime<-,simList-method}
 \alias{simTimes}
@@ -35,13 +39,19 @@ simTimes(object) <- value
 
 \S4method{simTimes}{simList}(object) <- value
 
-simCurrentTime(object)
+simCurrentTime(object, unit)
 
-\S4method{simCurrentTime}{simList}(object)
+\S4method{simCurrentTime}{simList,missing}(object)
+
+\S4method{simCurrentTime}{simList,character}(object, unit)
 
 simCurrentTime(object) <- value
 
 \S4method{simCurrentTime}{simList}(object) <- value
+
+moduleTimestepUnit(object)
+
+\S4method{moduleTimestepUnit}{simList}(object)
 
 simStartTime(object)
 
@@ -51,9 +61,11 @@ simStartTime(object) <- value
 
 \S4method{simStartTime}{simList}(object) <- value
 
-simStopTime(object)
+simStopTime(object, unit)
 
-\S4method{simStopTime}{simList}(object)
+\S4method{simStopTime}{simList,missing}(object)
+
+\S4method{simStopTime}{simList,character}(object, unit)
 
 simStopTime(object) <- value
 
@@ -75,6 +87,8 @@ simModuleTimestepUnits(object)
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
+
+\item{unit}{character. One of the time units used in SpaDES.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.

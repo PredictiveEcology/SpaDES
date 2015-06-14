@@ -7,6 +7,8 @@
 \alias{simDepends<-}
 \alias{simDepends<-,simList-method}
 \alias{simList-accessors-modules}
+\alias{simModule}
+\alias{simModule,simList-method}
 \alias{simModules}
 \alias{simModules,simList-method}
 \alias{simModules<-}
@@ -64,6 +66,10 @@ simObjectsLoaded(object)
 simObjectsLoaded(object) <- value
 
 \S4method{simObjectsLoaded}{simList}(object) <- value
+
+simModule(object)
+
+\S4method{simModule}{simList}(object)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -79,6 +85,7 @@ and \code{.loadOrder} slots in a \code{simList} object.
 These are included for advanced users.
 \tabular{ll}{
    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
+   \code{\link{simModule}} \tab Identify the name of the module which is calling this function. (advanced) \cr
    \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced) \cr
    \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced) \cr
    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced) \cr
@@ -90,6 +97,8 @@ Currently, only get and set methods are defined. Subset methods are not.
 }
 \author{
 Alex Chubaty
+
+Eliot McIntire
 }
 \seealso{
 \code{\link{simList-class}},

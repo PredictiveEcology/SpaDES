@@ -2,6 +2,8 @@
 % Please edit documentation in R/simulation.R
 \docType{methods}
 \name{dyears}
+\alias{d}
+\alias{d,ANY-method}
 \alias{dNA}
 \alias{dNA,ANY-method}
 \alias{dday}
@@ -16,7 +18,7 @@
 \alias{dyear}
 \alias{dyears}
 \alias{dyears,numeric-method}
-\title{New time units}
+\title{SpaDES time units}
 \usage{
 dyears(x)
 
@@ -45,6 +47,10 @@ dhour(x)
 dNA(x)
 
 \S4method{dNA}{ANY}(x)
+
+d(x)
+
+\S4method{d}{ANY}(x)
 }
 \arguments{
 \item{x}{numeric. Number of the desired units}
@@ -53,10 +59,22 @@ dNA(x)
 Number of seconds within each unit
 }
 \description{
-SpaDES commonly needs generic durations, like "year" which will round neatly over
-a century (i.e., leap years are added within each year with an extra 1/4 day,
-i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
+SpaDES modules commonly use approximate durations that divide with no remainder
+among themselves. For example, models that simulate based on a "week" timestep,
+will likely want to fall in lock step with a second module that is a "year"
+timestep. Since, weeks, months, years don't really have this behaviour because
+of leap years, leap seconds, not quite 52 weeks in a year, months that are of
+different duration, we have generated a set of units that work well together
+that are based on the astronomical year. In an astronomical year, leap years
+are added within each year with an extra 1/4 day, i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
 year is also known as the "astronomical" or "Julian" year.
+}
+\details{
+When these units are not correct, a module developer can create their own time
+unit using, and create a function to calculate the number of seconds in that
+unit using the "d" prefix (for duration), following the \code{lubridate} package standard:
+\code{dfortNight <- function(x) lubridate::new_duration(dday(14))}. Then the
+module developer can use "fortNight" as the unit of time for the module.
 }
 \author{
 Eliot McIntire
