@@ -426,6 +426,7 @@ setReplaceMethod("simEnv",
 #' These are included for advanced users.
 #' \tabular{ll}{
 #'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
+#'    \code{\link{simModule}} \tab Identify the name of the module which is calling this function. (advanced) \cr
 #'    \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced) \cr
 #'    \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced) \cr
 #'    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced) \cr
@@ -1060,17 +1061,18 @@ setReplaceMethod("simTimes",
 
 ################################################################################
 #' @inheritParams simTimes
+#' @param unit character. One of the time units used in SpaDES.
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric("simCurrentTime", function(object) {
+setGeneric("simCurrentTime", function(object, unit) {
   standardGeneric("simCurrentTime")
 })
 
 #' @rdname simList-accessors-times
 setMethod("simCurrentTime",
-          signature="simList",
+          signature=c("simList","missing"),
           definition=function(object) {
             # must determine whether this is in a spades call or not
             #  NOTE: this is done in two steps, because text searching on sys.call(1)
@@ -1080,51 +1082,37 @@ setMethod("simCurrentTime",
             # 3. Search for moduleCall, evaluate it in the correct environment
             #     to find what module was called,
             # 4. then extract the timestepUnits for that module
-
-            #browser()
-#
-#             # 1.
-#             if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
-#               # 2.
-#               if(any(stri_detect_fixed(as.character(sys.calls()), pattern="doEvent"))) {
-#                 # 3. & 4.
-#                 modTimestepUnit <- moduleTimestepUnit(object)
-#               } else {
-#                 modTimestepUnit=NULL
-#               }
-#               if(!is.null(modTimestepUnit)) {
-#                 if(!is.na(modTimestepUnit)) {
-#                 return(object@simtimes$current*
-#                                   inSecs(simTimestepUnit(object))/
-#                                   inSecs(modTimestepUnit))
-#                 }
-#               }
-#             }
-#              browser(expr=if(is.null(getModule(object))){
-#                  FALSE
-#                } else {
-#                  if(getModule(object)=="progress") {TRUE} else {FALSE}
-#                })
-             mUnit <- moduleTimestepUnit(object)
-             if(!is.null(mUnit)) {
-               if(!is.na(mUnit)) {
-               #} else if (is.na(mUnit) | simTimestepUnit(object)==mUnit) {
-               #  cur <- object@simtimes$current
-                 if (simTimestepUnit(object)!=mUnit) {
-                   return((object@simtimes$current-object@simtimes$start)*
-                       as.numeric(inSecs(simTimestepUnit(object))/
-                                  inSecs(mUnit)# %>%
-                                    #ifelse(.==0,inSecs(simTimestepUnit(object)),.)
-                                  ) +
-                       object@simtimes$start)
-                 }
-               }
+            mUnit <- moduleTimestepUnit(object)
+            if(!is.null(mUnit)) {
+              return(simCurrentTime(object, mUnit))
             }
-            return(object@simtimes$current)
-
-            #return(object@simtimes$current)
+            return(round(object@simtimes$current,getOption("spades.toleranceDigits")))
 
 })
+
+#' @rdname simList-accessors-times
+setMethod("simCurrentTime",
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            # must determine whether this is in a spades call or not
+            #  NOTE: this is done in two steps, because text searching on sys.call(1)
+            #   is 3 times faster than text searching on sys.calls()
+            # 1. Search for spades call
+            # 2. Search for doEvent call
+            # 3. Search for moduleCall, evaluate it in the correct environment
+            #     to find what module was called,
+            # 4. then extract the timestepUnits for that module
+            if(!is.na(unit)) {
+              if (simTimestepUnit(object)!=unit) {
+                return(round((object@simtimes$current-object@simtimes$start)*
+                               as.numeric(inSecs(simTimestepUnit(object))/
+                                            inSecs(unit)
+                               ) +
+                              object@simtimes$start,getOption("spades.toleranceDigits")))
+              }
+            }
+            return(round(object@simtimes$current,getOption("spades.toleranceDigits")))
+          })
 
 #' @export
 #' @rdname simList-accessors-times
@@ -1144,17 +1132,49 @@ setReplaceMethod("simCurrentTime",
                    return(object)
 })
 
+#########################################################
+################################################################################
+#' @inheritParams simTimes
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+#'
+setGeneric("moduleTimestepUnit", function(object) {
+  standardGeneric("moduleTimestepUnit")
+})
 
-moduleTimestepUnit <- function(object) {
-  mod <- getModule(object)
-  if(!is.null(mod)) {
-    simModuleTimestepUnits(object)[[mod]]
-  } else {
-    simTimestepUnit(object)
-  }
-}
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+setMethod("moduleTimestepUnit",
+          signature=c("simList"),
+          definition=function(object) {
+            mod <- simModule(object)
+            if(!is.null(mod)) {
+              simModuleTimestepUnits(object)[[mod]]
+            } else {
+              simTimestepUnit(object)
+            }
+})
 
-getModule <- function(object) {
+
+#' @inheritParams simModules
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-modules
+#' @author Eliot McIntire
+#'
+setGeneric("simModule", function(object) {
+  standardGeneric("simModule")
+})
+
+#' @export
+#' @importFrom stringi stri_detect_fixed
+#' @docType methods
+#' @rdname simList-accessors-modules
+setMethod("simModule",
+          signature=c("simList"),
+          definition=function(object) {
   st <- stri_detect_fixed(
     as.character(sys.calls()), pattern = "moduleCall")
   # if the this call is from a Module, otherwise, return no module
@@ -1166,7 +1186,7 @@ getModule <- function(object) {
     mod <- NULL
   }
   return(mod)
-}
+})
 
 inSecs <- function(unit) {
   eval(parse(text=paste0("d",unit,"(1)")))
@@ -1207,20 +1227,59 @@ setReplaceMethod("simStartTime",
 })
 
 ################################################################################
-#' @inheritParams simTimes
+#' @inheritParams simCurrentTime
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric("simStopTime", function(object) {
+setGeneric("simStopTime", function(object, unit) {
   standardGeneric("simStopTime")
 })
 
 #' @rdname simList-accessors-times
 setMethod("simStopTime",
-          signature="simList",
+          signature=c("simList","missing"),
           definition=function(object) {
-            return(object@simtimes$stop)
+
+            # must determine whether this is in a spades call or not
+            #  NOTE: this is done in two steps, because text searching on sys.call(1)
+            #   is 3 times faster than text searching on sys.calls()
+            # 1. Search for spades call
+            # 2. Search for doEvent call
+            # 3. Search for moduleCall, evaluate it in the correct environment
+            #     to find what module was called,
+            # 4. then extract the timestepUnits for that module
+            mUnit <- moduleTimestepUnit(object)
+            if(!is.null(mUnit)) {
+              return(simStopTime(object, mUnit))
+            }
+            return(round(object@simtimes$stop,getOption("spades.toleranceDigits")))
+})
+
+
+#' @rdname simList-accessors-times
+setMethod("simStopTime",
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+
+          # must determine whether this is in a spades call or not
+          #  NOTE: this is done in two steps, because text searching on sys.call(1)
+          #   is 3 times faster than text searching on sys.calls()
+          # 1. Search for spades call
+          # 2. Search for doEvent call
+          # 3. Search for moduleCall, evaluate it in the correct environment
+          #     to find what module was called,
+          # 4. then extract the timestepUnits for that module
+          if(!is.na(unit)) {
+            if (simTimestepUnit(object)!=unit) {
+              return((object@simtimes$stop-object@simtimes$start)*
+                       as.numeric(inSecs(simTimestepUnit(object))/
+                                    inSecs(unit)
+                       ) +
+                       object@simtimes$start)
+            }
+          }
+          return(round(object@simtimes$stop,getOption("spades.toleranceDigits")))
 })
 
 #' @export
