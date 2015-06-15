@@ -419,8 +419,9 @@ setMethod("wrap",
           definition=function(X, bounds) {
             if(identical(colnames(X),c("x","y"))) {
               return(
-                cbind(x=(X[,"x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) - bounds@xmax,
-                      y=(X[,"y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) - bounds@ymax)
+
+                cbind(x=(X[,"x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) + bounds@xmin,
+                      y=(X[,"y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) + bounds@ymin)
               )
             } else {
               stop("When X is a matrix, it must have 2 columns, x and y, as from say, coordinates(SpatialPointsObj)")
@@ -478,16 +479,16 @@ setMethod("wrap",
               # This requires that previous points be "moved" as if they are
               #  off the bounds, so that the heading is correct
               X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] <-
-                (X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] + bounds@xmin) %%
+                (X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] - bounds@xmin) %%
                 (bounds@xmax-bounds@xmin) + bounds@xmax
               X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] <-
-                (X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] + bounds@xmax) %%
+                (X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] - bounds@xmax) %%
                 (bounds@xmin-bounds@xmax) + bounds@xmin
               X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] <-
-                (X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] + bounds@ymin) %%
+                (X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] - bounds@ymin) %%
                 (bounds@ymax-bounds@ymin) + bounds@ymax
               X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] <-
-                (X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] + bounds@ymax) %%
+                (X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] - bounds@ymax) %%
                 (bounds@ymin-bounds@ymax) + bounds@ymin
             }
             return(wrap(X, bounds=bounds))

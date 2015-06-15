@@ -5,7 +5,7 @@ clearPlot()
 #library(SpaDES)
 library(fpCompare)
 library(stringi)
-times <- list(start=0, stop=53)
+times <- list(start=0, stop=53, timestepUnit="year")
 parameters <- list(.globals=list(stackName="landscape", burnStats="burnStats"),#
                    .progress=list(graphical=TRUE, interval = 1),
                    randomLandscapes=list(.plotInitialTime=times$start),
