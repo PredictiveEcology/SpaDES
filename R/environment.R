@@ -92,7 +92,6 @@ setMethod(".getSpaDES",
             get(x, envir=.spadesEnv, ...)
 })
 
-
 #' Copy or move objects from one environment to another
 #'
 #' This will copy or move (if \code{rmSrc=TRUE}) objects passed as a character string to a
@@ -115,16 +114,17 @@ setMethod(".getSpaDES",
 #' @author Eliot Mcintire
 #'
 #' @examples
-#'   a1 <- a2 <- a3 <- a4<- 1:1e3
-#'   objs <- c("a1", "a2", "a3", "a4")
-#'   e <- new.env()
+#' a1 <- a2 <- a3 <- a4 <- 1:1e3
+#' objs <- c("a1", "a2", "a3", "a4")
+#' e <- new.env()
 #'
-#'   #move objects from .GlobalEnv to e
-#'   changeObjEnv(objs, e)
+#' # move objects from .GlobalEnv to e
+#' changeObjEnv(objs, e)
 #'
-#'   #move objects back to .GlobalEnv from e
-#'   changeObjEnv(objs, .GlobalEnv, e)
-#'   rm(e)
+#' #move objects back to .GlobalEnv from e
+#' changeObjEnv(objs, .GlobalEnv, e)
+#' rm(e)
+#'
 setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc){
   standardGeneric("changeObjEnv")
 })

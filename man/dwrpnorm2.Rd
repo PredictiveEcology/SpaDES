@@ -27,6 +27,16 @@ dwrpnorm2(theta, mu, rho, sd = 1, acc = 1e-05, tol = acc)
 This is a modified version of \code{\link{dwrpnorm}} found in \code{CircStats}
  to allow for multiple angles at once (i.e., vectorized).
 }
+\examples{
+# Values for which to evaluate density
+theta <- c(1:500)*2*pi/500
+# Compute wrapped normal density function
+density <- c(1:500)
+for(i in 1:500) density[i] <- dwrpnorm2(theta[i], pi, .75)
+plot(theta, density)
+# Approximate area under density curve
+sum(density*2*pi/500)
+}
 \author{
 Eliot McIntire
 }

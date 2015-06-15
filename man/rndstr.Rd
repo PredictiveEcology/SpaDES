@@ -47,6 +47,13 @@ Character vector of random strings.
 \description{
 Generate a vector of random alphanumeric strings each of an arbitrary length.
 }
+\examples{
+set.seed(11)
+rndstr()
+rndstr(len=10)
+rndstr(characterFirst=FALSE)
+rndstr(16)
+}
 \author{
 Alex Chubaty and Eliot McIntire
 }

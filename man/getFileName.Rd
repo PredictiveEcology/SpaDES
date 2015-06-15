@@ -4,7 +4,7 @@
 \name{getFileName}
 \alias{getFileName}
 \alias{getFileName,logical-method}
-\title{Get the name of a source file}
+\title{Get the name of a \code{source}-ed file}
 \usage{
 getFileName(fullname)
 
@@ -18,8 +18,8 @@ getFileName(fullname)
 Character String representing the filename.
 }
 \description{
-This will only work for files that are \code{source}-ed.
-Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
+Use \code{getFileName} in a file that is \code{source}-ed.
+Based on \url{http://stackoverflow.com/a/1816487/1380598}.
 }
 \author{
 Alex Chubaty

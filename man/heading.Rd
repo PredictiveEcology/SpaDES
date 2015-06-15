@@ -4,6 +4,7 @@
 \name{heading}
 \alias{heading}
 \alias{heading,SpatialPoints,SpatialPoints-method}
+\alias{heading,SpatialPoints,matrix-method}
 \alias{heading,matrix,SpatialPoints-method}
 \alias{heading,matrix,matrix-method}
 \title{Heading between spatial points.}
@@ -15,6 +16,8 @@ heading(from, to)
 \S4method{heading}{matrix,matrix}(from, to)
 
 \S4method{heading}{matrix,SpatialPoints}(from, to)
+
+\S4method{heading}{SpatialPoints,matrix}(from, to)
 }
 \arguments{
 \item{from}{The starting position; an object of class SpatialPoints.}
@@ -26,6 +29,32 @@ The heading between the points, in degrees.
 }
 \description{
 Determines the heading between spatial points.
+}
+\examples{
+N <- 10L                # number of agents
+x1 <- runif(N, -50, 50) # previous X location
+y1 <- runif(N, -50, 50) # previous Y location
+x0 <- rnorm(N, x1, 5)   # current X location
+y0 <- rnorm(N, y1, 5)   # current Y location
+
+# using SpatialPoints
+prev <- SpatialPoints(cbind(x=x1, y=y1))
+curr <- SpatialPoints(cbind(x=x0, y=y0))
+heading(prev, curr)
+
+# using matrix
+prev <- matrix(c(x1, y1), ncol=2, dimnames=list(NULL, c("x","y")))
+curr <- matrix(c(x0, y0), ncol=2, dimnames=list(NULL, c("x","y")))
+heading(prev, curr)
+
+#using both
+prev <- SpatialPoints(cbind(x=x1, y=y1))
+curr <- matrix(c(x0, y0), ncol=2, dimnames=list(NULL, c("x","y")))
+heading(prev, curr)
+
+prev <- matrix(c(x1, y1), ncol=2, dimnames=list(NULL, c("x","y")))
+curr <- SpatialPoints(cbind(x=x0, y=y0))
+heading(prev, curr)
 }
 \author{
 Eliot McIntire

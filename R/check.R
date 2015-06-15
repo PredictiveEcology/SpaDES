@@ -1,7 +1,7 @@
 ################################################################################
 #' Check for existence of object(s) referenced by a \code{objects} slot of a \code{simList} object
 #'
-#' Check that a named object exists in the provide simList@@objects environment,
+#' Check that a named object exists in the provide \code{simList} environment slot,
 #' and optionally has desired attributes.
 #'
 #' @param sim     A \code{\link{simList}} object.

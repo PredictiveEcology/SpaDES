@@ -79,7 +79,7 @@ See `?gpar` for options.
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50),y=runif(1e2,-50,50)))
+caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50), y=runif(1e2,-50,50)))
 Plot(caribou)
 Plot(caribou, addTo="landscape$habitatQuality")
 

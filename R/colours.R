@@ -13,11 +13,18 @@
 #' @seealso \code{\link{setColors<-}}, \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
+#' @examples
+#' map <- raster(system.file("maps/DEM.tif", package = "SpaDES"))
+#' getColors(map) # none set
+#' setColors(map, n=50) <- topo.colors(50)
+#' getColors(map)
+#' Plot(map, new=TRUE)
 #'
 setGeneric("getColors", function(object) {
   standardGeneric("getColors")
 })
 
+#' @export
 #' @rdname getColors
 setMethod("getColors",
           signature="Raster",
@@ -29,7 +36,7 @@ setMethod("getColors",
             return(cols)
 })
 
-##############################################################
+################################################################################
 #' Set colours for plotting Raster* objects.
 #'
 #' @param object     A \code{Raster*} object.
@@ -55,11 +62,19 @@ setMethod("getColors",
 #'
 #' @author Alex Chubaty
 #'
+#' @examples
+#' map <- raster(system.file("maps/DEM.tif", package = "SpaDES"))
+#' getColors(map) # none set
+#' setColors(map, n=50) <- topo.colors(50)
+#' getColors(map)
+#' Plot(map, new=TRUE)
+#'
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
 })
 
+#' @export
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("RasterLayer", "numeric", "character"),
@@ -70,6 +85,7 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
+#' @export
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("RasterLayer", "missing", "character"),
@@ -81,6 +97,7 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
+#' @export
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("Raster", "numeric", "list"),
@@ -93,6 +110,7 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
+#' @export
 #' @rdname setColors
 setReplaceMethod("setColors",
                  signature("Raster", "missing", "list"),

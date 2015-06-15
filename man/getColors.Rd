@@ -20,6 +20,13 @@ Returns a named list of colors.
 \description{
 Get colours for plotting Raster* objects.
 }
+\examples{
+map <- raster(system.file("maps/DEM.tif", package = "SpaDES"))
+getColors(map) # none set
+setColors(map, n=50) <- topo.colors(50)
+getColors(map)
+Plot(map, new=TRUE)
+}
 \author{
 Alex Chubaty
 }

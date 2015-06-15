@@ -38,6 +38,13 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
 \description{
 Set colours for plotting Raster* objects.
 }
+\examples{
+map <- raster(system.file("maps/DEM.tif", package = "SpaDES"))
+getColors(map) # none set
+setColors(map, n=50) <- topo.colors(50)
+getColors(map)
+Plot(map, new=TRUE)
+}
 \author{
 Alex Chubaty
 }

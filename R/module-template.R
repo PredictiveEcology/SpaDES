@@ -1,12 +1,13 @@
-###############################################################################
+################################################################################
 #' Create new module from template.
 #'
-#' Autogenerate a skeleton for a new SpaDES module, a template for a documentation file,
-#' a citation file, a license file, and a readme.txt file. The \code{newModuleDocumentation}
-#' will not generate the module file, but will create the other 4 files.
+#' Autogenerate a skeleton for a new SpaDES module, a template for a
+#' documentation file, a citation file, a license file, and a readme.txt file.
+#' The \code{newModuleDocumentation} will not generate the module file, but will
+#' create the other 4 files.
 #'
-#' All 5 (or 4, if using \code{newModuleDocumentation}) files will be created within a
-#' subfolder named \code{name} within the \code{path}.
+#' All 5 (or 4, if using \code{newModuleDocumentation}) files will be created
+#' within a subfolder named \code{name} within the \code{path}.
 #'
 #' @param name  Character string. Your module's name.
 #'
@@ -26,13 +27,15 @@
 #' @author Alex Chubaty and Eliot McIntire
 #'
 #' @examples
-#' \dontrun{## create a "fastfood" module in the "modules" subdirectory.}
-#' \dontrun{newModule("fastfood", "modules")}
-#'
+#' \dontrun{
+#'   ## create a "myModule" module in the "modules" subdirectory.
+#'   newModule("myModule", "modules")
+#' }
 setGeneric("newModule", function(name, path, open) {
   standardGeneric("newModule")
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="logical"),
@@ -45,7 +48,6 @@ setMethod("newModule",
             filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
             filenameLICENSE <- file.path(nestedPath, "LICENSE")
             filenameREADME <- file.path(nestedPath, "README.txt")
-
 
             cat("
 defineModule(sim, list(
@@ -166,6 +168,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="missing", open="logical"),
@@ -173,6 +176,7 @@ setMethod("newModule",
             newModule(name=name, path=".", open=open)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="missing"),
@@ -180,6 +184,7 @@ setMethod("newModule",
             newModule(name=name, path=path, open=TRUE)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="missing", open="missing"),
@@ -198,6 +203,7 @@ setGeneric("newModuleDocumentation", function(name, path, open) {
   standardGeneric("newModuleDocumentation")
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="logical"),
@@ -318,6 +324,7 @@ if(open) file.edit(filenameRmd)
 
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="logical"),
@@ -325,6 +332,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=".", open=open)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="missing"),
@@ -332,6 +340,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=path, open=TRUE)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="missing"),
@@ -367,6 +376,7 @@ setGeneric("openModules", function(basedir, names) {
   standardGeneric("openModules")
 })
 
+#' @export
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="character", names="character"),
@@ -387,6 +397,7 @@ setMethod("openModules",
             setwd(origDir)
 })
 
+#' @export
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="missing", names="missing"),
@@ -394,6 +405,7 @@ setMethod("openModules",
             openModules(basedir=".", names="all")
 })
 
+#' @export
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="character", names="missing"),
@@ -415,16 +427,12 @@ setMethod("openModules",
 #'
 #' @export
 #' @rdname zipModule
-#' @examples
-#' \dontrun{
-#' # zip all modules in a directory, with a particular version
-#'  for (f in dir()) {zipModule(name=f, version="0.0.2")}
-#' }
 #'
 setGeneric("zipModule", function(name, path, version) {
   standardGeneric("zipModule")
 })
 
+#' @export
 #' @rdname zipModule
 setMethod("zipModule",
 signature=c(name="character", path="character", version="character"),
@@ -439,17 +447,19 @@ definition = function(name, path, version) {
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
   zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
-  file.copy(zipFileName, to = paste0(name,"/",zipFileName),overwrite = TRUE)
+  file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)
 })
 
 #' @rdname zipModule
+#' @export
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="character"),
           definition = function(name, version) {
             zipModule(name=name, path=".", version=version)
 })
 
+#' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),
