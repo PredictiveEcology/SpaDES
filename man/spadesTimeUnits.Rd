@@ -58,6 +58,14 @@ a century (i.e., leap years are added within each year with an extra 1/4 day,
 i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
 year is also known as the "astronomical" or "Julian" year.
 }
+\examples{
+dsecond(1)
+dhour(1)
+dday(1)
+dweek(1)
+dmonth(1)
+dyear(1)
+}
 \author{
 Eliot McIntire
 }
