@@ -695,6 +695,13 @@ setMethod("spades",
 #' @rdname spadesTimeUnits
 #'
 #' @author Eliot McIntire
+#' @examples
+#' dsecond(1)
+#' dhour(1)
+#' dday(1)
+#' dweek(1)
+#' dmonth(1)
+#' dyear(1)
 setGeneric("dyears", function(x) {
   standardGeneric("dyears")
 })
@@ -719,7 +726,7 @@ setMethod("dmonths",
           signature(x="numeric"),
           definition=function(x){
             lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/12)
-          })
+})
 
 #' @inheritParams dyears
 #' @export
@@ -735,7 +742,7 @@ setMethod("dweeks",
           signature(x="numeric"),
           definition=function(x){
             lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/52)
-          })
+})
 
 #' @export
 #' @rdname spadesTimeUnits
@@ -788,4 +795,4 @@ setMethod("dNA",
           signature(x="ANY"),
           definition=function(x){
             lubridate::new_duration(0)
-          })
+})
