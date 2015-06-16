@@ -122,8 +122,8 @@ library(tidyr)</code></pre>
         Second helping                :               extras_2,   after extras_1, 20h
         More of the extras            :               extras_3,   after extras_1, 48h
 &quot;)</code></pre>
-<p><div id="htmlwidget-734" style="width:672px;height:480px;" class="DiagrammeR"></div>
-<script type="application/json" data-for="htmlwidget-734">{"x":{"diagram":"\n        gantt\n        dateFormat  YYYY-MM-DD\n        title A Very Nice Gantt Diagram\n\n        section Basic Tasks\n        This is completed             :done,          first_1,    2014-01-06, 2014-01-08\n        This is active                :active,        first_2,    2014-01-09, 3d\n        Do this later                 :               first_3,    after first_2, 5d\n        Do this after that            :               first_4,    after first_3, 5d\n\n        section Important Things\n        Completed, critical task      :crit, done,    import_1,   2014-01-06,24h\n        Also done, also critical      :crit, done,    import_2,   after import_1, 2d\n        Doing this important task now :crit, active,  import_3,   after import_2, 3d\n        Next critical task            :crit,          import_4,   after import_3, 5d\n\n        section The Extras\n        First extras                  :active,        extras_1,   after import_4,  3d\n        Second helping                :               extras_2,   after extras_1, 20h\n        More of the extras            :               extras_3,   after extras_1, 48h\n"},"evals":[]}</script></p>
+<p><div id="htmlwidget-405" style="width:672px;height:480px;" class="DiagrammeR"></div>
+<script type="application/json" data-for="htmlwidget-405">{"x":{"diagram":"\n        gantt\n        dateFormat  YYYY-MM-DD\n        title A Very Nice Gantt Diagram\n\n        section Basic Tasks\n        This is completed             :done,          first_1,    2014-01-06, 2014-01-08\n        This is active                :active,        first_2,    2014-01-09, 3d\n        Do this later                 :               first_3,    after first_2, 5d\n        Do this after that            :               first_4,    after first_3, 5d\n\n        section Important Things\n        Completed, critical task      :crit, done,    import_1,   2014-01-06,24h\n        Also done, also critical      :crit, done,    import_2,   after import_1, 2d\n        Doing this important task now :crit, active,  import_3,   after import_2, 3d\n        Next critical task            :crit,          import_4,   after import_3, 5d\n\n        section The Extras\n        First extras                  :active,        extras_1,   after import_4,  3d\n        Second helping                :               extras_2,   after extras_1, 20h\n        More of the extras            :               extras_3,   after extras_1, 48h\n"},"evals":[]}</script></p>
 <pre class="r"><code>df &lt;- data.frame(task = c(&quot;task1&quot;, &quot;task2&quot;, &quot;task3&quot;),
                  status = c(&quot;done&quot;, &quot;active&quot;, &quot;crit&quot;),
                  pos = c(&quot;first_1&quot;, &quot;first_2&quot;, &quot;first_3&quot;),
@@ -146,12 +146,12 @@ mermaid(
     ), &quot;\n&quot;
   )
 )</code></pre>
-<p><div id="htmlwidget-7354" style="width:672px;height:480px;" class="DiagrammeR"></div>
-<script type="application/json" data-for="htmlwidget-7354">{"x":{"diagram":"gantt\ndateFormat  YYYY-MM-DD\ntitle A Very Nice Gantt Diagram\ntask1:done,first_1,2014-01-06,2014-01-08\ntask2:active,first_2,2014-01-09,3d\ntask3:crit,first_3,after first_2,5d\n"},"evals":[]}</script></p>
+<p><div id="htmlwidget-642" style="width:672px;height:480px;" class="DiagrammeR"></div>
+<script type="application/json" data-for="htmlwidget-642">{"x":{"diagram":"gantt\ndateFormat  YYYY-MM-DD\ntitle A Very Nice Gantt Diagram\ntask1:done,first_1,2014-01-06,2014-01-08\ntask2:active,first_2,2014-01-09,3d\ntask3:crit,first_3,after first_2,5d\n"},"evals":[]}</script></p>
 <pre class="r"><code>options(&quot;spades.nCompleted&quot; = 30)
 
 outputPath &lt;- file.path(tempdir(), &quot;simOutputs&quot;)
-times &lt;- list(start=0.0, stop=10.0)
+times &lt;- list(start=0.0, stop=100.0, timestepUnit=&quot;day&quot;)
 parameters &lt;- list(.globals=list(stackName=&quot;landscape&quot;, .outputPath=outputPath,
                                  burnStats=&quot;nPixelsBurned&quot;),
                    .progress=list(NA),
@@ -201,48 +201,54 @@ mySim &lt;- simInit(times=times, params=parameters, modules=modules,
 ## object does not exist.</code></pre>
 <pre class="r"><code>simCompleted(mySim)</code></pre>
 <pre><code>##     eventTime       moduleName eventType
-##  1:         0       checkpoint      init
-##  2:         0             save      init
-##  3:         0         progress      init
-##  4:         0             load      init
-##  5:         0 randomLandscapes      init
-##  6:         0  caribouMovement      init
-##  7:         0       fireSpread      init
-##  8:         0       fireSpread      burn
-##  9:         0       fireSpread     stats
-## 10:         1  caribouMovement      move
-## 11:         2  caribouMovement      move
-## 12:         3  caribouMovement      move
-## 13:         4  caribouMovement      move
-## 14:         5  caribouMovement      move
-## 15:         6  caribouMovement      move
-## 16:         7  caribouMovement      move
-## 17:         8  caribouMovement      move
-## 18:         9  caribouMovement      move
-## 19:        10  caribouMovement      move</code></pre>
+##  1:  0.000000       checkpoint      init
+##  2:  0.000000             save      init
+##  3:  0.000000         progress      init
+##  4:  0.000000             load      init
+##  5:  0.000000 randomLandscapes      init
+##  6:  0.000000  caribouMovement      init
+##  7:  0.000000       fireSpread      init
+##  8:  0.000000       fireSpread      burn
+##  9:  0.000000       fireSpread     stats
+## 10:  7.024038  caribouMovement      move
+## 11: 14.048077  caribouMovement      move
+## 12: 21.072115  caribouMovement      move
+## 13: 28.096154  caribouMovement      move
+## 14: 35.120192  caribouMovement      move
+## 15: 42.144231  caribouMovement      move
+## 16: 49.168269  caribouMovement      move
+## 17: 56.192308  caribouMovement      move
+## 18: 63.216346  caribouMovement      move
+## 19: 70.240385  caribouMovement      move
+## 20: 77.264423  caribouMovement      move
+## 21: 84.288462  caribouMovement      move
+## 22: 91.312500  caribouMovement      move
+## 23: 98.336538  caribouMovement      move
+##     eventTime       moduleName eventType</code></pre>
 <pre class="r"><code>sim2gantt &lt;- function(sim) {
   dt &lt;- simCompleted(sim)
   start &lt;- &quot;2015-01-01&quot;
   ts &lt;- simTimestepUnit(sim)
+  denom &lt;- as.numeric(dday(1))
   mult &lt;- if (ts==&quot;second&quot;) {
-    as.numeric(dsecond(1)) / as.numeric(dweek(1))
+    as.numeric(dsecond(1)) / denom
   } else if (ts==&quot;hour&quot;) {
-    as.numeric(dhour(1)) / as.numeric(dweek(1))
+    as.numeric(dhour(1)) / denom
   } else if (ts==&quot;day&quot;) {
-    as.numeric(dday(1)) / as.numeric(dweek(1))
+    as.numeric(dday(1)) / denom
   } else if (ts==&quot;week&quot;) {
-    as.numeric(dweek(1)) / as.numeric(dweek(1))
+    as.numeric(dweek(1)) / denom
   } else if (ts==&quot;month&quot;) {
-    as.numeric(dmonth(1)) / as.numeric(dweek(1))
+    as.numeric(dmonth(1)) / denom
   } else if (ts==&quot;year&quot;) {
-    as.numeric(dyear(1)) / as.numeric(dweek(1))
+    as.numeric(dyear(1)) / denom
   }
   out &lt;- lapply(unique(dt$moduleName), function(x) {
     data.frame(task = dt[moduleName==x]$eventType,
                    status = rep(&quot;active&quot;, nrow(dt[moduleName==x])),
                    pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                   start = paste0(dt[moduleName==x]$eventTime * mult, strtrim(ts, 1)),
-                   end = paste0((dt[moduleName==x]$eventTime + 3)*mult, strtrim(ts, 1)))
+                   start = as.Date(dt[moduleName==x]$eventTime * mult, origin=start),
+                   end = paste0((dt[moduleName==x]$eventTime + 7)*mult, strtrim(ts, 1)))
   })
   names(out) &lt;- unique(dt$moduleName)
   return(out)
@@ -268,8 +274,8 @@ mermaid(
       }), collapse = &quot;\n&quot;), &quot;\n&quot;
   )
 )</code></pre>
-<p><div id="htmlwidget-6155" style="width:672px;height:480px;" class="DiagrammeR"></div>
-<script type="application/json" data-for="htmlwidget-6155">{"x":{"diagram":"gantt\ndateFormat  YYYY-MM-DD\ntitle SPaDES simulation diagram\nsection  checkpoint \n init:active,checkpoint1,0w,3w\nsection  save \n init:active,save1,0w,3w\nsection  progress \n init:active,progress1,0w,3w\nsection  load \n init:active,load1,0w,3w\nsection  randomLandscapes \n init:active,randomLandscapes1,0w,3w\nsection  caribouMovement \n init:active,caribouMovement1,0w,3w\nmove:active,caribouMovement2,1w,4w\nmove:active,caribouMovement3,2w,5w\nmove:active,caribouMovement4,3w,6w\nmove:active,caribouMovement5,4w,7w\nmove:active,caribouMovement6,5w,8w\nmove:active,caribouMovement7,6w,9w\nmove:active,caribouMovement8,7w,10w\nmove:active,caribouMovement9,8w,11w\nmove:active,caribouMovement10,9w,12w\nmove:active,caribouMovement11,10w,13w\nsection  fireSpread \n init:active,fireSpread1,0w,3w\nburn:active,fireSpread2,0w,3w\nstats:active,fireSpread3,0w,3w\n"},"evals":[]}</script></p>
+<p><div id="htmlwidget-6719" style="width:672px;height:480px;" class="DiagrammeR"></div>
+<script type="application/json" data-for="htmlwidget-6719">{"x":{"diagram":"gantt\ndateFormat  YYYY-MM-DD\ntitle SPaDES simulation diagram\nsection  checkpoint \n init:active,checkpoint1,2015-01-01,7d\nsection  save \n init:active,save1,2015-01-01,7d\nsection  progress \n init:active,progress1,2015-01-01,7d\nsection  load \n init:active,load1,2015-01-01,7d\nsection  randomLandscapes \n init:active,randomLandscapes1,2015-01-01,7d\nsection  caribouMovement \n init:active,caribouMovement1,2015-01-01,7d\nmove:active,caribouMovement2,2015-01-08,14.0240384615385d\nmove:active,caribouMovement3,2015-01-15,21.0480769230769d\nmove:active,caribouMovement4,2015-01-22,28.0721153846154d\nmove:active,caribouMovement5,2015-01-29,35.0961538461538d\nmove:active,caribouMovement6,2015-02-05,42.1201923076923d\nmove:active,caribouMovement7,2015-02-12,49.1442307692308d\nmove:active,caribouMovement8,2015-02-19,56.1682692307692d\nmove:active,caribouMovement9,2015-02-26,63.1923076923077d\nmove:active,caribouMovement10,2015-03-05,70.2163461538461d\nmove:active,caribouMovement11,2015-03-12,77.2403846153846d\nmove:active,caribouMovement12,2015-03-19,84.2644230769231d\nmove:active,caribouMovement13,2015-03-26,91.2884615384615d\nmove:active,caribouMovement14,2015-04-02,98.3125d\nmove:active,caribouMovement15,2015-04-09,105.336538461538d\nsection  fireSpread \n init:active,fireSpread1,2015-01-01,7d\nburn:active,fireSpread2,2015-01-01,7d\nstats:active,fireSpread3,2015-01-01,7d\n"},"evals":[]}</script></p>
 
 
 </div>

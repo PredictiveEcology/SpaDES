@@ -59,7 +59,7 @@ mermaid(
 options("spades.nCompleted" = 30)
 
 outputPath <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=10.0)
+times <- list(start=0.0, stop=100.0, timestepUnit="day")
 parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -87,25 +87,26 @@ sim2gantt <- function(sim) {
   dt <- simCompleted(sim)
   start <- "2015-01-01"
   ts <- simTimestepUnit(sim)
+  denom <- as.numeric(dday(1))
   mult <- if (ts=="second") {
-    as.numeric(dsecond(1)) / as.numeric(dweek(1))
+    as.numeric(dsecond(1)) / denom
   } else if (ts=="hour") {
-    as.numeric(dhour(1)) / as.numeric(dweek(1))
+    as.numeric(dhour(1)) / denom
   } else if (ts=="day") {
-    as.numeric(dday(1)) / as.numeric(dweek(1))
+    as.numeric(dday(1)) / denom
   } else if (ts=="week") {
-    as.numeric(dweek(1)) / as.numeric(dweek(1))
+    as.numeric(dweek(1)) / denom
   } else if (ts=="month") {
-    as.numeric(dmonth(1)) / as.numeric(dweek(1))
+    as.numeric(dmonth(1)) / denom
   } else if (ts=="year") {
-    as.numeric(dyear(1)) / as.numeric(dweek(1))
+    as.numeric(dyear(1)) / denom
   }
   out <- lapply(unique(dt$moduleName), function(x) {
     data.frame(task = dt[moduleName==x]$eventType,
                    status = rep("active", nrow(dt[moduleName==x])),
                    pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                   start = paste0(dt[moduleName==x]$eventTime * mult, strtrim(ts, 1)),
-                   end = paste0((dt[moduleName==x]$eventTime + 3)*mult, strtrim(ts, 1)))
+                   start = as.Date(dt[moduleName==x]$eventTime * mult, origin=start),
+                   end = paste0((dt[moduleName==x]$eventTime + 7)*mult, strtrim(ts, 1)))
   })
   names(out) <- unique(dt$moduleName)
   return(out)
