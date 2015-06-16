@@ -1303,7 +1303,8 @@ setGeneric("simTimestepUnit<-",
 setReplaceMethod("simTimestepUnit",
                  signature="simList",
                  function(object, value) {
-                   if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"),
+                   if(any(grepl(c("^years?$", "^months?$", "^weeks?$",
+                                  "^days?$", "^hours?$", "^seconds?$"),
                                  pattern=value), na.rm=TRUE)) {
                      object@simtimes$timestepUnit <- value
                    } else {
@@ -1317,9 +1318,10 @@ setReplaceMethod("simTimestepUnit",
 })
 
 ################################################################################
-#' @details \code{simModuleTimestepUnits} will extract the current units of the time of all
-#' modules used in a simObject. This is different from \code{simTimestepUnits} because it
-#' is not necessarily associated with a spades call
+#' @details \code{simModuleTimestepUnits} will extract the current units of the
+#' time of all modules used in a simObject.
+#' This is different from \code{simTimestepUnits} because it is not necessarily
+#' associated with a \code{spades} call
 #'
 #' @inheritParams simTimes
 #' @export
@@ -1334,8 +1336,10 @@ setGeneric("simModuleTimestepUnits", function(object) {
 setMethod("simModuleTimestepUnits",
           signature="simList",
           definition=function(object) {
-            timestepUnits <- lapply(simDepends(object)@dependencies, function(x) x@timestepUnit)
-            names(timestepUnits) <- sapply(simDepends(object)@dependencies, function(x) x@name)
+            timestepUnits <- lapply(simDepends(object)@dependencies,
+                                    function(x) x@timestepUnit)
+            names(timestepUnits) <- sapply(simDepends(object)@dependencies,
+                                           function(x) x@name)
             return(timestepUnits)
 })
 

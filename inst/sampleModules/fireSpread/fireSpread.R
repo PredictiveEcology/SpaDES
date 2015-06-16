@@ -126,16 +126,17 @@ fireSpreadInit <- function(sim) {
 fireSpreadBurn <- function(sim) {
   landscapes <- sim[[simGlobals(sim)$stackName]]
 
-  Fires <- spread(landscapes[[1]],
-                   loci=as.integer(sample(1:ncell(landscapes), simParams(sim)$fireSpread$nFires)),
-                   spreadProb=simParams(sim)$fireSpread$spreadprob,
-                   persistance=simParams(sim)$fireSpread$persistprob,
-                   mask=NULL,
-                   maxSize=1e8,
-                   directions=8,
-                   iterations=simParams(sim)$fireSpread$its,
-                   plot.it=FALSE,
-                   mapID=TRUE)
+  Fires <- SpaDES::spread(landscapes[[1]],
+                          loci=as.integer(sample(1:ncell(landscapes),
+                                                 simParams(sim)$fireSpread$nFires)),
+                          spreadProb=simParams(sim)$fireSpread$spreadprob,
+                          persistance=simParams(sim)$fireSpread$persistprob,
+                          mask=NULL,
+                          maxSize=1e8,
+                          directions=8,
+                          iterations=simParams(sim)$fireSpread$its,
+                          plot.it=FALSE,
+                          mapID=TRUE)
   names(Fires) <- "Fires"
   setColors(Fires) <- c("white", rev(heat.colors(9)))
   landscapes$Fires <- Fires
