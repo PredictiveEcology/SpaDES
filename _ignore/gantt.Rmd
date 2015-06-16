@@ -1,11 +1,12 @@
 ```{r load-packages}
+devtools::dev_mode(TRUE)
 library(DiagrammeR)
 library(magrittr)
 library(tidyr)
 library(SpaDES)
 ```
 
-```{r gantt-chart}
+```{r gantt-chart, eval=FALSE, echo=FALSE}
 DiagrammeR("
         gantt
         dateFormat  YYYY-MM-DD
@@ -30,7 +31,7 @@ DiagrammeR("
 ")
 ```
 
-```{r gantt-chart-df}
+```{r gantt-chart-df, eval=FALSE, echo=FALSE}
 df <- data.frame(task = c("task1", "task2", "task3"),
                  status = c("done", "active", "crit"),
                  pos = c("first_1", "first_2", "first_3"),
@@ -56,12 +57,11 @@ mermaid(
 ```
 
 ```{r simulation, eval=TRUE}
-options("spades.nCompleted" = 30)
+options("spades.nCompleted" = 300)
 
 outputPath <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=100.0, timestepUnit="day")
-parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
-                                 burnStats="nPixelsBurned"),
+times <- list(start=0.0, stop=3, timestepUnit="year")
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE,
                                          .plotInitialTime=NA, .plotInterval=NA),
@@ -74,62 +74,13 @@ modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
 path <- system.file("sampleModules", package="SpaDES")
 
-mySim <- simInit(times=times, params=parameters, modules=modules,
-                 objects=objects, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, objects=objects, path=path)
 
 simEvents(mySim)
 mySim <- spades(mySim)
 simCompleted(mySim)
 ```
 
-```{r gantt-chart-sim, eval=TRUE}
-sim2gantt <- function(sim) {
-  dt <- simCompleted(sim)
-  start <- "2015-01-01"
-  ts <- simTimestepUnit(sim)
-  denom <- as.numeric(dday(1))
-  mult <- if (ts=="second") {
-    as.numeric(dsecond(1)) / denom
-  } else if (ts=="hour") {
-    as.numeric(dhour(1)) / denom
-  } else if (ts=="day") {
-    as.numeric(dday(1)) / denom
-  } else if (ts=="week") {
-    as.numeric(dweek(1)) / denom
-  } else if (ts=="month") {
-    as.numeric(dmonth(1)) / denom
-  } else if (ts=="year") {
-    as.numeric(dyear(1)) / denom
-  }
-  out <- lapply(unique(dt$moduleName), function(x) {
-    data.frame(task = dt[moduleName==x]$eventType,
-                   status = rep("active", nrow(dt[moduleName==x])),
-                   pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                   start = as.Date(dt[moduleName==x]$eventTime * mult, origin=start),
-                   end = paste0((dt[moduleName==x]$eventTime + 7)*mult, strtrim(ts, 1)))
-  })
-  names(out) <- unique(dt$moduleName)
-  return(out)
-}
-
-ll <- sim2gantt(mySim)
-
-mermaid(
-  paste0(
-    # mermaid "header", each component separated with "\n" (line break)
-    "gantt", "\n",
-    "dateFormat  YYYY-MM-DD", "\n",
-    "title SPaDES simulation diagram", "\n",
-    # unite the first two columns (task & status) and separate them with ":"
-    # then, unite the other columns and separate them with ","
-    # this will create the required mermaid "body"
-    paste("section ", names(ll), "\n", lapply(ll, function(df) {
-      paste(df %>%
-              unite(i, task, status, sep = ":") %>%
-              unite(j, i, pos, start, end, sep = ",") %>%
-              .$j,
-            collapse = "\n")
-      }), collapse = "\n"), "\n"
-  )
-)
+```{r gantt-chart-sim, eval=TRUE, fig.height=50}
+eventDiagram(mySim, "2005-06-01")
 ```
