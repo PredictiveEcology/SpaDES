@@ -309,6 +309,13 @@ Commonly used:
   \code{\link{Plot}} \tab The workhorse plotting function\cr
 }
 
+Simulation diagrams:
+\tabular{ll}{
+  \code{\link{eventDiagram}} \tab Gantt chart representing the events in a completed simulation.\cr
+  \code{\link{moduleDiagram}} \tab Network diagram of simplified module (object) dependencies.\cr
+  \code{\link{objectDiagram}} \tab Sequence diagram of detailed object dependencies.\cr
+}
+
 Other useful plotting functions:
 \tabular{ll}{
   \code{\link{clearPlot}} \tab Helpful for resolving many errors\cr
