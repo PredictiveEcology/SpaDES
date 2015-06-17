@@ -11,10 +11,7 @@ ganttStatus(eventType)
 \S4method{ganttStatus}{character}(eventType)
 }
 \arguments{
-\item{sim}{A \code{simList} object (typically corresponding to a
-            completed simulation).}
-
-\item{startDate}{A character representation of date in YYYY-MM-DD format.}
+\item{eventType}{Character vector of events.}
 }
 \value{
 A character vector.

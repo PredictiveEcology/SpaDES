@@ -34,10 +34,7 @@ moduleTimesteps <- function(sim) {
 #' 'init' events are set as "done"; 'plot' events as "critical"; and all others
 #' as "active".
 #'
-#' @param sim  A \code{simList} object (typically corresponding to a
-#'             completed simulation).
-#'
-#' @param startDate  A character representation of date in YYYY-MM-DD format.
+#' @param eventType Character vector of events.
 #'
 #' @return A character vector.
 #'
