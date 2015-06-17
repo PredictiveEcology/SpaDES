@@ -1,4 +1,4 @@
-```{r load-packages}
+```{r load-packages, echo=FALSE, message=FALSE, warning=FALSE}
 devtools::dev_mode(TRUE)
 library(DiagrammeR)
 library(magrittr)
@@ -56,7 +56,7 @@ mermaid(
 )
 ```
 
-```{r simulation, eval=TRUE}
+```{r simulation, eval=TRUE, message=FALSE, warning=FALSE}
 options("spades.nCompleted" = 300)
 
 outputPath <- file.path(tempdir(), "simOutputs")
@@ -76,11 +76,11 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, objects=objects, path=path)
 
-simEvents(mySim)
+#simEvents(mySim)
 mySim <- spades(mySim)
-simCompleted(mySim)
+#simCompleted(mySim)
 ```
 
-```{r gantt-chart-sim, eval=TRUE, fig.height=50}
+```{r gantt-chart-sim, eval=TRUE, fig.height=45, fig.width=10}
 eventDiagram(mySim, "2005-06-01")
 ```
