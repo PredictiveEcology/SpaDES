@@ -1,8 +1,6 @@
 ```{r load-packages, echo=FALSE, message=FALSE, warning=FALSE}
 devtools::dev_mode(TRUE)
 library(DiagrammeR)
-library(magrittr)
-library(tidyr)
 library(SpaDES)
 ```
 
@@ -57,7 +55,7 @@ mermaid(
 ```
 
 ```{r simulation, eval=TRUE, message=FALSE, warning=FALSE}
-options("spades.nCompleted" = 300)
+options("spades.nCompleted" = 200)
 
 outputPath <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=3, timestepUnit="year")

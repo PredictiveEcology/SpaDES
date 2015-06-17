@@ -153,7 +153,6 @@ setMethod("sim2gantt",
 #'
 #' @include simList.R
 #' @importFrom DiagrammeR mermaid
-#' @importFrom tidyr unite
 #' @export
 #' @docType methods
 #' @rdname eventDiagram
@@ -173,19 +172,16 @@ setMethod("eventDiagram",
 
             DiagrammeR::mermaid(
               paste0(
-                # mermaid "header", each component separated with "\n" (line break)
+                # mermaid "header"
                 "gantt", "\n",
                 "dateFormat  YYYY-MM-DD", "\n",
                 "title SPaDES event diagram", "\n",
-                # unite the first two columns (task & status) and separate them with ":"
-                # then, unite the other columns and separate them with ","
-                # this will create the required mermaid "body"
+
+                # mermaid "body"
                 paste("section ", names(ll), "\n", lapply(ll, function(df) {
-                  paste(df %>%
-                          tidyr::unite(i, task, status, sep = ":") %>%
-                          tidyr::unite(j, i, pos, start, end, sep = ",") %>%
-                          .$j,
-                        collapse = "\n")
+                  paste0(df$task, ":", df$status, ",",
+                         df$pos, ",", df$start, ",", df$end,
+                         collapse = "\n")
                 }), collapse = "\n"), "\n"
               )
             )
@@ -223,10 +219,15 @@ setMethod("objectDiagram",
           signature(sim="simList"),
           definition=function(sim) {
             dt <- depsEdgeList(mySim, FALSE)
-            mermaid(
-              paste0("sequenceDiagram", "\n",
-                     paste(dt$from, "->>", dt$to, ":", dt$objName,
-                           collapse = "\n"), "\n")
+            DiagrammeR::mermaid(
+              paste0(
+                # mermaid "header"
+                "sequenceDiagram", "\n",
+
+                # mermaid "body"
+                paste(dt$from, "->>", dt$to, ":", dt$objName, collapse="\n"),
+                "\n"
+              )
             )
 })
 
