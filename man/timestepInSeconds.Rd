@@ -4,7 +4,7 @@
 \name{timestepInSeconds}
 \alias{timestepInSeconds}
 \alias{timestepInSeconds,simList,character-method}
-\title{Convert a schedule event to seconds}
+\title{Convert an scheduled event time to seconds}
 \usage{
 timestepInSeconds(sim, moduleName)
 
@@ -13,14 +13,14 @@ timestepInSeconds(sim, moduleName)
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
 
-\item{moduleName}{A character string specifying the module from which to call the event.}
+\item{moduleName}{Character string specifying the module from which to call the event.}
 }
 \value{
 Returns the eventTime in seconds, based on the default \code{timestepUnit} of
 the \code{moduleName}.
 }
 \description{
-As a common unit
+Ensure all events from modules are working in the same time units.
 }
 \author{
 Eliot McIntire

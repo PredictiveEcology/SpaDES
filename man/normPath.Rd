@@ -3,6 +3,7 @@
 \docType{methods}
 \name{normPath}
 \alias{normPath}
+\alias{normPath,NULL-method}
 \alias{normPath,character-method}
 \alias{normPath,list-method}
 \alias{normPath,missing-method}
@@ -13,6 +14,8 @@ normPath(path)
 \S4method{normPath}{character}(path)
 
 \S4method{normPath}{list}(path)
+
+\S4method{normPath}{`NULL`}(path)
 
 \S4method{normPath}{missing}()
 }

@@ -25,6 +25,10 @@ Character string representing the filename.
 \description{
 Convert numeric to character with padding
 }
+\examples{
+paddedFloatToChar(1.25)
+paddedFloatToChar(1.25, padL=3, padR=5)
+}
 \author{
 Eliot McIntire and Alex Chubaty
 }

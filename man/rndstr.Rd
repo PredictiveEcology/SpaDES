@@ -52,7 +52,10 @@ set.seed(11)
 rndstr()
 rndstr(len=10)
 rndstr(characterFirst=FALSE)
-rndstr(16)
+rndstr(n=5, len=10)
+rndstr(n=5)
+rndstr(n=5, characterFirst=TRUE)
+rndstr(n=5, len=10, characterFirst=TRUE)
 }
 \author{
 Alex Chubaty and Eliot McIntire

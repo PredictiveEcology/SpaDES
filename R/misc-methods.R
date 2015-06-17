@@ -131,9 +131,11 @@ setMethod("updateList",
 #' @author Alex Chubaty
 #'
 #' @examples
-#' \dontrun{pkgs <- list("ggplot2", "lme4")}
-#' \dontrun{loadPackages(pkgs) # loads packages if installed}
-#' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+#' \dontrun{
+#'   pkgs <- list("ggplot2", "lme4")
+#'   loadPackages(pkgs) # loads packages if installed
+#'   loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)
+#' }
 #'
 setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
   standardGeneric("loadPackages")
@@ -186,6 +188,7 @@ setMethod("loadPackages",
 #' @docType methods
 #' @rdname normPath
 #'
+
 setGeneric("normPath", function(path) {
   standardGeneric("normPath")
 })
@@ -195,7 +198,13 @@ setGeneric("normPath", function(path) {
 setMethod("normPath",
           signature(path="character"),
           definition=function(path) {
-            lapply(path, normalizePath, winslash="/", mustWork=FALSE) %>%
+            lapply(path, function(x) {
+                if (is.na(x)) {
+                  NA_character_
+                } else {
+                  normalizePath(x, winslash="/", mustWork=FALSE)
+                }
+              }) %>%
               unlist %>%
               gsub("^[.]", paste0(getwd()), .) %>%
               gsub("\\\\", "/", .) %>%
@@ -209,6 +218,14 @@ setMethod("normPath",
           signature(path="list"),
           definition=function(path) {
             return(normPath(unlist(path)))
+})
+
+#' @export
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="NULL"),
+          definition=function(path) {
+            return(character())
 })
 
 #' @export
@@ -243,12 +260,17 @@ setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
 
+#' @export
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="logical"),
           definition=function(path, create) {
-            if (!is.na(path)) {
-              if (length(path)>0) {
+            if (length(path)!=1) {
+              stop("path must be a character vector of length 1.")
+            } else {
+              if (is.na(path)) {
+                stop("Invalid path: cannot be NA.")
+              } else {
                 path = normPath(path)
                 if (!file.exists(path)) {
                   if (create==TRUE) {
@@ -258,15 +280,12 @@ setMethod("checkPath",
                                "Create it and try again."))
                   }
                 }
-              return(path)
-            } else {
-              stop("Invalid path: cannot be empty.")
-            }
-          } else {
-            stop("Invalid path: cannot be NA.")
+                return(path)
+              }
           }
 })
 
+#' @export
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="missing"),
@@ -274,11 +293,20 @@ setMethod("checkPath",
             return(checkPath(path, create=FALSE))
 })
 
+#' @export
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="NULL", create="ANY"),
           definition=function(path) {
             stop("Invalid path: cannot be NULL.")
+})
+
+#' @export
+#' @rdname checkPath
+setMethod("checkPath",
+          signature(path="missing", create="ANY"),
+          definition=function() {
+            stop("Invalid path: no path specified.")
 })
 
 ###############################################################
@@ -305,6 +333,11 @@ setMethod("checkPath",
 #' @rdname paddedFloatToChar
 #'
 #' @author Eliot McIntire and Alex Chubaty
+#'
+#' @examples
+#' paddedFloatToChar(1.25)
+#' paddedFloatToChar(1.25, padL=3, padR=5)
+#'
 paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   xIC <- x %/% 1 %>%
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%
@@ -344,7 +377,10 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #' rndstr()
 #' rndstr(len=10)
 #' rndstr(characterFirst=FALSE)
-#' rndstr(16)
+#' rndstr(n=5, len=10)
+#' rndstr(n=5)
+#' rndstr(n=5, characterFirst=TRUE)
+#' rndstr(n=5, len=10, characterFirst=TRUE)
 #'
 setGeneric("rndstr", function(n, len, characterFirst) {
   standardGeneric("rndstr")
