@@ -58,10 +58,16 @@ test_that("simList object initializes correctly", {
   # not going to go though each level...object validity checking does types
 
   ### SLOT simtimes
-  expect_equal(simTimes(mySim), list(current=0.0, start=0.0, stop=10.0, timestepUnit="month"))
-  expect_equal(simCurrentTime(mySim), 0.0)
-  expect_equal(simStartTime(mySim), 0.0)
-  expect_equal(simStopTime(mySim), 10.0)
+  expect_equivalent(simTimes(mySim), list(current=0.0, start=0.0, stop=10.0))
+  expect_equivalent(simCurrentTime(mySim), 0)
+  expect_equivalent(simStartTime(mySim), 0.0)
+  expect_equivalent(simStopTime(mySim), 10.0)
+  expect_equal(simTimestepUnit(mySim), attr(mySim@simtimes$start, "unit"))
+  expect_equal(simTimestepUnit(mySim), attr(mySim@simtimes$stop, "unit"))
+  expect_equal(simTimestepUnit(mySim), attr(mySim@simtimes$current, "unit"))
+  expect_equal(attr(simStopTime(mySim), "unit"), simTimestepUnit(mySim))
+  expect_equal(attr(simStartTime(mySim), "unit"), simTimestepUnit(mySim))
+  expect_equal(attr(simCurrentTime(mySim), "unit"), simTimestepUnit(mySim))
 })
 
 test_that("simulation runs with simInit and spades", {
@@ -78,9 +84,9 @@ test_that("simulation runs with simInit and spades", {
   completed <- spades(mySim)
 
   # simtime
-  expect_equal(simCurrentTime(completed), 10.0)
-  expect_equal(simStartTime(completed), 0.0)
-  expect_equal(simStopTime(completed), 10.0)
+  expect_equivalent(simCurrentTime(completed), 10.0)
+  expect_equivalent(simStartTime(completed), 0.0)
+  expect_equivalent(simStopTime(completed), 10.0)
 
   # sim results
   burnedLast <- 1253L
@@ -139,5 +145,6 @@ test_that("simulation runs with simInit and spades", {
              -30.960625150814)
 
   expect_equal(tail(completed$npixelsburned,1), burnedLast)
-  expect_equivalent(rbind(completed$caribou$x, completed$caribou$y), rbind(pos_x, pos_y))
+  expect_equivalent(completed$caribou$x, pos_x)
+  expect_equivalent(completed$caribou$y, pos_y)
 })
