@@ -190,3 +190,76 @@ setMethod("eventDiagram",
               )
             )
 })
+
+################################################################################
+#' Simulation object dependency diagram
+#'
+#' Create a sequence diagram illustrating the data object dependencies of a
+#' simulation. Offers a more detailed view of specific objects than does
+#' plotting the \code{depsEdgeList} directly with \code{\link{moduleDiagram}}.
+#'
+#' @param sim  A \code{simList} object (typically corresponding to a
+#'             completed simulation).
+#'
+#' @return Plots a sequence diagram.
+#'
+#' @seealso \code{\link{mermaid}}.
+#'
+#' @include simList.R
+#' @importFrom DiagrammeR mermaid
+#' @export
+#' @docType methods
+#' @rdname objectDiagram
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("objectDiagram", function(sim) {
+  standardGeneric("objectDiagram")
+})
+
+#' @export
+#' @rdname objectDiagram
+setMethod("objectDiagram",
+          signature(sim="simList"),
+          definition=function(sim) {
+            dt <- depsEdgeList(mySim, FALSE)
+            mermaid(
+              paste0("sequenceDiagram", "\n",
+                     paste(dt$from, "->>", dt$to, ":", dt$objName,
+                           collapse = "\n"), "\n")
+            )
+})
+
+################################################################################
+#' Simulation module dependency diagram
+#'
+#' Create a network diagram illustrating the simplified module dependencies of a
+#' simulation. Offers a less detailed view of specific objects than does
+#' plotting the \code{depsEdgeList} directly with \code{\link{objectDiagram}}.
+#'
+#' @param sim  A \code{simList} object (typically corresponding to a
+#'             completed simulation).
+#'
+#' @return Plots module dependency diagram.
+#'
+#' @seealso \code{\link{igraph}}.
+#'
+#' @include simList.R
+#' @import igraph
+#' @export
+#' @docType methods
+#' @rdname moduleDiagram
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("moduleDiagram", function(sim) {
+  standardGeneric("moduleDiagram")
+})
+
+#' @export
+#' @rdname moduleDiagram
+setMethod("moduleDiagram",
+          signature(sim="simList"),
+          definition=function(sim) {
+            plot(depsGraph(sim, TRUE))
+})

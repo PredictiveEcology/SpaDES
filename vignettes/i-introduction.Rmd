@@ -3,10 +3,8 @@ title: "01 Introduction to `SpaDES`"
 author: "Alex M. Chubaty and Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
   html_document:
+    number_sections: yes
     self_contained: yes
     toc: yes
 vignette: >
@@ -204,8 +202,9 @@ Simulation module object dependencies can be viewed using:
 
 ```{r view-dependencies, eval=FALSE, echo=TRUE}
 library(igraph)
-Plot(depsGraph(mySim, TRUE)) # plots simplified dependency graph
-depsEdgeList(mySim, FALSE)   # data.frame of all object dependencies
+depsEdgeList(mySim, FALSE)  # data.frame of all object dependencies
+moduleDiagram(mySim)        # plots simplified module (object) dependency graph
+objectDiagram(mySim)        # plots object dependency diagram
 ```
 
 They can viewed directly by printing the output of the `depsEdgeList` function.
@@ -215,6 +214,14 @@ They can viewed directly by printing the output of the `depsEdgeList` function.
 Once a simulation is properly initialized it is executed using the `spades` function.
 By default in an interactive session, a progress bar is displayed in the console (this can be customized), and any specified files are loaded (via including a `fileList` data.frame, see examples).
 Debugging mode, *i.e.*, setting `spades(mySim, debug=TRUE)`, prints the contents of the `simList` object after the completion of every event during simulation.
+
+```{r view-event-sequences, eval=FALSE, echo=TRUE}
+options(spades.nCompleted = 50)   # default: store 10 events in the completed event list
+mySim <- simInit(...)             # initialize a simulation using valid parameters
+mySim <- spades(mySim)            # run the simulation, returning the completed sim object
+eventDiagram(mySim, "0000-06-01") # visualize the sequence of events for all modules
+```
+
 
 \newpage
 
