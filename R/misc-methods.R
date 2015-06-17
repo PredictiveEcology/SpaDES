@@ -380,6 +380,7 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #' rndstr(n=5, len=10)
 #' rndstr(n=5)
 #' rndstr(n=5, characterFirst=TRUE)
+#' rndstr(len=10, characterFirst=TRUE)
 #' rndstr(n=5, len=10, characterFirst=TRUE)
 #'
 setGeneric("rndstr", function(n, len, characterFirst) {

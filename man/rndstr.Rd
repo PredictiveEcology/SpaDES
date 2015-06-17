@@ -55,6 +55,7 @@ rndstr(characterFirst=FALSE)
 rndstr(n=5, len=10)
 rndstr(n=5)
 rndstr(n=5, characterFirst=TRUE)
+rndstr(len=10, characterFirst=TRUE)
 rndstr(n=5, len=10, characterFirst=TRUE)
 }
 \author{
