@@ -76,6 +76,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @param file The checkpoint file.
 #' @rdname checkpoint
+#' @export
 checkpointLoad = function(file) {
   f <- strsplit(file, split = "[.][R|r][D|d]ata$")
   fobj <- paste0(f, "_objs", ".RData")

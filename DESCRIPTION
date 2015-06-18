@@ -82,6 +82,7 @@ Collate:
     'spades-package.R'
     'splitRaster.R'
     'spread-process.R'
+    'times.R'
     'zzz.R'
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

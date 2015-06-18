@@ -134,6 +134,10 @@ setMethod("simInit",
             } else {
               smallestTimestepUnit(sim)
             }
+#             attributes(simCurrentTime(sim))$unit <- simTimestepUnit(sim)
+#             attributes(simStopTime(sim))$unit <- simTimestepUnit(sim)
+#             attributes(simStartTime(sim))$unit <- simTimestepUnit(sim)
+
 
             # assign user-specified non-global params, while
             # keeping defaults for params not specified by user
@@ -481,13 +485,11 @@ setMethod("scheduleEvent",
                   # first check if this moduleName matches the name of a module with meta-data
                   #   (i.e., simDepends(sim)@dependencies filled)
                   if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
-#                    browser(expr=simEvents(sim)[1,moduleName]=="fireSpread")
-#                    if(simEvents(sim)[1,moduleName]=="fireSpread") print(paste("fire",simCurrentTime(sim)))
-                    #browser(expr=moduleTimestepUnit(sim)=="month")
+                    browser()
                     eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
                       timestepInSeconds(sim, moduleName)
 
-                    eventTimeInLargestUnit <-
+                    eventTimeInCommonUnit <-
                       suppressMessages((simCurrentTime(sim)-simStartTime(sim))*
                                        inSecs(moduleTimestepUnit(sim))/
                                          inSecs(simTimestepUnit(sim))+
@@ -495,16 +497,16 @@ setMethod("scheduleEvent",
                                          as.numeric(inSecs(simTimestepUnit(sim)))+
                                          simStartTime(sim)) #*
                       #inSecs(moduleTimestepUnit(sim))/inSecs(simTimestepUnit(sim)))
-#                    print(eventTimeInLargestUnit)
+#                    print(eventTimeInCommonUnit)
 
                   } else {
-                    eventTimeInLargestUnit <- eventTime
+                    eventTimeInCommonUnit <- eventTime
                   }
                 } else {
-                  eventTimeInLargestUnit <- eventTime
+                  eventTimeInCommonUnit <- eventTime
                 }
 
-                newEvent <- as.data.table(list(eventTime=eventTimeInLargestUnit,
+                newEvent <- as.data.table(list(eventTime=eventTimeInCommonUnit,
                                               moduleName=moduleName,
                                               eventType=eventType))
 
@@ -512,9 +514,13 @@ setMethod("scheduleEvent",
                 # otherwise, add newEvent and re-sort (rekey).
                 if (length(simEvents(sim))==0L) {
                   simEvents(sim) <- setkey(newEvent, "eventTime")
+                  #attributes(simEvents(sim)$eventTime)$unit <- simTimestepUnit(sim)
                 } else {
                   simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), "eventTime")
                 }
+
+
+
               }
             } else {
                 warning(paste("Invalid or missing eventTime. This is usually",
@@ -553,7 +559,7 @@ setMethod("scheduleEvent",
 #'
 #' @export
 #' @docType methods
-#' @rdname timestepInSeconds
+#' @rdname spadesTimetepInSeconds
 #'
 #' @author Eliot McIntire
 #'
@@ -561,10 +567,11 @@ setGeneric("timestepInSeconds", function(sim, moduleName) {
   standardGeneric("timestepInSeconds")
 })
 
-#' @rdname timestepInSeconds
+#' @rdname spadesTimetepInSeconds
 setMethod("timestepInSeconds",
           signature(sim="simList", moduleName="character"),
           definition=function(sim, moduleName) {
+            browser()
   a = sapply(simDepends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
   timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit

@@ -1139,7 +1139,7 @@ setReplaceMethod("simCurrentTime",
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric("moduleTimestepUnit", function(object) {
+setGeneric("moduleTimestepUnit", function(sim) {
   standardGeneric("moduleTimestepUnit")
 })
 
@@ -1148,6 +1148,20 @@ setGeneric("moduleTimestepUnit", function(object) {
 #' @rdname simList-accessors-times
 setMethod("moduleTimestepUnit",
           signature=c("simList"),
+          definition=function(sim) {
+            mod <- simModule(sim)
+            if(!is.null(mod)) {
+              simModuleTimestepUnits(sim)[[mod]]
+            } else {
+              simTimestepUnit(sim)
+            }
+})
+
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+setMethod("moduleTimestepUnit",
+          signature=c("character"),
           definition=function(object) {
             mod <- simModule(object)
             if(!is.null(mod)) {
@@ -1155,8 +1169,7 @@ setMethod("moduleTimestepUnit",
             } else {
               simTimestepUnit(object)
             }
-})
-
+          })
 
 #' @inheritParams simModules
 #' @export
@@ -1175,8 +1188,14 @@ setGeneric("simModule", function(object) {
 setMethod("simModule",
           signature=c("simList"),
           definition=function(object) {
+            browser()
   st <- stri_detect_fixed(
     as.character(sys.calls()), pattern = "moduleCall")
+
+  # if it needs to be found in the scheduleEvent call:
+  #st <- stri_detect_fixed(
+  #  as.character(sys.calls()), pattern = "scheduleEvent")
+  # mod <- eval(match.call(scheduleEvent, sys.calls()[[6]])$moduleName, envir=sys.frames()[[5]])
   # if the this call is from a Module, otherwise, return no module
   if(any(st)) {
     mod <- strsplit(eval(parse(text="moduleCall"),
@@ -1293,6 +1312,10 @@ setGeneric("simStopTime<-",
 setReplaceMethod("simStopTime",
                  signature="simList",
                  function(object, value) {
+                   # If simtimes$stop already has units, keep those, otherwise,
+                   #   us the attributes associated with value
+                   if(!is.null(attr(object@simtimes$stop, "unit")))
+                     attributes(value)$unit <- attr(object@simtimes$stop, "unit")
                    object@simtimes$stop <- value
                    validObject(object)
                    return(object)
@@ -1422,7 +1445,7 @@ setGeneric("simTimestepUnit", function(object) {
 setMethod("simTimestepUnit",
           signature="simList",
           definition=function(object) {
-            return(object@simtimes$timestepUnit)
+            return(attr(object@simtimes$start, "unit"))
 })
 
 #' @export
@@ -1440,9 +1463,16 @@ setReplaceMethod("simTimestepUnit",
                  function(object, value) {
                    if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"),
                                  pattern=value), na.rm=TRUE)) {
-                     object@simtimes$timestepUnit <- value
+                     attributes(simCurrentTime(object))$unit <- value
+                     attributes(simStopTime(object))$unit <- value
+                     attributes(simStartTime(object))$unit <- value
+
+                     #object@simtimes$timestepUnit <- value
                    } else {
-                     object@simtimes$timestepUnit <- NA_character_
+                     attributes(simCurrentTime(object))$unit <- NA_character_
+                     attributes(simStopTime(object))$unit <- NA_character_
+                     attributes(simStartTime(object))$unit <- NA_character_
+                     #object@simtimes$timestepUnit <- NA_character_
                      if(!is.na(value)){
                        message("unknown timestepUnit provided: ", value)
                      }
