@@ -90,23 +90,3 @@ crw = function(agent, extent, stepLength, stddev, lonlat, torus=FALSE) {
 
 }
 
-crw3 = function(agent, stepLength, stddev, lonlat) {
-
-  if (is.null(lonlat)) {
-    stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
-  }
-  stopifnot(is.logical(lonlat))
-
-  n <- length(agent)
-  agentHeading <- heading(cbind(x=agent$x1, y=agent$y1), agent)
-  rndDir <- rnorm(n, agentHeading, stddev)
-  #rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
-  rndDir[rndDir>180] <- rndDir[rndDir>180]-360
-  rndDir[rndDir<=180 & rndDir<(-180)] <- 360+rndDir[rndDir<=180 & rndDir<(-180)]
-
-
-  return(cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
-               y=agent$y + cos(rad(rndDir)) * stepLength,
-               x1=agent@coords[,"x"],
-               y1=agent@coords[,"y"]))
-}
