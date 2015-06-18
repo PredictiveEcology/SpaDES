@@ -1188,9 +1188,7 @@ setMethod("simModule",
   return(mod)
 })
 
-inSecs <- function(unit) {
-  eval(parse(text=paste0("d",unit,"(1)")))
-}
+
 ################################################################################
 #' @inheritParams simTimes
 #' @export
