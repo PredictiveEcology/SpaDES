@@ -3,7 +3,7 @@
   options(spades.lowMemory = FALSE)
   options(spades.modulesRepo = "PredictiveEcology/SpaDES-modules")
   options(spades.nCompleted = 10L)
-  options(spades.toleranceDigits = -floor(log10(getOption("fpCompare.tolerance")))
+  options(spades.toleranceDigits = -floor(log10(getOption("fpCompare.tolerance"))))
 }
 
 .onUnload <- function(libname, pkgname) {

@@ -190,3 +190,12 @@ setMethod("inSecs",
                           years = as.numeric(dyear(1)))
             return(out)
           })
+
+#' @export
+#' @docType methods
+#' @rdname timeConversion
+setMethod("inSecs",
+          signature=c("NULL"),
+          definition <- function(unit) {
+            return(0)
+          })

@@ -17,4 +17,7 @@ inSecs(unit)
 In addition to using the \code{lubridate} package, some additional functions and
 to work with times are provided.
 }
+\author{
+Alex Chubaty & Eliot McIntire
+}
 

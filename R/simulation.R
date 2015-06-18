@@ -485,7 +485,6 @@ setMethod("scheduleEvent",
                   # first check if this moduleName matches the name of a module with meta-data
                   #   (i.e., simDepends(sim)@dependencies filled)
                   if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
-                    browser()
                     eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
                       timestepInSeconds(sim, moduleName)
 
@@ -571,7 +570,6 @@ setGeneric("timestepInSeconds", function(sim, moduleName) {
 setMethod("timestepInSeconds",
           signature(sim="simList", moduleName="character"),
           definition=function(sim, moduleName) {
-            browser()
   a = sapply(simDepends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
   timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit

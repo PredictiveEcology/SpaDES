@@ -3,6 +3,8 @@
 \docType{methods}
 \name{simTimes}
 \alias{moduleTimestepUnit}
+\alias{moduleTimestepUnit,NULL-method}
+\alias{moduleTimestepUnit,character-method}
 \alias{moduleTimestepUnit,simList-method}
 \alias{simCurrentTime}
 \alias{simCurrentTime,simList,character-method}
@@ -52,6 +54,10 @@ simCurrentTime(object) <- value
 moduleTimestepUnit(object)
 
 \S4method{moduleTimestepUnit}{simList}(object)
+
+\S4method{moduleTimestepUnit}{character}(object)
+
+\S4method{moduleTimestepUnit}{`NULL`}(object)
 
 simStartTime(object)
 

@@ -426,7 +426,6 @@ setReplaceMethod("simEnv",
 #' These are included for advanced users.
 #' \tabular{ll}{
 #'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
-#'    \code{\link{simModule}} \tab Identify the name of the module which is calling this function. (advanced) \cr
 #'    \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced) \cr
 #'    \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced) \cr
 #'    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced) \cr
@@ -1139,7 +1138,7 @@ setReplaceMethod("simCurrentTime",
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric("moduleTimestepUnit", function(sim) {
+setGeneric("moduleTimestepUnit", function(object) {
   standardGeneric("moduleTimestepUnit")
 })
 
@@ -1148,13 +1147,9 @@ setGeneric("moduleTimestepUnit", function(sim) {
 #' @rdname simList-accessors-times
 setMethod("moduleTimestepUnit",
           signature=c("simList"),
-          definition=function(sim) {
-            mod <- simModule(sim)
-            if(!is.null(mod)) {
-              simModuleTimestepUnits(sim)[[mod]]
-            } else {
-              simTimestepUnit(sim)
-            }
+          definition=function(object) {
+            mod <- .callingModName(object)
+            moduleTimestepUnit(mod)
 })
 
 #' @export
@@ -1163,47 +1158,63 @@ setMethod("moduleTimestepUnit",
 setMethod("moduleTimestepUnit",
           signature=c("character"),
           definition=function(object) {
-            mod <- simModule(object)
             if(!is.null(mod)) {
               simModuleTimestepUnits(object)[[mod]]
             } else {
-              simTimestepUnit(object)
+              NA_character_
             }
           })
 
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+setMethod("moduleTimestepUnit",
+          signature=c("NULL"),
+          definition=function(object) {
+            return(NULL)
+          })
+
+
+#' \code{.callingModName} returns the name of the module that is currently the active
+#' module calling functions like scheduleEvent. This will only return the module name
+#' if it is inside a \code{spades} function call, i.e., it will return \code{NULL} if used
+#' in interactive mode.
+#'
 #' @inheritParams simModules
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-modules
 #' @author Eliot McIntire
 #'
-setGeneric("simModule", function(object) {
-  standardGeneric("simModule")
+setGeneric(".callingModName", function(object) {
+  standardGeneric(".callingModName")
 })
 
 #' @export
 #' @importFrom stringi stri_detect_fixed
 #' @docType methods
 #' @rdname simList-accessors-modules
-setMethod("simModule",
+setMethod(".callingModName",
           signature=c("simList"),
           definition=function(object) {
-            browser()
-  st <- stri_detect_fixed(
-    as.character(sys.calls()), pattern = "moduleCall")
 
-  # if it needs to be found in the scheduleEvent call:
-  #st <- stri_detect_fixed(
-  #  as.character(sys.calls()), pattern = "scheduleEvent")
-  # mod <- eval(match.call(scheduleEvent, sys.calls()[[6]])$moduleName, envir=sys.frames()[[5]])
-  # if the this call is from a Module, otherwise, return no module
-  if(any(st)) {
-    mod <- strsplit(eval(parse(text="moduleCall"),
-                  envir=sys.frame(which(st)[1]-1)),
-             split="\\.")[[1]][2]
-  } else {
-    mod <- NULL
-  }
+    # Only return module name if inside a spades call, because this only makes sense
+    #  if there is an "active" module
+    if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
+      st <- stri_detect_fixed(
+        as.character(sys.calls()), pattern = "moduleCall")
+      if(any(st)) {
+        mod <- strsplit(eval(parse(text="moduleCall"),
+                             envir=sys.frame(which(st)[1]-1)),
+                        split="\\.")[[1]][2]
+      } else {
+        mod <- NULL
+      }
+
+    } else {
+      mod <- NULL
+    }
+
   return(mod)
 })
 
