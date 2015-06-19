@@ -3,12 +3,15 @@
 \docType{methods}
 \name{inSecs}
 \alias{inSecs}
+\alias{inSecs,NULL-method}
 \alias{inSecs,character-method}
 \title{Convert time units}
 \usage{
 inSecs(unit)
 
 \S4method{inSecs}{character}(unit)
+
+\S4method{inSecs}{`NULL`}(unit)
 }
 \arguments{
 \item{x}{character indicating time units to be returned as seconds}

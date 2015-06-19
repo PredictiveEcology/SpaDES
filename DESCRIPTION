@@ -74,6 +74,8 @@ Collate:
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
+    'plotting-classes.R'
+    'plotting-other.R'
     'plotting.R'
     'probability.R'
     'progress.R'
