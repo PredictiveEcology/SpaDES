@@ -175,19 +175,23 @@ setMethod("inSecs",
           signature=c("character"),
           definition <- function(unit) {
 
-            out <- switch(unit,
-                          second =  as.numeric(dsecond(1)),
-                          seconds =  as.numeric(dsecond(1)),
-                          hour = as.numeric(dhour(1)),
-                          hours = as.numeric(dhour(1)),
-                          day = as.numeric(dday(1)),
-                          days = as.numeric(dday(1)),
-                          week = as.numeric(dweek(1)),
-                          weeks = as.numeric(dweek(1)),
-                          month = as.numeric(dmonth(1)),
-                          months = as.numeric(dmonth(1)),
-                          year = as.numeric(dyear(1)),
-                          years = as.numeric(dyear(1)))
+            if(!is.na(unit)) {
+              out <- switch(unit,
+                            second =  as.numeric(dsecond(1)),
+                            seconds =  as.numeric(dsecond(1)),
+                            hour = as.numeric(dhour(1)),
+                            hours = as.numeric(dhour(1)),
+                            day = as.numeric(dday(1)),
+                            days = as.numeric(dday(1)),
+                            week = as.numeric(dweek(1)),
+                            weeks = as.numeric(dweek(1)),
+                            month = as.numeric(dmonth(1)),
+                            months = as.numeric(dmonth(1)),
+                            year = as.numeric(dyear(1)),
+                            years = as.numeric(dyear(1)))
+            } else {
+              out <- 0
+            }
             return(out)
           })
 
@@ -199,3 +203,4 @@ setMethod("inSecs",
           definition <- function(unit) {
             return(0)
           })
+

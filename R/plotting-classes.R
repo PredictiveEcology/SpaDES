@@ -257,6 +257,5 @@ setClass(".spadesPlot",
 #' @name .spadesPlottables-class
 #' @rdname spadesPlottables-class
 #' @author Eliot McIntire
-#'
 setClassUnion(name=".spadesPlottables",
               members=c(".spadesPlotObjects", ".spadesPlot"))

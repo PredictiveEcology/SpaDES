@@ -21,7 +21,8 @@ setGeneric("clearPlot", function(dev=dev.cur(), removeData=TRUE) {
   standardGeneric("clearPlot")
 })
 
-#' @rdname layerNames
+#' @rdname Plot
+#' @export
 setMethod("clearPlot",
           signature=c("numeric","logical"),
           definition= function(dev, removeData) {
@@ -33,6 +34,31 @@ setMethod("clearPlot",
             dev(dev)
             grid.newpage()
             dev(devActive)
+          })
+
+#' @rdname Plot
+#' @include plotting-classes.R
+#' @export
+setMethod("clearPlot",
+          signature=c("numeric","missing"),
+          definition= function(dev) {
+            clearPlot(dev, removeData=FALSE)
+          })
+
+#' @rdname Plot
+#' @export
+setMethod("clearPlot",
+          signature=c("missing","logical"),
+          definition= function(removeData) {
+            clearPlot(dev=dev.cur(), removeData=removeData)
+          })
+
+#' @rdname Plot
+#' @export
+setMethod("clearPlot",
+          signature=c("missing","missing"),
+          definition= function(dev, removeData) {
+            clearPlot(dev.cur(), removeData=FALSE)
           })
 
 

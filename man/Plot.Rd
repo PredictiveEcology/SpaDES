@@ -5,10 +5,22 @@
 \alias{Plot}
 \alias{Plot,ANY-method}
 \alias{clearPlot}
+\alias{clearPlot,missing,logical-method}
+\alias{clearPlot,missing,missing-method}
+\alias{clearPlot,numeric,logical-method}
+\alias{clearPlot,numeric,missing-method}
 \alias{rePlot}
 \title{Clear plotting device}
 \usage{
 clearPlot(dev = dev.cur(), removeData = TRUE)
+
+\S4method{clearPlot}{numeric,logical}(dev = dev.cur(), removeData = TRUE)
+
+\S4method{clearPlot}{numeric,missing}(dev)
+
+\S4method{clearPlot}{missing,logical}(removeData)
+
+\S4method{clearPlot}{missing,missing}(dev = dev.cur(), removeData = TRUE)
 
 Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   gpAxis = gpar(), axes = FALSE, speedup = 1, size = 5, cols = NULL,
