@@ -3,330 +3,6 @@ if(getRversion() >= "3.1.0") {
   utils::globalVariables(c("groups", "thin", "whGrobNamesi"))
 }
 
-### Allow gg S3 class to be used with Plot, an S4 function
-#' @import ggplot2
-setOldClass("gg")
-selectMethod("show", "gg")
-
-### Allow histogram S3 class to be used with Plot, an S4 function
-#' @import graphics
-setOldClass("histogram")
-selectMethod("show", "histogram")
-
-### Allow histogram S3 class to be used with Plot, an S4 function
-#' @import igraph
-setOldClass("igraph")
-selectMethod("show", "igraph")
-
-################################################
-#' The \code{.spatialObjects} class
-#'
-#' This class is the union of several spatial objects from raster and sp packages. Notably
-#' missing is RasterBrick, for now.
-#'
-#' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
-#'                RasterLayer, RasterStack
-#'
-#' @aliases .spatialObjects
-#' @name .spatialObjects-class
-#' @rdname spatialObjects-class
-#' @author Eliot McIntire
-setClassUnion(name=".spatialObjects",
-              members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
-                        "RasterLayer", "RasterStack")
-)
-
-################################################
-#' The \code{.spadesPlotObjects} class
-#'
-#' This class contains the union of .spatialObjects and several other plot-type objects.
-#' These are the object classes that the \code{\link{Plot}} function can handle.
-#'
-#' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
-#' @import ggplot2
-#' @import graphics
-
-#' @aliases .spadesPlotObjects
-#' @name .spadesPlotObjects-class
-#' @rdname spadesPlotObjects-class
-#' @author Eliot McIntire
-setClassUnion(name=".spadesPlotObjects",
-              members=c(".spatialObjects", "gg", "histogram", "igraph"))
-
-###########################################################################
-#' The \code{.spadesGrob} class
-#'
-#' This class contains the plotting .spadesGrob information.
-#'
-#' These \code{gp*} parameters will specify plot parameters that are
-#' available with \code{gpar()}. \code{gp} will adjust plot parameters,
-#' \code{gpText} will adjust title and legend text, \code{gpAxis} will
-#' adjust the axes. \code{size} adjusts point size in a
-#' \code{SpatialPoints} object. These will persist with the
-#' original \code{Plot} call for each individual object. Multiple
-#' entries can be used, but they must be named list elements
-#' and they must match the \code{...} items to plot. This is true
-#' for a RasterStack also, i.e., the list of named elements
-#' must be the same length as the number of layers being
-#' plotted. The naming convention used is: \code{RasterStackName$layerName},
-#' i.e, \code{landscape$DEM}.
-#'
-#' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot plotName  character. Name of the plot frame, which is by default a concatenation
-#' of the \code{objName} and \code{layerName}
-#'
-#' @slot objName  character. Name of object represented by this .spadesGrob
-#'
-#' @slot envir environment. The environment in which to find the objName
-#'
-#' @slot layerName character. Name of the layer represented by this .spadesGrob. Primarily
-#' used for RasterStacks
-#'
-#' @slot objClass character. Class of the object represented by this .spadesGrob
-#'
-#' @slot isSpatialObjects logical. TRUE if the object is one of the SpaDES recognized
-#' spatialObject classes
-#'
-#' @slot plotArgs list. Any parameters needed for plotting, set by Plot call.
-#'
-#' @aliases .spadesGrob
-#' @name .spadesGrob-class
-#' @rdname spadesGrob-class
-#' @author Eliot McIntire
-setClass(".spadesGrob",
-         slots=list(plotName="character", objName="character", envir="environment",
-                    layerName="character",
-                    objClass="character", isSpatialObjects="logical",
-                    plotArgs="list"),
-         prototype=list(plotName=NA_character_, objName=NA_character_, layerName=NA_character_,
-                        objClass=NA_character_, isSpatialObjects=NA,
-                        plotArgs=as.list(NULL)),
-         validity=function(object) {
-           # check for valid extents
-           if (any(is.character(object@objName))) {
-             stop("must supply an object name")
-           }
-})
-
-###########################################################################
-#' The \code{.arrangement} class
-#'
-#' This class contains the plotting arrangement information.
-#'
-#' These \code{gp*} parameters will specify plot parameters that are
-#' available with \code{gpar()}. \code{gp} will adjust plot parameters,
-#' \code{gpText} will adjust title and legend text, \code{gpAxis} will
-#' adjust the axes. \code{size} adjusts point size in a
-#' \code{SpatialPoints} object. These will persist with the
-#' original \code{Plot} call for each individual object. Multiple
-#' entries can be used, but they must be named list elements
-#' and they must match the \code{...} items to plot. This is true
-#' for a RasterStack also, i.e., the list of named elements
-#' must be the same length as the number of layers being
-#' plotted. The naming convention used is: \code{RasterStackName$layerName},
-#' i.e, \code{landscape$DEM}.
-#'
-#' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot rows    numeric. Number of rows in the arrangement.
-#'
-#' @slot columns numeric. Number of columns in the arragnement.
-#'
-#' @slot actual.ratio numeric. Ratio of columns to rows
-#'
-#' @slot ds.dimensionRatio numeric. Ratio of the device size to the ratio of the
-#' extents
-#'
-#' @slot ds  numeric of length 2. The dimensions of the plotting window in inches
-#'
-#' @slot objects  list of length number of spatial objects. Each list has a character vector
-#' of the layer names in each of those
-#'
-#' @slot isRaster  logical vector, indicating whether each object is a Raster* object
-#'
-#' @slot names  character vector. The names of the layers in the plot
-#'
-#' @slot extents list of class Extent objects. These are needed to calculate the
-#' \code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly
-#'
-#' @slot isSpatialObjects logical indicating whether the object(s) are \code{.spatialObjects}
-#' or not
-#'
-#' @slot layout list of length 2, with width and height measurements for layout.
-#'
-#' @slot gp a gpar object or list of named gpar objects. These names must
-#' match the names of the \code{...} objects. Default is NULL. See details.
-#'
-#' @slot gpText a gpar object or a list of named gpar objects. These names must
-#' match the names of the \code{...} objects. Default is NULL. See details.
-#'
-#' @slot gpAxis a gpar object or a list of named gpar objects. These names must
-#' match the names of the \code{...} objects. Default is NULL. See details.
-#'
-#' @slot size a numeric or a named list of numerics, used for SpatialPoints plots.
-#' Default is 5. See details.
-#'
-#' @aliases .arrangement
-#' @name .arrangement-class
-#' @rdname arrangement-class
-#' @author Eliot McIntire
-setClass(".arrangement",
-         slots=list(rows="numeric", columns="numeric",
-                    actual.ratio="numeric", ds.dimensionRatio="numeric",
-                    ds="numeric", objects="list", isRaster="logical", names="character",
-                    extents="list", isSpatialObjects="logical", layout="list",
-                    gp="list", gpText="list", gpAxis="list", size="list"),
-         prototype=list(rows=1, columns=1,
-                        actual.ratio=1, ds.dimensionRatio=1,
-                        ds=c(7, 7), objects=as.list(NULL), isRaster=NA,
-                        names=as.character(NULL),
-                        extents=as.list(NULL), isSpatialObjects=NA, layout=as.list(NULL),
-                        gp=as.list(NULL), gpText=as.list(NULL),
-                        gpAxis=as.list(NULL), size=as.list(NULL)),
-         validity=function(object) {
-           # check for valid extents
-           if (any(is.na(object@extents))) {
-             stop("must supply a list of extents")
-           }
-})
-
-###########################################################################
-#' The \code{.spadesPlot} class
-#'
-#' This class contains all necessary information to build a Plot on a device,
-#' except the actual data. Thus, this class differs notably from the grid package,
-#' which keeps a copy of all data *and* information in a hidden location for further
-#' access for rebuilding, erasing etc. This difference allows the Plot function to
-#' be much faster than using the grid methodology directly. The cost to this speed
-#' gain is that the objects *must* be available, by name, in the .GlobalEnv.
-#'
-#' This class contains two slots, one for the overall arrangement of the plots within
-#' the device window, and the second for all the \code{\link{.spadesGrob}} objects within
-#' that device window. These \code{\link{.spadesGrob}} objects are the individual
-#' "smallest" plot unit.
-#'
-#' These \code{gp*} parameters will specify plot parameters that are
-#' available with \code{gpar()}. \code{gp} will adjust plot parameters,
-#' \code{gpText} will adjust title and legend text, \code{gpAxis} will
-#' adjust the axes. \code{size} adjusts point size in a
-#' \code{SpatialPoints} object. These will persist with the
-#' original \code{Plot} call for each individual object. Multiple
-#' entries can be used, but they must be named list elements
-#' and they must match the \code{...} items to plot. This is true
-#' for a RasterStack also, i.e., the list of named elements
-#' must be the same length as the number of layers being
-#' plotted. The naming convention used is: \code{RasterStackName$layerName},
-#' i.e, \code{landscape$DEM}.
-#'
-#' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot arr  An .arrangement object
-#'
-#' @slot spadesGrobList list. A list of lists of .spadesGrob objects
-#'
-#' @aliases .spadesPlot
-#' @name .spadesPlot-class
-#' @rdname spadesPlot-class
-#' @author Eliot McIntire
-setClass(".spadesPlot",
-         slots=list(arr=".arrangement",
-                    spadesGrobList="list"),
-         prototype=list(arr=new(".arrangement"),
-                        spadesGrobList=as.list(NULL)),
-         validity=function(object) {
-           # check for valid extents
-           if (any(is(object@arr, ".arrangement"))) {
-             stop("must supply an arrangement")
-           }
-})
-
-################################################################################
-#' The \code{.spadesPlottables} class
-#'
-#' This class is the union of all .spadesPlotObjects (e.g., RasterLayer*,
-#' SpatialPoints*, SpatialPolygons*, ggplot, hist etc.) and \code{\link{.spadesPlot}}
-#' class objects.  This allows replotting of a \code{\link{.spadesPlot}} object
-#'
-#' @seealso \code{\link{spadesClasses}}
-#'
-#' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
-#' @import ggplot2
-#' @import graphics
-#'
-#' @aliases .spadesPlottables
-#' @name .spadesPlottables-class
-#' @rdname spadesPlottables-class
-#' @author Eliot McIntire
-#'
-setClassUnion(name=".spadesPlottables",
-              members=c(".spadesPlotObjects", ".spadesPlot"))
-
-################################################################################
-#' Specify where to plot
-#'
-#' Switch to an existing plot device, or if not already open,
-#' launch a new graphics device based on operating system used.
-#'
-#' For example, \code{dev(6)} switches the active plot device to device #6.
-#' If it doesn't exist, it opens it. NOTE: if devices 1-5 don't exist
-#' they will be opened too.
-#'
-#' @param x   The number of a plot device. If missing, will open a new
-#'            non-RStudio plotting device
-#'
-#' @param ... Additional arguments passed to \code{\link{newPlot}}.
-#'
-#' @return Opens a new plot device on the screen.
-#'
-#' @export
-#' @docType methods
-#' @rdname dev
-#' @author Eliot McIntire and Alex Chubaty
-#'
-dev <- function(x, ...) {
-  if (missing(x)) {
-    if(is.null(dev.list())) {
-      x <- 2L
-    } else {
-      if(any(names(dev.list())=="RStudioGD")) {
-        x <- min(max(dev.list())+1,
-                 which(names(dev.list())=="RStudioGD")+3L)
-        dev(x)
-      } else {
-        x <- max(dev.list())
-        dev(x)
-      }
-    }
-  }
-  if(is.null(dev.list())) newPlot(...)
-  while (dev.set(x)<x) newPlot(...)
-}
-
-################################################################################
-#' Open a new plotting window
-#'
-#' @param noRStudioGD Logical Passed to dev.new. Default is TRUE to avoid using
-#'                    RStudio graphics device, which is slow.
-#' @param ...         Additional arguments.
-#'
-#' @note \code{\link{dev.new}} is supposed to be the correct way to open a new
-#' window in a platform-generic way; however, doesn't work in RStudio (#116).
-#'
-#' @seealso \code{\link{dev}}.
-#'
-#' @author Eliot McIntire and Alex Chubaty
-#'
-#' @export
-#' @docType methods
-#' @rdname newPlot
-newPlot <- function(noRStudioGD=TRUE, ...) {
-  dev.new(noRStudioGD=TRUE, ...)
-}
 
 ################################################################################
 #' Find the number of layers in a Spatial Object
@@ -343,6 +19,7 @@ newPlot <- function(noRStudioGD=TRUE, ...) {
 #' @export
 #' @importFrom raster nlayers
 #' @importFrom methods is
+#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname nlayers
 setMethod("nlayers",
@@ -422,6 +99,7 @@ setMethod("nlayers",
 #'                or \code{SpatialPolygons*} object; or list of these.
 #'
 #' @rdname layerNames
+#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @export
 setGeneric("layerNames", function(object) {
@@ -500,6 +178,7 @@ setMethod("layerNames",
 #' @param extents list of extents objects
 #' @rdname equalExtent
 #' @author Eliot McIntire
+#' @include plotting-classes.R
 #' @export
 setGeneric("equalExtent", function(extents) {
   standardGeneric("equalExtent")
@@ -538,6 +217,7 @@ setMethod("equalExtent",
 #' (stored as a spadesGrobList of lists \code{.spadesGrob} objects).
 #'
 #' @rdname makeSpadesPlot
+#' @include plotting-classes.R
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -551,10 +231,6 @@ setMethod(".makeSpadesPlot",
           definition= function(plotObjects, plotArgs, ...) {
 
             isSpatialObjects <- sapply(plotObjects, function(x) is(x, ".spatialObjects"))
-            #             if((sum(isSpatialObjects)!=0) & (sum(isSpatialObjects)!=length(isSpatialObjects))) {
-            #               stop("All objects for Plot call must be either .spatialObjects or
-            #                    none can be")
-            #             }
 
             suppliedNames <- names(plotObjects)
             objs <- .objectNames()[whichSpadesPlotables]
@@ -663,7 +339,6 @@ setMethod(".makeSpadesPlot",
 })
 
 setOldClass("gpar")
-#selectMethod("show", "gpar")
 setAs(from="list", to="gpar", function(from) {
   if(length(from[[1]])>0) {
     gp1 <- gpar(from[[1]][[1]])
@@ -691,6 +366,7 @@ setAs(from="list", to="gpar", function(from) {
 #' easily be deduced from the plotArgs because of the RasterStacks. So passed manually.
 #'
 #' @rdname makeList
+#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric(".makeList", function(plotArgs, numSpadesPlotObjects) {
@@ -720,13 +396,6 @@ setMethod(".makeList",
             } else {if(is.list(p$gpText)) {rep(p$gpText, n)}}
             p$gpAxis <- if(is(p$gpAxis, "gpar")) {rep(list(p$gpAxis), n)
             } else {if(is.list(p$gpAxis)) {rep(p$gpAxis, n)}}
-
-#             p$gpText <- if(is.list(p$gpText)) {if(length(p$gpText)!=n) {rep(p$gpText, length.out=n)} else {p$gpText}
-#             } else {
-#               if(length(p$gpText)==n) {as.list(p$gpText)} else {rep(list(p$gpText), length.out=n)}}
-#             p$gpAxis <- if(is.list(p$gpAxis)) {if(length(p$gpAxis)!=n) {rep(p$gpAxis, length.out=n)} else {p$gpAxis}
-#             } else {
-#               if(length(p$gpAxis)==n) {as.list(p$gpAxis)} else {rep(list(p$gpAxis), length.out=n)}}
             p$axes <- if(is.list(p$axes)) {if(length(p$axes)!=n) {rep(p$axes, length.out=n)} else {p$axes}
             } else {
               if(length(p$axes)==n) {as.list(p$axes)} else {rep(list(p$axes), length.out=n)}}
@@ -777,6 +446,7 @@ setMethod(".makeList",
 #'
 #' @rdname updateSpadesPlot
 #' @export
+#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric(".updateSpadesPlot", function(newSP, curr, ...) {
@@ -887,6 +557,7 @@ setMethod(".updateSpadesPlot",
 #' @param sPlot A \code{.spadesPlot} object.
 #'
 #' @rdname arrangeViewports
+#' @include plotting-classes.R
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -1000,6 +671,7 @@ setMethod(".arrangeViewports",
 #' @param ... additional arguments. Currently nothing.
 #'
 #' @rdname plotGrob
+#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
 setGeneric(".plotGrob", function(grobToPlot, col=NULL, real=FALSE,
@@ -1226,6 +898,7 @@ setMethod(".plotGrob",
 #'
 #' @author Eliot McIntire
 #' @rdname makeLayout
+#' @include plotting-classes.R
 #' @export
 .makeLayout <- function(arr, visualSqueeze, legend=TRUE, axes=TRUE, title=TRUE) {
 
@@ -1272,6 +945,7 @@ setMethod(".plotGrob",
 #'                Default \code{FALSE}.
 #'
 #' @author Eliot McIntire
+#' @include plotting-classes.R
 #' @rdname makeViewports
 #' @export
 .makeViewports <- function(sPlot, newArr=FALSE) {
@@ -1390,6 +1064,7 @@ setMethod(".plotGrob",
 #' @export
 #' @docType methods
 #' @rdname makeLines
+#' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @examples
 #' # Make 2 objects
@@ -1447,6 +1122,7 @@ setMethod("makeLines",
 #'
 #' @docType methods
 #' @importFrom magrittr '%>%'
+#' @include plotting-classes.R
 #' @rdname parseArgs
 #' @author Eliot McIntire and Alex Chubaty
 .parseArgs <- function(y, e, eminus1) {
@@ -1535,6 +1211,7 @@ setMethod("makeLines",
 #' @return \code{NULL}. This function is invoked for its side effects.
 #'
 #' @importFrom methods is
+#' @include plotting-classes.R
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname objectNames
@@ -1717,6 +1394,7 @@ setMethod("makeLines",
 #' @import sp
 #' @author Eliot McIntire
 #' @include environment.R
+#' @include plotting-classes.R
 #' @examples
 #' \dontrun{
 #' library(raster)
@@ -1797,7 +1475,8 @@ setMethod("makeLines",
 #' Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
 #'
 #' }
-setGeneric("Plot", signature="...",
+setGeneric("Plot",
+           signature="...",
            function(..., new=FALSE, addTo=NULL, gp=gpar(), gpText=gpar(), gpAxis=gpar(),
                     axes=FALSE, speedup = 1,
                     size=5, cols=NULL, zoomExtent=NULL,
@@ -1808,6 +1487,7 @@ setGeneric("Plot", signature="...",
  })
 
 #' @rdname Plot
+#' @export
 setMethod("Plot",
           signature("ANY"),
           definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup, size,
@@ -2119,6 +1799,7 @@ setMethod("Plot",
 #' is current device
 #'
 #' @export
+#' @include plotting-classes.R
 #' @rdname Plot
 #' @author Eliot McIntire
 rePlot <- function(toDev=dev.cur(), fromDev=dev.cur(), ...) {
@@ -2157,6 +1838,7 @@ rePlot <- function(toDev=dev.cur(), fromDev=dev.cur(), ...) {
 #'
 #' @rdname makeColorMatrix
 #' @author Eliot McIntire
+#' @include plotting-classes.R
 #' @docType methods
 setGeneric(".makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels, legendRange,
                                        cols=NULL, na.color="#FFFFFF00",
@@ -2303,204 +1985,6 @@ setMethod(".makeColorMatrix",
             list(z=z, minz=minz, maxz=maxz, cols=cols, real=real)
 })
 
-#' Convert grid.locator units
-#'
-#' Converts them to meaningful units. Used within \code{.clickCoord}
-#'
-#' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
-#' @author Eliot McIntire
-#' @rdname unittrim
-#' @export
-.unittrim <- function(grid.locator) {
-  as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
-}
-
-
-################################################################################
-#' Mouse interactions with Plots
-#'
-#' These functions use \code{grid.locator}. The primary two user-level functions are
-#' \code{clickValues} and \code{clickExtent}. These functions automatically select
-#' the correct viewport (i.e., map) where the mouse clicks occured so the user
-#' does not have to manually specify which map is being clicked on.
-#' This works for \code{Raster*}, \code{SpatialPoints*}, and \code{SpatialPolygons*} objects.
-#'
-#' \code{clickValues} is equivalent to running \code{X[SpatialPoints(locator(n))]}, where
-#' X is the raster being clicked on, in base graphics. This function determines which place in the
-#' grid.layout was clicked and makes all appropriate calculations to determine the value
-#' on the raster(s) at that or those location(s). It should be noted that when zooming in
-#' to rasters, plotting of rasters will only allow for complete pixels to be plotted, even
-#' if the extent is not perfectly in line with pixel edges. As a result, when values
-#' returned by this function may be slightly off (<0.5 pixel width).
-#'
-#' \code{clickExtent} is for drawing an extent with two mouse clicks on a given Plotted map.
-#'
-#' \code{clickCoordinates} is the workhorse function that determines which plot has been
-#' clicked on and passes this plot name and the clicked coordinates to \code{.clickCoord}.
-#'
-#' \code{.clickCoord} is intended for internal use and is called by other functions here.
-#'
-#' @param n The number of mouse clicks to do.
-#'
-#' @return \code{clickValues} returns the layer names and values at the clicked points.
-#' \code{clickExtent} invisibly returns the extent object, and optionally plots it in a new device window.
-#' \code{clickCoordinates} returns the xy coordinates in the units of the plot clicked on.
-#'
-#' @export
-#' @docType methods
-#' @author Eliot McIntire
-#' @rdname spadesMouseClicks
-clickValues <- function(n=1) {
-
-  coords <- clickCoordinates(n=n)
-  objLay <- strsplit(coords$map, "\\$")
-  objNames <- sapply(objLay, function(x) x[1])
-  layNames <- sapply(objLay, function(x) x[2])
-  for (i in 1:n) {
-    if(!is.na(layNames[i])) {
-      coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text=objNames[i]),
-             envir=coords$envir[[i]])[[layNames[i]]][
-               cellFromXY(eval(parse(text=objNames[i]),envir=coords$envir[[i]])[[layNames[i]]],
-                          coords$coords[i,1:2])]
-      })
-    } else {
-      coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text=objNames[i]),
-             envir=coords$envir[[i]])[
-               cellFromXY(eval(parse(text=objNames[i]),envir=coords$envir[[i]]),
-                          coords$coords[i,1:2])]
-      })
-    }
-  }
-  return(coords$coords)
-}
-
-#' @param devNum The device number for the new plot to be plotted on
-#'
-#' @param plot.it logical. If \code{TRUE} a new windows is made for the new extent. Default \code{TRUE}.
-#'
-#' @export
-#' @docType methods
-#' @author Eliot McIntire
-#' @rdname spadesMouseClicks
-clickExtent <- function(devNum=NULL, plot.it=TRUE) {
-
-  corners <- clickCoordinates(2)
-  zoom <- extent(c(sort(corners[[3]]$x), sort(corners[[3]]$y)))
-
-  if(plot.it) {
-    devActive <- dev.cur()
-    if(is.null(devNum)) {
-      newPlot()
-    } else {
-      dev(devNum)
-    }
-
-    objLay <- strsplit(corners$map, "\\$")
-    objNames <- unique(sapply(objLay, function(x) x[1]))
-    layNames <- unique(sapply(objLay, function(x) x[2]))
-    if(!is.na(layNames)) {
-      Plot(eval(parse(text=objNames), envir=corners$envir[[1]])[[layNames]], zoomExtent=zoom, new=TRUE)
-    } else {
-      Plot(get(objNames, envir=corners$envir[[1]]), zoomExtent=zoom, new=TRUE)
-    }
-
-    dev(devActive)
-    return(invisible(zoom))
-  } else {
-    return(zoom)
-  }
-}
-
-#' @export
-#' @docType methods
-#' @author Eliot McIntire
-#' @rdname spadesMouseClicks
-clickCoordinates <- function(n=1) {
-  dc <- dev.cur()
-
-  arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
-  if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
-                                      "Try new=TRUE, clearPlot() or change device to",
-                                      "one that has objects from a call to Plot()"))
-  gl <- grid.layout(nrow=arr@arr@rows*3+2,
-                    ncol=arr@arr@columns*3+2,
-                    widths=arr@arr@layout$wdth,
-                    heights=arr@arr@layout$ht)
-
-  grepNullsW <- grep("null$", gl$widths)
-  grepNpcsW <- grep("npc$", gl$widths)
-  nulls <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNullsW], "null") ))
-  npcs <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNpcsW], "npc") ))
-  remaining <- 1 - sum(npcs)
-  npcForNulls <- nulls*remaining/sum(nulls)
-  widthNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsW, grepNullsW))]
-
-  grepNullsH <- grep("null$", gl$heights)
-  grepNpcsH <- grep("npc$", gl$heights)
-  nulls <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNullsH], "null") ))
-  npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
-  remaining <- 1 - sum(npcs)
-  npcForNulls <- nulls*remaining/sum(nulls)
-  heightNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsH, grepNullsH))]
-
-  clickCoords <- data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
-  mapNames <- character(n)
-  envs <- list()
-
-  grobLoc <- list()
-
-  for(i in 1:n) {
-    seekViewport("top")
-    gloc <- grid.locator(unit="npc")
-    xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]), c(0, cumsum(widthNpcs)))
-    # for the y, grid package treats bottom left as origin, Plot treats top left
-    #  as origin... so, require 1-
-    yInt <- findInterval(as.numeric(strsplit(as.character(gloc$y), "npc")[[1]]), c(0, cumsum(heightNpcs)))
-    if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
-      stop("No plot at those coordinates")
-    }
-    column <-  which(xInt==grepNpcsW)
-    row <- which((yInt==grepNpcsH)[length(grepNpcsH):1])
-    map <- column + (row-1)*arr@arr@columns
-
-    maxLayX <- cumsum(widthNpcs)[xInt]
-    minLayX <- cumsum(widthNpcs)[xInt-1]
-    grobLoc$x <- unit((as.numeric(strsplit(as.character(gloc$x), "npc")[[1]])-minLayX)/(maxLayX-minLayX), "npc")
-
-    maxLayY <- cumsum(heightNpcs)[yInt]
-    minLayY <- cumsum(heightNpcs)[yInt-1]
-    grobLoc$y <- unit((as.numeric(strsplit(as.character(gloc$y), "npc")[[1]])-minLayY)/(maxLayY-minLayY), "npc")
-
-    clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName, n=1, gl=grobLoc)
-    mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
-    envs[[i]] <- arr@spadesGrobList[[map]][[1]]@envir
-  }
-  return(list(map=mapNames, envir=envs, coords=clickCoords))
-}
-
-#' @param X The raster object whose values will be returned where mouse clicks occur.
-#'
-#' @param gl An object created by a call to \code{grid.locator}.
-#'
-#' @export
-#' @author Eliot McIntire
-#' @docType methods
-#' @rdname spadesMouseClicks
-.clickCoord <- function(X, n=1, gl=NULL) {
-  pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
-  seekViewport(X)
-  for(i in 1:n) {
-    if(is.null(gl)) {
-      gl <- grid.locator()
-      pts[i, ] <- .unittrim(gl)
-    } else {
-      pts[i, ] <- c(convertX(gl$x, "native"), convertY(gl$y, "native"))
-    }
-  }
-  return(pts)
-}
 
 ################################################################################
 #' Identify where to get the grob from
@@ -2518,11 +2002,13 @@ clickCoordinates <- function(n=1) {
 #' from global environment
 #'
 #' @author Eliot McIntire
+#' @include plotting-classes.R
 #' @rdname identifyGrobToPlot
 setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) {
   standardGeneric(".identifyGrobToPlot")
 })
 
+#' @include plotting-classes.R
 #' @rdname identifyGrobToPlot
 setMethod(".identifyGrobToPlot",
           signature=c(".spadesGrob", "list", "logical"),
@@ -2537,13 +2023,6 @@ setMethod(".identifyGrobToPlot",
     } else {
       grobToPlot <- eval(parse(text=grobNamesi@objName), grobNamesi@envir)
     }
-  #} else { # Is this a new plot to be added or plotted
-  #  if(nchar(grobNamesi@layerName)>0) {
-  #    grobToPlot <- toPlot[[grobNamesi@objName]][[grobNamesi@layerName]]
-  #  } else {
-  #    grobToPlot <- toPlot[[grobNamesi@objName]]
-  #  }
-  #}
 })
 
 #' @rdname identifyGrobToPlot
@@ -2566,6 +2045,7 @@ setMethod(".identifyGrobToPlot",
 #' @param speedup numeric, greater than 1 will usually speed up plotting at the expense of resolution
 #' @param newArr logical, whether this is a new arrangement or just adding to a previous one
 #'
+#' @include plotting-classes.R
 #' @rdname prepareRaster
 #' @author Eliot McIntire
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
@@ -2589,31 +2069,3 @@ setMethod(".identifyGrobToPlot",
 
 }
 
-################################################################################
-#' Clear plotting device
-#'
-#' Under some conditions, a device and its meta data needs to be cleared manually.
-#' This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
-#' Sometimes, the metadata of a previous plot will prevent correct plotting of
-#' a new \code{Plot} call. Use \code{clearPlot} to clear the
-#' device and all the associated metadata manually.
-#'
-#' @param dev Numeric. Device number to clear.
-#'
-#' @param removeData Logical whether any data that was stored in the \code{.spadesEnv} should also
-#' be removed, i.e., not just the plot window wiped.
-#'
-#' @export
-#' @docType methods
-#' @rdname Plot
-#' @author Eliot McIntire
-clearPlot <- function(dev=dev.cur(), removeData=TRUE) {
-  suppressWarnings(try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv)))
-  if(removeData) suppressWarnings(try(rm(list=ls(.spadesEnv[[paste0("dev",dev)]]),
-                          envir=.spadesEnv[[paste0("dev",dev)]]), silent=TRUE))
-  devActive <- dev.cur()
-  if(devActive==1) return(invisible())
-  dev(dev)
-  grid.newpage()
-  dev(devActive)
-}
