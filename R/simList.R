@@ -1149,21 +1149,13 @@ setMethod("moduleTimestepUnit",
           signature=c("simList"),
           definition=function(object) {
             mod <- .callingModName(object)
-            moduleTimestepUnit(mod)
-})
-
-#' @export
-#' @docType methods
-#' @rdname simList-accessors-times
-setMethod("moduleTimestepUnit",
-          signature=c("character"),
-          definition=function(object) {
             if(!is.null(mod)) {
               simModuleTimestepUnits(object)[[mod]]
             } else {
               NA_character_
             }
           })
+
 
 #' @export
 #' @docType methods
