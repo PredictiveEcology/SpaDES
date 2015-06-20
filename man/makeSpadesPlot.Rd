@@ -22,10 +22,11 @@
 \arguments{
 \item{plotObjects}{list. Any plot objects.}
 
-\item{plotArgs}{list. Any arguments that the the grid package can accept for the specific
-grob types, e.g., rasterGrob, polygonGrob, etc.}
+\item{plotArgs}{list. Any arguments that the the grid package can accept for
+the specific grob types, e.g., rasterGrob, polygonGrob, etc.}
 
-\item{whichSpadesPlotables}{A logical indicating which objects in the Plot call can be plotted by Plot}
+\item{whichSpadesPlotables}{Logical indicating which objects in the
+\code{Plot} call can be plotted by \code{Plot}.}
 
 \item{...}{additional arguments. Currently nothing.}
 }

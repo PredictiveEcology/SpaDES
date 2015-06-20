@@ -19,9 +19,10 @@ clickCoordinates(n = 1)
 \arguments{
 \item{n}{The number of mouse clicks to do.}
 
-\item{devNum}{The device number for the new plot to be plotted on}
+\item{devNum}{The device number for the new plot to be plotted on.}
 
-\item{plot.it}{logical. If \code{TRUE} a new windows is made for the new extent. Default \code{TRUE}.}
+\item{plot.it}{Logical. If \code{TRUE} a new plotting window is made for the
+               new extent. Default \code{TRUE}.}
 
 \item{X}{The raster object whose values will be returned where mouse clicks occur.}
 

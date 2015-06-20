@@ -1183,17 +1183,17 @@ setGeneric(".callingModName", function(object) {
 })
 
 #' @export
-#' @importFrom stringi stri_detect_fixed
 #' @docType methods
+#' @importFrom stringi stri_detect_fixed
 #' @rdname simList-accessors-modules
 setMethod(".callingModName",
           signature=c("simList"),
           definition=function(object) {
 
-    # Only return module name if inside a spades call, because this only makes sense
-    #  if there is an "active" module
+    # Only return module name if inside a spades call,
+    #  because this only makes sense if there is an "active" module
     if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
-      st <- stri_detect_fixed(
+      st <- stringi::stri_detect_fixed(
         as.character(sys.calls()), pattern = "moduleCall")
       if(any(st)) {
         mod <- strsplit(eval(parse(text="moduleCall"),

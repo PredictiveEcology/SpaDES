@@ -8,12 +8,32 @@ selectMethod("show", "gg")
 setOldClass("histogram")
 selectMethod("show", "histogram")
 
-### Allow histogram S3 class to be used with Plot, an S4 function
+### Allow igraph S3 class to be used with Plot, an S4 function
 #' @import igraph
 setOldClass("igraph")
 selectMethod("show", "igraph")
 
-################################################
+### Allow gpar S3 class to be used with Plot, an S4 function
+#' @import grid
+setOldClass("gpar")
+
+setAs(from = "list", to = "gpar", function(from) {
+  if (length(from[[1]]) > 0) {
+    gp1 <- gpar(from[[1]][[1]])
+    if (length(from[[1]]) > 1) {
+      for (i in 2:length(from[[1]])) {
+        gp1 <- gpar(sapply(gp1, function(x)
+          x), from[[1]][[i]])
+      }
+    }
+    names(gp1) <- names(from[[1]])
+    gp1
+  } else {
+    gpar()
+  }
+})
+
+################################################################################
 #' The \code{.spatialObjects} class
 #'
 #' This class is the union of several spatial objects from raster and sp packages. Notably
@@ -33,7 +53,7 @@ setClassUnion(name=".spatialObjects",
                         "RasterLayer", "RasterStack")
 )
 
-################################################
+################################################################################
 #' The \code{.spadesPlotObjects} class
 #'
 #' This class contains the union of .spatialObjects and several other plot-type objects.
@@ -52,7 +72,7 @@ setClassUnion(name=".spatialObjects",
 setClassUnion(name=".spadesPlotObjects",
               members=c(".spatialObjects", "gg", "histogram", "igraph"))
 
-###########################################################################
+################################################################################
 #' The \code{.spadesGrob} class
 #'
 #' This class contains the plotting .spadesGrob information.
@@ -93,6 +113,7 @@ setClassUnion(name=".spadesPlotObjects",
 #' @name .spadesGrob-class
 #' @rdname spadesGrob-class
 #' @author Eliot McIntire
+#'
 setClass(".spadesGrob",
          slots=list(plotName="character", objName="character", envir="environment",
                     layerName="character",
@@ -106,7 +127,7 @@ setClass(".spadesGrob",
            if (any(is.character(object@objName))) {
              stop("must supply an object name")
            }
-         })
+})
 
 ###########################################################################
 #' The \code{.arrangement} class
@@ -170,6 +191,7 @@ setClass(".spadesGrob",
 #' @name .arrangement-class
 #' @rdname arrangement-class
 #' @author Eliot McIntire
+#'
 setClass(".arrangement",
          slots=list(rows="numeric", columns="numeric",
                     actual.ratio="numeric", ds.dimensionRatio="numeric",
@@ -188,7 +210,7 @@ setClass(".arrangement",
            if (any(is.na(object@extents))) {
              stop("must supply a list of extents")
            }
-         })
+})
 
 ###########################################################################
 #' The \code{.spadesPlot} class
@@ -228,6 +250,7 @@ setClass(".arrangement",
 #' @name .spadesPlot-class
 #' @rdname spadesPlot-class
 #' @author Eliot McIntire
+#'
 setClass(".spadesPlot",
          slots=list(arr=".arrangement",
                     spadesGrobList="list"),
@@ -238,7 +261,7 @@ setClass(".spadesPlot",
            if (any(is(object@arr, ".arrangement"))) {
              stop("must supply an arrangement")
            }
-         })
+})
 
 ################################################################################
 #' The \code{.spadesPlottables} class
@@ -257,5 +280,6 @@ setClass(".spadesPlot",
 #' @name .spadesPlottables-class
 #' @rdname spadesPlottables-class
 #' @author Eliot McIntire
+#'
 setClassUnion(name=".spadesPlottables",
               members=c(".spadesPlotObjects", ".spadesPlot"))
