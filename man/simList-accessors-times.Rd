@@ -100,9 +100,10 @@ it will set the units for that simulation. But default, a simInit call will use 
 units contained within the meta data for the modules being used. NA for timestepUnit defaults to
 "year"
 
-\code{simModuleTimestepUnits} will extract the current units of the time of all
-modules used in a simObject. This is different from \code{simTimestepUnits} because it
-is not necessarily associated with a spades call
+\code{simModuleTimestepUnits} will extract the current units of the
+time of all modules used in a simObject.
+This is different from \code{simTimestepUnits} because it is not necessarily
+associated with a \code{spades} call
 }
 \author{
 Alex Chubaty

@@ -12,7 +12,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
 Version: 0.99.0.9008
-Date: 2015-06-12
+Date: 2015-06-16
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -36,6 +36,7 @@ Suggests:
     testthat
 Imports:
     CircStats,
+    DiagrammeR,
     downloader,
     dplyr,
     fpCompare,
@@ -74,6 +75,7 @@ Collate:
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
+    'plotting-diagrams.R'
     'plotting.R'
     'probability.R'
     'progress.R'

@@ -3,10 +3,8 @@ title: "02 Building modules in `SpaDES`"
 author: "Alex M. Chubaty"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
   html_document:
+    number_sections: yes
     self_contained: yes
     toc: yes
 vignette: >
@@ -364,9 +362,10 @@ path <- system.file("sampleModules", package="SpaDES")
 
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
-## examine simulation module dependencies
-depsEdgeList(mySim, FALSE)          # all object dependency relationships
-plot(depsGraph(mySim, TRUE))        # simplified visual representation
+## examine simulation module (object) dependencies
+depsEdgeList(mySim, FALSE)  # all object dependency relationships
+moduleDiagram(mySim)        # simplified visual representation of modules
+objectDiagram(mySim)        # detailed visual representation of objects
 ```
 
 The output of the `depsEdgeList` is an edgelist describing the relationships between each module.
