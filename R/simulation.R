@@ -702,6 +702,7 @@ setMethod("spades",
 #' dweek(1)
 #' dmonth(1)
 #' dyear(1)
+#'
 setGeneric("dyears", function(x) {
   standardGeneric("dyears")
 })
