@@ -528,15 +528,14 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
-###################
 ################################################################################
-#' Convert a schedule event to seconds
+#' Convert an scheduled event time to seconds
 #'
-#' As a common unit
+#' Ensure all events from modules are working in the same time units.
 #'
 #' @param sim          A \code{simList} simulation object.
 #'
-#' @param moduleName   A character string specifying the module from which to call the event.
+#' @param moduleName   Character string specifying the module from which to call the event.
 #'
 #' @return Returns the eventTime in seconds, based on the default \code{timestepUnit} of
 #' the \code{moduleName}.
@@ -555,18 +554,19 @@ setGeneric("timestepInSeconds", function(sim, moduleName) {
 setMethod("timestepInSeconds",
           signature(sim="simList", moduleName="character"),
           definition=function(sim, moduleName) {
-  a = sapply(simDepends(sim)@dependencies,function(x) x@name)
-  wh <- which(a==moduleName)
-  timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
+            a <- sapply(simDepends(sim)@dependencies, function(x) x@name)
+            wh <- which(a==moduleName)
+            timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
 
-  if(is.character(timestepUnit)) {
-    return(as.numeric(eval(parse(text=paste0("d",timestepUnit,"(1)")))))
-  }
-  if(is.na(timestepUnit)) {
-    return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
-  } else {
-    return(timestepUnit)
-  }
+            if(is.character(timestepUnit)) {
+              return(as.numeric(eval(parse(text=paste0("d",timestepUnit,"(1)")))))
+            }
+
+            if(is.na(timestepUnit)) {
+              return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
+            } else {
+              return(timestepUnit)
+            }
 })
 
 ################################################################################
