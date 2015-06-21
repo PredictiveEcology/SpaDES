@@ -211,10 +211,12 @@ clickCoordinates <- function(n=1) {
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
+  #nulls <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNullsW], "null") ))
   nulls <- as.character(gl$widths)[grepNullsW] %>%
     strsplit(., "null") %>%
     unlist %>%
     as.numeric
+  #npcs <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNpcsW], "npc") ))
   npcs <- as.character(gl$widths)[grepNpcsW] %>%
     strsplit(., "npc") %>%
     unlist %>%
@@ -225,10 +227,12 @@ clickCoordinates <- function(n=1) {
 
   grepNullsH <- grep("null$", gl$heights)
   grepNpcsH <- grep("npc$", gl$heights)
+  #nulls <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNullsH], "null") ))
   nulls <- as.character(gl$heights)[grepNullsH] %>%
     strsplit(., "null") %>%
     unlist %>%
     as.numeric
+  #npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
   npcs <- as.character(gl$heights)[grepNpcsH] %>%
     strsplit(., "npc") %>%
     unlist %>%

@@ -638,14 +638,10 @@ setMethod(
     i = i + 1
   }
 
-  envs <- append(.GlobalEnv, sys.frames())[c(TRUE,
-                                             sapply(sys.frames(),
-                                                    function(x) {
-                                                      exists(deparse(parseTxt),
-                                                             envir = x,
-                                                             inherits =
-                                                               FALSE)
-                                                    }))] %>%
+  envs <- append(.GlobalEnv, sys.frames()) %>%
+    .[c(TRUE, sapply(sys.frames(), function(x) {
+      exists(deparse(parseTxt), envir=x, inherits=FALSE)
+      }))] %>%
     .[[length(.)]]
 
   inGlobal <- identical(envs, .GlobalEnv)
@@ -660,17 +656,15 @@ setMethod(
   }
 
   if (!inGlobal) {
-    if (!exists(paste0("dev",dev.cur()), envir = .spadesEnv)) {
-      .spadesEnv[[paste0("dev",dev.cur())]] <-
-        new.env(parent = emptyenv())
+    if (!exists(paste0("dev", dev.cur()), envir = .spadesEnv)) {
+      .spadesEnv[[paste0("dev", dev.cur())]] <- new.env(parent = emptyenv())
     }
-    changeObjEnv(paste(sapply(rev(elems),deparse),collapse = "$"),
-                 fromEnv = envs, toEnv = .spadesEnv[[paste0("dev",dev.cur())]])
+    changeObjEnv(paste(sapply(rev(elems), deparse), collapse = "$"),
+                 fromEnv=envs, toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
   }
 
-  return(list(objs = paste(sapply(
-    rev(elems),deparse
-  ),collapse = "$"), envs = envs))
+  return(list(objs = paste(sapply(rev(elems), deparse), collapse = "$"),
+              envs = envs))
 }
 
 ################################################################################

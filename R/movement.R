@@ -1,10 +1,11 @@
-##############################################################
+################################################################################
 #' Move
 #'
 #' Wrapper for selecting different animal movement methods.
 #'
-#' @param hypothesis  a character vector, length one, indicating which movement hypothesis.
-#' Currently defaults to crw to call the \code{crw} function.
+#' @param hypothesis  Character vector, length one, indicating which movement
+#'                    hypothesis/method to test/use. Currently defaults to
+#'                    'crw' (correlated random walk) using \code{crw}.
 #'
 #' @param ... arguments passed to the function in \code{hypothesis}
 #'

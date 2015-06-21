@@ -10,14 +10,28 @@ test_that("simList object initializes correctly", {
 
   expect_is(mySim, "simList")
 
+  w <- getOption("width")
+  options(width=100L)
+  out <- capture.output(show(mySim))
+  expect_equal(length(out), 79)
+  options(width=w)
+
   ### SLOT .envir
   expect_is(simEnv(mySim), "environment")
   expect_is(simObjects(mySim), "list")
   expect_equal(sort(names(simObjects(mySim))),
                sort(names(as(mySim, "simList_")@.list)))
-  #expect_equal(simObjects(mySim), as(mySim, "simList_")@.list) # not sorted
+  expect_equivalent(mySim, as(as(mySim, "simList_"), "simList"))
   expect_equal(ls(mySim), sort(names(simObjects(mySim))))
   expect_equivalent(ls.str(mySim), ls.str(simObjects(mySim)))
+  expect_equivalent(ls.str(pos=mySim), ls.str(simObjects(mySim)))
+  expect_equivalent(ls.str(name=mySim), ls.str(simObjects(mySim)))
+
+  mySim$test1 <- TRUE
+  mySim[["test2"]] <- TRUE
+
+  expect_true(mySim$test1)
+  expect_true(mySim[["test2"]])
 
   ### SLOT .loadOrder
   expect_is(simModulesLoadOrder(mySim), "character")
@@ -68,6 +82,11 @@ test_that("simList object initializes correctly", {
   expect_equal(attr(simStopTime(mySim), "unit"), simTimestepUnit(mySim))
   expect_equal(attr(simStartTime(mySim), "unit"), simTimestepUnit(mySim))
   expect_equal(attr(simCurrentTime(mySim), "unit"), simTimestepUnit(mySim))
+
+  ### required packages
+  pkgs <- c("grid", "methods", "RandomFields", "raster", "RColorBrewer", "sp",
+            "SpaDES", "tkrplot")
+  expect_equal(sort(simReqdPkgs(mySim)), sort(pkgs))
 })
 
 test_that("simulation runs with simInit and spades", {

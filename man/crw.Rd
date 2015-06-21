@@ -11,8 +11,9 @@ move(hypothesis = "crw", ...)
 crw(agent, extent, stepLength, stddev, lonlat, torus = FALSE)
 }
 \arguments{
-\item{hypothesis}{a character vector, length one, indicating which movement hypothesis.
-Currently defaults to crw to call the \code{crw} function.}
+\item{hypothesis}{Character vector, length one, indicating which movement
+                   hypothesis/method to test/use. Currently defaults to
+                   'crw' (correlated random walk) using \code{crw}.}
 
 \item{...}{arguments passed to the function in \code{hypothesis}}
 

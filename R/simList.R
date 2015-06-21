@@ -1505,8 +1505,7 @@ setMethod("simModuleTimestepUnits",
             timestepUnits <- lapply(simDepends(object)@dependencies, function(x) x@timestepUnit)
             names(timestepUnits) <- sapply(simDepends(object)@dependencies, function(x) x@name)
             return(timestepUnits)
-          })
-
+})
 
 ################################################################################
 #' Add simulation dependencies
@@ -1550,8 +1549,6 @@ setMethod(".addSimDepends",
 ################################################################################
 #' Get simulation package dependencies
 #'
-#' Internal function.
-#'
 #' @param sim A \code{simList} object.
 #'
 #' @return A sorted character vector of package names.
@@ -1563,12 +1560,13 @@ setMethod(".addSimDepends",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric(".simReqdPkgs", function(sim) {
-  standardGeneric(".simReqdPkgs")
+setGeneric("simReqdPkgs", function(sim) {
+  standardGeneric("simReqdPkgs")
 })
 
+#' @export
 #' @rdname simReqdPkgs
-setMethod(".simReqdPkgs",
+setMethod("simReqdPkgs",
           signature(sim="simList"),
           definition=function(sim) {
             pkgs <- lapply(simDepends(sim)@dependencies, function(x) {

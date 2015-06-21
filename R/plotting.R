@@ -56,18 +56,18 @@ setMethod(
     }
     numLayers <- pmax(1, sapply(plotObjects, nlayers))
 
-    isSpadesPlot <-
-      sapply(plotObjects, function(x)
-        is(x, ".spadesPlot"))
-    isRaster <-
-      sapply(plotObjects, function(x)
-        is(x, "Raster"))
-    isStack <-
-      sapply(plotObjects, function(x)
-        is(x, "RasterStack"))
-    isPolygon <-
-      sapply(plotObjects, function(x)
-        is(x, "SpatialPolygons"))
+    isSpadesPlot <- sapply(plotObjects, function(x) {
+      is(x, ".spadesPlot")
+    })
+    isRaster <- sapply(plotObjects, function(x) {
+      is(x, "Raster")
+    })
+    isStack <- sapply(plotObjects, function(x) {
+      is(x, "RasterStack")
+    })
+    isPolygon <- sapply(plotObjects, function(x) {
+      is(x, "SpatialPolygons")
+    })
 
     # Stacks are like lists in that they are a single object, with many
     # layers.  Plot must treat these as any other layers, except that
@@ -92,18 +92,15 @@ setMethod(
                              layerNames(plotObjects[isStack]),
                              sep = "$")
     names(lN) <- rep(names(plotObjects), numLayers)
-    names(lN)[isSpadesPlotLong] <-
-      layerNames(plotObjects)[isSpadesPlotLong]
+    names(lN)[isSpadesPlotLong] <- layerNames(plotObjects)[isSpadesPlotLong]
 
     # Create long version of environments
-    lEnvs <-
-      rep(sapply(objs, function(x)
-        x$envs), numLayers)
+    lEnvs <- rep(sapply(objs, function(x) { x$envs }), numLayers)
 
-    #            if (any(duplicated(paste(lN, lEnvs)))) {
-    #              stop(paste("Cannot plot two layers with same name from the same environment.",
-    #                         "Check inside RasterStacks for objects."))
-    #            }
+    # if (any(duplicated(paste(lN, lEnvs)))) {
+    #   stop(paste("Cannot plot two layers with same name from the same environment.",
+    #              "Check inside RasterStacks for objects."))
+    # }
 
     plotArgs <- .makeList(plotArgs, length(lN))
 
@@ -113,8 +110,7 @@ setMethod(
 
     newPlots@arr <- new(".arrangement")
 
-    newPlots@spadesGrobList <-
-      lapply(1:length(lN), function(x) {
+    newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
         spadesGrobList <- list()
 
         if (isSpadesPlotLong[x]) {
@@ -397,12 +393,10 @@ setMethod(
     col.by.row[, 1] <- ceiling(nPlots / (1:nPlots))
     col.by.row[, 2] <- ceiling(nPlots / col.by.row[, 1])
 
-    #            wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio)) # rewritten for clarity/brevity with pipes below
-    wh.best <-
-      apply(col.by.row, 1, function(x) {
-        x[1] / x[2]
-      }) %>%
-      `-`(ds.dimensionRatio) %>%
+    # wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
+    # rewritten for clarity/brevity with pipes below
+    wh.best <- apply(col.by.row, 1, function(x) { x[1] / x[2] }) %>%
+      `-`(., ds.dimensionRatio) %>%
       abs %>%
       which.min
 
@@ -617,12 +611,15 @@ setMethod(
         j@coords
       })
     })
+
     hole <- lapply(1:length(grobToPlot), function(x) {
       lapply(grobToPlot@polygons[[x]]@Polygons, function(x)
         x@hole)
     }) %>%
       unlist
+
     ord <- grobToPlot@plotOrder
+
     ordInner <- lapply(1:length(grobToPlot), function(x) {
       grobToPlot@polygons[[x]]@plotOrder
     })
@@ -631,26 +628,24 @@ setMethod(
         xy[[i]][ordInner[[i]]]
     })
 
-    idLength <- lapply(xyOrd.l, function(i) {
-        lapply(i, length)
-      }) %>%
+    #idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
+    idLength <- lapply(xyOrd.l, function(i) { lapply(i, length) }) %>%
       unlist %>%
-      `/`(2) %>%
+      `/`(., 2) %>%
       data.table(V1 = .)
 
-    xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) {
-      do.call(rbind, i)
-    }))
+    xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
 
     if (nrow(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
       if (requireNamespace("fastshp", quietly = TRUE)) {
-        thinned <- data.table(thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
-                                                   tolerance = speedupScale *
-                                                     speedup))
-        thinned[,groups:= rep(1:nrow(idLength), idLength$V1)]
-        idLength <- thinned[,sum(thin),by = groups]
-        xyOrd <- xyOrd[thinned$thin,]
+        thinned <- data.table(
+          thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
+                               tolerance = speedupScale * speedup)
+        )
+        thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+        idLength <- thinned[, sum(thin),by = groups]
+        xyOrd <- xyOrd[thinned$thin, ]
       } else {
         message(
           paste(
@@ -689,8 +684,7 @@ setMethod(
   signature = c("SpatialLines"),
   definition = function(grobToPlot, col, size,
                         legend, length, gp = gpar(), pch, speedup, ...) {
-    speedupScale <-
-      if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
+    speedupScale <- if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
         pointDistance(
           p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
           p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
@@ -1270,6 +1264,7 @@ setMethod(
     plotArgs <- mget(names(formals("Plot")),
                      sys.frame(grep(sys.calls(),pattern = "^Plot")))[-1]
 
+    #whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
     whichSpadesPlotables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables")
     }) %>% as.logical
@@ -1495,39 +1490,34 @@ setMethod(
             }
 
             if (is.null(sGrob@plotArgs$gpText$cex)) {
-              sGrob@plotArgs$gpText$cex <- cex <- sqrt(prod(arr@ds) /
-                                                         prod(arr@columns,
-                                                              arr@rows)) *
-                0.3 %>%
-                min(1.2) %>% max(0.6)
+              #sGrob@plotArgs$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              sGrob@plotArgs$gpText$cex <- cex <- prod(arr@ds) /
+                prod(arr@columns, arr@rows) %>%
+                sqrt(.) * 0.3 %>%
+                min(1.2, .) %>%
+                max(0.6, .)
             }
             if (is.null(sGrob@plotArgs$gpAxis$cex)) {
-              sGrob@plotArgs$gpAxis$cex <- cex <- sqrt(prod(arr@ds) /
-                                                         prod(arr@columns,
-                                                              arr@rows)) *
-                0.3 %>%
-                min(1.2) %>% max(0.6)
+              #sGrob@plotArgs$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              sGrob@plotArgs$gpAxis$cex <- cex <- prod(arr@ds) /
+                prod(arr@columns, arr@rows) %>%
+                sqrt(.) * 0.3 %>%
+                min(1.2, .) %>%
+                max(0.6, .)
             }
 
             if (is(grobToPlot, "Raster")) {
               # Rasters may be zoomed into and subsampled and have unique legend
-              pR <-
-                .prepareRaster(
-                  grobToPlot, sGrob@plotArgs$zoomExtent,
-                  sGrob@plotArgs$legendRange, takeFromPlotObj,
-                  arr, sGrob@plotArgs$speedup, newArr =
-                    newArr
-                )
+              pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
+                                   sGrob@plotArgs$legendRange, takeFromPlotObj,
+                                   arr, sGrob@plotArgs$speedup, newArr=newArr)
 
-              zMat <-
-                .makeColorMatrix(
-                  grobToPlot, pR$zoom, pR$maxpixels,
-                  pR$legendRange,
-                  na.color = sGrob@plotArgs$na.color,
-                  zero.color = sGrob@plotArgs$zero.color,
-                  cols = sGrob@plotArgs$cols,
-                  skipSample = pR$skipSample
-                )
+              zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
+                                       pR$legendRange,
+                                       na.color = sGrob@plotArgs$na.color,
+                                       zero.color = sGrob@plotArgs$zero.color,
+                                       cols = sGrob@plotArgs$cols,
+                                       skipSample = pR$skipSample)
             } else if (is(grobToPlot, "SpatialPoints")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
@@ -1539,29 +1529,20 @@ setMethod(
               } else {
                 z <- sample(grobToPlot, 1e4 / sGrob@plotArgs$speedup)
               }
-              zMat <-
-                list(
-                  z = z, minz = 0, maxz = 0, cols = NULL, real = FALSE
-                )
+              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <-
-                list(
-                  z = z, minz = 0, maxz = 0, cols = NULL, real = FALSE
-                )
+              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
 
             } else if (is(grobToPlot, "SpatialLines")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <-
-                list(
-                  z = z, minz = 0, maxz = 0, cols = NULL, real = FALSE
-                )
+              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
             }
 
             if (is(grobToPlot, "gg")) {
@@ -1646,7 +1627,7 @@ setMethod(
                 speedup = sGrob@plotArgs$speedup,
                 length = sGrob@plotArgs$length
               ) %>%
-                append(nonPlotArgs)
+                append(., nonPlotArgs)
 
               do.call(.plotGrob, args = plotGrobCall)
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |

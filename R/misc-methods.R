@@ -1,9 +1,9 @@
 if (getRversion() >= "3.1.0") utils::globalVariables(".")
 
-#' Get the name of a source file
+#' Get the name of a \code{source}-ed file
 #'
-#' This will only work for files that are \code{source}-ed.
-#' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
+#' Use \code{getFileName} in a file that is \code{source}-ed.
+#' Based on \url{http://stackoverflow.com/a/1816487/1380598}.
 #'
 #' @param fullname   Logical (default \code{FALSE}) indicating whether the full
 #'                   path should be returned.
@@ -339,6 +339,13 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #' @rdname rndstr
 #'
 #' @author Alex Chubaty and Eliot McIntire
+#' @examples
+#' set.seed(11)
+#' rndstr()
+#' rndstr(len=10)
+#' rndstr(characterFirst=FALSE)
+#' rndstr(16)
+#'
 setGeneric("rndstr", function(n, len, characterFirst) {
   standardGeneric("rndstr")
 })

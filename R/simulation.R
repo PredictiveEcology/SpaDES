@@ -694,4 +694,3 @@ setMethod("spades",
             stopifnot(class(sim) == "simList")
             return(spades(sim, debug=FALSE))
 })
-
