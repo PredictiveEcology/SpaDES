@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c(".", "moduleName"))
+}
 
 timestep <- function(x) {
   stopifnot(is.character(x))
@@ -215,7 +217,7 @@ setGeneric("objectDiagram", function(sim) {
 setMethod("objectDiagram",
           signature(sim="simList"),
           definition=function(sim) {
-            dt <- depsEdgeList(mySim, FALSE)
+            dt <- depsEdgeList(sim, FALSE)
             DiagrammeR::mermaid(
               paste0(
                 # mermaid "header"
