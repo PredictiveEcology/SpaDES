@@ -13,7 +13,7 @@ if (getRversion() >= "3.1.0") {
 #' @param plotArgs list. Any arguments that the the grid package can accept for
 #' the specific grob types, e.g., rasterGrob, polygonGrob, etc.
 #'
-#' @param whichSpadesPlotables  Logical indicating which objects in the
+#' @param whichSpadesPlottables  Logical indicating which objects in the
 #' \code{Plot} call can be plotted by \code{Plot}.
 #'
 #' @param ... additional arguments. Currently nothing.
@@ -29,7 +29,7 @@ if (getRversion() >= "3.1.0") {
 #' @author Eliot McIntire
 #' @docType methods
 #'
-setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, whichSpadesPlotables, ...) {
+setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, whichSpadesPlottables, ...) {
   standardGeneric(".makeSpadesPlot")
 })
 
@@ -44,7 +44,7 @@ setMethod(
     })
 
     suppliedNames <- names(plotObjects)
-    objs <- .objectNames()[whichSpadesPlotables]
+    objs <- .objectNames()[whichSpadesPlottables]
 
     names(plotObjects) <- sapply(objs,function(x)
       x$objs)
@@ -291,20 +291,16 @@ setMethod(
       list(
         curr = newSP, whichParamsChanged = NULL,
         needPlotting = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y)
-            TRUE)
+          lapply(x, function(y) { TRUE })
         }),
         isReplot = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y)
-            FALSE)
+          lapply(x, function(y) { FALSE })
         }),
         isNewPlot = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y)
-            TRUE)
+          lapply(x, function(y) { TRUE })
         }),
         isBaseLayer = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y)
-            TRUE)
+          lapply(x, function(y) { TRUE })
         })
       )
     )
@@ -343,13 +339,18 @@ setMethod(
                             lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
                               if (z == TRUE) {
                                 # for spatial objects
-                                apply(bbox(eval(
-                                  parse(text = sgl[[x]][[1]]@objName),
-                                  envir = sgl[[x]][[1]]@envir
-                                )),
-                                1, function(y) {
-                                  diff(range(y))
-                                })
+                                apply(
+                                  bbox(
+                                    eval(
+                                      parse(text = sgl[[x]][[1]]@objName),
+                                      envir = sgl[[x]][[1]]@envir
+                                    )
+                                  ),
+                                  1,
+                                  function(y) {
+                                    diff(range(y))
+                                  }
+                                )
                               } else {
                                 # for non spatial objects
                                 c(1,1)
@@ -376,7 +377,7 @@ setMethod(
     col.by.row[, 1] <- ceiling(nPlots / (1:nPlots))
     col.by.row[, 2] <- ceiling(nPlots / col.by.row[, 1])
 
-    # wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
+    #wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
     # rewritten for clarity/brevity with pipes below
     wh.best <- apply(col.by.row, 1, function(x) { x[1] / x[2] }) %>%
       `-`(., ds.dimensionRatio) %>%
@@ -1247,12 +1248,12 @@ setMethod(
     plotArgs <- mget(names(formals("Plot")),
                      sys.frame(grep(sys.calls(), pattern = "^Plot")))[-1]
 
-    #whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
-    whichSpadesPlotables <- sapply(dotObjs, function(x) {
+    #whichSpadesPlottables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
+    whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables")
     }) %>% as.logical
 
-    if (!all(whichSpadesPlotables)) {
+    if (!all(whichSpadesPlottables)) {
       message(
         paste(
           "Plot can only plot objects of class .spadesPlottables.",
@@ -1262,12 +1263,12 @@ setMethod(
       )
     }
 
-    plotObjs <- dotObjs[whichSpadesPlotables]
+    plotObjs <- dotObjs[whichSpadesPlottables]
 
     if (length(plotObjs) == 0) {
       stop("Nothing to Plot")
     }
-    nonPlotArgs <- dotObjs[!whichSpadesPlotables]
+    nonPlotArgs <- dotObjs[!whichSpadesPlottables]
 
     # intercept cases that don't make sense, and give meaningful error
     if (!is.null(addTo)) {
@@ -1291,7 +1292,7 @@ setMethod(
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
-    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlotables)
+    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlottables)
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
