@@ -56,18 +56,10 @@ setMethod(
     }
     numLayers <- pmax(1, sapply(plotObjects, nlayers))
 
-    isSpadesPlot <- sapply(plotObjects, function(x) {
-      is(x, ".spadesPlot")
-    })
-    isRaster <- sapply(plotObjects, function(x) {
-      is(x, "Raster")
-    })
-    isStack <- sapply(plotObjects, function(x) {
-      is(x, "RasterStack")
-    })
-    isPolygon <- sapply(plotObjects, function(x) {
-      is(x, "SpatialPolygons")
-    })
+    isSpadesPlot <- sapply(plotObjects, function(x) { is(x, ".spadesPlot") })
+    isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
+    isStack <- sapply(plotObjects, function(x) { is(x, "RasterStack") })
+    isPolygon <- sapply(plotObjects, function(x) { is(x, "SpatialPolygons") })
 
     # Stacks are like lists in that they are a single object, with many
     # layers.  Plot must treat these as any other layers, except that
@@ -81,8 +73,7 @@ setMethod(
     isSpatialObjects <- rep(isSpatialObjects, numLayers)
 
     lN <- rep(names(plotObjects), numLayers)
-    lN[isSpadesPlotLong] <-
-      layerNames(plotObjects[isSpadesPlot])
+    lN[isSpadesPlotLong] <- layerNames(plotObjects[isSpadesPlot])
     objectNamesLong <- rep(names(plotObjects), numLayers)
 
     # Full layer names, including object name.
@@ -201,13 +192,13 @@ setMethod(
     newNames <- names(newSP@spadesGrobList)
     currNames <- names(curr@spadesGrobList)
 
-    addToPlots <- sapply(newSP@spadesGrobList,
-                         function(x)
-                           ! is.null(x[[1]]@plotArgs$addTo))
+    addToPlots <- sapply(newSP@spadesGrobList, function(x) {
+      !is.null(x[[1]]@plotArgs$addTo)
+    })
 
-    addToPlotsNames <- unlist(sapply(newSP@spadesGrobList,
-                                     function(x)
-                                       x[[1]]@plotArgs$addTo))
+    addToPlotsNames <- sapply(newSP@spadesGrobList, function(x) {
+      x[[1]]@plotArgs$addTo
+    }) %>% unlist
 
     overplots <- na.omit(match(currNames, newNames))
 
@@ -216,39 +207,31 @@ setMethod(
       needNew <- 1:length(newNames)
     }
 
-    whichParamsChanged <- lapply(newNames[overplots],
-                                 function(x) {
-                                   sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs),
-                                          function(y) {
-                                            changed <- !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
-                                                                  curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
-                                          })
-                                 })
+    whichParamsChanged <- lapply(newNames[overplots], function(x) {
+      sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs), function(y) {
+        changed <- !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
+                              curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
+        })
+      })
     names(whichParamsChanged) <- newNames[overplots]
 
-
     # Set FALSE as default for needPlotting
-    needPlotting <-
-      lapply(curr@spadesGrobList, function(x) {
-        lapply(x, function(y)
-          FALSE)
-      })
+    needPlotting <- lapply(curr@spadesGrobList, function(x) {
+      lapply(x, function(y) { FALSE })
+    })
 
     # Set FALSE as default for isReplot
     isReplot <- lapply(curr@spadesGrobList, function(x) {
-      lapply(x, function(y)
-        FALSE)
+      lapply(x, function(y) { FALSE })
     })
 
     # Set FALSE as default for isBaseLayer
     isBaseLayer <- lapply(curr@spadesGrobList, function(x) {
-      lapply(x, function(y)
-        TRUE)
+      lapply(x, function(y) { TRUE })
     })
 
     isNewPlot <- lapply(curr@spadesGrobList, function(x) {
-      lapply(x, function(y)
-        FALSE)
+      lapply(x, function(y) { FALSE })
     })
 
     # For overplots
@@ -481,8 +464,8 @@ setMethod(
 #'
 #' @docType methods
 #' @rdname plotGrob
-#' @include plotting-classes.R
 #' @import data.table
+#' @import grid
 #' @importFrom magrittr '%>%'
 #' @author Eliot McIntire
 #'
@@ -505,7 +488,7 @@ setMethod(
       pretty(range(minv, maxv))
     } else {
       if (!is.null(legendText)) {
-        unique(round(pretty(range(minv, maxv),n = length(legendText))))
+        unique(round(pretty(range(minv, maxv), n=length(legendText))))
       } else {
         unique(round(pretty(range(minv, maxv))))
       }
@@ -1243,7 +1226,7 @@ setGeneric("Plot",
                     na.color = "#FFFFFF00", zero.color = NULL, length =
                       NULL) {
              standardGeneric("Plot")
-           })
+})
 
 #' @rdname Plot
 #' @export
@@ -1262,7 +1245,7 @@ setMethod(
     dotObjs <- list(...)
     # Section 1 # Determine object names that were passed and layer names of each
     plotArgs <- mget(names(formals("Plot")),
-                     sys.frame(grep(sys.calls(),pattern = "^Plot")))[-1]
+                     sys.frame(grep(sys.calls(), pattern = "^Plot")))[-1]
 
     #whichSpadesPlotables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
     whichSpadesPlotables <- sapply(dotObjs, function(x) {
@@ -1290,9 +1273,7 @@ setMethod(
     if (!is.null(addTo)) {
       if (!tryCatch(
         addTo %in% unlist(
-          layerNames(
-            get(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)
-            )
+          layerNames(get(paste0("spadesPlot", dev.cur()), envir = .spadesEnv))
           ),
         error = function(x) { FALSE }
       )) {
@@ -1309,11 +1290,10 @@ setMethod(
 
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
-    isSpadesPlot <- sapply(plotObjs, function(x) { is(x,".spadesPlot") })
-    newSpadesPlots <-
-      .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlotables)
+    isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
+    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlotables)
 
-    if (exists(paste0("spadesPlot", dev.cur()),envir = .spadesEnv)) {
+    if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
 
       visualSqueeze <- if (is.null(visualSqueeze)) {
@@ -1411,15 +1391,12 @@ setMethod(
 
       for (sGrob in spadesSubPlots[[subPlots]]) {
         spadesGrobCounter <- spadesGrobCounter + 1
-        needPlot <-
-          updated$needPlotting[[subPlots]][[spadesGrobCounter]]
+        needPlot <- updated$needPlotting[[subPlots]][[spadesGrobCounter]]
 
         if (needPlot) {
           isNewPlot <- updated$isNewPlot[[subPlots]][[spadesGrobCounter]]
-          isReplot <-
-            updated$isReplot[[subPlots]][[spadesGrobCounter]]
-          isBaseSubPlot <-
-            updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
+          isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
+          isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
 
           sgl <- updated$curr@spadesGrobList
 

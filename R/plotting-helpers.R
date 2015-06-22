@@ -16,19 +16,21 @@
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname nlayers
-setMethod("nlayers",
-          signature = "list",
-          definition = function(x) {
-            y <- sum(sapply(x, function(x) {
-              if (is(x, "RasterStack")) {
-                x <- nlayers(x)
-              } else {
-                x <- 1L
-              }
-              return(x)
-            }))
-            return(y)
-})
+setMethod(
+  "nlayers",
+  signature = "list",
+  definition = function(x) {
+    y <- sum(sapply(x, function(x) {
+      if (is(x, "RasterStack")) {
+        x <- nlayers(x)
+        } else {
+          x <- 1L
+        }
+      return(x)
+      }))
+    return(y)
+  }
+)
 
 #' @rdname nlayers
 setMethod(

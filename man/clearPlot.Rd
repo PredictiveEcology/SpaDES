@@ -22,15 +22,17 @@ clearPlot(dev = dev.cur(), removeData = TRUE)
 \arguments{
 \item{dev}{Numeric. Device number to clear.}
 
-\item{removeData}{Logical whether any data that was stored in the \code{.spadesEnv} should also
-be removed, i.e., not just the plot window wiped.}
+\item{removeData}{Logical indicating whether any data that was stored in the
+\code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.}
 }
 \description{
-Under some conditions, a device and its meta data needs to be cleared manually.
-This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
+Under some conditions, a device and its metadata need to be cleared manually.
+This can be done with either the \code{new=TRUE} argument within the call to
+\code{Plot}.
 Sometimes, the metadata of a previous plot will prevent correct plotting of
-a new \code{Plot} call. Use \code{clearPlot} to clear the
-device and all the associated metadata manually.
+a new \code{Plot} call.
+Use \code{clearPlot} to clear the device and all the associated metadata
+manually.
 }
 \author{
 Eliot McIntire

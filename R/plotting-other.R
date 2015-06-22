@@ -1,16 +1,18 @@
 ################################################################################
 #' Clear plotting device
 #'
-#' Under some conditions, a device and its meta data needs to be cleared manually.
-#' This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
+#' Under some conditions, a device and its metadata need to be cleared manually.
+#' This can be done with either the \code{new=TRUE} argument within the call to
+#' \code{Plot}.
 #' Sometimes, the metadata of a previous plot will prevent correct plotting of
-#' a new \code{Plot} call. Use \code{clearPlot} to clear the
-#' device and all the associated metadata manually.
+#' a new \code{Plot} call.
+#' Use \code{clearPlot} to clear the device and all the associated metadata
+#' manually.
 #'
 #' @param dev Numeric. Device number to clear.
 #'
-#' @param removeData Logical whether any data that was stored in the \code{.spadesEnv} should also
-#' be removed, i.e., not just the plot window wiped.
+#' @param removeData Logical indicating whether any data that was stored in the
+#' \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.
 #'
 #' @export
 #' @docType methods
@@ -25,14 +27,15 @@ setGeneric("clearPlot", function(dev=dev.cur(), removeData=TRUE) {
 #' @rdname clearPlot
 setMethod(
   "clearPlot",
-  signature = c("numeric","logical"),
+  signature = c("numeric", "logical"),
   definition = function(dev, removeData) {
-    suppressWarnings(try(rm(list = paste0("spadesPlot", dev), envir = .spadesEnv))
+    suppressWarnings(
+      try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv))
     )
     if (removeData) {
-      suppressWarnings(try(rm(list= ls(.spadesEnv[[paste0("dev",dev)]]),
-                              envir=.spadesEnv[[paste0("dev",dev)]]),
-                           silent=TRUE)
+      suppressWarnings(
+        try(rm(list= ls(.spadesEnv[[paste0("dev", dev)]]),
+               envir=.spadesEnv[[paste0("dev", dev)]]), silent=TRUE)
       )
     }
     devActive <- dev.cur()
@@ -46,8 +49,8 @@ setMethod(
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature=c("numeric","missing"),
-          definition= function(dev) {
+          signature=c("numeric", "missing"),
+          definition=function(dev) {
             clearPlot(dev, removeData=FALSE)
 })
 
