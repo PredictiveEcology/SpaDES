@@ -647,8 +647,7 @@ setMethod(
   if (is(eval(parse(text = deparse(parseTxt)), envir = envs), "environment")) {
     envs <- eval(parse(text = deparse(parseTxt)), envir = envs)
   } else {
-    if (!lastOneDone)
-      elems[[i]] <- parseTxt
+    if (!lastOneDone) { elems[[i]] <- parseTxt }
   }
   if (exists("callEnv", inherits = FALSE)) {
     envs <- callEnv
