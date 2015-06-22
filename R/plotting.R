@@ -1315,22 +1315,18 @@ setMethod(
 
       if (newArr) {
         updated$needPlotting <- lapply(updated$needPlotting, function(x) {
-          sapply(x, function(y)
-            TRUE)
+          sapply(x, function(y) { TRUE })
         })
         updated$isReplot <- lapply(updated$isReplot, function(x) {
-          sapply(x, function(y)
-            TRUE)
+          sapply(x, function(y) { TRUE })
         })
         updated$isNewPlot <-
           lapply(updated$isReplot, function(x) {
-            sapply(x, function(y)
-              TRUE)
+            sapply(x, function(y) { TRUE })
           })
         updated$isBaseLayer <-
           lapply(updated$isReplot, function(x) {
-            sapply(x, function(y)
-              TRUE)
+            sapply(x, function(y) { TRUE })
           })
         clearPlot(removeData = FALSE)
       }
@@ -1361,21 +1357,21 @@ setMethod(
       }
       updated$curr@arr <-
         .arrangeViewports(updated$curr)
-      updated$curr@arr@layout <-
-        .makeLayout(
-          updated$curr@arr,
-          sapply(visualSqueeze,max), sapply(legend,any),
-          sapply(axes, function(x)
-            ! any(x == TRUE))
-        )
+      updated$curr@arr@layout <- .makeLayout(updated$curr@arr,
+                                             sapply(visualSqueeze, max),
+                                             sapply(legend,any),
+                                             sapply(axes, function(x) {
+                                               !any(x == TRUE)
+                                              })
+                                            )
     }
 
     # Create the viewports as per the optimal layout
     if (length(newSpadesPlots@spadesGrobList) > 0) {
-      vps <- .makeViewports(updated$curr,
-                            newArr = newArr)
-      if (!new & !newArr & !is.null(current.parent()))
+      vps <- .makeViewports(updated$curr, newArr = newArr)
+      if (!new & !newArr & !is.null(current.parent())) {
         upViewport(1)
+      }
       pushViewport(vps$wholeVp, recording = FALSE)
       upViewport(2)
     }
@@ -1453,10 +1449,10 @@ setMethod(
               yaxis <- axes
             }
 
-            takeFromPlotObj = !(sGrob@plotName %in% names(currSpadesPlots@spadesGrobList))
+            takeFromPlotObj <- !(sGrob@plotName %in%
+                                   names(currSpadesPlots@spadesGrobList))
 
-            grobToPlot <-
-              .identifyGrobToPlot(sGrob, plotObjs, takeFromPlotObj)
+            grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, takeFromPlotObj)
 
             if (!is(sGrob@plotArgs$gpText, "gpar")) {
               sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
