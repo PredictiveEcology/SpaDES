@@ -580,22 +580,18 @@ setMethod(
         error = function(x) {
           tryCatch(
             eval(
-              match.call(definition = eval,
-                         call = parseTxt)$envir,
+              match.call(definition=eval, call=parseTxt)$envir,
               envir = e
             ),
-            error = function(x)
-              .GlobalEnv
+            error = function(x) { .GlobalEnv }
           )
         }
       )
 
-      parseTxt[[3]] <-
-        match.call(definition = eval, call = parseTxt)$expr
-      if (is.name(match.call(definition = parse, call = parseTxt[[3]])$text)) {
+      parseTxt[[3]] <- match.call(definition=eval, call=parseTxt)$expr
+      if (is.name(match.call(definition=parse, call=parseTxt[[3]])$text)) {
         parseTxt <- parseTxt[[3]]
-        parseTxt[[3]] <-
-          match.call(definition = parse, call = parseTxt)$text
+        parseTxt[[3]] <- match.call(definition = parse, call = parseTxt)$text
       }
       lastOneDone <- TRUE
     }
@@ -627,11 +623,9 @@ setMethod(
 
     # if evaluating the parsed text is a character,
     # then this is likely then name we want to keep:
-    isChar <-
-      tryCatch(
+    isChar <- tryCatch(
         is(eval(elems[[i]], envir = eminus1), "character"),
-        error = function(x)
-          FALSE
+        error = function(x) { FALSE }
       )
     if (isChar) {
       elems[[i]] <- as.name(eval(elems[[i]], envir = eminus1))
@@ -640,6 +634,9 @@ setMethod(
     i = i + 1
   }
 
+#   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
+#     exists(deparse(parseTxt), envir=x, inherits=FALSE)))] %>%
+#     .[[length(.)]]
   envs <- append(.GlobalEnv, sys.frames()) %>%
     .[c(TRUE, sapply(sys.frames(), function(x) {
       exists(deparse(parseTxt), envir=x, inherits=FALSE)

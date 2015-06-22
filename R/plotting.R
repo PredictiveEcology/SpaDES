@@ -225,7 +225,7 @@ setMethod(
       lapply(x, function(y) { FALSE })
     })
 
-    # Set FALSE as default for isBaseLayer
+    # Set TRUE as default for isBaseLayer
     isBaseLayer <- lapply(curr@spadesGrobList, function(x) {
       lapply(x, function(y) { TRUE })
     })
@@ -1134,6 +1134,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @include plotting-colours.R
 #' @include plotting-helpers.R
+#' @include plotting-other.R
 #' @examples
 #' \dontrun{
 #' library(raster)
@@ -1746,8 +1747,10 @@ setMethod(".identifyGrobToPlot",
     legendRange <- NA
   }
 
-  maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) /
-    speedup %>%
+  # maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%
+  #   min(., npixels)
+  maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
+    `/`(., speedup) %>%
     min(., npixels)
   skipSample <- if (is.null(zoomExtent)) {
       maxpixels >= npixels

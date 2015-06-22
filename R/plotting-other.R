@@ -194,6 +194,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 
 #' @export
 #' @importFrom magrittr '%>%'
+#' @include environment.R
 #' @include plotting-classes.R
 #' @docType methods
 #' @author Eliot McIntire
