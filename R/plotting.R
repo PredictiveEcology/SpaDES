@@ -377,7 +377,7 @@ setMethod(
     col.by.row[, 1] <- ceiling(nPlots / (1:nPlots))
     col.by.row[, 2] <- ceiling(nPlots / col.by.row[, 1])
 
-    #wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
+    # wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
     # rewritten for clarity/brevity with pipes below
     wh.best <- apply(col.by.row, 1, function(x) { x[1] / x[2] }) %>%
       `-`(., ds.dimensionRatio) %>%
@@ -612,7 +612,7 @@ setMethod(
         xy[[i]][ordInner[[i]]]
     })
 
-    #idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
+    # idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
     idLength <- lapply(xyOrd.l, function(i) { lapply(i, length) }) %>%
       unlist %>%
       `/`(., 2) %>%
@@ -1248,7 +1248,7 @@ setMethod(
     plotArgs <- mget(names(formals("Plot")),
                      sys.frame(grep(sys.calls(), pattern = "^Plot")))[-1]
 
-    #whichSpadesPlottables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
+    # whichSpadesPlottables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables")
     }) %>% as.logical
@@ -1468,7 +1468,7 @@ setMethod(
             }
 
             if (is.null(sGrob@plotArgs$gpText$cex)) {
-              #sGrob@plotArgs$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              # sGrob@plotArgs$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
               sGrob@plotArgs$gpText$cex <- cex <- prod(arr@ds) /
                 prod(arr@columns, arr@rows) %>%
                 sqrt(.) * 0.3 %>%
@@ -1476,7 +1476,7 @@ setMethod(
                 max(0.6, .)
             }
             if (is.null(sGrob@plotArgs$gpAxis$cex)) {
-              #sGrob@plotArgs$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
+              # sGrob@plotArgs$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
               sGrob@plotArgs$gpAxis$cex <- cex <- prod(arr@ds) /
                 prod(arr@columns, arr@rows) %>%
                 sqrt(.) * 0.3 %>%
@@ -1746,21 +1746,15 @@ setMethod(".identifyGrobToPlot",
     legendRange <- NA
   }
 
-  maxpixels <-
-    min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) / speedup %>%
+  maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) /
+    speedup %>%
     min(., npixels)
-  skipSample <-
-    if (is.null(zoomExtent)) {
+  skipSample <- if (is.null(zoomExtent)) {
       maxpixels >= npixels
     } else {
       FALSE
     }
 
-  return(
-    list(
-      maxpixels = maxpixels, skipSample = skipSample,
-      legendRange = legendRange, zoom = zoom
-    )
-  )
-
+  return(list(maxpixels = maxpixels, skipSample = skipSample,
+              legendRange = legendRange, zoom = zoom))
 }
