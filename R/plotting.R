@@ -1465,20 +1465,18 @@ setMethod(
             }
 
             if (is.null(sGrob@plotArgs$gpText$cex)) {
-              # sGrob@plotArgs$gpText$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
-              sGrob@plotArgs$gpText$cex <- cex <- prod(arr@ds) /
-                prod(arr@columns, arr@rows) %>%
-                sqrt(.) * 0.3 %>%
-                min(1.2, .) %>%
-                max(0.6, .)
+              # piping doesn't work here :S
+              sGrob@plotArgs$gpText$cex <- cex <- max(
+                0.6,
+                min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
+              )
             }
             if (is.null(sGrob@plotArgs$gpAxis$cex)) {
-              # sGrob@plotArgs$gpAxis$cex <- cex <- max(0.6, min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3))
-              sGrob@plotArgs$gpAxis$cex <- cex <- prod(arr@ds) /
-                prod(arr@columns, arr@rows) %>%
-                sqrt(.) * 0.3 %>%
-                min(1.2, .) %>%
-                max(0.6, .)
+              # piping doesn't work here :S
+              sGrob@plotArgs$gpAxis$cex <- cex <- max(
+                0.6,
+                min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
+              )
             }
 
             if (is(grobToPlot, "Raster")) {
