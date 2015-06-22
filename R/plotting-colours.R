@@ -145,11 +145,10 @@ setReplaceMethod("setColors",
 #' @docType methods
 #' @author Eliot McIntire
 #'
-setGeneric(".makeColorMatrix", function(grobToPlot, zoomExtent, maxpixels,
-                                        legendRange, cols = NULL,
-                                        na.color = "#FFFFFF00", zero.color =
-                                          NULL,
-                                        skipSample = TRUE) {
+setGeneric(".makeColorMatrix",
+           function(grobToPlot, zoomExtent, maxpixels, legendRange,
+                    cols=NULL, na.color="#FFFFFF00", zero.color=NULL,
+                    skipSample = TRUE) {
   standardGeneric(".makeColorMatrix")
 })
 
@@ -166,11 +165,11 @@ setMethod(
     # on the raster, so it is possible that it is incorrect.
     if (!skipSample) {
       colorTable <- getColors(grobToPlot)[[1]]
-      if (!is(try(minValue(grobToPlot))
+      if (!is(try(raster::minValue(grobToPlot))
               ,"try-error")) {
-        minz <- minValue(grobToPlot)
+        minz <- raster::minValue(grobToPlot)
       }
-      grobToPlot <- sampleRegular(
+      grobToPlot <- raster::sampleRegular(
         x = grobToPlot, size = maxpixels,
         ext = zoom, asRaster = TRUE, useGDAL = TRUE
       )
@@ -178,7 +177,7 @@ setMethod(
         cols <- colorTable
       }
     }
-    z <- getValues(grobToPlot)
+    z <- raster::getValues(grobToPlot)
 
     # If minValue is defined, then use it, otherwise, calculate them.
     #  This is different than maxz because of the sampleRegular.
@@ -195,15 +194,14 @@ setMethod(
     }
     #
     maxz <- max(z, na.rm = TRUE)
-    real <-
-      any(na.omit(z) %% 1 != 0) # Test for real values or not
+    real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
 
     # Deal with colors - This gets all combinations, real vs. integers,
     #  with zero, with no zero, with NA, with no NA, not enough numbers,
     #  too many numbers
     maxNumCols <- 100
 
-    nValues <- ifelse(real,maxNumCols + 1, maxz - minz + 1)
+    nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
     colTable <- NULL
 
     if (is.null(cols)) {
@@ -268,7 +266,6 @@ setMethod(
       # rescale so that the minimum is 1, not <1:
       z <- z + ((minz < 1) * (-minz + 1))
     }
-
 
     if (any(!is.na(legendRange))) {
       if ((max(legendRange) - min(legendRange) + 1) < length(cols)) {
