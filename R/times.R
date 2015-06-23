@@ -136,22 +136,22 @@ setMethod("dNA",
             lubridate::new_duration(0)
           })
 
-#' @inheritParams dyears
-#' @export
-#' @docType methods
-#' @rdname spadesTime
-setGeneric("d", function(x) {
-  standardGeneric("d")
-})
-
-#' @export
-#' @docType methods
-#' @rdname spadesTime
-setMethod("d",
-          signature(x="ANY"),
-          definition=function(x){
-            lubridate::new_duration(0)
-          })
+# # @inheritParams dyears
+# # @export
+# # @docType methods
+# # @rdname spadesTime
+# setGeneric("d", function(x) {
+#   standardGeneric("d")
+# })
+#
+# # @export
+# # @docType methods
+# # @rdname spadesTime
+# setMethod("d",
+#           signature(x="ANY"),
+#           definition=function(x){
+#             lubridate::new_duration(0)
+#           })
 
 #' Convert time units
 #'
@@ -163,15 +163,15 @@ setMethod("d",
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
 #' @rdname timeConversion
-setGeneric("inSecs", function(unit) {
-  standardGeneric("inSecs")
+setGeneric("inSeconds", function(unit) {
+  standardGeneric("inSeconds")
 })
 
 
 #' @export
 #' @docType methods
 #' @rdname timeConversion
-setMethod("inSecs",
+setMethod("inSeconds",
           signature=c("character"),
           definition <- function(unit) {
 
@@ -192,15 +192,18 @@ setMethod("inSecs",
             } else {
               out <- 0
             }
+            attributes(out)$unit="second"
             return(out)
           })
 
 #' @export
 #' @docType methods
 #' @rdname timeConversion
-setMethod("inSecs",
+setMethod("inSeconds",
           signature=c("NULL"),
           definition <- function(unit) {
-            return(0)
+            out <- NA_character_
+            out <- inSeconds(out)
+            return(out)
           })
 
