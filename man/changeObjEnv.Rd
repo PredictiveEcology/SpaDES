@@ -46,16 +46,16 @@ different environment. This is used with a \code{spades} call to copy or move ob
 \code{simEnv} environment object.
 }
 \examples{
-a1 <- a2 <- a3 <- a4<- 1:1e3
-  objs <- c("a1", "a2", "a3", "a4")
-  e <- new.env()
+a1 <- a2 <- a3 <- a4 <- 1:1e3
+objs <- c("a1", "a2", "a3", "a4")
+e <- new.env()
 
-  #move objects from .GlobalEnv to e
-  changeObjEnv(objs, e)
+# move objects from .GlobalEnv to e
+changeObjEnv(objs, e)
 
-  #move objects back to .GlobalEnv from e
-  changeObjEnv(objs, .GlobalEnv, e)
-  rm(e)
+# move objects back to .GlobalEnv from e
+changeObjEnv(objs, .GlobalEnv, e)
+rm(e)
 }
 \author{
 Eliot Mcintire

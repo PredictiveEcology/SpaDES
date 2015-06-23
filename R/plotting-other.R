@@ -1,80 +1,93 @@
 ################################################################################
 #' Clear plotting device
 #'
-#' Under some conditions, a device and its meta data needs to be cleared manually.
-#' This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
+#' Under some conditions, a device and its metadata need to be cleared manually.
+#' This can be done with either the \code{new=TRUE} argument within the call to
+#' \code{Plot}.
 #' Sometimes, the metadata of a previous plot will prevent correct plotting of
-#' a new \code{Plot} call. Use \code{clearPlot} to clear the
-#' device and all the associated metadata manually.
+#' a new \code{Plot} call.
+#' Use \code{clearPlot} to clear the device and all the associated metadata
+#' manually.
 #'
 #' @param dev Numeric. Device number to clear.
 #'
-#' @param removeData Logical whether any data that was stored in the \code{.spadesEnv} should also
-#' be removed, i.e., not just the plot window wiped.
+#' @param removeData Logical indicating whether any data that was stored in the
+#' \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.
 #'
 #' @export
 #' @docType methods
-#' @rdname Plot
+#' @rdname clearPlot
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 setGeneric("clearPlot", function(dev=dev.cur(), removeData=TRUE) {
   standardGeneric("clearPlot")
 })
 
-#' @rdname Plot
 #' @export
-setMethod("clearPlot",
-          signature=c("numeric","logical"),
-          definition= function(dev, removeData) {
-            suppressWarnings(try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv)))
-            if(removeData) suppressWarnings(try(rm(list=ls(.spadesEnv[[paste0("dev",dev)]]),
-                                                   envir=.spadesEnv[[paste0("dev",dev)]]), silent=TRUE))
-            devActive <- dev.cur()
-            if(devActive==1) return(invisible())
-            dev(dev)
-            grid.newpage()
-            dev(devActive)
-          })
+#' @rdname clearPlot
+setMethod(
+  "clearPlot",
+  signature = c("numeric", "logical"),
+  definition = function(dev, removeData) {
+    suppressWarnings(
+      try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv))
+    )
+    if (removeData) {
+      suppressWarnings(
+        try(rm(list= ls(.spadesEnv[[paste0("dev", dev)]]),
+               envir=.spadesEnv[[paste0("dev", dev)]]), silent=TRUE)
+      )
+    }
+    devActive <- dev.cur()
+    if (devActive == 1) { return(invisible()) }
+    dev(dev)
+    grid.newpage()
+    dev(devActive)
+  }
+)
 
-#' @rdname Plot
-#' @include plotting-classes.R
 #' @export
+#' @rdname clearPlot
 setMethod("clearPlot",
-          signature=c("numeric","missing"),
-          definition= function(dev) {
+          signature=c("numeric", "missing"),
+          definition=function(dev) {
             clearPlot(dev, removeData=FALSE)
-          })
+})
 
-#' @rdname Plot
 #' @export
+#' @rdname clearPlot
 setMethod("clearPlot",
           signature=c("missing","logical"),
           definition= function(removeData) {
             clearPlot(dev=dev.cur(), removeData=removeData)
-          })
+})
 
-#' @rdname Plot
 #' @export
+#' @rdname clearPlot
 setMethod("clearPlot",
           signature=c("missing","missing"),
           definition= function(dev, removeData) {
             clearPlot(dev.cur(), removeData=FALSE)
-          })
+})
 
-
-#' Convert grid.locator units
+################################################################################
+#' Convert \code{grid.locator} units
 #'
-#' Converts them to meaningful units. Used within \code{.clickCoord}
+#' Internal function from example in \code{?grid.locator}.
+#' Converts \code{grid.locator} units to meaningful units.
+#' Used within \code{.clickCoord}
 #'
-#' @param grid.locator an object that was output by a call to grid.locator and mouse click(s)
-#' @author Eliot McIntire
-#' @include plotting-classes.R
-#' @rdname unittrim
+#' @param grid.locator an object that was output by a call to \code{grid.locator}
+#'                     and mouse click(s).
+#'
+#' @docType methods
 #' @export
+#' @rdname unittrim
+#' @author Paul Murrell
+#'
 .unittrim <- function(grid.locator) {
   as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
 }
-
 
 ################################################################################
 #' Mouse interactions with Plots
@@ -111,35 +124,38 @@ setMethod("clearPlot",
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
+#'
 clickValues <- function(n=1) {
-
   coords <- clickCoordinates(n=n)
   objLay <- strsplit(coords$map, "\\$")
-  objNames <- sapply(objLay, function(x) x[1])
-  layNames <- sapply(objLay, function(x) x[2])
+  objNames <- sapply(objLay, function(x) { x[1] })
+  layNames <- sapply(objLay, function(x) { x[2] })
   for (i in 1:n) {
     if(!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
         eval(parse(text=objNames[i]),
-             envir=coords$envir[[i]])[[layNames[i]]][
-               cellFromXY(eval(parse(text=objNames[i]),envir=coords$envir[[i]])[[layNames[i]]],
-                          coords$coords[i,1:2])]
+             envir=coords$envir[[i]])[[layNames[i]]][cellFromXY(
+               eval(parse(text=objNames[i]),
+                    envir=coords$envir[[i]])[[layNames[i]]],
+               coords$coords[i,1:2])]
       })
     } else {
       coords$coords$value <- sapply(seq_len(n), function(i) {
         eval(parse(text=objNames[i]),
-             envir=coords$envir[[i]])[
-               cellFromXY(eval(parse(text=objNames[i]),envir=coords$envir[[i]]),
-                          coords$coords[i,1:2])]
+             envir=coords$envir[[i]])[cellFromXY(
+               eval(parse(text=objNames[i]),
+                    envir=coords$envir[[i]]),
+               coords$coords[i,1:2])]
       })
     }
   }
   return(coords$coords)
 }
 
-#' @param devNum The device number for the new plot to be plotted on
+#' @param devNum The device number for the new plot to be plotted on.
 #'
-#' @param plot.it logical. If \code{TRUE} a new windows is made for the new extent. Default \code{TRUE}.
+#' @param plot.it Logical. If \code{TRUE} a new plotting window is made for the
+#'                new extent. Default \code{TRUE}.
 #'
 #' @export
 #' @docType methods
@@ -163,7 +179,8 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
-      Plot(eval(parse(text=objNames), envir=corners$envir[[1]])[[layNames]], zoomExtent=zoom, new=TRUE)
+      Plot(eval(parse(text=objNames), envir=corners$envir[[1]])[[layNames]],
+           zoomExtent=zoom, new=TRUE)
     } else {
       Plot(get(objNames, envir=corners$envir[[1]]), zoomExtent=zoom, new=TRUE)
     }
@@ -176,6 +193,8 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 }
 
 #' @export
+#' @importFrom magrittr '%>%'
+#' @include environment.R
 #' @include plotting-classes.R
 #' @docType methods
 #' @author Eliot McIntire
@@ -184,9 +203,11 @@ clickCoordinates <- function(n=1) {
   dc <- dev.cur()
 
   arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
-  if(is(arr, "try-error")) stop(paste("Plot does not already exist on current device.",
-                                      "Try new=TRUE, clearPlot() or change device to",
-                                      "one that has objects from a call to Plot()"))
+  if (is(arr, "try-error")) {
+    stop(paste("Plot does not already exist on current device.",
+               "Try new=TRUE, clearPlot() or change device to",
+               "one that has objects from a call to Plot()."))
+  }
   gl <- grid.layout(nrow=arr@arr@rows*3+2,
                     ncol=arr@arr@columns*3+2,
                     widths=arr@arr@layout$wdth,
@@ -194,16 +215,32 @@ clickCoordinates <- function(n=1) {
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
-  nulls <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNullsW], "null") ))
-  npcs <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNpcsW], "npc") ))
+  #nulls <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNullsW], "null") ))
+  nulls <- as.character(gl$widths)[grepNullsW] %>%
+    strsplit(., "null") %>%
+    unlist %>%
+    as.numeric
+  #npcs <- as.numeric(unlist(strsplit(as.character(gl$widths)[grepNpcsW], "npc") ))
+  npcs <- as.character(gl$widths)[grepNpcsW] %>%
+    strsplit(., "npc") %>%
+    unlist %>%
+    as.numeric
   remaining <- 1 - sum(npcs)
-  npcForNulls <- nulls*remaining/sum(nulls)
+  npcForNulls <- nulls * remaining / sum(nulls)
   widthNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsW, grepNullsW))]
 
   grepNullsH <- grep("null$", gl$heights)
   grepNpcsH <- grep("npc$", gl$heights)
-  nulls <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNullsH], "null") ))
-  npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
+  #nulls <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNullsH], "null") ))
+  nulls <- as.character(gl$heights)[grepNullsH] %>%
+    strsplit(., "null") %>%
+    unlist %>%
+    as.numeric
+  #npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
+  npcs <- as.character(gl$heights)[grepNpcsH] %>%
+    strsplit(., "npc") %>%
+    unlist %>%
+    as.numeric
   remaining <- 1 - sum(npcs)
   npcForNulls <- nulls*remaining/sum(nulls)
   heightNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsH, grepNullsH))]
@@ -217,10 +254,12 @@ clickCoordinates <- function(n=1) {
   for(i in 1:n) {
     seekViewport("top")
     gloc <- grid.locator(unit="npc")
-    xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]), c(0, cumsum(widthNpcs)))
+    xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]),
+                         c(0, cumsum(widthNpcs)))
     # for the y, grid package treats bottom left as origin, Plot treats top left
     #  as origin... so, require 1-
-    yInt <- findInterval(as.numeric(strsplit(as.character(gloc$y), "npc")[[1]]), c(0, cumsum(heightNpcs)))
+    yInt <- findInterval(as.numeric(strsplit(as.character(gloc$y), "npc")[[1]]),
+                         c(0, cumsum(heightNpcs)))
     if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")
     }
@@ -230,13 +269,18 @@ clickCoordinates <- function(n=1) {
 
     maxLayX <- cumsum(widthNpcs)[xInt]
     minLayX <- cumsum(widthNpcs)[xInt-1]
-    grobLoc$x <- unit((as.numeric(strsplit(as.character(gloc$x), "npc")[[1]])-minLayX)/(maxLayX-minLayX), "npc")
+    grobLoc$x <- unit((as.numeric(strsplit(
+      as.character(gloc$x), "npc"
+      )[[1]]) - minLayX) / (maxLayX - minLayX), "npc")
 
     maxLayY <- cumsum(heightNpcs)[yInt]
     minLayY <- cumsum(heightNpcs)[yInt-1]
-    grobLoc$y <- unit((as.numeric(strsplit(as.character(gloc$y), "npc")[[1]])-minLayY)/(maxLayY-minLayY), "npc")
+    grobLoc$y <- unit((as.numeric(strsplit(
+      as.character(gloc$y), "npc"
+      )[[1]]) - minLayY) / (maxLayY - minLayY), "npc")
 
-    clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName, n=1, gl=grobLoc)
+    clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName,
+                                    n=1, gl=grobLoc)
     mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
     envs[[i]] <- arr@spadesGrobList[[map]][[1]]@envir
   }

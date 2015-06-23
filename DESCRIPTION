@@ -11,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.99.0.9008
-Date: 2015-06-12
+Version: 0.99.0.9010
+Date: 2015-06-22
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -51,6 +51,7 @@ Imports:
     rgdal,
     secr,
     sp,
+    stringi,
     stringr,
     tkrplot
 License: GPL-3
@@ -63,7 +64,6 @@ Collate:
     'check.R'
     'environment.R'
     'checkpoint.R'
-    'colours.R'
     'initialize.R'
     'simulation.R'
     'load.R'
@@ -75,6 +75,8 @@ Collate:
     'neighbourhood.R'
     'numerical-comparisons.R'
     'plotting-classes.R'
+    'plotting-colours.R'
+    'plotting-helpers.R'
     'plotting-other.R'
     'plotting.R'
     'probability.R'

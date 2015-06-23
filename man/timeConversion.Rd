@@ -14,11 +14,11 @@ inSeconds(unit)
 \S4method{inSeconds}{`NULL`}(unit)
 }
 \arguments{
-\item{x}{character indicating time units to be returned as seconds}
+\item{unit}{Character string indicating time units to be returned as seconds.}
 }
 \description{
-In addition to using the \code{lubridate} package, some additional functions and
-to work with times are provided.
+In addition to using the \code{lubridate} package, some additional functions
+and to work with times are provided.
 }
 \author{
 Alex Chubaty & Eliot McIntire

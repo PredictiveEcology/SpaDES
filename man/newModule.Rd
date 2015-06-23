@@ -48,17 +48,20 @@ Nothing is returned. The new module file is created at \code{path/name.R}, as
 well as anciliary files for documentation, citation, license, and readme.
 }
 \description{
-Autogenerate a skeleton for a new SpaDES module, a template for a documentation file,
-a citation file, a license file, and a readme.txt file. The \code{newModuleDocumentation}
-will not generate the module file, but will create the other 4 files.
+Autogenerate a skeleton for a new SpaDES module, a template for a
+documentation file, a citation file, a license file, and a readme.txt file.
+The \code{newModuleDocumentation} will not generate the module file, but will
+create the other 4 files.
 }
 \details{
-All 5 (or 4, if using \code{newModuleDocumentation}) files will be created within a
-subfolder named \code{name} within the \code{path}.
+All 5 (or 4, if using \code{newModuleDocumentation}) files will be created
+within a subfolder named \code{name} within the \code{path}.
 }
 \examples{
-\dontrun{## create a "fastfood" module in the "modules" subdirectory.}
-\dontrun{newModule("fastfood", "modules")}
+\dontrun{
+  ## create a "myModule" module in the "modules" subdirectory.
+  newModule("myModule", "modules")
+}
 }
 \author{
 Alex Chubaty and Eliot McIntire
