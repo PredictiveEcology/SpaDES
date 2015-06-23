@@ -1038,7 +1038,7 @@ setReplaceMethod("simGlobalsOutputPath",
 #' @aliases simList-accessors-times
 #' @rdname simList-accessors-times
 #'
-#' @author Alex Chubaty
+#' @author Alex Chubaty and Eliot McIntire
 #'
 setGeneric("simTimes", function(object) {
   standardGeneric("simTimes")
@@ -1075,6 +1075,7 @@ setReplaceMethod("simTimes",
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
+#' @importFrom stringr str_detect
 #'
 setGeneric("simCurrentTime", function(object, unit) {
   standardGeneric("simCurrentTime")
@@ -1098,7 +1099,7 @@ setMethod("simCurrentTime",
           signature=c("simList","character"),
           definition=function(object, unit) {
             if(!is.na(unit)) {
-              if(!stri_detect_fixed("^seconds?$", pattern = unit)) {
+              if(!str_detect("^seconds?$", pattern = unit)) {
                # i.e., if not in same units as simulation
                 time <- .convUnits(object@simtimes$current, unit)
                 return(time)
@@ -1134,6 +1135,7 @@ setReplaceMethod("simCurrentTime",
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
+#' @importFrom stringr str_detect
 #'
 setGeneric("simStopTime", function(object, unit) {
   standardGeneric("simStopTime")
@@ -1157,7 +1159,7 @@ setMethod("simStopTime",
           signature=c("simList","character"),
           definition=function(object, unit) {
             if(!is.na(unit)) {
-              if(!stri_detect_fixed("^seconds?$", pattern = unit)) {
+              if(!str_detect("^seconds?$", pattern = unit)) {
                 # i.e., if not in same units as simulation
                 time <- .convUnits(object@simtimes$stop, unit)
                 return(time)
@@ -1180,6 +1182,7 @@ setGeneric("simStopTime<-",
 setReplaceMethod("simStopTime",
                  signature="simList",
                  function(object, value) {
+                   stopifnot(is.character(attr(value, "unit")))
                    object@simtimes$stop <- value
                    validObject(object)
                    return(object)
@@ -1191,6 +1194,7 @@ setReplaceMethod("simStopTime",
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
+#' @importFrom stringr str_detect
 #'
 setGeneric("simStartTime", function(object, unit) {
   standardGeneric("simStartTime")
@@ -1214,7 +1218,7 @@ setMethod("simStartTime",
           signature=c("simList","character"),
           definition=function(object, unit) {
             if(!is.na(unit)) {
-              if(!stri_detect_fixed("^seconds?$", pattern = unit)) {
+              if(!str_detect("^seconds?$", pattern = unit)) {
                 # i.e., if not in same units as simulation
                 time <- .convUnits(object@simtimes$start, unit)
                 return(time)
@@ -1237,6 +1241,7 @@ setGeneric("simStartTime<-",
 setReplaceMethod("simStartTime",
                  signature="simList",
                  function(object, value) {
+                   stopifnot(is.character(attr(value, "unit")))
                    object@simtimes$start <- value
                    validObject(object)
                    return(object)
@@ -1294,7 +1299,7 @@ setGeneric(".callingModName", function(object) {
 
 #' @export
 #' @docType methods
-#' @importFrom stringi stri_detect_fixed
+#' @importFrom stringr str_detect
 #' @rdname simList-accessors-modules
 setMethod(".callingModName",
           signature=c("simList"),
@@ -1302,8 +1307,8 @@ setMethod(".callingModName",
 
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
-    if(any(stri_detect_fixed(as.character(sys.call(1)), pattern = "spades"))) {
-      st <- stringi::stri_detect_fixed(
+    if(any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
+      st <- str_detect(
         as.character(sys.calls()), pattern = "moduleCall")
       if(any(st)) {
         mod <- strsplit(eval(parse(text="moduleCall"),
@@ -1438,6 +1443,8 @@ setReplaceMethod("simCompleted",
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
+#' @importFrom stringr str_detect
+#' @author Eliot McIntire
 #'
 setGeneric("simTimestepUnit", function(object) {
   standardGeneric("simTimestepUnit")
@@ -1463,15 +1470,11 @@ setGeneric("simTimestepUnit<-",
 setReplaceMethod("simTimestepUnit",
                  signature="simList",
                  function(object, value) {
-                   if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"),
-                                 pattern=value), na.rm=TRUE)) {
+                   if(any(str_detect(.spadesTimes,
+                                      pattern = value), na.rm=TRUE)) {
                      object@simtimes$timestepUnit <- value
-
-                     #object@simtimes$timestepUnit <- value
                    } else {
                      object@simtimes$timestepUnit <- NA_character_
-
-                     #object@simtimes$timestepUnit <- NA_character_
                      if(!is.na(value)){
                        message("unknown timestepUnit provided: ", value)
                      }
