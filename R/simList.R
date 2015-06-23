@@ -179,6 +179,7 @@ setMethod("initialize",
 #' @param object  \code{simList}
 #'
 #' @export
+#' @importFrom dplyr mutate
 #' @docType methods
 #' @rdname show-method
 setMethod("show",
@@ -241,14 +242,22 @@ setMethod("show",
 
             ### completed events
             out[[20]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[21]] <- capture.output(print(simCompleted(object) %>%
+            out[[21]] <- if(!is.null(simCompleted(object)$eventTime)) {
+              capture.output(print(simCompleted(object) %>%
                                                 dplyr::mutate(eventTime=.convUnits(eventTime, "year"))))
+            } else {
+              capture.output(print(simCompleted(object) ))
+            }
             out[[22]] <- capture.output(cat("\n"))
 
             ### scheduled events
             out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[24]] <- capture.output(print(simEvents(object) %>%
-                                                dplyr::mutate(eventTime=.convUnits(eventTime, "year"))))
+            out[[24]] <- if(!is.null(simEvents(object)$eventTime)) {
+              capture.output(print(simEvents(object) %>%
+                                     dplyr::mutate(eventTime=.convUnits(eventTime, "year"))))
+            } else {
+              capture.output(print(simEvents(object) ))
+            }
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
