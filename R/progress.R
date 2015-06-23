@@ -22,7 +22,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
     if (any(!is.na(simParams(sim)$.progress))) {
       newProgressBar(sim)
       sim <- scheduleEvent(sim, simStartTime(sim, "seconds"), "progress", "set")
-      sim <- scheduleEvent(sim, simStopTime(sim, "seconds"), "progress", "set")
+      sim <- scheduleEvent(sim, simStopTime(sim, "seconds")-1, "progress", "set")
     }
   } else if (eventType=="set") {
       # update progress bar
@@ -92,17 +92,17 @@ setProgressBar <- function(sim) {
       setWinProgressBar(pb, simCurrentTime(sim, simTimestepUnit(sim)),
                         title=paste("Current simulation time:",
                                     simTimestepUnit(sim),
-                                    simCurrentTime(sim, simTimestepUnit(sim)),
+                                    round(simCurrentTime(sim, simTimestepUnit(sim)), 3),
                                     "of total", simStopTime(sim, simTimestepUnit(sim))))
     } else {
       setTkProgressBar(pb, simCurrentTime(sim, simTimestepUnit(sim)),
                        title=paste("Current simulation time:",
                                    simTimestepUnit(sim),
-                                   simCurrentTime(sim, simTimestepUnit(sim)),
+                                   round(simCurrentTime(sim, simTimestepUnit(sim)), 3),
                                    "of total", simStopTime(sim, simTimestepUnit(sim))))
     }
   } else {
-    setTxtProgressBar(pb, simCurrentTime(sim, simTimestepUnit(sim)))
+    setTxtProgressBar(pb, round(simCurrentTime(sim, simTimestepUnit(sim)), 3))
   }
   assign(".pb", pb, envir=.spadesEnv)
 }
