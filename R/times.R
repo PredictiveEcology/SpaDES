@@ -130,14 +130,15 @@ setMethod("dNA",
             lubridate::new_duration(0)
 })
 
-#' @export
-
 #' Convert time units
 #'
 #' In addition to using the \code{lubridate} package, some additional functions
-#' and to work with times are provided.
+#' to work with times are provided.
 #'
-#' @param unit Character string indicating time units to be returned as seconds.
+#' Currently available units are found within the \code{spadesTimes()} function.
+#'
+#' @param unit Character vector of length 1, indicating time units.
+#' @return A numeric vector of length 1, with \code{unit} attribute set to "seconds".
 #' @export
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
@@ -184,3 +185,56 @@ setMethod("inSeconds",
             out <- inSeconds(out)
             return(out)
 })
+
+################################################################################
+#' Convert time units
+#'
+#' This function takes a numeric with a "unit" attribute and converts it to another numeric
+#' with a different time attribute. If the units passed to argument \code{units} are the same as
+#' \code{attr(time, "unit")}, then it simply returns input \code{time}.
+#'
+#' If \code{time} has no \code{units} attribute, then it is assumed to be seconds.
+#'
+#' @param time Numeric. With a unit attribute, indicating the time unit of the input numeric. See Details.
+#' @export
+#' @docType methods
+#' @importFrom stringr str_detect
+#' @rdname timeConversion
+#' @author Eliot McIntire
+setGeneric(".convUnits", function(time, unit) {
+  standardGeneric(".convUnits")
+})
+
+#' @rdname simList-accessors-times
+setMethod(".convUnits",
+          signature=c("numeric","character"),
+          definition=function(time, unit) {
+
+            timeUnit <- attr(time, "unit")
+
+            if(!is.character(timeUnit)) timeUnit <- "second"
+
+            stopifnot(any(str_detect(.spadesTimes, pattern = timeUnit), na.rm=TRUE))
+
+            if(!str_detect(unit, pattern=timeUnit)) {
+              time <- time * inSeconds(timeUnit)/inSeconds(unit)
+              attr(time, "unit") <- unit
+            }
+            return(time)
+          })
+
+setMethod(".convUnits",
+          signature=c("numeric","missing"),
+          definition=function(time) {
+            return(time)
+          })
+
+
+
+.spadesTimes <- c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$")
+
+#' @export
+#' @rdname timeConversion
+spadesTimes <- function() gsub(.spadesTimes, pattern="[[:punct:]]", replacement = "")
+
+
