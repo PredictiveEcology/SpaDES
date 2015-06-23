@@ -7,7 +7,7 @@
 \alias{.plotGrob,SpatialPoints-method}
 \alias{.plotGrob,SpatialPolygons-method}
 \alias{.plotGrob,matrix-method}
-\title{Plot spatial grobs (using grid package)}
+\title{Plot spatial grobs (using \code{grid} package)}
 \usage{
 .plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
   minv, maxv, legend = TRUE, legendText = NULL, length = NULL,

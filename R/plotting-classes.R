@@ -35,8 +35,8 @@ setAs(from = "list", to = "gpar", function(from) {
 ################################################################################
 #' The \code{.spatialObjects} class
 #'
-#' This class is the union of several spatial objects from raster and sp packages. Notably
-#' missing is RasterBrick, for now.
+#' This class is the union of several spatial objects from raster and sp packages.
+#' Notably missing is \code{RasterBrick}, for now.
 #'
 #' @seealso \code{\link{spadesClasses}}
 #'

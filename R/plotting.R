@@ -400,7 +400,7 @@ setMethod(
 )
 
 ################################################################################
-#' Plot spatial grobs (using grid package)
+#' Plot spatial grobs (using \code{grid} package)
 #'
 #' Internal function. Plot a raster Grob, a points Grob, polygon Grob.
 #'
@@ -810,13 +810,8 @@ setMethod(
                       rep(c("null", "npc", "null"), rows)),
                  unit(0.2, "null"))
 
-    return(
-      list(
-        wdth = wdth, ht = ht,
-        wdthUnits = vS.w, htUnits = vS.h,
-        visualSqueeze = visualSqueeze
-      )
-    )
+    return(list(wdth = wdth, ht = ht, wdthUnits = vS.w, htUnits = vS.h,
+                visualSqueeze = visualSqueeze))
 }
 
 ################################################################################
@@ -838,7 +833,7 @@ setMethod(
 #' @include plotting-classes.R
 #' @rdname makeViewports
 #'
-.makeViewports <- function(sPlot, newArr = FALSE) {
+.makeViewports <- function(sPlot, newArr=FALSE) {
   arr <- sPlot@arr
   sgl <- sPlot@spadesGrobList
 
@@ -853,9 +848,7 @@ setMethod(
         }
       } else {
         # for non spatial objects
-        extent(c(
-          xmin = 0,xmax = 1,ymin = 0,ymax = 1
-        ))
+        extent(c(xmin=0, xmax=1, ymin=0, ymax=1))
       }
     }))
   }))
@@ -1304,14 +1297,11 @@ setMethod(
         visualSqueeze
       }
 
-      updated <-
-        .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
+      updated <- .updateSpadesPlot(newSpadesPlots, currSpadesPlots)
       newArr <- (
         length(updated$curr@spadesGrobList) >
-          prod(currSpadesPlots@arr@columns,
-               currSpadesPlots@arr@rows)
-      ) |
-        !identical(currSpadesPlots@arr@ds,dev.size())
+          prod(currSpadesPlots@arr@columns, currSpadesPlots@arr@rows)
+      ) | !identical(currSpadesPlots@arr@ds,dev.size())
 
       if (newArr) {
         updated$needPlotting <- lapply(updated$needPlotting, function(x) {
@@ -1320,14 +1310,12 @@ setMethod(
         updated$isReplot <- lapply(updated$isReplot, function(x) {
           sapply(x, function(y) { TRUE })
         })
-        updated$isNewPlot <-
-          lapply(updated$isReplot, function(x) {
+        updated$isNewPlot <- lapply(updated$isReplot, function(x) {
             sapply(x, function(y) { TRUE })
-          })
-        updated$isBaseLayer <-
-          lapply(updated$isReplot, function(x) {
+        })
+        updated$isBaseLayer <- lapply(updated$isReplot, function(x) {
             sapply(x, function(y) { TRUE })
-          })
+        })
         clearPlot(removeData = FALSE)
       }
     } else if (all(isSpadesPlot)) {
@@ -1355,8 +1343,7 @@ setMethod(
       if (is.null(visualSqueeze)) {
         visualSqueeze <- 0.75
       }
-      updated$curr@arr <-
-        .arrangeViewports(updated$curr)
+      updated$curr@arr <- .arrangeViewports(updated$curr)
       updated$curr@arr@layout <- .makeLayout(updated$curr@arr,
                                              sapply(visualSqueeze, max),
                                              sapply(legend,any),
@@ -1407,52 +1394,53 @@ setMethod(
                 "one that has a plot named", addTo[whGrobNamesi]
               )
             )
+          }
 
-            whPlotFrame <- match(sGrob@plotName, names(spadesSubPlots))
+          whPlotFrame <- match(sGrob@plotName, names(spadesSubPlots))
 
-            # Check that the extents are equal.
-            # If not, then x and y axes are written where necessary.
-            if (axes == "L") {
-              if (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
-                  arr@extents[max(
-                    which(
-                      (1:length(arr@names) - 1) %% arr@columns + 1 ==
-                      (whPlotFrame - 1) %% arr@columns + 1
-                    )
-                  )][[1]]) {
-                if (whPlotFrame > (length(arr@names) - arr@columns)) {
-                  xaxis <- TRUE
-                } else {
-                  xaxis <- FALSE
-                }
-              } else {
-                # not the same extent as the final one in the column
+          # Check that the extents are equal.
+          # If not, then x and y axes are written where necessary.
+          if (axes == "L") {
+            if (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
+                arr@extents[max(
+                  which(
+                    (1:length(arr@names) - 1) %% arr@columns + 1 ==
+                    (whPlotFrame - 1) %% arr@columns + 1
+                  )
+                )][[1]]) {
+              if (whPlotFrame > (length(arr@names) - arr@columns)) {
                 xaxis <- TRUE
-              }
-            } else {
-              xaxis <- axes
-            }
-
-            if (axes == "L") {
-              if (arr@extents[whPlotFrame][[1]] ==
-                  arr@extents[(ceiling(whPlotFrame / arr@columns) - 1) *
-                              arr@columns + 1][[1]]) {
-                if ((whPlotFrame - 1) %% arr@columns == 0) {
-                  yaxis <- TRUE
-                } else {
-                  yaxis <- FALSE
-                }
               } else {
-                yaxis <- TRUE
+                xaxis <- FALSE
               }
             } else {
-              yaxis <- axes
+              # not the same extent as the final one in the column
+              xaxis <- TRUE
             }
+          } else {
+            xaxis <- axes
+          }
 
-            takeFromPlotObj <- !(sGrob@plotName %in%
-                                   names(currSpadesPlots@spadesGrobList))
+          if (axes == "L") {
+            if (arr@extents[whPlotFrame][[1]] ==
+                arr@extents[(ceiling(whPlotFrame / arr@columns) - 1) *
+                            arr@columns + 1][[1]]) {
+              if ((whPlotFrame - 1) %% arr@columns == 0) {
+                yaxis <- TRUE
+              } else {
+                yaxis <- FALSE
+              }
+            } else {
+              yaxis <- TRUE
+            }
+          } else {
+            yaxis <- axes
+          }
 
-            grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, takeFromPlotObj)
+          takeFromPlotObj <- !(sGrob@plotName %in%
+                                 names(currSpadesPlots@spadesGrobList))
+
+          grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, takeFromPlotObj)
 
             if (!is(sGrob@plotArgs$gpText, "gpar")) {
               sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
@@ -1465,14 +1453,14 @@ setMethod(
             }
 
             if (is.null(sGrob@plotArgs$gpText$cex)) {
-              # piping doesn't work here :S
+              # pipe won't work here :S
               sGrob@plotArgs$gpText$cex <- cex <- max(
                 0.6,
                 min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
               )
             }
             if (is.null(sGrob@plotArgs$gpAxis$cex)) {
-              # piping doesn't work here :S
+              # pipe won't work here :S
               sGrob@plotArgs$gpAxis$cex <- cex <- max(
                 0.6,
                 min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
@@ -1620,7 +1608,6 @@ setMethod(
                 grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
               }
             } #gg vs histogram vs spatialObject
-          }
         } # needPlot
         updated$isNewPlot[[subPlots]][[spadesGrobCounter]] <- FALSE
       } # sGrob
