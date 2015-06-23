@@ -1,21 +1,25 @@
 ################################################################################
 #' SpaDES time units
 #'
-#' SpaDES modules commonly use approximate durations that divide with no remainder
-#' among themselves. For example, models that simulate based on a "week" timestep,
-#' will likely want to fall in lock step with a second module that is a "year"
-#' timestep. Since, weeks, months, years don't really have this behaviour because
-#' of leap years, leap seconds, not quite 52 weeks in a year, months that are of
-#' different duration, we have generated a set of units that work well together
-#' that are based on the astronomical year. In an astronomical year, leap years
-#' are added within each year with an extra 1/4 day, i.e., year=365.25 days), months are defined as year/12, weeks as year/52. This
-#' year is also known as the "astronomical" or "Julian" year.
+#' \code{SpaDES} modules commonly use approximate durations that divide with no
+#' remainder among themselves.
+#' For example, models that simulate based on a "week" timestep, will likely
+#' want to fall in lock step with a second module that is a "year" timestep.
+#' Since, weeks, months, years don't really have this behaviour because of:
+#' leap years, leap seconds, not quite 52 weeks in a year, months that are of
+#' different duration, etc.
+#' We have generated a set of units that work well together that are based on
+#' the astronomical or "Julian" year.
+#' In an astronomical year, leap years are added within each year with an extra
+#' 1/4 day, (i.e., 1 year == 365.25 days); months are defined as year/12, and
+#' weeks as year/52.
 #'
-#' When these units are not correct, a module developer can create their own time
-#' unit using, and create a function to calculate the number of seconds in that
-#' unit using the "d" prefix (for duration), following the \code{lubridate} package standard:
-#' \code{dfortNight <- function(x) lubridate::new_duration(dday(14))}. Then the
-#' module developer can use "fortNight" as the unit of time for the module.
+#' When these units are not correct, a module developer can create their own
+#' time unit using, and create a function to calculate the number of seconds
+#' in that unit using the "d" prefix (for duration), following the
+#' \code{lubridate} package standard:
+#' \code{dfortNight <- function(x) lubridate::new_duration(dday(14))}.
+#' Then the module developer can use "fortNight" as the module's time unit.
 #'
 #' @param x numeric. Number of the desired units
 #'
@@ -26,6 +30,7 @@
 #' @rdname spadesTime
 #'
 #' @author Eliot McIntire
+#'
 setGeneric("dyears", function(x) {
   standardGeneric("dyears")
 })
@@ -48,8 +53,7 @@ setGeneric("dmonths", function(x) {
   standardGeneric("dmonths")
 })
 
-#' @export
-#' @docType methods
+#' @importFrom lubridate new_duration
 #' @rdname spadesTime
 setMethod("dmonths",
           signature(x="numeric"),
@@ -57,46 +61,40 @@ setMethod("dmonths",
             lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/12)
           })
 
-#' @inheritParams dyears
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 setGeneric("dweeks", function(x) {
   standardGeneric("dweeks")
 })
 
 #' @export
-#' @docType methods
+#' @importFrom lubridate new_duration
 #' @rdname spadesTime
 setMethod("dweeks",
           signature(x="numeric"),
           definition=function(x){
             lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/52)
-          })
+})
 
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 dweek <- function(x) {
   dweeks(x)
 }
 
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 dmonth <- function(x) {
   dmonths(x)
 }
 
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 dyear <- function(x) {
   dyears(x)
 }
 
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 #' @importFrom lubridate dseconds
 dsecond <- function(x) {
@@ -104,7 +102,6 @@ dsecond <- function(x) {
 }
 
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 #' @importFrom lubridate ddays
 dday <- function(x) {
@@ -112,53 +109,35 @@ dday <- function(x) {
 }
 
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 #' @importFrom lubridate dhours
 dhour <- function(x) {
   lubridate::dhours(x)
 }
 
-#' @inheritParams dyears
 #' @export
-#' @docType methods
 #' @rdname spadesTime
 setGeneric("dNA", function(x) {
   standardGeneric("dNA")
 })
 
 #' @export
-#' @docType methods
+#' @importFrom lubridate new_duration
 #' @rdname spadesTime
 setMethod("dNA",
           signature(x="ANY"),
           definition=function(x){
             lubridate::new_duration(0)
-          })
+})
 
-# # @inheritParams dyears
-# # @export
-# # @docType methods
-# # @rdname spadesTime
-# setGeneric("d", function(x) {
-#   standardGeneric("d")
-# })
-#
-# # @export
-# # @docType methods
-# # @rdname spadesTime
-# setMethod("d",
-#           signature(x="ANY"),
-#           definition=function(x){
-#             lubridate::new_duration(0)
-#           })
+#' @export
 
 #' Convert time units
 #'
-#' In addition to using the \code{lubridate} package, some additional functions and
-#' to work with times are provided.
+#' In addition to using the \code{lubridate} package, some additional functions
+#' and to work with times are provided.
 #'
-#' @param x character indicating time units to be returned as seconds
+#' @param unit Character string indicating time units to be returned as seconds.
 #' @export
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
@@ -166,7 +145,6 @@ setMethod("dNA",
 setGeneric("inSeconds", function(unit) {
   standardGeneric("inSeconds")
 })
-
 
 #' @export
 #' @docType methods
@@ -194,7 +172,7 @@ setMethod("inSeconds",
             }
             attributes(out)$unit="second"
             return(out)
-          })
+})
 
 #' @export
 #' @docType methods
@@ -205,5 +183,4 @@ setMethod("inSeconds",
             out <- NA_character_
             out <- inSeconds(out)
             return(out)
-          })
-
+})
