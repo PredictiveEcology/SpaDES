@@ -497,40 +497,23 @@ setMethod("scheduleEvent",
                     #  value, likely because of times in the simInit call.
                     #  This must be intercepted, and units added based on this
                     #  assumption, that the units are in simTimestepUnits
+
                     if(is.null(attr(eventTime, "unit"))) {
                       attributes(eventTime)$unit <- moduleTimestepUnit(sim)
                       eventTimeInSeconds <-
-                        if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
-                          eventTime
-                        } else {
-                          as.numeric(.convUnits((eventTime -
-                                                   sim@simtimes$initialStart),
-                                                "seconds") +
-                                       simCurrentTime(sim, "seconds"))
-                        }
+                        .convUnits((eventTime - sim@simtimes$initialStart),"seconds") +
+                          simCurrentTime(sim, "seconds") %>%
+                        as.numeric
                     } else {
-                      eventTimeInSeconds <-
-                          if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
-                            eventTime
-                          } else {
-                            as.numeric(.convUnits(eventTime, "seconds"))
-                          }
+                      eventTimeInSeconds <- as.numeric(.convUnits(eventTime, "seconds"))
                     }
                   } else { # for core modules because they have no metadata
-                    eventTimeInSeconds <-
-                      if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
-                        eventTime
-                      } else {
-                        as.numeric(.convUnits(eventTime, "seconds"))
-                      }
+                    browser(expr=!is.character(attr(eventTime, "unit")))
+
+                    eventTimeInSeconds <- as.numeric(.convUnits(eventTime, "seconds"))
                   }
                 } else { # when eventTime is NA... can't seem to get an example
-                  eventTimeInSeconds <-
-                    if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
-                      eventTime
-                    } else {
-                      as.numeric(.convUnits(eventTime, "seconds"))
-                    }
+                  eventTimeInSeconds <- as.numeric(.convUnits(eventTime, "seconds"))
                 }
 
                 newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
