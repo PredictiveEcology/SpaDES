@@ -41,16 +41,18 @@ test_that("timestepUnit works correctly", {
   expect_identical(simTimestepUnit(mySim), NA_character_)
 
   # check that the smallestTimestepUnit captures one of the timestepUnits in the loaded modules
-  expect_true(any(match(smallestTimestepUnit(mySim), sapply(simDepends(mySim)@dependencies,
-                                                       function(x) x@timestepUnit))))
+  expect_true(any(match(smallestTimestepUnit(mySim),
+                        sapply(simDepends(mySim)@dependencies,
+                               function(x) x@timestepUnit))))
 
   # check that smallestTimestepUnit finds the smallest timestepUnit of the modules loaded
   whNotNA <- sapply(simDepends(mySim)@dependencies,
          function(x) !is.na(x@timestepUnit))
-  expect_equivalent(as.numeric(eval(parse(text=paste0("d",smallestTimestepUnit(mySim),"(1)")))),
-                        min(sapply(simDepends(mySim)@dependencies[whNotNA],
-                               function(x)
-                                 eval(parse(text=paste0("d",x@timestepUnit,"(1)"))))))
-
+  expect_equivalent(as.numeric(eval(parse(
+    text=paste0("d", smallestTimestepUnit(mySim), "(1)")))),
+    min(sapply(simDepends(mySim)@dependencies[whNotNA],
+               function(x) {
+                 eval(parse(text=paste0("d",x@timestepUnit,"(1)")))
+               }
+    )))
 })
-
