@@ -241,12 +241,14 @@ setMethod("show",
 
             ### completed events
             out[[20]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[21]] <- capture.output(print(simCompleted(object)))
+            out[[21]] <- capture.output(print(simCompleted(object) %>%
+                                                dplyr::mutate(eventTime=.convUnits(eventTime, "year"))))
             out[[22]] <- capture.output(cat("\n"))
 
             ### scheduled events
             out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[24]] <- capture.output(print(simEvents(object)))
+            out[[24]] <- capture.output(print(simEvents(object) %>%
+                                                dplyr::mutate(eventTime=.convUnits(eventTime, "year"))))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
@@ -1073,44 +1075,28 @@ setGeneric("simCurrentTime", function(object, unit) {
 setMethod("simCurrentTime",
           signature=c("simList","missing"),
           definition=function(object) {
-            # must determine whether this is in a spades call or not
-            #  NOTE: this is done in two steps, because text searching on sys.call(1)
-            #   is 3 times faster than text searching on sys.calls()
-            # 1. Search for spades call
-            # 2. Search for doEvent call
-            # 3. Search for moduleCall, evaluate it in the correct environment
-            #     to find what module was called,
-            # 4. then extract the timestepUnits for that module
             mUnit <- moduleTimestepUnit(object)
-            if(!is.null(mUnit)) {
-              return(simCurrentTime(object, mUnit))
+            if(is.null(mUnit)) {
+              mUnit <- NA_character_
             }
-            return(round(object@simtimes$current,getOption("spades.toleranceDigits")))
+            time <- simCurrentTime(object, mUnit)
 
+            return(time)
 })
 
 #' @rdname simList-accessors-times
 setMethod("simCurrentTime",
           signature=c("simList","character"),
           definition=function(object, unit) {
-            # must determine whether this is in a spades call or not
-            #  NOTE: this is done in two steps, because text searching on sys.call(1)
-            #   is 3 times faster than text searching on sys.calls()
-            # 1. Search for spades call
-            # 2. Search for doEvent call
-            # 3. Search for moduleCall, evaluate it in the correct environment
-            #     to find what module was called,
-            # 4. then extract the timestepUnits for that module
             if(!is.na(unit)) {
-              if (simTimestepUnit(object)!=unit) {
-                return(round((object@simtimes$current-object@simtimes$start)*
-                               as.numeric(inSecs(simTimestepUnit(object))/
-                                            inSecs(unit)
-                               ) +
-                              object@simtimes$start,getOption("spades.toleranceDigits")))
+              if(!stri_detect_fixed("^seconds?$", pattern = unit)) {
+               # i.e., if not in same units as simulation
+                time <- .convUnits(object@simtimes$current, unit)
+                return(time)
               }
             }
-            return(round(object@simtimes$current,getOption("spades.toleranceDigits")))
+            time <- object@simtimes$current
+            return(time)
           })
 
 #' @export
@@ -1132,6 +1118,122 @@ setReplaceMethod("simCurrentTime",
 })
 
 #########################################################
+
+################################################################################
+#' @inheritParams simTimes
+#' @param unit character. One of the time units used in SpaDES.
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+#'
+setGeneric("simStopTime", function(object, unit) {
+  standardGeneric("simStopTime")
+})
+
+#' @rdname simList-accessors-times
+setMethod("simStopTime",
+          signature=c("simList","missing"),
+          definition=function(object) {
+            mUnit <- moduleTimestepUnit(object)
+            if(is.null(mUnit)) {
+              mUnit <- NA_character_
+            }
+            time <- simStopTime(object, mUnit)
+
+            return(time)
+          })
+
+#' @rdname simList-accessors-times
+setMethod("simStopTime",
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            if(!is.na(unit)) {
+              if(!stri_detect_fixed("^seconds?$", pattern = unit)) {
+                # i.e., if not in same units as simulation
+                time <- .convUnits(object@simtimes$stop, unit)
+                return(time)
+              }
+            }
+            time <- object@simtimes$stop
+            return(time)
+          })
+
+#' @export
+#' @rdname simList-accessors-times
+setGeneric("simStopTime<-",
+           function(object, value) {
+             standardGeneric("simStopTime<-")
+           })
+
+#' @name simStopTime<-
+#' @aliases simStopTime<-,simList-method
+#' @rdname simList-accessors-times
+setReplaceMethod("simStopTime",
+                 signature="simList",
+                 function(object, value) {
+                   object@simtimes$stop <- value
+                   validObject(object)
+                   return(object)
+                 })
+
+##############################################
+################################################################################
+#' @inheritParams simTimes
+#' @param unit character. One of the time units used in SpaDES.
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-times
+#'
+setGeneric("simStartTime", function(object, unit) {
+  standardGeneric("simStartTime")
+})
+
+#' @rdname simList-accessors-times
+setMethod("simStartTime",
+          signature=c("simList","missing"),
+          definition=function(object) {
+            mUnit <- moduleTimestepUnit(object)
+            if(is.null(mUnit)) {
+              mUnit <- NA_character_
+            }
+            time <- simStartTime(object, mUnit)
+
+            return(time)
+          })
+
+#' @rdname simList-accessors-times
+setMethod("simStartTime",
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            if(!is.na(unit)) {
+              if(!stri_detect_fixed("^seconds?$", pattern = unit)) {
+                # i.e., if not in same units as simulation
+                time <- .convUnits(object@simtimes$start, unit)
+                return(time)
+              }
+            }
+            time <- object@simtimes$start
+            return(time)
+          })
+
+#' @export
+#' @rdname simList-accessors-times
+setGeneric("simStartTime<-",
+           function(object, value) {
+             standardGeneric("simStartTime<-")
+           })
+
+#' @name simStartTime<-
+#' @aliases simStartTime<-,simList-method
+#' @rdname simList-accessors-times
+setReplaceMethod("simStartTime",
+                 signature="simList",
+                 function(object, value) {
+                   object@simtimes$start <- value
+                   validObject(object)
+                   return(object)
+                 })
+
 ################################################################################
 #' @inheritParams simTimes
 #' @export
@@ -1211,118 +1313,215 @@ setMethod(".callingModName",
 })
 
 
+# ################################################################################
+# # @inheritParams simTimes
+# # @export
+# # @docType methods
+# # @rdname simList-accessors-times
+# #
+# setGeneric("simStartTime", function(object) {
+#   standardGeneric("simStartTime")
+# })
+#
+# # @rdname simList-accessors-times
+# setMethod("simStartTime",
+#           signature="simList",
+#           definition=function(object) {
+#             return(object@simtimes$start)
+# })
+#
+# # @export
+# # @rdname simList-accessors-times
+# setGeneric("simStartTime<-",
+#            function(object, value) {
+#              standardGeneric("simStartTime<-")
+# })
+#
+# # @name simStartTime<-
+# # @aliases simStartTime<-,simList-method
+# # @rdname simList-accessors-times
+# setReplaceMethod("simStartTime",
+#                  signature="simList",
+#                  function(object, value) {
+#                    object@simtimes$start <- value
+#                    validObject(object)
+#                    return(object)
+# })
+
+# ################################ Eliot
+# ################################################################################
+# # @inheritParams simCurrentTime
+# # @export
+# # @docType methods
+# # @rdname simList-accessors-times
+# #
+# setGeneric("simStartTime", function(object, unit) {
+#   standardGeneric("simStartTime")
+# })
+#
+# # @rdname simList-accessors-times
+# setMethod("simStartTime",
+#           signature=c("simList","missing"),
+#           definition=function(object) {
+#             mUnit <- moduleTimestepUnit(object)
+#             if(!is.null(mUnit)) {
+#               return(simStartTime(object, mUnit))
+#             }
+#             return(round(object@simtimes$start,getOption("spades.toleranceDigits")))
+#           })
+#
+#
+# # @rdname simList-accessors-times
+# setMethod("simStartTime",
+#           signature=c("simList","character"),
+#           definition=function(object, unit) {
+#
+#             if(!is.na(unit)) {
+#               if (simTimestepUnit(object)!=unit) { # i.e., not in same units as simulation
+#                 return((object@simtimes$start)/
+#                          inSeconds(unit))
+#               }
+#             }
+#             return(round(object@simtimes$start,getOption("spades.toleranceDigits")))
+#           })
+#
+# # @export
+# # @rdname simList-accessors-times
+# setGeneric("simStartTime<-",
+#            function(object, value) {
+#              standardGeneric("simStartTime<-")
+#            })
+#
+# # @name simStartTime<-
+# # @aliases simStartTime<-,simList-method
+# # @rdname simList-accessors-times
+# setReplaceMethod("simStartTime",
+#                  signature="simList",
+#                  function(object, value) {
+#                    # If simtimes$stop already has units, keep those, otherwise,
+#                    #   us the attributes associated with value
+#                    if(!is.null(attr(object@simtimes$start, "unit")))
+#                      attributes(value)$unit <- attr(object@simtimes$start, "unit")
+#                    object@simtimes$start <- value
+#                    validObject(object)
+#                    return(object)
+#                  })
+
+
+
+
+# ################################################################################
+# # @inheritParams simCurrentTime
+# # @export
+# # @docType methods
+# # @rdname simList-accessors-times
+# #
+# setGeneric("simStopTime", function(object, unit) {
+#   standardGeneric("simStopTime")
+# })
+#
+# # @rdname simList-accessors-times
+# setMethod("simStopTime",
+#           signature=c("simList","missing"),
+#           definition=function(object) {
+#             mUnit <- moduleTimestepUnit(object)
+#             if(!is.null(mUnit)) {
+#               return(simStopTime(object, mUnit))
+#             }
+#             return(round(object@simtimes$stop,getOption("spades.toleranceDigits")))
+# })
+#
+#
+# # @rdname simList-accessors-times
+# setMethod("simStopTime",
+#           signature=c("simList","character"),
+#           definition=function(object, unit) {
+#
+#           if(!is.na(unit)) {
+#             if (simTimestepUnit(object)!=unit) { # i.e., not in same units as simulation
+#               return((object@simtimes$stop-object@simtimes$start)*
+#                         inSeconds(simTimestepUnit(object))/
+#                         inSeconds(unit) +
+#                       object@simtimes$start)
+#             }
+#           }
+#           return(round(object@simtimes$stop,getOption("spades.toleranceDigits")))
+# })
+#
+# # @export
+# # @rdname simList-accessors-times
+# setGeneric("simStopTime<-",
+#            function(object, value) {
+#              standardGeneric("simStopTime<-")
+# })
+#
+# # @name simStopTime<-
+# # @aliases simStopTime<-,simList-method
+# # @rdname simList-accessors-times
+# setReplaceMethod("simStopTime",
+#                  signature="simList",
+#                  function(object, value) {
+#                    # If simtimes$stop already has units, keep those, otherwise,
+#                    #   us the attributes associated with value
+#                    if(!is.null(attr(object@simtimes$stop, "unit")))
+#                      attributes(value)$unit <- attr(object@simtimes$stop, "unit")
+#                    object@simtimes$stop <- value
+#                    validObject(object)
+#                    return(object)
+# })
+
+
+
 ################################################################################
-#' @inheritParams simTimes
+#' @param time Numeric. With a unit attribute, indicating the time unit
+#' @param unit Character. The time unit to use for calculating the time from start
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric("simStartTime", function(object) {
-  standardGeneric("simStartTime")
+setGeneric(".convUnits", function(time, unit) {
+  standardGeneric(".convUnits")
 })
 
 #' @rdname simList-accessors-times
-setMethod("simStartTime",
-          signature="simList",
-          definition=function(object) {
-            return(object@simtimes$start)
-})
+setMethod(".convUnits",
+          signature=c("numeric","character"),
+          definition=function(time, unit) {
+            stopifnot(is.character(attr(time, "unit")))
+            stopifnot(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"),
+                                                      pattern=attr(time, "unit")), na.rm=TRUE))
+            newValue <- time*
+                         inSeconds(attr(time, "unit"))/
+                         inSeconds(unit)
+            attr(newValue, "unit") <- unit
+            return(newValue)
+          })
 
-#' @export
 #' @rdname simList-accessors-times
-setGeneric("simStartTime<-",
-           function(object, value) {
-             standardGeneric("simStartTime<-")
-})
-
-#' @name simStartTime<-
-#' @aliases simStartTime<-,simList-method
-#' @rdname simList-accessors-times
-setReplaceMethod("simStartTime",
-                 signature="simList",
-                 function(object, value) {
-                   object@simtimes$start <- value
-                   validObject(object)
-                   return(object)
-})
+setMethod(".convUnits",
+          signature=c("numeric","missing"),
+          definition=function(time) {
+            return(time)
+          })
 
 ################################################################################
-#' @inheritParams simCurrentTime
+#' Calculate the ratio of times, stripping units
+#' @param first Numeric. Indicating the numerator for the ratio
+#' @param second Numeric. Indicating the denomenator for the ratio
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric("simStopTime", function(object, unit) {
-  standardGeneric("simStopTime")
+setGeneric(".timeRatio", function(first, second) {
+  standardGeneric(".timeRatio")
 })
 
 #' @rdname simList-accessors-times
-setMethod("simStopTime",
-          signature=c("simList","missing"),
-          definition=function(object) {
-
-            # must determine whether this is in a spades call or not
-            #  NOTE: this is done in two steps, because text searching on sys.call(1)
-            #   is 3 times faster than text searching on sys.calls()
-            # 1. Search for spades call
-            # 2. Search for doEvent call
-            # 3. Search for moduleCall, evaluate it in the correct environment
-            #     to find what module was called,
-            # 4. then extract the timestepUnits for that module
-            mUnit <- moduleTimestepUnit(object)
-            if(!is.null(mUnit)) {
-              return(simStopTime(object, mUnit))
-            }
-            return(round(object@simtimes$stop,getOption("spades.toleranceDigits")))
-})
-
-
-#' @rdname simList-accessors-times
-setMethod("simStopTime",
-          signature=c("simList","character"),
-          definition=function(object, unit) {
-
-          # must determine whether this is in a spades call or not
-          #  NOTE: this is done in two steps, because text searching on sys.call(1)
-          #   is 3 times faster than text searching on sys.calls()
-          # 1. Search for spades call
-          # 2. Search for doEvent call
-          # 3. Search for moduleCall, evaluate it in the correct environment
-          #     to find what module was called,
-          # 4. then extract the timestepUnits for that module
-          if(!is.na(unit)) {
-            if (simTimestepUnit(object)!=unit) {
-              return((object@simtimes$stop-object@simtimes$start)*
-                       as.numeric(inSecs(simTimestepUnit(object))/
-                                    inSecs(unit)
-                       ) +
-                       object@simtimes$start)
-            }
-          }
-          return(round(object@simtimes$stop,getOption("spades.toleranceDigits")))
-})
-
-#' @export
-#' @rdname simList-accessors-times
-setGeneric("simStopTime<-",
-           function(object, value) {
-             standardGeneric("simStopTime<-")
-})
-
-#' @name simStopTime<-
-#' @aliases simStopTime<-,simList-method
-#' @rdname simList-accessors-times
-setReplaceMethod("simStopTime",
-                 signature="simList",
-                 function(object, value) {
-                   # If simtimes$stop already has units, keep those, otherwise,
-                   #   us the attributes associated with value
-                   if(!is.null(attr(object@simtimes$stop, "unit")))
-                     attributes(value)$unit <- attr(object@simtimes$stop, "unit")
-                   object@simtimes$stop <- value
-                   validObject(object)
-                   return(object)
-})
+setMethod(".timeRatio",
+          signature=c("numeric","numeric"),
+          definition=function(first, second) {
+            return(as.numeric(first/second))
+          })
 
 ################################################################################
 #' Simulation event lists
@@ -1448,7 +1647,7 @@ setGeneric("simTimestepUnit", function(object) {
 setMethod("simTimestepUnit",
           signature="simList",
           definition=function(object) {
-            return(attr(object@simtimes$start, "unit"))
+            return(object@simtimes$timestepUnit)
 })
 
 #' @export
@@ -1466,15 +1665,12 @@ setReplaceMethod("simTimestepUnit",
                  function(object, value) {
                    if(any(grepl(c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$"),
                                  pattern=value), na.rm=TRUE)) {
-                     attributes(simCurrentTime(object))$unit <- value
-                     attributes(simStopTime(object))$unit <- value
-                     attributes(simStartTime(object))$unit <- value
+                     object@simtimes$timestepUnit <- value
 
                      #object@simtimes$timestepUnit <- value
                    } else {
-                     attributes(simCurrentTime(object))$unit <- NA_character_
-                     attributes(simStopTime(object))$unit <- NA_character_
-                     attributes(simStartTime(object))$unit <- NA_character_
+                     object@simtimes$timestepUnit <- NA_character_
+
                      #object@simtimes$timestepUnit <- NA_character_
                      if(!is.na(value)){
                        message("unknown timestepUnit provided: ", value)

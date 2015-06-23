@@ -77,7 +77,7 @@ setMethod("simInit",
 
             sim <- new("simList")
 
-            simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
+            #simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
             # assign some core & global params only for now
@@ -94,8 +94,6 @@ setMethod("simInit",
               # add core module name to the loaded list:
               simModulesLoaded(sim) <- append(simModulesLoaded(sim), c)
 
-              # schedule each module's init event:
-              sim <- scheduleEvent(sim, simStartTime(sim), c, "init")
             }
 
             # source module metadata and code files
@@ -134,10 +132,20 @@ setMethod("simInit",
             } else {
               smallestTimestepUnit(sim)
             }
-#             attributes(simCurrentTime(sim))$unit <- simTimestepUnit(sim)
-#             attributes(simStopTime(sim))$unit <- simTimestepUnit(sim)
-#             attributes(simStartTime(sim))$unit <- simTimestepUnit(sim)
 
+            timestep <- inSeconds(simTimestepUnit(sim))
+            simTimes(sim) <- list(current=times$start*timestep,
+                                  start=times$start*timestep,
+                                  stop=times$stop*timestep,
+                                  timestepUnit=simTimestepUnit(sim),
+                                  initialStart=times$start)
+
+
+            # load core modules
+            for (c in core) {
+              # schedule each module's init event:
+              sim <- scheduleEvent(sim, simStartTime(sim), c, "init")
+            }
 
             # assign user-specified non-global params, while
             # keeping defaults for params not specified by user
@@ -165,7 +173,7 @@ setMethod("simInit",
             # load user-defined modules
             for (m in simModulesLoadOrder(sim)) {
               # schedule each module's init event:
-              sim <- scheduleEvent(sim, simStartTime(sim), m, "init")
+              sim <- scheduleEvent(sim, simStartTime(sim, "seconds"), m, "init")
 
               ### add module name to the loaded list
               simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
@@ -485,27 +493,47 @@ setMethod("scheduleEvent",
                   # first check if this moduleName matches the name of a module with meta-data
                   #   (i.e., simDepends(sim)@dependencies filled)
                   if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
-                    eventTimeIncrementSec <- (eventTime - simCurrentTime(sim))*
-                      timestepInSeconds(sim, moduleName)
-
-                    eventTimeInCommonUnit <-
-                      suppressMessages((simCurrentTime(sim)-simStartTime(sim))*
-                                       inSecs(moduleTimestepUnit(sim))/
-                                         inSecs(simTimestepUnit(sim))+
-                                       eventTimeIncrementSec/
-                                         as.numeric(inSecs(simTimestepUnit(sim)))+
-                                         simStartTime(sim)) #*
-                      #inSecs(moduleTimestepUnit(sim))/inSecs(simTimestepUnit(sim)))
-#                    print(eventTimeInCommonUnit)
-
-                  } else {
-                    eventTimeInCommonUnit <- eventTime
+                    # If the eventTime doesn't have units, it is a user generated
+                    #  value, likely because of times in the simInit call.
+                    #  This must be intercepted, and units added based on this
+                    #  assumption, that the units are in simTimestepUnits
+                    if(is.null(attr(eventTime, "unit"))) {
+                      attributes(eventTime)$unit <- moduleTimestepUnit(sim)
+                      eventTimeInSeconds <-
+                        if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
+                          eventTime
+                        } else {
+                          as.numeric(.convUnits((eventTime -
+                                                   sim@simtimes$initialStart),
+                                                "seconds") +
+                                       simCurrentTime(sim, "seconds"))
+                        }
+                    } else {
+                      eventTimeInSeconds <-
+                          if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
+                            eventTime
+                          } else {
+                            as.numeric(.convUnits(eventTime, "seconds"))
+                          }
+                    }
+                  } else { # for core modules because they have no metadata
+                    eventTimeInSeconds <-
+                      if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
+                        eventTime
+                      } else {
+                        as.numeric(.convUnits(eventTime, "seconds"))
+                      }
                   }
-                } else {
-                  eventTimeInCommonUnit <- eventTime
+                } else { # when eventTime is NA... can't seem to get an example
+                  eventTimeInSeconds <-
+                    if(stri_detect_fixed("^seconds?$", pattern=attr(eventTime, "unit"))) {
+                      eventTime
+                    } else {
+                      as.numeric(.convUnits(eventTime, "seconds"))
+                    }
                 }
 
-                newEvent <- as.data.table(list(eventTime=eventTimeInCommonUnit,
+                newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
                                               moduleName=moduleName,
                                               eventType=eventType))
 
@@ -575,10 +603,10 @@ setMethod("timestepInSeconds",
   timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
 
   if(is.character(timestepUnit)) {
-    return(as.numeric(eval(parse(text=paste0("d",timestepUnit,"(1)")))))
+    return(eval(parse(text=paste0("d",timestepUnit,"(1)"))))
   }
   if(is.na(timestepUnit)) {
-    return(as.numeric(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)")))))
+    return(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)"))))
   } else {
     return(timestepUnit)
   }
