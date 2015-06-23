@@ -2,8 +2,6 @@
 % Please edit documentation in R/times.R
 \docType{methods}
 \name{dyears}
-\alias{d}
-\alias{d,ANY-method}
 \alias{dNA}
 \alias{dNA,ANY-method}
 \alias{dday}
@@ -47,10 +45,6 @@ dhour(x)
 dNA(x)
 
 \S4method{dNA}{ANY}(x)
-
-d(x)
-
-\S4method{d}{ANY}(x)
 }
 \arguments{
 \item{x}{numeric. Number of the desired units}

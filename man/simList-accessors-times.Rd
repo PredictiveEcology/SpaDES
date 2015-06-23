@@ -2,6 +2,11 @@
 % Please edit documentation in R/simList.R
 \docType{methods}
 \name{simTimes}
+\alias{.convUnits}
+\alias{.convUnits,numeric,character-method}
+\alias{.convUnits,numeric,missing-method}
+\alias{.timeRatio}
+\alias{.timeRatio,numeric,numeric-method}
 \alias{moduleTimestepUnit}
 \alias{moduleTimestepUnit,NULL-method}
 \alias{moduleTimestepUnit,simList-method}
@@ -14,7 +19,8 @@
 \alias{simModuleTimestepUnits}
 \alias{simModuleTimestepUnits,simList-method}
 \alias{simStartTime}
-\alias{simStartTime,simList-method}
+\alias{simStartTime,simList,character-method}
+\alias{simStartTime,simList,missing-method}
 \alias{simStartTime<-}
 \alias{simStartTime<-,simList-method}
 \alias{simStopTime}
@@ -50,20 +56,6 @@ simCurrentTime(object) <- value
 
 \S4method{simCurrentTime}{simList}(object) <- value
 
-moduleTimestepUnit(object)
-
-\S4method{moduleTimestepUnit}{simList}(object)
-
-\S4method{moduleTimestepUnit}{`NULL`}(object)
-
-simStartTime(object)
-
-\S4method{simStartTime}{simList}(object)
-
-simStartTime(object) <- value
-
-\S4method{simStartTime}{simList}(object) <- value
-
 simStopTime(object, unit)
 
 \S4method{simStopTime}{simList,missing}(object)
@@ -73,6 +65,32 @@ simStopTime(object, unit)
 simStopTime(object) <- value
 
 \S4method{simStopTime}{simList}(object) <- value
+
+simStartTime(object, unit)
+
+\S4method{simStartTime}{simList,missing}(object)
+
+\S4method{simStartTime}{simList,character}(object, unit)
+
+simStartTime(object) <- value
+
+\S4method{simStartTime}{simList}(object) <- value
+
+moduleTimestepUnit(object)
+
+\S4method{moduleTimestepUnit}{simList}(object)
+
+\S4method{moduleTimestepUnit}{`NULL`}(object)
+
+.convUnits(time, unit)
+
+\S4method{.convUnits}{numeric,character}(time, unit)
+
+\S4method{.convUnits}{numeric,missing}(time)
+
+.timeRatio(first, second)
+
+\S4method{.timeRatio}{numeric,numeric}(first, second)
 
 simTimestepUnit(object)
 
@@ -92,6 +110,18 @@ simModuleTimestepUnits(object)
 \item{value}{The object to be stored at the slot.}
 
 \item{unit}{character. One of the time units used in SpaDES.}
+
+\item{time}{Numeric. With a unit attribute, indicating the time unit}
+
+\item{first}{Numeric. Indicating the numerator for the ratio}
+
+\item{second}{Numeric. Indicating the denomenator for the ratio}
+
+\item{unit}{character. One of the time units used in SpaDES.}
+
+\item{unit}{character. One of the time units used in SpaDES.}
+
+\item{unit}{Character. The time unit to use for calculating the time from start}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
@@ -107,6 +137,8 @@ of the simulation.
    \code{simStopTime} \tab Simulation stop time.\cr
    \code{simTimes} \tab List of all simulation times (current, start, stop).\cr
 }
+
+Calculate the ratio of times, stripping units
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
