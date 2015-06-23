@@ -29,7 +29,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
       setProgressBar(sim)
 
       # schedule the next save
-      timeNextUpdate <- simCurrentTime(sim, "year") +
+      timeNextUpdate <- simCurrentTime(sim, simTimestepUnit(sim)) +
         simParams(sim)$.progress$interval
 
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set")
