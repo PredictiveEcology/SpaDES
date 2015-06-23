@@ -2,9 +2,11 @@
 % Please edit documentation in R/times.R
 \docType{methods}
 \name{inSeconds}
+\alias{.convUnits}
 \alias{inSeconds}
 \alias{inSeconds,NULL-method}
 \alias{inSeconds,character-method}
+\alias{spadesTimes}
 \title{Convert time units}
 \usage{
 inSeconds(unit)
@@ -12,15 +14,33 @@ inSeconds(unit)
 \S4method{inSeconds}{character}(unit)
 
 \S4method{inSeconds}{`NULL`}(unit)
+
+.convUnits(time, unit)
+
+spadesTimes()
 }
 \arguments{
-\item{unit}{Character string indicating time units to be returned as seconds.}
+\item{unit}{Character vector of length 1, indicating time units.}
+
+\item{time}{Numeric. With a unit attribute, indicating the time unit of the input numeric.}
+}
+\value{
+A numeric vector of length 1, with \code{unit} attribute set to "seconds".
 }
 \description{
 In addition to using the \code{lubridate} package, some additional functions
-and to work with times are provided.
+to work with times are provided.
+
+This function takes a numeric with a "unit" attribute and converts it to another numeric
+with a different time attribute. If the units passed to argument \code{units} are the same as
+\code{attr(time, "unit")}, then it simply returns input \code{time}.
+}
+\details{
+Currently available units are found within the \code{spadesTimes()} function.
 }
 \author{
 Alex Chubaty & Eliot McIntire
+
+Eliot McIntire
 }
 
