@@ -133,7 +133,7 @@ setMethod("loadFiles",
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
               fileList <- simFileList(sim)
-              curTime <- simCurrentTime(sim)
+              curTime <- simCurrentTime(sim, "seconds")
               arguments <- fileList$arguments
 
               # Check if arguments is a named list; the name may be concatenated

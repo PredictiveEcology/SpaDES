@@ -1,8 +1,8 @@
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     if (interactive()) {
-      defaults = list(graphical=FALSE,
-                      interval=(simStopTime(sim)-simStartTime(sim))/10)
+       defaults = list(graphical=FALSE,
+                       interval=(simStopTime(sim)-simStartTime(sim))/10)
 
       # Check whether a .progress is specified in the simList
       if ( is.null(simParams(sim)$.progress$graphical) &&
@@ -21,15 +21,16 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
     # if NA then don't use progress bar
     if (any(!is.na(simParams(sim)$.progress))) {
       newProgressBar(sim)
-      sim <- scheduleEvent(sim, simStartTime(sim), "progress", "set")
-      sim <- scheduleEvent(sim, simStopTime(sim), "progress", "set")
+      sim <- scheduleEvent(sim, simStartTime(sim, "seconds"), "progress", "set")
+      sim <- scheduleEvent(sim, simStopTime(sim, "seconds"), "progress", "set")
     }
   } else if (eventType=="set") {
       # update progress bar
       setProgressBar(sim)
 
       # schedule the next save
-      timeNextUpdate <- simCurrentTime(sim) + simParams(sim)$.progress$interval
+      timeNextUpdate <- simCurrentTime(sim, "year") +
+        simParams(sim)$.progress$interval
 
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set")
   } else {
@@ -64,18 +65,18 @@ newProgressBar <- function(sim) {
             OS <- tolower(Sys.info()["sysname"])
             if (simParams(sim)$.progress$graphical) {
               if (OS=="windows") {
-                pb <- winProgressBar(min = simStartTime(sim),
-                                     max = simStopTime(sim),
-                                     initial = simStartTime(sim))
+                pb <- winProgressBar(min = simStartTime(sim, simTimestepUnit(sim)),
+                                     max = simStopTime(sim, simTimestepUnit(sim)),
+                                     initial = simStartTime(sim, simTimestepUnit(sim)))
               } else {
-                pb <- tkProgressBar(min = simStartTime(sim),
-                                    max = simStopTime(sim),
-                                    initial = simStartTime(sim))
+                pb <- tkProgressBar(min = simStartTime(sim, simTimestepUnit(sim)),
+                                    max = simStopTime(sim, simTimestepUnit(sim)),
+                                    initial = simStartTime(sim, simTimestepUnit(sim)))
               }
             } else {
-              pb <- txtProgressBar(min = simStartTime(sim),
-                                   max = simStopTime(sim),
-                                   initial = simStartTime(sim),
+              pb <- txtProgressBar(min = simStartTime(sim, simTimestepUnit(sim)),
+                                   max = simStopTime(sim, simTimestepUnit(sim)),
+                                   initial = simStartTime(sim, simTimestepUnit(sim)),
                                    char = ".", style = 3)
             }
             assign(".pb", pb, envir=.spadesEnv)
@@ -88,20 +89,20 @@ setProgressBar <- function(sim) {
   pb <- get(".pb", envir=.spadesEnv)
   if (simParams(sim)$.progress$graphical) {
     if (OS=="windows") {
-      setWinProgressBar(pb, simCurrentTime(sim),
+      setWinProgressBar(pb, simCurrentTime(sim, simTimestepUnit(sim)),
                         title=paste("Current simulation time:",
                                     simTimestepUnit(sim),
-                                    simCurrentTime(sim),
-                                    "of total", simStopTime(sim)))
+                                    simCurrentTime(sim, simTimestepUnit(sim)),
+                                    "of total", simStopTime(sim, simTimestepUnit(sim))))
     } else {
-      setTkProgressBar(pb, simCurrentTime(sim),
+      setTkProgressBar(pb, simCurrentTime(sim, simTimestepUnit(sim)),
                        title=paste("Current simulation time:",
                                    simTimestepUnit(sim),
-                                   simCurrentTime(sim),
-                                   "of total", simStopTime(sim)))
+                                   simCurrentTime(sim, simTimestepUnit(sim)),
+                                   "of total", simStopTime(sim, simTimestepUnit(sim))))
     }
   } else {
-    setTxtProgressBar(pb, simCurrentTime(sim))
+    setTxtProgressBar(pb, simCurrentTime(sim, simTimestepUnit(sim)))
   }
   assign(".pb", pb, envir=.spadesEnv)
 }
