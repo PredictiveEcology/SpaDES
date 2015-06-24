@@ -19,8 +19,8 @@ none of the modules has explicit units.
 }
 \description{
 When modules have different timestepUnit, SpaDES automatically takes the
-largest (e.g., "year") as the unit for a simulation. This function determines which
-is the largest unit.
+largest (e.g., "year") as the unit for a simulation. This function determines
+which is the largest unit.
 }
 \author{
 Eliot McIntire

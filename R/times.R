@@ -189,13 +189,16 @@ setMethod("inSeconds",
 ################################################################################
 #' Convert time units
 #'
-#' This function takes a numeric with a "unit" attribute and converts it to another numeric
-#' with a different time attribute. If the units passed to argument \code{units} are the same as
+#' This function takes a numeric with a "unit" attribute and converts it to
+#' another numeric with a different time attribute.
+#' If the units passed to argument \code{units} are the same as
 #' \code{attr(time, "unit")}, then it simply returns input \code{time}.
 #'
-#' If \code{time} has no \code{units} attribute, then it is assumed to be seconds.
+#' If \code{time} has no \code{units} attribute, then it is assumed to be
+#' seconds.
 #'
-#' @param time Numeric. With a unit attribute, indicating the time unit of the input numeric. See Details.
+#' @param time   Numeric. With a unit attribute, indicating the time unit of the
+#'               input numeric. See Details.
 #' @export
 #' @docType methods
 #' @importFrom stringi stri_detect_fixed
@@ -205,52 +208,57 @@ setGeneric("convertTimeunit", function(time, unit) {
   standardGeneric("convertTimeunit")
 })
 
+#' @export
 #' @rdname simList-accessors-times
+setMethod(
+  "convertTimeunit",
+  signature=c("numeric","character"),
+  definition=function(time, unit) {
+    timeUnit <- attr(time, "unit")
+
+    # Assume default of seconds if no time has no units
+    if (!is.character(timeUnit)) {
+      timeUnit <- "second"
+    }
+
+    if (!is.na(timeUnit)) {
+      stopifnot(
+        any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm=FALSE)
+      )
+
+      if(!stri_detect_fixed(unit, pattern=timeUnit)) {
+        time <- time * inSeconds(timeUnit)/inSeconds(unit)
+        attr(time, "unit") <- unit
+      }
+    } else {
+      time <- 0
+      attr(time, "unit") <- unit
+    }
+
+    return(time)
+})
+
+#' @export
+#' @rdname timeConversion
 setMethod("convertTimeunit",
-          signature=c("numeric","character"),
-          definition=function(time, unit) {
-
-            timeUnit <- attr(time, "unit")
-
-            # Assume default of seconds if no time has no units
-            if(!is.character(timeUnit)) timeUnit <- "second"
-
-            if(!is.na(timeUnit)) {
-
-              stopifnot(any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm=FALSE))
-
-              if(!stri_detect_fixed(unit, pattern=timeUnit)) {
-                time <- time * inSeconds(timeUnit)/inSeconds(unit)
-                attr(time, "unit") <- unit
-              }
-            } else {
-              time <- 0
-              attr(time, "unit") <- unit
-            }
-
-            return(time)
-          })
-
-setMethod("convertTimeunit",
-          signature=c("numeric","missing"),
+          signature=c("numeric", "missing"),
           definition=function(time) {
             return(time)
-          })
-
+})
 
 ################################################################################
-#' Determine what the smallest timestepUnit in a simObject
+#' Determine the smallest timestepUnit in a simulation
 #'
-#' When modules have different timestepUnit, SpaDES automatically takes the
-#' largest (e.g., "year") as the unit for a simulation. This function determines which
-#' is the largest unit.
+#' When modules have different timeunit, SpaDES automatically takes the smallest
+#' (e.g., "second") as the unit for a simulation.
 #'
-#' @param sim          A \code{simList} simulation object.
+#' @param sim   A \code{simList} simulation object.
 #'
-#' @return The timestepUnit as a character string. This defaults to "second" if
+#' @return The timeunit as a character string. This defaults to "second" if
 #' none of the modules has explicit units.
 #'
 #' @export
+#' @include simList.R
 #' @docType methods
 #' @rdname minTimeunit
 #'
@@ -260,25 +268,32 @@ setGeneric("minTimeunit", function(sim) {
   standardGeneric("minTimeunit")
 })
 
+#' @export
 #' @rdname minTimeunit
-setMethod("minTimeunit",
-          signature(sim="simList"),
-          definition=function(sim) {
-            if(!is.null(simDepends(sim)@dependencies[[1]])) {
+setMethod(
+  "minTimeunit",
+  signature(sim="simList"),
+  definition=function(sim) {
+    if (!is.null(simDepends(sim)@dependencies[[1]])) {
+      timesteps <- lapply(simDepends(sim)@dependencies, function(x) {
+        x@timestepUnit
+      })
+      if (!all(sapply(timesteps, is.na))) {
+        return(timesteps[!is.na(timesteps)][[which.min(sapply(
+          timesteps[!sapply(timesteps, is.na)], function(ts) {
+            eval(parse(text=paste0("d",ts,"(1)"))) }
+        ))]])
+      }
+    }
+    return("second")
+})
 
-              timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestepUnit)
-              if(!all(sapply(timesteps, is.na))) {
-                return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[!sapply(timesteps, is.na)],
-                                                                      function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
-
-              }
-            }
-            return("second")
-          })
-
-.spadesTimes <- c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$")
+#' @rdname timeConversion
+.spadesTimes <- c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$",
+                  "^seconds?$")
 
 #' @export
 #' @rdname timeConversion
-spadesTimes <- function() gsub(.spadesTimes, pattern="[[:punct:]]", replacement = "")
-
+spadesTimes <- function() {
+  gsub(.spadesTimes, pattern="[[:punct:]]", replacement = "")
+}

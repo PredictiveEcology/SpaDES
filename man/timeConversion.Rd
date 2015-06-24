@@ -2,12 +2,16 @@
 % Please edit documentation in R/times.R
 \docType{methods}
 \name{inSeconds}
+\alias{.spadesTimes}
 \alias{convertTimeunit}
+\alias{convertTimeunit,numeric,missing-method}
 \alias{inSeconds}
 \alias{inSeconds,NULL-method}
 \alias{inSeconds,character-method}
 \alias{spadesTimes}
 \title{Convert time units}
+\format{\preformatted{ chr [1:6] "^years?$" "^months?$" "^weeks?$" "^days?$" "^hours?$" ...
+}}
 \usage{
 inSeconds(unit)
 
@@ -17,12 +21,17 @@ inSeconds(unit)
 
 convertTimeunit(time, unit)
 
+\S4method{convertTimeunit}{numeric,missing}(time)
+
+.spadesTimes
+
 spadesTimes()
 }
 \arguments{
 \item{unit}{Character vector of length 1, indicating time units.}
 
-\item{time}{Numeric. With a unit attribute, indicating the time unit of the input numeric. See Details.}
+\item{time}{Numeric. With a unit attribute, indicating the time unit of the
+input numeric. See Details.}
 }
 \value{
 A numeric vector of length 1, with \code{unit} attribute set to "seconds".
@@ -31,18 +40,21 @@ A numeric vector of length 1, with \code{unit} attribute set to "seconds".
 In addition to using the \code{lubridate} package, some additional functions
 to work with times are provided.
 
-This function takes a numeric with a "unit" attribute and converts it to another numeric
-with a different time attribute. If the units passed to argument \code{units} are the same as
+This function takes a numeric with a "unit" attribute and converts it to
+another numeric with a different time attribute.
+If the units passed to argument \code{units} are the same as
 \code{attr(time, "unit")}, then it simply returns input \code{time}.
 }
 \details{
 Currently available units are found within the \code{spadesTimes()} function.
 
-If \code{time} has no \code{units} attribute, then it is assumed to be seconds.
+If \code{time} has no \code{units} attribute, then it is assumed to be
+seconds.
 }
 \author{
 Alex Chubaty & Eliot McIntire
 
 Eliot McIntire
 }
+\keyword{datasets}
 

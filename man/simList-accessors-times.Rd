@@ -72,36 +72,34 @@ start(x) <- value
 
 \S4method{start}{simList}(x) <- value
 
-.moduleTimeunit(object)
+.moduleTimeunit(x)
 
-\S4method{.moduleTimeunit}{simList}(object)
+\S4method{.moduleTimeunit}{simList}(x)
 
-\S4method{.moduleTimeunit}{`NULL`}(object)
+\S4method{.moduleTimeunit}{`NULL`}(x)
 
-timeunit(object)
+timeunit(x)
 
-\S4method{timeunit}{simList}(object)
+\S4method{timeunit}{simList}(x)
 
-timeunit(object) <- value
+timeunit(x) <- value
 
-\S4method{timeunit}{simList}(object) <- value
+\S4method{timeunit}{simList}(x) <- value
 
-timeunits(object)
+timeunits(x)
 
-\S4method{timeunits}{simList}(object)
+\S4method{timeunits}{simList}(x)
 
 \S4method{convertTimeunit}{numeric,character}(time, unit)
 }
 \arguments{
+\item{x}{A \code{simList} simulation object.}
+
+\item{...}{Additional parameters.}
+
 \item{value}{The object to be stored at the slot.}
 
-\item{unit}{character. One of the time units used in SpaDES.}
-
-\item{object}{A \code{simList} simulation object.}
-
-\item{unit}{character. One of the time units used in SpaDES.}
-
-\item{unit}{character. One of the time units used in SpaDES.}
+\item{unit}{Character. One of the time units used in \code{SpaDES}.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
@@ -115,21 +113,26 @@ of the simulation.
    \code{time} \tab Current simulation time.\cr
    \code{start} \tab Simulation start time.\cr
    \code{end} \tab Simulation stop time.\cr
-   \code{times} \tab List of all simulation times (current, start, stop).\cr
+   \code{timeunit} \tab Simulation timeunit.\cr
+   \code{times} \tab List of all simulation times (current, start, stop, timeunit).\cr
 }
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
 
-\code{timeunit} will extract the current units of the time used in a spades call. If
-it is set within a \code{simInit} as say, \code{times=list(start=0, stop=52, timestepUnit="week")}
-it will set the units for that simulation. But default, a simInit call will use the largest
-units contained within the meta data for the modules being used. NA for timestepUnit defaults to
-"year"
+\code{timeunit} will extract the current units of the time used in a
+\code{spades} call.
+If it is set within a \code{simInit}, e.g.,
+\code{times=list(start=0, stop=52, timestepUnit="week")}, it will set the
+units for that simulation.
+By default, a \code{simInit} call will use the smallest unit contained within
+the metadata for the modules being used.
+If \code{NA}, \code{timestepUnit} defaults to none.
 
 \code{timeunits} will extract the current units of the time of all
-modules used in a simObject. This is different from \code{simTimestepUnits} because it
-is not necessarily associated with a spades call
+modules used in a simulation.
+This is different from \code{timeunits} because it is not necessarily
+associated with a \code{spades} call.
 }
 \author{
 Alex Chubaty and Eliot McIntire

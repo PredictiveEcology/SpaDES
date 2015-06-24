@@ -11,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.99.0.9010
-Date: 2015-06-22
+Version: 0.99.0.9011
+Date: 2015-06-23
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -58,6 +58,7 @@ License: GPL-3
 Collate:
     'agent.R'
     'SELES.R'
+    'times.R'
     'module-dependencies-class.R'
     'misc-methods.R'
     'simList.R'
@@ -86,7 +87,6 @@ Collate:
     'spades-package.R'
     'splitRaster.R'
     'spread-process.R'
-    'times.R'
     'zzz.R'
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

@@ -91,10 +91,10 @@ These are included for advanced users.
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
 }
 
-\code{.callingModuleName} returns the name of the module that is currently the active
-module calling functions like scheduleEvent. This will only return the module name
-if it is inside a \code{spades} function call, i.e., it will return \code{NULL} if used
-in interactive mode.
+\code{.callingModuleName} returns the name of the module that is currently
+the active module calling functions like \code{scheduleEvent}.
+This will only return the module name if it is inside a \code{spades}
+function call, i.e., it will return \code{NULL} if used in interactive mode.
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.

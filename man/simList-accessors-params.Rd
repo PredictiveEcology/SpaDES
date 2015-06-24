@@ -6,10 +6,10 @@
 \alias{globals,simList-method}
 \alias{globals<-}
 \alias{globals<-,simList-method}
-\alias{globalsOutputPath}
-\alias{globalsOutputPath,simList-method}
-\alias{globalsOutputPath<-}
-\alias{globalsOutputPath<-,simList-method}
+\alias{outputPath}
+\alias{outputPath,simList-method}
+\alias{outputPath<-}
+\alias{outputPath<-,simList-method}
 \alias{params}
 \alias{params,simList-method}
 \alias{params<-}
@@ -93,13 +93,13 @@ globals(object) <- value
 
 \S4method{globals}{simList}(object) <- value
 
-globalsOutputPath(object)
+outputPath(object)
 
-\S4method{globalsOutputPath}{simList}(object)
+\S4method{outputPath}{simList}(object)
 
-globalsOutputPath(object) <- value
+outputPath(object) <- value
 
-\S4method{globalsOutputPath}{simList}(object) <- value
+\S4method{outputPath}{simList}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -123,7 +123,7 @@ Advanced use
    Accessor method \tab Module \tab Description \cr
    \code{simCheckpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
    \code{simCheckpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-   \code{globalsOutputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
+   \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{simProgressGraphical} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr

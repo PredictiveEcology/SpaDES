@@ -20,7 +20,7 @@
 #'                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.
 #'
 #' @param debug         Optional logical flag determines whether sim debug info
-#'                      will be printed (default \code{debug=FALSE}.
+#'                      will be printed (default \code{debug=FALSE}).
 #'
 #' @return Returns the modified \code{simList} object.
 #'
