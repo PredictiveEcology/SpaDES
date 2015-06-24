@@ -70,7 +70,7 @@ setMethod("show",
 
             ### completed events
             out[[20]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[21]] <- if(!is.null(completed(object)$eventTime)) {
+            out[[21]] <- if (!is.null(completed(object)$eventTime)) {
               capture.output(
                 print(
                   completed(object) %>%
@@ -84,7 +84,7 @@ setMethod("show",
 
             ### scheduled events
             out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[24]] <- if(!is.null(events(object)$eventTime)) {
+            out[[24]] <- if (!is.null(events(object)$eventTime)) {
               capture.output(
                 print(
                   events(object) %>%
@@ -892,7 +892,7 @@ setReplaceMethod("outputPath",
 #' Accessor functions for the \code{simtimes} slot of a \code{simList} object
 #' and its elements.
 #' Additonal methods are provided to access the current, start, and stop times
-#' of the simulation.
+#' of the simulation:
 #' \tabular{ll}{
 #'    \code{time} \tab Current simulation time.\cr
 #'    \code{start} \tab Simulation start time.\cr
@@ -900,8 +900,6 @@ setReplaceMethod("outputPath",
 #'    \code{timeunit} \tab Simulation timeunit.\cr
 #'    \code{times} \tab List of all simulation times (current, start, stop, timeunit).\cr
 #' }
-#'
-#' Currently, only get and set methods are defined. Subset methods are not.
 #'
 #' @param x      A \code{simList} simulation object.
 #'
@@ -979,7 +977,7 @@ setMethod(
   signature = c("simList", "missing"),
   definition = function(x) {
     mUnit <- .moduleTimeunit(x)
-    if(is.null(mUnit)) {
+    if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
     t <- time(x, mUnit)
@@ -992,8 +990,8 @@ setMethod(
   "time",
   signature = c("simList", "character"),
   definition = function(x, unit) {
-    if(!is.na(unit)) {
-      if(!str_detect("^seconds?$", pattern = unit)) {
+    if (!is.na(unit)) {
+      if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$current, unit)
         return(t)
@@ -1042,7 +1040,7 @@ setMethod(
   signature = c("simList", "missing"),
   definition = function(x) {
     mUnit <- .moduleTimeunit(x)
-    if(is.null(mUnit)) {
+    if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
     t <- end(x, mUnit)
@@ -1055,8 +1053,8 @@ setMethod(
   "end",
   signature=c("simList", "character"),
   definition=function(x, unit) {
-    if(!is.na(unit)) {
-      if(!str_detect("^seconds?$", pattern = unit)) {
+    if (!is.na(unit)) {
+      if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$stop, unit)
         return(t)
@@ -1105,7 +1103,7 @@ setMethod(
   signature=c("simList","missing"),
   definition=function(x) {
     mUnit <- .moduleTimeunit(x)
-    if(is.null(mUnit)) {
+    if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
     t <- start(x, mUnit)
@@ -1118,8 +1116,8 @@ setMethod(
   "start",
   signature=c("simList","character"),
   definition=function(x, unit) {
-    if(!is.na(unit)) {
-      if(!str_detect("^seconds?$", pattern = unit)) {
+    if (!is.na(unit)) {
+      if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$start, unit)
         return(t)
@@ -1167,7 +1165,7 @@ setMethod(
   signature=c("simList"),
   definition=function(x) {
     mod <- .callingModuleName(x)
-    out <- if(!is.null(mod)) {
+    out <- if (!is.null(mod)) {
       timeunits(x)[[mod]]
     } else {
       NA_character_
@@ -1213,9 +1211,9 @@ setMethod(
   definition=function(object) {
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
-    if(any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
+    if (any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
       st <- str_detect(as.character(sys.calls()), pattern = "moduleCall")
-      if(any(st)) {
+      if (any(st)) {
         mod <- strsplit(
           eval(parse(text="moduleCall"), envir=sys.frame(which(st)[1]-1)),
           split="\\.")[[1]][2]
@@ -1378,20 +1376,20 @@ setGeneric("timeunit<-",
 #' @aliases timeunit<-,simList-method
 #' @export
 #' @rdname simList-accessors-times
-setReplaceMethod("timeunit",
-                 signature="simList",
-                 function(x, value) {
-                   if (any(str_detect(.spadesTimes,
-                                      pattern = value), na.rm=TRUE)) {
-                     x@simtimes$timestepUnit <- value
-                   } else {
-                     x@simtimes$timestepUnit <- NA_character_
-                     if(!is.na(value)){
-                       message("unknown timestepUnit provided: ", value)
-                     }
-                   }
-                   validObject(x)
-                   return(x)
+setReplaceMethod(
+  "timeunit",
+  signature="simList",
+  function(x, value) {
+    if (any(str_detect(.spadesTimes, pattern = value), na.rm=TRUE)) {
+      x@simtimes$timestepUnit <- value
+    } else {
+      x@simtimes$timestepUnit <- NA_character_
+      if (!is.na(value)) {
+        message("unknown timestepUnit provided: ", value)
+      }
+    }
+    validObject(x)
+    return(x)
 })
 
 ################################################################################

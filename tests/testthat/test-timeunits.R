@@ -1,9 +1,11 @@
 test_that("timestepUnit works correctly", {
 #   times <- list(start=0.0, stop=10)
-#   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"),
-#                  randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),
-#                  caribouMovement=list(.plotInitialTime=NA, .plotInterval=NA),
-#                  fireSpread=list(.plotInitialTime=NA, .plotInterval=NA))
+#   params <- list(
+#     .globals=list(burnStats="npixelsburned", stackName="landscape"),
+#     randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),
+#     caribouMovement=list(.plotInitialTime=NA, .plotInterval=NA),
+#     fireSpread=list(.plotInitialTime=NA, .plotInterval=NA)
+#   )
 #   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
 #   path <- system.file("sampleModules", package="SpaDES")
 #
@@ -40,13 +42,18 @@ test_that("timestepUnit works correctly", {
 #   expect_identical(timeunit(mySim), NA_character_)
 #
 #   # check that the minTimeunit captures one of the timestepUnits in the loaded modules
-#   expect_true(any(match(minTimeunit(mySim),
-#                         sapply(simDepends(mySim)@dependencies,
-#                                function(x) x@timestepUnit))))
+#   expect_true(
+#     any(match(minTimeunit(mySim),
+#               sapply(simDepends(mySim)@dependencies, function(x) {
+#                 x@timestepUnit
+#               })
+#              )
+#        )
+#   )
 #
 #   # check that minTimeunit finds the smallest timestepUnit of the modules loaded
 #   whNotNA <- sapply(simDepends(mySim)@dependencies,
-#          function(x) !is.na(x@timestepUnit))
+#                     function(x) !is.na(x@timestepUnit))
 #   expect_equivalent(as.numeric(eval(parse(
 #     text=paste0("d", minTimeunit(mySim), "(1)")))),
 #     min(sapply(simDepends(mySim)@dependencies[whNotNA],

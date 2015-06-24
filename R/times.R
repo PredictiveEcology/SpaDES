@@ -41,9 +41,9 @@ setGeneric("dyears", function(x) {
 #' @rdname spadesTime
 setMethod("dyears",
           signature(x="numeric"),
-          definition=function(x){
+          definition=function(x) {
             lubridate::new_duration(x * 60 * 60 * 24 * 365.25)
-          })
+})
 
 #' @inheritParams dyears
 #' @export
@@ -57,9 +57,9 @@ setGeneric("dmonths", function(x) {
 #' @rdname spadesTime
 setMethod("dmonths",
           signature(x="numeric"),
-          definition=function(x){
+          definition=function(x) {
             lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/12)
-          })
+})
 
 #' @export
 #' @rdname spadesTime
@@ -72,7 +72,7 @@ setGeneric("dweeks", function(x) {
 #' @rdname spadesTime
 setMethod("dweeks",
           signature(x="numeric"),
-          definition=function(x){
+          definition=function(x) {
             lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/52)
 })
 
@@ -130,6 +130,7 @@ setMethod("dNA",
             lubridate::new_duration(0)
 })
 
+################################################################################
 #' Convert time units
 #'
 #' In addition to using the \code{lubridate} package, some additional functions
@@ -137,8 +138,9 @@ setMethod("dNA",
 #'
 #' Currently available units are found within the \code{spadesTimes()} function.
 #'
-#' @param unit Character vector of length 1, indicating time units.
-#' @return A numeric vector of length 1, with \code{unit} attribute set to "seconds".
+#' @param unit  Character vector of length 1, indicating time units.
+#' @return A numeric vector of length 1, with \code{unit} attribute set to
+#' "seconds".
 #' @export
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
@@ -150,29 +152,29 @@ setGeneric("inSeconds", function(unit) {
 #' @export
 #' @docType methods
 #' @rdname timeConversion
-setMethod("inSeconds",
-          signature=c("character"),
-          definition <- function(unit) {
-
-            if(!is.na(unit)) {
-              out <- switch(unit,
-                            second =  as.numeric(dsecond(1)),
-                            seconds =  as.numeric(dsecond(1)),
-                            hour = as.numeric(dhour(1)),
-                            hours = as.numeric(dhour(1)),
-                            day = as.numeric(dday(1)),
-                            days = as.numeric(dday(1)),
-                            week = as.numeric(dweek(1)),
-                            weeks = as.numeric(dweek(1)),
-                            month = as.numeric(dmonth(1)),
-                            months = as.numeric(dmonth(1)),
-                            year = as.numeric(dyear(1)),
-                            years = as.numeric(dyear(1)))
-            } else {
-              out <- 0
-            }
-            attributes(out)$unit="second"
-            return(out)
+setMethod(
+  "inSeconds",
+  signature=c("character"),
+  definition <- function(unit) {
+    if(!is.na(unit)) {
+      out <- switch(unit,
+                    second =  as.numeric(dsecond(1)),
+                    seconds =  as.numeric(dsecond(1)),
+                    hour = as.numeric(dhour(1)),
+                    hours = as.numeric(dhour(1)),
+                    day = as.numeric(dday(1)),
+                    days = as.numeric(dday(1)),
+                    week = as.numeric(dweek(1)),
+                    weeks = as.numeric(dweek(1)),
+                    month = as.numeric(dmonth(1)),
+                    months = as.numeric(dmonth(1)),
+                    year = as.numeric(dyear(1)),
+                    years = as.numeric(dyear(1)))
+    } else {
+      out <- 0
+    }
+    attributes(out)$unit="second"
+    return(out)
 })
 
 #' @export
@@ -210,10 +212,10 @@ setGeneric("convertTimeunit", function(time, unit) {
 })
 
 #' @export
-#' @rdname simList-accessors-times
+#' @rdname timeConversion
 setMethod(
   "convertTimeunit",
-  signature=c("numeric","character"),
+  signature=c("numeric", "character"),
   definition=function(time, unit) {
     timeUnit <- attr(time, "unit")
 
@@ -228,23 +230,22 @@ setMethod(
       )
 
       if(!stri_detect_fixed(unit, pattern=timeUnit)) {
-        time <- time * inSeconds(timeUnit)/inSeconds(unit)
+        time <- time * inSeconds(timeUnit) / inSeconds(unit)
         attr(time, "unit") <- unit
       }
     } else {
       time <- 0
       attr(time, "unit") <- unit
     }
-
     return(time)
 })
 
 #' @export
 #' @rdname timeConversion
 setMethod("convertTimeunit",
-          signature=c("numeric", "missing"),
-          definition=function(time) {
-            return(time)
+          signature = c("numeric", "missing"),
+          definition = function(time) {
+            return(convertTimeunit(time, "second"))
 })
 
 ################################################################################

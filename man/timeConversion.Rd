@@ -4,6 +4,7 @@
 \name{inSeconds}
 \alias{.spadesTimes}
 \alias{convertTimeunit}
+\alias{convertTimeunit,numeric,character-method}
 \alias{convertTimeunit,numeric,missing-method}
 \alias{inSeconds}
 \alias{inSeconds,NULL-method}
@@ -21,6 +22,8 @@ inSeconds(unit)
 
 convertTimeunit(time, unit)
 
+\S4method{convertTimeunit}{numeric,character}(time, unit)
+
 \S4method{convertTimeunit}{numeric,missing}(time)
 
 .spadesTimes
@@ -34,7 +37,8 @@ spadesTimes()
 input numeric. See Details.}
 }
 \value{
-A numeric vector of length 1, with \code{unit} attribute set to "seconds".
+A numeric vector of length 1, with \code{unit} attribute set to
+"seconds".
 }
 \description{
 In addition to using the \code{lubridate} package, some additional functions
