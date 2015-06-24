@@ -80,8 +80,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     ", name, "Init(sim)
 
     # schedule future event(s)
-    scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
-    scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+    scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType==\"templateEvent\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -92,12 +92,12 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # scheduleEvent(sim, simCurrentTime(sim) + increment, \"", name, "\", \"templateEvent\")
+    # scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {
-      warning(paste(\"Undefined event type: \'\", simEvents(sim)[1, \"eventType\", with=FALSE],
-                    \"\' in module \'\", simEvents(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
+      warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
+                    \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
     }
   return(invisible(sim))
 }

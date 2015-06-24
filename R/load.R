@@ -117,7 +117,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    intervals = c(rep(NA, length(files)-1), 10))
 #'
 #' sim2 <- loadFiles(fileList=fileList)
-#' simStopTime(sim2) <- 20
+#' end(sim2) <- 20
 #' sim2 <- spades(sim2)
 #' }
 setGeneric("loadFiles", function(sim, fileList, ...)  {
@@ -133,7 +133,7 @@ setMethod("loadFiles",
             .fileExts = .fileExtensions()
             if(!is.null(simFileList(sim))) {
               fileList <- simFileList(sim)
-              curTime <- simCurrentTime(sim, "seconds")
+              curTime <- time(sim, "seconds")
               arguments <- fileList$arguments
 
               # Check if arguments is a named list; the name may be concatenated
@@ -161,9 +161,9 @@ setMethod("loadFiles",
                 fileListDT[,package:=NA]
               }
 
-              #  assume loadTime = simStartTime(sim) if missing
+              #  assume loadTime = start(sim) if missing
               if(!("loadTime" %in% names(fileListDT))) {
-                fileListDT[,loadTime:=simStartTime(sim)]
+                fileListDT[,loadTime:=start(sim)]
               }
 
               # only load those that are to be loaded at their loadTime

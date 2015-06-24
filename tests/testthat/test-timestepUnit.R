@@ -33,23 +33,23 @@ test_that("timestepUnit works correctly", {
   )
 
   # Test for numerics, or character strings that are not recognized
-  expect_message(simTimestepUnit(mySim) <- 1, "^unknown timestepUnit provided:")
-  expect_message(simTimestepUnit(mySim) <- "LeapYear", "^unknown timestepUnit provided:")
+  expect_message(timeunit(mySim) <- 1, "^unknown timestepUnit provided:")
+  expect_message(timeunit(mySim) <- "LeapYear", "^unknown timestepUnit provided:")
 
   # test that NA_real_ gets coerced to NA_character_
-  simTimestepUnit(mySim) <- NA_real_
-  expect_identical(simTimestepUnit(mySim), NA_character_)
+  timeunit(mySim) <- NA_real_
+  expect_identical(timeunit(mySim), NA_character_)
 
-  # check that the smallestTimestepUnit captures one of the timestepUnits in the loaded modules
-  expect_true(any(match(smallestTimestepUnit(mySim),
+  # check that the minTimeunit captures one of the timestepUnits in the loaded modules
+  expect_true(any(match(minTimeunit(mySim),
                         sapply(simDepends(mySim)@dependencies,
                                function(x) x@timestepUnit))))
 
-  # check that smallestTimestepUnit finds the smallest timestepUnit of the modules loaded
+  # check that minTimeunit finds the smallest timestepUnit of the modules loaded
   whNotNA <- sapply(simDepends(mySim)@dependencies,
          function(x) !is.na(x@timestepUnit))
   expect_equivalent(as.numeric(eval(parse(
-    text=paste0("d", smallestTimestepUnit(mySim), "(1)")))),
+    text=paste0("d", minTimeunit(mySim), "(1)")))),
     min(sapply(simDepends(mySim)@dependencies[whNotNA],
                function(x) {
                  eval(parse(text=paste0("d",x@timestepUnit,"(1)")))

@@ -198,43 +198,87 @@ setMethod("inSeconds",
 #' @param time Numeric. With a unit attribute, indicating the time unit of the input numeric. See Details.
 #' @export
 #' @docType methods
-#' @importFrom stringr str_detect
+#' @importFrom stringi stri_detect_fixed
 #' @rdname timeConversion
 #' @author Eliot McIntire
-setGeneric(".convUnits", function(time, unit) {
-  standardGeneric(".convUnits")
+setGeneric("convertTimeunit", function(time, unit) {
+  standardGeneric("convertTimeunit")
 })
 
 #' @rdname simList-accessors-times
-setMethod(".convUnits",
+setMethod("convertTimeunit",
           signature=c("numeric","character"),
           definition=function(time, unit) {
 
             timeUnit <- attr(time, "unit")
 
+            # Assume default of seconds if no time has no units
             if(!is.character(timeUnit)) timeUnit <- "second"
 
-            stopifnot(any(str_detect(.spadesTimes, pattern = timeUnit), na.rm=TRUE))
+            if(!is.na(timeUnit)) {
 
-            if(!str_detect(unit, pattern=timeUnit)) {
-              time <- time * inSeconds(timeUnit)/inSeconds(unit)
+              stopifnot(any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm=FALSE))
+
+              if(!stri_detect_fixed(unit, pattern=timeUnit)) {
+                time <- time * inSeconds(timeUnit)/inSeconds(unit)
+                attr(time, "unit") <- unit
+              }
+            } else {
+              time <- 0
               attr(time, "unit") <- unit
             }
+
             return(time)
           })
 
-setMethod(".convUnits",
+setMethod("convertTimeunit",
           signature=c("numeric","missing"),
           definition=function(time) {
             return(time)
           })
 
 
+################################################################################
+#' Determine what the smallest timestepUnit in a simObject
+#'
+#' When modules have different timestepUnit, SpaDES automatically takes the
+#' largest (e.g., "year") as the unit for a simulation. This function determines which
+#' is the largest unit.
+#'
+#' @param sim          A \code{simList} simulation object.
+#'
+#' @return The timestepUnit as a character string. This defaults to "second" if
+#' none of the modules has explicit units.
+#'
+#' @export
+#' @docType methods
+#' @rdname minTimeunit
+#'
+#' @author Eliot McIntire
+#'
+setGeneric("minTimeunit", function(sim) {
+  standardGeneric("minTimeunit")
+})
+
+#' @rdname minTimeunit
+setMethod("minTimeunit",
+          signature(sim="simList"),
+          definition=function(sim) {
+            if(!is.null(simDepends(sim)@dependencies[[1]])) {
+
+              timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestepUnit)
+              if(!all(sapply(timesteps, is.na))) {
+                return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[!sapply(timesteps, is.na)],
+                                                                      function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
+
+              }
+            }
+            return("second")
+          })
 
 .spadesTimes <- c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$", "^seconds?$")
 
 #' @export
 #' @rdname timeConversion
 spadesTimes <- function() gsub(.spadesTimes, pattern="[[:punct:]]", replacement = "")
-
 

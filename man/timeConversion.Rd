@@ -2,7 +2,7 @@
 % Please edit documentation in R/times.R
 \docType{methods}
 \name{inSeconds}
-\alias{.convUnits}
+\alias{convertTimeunit}
 \alias{inSeconds}
 \alias{inSeconds,NULL-method}
 \alias{inSeconds,character-method}
@@ -15,14 +15,14 @@ inSeconds(unit)
 
 \S4method{inSeconds}{`NULL`}(unit)
 
-.convUnits(time, unit)
+convertTimeunit(time, unit)
 
 spadesTimes()
 }
 \arguments{
 \item{unit}{Character vector of length 1, indicating time units.}
 
-\item{time}{Numeric. With a unit attribute, indicating the time unit of the input numeric.}
+\item{time}{Numeric. With a unit attribute, indicating the time unit of the input numeric. See Details.}
 }
 \value{
 A numeric vector of length 1, with \code{unit} attribute set to "seconds".
@@ -37,6 +37,8 @@ with a different time attribute. If the units passed to argument \code{units} ar
 }
 \details{
 Currently available units are found within the \code{spadesTimes()} function.
+
+If \code{time} has no \code{units} attribute, then it is assumed to be seconds.
 }
 \author{
 Alex Chubaty & Eliot McIntire

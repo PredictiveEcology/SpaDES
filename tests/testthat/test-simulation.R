@@ -46,7 +46,7 @@ test_that("simList object initializes correctly", {
   expect_equal(simModules(mySim), as.list(c(defaults, modules)))
 
   ### SLOT params
-  expect_is(simParams(mySim), "list")
+  expect_is(params(mySim), "list")
 
   # checkpoint
   expect_true(is.null(simCheckpointFile(mySim)))
@@ -57,12 +57,12 @@ test_that("simList object initializes correctly", {
   expect_true(is.na(simProgressInterval(mySim)))
 
   ### SLOT events
-  expect_is(simEvents(mySim), "data.table")
-  expect_equal(nrow(simEvents(mySim)), length(simModulesLoaded(mySim)))
+  expect_is(events(mySim), "data.table")
+  expect_equal(nrow(events(mySim)), length(simModulesLoaded(mySim)))
 
   ### SLOT completed
-  expect_is(simCompleted(mySim), "data.table")
-  expect_equal(nrow(simCompleted(mySim)), 0)
+  expect_is(completed(mySim), "data.table")
+  expect_equal(nrow(completed(mySim)), 0)
 
   ### SLOT depends
   expect_is(simDepends(mySim), ".simDeps")
@@ -72,19 +72,19 @@ test_that("simList object initializes correctly", {
   # not going to go though each level...object validity checking does types
 
   ### SLOT simtimes
-  #expect_equivalent(simTimes(mySim),
+  #expect_equivalent(times(mySim),
   #                  list(current=0.0, start=0.0, stop=10.0, timestepUnit="month"))
-  expect_equivalent(simCurrentTime(mySim), 0)
-  expect_equivalent(simStartTime(mySim), 0.0)
-  expect_equivalent(simStopTime(mySim), 10.0)
+  expect_equivalent(time(mySim), 0)
+  expect_equivalent(start(mySim), 0.0)
+  expect_equivalent(end(mySim), as.numeric(dmonth(10)))
 
-  #expect_equal(simTimestepUnit(mySim), attr(mySim@simtimes$start, "unit"))
-  #expect_equal(simTimestepUnit(mySim), attr(mySim@simtimes$stop, "unit"))
-  #expect_equal(simTimestepUnit(mySim), attr(mySim@simtimes$current, "unit"))
+  #expect_equal(timeunit(mySim), attr(mySim@simtimes$start, "unit"))
+  #expect_equal(timeunit(mySim), attr(mySim@simtimes$stop, "unit"))
+  #expect_equal(timeunit(mySim), attr(mySim@simtimes$current, "unit"))
 
-  #expect_equal(attr(simStopTime(mySim), "unit"), simTimestepUnit(mySim))
-  #expect_equal(attr(simStartTime(mySim), "unit"), simTimestepUnit(mySim))
-  #expect_equal(attr(simCurrentTime(mySim), "unit"), simTimestepUnit(mySim))
+  #expect_equal(attr(end(mySim), "unit"), timeunit(mySim))
+  #expect_equal(attr(start(mySim), "unit"), timeunit(mySim))
+  #expect_equal(attr(time(mySim), "unit"), timeunit(mySim))
 
   ### required packages
   pkgs <- c("grid", "methods", "RandomFields", "raster", "RColorBrewer", "sp",
@@ -106,9 +106,9 @@ test_that("simulation runs with simInit and spades", {
   #completed <- spades(mySim)
 
   # simtime
-  #expect_equivalent(simCurrentTime(completed), 10.0)
-  #expect_equivalent(simStartTime(completed), 0.0)
-  #expect_equivalent(simStopTime(completed), 10.0)
+  #expect_equivalent(time(completed), 10.0)
+  #expect_equivalent(start(completed), 0.0)
+  #expect_equivalent(end(completed), 10.0)
 
   # sim results
   burnedLast <- 1253L

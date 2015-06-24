@@ -64,9 +64,9 @@
 #'
 #' Commonly used:
 #' \tabular{ll}{
-#'    \code{\link{simGlobals}} \tab List of global simulation parameters.\cr
+#'    \code{\link{globals}} \tab List of global simulation parameters.\cr
 #'    \code{\link{simObjects}} \tab List of objects referenced by the simulation environment.\cr
-#'    \code{\link{simParams}} \tab Nested list of all simulation parameter.\cr
+#'    \code{\link{params}} \tab Nested list of all simulation parameter.\cr
 #' }
 #'
 #' Advanced use:
@@ -74,7 +74,7 @@
 #'    Accessor method \tab Module \tab Description\cr
 #'    \code{\link{simCheckpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
 #'    \code{\link{simCheckpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-#'    \code{\link{simGlobalsOutputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
+#'    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
 #'    \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
 #'    \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
 #'    \code{\link{simProgressGraphical}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
@@ -86,10 +86,10 @@
 #' Accessor functions for the \code{simtimes} slot and its elements.
 #'
 #' \tabular{ll}{
-#'    \code{\link{simCurrentTime}} \tab Current simulation time.\cr
-#'    \code{\link{simStartTime}} \tab Simulation start time.\cr
-#'    \code{\link{simStopTime}} \tab Simulation stop time.\cr
-#'    \code{\link{simTimes}} \tab List of all simulation times (current, start, stop).\cr
+#'    \code{\link{time}} \tab Current simulation time.\cr
+#'    \code{\link{start}} \tab Simulation start time.\cr
+#'    \code{\link{end}} \tab Simulation stop time.\cr
+#'    \code{\link{times}} \tab List of all simulation times (current, start, stop).\cr
 #' }
 #'
 #' @section 1.2.3 Simulation event queues:
@@ -99,8 +99,8 @@
 #' thus most users will not require direct use of these methods.
 #'
 #' \tabular{ll}{
-#'    \code{\link{simEvents}} \tab Scheduled simulation events (the event queue). (advanced)\cr
-#'    \code{\link{simCompleted}} \tab Completed simulation events. (advanced)\cr
+#'    \code{\link{events}} \tab Scheduled simulation events (the event queue). (advanced)\cr
+#'    \code{\link{completed}} \tab Completed simulation events. (advanced)\cr
 #' }
 #'
 #' @section 1.2.4 Modules and dependencies:
@@ -296,7 +296,7 @@
 #'   \code{\link{getFileName}} \tab Get the name of current file\cr
 #'   \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
 #'   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
-#'   \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
+#'   \code{\link{saveFiles}} \tab Save simulation objects according to params\cr
 #' }
 #'
 #' ------------------------------------------------------------------------------------------

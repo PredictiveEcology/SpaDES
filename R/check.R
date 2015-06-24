@@ -143,10 +143,10 @@ setMethod("checkParams",
           signature(sim="simList", coreModules="list", coreParams="list", path="character"),
           definition=function(sim, coreModules, coreParams, path, ...) {
 
-            params <- simParams(sim)
+            params <- params(sim)
             modules <- simModules(sim)
             userModules <- modules[-which(coreModules %in% modules)]
-            globalParams <- simGlobals(sim)
+            globalParams <- globals(sim)
             allFound <- TRUE
 
             if (length(userModules)) {
@@ -189,16 +189,16 @@ setMethod("checkParams",
               globalsFound <- list()
               for (uM in userModules) {
                 # read in and cleanup/isolate the global params in the module's .R file
-                moduleParams <- grep("simGlobals\\(sim\\)\\$",
+                moduleParams <- grep("globals\\(sim\\)\\$",
                                      readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
                                      value=TRUE) %>%
                   strsplit(., " ") %>%
                   unlist(lapply(., function(x) x[nchar(x)>0] )) %>%
-                  grep("simGlobals\\(sim\\)\\$", ., value=TRUE) %>%
+                  grep("globals\\(sim\\)\\$", ., value=TRUE) %>%
                   gsub(",", "", .) %>%
                   gsub("\\)\\)", "", .) %>%
-                  gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", .) %>%
-                  gsub("^simGlobals\\(sim\\)", "", .) %>%
+                  gsub("^.*\\(globals\\(sim\\)", "\\globals\\(sim\\)", .) %>%
+                  gsub("^globals\\(sim\\)", "", .) %>%
                   gsub("\\)\\$.*", "", .) %>%
                   unique(.) %>%
                   sort(.) %>%
@@ -216,10 +216,10 @@ setMethod("checkParams",
                 }
 
                 # read in and cleanup/isolate the user params in the module's .R file
-                moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                moduleParams <- grep(paste0("params\\(sim\\)\\$", uM, "\\$"),
                                      readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
                                      value=TRUE) %>%
-                  gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", .) %>%
+                  gsub(paste0("^.*params\\(sim\\)\\$", uM, "\\$"), "", .) %>%
                   gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
                   gsub("]*", "", .) %>%
                   unique(.) %>%

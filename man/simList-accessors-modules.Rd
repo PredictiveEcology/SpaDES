@@ -2,8 +2,8 @@
 % Please edit documentation in R/simList.R
 \docType{methods}
 \name{simModules}
-\alias{.callingModName}
-\alias{.callingModName,simList-method}
+\alias{.callingModuleName}
+\alias{.callingModuleName,simList-method}
 \alias{simDepends}
 \alias{simDepends,simList-method}
 \alias{simDepends<-}
@@ -67,9 +67,9 @@ simObjectsLoaded(object) <- value
 
 \S4method{simObjectsLoaded}{simList}(object) <- value
 
-.callingModName(object)
+.callingModuleName(object)
 
-\S4method{.callingModName}{simList}(object)
+\S4method{.callingModuleName}{simList}(object)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -91,7 +91,7 @@ These are included for advanced users.
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
 }
 
-\code{.callingModName} returns the name of the module that is currently the active
+\code{.callingModuleName} returns the name of the module that is currently the active
 module calling functions like scheduleEvent. This will only return the module name
 if it is inside a \code{spades} function call, i.e., it will return \code{NULL} if used
 in interactive mode.

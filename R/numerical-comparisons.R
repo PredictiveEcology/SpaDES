@@ -1,6 +1,4 @@
 ##
-## NOTE: we also use the `fpCompare` package for numerical comparisons
-##
 
 ###############################################################################
 #' Test whether a number lies within range \code{[a,b]}

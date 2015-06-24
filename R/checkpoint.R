@@ -38,7 +38,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### default is not to use checkpointing if unspecified
   ### - this default is set when a new simList object is initialized
 
-  useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
+  useChkpnt = !any(is.na(params(sim)$.checkpoint))
 
   ### determine checkpoint file location, for use in events below
   if (useChkpnt) {
@@ -47,8 +47,8 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       checkpointFile <- simCheckpointFile(sim)
     }
-    if (!is.null(simGlobalsOutputPath(sim))) {
-      checkpointDir <- checkPath(simGlobalsOutputPath(sim), create=TRUE)
+    if (!is.null(outputPath(sim))) {
+      checkpointDir <- checkPath(outputPath(sim), create=TRUE)
       checkpointFile <- file.path(checkpointDir, simCheckpointFile(sim))
     }
   }
@@ -63,12 +63,12 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
       .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
+      timeNextSave <- time(sim) + simCheckpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
-    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'", events(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
 
   }
   return(invisible(sim))

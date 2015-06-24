@@ -101,7 +101,7 @@ fileList = data.table(
    intervals = c(rep(NA, length(files)-1), 10))
 
 sim2 <- loadFiles(fileList=fileList)
-simStopTime(sim2) <- 20
+end(sim2) <- 20
 sim2 <- spades(sim2)
 }
 }

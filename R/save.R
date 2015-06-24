@@ -8,14 +8,14 @@
 doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # check that output directory exists, make it if not
-    pathsToCheck <- unname(unlist(lapply(simParams(sim), function(y) return(y$.savePath))))
+    pathsToCheck <- unname(unlist(lapply(params(sim), function(y) return(y$.savePath))))
 
     # make paths if they don't exist
     lapply(pathsToCheck, function(x) {
-      if (is.null(simGlobalsOutputPath(sim))){
+      if (is.null(outputPath(sim))){
         outputPath <- x
       } else {
-        outputPath <- file.path(simGlobalsOutputPath(sim), x)
+        outputPath <- file.path(outputPath(sim), x)
       }
       outputPath <- checkPath(outputPath, create=TRUE)
     })
@@ -28,12 +28,12 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 
 
 ##############################################################
-#' Save simulation objects according to simParams
+#' Save simulation objects according to params
 #'
 #' If there is a list entry with \code{.saveObjects} as a character string vector of
 #' object names to save, then these objects will be saved with a call to saveFiles.
 #' The file names will be equal to the object name plus
-#' \code{simCurrentTime(sim)} is appended at the end. The files are saved as \code{.rds} files,
+#' \code{time(sim)} is appended at the end. The files are saved as \code{.rds} files,
 #' meaning, only one object gets saved per file.
 #'
 #' @author Eliot McIntire
@@ -51,31 +51,31 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #' }
 saveFiles = function(sim) {
   # extract savePaths from modules
-  modulePaths <- sapply(simParams(sim), function(y) {
-    if (is.null(simGlobalsOutputPath(sim))){
+  modulePaths <- sapply(params(sim), function(y) {
+    if (is.null(outputPath(sim))){
       if(is.null(y$.savePath)) {
         outputPath <- "."
       } else {
         outputPath <- y$.savePath
       }
     } else {
-      outputPath <- file.path(simGlobalsOutputPath(sim), y$.savePath)
+      outputPath <- file.path(outputPath(sim), y$.savePath)
     }
     return(outputPath)
     })
 
   # extract objects to save from modules
-  toSave <- lapply(simParams(sim), function(y) return(y$.saveObjects) )
+  toSave <- lapply(params(sim), function(y) return(y$.saveObjects) )
 
   # extract the current module name that called this function
-  moduleName = simEvents(sim)[1, moduleName]
+  moduleName = events(sim)[1, moduleName]
 
   # if no savePath is specified, use active working directory
   if (is.null(toSave[[moduleName]])) {
     modulePaths[[moduleName]] <- "."
   }
 
-  txtTime = paddedFloatToChar(simCurrentTime(sim), ceiling(log10(simStopTime(sim)+1)))
+  txtTime = paddedFloatToChar(time(sim), ceiling(log10(end(sim)+1)))
 
   # save objects to a filename that has same name as object name, plus current simulation time
   lapply(toSave[[moduleName]], function(objectname) {

@@ -63,7 +63,6 @@ setMethod("simInit",
           signature(times="list", params="list", modules="list", objects="list",
                     path="character", loadOrder="character"),
           definition=function(times, params, modules, objects, path, loadOrder) {
-
             path <- checkPath(path, create=TRUE)
 
             # core modules
@@ -77,14 +76,14 @@ setMethod("simInit",
 
             sim <- new("simList")
 
-            #simTimes(sim) <- list(current=times$start, start=times$start, stop=times$stop)
+            #times(sim) <- list(current=times$start, start=times$start, stop=times$stop)
             simModules(sim) <- modules[!sapply(modules, is.null)]
 
             # assign some core & global params only for now
             if (".outputPath" %in% names(params$.globals)) {
               params$.globals$.outputPath <- checkPath(params$.globals$.outputPath, TRUE)
             }
-            simGlobals(sim) <- params$.globals
+            globals(sim) <- params$.globals
 
             # load core modules
             for (c in core) {
@@ -115,9 +114,9 @@ setMethod("simInit",
               # assign default param values
               apply(simDepends(sim)@dependencies[[i]]@parameters, 1, function(x) {
                 if (is.character(x$default)) {
-                  tt <- paste0("simParams(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
+                  tt <- paste0("params(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
                 } else {
-                  tt <- paste0("simParams(sim)$", m, "$", x$name, "<<-", x$default)
+                  tt <- paste0("params(sim)$", m, "$", x$name, "<<-", x$default)
                 }
                 eval(parse(text=tt), envir=environment())
               })
@@ -127,30 +126,30 @@ setMethod("simInit",
             }
 
             # timestepUnit has no meaning until all modules are loaded, so this has to be after loading
-            simTimestepUnit(sim) <- if(!is.null(times$timestepUnit)) {
+            timeunit(sim) <- if(!is.null(times$timestepUnit)) {
               times$timestepUnit
             } else {
-              smallestTimestepUnit(sim)
+              minTimeunit(sim)
             }
 
-            timestep <- inSeconds(simTimestepUnit(sim))
-            simTimes(sim) <- list(current=times$start*timestep,
+            timestep <- inSeconds(timeunit(sim))
+            times(sim) <- list(current=times$start*timestep,
                                   start=times$start*timestep,
                                   stop=times$stop*timestep,
-                                  timestepUnit=simTimestepUnit(sim),
+                                  timestepUnit=timeunit(sim),
                                   initialStart=times$start)
 
 
             # load core modules
             for (c in core) {
               # schedule each module's init event:
-              sim <- scheduleEvent(sim, simStartTime(sim), c, "init")
+              sim <- scheduleEvent(sim, start(sim), c, "init")
             }
 
             # assign user-specified non-global params, while
             # keeping defaults for params not specified by user
             omit <- c(which(core=="load"), which(core=="save"))
-            pnames <- c(paste0(".", core[-omit]), names(simParams(sim)))
+            pnames <- c(paste0(".", core[-omit]), names(params(sim)))
 
             if ( (is.null(params$.progress)) || (any(is.na(params$.progress))) ) {
               params$.progress <- list(graphical=NA, interval=NA_real_)
@@ -158,9 +157,9 @@ setMethod("simInit",
 
             tmp <- list()
             lapply(pnames, function(x) {
-              tmp[[x]] <<- updateList(simParams(sim)[[x]], params[[x]])
+              tmp[[x]] <<- updateList(params(sim)[[x]], params[[x]])
             })
-            simParams(sim) <- tmp
+            params(sim) <- tmp
 
             # check user-supplied load order
             if ( length(loadOrder) && all(modules %in% loadOrder) && all(loadOrder %in% modules) ) {
@@ -173,28 +172,28 @@ setMethod("simInit",
             # load user-defined modules
             for (m in simModulesLoadOrder(sim)) {
               # schedule each module's init event:
-              sim <- scheduleEvent(sim, simStartTime(sim, "seconds"), m, "init")
+              sim <- scheduleEvent(sim, start(sim, "seconds"), m, "init")
 
               ### add module name to the loaded list
               simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
 
               ### add NAs to any of the dotParams that are not specified by user
               # ensure the modules sublist exists by creating a tmp value in it
-              if(is.null(simParams(sim)[[m]])) {
-                simParams(sim)[[m]] <- list(.tmp=NA_real_)
+              if(is.null(params(sim)[[m]])) {
+                params(sim)[[m]] <- list(.tmp=NA_real_)
               }
 
               # add the necessary values to the sublist
               for(x in dotParamsReal) {
-                if (is.null(simParams(sim)[[m]][[x]])) {
-                  simParams(sim)[[m]][[x]] <- NA_real_
-                } else if (is.na(simParams(sim)[[m]][[x]])) {
-                  simParams(sim)[[m]][[x]] <- NA_real_
+                if (is.null(params(sim)[[m]][[x]])) {
+                  params(sim)[[m]][[x]] <- NA_real_
+                } else if (is.na(params(sim)[[m]][[x]])) {
+                  params(sim)[[m]][[x]] <- NA_real_
                 }
               }
 
               # remove the tmp value from the module sublist
-              simParams(sim)[[m]]$.tmp <- NULL
+              params(sim)[[m]]$.tmp <- NULL
 
               ### Currently, everything in dotParamsChar is being checked for NULL
               ### values where used (i.e., in save.R).
@@ -374,7 +373,6 @@ setMethod("reloadModuleLater",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @import data.table
-#' @importFrom fpCompare '%<=%'
 #' @importFrom magrittr '%>%'
 #' @export
 #' @keywords internal
@@ -396,15 +394,16 @@ setMethod("doEvent",
             stopifnot(class(sim) == "simList")
 
             # get next event
-            nextEvent <- simEvents(sim)[1L, ] # extract the next event from queue
+            nextEvent <- events(sim)[1L, ] # extract the next event from queue
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
             if(any(is.na(nextEvent))) {
-               simCurrentTime(sim) <- simStopTime(sim) + 2*getOption("fpCompare.tolerance")
+               time(sim) <- end(sim) + 1
             } else {
-              if (nextEvent$eventTime %<=% simStopTime(sim)) {
+              browser(expr=time(sim)>(as.numeric(dyears(2006))))
+              if (nextEvent$eventTime <= end(sim)) {
                 # update current simulated time
-                simCurrentTime(sim) <- nextEvent$eventTime
+                time(sim) <- nextEvent$eventTime
 
                 # call the module responsible for processing this event
                 moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
@@ -418,21 +417,23 @@ setMethod("doEvent",
                 }
 
                 # now that it is run, without error, remove it from the queue
-                simEvents(sim) <- simEvents(sim)[-1L,]
+                events(sim) <- events(sim)[-1L,]
 
                 # add to list of completed events
-                if(length(simCompleted(sim))) {
-                  completed <- list(simCompleted(sim), nextEvent) %>%
+                if(length(completed(sim))) {
+                  completed <- list(completed(sim), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
                   if (!debug) completed <- tail(completed, n=getOption("spades.nCompleted"))
                 } else {
                   completed <- setkey(nextEvent, "eventTime")
                 }
-                simCompleted(sim) <- completed
+                completed(sim) <- completed
               } else {
                 # update current simulated time to
-                simCurrentTime(sim) <- simStopTime(sim) + 2*getOption("fpCompare.tolerance")
+                time(sim) <- end(sim) + 1
+                #time(sim) <- nextEvent$eventTime
+
               }
             }
             return(invisible(sim))
@@ -499,21 +500,20 @@ setMethod("scheduleEvent",
                     #  assumption, that the units are in simTimestepUnits
 
                     if(is.null(attr(eventTime, "unit"))) {
-                      attributes(eventTime)$unit <- moduleTimestepUnit(sim)
+                      attributes(eventTime)$unit <- .moduleTimeunit(sim)
                       eventTimeInSeconds <-
-                        .convUnits((eventTime - sim@simtimes$initialStart),"seconds") +
-                          simCurrentTime(sim, "seconds") %>%
+                        convertTimeunit((eventTime - sim@simtimes$initialStart),"seconds") +
+                          time(sim, "seconds") %>%
                         as.numeric
                     } else {
-                      eventTimeInSeconds <- as.numeric(.convUnits(eventTime, "seconds"))
+                      eventTimeInSeconds <- as.numeric(convertTimeunit(eventTime, "seconds"))
                     }
                   } else { # for core modules because they have no metadata
-                    browser(expr=!is.character(attr(eventTime, "unit")))
 
-                    eventTimeInSeconds <- as.numeric(.convUnits(eventTime, "seconds"))
+                    eventTimeInSeconds <- as.numeric(convertTimeunit(eventTime, "seconds"))
                   }
                 } else { # when eventTime is NA... can't seem to get an example
-                  eventTimeInSeconds <- as.numeric(.convUnits(eventTime, "seconds"))
+                  eventTimeInSeconds <- as.numeric(convertTimeunit(eventTime, "seconds"))
                 }
 
                 newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
@@ -522,14 +522,12 @@ setMethod("scheduleEvent",
 
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
-                if (length(simEvents(sim))==0L) {
-                  simEvents(sim) <- setkey(newEvent, "eventTime")
-                  #attributes(simEvents(sim)$eventTime)$unit <- simTimestepUnit(sim)
+                if (length(events(sim))==0L) {
+                  events(sim) <- setkey(newEvent, "eventTime")
                 } else {
-                  simEvents(sim) <- setkey(rbindlist(list(simEvents(sim), newEvent)), "eventTime")
+                  events(sim) <- setkey(rbindlist(list(events(sim), newEvent)), "eventTime")
                 }
-
-
+                attributes(events(sim)$eventTime)$unit <- "second"
 
               }
             } else {
@@ -589,52 +587,13 @@ setMethod("timestepInSeconds",
     return(eval(parse(text=paste0("d",timestepUnit,"(1)"))))
   }
   if(is.na(timestepUnit)) {
-    return(eval(parse(text=paste0("d",simTimestepUnit(sim),"(1)"))))
+    return(eval(parse(text=paste0("d",timeunit(sim),"(1)"))))
   } else {
     return(timestepUnit)
   }
 })
 
-################################################################################
-#' Determine what the smallest timestepUnit in a simObject
-#'
-#' When modules have different timestepUnit, SpaDES automatically takes the
-#' largest (e.g., "year") as the unit for a simulation. This function determines which
-#' is the largest unit
-#'
-#' @param sim          A \code{simList} simulation object.
-#'
-#' @return The timestepUnit as a character string
-#'
-#' @export
-#' @docType methods
-#' @rdname smallestTimestepUnit
-#'
-#' @author Eliot McIntire
-#'
-setGeneric("smallestTimestepUnit", function(sim) {
-  standardGeneric("smallestTimestepUnit")
-})
 
-#' @rdname smallestTimestepUnit
-setMethod("smallestTimestepUnit",
-          signature(sim="simList"),
-          definition=function(sim) {
-  if(!is.null(simDepends(sim)@dependencies[[1]])) {
-
-    timesteps <- lapply(simDepends(sim)@dependencies, function(x) x@timestepUnit)
-    #timesteps[!sapply(timesteps, is.na)] <-
-    #  lapply(timesteps[!sapply(timesteps, is.na)], function(x) x[grepl(pattern="[^s]$", x)] <- paste0(x,"s"))
-    if(all(sapply(timesteps, is.na))) {
-      return(NA_character_)
-    } else {
-      return(timesteps[!is.na(timesteps)][[which.min(sapply(timesteps[!sapply(timesteps, is.na)],
-                                         function(ts) eval(parse(text=paste0("d",ts,"(1)")))))]])
-
-    }
-  }
-  return(NA_character_)
-})
 ################################################################################
 #' Run a spatial discrete event simulation
 #'
@@ -656,7 +615,6 @@ setMethod("smallestTimestepUnit",
 #' models by the user. Will print additional outputs informing the user of updates
 #' to the values of various simList slot components.
 #'
-#' @importFrom fpCompare '%<=%'
 #' @export
 #' @docType methods
 #' @rdname spades
@@ -684,7 +642,8 @@ setMethod("spades",
             attach(simEnv(sim), name=envName)
             on.exit(detach(pos=match(envName, search())))
 
-            while(simCurrentTime(sim) %<=% simStopTime(sim)) {
+            while(time(sim) <= end(sim)) {
+              browser(expr=time(sim)>(as.numeric(dyears(2006))))
 
               sim <- doEvent(sim, debug)  # process the next event
 
@@ -695,6 +654,7 @@ setMethod("spades",
                   print(sim)
               }
             }
+            time(sim) <- end(sim)
             return(invisible(sim))
 })
 

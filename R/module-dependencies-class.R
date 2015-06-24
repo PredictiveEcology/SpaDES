@@ -2,6 +2,7 @@
 setOldClass("numeric_version")
 selectMethod("show", "numeric_version")
 
+
 # register the S3 `person` class for use with S4 methods.
 setClass("person4",
          slots=list(given="character", family="character", middle="character",
@@ -11,6 +12,7 @@ setClass("person4",
 setOldClass("person", S4Class="person4")
 selectMethod("show", "person")
 removeClass("person4")
+
 
 ################################################################################
 #' The \code{.moduleDeps} class

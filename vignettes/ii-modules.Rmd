@@ -148,7 +148,7 @@ defineModule(sim, list(
   inputObjects=data.frame(objectName=character(),
                           objectClass=character(),
                           other=character(), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$stackName,
+  outputObjects=data.frame(objectName=globals(sim)$stackName,
                            objectClass="RasterStack",
                            other=NA_character_, stringsAsFactors=FALSE)
 ))
@@ -161,7 +161,7 @@ Parameters are often module-specific, where they are only used within the module
 Module-specific parameters are specified using `defineParameter` (with `rbind`) within `defineModule` to build a `data.frame` of input parameters.
 Global parameters are defined at the simulation level as part of the `simInit` call.
 
-The parameter list in the `simList` object (accessed via `simParams`) may be used to pass named parameter values to modules.
+The parameter list in the `simList` object (accessed via `params`) may be used to pass named parameter values to modules.
 The general structure of this parameter list is `parameters$moduleName$moduleParameter`.
 This nested list structure allows passing as many parameters as needed for your simulation.
 We suggest passing a list of all the parameters needed for a single module together.
@@ -205,33 +205,33 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
+    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,
                          "randomLandscapes", "plot")
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
+    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(sim[[simGlobals(sim)$stackName]])
+    Plot(sim[[globals(sim)$stackName]])
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$randomLandscapes$.plotInterval,
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {
     warning(paste("Undefined event type: \'",
-                  simEvents(sim)[1, "eventType", with=FALSE],
+                  events(sim)[1, "eventType", with=FALSE],
                   "\' in module \'",
-                  simEvents(sim)[1, "moduleName", with=FALSE],
+                  events(sim)[1, "moduleName", with=FALSE],
                   "\'", sep=""))
   }
   return(invisible(sim))
@@ -254,14 +254,14 @@ Modules may also include `"save"` and `"plot"` events, though these are optional
 ```{r event-functions, echo=TRUE, eval=FALSE}
 ## sample event functions from the default `randomLandscapes` module
 randomLandscapesInit <- function(sim) {
-  if (is.null(simParams(sim)$randomLandscapes$inRAM)) {
+  if (is.null(params(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
   } else {
-    inMemory <- simParams(sim)$randomLandscapes$inRAM
+    inMemory <- params(sim)$randomLandscapes$inRAM
   }
   # Give dimensions of dummy raster
-  nx <- simParams(sim)$randomLandscapes$nx
-  ny <- simParams(sim)$randomLandscapes$ny
+  nx <- params(sim)$randomLandscapes$nx
+  ny <- params(sim)$randomLandscapes$ny
   r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
   speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
@@ -287,7 +287,7 @@ randomLandscapesInit <- function(sim) {
                               forestAge=brewer.pal(9,"BuGn"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
-  sim[[simGlobals(sim)$stackName]] <- mapStack
+  sim[[globals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }
 ```
@@ -498,10 +498,10 @@ mySim <- simInit(times=list(start=0.0, stop=10),
 simObjectsLoaded(mySim)   # shows what's been loaded
 simFileList(mySim)        # returns empty if objects successfully loaded
 
-simParams(mySim)$randomLandscapes$.saveInitialTime
-simParams(mySim)$randomLandscapes$.saveInterval
-simParams(mySim)$randomLandscapes$.saveObjects
-simParams(mySim)$randomLandscapes$.savePath
+params(mySim)$randomLandscapes$.saveInitialTime
+params(mySim)$randomLandscapes$.saveInterval
+params(mySim)$randomLandscapes$.saveObjects
+params(mySim)$randomLandscapes$.savePath
 ```
 
 Saving within a module -- scheduling save events.
@@ -510,7 +510,7 @@ Saving within a module -- scheduling save events.
 ### WITHIN A MODULE:
 
 # schedule a recurring save event
-nextSave <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.saveInterval
+nextSave <- time(mySim) + params(mySim)$randomLandscapes$.saveInterval
 sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 ```
 
@@ -533,15 +533,15 @@ mySim <- simInit(times=list(start=0.0, stop=100),
 )
 
 # retrieve the plotting params from the simulation object
-simParams(mySim)$randomLandscapes$.plotInitialTime
-simParams(mySim)$randomLandscapes$.plotInterval
+params(mySim)$randomLandscapes$.plotInitialTime
+params(mySim)$randomLandscapes$.plotInterval
 ```
 
 ```{r plot-events, echo=TRUE, eval=FALSE, message=FALSE}
 ### WITHIN A MODULE:
 
 # schedule a recurring plot event
-nextPlot <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.plotInterval
+nextPlot <- time(mySim) + params(mySim)$randomLandscapes$.plotInterval
 mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 ```
 
@@ -584,7 +584,7 @@ Requires a global simulation parameter `stackName` be set.
 
 3. `caribouMovement`:
 Agent based model of caribou movement via correlated random walk.
-Requires a RasterStack object whose name is specified by `simGlobals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
+Requires a RasterStack object whose name is specified by `globals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
 
 ## `SpaDES` module repository
 
