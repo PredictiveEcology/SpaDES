@@ -20,7 +20,7 @@
 #'
 #' @seealso \code{\link{library}}.
 #'
-#' @include simList.R
+#' @include simList-class.R
 #' @importFrom methods is
 #' @export
 #' @docType methods
@@ -126,7 +126,7 @@ setMethod("checkObject",
 #' @return  Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 #'          Sensible messages are be produced identifying missing parameters.
 #'
-#' @include simList.R
+#' @include simList-class.R
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods

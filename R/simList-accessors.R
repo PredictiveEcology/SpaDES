@@ -1,186 +1,12 @@
 if (getRversion() >= "3.1.0")  utils::globalVariables("eventTime")
 
-################################################################################
-#' The \code{simList} class
-#'
-#' Contains the minimum components of a \code{SpaDES} simulation.
-#'
-#' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
-#' Here, we implement a discrete event simulation in a more modular fashion so it's
-#' easier to add simulation components (i.e., "simulation modules").
-#' We use S4 classes and methods, and use \code{\link{data.table}} instead of
-#' \code{\link{data.frame}} to implement the event queue (because it is much
-#' more efficient).
-#'
-#' Various slot accessor methods (i.e., get and set functions) are provided
-#' (see 'Accessor Methods' below).
-#'
-#' @note The \code{simList} class extends the \code{.simList} superclass by adding
-#' a slot \code{.envir} to store the simulation environment containing references
-#' to simulation objects.
-#' The \code{\link{simList_}} class extends the \code{.simList} superclass, by
-#' adding a slot \code{.list} containing the simulation objects.
-#' Thus, \code{simList} is identical to \code{simList_}, except that the former
-#' uses an environment for objects and the latter uses a list.
-#' The class \code{simList_} is only used internally.
-#'
-#' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
-#'
-#' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
-#'
-#' @slot modules    List of character names specifying which modules to load.
-#'
-#' @slot params     Named list of potentially other lists specifying simulation parameters.
-#'
-#' @slot events     The list of scheduled events (i.e., event queue), as a \code{data.table}.
-#'                  See 'Event Lists' for more information.
-#'
-#' @slot completed  The list of completed events, as a \code{data.table}.
-#'                  See 'Event Lists' for more information.
-#'
-#' @slot depends    A \code{.simDeps} list of \code{.moduleDeps} objects
-#'                  containing module object dependency information.
-#'
-#' @slot simtimes   List of numerical values describing the simulation start
-#'                  and stop times; as well as the current simulation time.
-#'
-#' @section Accessor Methods:
-#'
-#' Several slot (and sub-slot) accessor methods are provided for use, and
-#' categorized into separate help pages:
-#' \tabular{ll}{
-#'   \code{\link{simList-accessors-envir}} \tab Simulation enviroment and objects. \cr
-#'   \code{\link{simList-accessors-events}} \tab Scheduled and completed events. \cr
-#'   \code{\link{simList-accessors-modules}} \tab Modules loaded and used; module dependencies. \cr
-#'   \code{\link{simList-accessors-params}} \tab Global and module-specific parameters. \cr
-#'   \code{\link{simList-accessors-times}} \tab Simulation times. \cr
-#' }
-#'
-#' @section Event Lists:
-#'
-#' Event lists are sorted (keyed) by time.
-#' Each event is represented by a \code{\link{data.table}} row consisting of:
-#' \tabular{ll}{
-#'   \code{eventTime} \tab The time the event is to occur.\cr
-#'   \code{moduleName} \tab The module from which the event is taken.\cr
-#'   \code{eventType} \tab A character string for the programmer-defined event type.\cr
-#' }
-#'
-#' @include module-dependencies-class.R
-#' @aliases .simList
-#' @rdname simList-class
-#' @import data.table
-#'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
-#'
-#' @author Alex Chubaty
-#'
-setClass(".simList",
-         slots=list(.loadOrder="character", .loaded="list",
-                    modules="list", params="list",
-                    events="data.table", completed="data.table",
-                    depends=".simDeps", simtimes="list"),
-         prototype=list(.loadOrder=character(),
-                        .loaded=list(modules=as.list(NULL)),
-                        modules=as.list(NULL),
-                        params=list(.checkpoint=list(interval=NA_real_, file=NULL),
-                                    .progress=list(graphical=NULL, interval=NULL)),
-                        events=as.data.table(NULL), completed=as.data.table(NULL),
-                        depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, stop=1.00, timestepUnit=NA_character_)),
-         validity=function(object) {
-           # check for valid sim times
-           if (is.na(object@simtimes$stop)) {
-             stop("simulation stop time must be specified.")
-           } else {
-             if (object@simtimes$start >= object@simtimes$stop) {
-               stop("simulation start time should occur before stop time.")
-             }
-           }
-})
-
-################################################################################
-#'
-#' @inheritParams .simList
-#'
-#' @slot .envir     Environment referencing the objects used in the simulation.
-#'                  Several "shortcuts" to accessing objects referenced by this
-#'                  environment are provided, and can be used on the
-#'                  \code{simList} object directly instead of specifying the
-#'                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
-#'                  \code{ls.str}, \code{simObjects}. See examples.
-#'
-#' @aliases simList
-#' @rdname simList-class
-#' @exportClass simList
-#'
-setClass("simList",
-         contains=".simList",
-         slots=list(.envir="environment"),
-         prototype=list(.envir=new.env(parent=emptyenv()))
-)
-
-################################################################################
-#' The \code{simList_} class
-#'
-#' Internal use only. Used when saving/loading a \code{simList}.
-#'
-#' This is identical to class \code{simList}, except that the \code{.envir} slot
-#' is replaced by a \code{.list} containing a list to store the objects from the
-#' environment contained within the \code{simList}.
-#' Saving/loading a list behaves more reliably than saving/loading an environment.
-#'
-#' @inheritParams .simList
-#'
-#' @seealso \code{\link{simList}}
-#'
-#' @aliases simList_
-#' @rdname simList_-class
-#'
-#' @author Alex Chubaty
-#'
-setClass("simList_",
-         contains=".simList",
-         slots=list(.list="list"),
-         prototype=list(.list=list())
-)
-
-setAs(from="simList_", to="simList", def=function(from) {
-  x <- as(as(from, ".simList"), "simList")
-  x@.envir <- as.environment(from@.list)
-  return(x)
-})
-
-setAs(from="simList", to="simList_", def=function(from) {
-  x <- as(as(from, ".simList"), "simList_")
-  x@.list <- as.list(simEnv(from))
-  return(x)
-})
-
-### `initialize` generic is already defined in the methods package
-#' Generate a \code{simList} object
-#'
-#' Given the name or the definition of a class, plus optionally data to be
-#' included in the object, \code{new} returns an object from that class.
-#'
-#' @param .Object  A \code{simList} object.
-#' @include misc-methods.R
-#' @export
-#' @docType methods
-#' @rdname initialize-method
-setMethod("initialize",
-          signature(.Object = "simList"),
-          definition=function(.Object) {
-            .Object@.envir <- new.env(parent=.GlobalEnv)
-            return(.Object)
-})
-
 ### `show` generic is already defined in the methods package
 #' Show an Object
 #'
 #' @param object  \code{simList}
 #'
 #' @export
+#' @include simList-class.R
 #' @importFrom dplyr mutate
 #' @docType methods
 #' @rdname show-method
@@ -286,6 +112,7 @@ setMethod("show",
 #' @param name  A \code{simList} object.
 #'
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname ls-method
 ls.simList <- function(name) {
@@ -312,6 +139,7 @@ setMethod("ls",
 #' @param pos   A \code{simList} object, used only if \code{name} not provided.
 #'
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname ls_str-method
 ls.str.simList <- function(name) {
@@ -346,6 +174,7 @@ setMethod("ls.str",
 #' @param value  Any R object.
 #'
 #' @export
+#' @include simList-class.R
 #' @name [[
 #' @aliases [[,simList,ANY,ANY-method
 #' @docType methods
@@ -404,6 +233,7 @@ setReplaceMethod("$", signature(x="simList", value="ANY"),
 #'          \code{\link{simList-accessors-events}},
 #'          \code{\link{simList-accessors-times}}.
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-envir
 #' @rdname simList-accessors-envir
@@ -467,6 +297,7 @@ setReplaceMethod("simEnv",
 #'          \code{\link{simList-accessors-events}},
 #'          \code{\link{simList-accessors-times}}.
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-modules
 #' @rdname simList-accessors-modules
@@ -505,6 +336,7 @@ setReplaceMethod("simModules",
 ################################################################################
 #' @inheritParams simModules
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
@@ -512,6 +344,7 @@ setGeneric("simModulesLoaded", function(object) {
   standardGeneric("simModulesLoaded")
 })
 
+#' @export
 #' @rdname simList-accessors-modules
 setMethod("simModulesLoaded",
           signature="simList",
@@ -540,6 +373,7 @@ setReplaceMethod("simModulesLoaded",
 ################################################################################
 #' @inheritParams simModules
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
@@ -547,6 +381,7 @@ setGeneric("simModulesLoadOrder", function(object) {
   standardGeneric("simModulesLoadOrder")
 })
 
+#' @export
 #' @rdname simList-accessors-modules
 setMethod("simModulesLoadOrder",
           signature="simList",
@@ -579,6 +414,7 @@ setReplaceMethod("simModulesLoadOrder",
 ################################################################################
 #' @inheritParams simModules
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
@@ -586,6 +422,7 @@ setGeneric("simDepends", function(object) {
   standardGeneric("simDepends")
 })
 
+#' @export
 #' @rdname simList-accessors-modules
 setMethod("simDepends",
           signature("simList"),
@@ -603,6 +440,7 @@ setGeneric("simDepends<-",
 #' @name simDepends<-
 #' @aliases simDepends<-,simList-method
 #' @rdname simList-accessors-modules
+#' @export
 setReplaceMethod("simDepends",
                  signature("simList"),
                  function(object, value) {
@@ -614,6 +452,7 @@ setReplaceMethod("simDepends",
 ################################################################################
 #' @inheritParams simModules
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
@@ -621,6 +460,7 @@ setGeneric("simObjectsLoaded", function(object) {
   standardGeneric("simObjectsLoaded")
 })
 
+#' @export
 #' @rdname simList-accessors-modules
 setMethod("simObjectsLoaded",
           signature="simList",
@@ -638,6 +478,7 @@ setGeneric("simObjectsLoaded<-",
 #' @name simObjectsLoaded<-
 #' @aliases simObjectsLoaded<-,simList-method
 #' @rdname simList-accessors-modules
+#' @export
 setReplaceMethod("simObjectsLoaded",
                  signature="simList",
                  function(object, value) {
@@ -662,12 +503,15 @@ setReplaceMethod("simObjectsLoaded",
 #'          \code{\link{simList-accessors-times}}.
 #'
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-envir
+#'
 setGeneric("simObjects", function(object, ...) {
   standardGeneric("simObjects")
 })
 
+#' @export
 #' @rdname simList-accessors-envir
 setMethod("simObjects",
           signature="simList",
@@ -689,6 +533,7 @@ setGeneric("simObjects<-",
 #' @name simObjects<-
 #' @aliases simObjects<-,simList-method
 #' @rdname simList-accessors-envir
+#' @export
 setReplaceMethod("simObjects",
                  signature="simList",
                  function(object, value) {
@@ -739,6 +584,7 @@ setReplaceMethod("simObjects",
 #'          \code{\link{simList-accessors-events}},
 #'          \code{\link{simList-accessors-times}}.
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-params
 #' @rdname simList-accessors-params
@@ -747,6 +593,7 @@ setGeneric("params", function(object) {
   standardGeneric("params")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("params",
           signature="simList",
@@ -764,6 +611,7 @@ setGeneric("params<-",
 #' @name params<-
 #' @aliases params<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("params",
                  signature="simList",
                  function(object, value) {
@@ -775,6 +623,7 @@ setReplaceMethod("params",
 ################################################################################
 #' @inheritParams params
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
@@ -782,6 +631,7 @@ setGeneric("simCheckpointFile", function(object) {
   standardGeneric("simCheckpointFile")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("simCheckpointFile",
           signature="simList",
@@ -789,6 +639,7 @@ setMethod("simCheckpointFile",
             return(object@params$.checkpoint$file)
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setGeneric("simCheckpointFile<-",
            function(object, value) {
@@ -798,6 +649,7 @@ setGeneric("simCheckpointFile<-",
 #' @name simCheckpointFile<-
 #' @aliases simCheckpointFile<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("simCheckpointFile",
                  signature="simList",
                  function(object, value) {
@@ -809,6 +661,7 @@ setReplaceMethod("simCheckpointFile",
 ################################################################################
 #' @inheritParams params
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
@@ -816,6 +669,7 @@ setGeneric("simCheckpointInterval", function(object) {
   standardGeneric("simCheckpointInterval")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("simCheckpointInterval",
           signature="simList",
@@ -833,6 +687,7 @@ setGeneric("simCheckpointInterval<-",
 #' @name simCheckpointInterval<-
 #' @aliases simCheckpointInterval<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("simCheckpointInterval",
                  signature="simList",
                  function(object, value) {
@@ -843,6 +698,7 @@ setReplaceMethod("simCheckpointInterval",
 
 ################################################################################
 #' @inheritParams params
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -851,6 +707,7 @@ setGeneric("simFileList", function(object) {
   standardGeneric("simFileList")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("simFileList",
           signature="simList",
@@ -868,6 +725,7 @@ setGeneric("simFileList<-",
 #' @name simFileList<-
 #' @aliases simFileList<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("simFileList",
                  signature="simList",
                  function(object, value) {
@@ -878,6 +736,7 @@ setReplaceMethod("simFileList",
 
 ################################################################################
 #' @inheritParams params
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -886,6 +745,7 @@ setGeneric("simProgressGraphical", function(object) {
   standardGeneric("simProgressGraphical")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("simProgressGraphical",
           signature="simList",
@@ -893,6 +753,7 @@ setMethod("simProgressGraphical",
             return(object@params$.progress$graphical)
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setGeneric("simProgressGraphical<-",
            function(object, value) {
@@ -902,6 +763,7 @@ setGeneric("simProgressGraphical<-",
 #' @name simProgressGraphical<-
 #' @aliases simProgressGraphical<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("simProgressGraphical",
                  signature="simList",
                  function(object, value) {
@@ -912,6 +774,7 @@ setReplaceMethod("simProgressGraphical",
 
 ################################################################################
 #' @inheritParams params
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -920,6 +783,7 @@ setGeneric("simProgressInterval", function(object) {
   standardGeneric("simProgressInterval")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("simProgressInterval",
           signature="simList",
@@ -937,6 +801,7 @@ setGeneric("simProgressInterval<-",
 #' @name simProgressInterval<-
 #' @aliases simProgressInterval<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("simProgressInterval",
                  signature="simList",
                  function(object, value) {
@@ -947,6 +812,7 @@ setReplaceMethod("simProgressInterval",
 
 ################################################################################
 #' @inheritParams params
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -955,6 +821,7 @@ setGeneric("globals", function(object) {
   standardGeneric("globals")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("globals",
           signature="simList",
@@ -972,6 +839,7 @@ setGeneric("globals<-",
 #' @name globals<-
 #' @aliases globals<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("globals",
                  signature="simList",
                  function(object, value) {
@@ -982,6 +850,7 @@ setReplaceMethod("globals",
 
 ################################################################################
 #' @inheritParams params
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -990,6 +859,7 @@ setGeneric("outputPath", function(object) {
   standardGeneric("outputPath")
 })
 
+#' @export
 #' @rdname simList-accessors-params
 setMethod("outputPath",
           signature="simList",
@@ -1007,6 +877,7 @@ setGeneric("outputPath<-",
 #' @name outputPath<-
 #' @aliases outputPath<-,simList-method
 #' @rdname simList-accessors-params
+#' @export
 setReplaceMethod("outputPath",
                  signature="simList",
                  function(object, value) {
@@ -1049,6 +920,7 @@ setReplaceMethod("outputPath",
 #'          \code{\link{simList-accessors-events}}.
 #'
 #' @export
+#' @include simList-class.R
 #' @include times.R
 #' @docType methods
 #' @aliases simList-accessors-times
@@ -1089,11 +961,12 @@ setReplaceMethod("times",
 
 ################################################################################
 #' @inheritParams times
+#' @include simList-class.R
+#' @include times.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 #' @importFrom stringr str_detect
-#' @include times.R
 #'
 setGeneric("time", function(x, unit, ...) {
   stats::time(x, ...)
@@ -1151,11 +1024,12 @@ setReplaceMethod("time",
 
 ################################################################################
 #' @inheritParams times
+#' @importFrom stringr str_detect
+#' @include times.R
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @importFrom stringr str_detect
-#' @include times.R
 #'
 setGeneric("end", function(x, unit, ...) {
   stats::end(x, ...)
@@ -1214,26 +1088,28 @@ setReplaceMethod(
 
 ################################################################################
 #' @inheritParams times
+#' @importFrom stringr str_detect
+#' @include simList-class.R
+#' @include times.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @importFrom stringr str_detect
-#' @include times.R
 #'
 setGeneric("start", function(x, unit, ...) {
   stats::start(x, ...)
 })
 
 #' @rdname simList-accessors-times
-setMethod("start",
-          signature=c("simList","missing"),
-          definition=function(x) {
-            mUnit <- .moduleTimeunit(x)
-            if(is.null(mUnit)) {
-              mUnit <- NA_character_
-            }
-            t <- start(x, mUnit)
-            return(t)
+setMethod(
+  "start",
+  signature=c("simList","missing"),
+  definition=function(x) {
+    mUnit <- .moduleTimeunit(x)
+    if(is.null(mUnit)) {
+      mUnit <- NA_character_
+    }
+    t <- start(x, mUnit)
+    return(t)
 })
 
 #' @export
@@ -1273,10 +1149,11 @@ setReplaceMethod("start",
 
 ################################################################################
 #' @inheritParams times
+#' @include simList-class.R
+#' @include times.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @include times.R
 #'
 setGeneric(".moduleTimeunit", function(x) {
   standardGeneric(".moduleTimeunit")
@@ -1316,6 +1193,7 @@ setMethod(
 #' function call, i.e., it will return \code{NULL} if used in interactive mode.
 #'
 #' @inheritParams simModules
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-modules
@@ -1384,6 +1262,7 @@ setMethod(
 #'          \code{\link{simList-accessors-times}}.
 #'
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1421,6 +1300,7 @@ setReplaceMethod("events",
 
 ################################################################################
 #' @inheritParams events
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-events
@@ -1456,9 +1336,9 @@ setReplaceMethod("completed",
                    return(object)
 })
 
-
-
 ################################################################################
+#' @inheritParams times
+#'
 #' @details \code{timeunit} will extract the current units of the time used in a
 #' \code{spades} call.
 #' If it is set within a \code{simInit}, e.g.,
@@ -1468,11 +1348,11 @@ setReplaceMethod("completed",
 #' the metadata for the modules being used.
 #' If \code{NA}, \code{timestepUnit} defaults to none.
 #'
-#' @inheritParams times
+#' @importFrom stringr str_detect
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
-#' @importFrom stringr str_detect
 #' @author Eliot McIntire
 #'
 setGeneric("timeunit", function(x) {
@@ -1515,12 +1395,14 @@ setReplaceMethod("timeunit",
 })
 
 ################################################################################
+#' @inheritParams times
+#'
 #' @details \code{timeunits} will extract the current units of the time of all
 #' modules used in a simulation.
 #' This is different from \code{timeunits} because it is not necessarily
 #' associated with a \code{spades} call.
 #'
-#' @inheritParams times
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
@@ -1558,6 +1440,7 @@ setMethod(
 #' @return A \code{simList} object.
 #'
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname addSimDepends
 #'
@@ -1592,6 +1475,7 @@ setMethod(".addSimDepends",
 #'
 #' @importFrom magrittr '%>%'
 #' @export
+#' @include simList-class.R
 #' @docType methods
 #' @rdname simReqdPkgs
 #'
@@ -1627,6 +1511,7 @@ setMethod("simReqdPkgs",
 #' @return Updated \code{simList} object.
 #'
 #' @importFrom raster extent
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname defineModule

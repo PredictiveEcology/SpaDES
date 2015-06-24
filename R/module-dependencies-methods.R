@@ -24,7 +24,7 @@ selectMethod("show", "igraph")
 #'          and remaining columns the attributes of the dependency objects
 #'          (object name, class, etc.).
 #'
-#' @include simList.R
+#' @include simList-class.R
 #'
 #' @export
 #' @import data.table
@@ -94,7 +94,7 @@ setMethod("depsEdgeList",
 #'
 #' @return An \code{\link{igraph}} object.
 #'
-#' @include simList.R
+#' @include simList-class.R
 #'
 #' @import igraph
 #' @importFrom magrittr '%>%'
@@ -140,7 +140,7 @@ setMethod("depsGraph",
 #'
 #' @return An updated edge list object.
 #'
-#' @include simList.R
+#' @include simList-class.R
 #'
 #' @import data.table
 #' @import igraph
@@ -228,7 +228,7 @@ setMethod(".depsPruneEdges",
 #'
 #' @return Character vector of module names, sorted in correct load order.
 #'
-#' @include simList.R
+#' @include simList-class.R
 #'
 #' @importFrom magrittr '%>%'
 #' @import igraph

@@ -4,7 +4,7 @@
 \name{minTimeunit}
 \alias{minTimeunit}
 \alias{minTimeunit,simList-method}
-\title{Determine what the smallest timestepUnit in a simObject}
+\title{Determine the smallest timestepUnit in a simulation}
 \usage{
 minTimeunit(sim)
 
@@ -14,13 +14,12 @@ minTimeunit(sim)
 \item{sim}{A \code{simList} simulation object.}
 }
 \value{
-The timestepUnit as a character string. This defaults to "second" if
+The timeunit as a character string. This defaults to "second" if
 none of the modules has explicit units.
 }
 \description{
-When modules have different timestepUnit, SpaDES automatically takes the
-largest (e.g., "year") as the unit for a simulation. This function determines
-which is the largest unit.
+When modules have different timeunit, SpaDES automatically takes the smallest
+(e.g., "second") as the unit for a simulation.
 }
 \author{
 Eliot McIntire

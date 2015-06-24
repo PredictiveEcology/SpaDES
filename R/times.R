@@ -200,8 +200,9 @@ setMethod("inSeconds",
 #' @param time   Numeric. With a unit attribute, indicating the time unit of the
 #'               input numeric. See Details.
 #' @export
-#' @docType methods
 #' @importFrom stringi stri_detect_fixed
+#' @include simList-class.R
+#' @docType methods
 #' @rdname timeConversion
 #' @author Eliot McIntire
 setGeneric("convertTimeunit", function(time, unit) {
@@ -258,7 +259,7 @@ setMethod("convertTimeunit",
 #' none of the modules has explicit units.
 #'
 #' @export
-#' @include simList.R
+#' @include simList-class.R
 #' @docType methods
 #' @rdname minTimeunit
 #'
