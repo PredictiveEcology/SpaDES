@@ -384,23 +384,24 @@ Parameter values for core modules can be accessed by using their accessor method
 
 These core modules are summarized in the following table and described further below.
 
-**Module Name**   | **Parameterization**                  | **Accessor Methods**
-------------------|---------------------------------------|---------------------
-**`.checkpoint`** | `file`: character.                    | `simCheckpointFile()`
-&nbsp;            | `interval`: numeric (or `NA`).        | `simCheckpointInterval()`
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.load`**       | `fileList`: character.                | `simFileList()`
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.plot`**       | `.plotInitialTime`: numeric (or `NA`) | as list item in your module parameters.
-&nbsp;            | `.plotInterval`: numeric (or `NA`)    | as list item in your module parameters.
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.progress`**   | `graphical`: logical (or `NA`).       | `simProgressGraphical()`
-&nbsp;            | `interval`: numeric (or `NA`).        | `simProgressInterval()`
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.save`**       | `.saveInitialTime`: numeric (or `NA`) | as list item in your module parameters.
-&nbsp;            | `.saveInterval`: numeric (or `NA`)    | as list item in your module parameters.
-&nbsp;            | `.saveObjects`: character.            | as list item in your module parameters.
-&nbsp;            | `.savePath`: character.               | as list item in your module parameters.
+**Module Name**   | **Parameterization**                   | **Accessor Methods**
+------------------|----------------------------------------|---------------------
+**`.checkpoint`** | `file`: character.                     | `simCheckpointFile()`
+&nbsp;            | `interval`: numeric (or `NA`).         | `simCheckpointInterval()`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.load`**       | `fileList`: character.                 | `simFileList()`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.plot`**       | `.plotInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
+&nbsp;            | `.plotInterval`: numeric (or `NA`)     | as list item in your module parameters.
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.progress`**   | `type`: one of `"text"`, `"graphical"`,| `progressType()`
+&nbsp;            | `"shiny"`, or `NA`.                    | &nbsp;
+&nbsp;            | `interval`: numeric (or `NA`).         | `simProgressInterval()`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.save`**       | `.saveInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
+&nbsp;            | `.saveInterval`: numeric (or `NA`)     | as list item in your module parameters.
+&nbsp;            | `.saveObjects`: character.             | as list item in your module parameters.
+&nbsp;            | `.savePath`: character.                | as list item in your module parameters.
 
 ## `.checkpoint` module
 
@@ -434,12 +435,12 @@ Schedule updates to the simulation progress bar.
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
                  params=list(.globals=list(stackName="landscape"),
-                             .progress=list(graphical=FALSE, interval=10)),
+                             .progress=list(type="text", interval=10)),
                  modules=list("randomLandscapes"),
                  path=system.file("sampleModules", package="SpaDES"))
 
 # retrieve the checkpoint params from the simulation object
-simProgressGraphical(mySim)
+progressType(mySim)
 simProgressInterval(mySim)
 ```
 

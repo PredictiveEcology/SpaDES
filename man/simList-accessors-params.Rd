@@ -14,6 +14,10 @@
 \alias{params,simList-method}
 \alias{params<-}
 \alias{params<-,simList-method}
+\alias{progressType}
+\alias{progressType,simList-method}
+\alias{progressType<-}
+\alias{progressType<-,simList-method}
 \alias{simCheckpointFile}
 \alias{simCheckpointFile,simList-method}
 \alias{simCheckpointFile<-}
@@ -27,10 +31,6 @@
 \alias{simFileList<-}
 \alias{simFileList<-,simList-method}
 \alias{simList-accessors-params}
-\alias{simProgressGraphical}
-\alias{simProgressGraphical,simList-method}
-\alias{simProgressGraphical<-}
-\alias{simProgressGraphical<-,simList-method}
 \alias{simProgressInterval}
 \alias{simProgressInterval,simList-method}
 \alias{simProgressInterval<-}
@@ -69,13 +69,13 @@ simFileList(object) <- value
 
 \S4method{simFileList}{simList}(object) <- value
 
-simProgressGraphical(object)
+progressType(object)
 
-\S4method{simProgressGraphical}{simList}(object)
+\S4method{progressType}{simList}(object)
 
-simProgressGraphical(object) <- value
+progressType(object) <- value
 
-\S4method{simProgressGraphical}{simList}(object) <- value
+\S4method{progressType}{simList}(object) <- value
 
 simProgressInterval(object)
 
@@ -126,7 +126,7 @@ Advanced use
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
-   \code{simProgressGraphical} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+   \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{simProgressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
 }

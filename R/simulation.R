@@ -152,7 +152,7 @@ setMethod("simInit",
             pnames <- c(paste0(".", core[-omit]), names(params(sim)))
 
             if ( (is.null(params$.progress)) || (any(is.na(params$.progress))) ) {
-              params$.progress <- list(graphical=NA, interval=NA_real_)
+              params$.progress <- list(type=NA_character_, interval=NA_real_)
             }
 
             tmp <- list()

@@ -75,7 +75,7 @@ Advanced use:
    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
    \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
-   \code{\link{simProgressGraphical}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+   \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{\link{simProgressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
 }
