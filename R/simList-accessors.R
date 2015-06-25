@@ -750,7 +750,7 @@ setGeneric("progressType", function(object) {
 setMethod("progressType",
           signature="simList",
           definition=function(object) {
-            return(object@params$.progress$graphical)
+            return(object@params$.progress$type)
 })
 
 #' @export
@@ -767,7 +767,7 @@ setGeneric("progressType<-",
 setReplaceMethod("progressType",
                  signature="simList",
                  function(object, value) {
-                   object@params$.progress$graphical <- value
+                   object@params$.progress$type <- as.character(value)
                    validObject(object)
                    return(object)
 })
