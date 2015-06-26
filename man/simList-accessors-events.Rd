@@ -38,6 +38,8 @@ completed(object) <- value
 \arguments{
 \item{object}{A \code{simList} simulation object.}
 
+\item{unit}{Character. One of the time units used in \code{SpaDES}.}
+
 \item{value}{The object to be stored at the slot.}
 }
 \value{

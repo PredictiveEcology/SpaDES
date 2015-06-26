@@ -353,12 +353,13 @@ setMethod("doEvent",
           definition=function(sim, debug) {
             stopifnot(class(sim) == "simList")
 
-            # get next event
-            nextEvent <- events(sim, "second")[1L, ] # extract the next event from queue
+            # get next event from the queue
+            nextEvent <- events(sim, "second")[1L, ]
 
-            # Catches the situation where no future event is scheduled, but StopTime is not reached
+            # catches the situation where no future event is scheduled,
+            #  but StopTime is not reached
             if(any(is.na(nextEvent))) {
-               time(sim, "second") <- end(sim, "second") + 1
+               time(sim) <- end(sim, "second") + 1
             } else {
               if (nextEvent$eventTime <= end(sim, "second")) {
                 # update current simulated time
@@ -369,9 +370,11 @@ setMethod("doEvent",
 
                 # check the module call for validity
                 if(nextEvent$moduleName %in% modules(sim)) {
-                  sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
+                  sim <- get(moduleCall)(sim, nextEvent$eventTime,
+                                         nextEvent$eventType, debug)
                 } else {
-                  stop(paste("Invalid module call. The module `", nextEvent$moduleName,
+                  stop(paste("Invalid module call. The module `",
+                             nextEvent$moduleName,
                              "` wasn't specified to be loaded."))
                 }
 
@@ -383,7 +386,9 @@ setMethod("doEvent",
                   completed <- list(completed(sim, "second"), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
-                  if (!debug) completed <- tail(completed, n=getOption("spades.nCompleted"))
+                  if (!debug) {
+                    completed <- tail(completed, n=getOption("spades.nCompleted"))
+                  }
                 } else {
                   completed <- setkey(nextEvent, "eventTime")
                 }
@@ -391,8 +396,6 @@ setMethod("doEvent",
               } else {
                 # update current simulated time to
                 time(sim) <- end(sim) + 1
-                #time(sim) <- nextEvent$eventTime
-
               }
             }
             return(invisible(sim))
@@ -450,21 +453,22 @@ setMethod("scheduleEvent",
                 # if there is no metadata, meaning for the first
                 #  "default" modules...load, save, checkpoint, progress
                 if(!is.null(simDepends(sim)@dependencies[[1]])) {
-                  # first check if this moduleName matches the name of a module with meta-data
-                  #   (i.e., simDepends(sim)@dependencies filled)
-                  if (moduleName %in% sapply(simDepends(sim)@dependencies, function(x) x@name)) {
-                    # If the eventTime doesn't have units, it is a user generated
+                  # first check if this moduleName matches the name of a module
+                  #  with meta-data (i.e., simDepends(sim)@dependencies filled)
+                  if (moduleName %in% sapply(
+                    simDepends(sim)@dependencies, function(x) { x@name })) {
+                    # If the eventTime doesn't have units, it's a user generated
                     #  value, likely because of times in the simInit call.
                     #  This must be intercepted, and units added based on this
-                    #  assumption, that the units are in simTimestepUnits
-
+                    #  assumption, that the units are in \code{timeunit}
                     if(is.null(attr(eventTime, "unit"))) {
                       attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
-                      eventTimeInSeconds <-
-                        convertTimeunit((eventTime -
-                                           convertTimeunit(start(sim),timeunit(sim))),
-                                        "seconds") +
-                          time(sim, "seconds") %>%
+                      eventTimeInSeconds <- convertTimeunit(
+                          (eventTime -
+                             convertTimeunit(start(sim),timeunit(sim))),
+                          "seconds"
+                        ) +
+                        time(sim, "seconds") %>%
                         as.numeric
                     } else {
                       eventTimeInSeconds <- as.numeric(convertTimeunit(eventTime, "seconds"))

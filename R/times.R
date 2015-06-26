@@ -138,9 +138,11 @@ setMethod("dNA",
 #'
 #' Currently available units are found within the \code{spadesTimes()} function.
 #'
-#' @param unit  Character vector of length 1, indicating time units.
+#' @param unit   Character. One of the time units used in \code{SpaDES}.
+#'
 #' @return A numeric vector of length 1, with \code{unit} attribute set to
 #' "seconds".
+#'
 #' @export
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
@@ -251,6 +253,47 @@ setMethod("convertTimeunit",
 })
 
 ################################################################################
+#' Determine the largest timestep unit in a simulation
+#'
+#' @param sim   A \code{simList} simulation object.
+#'
+#' @return The timeunit as a character string. This defaults to \code{NA} if
+#' none of the modules has explicit units.
+#'
+#' @export
+#' @include simList-class.R
+#' @docType methods
+#' @rdname maxTimeunit
+#'
+#' @author Eliot McIntire and Alex Chubaty
+#'
+setGeneric("maxTimeunit", function(sim) {
+  standardGeneric("maxTimeunit")
+})
+
+#' @export
+#' @rdname maxTimeunit
+setMethod(
+  "maxTimeunit",
+  signature(sim="simList"),
+  definition=function(sim) {
+    if (length(simDepends(sim)@dependencies)) {
+      if (!is.null(simDepends(sim)@dependencies[[1]])) {
+        timesteps <- lapply(simDepends(sim)@dependencies, function(x) {
+          x@timestepUnit
+        })
+        if (!all(sapply(timesteps, is.na))) {
+          return(timesteps[!is.na(timesteps)][[which.max(sapply(
+            timesteps[!sapply(timesteps, is.na)], function(ts) {
+              eval(parse(text=paste0("d", ts, "(1)"))) }
+          ))]])
+        }
+      }
+    }
+    return(NA_character_)
+})
+
+################################################################################
 #' Determine the smallest timestepUnit in a simulation
 #'
 #' When modules have different timeunit, SpaDES automatically takes the smallest
@@ -286,7 +329,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text=paste0("d",ts,"(1)"))) }
+              eval(parse(text=paste0("d", ts, "(1)"))) }
           ))]])
         }
       }

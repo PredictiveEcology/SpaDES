@@ -31,7 +31,7 @@ convertTimeunit(time, unit)
 spadesTimes()
 }
 \arguments{
-\item{unit}{Character vector of length 1, indicating time units.}
+\item{unit}{Character. One of the time units used in \code{SpaDES}.}
 
 \item{time}{Numeric. With a unit attribute, indicating the time unit of the
 input numeric. See Details.}

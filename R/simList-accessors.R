@@ -914,9 +914,8 @@ setMethod(
 
 #' @export
 #' @rdname simList-accessors-times
-setGeneric("time<-",
-           function(x, value) {
-             standardGeneric("time<-")
+setGeneric("time<-", function(x, value) {
+  standardGeneric("time<-")
 })
 
 #' @name time<-
@@ -929,8 +928,7 @@ setReplaceMethod("time",
                    if(is.null(attributes(value)$unit)) {
                      attributes(value)$unit <- timeunit(x)
                    }
-                   value <- convertTimeunit(value, "second")
-                   x@simtimes$current <- value
+                   x@simtimes$current <- convertTimeunit(value, "second")
                    validObject(x)
                    return(x)
 })
@@ -999,9 +997,7 @@ setReplaceMethod(
     if(is.null(attributes(value)$unit)) {
       attributes(value)$unit <- timeunit(x)
     }
-    value <- convertTimeunit(value, "second")
-
-    x@simtimes$stop <- value
+    x@simtimes$stop <- convertTimeunit(value, "second")
     validObject(x)
     return(x)
 })
@@ -1067,9 +1063,7 @@ setReplaceMethod("start",
                    if(is.null(attributes(value)$unit)) {
                      attributes(value)$unit <- timeunit(x)
                    }
-                   value <- convertTimeunit(value, "second")
-
-                   x@simtimes$start <- value
+                   x@simtimes$start <- convertTimeunit(value, "second")
                    validObject(x)
                    return(x)
 })
@@ -1178,6 +1172,8 @@ setMethod(
 #'
 #' @param object A \code{simList} simulation object.
 #'
+#' @param unit   Character. One of the time units used in \code{SpaDES}.
+#'
 #' @param value The object to be stored at the slot.
 #'
 #' @return Returns or sets the value of the slot from the \code{simList} object.
@@ -1200,22 +1196,23 @@ setGeneric("events", function(object, unit) {
 
 #' @export
 #' @rdname simList-accessors-events
-setMethod("events",
-          signature=c("simList","character"),
-          definition=function(object, unit) {
-            out <- if (!is.null(object@events$eventTime)) {
-              object@events %>%
-                dplyr::mutate(eventTime=convertTimeunit(eventTime, unit))
-            } else {
-              object@events
-            }
-            return(out)
+setMethod(
+  "events",
+  signature=c("simList", "character"),
+  definition=function(object, unit) {
+    out <- if (!is.null(object@events$eventTime)) {
+      object@events %>%
+        dplyr::mutate(eventTime=convertTimeunit(eventTime, unit))
+      } else {
+        object@events
+      }
+    return(out)
 })
 
 #' @export
 #' @rdname simList-accessors-events
 setMethod("events",
-          signature=c("simList","missing"),
+          signature=c("simList", "missing"),
           definition=function(object, unit) {
             out <- events(object, timeunit(object))
             return(out)
@@ -1344,6 +1341,7 @@ setReplaceMethod(
   "timeunit",
   signature="simList",
   function(x, value) {
+    value <- as.character(value)
     if (any(str_detect(.spadesTimes, pattern = value), na.rm=TRUE)) {
       x@simtimes$timestepUnit <- value
     } else {
