@@ -251,12 +251,12 @@ setMethod(".depsLoadOrder",
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
-              loadOrder <- unlist(simModules(sim))
+              loadOrder <- unlist(modules(sim))
             }
             # make sure modules with no deps get added
-            if (!all(simModules(sim) %in% loadOrder)) {
-              ids <- which(simModules(sim) %in% loadOrder)
-              noDeps <- unlist(simModules(sim))[-ids]
+            if (!all(modules(sim) %in% loadOrder)) {
+              ids <- which(modules(sim) %in% loadOrder)
+              noDeps <- unlist(modules(sim))[-ids]
               loadOrder <- c(loadOrder, noDeps)
             }
             return(loadOrder)

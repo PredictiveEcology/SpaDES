@@ -276,15 +276,17 @@ setMethod(
   "minTimeunit",
   signature(sim="simList"),
   definition=function(sim) {
-    if (!is.null(simDepends(sim)@dependencies[[1]])) {
-      timesteps <- lapply(simDepends(sim)@dependencies, function(x) {
-        x@timestepUnit
-      })
-      if (!all(sapply(timesteps, is.na))) {
-        return(timesteps[!is.na(timesteps)][[which.min(sapply(
-          timesteps[!sapply(timesteps, is.na)], function(ts) {
-            eval(parse(text=paste0("d",ts,"(1)"))) }
-        ))]])
+    if (length(simDepends(sim)@dependencies)) {
+      if (!is.null(simDepends(sim)@dependencies[[1]])) {
+        timesteps <- lapply(simDepends(sim)@dependencies, function(x) {
+          x@timestepUnit
+        })
+        if (!all(sapply(timesteps, is.na))) {
+          return(timesteps[!is.na(timesteps)][[which.min(sapply(
+            timesteps[!sapply(timesteps, is.na)], function(ts) {
+              eval(parse(text=paste0("d",ts,"(1)"))) }
+          ))]])
+        }
       }
     }
     return("second")

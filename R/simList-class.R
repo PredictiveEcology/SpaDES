@@ -22,10 +22,6 @@
 #' uses an environment for objects and the latter uses a list.
 #' The class \code{simList_} is only used internally.
 #'
-#' @slot .loadOrder Character vector of names specifying the order in which modules are to be loaded.
-#'
-#' @slot .loaded    List of character names specifying which modules and objects are currently loaded.
-#'
 #' @slot modules    List of character names specifying which modules to load.
 #'
 #' @slot params     Named list of potentially other lists specifying simulation parameters.
@@ -74,14 +70,12 @@
 #' @author Alex Chubaty
 #'
 setClass(".simList",
-         slots=list(.loadOrder="character", .loaded="list",
-                    modules="list", params="list",
+         slots=list(modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends=".simDeps", simtimes="list"),
-         prototype=list(.loadOrder=character(),
-                        .loaded=list(modules=as.list(NULL)),
-                        modules=as.list(NULL),
+         prototype=list(modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
+                                    .loaded=list(objects=as.list(NULL)),
                                     .progress=list(type=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),

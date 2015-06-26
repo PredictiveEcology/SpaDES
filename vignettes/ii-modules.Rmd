@@ -386,8 +386,8 @@ These core modules are summarized in the following table and described further b
 
 **Module Name**   | **Parameterization**                   | **Accessor Methods**
 ------------------|----------------------------------------|---------------------
-**`.checkpoint`** | `file`: character.                     | `simCheckpointFile()`
-&nbsp;            | `interval`: numeric (or `NA`).         | `simCheckpointInterval()`
+**`.checkpoint`** | `file`: character.                     | `checkpointFile()`
+&nbsp;            | `interval`: numeric (or `NA`).         | `checkpointInterval()`
 &nbsp;            | &nbsp;                                 | &nbsp;
 **`.load`**       | `fileList`: character.                 | `simFileList()`
 &nbsp;            | &nbsp;                                 | &nbsp;
@@ -396,7 +396,7 @@ These core modules are summarized in the following table and described further b
 &nbsp;            | &nbsp;                                 | &nbsp;
 **`.progress`**   | `type`: one of `"text"`, `"graphical"`,| `progressType()`
 &nbsp;            | `"shiny"`, or `NA`.                    | &nbsp;
-&nbsp;            | `interval`: numeric (or `NA`).         | `simProgressInterval()`
+&nbsp;            | `interval`: numeric (or `NA`).         | `progressInterval()`
 &nbsp;            | &nbsp;                                 | &nbsp;
 **`.save`**       | `.saveInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
 &nbsp;            | `.saveInterval`: numeric (or `NA`)     | as list item in your module parameters.
@@ -423,8 +423,8 @@ path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 
 # retrieve the checkpoint params from the simulation object
-simCheckpointFile(mySim)
-simCheckpointInterval(mySim)
+checkpointFile(mySim)
+checkpointInterval(mySim)
 ```
 
 ## `.progress` module
@@ -441,7 +441,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.0),
 
 # retrieve the checkpoint params from the simulation object
 progressType(mySim)
-simProgressInterval(mySim)
+progressInterval(mySim)
 ```
 
 ## `.load` and `.save` modules

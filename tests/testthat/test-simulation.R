@@ -33,32 +33,24 @@ test_that("simList object initializes correctly", {
   expect_true(mySim$test1)
   expect_true(mySim[["test2"]])
 
-  ### SLOT .loadOrder
-  expect_is(simModulesLoadOrder(mySim), "character")
-  expect_equal(simModulesLoadOrder(mySim), unlist(modules))
-
-  ### SLOT .loaded
-  expect_is(simModulesLoaded(mySim), "list")
-  expect_equal(simModulesLoaded(mySim), as.list(c(defaults, modules)))
-
   ### SLOT modules
-  expect_is(simModules(mySim), "list")
-  expect_equal(simModules(mySim), as.list(c(defaults, modules)))
+  expect_is(modules(mySim), "list")
+  expect_equal(modules(mySim), as.list(c(defaults, modules)))
 
   ### SLOT params
   expect_is(params(mySim), "list")
 
   # checkpoint
-  expect_true(is.null(simCheckpointFile(mySim)))
-  expect_true(is.na(simCheckpointInterval(mySim)))
+  expect_true(is.null(checkpointFile(mySim)))
+  expect_true(is.na(checkpointInterval(mySim)))
 
   # progress
   expect_true(is.na(progressType(mySim)))
-  expect_true(is.na(simProgressInterval(mySim)))
+  expect_true(is.na(progressInterval(mySim)))
 
   ### SLOT events
   expect_is(events(mySim), "data.table")
-  expect_equal(nrow(events(mySim)), length(simModulesLoaded(mySim)))
+  expect_equal(nrow(events(mySim)), length(modules(mySim)))
 
   ### SLOT completed
   expect_is(completed(mySim), "data.table")

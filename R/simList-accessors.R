@@ -31,9 +31,7 @@ setMethod("show",
 
             ### modules loaded
             out[[8]] <- capture.output(cat(">> Modules:\n"))
-            out[[9]] <- capture.output(print(cbind(ModuleName=simModules(object),
-                                                   IsLoaded=simModules(object) %in%
-                                                     simModulesLoaded(object)),
+            out[[9]] <- capture.output(print(cbind(ModuleName=modules(object)),
                                              quote=FALSE, row.names=FALSE))
             out[[10]] <- capture.output(cat("\n"))
 
@@ -50,14 +48,18 @@ setMethod("show",
 
             ### params
             omit <- which(names(params(object))==".load" |
+                            names(params(object))==".loaded" |
                             names(params(object))==".progress")
 
-            p <- mapply(function(x, y) {
-              data.frame(Module=x, Parameter=names(y), Value=unlist(y),
-                         stringsAsFactors=FALSE, row.names=NULL)
-            },
-            x=names(params(object))[-omit], y=params(object)[-omit],
-            USE.NAMES=TRUE, SIMPLIFY=FALSE)
+            p <- mapply(
+              function(x, y) {
+                data.frame(Module=x, Parameter=names(y), Value=unlist(y),
+                           stringsAsFactors=FALSE, row.names=NULL)
+              },
+              x=names(params(object))[-omit],
+              y=params(object)[-omit],
+              USE.NAMES=TRUE, SIMPLIFY=FALSE
+            )
             if (length(p)) {
               q = do.call(rbind, p)
               q = q[order(q$Module, q$Parameter),]
@@ -272,14 +274,12 @@ setReplaceMethod("simEnv",
 ################################################################################
 #' Simulation modules and dependencies
 #'
-#' Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
-#' and \code{.loadOrder} slots in a \code{simList} object.
+#' Accessor functions for the \code{depends} and \code{modules} slots in a
+#' \code{simList} object.
 #' These are included for advanced users.
 #' \tabular{ll}{
 #'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
-#'    \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced) \cr
-#'    \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced) \cr
-#'    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced) \cr
+#'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced) \cr
 #'    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
 #' }
 #'
@@ -304,12 +304,12 @@ setReplaceMethod("simEnv",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("simModules", function(object) {
-  standardGeneric("simModules")
+setGeneric("modules", function(object) {
+  standardGeneric("modules")
 })
 
 #' @rdname simList-accessors-modules
-setMethod("simModules",
+setMethod("modules",
           signature="simList",
           definition=function(object) {
             return(object@modules)
@@ -317,15 +317,15 @@ setMethod("simModules",
 
 #' @export
 #' @rdname simList-accessors-modules
-setGeneric("simModules<-",
+setGeneric("modules<-",
            function(object, value) {
-             standardGeneric("simModules<-")
+             standardGeneric("modules<-")
 })
 
-#' @name simModules<-
-#' @aliases simModules<-,simList-method
+#' @name modules<-
+#' @aliases modules<-,simList-method
 #' @rdname simList-accessors-modules
-setReplaceMethod("simModules",
+setReplaceMethod("modules",
                  signature="simList",
                  function(object, value) {
                    object@modules <- value
@@ -334,85 +334,7 @@ setReplaceMethod("simModules",
  })
 
 ################################################################################
-#' @inheritParams simModules
-#' @export
-#' @include simList-class.R
-#' @docType methods
-#' @rdname simList-accessors-modules
-#'
-setGeneric("simModulesLoaded", function(object) {
-  standardGeneric("simModulesLoaded")
-})
-
-#' @export
-#' @rdname simList-accessors-modules
-setMethod("simModulesLoaded",
-          signature="simList",
-          definition=function(object) {
-            return(object@.loaded$modules)
-})
-
-#' @export
-#' @rdname simList-accessors-modules
-setGeneric("simModulesLoaded<-",
-           function(object, value) {
-             standardGeneric("simModulesLoaded<-")
-})
-
-#' @name simModulesLoaded<-
-#' @aliases simModulesLoaded<-,simList-method
-#' @rdname simList-accessors-modules
-setReplaceMethod("simModulesLoaded",
-                 signature="simList",
-                 function(object, value) {
-                   object@.loaded$modules <- value
-                   validObject(object)
-                   return(object)
-})
-
-################################################################################
-#' @inheritParams simModules
-#' @export
-#' @include simList-class.R
-#' @docType methods
-#' @rdname simList-accessors-modules
-#'
-setGeneric("simModulesLoadOrder", function(object) {
-  standardGeneric("simModulesLoadOrder")
-})
-
-#' @export
-#' @rdname simList-accessors-modules
-setMethod("simModulesLoadOrder",
-          signature="simList",
-          definition=function(object) {
-            return(object@.loadOrder)
-})
-
-#' @export
-#' @rdname simList-accessors-modules
-setGeneric("simModulesLoadOrder<-",
-           function(object, value) {
-             standardGeneric("simModulesLoadOrder<-")
- })
-
-#' @name simModulesLoadOrder<-
-#' @aliases simModulesLoadOrder<-,simList-method
-#' @rdname simList-accessors-modules
-setReplaceMethod("simModulesLoadOrder",
-                 signature="simList",
-                 function(object, value) {
-                   if (!is.null(value)) {
-                     object@.loadOrder <- value
-                   } else {
-                     object@.loadOrder <- character()
-                   }
-                   validObject(object)
-                   return(object)
-})
-
-################################################################################
-#' @inheritParams simModules
+#' @inheritParams modules
 #' @export
 #' @include simList-class.R
 #' @docType methods
@@ -450,7 +372,7 @@ setReplaceMethod("simDepends",
 })
 
 ################################################################################
-#' @inheritParams simModules
+#' @inheritParams modules
 #' @export
 #' @include simList-class.R
 #' @docType methods
@@ -465,7 +387,7 @@ setGeneric("simObjectsLoaded", function(object) {
 setMethod("simObjectsLoaded",
           signature="simList",
           definition=function(object) {
-            return(object@.loaded$objects)
+            return(params(object)$.loaded$objects)
 })
 
 #' @export
@@ -482,7 +404,7 @@ setGeneric("simObjectsLoaded<-",
 setReplaceMethod("simObjectsLoaded",
                  signature="simList",
                  function(object, value) {
-                   object@.loaded$objects <- value
+                   params(object)$.loaded$objects <- value
                    validObject(object)
                    return(object)
 })
@@ -562,13 +484,13 @@ setReplaceMethod("simObjects",
 #' Advanced use
 #' \tabular{lll}{
 #'    Accessor method \tab Module \tab Description \cr
-#'    \code{simCheckpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-#'    \code{simCheckpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+#'    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+#'    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
 #'    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
 #'    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
 #'    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
 #'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-#'    \code{simProgressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+#'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
@@ -627,13 +549,13 @@ setReplaceMethod("params",
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
-setGeneric("simCheckpointFile", function(object) {
-  standardGeneric("simCheckpointFile")
+setGeneric("checkpointFile", function(object) {
+  standardGeneric("checkpointFile")
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setMethod("simCheckpointFile",
+setMethod("checkpointFile",
           signature="simList",
           definition=function(object) {
             return(object@params$.checkpoint$file)
@@ -641,16 +563,16 @@ setMethod("simCheckpointFile",
 
 #' @export
 #' @rdname simList-accessors-params
-setGeneric("simCheckpointFile<-",
+setGeneric("checkpointFile<-",
            function(object, value) {
-             standardGeneric("simCheckpointFile<-")
+             standardGeneric("checkpointFile<-")
 })
 
-#' @name simCheckpointFile<-
-#' @aliases simCheckpointFile<-,simList-method
+#' @name checkpointFile<-
+#' @aliases checkpointFile<-,simList-method
 #' @rdname simList-accessors-params
 #' @export
-setReplaceMethod("simCheckpointFile",
+setReplaceMethod("checkpointFile",
                  signature="simList",
                  function(object, value) {
                    object@params$.checkpoint$file <- value
@@ -665,13 +587,13 @@ setReplaceMethod("simCheckpointFile",
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
-setGeneric("simCheckpointInterval", function(object) {
-  standardGeneric("simCheckpointInterval")
+setGeneric("checkpointInterval", function(object) {
+  standardGeneric("checkpointInterval")
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setMethod("simCheckpointInterval",
+setMethod("checkpointInterval",
           signature="simList",
           definition=function(object) {
             return(object@params$.checkpoint$interval)
@@ -679,16 +601,16 @@ setMethod("simCheckpointInterval",
 
 #' @export
 #' @rdname simList-accessors-params
-setGeneric("simCheckpointInterval<-",
+setGeneric("checkpointInterval<-",
            function(object, value) {
-             standardGeneric("simCheckpointInterval<-")
+             standardGeneric("checkpointInterval<-")
 })
 
-#' @name simCheckpointInterval<-
-#' @aliases simCheckpointInterval<-,simList-method
+#' @name checkpointInterval<-
+#' @aliases checkpointInterval<-,simList-method
 #' @rdname simList-accessors-params
 #' @export
-setReplaceMethod("simCheckpointInterval",
+setReplaceMethod("checkpointInterval",
                  signature="simList",
                  function(object, value) {
                    object@params$.checkpoint$interval <- value
@@ -779,13 +701,13 @@ setReplaceMethod("progressType",
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
-setGeneric("simProgressInterval", function(object) {
-  standardGeneric("simProgressInterval")
+setGeneric("progressInterval", function(object) {
+  standardGeneric("progressInterval")
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setMethod("simProgressInterval",
+setMethod("progressInterval",
           signature="simList",
           definition=function(object) {
             return(object@params$.progress$interval)
@@ -793,16 +715,16 @@ setMethod("simProgressInterval",
 
 #' @export
 #' @rdname simList-accessors-params
-setGeneric("simProgressInterval<-",
+setGeneric("progressInterval<-",
            function(object, value) {
-             standardGeneric("simProgressInterval<-")
+             standardGeneric("progressInterval<-")
 })
 
-#' @name simProgressInterval<-
-#' @aliases simProgressInterval<-,simList-method
+#' @name progressInterval<-
+#' @aliases progressInterval<-,simList-method
 #' @rdname simList-accessors-params
 #' @export
-setReplaceMethod("simProgressInterval",
+setReplaceMethod("progressInterval",
                  signature="simList",
                  function(object, value) {
                    object@params$.progress$interval <- value
@@ -1190,7 +1112,7 @@ setMethod(
 #' This will only return the module name if it is inside a \code{spades}
 #' function call, i.e., it will return \code{NULL} if used in interactive mode.
 #'
-#' @inheritParams simModules
+#' @inheritParams modules
 #' @include simList-class.R
 #' @export
 #' @docType methods

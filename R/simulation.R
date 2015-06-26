@@ -63,7 +63,11 @@ setMethod("simInit",
           signature(times="list", params="list", modules="list", objects="list",
                     path="character", loadOrder="character"),
           definition=function(times, params, modules, objects, path, loadOrder) {
+
             path <- checkPath(path, create=TRUE)
+
+            # user modules
+            modules <- modules[!sapply(modules, is.null)]
 
             # core modules
             core <- list("checkpoint", "save", "progress", "load")
@@ -74,29 +78,27 @@ setMethod("simInit",
             dotParamsChar <- list(".savePath", ".saveObjects")
             dotParams <- append(dotParamsChar, dotParamsReal)
 
+            # create simList object for the simluation
             sim <- new("simList")
 
-            #times(sim) <- list(current=times$start, start=times$start, stop=times$stop)
-            simModules(sim) <- modules[!sapply(modules, is.null)]
-
-            # assign some core & global params only for now
+            # for now, assign only some core & global params
             if (".outputPath" %in% names(params$.globals)) {
               params$.globals$.outputPath <- checkPath(params$.globals$.outputPath, TRUE)
             }
             globals(sim) <- params$.globals
 
             # load core modules
+            modulesLoaded <- list()
             for (c in core) {
               ### sourcing the code in each core module is already done
               ### because they are loaded with the package
 
               # add core module name to the loaded list:
-              simModulesLoaded(sim) <- append(simModulesLoaded(sim), c)
-
+              modulesLoaded <- append(modulesLoaded, c)
             }
 
             # source module metadata and code files
-            for (m in simModules(sim)) {
+            for (m in modules) {
               filename <- paste(path, "/", m, "/", m, ".R", sep="")
               parsedFile <- parse(filename)
               defineModuleItem <- grepl(pattern="defineModule", parsedFile)
@@ -106,7 +108,7 @@ setMethod("simInit",
 
               # check that modulename == filename
               fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
-              i <- which(simModules(sim)==m)
+              i <- which(modules==m)
               mname <- simDepends(sim)@dependencies[[i]]@name
               if (fname != mname) stop("module name \'", mname, "\'",
                                        "does not match filename \'", fname, "\'")
@@ -125,7 +127,8 @@ setMethod("simInit",
               eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
             }
 
-            # timestepUnit has no meaning until all modules are loaded, so this has to be after loading
+            # timestepUnit has no meaning until all modules are loaded,
+            #  so this has to be after loading
             timeunit(sim) <- if(!is.null(times$timestepUnit)) {
               times$timestepUnit
             } else {
@@ -139,7 +142,6 @@ setMethod("simInit",
                                   timestepUnit=timeunit(sim),
                                   initialStart=times$start)
 
-
             # load core modules
             for (c in core) {
               # schedule each module's init event:
@@ -149,7 +151,7 @@ setMethod("simInit",
             # assign user-specified non-global params, while
             # keeping defaults for params not specified by user
             omit <- c(which(core=="load"), which(core=="save"))
-            pnames <- c(paste0(".", core[-omit]), names(params(sim)))
+            pnames <- unique(c(paste0(".", core[-omit]), names(params(sim))))
 
             if ( (is.null(params$.progress)) || (any(is.na(params$.progress))) ) {
               params$.progress <- list(type=NA_character_, interval=NA_real_)
@@ -162,20 +164,19 @@ setMethod("simInit",
             params(sim) <- tmp
 
             # check user-supplied load order
-            if ( length(loadOrder) && all(modules %in% loadOrder) && all(loadOrder %in% modules) ) {
-              simModulesLoadOrder(sim) <- loadOrder
-            } else {
-              simModulesLoadOrder(sim) <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
+            if (!all( length(loadOrder),
+                      all(modules %in% loadOrder),
+                      all(loadOrder %in% modules) )) {
+              loadOrder <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
             }
 
-
             # load user-defined modules
-            for (m in simModulesLoadOrder(sim)) {
+            for (m in loadOrder) {
               # schedule each module's init event:
               sim <- scheduleEvent(sim, start(sim, "seconds"), m, "init")
 
               ### add module name to the loaded list
-              simModulesLoaded(sim) <- append(simModulesLoaded(sim), m)
+              modulesLoaded <- append(modulesLoaded, m)
 
               ### add NAs to any of the dotParams that are not specified by user
               # ensure the modules sublist exists by creating a tmp value in it
@@ -199,9 +200,12 @@ setMethod("simInit",
               ### values where used (i.e., in save.R).
             }
 
-            sim$.sessionInfo <- sessionInfo()
-
-            simModules(sim) <- append(core, simModulesLoadOrder(sim))
+            # check that modules all loaded correctly and store result
+            if (all( append(core, loadOrder) %in% modulesLoaded )) {
+              modules(sim) <- append(core, loadOrder)
+            } else {
+              stop("There was a problem loading some modules.")
+            }
 
             # load files in the filelist
             if(!is.null(params$.load$fileList)) {
@@ -221,6 +225,9 @@ setMethod("simInit",
               changeObjEnv(x=objects, toEnv=simEnv(sim), fromEnv=.GlobalEnv,
                            rmSrc=getOption("spades.lowMemory"))
             }
+
+            # keep session info for debugging & checkpointing
+            sim$.sessionInfo <- sessionInfo()
 
             return(invisible(sim))
 })
@@ -308,52 +315,6 @@ setMethod("simInit",
 })
 
 ################################################################################
-#' Load modules for simulation (deprecated).
-#'
-#' DEPRECATED. Checks the dependencies of the current module on other modules.
-#' These dependencies need to be loaded first, so if they are not
-#' already loaded, hold off loading the current module until after
-#' dependencies are loaded.
-#'
-#' @param sim     A \code{simList} simulation object.
-#'
-#' @param depends A list of character strings specifying the names
-#'                of modules upon which the current module depends.
-#'
-#' @return \code{Logical}.
-#'
-#' @seealso \code{\link{library}}.
-#'
-#' @export
-#' @docType methods
-#' @rdname loadmodules
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("reloadModuleLater", function(sim, depends) {
-  standardGeneric("reloadModuleLater")
-})
-
-#' @rdname loadmodules
-setMethod("reloadModuleLater",
-          signature(sim="simList", depends="NULL"),
-            definition=function(sim, depends) {
-              stopifnot(class(sim) == "simList")
-              return(FALSE)
-})
-
-#' @rdname loadmodules
-setMethod("reloadModuleLater",
-        signature(sim="simList", depends="character"),
-          definition=function(sim, depends) {
-            stopifnot(class(sim) == "simList")
-            # deprecated in v0.6.0
-            .Deprecated(msg=paste0("Warning: 'reloadModuleLater' is deprecated.\n",
-                        "Module dependencies should be specified using 'defineModule'"))
-            return(!all(depends %in% simModulesLoaded(sim)))
-})
-
-################################################################################
 #' Process a simulation event
 #'
 #' Internal function called from \code{spades}.
@@ -409,7 +370,7 @@ setMethod("doEvent",
                 moduleCall <- paste("doEvent", nextEvent$moduleName, sep=".")
 
                 # check the module call for validity
-                if(nextEvent$moduleName %in% simModules(sim)) {
+                if(nextEvent$moduleName %in% modules(sim)) {
                   sim <- get(moduleCall)(sim, nextEvent$eventTime, nextEvent$eventType, debug)
                 } else {
                   stop(paste("Invalid module call. The module `", nextEvent$moduleName,
@@ -490,10 +451,10 @@ setMethod("scheduleEvent",
               if (!is.na(eventTime)) {
                 # if there is no metadata, meaning for the first
                 #  "default" modules...load, save, checkpoint, progress
-                if(!is.null(simDepends(sim)@dependencies[[1]])){
+                if(!is.null(simDepends(sim)@dependencies[[1]])) {
                   # first check if this moduleName matches the name of a module with meta-data
                   #   (i.e., simDepends(sim)@dependencies filled)
-                  if (moduleName %in% sapply(simDepends(sim)@dependencies,function(x) x@name)) {
+                  if (moduleName %in% sapply(simDepends(sim)@dependencies, function(x) x@name)) {
                     # If the eventTime doesn't have units, it is a user generated
                     #  value, likely because of times in the simInit call.
                     #  This must be intercepted, and units added based on this

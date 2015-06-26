@@ -42,14 +42,14 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
   ### determine checkpoint file location, for use in events below
   if (useChkpnt) {
-    if (is.null(simCheckpointFile(sim))) {
+    if (is.null(checkpointFile(sim))) {
       checkpointFile <- "checkpoint.RData"
     } else {
-      checkpointFile <- simCheckpointFile(sim)
+      checkpointFile <- checkpointFile(sim)
     }
     if (!is.null(outputPath(sim))) {
       checkpointDir <- checkPath(outputPath(sim), create=TRUE)
-      checkpointFile <- file.path(checkpointDir, simCheckpointFile(sim))
+      checkpointFile <- file.path(checkpointDir, checkpointFile(sim))
     }
   }
 
@@ -63,7 +63,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
       .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
-      timeNextSave <- time(sim) + simCheckpointInterval(sim)
+      timeNextSave <- time(sim) + checkpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {

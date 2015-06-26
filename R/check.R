@@ -144,7 +144,7 @@ setMethod("checkParams",
           definition=function(sim, coreModules, coreParams, path, ...) {
 
             params <- params(sim)
-            modules <- simModules(sim)
+            modules <- modules(sim)
             userModules <- modules[-which(coreModules %in% modules)]
             globalParams <- globals(sim)
             allFound <- TRUE

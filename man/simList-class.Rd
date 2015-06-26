@@ -26,10 +26,6 @@ Various slot accessor methods (i.e., get and set functions) are provided
 \section{Slots}{
 
 \describe{
-\item{\code{.loadOrder}}{Character vector of names specifying the order in which modules are to be loaded.}
-
-\item{\code{.loaded}}{List of character names specifying which modules and objects are currently loaded.}
-
 \item{\code{modules}}{List of character names specifying which modules to load.}
 
 \item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}

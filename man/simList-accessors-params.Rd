@@ -2,6 +2,14 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{params}
+\alias{checkpointFile}
+\alias{checkpointFile,simList-method}
+\alias{checkpointFile<-}
+\alias{checkpointFile<-,simList-method}
+\alias{checkpointInterval}
+\alias{checkpointInterval,simList-method}
+\alias{checkpointInterval<-}
+\alias{checkpointInterval<-,simList-method}
 \alias{globals}
 \alias{globals,simList-method}
 \alias{globals<-}
@@ -14,27 +22,19 @@
 \alias{params,simList-method}
 \alias{params<-}
 \alias{params<-,simList-method}
+\alias{progressInterval}
+\alias{progressInterval,simList-method}
+\alias{progressInterval<-}
+\alias{progressInterval<-,simList-method}
 \alias{progressType}
 \alias{progressType,simList-method}
 \alias{progressType<-}
 \alias{progressType<-,simList-method}
-\alias{simCheckpointFile}
-\alias{simCheckpointFile,simList-method}
-\alias{simCheckpointFile<-}
-\alias{simCheckpointFile<-,simList-method}
-\alias{simCheckpointInterval}
-\alias{simCheckpointInterval,simList-method}
-\alias{simCheckpointInterval<-}
-\alias{simCheckpointInterval<-,simList-method}
 \alias{simFileList}
 \alias{simFileList,simList-method}
 \alias{simFileList<-}
 \alias{simFileList<-,simList-method}
 \alias{simList-accessors-params}
-\alias{simProgressInterval}
-\alias{simProgressInterval,simList-method}
-\alias{simProgressInterval<-}
-\alias{simProgressInterval<-,simList-method}
 \title{Get and set simulation parameters.}
 \usage{
 params(object)
@@ -45,21 +45,21 @@ params(object) <- value
 
 \S4method{params}{simList}(object) <- value
 
-simCheckpointFile(object)
+checkpointFile(object)
 
-\S4method{simCheckpointFile}{simList}(object)
+\S4method{checkpointFile}{simList}(object)
 
-simCheckpointFile(object) <- value
+checkpointFile(object) <- value
 
-\S4method{simCheckpointFile}{simList}(object) <- value
+\S4method{checkpointFile}{simList}(object) <- value
 
-simCheckpointInterval(object)
+checkpointInterval(object)
 
-\S4method{simCheckpointInterval}{simList}(object)
+\S4method{checkpointInterval}{simList}(object)
 
-simCheckpointInterval(object) <- value
+checkpointInterval(object) <- value
 
-\S4method{simCheckpointInterval}{simList}(object) <- value
+\S4method{checkpointInterval}{simList}(object) <- value
 
 simFileList(object)
 
@@ -77,13 +77,13 @@ progressType(object) <- value
 
 \S4method{progressType}{simList}(object) <- value
 
-simProgressInterval(object)
+progressInterval(object)
 
-\S4method{simProgressInterval}{simList}(object)
+\S4method{progressInterval}{simList}(object)
 
-simProgressInterval(object) <- value
+progressInterval(object) <- value
 
-\S4method{simProgressInterval}{simList}(object) <- value
+\S4method{progressInterval}{simList}(object) <- value
 
 globals(object)
 
@@ -121,13 +121,13 @@ Commonly used
 Advanced use
 \tabular{lll}{
    Accessor method \tab Module \tab Description \cr
-   \code{simCheckpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-   \code{simCheckpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+   \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+   \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-   \code{simProgressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+   \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
 }
 \details{

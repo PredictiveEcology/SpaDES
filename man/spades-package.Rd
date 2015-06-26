@@ -70,13 +70,13 @@ Commonly used:
 Advanced use:
 \tabular{lll}{
    Accessor method \tab Module \tab Description\cr
-   \code{\link{simCheckpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-   \code{\link{simCheckpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+   \code{\link{checkpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+   \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
    \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-   \code{\link{simProgressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+   \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
 }
 
@@ -115,9 +115,7 @@ These are included for advanced users.
 
 \tabular{ll}{
    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced)\cr
-   \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced)\cr
-   \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced)\cr
-   \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced)\cr
+   \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
 }
 }
@@ -136,7 +134,6 @@ including our
   \code{\link{newModule}} \tab Create new module from template\cr
   \code{\link{newModuleDocumentation}} \tab Create empty documentation for a new module\cr
   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
-  \code{\link{reloadModuleLater}} \tab Load modules for simulation, contingent on dependencies loaded\cr
   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
 }
 }
