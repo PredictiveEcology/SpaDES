@@ -136,8 +136,7 @@ setMethod("simInit",
             times(sim) <- list(current=times$start*timestep,
                                   start=times$start*timestep,
                                   stop=times$stop*timestep,
-                                  timestepUnit=timeunit(sim),
-                                  initialStart=times$start)
+                                  timestepUnit=timeunit(sim))
 
 
             # load core modules
@@ -501,7 +500,9 @@ setMethod("scheduleEvent",
                     if(is.null(attr(eventTime, "unit"))) {
                       attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
                       eventTimeInSeconds <-
-                        convertTimeunit((eventTime - sim@simtimes$initialStart),"seconds") +
+                        convertTimeunit((eventTime -
+                                           convertTimeunit(start(mySim2),timeunit(mySim2))),
+                                        "seconds") +
                           time(sim, "seconds") %>%
                         as.numeric
                     } else {

@@ -219,21 +219,23 @@ setMethod(
   definition=function(time, unit) {
     timeUnit <- attr(time, "unit")
 
-    # Assume default of seconds if no time has no units
+    # Assume default of seconds if time has no units
     if (!is.character(timeUnit)) {
       timeUnit <- "second"
     }
 
     if (!is.na(timeUnit)) {
+      # confirm that units are useable by SpaDES
       stopifnot(
         any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm=FALSE)
       )
 
+      # if time units are same as unit, skip calculations
       if(!stri_detect_fixed(unit, pattern=timeUnit)) {
         time <- time * inSeconds(timeUnit) / inSeconds(unit)
         attr(time, "unit") <- unit
       }
-    } else {
+    } else { # if timeunit is NA
       time <- 0
       attr(time, "unit") <- unit
     }
