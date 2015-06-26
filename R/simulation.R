@@ -109,12 +109,12 @@ setMethod("simInit",
               # check that modulename == filename
               fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
               i <- which(modules==m)
-              mname <- simDepends(sim)@dependencies[[i]]@name
+              mname <- depends(sim)@dependencies[[i]]@name
               if (fname != mname) stop("module name \'", mname, "\'",
                                        "does not match filename \'", fname, "\'")
 
               # assign default param values
-              apply(simDepends(sim)@dependencies[[i]]@parameters, 1, function(x) {
+              apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
                 if (is.character(x$default)) {
                   tt <- paste0("params(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
                 } else {
@@ -452,11 +452,11 @@ setMethod("scheduleEvent",
               if (!is.na(eventTime)) {
                 # if there is no metadata, meaning for the first
                 #  "default" modules...load, save, checkpoint, progress
-                if(!is.null(simDepends(sim)@dependencies[[1]])) {
+                if(!is.null(depends(sim)@dependencies[[1]])) {
                   # first check if this moduleName matches the name of a module
-                  #  with meta-data (i.e., simDepends(sim)@dependencies filled)
+                  #  with meta-data (i.e., depends(sim)@dependencies filled)
                   if (moduleName %in% sapply(
-                    simDepends(sim)@dependencies, function(x) { x@name })) {
+                    depends(sim)@dependencies, function(x) { x@name })) {
                     # If the eventTime doesn't have units, it's a user generated
                     #  value, likely because of times in the simInit call.
                     #  This must be intercepted, and units added based on this
@@ -544,9 +544,9 @@ setGeneric("timestepInSeconds", function(sim, moduleName) {
 setMethod("timestepInSeconds",
           signature(sim="simList", moduleName="character"),
           definition=function(sim, moduleName) {
-  a = sapply(simDepends(sim)@dependencies,function(x) x@name)
+  a = sapply(depends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
-  timestepUnit <- simDepends(sim)@dependencies[[wh]]@timestepUnit
+  timestepUnit <- depends(sim)@dependencies[[wh]]@timestepUnit
 
   if(is.character(timestepUnit)) {
     return(eval(parse(text=paste0("d",timestepUnit,"(1)"))))

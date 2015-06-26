@@ -114,7 +114,7 @@ and \code{.loadOrder} slots.
 These are included for advanced users.
 
 \tabular{ll}{
-   \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced)\cr
+   \code{\link{depends}} \tab List of simulation module dependencies. (advanced)\cr
    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
 }

@@ -4,14 +4,14 @@
 \name{modules}
 \alias{.callingModuleName}
 \alias{.callingModuleName,simList-method}
+\alias{depends}
+\alias{depends,simList-method}
+\alias{depends<-}
+\alias{depends<-,simList-method}
 \alias{modules}
 \alias{modules,simList-method}
 \alias{modules<-}
 \alias{modules<-,simList-method}
-\alias{simDepends}
-\alias{simDepends,simList-method}
-\alias{simDepends<-}
-\alias{simDepends<-,simList-method}
 \alias{simList-accessors-modules}
 \alias{simObjectsLoaded}
 \alias{simObjectsLoaded,simList-method}
@@ -27,13 +27,13 @@ modules(object) <- value
 
 \S4method{modules}{simList}(object) <- value
 
-simDepends(object)
+depends(object)
 
-\S4method{simDepends}{simList}(object)
+\S4method{depends}{simList}(object)
 
-simDepends(object) <- value
+depends(object) <- value
 
-\S4method{simDepends}{simList}(object) <- value
+\S4method{depends}{simList}(object) <- value
 
 simObjectsLoaded(object)
 
@@ -60,7 +60,7 @@ Accessor functions for the \code{depends} and \code{modules} slots in a
 \code{simList} object.
 These are included for advanced users.
 \tabular{ll}{
-   \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
+   \code{\link{depends}} \tab List of simulation module dependencies. (advanced) \cr
    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced) \cr
    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
 }

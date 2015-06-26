@@ -42,7 +42,7 @@ setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
 
-            deps <- simDepends(sim)
+            deps <- depends(sim)
             sim.in <- sim.out <- data.table(objectName=character(),
                                             objectClass=character(),
                                             module=character())

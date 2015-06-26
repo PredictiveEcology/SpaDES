@@ -59,10 +59,10 @@ test_that("simList object initializes correctly", {
   expect_equal(nrow(completed(mySim)), 0)
 
   ### SLOT depends
-  expect_is(simDepends(mySim), ".simDeps")
-  expect_is(simDepends(mySim)@dependencies, "list")
-  expect_is(simDepends(mySim)@dependencies[[3]], ".moduleDeps")
-  expect_equal(simDepends(mySim)@dependencies[[3]]@name, "fireSpread")
+  expect_is(depends(mySim), ".simDeps")
+  expect_is(depends(mySim)@dependencies, "list")
+  expect_is(depends(mySim)@dependencies[[3]], ".moduleDeps")
+  expect_equal(depends(mySim)@dependencies[[3]]@name, "fireSpread")
   # not going to go though each level...object validity checking does types
 
   ### SLOT simtimes
@@ -85,5 +85,5 @@ test_that("simList object initializes correctly", {
   ### required packages
   pkgs <- c("grid", "methods", "RandomFields", "raster", "RColorBrewer", "sp",
             "SpaDES", "tkrplot")
-  expect_equal(sort(simReqdPkgs(mySim)), sort(pkgs))
+  expect_equal(sort(packages(mySim)), sort(pkgs))
 })

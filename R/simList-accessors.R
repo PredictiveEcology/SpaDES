@@ -21,7 +21,7 @@ setMethod("show",
 
             ### simulation dependencies
             out[[2]] <- capture.output(cat(">> Simulation dependencies:\n"))
-            out[[3]] <- "use `simDepends(sim)` to view dependencies for each module"
+            out[[3]] <- "use `depends(sim)` to view dependencies for each module"
             out[[4]] <- capture.output(cat("\n"))
 
             ### simtimes
@@ -260,7 +260,7 @@ setReplaceMethod("simEnv",
 #' \code{simList} object.
 #' These are included for advanced users.
 #' \tabular{ll}{
-#'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced) \cr
+#'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced) \cr
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced) \cr
 #'    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
 #' }
@@ -322,13 +322,13 @@ setReplaceMethod("modules",
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
-setGeneric("simDepends", function(object) {
-  standardGeneric("simDepends")
+setGeneric("depends", function(object) {
+  standardGeneric("depends")
 })
 
 #' @export
 #' @rdname simList-accessors-modules
-setMethod("simDepends",
+setMethod("depends",
           signature("simList"),
           definition=function(object) {
             return(object@depends)
@@ -336,16 +336,16 @@ setMethod("simDepends",
 
 #' @export
 #' @rdname simList-accessors-modules
-setGeneric("simDepends<-",
+setGeneric("depends<-",
            function(object, value) {
-             standardGeneric("simDepends<-")
+             standardGeneric("depends<-")
 })
 
-#' @name simDepends<-
-#' @aliases simDepends<-,simList-method
+#' @name depends<-
+#' @aliases depends<-,simList-method
 #' @rdname simList-accessors-modules
 #' @export
-setReplaceMethod("simDepends",
+setReplaceMethod("depends",
                  signature("simList"),
                  function(object, value) {
                    object@depends <- value
@@ -1377,10 +1377,10 @@ setMethod(
   "timeunits",
   signature="simList",
   definition=function(x) {
-    timestepUnits <- lapply(simDepends(x)@dependencies, function(y) {
+    timestepUnits <- lapply(depends(x)@dependencies, function(y) {
       y@timestepUnit
     })
-    names(timestepUnits) <- sapply(simDepends(x)@dependencies, function(y) {
+    names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
       y@name
     })
     return(timestepUnits)
@@ -1399,22 +1399,21 @@ setMethod(
 #'
 #' @return A \code{simList} object.
 #'
-#' @export
 #' @include simList-class.R
 #' @docType methods
-#' @rdname addSimDepends
+#' @rdname addDepends
 #'
 #' @author Alex Chubaty
 #'
-setGeneric(".addSimDepends", function(sim, x) {
-  standardGeneric(".addSimDepends")
+setGeneric(".addDepends", function(sim, x) {
+  standardGeneric(".addDepends")
 })
 
-#' @rdname addSimDepends
-setMethod(".addSimDepends",
+#' @rdname addDepends
+setMethod(".addDepends",
           signature(sim="simList", x=".moduleDeps"),
           definition=function(sim, x) {
-            deps <- simDepends(sim)
+            deps <- depends(sim)
             n <- length(deps@dependencies)
             if (n==1L) {
               if (is.null(deps@dependencies[[1L]])) n <- 0L
@@ -1422,7 +1421,7 @@ setMethod(".addSimDepends",
             deps@dependencies[[n+1L]] <- x
             dupes <- which(duplicated(deps@dependencies))
             if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
-            simDepends(sim) <- deps
+            depends(sim) <- deps
             return(sim)
 })
 
@@ -1437,20 +1436,20 @@ setMethod(".addSimDepends",
 #' @export
 #' @include simList-class.R
 #' @docType methods
-#' @rdname simReqdPkgs
+#' @rdname packages
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("simReqdPkgs", function(sim) {
-  standardGeneric("simReqdPkgs")
+setGeneric("packages", function(sim) {
+  standardGeneric("packages")
 })
 
 #' @export
-#' @rdname simReqdPkgs
-setMethod("simReqdPkgs",
+#' @rdname packages
+setMethod("packages",
           signature(sim="simList"),
           definition=function(sim) {
-            pkgs <- lapply(simDepends(sim)@dependencies, function(x) {
+            pkgs <- lapply(depends(sim)@dependencies, function(x) {
               x@reqdPkgs
               }) %>%
               unlist %>%
@@ -1466,7 +1465,7 @@ setMethod("simReqdPkgs",
 #' Specify a new module's metadata as well as object and package dependecies.
 #' Packages are loaded during this call.
 #'
-#' @inheritParams .addSimDepends
+#' @inheritParams .addDepends
 #'
 #' @return Updated \code{simList} object.
 #'
@@ -1542,7 +1541,7 @@ setMethod(
 
     ## create module deps object and add to sim deps
     m <- do.call(new, c(".moduleDeps", x))
-    return(.addSimDepends(sim, m))
+    return(.addDepends(sim, m))
 })
 
 ################################################################################

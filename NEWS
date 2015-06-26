@@ -23,7 +23,7 @@ version 1.0.0
 * new function `splitRaster` to divide `RasterLayer` into several tiles
 * new function `normPath` (extracted from `checkPath`) to more strictly normalize filepaths without checking that they exist.
 * new function `classFilter` to filter list of objects by their type
-* new internal function `.simReqdPkgs` to get all packages required by a simulation
+* new function `packages` to get all packages required by a simulation
 * new function `rndstr` to generate random strings
 * improved `loadPackages`
 * improved `.objectNames`
