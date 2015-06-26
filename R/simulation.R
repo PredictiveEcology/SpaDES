@@ -419,8 +419,8 @@ setMethod("doEvent",
                 events(sim) <- events(sim, "second")[-1L,]
 
                 # add to list of completed events
-                if(length(completed(sim))) {
-                  completed <- list(completed(sim), nextEvent) %>%
+                if(length(completed(sim, "second"))) {
+                  completed <- list(completed(sim, "second"), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
                   if (!debug) completed <- tail(completed, n=getOption("spades.nCompleted"))

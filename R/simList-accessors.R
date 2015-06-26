@@ -1265,7 +1265,7 @@ setMethod(
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
 #'
-setGeneric("events", function(object) {
+setGeneric("events", function(object, unit) {
   standardGeneric("events")
 })
 
