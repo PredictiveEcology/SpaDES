@@ -872,7 +872,14 @@ setReplaceMethod("outputPath",
 #' Get and set simulation times.
 #'
 #' Accessor functions for the \code{simtimes} slot of a \code{simList} object
-#' and its elements.
+#' and its elements. To maintain modularity, the behavior of these functions depends
+#' on where they are used.
+#'
+#' NOTE: These have default behavior that is based on the calling
+#' frame timeunit. When used inside a module, then the time is in the units of the module.
+#' If used in an interactive mode, then the time will be in the units of the spades
+#' simulation.
+#'
 #' Additonal methods are provided to access the current, start, and stop times
 #' of the simulation:
 #' \tabular{ll}{
