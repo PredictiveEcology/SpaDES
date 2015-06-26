@@ -501,7 +501,7 @@ setMethod("scheduleEvent",
                       attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
                       eventTimeInSeconds <-
                         convertTimeunit((eventTime -
-                                           convertTimeunit(start(mySim2),timeunit(mySim2))),
+                                           convertTimeunit(start(sim),timeunit(sim))),
                                         "seconds") +
                           time(sim, "seconds") %>%
                         as.numeric
