@@ -53,7 +53,7 @@ test_that("simList object initializes correctly", {
   expect_true(is.na(simCheckpointInterval(mySim)))
 
   # progress
-  expect_true(is.na(simProgressGraphical(mySim)))
+  expect_true(is.na(progressType(mySim)))
   expect_true(is.na(simProgressInterval(mySim)))
 
   ### SLOT events

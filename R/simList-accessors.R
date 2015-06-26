@@ -549,7 +549,7 @@ setReplaceMethod("simObjects",
 #'    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
 #'    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
 #'    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
-#'    \code{simProgressGraphical} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+#'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
 #'    \code{simProgressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
 #'
@@ -723,33 +723,33 @@ setReplaceMethod("simFileList",
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
-setGeneric("simProgressGraphical", function(object) {
-  standardGeneric("simProgressGraphical")
+setGeneric("progressType", function(object) {
+  standardGeneric("progressType")
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setMethod("simProgressGraphical",
+setMethod("progressType",
           signature="simList",
           definition=function(object) {
-            return(object@params$.progress$graphical)
+            return(object@params$.progress$type)
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setGeneric("simProgressGraphical<-",
+setGeneric("progressType<-",
            function(object, value) {
-             standardGeneric("simProgressGraphical<-")
+             standardGeneric("progressType<-")
 })
 
-#' @name simProgressGraphical<-
-#' @aliases simProgressGraphical<-,simList-method
+#' @name progressType<-
+#' @aliases progressType<-,simList-method
 #' @rdname simList-accessors-params
 #' @export
-setReplaceMethod("simProgressGraphical",
+setReplaceMethod("progressType",
                  signature="simList",
                  function(object, value) {
-                   object@params$.progress$graphical <- value
+                   object@params$.progress$type <- as.character(value)
                    validObject(object)
                    return(object)
 })
