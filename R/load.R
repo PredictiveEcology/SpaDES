@@ -163,7 +163,7 @@ setMethod("loadFiles",
 
               #  assume loadTime = start(sim) if missing
               if(!("loadTime" %in% names(fileListDT))) {
-                fileListDT[,loadTime:=start(sim)]
+                fileListDT[,loadTime:=start(sim, "second")]
               }
 
               # only load those that are to be loaded at their loadTime

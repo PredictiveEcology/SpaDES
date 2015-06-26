@@ -72,30 +72,12 @@ setMethod("show",
 
             ### completed events
             out[[20]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[21]] <- if (!is.null(completed(object)$eventTime)) {
-              capture.output(
-                print(
-                  completed(object) %>%
-                    dplyr::mutate(eventTime=convertTimeunit(eventTime, "year"))
-                )
-              )
-            } else {
-              capture.output(print(completed(object) ))
-            }
+            out[[21]] <- capture.output(print(completed(object)))
             out[[22]] <- capture.output(cat("\n"))
 
             ### scheduled events
             out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[24]] <- if (!is.null(events(object)$eventTime)) {
-              capture.output(
-                print(
-                  events(object) %>%
-                    dplyr::mutate(eventTime=convertTimeunit(eventTime, "year"))
-                )
-              )
-            } else {
-              capture.output(print(events(object) ))
-            }
+            out[[24]] <- capture.output(print(events(object)))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
@@ -812,7 +794,14 @@ setReplaceMethod("outputPath",
 #' Get and set simulation times.
 #'
 #' Accessor functions for the \code{simtimes} slot of a \code{simList} object
-#' and its elements.
+#' and its elements. To maintain modularity, the behavior of these functions depends
+#' on where they are used.
+#'
+#' NOTE: These have default behavior that is based on the calling
+#' frame timeunit. When used inside a module, then the time is in the units of the module.
+#' If used in an interactive mode, then the time will be in the units of the spades
+#' simulation.
+#'
 #' Additonal methods are provided to access the current, start, and stop times
 #' of the simulation:
 #' \tabular{ll}{
@@ -898,7 +887,7 @@ setMethod(
   "time",
   signature = c("simList", "missing"),
   definition = function(x) {
-    mUnit <- .moduleTimeunit(x)
+    mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
@@ -937,6 +926,10 @@ setGeneric("time<-",
 setReplaceMethod("time",
                  signature="simList",
                  function(x, value) {
+                   if(is.null(attributes(value)$unit)) {
+                     attributes(value)$unit <- timeunit(x)
+                   }
+                   value <- convertTimeunit(value, "second")
                    x@simtimes$current <- value
                    validObject(x)
                    return(x)
@@ -961,7 +954,7 @@ setMethod(
   "end",
   signature = c("simList", "missing"),
   definition = function(x) {
-    mUnit <- .moduleTimeunit(x)
+    mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
@@ -1001,6 +994,13 @@ setReplaceMethod(
   signature="simList",
   function(x, value) {
     stopifnot(is.character(attr(value, "unit")))
+
+    # convert time units, if required
+    if(is.null(attributes(value)$unit)) {
+      attributes(value)$unit <- timeunit(x)
+    }
+    value <- convertTimeunit(value, "second")
+
     x@simtimes$stop <- value
     validObject(x)
     return(x)
@@ -1024,7 +1024,7 @@ setMethod(
   "start",
   signature=c("simList","missing"),
   definition=function(x) {
-    mUnit <- .moduleTimeunit(x)
+    mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
@@ -1062,6 +1062,13 @@ setReplaceMethod("start",
                  signature="simList",
                  function(x, value) {
                    stopifnot(is.character(attr(value, "unit")))
+
+                   # convert time units, if required
+                   if(is.null(attributes(value)$unit)) {
+                     attributes(value)$unit <- timeunit(x)
+                   }
+                   value <- convertTimeunit(value, "second")
+
                    x@simtimes$start <- value
                    validObject(x)
                    return(x)
@@ -1075,22 +1082,22 @@ setReplaceMethod("start",
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric(".moduleTimeunit", function(x) {
-  standardGeneric(".moduleTimeunit")
+setGeneric(".callingFrameTimeunit", function(x) {
+  standardGeneric(".callingFrameTimeunit")
 })
 
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 setMethod(
-  ".moduleTimeunit",
+  ".callingFrameTimeunit",
   signature=c("simList"),
   definition=function(x) {
     mod <- .callingModuleName(x)
     out <- if (!is.null(mod)) {
       timeunits(x)[[mod]]
     } else {
-      NA_character_
+      timeunit(x)
     }
     return(out)
 })
@@ -1100,7 +1107,7 @@ setMethod(
 #' @rdname simList-accessors-times
 #'
 setMethod(
-  ".moduleTimeunit",
+  ".callingFrameTimeunit",
   signature=c("NULL"),
   definition=function(x) {
     return(NULL)
@@ -1187,17 +1194,32 @@ setMethod(
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
 #'
-setGeneric("events", function(object) {
+setGeneric("events", function(object, unit) {
   standardGeneric("events")
 })
 
 #' @export
 #' @rdname simList-accessors-events
 setMethod("events",
-          signature="simList",
-          definition=function(object) {
-            return(object@events)
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            out <- if (!is.null(object@events$eventTime)) {
+              object@events %>%
+                dplyr::mutate(eventTime=convertTimeunit(eventTime, unit))
+            } else {
+              object@events
+            }
+            return(out)
 })
+
+#' @export
+#' @rdname simList-accessors-events
+setMethod("events",
+          signature=c("simList","missing"),
+          definition=function(object, unit) {
+            out <- events(object, timeunit(object))
+            return(out)
+          })
 
 #' @export
 #' @rdname simList-accessors-events
@@ -1213,6 +1235,11 @@ setGeneric("events<-",
 setReplaceMethod("events",
                  signature="simList",
                  function(object, value) {
+                   if(is.null(attributes(value$eventTime)$unit)) {
+                     attributes(value$eventTime)$unit <- timeunit(object)
+                   } else {
+                     value[,eventTime:=convertTimeunit(eventTime, "second")]
+                   }
                    object@events <- value
                    validObject(object)
                    return(object)
@@ -1225,17 +1252,32 @@ setReplaceMethod("events",
 #' @docType methods
 #' @rdname simList-accessors-events
 #'
-setGeneric("completed", function(object) {
+setGeneric("completed", function(object, unit) {
   standardGeneric("completed")
 })
 
 #' @rdname simList-accessors-events
 #' @export
 setMethod("completed",
-          signature="simList",
-          definition=function(object) {
-            return(object@completed)
-})
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            out <- if (!is.null(object@completed$eventTime)) {
+              object@completed %>%
+                dplyr::mutate(eventTime=convertTimeunit(eventTime, unit))
+            } else {
+              object@completed
+            }
+            return(out)
+          })
+
+#' @export
+#' @rdname simList-accessors-events
+setMethod("completed",
+          signature=c("simList","missing"),
+          definition=function(object, unit) {
+            out <- completed(object, timeunit(object))
+            return(out)
+          })
 
 #' @export
 #' @rdname simList-accessors-events

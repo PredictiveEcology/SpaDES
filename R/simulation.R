@@ -139,8 +139,7 @@ setMethod("simInit",
             times(sim) <- list(current=times$start*timestep,
                                   start=times$start*timestep,
                                   stop=times$stop*timestep,
-                                  timestepUnit=timeunit(sim),
-                                  initialStart=times$start)
+                                  timestepUnit=timeunit(sim))
 
             # load core modules
             for (c in core) {
@@ -355,14 +354,13 @@ setMethod("doEvent",
             stopifnot(class(sim) == "simList")
 
             # get next event
-            nextEvent <- events(sim)[1L, ] # extract the next event from queue
+            nextEvent <- events(sim, "second")[1L, ] # extract the next event from queue
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
             if(any(is.na(nextEvent))) {
-               time(sim) <- end(sim) + 1
+               time(sim, "second") <- end(sim, "second") + 1
             } else {
-              browser(expr=time(sim)>(as.numeric(dyears(2006))))
-              if (nextEvent$eventTime <= end(sim)) {
+              if (nextEvent$eventTime <= end(sim, "second")) {
                 # update current simulated time
                 time(sim) <- nextEvent$eventTime
 
@@ -378,11 +376,11 @@ setMethod("doEvent",
                 }
 
                 # now that it is run, without error, remove it from the queue
-                events(sim) <- events(sim)[-1L,]
+                events(sim) <- events(sim, "second")[-1L,]
 
                 # add to list of completed events
-                if(length(completed(sim))) {
-                  completed <- list(completed(sim), nextEvent) %>%
+                if(length(completed(sim, "second"))) {
+                  completed <- list(completed(sim, "second"), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
                   if (!debug) completed <- tail(completed, n=getOption("spades.nCompleted"))
@@ -461,9 +459,11 @@ setMethod("scheduleEvent",
                     #  assumption, that the units are in simTimestepUnits
 
                     if(is.null(attr(eventTime, "unit"))) {
-                      attributes(eventTime)$unit <- .moduleTimeunit(sim)
+                      attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
                       eventTimeInSeconds <-
-                        convertTimeunit((eventTime - sim@simtimes$initialStart),"seconds") +
+                        convertTimeunit((eventTime -
+                                           convertTimeunit(start(sim),timeunit(sim))),
+                                        "seconds") +
                           time(sim, "seconds") %>%
                         as.numeric
                     } else {
@@ -476,6 +476,7 @@ setMethod("scheduleEvent",
                 } else { # when eventTime is NA... can't seem to get an example
                   eventTimeInSeconds <- as.numeric(convertTimeunit(eventTime, "seconds"))
                 }
+                attributes(eventTimeInSeconds)$unit <- "second"
 
                 newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
                                               moduleName=moduleName,
@@ -483,12 +484,11 @@ setMethod("scheduleEvent",
 
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
-                if (length(events(sim))==0L) {
+                if (length(events(sim,"second"))==0L) {
                   events(sim) <- setkey(newEvent, "eventTime")
                 } else {
-                  events(sim) <- setkey(rbindlist(list(events(sim), newEvent)), "eventTime")
+                  events(sim) <- setkey(rbindlist(list(events(sim, "second"), newEvent)), "eventTime")
                 }
-                attributes(events(sim)$eventTime)$unit <- "second"
 
               }
             } else {
@@ -603,8 +603,7 @@ setMethod("spades",
             attach(simEnv(sim), name=envName)
             on.exit(detach(pos=match(envName, search())))
 
-            while(time(sim) <= end(sim)) {
-              browser(expr=time(sim)>(as.numeric(dyears(2006))))
+            while(time(sim, "second") <= end(sim, "second")) {
 
               sim <- doEvent(sim, debug)  # process the next event
 
@@ -615,7 +614,7 @@ setMethod("spades",
                   print(sim)
               }
             }
-            time(sim) <- end(sim)
+            time(sim) <- end(sim, "second")
             return(invisible(sim))
 })
 

@@ -2,9 +2,9 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{times}
-\alias{.moduleTimeunit}
-\alias{.moduleTimeunit,NULL-method}
-\alias{.moduleTimeunit,simList-method}
+\alias{.callingFrameTimeunit}
+\alias{.callingFrameTimeunit,NULL-method}
+\alias{.callingFrameTimeunit,simList-method}
 \alias{end}
 \alias{end,simList,character-method}
 \alias{end,simList,missing-method}
@@ -71,11 +71,11 @@ start(x) <- value
 
 \S4method{start}{simList}(x) <- value
 
-.moduleTimeunit(x)
+.callingFrameTimeunit(x)
 
-\S4method{.moduleTimeunit}{simList}(x)
+\S4method{.callingFrameTimeunit}{simList}(x)
 
-\S4method{.moduleTimeunit}{`NULL`}(x)
+\S4method{.callingFrameTimeunit}{`NULL`}(x)
 
 timeunit(x)
 
@@ -103,7 +103,15 @@ Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
 Accessor functions for the \code{simtimes} slot of a \code{simList} object
-and its elements.
+and its elements. To maintain modularity, the behavior of these functions depends
+on where they are used.
+}
+\details{
+NOTE: These have default behavior that is based on the calling
+frame timeunit. When used inside a module, then the time is in the units of the module.
+If used in an interactive mode, then the time will be in the units of the spades
+simulation.
+
 Additonal methods are provided to access the current, start, and stop times
 of the simulation:
 \tabular{ll}{
@@ -113,8 +121,7 @@ of the simulation:
    \code{timeunit} \tab Simulation timeunit.\cr
    \code{times} \tab List of all simulation times (current, start, stop, timeunit).\cr
 }
-}
-\details{
+
 \code{timeunit} will extract the current units of the time used in a
 \code{spades} call.
 If it is set within a \code{simInit}, e.g.,

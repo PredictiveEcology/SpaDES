@@ -3,27 +3,33 @@
 \docType{methods}
 \name{events}
 \alias{completed}
-\alias{completed,simList-method}
+\alias{completed,simList,character-method}
+\alias{completed,simList,missing-method}
 \alias{completed<-}
 \alias{completed<-,simList-method}
 \alias{events}
-\alias{events,simList-method}
+\alias{events,simList,character-method}
+\alias{events,simList,missing-method}
 \alias{events<-}
 \alias{events<-,simList-method}
 \alias{simList-accessors-events}
 \title{Simulation event lists}
 \usage{
-events(object)
+events(object, unit)
 
-\S4method{events}{simList}(object)
+\S4method{events}{simList,character}(object, unit)
+
+\S4method{events}{simList,missing}(object, unit)
 
 events(object) <- value
 
 \S4method{events}{simList}(object) <- value
 
-completed(object)
+completed(object, unit)
 
-\S4method{completed}{simList}(object)
+\S4method{completed}{simList,character}(object, unit)
+
+\S4method{completed}{simList,missing}(object, unit)
 
 completed(object) <- value
 
