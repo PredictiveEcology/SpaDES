@@ -78,6 +78,6 @@ Simulation time is presented on the x-axis, starting at date `startDate`.
 Each module appears in a color-coded row, within which each event for that module is displayed corresponding to the sequence of events for that module.
 Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
 
-```{r gantt-chart-sim, eval=TRUE, fig.height=45, fig.width=10}
+```{r gantt-chart-sim, eval=TRUE, fig.height=15, fig.width=10}
 eventDiagram(mySim, "2005-06-01")
 ```

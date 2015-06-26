@@ -57,6 +57,7 @@ setMethod("ganttStatus",
 #' @return A list of data.frames
 #'
 #' @include simList-accessors.R
+#' @importFrom magrittr '%>%'
 #' @docType methods
 #' @rdname sim2gantt
 #'
@@ -71,17 +72,27 @@ setMethod("sim2gantt",
           signature(sim="simList", startDate="character"),
           definition=function(sim, startDate) {
             dt <- completed(sim)
-            ts <- convertTimeunit(inSeconds(timeunit(sim)), "day") # simulation timestep
+            modules <- unique(dt$moduleName)
 
-            mts <- lapply(timeunits(sim), function(x) {
-              t <- convertTimeunit(inSeconds(x), unit="day") # module timesteps
+            # simulation timestep in 'days'
+            ts <- timeunit(sim) %>%
+              inSeconds %>%
+              convertTimeunit("day") %>%
+              as.numeric
+
+            # module timesteps
+            mts <- lapply(modules, function(x) {
+              t <- timeunits(sim)[[x]] %>%
+                inSeconds %>%
+                convertTimeunit(unit="day") %>%
+                as.numeric
               if ( is.null(t) || (t==0) ) {
                 t <- 1
               }
-              return(as.numeric(t))
+              return(t)
             })
+            names(mts) <- modules
 
-            modules <- unique(dt$moduleName)
             out <- lapply(modules, function(x) {
               data.frame(task = dt[moduleName==x]$eventType,
                          status = ganttStatus(dt[moduleName==x]$eventType),

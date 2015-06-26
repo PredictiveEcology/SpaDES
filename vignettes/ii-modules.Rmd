@@ -35,7 +35,7 @@ Each event may evaluate or modify a simulation data object (*e.g.*, update the v
 
 ### Simulation event list
 
-The event queue is stored in a slot in a `simList` simulation object, which is itself stored in a `simEnv` object.
+The event queue is stored in a slot in a `simList` simulation object.
 Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`).
 This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list.
 Completed events are removed from the queue.
@@ -179,7 +179,7 @@ parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                    fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
                                    persistprob=0, returnInterval=10, startTime=0,
                                   .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1,
+                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
                                         .plotInitialTime=1.01, .plotInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
@@ -288,6 +288,45 @@ randomLandscapesInit <- function(sim) {
   sim[[globals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }
+```
+
+### Event diagram
+
+To better understand how events are scheduled within a simulation, a visual representation called an `eventDiagram` illustrates the sequences of events within a simulation.
+
+Simulation time is presented on the x-axis, starting at date `startDate`.
+Each module appears in a color-coded row, within which each event for that module is displayed corresponding to the sequence of events for that module.
+Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
+
+```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+require(magrittr)
+require(SpaDES)
+options("spades.nCompleted" = 200)
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
+                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
+                                        .plotInitialTime=1.01, .plotInterval=1))
+
+ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
+pdf(ftmp)
+mySim <- simInit(
+  times=list(start=0.0, stop=10.0),
+  params=parameters,
+  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+  objects=list(),
+  path=system.file("sampleModules", package="SpaDES")
+  ) %>% spades
+dev.off()
+unlink(ftmp)
+```
+
+```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
+mySim <- spades(mySim)            # runs the simulation
+eventDiagram(mySim, "0000-06-01") # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
