@@ -70,30 +70,12 @@ setMethod("show",
 
             ### completed events
             out[[20]] <- capture.output(cat(">> Completed Events:\n"))
-            out[[21]] <- if (!is.null(completed(object)$eventTime)) {
-              capture.output(
-                print(
-                  completed(object) %>%
-                    dplyr::mutate(eventTime=convertTimeunit(eventTime, "year"))
-                )
-              )
-            } else {
-              capture.output(print(completed(object) ))
-            }
+            out[[21]] <- capture.output(print(completed(object)))
             out[[22]] <- capture.output(cat("\n"))
 
             ### scheduled events
             out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
-            out[[24]] <- if (!is.null(events(object)$eventTime)) {
-              capture.output(
-                print(
-                  events(object) %>%
-                    dplyr::mutate(eventTime=convertTimeunit(eventTime, "year"))
-                )
-              )
-            } else {
-              capture.output(print(events(object) ))
-            }
+            out[[24]] <- capture.output(print(events(object)))
             out[[25]] <- capture.output(cat("\n"))
 
             ### print result
@@ -1272,10 +1254,25 @@ setGeneric("events", function(object) {
 #' @export
 #' @rdname simList-accessors-events
 setMethod("events",
-          signature="simList",
-          definition=function(object) {
-            return(object@events)
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            out <- if (!is.null(object@events$eventTime)) {
+              object@events %>%
+                dplyr::mutate(eventTime=convertTimeunit(eventTime, unit))
+            } else {
+              object@events
+            }
+            return(out)
 })
+
+#' @export
+#' @rdname simList-accessors-events
+setMethod("events",
+          signature=c("simList","missing"),
+          definition=function(object, unit) {
+            out <- events(object, timeunit(object))
+            return(out)
+          })
 
 #' @export
 #' @rdname simList-accessors-events
@@ -1291,6 +1288,11 @@ setGeneric("events<-",
 setReplaceMethod("events",
                  signature="simList",
                  function(object, value) {
+                   if(is.null(attributes(value$eventTime)$unit)) {
+                     attributes(value$eventTime)$unit <- timeunit(object)
+                   } else {
+                     value[,eventTime:=convertTimeunit(eventTime, "second")]
+                   }
                    object@events <- value
                    validObject(object)
                    return(object)
@@ -1303,17 +1305,32 @@ setReplaceMethod("events",
 #' @docType methods
 #' @rdname simList-accessors-events
 #'
-setGeneric("completed", function(object) {
+setGeneric("completed", function(object, unit) {
   standardGeneric("completed")
 })
 
 #' @rdname simList-accessors-events
 #' @export
 setMethod("completed",
-          signature="simList",
-          definition=function(object) {
-            return(object@completed)
-})
+          signature=c("simList","character"),
+          definition=function(object, unit) {
+            out <- if (!is.null(object@completed$eventTime)) {
+              object@completed %>%
+                dplyr::mutate(eventTime=convertTimeunit(eventTime, unit))
+            } else {
+              object@completed
+            }
+            return(out)
+          })
+
+#' @export
+#' @rdname simList-accessors-events
+setMethod("completed",
+          signature=c("simList","missing"),
+          definition=function(object, unit) {
+            out <- completed(object, timeunit(object))
+            return(out)
+          })
 
 #' @export
 #' @rdname simList-accessors-events

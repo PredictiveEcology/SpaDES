@@ -394,7 +394,7 @@ setMethod("doEvent",
             stopifnot(class(sim) == "simList")
 
             # get next event
-            nextEvent <- events(sim)[1L, ] # extract the next event from queue
+            nextEvent <- events(sim, "second")[1L, ] # extract the next event from queue
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
             if(any(is.na(nextEvent))) {
@@ -417,7 +417,7 @@ setMethod("doEvent",
                 }
 
                 # now that it is run, without error, remove it from the queue
-                events(sim) <- events(sim)[-1L,]
+                events(sim) <- events(sim, "second")[-1L,]
 
                 # add to list of completed events
                 if(length(completed(sim))) {
@@ -515,6 +515,7 @@ setMethod("scheduleEvent",
                 } else { # when eventTime is NA... can't seem to get an example
                   eventTimeInSeconds <- as.numeric(convertTimeunit(eventTime, "seconds"))
                 }
+                attributes(eventTimeInSeconds)$unit <- "second"
 
                 newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
                                               moduleName=moduleName,
@@ -522,12 +523,11 @@ setMethod("scheduleEvent",
 
                 # if the event list is empty, set it to consist of newEvent and return;
                 # otherwise, add newEvent and re-sort (rekey).
-                if (length(events(sim))==0L) {
+                if (length(events(sim,"second"))==0L) {
                   events(sim) <- setkey(newEvent, "eventTime")
                 } else {
-                  events(sim) <- setkey(rbindlist(list(events(sim), newEvent)), "eventTime")
+                  events(sim) <- setkey(rbindlist(list(events(sim, "second"), newEvent)), "eventTime")
                 }
-                attributes(events(sim)$eventTime)$unit <- "second"
 
               }
             } else {
