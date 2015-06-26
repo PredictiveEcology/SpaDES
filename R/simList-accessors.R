@@ -997,6 +997,10 @@ setGeneric("time<-",
 setReplaceMethod("time",
                  signature="simList",
                  function(x, value) {
+                   if(is.null(attributes(value)$unit)) {
+                     attributes(value)$unit <- timeunit(x)
+                   }
+                   value <- convertTimeunit(value, "second")
                    x@simtimes$current <- value
                    validObject(x)
                    return(x)
@@ -1061,6 +1065,13 @@ setReplaceMethod(
   signature="simList",
   function(x, value) {
     stopifnot(is.character(attr(value, "unit")))
+
+    # convert time units, if required
+    if(is.null(attributes(value)$unit)) {
+      attributes(value)$unit <- timeunit(x)
+    }
+    value <- convertTimeunit(value, "second")
+
     x@simtimes$stop <- value
     validObject(x)
     return(x)
@@ -1122,6 +1133,13 @@ setReplaceMethod("start",
                  signature="simList",
                  function(x, value) {
                    stopifnot(is.character(attr(value, "unit")))
+
+                   # convert time units, if required
+                   if(is.null(attributes(value)$unit)) {
+                     attributes(value)$unit <- timeunit(x)
+                   }
+                   value <- convertTimeunit(value, "second")
+
                    x@simtimes$start <- value
                    validObject(x)
                    return(x)

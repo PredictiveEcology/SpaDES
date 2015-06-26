@@ -398,10 +398,9 @@ setMethod("doEvent",
 
             # Catches the situation where no future event is scheduled, but StopTime is not reached
             if(any(is.na(nextEvent))) {
-               time(sim) <- end(sim) + 1
+               time(sim, "second") <- end(sim, "second") + 1
             } else {
-              browser(expr=time(sim)>(as.numeric(dyears(2006))))
-              if (nextEvent$eventTime <= end(sim)) {
+              if (nextEvent$eventTime <= end(sim, "second")) {
                 # update current simulated time
                 time(sim) <- nextEvent$eventTime
 
@@ -642,8 +641,7 @@ setMethod("spades",
             attach(simEnv(sim), name=envName)
             on.exit(detach(pos=match(envName, search())))
 
-            while(time(sim) <= end(sim)) {
-              browser(expr=time(sim)>(as.numeric(dyears(2006))))
+            while(time(sim, "second") <= end(sim, "second")) {
 
               sim <- doEvent(sim, debug)  # process the next event
 
@@ -654,7 +652,7 @@ setMethod("spades",
                   print(sim)
               }
             }
-            time(sim) <- end(sim)
+            time(sim) <- end(sim, "second")
             return(invisible(sim))
 })
 
