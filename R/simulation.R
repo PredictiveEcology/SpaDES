@@ -499,7 +499,7 @@ setMethod("scheduleEvent",
                     #  assumption, that the units are in simTimestepUnits
 
                     if(is.null(attr(eventTime, "unit"))) {
-                      attributes(eventTime)$unit <- .moduleTimeunit(sim)
+                      attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
                       eventTimeInSeconds <-
                         convertTimeunit((eventTime - sim@simtimes$initialStart),"seconds") +
                           time(sim, "seconds") %>%

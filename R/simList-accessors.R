@@ -958,7 +958,7 @@ setMethod(
   "time",
   signature = c("simList", "missing"),
   definition = function(x) {
-    mUnit <- .moduleTimeunit(x)
+    mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
@@ -1025,7 +1025,7 @@ setMethod(
   "end",
   signature = c("simList", "missing"),
   definition = function(x) {
-    mUnit <- .moduleTimeunit(x)
+    mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
@@ -1095,7 +1095,7 @@ setMethod(
   "start",
   signature=c("simList","missing"),
   definition=function(x) {
-    mUnit <- .moduleTimeunit(x)
+    mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
       mUnit <- NA_character_
     }
@@ -1153,22 +1153,22 @@ setReplaceMethod("start",
 #' @docType methods
 #' @rdname simList-accessors-times
 #'
-setGeneric(".moduleTimeunit", function(x) {
-  standardGeneric(".moduleTimeunit")
+setGeneric(".callingFrameTimeunit", function(x) {
+  standardGeneric(".callingFrameTimeunit")
 })
 
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-times
 setMethod(
-  ".moduleTimeunit",
+  ".callingFrameTimeunit",
   signature=c("simList"),
   definition=function(x) {
     mod <- .callingModuleName(x)
     out <- if (!is.null(mod)) {
       timeunits(x)[[mod]]
     } else {
-      NA_character_
+      timeunit(x)
     }
     return(out)
 })
@@ -1178,7 +1178,7 @@ setMethod(
 #' @rdname simList-accessors-times
 #'
 setMethod(
-  ".moduleTimeunit",
+  ".callingFrameTimeunit",
   signature=c("NULL"),
   definition=function(x) {
     return(NULL)
