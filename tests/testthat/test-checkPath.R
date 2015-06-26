@@ -17,6 +17,11 @@ test_that("normPath consistency", {
   checked <- normPath(paths)
   expect_that(length(unique(checked)), testthat::equals(1))
   unlink(file.path(tmpdir, "aaa"), recursive=TRUE)
+
+  # extra checks for missing/NA/NULL
+  expect_equal(normPath(), character())
+  expect_true(all(is.na(normPath(list(NA, NA_character_)))))
+  expect_equal(normPath(NULL), character())
 })
 
 test_that("checkPath consistency", {
@@ -38,4 +43,12 @@ test_that("checkPath consistency", {
   checked <- lapply(paths, checkPath, create=FALSE)
   expect_that(length(unique(checked)), testthat::equals(1))
   unlink(file.path(tmpdir, "aaa"), recursive=TRUE)
+
+  # check that length(path)==1
+  expect_error(checkPath(unlist(paths)), "path must be a character vector of length 1.")
+
+  # extra checks for missing/NA/NULL
+  expect_error(checkPath(), "Invalid path: no path specified.")
+  expect_error(checkPath(NULL), "Invalid path: cannot be NULL.")
+  expect_error(checkPath(NA_character_), "Invalid path: cannot be NA.")
 })

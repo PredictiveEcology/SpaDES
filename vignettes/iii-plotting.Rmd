@@ -3,10 +3,8 @@ title: "03 Plotting with `SpaDES`"
 author: "Eliot J. B. McIntire"
 date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
-  pdf_document:
-    number_sections: yes
-    toc: yes
   html_document:
+    number_sections: yes
     self_contained: yes
     toc: yes
 vignette: >

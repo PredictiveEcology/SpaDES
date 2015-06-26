@@ -30,6 +30,12 @@ version 1.0.0
 * `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
 * `defineModule` better handles `NA` values (#138)
 * `Plot` improvements
+* new plotting funcions to produce overview diagrams of simulations (#181; #184):
+
+    - `eventDiagram` shows Gantt chart of event sequences
+    - `moduleDiagram` shows igraph network diagram of dependencies
+    - `objectDiagram` shows sequence diagram of object dependencies between modules
+
 * improved `simList` show and debug methods (#57; #73)
 * improvements to `loadFiles`:
 

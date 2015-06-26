@@ -517,15 +517,14 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
-###################
 ################################################################################
-#' Convert a schedule event to seconds
+#' Convert an scheduled event time to seconds
 #'
-#' As a common unit
+#' Ensure all events from modules are working in the same time units.
 #'
 #' @param sim          A \code{simList} simulation object.
 #'
-#' @param moduleName   A character string specifying the module from which to call the event.
+#' @param moduleName   Character string specifying the module from which to call the event.
 #'
 #' @return Returns the eventTime in seconds, based on the default \code{timestepUnit} of
 #' the \code{moduleName}.
@@ -549,10 +548,10 @@ setMethod("timestepInSeconds",
   timestepUnit <- depends(sim)@dependencies[[wh]]@timestepUnit
 
   if(is.character(timestepUnit)) {
-    return(eval(parse(text=paste0("d",timestepUnit,"(1)"))))
+    return(eval(parse(text=paste0("d", timestepUnit, "(1)"))))
   }
   if(is.na(timestepUnit)) {
-    return(eval(parse(text=paste0("d",timeunit(sim),"(1)"))))
+    return(eval(parse(text=paste0("d", timeunit(sim), "(1)"))))
   } else {
     return(timestepUnit)
   }

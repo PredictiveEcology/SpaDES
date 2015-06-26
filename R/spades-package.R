@@ -29,7 +29,6 @@
 #' @author Eliot J. B. McIntire \email{Eliot.McIntire@@nrcan.gc.ca}
 #' @keywords package
 #'
-#'
 #' ------------------------------------------------------------------------------------------
 #' @section 1. Spatial discrete event simulation (\code{SpaDES}):
 #'
@@ -270,6 +269,13 @@
 #' Commonly used:
 #' \tabular{ll}{
 #'   \code{\link{Plot}} \tab The workhorse plotting function\cr
+#' }
+#'
+#' Simulation diagrams:
+#' \tabular{ll}{
+#'   \code{\link{eventDiagram}} \tab Gantt chart representing the events in a completed simulation.\cr
+#'   \code{\link{moduleDiagram}} \tab Network diagram of simplified module (object) dependencies.\cr
+#'   \code{\link{objectDiagram}} \tab Sequence diagram of detailed object dependencies.\cr
 #' }
 #'
 #' Other useful plotting functions:

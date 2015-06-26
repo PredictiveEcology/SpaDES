@@ -1359,7 +1359,7 @@ setReplaceMethod(
 #'
 #' @details \code{timeunits} will extract the current units of the time of all
 #' modules used in a simulation.
-#' This is different from \code{timeunits} because it is not necessarily
+#' This is different from \code{timeunit} because it is not necessarily
 #' associated with a \code{spades} call.
 #'
 #' @include simList-class.R

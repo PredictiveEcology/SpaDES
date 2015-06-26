@@ -31,9 +31,11 @@ Specified packages are loaded and attached using \code{library()}.
 Load and optionally install additional packages.
 }
 \examples{
-\dontrun{pkgs <- list("ggplot2", "lme4")}
-\dontrun{loadPackages(pkgs) # loads packages if installed}
-\dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+\dontrun{
+  pkgs <- list("ggplot2", "lme4")
+  loadPackages(pkgs) # loads packages if installed
+  loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)
+}
 }
 \author{
 Alex Chubaty
