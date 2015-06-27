@@ -1134,7 +1134,7 @@ setMethod(
   definition=function(object) {
     # Only return module name if inside a spades call,
     #  because this only makes sense if there is an "active" module
-    if (any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
+    #if (any(str_detect(as.character(sys.call(1)), pattern = "spades"))) {
       st <- str_detect(as.character(sys.calls()), pattern = "moduleCall")
       if (any(st)) {
         mod <- strsplit(
@@ -1143,9 +1143,9 @@ setMethod(
       } else {
         mod <- NULL
       }
-    } else {
-      mod <- NULL
-    }
+    #} else {
+    #  mod <- NULL
+    #}
   return(mod)
 })
 
