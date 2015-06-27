@@ -54,6 +54,8 @@ setMethod("ganttStatus",
 #'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
 #'
+#' @param width  Numeric. Passed to determine scale of vertical bars.
+#'
 #' @return A list of data.frames
 #'
 #' @include simList-accessors.R
@@ -63,14 +65,15 @@ setMethod("ganttStatus",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("sim2gantt", function(sim, startDate) {
+setGeneric("sim2gantt", function(sim, startDate, width) {
   standardGeneric("sim2gantt")
 })
 
 #' @rdname sim2gantt
 setMethod("sim2gantt",
           signature(sim="simList", startDate="character"),
-          definition=function(sim, startDate) {
+          definition=function(sim, startDate, width) {
+#            browser()
             dt <- completed(sim)
             modules <- unique(dt$moduleName)
 
@@ -98,7 +101,7 @@ setMethod("sim2gantt",
                          status = ganttStatus(dt[moduleName==x]$eventType),
                          pos = paste0(x, 1:nrow(dt[moduleName==x])),
                          start = as.Date(dt[moduleName==x]$eventTime * ts, origin=startDate),
-                         end = as.Date(dt[moduleName==x]$eventTime * ts + mts[[x]],
+                         end = as.Date(dt[moduleName==x]$eventTime * ts + 4500/width,#mts[[x]], #fixed at 3 days
                                        origin=startDate))
             })
             names(out) <- modules
@@ -156,7 +159,15 @@ setGeneric("eventDiagram", function(sim, startDate, ...) {
 setMethod("eventDiagram",
           signature(sim="simList", startDate="character"),
           definition=function(sim, startDate, ...) {
-            ll <- sim2gantt(sim, startDate)
+
+            # get automatic scaling of vertical bars in gantt chart
+            dots <- list(...)
+            width <- if(any(grepl(pattern="width",names(dots)))) {
+              dots$width
+              } else {
+              1000
+              }
+            ll <- sim2gantt(sim, startDate, width)
 
             DiagrammeR::mermaid(...,
               paste0(
