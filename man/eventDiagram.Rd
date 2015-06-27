@@ -6,15 +6,17 @@
 \alias{eventDiagram,simList,character-method}
 \title{Simulation event diagram}
 \usage{
-eventDiagram(sim, startDate)
+eventDiagram(sim, startDate, ...)
 
-\S4method{eventDiagram}{simList,character}(sim, startDate)
+\S4method{eventDiagram}{simList,character}(sim, startDate, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
 
 \item{startDate}{A character representation of date in YYYY-MM-DD format.}
+
+\item{...}{Passed to mermaid. Useful for \code{height=} and \code{width=}.}
 }
 \value{
 Plots an event diagram as Gantt Chart.

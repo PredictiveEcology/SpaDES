@@ -133,6 +133,8 @@ setMethod("sim2gantt",
 #'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
 #'
+#' @param ... Passed to mermaid. Useful for \code{height=} and \code{width=}.
+#'
 #' @return Plots an event diagram as Gantt Chart.
 #'
 #' @seealso \code{\link{mermaid}}.
@@ -145,7 +147,7 @@ setMethod("sim2gantt",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("eventDiagram", function(sim, startDate) {
+setGeneric("eventDiagram", function(sim, startDate, ...) {
   standardGeneric("eventDiagram")
 })
 
@@ -153,10 +155,10 @@ setGeneric("eventDiagram", function(sim, startDate) {
 #' @rdname eventDiagram
 setMethod("eventDiagram",
           signature(sim="simList", startDate="character"),
-          definition=function(sim, startDate) {
+          definition=function(sim, startDate, ...) {
             ll <- sim2gantt(sim, startDate)
 
-            DiagrammeR::mermaid(
+            DiagrammeR::mermaid(...,
               paste0(
                 # mermaid "header"
                 "gantt", "\n",
