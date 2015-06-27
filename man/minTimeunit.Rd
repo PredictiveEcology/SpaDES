@@ -4,7 +4,7 @@
 \name{minTimeunit}
 \alias{minTimeunit}
 \alias{minTimeunit,simList-method}
-\title{Determine the smallest timestepUnit in a simulation}
+\title{Determine the smallest timeunit in a simulation}
 \usage{
 minTimeunit(sim)
 

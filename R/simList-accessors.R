@@ -1301,11 +1301,11 @@ setReplaceMethod("completed",
 #' @details \code{timeunit} will extract the current units of the time used in a
 #' \code{spades} call.
 #' If it is set within a \code{simInit}, e.g.,
-#' \code{times=list(start=0, stop=52, timestepUnit="week")}, it will set the
+#' \code{times=list(start=0, stop=52, timeunit="week")}, it will set the
 #' units for that simulation.
 #' By default, a \code{simInit} call will use the smallest unit contained within
 #' the metadata for the modules being used.
-#' If \code{NA}, \code{timestepUnit} defaults to none.
+#' If \code{NA}, \code{timeunit} defaults to none.
 #'
 #' @importFrom stringr str_detect
 #' @include simList-class.R
@@ -1323,7 +1323,7 @@ setGeneric("timeunit", function(x) {
 setMethod("timeunit",
           signature="simList",
           definition=function(x) {
-            return(x@simtimes$timestepUnit)
+            return(x@simtimes$timeunit)
 })
 
 #' @export
@@ -1343,11 +1343,11 @@ setReplaceMethod(
   function(x, value) {
     value <- as.character(value)
     if (any(str_detect(.spadesTimes, pattern = value), na.rm=TRUE)) {
-      x@simtimes$timestepUnit <- value
+      x@simtimes$timeunit <- value
     } else {
-      x@simtimes$timestepUnit <- NA_character_
+      x@simtimes$timeunit <- NA_character_
       if (!is.na(value)) {
-        message("unknown timestepUnit provided: ", value)
+        message("unknown timeunit provided: ", value)
       }
     }
     validObject(x)
@@ -1378,7 +1378,7 @@ setMethod(
   signature="simList",
   definition=function(x) {
     timestepUnits <- lapply(depends(x)@dependencies, function(y) {
-      y@timestepUnit
+      y@timeunit
     })
     names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
       y@name
@@ -1521,8 +1521,8 @@ setMethod(
         }
       }
     }
-    if (is.na(x$timestepUnit)) {
-      x$timestepUnit <- NA_character_
+    if (is.na(x$timeunit)) {
+      x$timeunit <- NA_character_
     }
     x$reqdPkgs <- as.list(x$reqdPkgs)
     x$citation <- as.list(x$citation)

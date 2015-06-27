@@ -68,7 +68,7 @@ test_that("simList object initializes correctly", {
   ### SLOT simtimes
   expect_equivalent(
     times(mySim),
-    list(current=0.0, start=0.0, stop=as.numeric(dmonth(10)), timestepUnit="month")
+    list(current=0.0, start=0.0, stop=as.numeric(dmonth(10)), timeunit="month")
   )
   expect_equivalent(time(mySim), 0)
   expect_equivalent(start(mySim), 0.0)

@@ -280,7 +280,7 @@ setMethod(
     if (length(depends(sim)@dependencies)) {
       if (!is.null(depends(sim)@dependencies[[1]])) {
         timesteps <- lapply(depends(sim)@dependencies, function(x) {
-          x@timestepUnit
+          x@timeunit
         })
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
@@ -294,7 +294,7 @@ setMethod(
 })
 
 ################################################################################
-#' Determine the smallest timestepUnit in a simulation
+#' Determine the smallest timeunit in a simulation
 #'
 #' When modules have different timeunit, SpaDES automatically takes the smallest
 #' (e.g., "second") as the unit for a simulation.
@@ -324,7 +324,7 @@ setMethod(
     if (length(depends(sim)@dependencies)) {
       if (!is.null(depends(sim)@dependencies[[1]])) {
         timesteps <- lapply(depends(sim)@dependencies, function(x) {
-          x@timestepUnit
+          x@timeunit
         })
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(

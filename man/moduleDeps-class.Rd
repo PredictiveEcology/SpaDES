@@ -30,7 +30,7 @@ Descriptor object for specifying SpaDES module dependecies.
                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.}
 
-\item{\code{timestepUnit}}{Describes the time (in seconds) corresponding to 1.0 simulation time units.
+\item{\code{timeunit}}{Describes the time (in seconds) corresponding to 1.0 simulation time units.
                      Default is \code{NA}.}
 
 \item{\code{citation}}{A citation for the module, as a character string. Defaults to \code{NA_character_}.}

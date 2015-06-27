@@ -127,10 +127,10 @@ setMethod("simInit",
               eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
             }
 
-            # timestepUnit has no meaning until all modules are loaded,
+            # timeunit has no meaning until all modules are loaded,
             #  so this has to be after loading
-            timeunit(sim) <- if(!is.null(times$timestepUnit)) {
-              times$timestepUnit
+            timeunit(sim) <- if(!is.null(times$timeunit)) {
+              times$timeunit
             } else {
               minTimeunit(sim)
             }
@@ -139,7 +139,7 @@ setMethod("simInit",
             times(sim) <- list(current=times$start*timestep,
                                   start=times$start*timestep,
                                   stop=times$stop*timestep,
-                                  timestepUnit=timeunit(sim))
+                                  timeunit=timeunit(sim))
 
             # load core modules
             for (c in core) {
@@ -526,7 +526,7 @@ setMethod("scheduleEvent",
 #'
 #' @param moduleName   Character string specifying the module from which to call the event.
 #'
-#' @return Returns the eventTime in seconds, based on the default \code{timestepUnit} of
+#' @return Returns the eventTime in seconds, based on the default \code{timeunit} of
 #' the \code{moduleName}.
 #'
 #' @export
@@ -545,15 +545,15 @@ setMethod("timestepInSeconds",
           definition=function(sim, moduleName) {
   a = sapply(depends(sim)@dependencies,function(x) x@name)
   wh <- which(a==moduleName)
-  timestepUnit <- depends(sim)@dependencies[[wh]]@timestepUnit
+  timeunit <- depends(sim)@dependencies[[wh]]@timeunit
 
-  if(is.character(timestepUnit)) {
-    return(eval(parse(text=paste0("d", timestepUnit, "(1)"))))
+  if(is.character(timeunit)) {
+    return(eval(parse(text=paste0("d", timeunit, "(1)"))))
   }
-  if(is.na(timestepUnit)) {
+  if(is.na(timeunit)) {
     return(eval(parse(text=paste0("d", timeunit(sim), "(1)"))))
   } else {
-    return(timestepUnit)
+    return(timeunit)
   }
 })
 

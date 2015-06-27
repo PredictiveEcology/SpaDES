@@ -125,11 +125,11 @@ of the simulation:
 \code{timeunit} will extract the current units of the time used in a
 \code{spades} call.
 If it is set within a \code{simInit}, e.g.,
-\code{times=list(start=0, stop=52, timestepUnit="week")}, it will set the
+\code{times=list(start=0, stop=52, timeunit="week")}, it will set the
 units for that simulation.
 By default, a \code{simInit} call will use the smallest unit contained within
 the metadata for the modules being used.
-If \code{NA}, \code{timestepUnit} defaults to none.
+If \code{NA}, \code{timeunit} defaults to none.
 
 \code{timeunits} will extract the current units of the time of all
 modules used in a simulation.

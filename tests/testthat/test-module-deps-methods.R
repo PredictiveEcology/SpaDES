@@ -9,7 +9,7 @@ test_that("defineModule correctly handles different inputs", {
     version=numeric_version("0.0.1"),
     spatialExtent=raster::extent(rep(NA_real_, 4)),
     timeframe=as.POSIXlt(c(NA, NA)),
-    timestepUnit=NA_character_,
+    timeunit=NA_character_,
     citation=list(),
     reqdPkgs=list("grid", "raster", "sp"),
     parameters=rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")),
@@ -60,9 +60,9 @@ test_that("defineModule correctly handles different inputs", {
   x2$timeframe <- NA
   expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
 
-  ## check timestepUnit
+  ## check timeunit
   x2 <- x1
-  x2$timestepUnit <- NA
+  x2$timeunit <- NA
   expect_identical(defineModule(tmp, x1), defineModule(tmp, x2))
 
   ## check citation

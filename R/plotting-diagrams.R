@@ -120,7 +120,7 @@ setMethod("sim2gantt",
 #' module is displayed corresponding to the sequence of events for that module.
 #' Note that only the start time of the event is meaningful is these figures:
 #' the width of the bar associated with a particular module's event corresponds
-#' to the module's timestepUnit, not the event's "duration".
+#' to the module's timeunit, not the event's "duration".
 #'
 #' Based on this StackOverflow answer: \url{http://stackoverflow.com/a/29999300/1380598}.
 #'

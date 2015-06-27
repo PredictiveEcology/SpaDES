@@ -1,4 +1,4 @@
-test_that("timestepUnit works correctly", {
+test_that("timeunit works correctly", {
   times <- list(start=0.0, stop=10)
   params <- list(
     .globals=list(burnStats="npixelsburned", stackName="landscape"),
@@ -19,7 +19,7 @@ test_that("timestepUnit works correctly", {
     version=numeric_version("0.0.1"),
     spatialExtent=raster::extent(rep(NA_real_, 4)),
     timeframe=as.POSIXlt(c(NA, NA)),
-    timestepUnit=NA_character_,
+    timeunit=NA_character_,
     citation=list(),
     reqdPkgs=list("grid", "raster", "sp"),
     parameters=rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")),
@@ -34,8 +34,8 @@ test_that("timestepUnit works correctly", {
   )
 
   # Test for numerics, or character strings that are not recognized
-  expect_message(timeunit(mySim) <- 1, "^unknown timestepUnit provided:")
-  expect_message(timeunit(mySim) <- "LeapYear", "^unknown timestepUnit provided:")
+  expect_message(timeunit(mySim) <- 1, "^unknown timeunit provided:")
+  expect_message(timeunit(mySim) <- "LeapYear", "^unknown timeunit provided:")
 
   # test that NA_real_ gets coerced to NA_character_
   timeunit(mySim) <- NA_real_
@@ -45,20 +45,20 @@ test_that("timestepUnit works correctly", {
   expect_true(
     any(match(minTimeunit(mySim),
               sapply(depends(mySim)@dependencies, function(x) {
-                x@timestepUnit
+                x@timeunit
               })
              )
        )
   )
 
-  # check that minTimeunit finds the smallest timestepUnit of the modules loaded
+  # check that minTimeunit finds the smallest timeunit of the modules loaded
   whNotNA <- sapply(depends(mySim)@dependencies,
-                    function(x) !is.na(x@timestepUnit))
+                    function(x) !is.na(x@timeunit))
   expect_equivalent(as.numeric(eval(parse(
     text=paste0("d", minTimeunit(mySim), "(1)")))),
     min(sapply(depends(mySim)@dependencies[whNotNA],
                function(x) {
-                 eval(parse(text=paste0("d",x@timestepUnit,"(1)")))
+                 eval(parse(text=paste0("d",x@timeunit,"(1)")))
                }
     )))
 })
