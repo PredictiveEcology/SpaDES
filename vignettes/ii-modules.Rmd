@@ -306,15 +306,16 @@ parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
                    fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=10, startTime=0,
+                                   persistprob=0, returnInterval=1, startTime=0,
                                   .plotInitialTime=0.1, .plotInterval=10),
                    caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
                                         .plotInitialTime=1.01, .plotInterval=1))
 
 ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
 pdf(ftmp)
+clearPlot()
 mySim <- simInit(
-  times=list(start=0.0, stop=10.0),
+  times=list(start=0.0, stop=2.0, timeunit="year"),
   params=parameters,
   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects=list(),
@@ -326,7 +327,7 @@ unlink(ftmp)
 
 ```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
 mySim <- spades(mySim)            # runs the simulation
-eventDiagram(mySim, "0000-06-01") # overview of the events in the simulation
+eventDiagram(mySim, "0000-06-01",height=1700, width=1000) # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
