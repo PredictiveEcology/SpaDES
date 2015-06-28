@@ -991,8 +991,6 @@ setReplaceMethod(
   "end",
   signature="simList",
   function(x, value) {
-    stopifnot(is.character(attr(value, "unit")))
-
     # convert time units, if required
     if(is.null(attributes(value)$unit)) {
       attributes(value)$unit <- timeunit(x)
@@ -1057,8 +1055,6 @@ setGeneric("start<-", function(x, value) {
 setReplaceMethod("start",
                  signature="simList",
                  function(x, value) {
-                   stopifnot(is.character(attr(value, "unit")))
-
                    # convert time units, if required
                    if(is.null(attributes(value)$unit)) {
                      attributes(value)$unit <- timeunit(x)
