@@ -6,13 +6,15 @@
 \alias{moduleDiagram,simList-method}
 \title{Simulation module dependency diagram}
 \usage{
-moduleDiagram(sim)
+moduleDiagram(sim, ...)
 
-\S4method{moduleDiagram}{simList}(sim)
+\S4method{moduleDiagram}{simList}(sim, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
+
+\item{...}{Additional arguments passed to \code{plot}.}
 }
 \value{
 Plots module dependency diagram.

@@ -16,7 +16,8 @@ eventDiagram(sim, startDate, ...)
 
 \item{startDate}{A character representation of date in YYYY-MM-DD format.}
 
-\item{...}{Passed to mermaid. Useful for \code{height=} and \code{width=}.}
+\item{...}{Additional arguments passed to \code{mermaid}.
+            Useful for specifying \code{height} and \code{width}.}
 }
 \value{
 Plots an event diagram as Gantt Chart.

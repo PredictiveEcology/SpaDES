@@ -136,7 +136,8 @@ setMethod("sim2gantt",
 #'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
 #'
-#' @param ... Passed to mermaid. Useful for \code{height=} and \code{width=}.
+#' @param ...  Additional arguments passed to \code{mermaid}.
+#'             Useful for specifying \code{height} and \code{width}.
 #'
 #' @return Plots an event diagram as Gantt Chart.
 #'
@@ -159,14 +160,13 @@ setGeneric("eventDiagram", function(sim, startDate, ...) {
 setMethod("eventDiagram",
           signature(sim="simList", startDate="character"),
           definition=function(sim, startDate, ...) {
-
-            # get automatic scaling of vertical bars in gantt chart
+            # get automatic scaling of vertical bars in Gantt chart
             dots <- list(...)
-            width <- if(any(grepl(pattern="width",names(dots)))) {
+            width <- if(any(grepl(pattern="width", names(dots)))) {
               dots$width
-              } else {
+            } else {
               1000
-              }
+            }
             ll <- sim2gantt(sim, startDate, width)
 
             DiagrammeR::mermaid(...,
@@ -196,6 +196,9 @@ setMethod("eventDiagram",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param ...  Additional arguments passed to \code{mermaid}.
+#'             Useful for specifying \code{height} and \code{width}.
+#'
 #' @return Plots a sequence diagram.
 #'
 #' @seealso \code{\link{mermaid}}.
@@ -208,7 +211,7 @@ setMethod("eventDiagram",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("objectDiagram", function(sim) {
+setGeneric("objectDiagram", function(sim, ...) {
   standardGeneric("objectDiagram")
 })
 
@@ -216,9 +219,9 @@ setGeneric("objectDiagram", function(sim) {
 #' @rdname objectDiagram
 setMethod("objectDiagram",
           signature(sim="simList"),
-          definition=function(sim) {
+          definition=function(sim, ...) {
             dt <- depsEdgeList(sim, FALSE)
-            DiagrammeR::mermaid(
+            DiagrammeR::mermaid(...,
               paste0(
                 # mermaid "header"
                 "sequenceDiagram", "\n",
@@ -240,6 +243,8 @@ setMethod("objectDiagram",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param ...  Additional arguments passed to \code{plot}.
+#'
 #' @return Plots module dependency diagram.
 #'
 #' @seealso \code{\link{igraph}}.
@@ -252,7 +257,7 @@ setMethod("objectDiagram",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("moduleDiagram", function(sim) {
+setGeneric("moduleDiagram", function(sim, ...) {
   standardGeneric("moduleDiagram")
 })
 
@@ -260,6 +265,6 @@ setGeneric("moduleDiagram", function(sim) {
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
           signature(sim="simList"),
-          definition=function(sim) {
-            plot(depsGraph(sim, TRUE))
+          definition=function(sim, ...) {
+            plot(depsGraph(sim, TRUE), ...)
 })
