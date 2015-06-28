@@ -319,8 +319,7 @@ mySim <- simInit(
   params=parameters,
   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects=list(),
-  #path=system.file("sampleModules", package="SpaDES")
-  path=file.path("~","GitHub","SpaDES","inst","sampleModules")
+  path=system.file("sampleModules", package="SpaDES")
   ) %>% spades
 dev.off()
 unlink(ftmp)
