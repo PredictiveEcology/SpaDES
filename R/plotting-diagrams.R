@@ -73,7 +73,6 @@ setGeneric("sim2gantt", function(sim, startDate, width) {
 setMethod("sim2gantt",
           signature(sim="simList", startDate="character"),
           definition=function(sim, startDate, width) {
-#            browser()
             dt <- completed(sim)
             modules <- unique(dt$moduleName)
 
