@@ -29,11 +29,22 @@ test_that("simList object initializes correctly", {
   expect_equivalent(ls.str(pos=mySim), ls.str(simObjects(mySim)))
   expect_equivalent(ls.str(name=mySim), ls.str(simObjects(mySim)))
 
-  mySim$test1 <- TRUE
-  mySim[["test2"]] <- TRUE
+  expect_true(mySim$test1 <- TRUE, mySim$test1)
+  expect_true(mySim[["test2"]] <- TRUE, mySim[["test2"]])
+  expect_true(simObjects(mySim) <- list(test3=TRUE), simObjects(mySim)$test3[[1]])
+  expect_error(simObjects(mySim) <- "test4", "must provide a named list.")
 
+  oldEnv <- simEnv(mySim)
+  simEnv(mySim) <- new.env(parent=.GlobalEnv)
+
+  expect_true(is.null(mySim$test1))
+  expect_true(is.null(mySim[["test2"]]))
+  expect_true(is.null(simObjects(mySim)$test3[[1]]))
+
+  simEnv(mySim) <- oldEnv
   expect_true(mySim$test1)
   expect_true(mySim[["test2"]])
+  rm(oldEnv)
 
   ### SLOT modules
   expect_is(modules(mySim), "list")
@@ -42,13 +53,36 @@ test_that("simList object initializes correctly", {
   ### SLOT params
   expect_is(params(mySim), "list")
 
+  # globals
+  expect_true(is.null(outputPath(mySim)))
+  outputPath(mySim) <- file.path(tempdir(), "outputs")
+  expect_identical(outputPath(mySim), file.path(tempdir(), "outputs"))
+
   # checkpoint
   expect_true(is.null(checkpointFile(mySim)))
+  checkpointFile(mySim) <- file.path(outputPath(mySim), "checkpoint.RData")
+  expect_identical(checkpointFile(mySim),
+                   file.path(outputPath(mySim), "checkpoint.RData"))
+
   expect_true(is.na(checkpointInterval(mySim)))
+  checkpointInterval(mySim) <- 10
+  expect_identical(checkpointInterval(mySim), 10)
 
   # progress
   expect_true(is.na(progressType(mySim)))
+  progressType(mySim) <- "text"
+  expect_identical(progressType(mySim), "text")
+
   expect_true(is.na(progressInterval(mySim)))
+  progressInterval(mySim) <- 10
+  expect_identical(progressInterval(mySim), 10)
+
+  # load
+  expect_identical(simObjectsLoaded(mySim), list())
+  simObjectsLoaded(mySim) <- "something"
+  expect_equal(simObjectsLoaded(mySim), "something")
+
+  # need tests for simFileList
 
   ### SLOT events
   expect_is(events(mySim), "data.table")
@@ -70,9 +104,13 @@ test_that("simList object initializes correctly", {
     times(mySim),
     list(current=0.0, start=0.0, stop=as.numeric(dmonth(10)), timeunit="month")
   )
-  expect_equivalent(time(mySim), 0)
-  expect_equivalent(start(mySim), 0.0)
-  expect_equivalent(end(mySim), 10)
+  expect_equivalent(time(mySim),  0)
+  expect_equivalent(start(mySim), 0)
+  expect_equivalent(end(mySim),  10)
+
+  expect_equivalent(time(mySim)  <- 10, 10.0)
+  expect_equivalent(start(mySim) <- 10, 10.0)
+  expect_equivalent(end(mySim)   <- 20, 20.0)
 
   expect_equal(timeunit(mySim), attr(end(mySim), "unit"))
   expect_equal(timeunit(mySim), attr(start(mySim), "unit"))

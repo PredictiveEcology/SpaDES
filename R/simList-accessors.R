@@ -392,7 +392,10 @@ setReplaceMethod("simObjectsLoaded",
 })
 
 ################################################################################
-#' Show objects referenced in the simulation environment
+#' Show/set objects referenced in the simulation environment
+#'
+#' \code{simObjects<-} requires takes a named list of values to be assigned in
+#' the simulation envirment.
 #'
 #' @inheritParams simEnv
 #'
@@ -442,11 +445,11 @@ setReplaceMethod("simObjects",
                  signature="simList",
                  function(object, value) {
                    if (is.list(value)) {
-                     lapply(value, function(x) {
-                       object@.envir[[names(x)]] <- x
+                     lapply(names(value), function(x) {
+                       object@.envir[[x]] <- value[x]
                      })
                    } else {
-                     object@.envir[[names(value)]] <- value
+                     stop("must provide a named list.")
                    }
                    validObject(object)
                    return(object)

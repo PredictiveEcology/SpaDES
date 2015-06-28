@@ -45,7 +45,8 @@ Returns or sets a list of objects in the \code{simList} environment.
 Accessor functions for the \code{.envir} slot in a \code{simList} object.
 These are included for advanced users.
 
-Show objects referenced in the simulation environment
+\code{simObjects<-} requires takes a named list of values to be assigned in
+the simulation envirment.
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
