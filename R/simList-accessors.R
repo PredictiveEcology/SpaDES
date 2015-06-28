@@ -446,7 +446,7 @@ setReplaceMethod("simObjects",
                  function(object, value) {
                    if (is.list(value)) {
                      lapply(names(value), function(x) {
-                       object@.envir[[x]] <- value[x]
+                       object@.envir[[x]] <- value[[x]]
                      })
                    } else {
                      stop("must provide a named list.")

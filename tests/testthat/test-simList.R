@@ -29,9 +29,13 @@ test_that("simList object initializes correctly", {
   expect_equivalent(ls.str(pos=mySim), ls.str(simObjects(mySim)))
   expect_equivalent(ls.str(name=mySim), ls.str(simObjects(mySim)))
 
-  expect_true(mySim$test1 <- TRUE, mySim$test1)
-  expect_true(mySim[["test2"]] <- TRUE, mySim[["test2"]])
-  expect_true(simObjects(mySim) <- list(test3=TRUE), simObjects(mySim)$test3[[1]])
+  mySim$test1 <- TRUE
+  mySim[["test2"]] <- TRUE
+  simObjects(mySim) <- list(test3=TRUE)
+
+  expect_true(mySim$test1)
+  expect_true(mySim[["test2"]])
+  expect_true(simObjects(mySim)$test3)
   expect_error(simObjects(mySim) <- "test4", "must provide a named list.")
 
   oldEnv <- simEnv(mySim)
@@ -104,13 +108,13 @@ test_that("simList object initializes correctly", {
     times(mySim),
     list(current=0.0, start=0.0, stop=as.numeric(dmonth(10)), timeunit="month")
   )
-  expect_equivalent(time(mySim),  0)
-  expect_equivalent(start(mySim), 0)
   expect_equivalent(end(mySim),  10)
+  expect_equivalent(start(mySim), 0)
+  expect_equivalent(time(mySim),  0)
 
-  expect_equivalent(time(mySim)  <- 10, 10.0)
-  expect_equivalent(start(mySim) <- 10, 10.0)
   expect_equivalent(end(mySim)   <- 20, 20.0)
+  expect_equivalent(start(mySim) <- 10, 10.0)
+  expect_equivalent(time(mySim)  <- 10, 10.0)
 
   expect_equal(timeunit(mySim), attr(end(mySim), "unit"))
   expect_equal(timeunit(mySim), attr(start(mySim), "unit"))
