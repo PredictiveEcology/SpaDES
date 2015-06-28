@@ -6,15 +6,17 @@
 \alias{sim2gantt,simList,character-method}
 \title{sim2gantt}
 \usage{
-sim2gantt(sim, startDate)
+sim2gantt(sim, startDate, width)
 
-\S4method{sim2gantt}{simList,character}(sim, startDate)
+\S4method{sim2gantt}{simList,character}(sim, startDate, width)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
 
 \item{startDate}{A character representation of date in YYYY-MM-DD format.}
+
+\item{width}{Numeric. Passed to determine scale of vertical bars.}
 }
 \value{
 A list of data.frames
