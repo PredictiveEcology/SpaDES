@@ -65,16 +65,17 @@ setMethod("ganttStatus",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("sim2gantt", function(sim, startDate, width) {
-  standardGeneric("sim2gantt")
+setGeneric(".sim2gantt", function(sim, startDate, width) {
+  standardGeneric(".sim2gantt")
 })
 
 #' @rdname sim2gantt
-setMethod("sim2gantt",
+setMethod(".sim2gantt",
           signature(sim="simList", startDate="character"),
           definition=function(sim, startDate, width) {
             dt <- completed(sim)
             modules <- unique(dt$moduleName)
+            width <- 4500 / as.numeric(width) # fixed at 3 days
 
             # simulation timestep in 'days'
             ts <- timeunit(sim) %>%
@@ -82,26 +83,18 @@ setMethod("sim2gantt",
               convertTimeunit("day") %>%
               as.numeric
 
-            # module timesteps
-            mts <- lapply(modules, function(x) {
-              t <- timeunits(sim)[[x]] %>%
-                inSeconds %>%
-                convertTimeunit(unit="day") %>%
-                as.numeric
-              if ( is.null(t) || (t==0) ) {
-                t <- 1
-              }
-              return(t)
-            })
-            names(mts) <- modules
-
             out <- lapply(modules, function(x) {
-              data.frame(task = dt[moduleName==x]$eventType,
-                         status = ganttStatus(dt[moduleName==x]$eventType),
-                         pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                         start = as.Date(dt[moduleName==x]$eventTime * ts, origin=startDate),
-                         end = as.Date(dt[moduleName==x]$eventTime * ts + 4500/width,#mts[[x]], #fixed at 3 days
-                                       origin=startDate))
+              data.frame(
+                task = dt[moduleName==x]$eventType,
+                status = ganttStatus(dt[moduleName==x]$eventType),
+                pos = paste0(x, 1:nrow(dt[moduleName==x])),
+                start = as.Date(
+                  dt[moduleName==x]$eventTime * ts, origin=startDate
+                ),
+                end = as.Date(
+                  dt[moduleName==x]$eventTime * ts + width, origin=startDate
+                )
+              )
             })
             names(out) <- modules
             return(out)
@@ -162,11 +155,11 @@ setMethod("eventDiagram",
             # get automatic scaling of vertical bars in Gantt chart
             dots <- list(...)
             width <- if(any(grepl(pattern="width", names(dots)))) {
-              dots$width
+              as.numeric(dots$width)
             } else {
               1000
             }
-            ll <- sim2gantt(sim, startDate, width)
+            ll <- .sim2gantt(sim, startDate, width)
 
             DiagrammeR::mermaid(...,
               paste0(

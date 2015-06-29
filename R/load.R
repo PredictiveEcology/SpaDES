@@ -301,7 +301,7 @@ setMethod("loadFiles",
 #' @seealso \code{\link{raster}}.
 #'
 #' @name rasterToMemory
-#' @importMethodsFrom raster raster
+#' @importFrom raster raster
 #' @export
 #' @docType methods
 #' @rdname rasterToMemory

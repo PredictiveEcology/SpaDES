@@ -153,7 +153,8 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
 #' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
 #'
-randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, speedup=1, numTypes=1, minpatch=10, ...) {
+randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3,
+                           speedup=1, numTypes=1, minpatch=10, ...) {
   ext <- raster::extent(ras)
   nc <- raster::ncol(ras)
   nr <- raster::nrow(ras)
@@ -168,7 +169,6 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 
   minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
 
-
   if(length(resol)>1) {
     message(paste("assuming square pixels with resolution =",resol[1]))
     resol <- resol[1]
@@ -176,9 +176,11 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
   tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)
 
   outMap <- list()
-  r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
-              res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
-  if( (numTypes < length(p)) | (numTypes < length(A)) | (numTypes < length(minpatch))) {
+  r <- raster::raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
+                      res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
+  if( (numTypes < length(p)) |
+      (numTypes < length(A)) |
+      (numTypes < length(minpatch))) {
     numTypes = max(length(p),length(A),length(minpatch))
   }
   r[] <- 0

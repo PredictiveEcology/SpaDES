@@ -384,3 +384,10 @@ NULL
 #' @rdname spadesMaps
 #' @format raster
 NULL
+
+################################################################################
+# methods package imports
+# See \url{http://r-pkgs.had.co.nz/namespace.html#imports}
+
+#' @import methods
+NULL
