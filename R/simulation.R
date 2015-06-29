@@ -386,7 +386,7 @@ setMethod("doEvent",
                   completed <- list(completed(sim, "second"), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
-                  if (!debug) {
+                  if (NROW(completed) > getOption("spades.nCompleted")) {
                     completed <- tail(completed, n=getOption("spades.nCompleted"))
                   }
                 } else {
