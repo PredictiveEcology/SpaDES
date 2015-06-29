@@ -21,7 +21,6 @@
 #' @seealso \code{\link{library}}.
 #'
 #' @include simList-class.R
-#' @importFrom methods is
 #' @export
 #' @docType methods
 #' @rdname checkObject

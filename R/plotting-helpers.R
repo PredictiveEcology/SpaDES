@@ -12,7 +12,6 @@
 #'
 #' @export
 #' @importFrom raster nlayers
-#' @importFrom methods is
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname nlayers
@@ -683,7 +682,6 @@ setMethod(
 #'
 #' @return \code{NULL}. This function is invoked for its side effects.
 #'
-#' @importFrom methods is
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname objectNames

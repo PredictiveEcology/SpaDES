@@ -222,7 +222,6 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3,
 #' agents following the numbers above.
 #'
 #' @import data.table raster sp
-#' @importFrom methods is
 #' @export
 #' @docType methods
 #' @rdname specnumperpatch-probs
