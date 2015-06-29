@@ -3,16 +3,21 @@
 \docType{methods}
 \name{eventDiagram}
 \alias{eventDiagram}
-\alias{eventDiagram,simList,character-method}
+\alias{eventDiagram,simList,missing,character-method}
+\alias{eventDiagram,simList,numeric,character-method}
 \title{Simulation event diagram}
 \usage{
-eventDiagram(sim, startDate, ...)
+eventDiagram(sim, n, startDate, ...)
 
-\S4method{eventDiagram}{simList,character}(sim, startDate, ...)
+\S4method{eventDiagram}{simList,numeric,character}(sim, n, startDate, ...)
+
+\S4method{eventDiagram}{simList,missing,character}(sim, n, startDate, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
+
+\item{n}{The number of most recently completed events to plot.}
 
 \item{startDate}{A character representation of date in YYYY-MM-DD format.}
 
@@ -24,11 +29,8 @@ Plots an event diagram as Gantt Chart.
 }
 \description{
 Create a Gantt Chart representing the events in a completed simulation.
-This event diagram is constructed using the completed event list, which by
-default only stores the 10 most recently completed events (unless
-\code{spades(debug=TRUE)} is used, in which case all events are retained).
-To change the number of events stored, users may override this option using
-\code{options(spades.nCompleted = value)}.
+This event diagram is constructed using the completed event list
+To change the number of events shown, provide an \code{n} argument.
 }
 \details{
 Simulation time is presented on the x-axis, starting at date 'startDate'.
