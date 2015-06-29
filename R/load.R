@@ -74,6 +74,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @name loadFiles
 #' @include simulation.R
 #' @importFrom methods is
+#' @importFrom stringi stri_detect_fixed
 #' @import rgdal
 #' @import raster
 #' @import sp
@@ -181,8 +182,8 @@ setMethod("loadFiles",
               if("functions" %in% names(fileListDT)) {
                 loadFun[!is.na(fileListDT$functions)] <- fileListDT$functions[!is.na(fileListDT$functions)]
                 loadPackage[!is.na(fileListDT[,package])] <- fileListDT$package[!is.na(fileListDT$package)]
-                loadPackage[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
-                loadFun[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
+                loadPackage[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+                loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
               }
 
               # use filenames as object names, unless alternative provided in fileListDT$objectNames
