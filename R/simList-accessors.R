@@ -37,13 +37,13 @@ setMethod("show",
 
             ### objects loaded
             out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
-            out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
+            out[[12]] <- capture.output(print(cbind(ObjectName=inputs(object)),
                                               quote=FALSE, row.names=FALSE))
             out[[13]] <- capture.output(cat("\n"))
 
             ### list stored objects
             out[[14]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[15]] <- capture.output(print(ls.str(simEnv(object))))
+            out[[15]] <- capture.output(print(ls.str(envir(object))))
             out[[16]] <- capture.output(cat("\n"))
 
             ### params
@@ -100,7 +100,7 @@ setMethod("show",
 #' @docType methods
 #' @rdname ls-method
 ls.simList <- function(name) {
-  ls(simEnv(name))
+  ls(envir(name))
 }
 
 #' @export
@@ -113,7 +113,7 @@ setMethod("ls",
 
 #' @rdname ls-method
 objects.simList <- function(name) {
-  ls(simEnv(name))
+  ls(envir(name))
 }
 
 #' @export
@@ -140,7 +140,7 @@ setMethod("objects",
 #' @docType methods
 #' @rdname ls_str-method
 ls.str.simList <- function(name) {
-  ls.str(simEnv(name))
+  ls.str(envir(name))
 }
 
 #' export
@@ -237,12 +237,12 @@ setReplaceMethod("$", signature(x="simList", value="ANY"),
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("simEnv", function(object) {
-  standardGeneric("simEnv")
+setGeneric("envir", function(object) {
+  standardGeneric("envir")
 })
 
 #' @rdname simList-accessors-envir
-setMethod("simEnv",
+setMethod("envir",
           signature="simList",
           definition=function(object) {
             return(object@.envir)
@@ -250,15 +250,15 @@ setMethod("simEnv",
 
 #' @export
 #' @rdname simList-accessors-envir
-setGeneric("simEnv<-",
+setGeneric("envir<-",
            function(object, value) {
-             standardGeneric("simEnv<-")
+             standardGeneric("envir<-")
 })
 
-#' @name simEnv<-
-#' @aliases simEnv<-,simList-method
+#' @name envir<-
+#' @aliases envir<-,simList-method
 #' @rdname simList-accessors-envir
-setReplaceMethod("simEnv",
+setReplaceMethod("envir",
                  signature="simList",
                  function(object, value) {
                    object@.envir <- value
@@ -275,7 +275,7 @@ setReplaceMethod("simEnv",
 #' \tabular{ll}{
 #'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced) \cr
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced) \cr
-#'    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
+#'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced) \cr
 #' }
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
@@ -373,13 +373,13 @@ setReplaceMethod("depends",
 #' @docType methods
 #' @rdname simList-accessors-modules
 #'
-setGeneric("simObjectsLoaded", function(object) {
-  standardGeneric("simObjectsLoaded")
+setGeneric("inputs", function(object) {
+  standardGeneric("inputs")
 })
 
 #' @export
 #' @rdname simList-accessors-modules
-setMethod("simObjectsLoaded",
+setMethod("inputs",
           signature="simList",
           definition=function(object) {
             return(params(object)$.loaded$objects)
@@ -387,16 +387,16 @@ setMethod("simObjectsLoaded",
 
 #' @export
 #' @rdname simList-accessors-modules
-setGeneric("simObjectsLoaded<-",
+setGeneric("inputs<-",
            function(object, value) {
-             standardGeneric("simObjectsLoaded<-")
+             standardGeneric("inputs<-")
 })
 
-#' @name simObjectsLoaded<-
-#' @aliases simObjectsLoaded<-,simList-method
+#' @name inputs<-
+#' @aliases inputs<-,simList-method
 #' @rdname simList-accessors-modules
 #' @export
-setReplaceMethod("simObjectsLoaded",
+setReplaceMethod("inputs",
                  signature="simList",
                  function(object, value) {
                    params(object)$.loaded$objects <- value
@@ -407,10 +407,10 @@ setReplaceMethod("simObjectsLoaded",
 ################################################################################
 #' Show/set objects referenced in the simulation environment
 #'
-#' \code{simObjects<-} requires takes a named list of values to be assigned in
+#' \code{objs<-} requires takes a named list of values to be assigned in
 #' the simulation envirment.
 #'
-#' @inheritParams simEnv
+#' @inheritParams envir
 #'
 #' @param ... arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}
 #'
@@ -427,34 +427,34 @@ setReplaceMethod("simObjectsLoaded",
 #' @docType methods
 #' @rdname simList-accessors-envir
 #'
-setGeneric("simObjects", function(object, ...) {
-  standardGeneric("simObjects")
+setGeneric("objs", function(object, ...) {
+  standardGeneric("objs")
 })
 
 #' @export
 #' @rdname simList-accessors-envir
-setMethod("simObjects",
+setMethod("objs",
           signature="simList",
           definition=function(object, ...) {
-            x <- lapply(ls(simEnv(object), ...), function(x) {
-              eval(parse(text=x), envir=simEnv(object))
+            x <- lapply(ls(envir(object), ...), function(x) {
+              eval(parse(text=x), envir=envir(object))
             })
-            names(x) <- ls(simEnv(object), ...)
+            names(x) <- ls(envir(object), ...)
             return(x)
 })
 
 #' @export
 #' @rdname simList-accessors-envir
-setGeneric("simObjects<-",
+setGeneric("objs<-",
            function(object, value) {
-             standardGeneric("simObjects<-")
+             standardGeneric("objs<-")
 })
 
-#' @name simObjects<-
-#' @aliases simObjects<-,simList-method
+#' @name objs<-
+#' @aliases objs<-,simList-method
 #' @rdname simList-accessors-envir
 #' @export
-setReplaceMethod("simObjects",
+setReplaceMethod("objs",
                  signature="simList",
                  function(object, value) {
                    if (is.list(value)) {
@@ -486,7 +486,7 @@ setReplaceMethod("simObjects",
 #'    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
 #'    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
 #'    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-#'    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+#'    \code{inputs} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
 #'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
 #'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }

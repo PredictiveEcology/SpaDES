@@ -43,7 +43,7 @@ changeObjEnv(x, toEnv, fromEnv, rmSrc)
 \description{
 This will copy or move (if \code{rmSrc=TRUE}) objects passed as a character string to a
 different environment. This is used with a \code{spades} call to copy or move objects to the
-\code{simEnv} environment object.
+\code{envir} environment object.
 }
 \examples{
 a1 <- a2 <- a3 <- a4 <- 1:1e3

@@ -217,7 +217,7 @@ setMethod(
         # The actual load call
         sim[[objectNames[x]]] <- do.call(get(loadFun[x]), args=argument)
 
-        simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
+        inputs(sim) <- append(inputs(sim), objectNames[x])
 
 
         if (loadFun[x]=="raster") {

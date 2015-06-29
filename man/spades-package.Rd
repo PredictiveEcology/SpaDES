@@ -63,7 +63,7 @@ Accessor functions for the \code{params} slot and its elements.
 Commonly used:
 \tabular{ll}{
    \code{\link{globals}} \tab List of global simulation parameters.\cr
-   \code{\link{simObjects}} \tab List of objects referenced by the simulation environment.\cr
+   \code{\link{objs}} \tab List of objects referenced by the simulation environment.\cr
    \code{\link{params}} \tab Nested list of all simulation parameter.\cr
 }
 
@@ -74,7 +74,7 @@ Advanced use:
    \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-   \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+   \code{\link{inputs}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
@@ -116,7 +116,7 @@ These are included for advanced users.
 \tabular{ll}{
    \code{\link{depends}} \tab List of simulation module dependencies. (advanced)\cr
    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
-   \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
+   \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
 }
 }
 

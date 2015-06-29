@@ -125,7 +125,7 @@ Advanced use
    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-   \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+   \code{inputs} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }

@@ -387,7 +387,7 @@ rePlot(visualSqueeze=1, axes=FALSE)
 
 The output of a `Plot` call can be assigned to an object for future plotting.
 Simply pass the object name as if it were a Plot object.
-Any data changes made to the objects contained within the plot, if they are in the `.GlobalEnv` or a `simEnv` will be reflected in the new plot, because the data are replotted from their original source.
+Any data changes made to the objects contained within the plot, if they are in the `.GlobalEnv` or a `envir` will be reflected in the new plot, because the data are replotted from their original source.
 This provides the same behavior as a call to `rePlot()`.
 
 ```{r Plot a .spadesPlot object, eval=FALSE, echo=TRUE, cache=TRUE}
