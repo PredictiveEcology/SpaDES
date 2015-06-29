@@ -133,8 +133,6 @@ setClass(".moduleDeps",
 #'
 #' @seealso \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 #'
-#' @importFrom methods is
-#'
 #' @aliases .simDeps
 #' @rdname simDeps-class
 #'

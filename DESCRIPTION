@@ -28,7 +28,8 @@ Depends:
     R (>= 3.2.0),
     data.table,
     grid,
-    raster
+    raster,
+    sp
 Suggests:
     knitr,
     Matrix,
@@ -51,7 +52,6 @@ Imports:
     RColorBrewer,
     rgdal,
     secr,
-    sp,
     stringi,
     stringr,
     tkrplot

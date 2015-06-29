@@ -1117,7 +1117,6 @@ setMethod(
 #' @import grid
 #' @importFrom gridBase gridFIG
 #' @importFrom magrittr '%>%'
-#' @importFrom methods is
 #' @import raster
 #' @import RColorBrewer
 #' @import rgdal
