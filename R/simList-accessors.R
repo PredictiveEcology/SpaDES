@@ -111,6 +111,19 @@ setMethod("ls",
             ls.simList(name)
 })
 
+#' @rdname ls-method
+objects.simList <- function(name) {
+  ls(simEnv(name))
+}
+
+#' @export
+#' @rdname ls-method
+setMethod("objects",
+          signature(name="simList"),
+          definition=function(name) {
+            objects.simList(name)
+})
+
 ### `ls.str` generic is already defined in the utils package
 #' List simulation objects and their structure
 #'

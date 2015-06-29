@@ -4,11 +4,17 @@
 \name{ls.simList}
 \alias{ls,simList-method}
 \alias{ls.simList}
+\alias{objects,simList-method}
+\alias{objects.simList}
 \title{List simulation objects}
 \usage{
 ls.simList(name)
 
 \S4method{ls}{simList}(name)
+
+objects.simList(name)
+
+\S4method{objects}{simList}(name)
 }
 \arguments{
 \item{name}{A \code{simList} object.}
