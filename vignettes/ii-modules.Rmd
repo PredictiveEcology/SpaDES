@@ -301,7 +301,6 @@ Note that only the start time of the event is meaningful is these figures: the w
 ```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 require(magrittr)
 require(SpaDES)
-options("spades.nCompleted" = 200)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
@@ -327,7 +326,7 @@ unlink(ftmp)
 
 ```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
 mySim <- spades(mySim)            # runs the simulation
-eventDiagram(mySim, "0000-06-01",height=1700, width=1000) # overview of the events in the simulation
+eventDiagram(mySim, "0000-06-01", n=200, height=1700, width=1000) # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
