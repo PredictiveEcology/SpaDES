@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(".")
+}
 
 ################################################################################
 #' Initialize a new simulation

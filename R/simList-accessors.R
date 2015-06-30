@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0")  utils::globalVariables("eventTime")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables("eventTime")
+}
 
 ### `show` generic is already defined in the methods package
 #' Show an Object
@@ -1198,6 +1200,7 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
+#' @importFrom dplyr mutate
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1268,7 +1271,7 @@ setGeneric("completed", function(object, unit) {
 #' @rdname simList-accessors-events
 #' @export
 setMethod("completed",
-          signature=c("simList","character"),
+          signature=c("simList", "character"),
           definition=function(object, unit) {
             out <- if (!is.null(object@completed$eventTime)) {
               object@completed %>%
@@ -1277,16 +1280,16 @@ setMethod("completed",
               object@completed
             }
             return(out)
-          })
+})
 
 #' @export
 #' @rdname simList-accessors-events
 setMethod("completed",
-          signature=c("simList","missing"),
+          signature=c("simList", "missing"),
           definition=function(object, unit) {
             out <- completed(object, timeunit(object))
             return(out)
-          })
+})
 
 #' @export
 #' @rdname simList-accessors-events
@@ -1520,7 +1523,7 @@ setMethod(
     }
     if (!is(x$spatialExtent, "Extent")) {
       if (is.na(x$spatialExtent)) {
-        x$spatialExtent <- raster::extent(rep(NA_real_, 4))
+        x$spatialExtent <- extent(rep(NA_real_, 4))
       }
     }
     if (!is.numeric.POSIXt(x$timeframe)) {

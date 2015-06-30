@@ -42,7 +42,7 @@ setGeneric("dyears", function(x) {
 setMethod("dyears",
           signature(x="numeric"),
           definition=function(x) {
-            lubridate::new_duration(x * 60 * 60 * 24 * 365.25)
+            new_duration(x * 60 * 60 * 24 * 365.25)
 })
 
 #' @inheritParams dyears
@@ -58,7 +58,7 @@ setGeneric("dmonths", function(x) {
 setMethod("dmonths",
           signature(x="numeric"),
           definition=function(x) {
-            lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/12)
+            new_duration(x * as.numeric(SpaDES::dyears(1))/12)
 })
 
 #' @export
@@ -73,7 +73,7 @@ setGeneric("dweeks", function(x) {
 setMethod("dweeks",
           signature(x="numeric"),
           definition=function(x) {
-            lubridate::new_duration(x * as.numeric(SpaDES::dyears(1))/52)
+            new_duration(x * as.numeric(SpaDES::dyears(1))/52)
 })
 
 #' @export
@@ -98,21 +98,21 @@ dyear <- function(x) {
 #' @rdname spadesTime
 #' @importFrom lubridate dseconds
 dsecond <- function(x) {
-  lubridate::dseconds(x)
+  dseconds(x)
 }
 
 #' @export
 #' @rdname spadesTime
 #' @importFrom lubridate ddays
 dday <- function(x) {
-  lubridate::ddays(x)
+  ddays(x)
 }
 
 #' @export
 #' @rdname spadesTime
 #' @importFrom lubridate dhours
 dhour <- function(x) {
-  lubridate::dhours(x)
+  dhours(x)
 }
 
 #' @export
@@ -126,8 +126,8 @@ setGeneric("dNA", function(x) {
 #' @rdname spadesTime
 setMethod("dNA",
           signature(x="ANY"),
-          definition=function(x){
-            lubridate::new_duration(0)
+          definition=function(x) {
+            new_duration(0)
 })
 
 ################################################################################

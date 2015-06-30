@@ -155,9 +155,9 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #'
 randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3,
                            speedup=1, numTypes=1, minpatch=10, ...) {
-  ext <- raster::extent(ras)
-  nc <- raster::ncol(ras)
-  nr <- raster::nrow(ras)
+  ext <- extent(ras)
+  nc <- ncol(ras)
+  nr <- nrow(ras)
   resol <- res(ras)
 
   wholeNumsCol <- .findFactors(nc)
@@ -176,8 +176,8 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3,
   tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)
 
   outMap <- list()
-  r <- raster::raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
-                      res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
+  r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
+              res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
   if( (numTypes < length(p)) |
       (numTypes < length(A)) |
       (numTypes < length(minpatch))) {
@@ -186,10 +186,10 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3,
   r[] <- 0
 
   for(i in 1:numTypes) {
-    a <- secr::randomHabitat(tempmask,
-                             p = p[(i-1)%%length(p)+1],
-                             A = A[(i-1)%%length(A)+1],
-                             minpatch = minpatch[(i-1)%%length(minpatch)+1])
+    a <- randomHabitat(tempmask,
+                       p = p[(i-1)%%length(p)+1],
+                       A = A[(i-1)%%length(A)+1],
+                       minpatch = minpatch[(i-1)%%length(minpatch)+1])
     if(nrow(a)==0) {
       stop("A NULL map was created. ",
            "Please try again, perhaps with different parameters.")
@@ -197,7 +197,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3,
     r[as.integer(rownames(a))] <- i
   }
   if(speedup>1) {
-    return(raster::disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
+    return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
   } else {
     return(invisible(r))
   }

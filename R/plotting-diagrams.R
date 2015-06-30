@@ -162,7 +162,7 @@ setMethod("eventDiagram",
             }
             ll <- .sim2gantt(sim, n, startDate, width)
 
-            DiagrammeR::mermaid(...,
+            mermaid(...,
               paste0(
                 # mermaid "header"
                 "gantt", "\n",
@@ -222,7 +222,7 @@ setMethod("objectDiagram",
           signature(sim="simList"),
           definition=function(sim, ...) {
             dt <- depsEdgeList(sim, FALSE)
-            DiagrammeR::mermaid(...,
+            mermaid(...,
               paste0(
                 # mermaid "header"
                 "sequenceDiagram", "\n",

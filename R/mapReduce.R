@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables("row_number")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables("row_number")
+}
 
 ###############################################################################
 #' Convert reduced representation to full raster
