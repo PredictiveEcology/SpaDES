@@ -55,7 +55,7 @@ details about saving, respectively.}
                  environment are provided, and can be used on the
                  \code{simList} object directly instead of specifying the
                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
-                 \code{ls.str}, \code{simObjects}. See examples.}
+                 \code{ls.str}, \code{objs}. See examples.}
 }}
 \note{
 The \code{simList} class extends the \code{.simList} superclass by adding

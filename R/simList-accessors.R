@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0")  utils::globalVariables("eventTime")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables("eventTime")
+}
 
 ### `show` generic is already defined in the methods package
 #' Show an Object
@@ -44,7 +46,7 @@ setMethod("show",
 
             ### list stored objects
             out[[14]] <- capture.output(cat(">> Objects stored:\n"))
-            out[[15]] <- capture.output(print(ls.str(simEnv(object))))
+            out[[15]] <- capture.output(print(ls.str(envir(object))))
             out[[16]] <- capture.output(cat("\n"))
 
             ### params
@@ -99,7 +101,7 @@ setMethod("show",
 #' @docType methods
 #' @rdname ls-method
 ls.simList <- function(name) {
-  ls(simEnv(name))
+  ls(envir(name))
 }
 
 #' @export
@@ -112,7 +114,7 @@ setMethod("ls",
 
 #' @rdname ls-method
 objects.simList <- function(name) {
-  ls(simEnv(name))
+  ls(envir(name))
 }
 
 #' @export
@@ -139,7 +141,7 @@ setMethod("objects",
 #' @docType methods
 #' @rdname ls_str-method
 ls.str.simList <- function(name) {
-  ls.str(simEnv(name))
+  ls.str(envir(name))
 }
 
 #' export
@@ -236,12 +238,12 @@ setReplaceMethod("$", signature(x="simList", value="ANY"),
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("simEnv", function(object) {
-  standardGeneric("simEnv")
+setGeneric("envir", function(object) {
+  standardGeneric("envir")
 })
 
 #' @rdname simList-accessors-envir
-setMethod("simEnv",
+setMethod("envir",
           signature="simList",
           definition=function(object) {
             return(object@.envir)
@@ -249,15 +251,15 @@ setMethod("simEnv",
 
 #' @export
 #' @rdname simList-accessors-envir
-setGeneric("simEnv<-",
+setGeneric("envir<-",
            function(object, value) {
-             standardGeneric("simEnv<-")
+             standardGeneric("envir<-")
 })
 
-#' @name simEnv<-
-#' @aliases simEnv<-,simList-method
+#' @name envir<-
+#' @aliases envir<-,simList-method
 #' @rdname simList-accessors-envir
-setReplaceMethod("simEnv",
+setReplaceMethod("envir",
                  signature="simList",
                  function(object, value) {
                    object@.envir <- value
@@ -274,7 +276,7 @@ setReplaceMethod("simEnv",
 #' \tabular{ll}{
 #'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced) \cr
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced) \cr
-#'    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced) \cr
+#'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced) \cr
 #' }
 #'
 #' Currently, only get and set methods are defined. Subset methods are not.
@@ -369,10 +371,10 @@ setReplaceMethod("depends",
 ################################################################################
 #' Show/set objects referenced in the simulation environment
 #'
-#' \code{simObjects<-} requires takes a named list of values to be assigned in
+#' \code{objs<-} requires takes a named list of values to be assigned in
 #' the simulation envirment.
 #'
-#' @inheritParams simEnv
+#' @inheritParams envir
 #'
 #' @param ... arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}
 #'
@@ -389,34 +391,34 @@ setReplaceMethod("depends",
 #' @docType methods
 #' @rdname simList-accessors-envir
 #'
-setGeneric("simObjects", function(object, ...) {
-  standardGeneric("simObjects")
+setGeneric("objs", function(object, ...) {
+  standardGeneric("objs")
 })
 
 #' @export
 #' @rdname simList-accessors-envir
-setMethod("simObjects",
+setMethod("objs",
           signature="simList",
           definition=function(object, ...) {
-            x <- lapply(ls(simEnv(object), ...), function(x) {
-              eval(parse(text=x), envir=simEnv(object))
+            x <- lapply(ls(envir(object), ...), function(x) {
+              eval(parse(text=x), envir=envir(object))
             })
-            names(x) <- ls(simEnv(object), ...)
+            names(x) <- ls(envir(object), ...)
             return(x)
 })
 
 #' @export
 #' @rdname simList-accessors-envir
-setGeneric("simObjects<-",
+setGeneric("objs<-",
            function(object, value) {
-             standardGeneric("simObjects<-")
+             standardGeneric("objs<-")
 })
 
-#' @name simObjects<-
-#' @aliases simObjects<-,simList-method
+#' @name objs<-
+#' @aliases objs<-,simList-method
 #' @rdname simList-accessors-envir
 #' @export
-setReplaceMethod("simObjects",
+setReplaceMethod("objs",
                  signature="simList",
                  function(object, value) {
                    if (is.list(value)) {
@@ -1223,6 +1225,7 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
+#' @importFrom dplyr mutate
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1293,7 +1296,7 @@ setGeneric("completed", function(object, unit) {
 #' @rdname simList-accessors-events
 #' @export
 setMethod("completed",
-          signature=c("simList","character"),
+          signature=c("simList", "character"),
           definition=function(object, unit) {
             out <- if (!is.null(object@completed$eventTime)) {
               object@completed %>%
@@ -1302,16 +1305,16 @@ setMethod("completed",
               object@completed
             }
             return(out)
-          })
+})
 
 #' @export
 #' @rdname simList-accessors-events
 setMethod("completed",
-          signature=c("simList","missing"),
+          signature=c("simList", "missing"),
           definition=function(object, unit) {
             out <- completed(object, timeunit(object))
             return(out)
-          })
+})
 
 #' @export
 #' @rdname simList-accessors-events
@@ -1545,7 +1548,7 @@ setMethod(
     }
     if (!is(x$spatialExtent, "Extent")) {
       if (is.na(x$spatialExtent)) {
-        x$spatialExtent <- raster::extent(rep(NA_real_, 4))
+        x$spatialExtent <- extent(rep(NA_real_, 4))
       }
     }
     if (!is.numeric.POSIXt(x$timeframe)) {

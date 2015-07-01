@@ -142,6 +142,7 @@ setReplaceMethod("setColors",
 #' @rdname makeColorMatrix
 #' @aliases makeColourMatrix
 #' @include plotting-classes.R
+#' @importFrom raster minValue getValues sampleRegular
 #' @docType methods
 #' @author Eliot McIntire
 #'
@@ -165,11 +166,10 @@ setMethod(
     # on the raster, so it is possible that it is incorrect.
     if (!skipSample) {
       colorTable <- getColors(grobToPlot)[[1]]
-      if (!is(try(raster::minValue(grobToPlot))
-              ,"try-error")) {
-        minz <- raster::minValue(grobToPlot)
+      if (!is(try(minValue(grobToPlot)), "try-error")) {
+        minz <- minValue(grobToPlot)
       }
-      grobToPlot <- raster::sampleRegular(
+      grobToPlot <- sampleRegular(
         x = grobToPlot, size = maxpixels,
         ext = zoom, asRaster = TRUE, useGDAL = TRUE
       )
@@ -177,7 +177,7 @@ setMethod(
         cols <- colorTable
       }
     }
-    z <- raster::getValues(grobToPlot)
+    z <- getValues(grobToPlot)
 
     # If minValue is defined, then use it, otherwise, calculate them.
     #  This is different than maxz because of the sampleRegular.

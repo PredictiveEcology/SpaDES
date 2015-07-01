@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(".")
+}
 
 ################################################################################
 #' Initialize a new simulation
@@ -129,7 +131,7 @@ setMethod("simInit",
               })
 
               # evaluate the rest of the parsed file
-              eval(parsedFile[!defineModuleItem], envir=simEnv(sim))
+              eval(parsedFile[!defineModuleItem], envir=envir(sim))
             }
 
             # timeunit has no meaning until all modules are loaded,
@@ -226,7 +228,7 @@ setMethod("simInit",
             checkParams(sim, core, dotParams, path) # returns invisible TRUE/FALSE
 
             if(length(objects)>0) {
-              changeObjEnv(x=objects, toEnv=simEnv(sim), fromEnv=.GlobalEnv,
+              changeObjEnv(x=objects, toEnv=envir(sim), fromEnv=.GlobalEnv,
                            rmSrc=getOption("spades.lowMemory"))
             }
 
@@ -689,7 +691,7 @@ setMethod("doEvent",
                   completed <- list(completed(sim, "second"), nextEvent) %>%
                     rbindlist %>%
                     setkey("eventTime")
-                  if (!debug) {
+                  if (NROW(completed) > getOption("spades.nCompleted")) {
                     completed <- tail(completed, n=getOption("spades.nCompleted"))
                   }
                 } else {
@@ -906,7 +908,7 @@ setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
-            attach(simEnv(sim), name=envName)
+            attach(envir(sim), name=envName)
             on.exit(detach(pos=match(envName, search())))
 
             while(time(sim, "second") <= end(sim, "second")) {

@@ -110,7 +110,7 @@ setClass(".simList",
 #'                  environment are provided, and can be used on the
 #'                  \code{simList} object directly instead of specifying the
 #'                  \code{.envir} slot: \code{$}, \code{[[}, \code{ls},
-#'                  \code{ls.str}, \code{simObjects}. See examples.
+#'                  \code{ls.str}, \code{objs}. See examples.
 #'
 #' @aliases simList
 #' @rdname simList-class
@@ -155,7 +155,7 @@ setAs(from="simList_", to="simList", def=function(from) {
 
 setAs(from="simList", to="simList_", def=function(from) {
   x <- as(as(from, ".simList"), "simList_")
-  x@.list <- as.list(simEnv(from))
+  x@.list <- as.list(envir(from))
   return(x)
 })
 

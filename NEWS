@@ -19,7 +19,7 @@ version 1.0.0
 * `defineModule` requires `timestepUnit` to be a character string instead of numeric (with #151)
 * simulation checkpointing fixed (#191, #130)
 * `ls` and `ls.str` can now be used with `simList` objects to list objects in the simulation environment
-* `simObjects` returns a list containing all the objects in the simulation enviroment
+* `objs` returns a list containing all the objects in the simulation enviroment
 * new function `splitRaster` to divide `RasterLayer` into several tiles
 * new function `normPath` (extracted from `checkPath`) to more strictly normalize filepaths without checking that they exist.
 * new function `classFilter` to filter list of objects by their type

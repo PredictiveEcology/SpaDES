@@ -87,7 +87,7 @@ This file consists of three parts containing the code for:
 ### Metadata
 
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user).
-During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object inside the `simEnv`.
+During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object inside the `envir`.
 As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
 
 #### Defining module metadata: `defineModule()`
@@ -241,9 +241,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 Event functions should be defined below the `doEvent.moduleName` code block and follow the naming convention `modulenameEventtype()`.
 Keep these function definitions as short and clean as possible (you can further modularize your functions by calling additional subroutines).
 
-Functions should get and return objects in the simulation environment (`simEnv`), rather than pass them as function arguments.
+Functions should get and return objects in the simulation environment (`envir`), rather than pass them as function arguments.
 This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call.
-Accessing objects in the `simEnv` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=simEnv(sim))`.
+Accessing objects in the `envir` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=envir(sim))`.
 
 Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
 As such, the `modulenameInit()` function is required for initiliazation.
@@ -301,7 +301,6 @@ Note that only the start time of the event is meaningful is these figures: the w
 ```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 require(magrittr)
 require(SpaDES)
-options("spades.nCompleted" = 200)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
@@ -327,7 +326,7 @@ unlink(ftmp)
 
 ```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
 mySim <- spades(mySim)            # runs the simulation
-eventDiagram(mySim, "0000-06-01",height=1700, width=1000) # overview of the events in the simulation
+eventDiagram(mySim, "0000-06-01", n=200, height=1700, width=1000) # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
@@ -535,7 +534,7 @@ mySim <- simInit(times=list(start=0.0, stop=10),
 )
 
 # retrieve the load and save params from the simulation object
-simObjectsLoaded(mySim)   # shows what's been loaded
+inputs(mySim)   # shows what's been loaded
 simFileList(mySim)        # returns empty if objects successfully loaded
 
 params(mySim)$randomLandscapes$.saveInitialTime

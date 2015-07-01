@@ -19,33 +19,33 @@ test_that("simList object initializes correctly", {
   options(width=w); rm(w)
 
   ### SLOT .envir
-  expect_is(simEnv(mySim), "environment")
-  expect_is(simObjects(mySim), "list")
-  expect_equal(sort(names(simObjects(mySim))),
+  expect_is(envir(mySim), "environment")
+  expect_is(objs(mySim), "list")
+  expect_equal(sort(names(objs(mySim))),
                sort(names(as(mySim, "simList_")@.list)))
   expect_equivalent(mySim, as(as(mySim, "simList_"), "simList"))
-  expect_equal(ls(mySim), sort(names(simObjects(mySim))))
-  expect_equivalent(ls.str(mySim), ls.str(simObjects(mySim)))
-  expect_equivalent(ls.str(pos=mySim), ls.str(simObjects(mySim)))
-  expect_equivalent(ls.str(name=mySim), ls.str(simObjects(mySim)))
+  expect_equal(ls(mySim), sort(names(objs(mySim))))
+  expect_equivalent(ls.str(mySim), ls.str(objs(mySim)))
+  expect_equivalent(ls.str(pos=mySim), ls.str(objs(mySim)))
+  expect_equivalent(ls.str(name=mySim), ls.str(objs(mySim)))
 
   mySim$test1 <- TRUE
   mySim[["test2"]] <- TRUE
-  simObjects(mySim) <- list(test3=TRUE)
+  objs(mySim) <- list(test3=TRUE)
 
   expect_true(mySim$test1)
   expect_true(mySim[["test2"]])
-  expect_true(simObjects(mySim)$test3)
-  expect_error(simObjects(mySim) <- "test4", "must provide a named list.")
+  expect_true(objs(mySim)$test3)
+  expect_error(objs(mySim) <- "test4", "must provide a named list.")
 
-  oldEnv <- simEnv(mySim)
-  simEnv(mySim) <- new.env(parent=.GlobalEnv)
+  oldEnv <- envir(mySim)
+  envir(mySim) <- new.env(parent=.GlobalEnv)
 
   expect_true(is.null(mySim$test1))
   expect_true(is.null(mySim[["test2"]]))
-  expect_true(is.null(simObjects(mySim)$test3[[1]]))
+  expect_true(is.null(objs(mySim)$test3[[1]]))
 
-  simEnv(mySim) <- oldEnv
+  envir(mySim) <- oldEnv
   expect_true(mySim$test1)
   expect_true(mySim[["test2"]])
   rm(oldEnv)
@@ -82,9 +82,9 @@ test_that("simList object initializes correctly", {
   expect_identical(progressInterval(mySim), 10)
 
   # load
-  expect_identical(simObjectsLoaded(mySim), list())
-  simObjectsLoaded(mySim) <- "something"
-  expect_equal(simObjectsLoaded(mySim), "something")
+  expect_identical(inputs(mySim), list())
+  inputs(mySim) <- "something"
+  expect_equal(inputs(mySim), "something")
 
   # need tests for inputs
 

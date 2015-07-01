@@ -64,7 +64,7 @@
 #' Commonly used:
 #' \tabular{ll}{
 #'    \code{\link{globals}} \tab List of global simulation parameters.\cr
-#'    \code{\link{simObjects}} \tab List of objects referenced by the simulation environment.\cr
+#'    \code{\link{objs}} \tab List of objects referenced by the simulation environment.\cr
 #'    \code{\link{params}} \tab Nested list of all simulation parameter.\cr
 #' }
 #'
@@ -109,7 +109,7 @@
 #' \tabular{ll}{
 #'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced)\cr
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
-#'    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
+#'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
 #' }
 #'
 #' @section 1.3 Module operations:

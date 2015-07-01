@@ -52,6 +52,8 @@ setMethod("ganttStatus",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param n    The number of most recently completed events to plot.
+#'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
 #'
 #' @param width  Numeric. Passed to determine scale of vertical bars.
@@ -65,15 +67,15 @@ setMethod("ganttStatus",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric(".sim2gantt", function(sim, startDate, width) {
+setGeneric(".sim2gantt", function(sim, n, startDate, width) {
   standardGeneric(".sim2gantt")
 })
 
 #' @rdname sim2gantt
 setMethod(".sim2gantt",
-          signature(sim="simList", startDate="character"),
-          definition=function(sim, startDate, width) {
-            dt <- completed(sim)
+          signature(sim="simList", n="numeric", startDate="character"),
+          definition=function(sim, n, startDate, width) {
+            dt <- tail(completed(sim), n)
             modules <- unique(dt$moduleName)
             width <- 4500 / as.numeric(width) # fixed at 3 days
 
@@ -104,11 +106,8 @@ setMethod(".sim2gantt",
 #' Simulation event diagram
 #'
 #' Create a Gantt Chart representing the events in a completed simulation.
-#' This event diagram is constructed using the completed event list, which by
-#' default only stores the 10 most recently completed events (unless
-#' \code{spades(debug=TRUE)} is used, in which case all events are retained).
-#' To change the number of events stored, users may override this option using
-#' \code{options(spades.nCompleted = value)}.
+#' This event diagram is constructed using the completed event list
+#' To change the number of events shown, provide an \code{n} argument.
 #'
 #' Simulation time is presented on the x-axis, starting at date 'startDate'.
 #' Each module appears in a color-coded row, within which each event for that
@@ -125,6 +124,8 @@ setMethod(".sim2gantt",
 #'
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
+#'
+#' @param n    The number of most recently completed events to plot.
 #'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
 #'
@@ -143,15 +144,15 @@ setMethod(".sim2gantt",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("eventDiagram", function(sim, startDate, ...) {
+setGeneric("eventDiagram", function(sim, n, startDate, ...) {
   standardGeneric("eventDiagram")
 })
 
 #' @export
 #' @rdname eventDiagram
 setMethod("eventDiagram",
-          signature(sim="simList", startDate="character"),
-          definition=function(sim, startDate, ...) {
+          signature(sim="simList", n="numeric", startDate="character"),
+          definition=function(sim, n, startDate, ...) {
             # get automatic scaling of vertical bars in Gantt chart
             dots <- list(...)
             width <- if(any(grepl(pattern="width", names(dots)))) {
@@ -159,9 +160,9 @@ setMethod("eventDiagram",
             } else {
               1000
             }
-            ll <- .sim2gantt(sim, startDate, width)
+            ll <- .sim2gantt(sim, n, startDate, width)
 
-            DiagrammeR::mermaid(...,
+            mermaid(...,
               paste0(
                 # mermaid "header"
                 "gantt", "\n",
@@ -176,6 +177,14 @@ setMethod("eventDiagram",
                 }), collapse = "\n"), "\n"
               )
             )
+})
+
+#' @export
+#' @rdname eventDiagram
+setMethod("eventDiagram",
+          signature(sim="simList", n="missing", startDate="character"),
+          definition=function(sim, startDate, ...) {
+            eventDiagram(sim=sim, n=NROW(completed(sim)), startDate=startDate, ...)
 })
 
 ################################################################################
@@ -213,7 +222,7 @@ setMethod("objectDiagram",
           signature(sim="simList"),
           definition=function(sim, ...) {
             dt <- depsEdgeList(sim, FALSE)
-            DiagrammeR::mermaid(...,
+            mermaid(...,
               paste0(
                 # mermaid "header"
                 "sequenceDiagram", "\n",

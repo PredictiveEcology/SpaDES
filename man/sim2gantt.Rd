@@ -3,16 +3,18 @@
 \docType{methods}
 \name{.sim2gantt}
 \alias{.sim2gantt}
-\alias{.sim2gantt,simList,character-method}
+\alias{.sim2gantt,simList,numeric,character-method}
 \title{sim2gantt}
 \usage{
-.sim2gantt(sim, startDate, width)
+.sim2gantt(sim, n, startDate, width)
 
-\S4method{.sim2gantt}{simList,character}(sim, startDate, width)
+\S4method{.sim2gantt}{simList,numeric,character}(sim, n, startDate, width)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
+
+\item{n}{The number of most recently completed events to plot.}
 
 \item{startDate}{A character representation of date in YYYY-MM-DD format.}
 

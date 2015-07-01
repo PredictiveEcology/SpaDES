@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(".")
+}
 
 #' Get the name of a \code{source}-ed file
 #'

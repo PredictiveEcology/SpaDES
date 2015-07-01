@@ -36,17 +36,16 @@ setGeneric("checkObject", function(sim, name, object, layer, ...) {
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="Raster", layer="character"),
           definition = function(sim, object, layer, ...) {
-            if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
+            if (exists(deparse(substitute(object)), envir=envir(sim))) {
               if (!is.na(match(layer, names(object)))) {
                 return(invisible(TRUE))
               } else {
-                message(paste(deparse(substitute(object, env=simEnv(sim))),
+                message(paste(deparse(substitute(object, env=envir(sim))),
                               "exists, but", layer, "is not a layer"))
                 return(FALSE)
               }
             } else {
-              browser()
-              message(paste(deparse(substitute(object, env=simEnv(sim))),
+              message(paste(deparse(substitute(object, env=envir(sim))),
                             "does not exist."))
               return(FALSE)
             }
@@ -57,11 +56,10 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="ANY", layer="missing"),
           definition = function(sim, name, object, ...) {
-            if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
+            if (exists(deparse(substitute(object)), envir=envir(sim))) {
               return(invisible(TRUE))
             } else {
-              browser()
-              message(paste(deparse(substitute(object, env=simEnv(sim))), "does not exist"))
+              message(paste(deparse(substitute(object, env=envir(sim))), "does not exist"))
               return(FALSE)
             }
 })
@@ -71,7 +69,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="missing"),
           definition = function(sim, name, ...) {
-            if (exists(name, envir=simEnv(sim))) {
+            if (exists(name, envir=envir(sim))) {
               return(invisible(TRUE))
             } else {
               simName <- .objectNames("spades", "simList", "sim")[[1]]$objs
@@ -85,7 +83,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="character"),
           definition = function(sim, name, layer, ...) {
-            if (exists(name, envir=simEnv(sim))) {
+            if (exists(name, envir=envir(sim))) {
               if(is(sim[[name]],"Raster")) {
                 if(!is(sim[[name]][[layer]], "Raster")) {
                   message(paste("The object \"", name, "\" exists, but is not
