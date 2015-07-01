@@ -29,6 +29,7 @@
 #' @author Alex Chubaty
 #'
 #' @include environment.R
+#' @importFrom tools file_path_as_absolute
 #' @export
 #' @docType methods
 #' @rdname checkpoint
@@ -47,10 +48,17 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       checkpointFile <- checkpointFile(sim)
     }
-    if (!is.null(outputPath(sim))) {
-      checkpointDir <- checkPath(outputPath(sim), create=TRUE)
-      checkpointFile <- file.path(checkpointDir, checkpointFile(sim))
+    #browser()
+    checkpointDir <- checkPath(outputPath(sim), create=TRUE)
+    checkpointFile <- tryCatch(tools::file_path_as_absolute(
+      file.path(checkpointDir, checkpointFile(sim))),
+      error=function(x) {
+        return(file.path(checkpointDir, basename(checkpointFile(sim))))
+      })
+    if(checkpointFile!=file.path(checkpointDir, checkpointFile(sim))) {
+      message(paste("checkpoint file saved to:",checkpointFile))
     }
+    #checkpointFile <- file.path(checkpointDir, dirname(checkpointFile(sim)))
   }
 
   ### event definitions
