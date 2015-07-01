@@ -72,11 +72,11 @@ filelist = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "
    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
 
 times <- list(start=0, stop=3)
-parameters <- list(.globals=list(stackName="landscape"),
-                   .load=list(filelist=filelist))
+parameters <- list(.globals=list(stackName="landscape"))
 modules <- list("randomLandscapes", "caribouMovement")
-path <- system.file("sampleModules", package="SpaDES")
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+paths <- list(moduleName=system.file("sampleModules", package="SpaDES"))
+mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths,
+inputs=filelist)
 ls(mySim)
 
 sim1 <- loadFiles(filelist=filelist)

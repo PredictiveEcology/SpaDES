@@ -42,13 +42,16 @@ Various slot accessor methods (i.e., get and set functions) are provided
 \item{\code{simtimes}}{List of numerical values describing the simulation start
                  and stop times; as well as the current simulation time.}
 
-\item{\code{inputs}}{List of length 2, with elements, a character string named \code{path}
-and a data.table named \code{filelist} indicating where to get all file based inputs and
+\item{\code{inputs}}{The list of files and objects that are inputs to the \code{simList},
+as a \code{data.frame} or \code{data.table} indicating where to get all file based inputs and
 details about all inputs (derived from file, database or R object), respectively.}
 
-\item{\code{outputs}}{List of length 2, with elements, a character string named \code{path}
-and a data.table named \code{filelist} indicating where to put all save outputs and
+\item{\code{outputs}}{The list of files and objects that are inputs to the \code{simList},
+as a \code{data.frame} or \code{data.table} indicating where to put all save outputs and
 details about saving, respectively.}
+
+\item{\code{paths}}{Named list of \code{modulePath}, \code{inputPath}, and \code{outputPath} paths. Partial
+matching is performed.}
 
 \item{\code{.envir}}{Environment referencing the objects used in the simulation.
                  Several "shortcuts" to accessing objects referenced by this
@@ -93,7 +96,7 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
 }
 }
 \author{
-Alex Chubaty
+Alex Chubaty and Eliot McIntire
 }
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}

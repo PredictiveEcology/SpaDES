@@ -18,10 +18,18 @@
 \alias{inputArgs,simList-method}
 \alias{inputArgs<-}
 \alias{inputArgs<-,simList-method}
+\alias{inputPath}
+\alias{inputPath,simList-method}
+\alias{inputPath<-}
+\alias{inputPath<-,simList-method}
 \alias{inputs}
 \alias{inputs,simList-method}
 \alias{inputs<-}
 \alias{inputs<-,simList-method}
+\alias{modulePath}
+\alias{modulePath,simList-method}
+\alias{modulePath<-}
+\alias{modulePath<-,simList-method}
 \alias{outputPath}
 \alias{outputPath,simList-method}
 \alias{outputPath<-}
@@ -30,6 +38,10 @@
 \alias{params,simList-method}
 \alias{params<-}
 \alias{params<-,simList-method}
+\alias{paths}
+\alias{paths,simList-method}
+\alias{paths<-}
+\alias{paths<-,simList-method}
 \alias{progressInterval}
 \alias{progressInterval,simList-method}
 \alias{progressInterval<-}
@@ -72,6 +84,30 @@ inputs(object)
 inputs(object) <- value
 
 \S4method{inputs}{simList}(object) <- value
+
+inputPath(object)
+
+\S4method{inputPath}{simList}(object)
+
+inputPath(object) <- value
+
+\S4method{inputPath}{simList}(object) <- value
+
+modulePath(object)
+
+\S4method{modulePath}{simList}(object)
+
+modulePath(object) <- value
+
+\S4method{modulePath}{simList}(object) <- value
+
+paths(object)
+
+\S4method{paths}{simList}(object)
+
+paths(object) <- value
+
+\S4method{paths}{simList}(object) <- value
 
 inputArgs(object)
 
@@ -135,8 +171,11 @@ Advanced use
    Accessor method \tab Module \tab Description \cr
    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+   \code{modulePath} \tab \code{NA} \tab Global simulation module path. (advanced)\cr
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-   \code{inputs} \tab \code{inputs} \tab List of length 2, path and objects, files etc.. (advanced)\cr
+   \code{inputPath} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
+   \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs). (advanced)\cr
+   \code{inputs} \tab \code{inputs} \tab Data.table showing objects, files etc.. (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
