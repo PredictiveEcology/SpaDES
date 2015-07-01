@@ -234,13 +234,13 @@ setMethod(
           if (loadFun[x]=="raster") {
             message(paste0(
               objectName[x], " read from ", fl[x], " using ", loadFun[x],
-              "(inMemory=", inMemory(sim[[objectName[x]]]), ")",ifelse(filelistDT[y,loadTime!=start(sim)],
+              "(inMemory=", inMemory(sim[[objectName[x]]]), ")",ifelse(filelistDT[y,loadTime!=start(sim,"seconds")],
                                                                        paste("\n  at time",
                                                                        filelistDT[y,loadTime]),"")
             ))
           } else {
               message(paste0(objectName[x]," read from ",fl[x]," using ", loadFun[x],
-                             ifelse(filelistDT[y,loadTime!=start(sim)],
+                             ifelse(filelistDT[y,loadTime!=start(sim,"seconds")],
                                     paste("\n   at time",
                                     filelistDT[y,loadTime]),"")))
           }
