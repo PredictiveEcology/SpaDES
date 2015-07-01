@@ -104,9 +104,9 @@ test_that("depsEdgeList and depsGraph work", {
                  caribouMovement=list(.plotInitialTime=NA, .plotInterval=NA),
                  fireSpread=list(.plotInitialTime=NA, .plotInterval=NA))
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
-  path <- system.file("sampleModules", package="SpaDES")
+  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects=list(), path)
+  mySim <- simInit(times, params, modules, objects=list(), paths)
 
   # depsEdgeList
   el <- depsEdgeList(mySim)

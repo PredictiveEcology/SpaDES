@@ -16,9 +16,9 @@ test_that("simulation runs with simInit and spades", {
     fireSpread=list(.plotInitialTime=NA, .plotInterval=NA)
   )
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
-  path <- system.file("sampleModules", package="SpaDES")
+  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects=list(), path) %>% spades
+  mySim <- simInit(times, params, modules, objects=list(), paths) %>% spades
 
   # simtime
   expect_equivalent(time(mySim), 10.0)

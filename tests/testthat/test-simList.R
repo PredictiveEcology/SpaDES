@@ -6,9 +6,9 @@ test_that("simList object initializes correctly", {
   times <- list(start=0.0, stop=10)
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"))
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
-  path <- system.file("sampleModules", package="SpaDES")
+  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects=list(), path)
+  mySim <- simInit(times, params, modules, objects=list(), paths)
 
   expect_is(mySim, "simList")
 
@@ -58,7 +58,6 @@ test_that("simList object initializes correctly", {
   expect_is(params(mySim), "list")
 
   # globals
-  expect_true(is.null(outputPath(mySim)))
   outputPath(mySim) <- file.path(tempdir(), "outputs")
   expect_identical(outputPath(mySim), file.path(tempdir(), "outputs"))
 
@@ -82,10 +81,13 @@ test_that("simList object initializes correctly", {
   expect_identical(progressInterval(mySim), 10)
 
   # load
-  expect_identical(inputs(mySim), data.table())
+  expect_identical(inputs(mySim), data.table(file=character(0), fun=character(0),
+                                             package=character(0), objectName=character(0),
+                                             loadTime=numeric(0), loaded=logical(0)))
   expect_error(inputs(mySim) <- "something", "inputs must be a list")
 
   # need tests for inputs
+  # See test-load.R
 
   ### SLOT events
   expect_is(events(mySim), "data.table")
