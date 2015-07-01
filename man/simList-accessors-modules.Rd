@@ -8,10 +8,6 @@
 \alias{depends,simList-method}
 \alias{depends<-}
 \alias{depends<-,simList-method}
-\alias{inputs}
-\alias{inputs,simList-method}
-\alias{inputs<-}
-\alias{inputs<-,simList-method}
 \alias{modules}
 \alias{modules,simList-method}
 \alias{modules<-}
