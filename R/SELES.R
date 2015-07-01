@@ -109,7 +109,6 @@ numAgents <- function(N, probInit) {
 #'    mutate(selectionRatio=Freq/Freq.1) %>%
 #'    select(-Var1, -Var1.1) %>%
 #'    rename(Present=Freq, Avail=Freq.1, Type=Var2)
-#' print(out)
 #'
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {

@@ -38,6 +38,14 @@
 #' @slot simtimes   List of numerical values describing the simulation start
 #'                  and stop times; as well as the current simulation time.
 #'
+#' @slot inputs   List of length 2, with elements, a character string named \code{path}
+#' and a data.table named \code{filelist} indicating where to get all file based inputs and
+#' details about all inputs (derived from file, database or R object), respectively.
+#'
+#' @slot outputs   List of length 2, with elements, a character string named \code{path}
+#' and a data.table named \code{filelist} indicating where to put all save outputs and
+#' details about saving, respectively.
+#'
 #' @section Accessor Methods:
 #'
 #' Several slot (and sub-slot) accessor methods are provided for use, and
@@ -72,14 +80,16 @@
 setClass(".simList",
          slots=list(modules="list", params="list",
                     events="data.table", completed="data.table",
-                    depends=".simDeps", simtimes="list"),
+                    depends=".simDeps", simtimes="list",
+                    inputs="list", outputs="list"),
          prototype=list(modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
-                                    .loaded=list(objects=as.list(NULL)),
                                     .progress=list(type=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, stop=1.00, timeunit=NA_character_)),
+                        simtimes=list(current=0.00, start=0.00, stop=1.00, timeunit=NA_character_),
+                        inputs=list(path=getwd(), filelist=as.data.table(NULL)),
+                        outputs=list(path=getwd(), filelist=as.data.table(NULL))),
          validity=function(object) {
            # check for valid sim times
            if (is.na(object@simtimes$stop)) {

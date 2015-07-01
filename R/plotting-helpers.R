@@ -503,7 +503,7 @@ setMethod(
 #'
 #' # or  to a previous Plot
 #' \dontrun{
-#' fileList <- data.table(files =
+#' filelist <- data.table(files =
 #'      dir(file.path(find.package("SpaDES",
 #'                                 lib.loc=getOption("devtools.path"),
 #'                                 quiet=FALSE),
@@ -513,7 +513,7 @@ setMethod(
 #'      packages="SpaDES")
 #'
 #' # Load files to memory (using rasterToMemory)
-#' sim1 <- loadFiles(fileList=fileList)
+#' sim1 <- loadFiles(filelist=filelist)
 #'
 #' Plot(sim1$DEM, new=TRUE)
 #' caribouTraj <- makeLines(caribou1, caribou2)

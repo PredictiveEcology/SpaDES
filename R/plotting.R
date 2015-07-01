@@ -1134,7 +1134,7 @@ setMethod(
 #' library(magrittr)
 #' library(igraph)
 #' #  Make list of maps from package database to load, and what functions to use to load them
-#' fileList <-
+#' filelist <-
 #'    data.frame(files =
 #'      dir(file.path(
 #'                    find.package("SpaDES",
@@ -1147,7 +1147,7 @@ setMethod(
 #'      stringsAsFactors=FALSE)
 #'
 #' # Load files to memory (using rasterToMemory)
-#' loadFiles(fileList=fileList)
+#' loadFiles(filelist=filelist)
 #'
 #' # put layers into a single stack for convenience
 #' landscape <- stack(DEM, forestCover, forestAge, habitatQuality, percentPine)

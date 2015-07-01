@@ -36,7 +36,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(sim, globals(sim)$stackName, layer="habitatQuality")
+    checkObject(sim, name=globals(sim)$stackName, layer="habitatQuality")
 
     # do stuff for this event
     sim <- caribouMovementInit(sim)

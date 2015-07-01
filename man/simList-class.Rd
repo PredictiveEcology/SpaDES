@@ -42,6 +42,14 @@ Various slot accessor methods (i.e., get and set functions) are provided
 \item{\code{simtimes}}{List of numerical values describing the simulation start
                  and stop times; as well as the current simulation time.}
 
+\item{\code{inputs}}{List of length 2, with elements, a character string named \code{path}
+and a data.table named \code{filelist} indicating where to get all file based inputs and
+details about all inputs (derived from file, database or R object), respectively.}
+
+\item{\code{outputs}}{List of length 2, with elements, a character string named \code{path}
+and a data.table named \code{filelist} indicating where to put all save outputs and
+details about saving, respectively.}
+
 \item{\code{.envir}}{Environment referencing the objects used in the simulation.
                  Several "shortcuts" to accessing objects referenced by this
                  environment are provided, and can be used on the

@@ -73,8 +73,6 @@ Advanced use:
    \code{\link{checkpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
    \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-   \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-   \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
@@ -109,7 +107,7 @@ thus most users will not require direct use of these methods.
 \section{1.2.4 Modules and dependencies}{
 
 
-Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
+Accessor functions for the \code{depends}, \code{modules},
 and \code{.loadOrder} slots.
 These are included for advanced users.
 
@@ -335,7 +333,7 @@ loading and saving of files for simulation purposes:
 
 \tabular{ll}{
   \code{\link{getFileName}} \tab Get the name of current file\cr
-  \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
+  \code{\link{loadFiles}} \tab Load simulation objects according to a filelist\cr
   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
   \code{\link{saveFiles}} \tab Save simulation objects according to params\cr
 }

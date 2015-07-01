@@ -7,7 +7,7 @@
 
 library("SpaDES")
 
-fileList = data.frame(
+filelist = data.frame(
   files=dir(file.path(
     find.package("SpaDES", lib.loc=.libPaths(), quiet=FALSE), "maps"),
     full.names=TRUE, pattern= "tif"),
@@ -21,7 +21,7 @@ stackName = "landscape"
 mySim <- simInit(
   times=list(start=0.0, stop=100.00),
   params=list(
-    .load=list(fileList=fileList),
+    .load=list(filelist=filelist),
     .progress=list(type="text", interval = 10),
     .globals=list(stackName=stackName, burnStats="nPixelsBurned"),
     randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=stackName,

@@ -86,7 +86,7 @@ test_that("simList object initializes correctly", {
   simObjectsLoaded(mySim) <- "something"
   expect_equal(simObjectsLoaded(mySim), "something")
 
-  # need tests for simFileList
+  # need tests for inputs
 
   ### SLOT events
   expect_is(events(mySim), "data.table")

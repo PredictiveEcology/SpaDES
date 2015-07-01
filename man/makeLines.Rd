@@ -34,7 +34,7 @@ Plot(caribouTraj, new=TRUE, length=0.1)
 
 # or  to a previous Plot
 \dontrun{
-fileList <- data.table(files =
+filelist <- data.table(files =
      dir(file.path(find.package("SpaDES",
                                 lib.loc=getOption("devtools.path"),
                                 quiet=FALSE),
@@ -44,7 +44,7 @@ fileList <- data.table(files =
      packages="SpaDES")
 
 # Load files to memory (using rasterToMemory)
-sim1 <- loadFiles(fileList=fileList)
+sim1 <- loadFiles(filelist=filelist)
 
 Plot(sim1$DEM, new=TRUE)
 caribouTraj <- makeLines(caribou1, caribou2)

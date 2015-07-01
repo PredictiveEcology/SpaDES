@@ -13,10 +13,6 @@
 \alias{modules<-}
 \alias{modules<-,simList-method}
 \alias{simList-accessors-modules}
-\alias{simObjectsLoaded}
-\alias{simObjectsLoaded,simList-method}
-\alias{simObjectsLoaded<-}
-\alias{simObjectsLoaded<-,simList-method}
 \title{Simulation modules and dependencies}
 \usage{
 modules(object)
@@ -34,14 +30,6 @@ depends(object)
 depends(object) <- value
 
 \S4method{depends}{simList}(object) <- value
-
-simObjectsLoaded(object)
-
-\S4method{simObjectsLoaded}{simList}(object)
-
-simObjectsLoaded(object) <- value
-
-\S4method{simObjectsLoaded}{simList}(object) <- value
 
 .callingModuleName(object)
 

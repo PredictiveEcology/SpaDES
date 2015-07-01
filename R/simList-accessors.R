@@ -15,8 +15,6 @@ setMethod("show",
           definition=function(object) {
 
             out <- list()
-
-            ### hr
             out[[1]] <- capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
 
             ### simulation dependencies
@@ -37,8 +35,11 @@ setMethod("show",
 
             ### objects loaded
             out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
-            out[[12]] <- capture.output(print(cbind(ObjectName=simObjectsLoaded(object)),
+
+            out[[12]] <- if(NROW(inputs(object))!=0) {
+              capture.output(print(cbind(ObjectName=inputs(object)[loaded==TRUE]),
                                               quote=FALSE, row.names=FALSE))
+            }
             out[[13]] <- capture.output(cat("\n"))
 
             ### list stored objects
@@ -47,9 +48,7 @@ setMethod("show",
             out[[16]] <- capture.output(cat("\n"))
 
             ### params
-            omit <- which(names(params(object))==".load" |
-                            names(params(object))==".loaded" |
-                            names(params(object))==".progress")
+            omit <- which(names(params(object))==".progress")
 
             p <- mapply(
               function(x, y) {
@@ -366,43 +365,6 @@ setReplaceMethod("depends",
                    return(object)
 })
 
-################################################################################
-#' @inheritParams modules
-#' @export
-#' @include simList-class.R
-#' @docType methods
-#' @rdname simList-accessors-modules
-#'
-setGeneric("simObjectsLoaded", function(object) {
-  standardGeneric("simObjectsLoaded")
-})
-
-#' @export
-#' @rdname simList-accessors-modules
-setMethod("simObjectsLoaded",
-          signature="simList",
-          definition=function(object) {
-            return(params(object)$.loaded$objects)
-})
-
-#' @export
-#' @rdname simList-accessors-modules
-setGeneric("simObjectsLoaded<-",
-           function(object, value) {
-             standardGeneric("simObjectsLoaded<-")
-})
-
-#' @name simObjectsLoaded<-
-#' @aliases simObjectsLoaded<-,simList-method
-#' @rdname simList-accessors-modules
-#' @export
-setReplaceMethod("simObjectsLoaded",
-                 signature="simList",
-                 function(object, value) {
-                   params(object)$.loaded$objects <- value
-                   validObject(object)
-                   return(object)
-})
 
 ################################################################################
 #' Show/set objects referenced in the simulation environment
@@ -485,8 +447,7 @@ setReplaceMethod("simObjects",
 #'    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
 #'    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
 #'    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-#'    \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-#'    \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+#'    \code{inputs} \tab \code{inputs} \tab List of length 2, path and objects, files etc.. (advanced)\cr
 #'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
 #'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
@@ -623,36 +584,100 @@ setReplaceMethod("checkpointInterval",
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
-setGeneric("simFileList", function(object) {
-  standardGeneric("simFileList")
+setGeneric("inputs", function(object) {
+  standardGeneric("inputs")
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setMethod("simFileList",
+setMethod("inputs",
           signature="simList",
           definition=function(object) {
-            return(object@params$.load$fileList)
+            return(object@inputs$filelist)
 })
 
 #' @export
 #' @rdname simList-accessors-params
-setGeneric("simFileList<-",
+setGeneric("inputs<-",
            function(object, value) {
-             standardGeneric("simFileList<-")
+             standardGeneric("inputs<-")
 })
 
-#' @name simFileList<-
-#' @aliases simFileList<-,simList-method
+#' @name inputs<-
+#' @aliases inputs<-,simList-method
 #' @rdname simList-accessors-params
 #' @export
-setReplaceMethod("simFileList",
+setReplaceMethod("inputs",
                  signature="simList",
                  function(object, value) {
-                   object@params$.load$fileList <- value
+
+                   if(NROW(object@inputs$filelist)==0) {
+                     if (is.list(value)) {
+                       if(any(stri_detect_fixed(pattern="argument", names(value)))) {
+                         inputArgs(object) <- rep(value$arguments, length.out=length(value$files))
+                         value <- value[-pmatch("argument", names(value))]
+                       }
+                          value <- value %>%
+                           data.frame(stringsAsFactors=FALSE) %>%
+                           data.table
+                     }
+                     if(is.data.table(value)) {
+                       fileTable <- data.table(file=character(0), fun=character(0),
+                                               package=character(0), objectName=character(0),
+                                               loadTime=numeric(0), loaded=logical(0))
+                       columns <- pmatch(names(fileTable),names(value))
+                       setnames(value,old = colnames(value)[na.omit(columns)], new=colnames(fileTable)[!is.na(columns)])
+                       object@inputs$filelist <- rbindlist(list(fileTable, value), fill=TRUE)
+                     } else {
+                       stop("inputs must be a list, data.frame or data.table")
+                     }
+                   } else {
+                     object@inputs$filelist <- value #rbindlist(list(object@inputs$filelist, value), fill=TRUE)
+                   }
+
                    validObject(object)
                    return(object)
 })
+
+################################################################################
+#' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("inputArgs", function(object) {
+  standardGeneric("inputArgs")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("inputArgs",
+          signature="simList",
+          definition=function(object) {
+            return(object@inputs$arguments)
+          })
+
+#' @export
+#' @rdname simList-accessors-params
+setGeneric("inputArgs<-",
+           function(object, value) {
+             standardGeneric("inputArgs<-")
+           })
+
+#' @name inputArgs<-
+#' @aliases inputArgs<-,simList-method
+#' @rdname simList-accessors-params
+#' @export
+setReplaceMethod("inputArgs",
+                 signature="simList",
+                 function(object, value) {
+
+                   object@inputs$arguments <- value
+
+                   validObject(object)
+                   return(object)
+                 })
 
 ################################################################################
 #' @inheritParams params

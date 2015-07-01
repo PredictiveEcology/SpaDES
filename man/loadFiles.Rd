@@ -7,40 +7,40 @@
 \alias{loadFiles,missing,ANY-method}
 \alias{loadFiles,missing,missing-method}
 \alias{loadFiles,simList,missing-method}
-\title{Load simulation objects according to \code{fileList}}
+\title{Load simulation objects according to \code{filelist}}
 \usage{
-loadFiles(sim, fileList, ...)
+loadFiles(sim, filelist, ...)
 
-\S4method{loadFiles}{simList,missing}(sim, fileList, ...)
+\S4method{loadFiles}{simList,missing}(sim, filelist, ...)
 
-\S4method{loadFiles}{missing,ANY}(sim, fileList, ...)
+\S4method{loadFiles}{missing,ANY}(sim, filelist, ...)
 
-\S4method{loadFiles}{missing,missing}(sim, fileList, ...)
+\S4method{loadFiles}{missing,missing}(sim, filelist, ...)
 
 .fileExtensions()
 }
 \arguments{
 \item{sim}{\code{simList} object.}
 
-\item{fileList}{\code{list} or \code{data.frame} to call \code{loadFiles} directly from the
-                 \code{fileList} as described in Details}
+\item{filelist}{\code{list} or \code{data.frame} to call \code{loadFiles} directly from the
+                 \code{filelist} as described in Details}
 
 \item{...}{Additional arguments.}
 }
 \description{
-This function takes the fileList argument in the \code{simList} object and
+This function takes the filelist argument in the \code{simList} object and
 loads all the files using the identified functions and arguments.
 
 How to load various types of files in R.
 }
 \details{
-In the \code{fileList} object, either a \code{list} or a \code{data.frame},
+In the \code{filelist} object, either a \code{list} or a \code{data.frame},
 there will be minimally a column called "files".
 All other columns are optional.
 
 Other optional columns are:
 
-- \code{objectNames}: a character string indicating the name of the object once the
+- \code{objectName}: a character string indicating the name of the object once the
 file is loaded. Default is to use the file names, with file extension removed.
 
 - \code{package}: a character string indicating the package that the function is found in.
@@ -68,18 +68,18 @@ and will be repeated for each load function.
 \examples{
 \dontrun{
 # Load random maps included with package
-fileList = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+filelist = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
 
 times <- list(start=0, stop=3)
 parameters <- list(.globals=list(stackName="landscape"),
-                   .load=list(fileList=fileList))
+                   .load=list(filelist=filelist))
 modules <- list("randomLandscapes", "caribouMovement")
 path <- system.file("sampleModules", package="SpaDES")
 mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
 ls(mySim)
 
-sim1 <- loadFiles(fileList=fileList)
+sim1 <- loadFiles(filelist=filelist)
 clearPlot()
 Plot(sim1$DEM)
 }
@@ -92,15 +92,15 @@ Plot(sim1$DEM)
 arguments = list(native=TRUE)
 files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
      full.names=TRUE, pattern= "tif")
-fileList = data.table(
+filelist = data.table(
    files = files,
    functions="raster::raster",
-   objectNames = NA,
+   objectName = NA,
    arguments = arguments,
    loadTime = 0,
    intervals = c(rep(NA, length(files)-1), 10))
 
-sim2 <- loadFiles(fileList=fileList)
+sim2 <- loadFiles(filelist=filelist)
 end(sim2) <- 20
 sim2 <- spades(sim2)
 }

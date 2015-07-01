@@ -45,6 +45,7 @@ setMethod("checkObject",
                 return(FALSE)
               }
             } else {
+              browser()
               message(paste(deparse(substitute(object, env=simEnv(sim))),
                             "does not exist."))
               return(FALSE)
@@ -59,6 +60,7 @@ setMethod("checkObject",
             if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
               return(invisible(TRUE))
             } else {
+              browser()
               message(paste(deparse(substitute(object, env=simEnv(sim))), "does not exist"))
               return(FALSE)
             }
@@ -85,11 +87,11 @@ setMethod("checkObject",
           definition = function(sim, name, layer, ...) {
             if (exists(name, envir=simEnv(sim))) {
               if(is(sim[[name]],"Raster")) {
-                checkObject(sim=sim, object=sim[[name]], layer=layer, ...)
-              } else {
-                message(paste("The object \"", name, "\" exists, but is not
-                              a Raster, so layer is ignored", sep=""))
-                return(invisible(TRUE))
+                if(!is(sim[[name]][[layer]], "Raster")) {
+                  message(paste("The object \"", name, "\" exists, but is not
+                                a Raster, so layer is ignored", sep=""))
+                  return(invisible(TRUE))
+                }
               }
             } else {
               message(paste(name, "does not exist in", sim))

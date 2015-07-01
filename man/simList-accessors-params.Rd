@@ -14,6 +14,14 @@
 \alias{globals,simList-method}
 \alias{globals<-}
 \alias{globals<-,simList-method}
+\alias{inputArgs}
+\alias{inputArgs,simList-method}
+\alias{inputArgs<-}
+\alias{inputArgs<-,simList-method}
+\alias{inputs}
+\alias{inputs,simList-method}
+\alias{inputs<-}
+\alias{inputs<-,simList-method}
 \alias{outputPath}
 \alias{outputPath,simList-method}
 \alias{outputPath<-}
@@ -30,10 +38,6 @@
 \alias{progressType,simList-method}
 \alias{progressType<-}
 \alias{progressType<-,simList-method}
-\alias{simFileList}
-\alias{simFileList,simList-method}
-\alias{simFileList<-}
-\alias{simFileList<-,simList-method}
 \alias{simList-accessors-params}
 \title{Get and set simulation parameters.}
 \usage{
@@ -61,13 +65,21 @@ checkpointInterval(object) <- value
 
 \S4method{checkpointInterval}{simList}(object) <- value
 
-simFileList(object)
+inputs(object)
 
-\S4method{simFileList}{simList}(object)
+\S4method{inputs}{simList}(object)
 
-simFileList(object) <- value
+inputs(object) <- value
 
-\S4method{simFileList}{simList}(object) <- value
+\S4method{inputs}{simList}(object) <- value
+
+inputArgs(object)
+
+\S4method{inputArgs}{simList}(object)
+
+inputArgs(object) <- value
+
+\S4method{inputArgs}{simList}(object) <- value
 
 progressType(object)
 
@@ -124,8 +136,7 @@ Advanced use
    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-   \code{simFileList} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-   \code{simObjectsLoaded} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
+   \code{inputs} \tab \code{inputs} \tab List of length 2, path and objects, files etc.. (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
