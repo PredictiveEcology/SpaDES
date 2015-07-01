@@ -11,6 +11,8 @@ test_that("timeunit works correctly", {
 
   mySim <- simInit(times, params, modules, objects=list(), path)
 
+  expect_equal(maxTimeunit(sim = mySim), "year")
+
   x1 <- list(
     name="testModule",
     description="this is a test.",
@@ -61,4 +63,27 @@ test_that("timeunit works correctly", {
                  eval(parse(text=paste0("d",x@timeunit,"(1)")))
                }
     )))
+  expect_equal(as.numeric(inSeconds(NA_character_)),0)
+  expect_equal(as.numeric(inSeconds(NULL)), 0)
+
+  exampleTime <- 1:10
+  attributes(exampleTime)$unit <- NA_character_
+  expect_equal(as.numeric(convertTimeunit(exampleTime, "seconds")), 0)
+
+  exampleTime <- 1:10
+  attributes(exampleTime)$unit <- "hour"
+  expect_equal(as.numeric(convertTimeunit(exampleTime)), 1:10*3600)
+
+  mySim <- simInit()
+  expect_equal(maxTimeunit(mySim), NA_character_)
+
+  expect_equal(c("years","months","weeks","days","hours","seconds"),
+                 spadesTimes())
+
+  expect_equal(as.numeric(dNA()), 0)
+  expect_equal(as.numeric(dhour(1)), 60*60)
+  expect_equal(as.numeric(dday(1)), 60*60*24)
+  expect_equal(as.numeric(dweeks(1)), 60*60*24*365.25/52)
+
+  expect_equal(as.numeric(dweek(1)), 60*60*24*365.25/52)
 })

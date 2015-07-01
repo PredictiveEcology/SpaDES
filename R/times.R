@@ -186,8 +186,7 @@ setMethod("inSeconds",
           signature=c("NULL"),
           definition <- function(unit) {
             out <- NA_character_
-            out <- inSeconds(out)
-            return(out)
+            return(inSeconds(out))
 })
 
 ################################################################################
