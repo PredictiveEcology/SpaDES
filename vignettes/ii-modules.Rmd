@@ -172,7 +172,7 @@ require(SpaDES)
 
 outputPath <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=20.0)
-parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
+parameters <- list(.globals=list(stackName="landscape",
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
@@ -183,10 +183,11 @@ parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                                         .plotInitialTime=1.01, .plotInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
-path <- system.file("sampleModules", package="SpaDES")
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
+             outputPath=outputPath)
 
 mySim <- simInit(times=times, params=parameters, modules=modules,
-                 objects=objects, path=path)
+                 objects=objects, paths=paths)
 ```
 
 ### Event types
@@ -318,7 +319,7 @@ mySim <- simInit(
   params=parameters,
   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects=list(),
-  path=system.file("sampleModules", package="SpaDES")
+  paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
   ) %>% spades
 dev.off()
 unlink(ftmp)
@@ -397,9 +398,9 @@ require(SpaDES)
 times <- list(start=0.0, stop=20)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-path <- system.file("sampleModules", package="SpaDES")
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)  # all object dependency relationships
@@ -454,9 +455,9 @@ times <- list(start=0, stop=30)
 parameters <- list(.globals=list(stackName="landscape"),
                    .checkpoint=list(interval=10, file="chkpnt.RData"))
 modules <- list("randomLandscapes", "caribouMovement")
-path <- system.file("sampleModules", package="SpaDES")
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
 
 # retrieve the checkpoint params from the simulation object
 checkpointFile(mySim)
@@ -473,7 +474,7 @@ mySim <- simInit(times=list(start=0.0, stop=100.0),
                  params=list(.globals=list(stackName="landscape"),
                              .progress=list(type="text", interval=10)),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES"))
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
 
 # retrieve the checkpoint params from the simulation object
 progressType(mySim)
@@ -485,7 +486,7 @@ progressInterval(mySim)
 Schedule object save and file load events by passing parameters to the save and load parameters for each module.
 Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
-Loading files can be done be passing a simulation parameter called `inputs$filelist` which can be a `list`, a `data.frame`, or `data.table` and consists minimally of a list element or column named `files` listing the filepaths of the files to be loaded.
+Loading files can be done be passing a simulation parameter called `inputs` which can be a `list`, a `data.frame`, or `data.table` and consists minimally of a list element or column named `files` listing the filepaths of the files to be loaded.
 Additional columns can also be provided:
 
 **Column Name** | **Description**
@@ -527,8 +528,8 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                                              "randomLandscapes"))
                    ),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES"),
-                 inputs=list(filelist=data.table(files=filelist))
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")),
+                 inputs=data.table(files=filelist)
                    
 )
 
@@ -566,7 +567,7 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                    randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
                  ),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES")
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
 )
 
 # retrieve the plotting params from the simulation object

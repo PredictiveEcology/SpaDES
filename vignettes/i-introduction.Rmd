@@ -212,7 +212,7 @@ They can viewed directly by printing the output of the `depsEdgeList` function.
 ## Running a simulation: the `spades` function
 
 Once a simulation is properly initialized it is executed using the `spades` function.
-By default in an interactive session, a progress bar is displayed in the console (this can be customized), and any specified files are loaded (via including a `filelist` data.frame, see examples).
+By default in an interactive session, a progress bar is displayed in the console (this can be customized), and any specified files are loaded (via including an `input` `data.frame` or `data.table`, see examples).
 Debugging mode, *i.e.*, setting `spades(mySim, debug=TRUE)`, prints the contents of the `simList` object after the completion of every event during simulation.
 
 ```{r view-event-sequences, eval=FALSE, echo=TRUE}
