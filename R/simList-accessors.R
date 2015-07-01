@@ -448,8 +448,11 @@ setReplaceMethod("objs",
 #'    Accessor method \tab Module \tab Description \cr
 #'    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
 #'    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+#'    \code{modulePath} \tab \code{NA} \tab Global simulation module path. (advanced)\cr
 #'    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-#'    \code{inputs} \tab \code{inputs} \tab List of length 2, path and objects, files etc.. (advanced)\cr
+#'    \code{inputPath} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
+#'    \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs). (advanced)\cr
+#'    \code{inputs} \tab \code{inputs} \tab Data.table showing objects, files etc.. (advanced)\cr
 #'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
 #'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
@@ -595,7 +598,7 @@ setGeneric("inputs", function(object) {
 setMethod("inputs",
           signature="simList",
           definition=function(object) {
-            return(object@inputs$filelist)
+            return(object@inputs)
 })
 
 #' @export
@@ -613,33 +616,167 @@ setReplaceMethod("inputs",
                  signature="simList",
                  function(object, value) {
 
-                   if(NROW(object@inputs$filelist)==0) {
-                     if (is.list(value)) {
+                   if(length(value)>0) {
+                     if (!is.data.table(value)) {
+                       if(!is.list(value)) {
+                         stop("inputs must be a list, data.frame or data.table")
+                       }
+                       # pull out any "arguments" that will be passed to input functions
                        if(any(stri_detect_fixed(pattern="argument", names(value)))) {
                          inputArgs(object) <- rep(value$arguments, length.out=length(value$files))
                          value <- value[-pmatch("argument", names(value))]
                        }
-                          value <- value %>%
-                           data.frame(stringsAsFactors=FALSE) %>%
-                           data.table
+                       value <- value %>%
+                         data.frame(stringsAsFactors=FALSE) %>%
+                         data.table
                      }
-                     if(is.data.table(value)) {
-                       fileTable <- data.table(file=character(0), fun=character(0),
-                                               package=character(0), objectName=character(0),
-                                               loadTime=numeric(0), loaded=logical(0))
-                       columns <- pmatch(names(fileTable),names(value))
-                       setnames(value,old = colnames(value)[na.omit(columns)], new=colnames(fileTable)[!is.na(columns)])
-                       object@inputs$filelist <- rbindlist(list(fileTable, value), fill=TRUE)
-                     } else {
-                       stop("inputs must be a list, data.frame or data.table")
-                     }
+                     fileTable <- data.table(file=character(0), fun=character(0),
+                                             package=character(0), objectName=character(0),
+                                             loadTime=numeric(0), loaded=logical(0))
+                     columns <- pmatch(names(fileTable),names(value))
+                     setnames(value,old = colnames(value)[na.omit(columns)], new=colnames(fileTable)[!is.na(columns)])
+                     object@inputs <- rbindlist(list(fileTable, value), fill=TRUE)
+
                    } else {
-                     object@inputs$filelist <- value #rbindlist(list(object@inputs$filelist, value), fill=TRUE)
+                     object@inputs <- value
                    }
 
                    validObject(object)
                    return(object)
 })
+
+
+################################################################################
+#' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("inputPath", function(object) {
+  standardGeneric("inputPath")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("inputPath",
+          signature="simList",
+          definition=function(object) {
+            return(object@paths$inputPath)
+          })
+
+#' @export
+#' @rdname simList-accessors-params
+setGeneric("inputPath<-",
+           function(object, value) {
+             standardGeneric("inputPath<-")
+           })
+
+#' @name inputPath<-
+#' @aliases inputPath<-,simList-method
+#' @rdname simList-accessors-params
+#' @export
+setReplaceMethod("inputPath",
+                 signature="simList",
+                 function(object, value) {
+
+                   object@paths$inputPath <- unname(unlist(value))
+
+                   validObject(object)
+                   return(object)
+                 })
+
+
+################################################################################
+#' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("modulePath", function(object) {
+  standardGeneric("modulePath")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("modulePath",
+          signature="simList",
+          definition=function(object) {
+            return(object@paths$modulePath)
+          })
+
+#' @export
+#' @rdname simList-accessors-params
+setGeneric("modulePath<-",
+           function(object, value) {
+             standardGeneric("modulePath<-")
+           })
+
+#' @name modulePath<-
+#' @aliases modulePath<-,simList-method
+#' @rdname simList-accessors-params
+#' @export
+setReplaceMethod("modulePath",
+                 signature="simList",
+                 function(object, value) {
+
+                   object@paths$modulePath <- unname(unlist(value))
+
+                   validObject(object)
+                   return(object)
+                 })
+
+################################################################################
+#' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("paths", function(object) {
+  standardGeneric("paths")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("paths",
+          signature="simList",
+          definition=function(object) {
+            return(object@paths)
+          })
+
+#' @export
+#' @rdname simList-accessors-params
+setGeneric("paths<-",
+           function(object, value) {
+             standardGeneric("paths<-")
+           })
+
+#' @name paths<-
+#' @aliases paths<-,simList-method
+#' @rdname simList-accessors-params
+#' @export
+setReplaceMethod("paths",
+                 signature="simList",
+                 function(object, value) {
+
+                   # get named elements and their position in value list
+                   wh <- pmatch(c("m","i","o"),names(value))
+
+                   # keep named elements, use unnamed in remaining order: module, input, output
+                   if(length(na.omit(wh))<length(value)) {
+                     wh[!(wh[1:length(value)] %in% (1:3)[1:length(value)])] <-
+                       (1:3)[!((1:3)[1:length(value)] %in% wh[1:length(value)])]
+                   }
+
+                   object@paths[!is.na(wh)] <- value[na.omit(wh)]
+                   object@paths[is.na(wh)] <- lapply(object@paths[is.na(wh)], function(x) getwd())
+
+                   names(object@paths) <- c("modulePath", "inputPath", "outputPath")
+                   validObject(object)
+                   return(object)
+                 })
 
 ################################################################################
 #' @inheritParams params
@@ -811,7 +948,7 @@ setGeneric("outputPath", function(object) {
 setMethod("outputPath",
           signature="simList",
           definition=function(object) {
-            return(object@params$.globals$.outputPath)
+            return(object@paths$outputPath)
 })
 
 #' @export
@@ -828,7 +965,7 @@ setGeneric("outputPath<-",
 setReplaceMethod("outputPath",
                  signature="simList",
                  function(object, value) {
-                   object@params$.globals$.outputPath <- value
+                   object@paths$outputPath <- unname(unlist(value))
                    validObject(object)
                    return(object)
 })

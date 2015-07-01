@@ -7,10 +7,14 @@ if (getRversion() >= "3.1.0") {
 #'
 #' Create a new simulation object, preloaded with parameters, modules, times, etc.
 #'
-#' We implement a discrete event simulation in a more modular fashion so it's
+#' We implement a discrete event simulation in a more modular fashion so it is
 #' easier to add submodules to the simulation. We use S4 classes and methods,
 #' and use \code{data.table} instead of \code{data.frame} to implement the event
 #' queue (because it is much faster).
+#'
+#' \code{paths} specifies the location of the module source files,
+#' the data input files, and the saving output files. If no paths are specified,
+#' default is current working directory.
 #'
 #' @param times A named list of numeric simulation start and stop times
 #'        (e.g., \code{times=list(start=0.0, stop=10.0)}).
@@ -21,16 +25,16 @@ if (getRversion() >= "3.1.0") {
 #' of modules to be loaded for the simulation. Note: the module name
 #' should correspond to the R source file from which the module is loaded.
 #' Example: a module named "caribou" will be sourced form the file
-#' \code{caribou.R}, located at the specified \code{path} (see below).
+#' \code{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
 #' @param objects A list of data objects to be used in the simulation.
 #'
-#' @param path  An optional character string specifying the location of the module source files.
-#'              If no path is specified, it defaults to the current working directory.
+#' @param paths  An optional list with up to 3 named elements, \code{modulePath},
+#' \code{inputPath}, and \code{outputPath}. See details.
 #'
-#' @param inputs A list of length 2, named "path" and "filelist".
+#' @param inputs A \code{data.frame} or \code{data.table}. See \code{?simList}.
 #'
-#' @param outputs A list of length 2, named "path" and "filelist".
+#' @param outputs A \code{data.frame} or \code{data.table}. See \code{?simList}.
 #'
 #' @param loadOrder  An optional list of module names specfiying the order in
 #'                   which to load the modules. If not specified, the module
@@ -56,11 +60,11 @@ if (getRversion() >= "3.1.0") {
 #' @examples
 #' \dontrun{
 #'  mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-#'  modules=list("habitat", "caribou"), path="/path/to/my/modules/")
+#'  modules=list("habitat", "caribou"), paths="/path/to/my/modules/")
 #'  mySim
 #' }
 #'
-setGeneric("simInit", function(times, params, modules, objects, path,
+setGeneric("simInit", function(times, params, modules, objects, paths,
                                inputs, outputs, loadOrder) {
     standardGeneric("simInit")
 })
@@ -68,10 +72,10 @@ setGeneric("simInit", function(times, params, modules, objects, path,
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list", objects="list",
-                    path="character", inputs="ANY", outputs="ANY", loadOrder="character"),
-          definition=function(times, params, modules, objects, path, inputs, outputs, loadOrder) {
+                    paths="list", inputs="ANY", outputs="ANY", loadOrder="character"),
+          definition=function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
-            path <- checkPath(path, create=TRUE)
+            paths <- lapply(paths, checkPath, create=TRUE)
 
             # user modules
             modules <- modules[!sapply(modules, is.null)]
@@ -88,10 +92,9 @@ setMethod("simInit",
             # create simList object for the simluation
             sim <- new("simList")
 
+            # set paths
+            paths(sim) <- paths
             # for now, assign only some core & global params
-            if (".outputPath" %in% names(params$.globals)) {
-              params$.globals$.outputPath <- checkPath(params$.globals$.outputPath, TRUE)
-            }
             globals(sim) <- params$.globals
 
             # load core modules
@@ -106,7 +109,7 @@ setMethod("simInit",
 
             # source module metadata and code files
             for (m in modules) {
-              filename <- paste(path, "/", m, "/", m, ".R", sep="")
+              filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
               parsedFile <- parse(filename)
               defineModuleItem <- grepl(pattern="defineModule", parsedFile)
 
@@ -214,9 +217,9 @@ setMethod("simInit",
             }
 
             # load files in the filelist
-            if(!is.null(inputs$filelist)) {
-              inputs(sim) <- inputs$filelist
-            }
+             if(length(inputs)>0) {
+               inputs(sim) <- inputs
+             }
 
             if (NROW(inputs(sim))==0) {
               sim <- loadFiles(sim, usedFileList=TRUE)
@@ -225,11 +228,16 @@ setMethod("simInit",
             }
 
             # check the parameters supplied by the user
-            checkParams(sim, core, dotParams, path) # returns invisible TRUE/FALSE
+            checkParams(sim, core, dotParams, modulePath(sim)) # returns invisible TRUE/FALSE
 
             if(length(objects)>0) {
               changeObjEnv(x=objects, toEnv=envir(sim), fromEnv=.GlobalEnv,
                            rmSrc=getOption("spades.lowMemory"))
+              inputs(sim) <- rbindlist(list(inputs(sim),
+                                            data.table(objectName=unlist(objects),
+                                                       loaded=TRUE,
+                                                       loadTime=time(sim, "seconds"))),
+                                            fill=TRUE)
             }
 
             # keep session info for debugging & checkpointing
@@ -243,10 +251,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="ANY", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, inputs) {
+                    objects="list", paths="list", inputs="ANY", outputs="missing", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=inputs, outputs=list(),
+                           objects=objects, paths=paths, inputs=inputs, outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
 })
@@ -254,10 +262,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="ANY", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, inputs) {
+                    objects="list", paths="list", inputs="ANY", outputs="missing", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=inputs, outputs=list(),
+                           objects=objects, paths=paths, inputs=inputs, outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -265,10 +273,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="ANY", outputs="missing", loadOrder="character"),
+                    objects="list", paths="missing", inputs="ANY", outputs="missing", loadOrder="character"),
           definition=function(times, params, modules, objects, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=inputs, outputs=list(),
+                           objects=objects, paths=list("./"), inputs=inputs, outputs=list(),
                            loadOrder=loadOrder)
             return(invisible(sim))
 })
@@ -276,10 +284,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="ANY", outputs="missing", loadOrder="character"),
-          definition=function(times, params, modules, path, inputs, loadOrder) {
+                    objects="missing", paths="list", inputs="ANY", outputs="missing", loadOrder="character"),
+          definition=function(times, params, modules, paths, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=inputs, outputs=list(),
+                           objects=list(), paths=paths, inputs=inputs, outputs=list(),
                            loadOrder=loadOrder)
             return(invisible(sim))
 })
@@ -287,10 +295,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="ANY", outputs="missing", loadOrder="missing"),
+                    objects="list", paths="missing", inputs="ANY", outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, objects, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=inputs, outputs=list(),
+                           objects=objects, paths=list("./"), inputs=inputs, outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
 })
@@ -298,11 +306,11 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="ANY", outputs="missing",
+                    objects="missing", paths="missing", inputs="ANY", outputs="missing",
                     loadOrder="character"),
           definition=function(times, params, modules, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=inputs, outputs=list(),
+                           objects=list(), paths=list("./"), inputs=inputs, outputs=list(),
                            loadOrder=loadOrder)
             return(invisible(sim))
 })
@@ -310,10 +318,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="ANY", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, path, inputs) {
+                    objects="missing", paths="list", inputs="ANY", outputs="missing", loadOrder="missing"),
+          definition=function(times, params, modules, paths, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=inputs, outputs=list(),
+                           objects=list(), paths=paths, inputs=inputs, outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
 })
@@ -321,10 +329,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="ANY", outputs="missing", loadOrder="missing"),
+                    objects="missing", paths="missing", inputs="ANY", outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=inputs, outputs=list(),
+                           objects=list(), paths=list("./"), inputs=inputs, outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
 })
@@ -333,10 +341,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="missing", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path) {
+                    objects="list", paths="list", inputs="missing", outputs="missing", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=list(), outputs=list(),
+                           objects=objects, paths=paths, inputs=list(), outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -344,10 +352,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="missing", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, inputs) {
+                    objects="list", paths="list", inputs="missing", outputs="missing", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=list(), outputs=list(),
+                           objects=objects, paths=paths, inputs=list(), outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -355,10 +363,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="missing", outputs="missing", loadOrder="character"),
+                    objects="list", paths="missing", inputs="missing", outputs="missing", loadOrder="character"),
           definition=function(times, params, modules, objects, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=list(), outputs=list(),
+                           objects=objects, paths=list("./"), inputs=list(), outputs=list(),
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -366,10 +374,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="missing", outputs="missing", loadOrder="character"),
-          definition=function(times, params, modules, path, inputs, loadOrder) {
+                    objects="missing", paths="list", inputs="missing", outputs="missing", loadOrder="character"),
+          definition=function(times, params, modules, paths, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=list(), outputs=list(),
+                           objects=list(), paths=paths, inputs=list(), outputs=list(),
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -377,10 +385,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="missing", outputs="missing", loadOrder="missing"),
+                    objects="list", paths="missing", inputs="missing", outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, objects, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=list(), outputs=list(),
+                           objects=objects, paths=list("./"), inputs=list(), outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -388,11 +396,11 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="missing", outputs="missing",
+                    objects="missing", paths="missing", inputs="missing", outputs="missing",
                     loadOrder="character"),
           definition=function(times, params, modules, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=list(), outputs=list(),
+                           objects=list(), paths=list("./"), inputs=list(), outputs=list(),
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -400,10 +408,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="missing", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, path, inputs) {
+                    objects="missing", paths="list", inputs="missing", outputs="missing", loadOrder="missing"),
+          definition=function(times, params, modules, paths, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=list(), outputs=list(),
+                           objects=list(), paths=paths, inputs=list(), outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -411,10 +419,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="missing", outputs="missing", loadOrder="missing"),
+                    objects="missing", paths="missing", inputs="missing", outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=list(), outputs=list(),
+                           objects=list(), paths=list("./"), inputs=list(), outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -425,10 +433,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="missing", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, outputs) {
+                    objects="list", paths="list", inputs="missing", outputs="ANY", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=list(), outputs=outputs,
+                           objects=objects, paths=paths, inputs=list(), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -436,10 +444,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="missing", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, outputs) {
+                    objects="list", paths="list", inputs="missing", outputs="ANY", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=list(), outputs=outputs,
+                           objects=objects, paths=paths, inputs=list(), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -447,10 +455,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="missing", outputs="ANY", loadOrder="character"),
+                    objects="list", paths="missing", inputs="missing", outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, objects, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=list(), outputs=outputs,
+                           objects=objects, paths=list("./"), inputs=list(), outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -458,10 +466,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="missing", outputs="ANY", loadOrder="character"),
-          definition=function(times, params, modules, path, outputs, loadOrder) {
+                    objects="missing", paths="list", inputs="missing", outputs="ANY", loadOrder="character"),
+          definition=function(times, params, modules, paths, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=list(), outputs=outputs,
+                           objects=list(), paths=paths, inputs=list(), outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -469,10 +477,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="missing", outputs="ANY", loadOrder="missing"),
+                    objects="list", paths="missing", inputs="missing", outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, objects, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=list(), outputs=outputs,
+                           objects=objects, paths=list("./"), inputs=list(), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -480,11 +488,11 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="missing", outputs="ANY",
+                    objects="missing", paths="missing", inputs="missing", outputs="ANY",
                     loadOrder="character"),
           definition=function(times, params, modules, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=list(), outputs=outputs,
+                           objects=list(), paths=list("./"), inputs=list(), outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -492,10 +500,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="missing", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, path, outputs) {
+                    objects="missing", paths="list", inputs="missing", outputs="ANY", loadOrder="missing"),
+          definition=function(times, params, modules, paths, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=list(), outputs=outputs,
+                           objects=list(), paths=paths, inputs=list(), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -503,10 +511,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="missing", outputs="ANY", loadOrder="missing"),
+                    objects="missing", paths="missing", inputs="missing", outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=list(), outputs=outputs,
+                           objects=list(), paths=list("./"), inputs=list(), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -515,10 +523,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="ANY", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, inputs, outputs) {
+                    objects="list", paths="list", inputs="ANY", outputs="ANY", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=inputs, outputs=outputs,
+                           objects=objects, paths=paths, inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -526,10 +534,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="character", inputs="ANY", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, objects, path, inputs, outputs) {
+                    objects="list", paths="list", inputs="ANY", outputs="ANY", loadOrder="missing"),
+          definition=function(times, params, modules, objects, paths, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path=path, inputs=inputs, outputs=outputs,
+                           objects=objects, paths=paths, inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -537,10 +545,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="ANY", outputs="ANY", loadOrder="character"),
+                    objects="list", paths="missing", inputs="ANY", outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, objects, inputs, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=inputs, outputs=outputs,
+                           objects=objects, paths=list("./"), inputs=inputs, outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -548,10 +556,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="ANY", outputs="ANY", loadOrder="character"),
-          definition=function(times, params, modules, path, inputs, outputs, loadOrder) {
+                    objects="missing", paths="list", inputs="ANY", outputs="ANY", loadOrder="character"),
+          definition=function(times, params, modules, paths, inputs, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=inputs, outputs=outputs,
+                           objects=list(), paths=paths, inputs=inputs, outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -559,10 +567,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", path="missing", inputs="ANY", outputs="ANY", loadOrder="missing"),
+                    objects="list", paths="missing", inputs="ANY", outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, objects, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, path="./", inputs=inputs, outputs=outputs,
+                           objects=objects, paths=list("./"), inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -570,11 +578,11 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="ANY", outputs="ANY",
+                    objects="missing", paths="missing", inputs="ANY", outputs="ANY",
                     loadOrder="character"),
           definition=function(times, params, modules, inputs, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=inputs, outputs=outputs,
+                           objects=list(), paths=list("./"), inputs=inputs, outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
           })
@@ -582,10 +590,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="character", inputs="ANY", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, path, inputs, outputs) {
+                    objects="missing", paths="list", inputs="ANY", outputs="ANY", loadOrder="missing"),
+          definition=function(times, params, modules, paths, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path=path, inputs=inputs, outputs=outputs,
+                           objects=list(), paths=paths, inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -593,10 +601,10 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="missing", path="missing", inputs="ANY", outputs="ANY", loadOrder="missing"),
+                    objects="missing", paths="missing", inputs="ANY", outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), path="./", inputs=inputs, outputs=outputs,
+                           objects=list(), paths=list("./"), inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
           })
@@ -608,12 +616,12 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="missing", params="missing", modules="missing",
-                    objects="missing", path="missing", inputs="missing", outputs="missing", loadOrder="missing"),
+                    objects="missing", paths="missing", inputs="missing", outputs="missing", loadOrder="missing"),
           definition=function(inputs, outputs) {
             sim <- simInit(times=list(start=0, stop=1),
                            params=list(),
                            modules=list(),
-                           objects=list(), path="./", inputs=list(), outputs=list(),
+                           objects=list(), paths=list("./"), inputs=list(), outputs=list(),
                            loadOrder=character())
             return(invisible(sim))
 })
@@ -895,7 +903,7 @@ setMethod("timestepInSeconds",
 #' @examples
 #' \dontrun{
 #' mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-#'                  modules=list("habitat", "caribou"), path="/path/to/my/modules/)
+#'                  modules=list("habitat", "caribou"), paths="/path/to/my/modules/)
 #' spades{mySim}
 #' }
 #'

@@ -1138,7 +1138,6 @@ setMethod(
 #'    data.frame(files =
 #'      dir(file.path(
 #'                    find.package("SpaDES",
-#'                                 lib.loc=getOption("devtools.path"),
 #'                                 quiet=FALSE),
 #'                   "maps"),
 #'         full.names=TRUE, pattern= "tif"),
@@ -1147,10 +1146,11 @@ setMethod(
 #'      stringsAsFactors=FALSE)
 #'
 #' # Load files to memory (using rasterToMemory)
-#' loadFiles(filelist=filelist)
+#' mySim <- loadFiles(filelist=filelist)
 #'
 #' # put layers into a single stack for convenience
-#' landscape <- stack(DEM, forestCover, forestAge, habitatQuality, percentPine)
+#' landscape <- stack(mySim$DEM, mySim$forestCover, mySim$forestAge,
+#'    mySim$habitatQuality, mySim$percentPine)
 #'
 #' # can change color palette
 #' setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
@@ -1190,7 +1190,7 @@ setMethod(
 #'
 #' # Can add two maps with same name, if one is in a stack; they are given
 #' #  unique names based on object name
-#' Plot(landscape, caribou, DEM)
+#' Plot(landscape, caribou, mySim$DEM)
 #'
 #' # can mix stacks, rasters, SpatialPoint*
 #' Plot(landscape, habitatQuality2, caribou)

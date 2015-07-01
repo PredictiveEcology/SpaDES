@@ -38,13 +38,16 @@
 #' @slot simtimes   List of numerical values describing the simulation start
 #'                  and stop times; as well as the current simulation time.
 #'
-#' @slot inputs   List of length 2, with elements, a character string named \code{path}
-#' and a data.table named \code{filelist} indicating where to get all file based inputs and
+#' @slot inputs   The list of files and objects that are inputs to the \code{simList},
+#' as a \code{data.frame} or \code{data.table} indicating where to get all file based inputs and
 #' details about all inputs (derived from file, database or R object), respectively.
 #'
-#' @slot outputs   List of length 2, with elements, a character string named \code{path}
-#' and a data.table named \code{filelist} indicating where to put all save outputs and
+#' @slot outputs   The list of files and objects that are inputs to the \code{simList},
+#' as a \code{data.frame} or \code{data.table} indicating where to put all save outputs and
 #' details about saving, respectively.
+#'
+#' @slot paths   Named list of \code{modulePath}, \code{inputPath}, and \code{outputPath} paths. Partial
+#' matching is performed.
 #'
 #' @section Accessor Methods:
 #'
@@ -75,21 +78,25 @@
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
-#' @author Alex Chubaty
+#' @author Alex Chubaty and Eliot McIntire
 #'
 setClass(".simList",
          slots=list(modules="list", params="list",
                     events="data.table", completed="data.table",
                     depends=".simDeps", simtimes="list",
-                    inputs="list", outputs="list"),
+                    inputs="data.frame", outputs="data.frame",
+                    paths="list"),
          prototype=list(modules=as.list(NULL),
                         params=list(.checkpoint=list(interval=NA_real_, file=NULL),
                                     .progress=list(type=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
                         simtimes=list(current=0.00, start=0.00, stop=1.00, timeunit=NA_character_),
-                        inputs=list(path=getwd(), filelist=as.data.table(NULL)),
-                        outputs=list(path=getwd(), filelist=as.data.table(NULL))),
+                        inputs=data.table(file=character(0), fun=character(0),
+                                          package=character(0), objectName=character(0),
+                                          loadTime=numeric(0), loaded=logical(0)),
+                        outputs=as.data.table(NULL),
+                        paths=list(modulePath="./", inputPath="./", outputPath="./")),
          validity=function(object) {
            # check for valid sim times
            if (is.na(object@simtimes$stop)) {

@@ -90,11 +90,11 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
 #'
 #' times <- list(start=0, stop=3)
-#' parameters <- list(.globals=list(stackName="landscape"),
-#'                    .load=list(filelist=filelist))
+#' parameters <- list(.globals=list(stackName="landscape"))
 #' modules <- list("randomLandscapes", "caribouMovement")
-#' path <- system.file("sampleModules", package="SpaDES")
-#' mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+#' paths <- list(moduleName=system.file("sampleModules", package="SpaDES"))
+#' mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths,
+#' inputs=filelist)
 #' ls(mySim)
 #'
 #' sim1 <- loadFiles(filelist=filelist)
@@ -134,6 +134,8 @@ setMethod(
 
     # Pull .fileExtensions() into function so that scoping is faster
     .fileExts = .fileExtensions()
+    usedIntervals <- FALSE # This is for a speed reason later on.
+                           #Whether or not intervals for loading files are defined
 
     if(NROW(inputs(sim))!=0) {
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
@@ -212,6 +214,7 @@ setMethod(
           loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
         }
         # load files
+
         for (x in 1:length(fl)) {
           y <- which(cur)[x]
           nam = names(arguments[y])
@@ -253,7 +256,7 @@ setMethod(
               .[,`:=`(loadTime=curTime+intervals, loaded=NA, intervals=NA)] %>%
               list(filelistDT, .) %>%
               rbindlist
-
+            usedIntervals <- TRUE
           }
         }
 
@@ -263,23 +266,23 @@ setMethod(
 
       } # if there are no files to load at curTime, then nothing
 
-      if(!exists("usedFileList")) usedFileList <- FALSE
+#      if(!exists("usedFileList")) usedFileList <- FALSE
 
       # If filename had been provided, then no need to return sim object,
       #   just report files loaded
-      if (!usedFileList) {
+ #     if (!usedFileList) {
         if(is(filelist, "list")) {
           inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
-        } else if (is(filelist, "data.table")) {
-          inputs(sim) <- filelistDT
-        } else {
-          stop("filelist must be either a list or data.frame")
-        }
+        } else if (usedIntervals) {
+          inputs(sim) <- filelistDT # this is required if intervals is used
+        } #else {
+          #stop("filelist must be either a list or data.frame")
+        #}
 
         if(any(is.na(filelistDT[,loaded]))) {
           sim <- scheduleEvent(sim, filelistDT[is.na(loaded),min(loadTime,na.rm=TRUE)], "load", "later")
         }
-      }
+  #    }
     }
     message("") ## print empty message to add linebreak to console message output
     return(invisible(sim))
@@ -292,8 +295,8 @@ setMethod("loadFiles",
 
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(),
-                           inputs=list(filelist=filelist),
-                           modules=list(), path=".")
+                           inputs=filelist,
+                           modules=list(), paths=list("./"))
             return(invisible(sim))
 })
 
