@@ -1,4 +1,5 @@
 test_that("mapReduced file does not work correctly", {
+
   Ras <- raster(extent(0,15,0,15), res=1)
   fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
   names(fullRas) <- "mapcodeAll"

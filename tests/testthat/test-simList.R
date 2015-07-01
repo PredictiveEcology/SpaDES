@@ -80,6 +80,7 @@ test_that("simList object initializes correctly", {
   progressInterval(mySim) <- 10
   expect_identical(progressInterval(mySim), 10)
 
+
   # load
   expect_identical(inputs(mySim), data.table(file=character(0), fun=character(0),
                                              package=character(0), objectName=character(0),
