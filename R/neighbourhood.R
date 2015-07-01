@@ -67,6 +67,8 @@ if(getRversion() >= "3.1.0") {
 #' numCol <- ncol(a)
 #' numCell <- ncell(a)
 #' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
+#' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
+#'   include=TRUE)
 #' print(head(adj.new))
 adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
                 numCol=NULL,numCell=NULL,match.adjacent=FALSE,cutoff.for.data.table = 1e4){
@@ -173,7 +175,6 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
         ,2,drop=FALSE])
     }
   } else {
-
 
     #### THIS IS FOR SITUATIONS WHERE length(cells) is > 1e4; using data.table
     if (is.null(numCol) | is.null(numCell)) {
@@ -290,16 +291,33 @@ adj <- cmpfun(adj.raw)
 #'
 #' @param raster    Raster on which the circles are built.
 #'
-#' @return A list of data.frames with x and y coordinates of each
+#' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
+#' that some x, y combinations will disappear
+#'
+#' @return A \code(data.table) with 5 columns, \code{ids}, \code{pixelIDs},
+#' \code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
+#' coordinates of each
 #' unique pixel of the circle around each individual.
 #'
 #' @import data.table sp raster
 #' @export
 #' @rdname cir
 #'
-# @examples
-#  NEED EXAMPLES
-cir <- function(spatialPoints, radii, raster) {
+#'@examples
+#' Ras <- raster(extent(0,15,0,15), res=1)
+#' Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
+#' N <- 2
+#' caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
+#'                                       y=runif(N,xmin(Ras),xmax(Ras))))
+#' cirs <- cir(caribou, rep(3,length(caribou)), fullRas, simplify=TRUE)
+#' cirsSP <- SpatialPoints(coords=cirs[,list(x,y)])
+#' cirsRas <- raster(Ras)
+#' cirsRas[cirs[,pixIDs]] <- 1
+#' Plot(Ras, new=TRUE)
+#' Plot(cirsRas, addTo="Ras", cols="#13006333")
+#' Plot(caribou, addTo="Ras")
+#' Plot(cirsSP, addTo="Ras")
+cir <- function(spatialPoints, radii, raster, simplify=TRUE) {
   scaleRaster <- res(raster)
 
   # create an index sequence for the number of individuals
@@ -330,29 +348,30 @@ cir <- function(spatialPoints, radii, raster) {
   # repeat this angle increment the number of times it needs to be done to complete the circles
   angs <- rep.int(angle.inc, times=n.angles)
 
-  ### Eliot' added's code:
   DT = data.table(ids, angs, xs, ys, rads)
   DT[, "angles":=cumsum(angs), by="ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
   DT[, "x":=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
   DT[, "y":=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
 
+  set(DT,,j = "rads",NULL)
+  set(DT,,j = "angles",NULL)
+  set(DT,,j = "angs",NULL)
+  set(DT,,j = "xs",NULL)
+  set(DT,,j = "ys",NULL)
   # put the coordinates of the points on the circles from all individuals in the same matrix
-  coords.all.ind <- DT[, list(x,y,ids)]
+  #coords.all.ind <- DT[, list(x,y,ids)]
 
   # extract the pixel IDs under the points
-  coords.all.ind[, "pixIDs":=cellFromXY(raster,coords.all.ind)]
+  DT[, pixIDs:=cellFromXY(raster,DT[,list(x,y)])]
+  DT[, rasterVal:=extract(raster,pixIDs)]
 
-  # use only the unique pixels
-  coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by="ids"]
-  coords.all.ind.unq = na.omit(coords.all.ind.unq)
-  coords.all.ind.unq[, "pixIDs.unq":=extract(raster,pixIDs)] # where is `pixIDs.unq` used???
-
-  # extract the coordinates for the pixel IDs
-  pixels = xyFromCell(raster, coords.all.ind.unq$pixIDs)
-  pixelsIndIdsMerged = cbind(coords.all.ind.unq, pixels)
+  if(simplify){
+    setkey(DT, "pixIDs")
+    DT <- unique(DT)
+  }
 
   # list of df with x and y coordinates of each unique pixel of the circle of each individual
-  return(pixelsIndIdsMerged)
+  return(DT)
 }
 
 
