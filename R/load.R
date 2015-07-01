@@ -1,5 +1,6 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("loadTime", "objectName", "package"))
+  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "loaded",
+                           "loadTime", "objectName", "package"))
 }
 
 # extract filename (without extension) of a file
