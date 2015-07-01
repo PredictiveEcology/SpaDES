@@ -170,7 +170,6 @@ setMethod(
 #         filelistDT[,package:=NA]
 #       }
 
-browser()
       #  assume loadTime = start(sim) if missing
       if(any(is.na(filelistDT[,loadTime]))) {
         filelistDT[is.na(loadTime),loadTime:=start(sim, "second")]

@@ -48,14 +48,14 @@ Then we load that list of files.
 #  Make list of maps from package database to load, and what functions to use to load them
 require(magrittr)
 require(SpaDES)
-fileList <- find.package("SpaDES", quiet=FALSE) %>%
+filelist <- find.package("SpaDES", quiet=FALSE) %>%
   file.path(., "maps") %>%
   dir(., full.names=TRUE, pattern= "tif") %>%
   data.table(files=., functions="rasterToMemory", package="SpaDES") %>%
   .[-c(2,5),] # omit forestAge and percentPine for simplicity
 
 # Load files to memory (using rasterToMemory), assign to a simList we call mySim 
-mySim <- loadFiles(fileList=fileList)
+mySim <- loadFiles(filelist=filelist)
 # put into a single stack object in the simulation environment for ease of use below
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```

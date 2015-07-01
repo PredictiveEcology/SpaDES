@@ -71,7 +71,7 @@ test_that("loading inputs does not work correctly", {
   expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim2)))
   expect_true(!any(c("habitatQuality") %in% ls(sim2)))
 
-  rm(forestAge, envir=simEnv(sim2))
+  rm(forestAge, envir=envir(sim2))
   expect_true(!("forestAge" %in% ls(sim2)))
 
   end(sim2) <- 2

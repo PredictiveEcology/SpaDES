@@ -446,6 +446,7 @@ definition = function(name, path, version) {
   on.exit(setwd(callingWd))
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
+  print(paste("Zipping module into zip file"))
   zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
   file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)

@@ -427,8 +427,6 @@ These core modules are summarized in the following table and described further b
 **`.checkpoint`** | `file`: character.                     | `checkpointFile()`
 &nbsp;            | `interval`: numeric (or `NA`).         | `checkpointInterval()`
 &nbsp;            | &nbsp;                                 | &nbsp;
-**`.load`**       | `fileList`: character.                 | `simFileList()`
-&nbsp;            | &nbsp;                                 | &nbsp;
 **`.plot`**       | `.plotInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
 &nbsp;            | `.plotInterval`: numeric (or `NA`)     | as list item in your module parameters.
 &nbsp;            | &nbsp;                                 | &nbsp;
@@ -487,7 +485,7 @@ progressInterval(mySim)
 Schedule object save and file load events by passing parameters to the save and load parameters for each module.
 Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
-Loading files can be done be passing a simulation parameter called `.load$fileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded.
+Loading files can be done be passing a simulation parameter called `inputs$filelist` which can be a `list`, a `data.frame`, or `data.table` and consists minimally of a list element or column named `files` listing the filepaths of the files to be loaded.
 Additional columns can also be provided:
 
 **Column Name** | **Description**
@@ -522,7 +520,6 @@ filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.nam
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),
-                   .load=list(fileList=data.table(files=filelist)),
                    randomLandscapes=list(.saveInitialTime=0,
                                          .saveInterval=10,
                                          .saveObjects=c("landscape"),
@@ -530,12 +527,13 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                                                              "randomLandscapes"))
                    ),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES")
+                 path=system.file("sampleModules", package="SpaDES"),
+                 inputs=list(filelist=data.table(files=filelist))
+                   
 )
 
 # retrieve the load and save params from the simulation object
-inputs(mySim)   # shows what's been loaded
-simFileList(mySim)        # returns empty if objects successfully loaded
+inputs(mySim)   # shows all files and objects that are "inputs" for a simInit and spades call
 
 params(mySim)$randomLandscapes$.saveInitialTime
 params(mySim)$randomLandscapes$.saveInterval

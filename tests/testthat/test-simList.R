@@ -15,7 +15,7 @@ test_that("simList object initializes correctly", {
   w <- getOption("width")
   options(width=100L)
   out <- capture.output(show(mySim))
-  expect_equal(length(out), 79)
+  expect_equal(length(out), 78)
   options(width=w); rm(w)
 
   ### SLOT .envir
@@ -82,9 +82,8 @@ test_that("simList object initializes correctly", {
   expect_identical(progressInterval(mySim), 10)
 
   # load
-  expect_identical(inputs(mySim), list())
-  inputs(mySim) <- "something"
-  expect_equal(inputs(mySim), "something")
+  expect_identical(inputs(mySim), data.table())
+  expect_error(inputs(mySim) <- "something", "inputs must be a list")
 
   # need tests for inputs
 
