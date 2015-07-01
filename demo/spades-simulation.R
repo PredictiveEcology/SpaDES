@@ -21,7 +21,6 @@ stackName = "landscape"
 mySim <- simInit(
   times=list(start=0.0, stop=100.00),
   params=list(
-    .load=list(filelist=filelist),
     .progress=list(type="text", interval = 10),
     .globals=list(stackName=stackName, burnStats="nPixelsBurned"),
     randomLandscapes = list(nx=1e2, ny=1e2, .saveObjects=stackName,
@@ -37,9 +36,10 @@ mySim <- simInit(
     ),
   #modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
   modules=list("fireSpread", "caribouMovement"),
-  path=system.file("sampleModules", package="SpaDES")
+  inputs=filelist,
+  paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
 )
 
-landscape <- stack(DEM, forestAge, habitatQuality, percentPine)
+mySim$landscape <- stack(mySim$DEM, mySim$forestAge, mySim$habitatQuality, mySim$percentPine)
 if (interactive()) { dev() };
 mySim <- spades(mySim, debug=TRUE)
