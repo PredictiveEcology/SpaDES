@@ -33,20 +33,22 @@ if (getRversion() >= "3.1.0") {
 #' @include environment.R
 #' @author Eliot McIntire
 #' @examples
-#' Ras <- raster(extent(0,100,0,100), res=1)
+#' Ras <- raster(extent(0,15,0,15), res=1)
 #' fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
 #' names(fullRas) <- "mapcodeAll"
 #' uniqueComms <- unique(fullRas)
 #' reducedDT <- data.table(mapcodeAll=uniqueComms,
 #'    communities=sample(1:1000,length(uniqueComms)),
-#'    biomass=rnbinom(length(uniqueComms),mu=4000,0.4),
-#'    ANPP=rpois(length(uniqueComms), 200))
+#'    biomass=rnbinom(length(uniqueComms),mu=4000,0.4))
 #' biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
+#'
+#' # The default key is the layer name of the fullRas, so even
+#' # if the reducedDT is miskeyed
+#' setkey(reducedDT, biomass)
+#'
 #' communities <- rasterizeReduced(reducedDT, fullRas, "communities")
-#' ANPP <- rasterizeReduced(reducedDT, fullRas, "ANPP")
 #' setColors(communities) <- c("blue","orange","red")
-#' setColors(ANPP) <- c("light green", "dark green")
-#' Plot(biomass, communities, ANPP, fullRas, new=TRUE)
+#' Plot(biomass, communities, fullRas, new=TRUE)
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
   reduced <- data.table(reduced)
   if(!is.null(key(reduced))){
@@ -59,13 +61,13 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
   fullRasterVals <- data.table(getValues(fullRaster))# %>% data.frame
   setnames(fullRasterVals,1,new=mapcode)
   fullRasterVals <- fullRasterVals[, row_number:=1L:.N] # %>% mutate(row_number=1L:nrow(.)) %>% data.table
-  if(!is.null(key(fullRasterVals))){
-    if(key(fullRasterVals)!=mapcode) {
-      setkeyv(fullRasterVals, mapcode)
-    }
-  } else {
+#   if(!is.null(key(fullRasterVals))){
+#     if(key(fullRasterVals)!=mapcode) {
+#       setkeyv(fullRasterVals, mapcode)
+#     }
+#   } else {
     setkeyv(fullRasterVals, mapcode)
-  }
+#  }
 
   BsumVec <- reduced[fullRasterVals]
   BsumVec[is.na(get(plotCol)), c(plotCol):=NA]
