@@ -309,7 +309,7 @@ adj <- cmpfun(adj.raw)
 #' N <- 2
 #' caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
 #'                                       y=runif(N,xmin(Ras),xmax(Ras))))
-#' cirs <- cir(caribou, rep(3,length(caribou)), fullRas, simplify=TRUE)
+#' cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
 #' cirsSP <- SpatialPoints(coords=cirs[,list(x,y)])
 #' cirsRas <- raster(Ras)
 #' cirsRas[cirs[,pixIDs]] <- 1

@@ -72,6 +72,8 @@ sam = sample(1:length(a),1e4)
 numCol <- ncol(a)
 numCell <- ncell(a)
 adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
+adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
+  include=TRUE)
 print(head(adj.new))
 }
 \author{
