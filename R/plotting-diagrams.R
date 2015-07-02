@@ -162,6 +162,9 @@ setMethod("eventDiagram",
             }
             ll <- .sim2gantt(sim, n, startDate, width)
 
+            #remove progress bar events
+            ll <- ll[names(ll)!="progress"]
+
             mermaid(...,
               paste0(
                 # mermaid "header"
