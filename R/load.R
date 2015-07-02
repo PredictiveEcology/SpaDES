@@ -107,14 +107,15 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-#'      full.names=TRUE, pattern= "tif")
+#'             full.names=TRUE, pattern= "tif")
 #' fileList = data.table(
 #'    files = files,
 #'    functions="raster::raster",
 #'    objectNames = NA,
 #'    arguments = arguments,
 #'    loadTime = 0,
-#'    intervals = c(rep(NA, length(files)-1), 10))
+#'    intervals = c(rep(NA, length(files)-1), 10)
+#' )
 #'
 #' sim2 <- loadFiles(fileList=fileList)
 #' simStopTime(sim2) <- 20

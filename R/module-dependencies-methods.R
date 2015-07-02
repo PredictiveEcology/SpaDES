@@ -71,7 +71,7 @@ setMethod("depsEdgeList",
               dt <- dx[,list(from=module, to=i.module,
                              objName=objectName, objClass=i.objectClass)]
 
-              if (plot) dt <- dt[!duplicated(dt[,1:2,with=FALSE]),]
+              if (plot) dt <- dt[!duplicated(dt[, 1:2, with=FALSE]),]
             } else {
               dt <- data.table(from=character(), to=character(),
                                objName=character(), objClass=character())

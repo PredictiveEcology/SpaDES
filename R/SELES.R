@@ -111,9 +111,10 @@ numAgents <- function(N, probInit) {
 #'    rename(Present=Freq, Avail=Freq.1, Type=Var2)
 #' print(out)
 #'
+#' detach(package:dplyr)
 setGeneric("initiateAgents",
-          function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
-            standardGeneric("initiateAgents")
+           function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
+             standardGeneric("initiateAgents")
 })
 
 #' @rdname initiateAgents
@@ -230,7 +231,7 @@ agentLocation <- function(map) {
 #' If \code{absolute} is provided, it will override the previous statements, unless \code{absolute}
 #' is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 #'
-#' @import raster
+#' @importFrom raster cellStats extent setValues
 #' @import sp
 #' @include agent.R
 #' @export

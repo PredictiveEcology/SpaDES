@@ -71,6 +71,8 @@ out <- data.frame(na.omit(crosstab(agentsRas, map)), table(round(map[]))) \%>\%
    select(-Var1, -Var1.1) \%>\%
    rename(Present=Freq, Avail=Freq.1, Type=Var2)
 print(out)
+
+detach(package:dplyr)
 }
 \author{
 Eliot McIntire
