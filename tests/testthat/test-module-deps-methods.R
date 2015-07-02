@@ -97,7 +97,7 @@ test_that("defineModule correctly handles different inputs", {
 })
 
 
-test_that("depsEdgeList and depsGraph work", {
+test_that("depsEdgeList and depsGraph do not work", {
   times <- list(start=0.0, stop=10)
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"),
                  randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),
@@ -106,7 +106,7 @@ test_that("depsEdgeList and depsGraph work", {
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects=list(), paths)
+  mySim <- simInit(times, params, modules, paths=paths)
 
   # depsEdgeList
   el <- depsEdgeList(mySim)

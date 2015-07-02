@@ -177,7 +177,8 @@ setMethod(".depsPruneEdges",
                                                from=rownames(M)[row],
                                                to=colnames(M)[col])$vpath[[1]]
                     pth1 <- data.frame(from=rownames(M)[pth1],
-                                       to=rownames(M)[lead(pth1, 1)],
+                                       #to=rownames(M)[lead(pth1, 1)],
+                                       to=rownames(M)[lead(match(names(pth1),rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
@@ -185,7 +186,8 @@ setMethod(".depsPruneEdges",
                                                from=colnames(M)[col],
                                                to=rownames(M)[row])$vpath[[1]]
                     pth2 <- data.frame(from=rownames(M)[pth2],
-                                       to=rownames(M)[lead(pth2, 1)],
+                                       #to=rownames(M)[lead(pth2, 1)],
+                                       to=rownames(M)[lead(match(names(pth2),rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
