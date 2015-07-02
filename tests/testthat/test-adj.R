@@ -1,4 +1,4 @@
-test_that("adj results identical to adjacent", {
+test_that("adj.R results not identical to adjacent", {
   a <- raster::raster(raster::extent(0, 1e3, 0, 1e3), res=1)
 
   # smaller sample (should use matrix)
@@ -189,7 +189,7 @@ test_that("adj results identical to adjacent", {
   N <- 2
   caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
                                         y=runif(N,xmin(Ras),xmax(Ras))))
-  cirs <- cir(caribou, rep(3,length(caribou)), fullRas, simplify=TRUE)
+  cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
   expect_is(cirs, "data.table")
 #   expect_equal(sum(adj(a, s, directions=4) - adjacent(a, s, directions=4)), 0)
 #   expect_equal(sum(adj(a, s, directions=8) - adjacent(a, s, directions=8)), 0)
