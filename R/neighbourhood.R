@@ -276,7 +276,7 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 #' @docType methods
 #' @export
 #' @rdname adj
-adj <- cmpfun(adj.raw)
+adj <- compiler::cmpfun(adj.raw)
 
 ##############################################################
 #' Identify pixels in a circle around a SpatialPoints* object.
