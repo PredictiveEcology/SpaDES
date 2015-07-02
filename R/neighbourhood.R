@@ -294,7 +294,7 @@ adj <- cmpfun(adj.raw)
 #' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
 #' that some x, y combinations will disappear
 #'
-#' @return A \code(data.table) with 5 columns, \code{ids}, \code{pixelIDs},
+#' @return A \code{data.table} with 5 columns, \code{ids}, \code{pixelIDs},
 #' \code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
 #' coordinates of each
 #' unique pixel of the circle around each individual.
