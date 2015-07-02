@@ -17,7 +17,7 @@ cir(spatialPoints, radii, raster, simplify = TRUE)
 that some x, y combinations will disappear}
 }
 \value{
-A \code(data.table) with 5 columns, \code{ids}, \code{pixelIDs},
+A \code{data.table} with 5 columns, \code{ids}, \code{pixelIDs},
 \code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
 coordinates of each
 unique pixel of the circle around each individual.
