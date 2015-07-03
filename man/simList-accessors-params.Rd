@@ -194,6 +194,9 @@ Advanced use
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
+
+\code{outputs} accepts a data.frame or data.table, with 6 columns. Currently, only one is required.
+Columns are \code{file}, \code{fun},
 }
 \seealso{
 \code{\link{simList-class}},
