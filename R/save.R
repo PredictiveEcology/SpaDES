@@ -74,12 +74,10 @@ saveFiles = function(sim) {
   # extract the current module name that called this function
   moduleName <- events(sim)[1L,moduleName]
   if(moduleName!="save") { # i.e., .a module driven save event
-#     txtTime = paste0(attr(time(sim, timeunit(sim)),"unit"),
-#                      paddedFloatToChar(time(sim, timeunit(sim)), ceiling(log10(end(sim, timeunit(sim))+1))))
 
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
       data.table(objectName=., saveTime=curTime,
-                 file=paste0(.,".rds"))
+                 file=.)
     outputs(sim) <- rbindlist(list(outputs(sim), toSave), fill = TRUE)
 
     # don't need to save exactly same thing more than once
@@ -97,12 +95,11 @@ saveFiles = function(sim) {
                      outputArgs(sim)[[i]])
         args <- args[!sapply(args, is.null)]
 
-        #get(outputs(sim)[i,fun])(get(outputs(sim)[i,objectName], envir=envir(sim)),
-        #                     file=outputs(sim)[i,file])
+        # The actual save line
         do.call(outputs(sim)[i,fun], args = args)
+
         outputs(sim)[i,saved:=TRUE]
       } else {
-        browser()
         warning(paste(outputs(sim)[i,objectName], "is not an object in the simList. Cannot save."))
         outputs(sim)[i,saved:=FALSE]
       }
@@ -118,4 +115,23 @@ saveFiles = function(sim) {
 
   return(invisible(sim))
 
+}
+
+#' File extensions map
+#'
+#' How to load various types of files in R.
+#'
+#' @export
+#' @importFrom raster writeFormats
+#' @rdname loadFiles
+.saveFileExtensions = function() {
+  .sFE <- data.table(matrix(ncol=3, byrow=TRUE,c(
+    "rds", "saveRDS", "base" ,
+    "txt", "write.table", "utils" ,
+    "csv", "write.csv", "utils" ,
+    "", "writeRaster", "raster"
+  )))
+  setnames(.sFE, new = c("exts", "fun", "package"), old=paste0("V",1:3))
+  setkey(.sFE, package, fun)
+  return(.sFE)
 }
