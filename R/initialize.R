@@ -32,13 +32,14 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RMexp
 #' @importFrom RandomFields round
-#' @importFrom raster disaggregate extent 'extent<-' raster res cellStats
+#' @importFrom raster cellStats disaggregate extent 'extent<-' raster res
 #' @export
 #' @docType methods
 #' @rdname gaussmap
 #'
 #' @examples
 #' library(RandomFields)
+#' library(raster)
 #' nx <- ny <- 100L
 #' r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 #' speedup <- max(1, nx/5e2)
