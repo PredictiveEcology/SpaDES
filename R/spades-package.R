@@ -237,7 +237,7 @@
 #' @section 2.9 SELES-type approach to simulation:
 #'
 #' These functions are essentially skeletons and are not fully implemented.
-#' They are intended to make translations from SELES.
+#' They are intended to make translations from \href{http://www.gowlland.ca/}{SELES}.
 #' You must know how to use SELES for these to be useful:
 #' \tabular{ll}{
 #'   \code{\link{agentLocation}} \tab Agent location\cr
