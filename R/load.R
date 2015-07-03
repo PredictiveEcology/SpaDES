@@ -1,6 +1,6 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "loaded",
-                           "loadTime", "objectName", "package"))
+  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "inMemory",
+                           "loaded", "loadTime", "objectName", "package"))
 }
 
 # extract filename (without extension) of a file
@@ -76,7 +76,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @name loadFiles
 #' @include simulation.R
-#' @importFrom data.table data.table rbindlist
+#' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
 #' @export
 #' @docType methods

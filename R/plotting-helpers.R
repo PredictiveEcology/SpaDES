@@ -486,11 +486,12 @@ setMethod(
 #'         \code{Plot} call and the \code{length} argument is specified, then
 #'         arrow heads will be drawn. See examples.
 #'
-#' @importFrom sp coordinates Lines SpatialLines
+#' @include plotting-classes.R
+#' @importFrom raster crs
+#' @importFrom sp coordinates Line Lines SpatialLines
 #' @export
 #' @docType methods
 #' @rdname makeLines
-#' @include plotting-classes.R
 #' @author Eliot McIntire
 #'
 #' @examples

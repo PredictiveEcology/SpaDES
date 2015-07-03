@@ -27,7 +27,7 @@ selectMethod("show", "igraph")
 #' @include simList-class.R
 #'
 #' @export
-#' @importFrom data.table data.table rbindlist setkey setorder
+#' @importFrom data.table data.table rbindlist setkey setorder ':='
 #' @docType methods
 #' @rdname depsEdgeList
 #'

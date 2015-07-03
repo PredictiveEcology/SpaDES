@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables("row_number")
+  utils::globalVariables(c(".N", "row_number"))
 }
 
 ###############################################################################
@@ -28,7 +28,7 @@ if (getRversion() >= "3.1.0") {
 #' @rdname rasterizeReduce
 #' @docType methods
 #' @export
-#' @importFrom data.table data.table key setkeyv setnames
+#' @importFrom data.table data.table key setkeyv setnames ':='
 #' @importFrom raster extent getValues raster res
 #' @include environment.R
 #' @author Eliot McIntire

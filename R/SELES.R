@@ -17,7 +17,7 @@
 #'
 #' @return Returns new \code{SpatialPoints*} object with potentially fewer agents.
 #'
-#' @importFrom sp coordinates
+#' @importFrom sp 'coordinates<-'
 #' @include agent.R
 #' @export
 #' @docType methods
@@ -25,7 +25,7 @@
 #'
 #' @author Eliot McIntire
 transitions <- function(p, agent) {
-    coordinates(agent)[which(p==0),] = NA
+    coordinates(agent)[which(p==0),] <- NA
     return(agent)
 }
 
@@ -230,7 +230,7 @@ agentLocation <- function(map) {
 #' If \code{absolute} is provided, it will override the previous statements, unless \code{absolute}
 #' is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 #'
-#' @importFrom raster cellStats extent setValues raster
+#' @importFrom raster cellStats crs extent setValues raster
 #' @include agent.R
 #' @export
 #' @docType methods
@@ -259,7 +259,11 @@ probInit = function(map, p=NULL, absolute=NULL) {
   return(probInit)
 }
 
-###
+#' Patch size
+#'
+#' @param patches Number of patches.
+#'
+#' @importFrom raster freq
 patchSize = function(patches) {
   return(freq(patches))
 }

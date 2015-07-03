@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables("num.in.pop")
+}
 
 ###############################################################################
 #' Produce a \code{raster} of a random Gaussian process.
@@ -30,7 +32,7 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RMexp
 #' @importFrom RandomFields round
-#' @importFrom raster disaggregate extent raster res cellStats
+#' @importFrom raster disaggregate extent 'extent<-' raster res cellStats
 #' @export
 #' @docType methods
 #' @rdname gaussmap
@@ -213,7 +215,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100), res=1), p=0.1, A=0.3,
 #' agents following the numbers above.
 #'
 #' @importFrom data.table data.table setkey
-#' @importFrom raster getValues raster
+#' @importFrom raster getValues raster Which
 #' @export
 #' @docType methods
 #' @rdname specnumperpatch-probs

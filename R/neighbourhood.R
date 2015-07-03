@@ -53,7 +53,7 @@ if(getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link{adjacent}}
 #'
-#' @importFrom data.table data.table key setcolorder setkey
+#' @importFrom data.table data.table key setcolorder setkey ':='
 #' @importFrom raster ncell ncol nrow
 #' @export
 #' @docType methods
@@ -314,7 +314,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' coordinates of each
 #' unique pixel of the circle around each individual.
 #'
-#' @importFrom data.table data.table set setkey
+#' @importFrom data.table data.table set setkey ':='
 #' @importFrom sp coordinates
 #' @importFrom raster cellFromXY extract res
 #' @export

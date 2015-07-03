@@ -1,6 +1,7 @@
 ### deal with spurious data.table warnings
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("groups", "thin", "whGrobNamesi"))
+  utils::globalVariables(c("groups", "thin", "whGrobNamesi",
+                           "xmax", "xmin", "ymax", "ymin"))
 }
 
 ################################################################################
@@ -319,6 +320,7 @@ setMethod(
 #' @rdname arrangeViewports
 #' @include plotting-classes.R
 #' @importFrom magrittr '%>%'
+#' @importFrom sp bbox
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -465,7 +467,7 @@ setMethod(
 #'
 #' @docType methods
 #' @rdname plotGrob
-#' @importFrom data.table data.table
+#' @importFrom data.table data.table ':='
 #' @importFrom magrittr '%>%'
 #' @importFrom raster extent pointDistance
 #' @importFrom sp proj4string
