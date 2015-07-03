@@ -247,6 +247,10 @@ setMethod("objectDiagram",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param type  Any or missing, but only responds to a character string, either \code{rgl}
+#' or \code{tk} for rgl plot or tk plot, each calls igraphh::rglplot or igraphh::tkplot,
+#' respectively. Default missing.
+#'
 #' @param ...  Additional arguments passed to \code{plot}.
 #'
 #' @return Plots module dependency diagram.
@@ -261,14 +265,28 @@ setMethod("objectDiagram",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("moduleDiagram", function(sim, ...) {
+setGeneric("moduleDiagram", function(sim, type, ...) {
   standardGeneric("moduleDiagram")
 })
 
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature(sim="simList"),
-          definition=function(sim, ...) {
-            plot(depsGraph(sim, TRUE), ...)
+          signature=c(sim="simList", type="ANY"),
+          definition=function(sim, type, ...) {
+            if(type=="rgl") {
+              rglplot(depsGraph(sim, TRUE), ...)
+            } else if (type=="tk"){
+              tkplot(depsGraph(sim, TRUE), ...)
+            } else {
+              moduleDiagram(sim)
+            }
 })
+
+#' @export
+#' @rdname moduleDiagram
+setMethod("moduleDiagram",
+          signature=c(sim="simList", type="missing"),
+          definition=function(sim, type, ...) {
+              plot(depsGraph(sim, TRUE), ...)
+          })
