@@ -58,6 +58,7 @@ move <- function(hypothesis="crw", ...) {
 #' @references McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network for butterfly habitat restoration: where individuals, populations and landscapes interact. Journal of Applied Ecology 44:725-736.
 #'
 #' @export
+#' @importFrom CircStats rad
 #' @docType methods
 #' @rdname crw
 #'

@@ -1,5 +1,5 @@
 if(getRversion() >= "3.1.0") {
-  utils::globalVariables(c("angles", "pixIDs", "x", "y"))
+  utils::globalVariables(c("angles", "pixIDs", "x", "y","rasterVal"))
 }
 
 ##############################################################
