@@ -16,12 +16,17 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
       firstSave <- outputs(sim)[,min(saveTime, na.rm=TRUE)]
       attributes(firstSave)$unit <- timeunit(sim)
       sim <- scheduleEvent(sim, firstSave, "save", "spades")
+      sim <- scheduleEvent(sim, end(sim), "save", "end")
     }
 
   } else if (eventType=="spades") {
     sim <- saveFiles(sim)
   } else if (eventType=="later") {
     sim <- saveFiles(sim)
+  } else if (eventType=="end") {
+    message(paste0("Files saved. Use outputs(",
+                   .objectNames(calledFrom = "spades",argClass = "simList", argName = "simList")[[1]]$objs,
+                   ") for details"))
   }
 
 
