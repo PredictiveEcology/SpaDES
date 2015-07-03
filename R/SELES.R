@@ -7,7 +7,7 @@
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -37,7 +37,7 @@ transitions <- function(p, agent) {
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -65,7 +65,7 @@ numAgents <- function(N, probInit) {
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -171,7 +171,7 @@ setMethod("initiateAgents",
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -206,7 +206,7 @@ agentLocation <- function(map) {
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
