@@ -24,9 +24,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   } else if (eventType=="later") {
     sim <- saveFiles(sim)
   } else if (eventType=="end") {
-    message(paste0("Files saved. Use outputs(",
-                   .objectNames(calledFrom = "spades",argClass = "simList", argName = "simList")[[1]]$objs,
-                   ") for details"))
+    message(paste0("Files saved. Use outputs(your simList) for details"))
   }
 
 
