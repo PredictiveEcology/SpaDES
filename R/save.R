@@ -122,7 +122,6 @@ saveFiles = function(sim) {
 #' How to load various types of files in R.
 #'
 #' @export
-#' @importFrom raster writeFormats
 #' @rdname loadFiles
 .saveFileExtensions = function() {
   .sFE <- data.table(matrix(ncol=3, byrow=TRUE,c(
