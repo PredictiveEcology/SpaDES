@@ -435,7 +435,10 @@ These core modules are summarized in the following table and described further b
 &nbsp;            | `"shiny"`, or `NA`.                    | &nbsp;
 &nbsp;            | `interval`: numeric (or `NA`).         | `progressInterval()`
 &nbsp;            | &nbsp;                                 | &nbsp;
-**`.save`**       | `.saveInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
+**`.load`**       | `inputs`: data.table                   | `inputs()` or passed as `inputs` named list to `simList`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.save`**       | `ouputs`: data.table                   | `outputs()` or passed as `outputs` named list to `simList`
+&nbsp;            | `.saveInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
 &nbsp;            | `.saveInterval`: numeric (or `NA`)     | as list item in your module parameters.
 &nbsp;            | `.saveObjects`: character.             | as list item in your module parameters.
 &nbsp;            | `.savePath`: character.                | as list item in your module parameters.
@@ -491,7 +494,7 @@ Additional columns can also be provided:
 
 **Column Name** | **Description**
 ----------------|---------------------------------------------------------------
-**`objs`**      | Character string indicating the name of the object once the file is loaded.
+**`objectName`**      | Character string indicating the name of the object once the file is loaded.
 **`fun`**       | Character string indicating the function to be used to load the file.
 **`intervals`** | Numeric indicating the interval between repeated loading of the same file.
 &nbsp;          | This should be `NA` or the column absent if the file is only loaded once.
@@ -504,8 +507,27 @@ Additional columns can also be provided:
 &nbsp;          | If there is only one list, then it is assumed to apply to all load attempts and will be
 &nbsp;          | repeated for each load function.
 
-Saving objects to file can be done by passing the appropriate arguments as parameters.
-The key values to include are:
+Saving objects to file can be done at the module level or at the model level.
+At the module level, each module can be provided with appropriate arguments as parameters. 
+At the model level, a single `data.table` can be provided, analogous to the `.load` module. 
+This `data.table` is passed via the `outputs` argument in the `simInit` call or via a `outputs(mySim) <- data.table()`.
+
+Saving files can be done "at the model level" by passing a simulation parameter called `outputs` which can be a `data.frame` or `data.table` and consists minimally of a column named `objectNames`.
+This will identify which objects should be saved. 
+Additional columns can also be provided:
+
+**Column Name** | **Description**
+----------------|---------------------------------------------------------------
+**`objectName`**| Character string indicating the name of the object once the file is loaded.
+**`file`**      | Character string indicating the base name to use to name the saved file.
+**`fun`**       | Character string indicating the function to be used to save the file.
+**`package`**   | Character string indicating the package to find the previous `fun` in.
+**`saveTime`**  | Numeric indicating when the file should be saved. Defaults to `end(simList)`, but this can be any time. For multiple saves of the same object, use unique lines, e.g., via `data.table(expand.grid(objectName=c("caribou", "veg"), saveTime=1:10))`
+
+There is partial string matching of these names, so 
+If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it must be the same length as the `outputs()` `data.table`.
+
+Alternatively, objects can be saved at the module level by passing parameters within each module:
 
 **Argument**            | **Description**
 ------------------------|-------------------------------------------------------
@@ -513,11 +535,10 @@ The key values to include are:
 **`.saveInterval`**     | Numeric specifying the interval at which objects will be saved.
 &nbsp;                  | Used to schedule save events.
 **`.saveObjects`**      | Character vector naming the objects to be saved.
-**`.savePath`**         | Character giving the path to which the object will be saved.
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
+#filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),
@@ -529,17 +550,26 @@ mySim <- simInit(times=list(start=0.0, stop=10),
                    ),
                  modules=list("randomLandscapes"),
                  paths=list(modulePath=system.file("sampleModules", package="SpaDES")),
-                 inputs=data.table(files=filelist)
+                 #inputs=data.table(file=filelist),
+                 outputs=data.table(objectName="landscape")
                    
 )
 
 # retrieve the load and save params from the simulation object
 inputs(mySim)   # shows all files and objects that are "inputs" for a simInit and spades call
+outputs(mySim)   # shows all files and objects that are "inputs" for a simInit and spades call
 
 params(mySim)$randomLandscapes$.saveInitialTime
 params(mySim)$randomLandscapes$.saveInterval
 params(mySim)$randomLandscapes$.saveObjects
 params(mySim)$randomLandscapes$.savePath
+
+# More sophisticated, passing arguments to outputs()
+outputs(mySim) <- data.table(objectName="landscape", fun="writeRaster", package="raster", saveTime=c(3,6), 
+                             args=lapply(1:5, function(x) list(dataType="FLT4S", format="raster", overwrite=TRUE)))
+
+spades(mySim)
+
 ```
 
 Saving within a module -- scheduling save events.
