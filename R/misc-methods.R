@@ -274,6 +274,7 @@ setMethod("checkPath",
                 stop("Invalid path: cannot be NA.")
               } else {
                 path = normPath(path)
+
                 if (!file.exists(path)) {
                   if (create==TRUE) {
                     dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
@@ -345,11 +346,11 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%
     str_pad(., pad=pad, width=padL, side="left")
   xf <- x %% 1
-  xFC <- if(xf %==% 0) { "" } else {
+  xFC <- ifelse(xf %==% 0 , "" ,
     strsplit(format(xf, digits=padR, scientific=FALSE), split="\\.")[[1]][2] %>%
       str_pad(., width=padR, side="right", pad=pad) %>%
-      paste0(".", .)
-  }
+      paste0(".", .))
+
   return(paste0(xIC, xFC))
 }
 
