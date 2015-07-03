@@ -14,7 +14,10 @@ test_that("module templates work", {
   expect_true(file.exists(file.path(mpath, "myModule.Rmd")))
   expect_true(file.exists(file.path(mpath, "README.txt")))
 
-  suppressMessages( zipModule(name="myModule", path=path, version="0.0.2") )
+  capture.output(
+    suppressMessages(
+      zipModule(name="myModule", path=path, version="0.0.2")
+  ))
   expect_true(file.exists(file.path(mpath, "myModule_0.0.2.zip")))
 
   unlink(path, recursive=TRUE)
