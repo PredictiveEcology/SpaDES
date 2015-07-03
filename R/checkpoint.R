@@ -29,7 +29,7 @@
 #' @author Alex Chubaty
 #'
 #' @include environment.R
-#' @importFrom tools file_path_as_absolute
+#' @importFrom R.utils isAbsolutePath
 #' @export
 #' @docType methods
 #' @rdname checkpoint
@@ -48,17 +48,14 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
     } else {
       checkpointFile <- checkpointFile(sim)
     }
-    #browser()
-    checkpointDir <- checkPath(outputPath(sim), create=TRUE)
-    checkpointFile <- tryCatch(tools::file_path_as_absolute(
-      file.path(checkpointDir, checkpointFile(sim))),
-      error=function(x) {
-        return(file.path(checkpointDir, basename(checkpointFile(sim))))
-      })
-    if(checkpointFile!=file.path(checkpointDir, checkpointFile(sim))) {
-      message(paste("checkpoint file saved to:",checkpointFile))
+
+    if(isAbsolutePath(checkpointFile(sim))) {
+      checkpointDir <- checkPath(dirname(checkpointFile(sim)), create=TRUE)
+    } else {
+      checkpointDir <- checkPath(outputPath(sim), create=TRUE)
     }
-    #checkpointFile <- file.path(checkpointDir, dirname(checkpointFile(sim)))
+
+    checkpointFile <- file.path(checkpointDir, basename(checkpointFile(sim)))
   }
 
   ### event definitions
