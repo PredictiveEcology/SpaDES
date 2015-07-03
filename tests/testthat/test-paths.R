@@ -3,44 +3,45 @@ test_that("paths file does not work correctly", {
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"))
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
 
+  tempPath <- tempdir()
 
   # test for mixture of named and unnamed
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-                "C:/Eliot/Dropbox")
+                tempPath)
   mySim <- simInit(times, params, modules, objects=list(), paths)
   expect_equal(paths(mySim), list(modulePath=paths$modulePath,
                                   inputPath=paths[[2]], outputPath=getwd()))
 
   # test for non consecutive order, but named
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-                outputPath="~")
+                outputPath=tempPath)
   mySim <- simInit(times, params, modules, objects=list(), paths)
   expect_equal(paths(mySim), list(modulePath=paths$modulePath, inputPath=getwd(),
                                   outputPath=path.expand(paths[[2]])))
 
   # test for all unnamed
   paths <- list(system.file("sampleModules", package="SpaDES"),
-                "C:/Eliot/Dropbox",
-                "C:/Eliot")
+                tempPath,
+                tempPath)
   mySim <- simInit(times, params, modules, objects=list(), paths)
   expect_equal(paths(mySim), list(modulePath=paths[[1]],
                                   inputPath=paths[[2]], outputPath=paths[[3]]))
 
   # test for all named, non consecutive, using accessors
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-                outputPath="C:/Eliot/Dropbox",
-                inputPath="C:/Eliot")
+                outputPath=tempPath,
+                inputPath=tempPath)
   mySim <- simInit(times, params, modules, objects=list(), paths)
   expect_equal(paths(mySim), list(modulePath=modulePath(mySim),
                                   inputPath=inputPath(mySim), outputPath=outputPath(mySim)))
 
-  inputPath(mySim) <- "~/tmp"
-  expect_equal(inputPath(mySim), "~/tmp")
+  inputPath(mySim) <- tempPath
+  expect_equal(inputPath(mySim), tempPath)
 
-  outputPath(mySim) <- "~/tmp"
-  expect_equal(outputPath(mySim), "~/tmp")
+  outputPath(mySim) <- tempPath
+  expect_equal(outputPath(mySim), tempPath)
 
-  modulePath(mySim) <- "~/tmp"
-  expect_equal(modulePath(mySim), "~/tmp")
+  modulePath(mySim) <- tempPath
+  expect_equal(modulePath(mySim), tempPath)
 
 })
