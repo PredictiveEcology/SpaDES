@@ -1,5 +1,5 @@
 ### Allow gg S3 class to be used with Plot, an S4 function
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 setOldClass("gg")
 selectMethod("show", "gg")
 
@@ -61,7 +61,7 @@ setClassUnion(name=".spatialObjects",
 #' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 #' @import graphics
 
 #' @aliases .spadesPlotObjects
@@ -272,7 +272,7 @@ setClass(".spadesPlot",
 #' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 #' @import graphics
 #'
 #' @aliases .spadesPlottables

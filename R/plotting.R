@@ -1113,9 +1113,9 @@ setMethod(
 #'
 #' @rdname Plot
 #' @export
-#' @import ggplot2
 #' @import grid
 #' @importFrom gridBase gridFIG
+#' @importFrom ggplot2 ggplot
 #' @importFrom magrittr '%>%'
 #' @import raster
 #' @import RColorBrewer
