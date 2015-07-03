@@ -19,7 +19,7 @@ Sets the the location of the intiating agents. NOT YET FULLY IMPLEMENTED.
 
 A \code{SELES}-like function to maintain conceptual backwards compatability
 with that simulation tool. This is intended to ease transitions from
-\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+\href{http://www.gowlland.ca/}{SELES}.
 
 You must know how to use SELES for these to be useful.
 }
