@@ -46,7 +46,7 @@ Then we load that list of files.
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
-require(magrittr)
+require(igraph)
 require(SpaDES)
 filelist <- find.package("SpaDES", quiet=FALSE) %>%
   file.path(., "maps") %>%

@@ -300,7 +300,7 @@ Each module appears in a color-coded row, within which each event for that modul
 Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
 
 ```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-require(magrittr)
+require(igraph)
 require(SpaDES)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),

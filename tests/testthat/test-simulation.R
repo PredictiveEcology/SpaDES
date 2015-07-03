@@ -1,10 +1,10 @@
 test_that("simulation runs with simInit and spades", {
   on.exit({
-    detach("package:magrittr")
+    detach("package:igraph")
     rm(mySim)
   })
 
-  library(magrittr)
+  library(igraph)
 
   set.seed(42)
 

@@ -19,7 +19,7 @@ vignette: >
 devtools::dev_mode(TRUE)
 
 library(DiagrammeR)
-library(magrittr)
+library(igraph)
 library(SpaDES)
 
 SpaDES::clearPlot()
