@@ -335,7 +335,7 @@ loading and saving of files for simulation purposes:
   \code{\link{getFileName}} \tab Get the name of current file\cr
   \code{\link{loadFiles}} \tab Load simulation objects according to a filelist\cr
   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
-  \code{\link{saveFiles}} \tab Save simulation objects according to params\cr
+  \code{\link{saveFiles}} \tab Save simulation objects according to outputs and params\cr
 }
 
 ------------------------------------------------------------------------------------------

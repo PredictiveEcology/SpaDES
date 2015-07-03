@@ -651,6 +651,9 @@ setReplaceMethod("inputs",
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
+#' @importFrom tools file_path_sans_ext
+#' @importFrom tools file_ext
+#' @importFrom R.utils isAbsolutePath
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
@@ -718,9 +721,9 @@ setReplaceMethod("outputs",
 
                      wh <- !stri_detect_fixed(str = object@outputs$file,pattern=txtTimeA)
                      object@outputs[wh,
-                                    file:=paste0(tools::file_path_sans_ext(file),
+                                    file:=paste0(file_path_sans_ext(file),
                                                  "_",txtTimeA,txtTimeB[wh],".",
-                                                 tools::file_ext(file))]
+                                                 file_ext(file))]
 
                      object@outputs[is.na(fun),fun:="saveRDS"]
                      object@outputs[is.na(package),package:="base"]

@@ -19,7 +19,7 @@ meaning, only one object gets saved per file.
 }
 \examples{
 \dontrun{
-  saveFiles(mySim)
+ sim <- saveFiles(mySim)
 }
 }
 \author{
