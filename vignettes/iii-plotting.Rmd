@@ -10,7 +10,7 @@ output:
 vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{03 Plotting with SpaDES}
-  %\VignetteDepends{ggplot2, magrittr, RColorBrewer, SpaDES}
+  %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}
   %\usepackage[utf8]{inputenc}
 ---

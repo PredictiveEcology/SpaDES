@@ -10,7 +10,7 @@ output:
 vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{02 Building modules in SpaDES}
-  %\VignetteDepends{SpaDES, igraph, ggplot2, RColorBrewer}
+  %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{module development}
   %\usepackage[utf8]{inputenc}
 ---
