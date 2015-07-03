@@ -177,7 +177,7 @@ setMethod("simInit",
                       all(modules %in% loadOrder),
                       all(loadOrder %in% modules) )) {
               loadOrder <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
-              if(is.null(loadOrder)) loadOrder <- modules[[1]]
+
             }
 
             # load user-defined modules
