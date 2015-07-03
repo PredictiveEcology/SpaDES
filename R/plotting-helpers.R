@@ -602,6 +602,14 @@ setMethod(
         }
       )
     }
+    if(as.character(parseTxt[[1]])=="[[") {
+      parseTxt[[3]] <- tryCatch(
+        eval(parseTxt[[3]], envir = e),
+        error = function(x) {
+          eval(parseTxt[[3]], envir = eminus1)
+        }
+      )
+    }
     if (grepl(deparse(parseTxt[[1]]), pattern = "^get")) {
       parseTxt[[3]] <- match.call(definition = get, call = parseTxt)$x
       # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
@@ -615,6 +623,12 @@ setMethod(
     }
     if (is.character(parseTxt[[3]])) {
       parseTxt[[3]] <- as.name(parseTxt[[3]])
+    }
+    if (is.numeric(parseTxt[[3]])) {
+      if (!is.null(names(eval(parseTxt[[2]], envir=e)))) {
+        parseTxt[[3]] <- names(eval(parseTxt[[2]], envir=e))[parseTxt[[3]]]
+      }
+
     }
 
     # override previous elems entry if length(parseTxt)>1:
@@ -660,8 +674,13 @@ setMethod(
                  fromEnv=envs, toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
   }
 
+  if(sapply(elems[[1]], is.numeric)) {
+    return(list(objs = paste0(paste0(sapply(rev(elems), deparse), collapse="[["),"]]"),
+                envs = envs))
+  }
   return(list(objs = paste(sapply(rev(elems), deparse), collapse = "$"),
               envs = envs))
+
 }
 
 ################################################################################
