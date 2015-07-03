@@ -286,7 +286,8 @@ If the layers are `RasterLayer`s, then they are subsampled before plotting, auto
 If the layer is a `SpatialPoints*` object, then a maximum of 10,000 points will be plotted.
 These defaults can be adjusted by using the `speedup` argument.
 Broadly, `speedup` is a positive real number (default is 1).
-Values greater than 1 will plot faster; numbers between 0 and 1 will plot slower.
+Values greater than 1 should plot faster; numbers between 0 and 1 should plot slower. 
+There will be exceptions to this (see next), so trial and error for a particular situation is the only way to determine for certain what speedups will be gained.
 
 ## `speedup`
 
