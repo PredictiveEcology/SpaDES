@@ -30,6 +30,10 @@
 \alias{modulePath,simList-method}
 \alias{modulePath<-}
 \alias{modulePath<-,simList-method}
+\alias{outputArgs}
+\alias{outputArgs,simList-method}
+\alias{outputArgs<-}
+\alias{outputArgs<-,simList-method}
 \alias{outputPath}
 \alias{outputPath,simList-method}
 \alias{outputPath<-}
@@ -128,6 +132,14 @@ inputArgs(object)
 inputArgs(object) <- value
 
 \S4method{inputArgs}{simList}(object) <- value
+
+outputArgs(object)
+
+\S4method{outputArgs}{simList}(object)
+
+outputArgs(object) <- value
+
+\S4method{outputArgs}{simList}(object) <- value
 
 progressType(object)
 
