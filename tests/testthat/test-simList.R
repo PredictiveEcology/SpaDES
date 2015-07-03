@@ -80,11 +80,13 @@ test_that("simList object initializes correctly", {
   progressInterval(mySim) <- 10
   expect_identical(progressInterval(mySim), 10)
 
-
   # load
-  expect_identical(inputs(mySim), data.table(file=character(0), fun=character(0),
-                                             package=character(0), objectName=character(0),
-                                             loadTime=numeric(0), loaded=logical(0)))
+  expect_equal(
+    inputs(mySim),
+    data.table(file=character(0), fun=character(0),
+               package=character(0), objectName=character(0),
+               loadTime=numeric(0), loaded=logical(0))
+  )
   expect_error(inputs(mySim) <- "something", "inputs must be a list")
 
   # need tests for inputs

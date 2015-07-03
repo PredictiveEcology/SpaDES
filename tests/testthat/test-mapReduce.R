@@ -11,11 +11,11 @@ test_that("mapReduce: file does not work correctly", {
      biomass=rnbinom(length(uniqueComms), mu=4000, 0.4))
   biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
 
-  expect_identical(sort(unique(getValues(biomass))), sort(reducedDT$biomass))
-  expect_identical(length(unique(getValues(biomass))), length(unique(getValues(fullRas))))
+  expect_equal(sort(unique(getValues(biomass))), sort(reducedDT$biomass))
+  expect_equal(length(unique(getValues(biomass))), length(unique(getValues(fullRas))))
 
   setkey(reducedDT, biomass)
   communities <- rasterizeReduced(reducedDT, fullRas, "communities")
-  expect_identical(sort(unique(getValues(communities))), sort(reducedDT$communities))
-  expect_identical(length(unique(getValues(communities))), length(unique(getValues(fullRas))))
+  expect_equal(sort(unique(getValues(communities))), sort(reducedDT$communities))
+  expect_equal(length(unique(getValues(communities))), length(unique(getValues(fullRas))))
 })
