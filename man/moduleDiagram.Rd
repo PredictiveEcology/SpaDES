@@ -3,16 +3,23 @@
 \docType{methods}
 \name{moduleDiagram}
 \alias{moduleDiagram}
-\alias{moduleDiagram,simList-method}
+\alias{moduleDiagram,simList,ANY-method}
+\alias{moduleDiagram,simList,missing-method}
 \title{Simulation module dependency diagram}
 \usage{
-moduleDiagram(sim, ...)
+moduleDiagram(sim, type, ...)
 
-\S4method{moduleDiagram}{simList}(sim, ...)
+\S4method{moduleDiagram}{simList,ANY}(sim, type, ...)
+
+\S4method{moduleDiagram}{simList,missing}(sim, type, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
+
+\item{type}{Any or missing, but only responds to a character string, either \code{rgl}
+or \code{tk} for rgl plot or tk plot, each calls igraphh::rglplot or igraphh::tkplot,
+respectively. Default missing.}
 
 \item{...}{Additional arguments passed to \code{plot}.}
 }

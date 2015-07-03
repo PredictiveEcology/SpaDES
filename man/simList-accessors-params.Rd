@@ -34,6 +34,10 @@
 \alias{outputPath,simList-method}
 \alias{outputPath<-}
 \alias{outputPath<-,simList-method}
+\alias{outputs}
+\alias{outputs,simList-method}
+\alias{outputs<-}
+\alias{outputs<-,simList-method}
 \alias{params}
 \alias{params,simList-method}
 \alias{params<-}
@@ -84,6 +88,14 @@ inputs(object)
 inputs(object) <- value
 
 \S4method{inputs}{simList}(object) <- value
+
+outputs(object)
+
+\S4method{outputs}{simList}(object)
+
+outputs(object) <- value
+
+\S4method{outputs}{simList}(object) <- value
 
 inputPath(object)
 
