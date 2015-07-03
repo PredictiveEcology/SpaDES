@@ -19,7 +19,7 @@ fileExt = function (x) {
       sapply(., function(y) { y[[length(y)]] })
 }
 
-# Just checks for paths, creates them if they do not exist
+# The load doEvent
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="later") {
     sim <- loadFiles(sim)
