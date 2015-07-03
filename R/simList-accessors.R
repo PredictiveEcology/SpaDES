@@ -634,7 +634,8 @@ setReplaceMethod("inputs",
                                              package=character(0), objectName=character(0),
                                              loadTime=numeric(0), loaded=logical(0))
                      columns <- pmatch(names(fileTable),names(value))
-                     setnames(value,old = colnames(value)[na.omit(columns)], new=colnames(fileTable)[!is.na(columns)])
+                     setnames(value,old = colnames(value)[na.omit(columns)],
+                                    new=colnames(fileTable)[!is.na(columns)])
                      object@inputs <- rbindlist(list(fileTable, value), fill=TRUE)
 
                    } else {
@@ -644,6 +645,93 @@ setReplaceMethod("inputs",
                    validObject(object)
                    return(object)
 })
+
+
+################################################################################
+#' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("outputs", function(object) {
+  standardGeneric("outputs")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("outputs",
+          signature="simList",
+          definition=function(object) {
+            return(object@outputs)
+          })
+
+#' @export
+#' @rdname simList-accessors-params
+setGeneric("outputs<-",
+           function(object, value) {
+             standardGeneric("outputs<-")
+           })
+
+#' @name outputs<-
+#' @aliases outputs<-,simList-method
+#' @rdname simList-accessors-params
+#' @export
+setReplaceMethod("outputs",
+                 signature="simList",
+                 function(object, value) {
+                   if(length(value)>0) {
+                     if (!is.data.table(value)) {
+                       if(!is.list(value)) {
+                         stop("outputs must be a list, data.frame or data.table")
+                       }
+                       # pull out any "arguments" that will be passed to input functions
+                       if(any(stri_detect_fixed(pattern="argument", names(value)))) {
+                         inputArgs(object) <- rep(value$arguments, length.out=length(value$files))
+                         value <- value[-pmatch("argument", names(value))]
+                       }
+                       value <- value %>%
+                         data.frame(stringsAsFactors=FALSE) %>%
+                         data.table
+                     }
+                     fileTable <- data.table(file=character(0), fun=character(0),
+                                             package=character(0), objectName=character(0),
+                                             saveTime=numeric(0), saved=logical(0))
+                     columns <- pmatch(names(fileTable),names(value))
+                     setnames(value,old=colnames(value)[na.omit(columns)],
+                                    new=colnames(fileTable)[!is.na(columns)])
+                     object@outputs <- rbindlist(list(fileTable, value), fill=TRUE)
+                     object@outputs[is.na(saveTime),saveTime:=end(object, timeunit(object))]
+                     attributes(object@outputs$saveTime)$unit <- timeunit(object)
+
+                     txtTimeA <- paste0(attr(object@outputs[,saveTime],"unit"))
+                     txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
+                                                         ceiling(log10(end(object, timeunit(object))+1)))
+                     # Deal with file names
+                     # 3 things: 1. if relative, concatenate outputPath
+                     #           2. if absolute, don't use outputPath
+                     #           3. concatenate time to file name in all cases
+                     object@outputs[is.na(file),file:=paste0(objectName,".rds")]
+
+                     object@outputs[!isAbsolutePath(object@outputs$file),
+                                    file:=file.path(outputPath(object),file)]
+
+                     wh <- !stri_detect_fixed(str = object@outputs$file,pattern=txtTimeA)
+                     object@outputs[wh,
+                                    file:=paste0(tools::file_path_sans_ext(file),
+                                                 "_",txtTimeA,txtTimeB[wh],".",
+                                                 tools::file_ext(file))]
+
+                     object@outputs[is.na(fun),fun:="saveRDS"]
+                     object@outputs[is.na(package),package:="base"]
+
+                   } else {
+                     object@outputs <- value
+                   }
+
+                   validObject(object)
+                   return(object)
+                 })
 
 
 ################################################################################

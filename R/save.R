@@ -10,6 +10,21 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
     # check that output directory exists, make it if not
     pathsToCheck <- checkPath(outputPath(sim), create=TRUE)
 
+    # The load doEvent
+
+    if (NROW(outputs(sim))>0) {
+      firstSave <- outputs(sim)[,min(saveTime, na.rm=TRUE)]
+      attributes(firstSave)$unit <- timeunit(sim)
+      sim <- scheduleEvent(sim, firstSave, "save", "spades")
+    }
+
+  } else if (eventType=="spades") {
+    sim <- saveFiles(sim)
+  } else if (eventType=="later") {
+    sim <- saveFiles(sim)
+  }
+
+
 #     # make paths if they don't exist
 #     lapply(pathsToCheck, function(x) {
 #       if (is.null(outputPath(sim))){
@@ -22,7 +37,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 
     # no scheduling of new event. Saving will be called by other events,
     #   in an event-specific manner.
-  }
+
   return(invisible(sim))
 }
 
@@ -47,23 +62,43 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#'   saveFiles(mySim)
+#'  sim <- saveFiles(mySim)
 #' }
 saveFiles = function(sim) {
   # extract savePaths from modules
   # extract objects to save from modules
-  toSave <- lapply(params(sim), function(y) return(y$.saveObjects) )
+
+  curTime <- time(sim, timeunit(sim))
 
   # extract the current module name that called this function
-  moduleName = events(sim)[1, moduleName]
+  moduleName <- events(sim)[1L,moduleName]
+  if(moduleName!="save") { # i.e., .a module driven save event
+#     txtTime = paste0(attr(time(sim, timeunit(sim)),"unit"),
+#                      paddedFloatToChar(time(sim, timeunit(sim)), ceiling(log10(end(sim, timeunit(sim))+1))))
 
-  txtTime = paste0(attr(time(sim),"unit"),
-                   paddedFloatToChar(time(sim), ceiling(log10(end(sim)+1))))
+    toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
+      data.table(objectName=., saveTime=curTime,
+                 file=paste0(.,".rds"))
+    outputs(sim) <- rbindlist(list(outputs(sim), toSave), fill = TRUE)
 
-  # save objects to a filename that has same name as object name, plus current simulation time
-  lapply(toSave[[moduleName]], function(objectname) {
-    saveRDS(sim[[objectname]],
-            file.path(outputPath(sim),
-                      paste(objectname, txtTime, ".rds", sep="")) )})
+    # don't need to save exactly same thing more than once
+    outputs(sim) <- unique(outputs(sim))
+
+  }
+
+  if(NROW(outputs(sim)[saveTime==curTime & is.na(saved)])>0) {
+
+    wh <- which(outputs(sim)$saveTime==curTime & is.na(outputs(sim)$saved))
+    for (i in wh) {
+      get(outputs(sim)[i,fun])(outputs(sim)[i,objectName],
+                             file=outputs(sim)[i,file])
+      outputs(sim)[i,saved:=TRUE]
+    }
+  }
+  if(any(is.na(outputs(sim)[saveTime==curTime,saved]))) {
+    sim <- scheduleEvent(sim, outputs(sim)[is.na(saved),min(saveTime,na.rm=TRUE)], "save", "later")
+  }
+
+  return(invisible(sim))
 
 }
