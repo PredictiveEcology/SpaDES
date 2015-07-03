@@ -48,7 +48,6 @@ if (getRversion() >= "3.1.0") {
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -64,6 +63,7 @@ if (getRversion() >= "3.1.0") {
 #'  mySim
 #' }
 #'
+# igraph exports %>% from magrittr
 setGeneric("simInit", function(times, params, modules, objects, paths,
                                inputs, outputs, loadOrder) {
     standardGeneric("simInit")
@@ -651,7 +651,6 @@ setMethod("simInit",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @importFrom data.table data.table rbindlist setkey
-#' @importFrom magrittr '%>%'
 #' @export
 #' @keywords internal
 #' @docType methods
@@ -661,6 +660,7 @@ setMethod("simInit",
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
+# igraph exports %>% from magrittr
 setGeneric("doEvent", function(sim, debug) {
     standardGeneric("doEvent")
 })

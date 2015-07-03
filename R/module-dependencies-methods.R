@@ -95,14 +95,13 @@ setMethod("depsEdgeList",
 #' @return An \code{\link{igraph}} object.
 #'
 #' @include simList-class.R
-#'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname depsGraph
 #'
 #' @author Alex Chubaty
 # igraph is being imported in spades-package.R
+# igraph exports %>% from magrittr
 setGeneric("depsGraph", function(sim, plot) {
   standardGeneric("depsGraph")
 })
@@ -117,7 +116,7 @@ setMethod("depsGraph",
             } else {
               el <- depsEdgeList(sim, plot) %>% .depsPruneEdges
             }
-            return(graph.data.frame(el))
+            return(graph_from_data_frame(el))
 })
 
 #' @export
@@ -142,7 +141,6 @@ setMethod("depsGraph",
 #' @include simList-class.R
 #'
 #' @importFrom data.table as.data.table data.table rbindlist
-#' @importFrom magrittr '%>%'
 #' @importFrom dplyr anti_join bind_rows filter inner_join lead
 #' @export
 #' @docType methods
@@ -150,6 +148,7 @@ setMethod("depsGraph",
 #'
 #' @author Alex Chubaty
 # igraph is being imported in spades-package.R
+# igraph exports %>% from magrittr
 setGeneric(".depsPruneEdges", function(simEdgeList) {
   standardGeneric(".depsPruneEdges")
 })
@@ -224,14 +223,13 @@ setMethod(".depsPruneEdges",
 #' @return Character vector of module names, sorted in correct load order.
 #'
 #' @include simList-class.R
-#'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname depsLoadOrder
 #'
 #' @author Alex Chubaty
 # igraph is being imported in spades-package.R
+# igraph exports %>% from magrittr
 setGeneric(".depsLoadOrder", function(sim, simGraph) {
   standardGeneric(".depsLoadOrder")
 })

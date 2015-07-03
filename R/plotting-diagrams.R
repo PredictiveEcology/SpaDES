@@ -61,12 +61,12 @@ setMethod("ganttStatus",
 #' @return A list of data.frames
 #'
 #' @include simList-accessors.R
-#' @importFrom magrittr '%>%'
 #' @docType methods
 #' @rdname sim2gantt
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric(".sim2gantt", function(sim, n, startDate, width) {
   standardGeneric(".sim2gantt")
 })

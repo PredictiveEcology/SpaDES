@@ -1718,7 +1718,6 @@ setMethod(".addDepends",
 #'
 #' @return A sorted character vector of package names.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @include simList-class.R
 #' @docType methods
@@ -1726,6 +1725,7 @@ setMethod(".addDepends",
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("packages", function(sim) {
   standardGeneric("packages")
 })

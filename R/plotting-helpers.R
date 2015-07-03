@@ -556,11 +556,11 @@ setMethod(
 #' notation for objects) of objects and their layers (if \code{RasterStacks}).
 #'
 #' @docType methods
-#' @importFrom magrittr '%>%'
 #' @include plotting-classes.R
 #' @rdname parseArgs
 #' @author Eliot McIntire and Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 .parseArgs <- function(y, e, eminus1) {
   elems <- list()
   i <- 1

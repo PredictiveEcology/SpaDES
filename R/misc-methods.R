@@ -12,13 +12,13 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @return Character String representing the filename.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname getFileName
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("getFileName", function(fullname) {
   standardGeneric("getFileName")
 })
@@ -185,12 +185,11 @@ setMethod("loadPackages",
 #'
 #' @return Character vector of cleaned up filepaths.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname normPath
 #'
-
+# igraph exports %>% from magrittr
 setGeneric("normPath", function(path) {
   standardGeneric("normPath")
 })
@@ -253,11 +252,11 @@ setMethod("normPath",
 #'
 #' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname checkPath
 #'
+# igraph exports %>% from magrittr
 setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
@@ -329,7 +328,6 @@ setMethod("checkPath",
 #' @return Character string representing the filename.
 #'
 #' @importFrom fpCompare '%==%'
-#' @importFrom magrittr '%>%'
 #' @importFrom stringr str_pad
 #' @export
 #' @docType methods
@@ -341,6 +339,7 @@ setMethod("checkPath",
 #' paddedFloatToChar(1.25)
 #' paddedFloatToChar(1.25, padL=3, padR=5)
 #'
+# igraph exports %>% from magrittr
 paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   xIC <- x %/% 1 %>%
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%

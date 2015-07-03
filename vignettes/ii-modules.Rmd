@@ -392,7 +392,6 @@ Note that modules need not be inter-dependent on one another: module B may depen
 To view the dependencies for a simulation:
 
 ```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
-require(igraph) # required for plotting dependency graph
 require(SpaDES)
 
 times <- list(start=0.0, stop=20)
