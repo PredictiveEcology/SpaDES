@@ -74,7 +74,7 @@
 #' @include module-dependencies-class.R
 #' @aliases .simList
 #' @rdname simList-class
-#' @import data.table
+#' @importFrom data.table data.table
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'

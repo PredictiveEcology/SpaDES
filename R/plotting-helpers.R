@@ -486,7 +486,7 @@ setMethod(
 #'         \code{Plot} call and the \code{length} argument is specified, then
 #'         arrow heads will be drawn. See examples.
 #'
-#' @import sp
+#' @importFrom sp coordinates Lines SpatialLines
 #' @export
 #' @docType methods
 #' @rdname makeLines

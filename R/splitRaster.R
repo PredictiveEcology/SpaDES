@@ -15,7 +15,8 @@
 #' @seealso \code{\link{do.call}}, \code{\link{merge}}.
 #'
 #' @importFrom magrittr '%>%'
-#' @import raster
+#' @importFrom raster crop extent rasterize
+#' @importFrom sp Polygon Polygons SpatialPolygons
 #' @export
 #' @docType methods
 #' @rdname splitRaster

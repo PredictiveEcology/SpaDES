@@ -17,7 +17,7 @@
 #'
 #' @return Returns new \code{SpatialPoints*} object with potentially fewer agents.
 #'
-#' @import sp
+#' @importFrom sp coordinates
 #' @include agent.R
 #' @export
 #' @docType methods
@@ -83,7 +83,7 @@ numAgents <- function(N, probInit) {
 #' @return A SpatialPointsDataFrame, with each row representing an individual agent
 #'
 #' @include agent.R
-#' @import raster
+#' @importFrom raster getValues ncell raster xyFromCell
 #' @export
 #' @docType methods
 #' @rdname initiateAgents
@@ -110,6 +110,7 @@ numAgents <- function(N, probInit) {
 #'    select(-Var1, -Var1.1) %>%
 #'    rename(Present=Freq, Avail=Freq.1, Type=Var2)
 #'
+#' detach(package:dplyr)
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
             standardGeneric("initiateAgents")
@@ -128,7 +129,7 @@ setMethod("initiateAgents",
           function(map, probInit, asSpatialPoints) {
             wh <- which(runif(ncell(probInit)) < getValues(probInit))
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
-          })
+})
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
@@ -136,7 +137,7 @@ setMethod("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints, indices) {
             wh <- sample(1:ncell(map), size=numAgents, replace=asSpatialPoints)
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
-          })
+})
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
@@ -144,9 +145,9 @@ setMethod("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints) {
             vals <- getValues(probInit)
             wh <- sample(1:ncell(probInit), numAgents, replace=asSpatialPoints,
-                   prob=vals/sum(vals))
+                         prob=vals/sum(vals))
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
-          })
+})
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
@@ -229,8 +230,7 @@ agentLocation <- function(map) {
 #' If \code{absolute} is provided, it will override the previous statements, unless \code{absolute}
 #' is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 #'
-#' @import raster
-#' @import sp
+#' @importFrom raster cellStats extent setValues raster
 #' @include agent.R
 #' @export
 #' @docType methods

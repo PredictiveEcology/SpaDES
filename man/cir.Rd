@@ -28,6 +28,9 @@ identify the pixels and coordinates that are at
  for agents.
 }
 \examples{
+library(raster)
+library(sp)
+
 Ras <- raster(extent(0,15,0,15), res=1)
 Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
 N <- 2
@@ -41,5 +44,8 @@ Plot(Ras, new=TRUE)
 Plot(cirsRas, addTo="Ras", cols="#13006333")
 Plot(caribou, addTo="Ras")
 Plot(cirsSP, addTo="Ras")
+
+detach(package:raster)
+detach(package:sp)
 }
 

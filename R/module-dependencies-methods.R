@@ -27,7 +27,7 @@ selectMethod("show", "igraph")
 #' @include simList-class.R
 #'
 #' @export
-#' @import data.table
+#' @importFrom data.table data.table rbindlist setkey setorder
 #' @docType methods
 #' @rdname depsEdgeList
 #'
@@ -71,7 +71,7 @@ setMethod("depsEdgeList",
               dt <- dx[,list(from=module, to=i.module,
                              objName=objectName, objClass=i.objectClass)]
 
-              if (plot) dt <- dt[!duplicated(dt[,1:2,with=FALSE]),]
+              if (plot) dt <- dt[!duplicated(dt[, 1:2, with=FALSE]),]
             } else {
               dt <- data.table(from=character(), to=character(),
                                objName=character(), objClass=character())
@@ -96,14 +96,13 @@ setMethod("depsEdgeList",
 #'
 #' @include simList-class.R
 #'
-#' @import igraph
 #' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname depsGraph
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
 setGeneric("depsGraph", function(sim, plot) {
   standardGeneric("depsGraph")
 })
@@ -142,20 +141,15 @@ setMethod("depsGraph",
 #'
 #' @include simList-class.R
 #'
-#' @import data.table
-#' @import igraph
+#' @importFrom data.table as.data.table data.table rbindlist
 #' @importFrom magrittr '%>%'
-#' @importFrom dplyr anti_join
-#' @importFrom dplyr lead
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr filter
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr anti_join bind_rows filter inner_join lead
 #' @export
 #' @docType methods
 #' @rdname depsPruneEdges
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
 setGeneric(".depsPruneEdges", function(simEdgeList) {
   standardGeneric(".depsPruneEdges")
 })
@@ -172,13 +166,13 @@ setMethod(".depsPruneEdges",
                 for (col in (row+1L):ncol(M)) {
                   current <- M[row,col]
                   partner <- M[col,row]
-                  if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
+                  if (all((current>0), !is.infinite(current), (partner>0),
+                          !is.infinite(partner))) {
                     pth1 <- get.shortest.paths(simGraph,
                                                from=rownames(M)[row],
                                                to=colnames(M)[col])$vpath[[1]]
                     pth1 <- data.frame(from=rownames(M)[pth1],
-                                       #to=rownames(M)[lead(pth1, 1)],
-                                       to=rownames(M)[lead(match(names(pth1),rownames(M)),1)],
+                                       to=rownames(M)[lead(match(names(pth1), rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
@@ -186,8 +180,7 @@ setMethod(".depsPruneEdges",
                                                from=colnames(M)[col],
                                                to=rownames(M)[row])$vpath[[1]]
                     pth2 <- data.frame(from=rownames(M)[pth2],
-                                       #to=rownames(M)[lead(pth2, 1)],
-                                       to=rownames(M)[lead(match(names(pth2),rownames(M)),1)],
+                                       to=rownames(M)[lead(match(names(pth2), rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
@@ -233,13 +226,12 @@ setMethod(".depsPruneEdges",
 #' @include simList-class.R
 #'
 #' @importFrom magrittr '%>%'
-#' @import igraph
 #' @export
 #' @docType methods
 #' @rdname depsLoadOrder
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
 setGeneric(".depsLoadOrder", function(sim, simGraph) {
   standardGeneric(".depsLoadOrder")
 })

@@ -2,7 +2,6 @@
 setOldClass("numeric_version")
 selectMethod("show", "numeric_version")
 
-
 # register the S3 `person` class for use with S4 methods.
 setClass("person4",
          slots=list(given="character", family="character", middle="character",
@@ -12,7 +11,6 @@ setClass("person4",
 setOldClass("person", S4Class="person4")
 selectMethod("show", "person")
 removeClass("person4")
-
 
 ################################################################################
 #' The \code{.moduleDeps} class
@@ -138,15 +136,16 @@ setClass(".moduleDeps",
 #'
 #' @author Alex Chubaty
 #'
-setClass(".simDeps",
-         slots=list(dependencies="list"),
-         prototype=list(dependencies=list(NULL)),
-         validity=function(object) {
-           # remove empty (NULL) elements
-           object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
+setClass(
+  ".simDeps",
+  slots=list(dependencies="list"),
+  prototype=list(dependencies=list(NULL)),
+  validity=function(object) {
+    # remove empty (NULL) elements
+    object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
-           # ensure list contains only .moduleDeps objects
-           if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
-             stop("invalid type: not a .moduleDeps object")
-           }
+    # ensure list contains only .moduleDeps objects
+    if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
+      stop("invalid type: not a .moduleDeps object")
+    }
 })
