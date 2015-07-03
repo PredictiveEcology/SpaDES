@@ -90,9 +90,14 @@ saveFiles = function(sim) {
 
     wh <- which(outputs(sim)$saveTime==curTime & is.na(outputs(sim)$saved))
     for (i in wh) {
-      get(outputs(sim)[i,fun])(outputs(sim)[i,objectName],
+      if(exists(outputs(sim)[i,objectName], envir=envir(sim))) {
+        get(outputs(sim)[i,fun])(get(outputs(sim)[i,objectName], envir=envir(sim)),
                              file=outputs(sim)[i,file])
-      outputs(sim)[i,saved:=TRUE]
+        outputs(sim)[i,saved:=TRUE]
+      } else {
+        warning(paste(outputs(sim)[i,objectName], "is not an object in the simList. Cannot save."))
+        outputs(sim)[i,saved:=FALSE]
+      }
     }
   }
   if(any(is.na(outputs(sim)[saveTime==curTime,saved]))) {
