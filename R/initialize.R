@@ -164,7 +164,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100), res=1), p=0.1, A=0.3,
   minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
 
   if(length(resol)>1) {
-    message(paste("assuming square pixels with resolution =",resol[1]))
+    message(paste("assuming square pixels with resolution =", resol[1]))
     resol <- resol[1]
   }
   tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)

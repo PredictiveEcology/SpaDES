@@ -6,9 +6,11 @@ test_that("mapReduce: file does not work correctly", {
   fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
   names(fullRas) <- "mapcodeAll"
   uniqueComms <- raster::unique(fullRas)
-  reducedDT <- data.table(mapcodeAll=uniqueComms,
-     communities=sample(1:1000, length(uniqueComms)),
-     biomass=rnbinom(length(uniqueComms), mu=4000, 0.4))
+  reducedDT <- data.table(
+    mapcodeAll=uniqueComms,
+    communities=sample(1:1000, length(uniqueComms)),
+    biomass=rnbinom(length(uniqueComms), mu=4000, 0.4)
+  )
   biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
 
   expect_equal(sort(unique(getValues(biomass))), sort(reducedDT$biomass))
