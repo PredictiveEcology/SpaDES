@@ -46,6 +46,7 @@ setMethod("getColors",
 #' @return Returns a Raster with the \code{colortable} slot set to \code{values}.
 #'
 #' @export
+#' @importFrom grDevices colorRampPalette
 #' @docType methods
 #' @aliases setColours
 #' @rdname setColors
@@ -142,6 +143,7 @@ setReplaceMethod("setColors",
 #' @rdname makeColorMatrix
 #' @aliases makeColourMatrix
 #' @include plotting-classes.R
+#' @importFrom grDevices colorRampPalette
 #' @importFrom raster minValue getValues sampleRegular
 #' @docType methods
 #' @author Eliot McIntire
