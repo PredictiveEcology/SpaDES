@@ -1,6 +1,7 @@
 ### deal with spurious data.table warnings
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("groups", "thin", "whGrobNamesi"))
+  utils::globalVariables(c("groups", "thin", "whGrobNamesi",
+                           "xmax", "xmin", "ymax", "ymin"))
 }
 
 ################################################################################
@@ -319,6 +320,7 @@ setMethod(
 #' @rdname arrangeViewports
 #' @include plotting-classes.R
 #' @importFrom magrittr '%>%'
+#' @importFrom sp bbox
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
@@ -465,11 +467,13 @@ setMethod(
 #'
 #' @docType methods
 #' @rdname plotGrob
-#' @import data.table
-#' @import grid
+#' @importFrom data.table data.table ':='
 #' @importFrom magrittr '%>%'
-#' @author Eliot McIntire
+#' @importFrom raster extent pointDistance
+#' @importFrom sp proj4string
 #'
+#' @author Eliot McIntire
+# package grid is imported in spade-package.R
 setGeneric(".plotGrob", function(grobToPlot, col = NULL, real = FALSE,
                                  size = unit(5, "points"), minv, maxv,
                                  legend = TRUE, legendText = NULL,
@@ -1113,14 +1117,10 @@ setMethod(
 #'
 #' @rdname Plot
 #' @export
-#' @import grid
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom magrittr '%>%'
-#' @import raster
-#' @import RColorBrewer
-#' @import rgdal
-#' @import sp
+#' @importFrom raster crop
 #' @author Eliot McIntire
 #' @include environment.R
 #' @include plotting-classes.R
@@ -1129,18 +1129,18 @@ setMethod(
 #' @include plotting-other.R
 #' @examples
 #' \dontrun{
+#' library(sp)
 #' library(raster)
 #' library(rgdal)
 #' library(magrittr)
 #' library(igraph)
+#' library(RColorBrewer)
 #' #  Make list of maps from package database to load, and what functions to use to load them
 #' filelist <-
 #'    data.frame(files =
 #'      dir(file.path(
-#'                    find.package("SpaDES",
-#'                                 quiet=FALSE),
-#'                   "maps"),
-#'         full.names=TRUE, pattern= "tif"),
+#'        find.package("SpaDES", quiet=FALSE), "maps"),
+#'        full.names=TRUE, pattern= "tif"),
 #'      functions="rasterToMemory",
 #'      packages="SpaDES",
 #'      stringsAsFactors=FALSE)
@@ -1153,13 +1153,13 @@ setMethod(
 #'    mySim$habitatQuality, mySim$percentPine)
 #'
 #' # can change color palette
-#' setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
-#'                            forestCover = RColorBrewer::brewer.pal(9, "Set1"),
-#'                            forestAge = RColorBrewer::brewer.pal("Blues", n=8),
-#'                            habitatQuality = RColorBrewer::brewer.pal(9, "Spectral"),
-#'                            percentPine = RColorBrewer::brewer.pal("GnBu", n=8))
+#' setColors(landscape, n = 50) <- list(DEM=topo.colors(50),
+#'                            forestCover = brewer.pal(9, "Set1"),
+#'                            forestAge = brewer.pal("Blues", n=8),
+#'                            habitatQuality = brewer.pal(9, "Spectral"),
+#'                            percentPine = brewer.pal("GnBu", n=8))
 #'
-#' #Make a new raster derived from a previous one; must give it a unique name
+#' # Make a new raster derived from a previous one; must give it a unique name
 #' habitatQuality2 <- landscape$habitatQuality ^ 0.3
 #' names(habitatQuality2) <- "habitatQuality2"
 #'
@@ -1217,8 +1217,7 @@ setGeneric("Plot",
                     visualSqueeze = NULL,
                     legend = TRUE, legendRange = NULL, legendText = NULL,
                     pch = 19, title = TRUE,
-                    na.color = "#FFFFFF00", zero.color = NULL, length =
-                      NULL) {
+                    na.color = "#FFFFFF00", zero.color = NULL, length = NULL) {
              standardGeneric("Plot")
 })
 

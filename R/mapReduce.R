@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables("row_number")
+  utils::globalVariables(c(".N", "row_number"))
 }
 
 ###############################################################################
@@ -28,8 +28,8 @@ if (getRversion() >= "3.1.0") {
 #' @rdname rasterizeReduce
 #' @docType methods
 #' @export
-#' @import data.table
-#' @import raster
+#' @importFrom data.table data.table key setkeyv setnames ':='
+#' @importFrom raster extent getValues raster res
 #' @include environment.R
 #' @author Eliot McIntire
 #' @examples
@@ -51,15 +51,15 @@ if (getRversion() >= "3.1.0") {
 #' Plot(biomass, communities, fullRas, new=TRUE)
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
   reduced <- data.table(reduced)
-  if(!is.null(key(reduced))){
-    if(key(reduced)!=mapcode) {
+  if (!is.null(key(reduced))) {
+    if (key(reduced)!=mapcode) {
       setkeyv(reduced, mapcode)
     }
   } else {
     setkeyv(reduced, mapcode)
   }
   fullRasterVals <- data.table(getValues(fullRaster))# %>% data.frame
-  setnames(fullRasterVals,1,new=mapcode)
+  setnames(fullRasterVals, 1, new=mapcode)
   fullRasterVals <- fullRasterVals[, row_number:=1L:.N] # %>% mutate(row_number=1L:nrow(.)) %>% data.table
 #   if(!is.null(key(fullRasterVals))){
 #     if(key(fullRasterVals)!=mapcode) {
@@ -74,7 +74,7 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
   setkey(BsumVec, row_number)
   ras <- as.character(match.call(expand.dots=TRUE)$reduced)
   assign(ras,
-         value = raster(res=res(fullRaster),ext=extent(fullRaster), vals=BsumVec[[plotCol]])
+         value = raster(res=res(fullRaster), ext=extent(fullRaster), vals=BsumVec[[plotCol]])
   )
   return(get(ras))
 }

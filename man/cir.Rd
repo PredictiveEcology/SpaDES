@@ -28,6 +28,9 @@ identify the pixels and coordinates that are at
  for agents.
 }
 \examples{
+library(raster)
+library(sp)
+
 Ras <- raster(extent(0,15,0,15), res=1)
 Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
 N <- 2

@@ -42,19 +42,19 @@ Imports:
     dplyr,
     fpCompare,
     ggplot2,
+    graphics,
     gridBase,
     httr,
     igraph,
     lubridate,
     magrittr,
     methods,
+    R.utils,
     RandomFields,
     RColorBrewer,
-    rgdal,
     secr,
     stringi,
-    stringr,
-    tkrplot
+    stringr
 License: GPL-3
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues

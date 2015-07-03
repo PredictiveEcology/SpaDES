@@ -66,15 +66,15 @@ The steps used in the algorithm are:
    - or where the modulo of the "to" cells is equal to 0 if "from" cells are 1 (wrapped left to right)
 }
 \examples{
-require(raster)
+library(raster)
 a <- raster(extent(0,1000,0,1000),res=1)
-sam = sample(1:length(a),1e4)
+sam <- sample(1:length(a),1e4)
 numCol <- ncol(a)
 numCell <- ncell(a)
 adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
   include=TRUE)
-print(head(adj.new))
+if (interactive()) print(head(adj.new))
 }
 \author{
 Eliot McIntire

@@ -1,6 +1,6 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "loaded",
-                           "loadTime", "objectName", "package"))
+  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "inMemory",
+                           "loaded", "loadTime", "objectName", "package"))
 }
 
 # extract filename (without extension) of a file
@@ -76,10 +76,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @name loadFiles
 #' @include simulation.R
+#' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
-#' @import rgdal
-#' @import raster
-#' @import sp
 #' @export
 #' @docType methods
 #' @rdname loadFiles
@@ -87,8 +85,10 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @examples
 #' \dontrun{
 #' # Load random maps included with package
-#' filelist = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-#'    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
+#' filelist <- data.table(
+#'     files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+#'     full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
+#' )
 #'
 #' times <- list(start=0, stop=3)
 #' parameters <- list(.globals=list(stackName="landscape"))
@@ -110,14 +110,15 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
 #' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-#'      full.names=TRUE, pattern= "tif")
+#'         full.names=TRUE, pattern= "tif")
 #' filelist = data.table(
 #'    files = files,
 #'    functions="raster::raster",
 #'    objectName = NA,
 #'    arguments = arguments,
 #'    loadTime = 0,
-#'    intervals = c(rep(NA, length(files)-1), 10))
+#'    intervals = c(rep(NA, length(files)-1), 10)
+#' )
 #'
 #' sim2 <- loadFiles(filelist=filelist)
 #' end(sim2) <- 20
@@ -153,7 +154,7 @@ setMethod(
 
       if (!is.null(arguments)) {
         if (length(arguments) < length(filelist$file)) {
-          arguments <-  rep(arguments, length.out=length(filelist$file))
+          arguments <- rep(arguments, length.out=length(filelist$file))
         }
       }
 
@@ -215,7 +216,6 @@ setMethod(
           loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
         }
         # load files
-
         for (x in 1:length(fl)) {
           y <- which(cur)[x]
           nam = names(arguments[y])
@@ -238,9 +238,9 @@ setMethod(
           if (loadFun[x]=="raster") {
             message(paste0(
               objectName[x], " read from ", fl[x], " using ", loadFun[x],
-              "(inMemory=", inMemory(sim[[objectName[x]]]), ")",ifelse(filelistDT[y,loadTime!=start(sim,"seconds")],
-                                                                       paste("\n  at time",
-                                                                       filelistDT[y,loadTime]),"")
+              "(inMemory=", inMemory(sim[[objectName[x]]]), ")",
+              ifelse(filelistDT[y,loadTime!=start(sim,"seconds")],
+                     paste("\n  at time", filelistDT[y,loadTime]),"")
             ))
           } else {
               message(paste0(objectName[x]," read from ",fl[x]," using ", loadFun[x],
@@ -272,7 +272,7 @@ setMethod(
       # If filename had been provided, then no need to return sim object,
       #   just report files loaded
  #     if (!usedFileList) {
-        if(is(filelist, "list")) {
+        if (is(filelist, "list")) {
           inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
         } else if (usedIntervals) {
           inputs(sim) <- filelistDT # this is required if intervals is used
@@ -280,8 +280,8 @@ setMethod(
           #stop("filelist must be either a list or data.frame")
         #}
 
-        if(any(is.na(filelistDT[,loaded]))) {
-          sim <- scheduleEvent(sim, filelistDT[is.na(loaded),min(loadTime,na.rm=TRUE)], "load", "later")
+        if (any(is.na(filelistDT[,loaded]))) {
+          sim <- scheduleEvent(sim, filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)], "load", "later")
         }
   #    }
     }

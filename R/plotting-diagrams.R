@@ -247,9 +247,9 @@ setMethod("objectDiagram",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
-#' @param type  Any or missing, but only responds to a character string, either \code{rgl}
-#' or \code{tk} for rgl plot or tk plot, each calls igraphh::rglplot or igraphh::tkplot,
-#' respectively. Default missing.
+#' @param type  Character string, either \code{"rgl"} for \code{igraph::rglplot}
+#' or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
+#' \code{plot}.
 #'
 #' @param ...  Additional arguments passed to \code{plot}.
 #'
@@ -258,13 +258,12 @@ setMethod("objectDiagram",
 #' @seealso \code{\link{igraph}}.
 #'
 #' @include simList-accessors.R
-#' @import igraph
 #' @export
 #' @docType methods
 #' @rdname moduleDiagram
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
 setGeneric("moduleDiagram", function(sim, type, ...) {
   standardGeneric("moduleDiagram")
 })
@@ -272,7 +271,7 @@ setGeneric("moduleDiagram", function(sim, type, ...) {
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature=c(sim="simList", type="ANY"),
+          signature=c(sim="simList", type="character"),
           definition=function(sim, type, ...) {
             if(type=="rgl") {
               rglplot(depsGraph(sim, TRUE), ...)

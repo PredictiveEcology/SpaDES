@@ -4,17 +4,17 @@ setOldClass("gg")
 selectMethod("show", "gg")
 
 ### Allow histogram S3 class to be used with Plot, an S4 function
-#' @import graphics
+# all of `graphics` is being imported in `spades-package.R`
 setOldClass("histogram")
 selectMethod("show", "histogram")
 
 ### Allow igraph S3 class to be used with Plot, an S4 function
-#' @import igraph
+# all of `igraph` is being imported in `spades-package.R`
 setOldClass("igraph")
 selectMethod("show", "igraph")
 
 ### Allow gpar S3 class to be used with Plot, an S4 function
-#' @import grid
+# all of `grid` is being imported in `spades-package.R`
 setOldClass("gpar")
 
 setAs(from = "list", to = "gpar", function(from) {
@@ -44,6 +44,11 @@ setAs(from = "list", to = "gpar", function(from) {
 #'                RasterLayer, RasterStack
 #'
 #' @aliases .spatialObjects
+#' @importClassesFrom raster RasterLayer RasterLayerSparse RasterStack
+#' @importClassesFrom sp SpatialLines SpatialLinesDataFrame
+#' @importClassesFrom sp SpatialPixels SpatialPixelsDataFrame
+#' @importClassesFrom sp SpatialPoints SpatialPointsDataFrame
+#' @importClassesFrom sp SpatialPolygons SpatialPolygonsDataFrame
 #' @name .spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
@@ -62,12 +67,12 @@ setClassUnion(name=".spatialObjects",
 #'
 #' @slot members SpatialPoints*, SpatialPolygons*, SpatialLines*, RasterLayer, RasterStack
 #' @importFrom ggplot2 ggplot
-#' @import graphics
-
 #' @aliases .spadesPlotObjects
 #' @name .spadesPlotObjects-class
 #' @rdname spadesPlotObjects-class
 #' @author Eliot McIntire
+## all of `graphics` (for histogram) is being imported in `spades-package.R`
+## all of `igraph` (for igraph) has to be imported in `spades-package.R`
 setClassUnion(name=".spadesPlotObjects",
               members=c(".spatialObjects", "gg", "histogram", "igraph"))
 
@@ -272,8 +277,6 @@ setClass(".spadesPlot",
 #' @seealso \code{\link{spadesClasses}}
 #'
 #' @slot members \code{\link{.spadesPlotObjects}} and \code{\link{.spadesPlot}}
-#' @importFrom ggplot2 ggplot
-#' @import graphics
 #'
 #' @aliases .spadesPlottables
 #' @name .spadesPlottables-class

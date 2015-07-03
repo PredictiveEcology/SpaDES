@@ -651,7 +651,7 @@ setMethod("simInit",
 #'
 #' @return Returns the modified \code{simList} object.
 #'
-#' @import data.table
+#' @importFrom data.table data.table rbindlist setkey
 #' @importFrom magrittr '%>%'
 #' @export
 #' @keywords internal

@@ -10,7 +10,7 @@
 #' @return The heading between the points, in degrees.
 #'
 #' @importFrom CircStats deg
-#' @import sp
+#' @importFrom sp SpatialPoints
 #' @export
 #' @docType methods
 #' @rdname heading

@@ -1,8 +1,6 @@
-################################################
-###
-### A SAVE MODULE
-###
-###############################################
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c("saved", "saveTime"))
+}
 
 # Just checks for paths, creates them if they do not exist
 doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
@@ -44,7 +42,6 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   return(invisible(sim))
 }
 
-
 ##############################################################
 #' Save simulation objects according to params
 #'
@@ -59,6 +56,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @param sim A \code{simList} simulation object.
 #'
+#' @importFrom data.table data.table rbindlist ':='
 #' @export
 #' @docType methods
 #' @rdname saveFiles

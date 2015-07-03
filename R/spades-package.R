@@ -384,8 +384,17 @@ NULL
 NULL
 
 ################################################################################
-# methods package imports
+# package imports
 # See \url{http://r-pkgs.had.co.nz/namespace.html#imports}
+
+#' @import graphics
+NULL
+
+#' @import grid
+NULL
+
+#' @import igraph
+NULL
 
 #' @import methods
 NULL

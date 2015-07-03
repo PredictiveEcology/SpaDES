@@ -34,7 +34,7 @@
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #'
 #' @export
-#' @import raster
+#' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
@@ -56,8 +56,6 @@ setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
 #' @param mapID  Logical. If TRUE, returns a raster of events ids. If FALSE,
 #' returns a raster of iteration numbers, i.e. the spread history of one or more events.
 #'
-#' @import raster
-#' @import RColorBrewer
 #' @rdname spread
 #'
 #' @examples
@@ -65,7 +63,7 @@ setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
 #' library(RColorBrewer)
 #'
 #' # Make random forest cover map
-#' a <- raster(extent(0,1e2,0,1e2),res=1)
+#' a <- raster(extent(0,1e2,0,1e2), res=1)
 #' hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 #' names(hab)="hab"
 #' cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
@@ -77,7 +75,7 @@ setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
 #' directions <- 8
 #'
 #' # Transparency involves putting two more hex digits on the color code: 00 is fully transparent.
-#' setColors(hab) <- paste(c("#FFFFFF",brewer.pal(8,"Greys")), c("00",rep("FF",8)), sep="")
+#' setColors(hab) <- paste(c("#FFFFFF", brewer.pal(8,"Greys")), c("00",rep("FF",8)), sep="")
 #'
 #' #dev(4)
 #' Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
@@ -87,7 +85,7 @@ setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
 #' fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
 #'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
 #' #set colors of raster, including a transparent layer for zeros
-#' setColors(fires, 10)<-c("#00000000", brewer.pal(8,"Reds")[5:8])
+#' setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 #' Plot(fires)
 #' Plot(fires,addTo="hab")
 #'

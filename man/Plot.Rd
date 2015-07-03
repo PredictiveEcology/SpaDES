@@ -195,18 +195,18 @@ The naming convention used is: \code{RasterStackName$layerName}, i.e,
 }
 \examples{
 \dontrun{
+library(sp)
 library(raster)
 library(rgdal)
 library(magrittr)
 library(igraph)
+library(RColorBrewer)
 #  Make list of maps from package database to load, and what functions to use to load them
 filelist <-
    data.frame(files =
      dir(file.path(
-                   find.package("SpaDES",
-                                quiet=FALSE),
-                  "maps"),
-        full.names=TRUE, pattern= "tif"),
+       find.package("SpaDES", quiet=FALSE), "maps"),
+       full.names=TRUE, pattern= "tif"),
      functions="rasterToMemory",
      packages="SpaDES",
      stringsAsFactors=FALSE)
@@ -219,13 +219,13 @@ landscape <- stack(mySim$DEM, mySim$forestCover, mySim$forestAge,
    mySim$habitatQuality, mySim$percentPine)
 
 # can change color palette
-setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
-                           forestCover = RColorBrewer::brewer.pal(9, "Set1"),
-                           forestAge = RColorBrewer::brewer.pal("Blues", n=8),
-                           habitatQuality = RColorBrewer::brewer.pal(9, "Spectral"),
-                           percentPine = RColorBrewer::brewer.pal("GnBu", n=8))
+setColors(landscape, n = 50) <- list(DEM=topo.colors(50),
+                           forestCover = brewer.pal(9, "Set1"),
+                           forestAge = brewer.pal("Blues", n=8),
+                           habitatQuality = brewer.pal(9, "Spectral"),
+                           percentPine = brewer.pal("GnBu", n=8))
 
-#Make a new raster derived from a previous one; must give it a unique name
+# Make a new raster derived from a previous one; must give it a unique name
 habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 

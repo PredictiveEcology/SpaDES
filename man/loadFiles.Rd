@@ -68,8 +68,10 @@ and will be repeated for each load function.
 \examples{
 \dontrun{
 # Load random maps included with package
-filelist = data.table(files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-   full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES")
+filelist <- data.table(
+    files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
+)
 
 times <- list(start=0, stop=3)
 parameters <- list(.globals=list(stackName="landscape"))
@@ -91,14 +93,15 @@ Plot(sim1$DEM)
 #  specifically, when add "native = TRUE" as an argument to the raster function
 arguments = list(native=TRUE)
 files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-     full.names=TRUE, pattern= "tif")
+        full.names=TRUE, pattern= "tif")
 filelist = data.table(
    files = files,
    functions="raster::raster",
    objectName = NA,
    arguments = arguments,
    loadTime = 0,
-   intervals = c(rep(NA, length(files)-1), 10))
+   intervals = c(rep(NA, length(files)-1), 10)
+)
 
 sim2 <- loadFiles(filelist=filelist)
 end(sim2) <- 20
