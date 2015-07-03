@@ -126,13 +126,13 @@ setMethod("checkObject",
 #'          Sensible messages are be produced identifying missing parameters.
 #'
 #' @include simList-class.R
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname checkParams
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
 })

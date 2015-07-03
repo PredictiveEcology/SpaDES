@@ -193,12 +193,12 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 }
 
 #' @export
-#' @importFrom magrittr '%>%'
 #' @include environment.R
 #' @include plotting-classes.R
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
+# igraph exports %>% from magrittr
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
 

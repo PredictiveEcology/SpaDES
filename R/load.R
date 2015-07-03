@@ -13,7 +13,8 @@ fileName = function (x) {
 # extract the file extension of a file
 # - will accept list or charcter vector
 # - outputs character vector
-#' @importFrom magrittr '%>%'
+#
+# igraph exports %>% from magrittr
 fileExt = function (x) {
   f = strsplit(basename(unlist(x)), "^.*\\.") %>%
       sapply(., function(y) { y[[length(y)]] })

@@ -319,11 +319,11 @@ setMethod(
 #'
 #' @rdname arrangeViewports
 #' @include plotting-classes.R
-#' @importFrom magrittr '%>%'
 #' @importFrom sp bbox
 #' @export
 #' @author Eliot McIntire
 #' @docType methods
+# igraph exports %>% from magrittr
 setGeneric(".arrangeViewports", function(sPlot) {
   standardGeneric(".arrangeViewports")
 })
@@ -468,12 +468,12 @@ setMethod(
 #' @docType methods
 #' @rdname plotGrob
 #' @importFrom data.table data.table ':='
-#' @importFrom magrittr '%>%'
 #' @importFrom raster extent pointDistance
 #' @importFrom sp proj4string
 #'
 #' @author Eliot McIntire
 # package grid is imported in spade-package.R
+# igraph exports %>% from magrittr
 setGeneric(".plotGrob", function(grobToPlot, col = NULL, real = FALSE,
                                  size = unit(5, "points"), minv, maxv,
                                  legend = TRUE, legendText = NULL,
@@ -1119,7 +1119,6 @@ setMethod(
 #' @export
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
-#' @importFrom magrittr '%>%'
 #' @importFrom raster crop
 #' @author Eliot McIntire
 #' @include environment.R
@@ -1208,6 +1207,7 @@ setMethod(
 #'
 #' }
 #'
+# igraph exports %>% from magrittr
 setGeneric("Plot",
            signature = "...",
            function(..., new = FALSE, addTo = NULL,
@@ -1710,9 +1710,9 @@ setMethod(".identifyGrobToPlot",
 #' @param newArr logical, whether this is a new arrangement or just adding to a previous one
 #'
 #' @include plotting-classes.R
-#' @importFrom magrittr '%>%'
 #' @rdname prepareRaster
 #' @author Eliot McIntire
+# igraph exports %>% from magrittr
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
                            takeFromPlotObj, arr, speedup, newArr) {
   if (is.null(zoomExtent)) {

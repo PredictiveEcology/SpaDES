@@ -14,7 +14,6 @@
 #'
 #' @seealso \code{\link{do.call}}, \code{\link{merge}}.
 #'
-#' @importFrom magrittr '%>%'
 #' @importFrom raster crop extent rasterize
 #' @importFrom sp Polygon Polygons SpatialPolygons
 #' @export
@@ -46,6 +45,7 @@
 #' m <- do.call(merge, y)
 #' all.equal(m, r)
 #'
+# igraph exports %>% from magrittr
 setGeneric("splitRaster", function(x, nx, ny) {
   standardGeneric("splitRaster")
 })
