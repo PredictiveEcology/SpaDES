@@ -3,10 +3,6 @@ test_that("loading inputs does not work correctly", {
 
   mapPath <- system.file("maps", package="SpaDES")
 
-  print(paste("mapPath is",mapPath))
-
-
-
   filelist = data.table(files=dir(file.path(mapPath),
      full.names=TRUE, pattern="tif")[1:2], functions="rasterToMemory", package="SpaDES")
   #'

@@ -70,7 +70,7 @@ if(getRversion() >= "3.1.0") {
 #' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 #' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
 #'   include=TRUE)
-#' print(head(adj.new))
+#' if (interactive()) print(head(adj.new))
 #'
 adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
                     include=FALSE, target=NULL, numCol=NULL, numCell=NULL,

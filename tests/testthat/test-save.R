@@ -2,10 +2,7 @@ test_that("saving files does not work correctly", {
   on.exit(rm(mySim))
 
   mapPath <- system.file("maps", package="SpaDES")
-
-  print(paste("mapPath is",mapPath))
   savePath <- tempdir()
-  print(paste("savePath is", savePath))
 
   filelist = data.table(files=dir(file.path(mapPath),
      full.names=TRUE, pattern="tif")[1:2], functions="rasterToMemory", package="SpaDES")

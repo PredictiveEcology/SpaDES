@@ -74,7 +74,7 @@ numCell <- ncell(a)
 adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
   include=TRUE)
-print(head(adj.new))
+if (interactive()) print(head(adj.new))
 }
 \author{
 Eliot McIntire
