@@ -123,7 +123,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  saveFiles(sim)
+  sim <- saveFiles(sim)
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))

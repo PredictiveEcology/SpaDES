@@ -94,7 +94,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
-    saveFiles(sim)
+    sim <- saveFiles(sim)
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.saveInterval, "fireSpread", "save")

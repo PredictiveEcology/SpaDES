@@ -47,7 +47,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="save") {
     # do stuff for this event
-    saveFiles(sim)
+    sim <- saveFiles(sim)
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$randomLandscapes$.saveInterval,
