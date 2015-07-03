@@ -32,8 +32,7 @@ is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 Describes the probability of initiation of agents or events.  THIS IS NOT FULLY IMPLEMENTED.
 
 A \code{SELES}-like function to maintain conceptual backwards compatability
-with that simulation tool. This is intended to ease transitions from
-\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+with that simulation tool. This is intended to ease transitions from SELES.
 
 You must know how to use SELES for these to be useful.
 }
