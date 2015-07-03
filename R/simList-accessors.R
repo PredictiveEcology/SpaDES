@@ -649,6 +649,9 @@ setReplaceMethod("inputs",
 
 ################################################################################
 #' @inheritParams params
+#' @details \code{outputs} accepts a data.frame or data.table, with 6 columns. Currently, only one is required.
+#' Columns are \code{file}, \code{fun},
+#'
 #' @include simList-class.R
 #' @export
 #' @importFrom tools file_path_sans_ext
@@ -697,34 +700,47 @@ setReplaceMethod("outputs",
                          data.frame(stringsAsFactors=FALSE) %>%
                          data.table
                      }
+
+                     # create a dummy data.table with correct columns and
                      fileTable <- data.table(file=character(0), fun=character(0),
                                              package=character(0), objectName=character(0),
                                              saveTime=numeric(0), saved=logical(0))
                      columns <- pmatch(names(fileTable),names(value))
                      setnames(value,old=colnames(value)[na.omit(columns)],
                                     new=colnames(fileTable)[!is.na(columns)])
-                     object@outputs <- rbindlist(list(fileTable, value), fill=TRUE)
+                     # Merge
+                     object@outputs <- rbindlist(list(value, fileTable), fill=TRUE)
+
+                     # coerce any factors to the correct class
+                     for (col in which(t(object@outputs[,lapply(.SD, is.factor)]))) {
+                       set(object@outputs, j=col, value=as(object@outputs[[col]], class(fileTable[[col]])))
+                     }
+
+                     # if saveTime not provided, give it end(object)
                      object@outputs[is.na(saveTime),saveTime:=end(object, timeunit(object))]
                      attributes(object@outputs$saveTime)$unit <- timeunit(object)
 
-                     txtTimeA <- paste0(attr(object@outputs[,saveTime],"unit"))
-                     txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
-                                                         ceiling(log10(end(object, timeunit(object))+1)))
                      # Deal with file names
                      # 3 things: 1. if relative, concatenate outputPath
                      #           2. if absolute, don't use outputPath
                      #           3. concatenate time to file name in all cases
+                     txtTimeA <- paste0(attr(object@outputs[,saveTime],"unit"))
+                     txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
+                                                         ceiling(log10(end(object, timeunit(object))+1)))
+                     # If no filename provided, use the object name
                      object@outputs[is.na(file),file:=paste0(objectName,".rds")]
-
+                     # If a filename is provided, determine if it is absolute path, if so, use that, if
+                     # not, then append it to outputPath(object)
                      object@outputs[!isAbsolutePath(object@outputs$file),
                                     file:=file.path(outputPath(object),file)]
-
+                     # If the file name already has a time unit on it, i.e., passed explicitly by user, then don't
+                     # postpend again
                      wh <- !stri_detect_fixed(str = object@outputs$file,pattern=txtTimeA)
-                     object@outputs[wh,
-                                    file:=paste0(file_path_sans_ext(file),
+                     object@outputs[wh, file:=paste0(file_path_sans_ext(file),
                                                  "_",txtTimeA,txtTimeB[wh],".",
                                                  file_ext(file))]
 
+                     # If there is no function provided, then use saveRDS, from package base
                      object@outputs[is.na(fun),fun:="saveRDS"]
                      object@outputs[is.na(package),package:="base"]
 

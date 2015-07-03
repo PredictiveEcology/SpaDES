@@ -88,7 +88,6 @@ saveFiles = function(sim) {
     outputs(sim) <- unique(outputs(sim))
 
   }
-
   if(NROW(outputs(sim)[saveTime==curTime & is.na(saved)])>0) {
 
     wh <- which(outputs(sim)$saveTime==curTime & is.na(outputs(sim)$saved))
@@ -103,8 +102,12 @@ saveFiles = function(sim) {
       }
     }
   }
-  if(any(is.na(outputs(sim)[saveTime==curTime,saved]))) {
-    sim <- scheduleEvent(sim, outputs(sim)[is.na(saved),min(saveTime,na.rm=TRUE)], "save", "later")
+
+  # Schedule an event for the next time in the saveTime column
+  if(any(is.na(outputs(sim)[saveTime>curTime,saved]))) {
+    nextTime <- outputs(sim)[is.na(saved),min(saveTime,na.rm=TRUE)]
+    attributes(nextTime)$unit <- "month"
+    sim <- scheduleEvent(sim, nextTime, "save", "later")
   }
 
   return(invisible(sim))
