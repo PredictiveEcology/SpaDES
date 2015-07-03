@@ -3,7 +3,7 @@ test_that("paths file does not work correctly", {
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"))
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
 
-  tempPath <- tempdir()
+  tempPath <- checkPath(tempdir())
 
   # test for mixture of named and unnamed
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
