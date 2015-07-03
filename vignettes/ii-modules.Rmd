@@ -541,17 +541,14 @@ Alternatively, objects can be saved at the module level by passing parameters wi
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),
-                   randomLandscapes=list(.saveInitialTime=0,
-                                         .saveInterval=10,
-                                         .saveObjects=c("landscape"),
-                                         .savePath=file.path(tempdir(), "output",
-                                                             "randomLandscapes"))
+                   randomLandscapes=list(
+                     .saveInitialTime=0, .saveInterval=10, .saveObjects=c("landscape"),
+                     .savePath=file.path(tempdir(), "output", "randomLandscapes"))
                    ),
                  modules=list("randomLandscapes"),
                  paths=list(modulePath=system.file("sampleModules", package="SpaDES")),
                  #inputs=data.table(file=filelist),
                  outputs=data.table(objectName="landscape")
-                   
 )
 
 # retrieve the load and save params from the simulation object
@@ -564,11 +561,12 @@ params(mySim)$randomLandscapes$.saveObjects
 params(mySim)$randomLandscapes$.savePath
 
 # More sophisticated, passing arguments to outputs()
-outputs(mySim) <- data.table(objectName="landscape", fun="writeRaster", package="raster", saveTime=c(3,6), 
-                             args=lapply(1:5, function(x) list(dataType="FLT4S", format="raster", overwrite=TRUE)))
+outputs(mySim) <- data.table(
+  objectName="landscape", fun="writeRaster", package="raster", saveTime=c(3,6,3,6,3),
+  args=lapply(1:5, function(x) list(dataType="FLT4S", format="raster", overwrite=TRUE))
+)
 
 spades(mySim)
-
 ```
 
 Saving within a module -- scheduling save events.
