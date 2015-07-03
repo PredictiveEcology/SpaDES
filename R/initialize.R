@@ -26,19 +26,17 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @importFrom RandomFields RFoptions
 #' @importFrom RandomFields RFsimulate
+#' @importFrom RandomFields RFoptions
 #' @importFrom RandomFields RMexp
 #' @importFrom RandomFields round
-#' @importFrom raster disaggregate extent raster res cellStats
+#' @import raster
 #' @import tkrplot
 #' @export
 #' @docType methods
 #' @rdname gaussmap
 #'
 #' @examples
-#' library(RandomFields)
-#' library(raster)
 #' nx <- ny <- 100L
 #' r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 #' speedup <- max(1, nx/5e2)
@@ -48,8 +46,6 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #' map4 <- gaussMap(r, scale=500, var=10, speedup=speedup, inMemory=TRUE)
 #' Plot(map1, map2, map3, map4)
 #'
-#' detach(package:raster)
-#' detach(package:RandomFields)
 gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
   RFoptions(spConform=FALSE)
   ext <- extent(x)
