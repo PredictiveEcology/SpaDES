@@ -88,15 +88,23 @@ saveFiles = function(sim) {
     outputs(sim) <- unique(outputs(sim))
 
   }
+
   if(NROW(outputs(sim)[saveTime==curTime & is.na(saved)])>0) {
 
     wh <- which(outputs(sim)$saveTime==curTime & is.na(outputs(sim)$saved))
     for (i in wh) {
       if(exists(outputs(sim)[i,objectName], envir=envir(sim))) {
-        get(outputs(sim)[i,fun])(get(outputs(sim)[i,objectName], envir=envir(sim)),
-                             file=outputs(sim)[i,file])
+        args <- append(list(get(outputs(sim)[i,objectName], envir=envir(sim)),
+                     file=outputs(sim)[i,file]),
+                     outputArgs(sim)[[i]])
+        args <- args[!sapply(args, is.null)]
+
+        #get(outputs(sim)[i,fun])(get(outputs(sim)[i,objectName], envir=envir(sim)),
+        #                     file=outputs(sim)[i,file])
+        do.call(outputs(sim)[i,fun], args = args)
         outputs(sim)[i,saved:=TRUE]
       } else {
+        browser()
         warning(paste(outputs(sim)[i,objectName], "is not an object in the simList. Cannot save."))
         outputs(sim)[i,saved:=FALSE]
       }
@@ -106,7 +114,7 @@ saveFiles = function(sim) {
   # Schedule an event for the next time in the saveTime column
   if(any(is.na(outputs(sim)[saveTime>curTime,saved]))) {
     nextTime <- outputs(sim)[is.na(saved),min(saveTime,na.rm=TRUE)]
-    attributes(nextTime)$unit <- "month"
+    attributes(nextTime)$unit <- timeunit(sim)
     sim <- scheduleEvent(sim, nextTime, "save", "later")
   }
 
