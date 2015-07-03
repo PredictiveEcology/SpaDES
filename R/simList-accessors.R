@@ -693,7 +693,7 @@ setReplaceMethod("outputs",
                        }
                        # pull out any "arguments" that will be passed to input functions
                        if(any(stri_detect_fixed(pattern="argument", names(value)))) {
-                         inputArgs(object) <- rep(value$arguments, length.out=length(value$files))
+                         outputArgs(object) <- rep(value$arguments, length.out=length(value$files))
                          value <- value[-pmatch("argument", names(value))]
                        }
                        value <- value %>%
@@ -728,7 +728,7 @@ setReplaceMethod("outputs",
                      txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
                                                          ceiling(log10(end(object, timeunit(object))+1)))
                      # If no filename provided, use the object name
-                     object@outputs[is.na(file),file:=paste0(objectName,".rds")]
+                     object@outputs[is.na(file),file:=paste0(objectName)]
                      # If a filename is provided, determine if it is absolute path, if so, use that, if
                      # not, then append it to outputPath(object)
                      object@outputs[!isAbsolutePath(object@outputs$file),
@@ -737,8 +737,9 @@ setReplaceMethod("outputs",
                      # postpend again
                      wh <- !stri_detect_fixed(str = object@outputs$file,pattern=txtTimeA)
                      object@outputs[wh, file:=paste0(file_path_sans_ext(file),
-                                                 "_",txtTimeA,txtTimeB[wh],".",
-                                                 file_ext(file))]
+                                                 "_",txtTimeA,txtTimeB[wh],ifelse(nchar(file_ext(file))>0,".",""),
+                                                 ifelse(!is.null(file_ext(file)),file_ext(file),""))]
+
 
                      # If there is no function provided, then use saveRDS, from package base
                      object@outputs[is.na(fun),fun:="saveRDS"]
@@ -901,7 +902,7 @@ setGeneric("inputArgs", function(object) {
 setMethod("inputArgs",
           signature="simList",
           definition=function(object) {
-            return(object@inputs$arguments)
+            return(object@inputs[,args])
           })
 
 #' @export
@@ -919,11 +920,61 @@ setReplaceMethod("inputArgs",
                  signature="simList",
                  function(object, value) {
 
-                   object@inputs$arguments <- value
+                   if(is.list(value) & !is.data.frame(value)) {
+                     object@inputs[,args:=value]
+                   } else {
+                     stop("value passed to inputArgs() must be a list of named elements")
+                   }
+
 
                    validObject(object)
                    return(object)
                  })
+
+#' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("outputArgs", function(object) {
+  standardGeneric("outputArgs")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("outputArgs",
+          signature="simList",
+          definition=function(object) {
+            return(object@outputs[,args])
+          })
+
+#' @export
+#' @rdname simList-accessors-params
+setGeneric("outputArgs<-",
+           function(object, value) {
+             standardGeneric("outputArgs<-")
+           })
+
+#' @name outputArgs<-
+#' @aliases outputArgs<-,simList-method
+#' @rdname simList-accessors-params
+#' @export
+setReplaceMethod("outputArgs",
+                 signature="simList",
+                 function(object, value) {
+
+                   if(is.list(value) & !is.data.frame(value)) {
+
+                     object@outputs[,args:=value]
+                   } else {
+                     stop("value passed to outputArgs() must be a list of named elements")
+                   }
+
+                   validObject(object)
+                   return(object)
+                 })
+
 
 ################################################################################
 #' @inheritParams params
