@@ -44,8 +44,5 @@ Plot(Ras, new=TRUE)
 Plot(cirsRas, addTo="Ras", cols="#13006333")
 Plot(caribou, addTo="Ras")
 Plot(cirsSP, addTo="Ras")
-
-detach(package:raster)
-detach(package:sp)
 }
 

@@ -75,8 +75,6 @@ adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
 adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
   include=TRUE)
 print(head(adj.new))
-
-detach(package:raster)
 }
 \author{
 Eliot McIntire

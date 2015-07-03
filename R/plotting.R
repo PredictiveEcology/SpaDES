@@ -1206,12 +1206,6 @@ setMethod(
 #' Plot(SpP)
 #' Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
 #'
-#' detach(package:igraph)
-#' detach(package:magrittr)
-#' detach(package:RColorBrewer)
-#' detach(package:raster)
-#' detach(package:rgdal)
-#' detach(package:sp
 #' }
 #'
 setGeneric("Plot",

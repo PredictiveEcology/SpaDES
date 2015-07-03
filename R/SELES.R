@@ -110,7 +110,6 @@ numAgents <- function(N, probInit) {
 #'    select(-Var1, -Var1.1) %>%
 #'    rename(Present=Freq, Avail=Freq.1, Type=Var2)
 #'
-#' detach(package:dplyr)
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
             standardGeneric("initiateAgents")

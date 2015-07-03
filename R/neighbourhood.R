@@ -72,7 +72,6 @@ if(getRversion() >= "3.1.0") {
 #'   include=TRUE)
 #' print(head(adj.new))
 #'
-#' detach(package:raster)
 adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
                     include=FALSE, target=NULL, numCol=NULL, numCell=NULL,
                     match.adjacent=FALSE, cutoff.for.data.table=1e4) {
@@ -338,8 +337,6 @@ adj <- compiler::cmpfun(adj.raw)
 #' Plot(caribou, addTo="Ras")
 #' Plot(cirsSP, addTo="Ras")
 #'
-#' detach(package:raster)
-#' detach(package:sp)
 cir <- function(spatialPoints, radii, raster, simplify=TRUE) {
   scaleRaster <- res(raster)
 
