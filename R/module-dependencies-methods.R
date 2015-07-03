@@ -157,7 +157,7 @@ setGeneric(".depsPruneEdges", function(simEdgeList) {
 setMethod(".depsPruneEdges",
           signature(simEdgeList="data.table"),
           definition=function(simEdgeList) {
-            simGraph <- graph.data.frame(simEdgeList)
+            simGraph <- graph_from_data_frame(simEdgeList)
             M <- shortest.paths(simGraph, mode="out")
             if (nrow(M)>1) {
               pth <- data.table(from=character(), to=character())
@@ -167,17 +167,17 @@ setMethod(".depsPruneEdges",
                   partner <- M[col,row]
                   if (all((current>0), !is.infinite(current), (partner>0),
                           !is.infinite(partner))) {
-                    pth1 <- get.shortest.paths(simGraph,
-                                               from=rownames(M)[row],
-                                               to=colnames(M)[col])$vpath[[1]]
+                    pth1 <- shortest_paths(simGraph,
+                                           from=rownames(M)[row],
+                                           to=colnames(M)[col])$vpath[[1]]
                     pth1 <- data.frame(from=rownames(M)[pth1],
                                        to=rownames(M)[lead(match(names(pth1), rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
-                    pth2 <- get.shortest.paths(simGraph,
-                                               from=colnames(M)[col],
-                                               to=rownames(M)[row])$vpath[[1]]
+                    pth2 <- shortest_paths(simGraph,
+                                           from=colnames(M)[col],
+                                           to=rownames(M)[row])$vpath[[1]]
                     pth2 <- data.frame(from=rownames(M)[pth2],
                                        to=rownames(M)[lead(match(names(pth2), rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
@@ -239,7 +239,7 @@ setMethod(".depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),
           definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!
-            tsort <- topological.sort(simGraph)
+            tsort <- topo_sort(simGraph)
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {

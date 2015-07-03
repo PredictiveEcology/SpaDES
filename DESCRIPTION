@@ -47,7 +47,6 @@ Imports:
     httr,
     igraph,
     lubridate,
-    magrittr,
     methods,
     R.utils,
     RandomFields,
