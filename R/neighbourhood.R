@@ -313,6 +313,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' coordinates of each
 #' unique pixel of the circle around each individual.
 #'
+#' @import igraph
 #' @importFrom data.table data.table set setkey ':='
 #' @importFrom sp coordinates
 #' @importFrom raster cellFromXY extract res
