@@ -81,7 +81,8 @@ saveFiles = function(sim) {
     outputs(sim) <- rbindlist(list(outputs(sim), toSave), fill = TRUE)
 
     # don't need to save exactly same thing more than once
-    outputs(sim) <- unique(outputs(sim))
+
+    outputs(sim) <- unique(outputs(sim), by=c("objectName", "file", "fun", "package", "saveTime"))
 
   }
 

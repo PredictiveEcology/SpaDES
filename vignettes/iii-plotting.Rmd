@@ -7,12 +7,10 @@ output:
     number_sections: yes
     self_contained: yes
     toc: yes
-vignette: >
-  %\VignetteEngine{knitr::knitr}
-  %\VignetteIndexEntry{03 Plotting with SpaDES}
-  %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
-  %\VignetteKeyword{visualization, plotting, mapping}
-  %\usepackage[utf8]{inputenc}
+  pdf_document:
+    toc: yes
+vignette: |
+  %\VignetteEngine{knitr::knitr} %\VignetteIndexEntry{03 Plotting with SpaDES} %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES} %\VignetteKeyword{visualization, plotting, mapping} %\usepackage[utf8]{inputenc}
 ---
 
 ```{r initial-clearPlot, eval=TRUE, echo=FALSE, message=FALSE}
@@ -53,7 +51,7 @@ filelist <- find.package("SpaDES", quiet=FALSE) %>%
   dir(., full.names=TRUE, pattern= "tif") %>%
   data.table(files=., functions="rasterToMemory", package="SpaDES") %>%
   .[-c(2,5),] # omit forestAge and percentPine for simplicity
-
+print(filelist)
 # Load files to memory (using rasterToMemory), assign to a simList we call mySim 
 mySim <- loadFiles(filelist=filelist)
 # put into a single stack object in the simulation environment for ease of use below

@@ -230,12 +230,11 @@ setMethod("simInit",
               inputs(sim) <- inputs
             }
 
-            if (NROW(inputs(sim))==0) {
-              sim <- loadFiles(sim, usedFileList=TRUE)
-            } else {
-              sim <- loadFiles(sim)
-            }
-
+            #            if (NROW(inputs(sim))==0) {
+            #              sim <- loadFiles(sim, usedFileList=TRUE)
+            #            } else {
+            sim <- loadFiles(sim)
+            #            }
 
             if(length(outputs)>0) {
               outputs(sim) <- outputs

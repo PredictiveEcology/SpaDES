@@ -268,23 +268,17 @@ setMethod(
 
       } # if there are no files to load at curTime, then nothing
 
-#      if(!exists("usedFileList")) usedFileList <- FALSE
+      if (is(filelist, "list")) {
+        inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
+      } else if (usedIntervals) {
+        inputs(sim) <- filelistDT # this is required if intervals is used
+      } #else {
+        #stop("filelist must be either a list or data.frame")
+      #}
 
-      # If filename had been provided, then no need to return sim object,
-      #   just report files loaded
- #     if (!usedFileList) {
-        if (is(filelist, "list")) {
-          inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
-        } else if (usedIntervals) {
-          inputs(sim) <- filelistDT # this is required if intervals is used
-        } #else {
-          #stop("filelist must be either a list or data.frame")
-        #}
-
-        if (any(is.na(filelistDT[,loaded]))) {
-          sim <- scheduleEvent(sim, filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)], "load", "later")
-        }
-  #    }
+      if (any(is.na(filelistDT[,loaded]))) {
+        sim <- scheduleEvent(sim, filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)], "load", "later")
+      }
     }
     message("") ## print empty message to add linebreak to console message output
     return(invisible(sim))

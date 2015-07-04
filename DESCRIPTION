@@ -50,7 +50,6 @@ Imports:
     methods,
     R.utils,
     RandomFields,
-    RColorBrewer,
     secr,
     stringi,
     stringr

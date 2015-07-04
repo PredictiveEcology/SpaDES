@@ -725,9 +725,6 @@ setReplaceMethod("outputs",
          # 3 things: 1. if relative, concatenate outputPath
          #           2. if absolute, don't use outputPath
          #           3. concatenate time to file name in all cases
-         txtTimeA <- paste0(attr(object@outputs[,saveTime],"unit"))
-         txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
-                                             ceiling(log10(end(object, timeunit(object))+1)))
          # If no filename provided, use the object name
          object@outputs[is.na(file),file:=paste0(objectName)]
          # If a filename is provided, determine if it is absolute path, if so, use that, if
@@ -751,6 +748,9 @@ setReplaceMethod("outputs",
 
          # If the file name already has a time unit on it, i.e., passed explicitly by user, then don't
          # postpend again
+         txtTimeA <- paste0(attr(object@outputs[,saveTime],"unit"))
+         txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
+                                       ceiling(log10(end(object, timeunit(object))+1)))
          wh <- !stri_detect_fixed(str = object@outputs$file,pattern=txtTimeA)
          object@outputs[wh, file:=paste0(file_path_sans_ext(file),
                                          "_",txtTimeA,txtTimeB[wh],ifelse(nchar(file_ext(file))>0,".",""),

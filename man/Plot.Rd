@@ -198,7 +198,6 @@ The naming convention used is: \code{RasterStackName$layerName}, i.e,
 library(sp)
 library(raster)
 library(rgdal)
-library(magrittr)
 library(igraph)
 library(RColorBrewer)
 #  Make list of maps from package database to load, and what functions to use to load them
