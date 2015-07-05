@@ -48,7 +48,6 @@ Imports:
     igraph,
     lubridate,
     methods,
-    RColorBrewer,
     R.utils,
     RandomFields,
     secr,
