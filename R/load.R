@@ -139,7 +139,6 @@ setMethod(
     .fileExts = .fileExtensions()
     usedIntervals <- FALSE # This is for a speed reason later on.
                            #Whether or not intervals for loading files are defined
-
     if(NROW(inputs(sim))!=0) {
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
       curTime <- time(sim, "seconds")
@@ -293,7 +292,7 @@ setMethod("loadFiles",
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(),
                            inputs=filelist,
-                           modules=list(), paths=list("./"))
+                           modules=list())
             return(invisible(sim))
 })
 
