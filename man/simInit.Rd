@@ -3,44 +3,146 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,list,list,list,list,character,character-method}
-\alias{simInit,list,list,list,list,character,missing-method}
-\alias{simInit,list,list,list,list,missing,character-method}
-\alias{simInit,list,list,list,list,missing,missing-method}
-\alias{simInit,list,list,list,missing,character,character-method}
-\alias{simInit,list,list,list,missing,character,missing-method}
-\alias{simInit,list,list,list,missing,missing,character-method}
-\alias{simInit,list,list,list,missing,missing,missing-method}
-\alias{simInit,missing,missing,missing,missing,missing,missing-method}
+\alias{simInit,list,list,list,list,list,ANY,ANY,character-method}
+\alias{simInit,list,list,list,list,list,ANY,ANY,missing-method}
+\alias{simInit,list,list,list,list,list,ANY,missing,missing-method}
+\alias{simInit,list,list,list,list,list,missing,ANY,missing-method}
+\alias{simInit,list,list,list,list,list,missing,missing,missing-method}
+\alias{simInit,list,list,list,list,missing,ANY,ANY,character-method}
+\alias{simInit,list,list,list,list,missing,ANY,ANY,missing-method}
+\alias{simInit,list,list,list,list,missing,ANY,missing,character-method}
+\alias{simInit,list,list,list,list,missing,ANY,missing,missing-method}
+\alias{simInit,list,list,list,list,missing,missing,ANY,character-method}
+\alias{simInit,list,list,list,list,missing,missing,ANY,missing-method}
+\alias{simInit,list,list,list,list,missing,missing,missing,character-method}
+\alias{simInit,list,list,list,list,missing,missing,missing,missing-method}
+\alias{simInit,list,list,list,missing,list,ANY,ANY,character-method}
+\alias{simInit,list,list,list,missing,list,ANY,ANY,missing-method}
+\alias{simInit,list,list,list,missing,list,ANY,missing,character-method}
+\alias{simInit,list,list,list,missing,list,ANY,missing,missing-method}
+\alias{simInit,list,list,list,missing,list,missing,ANY,character-method}
+\alias{simInit,list,list,list,missing,list,missing,ANY,missing-method}
+\alias{simInit,list,list,list,missing,list,missing,missing,character-method}
+\alias{simInit,list,list,list,missing,list,missing,missing,missing-method}
+\alias{simInit,list,list,list,missing,missing,ANY,ANY,character-method}
+\alias{simInit,list,list,list,missing,missing,ANY,ANY,missing-method}
+\alias{simInit,list,list,list,missing,missing,ANY,missing,character-method}
+\alias{simInit,list,list,list,missing,missing,ANY,missing,missing-method}
+\alias{simInit,list,list,list,missing,missing,missing,ANY,character-method}
+\alias{simInit,list,list,list,missing,missing,missing,ANY,missing-method}
+\alias{simInit,list,list,list,missing,missing,missing,missing,character-method}
+\alias{simInit,list,list,list,missing,missing,missing,missing,missing-method}
+\alias{simInit,missing,missing,missing,missing,missing,missing,missing,missing-method}
 \title{Initialize a new simulation}
 \usage{
-simInit(times, params, modules, objects, path, loadOrder)
+simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,character,character}(times, params,
-  modules, objects, path, loadOrder)
+\S4method{simInit}{list,list,list,list,list,ANY,ANY,character}(times, params,
+  modules, objects, paths, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,character,missing}(times, params,
-  modules, objects, path)
+\S4method{simInit}{list,list,list,list,list,ANY,missing,missing}(times, params,
+  modules, objects, paths, inputs)
 
-\S4method{simInit}{list,list,list,list,missing,character}(times, params,
-  modules, objects, loadOrder)
+\S4method{simInit}{list,list,list,list,list,ANY,missing,missing}(times, params,
+  modules, objects, paths, inputs)
 
-\S4method{simInit}{list,list,list,missing,character,character}(times, params,
-  modules, path, loadOrder)
+\S4method{simInit}{list,list,list,list,missing,ANY,missing,character}(times,
+  params, modules, objects, inputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,missing,missing}(times, params, modules,
-  objects)
+\S4method{simInit}{list,list,list,missing,list,ANY,missing,character}(times,
+  params, modules, paths, inputs, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,missing,character}(times, params,
-  modules, loadOrder)
+\S4method{simInit}{list,list,list,list,missing,ANY,missing,missing}(times,
+  params, modules, objects, inputs)
 
-\S4method{simInit}{list,list,list,missing,character,missing}(times, params,
-  modules, path)
+\S4method{simInit}{list,list,list,missing,missing,ANY,missing,character}(times,
+  params, modules, inputs, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,missing,missing}(times, params,
-  modules)
+\S4method{simInit}{list,list,list,missing,list,ANY,missing,missing}(times,
+  params, modules, paths, inputs)
 
-\S4method{simInit}{missing,missing,missing,missing,missing,missing}()
+\S4method{simInit}{list,list,list,missing,missing,ANY,missing,missing}(times,
+  params, modules, inputs)
+
+\S4method{simInit}{list,list,list,list,list,missing,missing,missing}(times,
+  params, modules, objects, paths, inputs)
+
+\S4method{simInit}{list,list,list,list,list,missing,missing,missing}(times,
+  params, modules, objects, paths, inputs)
+
+
+  \S4method{simInit}{list,list,list,list,missing,missing,missing,character}(times,
+  params, modules, objects, inputs, loadOrder)
+
+
+  \S4method{simInit}{list,list,list,missing,list,missing,missing,character}(times,
+  params, modules, paths, inputs, loadOrder)
+
+\S4method{simInit}{list,list,list,list,missing,missing,missing,missing}(times,
+  params, modules, objects, inputs)
+
+
+  \S4method{simInit}{list,list,list,missing,missing,missing,missing,character}(times,
+  params, modules, inputs, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,list,missing,missing,missing}(times,
+  params, modules, paths, inputs)
+
+
+  \S4method{simInit}{list,list,list,missing,missing,missing,missing,missing}(times,
+  params, modules, inputs)
+
+\S4method{simInit}{list,list,list,list,list,missing,ANY,missing}(times, params,
+  modules, objects, paths, outputs)
+
+\S4method{simInit}{list,list,list,list,list,missing,ANY,missing}(times, params,
+  modules, objects, paths, outputs)
+
+\S4method{simInit}{list,list,list,list,missing,missing,ANY,character}(times,
+  params, modules, objects, outputs, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,list,missing,ANY,character}(times,
+  params, modules, paths, outputs, loadOrder)
+
+\S4method{simInit}{list,list,list,list,missing,missing,ANY,missing}(times,
+  params, modules, objects, outputs)
+
+\S4method{simInit}{list,list,list,missing,missing,missing,ANY,character}(times,
+  params, modules, outputs, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,list,missing,ANY,missing}(times,
+  params, modules, paths, outputs)
+
+\S4method{simInit}{list,list,list,missing,missing,missing,ANY,missing}(times,
+  params, modules, outputs)
+
+\S4method{simInit}{list,list,list,list,list,ANY,ANY,missing}(times, params,
+  modules, objects, paths, inputs, outputs)
+
+\S4method{simInit}{list,list,list,list,list,ANY,ANY,missing}(times, params,
+  modules, objects, paths, inputs, outputs)
+
+\S4method{simInit}{list,list,list,list,missing,ANY,ANY,character}(times, params,
+  modules, objects, inputs, outputs, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,list,ANY,ANY,character}(times, params,
+  modules, paths, inputs, outputs, loadOrder)
+
+\S4method{simInit}{list,list,list,list,missing,ANY,ANY,missing}(times, params,
+  modules, objects, inputs, outputs)
+
+\S4method{simInit}{list,list,list,missing,missing,ANY,ANY,character}(times,
+  params, modules, inputs, outputs, loadOrder)
+
+\S4method{simInit}{list,list,list,missing,list,ANY,ANY,missing}(times, params,
+  modules, paths, inputs, outputs)
+
+\S4method{simInit}{list,list,list,missing,missing,ANY,ANY,missing}(times,
+  params, modules, inputs, outputs)
+
+
+  \S4method{simInit}{missing,missing,missing,missing,missing,missing,missing,missing}(inputs,
+  outputs)
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and stop times
@@ -52,12 +154,16 @@ simInit(times, params, modules, objects, path, loadOrder)
 of modules to be loaded for the simulation. Note: the module name
 should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
-\code{caribou.R}, located at the specified \code{path} (see below).}
+\code{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
 \item{objects}{A list of data objects to be used in the simulation.}
 
-\item{path}{An optional character string specifying the location of the module source files.
-             If no path is specified, it defaults to the current working directory.}
+\item{paths}{An optional list with up to 3 named elements, \code{modulePath},
+\code{inputPath}, and \code{outputPath}. See details.}
+
+\item{inputs}{A \code{data.frame} or \code{data.table}. See \code{?simList}.}
+
+\item{outputs}{A \code{data.frame} or \code{data.table}. See \code{?simList}.}
 
 \item{loadOrder}{An optional list of module names specfiying the order in
                   which to load the modules. If not specified, the module
@@ -71,20 +177,24 @@ specified in the arguments supplied.
 Create a new simulation object, preloaded with parameters, modules, times, etc.
 }
 \details{
-We implement a discrete event simulation in a more modular fashion so it's
+We implement a discrete event simulation in a more modular fashion so it is
 easier to add submodules to the simulation. We use S4 classes and methods,
 and use \code{data.table} instead of \code{data.frame} to implement the event
 queue (because it is much faster).
+
+\code{paths} specifies the location of the module source files,
+the data input files, and the saving output files. If no paths are specified,
+default is current working directory.
 }
 \examples{
 \dontrun{
  mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
- modules=list("habitat", "caribou"), path="/path/to/my/modules/")
+ modules=list("habitat", "caribou"), paths="/path/to/my/modules/")
  mySim
 }
 }
 \author{
-Alex Chubaty
+Alex Chubaty and Eliot McIntire
 }
 \references{
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}

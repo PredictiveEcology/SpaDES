@@ -11,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 0.99.0.9010
-Date: 2015-07-03
+Version: 0.99.0.9014
+Date: 2015-07-06
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
     role=c("aut", "cre")),
@@ -28,11 +28,13 @@ Depends:
     R (>= 3.2.0),
     data.table,
     grid,
-    raster
+    raster,
+    sp
 Suggests:
+    fastshp,
     knitr,
     Matrix,
-    fastshp,
+    RColorBrewer,
     testthat
 Imports:
     CircStats,
@@ -41,30 +43,30 @@ Imports:
     dplyr,
     fpCompare,
     ggplot2,
+    graphics,
     gridBase,
     httr,
     igraph,
     lubridate,
-    magrittr,
     methods,
+    R.utils,
     RandomFields,
-    RColorBrewer,
-    rgdal,
     secr,
-    sp,
-    stringr,
-    tkrplot
+    stringi,
+    stringr
 License: GPL-3
+VignetteBuilder: knitr
+BugReports: https://github.com/PredictiveEcology/SpaDES/issues
+ByteCompile: yes
 Collate:
     'agent.R'
     'SELES.R'
     'module-dependencies-class.R'
     'misc-methods.R'
-    'simList.R'
+    'simList-class.R'
     'check.R'
     'environment.R'
     'checkpoint.R'
-    'colours.R'
     'initialize.R'
     'simulation.R'
     'load.R'
@@ -75,7 +77,13 @@ Collate:
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
+    'plotting-classes.R'
+    'plotting-colours.R'
+    'times.R'
+    'simList-accessors.R'
     'plotting-diagrams.R'
+    'plotting-helpers.R'
+    'plotting-other.R'
     'plotting.R'
     'probability.R'
     'progress.R'
@@ -85,6 +93,3 @@ Collate:
     'splitRaster.R'
     'spread-process.R'
     'zzz.R'
-VignetteBuilder: knitr
-BugReports: https://github.com/PredictiveEcology/SpaDES/issues
-ByteCompile: yes

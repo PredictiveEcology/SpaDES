@@ -14,11 +14,13 @@
 \S4method{.updateSpadesPlot}{.spadesPlot,ANY}(newSP, curr, ...)
 }
 \arguments{
-\item{newSP}{"new" .spadesPlot object. i.e., the new merges and overwrites into current}
+\item{newSP}{The "new" \code{.spadesPlot} object.
+              I.e., the new merges and overwrites into current.}
 
-\item{curr}{"current" .spadesPlot object. i.e., the one to be merged into.}
+\item{curr}{The "current" \code{.spadesPlot} object.
+              I.e., the one to be merged into.}
 
-\item{...}{additional arguments. Currently nothing.}
+\item{...}{Additional arguments. Currently none implemented.}
 }
 \description{
 Merges two \code{.spadesPlot} objects

@@ -22,7 +22,7 @@ checkpointLoad(file)
                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
-                     will be printed (default \code{debug=FALSE}.}
+                     will be printed (default \code{debug=FALSE}).}
 
 \item{file}{The checkpoint file.}
 }

@@ -2,31 +2,6 @@ if (getRversion() >= "3.1.0") {
   utils::globalVariables(c(".", "moduleName"))
 }
 
-timestep <- function(x) {
-  stopifnot(is.character(x))
-  return(as.numeric(eval(parse(text=paste0("d", x, "(1)")))))
-}
-
-moduleTimesteps <- function(sim) {
-  stopifnot(is(sim, ".simList"))
-  deps <- simDepends(sim)@dependencies
-  n <- deps %>%
-    lapply(., function(x) {
-      x@name
-    }) %>%
-    unlist
-  ts <- deps %>%
-    lapply(., function(x) {
-      x@timestepUnit
-      }) %>%
-    paste0("d", ., "(1)")
-  ts <- lapply(ts, function(x) {
-    as.numeric(eval(parse(text=x)))
-    })
-  names(ts) <- n
-  return(ts)
-}
-
 ################################################################################
 #' ganttStatus
 #'
@@ -40,7 +15,7 @@ moduleTimesteps <- function(sim) {
 #'
 #' @return A character vector.
 #'
-#' @include simList.R
+#' @include simList-accessors.R
 #' @docType methods
 #' @rdname ganttStatus
 #'
@@ -77,44 +52,53 @@ setMethod("ganttStatus",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param n    The number of most recently completed events to plot.
+#'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
+#'
+#' @param width  Numeric. Passed to determine scale of vertical bars.
 #'
 #' @return A list of data.frames
 #'
-#' @include simList.R
+#' @include simList-accessors.R
 #' @docType methods
 #' @rdname sim2gantt
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("sim2gantt", function(sim, startDate) {
-  standardGeneric("sim2gantt")
+# igraph exports %>% from magrittr
+setGeneric(".sim2gantt", function(sim, n, startDate, width) {
+  standardGeneric(".sim2gantt")
 })
 
 #' @rdname sim2gantt
-setMethod("sim2gantt",
-          signature(sim="simList", startDate="character"),
-          definition=function(sim, startDate) {
-            dt <- simCompleted(sim)
-            ts <- timestep(simTimestepUnit(sim)) / timestep("day") # simuation timestep
-
+setMethod(".sim2gantt",
+          signature(sim="simList", n="numeric", startDate="character"),
+          definition=function(sim, n, startDate, width) {
+            dt <- tail(completed(sim), n)
             modules <- unique(dt$moduleName)
-            mts <- lapply(moduleTimesteps(sim), '/', timestep("day")) # module timesteps
-            lapply(modules, function(x) {
-              if ( is.null(mts[[x]]) || (mts[[x]]==0) ) {
-                mts[[x]] <<- 1
-              }
-            })
+            width <- 4500 / as.numeric(width) # fixed at 3 days
+
+            # simulation timestep in 'days'
+            ts <- timeunit(sim) %>%
+              inSeconds %>%
+              convertTimeunit("day") %>%
+              as.numeric
 
             out <- lapply(modules, function(x) {
-              data.frame(task = dt[moduleName==x]$eventType,
-                         status = ganttStatus(dt[moduleName==x]$eventType),
-                         pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                         start = as.Date(dt[moduleName==x]$eventTime * ts, origin=startDate),
-                         end = as.Date(dt[moduleName==x]$eventTime * ts + mts[[x]],
-                                       origin=startDate))
+              data.frame(
+                task = dt[moduleName==x]$eventType,
+                status = ganttStatus(dt[moduleName==x]$eventType),
+                pos = paste0(x, 1:nrow(dt[moduleName==x])),
+                start = as.Date(
+                  dt[moduleName==x]$eventTime * ts, origin=startDate
+                ),
+                end = as.Date(
+                  dt[moduleName==x]$eventTime * ts + width, origin=startDate
+                )
+              )
             })
-            names(out) <- unique(dt$moduleName)
+            names(out) <- modules
             return(out)
 })
 
@@ -122,18 +106,15 @@ setMethod("sim2gantt",
 #' Simulation event diagram
 #'
 #' Create a Gantt Chart representing the events in a completed simulation.
-#' This event diagram is constructed using the completed event list, which by
-#' default only stores the 10 most recently completed events (unless
-#' \code{spades(debug=TRUE)} is used, in which case all events are retained).
-#' To change the number of events stored, users may override this option using
-#' \code{options(spades.nCompleted = value)}.
+#' This event diagram is constructed using the completed event list
+#' To change the number of events shown, provide an \code{n} argument.
 #'
 #' Simulation time is presented on the x-axis, starting at date 'startDate'.
 #' Each module appears in a color-coded row, within which each event for that
 #' module is displayed corresponding to the sequence of events for that module.
 #' Note that only the start time of the event is meaningful is these figures:
 #' the width of the bar associated with a particular module's event corresponds
-#' to the module's timestepUnit, not the event's "duration".
+#' to the module's timeunit, not the event's "duration".
 #'
 #' Based on this StackOverflow answer: \url{http://stackoverflow.com/a/29999300/1380598}.
 #'
@@ -144,13 +125,18 @@ setMethod("sim2gantt",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param n    The number of most recently completed events to plot.
+#'
 #' @param startDate  A character representation of date in YYYY-MM-DD format.
+#'
+#' @param ...  Additional arguments passed to \code{mermaid}.
+#'             Useful for specifying \code{height} and \code{width}.
 #'
 #' @return Plots an event diagram as Gantt Chart.
 #'
 #' @seealso \code{\link{mermaid}}.
 #'
-#' @include simList.R
+#' @include simList-accessors.R
 #' @importFrom DiagrammeR mermaid
 #' @export
 #' @docType methods
@@ -158,18 +144,28 @@ setMethod("sim2gantt",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("eventDiagram", function(sim, startDate) {
+setGeneric("eventDiagram", function(sim, n, startDate, ...) {
   standardGeneric("eventDiagram")
 })
 
 #' @export
 #' @rdname eventDiagram
 setMethod("eventDiagram",
-          signature(sim="simList", startDate="character"),
-          definition=function(sim, startDate) {
-            ll <- sim2gantt(sim, startDate)
+          signature(sim="simList", n="numeric", startDate="character"),
+          definition=function(sim, n, startDate, ...) {
+            # get automatic scaling of vertical bars in Gantt chart
+            dots <- list(...)
+            width <- if(any(grepl(pattern="width", names(dots)))) {
+              as.numeric(dots$width)
+            } else {
+              1000
+            }
+            ll <- .sim2gantt(sim, n, startDate, width)
 
-            DiagrammeR::mermaid(
+            #remove progress bar events
+            ll <- ll[names(ll)!="progress"]
+
+            mermaid(...,
               paste0(
                 # mermaid "header"
                 "gantt", "\n",
@@ -186,6 +182,14 @@ setMethod("eventDiagram",
             )
 })
 
+#' @export
+#' @rdname eventDiagram
+setMethod("eventDiagram",
+          signature(sim="simList", n="missing", startDate="character"),
+          definition=function(sim, startDate, ...) {
+            eventDiagram(sim=sim, n=NROW(completed(sim)), startDate=startDate, ...)
+})
+
 ################################################################################
 #' Simulation object dependency diagram
 #'
@@ -196,11 +200,14 @@ setMethod("eventDiagram",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param ...  Additional arguments passed to \code{mermaid}.
+#'             Useful for specifying \code{height} and \code{width}.
+#'
 #' @return Plots a sequence diagram.
 #'
 #' @seealso \code{\link{mermaid}}.
 #'
-#' @include simList.R
+#' @include simList-accessors.R
 #' @importFrom DiagrammeR mermaid
 #' @export
 #' @docType methods
@@ -208,7 +215,7 @@ setMethod("eventDiagram",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("objectDiagram", function(sim) {
+setGeneric("objectDiagram", function(sim, ...) {
   standardGeneric("objectDiagram")
 })
 
@@ -216,9 +223,9 @@ setGeneric("objectDiagram", function(sim) {
 #' @rdname objectDiagram
 setMethod("objectDiagram",
           signature(sim="simList"),
-          definition=function(sim) {
+          definition=function(sim, ...) {
             dt <- depsEdgeList(sim, FALSE)
-            DiagrammeR::mermaid(
+            mermaid(...,
               paste0(
                 # mermaid "header"
                 "sequenceDiagram", "\n",
@@ -240,26 +247,45 @@ setMethod("objectDiagram",
 #' @param sim  A \code{simList} object (typically corresponding to a
 #'             completed simulation).
 #'
+#' @param type  Character string, either \code{"rgl"} for \code{igraph::rglplot}
+#' or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
+#' \code{plot}.
+#'
+#' @param ...  Additional arguments passed to \code{plot}.
+#'
 #' @return Plots module dependency diagram.
 #'
 #' @seealso \code{\link{igraph}}.
 #'
-#' @include simList.R
-#' @import igraph
+#' @include simList-accessors.R
 #' @export
 #' @docType methods
 #' @rdname moduleDiagram
 #'
 #' @author Alex Chubaty
-#'
-setGeneric("moduleDiagram", function(sim) {
+# igraph is being imported in spades-package.R
+setGeneric("moduleDiagram", function(sim, type, ...) {
   standardGeneric("moduleDiagram")
 })
 
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature(sim="simList"),
-          definition=function(sim) {
-            plot(depsGraph(sim, TRUE))
+          signature=c(sim="simList", type="character"),
+          definition=function(sim, type, ...) {
+            if(type=="rgl") {
+              rglplot(depsGraph(sim, TRUE), ...)
+            } else if (type=="tk"){
+              tkplot(depsGraph(sim, TRUE), ...)
+            } else {
+              moduleDiagram(sim)
+            }
 })
+
+#' @export
+#' @rdname moduleDiagram
+setMethod("moduleDiagram",
+          signature=c(sim="simList", type="missing"),
+          definition=function(sim, type, ...) {
+              plot(depsGraph(sim, TRUE), ...)
+          })

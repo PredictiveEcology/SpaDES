@@ -20,8 +20,7 @@
 #'
 #' @seealso \code{\link{library}}.
 #'
-#' @include simList.R
-#' @importFrom methods is
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname checkObject
@@ -37,16 +36,16 @@ setGeneric("checkObject", function(sim, name, object, layer, ...) {
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="Raster", layer="character"),
           definition = function(sim, object, layer, ...) {
-            if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
+            if (exists(deparse(substitute(object)), envir=envir(sim))) {
               if (!is.na(match(layer, names(object)))) {
                 return(invisible(TRUE))
               } else {
-                message(paste(deparse(substitute(object, env=simEnv(sim))),
+                message(paste(deparse(substitute(object, env=envir(sim))),
                               "exists, but", layer, "is not a layer"))
                 return(FALSE)
               }
             } else {
-              message(paste(deparse(substitute(object, env=simEnv(sim))),
+              message(paste(deparse(substitute(object, env=envir(sim))),
                             "does not exist."))
               return(FALSE)
             }
@@ -57,10 +56,10 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="missing", object="ANY", layer="missing"),
           definition = function(sim, name, object, ...) {
-            if (exists(deparse(substitute(object)), envir=simEnv(sim))) {
+            if (exists(deparse(substitute(object)), envir=envir(sim))) {
               return(invisible(TRUE))
             } else {
-              message(paste(deparse(substitute(object, env=simEnv(sim))), "does not exist"))
+              message(paste(deparse(substitute(object, env=envir(sim))), "does not exist"))
               return(FALSE)
             }
 })
@@ -70,7 +69,7 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="missing"),
           definition = function(sim, name, ...) {
-            if (exists(name, envir=simEnv(sim))) {
+            if (exists(name, envir=envir(sim))) {
               return(invisible(TRUE))
             } else {
               simName <- .objectNames("spades", "simList", "sim")[[1]]$objs
@@ -84,13 +83,13 @@ setMethod("checkObject",
 setMethod("checkObject",
           signature(sim="simList", name="character", object="missing", layer="character"),
           definition = function(sim, name, layer, ...) {
-            if (exists(name, envir=simEnv(sim))) {
+            if (exists(name, envir=envir(sim))) {
               if(is(sim[[name]],"Raster")) {
-                checkObject(sim=sim, object=sim[[name]], layer=layer, ...)
-              } else {
-                message(paste("The object \"", name, "\" exists, but is not
-                              a Raster, so layer is ignored", sep=""))
-                return(invisible(TRUE))
+                if(!is(sim[[name]][[layer]], "Raster")) {
+                  message(paste("The object \"", name, "\" exists, but is not
+                                a Raster, so layer is ignored", sep=""))
+                  return(invisible(TRUE))
+                }
               }
             } else {
               message(paste(name, "does not exist in", sim))
@@ -126,14 +125,14 @@ setMethod("checkObject",
 #' @return  Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
 #'          Sensible messages are be produced identifying missing parameters.
 #'
-#' @include simList.R
-#' @importFrom magrittr '%>%'
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname checkParams
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
   standardGeneric("checkParams")
 })
@@ -143,10 +142,10 @@ setMethod("checkParams",
           signature(sim="simList", coreModules="list", coreParams="list", path="character"),
           definition=function(sim, coreModules, coreParams, path, ...) {
 
-            params <- simParams(sim)
-            modules <- simModules(sim)
+            params <- params(sim)
+            modules <- modules(sim)
             userModules <- modules[-which(coreModules %in% modules)]
-            globalParams <- simGlobals(sim)
+            globalParams <- globals(sim)
             allFound <- TRUE
 
             if (length(userModules)) {
@@ -189,16 +188,16 @@ setMethod("checkParams",
               globalsFound <- list()
               for (uM in userModules) {
                 # read in and cleanup/isolate the global params in the module's .R file
-                moduleParams <- grep("simGlobals\\(sim\\)\\$",
+                moduleParams <- grep("globals\\(sim\\)\\$",
                                      readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
                                      value=TRUE) %>%
                   strsplit(., " ") %>%
                   unlist(lapply(., function(x) x[nchar(x)>0] )) %>%
-                  grep("simGlobals\\(sim\\)\\$", ., value=TRUE) %>%
+                  grep("globals\\(sim\\)\\$", ., value=TRUE) %>%
                   gsub(",", "", .) %>%
                   gsub("\\)\\)", "", .) %>%
-                  gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", .) %>%
-                  gsub("^simGlobals\\(sim\\)", "", .) %>%
+                  gsub("^.*\\(globals\\(sim\\)", "\\globals\\(sim\\)", .) %>%
+                  gsub("^globals\\(sim\\)", "", .) %>%
                   gsub("\\)\\$.*", "", .) %>%
                   unique(.) %>%
                   sort(.) %>%
@@ -216,10 +215,10 @@ setMethod("checkParams",
                 }
 
                 # read in and cleanup/isolate the user params in the module's .R file
-                moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
+                moduleParams <- grep(paste0("params\\(sim\\)\\$", uM, "\\$"),
                                      readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
                                      value=TRUE) %>%
-                  gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", .) %>%
+                  gsub(paste0("^.*params\\(sim\\)\\$", uM, "\\$"), "", .) %>%
                   gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
                   gsub("]*", "", .) %>%
                   unique(.) %>%

@@ -3,7 +3,7 @@
 \docType{methods}
 \name{saveFiles}
 \alias{saveFiles}
-\title{Save simulation objects according to simParams}
+\title{Save simulation objects according to params}
 \usage{
 saveFiles(sim)
 }
@@ -14,12 +14,12 @@ saveFiles(sim)
 If there is a list entry with \code{.saveObjects} as a character string vector of
 object names to save, then these objects will be saved with a call to saveFiles.
 The file names will be equal to the object name plus
-\code{simCurrentTime(sim)} is appended at the end. The files are saved as \code{.rds} files,
+\code{time(sim)} is appended at the end. The files are saved as \code{.rds} files,
 meaning, only one object gets saved per file.
 }
 \examples{
 \dontrun{
-  saveFiles(mySim)
+ sim <- saveFiles(mySim)
 }
 }
 \author{

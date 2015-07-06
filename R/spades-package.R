@@ -63,21 +63,19 @@
 #'
 #' Commonly used:
 #' \tabular{ll}{
-#'    \code{\link{simGlobals}} \tab List of global simulation parameters.\cr
-#'    \code{\link{simObjects}} \tab List of objects referenced by the simulation environment.\cr
-#'    \code{\link{simParams}} \tab Nested list of all simulation parameter.\cr
+#'    \code{\link{globals}} \tab List of global simulation parameters.\cr
+#'    \code{\link{objs}} \tab List of objects referenced by the simulation environment.\cr
+#'    \code{\link{params}} \tab Nested list of all simulation parameter.\cr
 #' }
 #'
 #' Advanced use:
 #' \tabular{lll}{
 #'    Accessor method \tab Module \tab Description\cr
-#'    \code{\link{simCheckpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
-#'    \code{\link{simCheckpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-#'    \code{\link{simGlobalsOutputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-#'    \code{\link{simFileList}} \tab \code{.load} \tab List of files to load for the simulation. (advanced)\cr
-#'    \code{\link{simObjectsLoaded}} \tab \code{.load} \tab List of loaded simulation objects. (advanced)\cr
-#'    \code{\link{simProgressGraphical}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
-#'    \code{\link{simProgressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
+#'    \code{\link{checkpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
+#'    \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
+#'    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
+#'    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
+#'    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
 #'
 #' @section 1.2.2 Simulation times:
@@ -85,10 +83,10 @@
 #' Accessor functions for the \code{simtimes} slot and its elements.
 #'
 #' \tabular{ll}{
-#'    \code{\link{simCurrentTime}} \tab Current simulation time.\cr
-#'    \code{\link{simStartTime}} \tab Simulation start time.\cr
-#'    \code{\link{simStopTime}} \tab Simulation stop time.\cr
-#'    \code{\link{simTimes}} \tab List of all simulation times (current, start, stop).\cr
+#'    \code{\link{time}} \tab Current simulation time.\cr
+#'    \code{\link{start}} \tab Simulation start time.\cr
+#'    \code{\link{end}} \tab Simulation stop time.\cr
+#'    \code{\link{times}} \tab List of all simulation times (current, start, stop).\cr
 #' }
 #'
 #' @section 1.2.3 Simulation event queues:
@@ -98,22 +96,20 @@
 #' thus most users will not require direct use of these methods.
 #'
 #' \tabular{ll}{
-#'    \code{\link{simEvents}} \tab Scheduled simulation events (the event queue). (advanced)\cr
-#'    \code{\link{simCompleted}} \tab Completed simulation events. (advanced)\cr
+#'    \code{\link{events}} \tab Scheduled simulation events (the event queue). (advanced)\cr
+#'    \code{\link{completed}} \tab Completed simulation events. (advanced)\cr
 #' }
 #'
 #' @section 1.2.4 Modules and dependencies:
 #'
-#' Accessor functions for the \code{depends}, \code{modules}, \code{.loaded},
+#' Accessor functions for the \code{depends}, \code{modules},
 #' and \code{.loadOrder} slots.
 #' These are included for advanced users.
 #'
 #' \tabular{ll}{
-#'    \code{\link{simDepends}} \tab List of simulation module dependencies. (advanced)\cr
-#'    \code{\link{simModules}} \tab List of simulation modules to be loaded. (advanced)\cr
-#'    \code{\link{simModulesLoaded}} \tab List of loaded simulation modules. (advanced)\cr
-#'    \code{\link{simModulesLoadOrder}} \tab List specifying the order in which to load modules. (advanced)\cr
-#'    \code{\link{simObjectsLoaded}} \tab List of loaded objects used in simulation. (advanced)\cr
+#'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced)\cr
+#'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
+#'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
 #' }
 #'
 #' @section 1.3 Module operations:
@@ -129,7 +125,6 @@
 #'   \code{\link{newModule}} \tab Create new module from template\cr
 #'   \code{\link{newModuleDocumentation}} \tab Create empty documentation for a new module\cr
 #'   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
-#'   \code{\link{reloadModuleLater}} \tab Load modules for simulation, contingent on dependencies loaded\cr
 #'   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
 #' }
 #'
@@ -242,7 +237,7 @@
 #' @section 2.9 SELES-type approach to simulation:
 #'
 #' These functions are essentially skeletons and are not fully implemented.
-#' They are intended to make translations from \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' They are intended to make translations from \href{http://www.gowlland.ca/}{SELES}.
 #' You must know how to use SELES for these to be useful:
 #' \tabular{ll}{
 #'   \code{\link{agentLocation}} \tab Agent location\cr
@@ -300,9 +295,9 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{getFileName}} \tab Get the name of current file\cr
-#'   \code{\link{loadFiles}} \tab Load simulation objects according to a fileList\cr
+#'   \code{\link{loadFiles}} \tab Load simulation objects according to a filelist\cr
 #'   \code{\link{rasterToMemory}} \tab Read a raster from file to RAM\cr
-#'   \code{\link{saveFiles}} \tab Save simulation objects according to simParams\cr
+#'   \code{\link{saveFiles}} \tab Save simulation objects according to outputs and params\cr
 #' }
 #'
 #' ------------------------------------------------------------------------------------------
@@ -386,4 +381,20 @@ NULL
 #' @name spadesMaps
 #' @rdname spadesMaps
 #' @format raster
+NULL
+
+################################################################################
+# package imports
+# See \url{http://r-pkgs.had.co.nz/namespace.html#imports}
+
+#' @import graphics
+NULL
+
+#' @import grid
+NULL
+
+#' @import igraph
+NULL
+
+#' @import methods
 NULL

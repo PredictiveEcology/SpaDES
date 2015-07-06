@@ -45,7 +45,7 @@ There were 2 NOTES:
 
         Found the following calls to attach():
         File ‘SpaDES/R/simulation.R’:
-          attach(simEnv(sim), name = envName)
+          attach(envir(sim), name = envName)
         See section ‘Good practice’ in ‘?attach’.
 
 ## Downstream dependencies

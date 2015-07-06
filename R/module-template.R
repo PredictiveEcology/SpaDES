@@ -58,7 +58,7 @@ defineModule(sim, list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestepUnit=NA_character_,
+  timeunit=NA_character_,
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
@@ -80,8 +80,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     ", name, "Init(sim)
 
     # schedule future event(s)
-    scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
-    scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+    scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType==\"templateEvent\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -92,12 +92,12 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # scheduleEvent(sim, simCurrentTime(sim) + increment, \"", name, "\", \"templateEvent\")
+    # scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {
-      warning(paste(\"Undefined event type: \'\", simEvents(sim)[1, \"eventType\", with=FALSE],
-                    \"\' in module \'\", simEvents(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
+      warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
+                    \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
     }
   return(invisible(sim))
 }
@@ -123,7 +123,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  saveFiles(sim)
+  sim <- saveFiles(sim)
 
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
@@ -446,6 +446,7 @@ definition = function(name, path, version) {
   on.exit(setwd(callingWd))
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
+  print(paste("Zipping module into zip file"))
   zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
   file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)

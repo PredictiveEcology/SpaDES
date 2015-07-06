@@ -20,7 +20,7 @@
 #'                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.
 #'
 #' @param debug         Optional logical flag determines whether sim debug info
-#'                      will be printed (default \code{debug=FALSE}.
+#'                      will be printed (default \code{debug=FALSE}).
 #'
 #' @return Returns the modified \code{simList} object.
 #'
@@ -29,6 +29,7 @@
 #' @author Alex Chubaty
 #'
 #' @include environment.R
+#' @importFrom R.utils isAbsolutePath
 #' @export
 #' @docType methods
 #' @rdname checkpoint
@@ -38,19 +39,23 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### default is not to use checkpointing if unspecified
   ### - this default is set when a new simList object is initialized
 
-  useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
+  useChkpnt = !any(is.na(params(sim)$.checkpoint))
 
   ### determine checkpoint file location, for use in events below
   if (useChkpnt) {
-    if (is.null(simCheckpointFile(sim))) {
+    if (is.null(checkpointFile(sim))) {
       checkpointFile <- "checkpoint.RData"
     } else {
-      checkpointFile <- simCheckpointFile(sim)
+      checkpointFile <- checkpointFile(sim)
     }
-    if (!is.null(simGlobalsOutputPath(sim))) {
-      checkpointDir <- checkPath(simGlobalsOutputPath(sim), create=TRUE)
-      checkpointFile <- file.path(checkpointDir, simCheckpointFile(sim))
+
+    if(isAbsolutePath(checkpointFile(sim))) {
+      checkpointDir <- checkPath(dirname(checkpointFile(sim)), create=TRUE)
+    } else {
+      checkpointDir <- checkPath(outputPath(sim), create=TRUE)
     }
+
+    checkpointFile <- file.path(checkpointDir, basename(checkpointFile(sim)))
   }
 
   ### event definitions
@@ -63,12 +68,12 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
       .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
+      timeNextSave <- time(sim) + checkpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
-    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'", events(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
 
   }
   return(invisible(sim))
@@ -76,6 +81,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @param file The checkpoint file.
 #' @rdname checkpoint
+#' @export
 checkpointLoad = function(file) {
   f <- strsplit(file, split = "[.][R|r][D|d]ata$")
   fobj <- paste0(f, "_objs", ".RData")
@@ -84,11 +90,11 @@ checkpointLoad = function(file) {
   if (file.exists(file) && file.exists(fobj)) {
     simListName = load(file, envir=.GlobalEnv)
     sim <- get(simListName, envir=.GlobalEnv)
-    load(fobj, envir=simEnv(sim))
+    load(fobj, envir=envir(sim))
 
     do.call("RNGkind", as.list(sim$.rng.kind))
     assign(".Random.seed", sim$.rng.state, envir=.GlobalEnv)
-    rm(list=c(".rng.kind", ".rng.state", ".timestamp"), envir=simEnv(sim))
+    rm(list=c(".rng.kind", ".rng.state", ".timestamp"), envir=envir(sim))
     return(invisible(TRUE))
   } else {
     return(invisible(FALSE))
@@ -108,6 +114,6 @@ checkpointLoad = function(file) {
   assign(.objectNames("spades","simList","sim")[[1]]$objs, sim, envir=tmpEnv)
 
   save(list=ls(tmpEnv, all.names=TRUE), file=file, envir=tmpEnv)
-  save(list=ls(simEnv(sim), all.names=TRUE), file=fobj, envir=simEnv(sim))
+  save(list=ls(envir(sim), all.names=TRUE), file=fobj, envir=envir(sim))
   invisible(TRUE) # return "success" invisibly
 }

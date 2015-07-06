@@ -1,7 +1,7 @@
 ---
 title: "02 Building modules in `SpaDES`"
 author: "Alex M. Chubaty"
-date: "`r format(Sys.Date(), format='%B %d %Y')`"
+date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
   html_document:
     number_sections: yes
@@ -10,7 +10,7 @@ output:
 vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{02 Building modules in SpaDES}
-  %\VignetteDepends{SpaDES, igraph, ggplot2, RColorBrewer}
+  %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{module development}
   %\usepackage[utf8]{inputenc}
 ---
@@ -35,7 +35,7 @@ Each event may evaluate or modify a simulation data object (*e.g.*, update the v
 
 ### Simulation event list
 
-The event queue is stored in a slot in a `simList` simulation object, which is itself stored in a `simEnv` object.
+The event queue is stored in a slot in a `simList` simulation object.
 Each event is represented by a `data.table` row consisting of the time the event is to occur (`eventTime`), the name of the module from which the event is taken (`moduleName`), and a character string for the programmer-defined event type (`eventType`).
 This list is kept sorted by `eventTime`, and events are processed in sequence beginning at the top of the list.
 Completed events are removed from the queue.
@@ -87,7 +87,7 @@ This file consists of three parts containing the code for:
 ### Metadata
 
 In order to interact correctly with one another in a simulation, `SpaDES` modules are designed to be aware of their own dependencies and to share this information with the simulation (and to the user).
-During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object inside the `simEnv`.
+During simulation initialization, the `.R` file corresponding to each module used is parsed and the modules' metadata stored in the `simList` object inside the `envir`.
 As part of this initialization step, the dependencies of each module are extracted from the metadata and are checked against the other modules used in the simulation to ensure that all dependencies can be resolved.
 
 #### Defining module metadata: `defineModule()`
@@ -105,7 +105,7 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
 &nbsp;                | Must be a `POSIXt` object of length `2`, specifying the start and end times.
 &nbsp;                | (NOT YET FULLY IMPLEMENTED.)
-**`timestepUnit`**        | Describes the unit of time corresponding to `1.0` simulation time units.
+**`timeunit`**        | Describes the unit of time corresponding to `1.0` simulation time units.
 **`citation`**        | A citation for the module, as a character string.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
@@ -131,7 +131,7 @@ defineModule(sim, list(
   version=numeric_version("0.2.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestepUnit=NA_real_,
+  timeunit=NA_real_,
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   parameters=rbind(
@@ -146,7 +146,7 @@ defineModule(sim, list(
   inputObjects=data.frame(objectName=character(),
                           objectClass=character(),
                           other=character(), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$stackName,
+  outputObjects=data.frame(objectName=globals(sim)$stackName,
                            objectClass="RasterStack",
                            other=NA_character_, stringsAsFactors=FALSE)
 ))
@@ -159,7 +159,7 @@ Parameters are often module-specific, where they are only used within the module
 Module-specific parameters are specified using `defineParameter` (with `rbind`) within `defineModule` to build a `data.frame` of input parameters.
 Global parameters are defined at the simulation level as part of the `simInit` call.
 
-The parameter list in the `simList` object (accessed via `simParams`) may be used to pass named parameter values to modules.
+The parameter list in the `simList` object (accessed via `params`) may be used to pass named parameter values to modules.
 The general structure of this parameter list is `parameters$moduleName$moduleParameter`.
 This nested list structure allows passing as many parameters as needed for your simulation.
 We suggest passing a list of all the parameters needed for a single module together.
@@ -172,21 +172,22 @@ require(SpaDES)
 
 outputPath <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=20.0)
-parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
+parameters <- list(.globals=list(stackName="landscape",
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
                    fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
                                    persistprob=0, returnInterval=10, startTime=0,
                                   .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1,
+                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
                                         .plotInitialTime=1.01, .plotInterval=1))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
-path <- system.file("sampleModules", package="SpaDES")
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
+             outputPath=outputPath)
 
 mySim <- simInit(times=times, params=parameters, modules=modules,
-                 objects=objects, path=path)
+                 objects=objects, paths=paths)
 ```
 
 ### Event types
@@ -203,33 +204,33 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
+    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,
                          "randomLandscapes", "plot")
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
+    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(sim[[simGlobals(sim)$stackName]])
+    Plot(sim[[globals(sim)$stackName]])
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$randomLandscapes$.plotInterval,
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
     saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {
     warning(paste("Undefined event type: \'",
-                  simEvents(sim)[1, "eventType", with=FALSE],
+                  events(sim)[1, "eventType", with=FALSE],
                   "\' in module \'",
-                  simEvents(sim)[1, "moduleName", with=FALSE],
+                  events(sim)[1, "moduleName", with=FALSE],
                   "\'", sep=""))
   }
   return(invisible(sim))
@@ -241,9 +242,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 Event functions should be defined below the `doEvent.moduleName` code block and follow the naming convention `modulenameEventtype()`.
 Keep these function definitions as short and clean as possible (you can further modularize your functions by calling additional subroutines).
 
-Functions should get and return objects in the simulation environment (`simEnv`), rather than pass them as function arguments.
+Functions should get and return objects in the simulation environment (`envir`), rather than pass them as function arguments.
 This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call.
-Accessing objects in the `simEnv` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=simEnv(sim))`.
+Accessing objects in the `envir` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=envir(sim))`.
 
 Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
 As such, the `modulenameInit()` function is required for initiliazation.
@@ -252,14 +253,14 @@ Modules may also include `"save"` and `"plot"` events, though these are optional
 ```{r event-functions, echo=TRUE, eval=FALSE}
 ## sample event functions from the default `randomLandscapes` module
 randomLandscapesInit <- function(sim) {
-  if (is.null(simParams(sim)$randomLandscapes$inRAM)) {
+  if (is.null(params(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
   } else {
-    inMemory <- simParams(sim)$randomLandscapes$inRAM
+    inMemory <- params(sim)$randomLandscapes$inRAM
   }
   # Give dimensions of dummy raster
-  nx <- simParams(sim)$randomLandscapes$nx
-  ny <- simParams(sim)$randomLandscapes$ny
+  nx <- params(sim)$randomLandscapes$nx
+  ny <- params(sim)$randomLandscapes$ny
   r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
   speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
@@ -285,9 +286,48 @@ randomLandscapesInit <- function(sim) {
                               forestAge=brewer.pal(9,"BuGn"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
-  sim[[simGlobals(sim)$stackName]] <- mapStack
+  sim[[globals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }
+```
+
+### Event diagram
+
+To better understand how events are scheduled within a simulation, a visual representation called an `eventDiagram` illustrates the sequences of events within a simulation.
+
+Simulation time is presented on the x-axis, starting at date `startDate`.
+Each module appears in a color-coded row, within which each event for that module is displayed corresponding to the sequence of events for that module.
+Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
+
+```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+require(igraph)
+require(SpaDES)
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
+                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=1, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
+                                        .plotInitialTime=1.01, .plotInterval=1))
+
+ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
+pdf(ftmp)
+clearPlot()
+mySim <- simInit(
+  times=list(start=0.0, stop=2.0, timeunit="year"),
+  params=parameters,
+  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+  objects=list(),
+  paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+  ) %>% spades
+dev.off()
+unlink(ftmp)
+```
+
+```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
+mySim <- spades(mySim)            # runs the simulation
+eventDiagram(mySim, "0000-06-01", n=200, height=1700, width=1000) # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
@@ -352,15 +392,14 @@ Note that modules need not be inter-dependent on one another: module B may depen
 To view the dependencies for a simulation:
 
 ```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
-require(igraph) # required for plotting dependency graph
 require(SpaDES)
 
 times <- list(start=0.0, stop=20)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-path <- system.file("sampleModules", package="SpaDES")
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)  # all object dependency relationships
@@ -383,23 +422,25 @@ Parameter values for core modules can be accessed by using their accessor method
 
 These core modules are summarized in the following table and described further below.
 
-**Module Name**   | **Parameterization**                  | **Accessor Methods**
-------------------|---------------------------------------|---------------------
-**`.checkpoint`** | `file`: character.                    | `simCheckpointFile()`
-&nbsp;            | `interval`: numeric (or `NA`).        | `simCheckpointInterval()`
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.load`**       | `fileList`: character.                | `simFileList()`
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.plot`**       | `.plotInitialTime`: numeric (or `NA`) | as list item in your module parameters.
-&nbsp;            | `.plotInterval`: numeric (or `NA`)    | as list item in your module parameters.
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.progress`**   | `graphical`: logical (or `NA`).       | `simProgressGraphical()`
-&nbsp;            | `interval`: numeric (or `NA`).        | `simProgressInterval()`
-&nbsp;            | &nbsp;                                | &nbsp;
-**`.save`**       | `.saveInitialTime`: numeric (or `NA`) | as list item in your module parameters.
-&nbsp;            | `.saveInterval`: numeric (or `NA`)    | as list item in your module parameters.
-&nbsp;            | `.saveObjects`: character.            | as list item in your module parameters.
-&nbsp;            | `.savePath`: character.               | as list item in your module parameters.
+**Module Name**   | **Parameterization**                   | **Accessor Methods**
+------------------|----------------------------------------|---------------------
+**`.checkpoint`** | `file`: character.                     | `checkpointFile()`
+&nbsp;            | `interval`: numeric (or `NA`).         | `checkpointInterval()`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.plot`**       | `.plotInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
+&nbsp;            | `.plotInterval`: numeric (or `NA`)     | as list item in your module parameters.
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.progress`**   | `type`: one of `"text"`, `"graphical"`,| `progressType()`
+&nbsp;            | `"shiny"`, or `NA`.                    | &nbsp;
+&nbsp;            | `interval`: numeric (or `NA`).         | `progressInterval()`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.load`**       | `inputs`: data.table                   | `inputs()` or passed as `inputs` named list to `simList`
+&nbsp;            | &nbsp;                                 | &nbsp;
+**`.save`**       | `ouputs`: data.table                   | `outputs()` or passed as `outputs` named list to `simList`
+&nbsp;            | `.saveInitialTime`: numeric (or `NA`)  | as list item in your module parameters.
+&nbsp;            | `.saveInterval`: numeric (or `NA`)     | as list item in your module parameters.
+&nbsp;            | `.saveObjects`: character.             | as list item in your module parameters.
+&nbsp;            | `.savePath`: character.                | as list item in your module parameters.
 
 ## `.checkpoint` module
 
@@ -416,13 +457,13 @@ times <- list(start=0, stop=30)
 parameters <- list(.globals=list(stackName="landscape"),
                    .checkpoint=list(interval=10, file="chkpnt.RData"))
 modules <- list("randomLandscapes", "caribouMovement")
-path <- system.file("sampleModules", package="SpaDES")
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 
-mySim <- simInit(times=times, params=parameters, modules=modules, path=path)
+mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
 
 # retrieve the checkpoint params from the simulation object
-simCheckpointFile(mySim)
-simCheckpointInterval(mySim)
+checkpointFile(mySim)
+checkpointInterval(mySim)
 ```
 
 ## `.progress` module
@@ -433,13 +474,13 @@ Schedule updates to the simulation progress bar.
 # initialize a new simulation, setting the progress parameters
 mySim <- simInit(times=list(start=0.0, stop=100.0),
                  params=list(.globals=list(stackName="landscape"),
-                             .progress=list(graphical=FALSE, interval=10)),
+                             .progress=list(type="text", interval=10)),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES"))
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
 
 # retrieve the checkpoint params from the simulation object
-simProgressGraphical(mySim)
-simProgressInterval(mySim)
+progressType(mySim)
+progressInterval(mySim)
 ```
 
 ## `.load` and `.save` modules
@@ -447,12 +488,12 @@ simProgressInterval(mySim)
 Schedule object save and file load events by passing parameters to the save and load parameters for each module.
 Unlike the core modules above, loading and saving is designed to be scheduled by the user from within a module.
 
-Loading files can be done be passing a simulation parameter called `.load$fileList` which can be a `list` or a `data.frame` and consists minimally of a column called `files` listing the filepaths of the files to be loaded.
+Loading files can be done be passing a simulation parameter called `inputs` which can be a `list`, a `data.frame`, or `data.table` and consists minimally of a list element or column named `files` listing the filepaths of the files to be loaded.
 Additional columns can also be provided:
 
 **Column Name** | **Description**
 ----------------|---------------------------------------------------------------
-**`objs`**      | Character string indicating the name of the object once the file is loaded.
+**`objectName`**      | Character string indicating the name of the object once the file is loaded.
 **`fun`**       | Character string indicating the function to be used to load the file.
 **`intervals`** | Numeric indicating the interval between repeated loading of the same file.
 &nbsp;          | This should be `NA` or the column absent if the file is only loaded once.
@@ -465,8 +506,27 @@ Additional columns can also be provided:
 &nbsp;          | If there is only one list, then it is assumed to apply to all load attempts and will be
 &nbsp;          | repeated for each load function.
 
-Saving objects to file can be done by passing the appropriate arguments as parameters.
-The key values to include are:
+Saving objects to file can be done at the module level or at the model level.
+At the module level, each module can be provided with appropriate arguments as parameters. 
+At the model level, a single `data.table` can be provided, analogous to the `.load` module. 
+This `data.table` is passed via the `outputs` argument in the `simInit` call or via a `outputs(mySim) <- data.table()`.
+
+Saving files can be done "at the model level" by passing a simulation parameter called `outputs` which can be a `data.frame` or `data.table` and consists minimally of a column named `objectNames`.
+This will identify which objects should be saved. 
+Additional columns can also be provided:
+
+**Column Name** | **Description**
+----------------|---------------------------------------------------------------
+**`objectName`**| Character string indicating the name of the object once the file is loaded.
+**`file`**      | Character string indicating the base name to use to name the saved file.
+**`fun`**       | Character string indicating the function to be used to save the file.
+**`package`**   | Character string indicating the package to find the previous `fun` in.
+**`saveTime`**  | Numeric indicating when the file should be saved. Defaults to `end(simList)`, but this can be any time. For multiple saves of the same object, use unique lines, e.g., via `data.table(expand.grid(objectName=c("caribou", "veg"), saveTime=1:10))`
+
+There is partial string matching of these names, so 
+If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it must be the same length as the `outputs()` `data.table`.
+
+Alternatively, objects can be saved at the module level by passing parameters within each module:
 
 **Argument**            | **Description**
 ------------------------|-------------------------------------------------------
@@ -474,33 +534,41 @@ The key values to include are:
 **`.saveInterval`**     | Numeric specifying the interval at which objects will be saved.
 &nbsp;                  | Used to schedule save events.
 **`.saveObjects`**      | Character vector naming the objects to be saved.
-**`.savePath`**         | Character giving the path to which the object will be saved.
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
+#filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),
-                   .load=list(fileList=data.table(files=filelist)),
-                   randomLandscapes=list(.saveInitialTime=0,
-                                         .saveInterval=10,
-                                         .saveObjects=c("landscape"),
-                                         .savePath=file.path(tempdir(), "output",
-                                                             "randomLandscapes"))
+                   randomLandscapes=list(
+                     .saveInitialTime=0, .saveInterval=10, .saveObjects=c("landscape"),
+                     .savePath=file.path(tempdir(), "output", "randomLandscapes"))
                    ),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES")
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")),
+                 #inputs=data.table(file=filelist),
+                 outputs=data.table(objectName="landscape")
 )
 
 # retrieve the load and save params from the simulation object
-simObjectsLoaded(mySim)   # shows what's been loaded
-simFileList(mySim)        # returns empty if objects successfully loaded
+inputs(mySim)    # shows all files and objects that are "inputs"
+outputs(mySim)   # shows all files and objects that are "outputs"
 
-simParams(mySim)$randomLandscapes$.saveInitialTime
-simParams(mySim)$randomLandscapes$.saveInterval
-simParams(mySim)$randomLandscapes$.saveObjects
-simParams(mySim)$randomLandscapes$.savePath
+params(mySim)$randomLandscapes$.saveInitialTime
+params(mySim)$randomLandscapes$.saveInterval
+params(mySim)$randomLandscapes$.saveObjects
+params(mySim)$randomLandscapes$.savePath
+mySim2 <- spades(mySim)
+
+# More sophisticated, passing arguments to outputs()
+outputs(mySim) <- data.table(
+  objectName="landscape", fun="writeRaster", package="raster",
+  saveTime=c(3,6), args=lapply(c(3,6), function(x) {
+    list(dataType="FLT4S", format="raster", overwrite=TRUE)
+  }))
+mySim2 <- spades(mySim)
+
 ```
 
 Saving within a module -- scheduling save events.
@@ -509,7 +577,7 @@ Saving within a module -- scheduling save events.
 ### WITHIN A MODULE:
 
 # schedule a recurring save event
-nextSave <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.saveInterval
+nextSave <- time(mySim) + params(mySim)$randomLandscapes$.saveInterval
 sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 ```
 
@@ -528,19 +596,19 @@ mySim <- simInit(times=list(start=0.0, stop=100),
                    randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
                  ),
                  modules=list("randomLandscapes"),
-                 path=system.file("sampleModules", package="SpaDES")
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
 )
 
 # retrieve the plotting params from the simulation object
-simParams(mySim)$randomLandscapes$.plotInitialTime
-simParams(mySim)$randomLandscapes$.plotInterval
+params(mySim)$randomLandscapes$.plotInitialTime
+params(mySim)$randomLandscapes$.plotInterval
 ```
 
 ```{r plot-events, echo=TRUE, eval=FALSE, message=FALSE}
 ### WITHIN A MODULE:
 
 # schedule a recurring plot event
-nextPlot <- simCurrentTime(mySim) + simParams(mySim)$randomLandscapes$.plotInterval
+nextPlot <- time(mySim) + params(mySim)$randomLandscapes$.plotInterval
 mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 ```
 
@@ -583,7 +651,7 @@ Requires a global simulation parameter `stackName` be set.
 
 3. `caribouMovement`:
 Agent based model of caribou movement via correlated random walk.
-Requires a RasterStack object whose name is specified by `simGlobals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
+Requires a RasterStack object whose name is specified by `globals(sim)$stackName`, containing a RasterLayer named `habitatQuality`.
 
 ## `SpaDES` module repository
 

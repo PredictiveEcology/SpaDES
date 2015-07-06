@@ -47,7 +47,7 @@ Sets the the number of agents to initiate. THIS IS NOT FULLY IMPLEMENTED.
 
 A \code{SELES}-like function to maintain conceptual backwards compatability
 with that simulation tool. This is intended to ease transitions from
-\href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+\href{http://www.gowlland.ca/}{SELES}.
 
 You must know how to use SELES for these to be useful.
 }
@@ -70,7 +70,6 @@ out <- data.frame(na.omit(crosstab(agentsRas, map)), table(round(map[]))) \%>\%
    mutate(selectionRatio=Freq/Freq.1) \%>\%
    select(-Var1, -Var1.1) \%>\%
    rename(Present=Freq, Avail=Freq.1, Type=Var2)
-print(out)
 }
 \author{
 Eliot McIntire

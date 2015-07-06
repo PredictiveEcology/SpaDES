@@ -1,4 +1,4 @@
-test_that("normPath consistency", {
+test_that("checkPath: normPath consistency", {
   currdir <- getwd()
   on.exit(setwd(currdir))
   tmpdir <- normalizePath(tempdir(), winslash="/", mustWork=FALSE)
@@ -24,7 +24,7 @@ test_that("normPath consistency", {
   expect_equal(normPath(NULL), character())
 })
 
-test_that("checkPath consistency", {
+test_that("checkPath: checkPath consistency", {
   currdir <- getwd()
   on.exit(setwd(currdir))
   setwd(tmpdir <- tempdir())

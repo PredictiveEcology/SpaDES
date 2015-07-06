@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(".")
+}
 
 #' Get the name of a \code{source}-ed file
 #'
@@ -10,13 +12,13 @@ if (getRversion() >= "3.1.0") utils::globalVariables(".")
 #'
 #' @return Character String representing the filename.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname getFileName
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("getFileName", function(fullname) {
   standardGeneric("getFileName")
 })
@@ -183,12 +185,11 @@ setMethod("loadPackages",
 #'
 #' @return Character vector of cleaned up filepaths.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname normPath
 #'
-
+# igraph exports %>% from magrittr
 setGeneric("normPath", function(path) {
   standardGeneric("normPath")
 })
@@ -251,11 +252,11 @@ setMethod("normPath",
 #'
 #' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname checkPath
 #'
+# igraph exports %>% from magrittr
 setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
@@ -272,6 +273,7 @@ setMethod("checkPath",
                 stop("Invalid path: cannot be NA.")
               } else {
                 path = normPath(path)
+
                 if (!file.exists(path)) {
                   if (create==TRUE) {
                     dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
@@ -326,7 +328,6 @@ setMethod("checkPath",
 #' @return Character string representing the filename.
 #'
 #' @importFrom fpCompare '%==%'
-#' @importFrom magrittr '%>%'
 #' @importFrom stringr str_pad
 #' @export
 #' @docType methods
@@ -338,16 +339,17 @@ setMethod("checkPath",
 #' paddedFloatToChar(1.25)
 #' paddedFloatToChar(1.25, padL=3, padR=5)
 #'
+# igraph exports %>% from magrittr
 paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   xIC <- x %/% 1 %>%
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%
     str_pad(., pad=pad, width=padL, side="left")
   xf <- x %% 1
-  xFC <- if(xf %==% 0) { "" } else {
+  xFC <- ifelse(xf %==% 0 , "" ,
     strsplit(format(xf, digits=padR, scientific=FALSE), split="\\.")[[1]][2] %>%
       str_pad(., width=padR, side="right", pad=pad) %>%
-      paste0(".", .)
-  }
+      paste0(".", .))
+
   return(paste0(xIC, xFC))
 }
 

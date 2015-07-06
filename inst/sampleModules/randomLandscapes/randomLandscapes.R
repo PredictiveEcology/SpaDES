@@ -9,7 +9,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestepUnit=NA_real_,
+  timeunit=NA_real_,
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   parameters=rbind(
@@ -24,7 +24,7 @@ defineModule(sim, list(
   inputObjects=data.frame(objectName=character(),
                           objectClass=character(),
                           other=character(), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=simGlobals(sim)$stackName,
+  outputObjects=data.frame(objectName=globals(sim)$stackName,
                            objectClass="RasterStack",
                            other=NA_character_, stringsAsFactors=FALSE)
 ))
@@ -36,40 +36,40 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- randomLandscapesInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.plotInitialTime,
+    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,
                          "randomLandscapes", "plot")
-    sim <- scheduleEvent(sim, simParams(sim)$randomLandscapes$.saveInitialTime,
+    sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(sim[[simGlobals(sim)$stackName]])
+    Plot(sim[[globals(sim)$stackName]])
 
   } else if (eventType=="save") {
     # do stuff for this event
-    saveFiles(sim)
+    sim <- saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) + simParams(sim)$randomLandscapes$.saveInterval,
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$randomLandscapes$.saveInterval,
                          "randomLandscapes", "save")
 
   } else {
-    warning(paste("Undefined event type: \'", simEvents(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'", simEvents(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
+    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'", events(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
   }
   return(invisible(sim))
 }
 
 ## event functions
 randomLandscapesInit <- function(sim) {
-  if (is.null(simParams(sim)$randomLandscapes$inRAM)) {
+  if (is.null(params(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
   } else {
-    inMemory <- simParams(sim)$randomLandscapes$inRAM
+    inMemory <- params(sim)$randomLandscapes$inRAM
   }
   # Give dimensions of dummy raster
-  nx <- simParams(sim)$randomLandscapes$nx
-  ny <- simParams(sim)$randomLandscapes$ny
+  nx <- params(sim)$randomLandscapes$nx
+  ny <- params(sim)$randomLandscapes$ny
   template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
   speedup <- max(1, nx/5e2)
 
@@ -94,6 +94,6 @@ randomLandscapesInit <- function(sim) {
                               forestAge=brewer.pal(9,"BuGn"),
                               habitatQuality=brewer.pal(8,"Spectral"),
                               percentPine=brewer.pal(9,"Greens"))
-  sim[[simGlobals(sim)$stackName]] <- mapStack
+  sim[[globals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }

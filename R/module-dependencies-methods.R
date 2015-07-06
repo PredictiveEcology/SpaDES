@@ -24,10 +24,10 @@ selectMethod("show", "igraph")
 #'          and remaining columns the attributes of the dependency objects
 #'          (object name, class, etc.).
 #'
-#' @include simList.R
+#' @include simList-class.R
 #'
 #' @export
-#' @import data.table
+#' @importFrom data.table data.table rbindlist setkey setorder ':='
 #' @docType methods
 #' @rdname depsEdgeList
 #'
@@ -42,7 +42,7 @@ setMethod("depsEdgeList",
           signature(sim="simList", plot="logical"),
           definition=function(sim, plot) {
 
-            deps <- simDepends(sim)
+            deps <- depends(sim)
             sim.in <- sim.out <- data.table(objectName=character(),
                                             objectClass=character(),
                                             module=character())
@@ -71,7 +71,7 @@ setMethod("depsEdgeList",
               dt <- dx[,list(from=module, to=i.module,
                              objName=objectName, objClass=i.objectClass)]
 
-              if (plot) dt <- dt[!duplicated(dt[,1:2,with=FALSE]),]
+              if (plot) dt <- dt[!duplicated(dt[, 1:2, with=FALSE]),]
             } else {
               dt <- data.table(from=character(), to=character(),
                                objName=character(), objClass=character())
@@ -94,16 +94,14 @@ setMethod("depsEdgeList",
 #'
 #' @return An \code{\link{igraph}} object.
 #'
-#' @include simList.R
-#'
-#' @import igraph
-#' @importFrom magrittr '%>%'
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname depsGraph
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
+# igraph exports %>% from magrittr
 setGeneric("depsGraph", function(sim, plot) {
   standardGeneric("depsGraph")
 })
@@ -118,7 +116,7 @@ setMethod("depsGraph",
             } else {
               el <- depsEdgeList(sim, plot) %>% .depsPruneEdges
             }
-            return(graph.data.frame(el))
+            return(graph_from_data_frame(el))
 })
 
 #' @export
@@ -140,22 +138,17 @@ setMethod("depsGraph",
 #'
 #' @return An updated edge list object.
 #'
-#' @include simList.R
+#' @include simList-class.R
 #'
-#' @import data.table
-#' @import igraph
-#' @importFrom magrittr '%>%'
-#' @importFrom dplyr anti_join
-#' @importFrom dplyr lead
-#' @importFrom dplyr inner_join
-#' @importFrom dplyr filter
-#' @importFrom dplyr bind_rows
+#' @importFrom data.table as.data.table data.table rbindlist
+#' @importFrom dplyr anti_join bind_rows filter inner_join lead
 #' @export
 #' @docType methods
 #' @rdname depsPruneEdges
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
+# igraph exports %>% from magrittr
 setGeneric(".depsPruneEdges", function(simEdgeList) {
   standardGeneric(".depsPruneEdges")
 })
@@ -164,7 +157,7 @@ setGeneric(".depsPruneEdges", function(simEdgeList) {
 setMethod(".depsPruneEdges",
           signature(simEdgeList="data.table"),
           definition=function(simEdgeList) {
-            simGraph <- graph.data.frame(simEdgeList)
+            simGraph <- graph_from_data_frame(simEdgeList)
             M <- shortest.paths(simGraph, mode="out")
             if (nrow(M)>1) {
               pth <- data.table(from=character(), to=character())
@@ -172,20 +165,21 @@ setMethod(".depsPruneEdges",
                 for (col in (row+1L):ncol(M)) {
                   current <- M[row,col]
                   partner <- M[col,row]
-                  if (all((current>0), !is.infinite(current), (partner>0), !is.infinite(partner))) {
-                    pth1 <- get.shortest.paths(simGraph,
-                                               from=rownames(M)[row],
-                                               to=colnames(M)[col])$vpath[[1]]
+                  if (all((current>0), !is.infinite(current), (partner>0),
+                          !is.infinite(partner))) {
+                    pth1 <- shortest_paths(simGraph,
+                                           from=rownames(M)[row],
+                                           to=colnames(M)[col])$vpath[[1]]
                     pth1 <- data.frame(from=rownames(M)[pth1],
-                                       to=rownames(M)[lead(pth1, 1)],
+                                       to=rownames(M)[lead(match(names(pth1), rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
-                    pth2 <- get.shortest.paths(simGraph,
-                                               from=colnames(M)[col],
-                                               to=rownames(M)[row])$vpath[[1]]
+                    pth2 <- shortest_paths(simGraph,
+                                           from=colnames(M)[col],
+                                           to=rownames(M)[row])$vpath[[1]]
                     pth2 <- data.frame(from=rownames(M)[pth2],
-                                       to=rownames(M)[lead(pth2, 1)],
+                                       to=rownames(M)[lead(match(names(pth2), rownames(M)),1)],
                                        stringsAsFactors = FALSE) %>%
                             na.omit %>% as.data.table
 
@@ -215,11 +209,11 @@ setMethod(".depsPruneEdges",
 #' Determine module load order
 #'
 #' Internal function.
-#' Checks module dependencies and attempts to enusure that cyclic dependencies
+#' Checks module dependencies and attempts to ensure that cyclic dependencies
 #' can be resolved, checking objects in the global environment, and finally,
 #' attempts to determine the load order for modules in the simulation.
 #'
-#' Uses \code{\link{topological.sort}} to try to find a load order satisfying
+#' Uses \code{\link[igraph]{topo_sort}} to try to find a load order satisfying
 #' all module object dependencies.
 #'
 #' @param sim         A \code{simList} object.
@@ -228,16 +222,14 @@ setMethod(".depsPruneEdges",
 #'
 #' @return Character vector of module names, sorted in correct load order.
 #'
-#' @include simList.R
-#'
-#' @importFrom magrittr '%>%'
-#' @import igraph
+#' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname depsLoadOrder
 #'
 #' @author Alex Chubaty
-#'
+# igraph is being imported in spades-package.R
+# igraph exports %>% from magrittr
 setGeneric(".depsLoadOrder", function(sim, simGraph) {
   standardGeneric(".depsLoadOrder")
 })
@@ -247,16 +239,21 @@ setMethod(".depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),
           definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!
-            tsort <- topological.sort(simGraph)
+            tsort <- topo_sort(simGraph, "out")
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
-              loadOrder <- unlist(simModules(sim))
+              modules <- unlist(modules(sim))
+              if (length(modules(sim))) {
+                loadOrder <- modules
+              } else {
+                loadOrder <- character()
+              }
             }
             # make sure modules with no deps get added
-            if (!all(simModules(sim) %in% loadOrder)) {
-              ids <- which(simModules(sim) %in% loadOrder)
-              noDeps <- unlist(simModules(sim))[-ids]
+            if (!all(modules(sim) %in% loadOrder)) {
+              ids <- which(modules(sim) %in% loadOrder)
+              noDeps <- unlist(modules(sim))[-ids]
               loadOrder <- c(loadOrder, noDeps)
             }
             return(loadOrder)

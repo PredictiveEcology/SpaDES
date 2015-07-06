@@ -7,19 +7,19 @@
 .makeViewports(sPlot, newArr = FALSE)
 }
 \arguments{
-\item{sPlot}{An object of class \code{.spadesPlot}}
+\item{sPlot}{An object of class \code{.spadesPlot}.}
 
-\item{newArr}{Logical. Whether this function will create a completely new viewport.
-               Default \code{FALSE}.}
+\item{newArr}{Logical indicating whether this function will create a
+               completely new viewport. Default \code{FALSE}.}
 }
 \description{
-Given a set of extents, and a layout for these extents, this function will output
-a viewport tree to allow plotting.
+Given a set of extents, and a layout for these extents, this function will
+output a viewport tree to allow plotting.
 }
 \details{
-This function will either create a totally new set of viewports, or simply add
-some nested viewports to an existing arrangement, i.e., is there still white
-space availabe to plot.
+This function will either create a totally new set of viewports, or simply
+add some nested viewports to an existing arrangement, i.e., is there still
+white space availabe to plot.
 }
 \author{
 Eliot McIntire

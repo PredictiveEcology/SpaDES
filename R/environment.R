@@ -96,7 +96,7 @@ setMethod(".getSpaDES",
 #'
 #' This will copy or move (if \code{rmSrc=TRUE}) objects passed as a character string to a
 #' different environment. This is used with a \code{spades} call to copy or move objects to the
-#' \code{simEnv} environment object.
+#' \code{envir} environment object.
 #'
 #' @param x objects passed as character string vector
 #'
@@ -121,7 +121,7 @@ setMethod(".getSpaDES",
 #' # move objects from .GlobalEnv to e
 #' changeObjEnv(objs, e)
 #'
-#' #move objects back to .GlobalEnv from e
+#' # move objects back to .GlobalEnv from e
 #' changeObjEnv(objs, .GlobalEnv, e)
 #' rm(e)
 #'

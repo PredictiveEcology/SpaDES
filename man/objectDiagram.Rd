@@ -6,13 +6,16 @@
 \alias{objectDiagram,simList-method}
 \title{Simulation object dependency diagram}
 \usage{
-objectDiagram(sim)
+objectDiagram(sim, ...)
 
-\S4method{objectDiagram}{simList}(sim)
+\S4method{objectDiagram}{simList}(sim, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a
             completed simulation).}
+
+\item{...}{Additional arguments passed to \code{mermaid}.
+            Useful for specifying \code{height} and \code{width}.}
 }
 \value{
 Plots a sequence diagram.

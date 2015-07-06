@@ -36,7 +36,7 @@ removeClass("person4")
 #'                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
 #'                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.
 #'
-#' @slot timestepUnit       Describes the time (in seconds) corresponding to 1.0 simulation time units.
+#' @slot timeunit       Describes the time (in seconds) corresponding to 1.0 simulation time units.
 #'                      Default is \code{NA}.
 #'
 #' @slot citation       A citation for the module, as a character string. Defaults to \code{NA_character_}.
@@ -68,13 +68,13 @@ removeClass("person4")
 setClass(".moduleDeps",
          slots=list(name="character", description="character", keywords="character",
                     authors="person", version="numeric_version", spatialExtent="Extent",
-                    timeframe="POSIXt", timestepUnit="ANY",
+                    timeframe="POSIXt", timeunit="ANY",
                     citation="list", reqdPkgs="list", parameters="data.frame",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
                         keywords=character(), authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
-                        timeframe=as.POSIXlt(c(NA, NA)), timestepUnit=NA_real_,
+                        timeframe=as.POSIXlt(c(NA, NA)), timeunit=NA_real_,
                         citation=list(), reqdPkgs=list(),
                         parameters=data.frame(paramName=character(), paramClass=character(),
                                               default=I(list()), min=numeric(), max=numeric(),
@@ -89,7 +89,7 @@ setClass(".moduleDeps",
            if (length(object@keywords)<1L) stop("keywords must be supplied.")
            if (length(object@authors)<1L) stop("authors must be specified.")
            if (length(object@timeframe)!=2L) stop("timeframe must be specified using two date-times.")
-           if (length(object@timestepUnit)<1L) stop("timestepUnit must be specified.")
+           if (length(object@timeunit)<1L) stop("timeunit must be specified.")
            if (!any(unlist(lapply(object@reqdPkgs, is.character)))) stop("reqdPkgs must be specified as a list of package names.")
 
            # data.frame checking
@@ -131,22 +131,21 @@ setClass(".moduleDeps",
 #'
 #' @seealso \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 #'
-#' @importFrom methods is
-#'
 #' @aliases .simDeps
 #' @rdname simDeps-class
 #'
 #' @author Alex Chubaty
 #'
-setClass(".simDeps",
-         slots=list(dependencies="list"),
-         prototype=list(dependencies=list(NULL)),
-         validity=function(object) {
-           # remove empty (NULL) elements
-           object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
+setClass(
+  ".simDeps",
+  slots=list(dependencies="list"),
+  prototype=list(dependencies=list(NULL)),
+  validity=function(object) {
+    # remove empty (NULL) elements
+    object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
-           # ensure list contains only .moduleDeps objects
-           if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
-             stop("invalid type: not a .moduleDeps object")
-           }
+    # ensure list contains only .moduleDeps objects
+    if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
+      stop("invalid type: not a .moduleDeps object")
+    }
 })

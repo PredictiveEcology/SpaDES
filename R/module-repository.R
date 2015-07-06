@@ -17,12 +17,12 @@ if(getRversion() >= "3.1.0") {
 #' @importFrom httr content
 #' @importFrom httr GET
 #' @importFrom httr stop_for_status
-#' @importFrom magrittr '%>%'
 #' @export
 #' @rdname getModuleVersion
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("getModuleVersion", function(name, repo) {
   standardGeneric("getModuleVersion")
 })

@@ -7,7 +7,7 @@
 last.dump.rda
 cache/
 figure/
-man/spadesEnv.Rd
+*/spadesEnv.Rd
 output/
 tests/testthat/*.pdf
 tests/testthat/*.RData

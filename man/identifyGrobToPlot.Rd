@@ -18,16 +18,20 @@
 \arguments{
 \item{grobNamesi}{name of the object to plot}
 
-\item{toPlot}{list containing the objects to plot, made as a call to the Plot function}
+\item{toPlot}{list containing the objects to plot, made as a call to the
+              \code{Plot} function}
 
-\item{takeFromPlotObj}{logical. If TRUE, then take from the call to Plot, FALSE takes
-from global environment}
+\item{takeFromPlotObj}{logical. If \code{TRUE}, then take from the call to
+                       \code{Plot}; if \code{FALSE} takes from global envir.}
 }
 \description{
+Internal function.
+}
+\details{
 Because the Plot function can use the global environment as a source of
 objects to plot, not just the call itself, this function identifies where
 the data for the grob should come from, the current call or the global
-environment. This should be called internally only.
+environment.
 }
 \author{
 Eliot McIntire

@@ -1,4 +1,6 @@
-if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables("num.in.pop")
+}
 
 ###############################################################################
 #' Produce a \code{raster} of a random Gaussian process.
@@ -26,25 +28,25 @@ if (getRversion() >= "3.1.0") utils::globalVariables("num.in.pop")
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RFoptions
+#' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RMexp
 #' @importFrom RandomFields round
-#' @import raster
-#' @import tkrplot
+#' @importFrom raster cellStats disaggregate extent 'extent<-' raster res
 #' @export
 #' @docType methods
 #' @rdname gaussmap
 #'
 #' @examples
+#' \dontrun{
+#' library(RandomFields)
+#' library(raster)
 #' nx <- ny <- 100L
 #' r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
 #' speedup <- max(1, nx/5e2)
 #' map1 <- gaussMap(r, scale=300, var=0.03, speedup=speedup, inMemory=TRUE)
-#' map2 <- gaussMap(r, scale=10, var=0.1, speedup=speedup, inMemory=TRUE)
-#' map3 <- gaussMap(r, scale=50, var=1, speedup=speedup, inMemory=TRUE)
-#' map4 <- gaussMap(r, scale=500, var=10, speedup=speedup, inMemory=TRUE)
-#' Plot(map1, map2, map3, map4)
+#' Plot(map1)
+#' }
 #'
 gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
   RFoptions(spConform=FALSE)
@@ -135,13 +137,7 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #' @importFrom secr make.mask
 #' @importFrom secr randomHabitat
 #'
-#' @importFrom raster disaggregate
-#' @importFrom raster extent
-#' @importFrom raster ncol
-#' @importFrom raster nrow
-#' @importFrom raster raster
-#'
-#' @import igraph
+#' @importFrom raster disaggregate extent ncol nrow raster
 #'
 #' @export
 #' @docType methods
@@ -153,10 +149,11 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
 #' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
 #'
-randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, speedup=1, numTypes=1, minpatch=10, ...) {
-  ext <- raster::extent(ras)
-  nc <- raster::ncol(ras)
-  nr <- raster::nrow(ras)
+randomPolygons <- function(ras=raster(extent(0,100,0,100), res=1), p=0.1, A=0.3,
+                           speedup=1, numTypes=1, minpatch=10, ...) {
+  ext <- extent(ras)
+  nc <- ncol(ras)
+  nr <- nrow(ras)
   resol <- res(ras)
 
   wholeNumsCol <- .findFactors(nc)
@@ -168,26 +165,27 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 
   minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
 
-
   if(length(resol)>1) {
-    message(paste("assuming square pixels with resolution =",resol[1]))
+    message(paste("assuming square pixels with resolution =", resol[1]))
     resol <- resol[1]
   }
   tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)
 
   outMap <- list()
   r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
-              res=res(ras)*c(speedupEffectiveCol,speedupEffectiveRow))
-  if( (numTypes < length(p)) | (numTypes < length(A)) | (numTypes < length(minpatch))) {
+              res=res(ras)*c(speedupEffectiveCol, speedupEffectiveRow))
+  if( (numTypes < length(p)) |
+      (numTypes < length(A)) |
+      (numTypes < length(minpatch))) {
     numTypes = max(length(p),length(A),length(minpatch))
   }
   r[] <- 0
 
   for(i in 1:numTypes) {
-    a <- secr::randomHabitat(tempmask,
-                             p = p[(i-1)%%length(p)+1],
-                             A = A[(i-1)%%length(A)+1],
-                             minpatch = minpatch[(i-1)%%length(minpatch)+1])
+    a <- randomHabitat(tempmask,
+                       p = p[(i-1)%%length(p)+1],
+                       A = A[(i-1)%%length(A)+1],
+                       minpatch = minpatch[(i-1)%%length(minpatch)+1])
     if(nrow(a)==0) {
       stop("A NULL map was created. ",
            "Please try again, perhaps with different parameters.")
@@ -195,7 +193,7 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
     r[as.integer(rownames(a))] <- i
   }
   if(speedup>1) {
-    return(raster::disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
+    return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
   } else {
     return(invisible(r))
   }
@@ -219,8 +217,8 @@ randomPolygons <- function(ras=raster(extent(0,100,0,100),res=1), p=0.1, A=0.3, 
 #' @return A raster with 0s and 1s, where the 1s indicate starting locations of
 #' agents following the numbers above.
 #'
-#' @import data.table raster sp
-#' @importFrom methods is
+#' @importFrom data.table data.table setkey
+#' @importFrom raster getValues raster Which
 #' @export
 #' @docType methods
 #' @rdname specnumperpatch-probs

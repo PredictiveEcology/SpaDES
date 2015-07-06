@@ -9,7 +9,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestepUnit="week",
+  timeunit="month",
   citation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
@@ -21,11 +21,11 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")),
-  inputObjects=data.frame(objectName=simGlobals(sim)$stackName,
+  inputObjects=data.frame(objectName=globals(sim)$stackName,
                           objectClass="RasterStack",
                           other="layername=\"habitatQuality\"",
                           stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=c(simGlobals(sim)$stackName, "caribou"),
+  outputObjects=data.frame(objectName=c(globals(sim)$stackName, "caribou"),
                            objectClass=c("RasterStack", "SpatialPointsDataFrame"),
                            other=c("layername=\"habitatQuality\"", NA_character_),
                            stringsAsFactors=FALSE)
@@ -36,63 +36,63 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
-    checkObject(sim, simGlobals(sim)$stackName, layer="habitatQuality")
+    checkObject(sim, name=globals(sim)$stackName, layer="habitatQuality")
 
     # do stuff for this event
     sim <- caribouMovementInit(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$moveInitialTime, "caribouMovement", "move")
-    sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
-    sim <- scheduleEvent(sim, simParams(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
+    sim <- scheduleEvent(sim, params(sim)$caribouMovement$moveInitialTime, "caribouMovement", "move")
+    sim <- scheduleEvent(sim, params(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
+    sim <- scheduleEvent(sim, params(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
   } else if (eventType=="move") {
     # do stuff for this event
     sim <- caribouMovementMove(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    Plot(sim$caribou, addTo=paste("sim", simGlobals(sim)$stackName, "habitatQuality", sep="$"),
+    Plot(sim$caribou, addTo=paste("sim", globals(sim)$stackName, "habitatQuality", sep="$"),
          new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="plot") {
     # do stuff for this event
-    Plot(sim$caribou, addTo=paste("sim", simGlobals(sim)$stackName, "habitatQuality", sep="$"),
+    Plot(sim$caribou, addTo=paste("sim", globals(sim)$stackName, "habitatQuality", sep="$"),
          new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
     Plot(sim$caribou, new=FALSE, pch=19, size=0.1, gp=gpar(cex=0.6))
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
   } else if (eventType=="save") {
     # do stuff for this event
-    saveFiles(sim)
+    sim <- saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, simCurrentTime(sim) +
-                           simParams(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
+    sim <- scheduleEvent(sim, time(sim) +
+                           params(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
 
   } else {
-    warning(paste("Undefined event type: \'", simEvents(sim)[1,"eventType",with=FALSE],
-                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    warning(paste("Undefined event type: \'", events(sim)[1,"eventType",with=FALSE],
+                  "\' in module \'", events(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
   }
   return(invisible(sim))
 }
 
 ## event functions
 caribouMovementInit <- function(sim) {
-  #landscape <- sim[[simGlobals(sim)$stackName]]
+  #landscape <- sim[[globals(sim)$stackName]]
 
-  yrange <- c(ymin(sim[[simGlobals(sim)$stackName]]), ymax(sim[[simGlobals(sim)$stackName]]))
-  xrange <- c(xmin(sim[[simGlobals(sim)$stackName]]), xmax(sim[[simGlobals(sim)$stackName]]))
+  yrange <- c(ymin(sim[[globals(sim)$stackName]]), ymax(sim[[globals(sim)$stackName]]))
+  xrange <- c(xmin(sim[[globals(sim)$stackName]]), xmax(sim[[globals(sim)$stackName]]))
 
   # initialize caribou agents
-  N <- simParams(sim)$caribouMovement$N
+  N <- params(sim)$caribouMovement$N
   IDs <- as.character(1:N)
   sex <- sample(c("female", "male"), N, replace=TRUE)
   age <- round(rnorm(N, mean=8, sd=3))
@@ -109,14 +109,14 @@ caribouMovementInit <- function(sim) {
 }
 
 caribouMovementMove <- function(sim) {
-  #landscape <- sim[[simGlobals(sim)$stackName]]
+  #landscape <- sim[[globals(sim)$stackName]]
 
   # crop any caribou that went off maps
-  sim$caribou <- crop(sim$caribou, sim[[simGlobals(sim)$stackName]])
+  sim$caribou <- crop(sim$caribou, sim[[globals(sim)$stackName]])
   if(length(sim$caribou)==0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
-  ex <- sim[[simGlobals(sim)$stackName]][["habitatQuality"]][sim$caribou]
+  ex <- sim[[globals(sim)$stackName]][["habitatQuality"]][sim$caribou]
 
   # step length is a function of current cell's habitat quality
   sl <- 0.25/ex
@@ -125,9 +125,9 @@ caribouMovementMove <- function(sim) {
   sd <- 30 # could be specified globally in params
 
   sim$caribou <- move("crw", agent=sim$caribou,
-                      extent=extent(sim[[simGlobals(sim)$stackName]]),
+                      extent=extent(sim[[globals(sim)$stackName]]),
                       stepLength=ln, stddev=sd, lonlat=FALSE,
-                      torus=simParams(sim)$caribouMovement$torus)
+                      torus=params(sim)$caribouMovement$torus)
 
   return(invisible(sim))
 }

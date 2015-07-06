@@ -23,8 +23,9 @@
 \item{newArr}{logical, whether this is a new arrangement or just adding to a previous one}
 }
 \description{
-This is to be used internally. This takes a raster .spadesGrob, and converts zoomExtent
-into a zoom, legendRange into a legend, and calculates the maxpixels to plot for speed.
+Internal function. Takes a raster .spadesGrob, and converts zoomExtent into
+a zoom, and legendRange into a legend.
+Then calculates the maxpixels to plot for speed.
 }
 \author{
 Eliot McIntire

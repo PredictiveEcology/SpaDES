@@ -4,7 +4,6 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,ANY-method}
-\alias{clearPlot}
 \alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
@@ -22,108 +21,116 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   length = NULL)
 
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
-
-clearPlot(dev = dev.cur(), removeData = TRUE)
 }
 \arguments{
-\item{...}{A combination of \code{.spatialObjects} or a single \code{ggplot} object. See details.}
+\item{...}{A combination of \code{.spatialObjects} or some non-spatial objects.
+           See details.}
 
-\item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a new one made;
-if \code{FALSE}, then the \code{...} plots will be added to the current device,
-adding or rearranging the plot layout as necessary. Default is \code{FALSE}.}
+\item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a
+           new one made; if \code{FALSE}, then the \code{...} plots will be
+           added to the current device, adding or rearranging the plot layout
+           as necessary. Default is \code{FALSE}.}
 
-\item{addTo}{String vector, with same length as \code{...}.
-This is for overplotting, when the overplot is not to occur on the plot with
-the same name, such as plotting a \code{SpatialPoints*} object on a \code{RasterLayer}.}
+\item{addTo}{Character vector, with same length as \code{...}.
+             This is for overplotting, when the overplot is not to occur on
+             the plot with the same name, such as plotting a
+             \code{SpatialPoints*} object on a \code{RasterLayer}.}
 
-\item{gp}{A gpar object, created by \code{\link{gpar}} function,
-to change plotting parameters (see \code{grid} package).}
+\item{gp}{A \code{gpar} object, created by \code{\link{gpar}} function,
+          to change plotting parameters (see \code{grid} package).}
 
-\item{gpText}{A gpar object for the title text. Default \code{gpar(col="black")}}
+\item{gpText}{A \code{gpar} object for the title text.
+              Default \code{gpar(col="black")}.}
 
-\item{gpAxis}{A gpar object for the axes. Default \code{gpar(col="black")}}
+\item{gpAxis}{A \code{gpar} object for the axes.
+              Default \code{gpar(col="black")}.}
 
-\item{axes}{Logical or \code{"L"}, representing the left and bottom axes, overall plots.}
+\item{axes}{Logical or \code{"L"}, representing the left and bottom axes,
+            over all plots.}
 
-\item{speedup}{Numeric. The factor by which the number of pixels is divided by to plot rasters.
-See Details.}
+\item{speedup}{Numeric. The factor by which the number of pixels is divided
+               by to plot rasters. See Details.}
 
 \item{size}{Numeric. The size, in points, for \code{SpatialPoints} symbols,
-if using a scalable symbol.}
+            if using a scalable symbol.}
 
-\item{cols}{character vector or list of character vectors. Default \code{terrain.color()}. See Details.}
+\item{cols}{Character vector or list of character vectors of colours.
+            Default \code{terrain.color()}. See Details.}
 
-\item{zoomExtent}{extent object. Supplying a single extent object that is smaller than the
-rasters will call a crop statement before plotting. Defaults to \code{NULL}.
-This occurs after any downsampling of rasters, so it may produce very pixelated maps.}
+\item{zoomExtent}{An \code{Extent} object. Supplying a single extent that is
+                  smaller than the rasters will call a crop statement before
+                  plotting. Defaults to \code{NULL}.
+                  This occurs after any downsampling of rasters, so it may
+                  produce very pixelated maps.}
 
-\item{visualSqueeze}{numeric. The proportion of the white space to be used for plots. Default is 0.75.}
+\item{visualSqueeze}{Numeric. The proportion of the white space to be used
+                     for plots. Default is 0.75.}
 
-\item{legend}{logical. Whether legend should be drawn next to plots. Default is \code{TRUE}.}
+\item{legend}{Logical idicating whether a legend should be drawn.
+              Default is \code{TRUE}.}
 
-\item{legendRange}{numeric vector giving values that, representing the lower
-and upper bounds of a legend (i.e., \code{1:10} or \code{c(1,10)} will give same result)
-that will override the data bounds contained within the \code{grobToPlot}.}
+\item{legendRange}{Numeric vector giving values that, representing the lower
+                   and upper bounds of a legend (i.e., \code{1:10} or
+                   \code{c(1,10)} will give same result) that will override
+                   the data bounds contained within the \code{grobToPlot}.}
 
-\item{legendText}{Vector of values to use for legend value labels.
-Defaults to \code{NULL}, which results in a pretty numeric representation.
-If \code{Raster*} has a Raster Attribute Table (rat; see \code{\link{raster}}
-package), this will be used by default. Currently, only a single vector is accepted.
-The length of this must match the length of the legend, so this is mosty useful for
-discrete valued rasters.}
+\item{legendText}{Character vector of legend value labels.
+                  Defaults to \code{NULL}, which results in a pretty numeric
+                  representation.
+                  If \code{Raster*} has a Raster Attribute Table (rat; see
+                  \code{\link{raster}} package), this will be used by default.
+                  Currently, only a single vector is accepted.
+                  The length of this must match the length of the legend, so
+                  this is mosty useful for discrete-valued rasters.}
 
 \item{pch}{see \code{?par}.}
 
-\item{title}{Logical. Whether the names of each plot should be written above plots.}
+\item{title}{Logical indicating whether the names of each plot should be
+             written above plots.}
 
-\item{na.color}{string indicating the color for \code{NA} values. Default transparent.}
+\item{na.color}{Character string indicating the color for \code{NA} values.
+                Default transparent.}
 
-\item{zero.color}{string indicating the color for zero values, when zero is
-the minimum value, otherwise, zero is treated as any other color. Default transparent.}
+\item{zero.color}{Character string indicating the color for zero values,
+                  when zero is the minimum value, otherwise, zero is
+                  treated as any other color. Default transparent.}
 
-\item{length}{numeric. Optional length, in inches, of the arrow head.}
+\item{length}{Numeric. Optional length, in inches, of the arrow head.}
 
-\item{toDev}{numeric. Which device should the new rePlot be plotted to. Default is current device.}
+\item{toDev}{Numeric. Which device should the new rePlot be plotted to.
+                Default is current device.}
 
-\item{fromDev}{numeric. Which device should the replot information be taken from. Default
-is current device}
-
-\item{dev}{Numeric. Device number to clear.}
-
-\item{removeData}{Logical whether any data that was stored in the \code{.spadesEnv} should also
-be removed, i.e., not just the plot window wiped.}
+\item{fromDev}{Numeric. Which device should the replot information be taken from.
+                Default is current device}
 }
 \value{
-Invisibly returns the \code{.spadesPlot} class object. If this is assigned to an
-object, say \code{obj}, then this can be plotted again with \code{Plot(obj)}. This
-object is also stored in the locked \code{.spadesEnv}, so can simply be replotted
-with \code{rePlot()} or on a new device with \code{rePlot(4)}, where 4 is the new device number.
+Invisibly returns the \code{.spadesPlot} class object.
+If this is assigned to an object, say \code{obj}, then this can be plotted
+again with \code{Plot(obj)}.
+This object is also stored in the locked \code{.spadesEnv}, so can simply be
+replotted with \code{rePlot()} or on a new device with \code{rePlot(n)},
+where \code{n} is the new device number.
 }
 \description{
 The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
-\code{SpatialPolygons*}, and any combination of those.  It can
-also handle \code{ggplot2} objects or base histogram objects via call to
-\code{exHist <- hist(1:10, plot=FALSE)}, but these non-spatial objects
-cannot be mixed among types (i.e., can't mix and match spatial and
-non-spatial objects, or base histogram and ggplot2 types). Customization of the
-ggplot2 elements can be done as a normal ggplot2 plot, then added with
-\code{Plot(ggplotObject)}.
+\code{SpatialPolygons*}, and any combination of those.
+It can also handle \code{ggplot2} objects or \code{base::histogram} objects
+via call to \code{exHist <- hist(1:10, plot=FALSE)}.
+Customization of the \code{ggplot2} elements can be done as a normal
+\code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
 
-Under some conditions, a device and its meta data needs to be cleared manually.
-This can be done with either the \code{new=TRUE} argument within the call to \code{Plot}.
-Sometimes, the metadata of a previous plot will prevent correct plotting of
-a new \code{Plot} call. Use \code{clearPlot} to clear the
-device and all the associated metadata manually.
+Re-plot to a specific device
 }
 \details{
-NOTE: Plot uses the grid package; therefore, it is
-NOT compatible with base R graphics. Also, because it does not by default wipe
-the plotting device before plotting, a call to \code{\link{clearPlot}} could be
-helpful to resolve many errors.
+NOTE: Plot uses the \code{grid} package; therefore, it is NOT compatible with
+base R graphics. Also, because it does not by default wipe the plotting device
+before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
+many errors.
 
-If \code{new=TRUE}, a new plot will be generated. This is equivalent to calling
-\code{\link{clearPlot}; Plot(Object)}, i.e,. directly before creating a new Plot.
+If \code{new=TRUE}, a new plot will be generated.
+This is equivalent to calling \code{clearPlot(); Plot(Object)},
+i.e,. directly before creating a new Plot.
 When \code{new=FALSE}, any plot that already exists will be overplotted,
 while plots that have not already been plotted will be added.
 This function rearranges the plotting device to maximize the size of all the
@@ -140,82 +147,84 @@ these names. However, this name will not persist when there is a future call
 to \code{Plot} that forces a rearrangement of the plots.
 A more stable way is to use the object names directly, and any layer names
 (in the case of \code{RasterLayer} or \code{RasterStack} objects).
-If plotting a RasterLayer and the layer name is "layer" or the same as the object name,
-then, for simplicity, only the object name will be used.
+If plotting a RasterLayer and the layer name is "layer" or the same as the
+object name, then, for simplicity, only the object name will be used.
 In other words, only enough information is used to uniquely identify the plot.
 
 \code{cols} is a vector of colours that can be understood directly, or by
-\code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a colour range
-from orange to blue, interploated. If a list, it will be used, in order, for each
-item to be plotted. It will be recycled if it is shorter than the objects to be
-plotted. Note that when this approach to setting colours is used, any overplotting
-will revert to the \code{colortable} slot of the object, or the default for rasters,
-which is \code{terrain.color()}
+\code{colorRampePalette}, such as \code{c("orange", "blue")}, will give a
+colour range from orange to blue, interploated.
+If a list, it will be used, in order, for each item to be plotted.
+It will be recycled if it is shorter than the objects to be plotted.
+Note that when this approach to setting colours is used, any overplotting
+will revert to the \code{colortable} slot of the object, or the default
+for rasters, which is \code{terrain.color()}
 
-Silently, one hidden object is made, \code{.spadesPlot} in the \code{.spadesEnv}
-environment, which is used for arranging plots in the device window, and
-identifying the objects to be replotted if rearranging is required, subsequent
-to a \code{new=FALSE} additional plot.
+Silently, one hidden object is made, \code{.spadesPlot} in the
+\code{.spadesEnv} environment, which is used for arranging plots in the
+device window, and identifying the objects to be replotted if rearranging
+is required, subsequent to a \code{new=FALSE} additional plot.
 
 This function is optimized to allow modular Plotting. This means that several
-behaviours will appear unusual. For instance, if a first call to Plot is made,
-the legend will reflect the current color scheme. If a second or subsequent call
-to Plot is made with the same object but with different colours (e.g., with
-\code{cols}), the legend will not update. This behaviour is made with the decision
-that the original layer takes precedence and all subsequent plots to that same
-frame are overplots only.
+behaviours will appear unusual.
+For instance, if a first call to \code{Plot} is made, the legend will reflect
+the current color scheme. If a second or subsequent call to \code{Plot} is
+made with the same object but with different colours (e.g., with \code{cols}),
+the legend will not update. This behaviour is made with the decision that the
+original layer takes precedence and all subsequent plots to that same frame
+are overplots only.
 
-\code{speedup} is not a precise number because it is faster to plot an un-resampled
-raster if the new resampling is close to the original number of pixels. At the moment,
-this is set to 1/3 of the original pixels. In other words, \code{speedup} will not do
-anything if the factor for speeding up is not high enough (i.e., >3).
+\code{speedup} is not a precise number because it is faster to plot an
+un-resampled raster if the new resampling is close to the original number of
+pixels.
+At the moment, this is set to 1/3 of the original pixels.
+In other words, \code{speedup} will not do anything if the factor for
+speeding up is not high enough (i.e., >3).
 
-These \code{gp*} parameters will specify plot parameters that are
-available with \code{gpar()}. \code{gp} will adjust plot parameters,
-\code{gpText} will adjust title and legend text, \code{gpAxis} will
-adjust the axes. \code{size} adjusts point size in a
-\code{SpatialPoints} object. These will persist with the
-original \code{Plot} call for each individual object. Multiple
-entries can be used, but they must be named list elements
-and they must match the \code{...} items to plot. This is true
-for a RasterStack also, i.e., the list of named elements
-must be the same length as the number of layers being
-plotted. The naming convention used is: \code{RasterStackName$layerName},
-i.e, \code{landscape$DEM}.
+These \code{gp*} parameters will specify plot parameters that are available
+with \code{gpar()}. \code{gp} will adjust plot parameters, \code{gpText}
+will adjust title and legend text, \code{gpAxis} will adjust the axes.
+\code{size} adjusts point size in a \code{SpatialPoints} object.
+These will persist with the original \code{Plot} call for each individual object.
+Multiple entries can be used, but they must be named list elements and they
+must match the \code{...} items to plot.
+This is true for a \code{RasterStack} also, i.e., the list of named elements
+must be the same length as the number of layers being plotted.
+The naming convention used is: \code{RasterStackName$layerName}, i.e,
+\code{landscape$DEM}.
 }
 \examples{
 \dontrun{
+library(sp)
 library(raster)
 library(rgdal)
-library(magrittr)
 library(igraph)
+library(RColorBrewer)
 #  Make list of maps from package database to load, and what functions to use to load them
-fileList <-
+filelist <-
    data.frame(files =
      dir(file.path(
-                   find.package("SpaDES",
-                                lib.loc=getOption("devtools.path"),
-                                quiet=FALSE),
-                  "maps"),
-        full.names=TRUE, pattern= "tif"),
+       find.package("SpaDES", quiet=FALSE), "maps"),
+       full.names=TRUE, pattern= "tif"),
      functions="rasterToMemory",
      packages="SpaDES",
      stringsAsFactors=FALSE)
 
 # Load files to memory (using rasterToMemory)
-loadFiles(fileList=fileList)
+mySim <- loadFiles(filelist=filelist)
 
 # put layers into a single stack for convenience
-landscape <- stack(DEM, forestCover, forestAge, habitatQuality, percentPine)
+landscape <- stack(mySim$DEM, mySim$forestCover, mySim$forestAge,
+   mySim$habitatQuality, mySim$percentPine)
 
 # can change color palette
-setColors(landscape, n = 50)<-list(DEM=topo.colors(50),
-                           forestCover = RColorBrewer::brewer.pal(9, "Set1"),
-                           forestAge = RColorBrewer::brewer.pal("Blues", n=8),
-                           habitatQuality = RColorBrewer::brewer.pal(9, "Spectral"),
-                           percentPine = RColorBrewer::brewer.pal("GnBu", n=8))
+setColors(landscape, n = 50) <- list(DEM=topo.colors(50),
+                           forestCover = brewer.pal(9, "Set1"),
+                           forestAge = brewer.pal("Blues", n=8),
+                           habitatQuality = brewer.pal(9, "Spectral"),
+                           percentPine = brewer.pal("GnBu", n=8))
 
-#Make a new raster derived from a previous one; must give it a unique name
+# Make a new raster derived from a previous one; must give it a unique name
 habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 
@@ -225,10 +234,10 @@ caribou <- SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 5
 
 #Plot all maps on a new plot windows - Do not use RStudio window
 \\notrun{
-if(is.null(dev.list())) {
+if (is.null(dev.list())) {
   dev(2)
 } else {
-  if(any(names(dev.list())=="RStudioGD")) {
+  if (any(names(dev.list())=="RStudioGD")) {
     dev(which(names(dev.list())=="RStudioGD")+3)
   } else {
     dev(max(dev.list()))
@@ -246,7 +255,7 @@ Plot(caribou, new=FALSE)
 
 # Can add two maps with same name, if one is in a stack; they are given
 #  unique names based on object name
-Plot(landscape, caribou, DEM)
+Plot(landscape, caribou, mySim$DEM)
 
 # can mix stacks, rasters, SpatialPoint*
 Plot(landscape, habitatQuality2, caribou)
@@ -265,8 +274,6 @@ Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
 }
 }
 \author{
-Eliot McIntire
-
 Eliot McIntire
 
 Eliot McIntire

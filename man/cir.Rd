@@ -4,7 +4,7 @@
 \alias{cir}
 \title{Identify pixels in a circle around a SpatialPoints* object.}
 \usage{
-cir(spatialPoints, radii, raster)
+cir(spatialPoints, radii, raster, simplify = TRUE)
 }
 \arguments{
 \item{spatialPoints}{SpatialPoints* object around which to make circles .}
@@ -12,14 +12,37 @@ cir(spatialPoints, radii, raster)
 \item{radii}{vector of radii that has same length as spatialPoints}
 
 \item{raster}{Raster on which the circles are built.}
+
+\item{simplify}{logical. If TRUE, then all duplicate pixels are removed. This means
+that some x, y combinations will disappear}
 }
 \value{
-A list of data.frames with x and y coordinates of each
+A \code{data.table} with 5 columns, \code{ids}, \code{pixelIDs},
+\code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
+coordinates of each
 unique pixel of the circle around each individual.
 }
 \description{
 identify the pixels and coordinates that are at
  a (set of) buffer distance(s) of the SpatialPoints* objects. This can be used
  for agents.
+}
+\examples{
+library(raster)
+library(sp)
+
+Ras <- raster(extent(0,15,0,15), res=1)
+Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
+N <- 2
+caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
+                                      y=runif(N,xmin(Ras),xmax(Ras))))
+cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
+cirsSP <- SpatialPoints(coords=cirs[,list(x,y)])
+cirsRas <- raster(Ras)
+cirsRas[cirs[,pixIDs]] <- 1
+Plot(Ras, new=TRUE)
+Plot(cirsRas, addTo="Ras", cols="#13006333")
+Plot(caribou, addTo="Ras")
+Plot(cirsSP, addTo="Ras")
 }
 

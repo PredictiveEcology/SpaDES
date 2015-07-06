@@ -1,5 +1,5 @@
 if(getRversion() >= "3.1.0") {
-  utils::globalVariables(c("angles", "pixIDs", "x", "y"))
+  utils::globalVariables(c("angles", "pixIDs", "x", "y","rasterVal"))
 }
 
 ##############################################################
@@ -53,7 +53,8 @@ if(getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link{adjacent}}
 #'
-#' @import data.table
+#' @importFrom data.table data.table key setcolorder setkey ':='
+#' @importFrom raster ncell ncol nrow
 #' @export
 #' @docType methods
 #' @rdname adj
@@ -61,15 +62,19 @@ if(getRversion() >= "3.1.0") {
 #' @author Eliot McIntire
 #'
 #' @examples
-#' require(raster)
+#' library(raster)
 #' a <- raster(extent(0,1000,0,1000),res=1)
-#' sam = sample(1:length(a),1e4)
+#' sam <- sample(1:length(a),1e4)
 #' numCol <- ncol(a)
 #' numCell <- ncell(a)
 #' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
-#' print(head(adj.new))
-adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALSE,target=NULL,
-                numCol=NULL,numCell=NULL,match.adjacent=FALSE,cutoff.for.data.table = 1e4){
+#' adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
+#'   include=TRUE)
+#' if (interactive()) print(head(adj.new))
+#'
+adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
+                    include=FALSE, target=NULL, numCol=NULL, numCell=NULL,
+                    match.adjacent=FALSE, cutoff.for.data.table=1e4) {
   to = NULL
   J = NULL
   if ((length(cells)<cutoff.for.data.table)) {
@@ -81,19 +86,20 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
 
     if (directions==8) {
       # determine the indices of the 8 surrounding cells of the cells cells
-      topl=as.integer(cells-numCol-1)
-      top=as.integer(cells-numCol)
-      topr=as.integer(cells-numCol+1)
-      lef=as.integer(cells-1)
-      rig=as.integer(cells+1)
-      botl=as.integer(cells+numCol-1)
-      bot=as.integer(cells+numCol)
-      botr=as.integer(cells+numCol+1)
+      topl <- as.integer(cells-numCol-1)
+      top <- as.integer(cells-numCol)
+      topr <- as.integer(cells-numCol+1)
+      lef <- as.integer(cells-1)
+      rig <- as.integer(cells+1)
+      botl <- as.integer(cells+numCol-1)
+      bot <- as.integer(cells+numCol)
+      botr <- as.integer(cells+numCol+1)
+
       if (match.adjacent){
         if (include){
-          adj=cbind(from=rep.int(cells,times=9),
-                    to=c(as.integer(cells),topl,lef,botl,topr,rig,botr,top,bot))
-        }else{
+          adj <- cbind(from=rep.int(cells,times=9),
+                       to=c(as.integer(cells),topl,lef,botl,topr,rig,botr,top,bot))
+        } else {
           adj=cbind(from=rep.int(cells,times=8),
                     to=c(topl,lef,botl,topr,rig,botr,top,bot))
         }
@@ -108,55 +114,59 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
       }
     } else if (directions==4) {
       # determine the indices of the 4 surrounding cells of the cells cells
-      top=as.integer(cells-numCol)
-      lef=as.integer(cells-1)
-      rig=as.integer(cells+1)
-      bot=as.integer(cells+numCol)
+      top <- as.integer(cells-numCol)
+      lef <- as.integer(cells-1)
+      rig <- as.integer(cells+1)
+      bot <- as.integer(cells+numCol)
       if (match.adjacent){
         if (include)
-          adj=cbind(from=rep.int(cells,times=5),to=c(as.integer(cells),lef,rig,top,bot))
+          adj <- cbind(from=rep.int(cells,times=5),
+                       to=c(as.integer(cells),lef,rig,top,bot))
         else
-          adj=cbind(from=rep.int(cells,times=4),to=c(lef,rig,top,bot))
+          adj <- cbind(from=rep.int(cells,times=4),
+                       to=c(lef,rig,top,bot))
       } else {
         if (include)
-          adj=cbind(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot))
+          adj <- cbind(from=rep.int(cells,times=5),
+                       to=c(top,lef,as.integer(cells),rig,bot))
         else
-          adj=cbind(from=rep.int(cells,times=4),to=c(top,lef,rig,bot))
+          adj <- cbind(from=rep.int(cells,times=4),
+                       to=c(top,lef,rig,bot))
       }
     } else if (directions=="bishop") {
-      topl=as.integer(cells-numCol-1)
-      topr=as.integer(cells-numCol+1)
-      botl=as.integer(cells+numCol-1)
-      botr=as.integer(cells+numCol+1)
+      topl <- as.integer(cells-numCol-1)
+      topr <- as.integer(cells-numCol+1)
+      botl <- as.integer(cells+numCol-1)
+      botr <- as.integer(cells+numCol+1)
       if (match.adjacent) {
         if (include)
-          adj=cbind(from=rep.int(cells,times=5),
-                    to=c(as.integer(cells),topl,botl,topr,botr))
+          adj <- cbind(from=rep.int(cells,times=5),
+                       to=c(as.integer(cells),topl,botl,topr,botr))
         else
-          adj=cbind(from=rep.int(cells,times=4),
-                    to=c(topl,botl,topr,botr))
+          adj <- cbind(from=rep.int(cells,times=4),
+                       to=c(topl,botl,topr,botr))
       } else {
         if (include)
-          adj=cbind(from=rep.int(cells,times=5),
-                    to=c(topl,topr,as.integer(cells),botl,botr))
+          adj <- cbind(from=rep.int(cells,times=5),
+                       to=c(topl,topr,as.integer(cells),botl,botr))
         else
-          adj=cbind(from=rep.int(cells,times=4),
-                    to=c(topl,topr,botl,botr))
+          adj  <- cbind(from=rep.int(cells,times=4),
+                        to=c(topl,topr,botl,botr))
       }
-    } else {stop("directions must be 4 or 8 or \'bishop\'")}
+    } else {
+      stop("directions must be 4 or 8 or \'bishop\'")
+    }
 
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
-      #adj<-adj[target,]
-      adj<-adj[na.omit(adj[,"to"] %in% target),]
+      adj <- adj[na.omit(adj[,"to"] %in% target),]
     }
 
     if (sort){
       if (match.adjacent)
-        adj<-adj[order(adj[,"from"],adj[,"to"]),]
+        adj <- adj[order(adj[,"from"],adj[,"to"]),]
       else
-        adj<-adj[order(adj[,"from"]),]
-      #adj<-adj[sort.list(adj[,"from"],method="shell",na.last=NA),]
+        adj <- adj[order(adj[,"from"]),]
     }
 
     # Remove the "from" column if pairs is FALSE
@@ -174,89 +184,94 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
     }
   } else {
 
-
     #### THIS IS FOR SITUATIONS WHERE length(cells) is > 1e4; using data.table
     if (is.null(numCol) | is.null(numCell)) {
       if (is.null(x)) stop("must provide either numCol & numCell or a x")
-      numCol = ncol(x)
-      numCell = ncell(x)
+      numCol <- ncol(x)
+      numCell <- ncell(x)
     }
 
     if (directions==8) {
       # determine the indices of the 8 surrounding cells of the cells cells
-      topl=as.integer(cells-numCol-1)
-      top=as.integer(cells-numCol)
-      topr=as.integer(cells-numCol+1)
-      lef=as.integer(cells-1)
-      rig=as.integer(cells+1)
-      botl=as.integer(cells+numCol-1)
-      bot=as.integer(cells+numCol)
-      botr=as.integer(cells+numCol+1)
+      topl <- as.integer(cells-numCol-1)
+      top <- as.integer(cells-numCol)
+      topr <- as.integer(cells-numCol+1)
+      lef <- as.integer(cells-1)
+      rig <- as.integer(cells+1)
+      botl <- as.integer(cells+numCol-1)
+      bot <- as.integer(cells+numCol)
+      botr <- as.integer(cells+numCol+1)
       if (match.adjacent) {
         if (include)
-          adj=data.table(from=rep.int(cells,times=9),
+          adj <- data.table(from=rep.int(cells,times=9),
                          to=c(as.integer(cells),topl,lef,botl,topr,rig,botr,top,bot))
         else
-          adj=data.table(from=rep.int(cells,times=8),
+          adj <- data.table(from=rep.int(cells,times=8),
                          to=c(topl,lef,botl,topr,rig,botr,top,bot))
       } else {
         if (include)
-          adj=data.table(from=rep.int(cells,times=9),
-                         to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
+          adj <- data.table(from=rep.int(cells,times=9),
+                            to=c(topl,top,topr,lef,as.integer(cells),rig,botl,bot,botr),key="from")
         else
-          adj=data.table(from=rep.int(cells,times=8),
-                         to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
+          adj <- data.table(from=rep.int(cells,times=8),
+                            to=c(topl,top,topr,lef,rig,botl,bot,botr),key="from")
       }
     } else if (directions==4) {
       # determine the indices of the 4 surrounding cells of the cells cells
-      top=as.integer(cells-numCol)
-      lef=as.integer(cells-1)
-      rig=as.integer(cells+1)
-      bot=as.integer(cells+numCol)
+      top <- as.integer(cells-numCol)
+      lef <- as.integer(cells-1)
+      rig <- as.integer(cells+1)
+      bot <- as.integer(cells+numCol)
       if (match.adjacent) {
         if (include)
-          adj=data.table(from=rep.int(cells,times=5),to=c(as.integer(cells),lef,rig,top,bot))
+          adj <- data.table(from=rep.int(cells,times=5),
+                            to=c(as.integer(cells),lef,rig,top,bot))
         else
-          adj=data.table(from=rep.int(cells,times=4),to=c(lef,rig,top,bot))
+          adj <- data.table(from=rep.int(cells,times=4),
+                            to=c(lef,rig,top,bot))
       } else {
         if (include)
-          adj=data.table(from=rep.int(cells,times=5),to=c(top,lef,as.integer(cells),rig,bot),key="from")
+          adj <- data.table(from=rep.int(cells,times=5),
+                            to=c(top,lef,as.integer(cells),rig,bot),key="from")
         else
-          adj=data.table(from=rep.int(cells,times=4),to=c(top,lef,rig,bot),key="from")
+          adj <- data.table(from=rep.int(cells,times=4),
+                            to=c(top,lef,rig,bot),key="from")
       }
     } else if (directions=="bishop") {
-      topl=as.integer(cells-numCol-1)
-      topr=as.integer(cells-numCol+1)
-      botl=as.integer(cells+numCol-1)
-      botr=as.integer(cells+numCol+1)
+      topl <- as.integer(cells-numCol-1)
+      topr <- as.integer(cells-numCol+1)
+      botl <- as.integer(cells+numCol-1)
+      botr <- as.integer(cells+numCol+1)
       if (match.adjacent) {
         if (include)
-          adj=data.table(from=rep.int(cells,times=5),
-                         to=c(as.integer(cells),topl,botl,topr,botr))
+          adj <- data.table(from=rep.int(cells,times=5),
+                            to=c(as.integer(cells),topl,botl,topr,botr))
         else
-          adj=data.table(from=rep.int(cells,times=4),
-                         to=c(topl,botl,topr,botr))
+          adj <- data.table(from=rep.int(cells,times=4),
+                            to=c(topl,botl,topr,botr))
       } else {
         if (include)
-          adj=data.table(from=rep.int(cells,times=5),
-                         to=c(topl,topr,as.integer(cells),botl,botr),key="from")
+          adj <- data.table(from=rep.int(cells,times=5),
+                            to=c(topl,topr,as.integer(cells),botl,botr),key="from")
         else
-          adj=data.table(from=rep.int(cells,times=4),
-                         to=c(topl,topr,botl,botr),key="from")
+          adj <- data.table(from=rep.int(cells,times=4),
+                            to=c(topl,topr,botl,botr),key="from")
       }
-    } else {stop("directions must be 4 or 8 or \'bishop\'")}
+    } else {
+      stop("directions must be 4 or 8 or \'bishop\'")
+    }
 
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
       setkey(adj,to)
-      adj<-adj[J(target)]
+      adj <- adj[J(target)]
       setkey(adj,from)
-      setcolorder(adj,c("from","to"))
+      setcolorder(adj, c("from","to"))
     }
 
     # Remove the "from" column if pairs is FALSE
     if (!pairs) {
-      from=adj$from
+      from <- adj$from
       adj[,from:=NULL]
     }
     #      return(adj[
@@ -265,7 +280,7 @@ adj.raw <- function(x=NULL,cells,directions=8,sort=FALSE,pairs=TRUE,include=FALS
     #        ,])
 
     return(as.matrix(adj[
-      i = !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+      i  <- !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
               ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
       ]))
   }
@@ -290,20 +305,44 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @param raster    Raster on which the circles are built.
 #'
-#' @return A list of data.frames with x and y coordinates of each
+#' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
+#' that some x, y combinations will disappear
+#'
+#' @return A \code{data.table} with 5 columns, \code{ids}, \code{pixelIDs},
+#' \code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
+#' coordinates of each
 #' unique pixel of the circle around each individual.
 #'
-#' @import data.table sp raster
+#' @import igraph
+#' @importFrom data.table data.table set setkey ':='
+#' @importFrom sp coordinates
+#' @importFrom raster cellFromXY extract res
 #' @export
 #' @rdname cir
 #'
-# @examples
-#  NEED EXAMPLES
-cir <- function(spatialPoints, radii, raster) {
+#'@examples
+#' library(raster)
+#' library(sp)
+#'
+#' Ras <- raster(extent(0,15,0,15), res=1)
+#' Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
+#' N <- 2
+#' caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
+#'                                       y=runif(N,xmin(Ras),xmax(Ras))))
+#' cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
+#' cirsSP <- SpatialPoints(coords=cirs[,list(x,y)])
+#' cirsRas <- raster(Ras)
+#' cirsRas[cirs[,pixIDs]] <- 1
+#' Plot(Ras, new=TRUE)
+#' Plot(cirsRas, addTo="Ras", cols="#13006333")
+#' Plot(caribou, addTo="Ras")
+#' Plot(cirsSP, addTo="Ras")
+#'
+cir <- function(spatialPoints, radii, raster, simplify=TRUE) {
   scaleRaster <- res(raster)
 
   # create an index sequence for the number of individuals
-  seqNumInd<-seq_len(length(spatialPoints))
+  seqNumInd <- seq_len(length(spatialPoints))
 
   # n = optimum number of points to create the circle for a given individual;
   #       gross estimation (checked that it seems to be enough so that pixels
@@ -330,29 +369,30 @@ cir <- function(spatialPoints, radii, raster) {
   # repeat this angle increment the number of times it needs to be done to complete the circles
   angs <- rep.int(angle.inc, times=n.angles)
 
-  ### Eliot' added's code:
   DT = data.table(ids, angs, xs, ys, rads)
   DT[, "angles":=cumsum(angs), by="ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
   DT[, "x":=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
   DT[, "y":=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
 
+  set(DT, ,j = "rads",NULL)
+  set(DT, ,j = "angles",NULL)
+  set(DT, ,j = "angs",NULL)
+  set(DT, ,j = "xs",NULL)
+  set(DT, ,j = "ys",NULL)
   # put the coordinates of the points on the circles from all individuals in the same matrix
-  coords.all.ind <- DT[, list(x,y,ids)]
+  #coords.all.ind <- DT[, list(x,y,ids)]
 
   # extract the pixel IDs under the points
-  coords.all.ind[, "pixIDs":=cellFromXY(raster,coords.all.ind)]
+  DT[, pixIDs:=cellFromXY(raster,DT[,list(x,y)])]
+  DT[, rasterVal:=extract(raster,pixIDs)]
 
-  # use only the unique pixels
-  coords.all.ind.unq = coords.all.ind[, list(pixIDs=unique(pixIDs)), by="ids"]
-  coords.all.ind.unq = na.omit(coords.all.ind.unq)
-  coords.all.ind.unq[, "pixIDs.unq":=extract(raster,pixIDs)] # where is `pixIDs.unq` used???
-
-  # extract the coordinates for the pixel IDs
-  pixels = xyFromCell(raster, coords.all.ind.unq$pixIDs)
-  pixelsIndIdsMerged = cbind(coords.all.ind.unq, pixels)
+  if(simplify){
+    setkey(DT, "pixIDs")
+    DT <- unique(DT)
+  }
 
   # list of df with x and y coordinates of each unique pixel of the circle of each individual
-  return(pixelsIndIdsMerged)
+  return(DT)
 }
 
 
@@ -419,8 +459,9 @@ setMethod("wrap",
           definition=function(X, bounds) {
             if(identical(colnames(X),c("x","y"))) {
               return(
-                cbind(x=(X[,"x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) - bounds@xmax,
-                      y=(X[,"y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) - bounds@ymax)
+
+                cbind(x=(X[,"x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) + bounds@xmin,
+                      y=(X[,"y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) + bounds@ymin)
               )
             } else {
               stop("When X is a matrix, it must have 2 columns, x and y, as from say, coordinates(SpatialPointsObj)")
@@ -478,16 +519,16 @@ setMethod("wrap",
               # This requires that previous points be "moved" as if they are
               #  off the bounds, so that the heading is correct
               X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] <-
-                (X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] + bounds@xmin) %%
+                (X@data[coordinates(X)[,"x"]<bounds@xmin,"x1"] - bounds@xmin) %%
                 (bounds@xmax-bounds@xmin) + bounds@xmax
               X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] <-
-                (X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] + bounds@xmax) %%
+                (X@data[coordinates(X)[,"x"]>bounds@xmax,"x1"] - bounds@xmax) %%
                 (bounds@xmin-bounds@xmax) + bounds@xmin
               X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] <-
-                (X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] + bounds@ymin) %%
+                (X@data[coordinates(X)[,"y"]<bounds@ymin,"y1"] - bounds@ymin) %%
                 (bounds@ymax-bounds@ymin) + bounds@ymax
               X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] <-
-                (X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] + bounds@ymax) %%
+                (X@data[coordinates(X)[,"y"]>bounds@ymax,"y1"] - bounds@ymax) %%
                 (bounds@ymin-bounds@ymax) + bounds@ymin
             }
             return(wrap(X, bounds=bounds))
