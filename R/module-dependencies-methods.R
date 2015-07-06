@@ -243,7 +243,12 @@ setMethod(".depsLoadOrder",
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
-              loadOrder <- unlist(modules(sim))
+              modules <- unlist(modules(sim))
+              if (length(modules(sim))) {
+                loadOrder <- modules
+              } else {
+                loadOrder <- character()
+              }
             }
             # make sure modules with no deps get added
             if (!all(modules(sim) %in% loadOrder)) {
