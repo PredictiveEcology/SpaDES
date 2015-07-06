@@ -184,7 +184,7 @@ test_that("adj.R results not identical to adjacent", {
 
 
 
-  Ras <- raster(extent(0,15,0,15), res=1)
+  Ras <- raster(extent(0,50,0,50), res=1)
   Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
   N <- 2
   caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),

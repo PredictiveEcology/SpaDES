@@ -223,14 +223,15 @@ setMethod(
 
           if(!is.null(nam)) {
             argument <- list(unname(unlist(arguments[y])), filelistDT[y,file])
-            names(argument) <- c(nam, names(formals(get(loadFun[x], envir=.GlobalEnv)))[1])
+            names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[x], loadPackage[x])))[1])
           } else {
             argument <- list(filelistDT[y,file])
-            names(argument) <- names(formals(get(loadFun[x], envir=.GlobalEnv)))[1]
+            names(argument) <- names(formals(getFromNamespace(loadFun[x], loadPackage[x])))[1]
           }
 
           # The actual load call
-          sim[[objectName[x]]] <- do.call(get(loadFun[x]), args=argument)
+          sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
+                                          args=argument)
           filelistDT[y,loaded:=TRUE]
 
           #simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectName[x])

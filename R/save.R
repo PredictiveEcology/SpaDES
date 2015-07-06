@@ -6,6 +6,7 @@ if (getRversion() >= "3.1.0") {
 doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # check that output directory exists, make it if not
+
     pathsToCheck <- checkPath(outputPath(sim), create=TRUE)
 
     # The load doEvent
