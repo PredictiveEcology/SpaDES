@@ -31,9 +31,10 @@ Depends:
     raster,
     sp
 Suggests:
+    fastshp,
     knitr,
     Matrix,
-    fastshp,
+    RColorBrewer,
     testthat
 Imports:
     CircStats,
@@ -48,7 +49,6 @@ Imports:
     igraph,
     lubridate,
     methods,
-    RColorBrewer,
     R.utils,
     RandomFields,
     secr,
