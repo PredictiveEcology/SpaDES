@@ -76,7 +76,8 @@ and will be repeated for each load function.
 filelist <- data.table(
     files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
     full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
-)
+    ) \%>\%
+    list(table=.)
 
 times <- list(start=0, stop=3)
 parameters <- list(.globals=list(stackName="landscape"))
@@ -106,7 +107,8 @@ filelist = data.table(
    arguments = arguments,
    loadTime = 0,
    intervals = c(rep(NA, length(files)-1), 10)
-)
+   ) \%>\%
+   list(table=.)
 
 sim2 <- loadFiles(filelist=filelist)
 end(sim2) <- 20

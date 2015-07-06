@@ -41,7 +41,8 @@ filelist <- data.table(files =
                   "maps"),
         full.names=TRUE, pattern= "tif"),
      functions="rasterToMemory",
-     packages="SpaDES")
+     packages="SpaDES") \%>\%
+    list(table=.)
 
 # Load files to memory (using rasterToMemory)
 sim1 <- loadFiles(filelist=filelist)

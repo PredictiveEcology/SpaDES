@@ -537,7 +537,8 @@ Alternatively, objects can be saved at the module level by passing parameters wi
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-#filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE)
+#filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE) %>%
+#     list(table=.)
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),

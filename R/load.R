@@ -22,7 +22,7 @@ fileExt = function (x) {
 
 # The load doEvent
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="later") {
+  if (eventType=="inputs") {
     sim <- loadFiles(sim)
   }
   return(invisible(sim))
@@ -89,7 +89,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' filelist <- data.table(
 #'     files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
 #'     full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
-#' )
+#'     ) %>%
+#'     list(table=.)
 #'
 #' times <- list(start=0, stop=3)
 #' parameters <- list(.globals=list(stackName="landscape"))
@@ -119,7 +120,8 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'    arguments = arguments,
 #'    loadTime = 0,
 #'    intervals = c(rep(NA, length(files)-1), 10)
-#' )
+#'    ) %>%
+#'    list(table=.)
 #'
 #' sim2 <- loadFiles(filelist=filelist)
 #' end(sim2) <- 20
@@ -135,10 +137,12 @@ setMethod(
   signature(sim="simList", filelist="missing"),
   definition = function(sim, ...) {
 
+
     # Pull .fileExtensions() into function so that scoping is faster
     .fileExts = .fileExtensions()
     usedIntervals <- FALSE # This is for a speed reason later on.
                            #Whether or not intervals for loading files are defined
+
     if(NROW(inputs(sim))!=0) {
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
       curTime <- time(sim, "seconds")
@@ -147,7 +151,7 @@ setMethod(
       # with the "arguments", separated by a ".". This will extract that.
       if ((length(arguments)>0) & (is.null(names(arguments)))) {
         names(arguments) <- sapply(strsplit(
-          names(filelist)[match("arguments", names(filelist))], ".", fixed=TRUE),
+          names(filelist)[pmatch("arguments", names(filelist))], ".", fixed=TRUE),
           function(x) { x[-1] }
         )
       }
@@ -229,8 +233,15 @@ setMethod(
           }
 
           # The actual load call
+#           print(loadFun[x])
+#           print(loadPackage[x])
+#           print(paste("argument", argument))
+#           argument <- argument[na.omit(match(names(formals(getFromNamespace(loadFun[x], loadPackage[x]))),
+#                                              names(argument)))]
+          print(paste("argument", argument))
           sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
                                           args=argument)
+          print(paste("line 241"))
           filelistDT[y,loaded:=TRUE]
 
           #simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectName[x])
@@ -249,6 +260,7 @@ setMethod(
                                     paste("\n   at time",
                                     filelistDT[y,loadTime]),"")))
           }
+          print(paste("line 260"))
 
         } # end x
         # add new rows of files to load based on filelistDT$Interval
@@ -276,9 +288,11 @@ setMethod(
         #stop("filelist must be either a list or data.frame")
       #}
 
-      if (any(is.na(filelistDT[,loaded]))) {
-        sim <- scheduleEvent(sim, filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)], "load", "later")
-      }
+       if (any(is.na(filelistDT[,loaded]))) {
+         sim <- scheduleEvent(sim,
+                              filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)],
+                              "load", "inputs")
+       }
     }
     message("") ## print empty message to add linebreak to console message output
     return(invisible(sim))
@@ -292,7 +306,7 @@ setMethod("loadFiles",
             sim <- simInit(times=list(start=0.0, stop=1),
                            params=list(),
                            inputs=filelist,
-                           modules=list())
+                           modules=list(), ...)
             return(invisible(sim))
 })
 
@@ -336,7 +350,7 @@ setMethod("loadFiles",
 #' @seealso \code{\link{raster}}.
 #'
 #' @name rasterToMemory
-#' @importFrom raster raster
+#' @importFrom raster raster setValues getValues
 #' @export
 #' @docType methods
 #' @rdname rasterToMemory

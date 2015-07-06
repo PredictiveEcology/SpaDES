@@ -199,7 +199,8 @@ Advanced use
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{inputPath} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
    \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs). (advanced)\cr
-   \code{inputs} \tab \code{inputs} \tab Data.table showing objects, files etc.. (advanced)\cr
+   \code{inputs} \tab \code{inputs} \tab list of 2: table showing objects, files etc. & arguments (optional). (advanced)\cr
+   \code{outputs} \tab \code{outputs} \tab list of 2: table showing objects, files etc. & arguments (optional). (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }

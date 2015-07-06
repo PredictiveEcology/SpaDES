@@ -1141,7 +1141,8 @@ setMethod(
 #'        full.names=TRUE, pattern= "tif"),
 #'      functions="rasterToMemory",
 #'      packages="SpaDES",
-#'      stringsAsFactors=FALSE)
+#'      stringsAsFactors=FALSE) %>%
+#'     list(table=.)
 #'
 #' # Load files to memory (using rasterToMemory)
 #' mySim <- loadFiles(filelist=filelist)

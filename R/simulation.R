@@ -227,17 +227,24 @@ setMethod("simInit",
 
             # load files in the filelist
             if(length(inputs)>0) {
-              inputs(sim) <- inputs
+              inputs(sim) <- inputs$table
+
+              inputArgs(sim) <- inputs$arg
+              sim <- doEvent.load(sim, 0, "inputs")
+              events(sim) <- events(sim, "second")[!(eventTime==0 & moduleName=="load"
+                                                    & eventType=="inputs"),]
             }
 
             #            if (NROW(inputs(sim))==0) {
             #              sim <- loadFiles(sim, usedFileList=TRUE)
             #            } else {
-            sim <- loadFiles(sim)
+
             #            }
 
             if(length(outputs)>0) {
-              outputs(sim) <- outputs
+              outputs(sim) <- outputs$table
+              outputArgs(sim) <- outputs$arg
+
             }
 
             # check the parameters supplied by the user
