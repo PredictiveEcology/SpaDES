@@ -83,7 +83,7 @@ test_that("simList object initializes correctly", {
   # load
   expect_equal(
     inputs(mySim),
-    data.table(file=character(0), fun=character(0),
+    data.frame(file=character(0), fun=character(0),
                package=character(0), objectName=character(0),
                loadTime=numeric(0), loaded=logical(0))
   )

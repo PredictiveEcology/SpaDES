@@ -1,17 +1,11 @@
 test_that("loading inputs does not work correctly", {
-  on.exit(rm(mySim, sim1, sim2))
+  on.exit(rm(mySim, sim1, sim2, sim3))
 
   mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "inst/maps")
   #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
-  print(dir(find.package("SpaDES", quiet=FALSE), recursive = TRUE))
-  print(paste("mapPath",mapPath))
-  print(paste(".libPaths",.libPaths()))
-  print(paste("find.package",find.package("SpaDES")))
 
   filelist = data.frame(files=dir(file.path(mapPath),full.names = TRUE,
      pattern="tif")[1:2], functions="raster", package="raster", stringsAsFactors=FALSE)
-  print(filelist)
-  #'
 
   times <- list(start=0, stop=1)
   parameters <- list(.globals=list(stackName="landscape"),
@@ -28,17 +22,17 @@ test_that("loading inputs does not work correctly", {
   inputs(mySim) <- data.table(files=dir(file.path(mapPath),
                                          full.names=TRUE, pattern="tif")[1:2],
                                functions="raster", package="raster", loadTime=c(0,3))
-  print(inputs(mySim))
+
   mySim <- spades(mySim)
 
 
-#   # use loadFiles directly
-#   sim1 <- loadFiles(filelist=filelist,
-#                     paths=list(modulePath=system.file("sampleModules", package="SpaDES"),
-#                                   inputPath=mapPath,
-#                                   outputPath=tempdir())
-#   )
-#   expect_true(all(c("DEM", "forestAge") %in% ls(sim1)))
+   # use loadFiles directly
+   sim1 <- loadFiles(filelist=filelist,
+                     paths=list(modulePath=system.file("sampleModules", package="SpaDES"),
+                                   inputPath=mapPath,
+                                   outputPath=tempdir())
+   )
+   expect_true(all(c("DEM", "forestAge") %in% ls(sim1)))
 
   # load at future time, i.e., nothing gets loaded
   inputs <- data.frame(files=dir(file.path(mapPath),
@@ -74,7 +68,7 @@ test_that("loading inputs does not work correctly", {
                objectName = rep(NA,4),
                loadTime = c(0, 1, 1, 3),
                intervals = c(NA, 1, 2, NA),
-               args=rep(list("native"=TRUE),4),
+               args=I(rep(list("native"=TRUE),4)),
                stringsAsFactors=FALSE)
 
   times <- list(start=0, stop=1, timeunit="seconds")
@@ -103,6 +97,26 @@ test_that("loading inputs does not work correctly", {
   expect_message(sim2 <- spades(sim2), "forestAge")
   expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim2)))
 
+  # test object passing directly
+  filelist = data.frame(files=dir(file.path(mapPath),full.names = TRUE,
+                                  pattern="tif")[1:2], functions="raster", package="raster", stringsAsFactors=FALSE)
+  layers <- lapply(filelist$files, raster)
+  DEM <- layers[[1]]
+  forestAge <- layers[[2]]
 
+  # Pass as a named list
+  objects <- list(DEM="DEM", forestAge="forestAge")
+  sim3 <- simInit(times=times, params=parameters, modules=modules,
+                  paths=paths, objects = objects)
+
+  expect_true(all(c("DEM") %in% ls(sim3)))
+  rm(sim3)
+
+  # pass as character vector
+  objects <- c("DEM", "forestAge")
+  sim3 <- simInit(times=times, params=parameters, modules=modules,
+                  paths=paths, objects = objects)
+
+  expect_true(all(c("DEM", "forestAge") %in% ls(sim3)))
 
 })

@@ -52,8 +52,7 @@ filelist <- find.package("SpaDES", quiet=FALSE) %>%
   file.path(., "maps") %>%
   dir(., full.names=TRUE, pattern= "tif") %>%
   data.table(files=., functions="rasterToMemory", package="SpaDES") %>%
-  .[-c(2,5),] %>%
-  list(table=.) # omit forestAge and percentPine for simplicity
+  .[-c(2,5),]  # omit forestAge and percentPine for simplicity
 print(filelist)
 # Load files to memory (using rasterToMemory), assign to a simList we call mySim 
 mySim <- loadFiles(filelist=filelist)

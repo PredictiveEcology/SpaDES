@@ -562,6 +562,7 @@ setMethod(
 #'
 # igraph exports %>% from magrittr
 .parseArgs <- function(y, e, eminus1) {
+
   elems <- list()
   i <- 1
   parseTxt <- parse(text = y)[[1]]
@@ -715,12 +716,13 @@ setMethod(
   frameCalledFrom <- which(sapply(scalls, function(x) {
     grepl(x, pattern = paste0("^", calledFrom,"$"))[1]
   }))
-  e <- sys.frame(frameCalledFrom)
+  e <- sys.frame(frameCalledFrom[1])
   eminus1 <- sys.frame(frameCalledFrom - 1)
 
   if (nchar(argName) == 0) {
     callNamedArgs <- as.character(substitute(list(...), env=e))[-1]
   } else {
+  #  callNamedArgs <- as.character(substitute(parse(text=argName)))[-1]
     callNamedArgs <- as.character(substitute(parse(text=sim), env=e))[-1]
   }
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)

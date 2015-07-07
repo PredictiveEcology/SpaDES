@@ -236,10 +236,8 @@ setMethod(
 #           print(paste("argument", argument))
 #           argument <- argument[na.omit(match(names(formals(getFromNamespace(loadFun[x], loadPackage[x]))),
 #                                              names(argument)))]
-          print(paste("argument", argument))
           sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
                                           args=argument)
-          print(paste("line 241"))
           filelistDT[y,loaded:=TRUE]
 
           #simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectName[x])
@@ -258,7 +256,6 @@ setMethod(
                                     paste("\n   at time",
                                     filelistDT[y,loadTime]),"")))
           }
-          print(paste("line 260"))
 
         } # end x
         # add new rows of files to load based on filelistDT$Interval
@@ -280,11 +277,11 @@ setMethod(
 
       if (is(filelist, "list")) {
         inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
-      } else if (usedIntervals) {
+      } else if (is(filelist, "data.frame")) {
         inputs(sim) <- filelistDT # this is required if intervals is used
-      } #else {
-        #stop("filelist must be either a list or data.frame")
-      #}
+      } else {
+        stop("filelist must be either a list or data.frame")
+      }
 
        if (any(is.na(filelistDT[,loaded]))) {
          newTime <- filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)]

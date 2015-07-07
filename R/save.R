@@ -12,10 +12,10 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
     # The load doEvent
 
     if (NROW(outputs(sim))>0) {
-      firstSave <- outputs(sim)[,min(saveTime, na.rm=TRUE)]
+      firstSave <- min(outputs(sim)[,"saveTime"], na.rm=TRUE)
       attributes(firstSave)$unit <- timeunit(sim)
       sim <- scheduleEvent(sim, firstSave, "save", "spades")
-      sim <- scheduleEvent(sim, end(sim), "save", "end")
+      sim <- scheduleEvent(sim, end(sim, timeunit(sim)), "save", "end")
     }
 
   } else if (eventType=="spades") {
@@ -57,7 +57,8 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @param sim A \code{simList} simulation object.
 #'
-#' @importFrom data.table data.table rbindlist ':='
+#' @importFrom plyr rbind_all
+#' @importFrom dplyr distinct
 #' @export
 #' @docType methods
 #' @rdname saveFiles
@@ -67,50 +68,49 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'  sim <- saveFiles(mySim)
 #' }
 saveFiles = function(sim) {
-  # extract savePaths from modules
-  # extract objects to save from modules
-
   curTime <- time(sim, timeunit(sim))
 
   # extract the current module name that called this function
   moduleName <- events(sim)[1L,moduleName]
+
   if(moduleName!="save") { # i.e., .a module driven save event
 
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
-      data.table(objectName=., saveTime=curTime,
-                 file=.)
-    outputs(sim) <- rbindlist(list(outputs(sim), toSave), fill = TRUE)
+      data.frame(objectName=., saveTime=curTime,
+                 file=., stringsAsFactors=FALSE)
+    outputs(sim) <- rbind_all(list(outputs(sim), toSave))
 
     # don't need to save exactly same thing more than once
 
-    outputs(sim) <- unique(outputs(sim), by=c("objectName", "file", "fun", "package", "saveTime"))
+    outputs(sim) <- distinct(outputs(sim), objectName, saveTime, file, fun, package)
 
   }
 
-  if(NROW(outputs(sim)[saveTime==curTime & is.na(saved)])>0) {
+  if(NROW(outputs(sim)[outputs(sim)$saveTime==curTime & is.na(outputs(sim)$saved),"saved"])>0) {
 
     wh <- which(outputs(sim)$saveTime==curTime & is.na(outputs(sim)$saved))
     for (i in wh) {
-      if(exists(outputs(sim)[i,objectName], envir=envir(sim))) {
-        args <- append(list(get(outputs(sim)[i,objectName], envir=envir(sim)),
-                     file=outputs(sim)[i,file]),
+      if(exists(outputs(sim)[i,"objectName"], envir=envir(sim))) {
+        args <- append(list(get(outputs(sim)[i,"objectName"], envir=envir(sim)),
+                     file=outputs(sim)[i,"file"]),
                      outputArgs(sim)[[i]])
         args <- args[!sapply(args, is.null)]
 
         # The actual save line
-        do.call(outputs(sim)[i,fun], args = args)
+        do.call(outputs(sim)[i,"fun"], args = args)
 
-        outputs(sim)[i,saved:=TRUE]
+        outputs(sim)[i,"saved"] <- TRUE
       } else {
-        warning(paste(outputs(sim)[i,objectName], "is not an object in the simList. Cannot save."))
-        outputs(sim)[i,saved:=FALSE]
+        warning(paste(outputs(sim)[i,"objectName"],
+                      "is not an object in the simList. Cannot save."))
+        outputs(sim)[i,saved] <- FALSE
       }
     }
   }
 
   # Schedule an event for the next time in the saveTime column
-  if(any(is.na(outputs(sim)[saveTime>curTime,saved]))) {
-    nextTime <- outputs(sim)[is.na(saved),min(saveTime,na.rm=TRUE)]
+  if(any(is.na(outputs(sim)[outputs(sim)$saveTime>curTime,"saved"]))) {
+    nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved),"saveTime"],na.rm=TRUE)
     attributes(nextTime)$unit <- timeunit(sim)
     sim <- scheduleEvent(sim, nextTime, "save", "later")
   }

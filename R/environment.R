@@ -177,6 +177,9 @@ setMethod("changeObjEnv",
 setMethod("changeObjEnv",
           signature = c("list", "ANY", "ANY", "ANY"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
+            if(is.null(names(x))) {
+              stop("Please pass a named list")
+            }
             changeObjEnv(unlist(x), toEnv, fromEnv, rmSrc)
 })
 

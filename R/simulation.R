@@ -233,6 +233,7 @@ setMethod("simInit",
               sim <- doEvent.load(sim, 0, "inputs")
               events(sim) <- events(sim, "second")[!(eventTime==0 & moduleName=="load"
                                                     & eventType=="inputs"),]
+
             }
 
             #            if (NROW(inputs(sim))==0) {
@@ -251,13 +252,13 @@ setMethod("simInit",
             checkParams(sim, core, dotParams, modulePath(sim)) # returns invisible TRUE/FALSE
 
             if(length(objects)>0) {
-              changeObjEnv(x=objects, toEnv=envir(sim), fromEnv=.GlobalEnv,
+              changeObjEnv(x=objects, toEnv=envir(sim), fromEnv=sys.frames()[[1]],
                            rmSrc=getOption("spades.lowMemory"))
-              inputs(sim) <- rbindlist(list(inputs(sim),
-                                            data.table(objectName=unlist(objects),
+              inputs(sim) <- rbind_all(list(inputs(sim),
+                                            data.frame(objectName=unlist(objects),
                                                        loaded=TRUE,
-                                                       loadTime=time(sim, "seconds"))),
-                                            fill=TRUE)
+                                                       loadTime=as.numeric(time(sim, "seconds")),
+                                                       stringsAsFactors=FALSE)))
             }
 
             # keep session info for debugging & checkpointing
@@ -629,7 +630,24 @@ setMethod("simInit",
             return(invisible(sim))
           })
 
+
 ############ End of inputs missing
+
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="ANY", params="ANY", modules="ANY",
+                    objects="character", paths="ANY", inputs="ANY", outputs="ANY", loadOrder="ANY"),
+          definition=function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+
+            li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
+            names(li) <- names(match.call())[-1]
+            li$objects <- lapply(objects, function(x) x)
+            names(li$objects) <- objects
+            sim <- do.call("simInit", args=li)
+
+            return(invisible(sim))
+          })
+
 
 ########## All missing
 

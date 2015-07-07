@@ -13,8 +13,8 @@ test_that("saving files does not work correctly", {
                      randomLandscapes=list(.plotInitialTime=NA,
                                            nx=20, ny=20))
 
-  outputs <- data.frame(expand.grid(objectName=c("caribou","landscape"),
-                                               saveTime=1:2), stringsAsFactors=FALSE)
+  outputs <- data.frame(expand.grid(objectName=c("caribou","landscape"),saveTime=1:2,
+                        stringsAsFactors = FALSE))
 
   modules <- list("randomLandscapes", "caribouMovement")
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),

@@ -38,10 +38,10 @@
 #' @slot simtimes   List of numerical values describing the simulation start
 #'                  and stop times; as well as the current simulation time.
 #'
-#' @slot inputs   The list of length 2: a \code(data.table) or \code(data.frame) of files and metadata,
+#' @slot inputs   The list of length 2: a \code{data.table} or \code{data.table} of files and metadata,
 #' and a list of optional arguments to pass to an import function
 #'
-#' @slot outputs   The list of length 2: a \code(data.table) or \code(data.frame) of files and metadata,
+#' @slot outputs   The list of length 2: a \code{data.table}  or \code{data.table}  of files and metadata,
 #' and a list of optional arguments to pass to an import function
 #'
 #' @slot paths   Named list of \code{modulePath}, \code{inputPath}, and \code{outputPath} paths. Partial
