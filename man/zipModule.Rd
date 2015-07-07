@@ -23,7 +23,9 @@ zipModule(name, path, version, ...)
 
 \item{version}{The module version.}
 
-\item{...}{Additional arguments to \code{\link{zip}}, e.g., \code{flags="-q"}.}
+\item{...}{Additional arguments to \code{\link{zip}}:
+               e.g., add \code{"-q"} using \code{flags="-q -r9X"}
+               (the default flags are \code{"-r9X"}).}
 }
 \description{
 The most common use of this would be from a "modules" directory, rather than
