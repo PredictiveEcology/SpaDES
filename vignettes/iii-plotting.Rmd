@@ -224,7 +224,6 @@ Plot(mySim$DEM, new=TRUE)
 Plot(Sl, addTo="mySim$DEM", length=0.2)
 ```
 
-
 # Modularity
 
 One of the main purposes of the `Plot` function is modularity.

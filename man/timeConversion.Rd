@@ -11,7 +11,7 @@
 \alias{inSeconds,character-method}
 \alias{spadesTimes}
 \title{Convert time units}
-\format{\preformatted{ chr [1:6] "^years?$" "^months?$" ...
+\format{\preformatted{ chr [1:6] "^years?$" "^months?$" "^weeks?$" "^days?$" "^hours?$" ...
 }}
 \usage{
 inSeconds(unit)
