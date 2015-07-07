@@ -13,8 +13,8 @@ test_that("saving files does not work correctly", {
                      randomLandscapes=list(.plotInitialTime=NA,
                                            nx=20, ny=20))
 
-  outputs <- list(table=data.table(expand.grid(objectName=c("caribou","landscape"),
-                                               saveTime=1:2)))
+  outputs <- data.frame(expand.grid(objectName=c("caribou","landscape"),
+                                               saveTime=1:2), stringsAsFactors=FALSE)
 
   modules <- list("randomLandscapes", "caribouMovement")
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
@@ -34,7 +34,7 @@ test_that("saving files does not work correctly", {
   expect_true(file.exists(file.path(savePath,"caribou_month5.rds")))
 
 
-  outputs <- list(table=data.table(expand.grid(objectName=c("caribou", "landscape"))))
+  outputs <- data.frame(expand.grid(objectName=c("caribou", "landscape")), stringsAsFactors=FALSE)
   times <- list(start=0, stop=7, "month")
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA),

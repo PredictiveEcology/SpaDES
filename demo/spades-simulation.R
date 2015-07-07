@@ -13,8 +13,7 @@ filelist = data.frame(
     full.names=TRUE, pattern= "tif"),
   functions="rasterToMemory",
   packages="SpaDES",
-  stringsAsFactors=FALSE)  %>%
-  list(table=.)
+  stringsAsFactors=FALSE)
 
 stackName = "landscape"
 

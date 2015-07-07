@@ -34,15 +34,14 @@ Plot(caribouTraj, new=TRUE, length=0.1)
 
 # or  to a previous Plot
 \dontrun{
-filelist <- data.table(files =
+filelist <- data.frame(files =
      dir(file.path(find.package("SpaDES",
                                 lib.loc=getOption("devtools.path"),
                                 quiet=FALSE),
                   "maps"),
         full.names=TRUE, pattern= "tif"),
      functions="rasterToMemory",
-     packages="SpaDES") \%>\%
-    list(table=.)
+     packages="SpaDES")
 
 # Load files to memory (using rasterToMemory)
 sim1 <- loadFiles(filelist=filelist)

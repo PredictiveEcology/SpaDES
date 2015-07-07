@@ -587,6 +587,7 @@ setReplaceMethod("checkpointInterval",
 #' @inheritParams params
 #' @include simList-class.R
 #' @importFrom data.table is.data.table
+#' @importFrom dplyr rbind_all
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -600,7 +601,7 @@ setGeneric("inputs", function(object) {
 setMethod("inputs",
           signature="simList",
           definition=function(object) {
-            return(object@inputs$table)
+            return(object@inputs)
 })
 
 #' @export
@@ -618,43 +619,40 @@ setReplaceMethod("inputs",
                  signature="simList",
                  function(object, value) {
                    if(length(value)>0) {
-                     if (!is.data.table(value)) {
+                     if (!is.data.frame(value)) {
                        if(!is.list(value)) {
-                         stop("inputs must be a list, data.frame or data.table")
+                         stop("inputs must be a list, data.frame")
                        }
                        # pull out any "arguments" that will be passed to input functions
 #                        if(any(stri_detect_fixed(pattern="arg", names(value)))) {
-#                          inputArgs(object) <- rep(value$arg, length.out=length(value$table$files))
+#                          inputArgs(object) <- rep(value$arg, length.out=length(value$files))
 #                          value <- value[-pmatch("arg", names(value))]
 #                        }
-                       value <- value %>%
-                          data.frame(stringsAsFactors=FALSE) %>%
-                          data.table
+#                        value <- value %>%
+#                           data.frame(stringsAsFactors=FALSE) %>%
+#                           data.table
                      }
-                     fileTable <- data.table(file=character(0), fun=character(0),
+                     fileTable <- data.frame(file=character(0), fun=character(0),
                                              package=character(0), objectName=character(0),
                                              loadTime=numeric(0), loaded=logical(0))
                      columns <- pmatch(names(fileTable),names(value))
                      setnames(value,old = colnames(value)[na.omit(columns)],
                                     new=colnames(fileTable)[!is.na(columns)])
-                     object@inputs$table <- rbindlist(list(fileTable, value),
-                                                      fill=TRUE)
+                     object@inputs <- as.data.frame(rbind_all(list(value, fileTable)))
 
                    } else {
-                     object@inputs$table <- value
+                     object@inputs <- value
                    }
 
-                   if (any(is.na(object@inputs$table[,loaded]))) {
-                     browser()
+                   if (any(is.na(object@inputs[,"loaded"]))) {
 
-                     if(!all(is.na(object@inputs$table[,loadTime]))) {
-                       object <- scheduleEvent(object,
-                                             object@inputs$table[is.na(loaded), min(loadTime, na.rm=TRUE)],
-                                             "load", "inputs")
+                     if(!all(is.na(object@inputs[,"loadTime"]))) {
+                       newTime <- min(object@inputs[is.na(object@inputs$loaded),"loadTime"], na.rm=TRUE)
+                       attributes(newTime)$unit <- timeunit(object)
+                       object <- scheduleEvent(object, newTime, "load", "inputs")
                      } else {
-                       object <- scheduleEvent(object,
-                                               object@inputs$table[is.na(loaded), start(object, "seconds")],
-                                               "load", "inputs")
+                       #newTime <- object@inputs[is.na(object@inputs$loaded),"loadTime"]
+                       #object <- scheduleEvent(object,start(object, "seconds"), "load", "inputs")
                      }
                    }
 
@@ -669,7 +667,7 @@ setReplaceMethod("inputs",
 #'
 #' @include simList-class.R
 #' @export
-#' @importFrom data.table data.table is.data.table ':='
+#' @importFrom data.table data.table ':='
 #' @importFrom tools file_path_sans_ext
 #' @importFrom tools file_ext
 #' @importFrom R.utils isAbsolutePath
@@ -685,7 +683,7 @@ setGeneric("outputs", function(object) {
 setMethod("outputs",
           signature="simList",
           definition=function(object) {
-            return(object@outputs$table)
+            return(object@outputs)
           })
 
 #' @export
@@ -704,18 +702,18 @@ setReplaceMethod("outputs",
                  function(object, value) {
 
        if(length(value)>0) {
-         if (!is.data.table(value)) {
+         if (!is.data.frame(value)) {
            if(!is.list(value)) {
-             stop("outputs must be a list, data.frame or data.table")
+             stop("outputs must be a list or data.frame")
            }
            # pull out any "arguments" that will be passed to input functions
 #            if(any(stri_detect_fixed(pattern="argument", names(value)))) {
 #              outputArgs(object) <- rep(value$arguments, length.out=length(value$files))
 #              value <- value[-pmatch("argument", names(value))]
 #            }
-           value <- value %>%
-             data.frame(stringsAsFactors=FALSE) %>%
-             data.table
+#            value <- value %>%
+#              data.frame(stringsAsFactors=FALSE) %>%
+#              data.table
          }
 
          # create a dummy data.table with correct columns and
@@ -726,54 +724,54 @@ setReplaceMethod("outputs",
          setnames(value, old=colnames(value)[na.omit(columns)],
                   new=colnames(fileTable)[!is.na(columns)])
          # Merge
-         object@outputs$table <- rbindlist(list(value, fileTable), fill=TRUE)
+         object@outputs <- rbindlist(list(value, fileTable), fill=TRUE)
 
          # coerce any factors to the correct class
-         for (col in which(t(object@outputs$table[,lapply(.SD, is.factor)]))) {
-           set(object@outputs$table, j=col, value=as(object@outputs$table[[col]], class(fileTable[[col]])))
+         for (col in which(t(object@outputs[,lapply(.SD, is.factor)]))) {
+           set(object@outputs, j=col, value=as(object@outputs[[col]], class(fileTable[[col]])))
          }
 
          # if saveTime not provided, give it end(object)
-         object@outputs$table[is.na(saveTime), saveTime:=end(object, timeunit(object))]
-         attributes(object@outputs$table$saveTime)$unit <- timeunit(object)
+         object@outputs[is.na(saveTime), saveTime:=end(object, timeunit(object))]
+         attributes(object@outputs$saveTime)$unit <- timeunit(object)
 
          # Deal with file names
          # 3 things: 1. if relative, concatenate outputPath
          #           2. if absolute, don't use outputPath
          #           3. concatenate time to file name in all cases
          # If no filename provided, use the object name
-         object@outputs$table[is.na(file),file:=paste0(objectName)]
+         object@outputs[is.na(file),file:=paste0(objectName)]
          # If a filename is provided, determine if it is absolute path, if so, use that, if
          # not, then append it to outputPath(object)
-         object@outputs$table[!isAbsolutePath(object@outputs$table$file),
+         object@outputs[!isAbsolutePath(object@outputs$file),
                         file:=file.path(outputPath(object),file)]
 
 
          # If there is no function provided, then use saveRDS, from package base
-         object@outputs$table[is.na(fun),fun:="saveRDS"]
-         object@outputs$table[is.na(package),package:="base"]
+         object@outputs[is.na(fun),fun:="saveRDS"]
+         object@outputs[is.na(package),package:="base"]
 
          # file extension stuff
          fileExts <- .saveFileExtensions()
-         setkey(object@outputs$table, package, fun)
-         fe <- fileExts[object@outputs$table,exts]
-         setkey(object@outputs$table, NULL)
-         wh <- !stri_detect_fixed(str = object@outputs$table$file,pattern=".") & (nchar(fe)>0)
-         object@outputs$table[wh,file:=paste0(file,".",fe[wh])]
+         setkey(object@outputs, package, fun)
+         fe <- fileExts[object@outputs,exts]
+         setkey(object@outputs, NULL)
+         wh <- !stri_detect_fixed(str = object@outputs$file,pattern=".") & (nchar(fe)>0)
+         object@outputs[wh,file:=paste0(file,".",fe[wh])]
 
 
          # If the file name already has a time unit on it, i.e., passed explicitly by user, then don't
          # postpend again
-         txtTimeA <- paste0(attr(object@outputs$table[,saveTime],"unit"))
-         txtTimeB <- paddedFloatToChar(object@outputs$table[,saveTime],
+         txtTimeA <- paste0(attr(object@outputs[,saveTime],"unit"))
+         txtTimeB <- paddedFloatToChar(object@outputs[,saveTime],
                                        ceiling(log10(end(object, timeunit(object))+1)))
-         wh <- !stri_detect_fixed(str = object@outputs$table$file,pattern=txtTimeA)
-         object@outputs$table[wh, file:=paste0(file_path_sans_ext(file),
+         wh <- !stri_detect_fixed(str = object@outputs$file,pattern=txtTimeA)
+         object@outputs[wh, file:=paste0(file_path_sans_ext(file),
                                          "_",txtTimeA,txtTimeB[wh],ifelse(nchar(file_ext(file))>0,".",""),
                                          ifelse(!is.null(file_ext(file)),file_ext(file),""))]
 
        } else {
-         object@outputs$table <- value
+         object@outputs <- value
        }
 
        if(is.null(object@outputs$arg)) {

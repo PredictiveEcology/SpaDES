@@ -227,9 +227,9 @@ setMethod("simInit",
 
             # load files in the filelist
             if(length(inputs)>0) {
-              inputs(sim) <- inputs$table
+              inputs(sim) <- inputs
 
-              inputArgs(sim) <- inputs$arg
+              #inputArgs(sim) <- inputs$arg
               sim <- doEvent.load(sim, 0, "inputs")
               events(sim) <- events(sim, "second")[!(eventTime==0 & moduleName=="load"
                                                     & eventType=="inputs"),]
@@ -242,8 +242,8 @@ setMethod("simInit",
             #            }
 
             if(length(outputs)>0) {
-              outputs(sim) <- outputs$table
-              outputArgs(sim) <- outputs$arg
+              outputs(sim) <- outputs
+              #outputArgs(sim) <- outputs$arg
 
             }
 
