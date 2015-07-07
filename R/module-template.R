@@ -419,16 +419,19 @@ setMethod("openModules",
 #' The most common use of this would be from a "modules" directory, rather than
 #' inside a given module.
 #'
-#' @param name  Character string giving the module name.
-#' @param path  A file path to a directory containing the module subdirectory.
-#' @param version The module version
+#' @param name    Character string giving the module name.
+#' @param path    A file path to a directory containing the module subdirectory.
+#' @param version The module version.
+#' @param ...     Additional arguments to \code{\link{zip}}:
+#'                e.g., add \code{"-q"} using \code{flags="-q -r9X"}
+#'                (the default flags are \code{"-r9X"}).
 #'
 #' @author Eliot McIntire and Alex Chubaty
 #'
 #' @export
 #' @rdname zipModule
 #'
-setGeneric("zipModule", function(name, path, version) {
+setGeneric("zipModule", function(name, path, version, ...) {
   standardGeneric("zipModule")
 })
 
@@ -436,7 +439,7 @@ setGeneric("zipModule", function(name, path, version) {
 #' @rdname zipModule
 setMethod("zipModule",
 signature=c(name="character", path="character", version="character"),
-definition = function(name, path, version) {
+definition = function(name, path, version, ...) {
   # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
   #  Requires pandoc to be installed and working
 
@@ -447,7 +450,7 @@ definition = function(name, path, version) {
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
   print(paste("Zipping module into zip file"))
-  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
+  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"), ...)
   file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)
 })
@@ -456,14 +459,14 @@ definition = function(name, path, version) {
 #' @export
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="character"),
-          definition = function(name, version) {
-            zipModule(name=name, path=".", version=version)
+          definition = function(name, version, ...) {
+            zipModule(name=name, path=".", version=version, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),
-          definition = function(name) {
-            zipModule(name=name, path=".", version="0.0.0")
+          definition = function(name, ...) {
+            zipModule(name=name, path=".", version="0.0.0", ...)
 })
