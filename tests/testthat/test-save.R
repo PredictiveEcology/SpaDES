@@ -4,12 +4,6 @@ test_that("saving files does not work correctly", {
   savePath <- file.path(tempdir(), "test_save")
   on.exit(unlink(savePath, recursive = TRUE))
 
-  filelist = data.frame(
-    files=dir(file.path(mapPath), full.names=TRUE, pattern="tif")[1:2],
-    functions="rasterToMemory",
-    package="SpaDES", stringsAsFactors=FALSE
-  )
-
   times <- list(start=0, stop=6, "month")
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA, torus=TRUE,

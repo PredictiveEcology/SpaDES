@@ -189,17 +189,16 @@ setMethod(
         # extract file extensions, to be used to determine which function to use
         exts <- match(fileExt(fl), .fileExts[,"exts"])
 
-        # determine which function to load with
+        # determine which default functions to load with
         loadFun <- as.character(.fileExts[exts, "fun"])
         loadPackage <- as.character(.fileExts[exts, "package"])
 
-  #       # correct those for which a specific function is given in filelistDT$fun
-  #
+  #       # correct those for which a specific function is supplied in filelistDT$fun
          if(any(!is.na(filelistDT[,fun]))) {
            loadFun[!is.na(filelistDT$fun)] <- filelistDT$fun[!is.na(filelistDT$fun)]
            loadPackage[!is.na(filelistDT[,package])] <- filelistDT$package[!is.na(filelistDT$package)]
-           loadPackage[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
-           loadFun[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
+           loadPackage[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+           loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
          }
 
         # use filenames as object names, unless alternative provided in filelistDT$objectName
@@ -208,13 +207,13 @@ setMethod(
           objectName[!is.na(filelistDT[cur,objectName])] <- filelistDT[cur,objectName][!is.na(filelistDT[cur,objectName])]
         }
 
-        # correct those for which a specific function is given in filelistDT$fun
-        if(any(!is.na(filelistDT[cur,fun]))) {
-          loadFun[!is.na(filelistDT[cur,fun])] <- filelistDT[cur,fun][!is.na(filelistDT[cur,fun])]
-          loadPackage[!is.na(filelistDT[cur,package])] <- filelistDT[cur,package][!is.na(filelistDT[cur,package])]
-          loadPackage[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
-          loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
-        }
+#         # correct those for which a specific function is given in filelistDT$fun
+#         if(any(!is.na(filelistDT[cur,fun]))) {
+#           loadFun[!is.na(filelistDT[cur,fun])] <- filelistDT[cur,fun][!is.na(filelistDT[cur,fun])]
+#           loadPackage[!is.na(filelistDT[cur,package])] <- filelistDT[cur,package][!is.na(filelistDT[cur,package])]
+#           loadPackage[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+#           loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
+#         }
         # load files
         for (x in 1:length(fl)) {
           y <- which(cur)[x]

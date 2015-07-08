@@ -57,7 +57,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @param sim A \code{simList} simulation object.
 #'
-#' @importFrom plyr rbind_all
+#' @importFrom dplyr rbind_all
 #' @importFrom dplyr distinct
 #' @export
 #' @docType methods

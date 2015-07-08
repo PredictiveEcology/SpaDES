@@ -1,11 +1,11 @@
-test_that("loading inputs does not work correctly", {
+test_that("test-load.R: loading inputs does not work correctly", {
   on.exit(rm(mySim, sim1, sim2, sim3))
 
   mapPath <- system.file("maps", package="SpaDES")
-  
+
   filelist = data.frame(files=dir(file.path(mapPath),full.names = TRUE,
      pattern="tif")[1:2], functions="raster", package="raster", stringsAsFactors=FALSE)
-  
+
   times <- list(start=0, stop=1)
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA),
@@ -15,13 +15,14 @@ test_that("loading inputs does not work correctly", {
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
                 inputPath=mapPath,
                 outputPath=tempdir())
-               
+
   mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
   mySim <- spades(mySim)
   expect_true(all(c("DEM", "forestAge") %in% names(mySim$landscape)))
   inputs(mySim) <- data.frame(files=dir(file.path(mapPath),
-                                         full.names=TRUE, pattern="tif")[1:2],
-                               functions="raster", package="raster", loadTime=c(0,3))
+                                        full.names=TRUE, pattern="tif")[1:2],
+                               functions="raster", package="raster", loadTime=c(0,3),
+                              stringsAsFactors=FALSE)
 
 
    # use loadFiles directly
@@ -57,17 +58,15 @@ test_that("loading inputs does not work correctly", {
 
 })
 
-test_that("passing arguments to filelist in simInit does not work correctly", {
+test_that("test-load.R: passing arguments to filelist in simInit does not work correctly", {
   # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
   #  at time = 10 and 20 (via "intervals").
   # Also, pass the single argument as a list to all functions...
   #  specifically, when add "native = TRUE" as an argument to the raster function
-  arguments = list(native=TRUE)
+  mapPath <- system.file("maps", package="SpaDES")
   files = dir(file.path(mapPath),
        full.names=TRUE, pattern= "tif")[1:4]
-  inputs=list(
-  mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "inst/maps")
-  #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
+  #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "inst/maps")
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA),
                      randomLandscapes=list(.plotInitialTime=NA,
@@ -76,8 +75,6 @@ test_that("passing arguments to filelist in simInit does not work correctly", {
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
                 inputPath=mapPath,
                 outputPath=tempdir())
-  files <- dir(file.path(mapPath),
-       full.names=TRUE, pattern= "tif")[1:4]
   inputs <-
     data.frame(files = files,
                functions=rep("raster::raster",4),
@@ -86,12 +83,6 @@ test_that("passing arguments to filelist in simInit does not work correctly", {
                intervals = c(NA, 1, 2, NA),
                args=I(rep(list("native"=TRUE),4)),
                stringsAsFactors=FALSE)
-  arguments <- list(native=TRUE)
-  files <- dir(file.path(mapPath), full.names=TRUE, pattern= "tif")[1:4]
-  inputs <- list(
-     intervals = c(NA, 1, 2, NA)
-  )
-
   times <- list(start=0, stop=1, timeunit="seconds")
 
   sim2 <- simInit(times=times, params=parameters, modules=modules,
@@ -111,8 +102,7 @@ test_that("passing arguments to filelist in simInit does not work correctly", {
   expect_true(all(c("forestAge") %in% names(sim2$landscape)))
 
   end(sim2) <- 3
-  expect_message(spades(sim2), "forestAge")
-  expect_message(spades(sim2), "habitatQuality")
+  expect_message(spades(sim2), "habitatQuality read from")
   expect_message(spades(sim2), "forestCover")
   expect_message(spades(sim2), "forestAge")
   expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim2)))
@@ -120,9 +110,8 @@ test_that("passing arguments to filelist in simInit does not work correctly", {
 
 })
 
-test_that("passing objects to simInit does not work correctly", {
-  mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "inst/maps")
-  #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
+test_that("test-load.R: passing objects to simInit does not work correctly", {
+  mapPath <- mapPath <- system.file("maps", package="SpaDES")
 
   # test object passing directly
   filelist = data.frame(files=dir(file.path(mapPath),full.names = TRUE,
@@ -161,8 +150,9 @@ test_that("passing objects to simInit does not work correctly", {
 
 })
 
-test_that("passing nearly empty file to simInit does not work correctly", {
-  mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "inst/maps")
+test_that("test-load.R: passing nearly empty file to simInit does not work correctly", {
+  mapPath <- system.file("maps", package="SpaDES")
+  #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "inst/maps")
   #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 
   # test object passing directly

@@ -3,65 +3,73 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
-\alias{simInit,list,list,list,list,list,ANY,ANY,character-method}
-\alias{simInit,list,list,list,list,list,ANY,ANY,missing-method}
-\alias{simInit,list,list,list,list,list,ANY,missing,missing-method}
+\alias{simInit,ANY,ANY,ANY,character,ANY,ANY,ANY,ANY-method}
+\alias{simInit,list,list,list,list,list,data.frame,ANY,character-method}
+\alias{simInit,list,list,list,list,list,data.frame,ANY,missing-method}
+\alias{simInit,list,list,list,list,list,data.frame,missing,missing-method}
 \alias{simInit,list,list,list,list,list,missing,ANY,missing-method}
 \alias{simInit,list,list,list,list,list,missing,missing,missing-method}
-\alias{simInit,list,list,list,list,missing,ANY,ANY,character-method}
-\alias{simInit,list,list,list,list,missing,ANY,ANY,missing-method}
-\alias{simInit,list,list,list,list,missing,ANY,missing,character-method}
-\alias{simInit,list,list,list,list,missing,ANY,missing,missing-method}
+\alias{simInit,list,list,list,list,missing,data.frame,ANY,character-method}
+\alias{simInit,list,list,list,list,missing,data.frame,ANY,missing-method}
+\alias{simInit,list,list,list,list,missing,data.frame,missing,character-method}
+\alias{simInit,list,list,list,list,missing,data.frame,missing,missing-method}
 \alias{simInit,list,list,list,list,missing,missing,ANY,character-method}
 \alias{simInit,list,list,list,list,missing,missing,ANY,missing-method}
 \alias{simInit,list,list,list,list,missing,missing,missing,character-method}
 \alias{simInit,list,list,list,list,missing,missing,missing,missing-method}
-\alias{simInit,list,list,list,missing,list,ANY,ANY,character-method}
-\alias{simInit,list,list,list,missing,list,ANY,ANY,missing-method}
-\alias{simInit,list,list,list,missing,list,ANY,missing,character-method}
-\alias{simInit,list,list,list,missing,list,ANY,missing,missing-method}
+\alias{simInit,list,list,list,missing,list,data.frame,ANY,character-method}
+\alias{simInit,list,list,list,missing,list,data.frame,ANY,missing-method}
+\alias{simInit,list,list,list,missing,list,data.frame,missing,character-method}
+\alias{simInit,list,list,list,missing,list,data.frame,missing,missing-method}
 \alias{simInit,list,list,list,missing,list,missing,ANY,character-method}
 \alias{simInit,list,list,list,missing,list,missing,ANY,missing-method}
 \alias{simInit,list,list,list,missing,list,missing,missing,character-method}
 \alias{simInit,list,list,list,missing,list,missing,missing,missing-method}
-\alias{simInit,list,list,list,missing,missing,ANY,ANY,character-method}
-\alias{simInit,list,list,list,missing,missing,ANY,ANY,missing-method}
-\alias{simInit,list,list,list,missing,missing,ANY,missing,character-method}
-\alias{simInit,list,list,list,missing,missing,ANY,missing,missing-method}
+\alias{simInit,list,list,list,missing,missing,data.frame,ANY,character-method}
+\alias{simInit,list,list,list,missing,missing,data.frame,ANY,missing-method}
+\alias{simInit,list,list,list,missing,missing,data.frame,missing,character-method}
+\alias{simInit,list,list,list,missing,missing,data.frame,missing,missing-method}
 \alias{simInit,list,list,list,missing,missing,missing,ANY,character-method}
 \alias{simInit,list,list,list,missing,missing,missing,ANY,missing-method}
 \alias{simInit,list,list,list,missing,missing,missing,missing,character-method}
 \alias{simInit,list,list,list,missing,missing,missing,missing,missing-method}
+\alias{simInit,missing,missing,missing,missing,missing,data.frame,missing,missing-method}
 \alias{simInit,missing,missing,missing,missing,missing,missing,missing,missing-method}
 \title{Initialize a new simulation}
 \usage{
 simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,list,ANY,ANY,character}(times, params,
-  modules, objects, paths, inputs, outputs, loadOrder)
+\S4method{simInit}{list,list,list,list,list,data.frame,ANY,character}(times,
+  params, modules, objects, paths, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,list,ANY,missing,missing}(times, params,
-  modules, objects, paths, inputs)
+\S4method{simInit}{list,list,list,list,list,data.frame,missing,missing}(times,
+  params, modules, objects, paths, inputs)
 
-\S4method{simInit}{list,list,list,list,list,ANY,missing,missing}(times, params,
-  modules, objects, paths, inputs)
+\S4method{simInit}{list,list,list,list,list,data.frame,missing,missing}(times,
+  params, modules, objects, paths, inputs)
 
-\S4method{simInit}{list,list,list,list,missing,ANY,missing,character}(times,
+
+  \S4method{simInit}{list,list,list,list,missing,data.frame,missing,character}(times,
   params, modules, objects, inputs, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,list,ANY,missing,character}(times,
+
+  \S4method{simInit}{list,list,list,missing,list,data.frame,missing,character}(times,
   params, modules, paths, inputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,missing,ANY,missing,missing}(times,
+
+  \S4method{simInit}{list,list,list,list,missing,data.frame,missing,missing}(times,
   params, modules, objects, inputs)
 
-\S4method{simInit}{list,list,list,missing,missing,ANY,missing,character}(times,
+
+  \S4method{simInit}{list,list,list,missing,missing,data.frame,missing,character}(times,
   params, modules, inputs, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,list,ANY,missing,missing}(times,
+
+  \S4method{simInit}{list,list,list,missing,list,data.frame,missing,missing}(times,
   params, modules, paths, inputs)
 
-\S4method{simInit}{list,list,list,missing,missing,ANY,missing,missing}(times,
+
+  \S4method{simInit}{list,list,list,missing,missing,data.frame,missing,missing}(times,
   params, modules, inputs)
 
 \S4method{simInit}{list,list,list,list,list,missing,missing,missing}(times,
@@ -116,29 +124,38 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 \S4method{simInit}{list,list,list,missing,missing,missing,ANY,missing}(times,
   params, modules, outputs)
 
-\S4method{simInit}{list,list,list,list,list,ANY,ANY,missing}(times, params,
-  modules, objects, paths, inputs, outputs)
+\S4method{simInit}{list,list,list,list,list,data.frame,ANY,missing}(times,
+  params, modules, objects, paths, inputs, outputs)
 
-\S4method{simInit}{list,list,list,list,list,ANY,ANY,missing}(times, params,
-  modules, objects, paths, inputs, outputs)
+\S4method{simInit}{list,list,list,list,list,data.frame,ANY,missing}(times,
+  params, modules, objects, paths, inputs, outputs)
 
-\S4method{simInit}{list,list,list,list,missing,ANY,ANY,character}(times, params,
-  modules, objects, inputs, outputs, loadOrder)
+\S4method{simInit}{list,list,list,list,missing,data.frame,ANY,character}(times,
+  params, modules, objects, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,list,ANY,ANY,character}(times, params,
-  modules, paths, inputs, outputs, loadOrder)
+\S4method{simInit}{list,list,list,missing,list,data.frame,ANY,character}(times,
+  params, modules, paths, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,missing,ANY,ANY,missing}(times, params,
-  modules, objects, inputs, outputs)
+\S4method{simInit}{list,list,list,list,missing,data.frame,ANY,missing}(times,
+  params, modules, objects, inputs, outputs)
 
-\S4method{simInit}{list,list,list,missing,missing,ANY,ANY,character}(times,
+
+  \S4method{simInit}{list,list,list,missing,missing,data.frame,ANY,character}(times,
   params, modules, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,missing,list,ANY,ANY,missing}(times, params,
-  modules, paths, inputs, outputs)
+\S4method{simInit}{list,list,list,missing,list,data.frame,ANY,missing}(times,
+  params, modules, paths, inputs, outputs)
 
-\S4method{simInit}{list,list,list,missing,missing,ANY,ANY,missing}(times,
+
+  \S4method{simInit}{list,list,list,missing,missing,data.frame,ANY,missing}(times,
   params, modules, inputs, outputs)
+
+\S4method{simInit}{ANY,ANY,ANY,character,ANY,ANY,ANY,ANY}(times, params,
+  modules, objects, paths, inputs, outputs, loadOrder)
+
+
+  \S4method{simInit}{missing,missing,missing,missing,missing,data.frame,missing,missing}(times,
+  params, modules, objects, paths, inputs, outputs, loadOrder)
 
 
   \S4method{simInit}{missing,missing,missing,missing,missing,missing,missing,missing}(inputs,
