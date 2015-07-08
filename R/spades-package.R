@@ -110,6 +110,7 @@
 #'    \code{\link{depends}} \tab List of simulation module dependencies. (advanced)\cr
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
 #'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
+#'    \code{\link{outputs}} \tab List of objects to save during simulation. (advanced)\cr
 #' }
 #'
 #' @section 1.3 Module operations:
