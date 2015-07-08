@@ -8,20 +8,24 @@
 \alias{zipModule,character,missing,missing-method}
 \title{Create a zip archive of a module subdirectory}
 \usage{
-zipModule(name, path, version)
+zipModule(name, path, version, ...)
 
-\S4method{zipModule}{character,character,character}(name, path, version)
+\S4method{zipModule}{character,character,character}(name, path, version, ...)
 
-\S4method{zipModule}{character,missing,character}(name, version)
+\S4method{zipModule}{character,missing,character}(name, path, version, ...)
 
-\S4method{zipModule}{character,missing,missing}(name)
+\S4method{zipModule}{character,missing,missing}(name, path, version, ...)
 }
 \arguments{
 \item{name}{Character string giving the module name.}
 
 \item{path}{A file path to a directory containing the module subdirectory.}
 
-\item{version}{The module version}
+\item{version}{The module version.}
+
+\item{...}{Additional arguments to \code{\link{zip}}:
+               e.g., add \code{"-q"} using \code{flags="-q -r9X"}
+               (the default flags are \code{"-r9X"}).}
 }
 \description{
 The most common use of this would be from a "modules" directory, rather than

@@ -11,7 +11,7 @@ vignette: >
   %\VignetteEngine{knitr::knitr}
   %\VignetteIndexEntry{01 Introduction to SpaDES}
   %\VignetteDepends{SpaDES}
-  %\VignetteKeyword{discrete event simulation}
+  %\VignetteKeyword{discrete event simulation, spatial simulation models}
   %\usepackage[utf8]{inputenc}
 bibliography: bibliography.bib
 ---

@@ -13,8 +13,8 @@ test_that("mapReduce: file does not work correctly 1", {
     biomass=rnbinom(length(uniqueComms), mu=4000, 0.4)
   )
   biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
-  print(sort(unique(getValues(biomass))))
-  print(sort(reducedDT$biomass))
+  #print(sort(unique(getValues(biomass))))
+  #print(sort(reducedDT$biomass))
 
   expect_more_than(sum(sort(unique(getValues(biomass))),na.rm=TRUE),0)#, sort(reducedDT$biomass))
   #expect_equal(sort(unique(getValues(biomass))), sort(reducedDT$biomass))

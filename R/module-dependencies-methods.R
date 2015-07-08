@@ -209,11 +209,11 @@ setMethod(".depsPruneEdges",
 #' Determine module load order
 #'
 #' Internal function.
-#' Checks module dependencies and attempts to enusure that cyclic dependencies
+#' Checks module dependencies and attempts to ensure that cyclic dependencies
 #' can be resolved, checking objects in the global environment, and finally,
 #' attempts to determine the load order for modules in the simulation.
 #'
-#' Uses \code{\link{topological.sort}} to try to find a load order satisfying
+#' Uses \code{\link[igraph]{topo_sort}} to try to find a load order satisfying
 #' all module object dependencies.
 #'
 #' @param sim         A \code{simList} object.
@@ -239,11 +239,16 @@ setMethod(".depsLoadOrder",
           signature(sim="simList", simGraph="igraph"),
           definition=function(sim, simGraph) {
             # only works if simGraph is acyclic!
-            tsort <- topo_sort(simGraph)
+            tsort <- topo_sort(simGraph, "out")
             if (length(tsort)) {
               loadOrder <- names(simGraph[[tsort,]]) %>% .[!(. %in% "_INPUT_" )]
             } else {
-              loadOrder <- unlist(modules(sim))
+              modules <- unlist(modules(sim))
+              if (length(modules(sim))) {
+                loadOrder <- modules
+              } else {
+                loadOrder <- character()
+              }
             }
             # make sure modules with no deps get added
             if (!all(modules(sim) %in% loadOrder)) {

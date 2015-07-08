@@ -170,7 +170,7 @@ Default parameter values can overridden by passing values in the parameter list 
 ```{r passing-params, eval=FALSE, echo=TRUE}
 require(SpaDES)
 
-outputPath <- file.path(tempdir(), "simOutputs")
+outputDir <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=20.0)
 parameters <- list(.globals=list(stackName="landscape",
                                  burnStats="nPixelsBurned"),
@@ -184,7 +184,7 @@ parameters <- list(.globals=list(stackName="landscape",
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
 paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-             outputPath=outputPath)
+              outputPath=outputDir)
 
 mySim <- simInit(times=times, params=parameters, modules=modules,
                  objects=objects, paths=paths)
@@ -537,17 +537,17 @@ Alternatively, objects can be saved at the module level by passing parameters wi
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-#filelist <- dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"), full.names=TRUE) %>%
-#     list(table=.)
+outputDir <- file.path(tempdir(), "simOutputs")
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(
                    .globals=list(stackName="landscape"),
                    randomLandscapes=list(
                      .saveInitialTime=0, .saveInterval=10, .saveObjects=c("landscape"),
-                     .savePath=file.path(tempdir(), "output", "randomLandscapes"))
+                     .savePath=file.path(outputDir, "randomLandscapes"))
                    ),
                  modules=list("randomLandscapes"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")),
+                 paths=list(modulePath=system.file("sampleModules", package="SpaDES"),
+                            outputPath=outputDir),
                  #inputs=data.table(file=filelist),
                  outputs=data.table(objectName="landscape")
 )
@@ -569,7 +569,6 @@ outputs(mySim) <- data.table(
     list(dataType="FLT4S", format="raster", overwrite=TRUE)
   }))
 mySim2 <- spades(mySim)
-
 ```
 
 Saving within a module -- scheduling save events.
@@ -708,3 +707,7 @@ Additionally, `zipModule()` can be used to build the `.zip` file corresponding t
 
 To submit your module for inclusion in our GitHub repository, login to GitHub with your account and initiate a pull request to the repository.
 See the [GitHub help documentation](https://help.github.com/articles/creating-a-pull-request/) for more details.
+
+```{r cleanup, eval=TRUE, echo=FALSE}
+unlink(outputDir, recursive = TRUE)
+```

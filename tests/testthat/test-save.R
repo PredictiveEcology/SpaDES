@@ -1,7 +1,14 @@
 test_that("saving files does not work correctly", {
   on.exit(rm(mySim))
 
-  savePath <- tempdir()
+  savePath <- file.path(tempdir(), "test_save")
+  on.exit(unlink(savePath, recursive = TRUE))
+
+  filelist = data.frame(
+    files=dir(file.path(mapPath), full.names=TRUE, pattern="tif")[1:2],
+    functions="rasterToMemory",
+    package="SpaDES", stringsAsFactors=FALSE
+  )
 
   times <- list(start=0, stop=6, "month")
   parameters <- list(.globals=list(stackName="landscape"),
@@ -9,9 +16,8 @@ test_that("saving files does not work correctly", {
                                           .saveObjects="caribou",
                                           .saveInitialTime=1,
                                           .saveInterval=1
-                                          ),
-                     randomLandscapes=list(.plotInitialTime=NA,
-                                           nx=20, ny=20))
+                                         ),
+                     randomLandscapes=list(.plotInitialTime=NA, nx=20, ny=20))
 
   outputs <- data.frame(expand.grid(objectName=c("caribou","landscape"),saveTime=1:2,
                         stringsAsFactors = FALSE))

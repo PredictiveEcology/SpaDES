@@ -172,20 +172,14 @@ setMethod("simInit",
             })
             params(sim) <- tmp
 
+            # set modules list temporarily to figure out load order
+            modules(sim) <- modules
+
             # check user-supplied load order
             if (!all( length(loadOrder),
                       all(modules %in% loadOrder),
                       all(loadOrder %in% modules) )) {
               loadOrder <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
-              if(is.null(loadOrder)) {
-                if(length(modules)==0) {
-                  loadOrder <- NULL
-                } else {
-                  loadOrder <- modules[[1]]
-                }
-              }
-
-
             }
 
             # load user-defined modules
