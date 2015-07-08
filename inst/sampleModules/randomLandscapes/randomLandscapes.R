@@ -9,7 +9,7 @@ defineModule(sim, list(
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_real_,
+  timeunit="year",
   citation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   parameters=rbind(
@@ -18,7 +18,7 @@ defineModule(sim, list(
     defineParameter("ny", "numeric", 100L, NA, NA, "size of map (number of pixels) in the y dimension"),
     defineParameter("inRAM", "logical", FALSE, NA, NA, "should the raster be stored in memory?"),
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
-    defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval between plot events"),
+    defineParameter(".plotInterval", "numeric", NA, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")),
   inputObjects=data.frame(objectName=character(),
