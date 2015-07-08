@@ -135,7 +135,6 @@ setMethod(
   signature(sim="simList", filelist="missing"),
   definition = function(sim, ...) {
 
-
     # Pull .fileExtensions() into function so that scoping is faster
     .fileExts = .fileExtensions()
     usedIntervals <- FALSE # This is for a speed reason later on.
@@ -186,7 +185,6 @@ setMethod(
       cur <- filelistDT$loadTime==curTime
 
       if(any(cur)) {
-
         fl <- filelistDT[cur,file]
         # extract file extensions, to be used to determine which function to use
         exts <- match(fileExt(fl), .fileExts[,"exts"])
@@ -197,12 +195,12 @@ setMethod(
 
   #       # correct those for which a specific function is given in filelistDT$fun
   #
-  #       if(any(!is.na(filelistDT[,fun]))) {
-  #         loadFun[!is.na(filelistDT$fun)] <- filelistDT$fun[!is.na(filelistDT$fun)]
-  #         loadPackage[!is.na(filelistDT[,package])] <- filelistDT$package[!is.na(filelistDT$package)]
-  #         loadPackage[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
-  #         loadFun[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
-  #       }
+         if(any(!is.na(filelistDT[,fun]))) {
+           loadFun[!is.na(filelistDT$fun)] <- filelistDT$fun[!is.na(filelistDT$fun)]
+           loadPackage[!is.na(filelistDT[,package])] <- filelistDT$package[!is.na(filelistDT$package)]
+           loadPackage[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+           loadFun[grepl("::",loadFun)] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
+         }
 
         # use filenames as object names, unless alternative provided in filelistDT$objectName
         objectName <- fileName(fl)
@@ -274,7 +272,6 @@ setMethod(
   #       filelistDT = filelistDT[keepOnFileList,]
 
       } # if there are no files to load at curTime, then nothing
-
       if (is(filelist, "list")) {
         inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
       } else if (is(filelist, "data.frame")) {
@@ -283,13 +280,13 @@ setMethod(
         stop("filelist must be either a list or data.frame")
       }
 
-       if (any(is.na(filelistDT[,loaded]))) {
-         newTime <- filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)]
-         attributes(newTime)$unit <- timeunit(sim)
-         sim <- scheduleEvent(sim,
-                              newTime,
-                              "load", "inputs")
-       }
+#        if (any(is.na(filelistDT[,loaded]))) {
+#          newTime <- filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)]
+#          attributes(newTime)$unit <- timeunit(sim)
+#          sim <- scheduleEvent(sim,
+#                               newTime,
+#                               "load", "inputs")
+#        }
     }
     message("") ## print empty message to add linebreak to console message output
     return(invisible(sim))

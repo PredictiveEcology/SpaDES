@@ -648,8 +648,12 @@ setReplaceMethod("inputs",
                        attributes(newTime)$unit <- timeunit(object)
                        object <- scheduleEvent(object, newTime, "load", "inputs")
                      } else {
+                       object@inputs[is.na(object@inputs$loadTime),"loadTime"] <- time(object, "seconds")
+                       newTime <- min(object@inputs[is.na(object@inputs$loaded),"loadTime"], na.rm=TRUE)
+                       attributes(newTime)$unit <- timeunit(object)
+                       object <- scheduleEvent(object, newTime, "load", "inputs")
                        #newTime <- object@inputs[is.na(object@inputs$loaded),"loadTime"]
-                       #object <- scheduleEvent(object,start(object, "seconds"), "load", "inputs")
+                       #object <- scheduleEvent(object,time(object, "seconds"), "load", "inputs")
                      }
                    }
 

@@ -188,8 +188,9 @@ setMethod("changeObjEnv",
           signature = c("character", "environment", "environment", "logical"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
             lapply(x, function(obj) {tryCatch(assign(obj, envir=toEnv,
-                                            value=eval(parse(text=obj), envir=fromEnv)),
-                                            error=function(x) warning(paste("object",obj,"not found and not copied")));
+                                            #value=eval(parse(text=obj), envir=fromEnv)),
+                                            value=get(obj, envir=fromEnv)),
+                                     error=function(x) warning(paste("object",obj,"not found and not copied")));
                                      return(invisible())})
             if (rmSrc) rm(list=x, envir=fromEnv)
 })
