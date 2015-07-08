@@ -560,6 +560,9 @@ params(mySim)$randomLandscapes$.saveInitialTime
 params(mySim)$randomLandscapes$.saveInterval
 params(mySim)$randomLandscapes$.saveObjects
 params(mySim)$randomLandscapes$.savePath
+ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
+pdf(ftmp)
+clearPlot()
 mySim2 <- spades(mySim)
 
 # More sophisticated, passing arguments to outputs()
@@ -569,6 +572,9 @@ outputs(mySim) <- data.table(
     list(dataType="FLT4S", format="raster", overwrite=TRUE)
   }))
 mySim2 <- spades(mySim)
+dev.off()
+unlink(ftmp)
+
 ```
 
 Saving within a module -- scheduling save events.
@@ -581,9 +587,9 @@ nextSave <- time(mySim) + params(mySim)$randomLandscapes$.saveInterval
 sim <- scheduleEvent(mySim, nextSave, "randomLandscapes", "save")
 ```
 
-## `.plot` module
+## Plotting
 
-Plotting events can be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events.
+Plotting events can be scheduled similarly to save events, by passing module-specific parameters indicating when to schedule the first plot event and how often to rescheduling recurring plot events. By default, when a module is created with a `newModule()` call, plotting will be scheduled using `.plotIntitialTime`. The default is NA, i.e., no plotting.
 
 - `.plotInitialTime`: The time at which the first plot is scheduled.
 - `.plotInterval`: The interval at which objects will be plotted. Used to schedule plot events.
