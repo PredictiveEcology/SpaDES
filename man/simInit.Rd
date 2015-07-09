@@ -198,7 +198,7 @@ default is current working directory.
 }
 \examples{
 \dontrun{
- mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
+ mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(caribou=list(Ncaribou=100)),
  modules=list("habitat", "caribou"), paths="/path/to/my/modules/")
  mySim
 }

@@ -57,7 +57,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 #'
 #' @param sim A \code{simList} simulation object.
 #'
-#' @importFrom dplyr rbind_all
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr distinct
 #' @export
 #' @docType methods
@@ -78,7 +78,7 @@ saveFiles = function(sim) {
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
       data.frame(objectName=., saveTime=curTime,
                  file=., stringsAsFactors=FALSE)
-    outputs(sim) <- rbind_all(list(outputs(sim), toSave))
+    outputs(sim) <- bind_rows(list(outputs(sim), toSave))
 
     # don't need to save exactly same thing more than once
 
