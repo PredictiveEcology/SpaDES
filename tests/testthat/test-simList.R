@@ -175,6 +175,9 @@ test_that("simList test all signatures", {
   loadOrder <- c("randomLandscapes", "caribouMovement", "fireSpread")
 
   # In order in the simulation.R
+  origWd <- getwd()
+  setwd(system.file("sampleModules", package="SpaDES"))
+
   errors <- logical()
   argsTested <- list()
   for(i in 1:256) {
@@ -194,7 +197,8 @@ test_that("simList test all signatures", {
                            error=function(x) FALSE)
     argsTested[[i]] <- names(li)
   }
-  expect_equal(sum(errors, na.rm=TRUE), 10)
+  expect_more_than(sum(errors, na.rm=TRUE), 15)
+  setwd(origWd)
   #print(errors)
   #print(argsTested[errors])
 

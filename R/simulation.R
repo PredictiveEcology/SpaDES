@@ -247,9 +247,15 @@ setMethod("simInit",
             checkParams(sim, core, dotParams, modulePath(sim)) # returns invisible TRUE/FALSE
 
             if(length(objects)>0) {
+              # find the simInit call that was responsible for this, get the objects
+              #  in the environment of the parents of that call, and pass them to new
+              #  environment.
+              scalls <- sys.calls()
+              grep1 <- grep(as.character(scalls), pattern="simInit")
+              grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) tryCatch(
+                is(parse(text=x), "expression"), error=function(y) NA))], na.rm=TRUE)-1,1)
               changeObjEnv(x=objects, toEnv=envir(sim),
-                           fromEnv=sys.frames()[[min(
-                             grep(as.character(sys.calls()), pattern="^simInit"))-1]],
+                           fromEnv=sys.frames()[[grep1]],
                            rmSrc=getOption("spades.lowMemory"))
               inputs(sim) <- rbind_all(list(inputs(sim),
                                             data.frame(objectName=unlist(objects),
