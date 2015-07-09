@@ -191,9 +191,6 @@ test_that("adj.R results not identical to adjacent", {
                                         y=runif(N,xmin(Ras),xmax(Ras))))
   cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
   expect_is(cirs, "data.table")
-#   expect_equal(sum(adj(a, s, directions=4) - adjacent(a, s, directions=4)), 0)
-#   expect_equal(sum(adj(a, s, directions=8) - adjacent(a, s, directions=8)), 0)
-#   expect_equal(sum(adj(a, s, directions="bishop") - adjacent(a, s, directions="bishop")), 0)
 })
 
 test_that("adj.R: torus does not work as expected", {
