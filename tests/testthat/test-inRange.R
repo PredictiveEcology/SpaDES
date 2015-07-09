@@ -6,6 +6,7 @@ test_that("inRange produces logical", {
   expect_equal(inRange(NA_integer_), NA)
   expect_equal(inRange(NULL),        NULL)
   expect_error(inRange())
+  expect_error(inRange("non-numeric value"), "x must be numeric.")
 
   # inputs for a & b
   expect_error(inRange(0.5, 1, 0))
