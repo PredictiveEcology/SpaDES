@@ -8,11 +8,11 @@
 \usage{
 adj.raw(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
-  match.adjacent = FALSE, cutoff.for.data.table = 10000)
+  match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE)
 
 adj(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
-  match.adjacent = FALSE, cutoff.for.data.table = 10000)
+  match.adjacent = FALSE, cutoff.for.data.table = 10000, torus = FALSE)
 }
 \arguments{
 \item{x}{Raster* object for which adjacency will be calculated.}
@@ -39,6 +39,9 @@ function in the raster package.}
 
 \item{cutoff.for.data.table}{numeric. Above this value, the function uses data.table which is
 faster with large numbers of cells.}
+
+\item{torus}{Logical. Should the spread event wrap around to the other side of the raster.
+Default is FALSE.}
 }
 \value{
 a matrix of one or two columns, from and to.
