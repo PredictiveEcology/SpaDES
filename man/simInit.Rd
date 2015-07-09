@@ -6,6 +6,7 @@
 \alias{simInit,ANY,ANY,ANY,character,ANY,ANY,ANY,ANY-method}
 \alias{simInit,list,list,list,list,list,data.frame,ANY,character-method}
 \alias{simInit,list,list,list,list,list,data.frame,ANY,missing-method}
+\alias{simInit,list,list,list,list,list,data.frame,missing,character-method}
 \alias{simInit,list,list,list,list,list,data.frame,missing,missing-method}
 \alias{simInit,list,list,list,list,list,missing,ANY,missing-method}
 \alias{simInit,list,list,list,list,list,missing,missing,missing-method}
@@ -42,8 +43,9 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 \S4method{simInit}{list,list,list,list,list,data.frame,ANY,character}(times,
   params, modules, objects, paths, inputs, outputs, loadOrder)
 
-\S4method{simInit}{list,list,list,list,list,data.frame,missing,missing}(times,
-  params, modules, objects, paths, inputs)
+
+  \S4method{simInit}{list,list,list,list,list,data.frame,missing,character}(times,
+  params, modules, objects, paths, inputs, loadOrder)
 
 \S4method{simInit}{list,list,list,list,list,data.frame,missing,missing}(times,
   params, modules, objects, paths, inputs)

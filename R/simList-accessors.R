@@ -901,8 +901,11 @@ setReplaceMethod("paths",
 
                    # keep named elements, use unnamed in remaining order: module, input, output
                    if(length(na.omit(wh))<length(value)) {
-                     wh[!(wh[1:length(value)] %in% (1:3)[1:length(value)])] <-
-                       (1:3)[!((1:3)[1:length(value)] %in% wh[1:length(value)])]
+                     wh1 <- !(wh[1:length(value)] %in% (1:3)[1:length(value)])
+                     wh2 <- !((1:3)[1:length(value)] %in% wh[1:length(value)])
+                     if(length(wh1)<3) wh1 <- c(wh1, rep(FALSE, 3-length(wh1)))
+                     if(length(wh2)<3) wh2 <- c(wh2, rep(FALSE, 3-length(wh2)))
+                     wh[wh1] <- (1:3)[wh2]
                    }
 
                    object@paths[!is.na(wh)] <- value[na.omit(wh)]

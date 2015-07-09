@@ -269,8 +269,8 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", paths="list", inputs="data.frame", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, objects, paths, inputs) {
+                    objects="list", paths="list", inputs="data.frame", outputs="missing", loadOrder="character"),
+          definition=function(times, params, modules, objects, paths, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
                            objects=objects, paths=paths, inputs=inputs, outputs=as.data.frame(NULL),
                            loadOrder=character())

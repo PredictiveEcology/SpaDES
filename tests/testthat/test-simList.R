@@ -133,3 +133,70 @@ test_that("simList object initializes correctly", {
             "SpaDES", "tkrplot")
   expect_equal(sort(packages(mySim)), sort(pkgs))
 })
+
+test_that("simList test all signatures", {
+  on.exit(rm(mySim))
+
+  #times
+  times <- list(start=0.0, stop=10)
+
+  #modules
+  modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
+
+  #paths
+  mapPath <- system.file("maps", package="SpaDES")
+  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
+                inputPath=mapPath,
+                outputPath=tempdir())
+
+  #inputs
+  filelist <- data.frame(files=dir(file.path(mapPath),
+                                        full.names=TRUE, pattern="tif")[1:2],
+                              functions="raster", package="raster", loadTime=c(0,3),
+                              stringsAsFactors=FALSE)
+  # objects
+  layers <- lapply(filelist$files, raster)
+  DEM <- layers[[1]]
+  forestAge <- layers[[2]]
+  objects <- list(DEM="DEM", forestAge="forestAge")
+  objectsChar <- c("DEM", "forestAge")
+
+  #outputs
+  outputs <- data.frame(expand.grid(objectName=c("caribou","landscape"),saveTime=1:2,
+                                    stringsAsFactors = FALSE))
+
+  #parameters
+  parameters <- list(.globals=list(stackName="landscape"),
+                     caribouMovement=list(.plotInitialTime=NA),
+                     randomLandscapes=list(.plotInitialTime=NA,
+                                           nx=20, ny=20))
+
+  #loadOrder
+  loadOrder <- c("randomLandscapes", "caribouMovement", "fireSpread")
+
+  # In order in the simulation.R
+  errors <- logical()
+  argsTested <- list()
+  for(i in 1:256) {
+    li <- list({if(i%%2^1==0) times=times},
+      {if(ceiling(i/2)%%2==0) params=parameters},
+      {if(ceiling(i/4)%%2==0) modules=modules},
+      {if(ceiling(i/8)%%2==0) objects=objects},
+      {if(ceiling(i/16)%%2==0) paths=paths},
+      {if(ceiling(i/32)%%2==0) inputs=filelist},
+      {if(ceiling(i/64)%%2==0) outputs=outputs},
+      {if(ceiling(i/128)%%2==0) loadOrder=loadOrder})
+    argNames <- c("times", "params", "modules", "objects", "paths", "inputs", "outputs", "loadOrder")
+    names(li) <- argNames
+    li <- li[!sapply(li, is.null)]
+#    try(do.call(simInit, args=li))
+     errors[i] <- tryCatch(is(do.call(simInit, args=li), "simList"),
+                           error=function(x) FALSE)
+    argsTested[[i]] <- names(li)
+  }
+  expect_equal(sum(errors, na.rm=TRUE), 10)
+  #print(errors)
+  #print(argsTested[errors])
+
+
+})
