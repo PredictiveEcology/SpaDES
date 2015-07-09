@@ -76,6 +76,7 @@ Collate:
     'module-dependencies-methods.R'
     'module-repository.R'
     'module-template.R'
+    'moduleMetadata.R'
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
