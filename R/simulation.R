@@ -366,17 +366,6 @@ setMethod("simInit",
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
                     objects="list", paths="list", inputs="missing", outputs="missing", loadOrder="missing"),
-          definition=function(times, params, modules, objects, paths) {
-            sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=paths, inputs=as.data.frame(NULL), outputs=as.data.frame(NULL),
-                           loadOrder=character())
-            return(invisible(sim))
-          })
-
-#' @rdname simInit
-setMethod("simInit",
-          signature(times="list", params="list", modules="list",
-                    objects="list", paths="list", inputs="missing", outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, objects, paths, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
                            objects=objects, paths=paths, inputs=as.data.frame(NULL), outputs=as.data.frame(NULL),
@@ -469,17 +458,6 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
-                    objects="list", paths="list", inputs="missing", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, objects, paths, outputs) {
-            sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=paths, inputs=as.data.frame(NULL), outputs=outputs,
-                           loadOrder=character())
-            return(invisible(sim))
-          })
-
-#' @rdname simInit
-setMethod("simInit",
-          signature(times="list", params="list", modules="list",
                     objects="list", paths="missing", inputs="missing", outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, objects, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
@@ -545,17 +523,6 @@ setMethod("simInit",
           })
 
 #################### neither inputs or outputs missing
-#' @rdname simInit
-setMethod("simInit",
-          signature(times="list", params="list", modules="list",
-                    objects="list", paths="list", inputs="data.frame", outputs="ANY", loadOrder="missing"),
-          definition=function(times, params, modules, objects, paths, inputs, outputs) {
-            sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=paths, inputs=inputs, outputs=outputs,
-                           loadOrder=character())
-            return(invisible(sim))
-          })
-
 #' @rdname simInit
 setMethod("simInit",
           signature(times="list", params="list", modules="list",
@@ -897,45 +864,6 @@ setMethod("scheduleEvent",
             return(invisible(sim))
 })
 
-################################################################################
-#' Convert an scheduled event time to seconds
-#'
-#' Ensure all events from modules are working in the same time units.
-#'
-#' @param sim          A \code{simList} simulation object.
-#'
-#' @param moduleName   Character string specifying the module from which to call the event.
-#'
-#' @return Returns the eventTime in seconds, based on the default \code{timeunit} of
-#' the \code{moduleName}.
-#'
-#' @export
-#' @docType methods
-#' @rdname spadesTimetepInSeconds
-#'
-#' @author Eliot McIntire
-#'
-setGeneric("timestepInSeconds", function(sim, moduleName) {
-  standardGeneric("timestepInSeconds")
-})
-
-#' @rdname spadesTimetepInSeconds
-setMethod("timestepInSeconds",
-          signature(sim="simList", moduleName="character"),
-          definition=function(sim, moduleName) {
-  a = sapply(depends(sim)@dependencies,function(x) x@name)
-  wh <- which(a==moduleName)
-  timeunit <- depends(sim)@dependencies[[wh]]@timeunit
-
-  if(is.character(timeunit)) {
-    return(eval(parse(text=paste0("d", timeunit, "(1)"))))
-  }
-  if(is.na(timeunit)) {
-    return(eval(parse(text=paste0("d", timeunit(sim), "(1)"))))
-  } else {
-    return(timeunit)
-  }
-})
 
 
 ################################################################################

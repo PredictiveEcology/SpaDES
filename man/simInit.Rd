@@ -77,9 +77,6 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 \S4method{simInit}{list,list,list,list,list,missing,missing,missing}(times,
   params, modules, objects, paths, inputs)
 
-\S4method{simInit}{list,list,list,list,list,missing,missing,missing}(times,
-  params, modules, objects, paths, inputs)
-
 
   \S4method{simInit}{list,list,list,list,missing,missing,missing,character}(times,
   params, modules, objects, inputs, loadOrder)
@@ -105,9 +102,6 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 \S4method{simInit}{list,list,list,list,list,missing,ANY,missing}(times, params,
   modules, objects, paths, outputs)
 
-\S4method{simInit}{list,list,list,list,list,missing,ANY,missing}(times, params,
-  modules, objects, paths, outputs)
-
 \S4method{simInit}{list,list,list,list,missing,missing,ANY,character}(times,
   params, modules, objects, outputs, loadOrder)
 
@@ -125,9 +119,6 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 
 \S4method{simInit}{list,list,list,missing,missing,missing,ANY,missing}(times,
   params, modules, outputs)
-
-\S4method{simInit}{list,list,list,list,list,data.frame,ANY,missing}(times,
-  params, modules, objects, paths, inputs, outputs)
 
 \S4method{simInit}{list,list,list,list,list,data.frame,ANY,missing}(times,
   params, modules, objects, paths, inputs, outputs)
