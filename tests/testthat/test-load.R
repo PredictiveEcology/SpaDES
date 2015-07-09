@@ -136,8 +136,6 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
   objects <- list(DEM="DEM", forestAge="forestAge")
   sim3 <- simInit(times=times, params=parameters, modules=modules,
                   paths=paths, objects = objects)
-
-  print(ls(sim3))
   expect_true(all(c("DEM", "forestAge") %in% ls(sim3)))
   rm(sim3)
 
@@ -145,10 +143,8 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
   objects <- c("DEM", "forestAge")
   sim4 <- simInit(times=times, params=parameters, modules=modules,
                   paths=paths, objects = objects)
-
   expect_true(all(c("DEM", "forestAge") %in% ls(sim4)))
   rm(sim4)
-
 })
 
 test_that("test-load.R: passing nearly empty file to simInit does not work correctly", {
@@ -157,8 +153,10 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
   #mapPath <- file.path(find.package("SpaDES", quiet=FALSE), "maps")
 
   # test object passing directly
-  filelist = data.frame(files=dir(file.path(mapPath),full.names = TRUE,
-                                  pattern="tif")[1:2], functions="raster", package="raster", stringsAsFactors=FALSE)
+  filelist = data.frame(files=dir(file.path(mapPath), full.names = TRUE,
+                                  pattern="tif")[1:2],
+                        functions="raster", package="raster",
+                        stringsAsFactors=FALSE)
   layers <- lapply(filelist$files, raster)
   DEM <- layers[[1]]
   forestAge <- layers[[2]]
@@ -169,5 +167,4 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
 
   expect_true(all(c("DEM", "forestAge") %in% ls(sim3)))
   rm(sim3)
-
 })
