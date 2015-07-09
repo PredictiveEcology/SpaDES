@@ -195,3 +195,52 @@ test_that("adj.R results not identical to adjacent", {
 #   expect_equal(sum(adj(a, s, directions=8) - adjacent(a, s, directions=8)), 0)
 #   expect_equal(sum(adj(a, s, directions="bishop") - adjacent(a, s, directions="bishop")), 0)
 })
+
+test_that("adj.R: torus does not work as expected", {
+  # test data.table and matrix
+  for(i in c(100,1)) {
+    # a corner
+    a <- raster::raster(raster::extent(0, 4, 0, 4), res=1)
+    s <- 4
+    newCells <- adj(a, s, directions=4, sort=TRUE,cutoff.for.data.table = i,
+                        match.adjacent=TRUE, pairs=FALSE, torus=TRUE)
+    expect_identical(sort(as.numeric(newCells)), c(1,3, 8,16))
+
+    # a corner
+    a <- raster::raster(raster::extent(0, 4, 0, 4), res=1)
+    s <- 1
+    newCells <- adj(a, s, directions=4, sort=TRUE,cutoff.for.data.table = i,
+                        match.adjacent=TRUE, pairs=FALSE, torus=TRUE)
+    expect_identical(sort(as.numeric(newCells)), c(2, 4,5, 13))
+
+    # a side
+    a <- raster::raster(raster::extent(0, 4, 0, 4), res=1)
+    s <- 12
+    newCells <- adj(a, s, directions=4, sort=TRUE,cutoff.for.data.table = i,
+                        match.adjacent=TRUE, pairs=FALSE, torus=TRUE)
+    expect_identical(sort(as.numeric(newCells)), c(8, 9,11, 16))
+
+    # a corner
+    a <- raster::raster(raster::extent(0, 4, 0, 4), res=1)
+    s <- 16
+    newCells <- adj(a, s, directions=4, sort=TRUE,cutoff.for.data.table = i,
+                        match.adjacent=TRUE, pairs=FALSE, torus=TRUE)
+    expect_identical(sort(as.numeric(newCells)), c(4, 12, 13, 15))
+
+    # a corner with 8 neighbours
+    a <- raster::raster(raster::extent(0, 4, 0, 4), res=1)
+    s <- 16
+    newCells <- adj(a, s, directions=8, sort=TRUE,cutoff.for.data.table = i,
+                        match.adjacent=TRUE, pairs=FALSE, torus=TRUE)
+    expect_identical(sort(as.numeric(newCells)), c(1, 3, 4, 9, 11, 12, 13, 15))
+
+    # a corner with 8 neighbours
+    a <- raster::raster(raster::extent(0, 4, 0, 4), res=1)
+    s <- 1
+    newCells <- adj(a, s, directions=8, sort=TRUE,cutoff.for.data.table = i,
+                        match.adjacent=TRUE, pairs=FALSE, torus=TRUE)
+    expect_identical(sort(as.numeric(newCells)), c(2, 4, 5, 6, 8, 13, 14, 16))
+
+  }
+  #   expect_equal(sum(adj(a, s, directions="bishop") - adjacent(a, s, directions="bishop")), 0)
+})

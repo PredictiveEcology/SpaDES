@@ -49,6 +49,9 @@ if(getRversion() >= "3.1.0") {
 #' @param cutoff.for.data.table numeric. Above this value, the function uses data.table which is
 #' faster with large numbers of cells.
 #'
+#' @param torus Logical. Should the spread event wrap around to the other side of the raster.
+#' Default is FALSE.
+#'
 #' @return a matrix of one or two columns, from and to.
 #'
 #' @seealso \code{\link{adjacent}}
@@ -74,14 +77,15 @@ if(getRversion() >= "3.1.0") {
 #'
 adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
                     include=FALSE, target=NULL, numCol=NULL, numCell=NULL,
-                    match.adjacent=FALSE, cutoff.for.data.table=1e4) {
+                    match.adjacent=FALSE, cutoff.for.data.table=1e4,
+                    torus=FALSE) {
   to = NULL
   J = NULL
   if ((length(cells)<cutoff.for.data.table)) {
     if (is.null(numCol) | is.null(numCell)) {
       if (is.null(x)) stop("must provide either numCol & numCell or a x")
-      numCol = ncol(x)
-      numCell = ncell(x)
+      numCol = as.integer(ncol(x))
+      numCell = as.integer(ncell(x))
     }
 
     if (directions==8) {
@@ -171,24 +175,36 @@ adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
 
     # Remove the "from" column if pairs is FALSE
     # Good time savings if no intermediate object is created
-    if (pairs) {
-      return(adj[
-        !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
-            ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-        ,,drop=FALSE])
+    if (!torus) {
+      if (pairs) {
+        return(adj[
+          !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
+              ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+          ,,drop=FALSE])
+      } else {
+        return(adj[
+          !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
+              ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+          ,2,drop=FALSE])
+      }
     } else {
-      return(adj[
-        !((((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]) |  #top or bottom of raster
-            ((adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-        ,2,drop=FALSE])
+      whLefRig <- (adj[,"from"]%%numCol+adj[,"to"]%%numCol)==1
+      adj[whLefRig,"to"] <- adj[whLefRig,"to"]+numCol*(adj[whLefRig,"from"]-adj[whLefRig,"to"])
+      whBotTop <- ((adj[,"to"]-1)%%numCell+1)!=adj[,"to"]
+      adj[whBotTop,"to"] <- adj[whBotTop,"to"]+sign(adj[whBotTop,"from"]-adj[whBotTop,"to"])*numCell
+      if (pairs) {
+        return(adj)
+      } else {
+        return(adj[,2,drop=FALSE])
+      }
     }
   } else {
 
     #### THIS IS FOR SITUATIONS WHERE length(cells) is > 1e4; using data.table
     if (is.null(numCol) | is.null(numCell)) {
       if (is.null(x)) stop("must provide either numCol & numCell or a x")
-      numCol <- ncol(x)
-      numCell <- ncell(x)
+      numCol <- as.integer(ncol(x))
+      numCell <- as.integer(ncell(x))
     }
 
     if (directions==8) {
@@ -271,18 +287,22 @@ adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
 
     # Remove the "from" column if pairs is FALSE
     if (!pairs) {
-      from <- adj$from
+      from <- as.integer(adj$from)
       adj[,from:=NULL]
     }
-    #      return(adj[
-    #        !((((adj[,to]-1)%%numCell+1)!=adj[,to]) |  #top or bottom of raster
-    #            ((adj[,from]%%numCol+adj[,to]%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-    #        ,])
 
-    return(as.matrix(adj[
-      i  <- !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
-              ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
-      ]))
+    if (!torus) {
+      return(as.matrix(adj[
+        i  <- !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+                ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
+        ]))
+    } else {
+      whLefRig <- (from%%numCol+adj[,to]%%numCol)==1
+      adj[whLefRig,to:=to+numCol*(from[whLefRig]-to)]
+      whBotTop <- ((adj[,to]-1)%%numCell+1)!=adj[,to]
+      adj[whBotTop,to:=to+as.integer(sign(from[whBotTop]-to)*numCell)]
+      return(as.matrix(adj))
+    }
   }
 }
 
