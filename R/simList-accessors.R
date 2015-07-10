@@ -1867,6 +1867,8 @@ setMethod(
     x$name <- as.character(x$name)
     x$description <- as.character(x$description)
     x$keywords <- as.character(x$keywords)
+    x$childModules <- na.omit(x$childModules) %>% as.character
+
     if (!is(x$authors, "person")) {
       stop("invalid module definition: ", x$name,
            ": authors must be a `person` class.")
@@ -1906,6 +1908,13 @@ setMethod(
       stop("invalid module definition: ", x$name,
            ": outputObjects must be a `data.frame`.")
     }
+
+    ## check that children actually exist locally
+    lapply(x$childModules, function(y) {
+      if (!file.exists(file.path(modulePath(sim), y))) {
+        stop("Module ", y, "not found in modulePath.")
+      }
+    })
 
     ## create module deps object and add to sim deps
     m <- do.call(new, c(".moduleDeps", x))

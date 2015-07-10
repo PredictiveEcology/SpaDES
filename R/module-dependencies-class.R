@@ -25,6 +25,9 @@ removeClass("person4")
 #'
 #' @slot authors        The author(s) of the module as a \code{\link{person}} object.
 #'
+#' @slot childModules   A character vector of child module names.
+#'                      Modules listed here will be loaded with this module.
+#'
 #' @slot version        The module version as a \code{numeric_version}. Semantic versioning is assumed
 #'                      \url{http://semver.org/}.
 #'
@@ -67,12 +70,13 @@ removeClass("person4")
 #'
 setClass(".moduleDeps",
          slots=list(name="character", description="character", keywords="character",
-                    authors="person", version="numeric_version", spatialExtent="Extent",
-                    timeframe="POSIXt", timeunit="ANY",
+                    childModules="character", authors="person", version="numeric_version",
+                    spatialExtent="Extent", timeframe="POSIXt", timeunit="ANY",
                     citation="list", reqdPkgs="list", parameters="data.frame",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
-                        keywords=character(), authors=person(), version=numeric_version("0.0.0"),
+                        keywords=character(), childModules=character(),
+                        authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timeunit=NA_real_,
                         citation=list(), reqdPkgs=list(),

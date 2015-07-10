@@ -19,6 +19,9 @@ Descriptor object for specifying SpaDES module dependecies.
 
 \item{\code{authors}}{The author(s) of the module as a \code{\link{person}} object.}
 
+\item{\code{childModules}}{A character vector of child module names.
+                     Modules listed here will be loaded with this module.}
+
 \item{\code{version}}{The module version as a \code{numeric_version}. Semantic versioning is assumed
                      \url{http://semver.org/}.}
 
