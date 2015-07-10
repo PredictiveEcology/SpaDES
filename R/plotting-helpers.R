@@ -571,8 +571,7 @@ setMethod(
 
   while (length(parse(text = deparse(parseTxt))[[1]]) != 1) {
     lastOneDone <- FALSE
-    if (grepl(deparse(parseTxt[[1]]), pattern = "^eval") |
-          grepl(deparse(parseTxt[[1]]), pattern = "^get")) {
+    if (grepl(deparse(parseTxt[[1]]), pattern = "^eval")) {
       callEnv <- tryCatch(
         eval(
           match.call(definition = eval,
@@ -591,12 +590,9 @@ setMethod(
       )
 
       parseTxt[[3]] <- match.call(definition=eval, call=parseTxt)$expr
-
-      if(is.call(parseTxt[[3]])) {
-        if (is.name(match.call(definition=parse, call=parseTxt[[3]])$text)) {
-          parseTxt <- parseTxt[[3]]
-          parseTxt[[3]] <- match.call(definition = parse, call = parseTxt)$text
-        }
+      if (is.name(match.call(definition=parse, call=parseTxt[[3]])$text)) {
+        parseTxt <- parseTxt[[3]]
+        parseTxt[[3]] <- match.call(definition = parse, call = parseTxt)$text
       }
       lastOneDone <- TRUE
     }
@@ -622,7 +618,7 @@ setMethod(
       if (identical(eval(parse(text = deparse(
         match.call(definition = get,
                    call = parseTxt)$x
-      )), envir=eminus1),
+      ))),
       parseTxt[[3]])) {
         lastOneDone = TRUE
       }
@@ -656,23 +652,20 @@ setMethod(
 #   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
 #     exists(deparse(parseTxt), envir=x, inherits=FALSE)))] %>%
 #     .[[length(.)]]
-  if (exists("callEnv", inherits = FALSE)) {
-    envs <- callEnv
-  } else {
-    envs <- append(.GlobalEnv, sys.frames()) %>%
-      .[c(TRUE, sapply(sys.frames(), function(x) {
-        exists(deparse(parseTxt), envir=x, inherits=FALSE)
-        }))] %>%
-      .[[length(.)]]
-  }
+  envs <- append(.GlobalEnv, sys.frames()) %>%
+    .[c(TRUE, sapply(sys.frames(), function(x) {
+      exists(deparse(parseTxt), envir=x, inherits=FALSE)
+      }))] %>%
+    .[[length(.)]]
 
   inGlobal <- identical(envs, .GlobalEnv)
-  if (!inGlobal) {
-    if (is(eval(parse(text = deparse(parseTxt)), envir = envs), "environment")) {
-      envs <- eval(parse(text = deparse(parseTxt)), envir = envs)
-    } else {
-      if (!lastOneDone) { elems[[i]] <- parseTxt }
-    }
+  if (is(eval(parse(text = deparse(parseTxt)), envir = envs), "environment")) {
+    envs <- eval(parse(text = deparse(parseTxt)), envir = envs)
+  } else {
+    if (!lastOneDone) { elems[[i]] <- parseTxt }
+  }
+  if (exists("callEnv", inherits = FALSE)) {
+    envs <- callEnv
   }
 
   if (!inGlobal) {
