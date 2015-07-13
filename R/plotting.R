@@ -564,7 +564,7 @@ setMethod(
       grobToPlot = grobToPlot,
       children = gList(
         pointsGrob(
-          x = grobToPlot$x, y = grobToPlot$y,
+          x = coordinates(grobToPlot)[,1], y = coordinates(grobToPlot)[,2],
           pch = pch, size = size
         )
       ),
@@ -1485,7 +1485,8 @@ setMethod(
               if (len < (1e4 / sGrob@plotArgs$speedup)) {
                 z <- grobToPlot
               } else {
-                z <- sample(grobToPlot, 1e4 / sGrob@plotArgs$speedup)
+                z <- sample(1:NROW(grobToPlot@data), 1e4/sGrob@plotArgs$speedup) %>%
+                  grobToPlot[.,]
               }
               zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
