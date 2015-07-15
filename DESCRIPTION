@@ -43,6 +43,8 @@ Imports:
     DiagrammeR,
     downloader,
     dplyr,
+    ff,
+    ffbase,
     fpCompare,
     ggplot2,
     graphics,
