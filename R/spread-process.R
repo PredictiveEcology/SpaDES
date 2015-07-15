@@ -8,6 +8,9 @@
 #' classified by the index of the pixel where that event propagated from. This can be used to examine things like
 #' fire size distributions.
 #'
+#' For large rasters, a combination of \code{lowMemory=TRUE} and \code{returnIndices=TRUE} will use the least amoun
+#' of memory.
+#'
 #' @param landscape     A \code{RasterLayer} object.
 #'
 #' @param loci          A vector of locations in \code{landscape}
@@ -30,10 +33,10 @@
 #'                      to continue until stops spreading itself (i.e., exhausts itself).
 #'
 #' @param lowMemory     Logical. If true, then function uses package \code{ff} internally. This is slower,
-#' but much lower memory footprint.
+#'                      but much lower memory footprint.
 #'
 #' @param returnIndices Logical. Should the function return a data.table with indices
-#' and values of successful spread events, or return a raster with values.
+#'                      and values of successful spread events, or return a raster with values. See Details.
 #'
 #' @param ...           Additional parameters.
 #'
@@ -273,13 +276,12 @@ setMethod(
     }
 
     # Convert the data back to raster
-    spre <- raster(landscape)
     if(lowMemory){
       wh <- ffwhich(spreads, spreads>0) %>% as.ram
       if(returnIndices) {
         return(data.table(indices=wh, value=spreads[wh]))
       }
-      spre[wh] <- spreads[wh]
+#      spre[wh] <- spreads[wh]
     } else {
       wh <- spreads>0
       if(returnIndices) {
@@ -287,8 +289,10 @@ setMethod(
           which %>%
           data.table(indices=., value=spreads[.]))
       }
-      spre[wh] <- spreads[wh]
+#      spre[wh] <- spreads[wh]
     }
+    spre <- raster(landscape)
+    spre[wh] <- spreads[wh]
     return(spre)
   }
 )
