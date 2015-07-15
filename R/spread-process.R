@@ -29,12 +29,16 @@
 #' @param iterations    Number of iterations to spread. Leaving this \code{NULL} allows the spread
 #'                      to continue until stops spreading itself (i.e., exhausts itself).
 #'
+#' @param lowMemory     Logical. If true, then function uses package \code{ff} internally. This is slower,
+#' but much lower memory footprint.
+#'
 #' @param ...           Additional parameters.
 #'
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #'
 #' @export
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
+#' @importFrom ff ff
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
@@ -46,7 +50,7 @@
 #'
 setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
                               persistence=0L, mask=NULL, maxSize=NULL,
-                              directions=8L, iterations=NULL, ...) {
+                              directions=8L, iterations=NULL, lowMemory=FALSE, ...) {
   standardGeneric("spread")
 })
 
@@ -107,7 +111,7 @@ setMethod(
   "spread",
   signature(landscape="RasterLayer"),
   definition = function(landscape, loci, spreadProb, persistence, mask,
-                        maxSize, directions=8L, iterations = NULL, mapID=FALSE,
+                        maxSize, directions=8L, iterations = NULL, lowMemory, mapID=FALSE,
                         plot.it=FALSE, ...) {
     ### should sanity check map extents
     if (is.null(loci))  {
@@ -130,7 +134,13 @@ setMethod(
       10 * ncell(landscape)
     }
 
-    spreads <- vector("integer", ncell(landscape))
+    if(lowMemory) {
+      #spreads <- sparseVector(1, 1, length=ncell(landscape))
+      #spreads[1] <- 0
+      spreads <- ff(vmode="short", 0, length=ncell(landscape))
+    } else {
+      spreads <- vector("integer", ncell(landscape))
+    }
 
     n <- 1L
     if (mapID) {
@@ -214,10 +224,13 @@ setMethod(
       # update eligibility map
       n <- n + 1L
 
-      if (mapID) {
-        spreads[events] <- spreads[potentials[,1L]]
-      } else {
-        spreads[events] <- n
+      if(length(events)>0){
+        if (mapID) {
+          spreads[events] <- spreads[potentials[,1L]]
+        } else {
+          browser(expr=length(events)==0)
+          spreads[events] <- n
+        }
       }
 
       if(length(maxSize) > 1L){
@@ -255,7 +268,12 @@ setMethod(
 
     # Convert the data back to raster
     spre <- raster(landscape)
-    spre <- setValues(spre, spreads)
+    if(lowMemory){
+      spre[as.ram(ffwhich(spreads, spreads>0))] <- spreads[as.ram(ffwhich(spreads, spreads>0))]
+    } else {
+      spre[spreads>0] <- spreads[spreads>0]
+    }
+    #spre <- setValues(spre, spreads[])
     return(spre)
   }
 )

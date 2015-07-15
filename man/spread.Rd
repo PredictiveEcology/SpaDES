@@ -7,11 +7,12 @@
 \title{Simulate a spread process on a landscape.}
 \usage{
 spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
-  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL, ...)
+  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
+  lowMemory = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
   maxSize, directions = 8L, iterations = NULL, mapID = FALSE,
-  plot.it = FALSE, ...)
+  plot.it = FALSE, lowMemory, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -34,6 +35,8 @@ driven.}
 
 \item{iterations}{Number of iterations to spread. Leaving this \code{NULL} allows the spread
                      to continue until stops spreading itself (i.e., exhausts itself).}
+
+\item{lowMemory}{Logical. If true, then function uses package \code{ff} internally}
 
 \item{...}{Additional parameters.}
 
