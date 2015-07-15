@@ -177,9 +177,10 @@ are overplots only.
 \code{speedup} is not a precise number because it is faster to plot an
 un-resampled raster if the new resampling is close to the original number of
 pixels.
-At the moment, this is set to 1/3 of the original pixels.
+At the moment, for rasters, this is set to 1/3 of the original pixels.
 In other words, \code{speedup} will not do anything if the factor for
-speeding up is not high enough (i.e., >3).
+speeding up is not high enough (i.e., >3). If no sub-sampling is desired,
+use a speedup value less than 0.1.
 
 These \code{gp*} parameters will specify plot parameters that are available
 with \code{gpar()}. \code{gp} will adjust plot parameters, \code{gpText}

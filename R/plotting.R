@@ -406,9 +406,11 @@ setMethod(
 #'
 #' Internal function. Plot a raster Grob, a points Grob, polygon Grob.
 #'
-#' \code{speedup} is only used for \code{SpatialPolygons} in this function.
+#' \code{speedup} is only used for \code{SpatialPolygons}, \code{SpatialPoints}, 
+#' and \code{SpatialLines} in this function.
 #' Attempts have been made to subsample at a good level that optimizes speed of
-#' plotting, without losing visible quality.
+#' plotting, without losing visible quality. Nevertheless, to force all points to 
+#' be plotted, use a speedup value less than 0.1.
 #' From a speed perspective, there appears to be an optimal subsampling when
 #' using \code{thin} from the \code{fastshp} package.
 #' Presumably, too much thinning requires large distance matrices to be
@@ -554,17 +556,114 @@ setMethod(
   }
 )
 
+# @rdname plotGrob
+# setMethod(
+#   ".plotGrob",
+#   signature = c("SpatialPoints"),
+#   definition = function(grobToPlot, col, size,
+#                         legend, gp = gpar(), pch, ...) {
+#     pntGrob <- gTree(
+#       grobToPlot = grobToPlot,
+#       children = gList(
+#         pointsGrob(
+#           x = coordinates(grobToPlot)[,1], y = coordinates(grobToPlot)[,2],
+#           pch = pch, size = size
+#         )
+#       ),
+#       gp = gp,
+#       cl = "plotPoint"
+#     )
+#     grid.draw(pntGrob)
+#     return(invisible(pntGrob))
+#   }
+# )
+
+############## SpatialPoints - thin
 #' @rdname plotGrob
 setMethod(
   ".plotGrob",
   signature = c("SpatialPoints"),
   definition = function(grobToPlot, col, size,
-                        legend, gp = gpar(), pch, ...) {
+                        legend, gp = gpar(), pch, speedup, ...) {
+    speedupScale <- 40
+    speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
+      pointDistance(
+        p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
+        p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
+        lonlat = TRUE
+      ) / (4.8e5*speedupScale)
+    } else {
+      max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
+          xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
+        speedupScale
+    }
+    # For speed of plotting
+#     xy <- lapply(1:length(grobToPlot), function(i) {
+#       lapply(grobToPlot@polygons[[i]]@Polygons, function(j) {
+#         j@coords
+#       })
+#     })
+    xyOrd <- coordinates(grobToPlot)
+    
+#     hole <- lapply(1:length(grobToPlot), function(x) {
+#       lapply(grobToPlot@polygons[[x]]@Polygons, function(x)
+#         x@hole)
+#     }) %>%
+#       unlist
+    
+#     ord <- grobToPlot@plotOrder
+    
+#     ordInner <- lapply(1:length(grobToPlot), function(x) {
+#       grobToPlot@polygons[[x]]@plotOrder
+#     })
+    
+#     xyOrd.l <- lapply(ord, function(i) {
+#       xy[[i]][ordInner[[i]]]
+#     })
+    
+    # idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
+#     idLength <- lapply(xyOrd.l, function(i) { lapply(i, length) }) %>%
+#       unlist %>%
+#       `/`(., 2) %>%
+#       data.table(V1 = .)
+    
+#     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
+    
+    if (nrow(xyOrd) > 1e3) {
+      # thin if greater than 1000 pts
+      if(speedup>0.1) {
+        if (requireNamespace("fastshp", quietly = TRUE)) {
+          thinned <- data.table(
+            thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
+                                 tolerance = speedupScale * speedup)
+          )
+          #thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+          #idLength <- thinned[, sum(thin),by = groups]
+          xyOrd <- xyOrd[thinned$thin, ]
+        } else {
+          message(
+            paste(
+              "To speed up Polygons plotting using Plot install the fastshp package:\n",
+              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
+            )
+          )
+          if (Sys.info()[["sysname"]]=="Windows") {
+            message(
+              paste(
+                "You may also need to download and install Rtools from:\n",
+                "http://cran.r-project.org/bin/windows/Rtools/"
+              )
+            )
+          }
+        }
+      }
+    }
+
     pntGrob <- gTree(
       grobToPlot = grobToPlot,
       children = gList(
         pointsGrob(
-          x = coordinates(grobToPlot)[,1], y = coordinates(grobToPlot)[,2],
+          x = xyOrd[,1], y = xyOrd[,2],
           pch = pch, size = size
         )
       ),
@@ -573,8 +672,23 @@ setMethod(
     )
     grid.draw(pntGrob)
     return(invisible(pntGrob))
+
+    #gp$fill[hole] <- "#FFFFFF00"
+#     polyGrob <- gTree(children = gList(
+#       polygonGrob(
+#         x = xyOrd[, 1], y = xyOrd[, 2], id.lengths = idLength$V1,
+#         gp = gp, default.units = "native"
+#       )
+#     ),
+#     gp = gp,
+#     cl = "plotPoly")
+#     grid.draw(polyGrob)
+#     return(invisible(polyGrob))
   }
 )
+
+##########################################
+
 
 #' @rdname plotGrob
 setMethod(
@@ -626,28 +740,31 @@ setMethod(
 
     if (nrow(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
-      if (requireNamespace("fastshp", quietly = TRUE)) {
-        thinned <- data.table(
-          thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
-                               tolerance = speedupScale * speedup)
-        )
-        thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
-        idLength <- thinned[, sum(thin),by = groups]
-        xyOrd <- xyOrd[thinned$thin, ]
-      } else {
-        message(
-          paste(
-            "To speed up Polygons plotting using Plot install the fastshp package:\n",
-            "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
+      if(speedup>0.1) {
+        
+        if (requireNamespace("fastshp", quietly = TRUE)) {
+          thinned <- data.table(
+            thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
+                                 tolerance = speedupScale * speedup)
           )
-        )
-        if (Sys.info()[["sysname"]]=="Windows") {
+          thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+          idLength <- thinned[, sum(thin),by = groups]
+          xyOrd <- xyOrd[thinned$thin, ]
+        } else {
           message(
             paste(
-              "You may also need to download and install Rtools from:\n",
-              "http://cran.r-project.org/bin/windows/Rtools/"
+              "To speed up Polygons plotting using Plot install the fastshp package:\n",
+              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
             )
           )
+          if (Sys.info()[["sysname"]]=="Windows") {
+            message(
+              paste(
+                "You may also need to download and install Rtools from:\n",
+                "http://cran.r-project.org/bin/windows/Rtools/"
+              )
+            )
+          }
         }
       }
     }
@@ -693,36 +810,39 @@ setMethod(
 
     if (nrow(xy) > 1e3) {
       # thin if fewer than 1000 pts
-      if (requireNamespace("fastshp", quietly = TRUE)) {
-        thinned <- fastshp::thin(xy[, 1], xy[, 2],
-                                 tolerance = speedupScale * speedup)
-
-        # keep first and last points of every polyline,
-        # if there are fewer than 10,000 vertices
-        if (sum(thinned) < 1e4) {
-          lastIDs <- cumsum(idLength)
-
-          # Ensure first and last points of each line are kept:
-          thinned[c(1,lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
-          thinned[lastIDs] <- TRUE
-        }
-        xy <- xy[thinned,]
-        idLength <-
-          tapply(thinned, rep(1:length(idLength), idLength), sum)
-      } else {
-        message(
-          paste(
-            "To speed up Lines plotting using Plot, install the fastshp package:\n",
-            "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")"
-          )
-        )
-        if (Sys.info()[["sysname"]] == "Windows") {
+      if(speedup>0.1) {
+          
+        if (requireNamespace("fastshp", quietly = TRUE)) {
+          thinned <- fastshp::thin(xy[, 1], xy[, 2],
+                                   tolerance = speedupScale * speedup)
+  
+          # keep first and last points of every polyline,
+          # if there are fewer than 10,000 vertices
+          if (sum(thinned) < 1e4) {
+            lastIDs <- cumsum(idLength)
+  
+            # Ensure first and last points of each line are kept:
+            thinned[c(1,lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
+            thinned[lastIDs] <- TRUE
+          }
+          xy <- xy[thinned,]
+          idLength <-
+            tapply(thinned, rep(1:length(idLength), idLength), sum)
+        } else {
           message(
             paste(
-              "You may also need to download and install Rtools from:\n",
-              "  http://cran.r-project.org/bin/windows/Rtools/"
+              "To speed up Lines plotting using Plot, install the fastshp package:\n",
+              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")"
             )
           )
+          if (Sys.info()[["sysname"]] == "Windows") {
+            message(
+              paste(
+                "You may also need to download and install Rtools from:\n",
+                "  http://cran.r-project.org/bin/windows/Rtools/"
+              )
+            )
+          }
         }
       }
     }
@@ -1014,9 +1134,10 @@ setMethod(
 #' \code{speedup} is not a precise number because it is faster to plot an
 #' un-resampled raster if the new resampling is close to the original number of
 #' pixels.
-#' At the moment, this is set to 1/3 of the original pixels.
+#' At the moment, for rasters, this is set to 1/3 of the original pixels.
 #' In other words, \code{speedup} will not do anything if the factor for
-#' speeding up is not high enough (i.e., >3).
+#' speeding up is not high enough (i.e., >3). If no sub-sampling is desired, 
+#' use a speedup value less than 0.1.
 #'
 #' These \code{gp*} parameters will specify plot parameters that are available
 #' with \code{gpar()}. \code{gp} will adjust plot parameters, \code{gpText}
@@ -1482,13 +1603,13 @@ setMethod(
               }
 
               len <- length(grobToPlot)
-              if (len < (1e4 / sGrob@plotArgs$speedup)) {
-                z <- grobToPlot
-              } else {
-                z <- sample(1:NROW(grobToPlot@data), 1e4/sGrob@plotArgs$speedup) %>%
-                  grobToPlot[.,]
-              }
-              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              #if (len < (1e4 / sGrob@plotArgs$speedup)) {
+              #  z <- grobToPlot
+              #} else {
+              #  z <- sample(1:NROW(grobToPlot@data), 1e4/sGrob@plotArgs$speedup) %>%
+              #    grobToPlot[.,]
+              #}
+              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=NULL, real=FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
@@ -1728,9 +1849,13 @@ setMethod(".identifyGrobToPlot",
 
   # maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%
   #   min(., npixels)
-  maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
-    `/`(., speedup) %>%
-    min(., npixels)
+  if(speedup > 0.1) {
+    maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
+      `/`(., speedup) %>%
+      min(., npixels)
+  } else {
+    maxpixels <- npixels
+  }
   skipSample <- if (is.null(zoomExtent)) {
       maxpixels >= npixels
     } else {

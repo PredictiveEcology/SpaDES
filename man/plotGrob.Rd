@@ -79,9 +79,11 @@
 Internal function. Plot a raster Grob, a points Grob, polygon Grob.
 }
 \details{
-\code{speedup} is only used for \code{SpatialPolygons} in this function.
+\code{speedup} is only used for \code{SpatialPolygons}, \code{SpatialPoints},
+and \code{SpatialLines} in this function.
 Attempts have been made to subsample at a good level that optimizes speed of
-plotting, without losing visible quality.
+plotting, without losing visible quality. Nevertheless, to force all points to
+be plotted, use a speedup value less than 0.1.
 From a speed perspective, there appears to be an optimal subsampling when
 using \code{thin} from the \code{fastshp} package.
 Presumably, too much thinning requires large distance matrices to be
