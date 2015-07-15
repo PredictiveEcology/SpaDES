@@ -32,13 +32,17 @@
 #' @param lowMemory     Logical. If true, then function uses package \code{ff} internally. This is slower,
 #' but much lower memory footprint.
 #'
+#' @param returnIndices Logical. Should the function return a data.table with indices
+#' and values of successful spread events, or return a raster with values.
+#'
 #' @param ...           Additional parameters.
 #'
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #'
 #' @export
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
-#' @importFrom ff ff
+#' @importFrom ff ff as.ram
+#' @importFrom ffbase ffwhich
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
@@ -50,7 +54,9 @@
 #'
 setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
                               persistence=0L, mask=NULL, maxSize=NULL,
-                              directions=8L, iterations=NULL, lowMemory=FALSE, ...) {
+                              directions=8L, iterations=NULL,
+                              lowMemory=getOption("spades.lowMemory"),
+                              returnIndices=FALSE, ...) {
   standardGeneric("spread")
 })
 
@@ -111,7 +117,8 @@ setMethod(
   "spread",
   signature(landscape="RasterLayer"),
   definition = function(landscape, loci, spreadProb, persistence, mask,
-                        maxSize, directions=8L, iterations = NULL, lowMemory, mapID=FALSE,
+                        maxSize, directions=8L, iterations = NULL, lowMemory,
+                        returnIndices, mapID=FALSE,
                         plot.it=FALSE, ...) {
     ### should sanity check map extents
     if (is.null(loci))  {
@@ -228,7 +235,6 @@ setMethod(
         if (mapID) {
           spreads[events] <- spreads[potentials[,1L]]
         } else {
-          browser(expr=length(events)==0)
           spreads[events] <- n
         }
       }
@@ -269,11 +275,20 @@ setMethod(
     # Convert the data back to raster
     spre <- raster(landscape)
     if(lowMemory){
-      spre[as.ram(ffwhich(spreads, spreads>0))] <- spreads[as.ram(ffwhich(spreads, spreads>0))]
+      wh <- ffwhich(spreads, spreads>0) %>% as.ram
+      if(returnIndices) {
+        return(data.table(indices=wh, value=spreads[wh]))
+      }
+      spre[wh] <- spreads[wh]
     } else {
-      spre[spreads>0] <- spreads[spreads>0]
+      wh <- spreads>0
+      if(returnIndices) {
+        return((wh) %>%
+          which %>%
+          data.table(indices=., value=spreads[.]))
+      }
+      spre[wh] <- spreads[wh]
     }
-    #spre <- setValues(spre, spreads[])
     return(spre)
   }
 )

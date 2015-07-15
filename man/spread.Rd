@@ -8,11 +8,11 @@
 \usage{
 spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
   mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
-  lowMemory = FALSE, ...)
+  lowMemory = getOption("spades.lowMemory"), ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
-  maxSize, directions = 8L, iterations = NULL, mapID = FALSE,
-  plot.it = FALSE, lowMemory, ...)
+  maxSize, directions = 8L, iterations = NULL, lowMemory, mapID = FALSE,
+  plot.it = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -36,7 +36,8 @@ driven.}
 \item{iterations}{Number of iterations to spread. Leaving this \code{NULL} allows the spread
                      to continue until stops spreading itself (i.e., exhausts itself).}
 
-\item{lowMemory}{Logical. If true, then function uses package \code{ff} internally}
+\item{lowMemory}{Logical. If true, then function uses package \code{ff} internally. This is slower,
+but much lower memory footprint.}
 
 \item{...}{Additional parameters.}
 
