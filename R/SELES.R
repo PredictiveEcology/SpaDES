@@ -95,11 +95,13 @@ numAgents <- function(N, probInit) {
 #' map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
 #' map <- gaussMap(map, scale=1, var = 4, speedup=1)
 #' pr <- probInit(map, p=(map/maxValue(map))^2)
+#' # Distribute agents randomly within pixels, according to probInit
 #' agents <- initiateAgents(map, 100, pr)
 #' Plot(map, new=TRUE)
 #' Plot(agents, addTo="map")
 #'
-#' # If producing a Raster, then the number of points produced can't be more than
+#' # Note, can also produce a Raster representing agents,
+#' # then the number of points produced can't be more than
 #' # the number of pixels:
 #' agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints=FALSE)
 #' Plot(agentsRas)
@@ -154,7 +156,11 @@ setMethod("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints, indices) {
             if(asSpatialPoints) {
               if(length(indices>0)) {
-                return(xyFromCell(map, indices, spatial=asSpatialPoints))
+                xys <- xyFromCell(map, indices, spatial=asSpatialPoints)
+                xys@coords <- xys@coords+cbind(runif(length(indices), - res(map)[1]/2, res(map)[1]/2),
+                                     runif(length(indices), - res(map)[2]/2, res(map)[2]/2))
+                xys@bbox <- cbind(apply(coordinates(xys), 2, min), apply(coordinates(xys), 2, max))
+                return(xys)
               }
             } else {
               tmp <- raster(map)

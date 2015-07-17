@@ -56,11 +56,13 @@ library(dplyr)
 map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
 map <- gaussMap(map, scale=1, var = 4, speedup=1)
 pr <- probInit(map, p=(map/maxValue(map))^2)
+# Distribute agents randomly within pixels, according to probInit
 agents <- initiateAgents(map, 100, pr)
 Plot(map, new=TRUE)
 Plot(agents, addTo="map")
 
-# If producing a Raster, then the number of points produced can't be more than
+# Note, can also produce a Raster representing agents,
+# then the number of points produced can't be more than
 # the number of pixels:
 agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints=FALSE)
 Plot(agentsRas)
