@@ -178,9 +178,9 @@ setMethod("changeObjEnv",
           signature = c("list", "ANY", "ANY", "ANY"),
           definition = function(x, toEnv, fromEnv, rmSrc) {
             if(is.null(names(x))) {
-              stop("Please pass a named list")
+              stop("Please pass a named list or character vector of object names")
             }
-            changeObjEnv(unlist(x), toEnv, fromEnv, rmSrc)
+            changeObjEnv(names(x), toEnv, fromEnv, rmSrc)
 })
 
 #' @rdname changeObjEnv
