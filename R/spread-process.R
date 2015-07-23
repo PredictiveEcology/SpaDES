@@ -292,6 +292,7 @@ setMethod(
 #      spre[wh] <- spreads[wh]
     }
     spre <- raster(landscape)
+    spre[] <- 0
     spre[wh] <- spreads[wh]
     return(spre)
   }
