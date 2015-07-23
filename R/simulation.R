@@ -226,7 +226,7 @@ setMethod(
     # load files in the filelist
     if(length(inputs)>0) {
       inputs(sim) <- inputs
-      if(NROW(events(sim)[moduleName=="load" & eventType=="inputs" & eventTime==0])>0) {
+      if(NROW(events(sim)[moduleName=="load" & eventType=="inputs" & eventTime==start(sim)])>0) {
         sim <- doEvent.load(sim, time(sim, "second"), "inputs")
         events(sim) <- events(sim, "second")[!(eventTime==time(sim, "second") &
                                                  moduleName=="load" &
@@ -254,7 +254,7 @@ setMethod(
                    rmSrc=getOption("spades.lowMemory"))
       inputs(sim) <- bind_rows(list(
         inputs(sim),
-        data.frame(objectName=unlist(objects), loaded=TRUE,
+        data.frame(objectName=names(objects), loaded=TRUE,
                    loadTime=as.numeric(time(sim, "seconds")),
                    stringsAsFactors=FALSE)
       ))
