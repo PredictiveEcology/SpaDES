@@ -117,3 +117,61 @@ checkpointLoad = function(file) {
   save(list=ls(envir(sim), all.names=TRUE), file=fobj, envir=envir(sim))
   invisible(TRUE) # return "success" invisibly
 }
+
+
+
+################################################################################
+#' Cache method for simList class objects
+#'
+#' Because the \code{simList} has an environment as one of its slots, the caching mechanism
+#' of the archivist package does not work. Here, we make a slight tweak to the
+#' \code{cache} function to convert the \code{simList} to the \code{list} equivalent before
+#' calling the \code{\link[digest]{digest}} function internally. Otherwise, this is exactly the
+#' same as \code{\link{[archivist]{cache}}}.
+#'
+#' @inheritParams archivist::cache
+#'
+#' @return Identical to \code{\link[archivist]{cache}}
+#'
+#' @seealso \code{\link{[archivist]{cache}}}.
+#' @export
+#' @importFrom archivist cache
+#' @include simList-class.R
+#' @docType methods
+#'
+#' @author Eliot McIntire
+setGeneric("cache", signature="...", function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
+  achivist::cache(cacheRepo, FUN, ..., notOlderThan)
+})
+
+#' @export
+setMethod(
+  "cache",
+  signature="simList",
+  definition=function(cacheRepo, FUN, ..., notOlderThan) {
+    tmpl <- list(...)
+    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    tmpl$.FUN <- FUN
+    tmpl$envirHash <- digest::digest(sort(sapply(ls(tmpl[[wh]]), function(x) digest::digest(get(x, envir=envir(tmpl[[wh]]))))))
+    envirHash<<-tmpl$envirHash
+    tmpl[[wh]]@.envir <- new.env()
+    outputHash <<- digest::digest(tmpl)
+    localTags <- showLocalRepo(cacheRepo, "tags")
+    isInRepo <- localTags[localTags$tag == paste0("cacheId:",
+                                                  outputHash), , drop = FALSE]
+    if (nrow(isInRepo) > 0) {
+      lastEntry <- max(isInRepo$createdDate)
+      if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
+        lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
+        return(loadFromLocalRepo(isInRepo$artifact[lastOne],
+                                 repoDir = cacheRepo, value = TRUE))
+      }
+    }
+    output <- do.call(FUN, list(...))
+    attr(output, "tags") <- paste0("cacheId:", outputHash)
+    attr(output, "call") <- ""
+    saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+               archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
+    output
+  }
+)
