@@ -144,7 +144,7 @@ checkpointLoad = function(file) {
 #' @rdname cache
 #' @author Eliot McIntire
 setGeneric("cache", signature="...", function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
-  achivist::cache(cacheRepo, FUN, ..., notOlderThan)
+  archivist::cache(cacheRepo, FUN, ..., notOlderThan)
 })
 
 #' @export
