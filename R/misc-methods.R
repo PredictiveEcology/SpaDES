@@ -577,3 +577,26 @@ setMethod("classFilter",
           definition=function(x, include) {
             return(classFilter(x, include, exclude=NA_character_, envir=sys.frame(-1)))
 })
+
+
+
+################################################################################
+#' Sort a any named object with dotted names first
+#'
+#' Internal use only. This exists so Windows and Linux machines can have
+#' the same order after a sort.
+#'
+#' @param obj  An arbitrary R object for which a \code{names} function
+#'              returns a character vector.
+#'
+#' @return The same object as \code{obj}, but sorted with .objects first.
+#'
+#' @include simList-class.R
+#' @docType methods
+#' @rdname sortDotsFirst
+#' @author Eliot McIntire
+sortDotsFirst <- function(obj) {
+  dotObjs <- grep("^\\.", names(obj))
+  append(obj[dotObjs][order(names(obj[dotObjs]))],
+         obj[-dotObjs][order(names(obj[-dotObjs]))])
+}
