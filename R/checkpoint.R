@@ -154,23 +154,13 @@ setMethod(
   signature="simList",
   definition=function(cacheRepo, FUN, ..., notOlderThan) {
     tmpl <- list(...)
-    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
-    tmpl$.FUN <- FUN
-    tmpl$envirHash <- (sapply(sort(ls(tmpl[[wh]]@.envir, all.names=TRUE)), function(x) {
-      if(!is(get(x, envir=envir(tmpl[[wh]])), "function")) {
-        digest::digest(get(x, envir=envir(tmpl[[wh]])))
-      } else {
-        NULL
-      }
-      }))
-    tmpl$envirHash$.sessionInfo <- NULL
 
-    tmpl$envirHash <- tmpl$envirHash[!sapply(tmpl$envirHash, is.null)]
-    tmpl$envirHash <- tmpl$envirHash[order(names(tmpl$envirHash))]
-    envirHash <- tmpl$envirHash
-    tmpl[[wh]]@.envir <- getNamespace("SpaDES")
-    outputHash <- digest::digest(tmpl)
-    
+    # These three lines added to original version of cache in archive package
+    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
+    tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
+
+    outputHash <- digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:",
                                                   outputHash), , drop = FALSE]
