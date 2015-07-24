@@ -152,9 +152,9 @@ setMethod(
     tmpl <- list(...)
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     tmpl$.FUN <- FUN
-    tmpl$envirHash <- digest::digest(sort(sapply(ls(tmpl[[wh]]), function(x) digest::digest(get(x, envir=envir(tmpl[[wh]]))))))
+    tmpl$envirHash <- sort(sapply(ls(tmpl[[wh]]), function(x) digest::digest(get(x, envir=envir(tmpl[[wh]])))))
     envirHash<<-tmpl$envirHash
-    tmpl[[wh]]@.envir <- new.env()
+    tmpl[[wh]]@.envir <- getNamespace("SpaDES")
     outputHash <<- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:",
