@@ -180,3 +180,87 @@ setMethod(
     output
   }
 )
+
+
+################################################################################
+#' Remove any reference to environments in a simList
+#'
+#' Internal use only. Used when caching a SpaDES run a \code{simList}.
+#'
+#' This is a derivative of the class \code{simList}, except that all references to
+#' local environments are removed. Specifically, all functions (which are contained
+#' within environments) are removed from the \code{.envir} slot. Also,
+#' the objects that were contained within the \code{.envir} slot are hashed using \code{digest}
+#' in the \code{digest} package. Also, \code{paths} slot is not used to allow
+#' comparison across platforms. The \code{.envir} slot is emptied (NULL). The object is then
+#' converted to a \code{simList_} which has a \code{.list} slot. The hashes of the objects
+#' are then placed in that \code{.list} slot.
+#'
+#' @param simList an object of class \code{simList}
+#'
+#' @return A simplified version of the \code{simList} object, but with no reference to any environments
+#'
+#' @seealso \code{\link[archivist]{cache}}.
+#' @seealso \code{\link[digest]{digest}}.
+#' @importFrom digest digest
+#' @include simList-class.R
+#' @include misc-methods.R
+#' @docType methods
+#' @rdname makeDigestible
+#' @author Eliot McIntire
+setGeneric("makeDigestible", function(simList) {
+  standardGeneric("makeDigestible")
+})
+
+#' @rdname makeDigestible
+setMethod(
+  "makeDigestible",
+  signature="simList",
+  definition=function(simList) {
+
+    envirHash <- (sapply(sort(ls(simList@.envir, all.names=TRUE)), function(x) {
+      if(!(x==".sessionInfo")) {
+        obj <- get(x, envir=envir(simList))
+        if(!is(obj, "function")) {
+          if(is(obj, "Raster")) {
+            # convert Rasters in the simList to some of their metadata.
+            dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
+            if(nchar(obj@file@name)>0) {
+              # if the Raster is on disk, has the first 1e6 characters
+               dig <- append(dig, digest(file=obj@file@name, length=1e6))
+            }
+            dig <- digest(dig)
+          } else {
+            # convert functions in the simList to their digest.
+            #  functions have environments so are always unique
+            dig <- digest(obj)
+          }
+        } else {
+          dig <- NULL
+        }
+      } else {
+        dig <- NULL
+      }
+      return(dig)
+    }))
+
+    # Remove the NULL entries in the @.list
+    envirHash <- envirHash[!sapply(envirHash, is.null)]
+    envirHash <- sortDotsFirst(envirHash)
+
+    # Convert to a simList_ to remove the .envir slot
+    simList <- as(simList, "simList_")
+    # Replace the .list slot with the hashes of the slots
+    simList@.list <- envirHash
+
+    # Remove paths as they are system dependent and not relevant for digest
+    #  i.e., if the same file is located in a different place, that is ok
+    simList@paths <- list()
+
+    # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
+    simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
+
+    simList
+  }
+)
+
