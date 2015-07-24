@@ -26,6 +26,7 @@ apt_packages:
   - libcurl4-openssl-dev
 
 r_binary_packages:
+  - archivist
   - chron
   - circstats
   - colorspace
