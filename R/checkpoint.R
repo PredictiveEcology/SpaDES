@@ -152,13 +152,15 @@ setMethod(
     tmpl <- list(...)
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     tmpl$.FUN <- FUN
-    tmpl$envirHash <- (sapply(sort(ls(tmpl[[wh]])), function(x) {
+    
+    tmpl$envirHash <- (sapply(sort(ls(tmpl[[wh]]@.envir, all.names=TRUE)), function(x) {
       if(!is(get(x, envir=envir(tmpl[[wh]])), "function")) {
         digest::digest(get(x, envir=envir(tmpl[[wh]])))  
       } else {
         NULL
       }
       }))
+    tmpl$envirHash$.sessionInfo <- NULL
     
     tmpl$envirHash <- tmpl$envirHash[!sapply(tmpl$envirHash, is.null)]
     tmpl$envirHash <- tmpl$envirHash[order(names(tmpl$envirHash))]
