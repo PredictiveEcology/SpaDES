@@ -3,9 +3,12 @@
 \docType{methods}
 \name{cache}
 \alias{cache}
+\alias{cache,simList-method}
 \title{Cache method for simList class objects}
 \usage{
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
+
+\S4method{cache}{simList}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 }
 \arguments{
 \item{cacheRepo}{An object repository used for storing cached objects.}
@@ -22,14 +25,16 @@ Identical to \code{\link[archivist]{cache}}
 \description{
 Because the \code{simList} has an environment as one of its slots, the caching mechanism
 of the archivist package does not work. Here, we make a slight tweak to the
-\code{cache} function to convert the \code{simList} to the \code{list} equivalent before
-calling the \code{\link[digest]{digest}} function internally. Otherwise, this is exactly the
-same as \code{\link{[archivist]{cache}}}.
+\code{cache} function. Specifically, we remove all elements that have an environment
+as part of their attributes. This is generally functions that are loaded from the modules,
+but also the \code{.envir} slot in the \code{simList}. Thus, only non-function objects are
+used as part of the \code{digest} call in the \code{digest} package (used internally in
+the \code{cache} function).
 }
 \author{
 Eliot McIntire
 }
 \seealso{
-\code{\link{[archivist]{cache}}}.
+\code{\link[archivist]{cache}}.
 }
 

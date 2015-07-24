@@ -125,26 +125,30 @@ checkpointLoad = function(file) {
 #'
 #' Because the \code{simList} has an environment as one of its slots, the caching mechanism
 #' of the archivist package does not work. Here, we make a slight tweak to the
-#' \code{cache} function to convert the \code{simList} to the \code{list} equivalent before
-#' calling the \code{\link[digest]{digest}} function internally. Otherwise, this is exactly the
-#' same as \code{\link{[archivist]{cache}}}.
+#' \code{cache} function. Specifically, we remove all elements that have an environment
+#' as part of their attributes. This is generally functions that are loaded from the modules,
+#' but also the \code{.envir} slot in the \code{simList}. Thus, only non-function objects are
+#' used as part of the \code{digest} call in the \code{digest} package (used internally in
+#' the \code{cache} function).
 #'
 #' @inheritParams archivist::cache
 #'
 #' @return Identical to \code{\link[archivist]{cache}}
 #'
-#' @seealso \code{\link{[archivist]{cache}}}.
+#' @seealso \code{\link[archivist]{cache}}.
 #' @export
-#' @importFrom archivist cache
+#' @importFrom archivist cache showLocalRepo loadFromLocalRepo saveToRepo
+#' @importFrom digest digest
 #' @include simList-class.R
 #' @docType methods
-#'
+#' @rdname cache
 #' @author Eliot McIntire
 setGeneric("cache", signature="...", function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
   achivist::cache(cacheRepo, FUN, ..., notOlderThan)
 })
 
 #' @export
+#' @rdname cache
 setMethod(
   "cache",
   signature="simList",
@@ -152,10 +156,21 @@ setMethod(
     tmpl <- list(...)
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     tmpl$.FUN <- FUN
-    tmpl$envirHash <- sort(sapply(ls(tmpl[[wh]]), function(x) digest::digest(get(x, envir=envir(tmpl[[wh]])))))
-    envirHash<<-tmpl$envirHash
+    tmpl$envirHash <- (sapply(sort(ls(tmpl[[wh]]@.envir, all.names=TRUE)), function(x) {
+      if(!is(get(x, envir=envir(tmpl[[wh]])), "function")) {
+        digest::digest(get(x, envir=envir(tmpl[[wh]])))
+      } else {
+        NULL
+      }
+      }))
+    tmpl$envirHash$.sessionInfo <- NULL
+
+    tmpl$envirHash <- tmpl$envirHash[!sapply(tmpl$envirHash, is.null)]
+    tmpl$envirHash <- tmpl$envirHash[order(names(tmpl$envirHash))]
+    envirHash <- tmpl$envirHash
     tmpl[[wh]]@.envir <- getNamespace("SpaDES")
-    outputHash <<- digest::digest(tmpl)
+    outputHash <- digest::digest(tmpl)
+    
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag == paste0("cacheId:",
                                                   outputHash), , drop = FALSE]

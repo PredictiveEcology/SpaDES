@@ -39,8 +39,10 @@ Suggests:
     testthat,
     tkrplot
 Imports:
+    archivist,
     CircStats,
     DiagrammeR,
+    digest,
     downloader,
     dplyr,
     ff,
