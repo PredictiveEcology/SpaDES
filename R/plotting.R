@@ -40,12 +40,20 @@ setMethod(
   ".makeSpadesPlot",
   signature = c(plotObjects = "list", plotArgs = "list"),
   definition = function(plotObjects, plotArgs, ...) {
+
+
     isSpatialObjects <- sapply(plotObjects, function(x) {
       is(x, ".spatialObjects")
     })
 
+    env <- list(...)$env
     suppliedNames <- names(plotObjects)
-    objs <- .objectNames()[whichSpadesPlottables]
+    if(is.null(suppliedNames)){
+      objs <- .objectNames()[whichSpadesPlottables]
+    } else {
+      objs <- lapply(suppliedNames, function(x) list(objs=x, envs=env))
+    }
+
 
     names(plotObjects) <- sapply(objs,function(x)
       x$objs)
@@ -53,6 +61,7 @@ setMethod(
     if (!is.null(suppliedNames)) {
       if (all(sapply(suppliedNames, nchar) > 0)) {
         names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
+
       }
     }
     numLayers <- pmax(1, sapply(plotObjects, nlayers))
@@ -406,10 +415,10 @@ setMethod(
 #'
 #' Internal function. Plot a raster Grob, a points Grob, polygon Grob.
 #'
-#' \code{speedup} is only used for \code{SpatialPolygons}, \code{SpatialPoints}, 
+#' \code{speedup} is only used for \code{SpatialPolygons}, \code{SpatialPoints},
 #' and \code{SpatialLines} in this function.
 #' Attempts have been made to subsample at a good level that optimizes speed of
-#' plotting, without losing visible quality. Nevertheless, to force all points to 
+#' plotting, without losing visible quality. Nevertheless, to force all points to
 #' be plotted, use a speedup value less than 0.1.
 #' From a speed perspective, there appears to be an optimal subsampling when
 #' using \code{thin} from the \code{fastshp} package.
@@ -604,31 +613,31 @@ setMethod(
 #       })
 #     })
     xyOrd <- coordinates(grobToPlot)
-    
+
 #     hole <- lapply(1:length(grobToPlot), function(x) {
 #       lapply(grobToPlot@polygons[[x]]@Polygons, function(x)
 #         x@hole)
 #     }) %>%
 #       unlist
-    
+
 #     ord <- grobToPlot@plotOrder
-    
+
 #     ordInner <- lapply(1:length(grobToPlot), function(x) {
 #       grobToPlot@polygons[[x]]@plotOrder
 #     })
-    
+
 #     xyOrd.l <- lapply(ord, function(i) {
 #       xy[[i]][ordInner[[i]]]
 #     })
-    
+
     # idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
 #     idLength <- lapply(xyOrd.l, function(i) { lapply(i, length) }) %>%
 #       unlist %>%
 #       `/`(., 2) %>%
 #       data.table(V1 = .)
-    
+
 #     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
-    
+
     if (nrow(xyOrd) > 1e3) {
       # thin if greater than 1000 pts
       if(speedup>0.1) {
@@ -741,7 +750,7 @@ setMethod(
     if (nrow(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
       if(speedup>0.1) {
-        
+
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- data.table(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
@@ -811,16 +820,16 @@ setMethod(
     if (nrow(xy) > 1e3) {
       # thin if fewer than 1000 pts
       if(speedup>0.1) {
-          
+
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- fastshp::thin(xy[, 1], xy[, 2],
                                    tolerance = speedupScale * speedup)
-  
+
           # keep first and last points of every polyline,
           # if there are fewer than 10,000 vertices
           if (sum(thinned) < 1e4) {
             lastIDs <- cumsum(idLength)
-  
+
             # Ensure first and last points of each line are kept:
             thinned[c(1,lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
             thinned[lastIDs] <- TRUE
@@ -1136,7 +1145,7 @@ setMethod(
 #' pixels.
 #' At the moment, for rasters, this is set to 1/3 of the original pixels.
 #' In other words, \code{speedup} will not do anything if the factor for
-#' speeding up is not high enough (i.e., >3). If no sub-sampling is desired, 
+#' speeding up is not high enough (i.e., >3). If no sub-sampling is desired,
 #' use a speedup value less than 0.1.
 #'
 #' These \code{gp*} parameters will specify plot parameters that are available
@@ -1355,17 +1364,50 @@ setMethod(
 
     if (all(sapply(new, function(x) x))) { clearPlot(dev.cur()) }
 
-    dotObjs <- list(...)
+    scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
-    plotArgs <- mget(names(formals("Plot")),
-                     sys.frame(grep(sys.calls(), pattern = "^Plot")))[-1]
+    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) #%>%
+    dots <- list(...)
+    if(any(isDoCall)) {
 
-    # whichSpadesPlottables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
+      whFrame <- grep(scalls, pattern = "^do.call")
+      plotFrame <- sys.frame(whFrame-1)
+      dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
+                      envir=plotFrame)
+      plotArgs <- mget(names(formals("Plot")[-1]), plotFrame)
+
+
+    } else {
+      whFrame <- grep(scalls, pattern = "^Plot")
+      dotObjs <- dots
+      plotFrame <- sys.frame(whFrame)
+      plotArgs <- mget(names(formals("Plot")),
+                       plotFrame)[-1]
+
+    }
+    if(!is.null(dots$env)) {
+      objFrame <- dots$env
+    } else {
+      objFrame <- plotFrame
+    }
+
+
+    if (all(sapply(plotArgs$new, function(x) x))) {
+      clearPlot(dev.cur())
+      new <- TRUE # This is necessary in a do.call case where the arguments aren't clear
+      plotArgs$new <- TRUE # for future calls
+    }
+
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
-      is(x, ".spadesPlottables")
-    }) %>% as.logical
+      is(x, ".spadesPlottables") })
 
-    if (!all(whichSpadesPlottables)) {
+    canPlot <- if(!is.null(names(whichSpadesPlottables))) {
+      whichSpadesPlottables[names(whichSpadesPlottables)!="env"]
+    } else {
+      whichSpadesPlottables
+    }
+
+    if (!all(canPlot)) {
       message(
         paste(
           "Plot can only plot objects of class .spadesPlottables.",
@@ -1404,7 +1446,8 @@ setMethod(
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
-    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlottables)
+    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs,
+                                      whichSpadesPlottables, env=objFrame)
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -1489,7 +1532,9 @@ setMethod(
     # Section 3 - the actual Plotting
     # Plot each element passed to Plot function, one at a time
 
+
     for (subPlots in names(spadesSubPlots)) {
+
       spadesGrobCounter <- 0
 
       for (sGrob in spadesSubPlots[[subPlots]]) {
@@ -1590,7 +1635,6 @@ setMethod(
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,
                                    arr, sGrob@plotArgs$speedup, newArr=newArr)
-
               zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                        pR$legendRange,
                                        na.color = sGrob@plotArgs$na.color,
@@ -1736,6 +1780,24 @@ setMethod(
     return(invisible(updated$curr))
 })
 
+
+#' @rdname Plot
+#' @export
+setMethod(
+  "Plot",
+  signature("simList"),
+  definition = function(..., new, addTo, gp, gpText, gpAxis, axes,
+                        speedup, size, cols, zoomExtent, visualSqueeze,
+                        legend, legendRange, legendText, pch, title,
+                        na.color, zero.color, length) {
+    # Section 1 - extract object names, and determine which ones need plotting,
+    # which ones need replotting etc.
+    sim <- list(...)[[1]]
+    plotObjects = mget(ls(sim)[sapply(ls(sim), function(x)
+      is(get(x, envir=envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
+      append(., list(env=envir(sim)))
+    do.call(Plot, plotObjects)
+  })
 ################################################################################
 #' Re-plot to a specific device
 #'

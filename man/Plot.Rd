@@ -4,6 +4,7 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,ANY-method}
+\alias{Plot,simList-method}
 \alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
@@ -14,6 +15,13 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
+  gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
+  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
+  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
+  length = NULL)
+
+\S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
