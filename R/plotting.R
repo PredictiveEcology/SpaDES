@@ -1372,9 +1372,10 @@ setMethod(
 
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame-1)
+      argsFrame <- sys.frame(whFrame-2)
       dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
                       envir=plotFrame)
-      plotArgs <- mget(names(formals("Plot")[-1]), plotFrame)
+      plotArgs <- mget(names(formals("Plot")[-1]), argsFrame)
 
 
     } else {
