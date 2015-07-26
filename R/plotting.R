@@ -1794,7 +1794,8 @@ setMethod(
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
     sim <- list(...)[[1]]
-    plotObjects = mget(ls(sim)[sapply(ls(sim), function(x)
+    plotList <- ls(sim@.envir, all.names=TRUE)
+    plotObjects = mget(plotList[sapply(plotList, function(x)
       is(get(x, envir=envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
       append(., list(env=envir(sim)))
     do.call(Plot, plotObjects)
