@@ -3,7 +3,9 @@
 #'
 #' This wraps the low level \code{thin} function in the fastshp
 #' package for use on \code{sp} classes of spatial objects (specifically
-#' \code{SpatialPolygon*} and \code{SpatialLines*})
+#' \code{SpatialPolygon*} and \code{SpatialLines*}).  NOTE: THIS FUNCTION WILL
+#' QUALITATIVELY ALTER THE UNDERLYING POLYGONS, i.e., THE POLYGONS WILL NO LONGER 
+#' BE A PRECISE REPRESENTATION OF THE ORIGINAL DATA
 #'
 #' @param spGeom A sp class object.
 #'
@@ -11,25 +13,42 @@
 #'
 #' @param method Integer. Passed to \code{method} are of  \code{\link[fastshp]{thin}}
 #'
-#' @param rmSelfIntersection Logical. A crude attempt using \code{gBuffer} to remove self-
-#' Intersections. This often helps with creating valid GIS objects. See links below.
+#' @param fixErrors Logical. Attempts 3 tests for common errors and tries to fix them. This
+#' dramatically slows down the function. See Details.
 #'
 #' @param keepSmall Logical. Should "small" (fewer than 4 points after thinning) polygons 
 #' or holes be removed or kept. This allows a much smaller object, if desired.
+#' 
+#' @param verbose Logical. Print simple messages indicating what is being done.
 #'
 #' @return An object of the same class as the input \code{spGeom}, but
 #' with thinned points
+#' 
+#' @details fixErrors currently tries to catch "orphaned holes", "Self-intersection". It uses the following:
+#'   - orphaned holes: maptools::checkPolygonsHoles()
+#'   - self-intersection polygons: rgeos::gSimplify(sp, tol=0.0001)
+#'   
+#' The function internally prevents individual \code{polygon} elements of fewer than 4 points.
+#' These create errors. If \code{keepSmall} is FALSE (the default), then these are removed; 
+#' otherwise, they are kept, but a random selection of 4 of the original polygon points (i.e., 
+#' pre-thinning) are selected.
+#' 
+#' Furthermore, the function keeps "first and last" points in each \code{polygon} to maintain 
+#' valid polygons
+#' 
 #'
 #' @seealso \code{\link[fastshp]{thin}}.
 #' @seealso \code{\link[rgeos]{gIsValid}}.
 #' @export
 #' @importFrom fastshp thin
 #' @importFrom data.table data.table setkey
+#' @testthat expect_error
+#' @testthat maptools checkPolygonsHoles
 #' @docType methods
 #' @rdname thin
 #' @author Eliot McIntire
-setGeneric("thin", function(spGeom, tol=100, method=2L, rmSelfIntersection=TRUE,
-                            keepSmall=FALSE) {
+setGeneric("thin", function(spGeom, tol=100, method=2L, fixErrors=TRUE,
+                            keepSmall=FALSE, verbose=FALSE) {
   thin(spGeom, tol, method)
 })
 
@@ -38,10 +57,15 @@ setGeneric("thin", function(spGeom, tol=100, method=2L, rmSelfIntersection=TRUE,
 setMethod(
   "thin",
   signature="SpatialPolygons",
-  definition=function(spGeom, tol, method, rmSelfIntersection, keepSmall) {
-  spGeom@polygons <- lapply(spGeom@polygons, function(i) {
+  definition=function(spGeom, tol, method, fixErrors, keepSmall, verbose) {
+
+    if(verbose) print("Thinning Spatial Polygons")
+      
+    spGeom@polygons <- lapply(spGeom@polygons, function(i) {
     i@Polygons <- lapply(i@Polygons, function(j) {
       tmp <- fastshp::thin(j@coords[,1],j@coords[,2], method=method, tol=tol)
+      # if resulting polygon has 4 points or fewer, either remove it or
+      #  keep exactly 4 points. Fewer than 4 points leads to imcomplete polygon
       if(sum(tmp)<4) {
         if(keepSmall) {
           tmp[sample(which(!tmp), (4-sum(tmp)))] <- TRUE
@@ -50,6 +74,8 @@ setMethod(
         }
       } 
 
+      # This maintains first and last points in a polygon or else it is no longer
+      #  a polygon
       if(!is.null(tmp)) {
         tmp[1] <- TRUE
         tmp[length(tmp)] <- TRUE
@@ -78,9 +104,32 @@ setMethod(
   setkey(objOrder, reOrder)
   spGeom@plotOrder <- objOrder$order
   
-  if(rmSelfIntersection) {
-    #spGeom <- gBuffer(spGeom, width = 0, byid = TRUE)
-    spGeom <- gSimplify(spGeom, tol=0.00001)
+  
+  
+  if(fixErrors){
+    ## Get rid of "rgeos_PolyCreateComment: orphaned hole, cannot find containing polygon for hole at index"
+    if(suppressWarnings(throws_error("orphaned")(gIsValid(spGeom))[[1]])) {
+      if(verbose) print("Fixing orphaned holes")
+      slot(spGeom, "polygons") <- lapply(slot(spGeom, "polygons"), checkPolygonsHoles)
+    }
+    
+    # Get rid of self-intersection: gSimplify with a very small tolerance
+    if(grepl(evaluate_promise(gIsValid(spGeom))$warnings, 
+          pattern="Self-intersection")) {
+      if(verbose) print("Fixing Self-intersections")
+      data <- spGeom@data
+      spGeom <- gSimplify(spGeom, tol = 0.0001)
+      #gSimplify removes data
+      spGeom <- SpatialPolygonsDataFrame(spGeom, data=data)
+      
+    }
+    
+    # gBuffer can fix some problems but it also generates problems, 
+    #  specifically, it will delete lines randomly. So, it is not used for now.
+    #    if() {
+          #spGeom <- gBuffer(spGeom, width = 0, byid = TRUE)
+    #    }
+    
   }
   return(spGeom)
 })
@@ -103,75 +152,3 @@ setMethod(
 
     return(spGeom)
   })
-#
-# hole <- lapply(1:length(sp), function(x) {
-#   lapply(sp@polygons[[x]]@Polygons, function(x)
-#     x@hole)
-# }) %>%
-#   unlist
-#
-# ord <- sp@plotOrder
-#
-# ordInner <- lapply(1:length(sp), function(x) {
-#   sp@polygons[[x]]@plotOrder
-# })
-#
-# xyOrd.l <- lapply(ord, function(i) {
-#   xy[[i]][ordInner[[i]]]
-# })
-#
-# idLength <- lapply(xyOrd.l, function(i) { lapply(i, NROW) }) %>%
-#   unlist %>%
-# #  `/`(., 2) %>%
-#   data.table(V1 = .)
-#
-# idLength2 <- lapply(xyOrd.l, function(i) { sapply(i, NROW) }) %>%
-#   lapply(., function(i) rep(1:length(i), i)) %>%
-#   unlist %>%
-#   data.table(group2=.)
-#
-# idLength3 <- sapply(1:length(xyOrd.l), function(i) {
-#   rep(i, NROW(xyOrd.l[[i]]))}) %>% unlist %>%
-#   data.table(group=.)
-#
-# #   lapply(., function(i) rep(1:length(i), i)) %>%
-# #   unlist %>%
-# #   data.table(group2=.)
-#
-# # lapply(xyOrd.l, function(i) sapply(i, NROW) %>% rep(1:length(i), .))
-# # idL <- unlist(idLength2)
-# # rep(1:NROW(xyOrd.l), ))
-#
-#
-# # spRes <- lapply(1:length(xyOrd.l), function(i) {
-# #   Polygons(lapply(xyOrd.l[[i]], Polygon), as.character(i))}) %>%
-# #   SpatialPolygons(., 1:length(xyOrd.l))
-#
-# xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
-#
-# thinned <- data.table(
-#   thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
-#                        tolerance = speedupScale * speedup,
-#                        id=rep(1:length(idLength$V1), idLength$V1))
-# )
-# thinned[, `:=`(groups= rep(idLength3$group, idLength$V1),
-#                groups2=idLength2$group2,
-#                #groupd3=cumsum(idLength2$group2),
-#                id=rep(1:length(idLength$V1), idLength$V1))]
-# idLength <- thinned[, sum(thin),by = list(groups, groups2,id)]
-# xyOrd2 <- xyOrd[thinned$thin, ]
-#
-#
-# stopIndex <- cumsum(idLength$V1)
-# startIndex <- c(1,cumsum(idLength$V1)+1)
-# startIndex <- startIndex[-length(startIndex)]
-# #browser()
-# a = lapply(1:length(startIndex), function(x){
-#   Polygon(matrix(xyOrd[startIndex[x]:stopIndex[x],],ncol=2))
-# })
-# b = lapply(1:max(idLength$groups), function(x)
-#   Polygons(a[idLength[groups==x,id]], as.character(x))) %>%
-#   SpatialPolygons(., 1:max(idLength$groups))
-# return(invisible(b))
-#}
-
