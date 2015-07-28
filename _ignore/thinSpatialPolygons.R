@@ -11,16 +11,25 @@
 #'
 #' @param method Integer. Passed to \code{method} are of  \code{\link[fastshp]{thin}}
 #'
+#' @param rmSelfIntersection Logical. A crude attempt using \code{gBuffer} to remove self-
+#' Intersections. This often helps with creating valid GIS objects. See links below.
+#'
+#' @param keepSmall Logical. Should "small" (fewer than 4 points after thinning) polygons 
+#' or holes be removed or kept. This allows a much smaller object, if desired.
+#'
 #' @return An object of the same class as the input \code{spGeom}, but
 #' with thinned points
 #'
 #' @seealso \code{\link[fastshp]{thin}}.
+#' @seealso \code{\link[rgeos]{gIsValid}}.
 #' @export
 #' @importFrom fastshp thin
+#' @importFrom data.table data.table setkey
 #' @docType methods
 #' @rdname thin
 #' @author Eliot McIntire
-setGeneric("thin", function(spGeom, tol=100, method=2L) {
+setGeneric("thin", function(spGeom, tol=100, method=2L, rmSelfIntersection=TRUE,
+                            keepSmall=FALSE) {
   thin(spGeom, tol, method)
 })
 
@@ -29,16 +38,51 @@ setGeneric("thin", function(spGeom, tol=100, method=2L) {
 setMethod(
   "thin",
   signature="SpatialPolygons",
-  definition=function(spGeom, tol, method) {
+  definition=function(spGeom, tol, method, rmSelfIntersection, keepSmall) {
   spGeom@polygons <- lapply(spGeom@polygons, function(i) {
     i@Polygons <- lapply(i@Polygons, function(j) {
-      j@coords <- j@coords[fastshp::thin(j@coords[,1],j@coords[,2], method=method, tol=tol),]
+      tmp <- fastshp::thin(j@coords[,1],j@coords[,2], method=method, tol=tol)
+      if(sum(tmp)<4) {
+        if(keepSmall) {
+          tmp[sample(which(!tmp), (4-sum(tmp)))] <- TRUE
+        } else {
+          tmp <- NULL
+        }
+      } 
+
+      if(!is.null(tmp)) {
+        tmp[1] <- TRUE
+        tmp[length(tmp)] <- TRUE
+        j@coords <- j@coords[tmp,]
+      } else {
+        j <- tmp
+      }
+      
       return(j)
     })
+    i@Polygons <- i@Polygons[!sapply(i@Polygons, is.null)]
+    if(length(i@Polygons)<=1){
+      comment(i) <- "0"
+    } else {
+      comment(i) <- paste(c(0,rep(1,length(i@Polygons)-1)), collapse=" ")
+    }
+    if(length(i@Polygons)==0) i <- NULL
     return(i)
   })
-
-return(spGeom)
+  keep <- sapply(spGeom@polygons, length)>0
+  spGeom@polygons <- spGeom@polygons[keep]
+  spGeom@data <- spGeom@data[keep,]
+  objOrder <- data.table(order=spGeom@plotOrder[keep],reOrder=1:sum(keep))
+  setkey(objOrder, order)
+  objOrder[,order:=1:sum(keep)]
+  setkey(objOrder, reOrder)
+  spGeom@plotOrder <- objOrder$order
+  
+  if(rmSelfIntersection) {
+    #spGeom <- gBuffer(spGeom, width = 0, byid = TRUE)
+    spGeom <- gSimplify(spGeom, tol=0.00001)
+  }
+  return(spGeom)
 })
 
 #' @export
