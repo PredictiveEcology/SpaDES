@@ -15,6 +15,7 @@
 #' \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.
 #'
 #' @export
+#' @importFrom grid grid.newpage
 #' @docType methods
 #' @rdname clearPlot
 #' @include plotting-classes.R
@@ -86,7 +87,8 @@ setMethod("clearPlot",
 #' @author Paul Murrell
 #'
 .unittrim <- function(grid.locator) {
-  as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1", as.character(grid.locator)))
+  as.numeric(sub("^([0-9]+|[0-9]+[.][0-9])[0-9]*", "\\1",
+                 as.character(grid.locator)))
 }
 
 ################################################################################
@@ -198,6 +200,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
+#' @importFrom grid grid.layout grid.locator unit
 # igraph exports %>% from magrittr
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
@@ -296,6 +299,7 @@ clickCoordinates <- function(n=1) {
 #' @author Eliot McIntire
 #' @docType methods
 #' @rdname spadesMouseClicks
+#' @importFrom grid seekViewport grid.locator convertX convertY
 .clickCoord <- function(X, n=1, gl=NULL) {
   pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)

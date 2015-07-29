@@ -481,6 +481,7 @@ setMethod(
 #' @importFrom data.table data.table ':='
 #' @importFrom raster extent pointDistance
 #' @importFrom sp proj4string
+#' @importFrom grid gpar gTree gList rasterGrob textGrob grid.draw
 #'
 #' @author Eliot McIntire
 # package grid is imported in spade-package.R
@@ -589,6 +590,7 @@ setMethod(
 
 ############## SpatialPoints - thin
 #' @rdname plotGrob
+#' @importFrom grid pointsGrob
 setMethod(
   ".plotGrob",
   signature = c("SpatialPoints"),
@@ -700,6 +702,7 @@ setMethod(
 
 
 #' @rdname plotGrob
+#' @importFrom grid polygonGrob
 setMethod(
   ".plotGrob",
   signature = c("SpatialPolygons"),
@@ -793,6 +796,7 @@ setMethod(
 )
 
 #' @rdname plotGrob
+#' @importFrom grid polylineGrob arrow
 setMethod(
   ".plotGrob",
   signature = c("SpatialLines"),
@@ -904,6 +908,7 @@ setMethod(
 #'               calculation. Default is \code{TRUE}.
 #'
 #' @include plotting-classes.R
+#' @importFrom grid unit unit.c
 #' @rdname makeLayout
 #' @docType methods
 #' @author Eliot McIntire
@@ -964,6 +969,7 @@ setMethod(
 #'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
+#' @importFrom grid viewport vpTree vpList
 #' @rdname makeViewports
 #'
 .makeViewports <- function(sPlot, newArr=FALSE) {
@@ -1250,6 +1256,8 @@ setMethod(
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop
+#' @importFrom grid upViewport pushViewport seekViewport grid.text
+#' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
 #' @author Eliot McIntire
 #' @include environment.R
 #' @include plotting-classes.R
