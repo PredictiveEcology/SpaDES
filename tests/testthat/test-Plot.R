@@ -1,5 +1,9 @@
 test_that("Plot is error-free", {
-  on.exit({dev.off(); if (file.exists("Rplots.pdf")) unlink("Rplots.pdf") })
+  on.exit({dev.off();
+           if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
+             unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))
+           }
+          })
 
   ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
