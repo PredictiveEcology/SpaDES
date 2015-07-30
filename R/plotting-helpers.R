@@ -769,17 +769,24 @@ setMethod(
 }
 
 
+#' Importing some grid functions
+#'
+#' Currently only the gpar function is imported. This is a convenience so that users
+#' can change \code{Plot} arguments without having to load the entire grid package.
+#'
+#' @inheritParams grid::gpar
 #' @name gpar
 #' @aliases gpar
 #' @importFrom grid gpar
 #' @export
 #' @rdname grid-functions
+#' @seealso \code{\link[grid]{gpar}}
 setGeneric("gpar", function(...) {
   standardGeneric("gpar")
 })
 
 #' @export
-#' @rdname simList-accessors-times
+#' @rdname grid-functions
 setMethod("gpar",
           definition = function(...) {
                    return(grid::gpar(...))
