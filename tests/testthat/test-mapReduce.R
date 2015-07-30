@@ -2,7 +2,7 @@ test_that("mapReduce: file does not work correctly 1", {
   library(data.table)#; on.exit(detach(package:data.table))
   library(raster)#; on.exit(detach(package:raster))
 
-  Ras <- raster(extent(0,25,0,25), res=1)
+  Ras <- raster(extent(0,15,0,15), res=1)
   set.seed(123)
   fullRas <- randomPolygons(Ras, numTypes=2, speedup=1, p=0.3)
   names(fullRas) <- "mapcodeAll"

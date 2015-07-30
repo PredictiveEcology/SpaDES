@@ -5,8 +5,8 @@
 \alias{randomPolygons}
 \title{randomPolygons}
 \usage{
-randomPolygons(ras = raster(extent(0, 100, 0, 100), res = 1), p = 0.1,
-  A = 0.3, speedup = 1, numTypes = 1, minpatch = 10, ...)
+randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1), p = 0.1,
+  A = 0.3, speedup = 1, numTypes = 1, minpatch = 2, ...)
 }
 \arguments{
 \item{ras}{A raster that whose extent will be used for the randomPolygons}
@@ -49,7 +49,7 @@ polygon values, using code drawn from
 \url{http://www.guru-gis.net/generate-a-random-landscape/}.
 }
 \examples{
-r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
+r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3)
 Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
 }
 \references{
