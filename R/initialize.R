@@ -146,11 +146,11 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #' @references Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.
 #'
 #' @examples
-#' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3, minpatch=2)
+#' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3)
 #' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
 #'
-randomPolygons <- function(ras=raster(extent(0,100,0,100), res=1), p=0.1, A=0.3,
-                           speedup=1, numTypes=1, minpatch=10, ...) {
+randomPolygons <- function(ras=raster(extent(0,15,0,15), res=1), p=0.1, A=0.3,
+                           speedup=1, numTypes=1, minpatch=2, ...) {
   ext <- extent(ras)
   nc <- ncol(ras)
   nr <- nrow(ras)
