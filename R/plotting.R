@@ -1372,6 +1372,10 @@ setMethod(
 
     if (all(sapply(new, function(x) x))) { clearPlot(dev.cur()) }
 
+    # this covers the case where R thinks that there is nothing, but
+    #  there may in fact be something.
+    if(length(ls(.spadesEnv))==0) clearPlot(dev.cur())
+
     scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
     isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) #%>%
