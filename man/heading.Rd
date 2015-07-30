@@ -31,6 +31,7 @@ The heading between the points, in degrees.
 Determines the heading between spatial points.
 }
 \examples{
+require(sp)
 N <- 10L                # number of agents
 x1 <- runif(N, -50, 50) # previous X location
 y1 <- runif(N, -50, 50) # previous Y location
