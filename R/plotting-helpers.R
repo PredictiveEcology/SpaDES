@@ -613,15 +613,39 @@ setMethod(
       )
     }
     if (grepl(deparse(parseTxt[[1]]), pattern = "^get")) {
+      callEnv <- tryCatch(
+        eval(
+          match.call(definition = eval,
+                     call = parseTxt)$envir,
+          envir = eminus1
+        ),
+        error = function(x) {
+          tryCatch(
+            eval(
+              match.call(definition=eval, call=parseTxt)$envir,
+              envir = e
+            ),
+            error = function(x) { .GlobalEnv }
+          )
+        }
+      )
       parseTxt[[3]] <- match.call(definition = get, call = parseTxt)$x
+      tmpParseTxt3 <- tryCatch(
+        eval(parseTxt[[3]], envir = e),
+        error = function(x) {
+          eval(parseTxt[[3]], envir = eminus1)
+        }
+      )
+
+
       # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
-      if (identical(eval(parse(text = deparse(
-        match.call(definition = get,
-                   call = parseTxt)$x
-      ))),
-      parseTxt[[3]])) {
-        lastOneDone = TRUE
-      }
+#       if (identical(
+#         tmpParseTxt3,
+#       parseTxt[[3]])) {
+#         lastOneDone = TRUE
+#       }
+      lastOneDone <- TRUE
+      parseTxt[[3]] <- tmpParseTxt3
     }
     if (is.character(parseTxt[[3]])) {
       parseTxt[[3]] <- as.name(parseTxt[[3]])
