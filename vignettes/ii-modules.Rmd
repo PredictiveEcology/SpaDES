@@ -252,6 +252,7 @@ Modules may also include `"save"` and `"plot"` events, though these are optional
 
 ```{r event-functions, echo=TRUE, eval=FALSE}
 ## sample event functions from the default `randomLandscapes` module
+require(raster)
 randomLandscapesInit <- function(sim) {
   if (is.null(params(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
@@ -303,7 +304,7 @@ Each module appears in a color-coded row, within which each event for that modul
 Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
 
 ```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-require(igraph)
+require(magrittr)
 require(SpaDES)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -453,7 +454,6 @@ Checkpoint frequency and filename can be passed as parameters to the simulation 
 By befault, checkpointing is not used unless the `interval` parameter is provided; the simulation checkpoint file (if one exists) is loaded if the `file` parameter is specified.
 
 ```{r checkpoints, echo=TRUE, eval=TRUE, message=FALSE}
-require(SpaDES)
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, stop=30)
@@ -540,6 +540,8 @@ Alternatively, objects can be saved at the module level by passing parameters wi
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
+require(data.table)
+
 outputDir <- file.path(tempdir(), "simOutputs")
 mySim <- simInit(times=list(start=0.0, stop=10),
                  params=list(

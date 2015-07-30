@@ -48,6 +48,8 @@ Then we load that list of files.
 #  Make list of maps from package database to load, and what functions to use to load them
 require(igraph)
 require(SpaDES)
+require(data.table)
+require(raster)
 filelist <- system.file("maps", package="SpaDES") %>%
   dir(., full.names=TRUE, pattern= "tif") %>%
   data.table(files=., functions="rasterToMemory", package="SpaDES") %>%

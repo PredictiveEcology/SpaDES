@@ -27,14 +27,11 @@ Additional_repositories: http://rforge.net
 Depends:
     R (>= 3.2.0)
 Suggests:
-    data.table,
     fastshp,
     knitr,
     Matrix,
-    raster,
     RColorBrewer,
     rgdal,
-    sp,
     testthat,
     tkrplot
 Imports:
