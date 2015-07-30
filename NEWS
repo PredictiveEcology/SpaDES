@@ -29,7 +29,7 @@ version 1.0.0
 * improved `.objectNames`
 * `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
 * `defineModule` better handles `NA` values (#138)
-* `Plot` improvements
+* `Plot` improvements. Ex: a simList method for Plot.
 * new plotting funcions to produce overview diagrams of simulations (#181; #184):
 
     - `eventDiagram` shows Gantt chart of event sequences

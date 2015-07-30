@@ -22,10 +22,11 @@ Internal use only. Used when caching a SpaDES run a \code{simList}.
 \details{
 This is a derivative of the class \code{simList}, except that all references to
 local environments are removed. Specifically, all functions (which are contained
-within environments) are removed from the \code{.envir} slot. Also,
-the objects that were contained within the \code{.envir} slot are hashed using \code{digest}
+within environments) are converted to a text representation via a call to \code{format(fn)}.
+Also the objects that were contained within the \code{.envir} slot are hashed using \code{digest}
 in the \code{digest} package. Also, \code{paths} slot is not used to allow
-comparison across platforms. The \code{.envir} slot is emptied (NULL). The object is then
+comparison across platforms and it is not relevant where the objects are gotten from,
+so long as the objects are the same. The \code{.envir} slot is emptied (NULL). The object is then
 converted to a \code{simList_} which has a \code{.list} slot. The hashes of the objects
 are then placed in that \code{.list} slot.
 }
