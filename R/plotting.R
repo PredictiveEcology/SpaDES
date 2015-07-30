@@ -1429,7 +1429,7 @@ setMethod(
     plotObjs <- dotObjs[whichSpadesPlottables]
 
     if (length(plotObjs) == 0) {
-      stop("Nothing to Plot")
+      stop("Not a plottable object")
     }
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
 
