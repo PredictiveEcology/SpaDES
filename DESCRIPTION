@@ -27,7 +27,6 @@ Additional_repositories: http://rforge.net
 Depends:
     R (>= 3.2.0),
     data.table,
-    grid,
     raster,
     sp
 Suggests:
@@ -50,6 +49,7 @@ Imports:
     fpCompare,
     ggplot2,
     graphics,
+    grid,
     gridBase,
     httr,
     igraph,

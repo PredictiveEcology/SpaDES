@@ -391,9 +391,6 @@ NULL
 #' @import graphics
 NULL
 
-#' @import grid
-NULL
-
 #' @import igraph
 NULL
 

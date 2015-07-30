@@ -570,6 +570,11 @@ setMethod(
   lastOneDone <- TRUE
 
   while (length(parse(text = deparse(parseTxt))[[1]]) != 1) {
+    if(length(parseTxt)==2) {
+      stop("Please pass an object directly, or use get(x, envir=envName) or eval(x, envir=envName). ",
+           "Plot can not yet accept functions or complex objects internally.")
+    }
+
     lastOneDone <- FALSE
     if (grepl(deparse(parseTxt[[1]]), pattern = "^eval")) {
       callEnv <- tryCatch(
@@ -653,6 +658,10 @@ setMethod(
     if (is.numeric(parseTxt[[3]])) {
       if (!is.null(names(eval(parseTxt[[2]], envir=e)))) {
         parseTxt[[3]] <- names(eval(parseTxt[[2]], envir=e))[parseTxt[[3]]]
+        if(is.na(parseTxt[[3]])){
+          stop("Please pass an object directly, or use get(x, envir=envName) or eval(x, envir=envName). ",
+               "Plot can not yet accept functions or complex objects internally.")
+        }
       }
 
     }

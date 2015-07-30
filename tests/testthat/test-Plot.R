@@ -1,5 +1,9 @@
 test_that("Plot is error-free", {
-  on.exit({dev.off(); if (file.exists("Rplots.pdf")) unlink("Rplots.pdf") })
+  on.exit({dev.off();
+           if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
+             unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))
+           }
+          })
 
   ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
@@ -101,6 +105,6 @@ test_that("Plot is error-free", {
                  "Plot can only plot objects of class .spadesPlottables")
   expect_message(Plot(habitatQuality87654, addTo="test"),
                  "Plot called with 'addTo' argument specified")
-  expect_error(Plot(ls()), "Nothing to Plot")
+  expect_error(Plot(ls()), "Not a plottable object")
   expect_that(rePlot, testthat::not(throws_error()))
 })
