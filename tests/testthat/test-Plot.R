@@ -1,4 +1,4 @@
-test_that("Plot is error-free", {
+test_that("Plot is not error-free", {
   on.exit({dev.off();
            if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
              unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))
