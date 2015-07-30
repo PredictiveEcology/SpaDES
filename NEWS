@@ -44,7 +44,10 @@ version 1.0.0
     - bug fixes
 
 * improved test coverage (see #139)
+* all functions imported explicity (@importFrom). 3 entire packages imported: methods, graphics, igraph (because of classes which are not exported from igraph) (#201)
+* removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (#207).
 * improved documentation and vignettes
+* added cache mechanism to hash function calls to spades (#206)
 * fixed progress bar bug (#147)
 * prepend copyright info to `LICENSE` and `README` (with #140)
 * various other bug fixes
