@@ -767,3 +767,20 @@ setMethod(
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
   return(objs)
 }
+
+
+#' @name gpar
+#' @aliases gpar
+#' @importFrom grid gpar
+#' @export
+#' @rdname grid-functions
+setGeneric("gpar", function(...) {
+  standardGeneric("gpar")
+})
+
+#' @export
+#' @rdname simList-accessors-times
+setMethod("gpar",
+          definition = function(...) {
+                   return(grid::gpar(...))
+                 })
