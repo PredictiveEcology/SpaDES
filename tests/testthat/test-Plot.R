@@ -101,6 +101,6 @@ test_that("Plot is error-free", {
                  "Plot can only plot objects of class .spadesPlottables")
   expect_message(Plot(habitatQuality87654, addTo="test"),
                  "Plot called with 'addTo' argument specified")
-  expect_error(Plot(ls()), "Nothing to Plot")
+  expect_error(Plot(ls()), "Not a plottable object")
   expect_that(rePlot, testthat::not(throws_error()))
 })
