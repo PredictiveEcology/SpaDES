@@ -25,21 +25,22 @@ Authors@R: c(
     )
 Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.2.0),
-    data.table,
-    raster,
-    sp
+    R (>= 3.2.0)
 Suggests:
+    data.table,
     fastshp,
     knitr,
     Matrix,
+    raster,
     RColorBrewer,
     rgdal,
+    sp,
     testthat,
     tkrplot
 Imports:
     archivist,
     CircStats,
+    data.table,
     DiagrammeR,
     digest,
     downloader,
@@ -57,7 +58,9 @@ Imports:
     methods,
     R.utils,
     RandomFields,
+    raster,
     secr,
+    sp,
     stringi,
     stringr
 License: GPL-3

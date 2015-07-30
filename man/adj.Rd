@@ -83,6 +83,6 @@ if (interactive()) print(head(adj.new))
 Eliot McIntire
 }
 \seealso{
-\code{\link{adjacent}}
+\code{\link[raster]{adjacent}}
 }
 

@@ -54,7 +54,7 @@ if(getRversion() >= "3.1.0") {
 #'
 #' @return a matrix of one or two columns, from and to.
 #'
-#' @seealso \code{\link{adjacent}}
+#' @seealso \code{\link[raster]{adjacent}}
 #'
 #' @importFrom data.table data.table key setcolorder setkey ':='
 #' @importFrom raster ncell ncol nrow

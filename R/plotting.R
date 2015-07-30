@@ -479,7 +479,7 @@ setMethod(
 #' @docType methods
 #' @rdname plotGrob
 #' @importFrom data.table data.table ':='
-#' @importFrom raster extent pointDistance
+#' @importFrom raster extent pointDistance xmin xmax ymin ymax
 #' @importFrom sp proj4string
 #' @importFrom grid gpar gTree gList rasterGrob textGrob grid.draw
 #'
@@ -970,6 +970,7 @@ setMethod(
 #' @author Eliot McIntire
 #' @include plotting-classes.R
 #' @importFrom grid viewport vpTree vpList
+#' @importFrom raster xmin xmax ymin ymax
 #' @rdname makeViewports
 #'
 .makeViewports <- function(sPlot, newArr=FALSE) {
