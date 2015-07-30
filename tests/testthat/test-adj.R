@@ -1,4 +1,5 @@
 test_that("adj.R results not identical to adjacent", {
+  library(sp); on.exit(detach(package:sp))  # for adjacent function
   library(raster); on.exit(detach(package:raster))  # for adjacent function
   a <- raster::raster(raster::extent(0, 1e3, 0, 1e3), res=1)
 

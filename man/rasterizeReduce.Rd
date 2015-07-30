@@ -33,6 +33,7 @@ Convert reduced representation to full raster
 }
 \examples{
 require(data.table)
+require(raster)
 Ras <- raster(extent(0,15,0,15), res=1)
 fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
 names(fullRas) <- "mapcodeAll"

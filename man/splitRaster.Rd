@@ -28,6 +28,7 @@ Divides up a raster into an arbitrary number of pieces.
 Split rasters can be recombined using \code{do.call(merge, x)}.
 }
 \examples{
+require(raster)
 # an example with dimensions:
 # nrow = 77
 # ncol = 101

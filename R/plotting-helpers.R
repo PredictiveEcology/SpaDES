@@ -495,6 +495,7 @@ setMethod(
 #' @author Eliot McIntire
 #'
 #' @examples
+#' library(sp)
 #' # Make 2 objects
 #' caribou1 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
 #' caribou2 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))

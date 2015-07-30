@@ -53,6 +53,7 @@ You must know how to use SELES for these to be useful.
 }
 \examples{
 library(dplyr)
+library(raster)
 map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
 map <- gaussMap(map, scale=1, var = 4, speedup=1)
 pr <- probInit(map, p=(map/maxValue(map))^2)
@@ -67,9 +68,9 @@ Plot(agentsRas)
 
 # Check that the agents are more often at the higher probability areas based on pr
 out <- data.frame(na.omit(crosstab(agentsRas, map)), table(round(map[]))) \%>\%
-   mutate(selectionRatio=Freq/Freq.1) \%>\%
-   select(-Var1, -Var1.1) \%>\%
-   rename(Present=Freq, Avail=Freq.1, Type=Var2)
+   dplyr::mutate(selectionRatio=Freq/Freq.1) \%>\%
+   dplyr::select(-Var1, -Var1.1) \%>\%
+   dplyr::rename(Present=Freq, Avail=Freq.1, Type=Var2)
 }
 \author{
 Eliot McIntire

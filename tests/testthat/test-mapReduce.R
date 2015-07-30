@@ -1,6 +1,6 @@
 test_that("mapReduce: file does not work correctly 1", {
-  library(data.table)#; on.exit(detach(package:data.table))
-  library(raster)#; on.exit(detach(package:raster))
+  library(data.table); on.exit(detach(package:data.table))
+  library(raster); on.exit(detach(package:raster))
 
   Ras <- raster(extent(0,15,0,15), res=1)
   set.seed(123)

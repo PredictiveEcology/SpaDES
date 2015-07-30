@@ -49,6 +49,7 @@ If \code{withHeading} used, then X must be a SpatialPointsDataFrame that contain
 two columns, x1 and y1, with the immediately previous agent locations.
 }
 \examples{
+library(raster)
 xrange <- yrange <- c(-50,50)
 hab <- raster(extent(c(xrange,yrange)))
 hab[] <- 0

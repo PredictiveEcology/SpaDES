@@ -439,6 +439,7 @@ cir <- function(spatialPoints, radii, raster, simplify=TRUE) {
 #'
 #' @author Eliot McIntire
 #' @examples
+#' library(raster)
 #' xrange <- yrange <- c(-50,50)
 #' hab <- raster(extent(c(xrange,yrange)))
 #' hab[] <- 0

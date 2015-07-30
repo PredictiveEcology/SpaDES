@@ -1,10 +1,5 @@
 test_that("simulation runs with simInit and spades", {
-  on.exit({
-    detach("package:igraph")
-    rm(mySim)
-  })
-
-  library(igraph)
+  library(igraph); on.exit(detach(package:igraph))
 
   set.seed(42)
 
