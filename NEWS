@@ -17,7 +17,7 @@ version 1.0.0
 * moved `data.table`, `grid`, `raster`, and `sp` from Depends to Imports (#207).
 * add `archivist`, `ff`, `ffbase` to Imports;  add `lubridate` to Imports (with #151)
 * removed `magrittr` from Imports (`%>%` is now exported by `igraph`)
-* most external methods/classes imported using `importFrom`; except `methods`, `graphics`, and `igraph` (because of classes which are not exported from igraph) (#201)
+* most external methods/classes imported using `importFrom`; except `methods`, `graphics`, `igraph`, and `utils` (because of methods/classes which are not exported) (#201)
 * simulations now use `timeunit` (instead of `timestep`) specified in metadata (#151)
 * `defineModule` requires `timeunit` to be a character string instead of numeric (with #151)
 * simulation checkpointing fixed (#191, #130)
