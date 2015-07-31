@@ -22,7 +22,7 @@ The suggested package `fastshp` can be installed with:
 install.packages("fastshp", repos="http://rforge.net", type="source")
 ```
 
-### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=master) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](http://cran.r-project.org/package=SpaDES) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](http://cran.rstudio.com/package=SpaDES)
+### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=master) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](https://cran.r-project.org/package=SpaDES) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](https://cran.rstudio.com/package=SpaDES)
 
 **Install from CRAN:**
 
