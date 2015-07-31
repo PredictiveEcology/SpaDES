@@ -190,6 +190,7 @@ setMethod("[[", signature(x="simList", i="ANY", j="ANY"),
 setReplaceMethod("[[", signature(x="simList", value="ANY"),
                  definition=function(x, i, value) {
                    assign(i, value, envir=x@.envir, inherits=FALSE)
+                   validObject(x)
                    return(x)
 })
 
@@ -209,6 +210,7 @@ setMethod("$", signature(x="simList"),
 setReplaceMethod("$", signature(x="simList", value="ANY"),
                  definition=function(x, name, value) {
                    x@.envir[[name]] <- value
+                   validObject(x)
                    return(x)
 })
 
