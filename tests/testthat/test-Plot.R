@@ -13,7 +13,7 @@ test_that("Plot is not error-free", {
   names(DEM87654) <- "DEM87654"
   habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   names(habitatQuality87654) <- "habitatQuality87654"
-  landscape87654 <- stack(DEM87654, habitatQuality87654)
+  landscape87654 <- raster::stack(DEM87654, habitatQuality87654)
   caribou87654 <- sp::SpatialPoints(coords=cbind(x=stats::runif(1e1, 0, 10), y=stats::runif(1e1, 0, 10)))
 
   # If any rearrangements are required, Plot searches for objects in Global Env
