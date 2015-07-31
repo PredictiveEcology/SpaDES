@@ -44,10 +44,10 @@ setMethod("newModule",
             nestedPath <- file.path(path, name)
             checkPath(nestedPath, create=TRUE)
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
-            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
-            filenameLICENSE <- file.path(nestedPath, "LICENSE")
-            filenameREADME <- file.path(nestedPath, "README.txt")
+            #filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
+            #filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
+            #filenameLICENSE <- file.path(nestedPath, "LICENSE")
+            #filenameREADME <- file.path(nestedPath, "README.txt")
 
             cat("
 defineModule(sim, list(

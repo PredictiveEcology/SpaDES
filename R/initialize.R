@@ -171,7 +171,6 @@ randomPolygons <- function(ras=raster(extent(0,15,0,15), res=1), p=0.1, A=0.3,
   }
   tempmask <- make.mask(nx=ncSpeedup, ny=nrSpeedup, spacing=resol)
 
-  outMap <- list()
   r <- raster(ext=extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
               res=res(ras)*c(speedupEffectiveCol, speedupEffectiveRow))
   if( (numTypes < length(p)) |

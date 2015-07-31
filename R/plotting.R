@@ -67,9 +67,9 @@ setMethod(
     numLayers <- pmax(1, sapply(plotObjects, nlayers))
 
     isSpadesPlot <- sapply(plotObjects, function(x) { is(x, ".spadesPlot") })
-    isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
+    #isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
     isStack <- sapply(plotObjects, function(x) { is(x, "RasterStack") })
-    isPolygon <- sapply(plotObjects, function(x) { is(x, "SpatialPolygons") })
+    #isPolygon <- sapply(plotObjects, function(x) { is(x, "SpatialPolygons") })
 
     # Stacks are like lists in that they are a single object, with many
     # layers.  Plot must treat these as any other layers, except that
@@ -78,7 +78,7 @@ setMethod(
     # Plot(stack1, layerB) would have two objects, but maybe 5 layers,
     # if the stack had 4 layers in it.
     isSpadesPlotLong <- rep(isSpadesPlot, numLayers)
-    isRasterLong <- rep(isRaster, numLayers)
+    #isRasterLong <- rep(isRaster, numLayers)
     isStackLong <- rep(isStack, numLayers)
     isSpatialObjects <- rep(isSpatialObjects, numLayers)
 
@@ -220,7 +220,7 @@ setMethod(
 
     whichParamsChanged <- lapply(newNames[overplots], function(x) {
       sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs), function(y) {
-        changed <- !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
+        !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
                               curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
         })
       })
@@ -257,7 +257,7 @@ setMethod(
     # put addTo plots into list of spadesGrobs that it will be added to
     if (!is.null(addToPlotsNames)) {
       for (plots in 1:length(addToPlotsNames)) {
-        len <- length(curr@spadesGrobList[[addToPlotsNames[plots]]])
+        #len <- length(curr@spadesGrobList[[addToPlotsNames[plots]]])
         curr@spadesGrobList[[addToPlotsNames[plots]]][names(addToPlotsNames[plots])] <-
           newSP@spadesGrobList[[names(addToPlotsNames[plots])]]
         # change the name of the plotName to the parent object
@@ -515,7 +515,7 @@ setMethod(
     }
 
     pr <- pr[pr <= maxv & pr >= minv]
-    maxNumCols = 100
+    #maxNumCols = 100
     maxcol <- length(col)
     mincol <- 2
 
@@ -1564,7 +1564,7 @@ setMethod(
           isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
           isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
 
-          sgl <- updated$curr@spadesGrobList
+          #sgl <- updated$curr@spadesGrobList
 
           a <- try(seekViewport(subPlots, recording = FALSE))
           if (is(a, "try-error")) {
@@ -1635,14 +1635,14 @@ setMethod(
 
             if (is.null(sGrob@plotArgs$gpText$cex)) {
               # pipe won't work here :S
-              sGrob@plotArgs$gpText$cex <- cex <- max(
+              sGrob@plotArgs$gpText$cex <- max(
                 0.6,
                 min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
               )
             }
             if (is.null(sGrob@plotArgs$gpAxis$cex)) {
               # pipe won't work here :S
-              sGrob@plotArgs$gpAxis$cex <- cex <- max(
+              sGrob@plotArgs$gpAxis$cex <- max(
                 0.6,
                 min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
               )
@@ -1664,13 +1664,7 @@ setMethod(
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
 
-              len <- length(grobToPlot)
-              #if (len < (1e4 / sGrob@plotArgs$speedup)) {
-              #  z <- grobToPlot
-              #} else {
-              #  z <- sample(1:NROW(grobToPlot@data), 1e4/sGrob@plotArgs$speedup) %>%
-              #    grobToPlot[.,]
-              #}
+              #len <- length(grobToPlot)
               zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=NULL, real=FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
@@ -1745,11 +1739,11 @@ setMethod(
             } else {
               # Extract legend text if the raster is a factored raster
               if (is.factor(grobToPlot) & is.null(legendText)) {
-                legendTxt <- levels(grobToPlot)[[1]][,2]
+                sGrob@plotArgs$legendTxt <- levels(grobToPlot)[[1]][,2]
               } else {
-                legendTxt <- legendText
+                sGrob@plotArgs$legendTxt <- legendText
               }
-              legendTxt <- if (!isBaseSubPlot | !isReplot) {
+              sGrob@plotArgs$legendTxt <- if (!isBaseSubPlot | !isReplot) {
                 NULL
               }
 
@@ -1888,6 +1882,7 @@ setMethod(".identifyGrobToPlot",
             } else {
               grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
             }
+            return(grobToPlot)
           })
 
 #' @rdname identifyGrobToPlot

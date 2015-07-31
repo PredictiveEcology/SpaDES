@@ -84,7 +84,7 @@ setMethod("depsEdgeList",
 setMethod("depsEdgeList",
           signature(sim="simList", plot="missing"),
           definition=function(sim, plot) {
-            el <- depsEdgeList(sim, plot=FALSE)
+            depsEdgeList(sim, plot=FALSE)
 })
 
 ################################################################################

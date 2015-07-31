@@ -294,7 +294,7 @@ adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
 
     if (!torus) {
       return(as.matrix(adj[
-        i  <- !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+        !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
                 ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
         ]))
     } else {
