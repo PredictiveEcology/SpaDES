@@ -7,7 +7,7 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # check that output directory exists, make it if not
 
-    pathsToCheck <- checkPath(outputPath(sim), create=TRUE)
+    #pathsToCheck <- checkPath(outputPath(sim), create=TRUE)
 
     # The load doEvent
 
@@ -101,9 +101,9 @@ saveFiles = function(sim) {
 
         outputs(sim)[i,"saved"] <- TRUE
       } else {
-        warning(paste(outputs(sim)[i,"objectName"],
+        warning(paste(outputs(sim)$obj[i],
                       "is not an object in the simList. Cannot save."))
-        outputs(sim)[i,saved] <- FALSE
+        outputs(sim)[i,"saved"] <- FALSE
       }
     }
   }

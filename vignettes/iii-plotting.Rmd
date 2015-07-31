@@ -32,7 +32,7 @@ Furthermore, no plotting method has been designed for modularity -- the ability 
 
 `SpaDES` comes with a plotting function to fulfill these two gaps.
 The main plotting function, `Plot` (*i.e.*, with a capital `P`), is built using the grid package.
-We have specifically built a plotting system that allows for relatively fast plotting of rasters (in the `raster` package), `SpatialPoints`, `SpatialPolygons`, `SpatialLines` (all within the `sp` package), `ggplot` objects, histogram, and igraph (package `igraph`) objects with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted.
+We have specifically built a plotting system that allows for relatively fast plotting of rasters (in the `raster` package), `SpatialPoints`, `SpatialPolygons`, `SpatialLines` (all within the `sp` package), `ggplot` objects, histogram, and igraph (package `igraph`) objects as well as `simList` objects (it will plot all objects of the preceeding classes contained within the `simList` environment) with the ability to make multi-frame plots without the module (or user) knowing which plots are already plotted.
 In other words, the main plotting function can handle SpaDES modules, each of which can add plots, without each knowing what the current state of the active plotting device is.
 This means that plotting can be treated as modular.
 Importantly, conventional R plotting (*e.g.*, `plot`, `hist`, etc.) can still be used at any time, so you can use the features provided in this package or you can use other plotting functions without having to relearn a new set of plotting commands.
@@ -48,8 +48,9 @@ Then we load that list of files.
 #  Make list of maps from package database to load, and what functions to use to load them
 require(igraph)
 require(SpaDES)
-filelist <- find.package("SpaDES", quiet=FALSE) %>%
-  file.path(., "maps") %>%
+require(data.table)
+require(raster)
+filelist <- system.file("maps", package="SpaDES") %>%
   dir(., full.names=TRUE, pattern= "tif") %>%
   data.table(files=., functions="rasterToMemory", package="SpaDES") %>%
   .[-c(2,5),]  # omit forestAge and percentPine for simplicity
@@ -77,7 +78,7 @@ See `?gpar` for options.
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50), y=runif(1e2,-50,50)))
+caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2,-50,50), y=stats::runif(1e2,-50,50)))
 Plot(caribou)
 Plot(caribou, addTo="landscape$habitatQuality")
 
@@ -121,12 +122,21 @@ These can be combined with spatial objects as well.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 require(ggplot2)
-ggObj <- qplot(rnorm(1e3), binwidth=0.1)
+ggObj <- qplot(stats::rnorm(1e3), binwidth=0.1)
 
 Plot(caribou, ggObj, new=TRUE) 
 ```
 
-### Colours
+### `simList` objects
+
+`Plot` can also handle `simList` objects. 
+A call to Plot will search for all plottable object types in the `simList` environment and plot them.
+
+```{r simList, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
+Plot(mySim, new=TRUE) 
+```
+
+## Colours
 
 We likely won't want the default colours for every map.
 There are two ways to change the colour of a map: by adding a `colortable` to a `Raster*` object (*e.g.*, using the `setColors` function in `SpaDES`), or using the `cols` argument of the `Plot` function.

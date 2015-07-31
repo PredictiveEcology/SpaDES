@@ -175,6 +175,7 @@ setMethod("append_attr",
 #' @export
 #' @docType methods
 #' @rdname loadPackages
+# @importFrom utils install.packages
 #'
 #' @author Alex Chubaty
 #'
@@ -197,7 +198,7 @@ setMethod("loadPackages",
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
                     cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
-                      "http://cran.rstudio.com"
+                      "https://cran.rstudio.com"
                     } else {
                       getOption("repos")[[1]]
                     }
@@ -530,7 +531,7 @@ setMethod("rndstr",
 #'   ## from global environment
 #'   a <- list(1:10)     # class `list`
 #'   b <- letters        # class `character`
-#'   d <- runif(10)      # class `numeric`
+#'   d <- stats::runif(10)      # class `numeric`
 #'   f <- sample(1L:10L) # class `numeric`, `integer`
 #'   g <- lm( jitter(d) ~ d ) # class `lm`
 #'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
@@ -547,7 +548,7 @@ setMethod("rndstr",
 #'   e <- environment()
 #'   a <- list(1:10)     # class `list`
 #'   b <- letters        # class `character`
-#'   d <- runif(10)      # class `numeric`
+#'   d <- stats::runif(10)      # class `numeric`
 #'   f <- sample(1L:10L) # class `numeric`, `integer`
 #'   g <- lm( jitter(d) ~ d ) # class `lm`
 #'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
@@ -563,7 +564,7 @@ setMethod("rndstr",
 #' e = new.env(parent = emptyenv())
 #' e$a <- list(1:10)     # class `list`
 #' e$b <- letters        # class `character`
-#' e$d <- runif(10)      # class `numeric`
+#' e$d <- stats::runif(10)      # class `numeric`
 #' e$f <- sample(1L:10L) # class `numeric`, `integer`
 #' e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
 #' e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`
@@ -623,3 +624,26 @@ setMethod("classFilter",
           definition=function(x, include) {
             return(classFilter(x, include, exclude=NA_character_, envir=sys.frame(-1)))
 })
+
+
+
+################################################################################
+#' Sort a any named object with dotted names first
+#'
+#' Internal use only. This exists so Windows and Linux machines can have
+#' the same order after a sort.
+#'
+#' @param obj  An arbitrary R object for which a \code{names} function
+#'              returns a character vector.
+#'
+#' @return The same object as \code{obj}, but sorted with .objects first.
+#'
+#' @include simList-class.R
+#' @docType methods
+#' @rdname sortDotsFirst
+#' @author Eliot McIntire
+sortDotsFirst <- function(obj) {
+  dotObjs <- grep("^\\.", names(obj))
+  append(obj[dotObjs][order(names(obj[dotObjs]))],
+         obj[-dotObjs][order(names(obj[-dotObjs]))])
+}

@@ -8,6 +8,9 @@
 #' classified by the index of the pixel where that event propagated from. This can be used to examine things like
 #' fire size distributions.
 #'
+#' For large rasters, a combination of \code{lowMemory=TRUE} and \code{returnIndices=TRUE} will use the least amoun
+#' of memory.
+#'
 #' @param landscape     A \code{RasterLayer} object.
 #'
 #' @param loci          A vector of locations in \code{landscape}
@@ -29,12 +32,21 @@
 #' @param iterations    Number of iterations to spread. Leaving this \code{NULL} allows the spread
 #'                      to continue until stops spreading itself (i.e., exhausts itself).
 #'
+#' @param lowMemory     Logical. If true, then function uses package \code{ff} internally. This is slower,
+#'                      but much lower memory footprint.
+#'
+#' @param returnIndices Logical. Should the function return a data.table with indices
+#'                      and values of successful spread events, or return a raster with values. See Details.
+#'
 #' @param ...           Additional parameters.
 #'
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #'
 #' @export
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
+#' @importFrom ff ff as.ram
+#' @importFrom ffbase ffwhich
+#' @importFrom stats runif
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
@@ -46,7 +58,9 @@
 #'
 setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
                               persistence=0L, mask=NULL, maxSize=NULL,
-                              directions=8L, iterations=NULL, ...) {
+                              directions=8L, iterations=NULL,
+                              lowMemory=getOption("spades.lowMemory"),
+                              returnIndices=FALSE, ...) {
   standardGeneric("spread")
 })
 
@@ -107,7 +121,8 @@ setMethod(
   "spread",
   signature(landscape="RasterLayer"),
   definition = function(landscape, loci, spreadProb, persistence, mask,
-                        maxSize, directions=8L, iterations = NULL, mapID=FALSE,
+                        maxSize, directions=8L, iterations = NULL, lowMemory,
+                        returnIndices, mapID=FALSE,
                         plot.it=FALSE, ...) {
     ### should sanity check map extents
     if (is.null(loci))  {
@@ -130,7 +145,13 @@ setMethod(
       10 * ncell(landscape)
     }
 
-    spreads <- vector("integer", ncell(landscape))
+    if(lowMemory) {
+      #spreads <- sparseVector(1, 1, length=ncell(landscape))
+      #spreads[1] <- 0
+      spreads <- ff(vmode="short", 0, length=ncell(landscape))
+    } else {
+      spreads <- vector("integer", ncell(landscape))
+    }
 
     n <- 1L
     if (mapID) {
@@ -214,10 +235,12 @@ setMethod(
       # update eligibility map
       n <- n + 1L
 
-      if (mapID) {
-        spreads[events] <- spreads[potentials[,1L]]
-      } else {
-        spreads[events] <- n
+      if(length(events)>0){
+        if (mapID) {
+          spreads[events] <- spreads[potentials[,1L]]
+        } else {
+          spreads[events] <- n
+        }
       }
 
       if(length(maxSize) > 1L){
@@ -254,8 +277,24 @@ setMethod(
     }
 
     # Convert the data back to raster
+    if(lowMemory){
+      wh <- ffwhich(spreads, spreads>0) %>% as.ram
+      if(returnIndices) {
+        return(data.table(indices=wh, value=spreads[wh]))
+      }
+#      spre[wh] <- spreads[wh]
+    } else {
+      wh <- spreads>0
+      if(returnIndices) {
+        return((wh) %>%
+          which %>%
+          data.table(indices=., value=spreads[.]))
+      }
+#      spre[wh] <- spreads[wh]
+    }
     spre <- raster(landscape)
-    spre <- setValues(spre, spreads)
+    spre[] <- 0
+    spre[wh] <- spreads[wh]
     return(spre)
   }
 )

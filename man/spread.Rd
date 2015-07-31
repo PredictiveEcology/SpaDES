@@ -7,11 +7,12 @@
 \title{Simulate a spread process on a landscape.}
 \usage{
 spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
-  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL, ...)
+  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
+  lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
-  maxSize, directions = 8L, iterations = NULL, mapID = FALSE,
-  plot.it = FALSE, ...)
+  maxSize, directions = 8L, iterations = NULL, lowMemory, returnIndices,
+  mapID = FALSE, plot.it = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -35,6 +36,12 @@ driven.}
 \item{iterations}{Number of iterations to spread. Leaving this \code{NULL} allows the spread
                      to continue until stops spreading itself (i.e., exhausts itself).}
 
+\item{lowMemory}{Logical. If true, then function uses package \code{ff} internally. This is slower,
+                     but much lower memory footprint.}
+
+\item{returnIndices}{Logical. Should the function return a data.table with indices
+                     and values of successful spread events, or return a raster with values. See Details.}
+
 \item{...}{Additional parameters.}
 
 \item{mapID}{Logical. If TRUE, returns a raster of events ids. If FALSE,
@@ -53,6 +60,10 @@ This can become quite general, if \code{spreadProb} is 1 as it will expand from 
 in the landscape have been covered. With \code{mapID} set to \code{TRUE}, the resulting map will be
 classified by the index of the pixel where that event propagated from. This can be used to examine things like
 fire size distributions.
+}
+\details{
+For large rasters, a combination of \code{lowMemory=TRUE} and \code{returnIndices=TRUE} will use the least amoun
+of memory.
 }
 \examples{
 library(raster)

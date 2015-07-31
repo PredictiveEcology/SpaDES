@@ -16,7 +16,7 @@ fileName = function (x) {
 #
 # igraph exports %>% from magrittr
 fileExt = function (x) {
-  f = strsplit(basename(unlist(x)), "^.*\\.") %>%
+  strsplit(basename(unlist(x)), "^.*\\.") %>%
       sapply(., function(y) { y[[length(y)]] })
 }
 
@@ -79,6 +79,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @include simulation.R
 #' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
+# @importFrom utils getFromNamespace
 #' @export
 #' @docType methods
 #' @rdname loadFiles
@@ -137,7 +138,7 @@ setMethod(
 
     # Pull .fileExtensions() into function so that scoping is faster
     .fileExts = .fileExtensions()
-    usedIntervals <- FALSE # This is for a speed reason later on.
+    #usedIntervals <- FALSE # This is for a speed reason later on.
                            #Whether or not intervals for loading files are defined
 
     if(NROW(inputs(sim))!=0) {
@@ -228,17 +229,9 @@ setMethod(
           }
 
           # The actual load call
-#           print(loadFun[x])
-#           print(loadPackage[x])
-#           print(paste("argument", argument))
-#           argument <- argument[na.omit(match(names(formals(getFromNamespace(loadFun[x], loadPackage[x]))),
-#                                              names(argument)))]
           sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
                                           args=argument)
           filelistDT[y,loaded:=TRUE]
-
-          #simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectName[x])
-
 
           if (loadFun[x]=="raster") {
             message(paste0(
@@ -262,7 +255,7 @@ setMethod(
               .[,`:=`(loadTime=curTime+intervals, loaded=NA, intervals=NA)] %>%
               list(filelistDT, .) %>%
               rbindlist
-            usedIntervals <- TRUE
+            #usedIntervals <- TRUE
           }
         }
 

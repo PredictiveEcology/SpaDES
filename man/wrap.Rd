@@ -49,6 +49,7 @@ If \code{withHeading} used, then X must be a SpatialPointsDataFrame that contain
 two columns, x1 and y1, with the immediately previous agent locations.
 }
 \examples{
+library(raster)
 xrange <- yrange <- c(-50,50)
 hab <- raster(extent(c(xrange,yrange)))
 hab[] <- 0
@@ -60,8 +61,8 @@ N <- 10
 x1 <- rep(0, N)
 y1 <- rep(0, N)
 # initial points
-starts <- cbind(x=runif(N, xrange[1],xrange[2]),
-                y=runif(N, yrange[1],yrange[2]))
+starts <- cbind(x=stats::runif(N, xrange[1],xrange[2]),
+                y=stats::runif(N, yrange[1],yrange[2]))
 
 # create the caribou agent object
 caribou <- SpatialPointsDataFrame(coords=starts, data=data.frame(x1, y1))

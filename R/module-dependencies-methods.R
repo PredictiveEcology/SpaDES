@@ -84,7 +84,7 @@ setMethod("depsEdgeList",
 setMethod("depsEdgeList",
           signature(sim="simList", plot="missing"),
           definition=function(sim, plot) {
-            el <- depsEdgeList(sim, plot=FALSE)
+            depsEdgeList(sim, plot=FALSE)
 })
 
 ################################################################################
@@ -142,6 +142,7 @@ setMethod("depsGraph",
 #'
 #' @importFrom data.table as.data.table data.table rbindlist
 #' @importFrom dplyr anti_join bind_rows filter inner_join lead
+#' @importFrom stats na.omit
 #' @export
 #' @docType methods
 #' @rdname depsPruneEdges

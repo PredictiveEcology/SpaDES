@@ -23,7 +23,7 @@
 #' @export
 #' @docType methods
 #' @rdname newModule
-#'
+# @importFrom utils file.edit
 #' @author Alex Chubaty and Eliot McIntire
 #'
 #' @examples
@@ -44,10 +44,6 @@ setMethod("newModule",
             nestedPath <- file.path(path, name)
             checkPath(nestedPath, create=TRUE)
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
-            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
-            filenameLICENSE <- file.path(nestedPath, "LICENSE")
-            filenameREADME <- file.path(nestedPath, "README.txt")
 
             cat("
 defineModule(sim, list(
@@ -198,7 +194,7 @@ setMethod("newModule",
 #' @export
 #' @docType methods
 #' @rdname newModule
-#'
+# @importFrom utils file.edit
 #' @author Eliot McIntire
 #'
 setGeneric("newModuleDocumentation", function(name, path, open) {
@@ -368,6 +364,7 @@ setMethod("newModuleDocumentation",
 #' @export
 #' @docType methods
 #' @rdname openModules
+# @importFrom utils file.edit
 #'
 #' @author Eliot McIntire
 #'
@@ -438,6 +435,7 @@ setGeneric("zipModule", function(name, path, version, ...) {
 })
 
 #' @export
+# @importFrom utils zip
 #' @rdname zipModule
 setMethod("zipModule",
 signature=c(name="character", path="character", version="character"),

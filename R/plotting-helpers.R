@@ -495,9 +495,10 @@ setMethod(
 #' @author Eliot McIntire
 #'
 #' @examples
+#' library(sp)
 #' # Make 2 objects
-#' caribou1 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
-#' caribou2 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
+#' caribou1 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
+#' caribou2 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
 #'
 #' caribouTraj <- makeLines(caribou1, caribou2)
 #' Plot(caribouTraj, new=TRUE, length=0.1)
@@ -556,6 +557,7 @@ setMethod(
 #' notation for objects) of objects and their layers (if \code{RasterStacks}).
 #'
 #' @docType methods
+#' @importFrom grDevices dev.cur
 #' @include plotting-classes.R
 #' @rdname parseArgs
 #' @author Eliot McIntire and Alex Chubaty
@@ -570,6 +572,11 @@ setMethod(
   lastOneDone <- TRUE
 
   while (length(parse(text = deparse(parseTxt))[[1]]) != 1) {
+    if(length(parseTxt)==2) {
+      stop("Please pass an object directly, or use get(x, envir=envName) or eval(x, envir=envName). ",
+           "Plot can not yet accept functions or complex objects internally.")
+    }
+
     lastOneDone <- FALSE
     if (grepl(deparse(parseTxt[[1]]), pattern = "^eval")) {
       callEnv <- tryCatch(
@@ -613,15 +620,39 @@ setMethod(
       )
     }
     if (grepl(deparse(parseTxt[[1]]), pattern = "^get")) {
+      callEnv <- tryCatch(
+        eval(
+          match.call(definition = eval,
+                     call = parseTxt)$envir,
+          envir = eminus1
+        ),
+        error = function(x) {
+          tryCatch(
+            eval(
+              match.call(definition=eval, call=parseTxt)$envir,
+              envir = e
+            ),
+            error = function(x) { .GlobalEnv }
+          )
+        }
+      )
       parseTxt[[3]] <- match.call(definition = get, call = parseTxt)$x
+      tmpParseTxt3 <- tryCatch(
+        eval(parseTxt[[3]], envir = e),
+        error = function(x) {
+          eval(parseTxt[[3]], envir = eminus1)
+        }
+      )
+
+
       # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
-      if (identical(eval(parse(text = deparse(
-        match.call(definition = get,
-                   call = parseTxt)$x
-      ))),
-      parseTxt[[3]])) {
-        lastOneDone = TRUE
-      }
+#       if (identical(
+#         tmpParseTxt3,
+#       parseTxt[[3]])) {
+#         lastOneDone = TRUE
+#       }
+      lastOneDone <- TRUE
+      parseTxt[[3]] <- tmpParseTxt3
     }
     if (is.character(parseTxt[[3]])) {
       parseTxt[[3]] <- as.name(parseTxt[[3]])
@@ -629,6 +660,10 @@ setMethod(
     if (is.numeric(parseTxt[[3]])) {
       if (!is.null(names(eval(parseTxt[[2]], envir=e)))) {
         parseTxt[[3]] <- names(eval(parseTxt[[2]], envir=e))[parseTxt[[3]]]
+        if(is.na(parseTxt[[3]])){
+          stop("Please pass an object directly, or use get(x, envir=envName) or eval(x, envir=envName). ",
+               "Plot can not yet accept functions or complex objects internally.")
+        }
       }
 
     }
@@ -734,3 +769,27 @@ setMethod(
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
   return(objs)
 }
+
+
+#' Importing some grid functions
+#'
+#' Currently only the gpar function is imported. This is a convenience so that users
+#' can change \code{Plot} arguments without having to load the entire grid package.
+#'
+#' @inheritParams grid::gpar
+#' @name gpar
+#' @aliases gpar
+#' @importFrom grid gpar
+#' @export
+#' @rdname grid-functions
+#' @seealso \code{\link[grid]{gpar}}
+setGeneric("gpar", function(...) {
+  standardGeneric("gpar")
+})
+
+#' @export
+#' @rdname grid-functions
+setMethod("gpar",
+          definition = function(...) {
+                   return(grid::gpar(...))
+                 })

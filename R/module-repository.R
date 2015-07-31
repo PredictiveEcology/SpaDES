@@ -80,6 +80,7 @@ setMethod("getModuleVersion",
 #' @return Invisibly, a character vector containing a list of extracted files.
 #'
 #' @importFrom downloader download
+#' @importFrom utils unzip
 #' @export
 #' @rdname downloadModule
 #'

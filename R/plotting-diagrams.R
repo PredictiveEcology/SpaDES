@@ -61,6 +61,7 @@ setMethod("ganttStatus",
 #' @return A list of data.frames
 #'
 #' @include simList-accessors.R
+# @importFrom utils tail
 #' @docType methods
 #' @rdname sim2gantt
 #'

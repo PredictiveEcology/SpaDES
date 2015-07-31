@@ -1,13 +1,20 @@
-test_that("Plot is error-free", {
-  on.exit({dev.off(); if (file.exists("Rplots.pdf")) unlink("Rplots.pdf") })
+test_that("Plot is not error-free", {
+
+  library(raster); on.exit(detach(package:raster))
+  library(sp); on.exit(detach(package:sp))
+  on.exit({#dev.off();
+           if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
+             unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))
+           }
+          })
 
   ras <- raster::raster(xmn=0, xmx=10, ymn=0, ymx=10, vals=1, res=1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   names(DEM87654) <- "DEM87654"
   habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   names(habitatQuality87654) <- "habitatQuality87654"
-  landscape87654 <- stack(DEM87654, habitatQuality87654)
-  caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e1, 0, 10), y=runif(1e1, 0, 10)))
+  landscape87654 <- raster::stack(DEM87654, habitatQuality87654)
+  caribou87654 <- sp::SpatialPoints(coords=cbind(x=stats::runif(1e1, 0, 10), y=stats::runif(1e1, 0, 10)))
 
   # If any rearrangements are required, Plot searches for objects in Global Env
   # So all tests must run a clearPlot or a new=TRUE to be cleared to
@@ -82,12 +89,12 @@ test_that("Plot is error-free", {
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  hist87654 <- hist(rnorm(1e3), plot=FALSE)
+  hist87654 <- hist(stats::rnorm(1e3), plot=FALSE)
   expect_that(Plot(hist87654, new=TRUE), testthat::not(throws_error()))
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  ggplot87654 <- ggplot2::qplot(rnorm(1e3), binwidth=0.3, geom = "histogram")
+  ggplot87654 <- ggplot2::qplot(stats::rnorm(1e3), binwidth=0.3, geom = "histogram")
   expect_that(Plot(ggplot87654, new=TRUE), testthat::not(throws_error()))
 
   # test rearrangements
@@ -101,6 +108,6 @@ test_that("Plot is error-free", {
                  "Plot can only plot objects of class .spadesPlottables")
   expect_message(Plot(habitatQuality87654, addTo="test"),
                  "Plot called with 'addTo' argument specified")
-  expect_error(Plot(ls()), "Nothing to Plot")
+  expect_error(Plot(ls()), "Not a plottable object")
   expect_that(rePlot, testthat::not(throws_error()))
 })

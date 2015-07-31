@@ -14,7 +14,7 @@ test_that("module templates work", {
   expect_true(file.exists(file.path(mpath, "myModule.Rmd")))
   expect_true(file.exists(file.path(mpath, "README.txt")))
 
-  capture.output(
+  utils::capture.output(
     zipModule(name="myModule", path=path, version="0.0.2", flags="-q -r9X")
   )
 

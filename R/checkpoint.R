@@ -117,3 +117,153 @@ checkpointLoad = function(file) {
   save(list=ls(envir(sim), all.names=TRUE), file=fobj, envir=envir(sim))
   invisible(TRUE) # return "success" invisibly
 }
+
+
+
+################################################################################
+#' Cache method for simList class objects
+#'
+#' Because the \code{simList} has an environment as one of its slots, the caching mechanism
+#' of the archivist package does not work. Here, we make a slight tweak to the
+#' \code{cache} function. Specifically, we remove all elements that have an environment
+#' as part of their attributes. This is generally functions that are loaded from the modules,
+#' but also the \code{.envir} slot in the \code{simList}. Thus, only non-function objects are
+#' used as part of the \code{digest} call in the \code{digest} package (used internally in
+#' the \code{cache} function).
+#'
+#' @inheritParams archivist::cache
+#'
+#' @return Identical to \code{\link[archivist]{cache}}
+#'
+#' @seealso \code{\link[archivist]{cache}}.
+#' @export
+#' @importFrom archivist cache showLocalRepo loadFromLocalRepo saveToRepo
+#' @importFrom digest digest
+#' @include simList-class.R
+#' @docType methods
+#' @rdname cache
+#' @author Eliot McIntire
+setGeneric("cache", signature="...", function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
+  archivist::cache(cacheRepo, FUN, ..., notOlderThan)
+})
+
+#' @export
+#' @rdname cache
+setMethod(
+  "cache",
+  signature="simList",
+  definition=function(cacheRepo, FUN, ..., notOlderThan) {
+    tmpl <- list(...)
+
+    # These three lines added to original version of cache in archive package
+    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
+    tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
+
+    outputHash <- digest(tmpl)
+    localTags <- showLocalRepo(cacheRepo, "tags")
+    isInRepo <- localTags[localTags$tag == paste0("cacheId:",
+                                                  outputHash), , drop = FALSE]
+    if (nrow(isInRepo) > 0) {
+      lastEntry <- max(isInRepo$createdDate)
+      if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
+        lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
+        return(loadFromLocalRepo(isInRepo$artifact[lastOne],
+                                 repoDir = cacheRepo, value = TRUE))
+      }
+    }
+    output <- do.call(FUN, list(...))
+    attr(output, "tags") <- paste0("cacheId:", outputHash)
+    attr(output, "call") <- ""
+    saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+               archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
+    output
+  }
+)
+
+
+################################################################################
+#' Remove any reference to environments in a simList
+#'
+#' Internal use only. Used when caching a SpaDES run a \code{simList}.
+#'
+#' This is a derivative of the class \code{simList}, except that all references to
+#' local environments are removed. Specifically, all functions (which are contained
+#' within environments) are converted to a text representation via a call to \code{format(fn)}.
+#' Also the objects that were contained within the \code{.envir} slot are hashed using \code{digest}
+#' in the \code{digest} package. Also, \code{paths} slot is not used to allow
+#' comparison across platforms and it is not relevant where the objects are gotten from,
+#' so long as the objects are the same. The \code{.envir} slot is emptied (NULL). The object is then
+#' converted to a \code{simList_} which has a \code{.list} slot. The hashes of the objects
+#' are then placed in that \code{.list} slot.
+#'
+#' @param simList an object of class \code{simList}
+#'
+#' @return A simplified version of the \code{simList} object, but with no reference to any environments
+#'
+#' @seealso \code{\link[archivist]{cache}}.
+#' @seealso \code{\link[digest]{digest}}.
+#' @importFrom digest digest
+#' @include simList-class.R
+#' @include misc-methods.R
+#' @docType methods
+#' @rdname makeDigestible
+#' @author Eliot McIntire
+setGeneric("makeDigestible", function(simList) {
+  standardGeneric("makeDigestible")
+})
+
+#' @rdname makeDigestible
+setMethod(
+  "makeDigestible",
+  signature="simList",
+  definition=function(simList) {
+
+    envirHash <- (sapply(sort(ls(simList@.envir, all.names=TRUE)), function(x) {
+      if(!(x==".sessionInfo")) {
+        obj <- get(x, envir=envir(simList))
+        if(!is(obj, "function")) {
+          if(is(obj, "Raster")) {
+            # convert Rasters in the simList to some of their metadata.
+            dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
+            if(nchar(obj@file@name)>0) {
+              # if the Raster is on disk, has the first 1e6 characters
+               dig <- append(dig, digest(file=obj@file@name, length=1e6))
+            }
+            dig <- digest(dig)
+          } else {
+            # convert functions in the simList to their digest.
+            #  functions have environments so are always unique
+            dig <- digest(obj)
+          }
+        } else {
+          # for functions, use a character representation via format
+          dig <- digest(format(obj))
+        }
+      } else {
+        # for .sessionInfo, just keep the major and minor R version
+        dig <- digest(get(x, envir=envir(simList))[[1]] %>% .[c("major","minor")])
+      }
+      return(dig)
+    }))
+
+    # Remove the NULL entries in the @.list
+    envirHash <- envirHash[!sapply(envirHash, is.null)]
+    envirHash <- sortDotsFirst(envirHash)
+
+    # Convert to a simList_ to remove the .envir slot
+    simList <- as(simList, "simList_")
+    # Replace the .list slot with the hashes of the slots
+    simList@.list <- list(envirHash)
+
+    # Remove paths as they are system dependent and not relevant for digest
+    #  i.e., if the same file is located in a different place, that is ok
+    simList@paths <- list()
+
+    # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
+    simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
+
+    simList
+  }
+)
+

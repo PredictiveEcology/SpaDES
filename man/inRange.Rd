@@ -20,7 +20,7 @@ Default values of \code{a=0; b=1} allow for quick test if
 }
 \examples{
 set.seed(100)
-x <- rnorm(4) # -0.50219235  0.13153117 -0.07891709  0.88678481
+x <- stats::rnorm(4) # -0.50219235  0.13153117 -0.07891709  0.88678481
 inRange(x, 0, 1)
 }
 \author{

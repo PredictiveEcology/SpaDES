@@ -4,6 +4,7 @@
 \name{Plot}
 \alias{Plot}
 \alias{Plot,ANY-method}
+\alias{Plot,simList-method}
 \alias{rePlot}
 \title{Plot: Fast, optimally arranged, multipanel plotting function with SpaDES}
 \usage{
@@ -14,6 +15,13 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
   na.color = "#FFFFFF00", zero.color = NULL, length = NULL)
 
 \S4method{Plot}{ANY}(..., new = FALSE, addTo = NULL, gp = gpar(),
+  gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
+  size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
+  legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
+  title = TRUE, na.color = "#FFFFFF00", zero.color = NULL,
+  length = NULL)
+
+\S4method{Plot}{simList}(..., new = FALSE, addTo = NULL, gp = gpar(),
   gpText = gpar(), gpAxis = gpar(), axes = FALSE, speedup = 1,
   size = 5, cols = NULL, zoomExtent = NULL, visualSqueeze = NULL,
   legend = TRUE, legendRange = NULL, legendText = NULL, pch = 19,
@@ -177,9 +185,10 @@ are overplots only.
 \code{speedup} is not a precise number because it is faster to plot an
 un-resampled raster if the new resampling is close to the original number of
 pixels.
-At the moment, this is set to 1/3 of the original pixels.
+At the moment, for rasters, this is set to 1/3 of the original pixels.
 In other words, \code{speedup} will not do anything if the factor for
-speeding up is not high enough (i.e., >3).
+speeding up is not high enough (i.e., >3). If no sub-sampling is desired,
+use a speedup value less than 0.1.
 
 These \code{gp*} parameters will specify plot parameters that are available
 with \code{gpar()}. \code{gp} will adjust plot parameters, \code{gpText}
@@ -229,18 +238,18 @@ habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2, -50, 50), y=stats::runif(1e2, -50, 50)))
 
 
 #Plot all maps on a new plot windows - Do not use RStudio window
 \\notrun{
-if (is.null(dev.list())) {
+if (is.null(grDevices::dev.list())) {
   dev(2)
 } else {
-  if (any(names(dev.list())=="RStudioGD")) {
-    dev(which(names(dev.list())=="RStudioGD")+3)
+  if (any(names(grDevices::dev.list())=="RStudioGD")) {
+    dev(which(names(grDevices::dev.list())=="RStudioGD")+3)
   } else {
-    dev(max(dev.list()))
+    dev(max(grDevices::dev.list()))
   }
 }
 }

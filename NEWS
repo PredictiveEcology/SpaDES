@@ -14,9 +14,12 @@ version 1.0.0
 
 * `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
 * software requirements changed: depends R (>=3.2.0)
-* add `lubridate` to Imports (with #151)
-* simulations now use `timestepUnit` (instead of `timestep`) specified in metadata (#151)
-* `defineModule` requires `timestepUnit` to be a character string instead of numeric (with #151)
+* moved `data.table`, `grid`, `raster`, and `sp` from Depends to Imports (#207).
+* add `archivist`, `ff`, `ffbase` to Imports;  add `lubridate` to Imports (with #151)
+* removed `magrittr` from Imports (`%>%` is now exported by `igraph`)
+* most external methods/classes imported using `importFrom`; except `methods`, `graphics`, and `igraph` (because of classes which are not exported from igraph) (#201)
+* simulations now use `timeunit` (instead of `timestep`) specified in metadata (#151)
+* `defineModule` requires `timeunit` to be a character string instead of numeric (with #151)
 * simulation checkpointing fixed (#191, #130)
 * `ls` and `ls.str` can now be used with `simList` objects to list objects in the simulation environment
 * `objs` returns a list containing all the objects in the simulation enviroment
@@ -30,7 +33,7 @@ version 1.0.0
 * improved `.objectNames`
 * `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
 * `defineModule` better handles `NA` values (#138)
-* `Plot` improvements
+* various `Plot` improvements.
 * new plotting funcions to produce overview diagrams of simulations (#181; #184):
 
     - `eventDiagram` shows Gantt chart of event sequences
@@ -47,6 +50,7 @@ version 1.0.0
 * added "metamodules" which specify module groups (#176)
 * improved test coverage (see #139)
 * improved documentation and vignettes
+* added cache mechanism to hash function calls to spades (#206)
 * fixed progress bar bug (#147)
 * prepend copyright info to `LICENSE` and `README` (with #140)
 * various other bug fixes

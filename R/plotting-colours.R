@@ -143,8 +143,9 @@ setReplaceMethod("setColors",
 #' @rdname makeColorMatrix
 #' @aliases makeColourMatrix
 #' @include plotting-classes.R
-#' @importFrom grDevices colorRampPalette
+#' @importFrom grDevices colorRampPalette terrain.colors
 #' @importFrom raster minValue getValues sampleRegular
+#' @importFrom stats na.omit
 #' @docType methods
 #' @author Eliot McIntire
 #'

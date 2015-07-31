@@ -10,6 +10,8 @@ if (getRversion() >= "3.1.0") {
 #' @export
 #' @include simList-class.R
 #' @importFrom dplyr mutate
+# @importFrom utils capture.output
+#' @importFrom stats na.omit
 #' @docType methods
 #' @rdname show-method
 setMethod("show",
@@ -587,6 +589,7 @@ setReplaceMethod("checkpointInterval",
 #' @include simList-class.R
 #' @importFrom data.table is.data.table
 #' @importFrom dplyr bind_rows
+#' @importFrom stats na.omit
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
@@ -650,7 +653,7 @@ setReplaceMethod("inputs",
                      } else {
                        object@inputs[is.na(object@inputs$loadTime),"loadTime"] <- time(object, "seconds")
                        newTime <- min(object@inputs[is.na(object@inputs$loaded),"loadTime"], na.rm=TRUE)
-                       attributes(newTime)$unit <- timeunit(object)
+                       attributes(newTime)$unit <- "seconds"
                        object <- scheduleEvent(object, newTime, "load", "inputs")
                        #newTime <- object@inputs[is.na(object@inputs$loaded),"loadTime"]
                        #object <- scheduleEvent(object,time(object, "seconds"), "load", "inputs")
@@ -673,6 +676,7 @@ setReplaceMethod("inputs",
 #' @importFrom tools file_ext
 #' @importFrom dplyr inner_join
 #' @importFrom R.utils isAbsolutePath
+#' @importFrom stats na.omit
 #' @docType methods
 #' @rdname simList-accessors-params
 #'
@@ -866,6 +870,7 @@ setReplaceMethod("modulePath",
 ################################################################################
 #' @inheritParams params
 #' @include simList-class.R
+#' @importFrom stats na.omit
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params

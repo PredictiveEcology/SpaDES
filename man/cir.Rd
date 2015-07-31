@@ -34,8 +34,8 @@ library(sp)
 Ras <- raster(extent(0,15,0,15), res=1)
 Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
 N <- 2
-caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
-                                      y=runif(N,xmin(Ras),xmax(Ras))))
+caribou <- SpatialPoints(coords=cbind(x=stats::runif(N,xmin(Ras),xmax(Ras)),
+                                      y=stats::runif(N,xmin(Ras),xmax(Ras))))
 cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
 cirsSP <- SpatialPoints(coords=cirs[,list(x,y)])
 cirsRas <- raster(Ras)

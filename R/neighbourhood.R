@@ -54,10 +54,11 @@ if(getRversion() >= "3.1.0") {
 #'
 #' @return a matrix of one or two columns, from and to.
 #'
-#' @seealso \code{\link{adjacent}}
+#' @seealso \code{\link[raster]{adjacent}}
 #'
 #' @importFrom data.table data.table key setcolorder setkey ':='
 #' @importFrom raster ncell ncol nrow
+#' @importFrom stats na.omit
 #' @export
 #' @docType methods
 #' @rdname adj
@@ -293,7 +294,7 @@ adj.raw <- function(x=NULL, cells, directions=8, sort=FALSE, pairs=TRUE,
 
     if (!torus) {
       return(as.matrix(adj[
-        i  <- !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
+        !((((to-1)%%numCell+1)!=to) |  #top or bottom of raster
                 ((from%%numCol+to%%numCol)==1))# | #right & left edge cells,with neighbours wrapped
         ]))
     } else {
@@ -347,8 +348,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' Ras <- raster(extent(0,15,0,15), res=1)
 #' Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
 #' N <- 2
-#' caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
-#'                                       y=runif(N,xmin(Ras),xmax(Ras))))
+#' caribou <- SpatialPoints(coords=cbind(x=stats::runif(N,xmin(Ras),xmax(Ras)),
+#'                                       y=stats::runif(N,xmin(Ras),xmax(Ras))))
 #' cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
 #' cirsSP <- SpatialPoints(coords=cirs[,list(x,y)])
 #' cirsRas <- raster(Ras)
@@ -439,6 +440,7 @@ cir <- function(spatialPoints, radii, raster, simplify=TRUE) {
 #'
 #' @author Eliot McIntire
 #' @examples
+#' library(raster)
 #' xrange <- yrange <- c(-50,50)
 #' hab <- raster(extent(c(xrange,yrange)))
 #' hab[] <- 0
@@ -450,8 +452,8 @@ cir <- function(spatialPoints, radii, raster, simplify=TRUE) {
 #' x1 <- rep(0, N)
 #' y1 <- rep(0, N)
 #' # initial points
-#' starts <- cbind(x=runif(N, xrange[1],xrange[2]),
-#'                 y=runif(N, yrange[1],yrange[2]))
+#' starts <- cbind(x=stats::runif(N, xrange[1],xrange[2]),
+#'                 y=stats::runif(N, yrange[1],yrange[2]))
 #'
 #' # create the caribou agent object
 #' caribou <- SpatialPointsDataFrame(coords=starts, data=data.frame(x1, y1))

@@ -40,12 +40,20 @@ setMethod(
   ".makeSpadesPlot",
   signature = c(plotObjects = "list", plotArgs = "list"),
   definition = function(plotObjects, plotArgs, ...) {
+
+
     isSpatialObjects <- sapply(plotObjects, function(x) {
       is(x, ".spatialObjects")
     })
 
+    env <- list(...)$env
     suppliedNames <- names(plotObjects)
-    objs <- .objectNames()[whichSpadesPlottables]
+    if(is.null(suppliedNames)){
+      objs <- .objectNames()[whichSpadesPlottables]
+    } else {
+      objs <- lapply(suppliedNames, function(x) list(objs=x, envs=env))
+    }
+
 
     names(plotObjects) <- sapply(objs,function(x)
       x$objs)
@@ -53,14 +61,15 @@ setMethod(
     if (!is.null(suppliedNames)) {
       if (all(sapply(suppliedNames, nchar) > 0)) {
         names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
+
       }
     }
     numLayers <- pmax(1, sapply(plotObjects, nlayers))
 
     isSpadesPlot <- sapply(plotObjects, function(x) { is(x, ".spadesPlot") })
-    isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
+    #isRaster <- sapply(plotObjects, function(x) { is(x, "Raster") })
     isStack <- sapply(plotObjects, function(x) { is(x, "RasterStack") })
-    isPolygon <- sapply(plotObjects, function(x) { is(x, "SpatialPolygons") })
+    #isPolygon <- sapply(plotObjects, function(x) { is(x, "SpatialPolygons") })
 
     # Stacks are like lists in that they are a single object, with many
     # layers.  Plot must treat these as any other layers, except that
@@ -69,7 +78,7 @@ setMethod(
     # Plot(stack1, layerB) would have two objects, but maybe 5 layers,
     # if the stack had 4 layers in it.
     isSpadesPlotLong <- rep(isSpadesPlot, numLayers)
-    isRasterLong <- rep(isRaster, numLayers)
+    #isRasterLong <- rep(isRaster, numLayers)
     isStackLong <- rep(isStack, numLayers)
     isSpatialObjects <- rep(isSpatialObjects, numLayers)
 
@@ -177,6 +186,7 @@ setMethod(
 #'
 #' @rdname updateSpadesPlot
 #' @export
+#' @importFrom stats na.omit
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
@@ -210,7 +220,7 @@ setMethod(
 
     whichParamsChanged <- lapply(newNames[overplots], function(x) {
       sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs), function(y) {
-        changed <- !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
+        !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
                               curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
         })
       })
@@ -247,7 +257,7 @@ setMethod(
     # put addTo plots into list of spadesGrobs that it will be added to
     if (!is.null(addToPlotsNames)) {
       for (plots in 1:length(addToPlotsNames)) {
-        len <- length(curr@spadesGrobList[[addToPlotsNames[plots]]])
+        #len <- length(curr@spadesGrobList[[addToPlotsNames[plots]]])
         curr@spadesGrobList[[addToPlotsNames[plots]]][names(addToPlotsNames[plots])] <-
           newSP@spadesGrobList[[names(addToPlotsNames[plots])]]
         # change the name of the plotName to the parent object
@@ -319,6 +329,7 @@ setMethod(
 #'
 #' @rdname arrangeViewports
 #' @include plotting-classes.R
+#' @importFrom grDevices dev.cur dev.new dev.size
 #' @importFrom sp bbox
 #' @export
 #' @author Eliot McIntire
@@ -406,9 +417,11 @@ setMethod(
 #'
 #' Internal function. Plot a raster Grob, a points Grob, polygon Grob.
 #'
-#' \code{speedup} is only used for \code{SpatialPolygons} in this function.
+#' \code{speedup} is only used for \code{SpatialPolygons}, \code{SpatialPoints},
+#' and \code{SpatialLines} in this function.
 #' Attempts have been made to subsample at a good level that optimizes speed of
-#' plotting, without losing visible quality.
+#' plotting, without losing visible quality. Nevertheless, to force all points to
+#' be plotted, use a speedup value less than 0.1.
 #' From a speed perspective, there appears to be an optimal subsampling when
 #' using \code{thin} from the \code{fastshp} package.
 #' Presumably, too much thinning requires large distance matrices to be
@@ -422,7 +435,7 @@ setMethod(
 #' NOTE: you may get errors relating to not having installed the software tools
 #' required for building R packages on your system.
 #' For building on Windows, you'll need to install Rtools from
-#' \url{http://cran.r-project.org/bin/windows/Rtools/}.
+#' \url{https://cran.r-project.org/bin/windows/Rtools/}.
 #'
 #' @param grobToPlot  \code{Raster*}, \code{SpatialLines*},
 #'                    \code{SpatialPoints*}, or \code{SpatialPolygons*} object.
@@ -468,8 +481,10 @@ setMethod(
 #' @docType methods
 #' @rdname plotGrob
 #' @importFrom data.table data.table ':='
-#' @importFrom raster extent pointDistance
+#' @importFrom raster extent pointDistance xmin xmax ymin ymax
 #' @importFrom sp proj4string
+#' @importFrom grid gpar gTree gList rasterGrob textGrob grid.draw
+#' @importFrom grDevices as.raster
 #'
 #' @author Eliot McIntire
 # package grid is imported in spade-package.R
@@ -500,7 +515,7 @@ setMethod(
     }
 
     pr <- pr[pr <= maxv & pr >= minv]
-    maxNumCols = 100
+    #maxNumCols = 100
     maxcol <- length(col)
     mincol <- 2
 
@@ -554,17 +569,115 @@ setMethod(
   }
 )
 
+# @rdname plotGrob
+# setMethod(
+#   ".plotGrob",
+#   signature = c("SpatialPoints"),
+#   definition = function(grobToPlot, col, size,
+#                         legend, gp = gpar(), pch, ...) {
+#     pntGrob <- gTree(
+#       grobToPlot = grobToPlot,
+#       children = gList(
+#         pointsGrob(
+#           x = coordinates(grobToPlot)[,1], y = coordinates(grobToPlot)[,2],
+#           pch = pch, size = size
+#         )
+#       ),
+#       gp = gp,
+#       cl = "plotPoint"
+#     )
+#     grid.draw(pntGrob)
+#     return(invisible(pntGrob))
+#   }
+# )
+
+############## SpatialPoints - thin
 #' @rdname plotGrob
+#' @importFrom grid pointsGrob
 setMethod(
   ".plotGrob",
   signature = c("SpatialPoints"),
   definition = function(grobToPlot, col, size,
-                        legend, gp = gpar(), pch, ...) {
+                        legend, gp = gpar(), pch, speedup, ...) {
+    speedupScale <- 40
+    speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
+      pointDistance(
+        p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
+        p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
+        lonlat = TRUE
+      ) / (4.8e5*speedupScale)
+    } else {
+      max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
+          xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
+        speedupScale
+    }
+    # For speed of plotting
+#     xy <- lapply(1:length(grobToPlot), function(i) {
+#       lapply(grobToPlot@polygons[[i]]@Polygons, function(j) {
+#         j@coords
+#       })
+#     })
+    xyOrd <- coordinates(grobToPlot)
+
+#     hole <- lapply(1:length(grobToPlot), function(x) {
+#       lapply(grobToPlot@polygons[[x]]@Polygons, function(x)
+#         x@hole)
+#     }) %>%
+#       unlist
+
+#     ord <- grobToPlot@plotOrder
+
+#     ordInner <- lapply(1:length(grobToPlot), function(x) {
+#       grobToPlot@polygons[[x]]@plotOrder
+#     })
+
+#     xyOrd.l <- lapply(ord, function(i) {
+#       xy[[i]][ordInner[[i]]]
+#     })
+
+    # idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
+#     idLength <- lapply(xyOrd.l, function(i) { lapply(i, length) }) %>%
+#       unlist %>%
+#       `/`(., 2) %>%
+#       data.table(V1 = .)
+
+#     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
+
+    if (nrow(xyOrd) > 1e3) {
+      # thin if greater than 1000 pts
+      if(speedup>0.1) {
+        if (requireNamespace("fastshp", quietly = TRUE)) {
+          thinned <- data.table(
+            thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
+                                 tolerance = speedupScale * speedup)
+          )
+          #thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+          #idLength <- thinned[, sum(thin),by = groups]
+          xyOrd <- xyOrd[thinned$thin, ]
+        } else {
+          message(
+            paste(
+              "To speed up Polygons plotting using Plot install the fastshp package:\n",
+              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
+            )
+          )
+          if (Sys.info()[["sysname"]]=="Windows") {
+            message(
+              paste(
+                "You may also need to download and install Rtools from:\n",
+                " https://cran.r-project.org/bin/windows/Rtools/"
+              )
+            )
+          }
+        }
+      }
+    }
+
     pntGrob <- gTree(
       grobToPlot = grobToPlot,
       children = gList(
         pointsGrob(
-          x = grobToPlot$x, y = grobToPlot$y,
+          x = xyOrd[,1], y = xyOrd[,2],
           pch = pch, size = size
         )
       ),
@@ -573,10 +686,26 @@ setMethod(
     )
     grid.draw(pntGrob)
     return(invisible(pntGrob))
+
+    #gp$fill[hole] <- "#FFFFFF00"
+#     polyGrob <- gTree(children = gList(
+#       polygonGrob(
+#         x = xyOrd[, 1], y = xyOrd[, 2], id.lengths = idLength$V1,
+#         gp = gp, default.units = "native"
+#       )
+#     ),
+#     gp = gp,
+#     cl = "plotPoly")
+#     grid.draw(polyGrob)
+#     return(invisible(polyGrob))
   }
 )
 
+##########################################
+
+
 #' @rdname plotGrob
+#' @importFrom grid polygonGrob
 setMethod(
   ".plotGrob",
   signature = c("SpatialPolygons"),
@@ -626,28 +755,31 @@ setMethod(
 
     if (nrow(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
-      if (requireNamespace("fastshp", quietly = TRUE)) {
-        thinned <- data.table(
-          thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
-                               tolerance = speedupScale * speedup)
-        )
-        thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
-        idLength <- thinned[, sum(thin),by = groups]
-        xyOrd <- xyOrd[thinned$thin, ]
-      } else {
-        message(
-          paste(
-            "To speed up Polygons plotting using Plot install the fastshp package:\n",
-            "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
+      if(speedup>0.1) {
+
+        if (requireNamespace("fastshp", quietly = TRUE)) {
+          thinned <- data.table(
+            thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
+                                 tolerance = speedupScale * speedup)
           )
-        )
-        if (Sys.info()[["sysname"]]=="Windows") {
+          thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+          idLength <- thinned[, sum(thin),by = groups]
+          xyOrd <- xyOrd[thinned$thin, ]
+        } else {
           message(
             paste(
-              "You may also need to download and install Rtools from:\n",
-              "http://cran.r-project.org/bin/windows/Rtools/"
+              "To speed up Polygons plotting using Plot install the fastshp package:\n",
+              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
             )
           )
+          if (Sys.info()[["sysname"]]=="Windows") {
+            message(
+              paste(
+                "You may also need to download and install Rtools from:\n",
+                " https://cran.r-project.org/bin/windows/Rtools/"
+              )
+            )
+          }
         }
       }
     }
@@ -667,6 +799,7 @@ setMethod(
 )
 
 #' @rdname plotGrob
+#' @importFrom grid polylineGrob arrow
 setMethod(
   ".plotGrob",
   signature = c("SpatialLines"),
@@ -693,36 +826,39 @@ setMethod(
 
     if (nrow(xy) > 1e3) {
       # thin if fewer than 1000 pts
-      if (requireNamespace("fastshp", quietly = TRUE)) {
-        thinned <- fastshp::thin(xy[, 1], xy[, 2],
-                                 tolerance = speedupScale * speedup)
+      if(speedup>0.1) {
 
-        # keep first and last points of every polyline,
-        # if there are fewer than 10,000 vertices
-        if (sum(thinned) < 1e4) {
-          lastIDs <- cumsum(idLength)
+        if (requireNamespace("fastshp", quietly = TRUE)) {
+          thinned <- fastshp::thin(xy[, 1], xy[, 2],
+                                   tolerance = speedupScale * speedup)
 
-          # Ensure first and last points of each line are kept:
-          thinned[c(1,lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
-          thinned[lastIDs] <- TRUE
-        }
-        xy <- xy[thinned,]
-        idLength <-
-          tapply(thinned, rep(1:length(idLength), idLength), sum)
-      } else {
-        message(
-          paste(
-            "To speed up Lines plotting using Plot, install the fastshp package:\n",
-            "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")"
-          )
-        )
-        if (Sys.info()[["sysname"]] == "Windows") {
+          # keep first and last points of every polyline,
+          # if there are fewer than 10,000 vertices
+          if (sum(thinned) < 1e4) {
+            lastIDs <- cumsum(idLength)
+
+            # Ensure first and last points of each line are kept:
+            thinned[c(1,lastIDs + 1)[-(1 + length(lastIDs))]] <- TRUE
+            thinned[lastIDs] <- TRUE
+          }
+          xy <- xy[thinned,]
+          idLength <-
+            tapply(thinned, rep(1:length(idLength), idLength), sum)
+        } else {
           message(
             paste(
-              "You may also need to download and install Rtools from:\n",
-              "  http://cran.r-project.org/bin/windows/Rtools/"
+              "To speed up Lines plotting using Plot, install the fastshp package:\n",
+              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")"
             )
           )
+          if (Sys.info()[["sysname"]] == "Windows") {
+            message(
+              paste(
+                "You may also need to download and install Rtools from:\n",
+                "  https://cran.r-project.org/bin/windows/Rtools/"
+              )
+            )
+          }
         }
       }
     }
@@ -775,6 +911,7 @@ setMethod(
 #'               calculation. Default is \code{TRUE}.
 #'
 #' @include plotting-classes.R
+#' @importFrom grid unit unit.c
 #' @rdname makeLayout
 #' @docType methods
 #' @author Eliot McIntire
@@ -835,6 +972,8 @@ setMethod(
 #'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
+#' @importFrom grid viewport vpTree vpList
+#' @importFrom raster xmin xmax ymin ymax
 #' @rdname makeViewports
 #'
 .makeViewports <- function(sPlot, newArr=FALSE) {
@@ -1014,9 +1153,10 @@ setMethod(
 #' \code{speedup} is not a precise number because it is faster to plot an
 #' un-resampled raster if the new resampling is close to the original number of
 #' pixels.
-#' At the moment, this is set to 1/3 of the original pixels.
+#' At the moment, for rasters, this is set to 1/3 of the original pixels.
 #' In other words, \code{speedup} will not do anything if the factor for
-#' speeding up is not high enough (i.e., >3).
+#' speeding up is not high enough (i.e., >3). If no sub-sampling is desired,
+#' use a speedup value less than 0.1.
 #'
 #' These \code{gp*} parameters will specify plot parameters that are available
 #' with \code{gpar()}. \code{gp} will adjust plot parameters, \code{gpText}
@@ -1120,6 +1260,9 @@ setMethod(
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop
+#' @importFrom grid upViewport pushViewport seekViewport grid.text
+#' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
+#' @importFrom grDevices dev.cur dev.size
 #' @author Eliot McIntire
 #' @include environment.R
 #' @include plotting-classes.R
@@ -1162,18 +1305,18 @@ setMethod(
 #' names(habitatQuality2) <- "habitatQuality2"
 #'
 #' # make a SpatialPoints object
-#' caribou <- SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+#' caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2, -50, 50), y=stats::runif(1e2, -50, 50)))
 #'
 #'
 #' #Plot all maps on a new plot windows - Do not use RStudio window
 #' \notrun{
-#' if (is.null(dev.list())) {
+#' if (is.null(grDevices::dev.list())) {
 #'   dev(2)
 #' } else {
-#'   if (any(names(dev.list())=="RStudioGD")) {
-#'     dev(which(names(dev.list())=="RStudioGD")+3)
+#'   if (any(names(grDevices::dev.list())=="RStudioGD")) {
+#'     dev(which(names(grDevices::dev.list())=="RStudioGD")+3)
 #'   } else {
-#'     dev(max(dev.list()))
+#'     dev(max(grDevices::dev.list()))
 #'   }
 #' }
 #' }
@@ -1234,17 +1377,55 @@ setMethod(
 
     if (all(sapply(new, function(x) x))) { clearPlot(dev.cur()) }
 
-    dotObjs <- list(...)
+    # this covers the case where R thinks that there is nothing, but
+    #  there may in fact be something.
+    if(length(ls(.spadesEnv))==0) clearPlot(dev.cur())
+
+    scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
-    plotArgs <- mget(names(formals("Plot")),
-                     sys.frame(grep(sys.calls(), pattern = "^Plot")))[-1]
+    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) #%>%
+    dots <- list(...)
+    if(any(isDoCall)) {
 
-    # whichSpadesPlottables <- as.logical(sapply(dotObjs, function(x) is(x, ".spadesPlottables")))
+      whFrame <- grep(scalls, pattern = "^do.call")
+      plotFrame <- sys.frame(whFrame-1)
+      argsFrame <- sys.frame(whFrame-2)
+      dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
+                      envir=plotFrame)
+      plotArgs <- mget(names(formals("Plot")[-1]), argsFrame)
+
+
+    } else {
+      whFrame <- grep(scalls, pattern = "^Plot")
+      dotObjs <- dots
+      plotFrame <- sys.frame(whFrame)
+      plotArgs <- mget(names(formals("Plot")),
+                       plotFrame)[-1]
+
+    }
+    if(!is.null(dots$env)) {
+      objFrame <- dots$env
+    } else {
+      objFrame <- plotFrame
+    }
+
+
+    if (all(sapply(plotArgs$new, function(x) x))) {
+      clearPlot(dev.cur())
+      new <- TRUE # This is necessary in a do.call case where the arguments aren't clear
+      plotArgs$new <- TRUE # for future calls
+    }
+
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
-      is(x, ".spadesPlottables")
-    }) %>% as.logical
+      is(x, ".spadesPlottables") })
 
-    if (!all(whichSpadesPlottables)) {
+    canPlot <- if(!is.null(names(whichSpadesPlottables))) {
+      whichSpadesPlottables[names(whichSpadesPlottables)!="env"]
+    } else {
+      whichSpadesPlottables
+    }
+
+    if (!all(canPlot)) {
       message(
         paste(
           "Plot can only plot objects of class .spadesPlottables.",
@@ -1257,7 +1438,7 @@ setMethod(
     plotObjs <- dotObjs[whichSpadesPlottables]
 
     if (length(plotObjs) == 0) {
-      stop("Nothing to Plot")
+      stop("Not a plottable object")
     }
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
 
@@ -1283,7 +1464,8 @@ setMethod(
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
-    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs, whichSpadesPlottables)
+    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs,
+                                      whichSpadesPlottables, env=objFrame)
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -1368,7 +1550,9 @@ setMethod(
     # Section 3 - the actual Plotting
     # Plot each element passed to Plot function, one at a time
 
+
     for (subPlots in names(spadesSubPlots)) {
+
       spadesGrobCounter <- 0
 
       for (sGrob in spadesSubPlots[[subPlots]]) {
@@ -1380,7 +1564,7 @@ setMethod(
           isReplot <- updated$isReplot[[subPlots]][[spadesGrobCounter]]
           isBaseSubPlot <- updated$isBaseLayer[[subPlots]][[spadesGrobCounter]]
 
-          sgl <- updated$curr@spadesGrobList
+          #sgl <- updated$curr@spadesGrobList
 
           a <- try(seekViewport(subPlots, recording = FALSE))
           if (is(a, "try-error")) {
@@ -1451,14 +1635,14 @@ setMethod(
 
             if (is.null(sGrob@plotArgs$gpText$cex)) {
               # pipe won't work here :S
-              sGrob@plotArgs$gpText$cex <- cex <- max(
+              sGrob@plotArgs$gpText$cex <- max(
                 0.6,
                 min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
               )
             }
             if (is.null(sGrob@plotArgs$gpAxis$cex)) {
               # pipe won't work here :S
-              sGrob@plotArgs$gpAxis$cex <- cex <- max(
+              sGrob@plotArgs$gpAxis$cex <- max(
                 0.6,
                 min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
               )
@@ -1469,7 +1653,6 @@ setMethod(
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,
                                    arr, sGrob@plotArgs$speedup, newArr=newArr)
-
               zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                        pR$legendRange,
                                        na.color = sGrob@plotArgs$na.color,
@@ -1481,13 +1664,8 @@ setMethod(
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
 
-              len <- length(grobToPlot)
-              if (len < (1e4 / sGrob@plotArgs$speedup)) {
-                z <- grobToPlot
-              } else {
-                z <- sample(grobToPlot, 1e4 / sGrob@plotArgs$speedup)
-              }
-              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              #len <- length(grobToPlot)
+              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=NULL, real=FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
@@ -1561,11 +1739,11 @@ setMethod(
             } else {
               # Extract legend text if the raster is a factored raster
               if (is.factor(grobToPlot) & is.null(legendText)) {
-                legendTxt <- levels(grobToPlot)[[1]][,2]
+                sGrob@plotArgs$legendTxt <- levels(grobToPlot)[[1]][,2]
               } else {
-                legendTxt <- legendText
+                sGrob@plotArgs$legendTxt <- legendText
               }
-              legendTxt <- if (!isBaseSubPlot | !isReplot) {
+              sGrob@plotArgs$legendTxt <- if (!isBaseSubPlot | !isReplot) {
                 NULL
               }
 
@@ -1614,6 +1792,25 @@ setMethod(
     return(invisible(updated$curr))
 })
 
+
+#' @rdname Plot
+#' @export
+setMethod(
+  "Plot",
+  signature("simList"),
+  definition = function(..., new, addTo, gp, gpText, gpAxis, axes,
+                        speedup, size, cols, zoomExtent, visualSqueeze,
+                        legend, legendRange, legendText, pch, title,
+                        na.color, zero.color, length) {
+    # Section 1 - extract object names, and determine which ones need plotting,
+    # which ones need replotting etc.
+    sim <- list(...)[[1]]
+    plotList <- ls(sim@.envir, all.names=TRUE)
+    plotObjects = mget(plotList[sapply(plotList, function(x)
+      is(get(x, envir=envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
+      append(., list(env=envir(sim)))
+    do.call(Plot, plotObjects)
+  })
 ################################################################################
 #' Re-plot to a specific device
 #'
@@ -1625,6 +1822,7 @@ setMethod(
 #'
 #' @export
 #' @include plotting-classes.R
+#' @importFrom grDevices dev.cur
 #' @rdname Plot
 #' @author Eliot McIntire
 #'
@@ -1684,6 +1882,7 @@ setMethod(".identifyGrobToPlot",
             } else {
               grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
             }
+            return(grobToPlot)
           })
 
 #' @rdname identifyGrobToPlot
@@ -1727,9 +1926,13 @@ setMethod(".identifyGrobToPlot",
 
   # maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%
   #   min(., npixels)
-  maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
-    `/`(., speedup) %>%
-    min(., npixels)
+  if(speedup > 0.1) {
+    maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
+      `/`(., speedup) %>%
+      min(., npixels)
+  } else {
+    maxpixels <- npixels
+  }
   skipSample <- if (is.null(zoomExtent)) {
       maxpixels >= npixels
     } else {

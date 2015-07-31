@@ -1,4 +1,6 @@
 test_that("adj.R results not identical to adjacent", {
+  library(sp); on.exit(detach(package:sp))  # for adjacent function
+  library(raster); on.exit(detach(package:raster))  # for adjacent function
   a <- raster::raster(raster::extent(0, 1e3, 0, 1e3), res=1)
 
   # smaller sample (should use matrix)
@@ -187,8 +189,8 @@ test_that("adj.R results not identical to adjacent", {
   Ras <- raster(extent(0,50,0,50), res=1)
   Ras <- randomPolygons(Ras, numTypes=4, speedup=1, p=0.3)
   N <- 2
-  caribou <- SpatialPoints(coords=cbind(x=runif(N,xmin(Ras),xmax(Ras)),
-                                        y=runif(N,xmin(Ras),xmax(Ras))))
+  caribou <- SpatialPoints(coords=cbind(x=stats::runif(N,xmin(Ras),xmax(Ras)),
+                                        y=stats::runif(N,xmin(Ras),xmax(Ras))))
   cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify=TRUE)
   expect_is(cirs, "data.table")
 })

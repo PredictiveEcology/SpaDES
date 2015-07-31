@@ -59,6 +59,7 @@ move <- function(hypothesis="crw", ...) {
 #'
 #' @export
 #' @importFrom CircStats rad
+#' @importFrom stats rnorm
 #' @docType methods
 #' @rdname crw
 #'
