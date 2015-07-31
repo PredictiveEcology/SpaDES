@@ -397,5 +397,5 @@ NULL
 #' @import methods
 NULL
 
-#' @importFrom utils globalVariables
+#' @import utils
 NULL
