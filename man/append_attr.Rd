@@ -27,7 +27,7 @@ attributes of items in the list (but not of the list itself).
 Similar to \code{updateList} but does not require named lists.
 }
 \examples{
-library(magrittr)
+library(igraph) # igraph exports magrittr's pipe operator
 tmp1 <- list("apple", "banana") \%>\% lapply(., `attributes<-`, list(type="fruit"))
 tmp2 <- list("carrot") \%>\% lapply(., `attributes<-`, list(type="vegetable"))
 append_attr(tmp1, tmp2)
