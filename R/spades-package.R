@@ -397,7 +397,5 @@ NULL
 #' @import methods
 NULL
 
-#' @import utils
+#' @importFrom utils globalVariables
 NULL
-
-options(repos = c(CRAN="http://cran.r-project.org"))

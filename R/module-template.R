@@ -44,10 +44,6 @@ setMethod("newModule",
             nestedPath <- file.path(path, name)
             checkPath(nestedPath, create=TRUE)
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
-            #filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            #filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
-            #filenameLICENSE <- file.path(nestedPath, "LICENSE")
-            #filenameREADME <- file.path(nestedPath, "README.txt")
 
             cat("
 defineModule(sim, list(
@@ -55,6 +51,7 @@ defineModule(sim, list(
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),
   authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  childModules=character(),
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),

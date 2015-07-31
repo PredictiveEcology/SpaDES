@@ -8,16 +8,16 @@ This is a resubmission. In this version we:
 ## Test environments
 
 ### Current R versions
-* Debian Jessie           (local), R 3.2.0
+* Debian Jessie           (local), R 3.2.1
 * OS X Yosemite           (local), R 3.2.0
-* Ubuntu 12.04        (travis-ci), R 3.2.0
-* Ubuntu 14.04            (local), R 3.2.0
+* Ubuntu 12.04        (travis-ci), R 3.2.1
+* Ubuntu 14.04            (local), R 3.2.1
 * Windows 7               (local), R 3.2.0
-* Windows           (win-builder), R 3.2.0
+* Windows           (win-builder), R 3.2.1
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.3.0 (2015-06-06 r68484)
-* Windows           (win-builder), R 3.3.0 (2015-05-14 r68368)
+* Debian:testing (rocker/r-devel), R 3.3.0 (2015-07-25 r68744)
+* Windows           (win-builder), R 3.3.0 (2015-07-26 r68748)
 
 ## R CMD check results
 

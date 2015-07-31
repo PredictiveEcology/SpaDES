@@ -97,7 +97,7 @@ The suggested package \code{fastshp} can be installed with:
 NOTE: you may get errors relating to not having installed the software tools
 required for building R packages on your system.
 For building on Windows, you'll need to install Rtools from
-\url{http://cran.r-project.org/bin/windows/Rtools/}.
+\url{https://cran.r-project.org/bin/windows/Rtools/}.
 }
 \author{
 Eliot McIntire

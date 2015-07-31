@@ -3,6 +3,116 @@ if (getRversion() >= "3.1.0") {
 }
 
 ################################################################################
+#' Determine which modules in a list are unparsed
+#'
+#' Internal function, used during \code{\link{simInit}}.
+#'
+#' @param modules A chracter vector specifying the modules to parse.
+#'
+#' @return The ids of the unparsed list elements.
+#'
+#' @export
+#' @docType methods
+#' @rdname unparsed
+#'
+#' @author Alex Chubaty
+#'
+setGeneric(
+  ".unparsed",
+  function(modules) {
+    standardGeneric(".unparsed")
+})
+
+#' @rdname unparsed
+setMethod(
+  ".unparsed",
+  signature(modules="list"),
+  definition = function(modules) {
+  ids <- lapply(modules, function(x) {
+    (attr(x, "parsed")==FALSE)
+  }) %>% `==`(., TRUE) %>% which
+  return(ids)
+})
+
+################################################################################
+#' Parse and initialize a module
+#'
+#' Internal function, used during \code{\link{simInit}}.
+#'
+#' @param sim     A \code{simList} simulation object.
+#'
+#' @param modules A list of modules with a logical attribute "parsed".
+#'
+#' @return A \code{simList} simulation object.
+#'
+#' @include module-dependencies-class.R
+#' @include simList-class.R
+#' @include environment.R
+#' @export
+#' @docType methods
+#' @rdname parseModule
+#'
+#' @author Alex Chubaty
+#'
+setGeneric(
+  ".parseModule",
+  function(sim, modules) {
+    standardGeneric(".parseModule")
+})
+
+#' @rdname parseModule
+setMethod(
+  ".parseModule",
+  signature(sim="simList", modules="list"),
+  definition=function(sim, modules) {
+    all_children <- list()
+    children <- list()
+    for (j in .unparsed(modules)) {
+      m <- modules[[j]][1]
+      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
+      parsedFile <- parse(filename)
+      defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+
+      # evaluate only the 'defineModule' function of parsedFile
+      sim <- eval(parsedFile[defineModuleItem])
+
+      # check that modulename == filename
+      fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
+      i <- which(modules==m)
+      mname <- depends(sim)@dependencies[[i]]@name
+      if (fname != mname) {
+        stop("module name \'", mname, "\'",
+             "does not match filename \'", fname, "\'")
+      }
+
+      # assign default param values
+      apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
+        if (is.character(x$default)) {
+          tt <- paste0("params(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
+        } else {
+          tt <- paste0("params(sim)$", m, "$", x$name, "<<-", x$default)
+        }
+        eval(parse(text=tt), envir=environment())
+      })
+
+      # evaluate the rest of the parsed file
+      eval(parsedFile[!defineModuleItem], envir=envir(sim))
+
+      # update parse status of the module
+      attributes(modules[[j]]) <- list(parsed=TRUE)
+
+      # add child modules to list of all child modules, to be parsed later
+      children <- as.list(depends(sim)@dependencies[[i]]@childModules) %>%
+        lapply(., `attributes<-`, list(parsed=FALSE))
+      all_children <- append_attr(all_children, children)
+    }
+
+    modules(sim) <- append_attr(modules, children)
+
+    return(sim)
+  }
+)
+################################################################################
 #' Initialize a new simulation
 #'
 #' Create a new simulation object, preloaded with parameters, modules, times, etc.
@@ -82,8 +192,11 @@ setMethod(
 
     paths <- lapply(paths, checkPath, create=TRUE)
 
+    modulesLoaded <- list()
+
     # user modules
-    modules <- modules[!sapply(modules, is.null)]
+    modules <- modules[!sapply(modules, is.null)] %>%
+      lapply(., `attributes<-`, list(parsed=FALSE))
 
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
@@ -96,14 +209,13 @@ setMethod(
 
     # create simList object for the simluation
     sim <- new("simList")
-
-    # set paths
+    modules(sim) <- modules
     paths(sim) <- paths
+
     # for now, assign only some core & global params
     globals(sim) <- params$.globals
 
     # load core modules
-    modulesLoaded <- list()
     for (c in core) {
       ### sourcing the code in each core module is already done
       ### because they are loaded with the package
@@ -113,33 +225,10 @@ setMethod(
     }
 
     # source module metadata and code files
-    for (m in modules) {
-      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
-      parsedFile <- parse(filename)
-      defineModuleItem <- grepl(pattern="defineModule", parsedFile)
-
-      # evaluated only the 'defineModule' function of parsedFile
-      sim <- eval(parsedFile[defineModuleItem])
-
-      # check that modulename == filename
-      fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
-      i <- which(modules==m)
-      mname <- depends(sim)@dependencies[[i]]@name
-      if (fname != mname) stop("module name \'", mname, "\'",
-                               "does not match filename \'", fname, "\'")
-
-      # assign default param values
-      apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
-        if (is.character(x$default)) {
-          tt <- paste0("params(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
-        } else {
-          tt <- paste0("params(sim)$", m, "$", x$name, "<<-", x$default)
-        }
-        eval(parse(text=tt), envir=environment())
-      })
-
-      # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir=envir(sim))
+    all_parsed <- FALSE
+    while (!all_parsed) {
+      sim <- .parseModule(sim, modules(sim))
+      if (length(.unparsed(modules(sim)))==0) all_parsed <- TRUE
     }
 
     # timeunit has no meaning until all modules are loaded,
@@ -176,9 +265,6 @@ setMethod(
       tmp[[x]] <<- updateList(params(sim)[[x]], params[[x]])
     })
     params(sim) <- tmp
-
-    # set modules list temporarily to figure out load order
-    modules(sim) <- modules
 
     # check user-supplied load order
     if (!all( length(loadOrder),

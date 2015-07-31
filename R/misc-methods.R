@@ -109,6 +109,52 @@ setMethod("updateList",
 })
 
 ################################################################################
+#' Add a module to a \code{moduleList}
+#'
+#' Ordinary base lists and vectors do not retain their attributes when subsetted
+#' or appended. This function appends items to a list while preserving the
+#' attributes of items in the list (but not of the list itself).
+#'
+#' Similar to \code{updateList} but does not require named lists.
+#'
+#' @param x  A \code{list} of items with optional attributes.
+#'
+#' @param y  See \code{x}.
+#'
+#' @return An updated \code{list} with attributes.
+#'
+#' @export
+#' @docType methods
+#' @rdname append_attr
+#'
+#' @author Alex Chubaty and Eliot McIntire
+#'
+#' @examples
+#' library(igraph) # igraph exports magrittr's pipe operator
+#' tmp1 <- list("apple", "banana") %>% lapply(., `attributes<-`, list(type="fruit"))
+#' tmp2 <- list("carrot") %>% lapply(., `attributes<-`, list(type="vegetable"))
+#' append_attr(tmp1, tmp2)
+#' rm(tmp1, tmp2)
+setGeneric("append_attr", function(x, y) {
+  standardGeneric("append_attr")
+})
+
+#' @export
+#' @rdname append_attr
+setMethod("append_attr",
+          signature = c(x="list", y="list"),
+          definition = function(x, y) {
+            attrs <- c(lapply(x, attributes), lapply(y, attributes))
+            out <- append(x, y)
+            if (length(out)) {
+              for (i in length(out)) {
+                attributes(out[i]) <- attrs[[i]]
+              }
+            }
+            return(unique(out))
+})
+
+################################################################################
 #' Load packages.
 #'
 #' Load and optionally install additional packages.
@@ -152,7 +198,7 @@ setMethod("loadPackages",
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
                     cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
-                      "http://cran.rstudio.com"
+                      "https://cran.rstudio.com"
                     } else {
                       getOption("repos")[[1]]
                     }
