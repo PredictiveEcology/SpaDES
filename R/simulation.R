@@ -675,6 +675,18 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
+### All other
+#' @rdname simInit
+setMethod("simInit",
+          signature(times="ANY", params="ANY", modules="ANY",
+                    objects="ANY", paths="ANY", inputs="ANY", outputs="ANY", loadOrder="ANY"),
+          definition=function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+            stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
+                 "Some of these can be missing, but it is safer to specify everything explicitly. ",
+                 "A common issue is that an argument is passed as a character string instead of list.",
+                 "For the currently defined options for simInit, type showMethods'simInit'")
+          })
+
 ################################################################################
 #' Process a simulation event
 #'
