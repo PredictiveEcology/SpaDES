@@ -14,7 +14,10 @@ version 1.0.0
 
 * `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
 * software requirements changed: depends R (>=3.2.0)
-* add `lubridate` to Imports (with #151)
+* moved `data.table`, `grid`, `raster`, and `sp` from Depends to Imports (#207).
+* add `archivist`, `ff`, `ffbase` to Imports;  add `lubridate` to Imports (with #151)
+* removed `magrittr` from Imports (`%>%` is now exported by `igraph`)
+* most external methods/classes imported using `importFrom`; except `methods`, `graphics`, and `igraph` (because of classes which are not exported from igraph) (#201)
 * simulations now use `timeunit` (instead of `timestep`) specified in metadata (#151)
 * `defineModule` requires `timeunit` to be a character string instead of numeric (with #151)
 * simulation checkpointing fixed (#191, #130)
@@ -25,11 +28,12 @@ version 1.0.0
 * new function `classFilter` to filter list of objects by their type
 * new function `packages` to get all packages required by a simulation
 * new function `rndstr` to generate random strings
+* new function `append_attr` to append list items and keep their attributes
 * improved `loadPackages`
 * improved `.objectNames`
 * `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
 * `defineModule` better handles `NA` values (#138)
-* `Plot` improvements. Ex: a simList method for Plot.
+* various `Plot` improvements.
 * new plotting funcions to produce overview diagrams of simulations (#181; #184):
 
     - `eventDiagram` shows Gantt chart of event sequences
@@ -43,6 +47,7 @@ version 1.0.0
     - allow `package::function` notation in load (#174)
     - bug fixes
 
+* added "metamodules" which specify module groups (#176)
 * improved test coverage (see #139)
 * all functions imported explicity (@importFrom). 3 entire packages imported: methods, graphics, igraph (because of classes which are not exported from igraph) (#201)
 * removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (#207).

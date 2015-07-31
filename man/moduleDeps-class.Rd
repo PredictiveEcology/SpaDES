@@ -19,11 +19,14 @@ Descriptor object for specifying SpaDES module dependecies.
 
 \item{\code{authors}}{The author(s) of the module as a \code{\link{person}} object.}
 
-\item{\code{version}}{The module version as a \code{numeric_version}. Semantic versioning is assumed
-                     \url{http://semver.org/}.}
+\item{\code{childModules}}{A character vector of child module names.
+                     Modules listed here will be loaded with this module.}
 
-\item{\code{spatialExtent}}{Specifies the module's spatial extent as an \code{\link{Extent}} object.
-                     Defaults to \code{NA}.}
+\item{\code{version}}{The module version as a \code{numeric_version}.
+                     Semantic versioning is assumed \url{http://semver.org/}.}
+
+\item{\code{spatialExtent}}{Specifies the module's spatial extent as an
+                     \code{\link{Extent}} object. Default is \code{NA}.}
 
 \item{\code{timeframe}}{Specifies the valid timeframe for which the module was designed to simulate.
                      Must be a \code{\link{POSIXt}} object of length 2, specifying the start and end times

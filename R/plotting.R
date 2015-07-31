@@ -435,7 +435,7 @@ setMethod(
 #' NOTE: you may get errors relating to not having installed the software tools
 #' required for building R packages on your system.
 #' For building on Windows, you'll need to install Rtools from
-#' \url{http://cran.r-project.org/bin/windows/Rtools/}.
+#' \url{https://cran.r-project.org/bin/windows/Rtools/}.
 #'
 #' @param grobToPlot  \code{Raster*}, \code{SpatialLines*},
 #'                    \code{SpatialPoints*}, or \code{SpatialPolygons*} object.
@@ -665,7 +665,7 @@ setMethod(
             message(
               paste(
                 "You may also need to download and install Rtools from:\n",
-                "http://cran.r-project.org/bin/windows/Rtools/"
+                " https://cran.r-project.org/bin/windows/Rtools/"
               )
             )
           }
@@ -776,7 +776,7 @@ setMethod(
             message(
               paste(
                 "You may also need to download and install Rtools from:\n",
-                "http://cran.r-project.org/bin/windows/Rtools/"
+                " https://cran.r-project.org/bin/windows/Rtools/"
               )
             )
           }
@@ -855,7 +855,7 @@ setMethod(
             message(
               paste(
                 "You may also need to download and install Rtools from:\n",
-                "  http://cran.r-project.org/bin/windows/Rtools/"
+                "  https://cran.r-project.org/bin/windows/Rtools/"
               )
             )
           }
