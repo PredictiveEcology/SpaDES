@@ -28,11 +28,11 @@ removeClass("person4")
 #' @slot childModules   A character vector of child module names.
 #'                      Modules listed here will be loaded with this module.
 #'
-#' @slot version        The module version as a \code{numeric_version}. Semantic versioning is assumed
-#'                      \url{http://semver.org/}.
+#' @slot version        The module version as a \code{numeric_version}.
+#'                      Semantic versioning is assumed \url{http://semver.org/}.
 #'
-#' @slot spatialExtent  Specifies the module's spatial extent as an \code{\link{Extent}} object.
-#'                      Defaults to \code{NA}.
+#' @slot spatialExtent  Specifies the module's spatial extent as an
+#'                      \code{\link{Extent}} object. Default is \code{NA}.
 #'
 #' @slot timeframe      Specifies the valid timeframe for which the module was designed to simulate.
 #'                      Must be a \code{\link{POSIXt}} object of length 2, specifying the start and end times
@@ -94,7 +94,11 @@ setClass(".moduleDeps",
            if (length(object@authors)<1L) stop("authors must be specified.")
            if (length(object@timeframe)!=2L) stop("timeframe must be specified using two date-times.")
            if (length(object@timeunit)<1L) stop("timeunit must be specified.")
-           if (!any(unlist(lapply(object@reqdPkgs, is.character)))) stop("reqdPkgs must be specified as a list of package names.")
+           if (length(object@reqdPkgs)) {
+             if (!any(unlist(lapply(object@reqdPkgs, is.character)))) {
+               stop("reqdPkgs must be specified as a list of package names.")
+             }
+           }
 
            # data.frame checking
            if (length(object@inputObjects)<1L) stop("input object name and class must be specified, or NA.")

@@ -1909,10 +1909,13 @@ setMethod(
            ": outputObjects must be a `data.frame`.")
     }
 
-    ## check that children actually exist locally
+    ## check that children actually exist locally, and add to list of child modules
     lapply(x$childModules, function(y) {
-      if (!file.exists(file.path(modulePath(sim), y))) {
-        stop("Module ", y, "not found in modulePath.")
+      if (file.exists(file.path(modulePath(sim), y))) {
+        z <- y %>% lapply(., `attributes<-`, list(type="child"))
+        modules(sim) <- append_attr(modules(sim), z)
+      } else {
+        stop("Module ", y, "(a child module of ", x$name, ") not found in modulePath.")
       }
     })
 

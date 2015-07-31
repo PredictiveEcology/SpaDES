@@ -13,6 +13,8 @@
 #' @docType methods
 #' @rdname moduleMetadata
 #'
+#' @seealso \code{\link{defineModule}}
+#'
 #' @author Alex Chubaty
 #'
 #' @examples

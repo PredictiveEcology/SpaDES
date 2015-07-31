@@ -172,8 +172,7 @@ require(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, stop=20.0)
-parameters <- list(.globals=list(stackName="landscape",
-                                 burnStats="nPixelsBurned"),
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
                    fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,

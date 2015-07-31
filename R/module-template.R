@@ -55,6 +55,7 @@ defineModule(sim, list(
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),
   authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  childModules=character(),
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),

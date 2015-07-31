@@ -34,4 +34,7 @@ path <- system.file(package="SpaDES", "sampleModules")
 \author{
 Alex Chubaty
 }
+\seealso{
+\code{\link{defineModule}}
+}
 
