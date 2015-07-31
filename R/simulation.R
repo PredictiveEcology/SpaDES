@@ -43,8 +43,6 @@ setMethod(
 #'
 #' @param modules A list of modules with a logical attribute "parsed".
 #'
-#' @param env     An environment.
-#'
 #' @return A \code{simList} simulation object.
 #'
 #' @include module-dependencies-class.R

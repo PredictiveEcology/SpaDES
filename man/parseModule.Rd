@@ -14,8 +14,6 @@
 \item{sim}{A \code{simList} simulation object.}
 
 \item{modules}{A list of modules with a logical attribute "parsed".}
-
-\item{env}{An environment.}
 }
 \value{
 A \code{simList} simulation object.
