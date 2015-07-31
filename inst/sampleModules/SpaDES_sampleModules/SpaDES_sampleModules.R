@@ -2,7 +2,7 @@ defineModule(sim, list(
   name="SpaDES_sampleModules",
   description="insert module description here",
   keywords=c("insert key words here"),
-  authors=c(person(c("First", "Middle"), "Last", email="email@example.com", role=c("aut", "cre"))),
+  authors=c(person(c("Alex", "M."), "Chubaty", email="achubaty@nrcan.gc.ca", role=c("aut", "cre"))),
   childModules=c("caribouMovement", "fireSpread", "randomLandscapes"),
   version=numeric_version("1.0.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
@@ -17,4 +17,4 @@ defineModule(sim, list(
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
 
-### no other code is needed for this meta-module
+### no other code is needed for this module group

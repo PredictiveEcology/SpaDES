@@ -1,61 +1,44 @@
 ---
 title: "SpaDES_sampleModules"
-author: "Module Author"
-date: "09 July 2015"
+author: "Alex Chubaty"
+date: "31 July 2015"
 output: pdf_document
 ---
 
-Module documentation should be written so that others can use your module.
-This is a template for module documentation, and should be changed.
+This is an example of a 'module group' containing several child modules:
 
-## Plotting
+- `caribouMovement`
+- `fireSpread`
+- `randomLandscapes`
 
-Write what is plotted.
+Module groups make loading multiple modules easier: only the name of the module group needs to be specified in the `simInit` call, which will then initialize the simulation with the child modules.
 
-## Saving
+```{r module-group-init, eval=FALSE}
+library(SpaDES)
 
-Write what is saved.
+outputDir <- file.path(tempdir(), "simOutputs")
+times <- list(start=0.0, stop=20.0)
+parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
+                   .progress=list(NA),
+                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
+                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
+                                   persistprob=0, returnInterval=10, startTime=0,
+                                  .plotInitialTime=0.1, .plotInterval=10),
+                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
+                                        .plotInitialTime=1.01, .plotInterval=1))
+modules <- list("SpaDES_sampleModules")
+objects <- list()
+paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
+              outputPath=outputDir)
 
-## Input data
+mySim <- simInit(times=times, params=parameters, modules=modules,
+                 objects=objects, paths=paths)
 
-## Output data
-
-## Anticipated linkages to other modules
-
-## Other Markdown help
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/. We have also included
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
-
-output:
-rmarkdown::html_vignette:
-css: mystyles.css
-
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side.
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+modules(mySim) # note the child modules are initialized
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+Module groups can also be used to simplify the download of multiple modules:
 
-output:
-rmarkdown::html_vignette:
-fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r module-group-dl, eval=FALSE}
+downloadModule("SpaDES_sampleModules") # not yet implemented
 ```
-
-Also a quote using `>`:
-
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
