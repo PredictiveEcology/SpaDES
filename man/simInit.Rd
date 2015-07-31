@@ -3,6 +3,7 @@
 \docType{methods}
 \name{simInit}
 \alias{simInit}
+\alias{simInit,ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \alias{simInit,ANY,ANY,ANY,character,ANY,ANY,ANY,ANY-method}
 \alias{simInit,list,list,list,list,list,data.frame,ANY,character-method}
 \alias{simInit,list,list,list,list,list,data.frame,ANY,missing-method}
@@ -153,6 +154,9 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 
   \S4method{simInit}{missing,missing,missing,missing,missing,missing,missing,missing}(inputs,
   outputs)
+
+\S4method{simInit}{ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY}(times, params, modules,
+  objects, paths, inputs, outputs, loadOrder)
 }
 \arguments{
 \item{times}{A named list of numeric simulation start and stop times
@@ -166,9 +170,9 @@ should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
 \code{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
-\item{objects}{A list of data objects to be used in the simulation.}
+\item{objects}{An optional list of data objects to be used in the simulation.}
 
-\item{paths}{An optional list with up to 3 named elements, \code{modulePath},
+\item{paths}{An optional named list with up to 3 named elements, \code{modulePath},
 \code{inputPath}, and \code{outputPath}. See details.}
 
 \item{inputs}{A \code{data.frame} or \code{data.table}. See \code{?simList}.}
@@ -198,9 +202,13 @@ default is current working directory.
 }
 \examples{
 \dontrun{
- mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(caribou=list(Ncaribou=100)),
- modules=list("habitat", "caribou"), paths="/path/to/my/modules/")
- mySim
+ mySim <- simInit(
+   times=list(start=0.0, stop=2.0, timeunit="year"),
+   params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
+   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+   paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+ )
+ spades(mySim)
 }
 }
 \author{

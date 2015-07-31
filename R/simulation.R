@@ -27,9 +27,9 @@ if (getRversion() >= "3.1.0") {
 #' Example: a module named "caribou" will be sourced form the file
 #' \code{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
-#' @param objects A list of data objects to be used in the simulation.
+#' @param objects An optional list of data objects to be used in the simulation.
 #'
-#' @param paths  An optional list with up to 3 named elements, \code{modulePath},
+#' @param paths  An optional named list with up to 3 named elements, \code{modulePath},
 #' \code{inputPath}, and \code{outputPath}. See details.
 #'
 #' @param inputs A \code{data.frame} or \code{data.table}. See \code{?simList}.
@@ -59,9 +59,13 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @examples
 #' \dontrun{
-#'  mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(caribou=list(Ncaribou=100)),
-#'  modules=list("habitat", "caribou"), paths="/path/to/my/modules/")
-#'  mySim
+#'  mySim <- simInit(
+#'    times=list(start=0.0, stop=2.0, timeunit="year"),
+#'    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
+#'    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+#'  )
+#'  spades(mySim)
 #' }
 #'
 # igraph exports %>% from magrittr
@@ -911,9 +915,13 @@ setMethod("scheduleEvent",
 #'
 #' @examples
 #' \dontrun{
-#' mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-#'                  modules=list("habitat", "caribou"), paths="/path/to/my/modules/)
-#' spades{mySim}
+#'  mySim <- simInit(
+#'    times=list(start=0.0, stop=2.0, timeunit="year"),
+#'    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
+#'    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+#'  )
+#'  spades(mySim)
 #' }
 #'
 setGeneric("spades", function(sim, debug) {
