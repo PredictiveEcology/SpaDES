@@ -1,4 +1,6 @@
-################################################################################
+##
+
+###############################################################################
 #' Test whether a number lies within range \code{[a,b]}
 #'
 #' Default values of \code{a=0; b=1} allow for quick test if
@@ -13,6 +15,10 @@
 #' @rdname inRange
 #'
 #' @author Alex Chubaty
+#' @examples
+#' set.seed(100)
+#' x <- stats::rnorm(4) # -0.50219235  0.13153117 -0.07891709  0.88678481
+#' inRange(x, 0, 1)
 #'
 inRange <- function(x, a=0, b=1) {
   if (is.null(x)) return(NULL) # is this desired behaviour?

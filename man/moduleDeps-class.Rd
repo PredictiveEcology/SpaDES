@@ -19,18 +19,21 @@ Descriptor object for specifying SpaDES module dependecies.
 
 \item{\code{authors}}{The author(s) of the module as a \code{\link{person}} object.}
 
-\item{\code{version}}{The module version as a \code{numeric_version}. Semantic versioning is assumed
-                     \url{http://semver.org/}.}
+\item{\code{childModules}}{A character vector of child module names.
+                     Modules listed here will be loaded with this module.}
 
-\item{\code{spatialExtent}}{Specifies the module's spatial extent as an \code{\link{Extent}} object.
-                     Defaults to \code{NA}.}
+\item{\code{version}}{The module version as a \code{numeric_version}.
+                     Semantic versioning is assumed \url{http://semver.org/}.}
+
+\item{\code{spatialExtent}}{Specifies the module's spatial extent as an
+                     \code{\link{Extent}} object. Default is \code{NA}.}
 
 \item{\code{timeframe}}{Specifies the valid timeframe for which the module was designed to simulate.
                      Must be a \code{\link{POSIXt}} object of length 2, specifying the start and end times
                      (e.g., \code{as.POSIXlt(c("1990-01-01 00:00:00", "2100-12-31 11:59:59"))}).
                      Can be specified as \code{NA} using \code{as.POSIXlt(c(NA, NA))}.}
 
-\item{\code{timestep}}{Describes the time (in seconds) corresponding to 1.0 simulation time units.
+\item{\code{timeunit}}{Describes the time (in seconds) corresponding to 1.0 simulation time units.
                      Default is \code{NA}.}
 
 \item{\code{citation}}{A citation for the module, as a character string. Defaults to \code{NA_character_}.}

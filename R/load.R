@@ -1,10 +1,7 @@
-if(getRversion() >= "3.1.0") utils::globalVariables("objectNames")
-
-################################################
-###
-### A LOAD MODULE
-###
-###############################################
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "inMemory",
+                           "loaded", "loadTime", "objectName", "package"))
+}
 
 # extract filename (without extension) of a file
 # - will accept list or charcter vector
@@ -16,32 +13,34 @@ fileName = function (x) {
 # extract the file extension of a file
 # - will accept list or charcter vector
 # - outputs character vector
-#' @importFrom magrittr '%>%'
+#
+# igraph exports %>% from magrittr
 fileExt = function (x) {
-  f = strsplit(basename(unlist(x)), "^.*\\.") %>%
+  strsplit(basename(unlist(x)), "^.*\\.") %>%
       sapply(., function(y) { y[[length(y)]] })
 }
 
-# Just checks for paths, creates them if they do not exist
+# The load doEvent
 doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="later") {
+  if (eventType=="inputs") {
     sim <- loadFiles(sim)
   }
   return(invisible(sim))
 }
 
-##############################################################
-#' Load simulation objects according to fileList
+###############################################################################
+#' Load simulation objects according to \code{filelist}
 #'
-#' This function takes the fileList argument in the simList object and loads all the files
-#' using the identified functions and arguments
+#' This function takes the filelist argument in the \code{simList} object and
+#' loads all the files using the identified functions and arguments.
 #'
-#' In the fileList object, either a list or a data.frame, there will be minimally a column called "files".
+#' In the \code{filelist} object, either a \code{list} or a \code{data.frame},
+#' there will be minimally a column called "files".
 #' All other columns are optional.
 #'
 #' Other optional columns are:
 #'
-#' - \code{objectNames}: a character string indicating the name of the object once the
+#' - \code{objectName}: a character string indicating the name of the object once the
 #' file is loaded. Default is to use the file names, with file extension removed.
 #'
 #' - \code{package}: a character string indicating the package that the function is found in.
@@ -66,198 +65,242 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' If there is only one list, then it is assumed to apply to all load attempts
 #' and will be repeated for each load function.
 #'
-#' @param sim A \code{simList} object
+#' @param sim      \code{simList} object.
 #'
-#' @param fileList List or data.frame to call loadFiles directly from the fileList as
-#' described in Details
+#' @param filelist \code{list} or \code{data.frame} to call \code{loadFiles} directly from the
+#'                  \code{filelist} as described in Details
 #'
-#' @param ... Additional arguments.
+#' @param ...      Additional arguments.
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
 #'
 #' @name loadFiles
 #' @include simulation.R
-#' @importFrom methods is
-#' @import rgdal
-#' @import raster
-#' @import sp
+#' @importFrom data.table data.table rbindlist ':='
+#' @importFrom stringi stri_detect_fixed
+# @importFrom utils getFromNamespace
 #' @export
 #' @docType methods
 #' @rdname loadFiles
 #'
 #' @examples
-#' #load random maps included with package
-#' fileList = data.frame(files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-#'    full.names=TRUE, pattern= "tif"), functions="rasterToMemory", package="SpaDES",
-#'    stringsAsFactors=FALSE)
+#' \dontrun{
+#' # Load random maps included with package
+#' filelist <- data.frame(
+#'     files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
+#'     full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
+#'     )
 #'
-#' loadFiles(fileList=fileList)
+#' times <- list(start=0, stop=3)
+#' parameters <- list(.globals=list(stackName="landscape"))
+#' modules <- list("randomLandscapes", "caribouMovement")
+#' paths <- list(moduleName=system.file("sampleModules", package="SpaDES"))
+#' mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths,
+#' inputs=filelist)
+#' ls(mySim)
+#'
+#' sim1 <- loadFiles(filelist=filelist)
 #' clearPlot()
-#' Plot(DEM)
+#' Plot(sim1$DEM)
+#' }
 #'
+#' \dontrun{
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
-#' #  at time = 10 (via "intervals"). Also, pass the single argument as a list to all functions...
+#' #  at time = 10 and 20 (via "intervals").
+#' # Also, pass the single argument as a list to all functions...
 #' #  specifically, when add "native = TRUE" as an argument to the raster function
-#' arguments = list(native=TRUE)
 #' files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-#'      full.names=TRUE, pattern= "tif")
-#' fileList = data.frame(
+#'         full.names=TRUE, pattern= "tif")
+#' arguments = I(rep(list(native=TRUE), length(files)))
+#' filelist = data.frame(
 #'    files = files,
-#'    functions="rasterToMemory",
-#'    packages="SpaDES",
-#'    objectNames = NA,
+#'    functions="raster::raster",
+#'    objectName = NA,
 #'    arguments = arguments,
 #'    loadTime = 0,
-#'    intervals = c(rep(NA, length(files)-1), 10),
-#'    stringsAsFactors=FALSE)
+#'    intervals = c(rep(NA, length(files)-1), 10)
+#'    )
 #'
-#' loadFiles(fileList=fileList)
-#'
-setGeneric("loadFiles", function(sim, fileList, ...)  {
+#' sim2 <- loadFiles(filelist=filelist)
+#' end(sim2) <- 20
+#' sim2 <- spades(sim2)
+#' }
+setGeneric("loadFiles", function(sim, filelist, ...)  {
   standardGeneric("loadFiles")
 })
 
 #' @rdname loadFiles
-setMethod("loadFiles",
-          signature(sim="simList", fileList="missing"),
-          definition = function(sim, fileList, ...) {
+setMethod(
+  "loadFiles",
+  signature(sim="simList", filelist="missing"),
+  definition = function(sim, ...) {
 
-            # Pull .fileExtensions() into function so that scoping is faster
-            .fileExts = .fileExtensions()
-            if(!is.null(simFileList(sim))) {
-              fileList <- simFileList(sim)
-              #            if(!is.null(fileList) & length(fileList$file)>0) {
-              curTime <- simCurrentTime(sim)
-              arguments <- fileList$arguments
+    # Pull .fileExtensions() into function so that scoping is faster
+    .fileExts = .fileExtensions()
+    #usedIntervals <- FALSE # This is for a speed reason later on.
+                           #Whether or not intervals for loading files are defined
 
-              # Check if arguments is a named list; the name may be concatenated
-              # with the "arguments", separated by a ".". This will extract that.
-              if ((length(arguments)>0) & (is.null(names(arguments)))) {
-                names(arguments) <- sapply(strsplit(names(fileList)[match("arguments", names(fileList))],
-                                                    ".", fixed=TRUE), function(x) { x[-1] } )
-              }
+    if(NROW(inputs(sim))!=0) {
+      filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
+      curTime <- time(sim, "seconds")
+      arguments <- inputArgs(sim)
+      # Check if arguments is a named list; the name may be concatenated
+      # with the "arguments", separated by a ".". This will extract that.
+      if ((length(arguments)>0) & (is.null(names(arguments)))) {
+        names(arguments) <- sapply(strsplit(
+          names(filelist)[pmatch("arguments", names(filelist))], ".", fixed=TRUE),
+          function(x) { x[-1] }
+        )
+      }
 
-              if (!is.null(arguments)) {
-                if (length(arguments) < length(fileList$file)) {
-                  arguments <-  rep(arguments, length.out=length(fileList$file))
-                }
-              }
+      if (!is.null(arguments)) {
+        if (length(arguments) < length(filelist$file)) {
+          arguments <- rep(arguments, length.out=length(filelist$file))
+        }
+      }
 
-              if (is(fileList, "list")) {
-                fileListdf <- do.call(data.frame, args=list(fileList[-match("arguments",
-                                                                            names(fileList))],
-                                                            stringsAsFactors=FALSE))
-              } else {
-                fileListdf <- fileList
-              }
+      if (is(filelist, "list")) {
+        filelistDT <- do.call(
+          data.table,
+          args=list(filelist[-match("arguments", names(filelist))])
+        )
+      } else if(!is(filelist, "data.table")) {
+        filelistDT <- data.table(filelist)
+      } else {
+        filelistDT <- filelist
+      }
 
-              # fill in columns if they are missing. Assume loadTime =
-              #   simStartTime(sim) if missing
-              if(is.na(match("loadTime", names(fileListdf)))) {
-                fileListdf["loadTime"] <- simStartTime(sim)
-              }
+#       # Fill in columns if they are missing:
+#       if (!("package" %in% names(filelistDT))) {
+#         filelistDT[,package:=NA]
+#       }
 
-              # only load those that are to be loaded at their loadTime
-              filesCurTime <- fileListdf[fileListdf$loadTime==curTime,]
+      #  assume loadTime = start(sim) if missing
+      if(any(is.na(filelistDT[,loadTime]))) {
+        filelistDT[is.na(loadTime),loadTime:=start(sim, "second")]
+      #  filelistDT[,loadTime:=start(sim, "second")]
+      }
 
-              fl <- filesCurTime$file
+      # only load those that are to be loaded at their loadTime
+      cur <- filelistDT$loadTime==curTime
 
-              # extract file extensions, to be used to determine which function to use
-              exts <- match(fileExt(fl), .fileExts[,"exts"])
+      if(any(cur)) {
+        fl <- filelistDT[cur,file]
+        # extract file extensions, to be used to determine which function to use
+        exts <- match(fileExt(fl), .fileExts[,"exts"])
 
-              # determine which function to load with
-              loadFun <- as.character(.fileExts[exts, "functions"])#[,functions])
-              loadPackage <- as.character(.fileExts[exts, "package"])#[,functions])
+        # determine which default functions to load with
+        loadFun <- as.character(.fileExts[exts, "fun"])
+        loadPackage <- as.character(.fileExts[exts, "package"])
 
-              # correct those for which a specific function is given in fileListdf$functions
-              if(!is.na(match("functions",names(fileListdf)))) {
-                loadFun[!is.na(fileListdf$functions)] <- fileListdf$functions[!is.na(fileListdf$functions)]
-                loadPackage[!is.na(fileListdf$package)] <- fileListdf$package[!is.na(fileListdf$package)]
-              }
+  #       # correct those for which a specific function is supplied in filelistDT$fun
+         if(any(!is.na(filelistDT[,fun]))) {
+           loadFun[!is.na(filelistDT$fun)] <- filelistDT$fun[!is.na(filelistDT$fun)]
+           loadPackage[!is.na(filelistDT[,package])] <- filelistDT$package[!is.na(filelistDT$package)]
+           loadPackage[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+           loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
+         }
 
-              # use filenames as object names, unless alternative provided in fileListdf$objectNames
-              objectNames <- fileName(fl)#sapply(fl.list, function(x) paste(x[-length(x)], collapse="."))
-               if(!is.na(match("objectNames", names(fileListdf)))) {
-                 objectNames[!is.na(fileListdf$objectNames)] <- fileListdf$objectNames
-               }
+        # use filenames as object names, unless alternative provided in filelistDT$objectName
+        objectName <- fileName(fl)
+        if(any(!is.na(filelistDT[cur,objectName]))) {
+          objectName[!is.na(filelistDT[cur,objectName])] <- filelistDT[cur,objectName][!is.na(filelistDT[cur,objectName])]
+        }
 
-              # load files
-              for (x in 1:length(fl)) {
-                nam = names(arguments[x])
-                if(!is.null(nam)) {
-                  argument <- list(unname(unlist(arguments[x])), fl[x])
-                  names(argument) <- c(nam, names(formals(get(loadFun[x], envir=.GlobalEnv)))[1])
-                } else {
-                  argument <- list(fl[x])
-                  names(argument) <- names(formals(get(loadFun[x], envir=.GlobalEnv)))[1]
-                }
+#         # correct those for which a specific function is given in filelistDT$fun
+#         if(any(!is.na(filelistDT[cur,fun]))) {
+#           loadFun[!is.na(filelistDT[cur,fun])] <- filelistDT[cur,fun][!is.na(filelistDT[cur,fun])]
+#           loadPackage[!is.na(filelistDT[cur,package])] <- filelistDT[cur,package][!is.na(filelistDT[cur,package])]
+#           loadPackage[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[1])
+#           loadFun[stri_detect_fixed(loadFun,"::")] <- sapply(strsplit(split="::",loadFun), function(x) x[2])
+#         }
+        # load files
+        for (x in 1:length(fl)) {
+          y <- which(cur)[x]
+          nam = names(arguments[y])
 
-                # The actual load call
-                assign(objectNames[x], do.call(get(loadFun[x]), args=argument), envir=.GlobalEnv)
+          if(!is.null(nam)) {
+            argument <- list(unname(unlist(arguments[y])), filelistDT[y,file])
+            names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[x], loadPackage[x])))[1])
+          } else {
+            argument <- list(filelistDT[y,file])
+            names(argument) <- names(formals(getFromNamespace(loadFun[x], loadPackage[x])))[1]
+          }
 
-                simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectNames[x])
+          # The actual load call
+          sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
+                                          args=argument)
+          filelistDT[y,loaded:=TRUE]
 
+          if (loadFun[x]=="raster") {
+            message(paste0(
+              objectName[x], " read from ", fl[x], " using ", loadFun[x],
+              "(inMemory=", inMemory(sim[[objectName[x]]]), ")",
+              ifelse(filelistDT[y,loadTime!=start(sim,"seconds")],
+                     paste("\n  at time", filelistDT[y,loadTime]),"")
+            ))
+          } else {
+              message(paste0(objectName[x]," read from ",fl[x]," using ", loadFun[x],
+                             ifelse(filelistDT[y,loadTime!=start(sim,"seconds")],
+                                    paste("\n   at time",
+                                    filelistDT[y,loadTime]),"")))
+          }
 
-                if (loadFun[x]=="raster") {
-                  message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x],
-                                "(inMemory=",inMemory(get(objectNames[x])),")"))
-                  } else {
-                    message(paste0(objectNames[x]," read from ",fl[x]," using ", loadFun[x]))
-                 }
+        } # end x
+        # add new rows of files to load based on filelistDT$Interval
+        if(!is.na(match("intervals", names(filelistDT)))) {
+          if (any(!is.na(filelistDT[loaded==TRUE,intervals]))) {
+            filelistDT <- filelistDT[loaded==TRUE & !is.na(intervals),] %>%
+              .[,`:=`(loadTime=curTime+intervals, loaded=NA, intervals=NA)] %>%
+              list(filelistDT, .) %>%
+              rbindlist
+            #usedIntervals <- TRUE
+          }
+        }
 
-              } # end x
+  #       # remove files that have been loaded from filelistDT
+  #       keepOnFileList <- filelistDT$loadTime!=curTime
+  #       filelistDT = filelistDT[keepOnFileList,]
 
-              # add new rows of files to load based on fileListdf$Interval
-              if(!is.na(match("intervals", names(fileListdf)))) {
-                if (any(!is.na(fileListdf$intervals))) {
-                  keep <- !is.na(fileListdf$interval)
-                  fileListdf$loadTime[keep] <- curTime + fileListdf$interval[keep]
-                }
-              }
+      } # if there are no files to load at curTime, then nothing
+      if (is(filelist, "list")) {
+        inputs(sim) <- c(as.list(filelistDT), arguments=arguments[keepOnFileList])
+      } else if (is(filelist, "data.frame")) {
+        inputs(sim) <- filelistDT # this is required if intervals is used
+      } else {
+        stop("filelist must be either a list or data.frame")
+      }
 
-              # remove files that have been loaded from fileListdf
-              keepOnFileList <- fileListdf$loadTime!=curTime
-              fileListdf = fileListdf[keepOnFileList,]
-
-              if(!exists("usedFileList")) usedFileList <- FALSE
-
-              # If filename had been provided, then no need to return sim object,
-              #   just report files loaded
-              if (!usedFileList) {
-                if(is(fileList, "list")) {
-                  simFileList(sim) <- c(as.list(fileListdf), arguments=arguments[keepOnFileList])
-                } else if (is(fileList, "data.frame")) {
-                  simFileList(sim) <- fileListdf
-                } else {
-                  stop("fileList must be either a list or data.frame")
-                }
-
-                if(nrow(fileListdf)>0) {
-                  sim <- scheduleEvent(sim, min(fileListdf$loadTime, na.rm=TRUE), "load", "later")
-                }
-              }
-            }
-            message("") ## print empty message to add linebreak to console message output
-            return(invisible(sim))
+#        if (any(is.na(filelistDT[,loaded]))) {
+#          newTime <- filelistDT[is.na(loaded), min(loadTime, na.rm=TRUE)]
+#          attributes(newTime)$unit <- timeunit(sim)
+#          sim <- scheduleEvent(sim,
+#                               newTime,
+#                               "load", "inputs")
+#        }
+    }
+    message("") ## print empty message to add linebreak to console message output
+    return(invisible(sim))
 })
 
 #' @rdname loadFiles
 setMethod("loadFiles",
-          signature(sim="missing", fileList="ANY"),
-          definition = function(sim, fileList, ...) {
+          signature(sim="missing", filelist="ANY"),
+          definition = function(filelist, ...) {
 
             sim <- simInit(times=list(start=0.0, stop=1),
-                           params=list(.load=list(fileList=fileList)),
-                           modules=list(), path=".")
+                           params=list(),
+                           inputs=filelist,
+                           modules=list(), ...)
             return(invisible(sim))
 })
 
 #' @rdname loadFiles
 setMethod("loadFiles",
-          signature(sim="missing", fileList="missing"),
-          definition = function(sim, fileList, ...) {
-            message("no files loaded because sim and fileList are empty")
+          signature(sim="missing", filelist="missing"),
+          definition = function(...) {
+            message("no files loaded because sim and filelist are empty")
 })
 
 #' File extensions map
@@ -274,7 +317,7 @@ setMethod("loadFiles",
     "shp", "readOGR", "rgdal",
     "txt", "read.table", "utils",
     "asc", "raster", "raster")))
-  colnames(.fE) = c("exts", "functions", "package")
+  colnames(.fE) = c("exts", "fun", "package")
   return(.fE)
 }
 
@@ -293,7 +336,7 @@ setMethod("loadFiles",
 #' @seealso \code{\link{raster}}.
 #'
 #' @name rasterToMemory
-#' @importMethodsFrom raster raster
+#' @importFrom raster raster setValues getValues
 #' @export
 #' @docType methods
 #' @rdname rasterToMemory
@@ -312,3 +355,4 @@ setMethod("rasterToMemory",
             r <- setValues(r, getValues(r))
             return(r)
 })
+

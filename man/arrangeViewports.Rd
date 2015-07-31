@@ -14,9 +14,9 @@
 \item{sPlot}{A \code{.spadesPlot} object.}
 }
 \description{
-This assesses the device geometry, the map geometry, and the number of spatial
-objects to plot and builds an object that will be used by the Plot functions to plot
-them efficiently. This is meant to be used internally.
+Internal function. Assesses the device geometry, the map geometry, and the
+number of spatial objects to plot and builds an object that will be used by
+the Plot functions to plot them efficiently.
 }
 \author{
 Eliot McIntire

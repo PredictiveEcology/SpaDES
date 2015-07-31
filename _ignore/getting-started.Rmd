@@ -108,13 +108,13 @@ N <- 10L # number of agents
 # caribou data vectors
 IDs <- letters[1L:N]
 sex <- sample(c("female", "male"), N, replace=TRUE)
-age <- round(rnorm(N, mean=8, sd=3))
-x1 <- runif(N, -50, 50) # previous X location
-y1 <- runif(N, -50, 50) # previous Y location
+age <- round(stats::rnorm(N, mean=8, sd=3))
+x1 <- stats::runif(N, -50, 50) # previous X location
+y1 <- stats::runif(N, -50, 50) # previous Y location
 
 # caribou (current) coordinates
-x0 <- rnorm(N, x1, 5)
-y0 <- rnorm(N, y1, 5)
+x0 <- stats::rnorm(N, x1, 5)
+y0 <- stats::rnorm(N, y1, 5)
 
 # create the caribou agent object
 caribou <- data.frame(x1, y1, sex, age)
@@ -125,6 +125,7 @@ row.names(caribou) <- IDs
 Using a simple landscape-dependent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 ```{r agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE}
+require(sp)
 if(interactive()) dev()
 Plot(landscape[["habitatQuality"]], new=TRUE)
 
@@ -172,7 +173,7 @@ for (i in 1:nrow(paramsdf)) {
   mySim <- with(paramsdf,
                 simInit(times=list(start=0.0, stop=20.0),
                         params=list(
-                          .progress=list(graphical=NA, interval=NA),
+                          .progress=list(type=NA, interval=NA),
                           .globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                           randomLandscapes=list(nx=mapSize[i], ny=mapSize[i],
                                                 inRAM=TRUE),

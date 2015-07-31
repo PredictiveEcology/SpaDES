@@ -20,12 +20,12 @@ Character vector of module names, sorted in correct load order.
 }
 \description{
 Internal function.
-Checks module dependencies and attempts to enusure that cyclic dependencies
+Checks module dependencies and attempts to ensure that cyclic dependencies
 can be resolved, checking objects in the global environment, and finally,
 attempts to determine the load order for modules in the simulation.
 }
 \details{
-Uses \code{\link{topological.sort}} to try to find a load order satisfying
+Uses \code{\link[igraph]{topo_sort}} to try to find a load order satisfying
 all module object dependencies.
 }
 \author{

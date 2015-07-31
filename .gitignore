@@ -4,11 +4,13 @@
 .Rproj.user
 .csv
 .log
+last.dump.rda
 cache/
 figure/
+man/spadesEnv.Rd
 output/
-SAMPLE/chkpnt.RData
-SAMPLE/shiny_succession/data
+tests/testthat/*.pdf
+tests/testthat/*.RData
 vignettes/.build.timestamp
 vignettes/*_cache
 

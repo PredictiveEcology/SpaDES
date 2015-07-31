@@ -35,9 +35,13 @@ to the values of various simList slot components.
 }
 \examples{
 \dontrun{
-mySim <- simInit(times=list(start=0.0, stop=10.0), params=list(Ncaribou=100),
-                 modules=list("habitat", "caribou"), path="/path/to/my/modules/)
-spades{mySim}
+ mySim <- simInit(
+   times=list(start=0.0, stop=2.0, timeunit="year"),
+   params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
+   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+   paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+ )
+ spades(mySim)
 }
 }
 \author{

@@ -5,7 +5,7 @@
 #' including the state of the random number generator,
 #' by scheduling checkpoint events.
 #'
-#' \code{\link{.checkpointLoad}} and \code{\link{.checkpointSave}} code from:
+#' \code{\link{checkpointLoad}} and \code{\link{.checkpointSave}} code based on:
 #' \url{https://raw.githubusercontent.com/achubaty/r-tools/master/checkpoint.R}
 #'
 #' RNG save code adapted from:
@@ -20,7 +20,7 @@
 #'                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.
 #'
 #' @param debug         Optional logical flag determines whether sim debug info
-#'                      will be printed (default \code{debug=FALSE}.
+#'                      will be printed (default \code{debug=FALSE}).
 #'
 #' @return Returns the modified \code{simList} object.
 #'
@@ -29,6 +29,7 @@
 #' @author Alex Chubaty
 #'
 #' @include environment.R
+#' @importFrom R.utils isAbsolutePath
 #' @export
 #' @docType methods
 #' @rdname checkpoint
@@ -38,46 +39,41 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### default is not to use checkpointing if unspecified
   ### - this default is set when a new simList object is initialized
 
-  useChkpnt = !any(is.na(simParams(sim)$.checkpoint))
+  useChkpnt = !any(is.na(params(sim)$.checkpoint))
 
   ### determine checkpoint file location, for use in events below
   if (useChkpnt) {
-    if (is.null(simCheckpointFile(sim))) {
+    if (is.null(checkpointFile(sim))) {
       checkpointFile <- "checkpoint.RData"
     } else {
-      checkpointFile <- simCheckpointFile(sim)
+      checkpointFile <- checkpointFile(sim)
     }
-    if (!is.null(simGlobalsOutputPath(sim))) {
-      checkpointDir <- checkPath(simGlobalsOutputPath(sim), create=TRUE)
-      checkpointFile <- file.path(checkpointDir, simCheckpointFile(sim))
+
+    if(isAbsolutePath(checkpointFile(sim))) {
+      checkpointDir <- checkPath(dirname(checkpointFile(sim)), create=TRUE)
+    } else {
+      checkpointDir <- checkPath(outputPath(sim), create=TRUE)
     }
+
+    checkpointFile <- file.path(checkpointDir, basename(checkpointFile(sim)))
   }
 
   ### event definitions
   if (eventType=="init") {
     if (useChkpnt) {
-      sim <- scheduleEvent(sim, 0.00, "checkpoint", "load")
-    }
-  } else if (eventType=="load") {
-    if (useChkpnt) {
-      # load user-specified checkpoint options
-      .checkpointLoad(checkpointFile)
-
-      # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
-      sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
+      sim <- scheduleEvent(sim, 0.00, "checkpoint", "save")
     }
   } else if (eventType=="save") {
     if (useChkpnt) {
-      .checkpointSave(checkpointFile)
+      .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
-      timeNextSave <- simCurrentTime(sim) + simCheckpointInterval(sim)
+      timeNextSave <- time(sim) + checkpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
-    warning(paste("Undefined event type: \'",simEvents(sim)[1,"eventType",with=FALSE],
-                  "\' in module \'", simEvents(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
+                  "\' in module \'", events(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
 
   }
   return(invisible(sim))
@@ -85,14 +81,20 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 
 #' @param file The checkpoint file.
 #' @rdname checkpoint
-.checkpointLoad = function(file) {
-  # check for previous checkpoint file
-  if (file.exists(file)) {
-    load(file)
-    if (exists(".Random.seed", envir=.spadesEnv)) {
-      do.call("RNGkind", as.list(get("rng.kind", envir=.spadesEnv)))
-      assign(".Random.seed", get("rng.state", envir=.spadesEnv), envir=.spadesEnv)
-    }
+#' @export
+checkpointLoad = function(file) {
+  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  fobj <- paste0(f, "_objs", ".RData")
+
+  # check for previous checkpoint files
+  if (file.exists(file) && file.exists(fobj)) {
+    simListName = load(file, envir=.GlobalEnv)
+    sim <- get(simListName, envir=.GlobalEnv)
+    load(fobj, envir=envir(sim))
+
+    do.call("RNGkind", as.list(sim$.rng.kind))
+    assign(".Random.seed", sim$.rng.state, envir=.GlobalEnv)
+    rm(list=c(".rng.kind", ".rng.state", ".timestamp"), envir=envir(sim))
     return(invisible(TRUE))
   } else {
     return(invisible(FALSE))
@@ -100,11 +102,168 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 #' @rdname checkpoint
-.checkpointSave = function(file) {
-  if (exists(".Random.seed", envir=.spadesEnv))  {
-    assign("rng.state", get(".Random.seed", envir=.spadesEnv), envir=.spadesEnv)
-    assign("rng.kind", RNGkind(), envir=.spadesEnv)
-  }
-  save.image(file) # saves entire workspace
+.checkpointSave = function(sim, file) {
+  sim$.timestamp <- Sys.time()
+  sim$.rng.state <- get(".Random.seed", envir=.GlobalEnv)
+  sim$.rng.kind <- RNGkind()
+
+  f <- strsplit(file, split = "[.][R|r][D|d]ata$")
+  fobj <- paste0(f, "_objs", ".RData")
+
+  tmpEnv <- new.env()
+  assign(.objectNames("spades","simList","sim")[[1]]$objs, sim, envir=tmpEnv)
+
+  save(list=ls(tmpEnv, all.names=TRUE), file=file, envir=tmpEnv)
+  save(list=ls(envir(sim), all.names=TRUE), file=fobj, envir=envir(sim))
   invisible(TRUE) # return "success" invisibly
 }
+
+
+
+################################################################################
+#' Cache method for simList class objects
+#'
+#' Because the \code{simList} has an environment as one of its slots, the caching mechanism
+#' of the archivist package does not work. Here, we make a slight tweak to the
+#' \code{cache} function. Specifically, we remove all elements that have an environment
+#' as part of their attributes. This is generally functions that are loaded from the modules,
+#' but also the \code{.envir} slot in the \code{simList}. Thus, only non-function objects are
+#' used as part of the \code{digest} call in the \code{digest} package (used internally in
+#' the \code{cache} function).
+#'
+#' @inheritParams archivist::cache
+#'
+#' @return Identical to \code{\link[archivist]{cache}}
+#'
+#' @seealso \code{\link[archivist]{cache}}.
+#' @export
+#' @importFrom archivist cache showLocalRepo loadFromLocalRepo saveToRepo
+#' @importFrom digest digest
+#' @include simList-class.R
+#' @docType methods
+#' @rdname cache
+#' @author Eliot McIntire
+setGeneric("cache", signature="...", function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
+  archivist::cache(cacheRepo, FUN, ..., notOlderThan)
+})
+
+#' @export
+#' @rdname cache
+setMethod(
+  "cache",
+  signature="simList",
+  definition=function(cacheRepo, FUN, ..., notOlderThan) {
+    tmpl <- list(...)
+
+    # These three lines added to original version of cache in archive package
+    wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
+    tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
+
+    outputHash <- digest(tmpl)
+    localTags <- showLocalRepo(cacheRepo, "tags")
+    isInRepo <- localTags[localTags$tag == paste0("cacheId:",
+                                                  outputHash), , drop = FALSE]
+    if (nrow(isInRepo) > 0) {
+      lastEntry <- max(isInRepo$createdDate)
+      if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
+        lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
+        return(loadFromLocalRepo(isInRepo$artifact[lastOne],
+                                 repoDir = cacheRepo, value = TRUE))
+      }
+    }
+    output <- do.call(FUN, list(...))
+    attr(output, "tags") <- paste0("cacheId:", outputHash)
+    attr(output, "call") <- ""
+    saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+               archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
+    output
+  }
+)
+
+
+################################################################################
+#' Remove any reference to environments in a simList
+#'
+#' Internal use only. Used when caching a SpaDES run a \code{simList}.
+#'
+#' This is a derivative of the class \code{simList}, except that all references to
+#' local environments are removed. Specifically, all functions (which are contained
+#' within environments) are converted to a text representation via a call to \code{format(fn)}.
+#' Also the objects that were contained within the \code{.envir} slot are hashed using \code{digest}
+#' in the \code{digest} package. Also, \code{paths} slot is not used to allow
+#' comparison across platforms and it is not relevant where the objects are gotten from,
+#' so long as the objects are the same. The \code{.envir} slot is emptied (NULL). The object is then
+#' converted to a \code{simList_} which has a \code{.list} slot. The hashes of the objects
+#' are then placed in that \code{.list} slot.
+#'
+#' @param simList an object of class \code{simList}
+#'
+#' @return A simplified version of the \code{simList} object, but with no reference to any environments
+#'
+#' @seealso \code{\link[archivist]{cache}}.
+#' @seealso \code{\link[digest]{digest}}.
+#' @importFrom digest digest
+#' @include simList-class.R
+#' @include misc-methods.R
+#' @docType methods
+#' @rdname makeDigestible
+#' @author Eliot McIntire
+setGeneric("makeDigestible", function(simList) {
+  standardGeneric("makeDigestible")
+})
+
+#' @rdname makeDigestible
+setMethod(
+  "makeDigestible",
+  signature="simList",
+  definition=function(simList) {
+
+    envirHash <- (sapply(sort(ls(simList@.envir, all.names=TRUE)), function(x) {
+      if(!(x==".sessionInfo")) {
+        obj <- get(x, envir=envir(simList))
+        if(!is(obj, "function")) {
+          if(is(obj, "Raster")) {
+            # convert Rasters in the simList to some of their metadata.
+            dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
+            if(nchar(obj@file@name)>0) {
+              # if the Raster is on disk, has the first 1e6 characters
+               dig <- append(dig, digest(file=obj@file@name, length=1e6))
+            }
+            dig <- digest(dig)
+          } else {
+            # convert functions in the simList to their digest.
+            #  functions have environments so are always unique
+            dig <- digest(obj)
+          }
+        } else {
+          # for functions, use a character representation via format
+          dig <- digest(format(obj))
+        }
+      } else {
+        # for .sessionInfo, just keep the major and minor R version
+        dig <- digest(get(x, envir=envir(simList))[[1]] %>% .[c("major","minor")])
+      }
+      return(dig)
+    }))
+
+    # Remove the NULL entries in the @.list
+    envirHash <- envirHash[!sapply(envirHash, is.null)]
+    envirHash <- sortDotsFirst(envirHash)
+
+    # Convert to a simList_ to remove the .envir slot
+    simList <- as(simList, "simList_")
+    # Replace the .list slot with the hashes of the slots
+    simList@.list <- list(envirHash)
+
+    # Remove paths as they are system dependent and not relevant for digest
+    #  i.e., if the same file is located in a different place, that is ok
+    simList@paths <- list()
+
+    # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
+    simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
+
+    simList
+  }
+)
+

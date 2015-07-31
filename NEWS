@@ -1,5 +1,62 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.0.0
+=============
+* no longer rely on side effects to update objects in global environment; instead uses simulation environments (#185) (not backwards compatible!)
+* sample modules rewritten to use simulation enviroments (#185) (not backwards compatible!).
+* redefined `simList` class:
+
+    - new superclass `.simList` contains all previous `simList` slots except `.envir`
+    - class `simList` extends `.simList` by adding slot `.envir`
+    - new class `simList_` extends `.simList` by adding slot `.list`
+    - `simList_` can be used internally to save a `simList` object,
+    because saving lists of objects to file is more reliable that saving environments.
+
+* `fastshp` can be installed from Rforge as a CRAN-like repository (instead of relying on `devtools::install_github`)
+* software requirements changed: depends R (>=3.2.0)
+* moved `data.table`, `grid`, `raster`, and `sp` from Depends to Imports (#207).
+* add `archivist`, `ff`, `ffbase` to Imports;  add `lubridate` to Imports (with #151)
+* removed `magrittr` from Imports (`%>%` is now exported by `igraph`)
+* most external methods/classes imported using `importFrom`; except `methods`, `graphics`, `igraph`, and `utils` (because of methods/classes which are not exported) (#201)
+* simulations now use `timeunit` (instead of `timestep`) specified in metadata (#151)
+* `defineModule` requires `timeunit` to be a character string instead of numeric (with #151)
+* simulation checkpointing fixed (#191, #130)
+* `ls` and `ls.str` can now be used with `simList` objects to list objects in the simulation environment
+* `objs` returns a list containing all the objects in the simulation enviroment
+* new function `splitRaster` to divide `RasterLayer` into several tiles
+* new function `normPath` (extracted from `checkPath`) to more strictly normalize filepaths without checking that they exist.
+* new function `classFilter` to filter list of objects by their type
+* new function `packages` to get all packages required by a simulation
+* new function `rndstr` to generate random strings
+* new function `append_attr` to append list items and keep their attributes
+* improved `loadPackages`
+* improved `.objectNames`
+* `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
+* `defineModule` better handles `NA` values (#138)
+* various `Plot` improvements.
+* new plotting funcions to produce overview diagrams of simulations (#181; #184):
+
+    - `eventDiagram` shows Gantt chart of event sequences
+    - `moduleDiagram` shows igraph network diagram of dependencies
+    - `objectDiagram` shows sequence diagram of object dependencies between modules
+
+* improved `simList` show and debug methods (#57; #73)
+* improvements to `loadFiles`:
+
+    - use `data.table`
+    - allow `package::function` notation in load (#174)
+    - bug fixes
+
+* added "metamodules" which specify module groups (#176)
+* improved test coverage (see #139)
+* all functions imported explicity (@importFrom). 3 entire packages imported: methods, graphics, igraph (because of classes which are not exported from igraph) (#201)
+* removed package dependencies on raster, sp, data.table, grid. Use importFrom instead (#207).
+* improved documentation and vignettes
+* added cache mechanism to hash function calls to spades (#206)
+* fixed progress bar bug (#147)
+* prepend copyright info to `LICENSE` and `README` (with #140)
+* various other bug fixes
+
 version 0.6.2
 =============
 This is a minor release update to satisfy CRAN submission requirements.

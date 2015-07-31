@@ -3,12 +3,16 @@
 \docType{methods}
 \name{loadPackages}
 \alias{loadPackages}
+\alias{loadPackages,character-method}
 \alias{loadPackages,list-method}
 \title{Load packages.}
 \usage{
 loadPackages(packageList, install = FALSE, quiet = TRUE)
 
 \S4method{loadPackages}{list}(packageList, install = FALSE, quiet = TRUE)
+
+\S4method{loadPackages}{character}(packageList, install = FALSE,
+  quiet = TRUE)
 }
 \arguments{
 \item{packageList}{A list of character strings specifying
@@ -21,15 +25,17 @@ already installed, should they be installed?}
 message be suppressed?}
 }
 \value{
-Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+Specified packages are loaded and attached using \code{library()}.
 }
 \description{
 Load and optionally install additional packages.
 }
 \examples{
-\dontrun{pkgs <- list("ggplot2", "lme4")}
-\dontrun{loadPackages(pkgs) # loads packages if installed}
-\dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+\dontrun{
+  pkgs <- list("ggplot2", "lme4")
+  loadPackages(pkgs) # loads packages if installed
+  loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)
+}
 }
 \author{
 Alex Chubaty

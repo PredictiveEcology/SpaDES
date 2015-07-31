@@ -1,21 +1,24 @@
-if(getRversion() >= "3.1.0") utils::globalVariables(".")
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(".")
+}
 
-#' Get the name of a source file
+#' Get the name of a \code{source}-ed file
 #'
-#' This will only work for files that are \code{source}d.
-#' Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
+#' Use \code{getFileName} in a file that is \code{source}-ed.
+#' Based on \url{http://stackoverflow.com/a/1816487/1380598}.
 #'
-#' @param fullname Logical (default \code{FALSE}) indicating whether the full path should be returned.
+#' @param fullname   Logical (default \code{FALSE}) indicating whether the full
+#'                   path should be returned.
 #'
-#' @return Character string representing the filename.
+#' @return Character String representing the filename.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname getFileName
 #'
 #' @author Alex Chubaty
 #'
+# igraph exports %>% from magrittr
 setGeneric("getFileName", function(fullname) {
   standardGeneric("getFileName")
 })
@@ -106,6 +109,52 @@ setMethod("updateList",
 })
 
 ################################################################################
+#' Add a module to a \code{moduleList}
+#'
+#' Ordinary base lists and vectors do not retain their attributes when subsetted
+#' or appended. This function appends items to a list while preserving the
+#' attributes of items in the list (but not of the list itself).
+#'
+#' Similar to \code{updateList} but does not require named lists.
+#'
+#' @param x  A \code{list} of items with optional attributes.
+#'
+#' @param y  See \code{x}.
+#'
+#' @return An updated \code{list} with attributes.
+#'
+#' @export
+#' @docType methods
+#' @rdname append_attr
+#'
+#' @author Alex Chubaty and Eliot McIntire
+#'
+#' @examples
+#' library(igraph) # igraph exports magrittr's pipe operator
+#' tmp1 <- list("apple", "banana") %>% lapply(., `attributes<-`, list(type="fruit"))
+#' tmp2 <- list("carrot") %>% lapply(., `attributes<-`, list(type="vegetable"))
+#' append_attr(tmp1, tmp2)
+#' rm(tmp1, tmp2)
+setGeneric("append_attr", function(x, y) {
+  standardGeneric("append_attr")
+})
+
+#' @export
+#' @rdname append_attr
+setMethod("append_attr",
+          signature = c(x="list", y="list"),
+          definition = function(x, y) {
+            attrs <- c(lapply(x, attributes), lapply(y, attributes))
+            out <- append(x, y)
+            if (length(out)) {
+              for (i in length(out)) {
+                attributes(out[i]) <- attrs[[i]]
+              }
+            }
+            return(unique(out))
+})
+
+################################################################################
 #' Load packages.
 #'
 #' Load and optionally install additional packages.
@@ -119,20 +168,23 @@ setMethod("updateList",
 #' @param quiet Logical flag. Should the final "packages loaded"
 #' message be suppressed?
 #'
-#' @return Nothing is returned. Specified packages are loaded and attached using \code{library()}.
+#' @return Specified packages are loaded and attached using \code{library()}.
 #'
 #' @seealso \code{\link{library}}.
 #'
 #' @export
 #' @docType methods
 #' @rdname loadPackages
+# @importFrom utils install.packages
 #'
 #' @author Alex Chubaty
 #'
 #' @examples
-#' \dontrun{pkgs <- list("ggplot2", "lme4")}
-#' \dontrun{loadPackages(pkgs) # loads packages if installed}
-#' \dontrun{loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)}
+#' \dontrun{
+#'   pkgs <- list("ggplot2", "lme4")
+#'   loadPackages(pkgs) # loads packages if installed
+#'   loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)
+#' }
 #'
 setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
   standardGeneric("loadPackages")
@@ -142,18 +194,94 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
 setMethod("loadPackages",
            signature="list",
             definition=function(packageList, install, quiet) {
-              load <- function(name, install) {
+              loadPkg <- function(name, install) {
                 if (!require(name, character.only=TRUE)) {
                   if (install) {
-                    install.packages(name, repos="http://cran.r-project.org")
+                    cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
+                      "https://cran.rstudio.com"
+                    } else {
+                      getOption("repos")[[1]]
+                    }
+                    install.packages(name, repos=cran)
                     library(name, character.only=TRUE)
                     } else {
                       message(paste("NOTE: unable to load package ", name, ". Is it installed?", sep=""))
                     }
                   }
                 }
-              lapply(packageList, load, install)
+              lapply(packageList, loadPkg, install)
               if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
+})
+
+#' @rdname loadPackages
+setMethod("loadPackages",
+          signature="character",
+          definition=function(packageList, install, quiet) {
+            loadPackages(as.list(packageList), install, quiet)
+})
+
+################################################################################
+#' Normalize filepath.
+#'
+#' Checks the specified filepath for formatting consistencies:
+#'  1) use slash instead of backslash;
+#'  2) do tilde etc. expansion;
+#'  3) remove trailing slash.
+#'
+#' @param path A character vector of filepaths.
+#'
+#' @return Character vector of cleaned up filepaths.
+#'
+#' @export
+#' @docType methods
+#' @rdname normPath
+#'
+# igraph exports %>% from magrittr
+setGeneric("normPath", function(path) {
+  standardGeneric("normPath")
+})
+
+#' @export
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="character"),
+          definition=function(path) {
+            lapply(path, function(x) {
+                if (is.na(x)) {
+                  NA_character_
+                } else {
+                  normalizePath(x, winslash="/", mustWork=FALSE)
+                }
+              }) %>%
+              unlist %>%
+              gsub("^[.]", paste0(getwd()), .) %>%
+              gsub("\\\\", "/", .) %>%
+              gsub("//", "/", .) %>%
+              gsub("/$", "", .)
+})
+
+#' @export
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="list"),
+          definition=function(path) {
+            return(normPath(unlist(path)))
+})
+
+#' @export
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="NULL"),
+          definition=function(path) {
+            return(character())
+})
+
+#' @export
+#' @rdname normPath
+setMethod("normPath",
+          signature(path="missing"),
+          definition=function() {
+            return(character())
 })
 
 ################################################################################
@@ -171,45 +299,42 @@ setMethod("loadPackages",
 #'
 #' @seealso \code{\link{file.exists}}, \code{\link{dir.create}}.
 #'
-#' @importFrom magrittr '%>%'
 #' @export
 #' @docType methods
 #' @rdname checkPath
 #'
+# igraph exports %>% from magrittr
 setGeneric("checkPath", function(path, create) {
   standardGeneric("checkPath")
 })
 
+#' @export
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="logical"),
           definition=function(path, create) {
-            if (!is.na(path)) {
-              if (length(path)>0) {
-                # use slash instead of backslash
-                # do tilde etc. expansion
-                # remove trailing slash
-                path = gsub("\\\\", "/", path) %>%
-                       normalizePath(., winslash="/", mustWork=FALSE) %>%
-                       gsub("/$", "", .)
+            if (length(path)!=1) {
+              stop("path must be a character vector of length 1.")
+            } else {
+              if (is.na(path)) {
+                stop("Invalid path: cannot be NA.")
+              } else {
+                path = normPath(path)
 
                 if (!file.exists(path)) {
                   if (create==TRUE) {
                     dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
                   } else {
-                    stop(paste("Specified path", normalizePath(path, winslash="/"),
-                               "doesn't exist. Create it and try again."))
+                    stop(paste("Specified path", path, "doesn't exist.",
+                               "Create it and try again."))
                   }
                 }
-              return(path)
-            } else {
-              stop("Invalid path: cannot be empty.")
-            }
-          } else {
-            stop("Invalid path: cannot be NA.")
+                return(path)
+              }
           }
 })
 
+#' @export
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="character", create="missing"),
@@ -217,6 +342,7 @@ setMethod("checkPath",
             return(checkPath(path, create=FALSE))
 })
 
+#' @export
 #' @rdname checkPath
 setMethod("checkPath",
           signature(path="NULL", create="ANY"),
@@ -224,242 +350,16 @@ setMethod("checkPath",
             stop("Invalid path: cannot be NULL.")
 })
 
-################################################################################
-#' Check for existence of a global object
-#'
-#' Check that a named object exists in the global environment, and optionally has
-#' desired attributes.
-#'
-#' @param name    A character string specifying the name of an object to be checked.
-#'
-#' @param object  An object. This is mostly used internally, or with layer,
-#'                  because it will fail if the object does not exist.
-#'
-#' @param layer   Character string, specifying a layer name in a Raster, if the
-#'                \code{name} is a Raster* object.
-#'
-#' @param ...    Additional arguments. Not implemented.
-#'
-#' @return Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
-#'
-#' @seealso \code{\link{library}}.
-#'
-#' @importFrom methods is
 #' @export
-#' @docType methods
-#' @rdname checkObject
-#'
-#' @author Alex Chubaty and Eliot McIntire
-#'
-setGeneric("checkObject", function(name, object, layer, ...) {
-  standardGeneric("checkObject")
+#' @rdname checkPath
+setMethod("checkPath",
+          signature(path="missing", create="ANY"),
+          definition=function() {
+            stop("Invalid path: no path specified.")
 })
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="missing", object="Raster", layer="character"),
-          definition = function(name, object, layer, ...) {
-              if (!is.na(match(layer, names(object)))) {
-                return(invisible(TRUE))
-              } else {
-                message(paste(deparse(substitute(object, env=.GlobalEnv)), "exists, but",
-                              layer, "is not a layer"))
-                return(FALSE)
-              }
-})
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="missing", object="ANY", layer="missing"),
-          definition = function(name, object, layer, ...) {
-            if(existsGlobal(deparse(substitute(object)))) {
-              return(invisible(TRUE))
-            } else {
-              message(paste(deparse(substitute(object, env=.GlobalEnv)), "does not exist"))
-              return(FALSE)
-            }
-})
-
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="character", object="missing", layer="missing"),
-          definition = function(name, ...) {
-            if (existsGlobal(name)) {
-                return(invisible(TRUE))
-            } else {
-              message(paste(name,"does not exist in the global environment"))
-              return(FALSE)
-            }
-})
-
-#' @rdname checkObject
-setMethod("checkObject",
-          signature(name="character", object="missing", layer="character"),
-          definition = function(name, layer, ...) {
-            if (existsGlobal(name)) {
-              if(is(getGlobal(name),"Raster")) {
-                checkObject(object=getGlobal(name), layer=layer, ...)
-              } else {
-                message(paste("The object \"",name,"\" exists, but is not
-                              a Raster, so layer is ignored",sep=""))
-                return(invisible(TRUE))
-              }
-            } else {
-              message(paste(name,"does not exist in the global environment"))
-              return(FALSE)
-            }
-})
-
-################################################################################
-#' Check use and existence of params passed to simulation.
-#'
-#' Checks that all parameters passed are used in a module,
-#' and that all parameters used in a module are passed.
-#'
-#' @param sim    A simList simulation object.
-#'
-#' @param coreModules List of core modules.
-#'
-#' @param coreParams List of default core parameters.
-#'
-#' @param path The location of the modules' source files.
-#'
-#' @param ...    Additional arguments. Not implemented.
-#'
-#' @return  Invisibly return \code{TRUE} indicating object exists; \code{FALSE} if not.
-#'          Sensible messages are be produced identifying missing parameters.
-#'
-#' @importFrom magrittr '%>%'
-#' @export
-#' @docType methods
-#' @rdname checkParams
-#'
-#' @author Alex Chubaty
-#'
-setGeneric("checkParams", function(sim, coreModules, coreParams, path, ...) {
-  standardGeneric("checkParams")
-})
-
-#' @rdname checkParams
-setMethod("checkParams",
-          signature(sim="simList", coreModules="list", coreParams="list", path="character"),
-          definition=function(sim, coreModules, coreParams, path, ...) {
-
-            params <- simParams(sim)
-            modules <- simModules(sim)
-            userModules <- modules[-which(coreModules %in% modules)]
-            globalParams <- simGlobals(sim)
-            allFound <- TRUE
-
-            if (length(userModules)) {
-              ### check whether each param in simInit occurs in a module's .R file
-              globalsFound <- list()
-              for (uM in userModules) {
-                # check global params
-                if (length(globalParams)>0) {
-                  for (i in 1:length(globalParams)) {
-                    gP <- names(globalParams[i])
-                    result <- grep(gP, readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=FALSE)
-                    if (length(result)>0) {
-                      globalsFound <- append(globalsFound, gP)
-                    }
-                  }
-                }
-
-                # check user params
-                userParams <- params[[uM]][-which(names(params[[uM]]) %in% coreParams)]
-                if (length(userParams)>0) {
-                  for (i in 1:length(userParams)) {
-                    uP <- names(userParams[i])
-                    result <- grep(uP, readLines(paste(path, "/", uM, "/", uM, ".R", sep="")), value=FALSE)
-                    if (length(result)<=0) {
-                      allFound <- FALSE
-                      message(paste("Parameter", uP, "is not used in module", uM))
-                    }
-                  }
-                }
-              }
-
-              globalsFound <- unique(globalsFound)
-              notFound <- setdiff(names(globalParams), globalsFound)
-              if (length(notFound)>0) {
-                allFound <- FALSE
-                message("Global parameter(s) not used in any module: ", paste(notFound, collapse=", "), ".")
-              }
-
-              ### check whether each param in a module's .R file occurs in simInit
-              globalsFound <- list()
-              for (uM in userModules) {
-                # read in and cleanup/isolate the global params in the module's .R file
-                moduleParams <- grep("simGlobals\\(sim\\)\\$",
-                                     readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
-                                     value=TRUE) %>%
-                  strsplit(., " ") %>%
-                  unlist(lapply(., function(x) x[nchar(x)>0] )) %>%
-                  grep("simGlobals\\(sim\\)\\$", ., value=TRUE) %>%
-                  gsub(",", "", .) %>%
-                  gsub("\\)\\)", "", .) %>%
-                  gsub("^.*\\(simGlobals\\(sim\\)", "\\simGlobals\\(sim\\)", .) %>%
-                  gsub("^simGlobals\\(sim\\)", "", .) %>%
-                  gsub("\\)\\$.*", "", .) %>%
-                  unique(.) %>%
-                  sort(.) %>%
-                  gsub("\\$", "", .)
-
-                if (length(moduleParams)>0) {
-                  if (length(globalParams)>0) {
-                    for (i in 1:length(moduleParams)) {
-                      mP <- moduleParams[i]
-                      if (mP %in% names(globalParams)) {
-                        globalsFound <- append(globalsFound, mP)
-                      }
-                    }
-                  }
-                }
-
-                # read in and cleanup/isolate the user params in the module's .R file
-                moduleParams <- grep(paste0("simParams\\(sim\\)\\$", uM, "\\$"),
-                                     readLines(paste(path, "/", uM, "/", uM, ".R", sep="")),
-                                     value=TRUE) %>%
-                  gsub(paste0("^.*simParams\\(sim\\)\\$", uM, "\\$"), "", .) %>%
-                  gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
-                  gsub("]*", "", .) %>%
-                  unique(.) %>%
-                  sort(.)
-
-                if (length(moduleParams)>0) {
-                  # which params does the user supply to simInit?
-                  userParams <- sort(unlist(names(params[[uM]])))
-                  if (length(userParams)>0) {
-                    for (i in 1:length(moduleParams)) {
-                      mP <- moduleParams[i]
-                      if (!(mP %in% userParams)) {
-                        allFound <- FALSE
-                        message(paste("Parameter", mP, "is not supplied to module", uM, "during simInit"))
-                      }
-                    }
-                  }
-                }
-
-                globalsFound <- unique(globalsFound)
-                notFound <- setdiff(globalsFound, names(globalParams))
-                if (length(notFound)>0) {
-                  allFound <- FALSE
-                  message(paste("The following global parameters are used in module", uM,
-                                "but not supplied to simInit in .globals:", unlist(notFound)))
-                }
-              }
-            } else {
-              allFound <- FALSE
-            }
-            return(invisible(allFound))
-})
-
 
 ###############################################################
 #' Convert numeric to character with padding
-#'
 #'
 #' @param x numeric. Number to be converted to character with padding
 #'
@@ -475,22 +375,275 @@ setMethod("checkParams",
 #' @return Character string representing the filename.
 #'
 #' @importFrom fpCompare '%==%'
-#' @importFrom magrittr '%>%'
 #' @importFrom stringr str_pad
 #' @export
 #' @docType methods
 #' @rdname paddedFloatToChar
 #'
 #' @author Eliot McIntire and Alex Chubaty
+#'
+#' @examples
+#' paddedFloatToChar(1.25)
+#' paddedFloatToChar(1.25, padL=3, padR=5)
+#'
+# igraph exports %>% from magrittr
 paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
   xIC <- x %/% 1 %>%
     format(., trim=TRUE, digits=5,scientific=FALSE) %>%
     str_pad(., pad=pad, width=padL, side="left")
   xf <- x %% 1
-  xFC <- if(xf %==% 0) { "" } else {
+  xFC <- ifelse(xf %==% 0 , "" ,
     strsplit(format(xf, digits=padR, scientific=FALSE), split="\\.")[[1]][2] %>%
       str_pad(., width=padR, side="right", pad=pad) %>%
-      paste0(".", .)
-  }
+      paste0(".", .))
+
   return(paste0(xIC, xFC))
+}
+
+###############################################################################
+#' Generate random strings
+#'
+#' Generate a vector of random alphanumeric strings each of an arbitrary length.
+#'
+#' @param n   Number of strings to generate (default 1).
+#'            Will attempt to coerce to integer value.
+#'
+#' @param len Length of strings to generate (default 8).
+#'            Will attempt to coerce to integer value.
+#'
+#' @param characterFirst Logical, if \code{TRUE}, then a letter will be the
+#'        first character of the string (useful if being used for object names).
+#'
+#' @return Character vector of random strings.
+#'
+#' @export
+#' @docType methods
+#' @rdname rndstr
+#'
+#' @author Alex Chubaty and Eliot McIntire
+#' @examples
+#' set.seed(11)
+#' rndstr()
+#' rndstr(len=10)
+#' rndstr(characterFirst=FALSE)
+#' rndstr(n=5, len=10)
+#' rndstr(n=5)
+#' rndstr(n=5, characterFirst=TRUE)
+#' rndstr(len=10, characterFirst=TRUE)
+#' rndstr(n=5, len=10, characterFirst=TRUE)
+#'
+setGeneric("rndstr", function(n, len, characterFirst) {
+  standardGeneric("rndstr")
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="numeric", characterFirst="logical"),
+          definition=function(n, len, characterFirst) {
+            stopifnot(n>0, len>0)
+            unlist(lapply(character(as.integer(n)), function(x) {
+              i <- as.integer(characterFirst)
+              x <- paste0(c(sample(c(letters, LETTERS), size=i),
+                            sample(c((0:9), letters, LETTERS),
+                                   size=as.integer(len)-i, replace=TRUE)),
+                          collapse="")
+              }))
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="numeric", characterFirst="missing"),
+          definition=function(n, len) {
+            rndstr(n=n, len=len, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="missing", characterFirst="logical"),
+          definition=function(n, characterFirst) {
+            rndstr(n=n, len=8, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="numeric", characterFirst="logical"),
+          definition=function(len, characterFirst) {
+            rndstr(n=1, len=len, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="numeric", len="missing", characterFirst="missing"),
+          definition=function(n) {
+            rndstr(n=n, len=8, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="numeric", characterFirst="missing"),
+          definition=function(len) {
+            rndstr(n=1, len=len, characterFirst=TRUE)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="missing", characterFirst="logical"),
+          definition=function(characterFirst) {
+            rndstr(n=1, len=8, characterFirst=characterFirst)
+})
+
+#' @rdname rndstr
+setMethod("rndstr",
+          signature(n="missing", len="missing", characterFirst="missing"),
+          definition=function(n, len, characterFirst) {
+            rndstr(n=1, len=8, characterFirst=TRUE)
+})
+
+###############################################################################
+#' Filter objects by class
+#'
+#' Based on \url{http://stackoverflow.com/a/5158978/1380598}.
+#'
+#' @param x Character vector of object names to filter, possibly from \code{ls}.
+#'
+#' @param include   Class(es) to include, as a character vector.
+#'
+#' @param exclude   Optional class(es) to exclude, as a character vector.
+#'
+#' @param envir     The environment ins which to search for objects.
+#'                  Default is the calling environment.
+#'
+#' @return Vector of object names matching the class filter.
+#'
+#' @note \code{\link{inherits}} is used internally to check the object class,
+#' which can, in some cases, return results inconsistent with \code{is}.
+#' See \url{http://stackoverflow.com/a/27923346/1380598}.
+#' These (known) cases are checked manually and corrected.
+#'
+#' @export
+#' @docType methods
+#' @rdname classFilter
+#'
+#' @author Alex Chubaty
+#'
+#' @examples
+#' \dontrun{
+#'   ## from global environment
+#'   a <- list(1:10)     # class `list`
+#'   b <- letters        # class `character`
+#'   d <- stats::runif(10)      # class `numeric`
+#'   f <- sample(1L:10L) # class `numeric`, `integer`
+#'   g <- lm( jitter(d) ~ d ) # class `lm`
+#'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
+#'   classFilter(ls(), include=c("character", "list"))
+#'   classFilter(ls(), include="numeric")
+#'   classFilter(ls(), include="numeric", exclude="integer")
+#'   classFilter(ls(), include="lm")
+#'   classFilter(ls(), include="lm", exclude="glm")
+#'   rm(a, b, d, f, g, h)
+#' }
+#'
+#' ## from local (e.g., function) environment
+#' local({
+#'   e <- environment()
+#'   a <- list(1:10)     # class `list`
+#'   b <- letters        # class `character`
+#'   d <- stats::runif(10)      # class `numeric`
+#'   f <- sample(1L:10L) # class `numeric`, `integer`
+#'   g <- lm( jitter(d) ~ d ) # class `lm`
+#'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
+#'   classFilter(ls(), include=c("character", "list"), envir=e)
+#'   classFilter(ls(), include="numeric", envir=e)
+#'   classFilter(ls(), include="numeric", exclude="integer", envir=e)
+#'   classFilter(ls(), include="lm", envir=e)
+#'   classFilter(ls(), include="lm", exclude="glm", envir=e)
+#'   rm(a, b, d, e, f, g, h)
+#' })
+#'
+#' ## from another environment
+#' e = new.env(parent = emptyenv())
+#' e$a <- list(1:10)     # class `list`
+#' e$b <- letters        # class `character`
+#' e$d <- stats::runif(10)      # class `numeric`
+#' e$f <- sample(1L:10L) # class `numeric`, `integer`
+#' e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
+#' e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`
+#' classFilter(ls(e), include=c("character", "list"), envir=e)
+#' classFilter(ls(e), include="numeric", envir=e)
+#' classFilter(ls(e), include="numeric", exclude="integer", envir=e)
+#' classFilter(ls(e), include="lm", envir=e)
+#' classFilter(ls(e), include="lm", exclude="glm", envir=e)
+#' rm(a, b, d, f, g, h, envir=e)
+#' rm(e)
+#'
+setGeneric("classFilter", function(x, include, exclude, envir) {
+  standardGeneric("classFilter")
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="character", envir="environment"),
+          definition=function(x, include, exclude, envir) {
+            f <- function(w) {
+              # -------------------- #
+              # using `inherits` doesn't work as expected in some cases,
+              #  so we tweak the 'include' to work with those cases:
+              if ( ("numeric" %in% include) &
+                   (inherits(get(w, envir=envir), "integer")) ) {
+                     include <- c(include, "integer")
+              }
+              # --- end tweaking --- #
+
+              if (is.na(exclude)) {
+                inherits(get(w, envir=envir), include)
+              } else {
+                inherits(get(w, envir=envir), include) &
+                  !inherits(get(w, envir=envir), exclude)
+              }
+            }
+            return(Filter(f, x))
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="character", envir="missing"),
+          definition=function(x, include, exclude) {
+            return(classFilter(x, include, exclude, envir=sys.frame(-1)))
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="missing", envir="environment"),
+          definition=function(x, include, envir) {
+            return(classFilter(x, include, exclude=NA_character_, envir=envir))
+})
+
+#' @rdname classFilter
+setMethod("classFilter",
+          signature(x="character", include="character", exclude="missing", envir="missing"),
+          definition=function(x, include) {
+            return(classFilter(x, include, exclude=NA_character_, envir=sys.frame(-1)))
+})
+
+
+
+################################################################################
+#' Sort a any named object with dotted names first
+#'
+#' Internal use only. This exists so Windows and Linux machines can have
+#' the same order after a sort.
+#'
+#' @param obj  An arbitrary R object for which a \code{names} function
+#'              returns a character vector.
+#'
+#' @return The same object as \code{obj}, but sorted with .objects first.
+#'
+#' @include simList-class.R
+#' @docType methods
+#' @rdname sortDotsFirst
+#' @author Eliot McIntire
+sortDotsFirst <- function(obj) {
+  dotObjs <- grep("^\\.", names(obj))
+  append(obj[dotObjs][order(names(obj[dotObjs]))],
+         obj[-dotObjs][order(names(obj[-dotObjs]))])
 }

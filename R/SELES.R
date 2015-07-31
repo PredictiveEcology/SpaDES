@@ -7,7 +7,7 @@
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -17,7 +17,7 @@
 #'
 #' @return Returns new \code{SpatialPoints*} object with potentially fewer agents.
 #'
-#' @import sp
+#' @importFrom sp 'coordinates<-'
 #' @include agent.R
 #' @export
 #' @docType methods
@@ -25,7 +25,7 @@
 #'
 #' @author Eliot McIntire
 transitions <- function(p, agent) {
-    coordinates(agent)[which(p==0),] = NA
+    coordinates(agent)[which(p==0),] <- NA
     return(agent)
 }
 
@@ -37,7 +37,7 @@ transitions <- function(p, agent) {
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -65,7 +65,7 @@ numAgents <- function(N, probInit) {
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -83,7 +83,8 @@ numAgents <- function(N, probInit) {
 #' @return A SpatialPointsDataFrame, with each row representing an individual agent
 #'
 #' @include agent.R
-#' @import raster
+#' @importFrom raster getValues ncell raster xyFromCell
+#' @importFrom stats runif
 #' @export
 #' @docType methods
 #' @rdname initiateAgents
@@ -92,6 +93,7 @@ numAgents <- function(N, probInit) {
 #'
 #' @examples
 #' library(dplyr)
+#' library(raster)
 #' map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
 #' map <- gaussMap(map, scale=1, var = 4, speedup=1)
 #' pr <- probInit(map, p=(map/maxValue(map))^2)
@@ -105,11 +107,10 @@ numAgents <- function(N, probInit) {
 #' Plot(agentsRas)
 #'
 #' # Check that the agents are more often at the higher probability areas based on pr
-#' out <- data.frame(na.omit(crosstab(agentsRas, map)), table(round(map[]))) %>%
-#'    mutate(selectionRatio=Freq/Freq.1) %>%
-#'    select(-Var1, -Var1.1) %>%
-#'    rename(Present=Freq, Avail=Freq.1, Type=Var2)
-#' print(out)
+#' out <- data.frame(stats::na.omit(crosstab(agentsRas, map)), table(round(map[]))) %>%
+#'    dplyr::mutate(selectionRatio=Freq/Freq.1) %>%
+#'    dplyr::select(-Var1, -Var1.1) %>%
+#'    dplyr::rename(Present=Freq, Avail=Freq.1, Type=Var2)
 #'
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints=TRUE, indices) {
@@ -129,7 +130,7 @@ setMethod("initiateAgents",
           function(map, probInit, asSpatialPoints) {
             wh <- which(runif(ncell(probInit)) < getValues(probInit))
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
-          })
+})
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
@@ -137,7 +138,7 @@ setMethod("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints, indices) {
             wh <- sample(1:ncell(map), size=numAgents, replace=asSpatialPoints)
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
-          })
+})
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
@@ -145,9 +146,9 @@ setMethod("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints) {
             vals <- getValues(probInit)
             wh <- sample(1:ncell(probInit), numAgents, replace=asSpatialPoints,
-                   prob=vals/sum(vals))
+                         prob=vals/sum(vals))
             initiateAgents(map, indices=wh, asSpatialPoints=asSpatialPoints)
-          })
+})
 
 #' @rdname initiateAgents
 setMethod("initiateAgents",
@@ -172,7 +173,7 @@ setMethod("initiateAgents",
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -207,7 +208,7 @@ agentLocation <- function(map) {
 #'
 #' A \code{SELES}-like function to maintain conceptual backwards compatability
 #' with that simulation tool. This is intended to ease transitions from
-#' \href{http://www.lfmi.uqam.ca/seles.htm}{SELES}.
+#' \href{http://www.gowlland.ca/}{SELES}.
 #'
 #' You must know how to use SELES for these to be useful.
 #'
@@ -230,8 +231,7 @@ agentLocation <- function(map) {
 #' If \code{absolute} is provided, it will override the previous statements, unless \code{absolute}
 #' is TRUE and p is not between 0 and 1 (i.e., is not a probability)
 #'
-#' @import raster
-#' @import sp
+#' @importFrom raster cellStats crs extent setValues raster
 #' @include agent.R
 #' @export
 #' @docType methods
@@ -260,7 +260,11 @@ probInit = function(map, p=NULL, absolute=NULL) {
   return(probInit)
 }
 
-###
+#' Patch size
+#'
+#' @param patches Number of patches.
+#'
+#' @importFrom raster freq
 patchSize = function(patches) {
   return(freq(patches))
 }

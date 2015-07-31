@@ -8,6 +8,9 @@
 #' classified by the index of the pixel where that event propagated from. This can be used to examine things like
 #' fire size distributions.
 #'
+#' For large rasters, a combination of \code{lowMemory=TRUE} and \code{returnIndices=TRUE} will use the least amoun
+#' of memory.
+#'
 #' @param landscape     A \code{RasterLayer} object.
 #'
 #' @param loci          A vector of locations in \code{landscape}
@@ -21,20 +24,29 @@
 #'                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
 #'                      not implemented.
 #'
-#' @param maxSize       The maximum number of pixels for a fire. This is currently
-#'                      only a single number, not one for each spread event
+#' @param maxSize       Vector of the maximum number of pixels for a single or all events to be spread.
+#'                      Recycled to match \code{loci} length.
 #'
 #' @param directions    The number adjacent cells in which to look; default is 8 (Queen case).
 #'
 #' @param iterations    Number of iterations to spread. Leaving this \code{NULL} allows the spread
 #'                      to continue until stops spreading itself (i.e., exhausts itself).
 #'
+#' @param lowMemory     Logical. If true, then function uses package \code{ff} internally. This is slower,
+#'                      but much lower memory footprint.
+#'
+#' @param returnIndices Logical. Should the function return a data.table with indices
+#'                      and values of successful spread events, or return a raster with values. See Details.
+#'
 #' @param ...           Additional parameters.
 #'
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
 #'
-#' @import raster
 #' @export
+#' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
+#' @importFrom ff ff as.ram
+#' @importFrom ffbase ffwhich
+#' @importFrom stats runif
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
@@ -44,21 +56,20 @@
 #' @aliases spread
 #' @rdname spread
 #'
-setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.23,
-                              persistence=0, mask=NULL, maxSize=ncell(landscape),
-                              directions=8, iterations=NULL, ...) {
+setGeneric("spread", function(landscape, loci=NULL, spreadProb=0.23,
+                              persistence=0L, mask=NULL, maxSize=NULL,
+                              directions=8L, iterations=NULL,
+                              lowMemory=getOption("spades.lowMemory"),
+                              returnIndices=FALSE, ...) {
   standardGeneric("spread")
 })
 
 #' @param plot.it    If TRUE, then plot the raster at every iteraction, so one can watch the
 #' spread event grow.
 #'
-#' @param mapID  Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
-#' the returned map is the iteration number that the pixel burned
+#' @param mapID  Logical. If TRUE, returns a raster of events ids. If FALSE,
+#' returns a raster of iteration numbers, i.e. the spread history of one or more events.
 #'
-#' @importFrom methods is
-#' @import raster
-#' @import RColorBrewer
 #' @rdname spread
 #'
 #' @examples
@@ -66,7 +77,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' library(RColorBrewer)
 #'
 #' # Make random forest cover map
-#' a <- raster(extent(0,1e2,0,1e2),res=1)
+#' a <- raster(extent(0,1e2,0,1e2), res=1)
 #' hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 #' names(hab)="hab"
 #' cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
@@ -77,8 +88,8 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' numCell <- ncell(a)
 #' directions <- 8
 #'
-#' # Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
-#' setColors(hab) <- paste(c("#FFFFFF",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
+#' # Transparency involves putting two more hex digits on the color code: 00 is fully transparent.
+#' setColors(hab) <- paste(c("#FFFFFF", brewer.pal(8,"Greys")), c("00",rep("FF",8)), sep="")
 #'
 #' #dev(4)
 #' Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
@@ -88,7 +99,7 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
 #'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
 #' #set colors of raster, including a transparent layer for zeros
-#' setColors(fires, 10)<-c("#00000000", brewer.pal(8,"Reds")[5:8])
+#' setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 #' Plot(fires)
 #' Plot(fires,addTo="hab")
 #'
@@ -106,162 +117,184 @@ setGeneric("spread", function(landscape, loci=ncell(landscape)/2, spreadProb=0.2
 #' Plot(fires,
 #'      cols=topo.colors(10))
 #'
-setMethod("spread",
-          signature(landscape="RasterLayer"),
-          definition = function(landscape, loci, spreadProb, persistence,
-                                mask, maxSize=ncell(landscape), directions=8,
-                                iterations=ncell(landscape), mapID=FALSE,
-                                plot.it=FALSE, ...) {
-            ### should sanity check map extents
+setMethod(
+  "spread",
+  signature(landscape="RasterLayer"),
+  definition = function(landscape, loci, spreadProb, persistence, mask,
+                        maxSize, directions=8L, iterations = NULL, lowMemory,
+                        returnIndices, mapID=FALSE,
+                        plot.it=FALSE, ...) {
+    ### should sanity check map extents
+    if (is.null(loci))  {
+      # start it in the centre cell
+      loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
+    }
 
-            if (is.null(loci))  {
-              # start it in the centre cell
-              loci <- (landscape@nrows/2 + 0.5) * landscape@ncols
-            }
+    if(is(spreadProb,"RasterLayer")) {
+      if ( (minValue(spreadProb)>1L) || (maxValue(spreadProb)<0L) ) {
+        stop("spreadProb is not a probability")
+      }
+    } else {
+      if (!inRange(spreadProb)) stop("spreadProb is not a probability")
+    }
 
-            if(is(spreadProb,"RasterLayer")) {
-              if (minValue(spreadProb)>1) stop("spreadProb is not a probability")
-              if (maxValue(spreadProb)<0) stop("spreadProb is not a probability")
-            } else {
-              if (!inRange(spreadProb)) stop("spreadProb is not a probability")
-            }
+    ## Recycling maxSize as needed
+    maxSize <- if(!is.null(maxSize)) {
+      rep_len(maxSize, length(loci))
+    } else {
+      10 * ncell(landscape)
+    }
 
-            spreads <- rep_len(0, ncell(landscape))#data.table(ind=1:ncell(landscape), burned=0, key="ind")
+    if(lowMemory) {
+      #spreads <- sparseVector(1, 1, length=ncell(landscape))
+      #spreads[1] <- 0
+      spreads <- ff(vmode="short", 0, length=ncell(landscape))
+    } else {
+      spreads <- vector("integer", ncell(landscape))
+    }
 
+    n <- 1L
+    if (mapID) {
+      spreads[loci] <- 1L:length(loci)
+      if(length(maxSize) > 1L){
+        size <- rep_len(1L, length(loci))
+      } else {
+        size <- length(loci)
+      }
+    } else {
+      spreads[loci] <- n
+      size <- length(loci)
+    }
 
-            n <- 1
-            if (mapID) {
-              spreads[loci] <- 1:length(loci)
-            } else {
-              spreads[loci] <- n
-            }
-            size <- length(loci)
+    # Convert mask and NAs to 0 on the spreadProb Raster
+    if (is(spreadProb, "Raster")) {
+      spreadProb[is.na(spreadProb)] <- 0L
+      if(!is.null(mask)) {
+        spreadProb[mask==1L] <- 0L
+      }
+    } else if (is.numeric(spreadProb)) {
+      # Translate numeric spreadProb into a Raster
+      if(!is.null(mask)) {
+        spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
+        spreadProb[mask==1L] <- 0L
+      }
+    }
 
-            if (is.null(iterations)) {
-              iterations <- Inf # this is a stupid way to do this!
-            }
+    # while there are active cells
+    while (length(loci)) {
 
-            # Convert mask and NAs to 0 on the spreadProb Raster
-            if (is(spreadProb, "Raster")) {
-              spreadProb[is.na(spreadProb)]<-0
-              if(!is.null(mask)) {
-                spreadProb[mask==1]<-0
-              }
-            } else if (is.numeric(spreadProb)) { # Translate numeric spreadProb into a Raster
-              #  if there is a mask Raster
-              if(!is.null(mask)) {
-                spreadProb <- raster(extent(landscape), res=res(landscape), vals=spreadProb)
-                spreadProb[mask==1]<-0
-              }
-            }
+      # identify neighbours
+      if (mapID) {
+        potentials <- adj(landscape, loci, directions, pairs=TRUE)
+      } else {
+        # must pad the first column of potentials
+        potentials <- cbind(NA, adj(landscape, loci, directions, pairs=FALSE))
+      }
 
-
-            while ( (length(loci)>0) & (iterations>=n) ) {
-              if (mapID) {
-                potentials <- adj(landscape, loci, directions, pairs=TRUE)
-              } else {
-                # must pad the first column of potentials
-                potentials <- cbind(NA, adj(landscape, loci, directions,
-                                            pairs=FALSE))
-              }
-              #browser()
-
-
-              #if there is only one potential, R converts this to a vector, instead of a matrix.
-              # Force it back to a matrix
-#              if(length(potentials)==2) {
-#                potentials <- matrix(potentials,ncol=2)
-#              }
-
-              # drop those ineligible
-              #              if (!is.null(mask))
-              #                potentials <- matrix(potentials[potentials[,2] %in% masked,], ncol=2)
-
-              # only accept cells that have no fire yet
-              # Need to call matrix because of the cast where there is only one cell
-              #potentials <- matrix(potentials[spreads[potentials[,2]]==0,], ncol=2)
-              potentials <- potentials[spreads[potentials[,2]]==0,,drop=FALSE]
-
-              # If one pixels is selected as potential by more than one source
-              #  Remove the duplication, and reorder the potentials so that it is not
-              #  always the "first one", i.e., closest to top left of map, that is kept.
-              if(nrow(potentials)>0) {
-                potentials <- potentials[sample.int(nrow(potentials)),,drop=FALSE]
-              }
-              potentials <- potentials[!duplicated(potentials[,2]),,drop=FALSE]
+      # keep only neighbours that have not been spread to yet
+      potentials <- potentials[spreads[potentials[,2L]]==0L, , drop=FALSE]
 
 
-              # select which potentials actually happened
-              # nrow() only works if potentials is an array
-              if (is.numeric(spreadProb)) {
-                #  ItHappened <- runif(nrow(potentials)) <= spreadProb
-                spreadProbs <- spreadProb
-              } else {
-                spreadProbs <- spreadProb[potentials[,2]]
-                #spreadProbs <- spreadProbs[is.na(spreadProbs)]<-0
-              }
+      if (is.numeric(spreadProb)) {
+        spreadProbs <- spreadProb
+      } else {
+        spreadProbs <- spreadProb[potentials[,2L]]
+      }
 
-              #If there is only 1 event, R turns the matrix into a vector
-              if(is(potentials,"matrix")) {
-                ItHappened <- runif(nrow(potentials))<=spreadProbs
-                events <- potentials[ItHappened,2]
-              } else {
-                ItHappened <- runif(1)<=spreadProbs
-                events <- potentials[2]
-              }
+      potentials <- potentials[runif(NROW(potentials)) <= spreadProbs,,drop=FALSE]
+      potentials <- potentials[sample.int(NROW(potentials)),,drop=FALSE]
+      potentials <- potentials[!duplicated(potentials[,2L]),,drop=FALSE]
+      events <- potentials[,2L]
 
-              # Implement maxSize
-              len <- length(events)
-              if((size+len) > maxSize) {
-                keep<-len - ((size+len) - maxSize)
-                events<-events[sample(len,keep)]
-              }
+      # Implement maxSize
+      if(length(maxSize) == 1L) {
+        len <- length(events)
+        if((size+len) > maxSize) {
+          keep <- len - ((size+len) - maxSize)
+          samples <- sample(len,keep)
+          events <- events[samples]
+          potentials <- potentials[samples, , drop=FALSE]
+        }
+        size <- size + length(events)
+      } else {
+        len <- tabulate(spreads[potentials[,1L]], length(maxSize))
+        if ( any( (size + len) > maxSize & size < maxSize) ) {
+          whichID <- which(size + len > maxSize)
+          toRm <- (size + len)[whichID] - maxSize[whichID]
 
-              size <- size + length(unique(events))
-
-              # update eligibility map
-
-              n <- n+1
-
-              if (mapID) {
-                if(is(potentials,"matrix")) {
-                  spreads[events] <- spreads[potentials[ItHappened,1]]
-                } else {
-                  spreads[events] <- spreads[potentials[1]]
-                }
-              } else {
-                spreads[events] <- n
-              }
-
-
-              if(size >= maxSize) {
-                events <- NULL
-              }
-
-              # drop or keep loci
-              if (is.null(persistence) | is.na(persistence) | persistence == 0) {
-                loci <- NULL
-              } else {
-                if (inRange(persistence)) {
-                  loci <- loci[runif(length(loci))<=persistence]
-                } else {
-                  # here is were we would handle methods for raster* or functions
-                  stop("Unsupported type: persistence")
-                }
-              }
-
-              loci <- c(loci, events)
-
-              if (plot.it){
-                plotCur <- raster(landscape)
-                plotCur <- setValues(plotCur,spreads)
-                Plot(plotCur, ...)
-              }
-            }
-
-            # Convert the data back to raster
-            spre <- raster(landscape)
-            spre <- setValues(spre, spreads)
-            return(spre)
+          for(i in 1:length(whichID)){
+            thisID <- which(spreads[potentials[,1L]] == whichID[i])
+            potentials <- potentials[-sample(thisID, toRm[i]), , drop = FALSE]
           }
+          events <- potentials[,2L]
+        }
+        size <- pmin(size + len, maxSize) ## Quick? and dirty,
+                                          ## fast but loose (too flexible)
+      }
+
+      # update eligibility map
+      n <- n + 1L
+
+      if(length(events)>0){
+        if (mapID) {
+          spreads[events] <- spreads[potentials[,1L]]
+        } else {
+          spreads[events] <- n
+        }
+      }
+
+      if(length(maxSize) > 1L){
+        if(exists("whichID")){
+          events <- events[!spreads[events] %in% whichID]
+          rm(whichID)
+        }
+
+      } else {
+        if(size >= maxSize) {
+          events <- NULL
+        }
+      }
+
+      # drop or keep loci
+      if (is.null(persistence) | is.na(persistence) | persistence == 0L) {
+        loci <- NULL
+      } else {
+        if (inRange(persistence)) {
+          loci <- loci[runif(length(loci)) <= persistence]
+        } else {
+          # here is were we would handle methods for raster* or functions
+          stop("Unsupported type: persistence")
+        }
+      }
+
+      loci <- c(loci, events)
+
+      if (plot.it){
+        plotCur <- raster(landscape)
+        plotCur <- setValues(plotCur,spreads)
+        Plot(plotCur, ...)
+      }
+    }
+
+    # Convert the data back to raster
+    if(lowMemory){
+      wh <- ffwhich(spreads, spreads>0) %>% as.ram
+      if(returnIndices) {
+        return(data.table(indices=wh, value=spreads[wh]))
+      }
+#      spre[wh] <- spreads[wh]
+    } else {
+      wh <- spreads>0
+      if(returnIndices) {
+        return((wh) %>%
+          which %>%
+          data.table(indices=., value=spreads[.]))
+      }
+#      spre[wh] <- spreads[wh]
+    }
+    spre <- raster(landscape)
+    spre[] <- 0
+    spre[wh] <- spreads[wh]
+    return(spre)
+  }
 )

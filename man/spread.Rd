@@ -6,13 +6,13 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci = ncell(landscape)/2, spreadProb = 0.23,
-  persistence = 0, mask = NULL, maxSize = ncell(landscape),
-  directions = 8, iterations = NULL, ...)
+spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
+  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
+  lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
-  maxSize = ncell(landscape), directions = 8,
-  iterations = ncell(landscape), mapID = FALSE, plot.it = FALSE, ...)
+  maxSize, directions = 8L, iterations = NULL, lowMemory, returnIndices,
+  mapID = FALSE, plot.it = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -28,18 +28,24 @@ driven.}
                      whose elements are \code{0,1}, where 1 indicates "cannot spread to". Currently
                      not implemented.}
 
-\item{maxSize}{The maximum number of pixels for a fire. This is currently
-                     only a single number, not one for each spread event}
+\item{maxSize}{Vector of the maximum number of pixels for a single or all events to be spread.
+                     Recycled to match \code{loci} length.}
 
 \item{directions}{The number adjacent cells in which to look; default is 8 (Queen case).}
 
 \item{iterations}{Number of iterations to spread. Leaving this \code{NULL} allows the spread
                      to continue until stops spreading itself (i.e., exhausts itself).}
 
+\item{lowMemory}{Logical. If true, then function uses package \code{ff} internally. This is slower,
+                     but much lower memory footprint.}
+
+\item{returnIndices}{Logical. Should the function return a data.table with indices
+                     and values of successful spread events, or return a raster with values. See Details.}
+
 \item{...}{Additional parameters.}
 
-\item{mapID}{Logical. If TRUE, then the returned fire map is a map of fire ids. If FALSE,
-the returned map is the iteration number that the pixel burned}
+\item{mapID}{Logical. If TRUE, returns a raster of events ids. If FALSE,
+returns a raster of iteration numbers, i.e. the spread history of one or more events.}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction, so one can watch the
 spread event grow.}
@@ -55,12 +61,16 @@ in the landscape have been covered. With \code{mapID} set to \code{TRUE}, the re
 classified by the index of the pixel where that event propagated from. This can be used to examine things like
 fire size distributions.
 }
+\details{
+For large rasters, a combination of \code{lowMemory=TRUE} and \code{returnIndices=TRUE} will use the least amoun
+of memory.
+}
 \examples{
 library(raster)
 library(RColorBrewer)
 
 # Make random forest cover map
-a <- raster(extent(0,1e2,0,1e2),res=1)
+a <- raster(extent(0,1e2,0,1e2), res=1)
 hab <- gaussMap(a,speedup=1) # if raster is large (>1e6 pixels), use speedup>1
 names(hab)="hab"
 cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
@@ -71,8 +81,8 @@ numCol <- ncol(a)
 numCell <- ncell(a)
 directions <- 8
 
-# Transparency involves putting 2 more hex digits on the color code, 00 is fully transparent
-setColors(hab) <- paste(c("#FFFFFF",brewer.pal(8,"Greys")),c("00",rep("FF",8)),sep="")
+# Transparency involves putting two more hex digits on the color code: 00 is fully transparent.
+setColors(hab) <- paste(c("#FFFFFF", brewer.pal(8,"Greys")), c("00",rep("FF",8)), sep="")
 
 #dev(4)
 Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
@@ -82,7 +92,7 @@ Plot(hab,new=TRUE,speedup=3) # note speedup is equivalent to making pyramids,
 fires <- spread(hab, loci=as.integer(sample(1:ncell(hab), 10)),
                 0.235, 0, NULL, 1e8, 8, 1e6, mapID=TRUE)
 #set colors of raster, including a transparent layer for zeros
-setColors(fires, 10)<-c("#00000000", brewer.pal(8,"Reds")[5:8])
+setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 Plot(fires)
 Plot(fires,addTo="hab")
 

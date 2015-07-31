@@ -1,12 +1,13 @@
-##############################################################
+################################################################################
 #' Create new module from template.
 #'
-#' Autogenerate a skeleton for a new SpaDES module, a template for a documentation file,
-#' a citation file, a license file, and a readme.txt file. The \code{newModuleDocumentation}
-#' will not generate the module file, but will create the other 4 files.
+#' Autogenerate a skeleton for a new SpaDES module, a template for a
+#' documentation file, a citation file, a license file, and a readme.txt file.
+#' The \code{newModuleDocumentation} will not generate the module file, but will
+#' create the other 4 files.
 #'
-#' All 5 (or 4, if using \code{newModuleDocumentation}) files will be created within a
-#' subfolder named \code{name} within the \code{path}.
+#' All 5 (or 4, if using \code{newModuleDocumentation}) files will be created
+#' within a subfolder named \code{name} within the \code{path}.
 #'
 #' @param name  Character string. Your module's name.
 #'
@@ -22,17 +23,19 @@
 #' @export
 #' @docType methods
 #' @rdname newModule
-#'
+# @importFrom utils file.edit
 #' @author Alex Chubaty and Eliot McIntire
 #'
 #' @examples
-#' \dontrun{## create a "fastfood" module in the "modules" subdirectory.}
-#' \dontrun{newModule("fastfood", "modules")}
-#'
+#' \dontrun{
+#'   ## create a "myModule" module in the "modules" subdirectory.
+#'   newModule("myModule", "modules")
+#' }
 setGeneric("newModule", function(name, path, open) {
   standardGeneric("newModule")
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="logical"),
@@ -41,58 +44,24 @@ setMethod("newModule",
             nestedPath <- file.path(path, name)
             checkPath(nestedPath, create=TRUE)
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
-            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            filenameCitation <- file.path(nestedPath, paste0(name, ".citation.bib"))
-            filenameLICENSE <- file.path(nestedPath, "LICENSE")
-            filenameREADME <- file.path(nestedPath, "README.txt")
-
 
             cat("
-### Specify module (and dependencies) definitions:
-###
-### name:         ", name, "
-###
-### description:  <provide module description>
-###
-### keywords:     <provide module keywords>
-###
-### authors:      <author name(s) and email address(es)>
-###
-### version:      0.0.0
-###
-### spatialExtent: NA
-###
-### timeframe:    NA
-###
-### timestep:     NA
-###
-### citation:     NA
-###
-### reqdPkgs:     NA
-###
-### inputObjects: objectName: NA
-###               objectClass: NA
-###               other: NA
-###
-### outputObjects: objectName: NA
-###                objectClass: NA
-###                other: NA
-###
-### ", name, " module metadata
 defineModule(sim, list(
   name=\"", name, "\",
   description=\"insert module description here\",
   keywords=c(\"insert key words here\"),
   authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  childModules=character(),
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timestep=NA_real_,
+  timeunit=NA_character_, # e.g., \"year\"
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
-    defineParameter(\"paramName\", \"paramClass\", value),
-    defineParameter(\"paramName\", \"paramClass\", value)),
+    defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
+    defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")),
+    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
   inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
@@ -106,11 +75,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    sim <- ", name, "Init(sim)
+    ", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, simParams(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
-    sim <- scheduleEvent(sim, simParams(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+    scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType==\"templateEvent\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -121,12 +90,12 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, simCurrentTime(sim) + increment, \"", name, "\", \"templateEvent\")
+    # scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {
-      warning(paste(\"Undefined event type: \'\", simEvents(sim)[1, \"eventType\", with=FALSE],
-                    \"\' in module \'\", simEvents(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
+      warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
+                    \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
     }
   return(invisible(sim))
 }
@@ -140,13 +109,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Init = function(sim) {
 
   # # ! ----- EDIT BELOW ----- ! #
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
 
 
-  # assignGlobal(\"object\")
+
   # ! ----- STOP EDITING ----- ! #
 
   return(invisible(sim))
@@ -156,14 +121,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
+  sim <- saveFiles(sim)
 
-  saveFiles(sim)
-
-  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -172,14 +131,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ", name, "Plot = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
+  #Plot(\"object\")
 
-  #Plot(getGlobal(\"object\"))
-
-  # assignGlobal(\"object\")
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -187,13 +140,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template for your event1
 ", name, "Event1 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
 
 
-  # assignGlobal(\"object\")
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -201,13 +150,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 ### template for your event2
 ", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-  # Functions should get and return global objects, rather than pass them as function arguments
-  #  This is mostly allows for functions definitions to be simpler, i.e., they just take the one
-  #  sim argument if parameters are passed within the simInit call and are needed within the function
-  # getGlobal(\"object\")
 
 
-  # assignGlobal(\"object\")
+
   # ! ----- STOP EDITING ----- ! #
   return(invisible(sim))
 }
@@ -221,6 +166,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="missing", open="logical"),
@@ -228,6 +174,7 @@ setMethod("newModule",
             newModule(name=name, path=".", open=open)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="character", open="missing"),
@@ -235,6 +182,7 @@ setMethod("newModule",
             newModule(name=name, path=path, open=TRUE)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModule",
           signature=c(name="character", path="missing", open="missing"),
@@ -246,13 +194,14 @@ setMethod("newModule",
 #' @export
 #' @docType methods
 #' @rdname newModule
-#'
+# @importFrom utils file.edit
 #' @author Eliot McIntire
 #'
 setGeneric("newModuleDocumentation", function(name, path, open) {
   standardGeneric("newModuleDocumentation")
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="logical"),
@@ -270,7 +219,7 @@ cat(
 "---
 title: \"",name,"\"
 author: \"Module Author\"
-date: \"`r Sys.Date()`\"
+date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
 
@@ -373,6 +322,7 @@ if(open) file.edit(filenameRmd)
 
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="logical"),
@@ -380,6 +330,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=".", open=open)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="character", open="missing"),
@@ -387,6 +338,7 @@ setMethod("newModuleDocumentation",
             newModuleDocumentation(name=name, path=path, open=TRUE)
 })
 
+#' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
           signature=c(name="character", path="missing", open="missing"),
@@ -412,6 +364,7 @@ setMethod("newModuleDocumentation",
 #' @export
 #' @docType methods
 #' @rdname openModules
+# @importFrom utils file.edit
 #'
 #' @author Eliot McIntire
 #'
@@ -422,6 +375,7 @@ setGeneric("openModules", function(basedir, names) {
   standardGeneric("openModules")
 })
 
+#' @export
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="character", names="character"),
@@ -442,6 +396,7 @@ setMethod("openModules",
             setwd(origDir)
 })
 
+#' @export
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="missing", names="missing"),
@@ -449,6 +404,7 @@ setMethod("openModules",
             openModules(basedir=".", names="all")
 })
 
+#' @export
 #' @rdname openModules
 setMethod("openModules",
           signature=c(basedir="character", names="missing"),
@@ -462,28 +418,28 @@ setMethod("openModules",
 #' The most common use of this would be from a "modules" directory, rather than
 #' inside a given module.
 #'
-#' @param name  Character string giving the module name.
-#' @param path  A file path to a directory containing the module subdirectory.
-#' @param version The module version
+#' @param name    Character string giving the module name.
+#' @param path    A file path to a directory containing the module subdirectory.
+#' @param version The module version.
+#' @param ...     Additional arguments to \code{\link{zip}}:
+#'                e.g., add \code{"-q"} using \code{flags="-q -r9X"}
+#'                (the default flags are \code{"-r9X"}).
 #'
 #' @author Eliot McIntire and Alex Chubaty
 #'
 #' @export
 #' @rdname zipModule
-#' @examples
-#' \dontrun{
-#' # zip all modules in a directory, with a particular version
-#'  for (f in dir()) {zipModule(name=f, version="0.0.2")}
-#' }
 #'
-setGeneric("zipModule", function(name, path, version) {
+setGeneric("zipModule", function(name, path, version, ...) {
   standardGeneric("zipModule")
 })
 
+#' @export
+# @importFrom utils zip
 #' @rdname zipModule
 setMethod("zipModule",
 signature=c(name="character", path="character", version="character"),
-definition = function(name, path, version) {
+definition = function(name, path, version, ...) {
   # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
   #  Requires pandoc to be installed and working
 
@@ -493,21 +449,24 @@ definition = function(name, path, version) {
   on.exit(setwd(callingWd))
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
-  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"))
-  file.copy(zipFileName, to = paste0(name,"/",zipFileName),overwrite = TRUE)
+  print(paste("Zipping module into zip file"))
+  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"), ...)
+  file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)
 })
 
 #' @rdname zipModule
+#' @export
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="character"),
-          definition = function(name, version) {
-            zipModule(name=name, path=".", version=version)
+          definition = function(name, version, ...) {
+            zipModule(name=name, path=".", version=version, ...)
 })
 
+#' @export
 #' @rdname zipModule
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),
-          definition = function(name) {
-            zipModule(name=name, path=".", version="0.0.0")
+          definition = function(name, ...) {
+            zipModule(name=name, path=".", version="0.0.0", ...)
 })

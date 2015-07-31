@@ -4,21 +4,22 @@
 \name{getFileName}
 \alias{getFileName}
 \alias{getFileName,logical-method}
-\title{Get the name of a source file}
+\title{Get the name of a \code{source}-ed file}
 \usage{
 getFileName(fullname)
 
 \S4method{getFileName}{logical}(fullname)
 }
 \arguments{
-\item{fullname}{Logical (default \code{FALSE}) indicating whether the full path should be returned.}
+\item{fullname}{Logical (default \code{FALSE}) indicating whether the full
+                  path should be returned.}
 }
 \value{
-Character string representing the filename.
+Character String representing the filename.
 }
 \description{
-This will only work for files that are \code{source}d.
-Based on this: \url{http://stackoverflow.com/a/1816487/1380598}.
+Use \code{getFileName} in a file that is \code{source}-ed.
+Based on \url{http://stackoverflow.com/a/1816487/1380598}.
 }
 \author{
 Alex Chubaty

@@ -1,10 +1,11 @@
-##############################################################
+################################################################################
 #' Move
 #'
 #' Wrapper for selecting different animal movement methods.
 #'
-#' @param hypothesis  a character vector, length one, indicating which movement hypothesis.
-#' Currently defaults to crw to call the \code{crw} function.
+#' @param hypothesis  Character vector, length one, indicating which movement
+#'                    hypothesis/method to test/use. Currently defaults to
+#'                    'crw' (correlated random walk) using \code{crw}.
 #'
 #' @param ... arguments passed to the function in \code{hypothesis}
 #'
@@ -36,6 +37,10 @@ move <- function(hypothesis="crw", ...) {
 #' @param stepLength  Numeric vector of length 1 or number of agents describing
 #'                    step length.
 #'
+#' @param extent      An optional extent object that will be used for \code{torus}
+#'
+#' @param torus       Logical. Should the crw movement be wrapped to the opposite side
+#' of the map, as determined by the \code{extent} argument. Default FALSE.
 #' @param stddev          Numeric vector of length 1 or number of agents describing
 #'                    standard deviation of wrapped normal turn angles.
 #'
@@ -53,6 +58,8 @@ move <- function(hypothesis="crw", ...) {
 #' @references McIntire, E. J. B., C. B. Schultz, and E. E. Crone. 2007. Designing a network for butterfly habitat restoration: where individuals, populations and landscapes interact. Journal of Applied Ecology 44:725-736.
 #'
 #' @export
+#' @importFrom CircStats rad
+#' @importFrom stats rnorm
 #' @docType methods
 #' @rdname crw
 #'
@@ -60,7 +67,7 @@ move <- function(hypothesis="crw", ...) {
 #'
 #@examples
 #NEED EXAMPLES
-crw = function(agent, stepLength, stddev, lonlat) {
+crw = function(agent, extent, stepLength, stddev, lonlat, torus=FALSE) {
 
   if (is.null(lonlat)) {
     stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
@@ -74,31 +81,15 @@ crw = function(agent, stepLength, stddev, lonlat) {
   rndDir[rndDir>180] <- rndDir[rndDir>180]-360
   rndDir[rndDir<=180 & rndDir<(-180)] <- 360+rndDir[rndDir<=180 & rndDir<(-180)]
 
-  agent@data[,c("x1","y1")] <- coordinates(agent)
-  agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
-                        y=agent$y + cos(rad(rndDir)) * stepLength)
+    agent@data[,c("x1","y1")] <- coordinates(agent)
+    agent@coords <- cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
+                          y=agent$y + cos(rad(rndDir)) * stepLength)
 
-
-  return(agent)
-}
-
-crw3 = function(agent, stepLength, stddev, lonlat) {
-
-  if (is.null(lonlat)) {
-    stop("you must provide a \"lonlat\" argument (TRUE/FALSE)")
+  if(torus) {
+    return(wrap(X=agent, bounds=extent, withHeading=TRUE))
+  } else {
+    return(agent)
   }
-  stopifnot(is.logical(lonlat))
 
-  n <- length(agent)
-  agentHeading <- heading(cbind(x=agent$x1, y=agent$y1), agent)
-  rndDir <- rnorm(n, agentHeading, stddev)
-  #rndDir <- ifelse(rndDir>180, rndDir-360, ifelse(rndDir<(-180), 360+rndDir, rndDir))
-  rndDir[rndDir>180] <- rndDir[rndDir>180]-360
-  rndDir[rndDir<=180 & rndDir<(-180)] <- 360+rndDir[rndDir<=180 & rndDir<(-180)]
-
-
-  return(cbind(x=agent$x + sin(rad(rndDir)) * stepLength,
-               y=agent$y + cos(rad(rndDir)) * stepLength,
-               x1=agent@coords[,"x"],
-               y1=agent@coords[,"y"]))
 }
+
