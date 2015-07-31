@@ -48,7 +48,7 @@ if (getRversion() >= "3.1.0") {
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
-#' @importFrom utils sessionInfo
+# @importFrom utils sessionInfo
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -691,7 +691,7 @@ setMethod("simInit",
 #' @return Returns the modified \code{simList} object.
 #'
 #' @importFrom data.table data.table rbindlist setkey
-#' @importFrom utils tail
+# @importFrom utils tail
 #' @export
 #' @keywords internal
 #' @docType methods

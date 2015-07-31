@@ -129,7 +129,7 @@ setMethod("updateList",
 #' @export
 #' @docType methods
 #' @rdname loadPackages
-#' @importFrom utils install.packages
+# @importFrom utils install.packages
 #'
 #' @author Alex Chubaty
 #'

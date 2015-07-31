@@ -397,4 +397,7 @@ NULL
 #' @import methods
 NULL
 
+#' @import utils
+NULL
+
 options(repos = c(CRAN="http://cran.r-project.org"))

@@ -10,7 +10,7 @@ if (getRversion() >= "3.1.0") {
 #' @export
 #' @include simList-class.R
 #' @importFrom dplyr mutate
-#' @importFrom utils capture.output
+# @importFrom utils capture.output
 #' @importFrom stats na.omit
 #' @docType methods
 #' @rdname show-method

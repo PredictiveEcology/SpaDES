@@ -79,7 +79,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @include simulation.R
 #' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
-#' @importFrom utils getFromNamespace
+# @importFrom utils getFromNamespace
 #' @export
 #' @docType methods
 #' @rdname loadFiles
