@@ -68,6 +68,7 @@ setMethod(
   signature(sim="simList", modules="list"),
   definition=function(sim, modules) {
     all_children <- list()
+    children <- list()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
