@@ -25,6 +25,7 @@ version 1.0.0
 * new function `classFilter` to filter list of objects by their type
 * new function `packages` to get all packages required by a simulation
 * new function `rndstr` to generate random strings
+* new function `append_attr` to append list items and keep their attributes
 * improved `loadPackages`
 * improved `.objectNames`
 * `defineParameter` now accepts `min`, `max`, and description values (#172; #175)
@@ -43,6 +44,7 @@ version 1.0.0
     - allow `package::function` notation in load (#174)
     - bug fixes
 
+* added "metamodules" which specify module groups (#176)
 * improved test coverage (see #139)
 * improved documentation and vignettes
 * fixed progress bar bug (#147)
