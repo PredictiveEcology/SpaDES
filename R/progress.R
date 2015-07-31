@@ -92,7 +92,7 @@ setProgressBar <- function(sim) {
   pb <- get(".pb", envir=.spadesEnv)
   if (params(sim)$.progress$type == "graphical") {
     if (OS=="windows") {
-      utils:::setWinProgressBar(pb, time(sim, timeunit(sim)),
+      utils::setWinProgressBar(pb, time(sim, timeunit(sim)),
                         title=paste("Current simulation time:",
                                     timeunit(sim),
                                     round(time(sim, timeunit(sim)), 3),
