@@ -79,6 +79,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #' @include simulation.R
 #' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
+#' @importFrom utils getFromNamespace
 #' @export
 #' @docType methods
 #' @rdname loadFiles
@@ -228,17 +229,9 @@ setMethod(
           }
 
           # The actual load call
-#           print(loadFun[x])
-#           print(loadPackage[x])
-#           print(paste("argument", argument))
-#           argument <- argument[na.omit(match(names(formals(getFromNamespace(loadFun[x], loadPackage[x]))),
-#                                              names(argument)))]
           sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
                                           args=argument)
           filelistDT[y,loaded:=TRUE]
-
-          #simObjectsLoaded(sim) <- append(simObjectsLoaded(sim), objectName[x])
-
 
           if (loadFun[x]=="raster") {
             message(paste0(

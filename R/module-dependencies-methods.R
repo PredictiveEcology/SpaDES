@@ -142,6 +142,7 @@ setMethod("depsGraph",
 #'
 #' @importFrom data.table as.data.table data.table rbindlist
 #' @importFrom dplyr anti_join bind_rows filter inner_join lead
+#' @importFrom stats na.omit
 #' @export
 #' @docType methods
 #' @rdname depsPruneEdges

@@ -14,7 +14,7 @@ test_that("Plot is not error-free", {
   habitatQuality87654 <- SpaDES::gaussMap(ras, var = 2, speedup=1)
   names(habitatQuality87654) <- "habitatQuality87654"
   landscape87654 <- stack(DEM87654, habitatQuality87654)
-  caribou87654 <- sp::SpatialPoints(coords=cbind(x=runif(1e1, 0, 10), y=runif(1e1, 0, 10)))
+  caribou87654 <- sp::SpatialPoints(coords=cbind(x=stats::runif(1e1, 0, 10), y=stats::runif(1e1, 0, 10)))
 
   # If any rearrangements are required, Plot searches for objects in Global Env
   # So all tests must run a clearPlot or a new=TRUE to be cleared to
@@ -89,12 +89,12 @@ test_that("Plot is not error-free", {
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  hist87654 <- hist(rnorm(1e3), plot=FALSE)
+  hist87654 <- hist(stats::rnorm(1e3), plot=FALSE)
   expect_that(Plot(hist87654, new=TRUE), testthat::not(throws_error()))
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  ggplot87654 <- ggplot2::qplot(rnorm(1e3), binwidth=0.3, geom = "histogram")
+  ggplot87654 <- ggplot2::qplot(stats::rnorm(1e3), binwidth=0.3, geom = "histogram")
   expect_that(Plot(ggplot87654, new=TRUE), testthat::not(throws_error()))
 
   # test rearrangements

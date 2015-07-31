@@ -129,6 +129,7 @@ setMethod("updateList",
 #' @export
 #' @docType methods
 #' @rdname loadPackages
+#' @importFrom utils install.packages
 #'
 #' @author Alex Chubaty
 #'
@@ -484,7 +485,7 @@ setMethod("rndstr",
 #'   ## from global environment
 #'   a <- list(1:10)     # class `list`
 #'   b <- letters        # class `character`
-#'   d <- runif(10)      # class `numeric`
+#'   d <- stats::runif(10)      # class `numeric`
 #'   f <- sample(1L:10L) # class `numeric`, `integer`
 #'   g <- lm( jitter(d) ~ d ) # class `lm`
 #'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
@@ -501,7 +502,7 @@ setMethod("rndstr",
 #'   e <- environment()
 #'   a <- list(1:10)     # class `list`
 #'   b <- letters        # class `character`
-#'   d <- runif(10)      # class `numeric`
+#'   d <- stats::runif(10)      # class `numeric`
 #'   f <- sample(1L:10L) # class `numeric`, `integer`
 #'   g <- lm( jitter(d) ~ d ) # class `lm`
 #'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
@@ -517,7 +518,7 @@ setMethod("rndstr",
 #' e = new.env(parent = emptyenv())
 #' e$a <- list(1:10)     # class `list`
 #' e$b <- letters        # class `character`
-#' e$d <- runif(10)      # class `numeric`
+#' e$d <- stats::runif(10)      # class `numeric`
 #' e$f <- sample(1L:10L) # class `numeric`, `integer`
 #' e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
 #' e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`

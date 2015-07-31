@@ -74,7 +74,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     ## stats scheduling done by burn event
   } else if (eventType=="plot.init") {
     # do stuff for this event
-    setColors(sim[[globals(sim)$stackName]]) <- list(DEM=terrain.colors(100),
+    setColors(sim[[globals(sim)$stackName]]) <- list(DEM=grDevices::terrain.colors(100),
                                 forestAge=brewer.pal(9,"BuGn"),
                                 forestCover=brewer.pal(8,"BrBG"),
                                 habitatQuality=brewer.pal(8,"Spectral"),

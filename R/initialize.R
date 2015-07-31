@@ -219,6 +219,7 @@ randomPolygons <- function(ras=raster(extent(0,15,0,15), res=1), p=0.1, A=0.3,
 #'
 #' @importFrom data.table data.table setkey
 #' @importFrom raster getValues raster Which
+#' @importFrom stats na.omit
 #' @export
 #' @docType methods
 #' @rdname specnumperpatch-probs

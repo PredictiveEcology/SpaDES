@@ -238,18 +238,18 @@ habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2, -50, 50), y=stats::runif(1e2, -50, 50)))
 
 
 #Plot all maps on a new plot windows - Do not use RStudio window
 \\notrun{
-if (is.null(dev.list())) {
+if (is.null(grDevices::dev.list())) {
   dev(2)
 } else {
-  if (any(names(dev.list())=="RStudioGD")) {
-    dev(which(names(dev.list())=="RStudioGD")+3)
+  if (any(names(grDevices::dev.list())=="RStudioGD")) {
+    dev(which(names(grDevices::dev.list())=="RStudioGD")+3)
   } else {
-    dev(max(dev.list()))
+    dev(max(grDevices::dev.list()))
   }
 }
 }

@@ -186,6 +186,7 @@ setMethod(
 #'
 #' @rdname updateSpadesPlot
 #' @export
+#' @importFrom stats na.omit
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @docType methods
@@ -328,6 +329,7 @@ setMethod(
 #'
 #' @rdname arrangeViewports
 #' @include plotting-classes.R
+#' @importFrom grDevices dev.cur dev.new dev.size
 #' @importFrom sp bbox
 #' @export
 #' @author Eliot McIntire
@@ -482,6 +484,7 @@ setMethod(
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
 #' @importFrom sp proj4string
 #' @importFrom grid gpar gTree gList rasterGrob textGrob grid.draw
+#' @importFrom grDevices as.raster
 #'
 #' @author Eliot McIntire
 # package grid is imported in spade-package.R
@@ -1259,6 +1262,7 @@ setMethod(
 #' @importFrom raster crop
 #' @importFrom grid upViewport pushViewport seekViewport grid.text
 #' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
+#' @importFrom grDevices dev.cur dev.size
 #' @author Eliot McIntire
 #' @include environment.R
 #' @include plotting-classes.R
@@ -1301,18 +1305,18 @@ setMethod(
 #' names(habitatQuality2) <- "habitatQuality2"
 #'
 #' # make a SpatialPoints object
-#' caribou <- SpatialPoints(coords=cbind(x=runif(1e2, -50, 50), y=runif(1e2, -50, 50)))
+#' caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2, -50, 50), y=stats::runif(1e2, -50, 50)))
 #'
 #'
 #' #Plot all maps on a new plot windows - Do not use RStudio window
 #' \notrun{
-#' if (is.null(dev.list())) {
+#' if (is.null(grDevices::dev.list())) {
 #'   dev(2)
 #' } else {
-#'   if (any(names(dev.list())=="RStudioGD")) {
-#'     dev(which(names(dev.list())=="RStudioGD")+3)
+#'   if (any(names(grDevices::dev.list())=="RStudioGD")) {
+#'     dev(which(names(grDevices::dev.list())=="RStudioGD")+3)
 #'   } else {
-#'     dev(max(dev.list()))
+#'     dev(max(grDevices::dev.list()))
 #'   }
 #' }
 #' }
@@ -1824,6 +1828,7 @@ setMethod(
 #'
 #' @export
 #' @include plotting-classes.R
+#' @importFrom grDevices dev.cur
 #' @rdname Plot
 #' @author Eliot McIntire
 #'

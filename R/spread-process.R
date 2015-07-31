@@ -46,6 +46,7 @@
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
 #' @importFrom ff ff as.ram
 #' @importFrom ffbase ffwhich
+#' @importFrom stats runif
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}

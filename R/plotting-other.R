@@ -15,6 +15,7 @@
 #' \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.
 #'
 #' @export
+#' @importFrom grDevices dev.cur
 #' @importFrom grid grid.newpage
 #' @docType methods
 #' @rdname clearPlot
@@ -161,6 +162,7 @@ clickValues <- function(n=1) {
 #'
 #' @export
 #' @docType methods
+#' @importFrom grDevices dev.cur
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
@@ -201,6 +203,7 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
 #' @importFrom grid grid.layout grid.locator unit
+#' @importFrom grDevices dev.cur
 # igraph exports %>% from magrittr
 clickCoordinates <- function(n=1) {
   dc <- dev.cur()
@@ -334,6 +337,7 @@ clickCoordinates <- function(n=1) {
 #'
 #' @export
 #' @include plotting-classes.R
+#' @importFrom grDevices dev.list dev.set
 #' @docType methods
 #' @rdname dev
 #' @author Eliot McIntire and Alex Chubaty
@@ -372,6 +376,7 @@ dev <- function(x, ...) {
 #' @author Eliot McIntire and Alex Chubaty
 #'
 #' @export
+#' @importFrom grDevices dev.new
 #' @docType methods
 #' @rdname newPlot
 newPlot <- function(noRStudioGD=TRUE, ...) {

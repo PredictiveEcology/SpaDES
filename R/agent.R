@@ -19,10 +19,10 @@
 #' @examples
 #' require(sp)
 #' N <- 10L                # number of agents
-#' x1 <- runif(N, -50, 50) # previous X location
-#' y1 <- runif(N, -50, 50) # previous Y location
-#' x0 <- rnorm(N, x1, 5)   # current X location
-#' y0 <- rnorm(N, y1, 5)   # current Y location
+#' x1 <- stats::runif(N, -50, 50) # previous X location
+#' y1 <- stats::runif(N, -50, 50) # previous Y location
+#' x0 <- stats::rnorm(N, x1, 5)   # current X location
+#' y0 <- stats::rnorm(N, y1, 5)   # current Y location
 #'
 #' # using SpatialPoints
 #' prev <- SpatialPoints(cbind(x=x1, y=y1))

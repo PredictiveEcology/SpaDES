@@ -78,7 +78,7 @@ See `?gpar` for options.
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, new=TRUE)
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=runif(1e2,-50,50), y=runif(1e2,-50,50)))
+caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2,-50,50), y=stats::runif(1e2,-50,50)))
 Plot(caribou)
 Plot(caribou, addTo="landscape$habitatQuality")
 
@@ -122,7 +122,7 @@ These can be combined with spatial objects as well.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 require(ggplot2)
-ggObj <- qplot(rnorm(1e3), binwidth=0.1)
+ggObj <- qplot(stats::rnorm(1e3), binwidth=0.1)
 
 Plot(caribou, ggObj, new=TRUE) 
 ```

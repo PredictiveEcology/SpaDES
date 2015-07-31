@@ -27,8 +27,8 @@ trajectories of agents.
 \examples{
 library(sp)
 # Make 2 objects
-caribou1 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
-caribou2 <- SpatialPoints(cbind(x=runif(10, -50, 50), y=runif(10, -50, 50)))
+caribou1 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
+caribou2 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
 
 caribouTraj <- makeLines(caribou1, caribou2)
 Plot(caribouTraj, new=TRUE, length=0.1)

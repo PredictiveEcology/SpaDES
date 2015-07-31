@@ -23,7 +23,7 @@
 #' @export
 #' @docType methods
 #' @rdname newModule
-#'
+#' @importFrom utils file.edit
 #' @author Alex Chubaty and Eliot McIntire
 #'
 #' @examples
@@ -197,7 +197,7 @@ setMethod("newModule",
 #' @export
 #' @docType methods
 #' @rdname newModule
-#'
+#' @importFrom utils file.edit
 #' @author Eliot McIntire
 #'
 setGeneric("newModuleDocumentation", function(name, path, open) {
@@ -367,6 +367,7 @@ setMethod("newModuleDocumentation",
 #' @export
 #' @docType methods
 #' @rdname openModules
+#' @importFrom utils file.edit
 #'
 #' @author Eliot McIntire
 #'
@@ -437,6 +438,7 @@ setGeneric("zipModule", function(name, path, version, ...) {
 })
 
 #' @export
+#' @importFrom utils zip
 #' @rdname zipModule
 setMethod("zipModule",
 signature=c(name="character", path="character", version="character"),

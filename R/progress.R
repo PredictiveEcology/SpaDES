@@ -1,3 +1,4 @@
+#' @importFrom stats na.omit
 doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     if (interactive()) {
@@ -50,6 +51,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 #' @author Alex Chubaty
 #' @author Eliot McIntire
 #' @importFrom tcltk tkProgressBar
+#' @importFrom utils txtProgressBar winProgressBar
 #' @include environment.R
 #' @export
 #' @docType methods
@@ -83,6 +85,7 @@ newProgressBar <- function(sim) {
 }
 
 #' @importFrom tcltk setTkProgressBar
+#' @importFrom utils setTxtProgressBar setWinProgressBar
 setProgressBar <- function(sim) {
   OS <- tolower(Sys.info()["sysname"])
 
