@@ -55,7 +55,7 @@ setMethod("show",
 
             p <- mapply(
               function(x, y) {
-                data.frame(Module=x, Parameter=names(y), Value=unlist(y),
+                data.frame(Module=x, Parameter=names(y), Value=I(as.list(y)),
                            stringsAsFactors=FALSE, row.names=NULL)
               },
               x=names(params(object))[-omit],
