@@ -48,7 +48,7 @@
 #' @rdname thin
 #' @author Eliot McIntire
 setGeneric("thin", function(spGeom, tol=100, method=2L, fixErrors=TRUE,
-                            keepSmall=FALSE, verbose=FALSE) {
+                            keepSmall=FALSE, removeOnlySmall=TRUE, verbose=FALSE) {
   thin(spGeom, tol, method)
 })
 
@@ -57,7 +57,7 @@ setGeneric("thin", function(spGeom, tol=100, method=2L, fixErrors=TRUE,
 setMethod(
   "thin",
   signature="SpatialPolygons",
-  definition=function(spGeom, tol, method, fixErrors, keepSmall, verbose) {
+  definition=function(spGeom, tol, method, fixErrors, keepSmall, removeOnlySmall, verbose) {
 
     if(verbose) print("Thinning Spatial Polygons")
       
@@ -67,12 +67,20 @@ setMethod(
       # if resulting polygon has 4 points or fewer, either remove it or
       #  keep exactly 4 points. Fewer than 4 points leads to imcomplete polygon
       if(sum(tmp)<4) {
-        if(keepSmall) {
-          tmp[sample(which(!tmp), (4-sum(tmp)))] <- TRUE
-        } else {
+        if(removeOnlySmall){
           tmp <- NULL
+        } else {
+          if(keepSmall) {
+            tmp[sample(which(!tmp), (4-sum(tmp)))] <- TRUE
+          } else {
+            tmp <- NULL
+          }
         }
-      } 
+      } else {
+        if(removeOnlySmall){
+          tmp <- rep(TRUE, NROW(tmp))
+        }
+      }
 
       # This maintains first and last points in a polygon or else it is no longer
       #  a polygon
@@ -97,7 +105,9 @@ setMethod(
   })
   keep <- sapply(spGeom@polygons, length)>0
   spGeom@polygons <- spGeom@polygons[keep]
-  spGeom@data <- spGeom@data[keep,]
+  if(is(spGeom, "SpatialPolygonsDataFrame")) {
+    spGeom@data <- spGeom@data[keep,]
+  }
   objOrder <- data.table(order=spGeom@plotOrder[keep],reOrder=1:sum(keep))
   setkey(objOrder, order)
   objOrder[,order:=1:sum(keep)]
@@ -152,3 +162,6 @@ setMethod(
 
     return(spGeom)
   })
+
+
+
