@@ -5,6 +5,7 @@ test_that("defineModule correctly handles different inputs", {
     name="testModule",
     description="this is a test.",
     keywords=c("test"),
+    childModules=character(),
     authors=c(person(c("Alex", "M"), "Chubaty", email="achubaty@nrcan.gc.ca", role=c("aut", "cre"))),
     version=numeric_version("0.0.1"),
     spatialExtent=raster::extent(rep(NA_real_, 4)),
