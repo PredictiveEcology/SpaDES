@@ -1974,9 +1974,9 @@ setMethod("defineParameter",
             max <- as(max, class)
 
             df <- data.frame(name=name, class=class,
-                             default=I(list(substitute(default))),
-                             min=I(list(substitute(min))),
-                             max=I(list(substitute(max))),
+                             default=I(list(default)), # substitute removed because it did not allow for a vector, with a c(...)
+                             min=I(list(min)), # substitute removed because it did not allow for a vector, with a c(...)
+                             max=I(list(max)), # substitute removed because it did not allow for a vector, with a c(...)
                              desc=desc,
                              stringsAsFactors=FALSE)
             return(df)
