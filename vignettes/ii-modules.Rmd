@@ -99,6 +99,7 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`name`**            | Name of the module as a character string.
 **`description`**     | Description of the module as a character string.
 **`keywords`**        | Character vector containing a module's keywords.
+**`childModules`**    | Character vector containing the names of the child modules that are part of this module.
 **`authors`**         | The author(s) of the module as a `person` object.
 **`version`**         | The module version as a `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
 **`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
