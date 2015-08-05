@@ -1765,7 +1765,7 @@ setMethod(
 #' Add simulation dependencies
 #'
 #' Internal function.
-#' Adds a \code{.moduleDeps} object to the simulation dependency list.
+#' Adds a \code{\link{.moduleDeps}} object to the simulation dependency list.
 #'
 #' @param sim A \code{simList} object.
 #'
@@ -1868,6 +1868,22 @@ setMethod(
   "defineModule",
   signature(sim="simList", x="list"),
   definition=function(sim, x) {
+
+    # check that all metadata elements are present
+    metadataRequiredNames <- c("name", "description", "keywords", "childModules",
+                               "authors", "version", "spatialExtent",
+                               "timeframe", "timeunit", "citation", "reqdPkgs",
+                               "parameters",
+                               "inputObjects", "outputObjects")
+
+    metadataNames <- metadataRequiredNames %in% names(x)
+    if(!all(metadataNames)) {
+      stop(paste0("The ",x$name," module is missing the metadata for ",
+                  metadataRequiredNames[!metadataNames],". Please see ?.moduleDeps ",
+              "for more information on which named elements exist. ",
+              " Currently, all elements must be present."))
+    }
+
     loadPackages(x$reqdPkgs)
 
     ## enforce/coerce types for the user-supplied param list
