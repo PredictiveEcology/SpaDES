@@ -14,7 +14,7 @@ defineModule(sim, x)
 \item{sim}{A \code{simList} object.}
 
 \item{x}{A named list containing the parameters used to construct a new
-           \code{.moduleDeps} object.}
+           \code{\link{.moduleDeps}} object.}
 }
 \value{
 Updated \code{simList} object.

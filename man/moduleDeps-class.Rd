@@ -4,7 +4,7 @@
 \name{.moduleDeps-class}
 \alias{.moduleDeps}
 \alias{.moduleDeps-class}
-\title{The \code{.moduleDeps} class}
+\title{The \code{\link{.moduleDeps}} class}
 \description{
 Descriptor object for specifying SpaDES module dependecies.
 }

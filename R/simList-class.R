@@ -32,7 +32,7 @@
 #' @slot completed  The list of completed events, as a \code{data.table}.
 #'                  See 'Event Lists' for more information.
 #'
-#' @slot depends    A \code{.simDeps} list of \code{.moduleDeps} objects
+#' @slot depends    A \code{.simDeps} list of \code{\link{.moduleDeps}} objects
 #'                  containing module object dependency information.
 #'
 #' @slot simtimes   List of numerical values describing the simulation start

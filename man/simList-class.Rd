@@ -36,7 +36,7 @@ Various slot accessor methods (i.e., get and set functions) are provided
 \item{\code{completed}}{The list of completed events, as a \code{data.table}.
                  See 'Event Lists' for more information.}
 
-\item{\code{depends}}{A \code{.simDeps} list of \code{.moduleDeps} objects
+\item{\code{depends}}{A \code{.simDeps} list of \code{\link{.moduleDeps}} objects
                  containing module object dependency information.}
 
 \item{\code{simtimes}}{List of numerical values describing the simulation start

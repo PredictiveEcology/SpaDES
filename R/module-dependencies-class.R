@@ -135,7 +135,7 @@ setClass(".moduleDeps",
 #'
 #' Defines all simulation dependencies for all modules within a SpaDES simulation.
 #'
-#' @slot dependencies   List of \code{.moduleDeps} dependency objects.
+#' @slot dependencies   List of \code{\link{.moduleDeps}} dependency objects.
 #'
 #' @seealso \code{\link{.moduleDeps}}, \code{\link{spadesClasses}}
 #'

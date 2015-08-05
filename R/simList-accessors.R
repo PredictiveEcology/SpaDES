@@ -1770,7 +1770,7 @@ setMethod(
 #' @param sim A \code{simList} object.
 #'
 #' @param x   A named list containing the parameters used to construct a new
-#'            \code{.moduleDeps} object.
+#'            \code{\link{.moduleDeps}} object.
 #'
 #' @return A \code{simList} object.
 #'
