@@ -15,6 +15,7 @@
 \alias{outputArgs<-}
 \alias{outputArgs<-,simList-method}
 \alias{outputs}
+\alias{outputs,simList-method}
 \alias{outputs<-}
 \alias{outputs<-,simList-method}
 \title{Inputs and outputs - adding file-based inputs and saving files}
@@ -28,6 +29,8 @@ inputs(object) <- value
 \S4method{inputs}{simList}(object) <- value
 
 outputs(object)
+
+\S4method{outputs}{simList}(object)
 
 outputs(object) <- value
 
@@ -59,8 +62,6 @@ These functions are one of two mechanisms to add the information
 about which input files to load into a \code{spades} and the information
 about which output files to save.
 The other way is to pass them as arguments to a simInit function call.
-
-
 
 \code{inputArgs} and \code{outputArgs} are ways to specify any
 arguments that are needed for file loading and file saving. This
