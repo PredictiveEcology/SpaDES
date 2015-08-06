@@ -60,6 +60,8 @@ about which input files to load into a \code{spades} and the information
 about which output files to save.
 The other way is to pass them as arguments to a simInit function call.
 
+
+
 \code{inputArgs} and \code{outputArgs} are ways to specify any
 arguments that are needed for file loading and file saving. This
 is still somewhat experimental.

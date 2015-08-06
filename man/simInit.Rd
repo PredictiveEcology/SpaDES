@@ -216,6 +216,28 @@ default is current working directory.
    paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
  )
  spades(mySim)
+
+# A little more complicated with inputs and outputs
+ mapPath <- system.file("maps", package="SpaDES")
+ mySim <- simInit(
+   times=list(start=0.0, stop=2.0, timeunit="year"),
+   params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
+   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
+   paths=list(modulePath=system.file("sampleModules", package="SpaDES"),
+              outputPath=tempdir()),
+   inputs=data.frame(
+     files=
+       dir(file.path(mapPath), full.names=TRUE, pattern="tif")[1:2],
+     functions="raster",
+     package="raster",
+     loadTime=3,
+     stringsAsFactors=FALSE),
+   outputs=data.frame(
+     expand.grid(objectName=c("caribou","landscape"),
+     saveTime=1:2,
+     stringsAsFactors = FALSE))
+ )
+ spades(mySim)
 }
 }
 \author{

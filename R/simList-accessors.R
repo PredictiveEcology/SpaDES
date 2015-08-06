@@ -652,7 +652,6 @@ setReplaceMethod("inputs",
 #                        }
                         value <- data.frame(value, stringsAsFactors=FALSE)
                      }
-                     browser()
                      fileTable <- data.frame(file=character(0), fun=character(0),
                                              package=character(0), objectName=character(0),
                                              loadTime=numeric(0), loaded=logical(0))
@@ -698,7 +697,6 @@ setReplaceMethod("inputs",
 })
 
 ################################################################################
-#' @inheritParams params
 #'
 #' @details \code{outputs} accepts a data.frame, with 5 columns. Currently,
 #' only one is required.
@@ -707,6 +705,7 @@ setReplaceMethod("inputs",
 #' \code{package} (character), and \code{saveTime} (numeric). See ii-modules vignette for details on
 #' these columns.
 #'
+#' @inheritParams params
 #' @include simList-class.R
 #' @export
 #' @importFrom data.table data.table ':='
@@ -720,7 +719,6 @@ setReplaceMethod("inputs",
 #' @name outputs
 #' @rdname simList-inputs-outputs
 #' @seealso ii-modules vignette
-#'
 setGeneric("outputs", function(object) {
   standardGeneric("outputs")
 })
@@ -749,6 +747,7 @@ setReplaceMethod(
   "outputs",
    signature="simList",
    function(object, value) {
+
    if(length(value)>0) {
        if (!is.data.frame(value)) {
          if(!is.list(value)) {
@@ -817,7 +816,6 @@ setReplaceMethod(
      } else {
        object@outputs <- value
      }
-
 #        if(is.null(object@outputs$arg)) {
 #          object@outputs$arg <- rep(list(NULL), NROW(value))
 #        } else if (NROW(value) != length(object@outputs$arg)){
