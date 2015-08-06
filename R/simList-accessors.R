@@ -697,7 +697,6 @@ setReplaceMethod("inputs",
 })
 
 ################################################################################
-#'
 #' @details \code{outputs} accepts a data.frame, with 5 columns. Currently,
 #' only one is required.
 #' Columns are \code{objectName} (character, required),
@@ -725,6 +724,7 @@ setGeneric("outputs", function(object) {
 
 #' @export
 #' @aliases outputs
+#' @rdname simList-inputs-outputs
 setMethod("outputs",
           signature="simList",
           definition=function(object) {
