@@ -634,6 +634,7 @@ setReplaceMethod("inputs",
 #                        }
                         value <- data.frame(value, stringsAsFactors=FALSE)
                      }
+                     browser()
                      fileTable <- data.frame(file=character(0), fun=character(0),
                                              package=character(0), objectName=character(0),
                                              loadTime=numeric(0), loaded=logical(0))
@@ -641,11 +642,24 @@ setReplaceMethod("inputs",
                      setnames(value,old = colnames(value)[na.omit(columns)],
                                     new=colnames(fileTable)[!is.na(columns)])
                      object@inputs <- as.data.frame(bind_rows(list(value, fileTable)))
-                     object@inputs$file <- file.path(inputPath(object),object@inputs$file)
+                     #object@inputs$file <- file.path(inputPath(object),object@inputs$file)
 
                    } else {
                      object@inputs <- value
                    }
+
+                   # Deal with file names
+                   # 3 things: 1. if relative, concatenate inputPath
+                   #           2. if absolute, don't use inputPath
+                   #           3. concatenate time to file name in all cases
+                   # If no filename provided, use the object name
+                   object@inputs[is.na(object@inputs$file),"file"] <-
+                     paste0(object@inputs$objectName[is.na(object@inputs$file)])
+                   # If a filename is provided, determine if it is absolute path, if so,
+                   # use that, if not, then append it to inputPath(object)
+                   object@inputs[!isAbsolutePath(object@inputs$file), "file"] <-
+                     file.path(inputPath(object),
+                               object@inputs$file[!isAbsolutePath(object@inputs$file)])
 
                    if (any(is.na(object@inputs[,"loaded"]))) {
 
@@ -727,7 +741,7 @@ setReplaceMethod(
                 new=colnames(fileTable)[!is.na(columns)])
        # Merge
        object@outputs <- as.data.frame(bind_rows(list(value, fileTable)))
-       object@outputs$file <- file.path(outputPath(object),object@outputs$file)
+       #object@outputs$file <- file.path(outputPath(object),object@outputs$file)
 
        # coerce any factors to the correct class
        for (col in which(sapply(object@outputs, is.factor))) {
