@@ -641,6 +641,7 @@ setReplaceMethod("inputs",
                      setnames(value,old = colnames(value)[na.omit(columns)],
                                     new=colnames(fileTable)[!is.na(columns)])
                      object@inputs <- as.data.frame(bind_rows(list(value, fileTable)))
+                     object@inputs$file <- file.path(inputPath(object),object@inputs$file)
 
                    } else {
                      object@inputs <- value
@@ -726,6 +727,7 @@ setReplaceMethod(
                 new=colnames(fileTable)[!is.na(columns)])
        # Merge
        object@outputs <- as.data.frame(bind_rows(list(value, fileTable)))
+       object@outputs$file <- file.path(outputPath(object),object@outputs$file)
 
        # coerce any factors to the correct class
        for (col in which(sapply(object@outputs, is.factor))) {
