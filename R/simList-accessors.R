@@ -455,8 +455,8 @@ setReplaceMethod("objs",
 #'    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
 #'    \code{inputPath} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
 #'    \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs). (advanced)\cr
-#'    \code{inputs} \tab \code{inputs} \tab list of 2: table showing objects, files etc. & arguments (optional). (advanced)\cr
-#'    \code{outputs} \tab \code{outputs} \tab list of 2: table showing objects, files etc. & arguments (optional). (advanced)\cr
+#'    \code{inputs} \tab \code{inputs} \tab data.frame identifying objects to load, files etc. & arguments (optional). (advanced)\cr
+#'    \code{outputs} \tab \code{outputs} \tab data.frame identifying objects to save, files etc. & arguments (optional). (advanced)\cr
 #'    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
 #'    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
@@ -587,6 +587,20 @@ setReplaceMethod("checkpointInterval",
 })
 
 ################################################################################
+#' Inputs and outputs - adding file-based inputs and saving files
+#'
+#' These functions are one of two mechanisms to add the information
+#' about which input files to load into a \code{spades} and the information
+#' about which output files to save.
+#' The other way is to pass them as arguments to a simInit function call.
+#'
+#' @details \code{inputs} accepts a data.frame, with 6 columns. Currently, only one is required.
+#' Columns are \code{objectName} (required, character),
+#' \code{file} (character), \code{fun} (character),
+#' \code{package} (character),
+#' \code{interval} (numeric), and \code{loadTime} (numeric). See ii-modules vignette for details on
+#' these columns.
+#'
 #' @inheritParams params
 #' @include simList-class.R
 #' @importFrom data.table is.data.table
@@ -594,14 +608,17 @@ setReplaceMethod("checkpointInterval",
 #' @importFrom stats na.omit
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @aliases inputs
+#' @name inputs
+#' @rdname simList-inputs-outputs
 #'
 setGeneric("inputs", function(object) {
   standardGeneric("inputs")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @aliases inputs
+#' @rdname simList-inputs-outputs
 setMethod("inputs",
           signature="simList",
           definition=function(object) {
@@ -609,7 +626,8 @@ setMethod("inputs",
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @aliases inputs
+#' @rdname simList-inputs-outputs
 setGeneric("inputs<-",
            function(object, value) {
              standardGeneric("inputs<-")
@@ -617,7 +635,7 @@ setGeneric("inputs<-",
 
 #' @name inputs<-
 #' @aliases inputs<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 #' @export
 setReplaceMethod("inputs",
                  signature="simList",
@@ -649,10 +667,8 @@ setReplaceMethod("inputs",
                    }
 
                    # Deal with file names
-                   # 3 things: 1. if relative, concatenate inputPath
+                   # 2 things: 1. if relative, concatenate inputPath
                    #           2. if absolute, don't use inputPath
-                   #           3. concatenate time to file name in all cases
-                   # If no filename provided, use the object name
                    object@inputs[is.na(object@inputs$file),"file"] <-
                      paste0(object@inputs$objectName[is.na(object@inputs$file)])
                    # If a filename is provided, determine if it is absolute path, if so,
@@ -683,8 +699,13 @@ setReplaceMethod("inputs",
 
 ################################################################################
 #' @inheritParams params
-#' @details \code{outputs} accepts a data.frame or data.table, with 6 columns. Currently, only one is required.
-#' Columns are \code{file}, \code{fun},
+#'
+#' @details \code{outputs} accepts a data.frame, with 5 columns. Currently,
+#' only one is required.
+#' Columns are \code{objectName} (character, required),
+#' \code{file} (character), \code{fun} (character),
+#' \code{package} (character), and \code{saveTime} (numeric). See ii-modules vignette for details on
+#' these columns.
 #'
 #' @include simList-class.R
 #' @export
@@ -695,14 +716,17 @@ setReplaceMethod("inputs",
 #' @importFrom R.utils isAbsolutePath
 #' @importFrom stats na.omit
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @aliases outputs
+#' @name outputs
+#' @rdname simList-inputs-outputs
+#' @seealso ii-modules vignette
 #'
 setGeneric("outputs", function(object) {
   standardGeneric("outputs")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @aliases outputs
 setMethod("outputs",
           signature="simList",
           definition=function(object) {
@@ -710,7 +734,8 @@ setMethod("outputs",
           })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @aliases outputs
+#' @rdname simList-inputs-outputs
 setGeneric("outputs<-",
            function(object, value) {
              standardGeneric("outputs<-")
@@ -718,7 +743,7 @@ setGeneric("outputs<-",
 
 #' @name outputs<-
 #' @aliases outputs<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 #' @export
 setReplaceMethod(
   "outputs",
@@ -805,18 +830,24 @@ setReplaceMethod(
 })
 
 ################################################################################
+#' Specify paths for modules, inputs and outputs
+#'
+#' These are ways to add or access the file paths used by spades. There
+#' are three file paths: modulePath, inputPath, outputPath. Each has a function
+#' to get or set the value in a simList object.
+#'
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 #'
 setGeneric("inputPath", function(object) {
   standardGeneric("inputPath")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 setMethod("inputPath",
           signature="simList",
           definition=function(object) {
@@ -824,7 +855,7 @@ setMethod("inputPath",
           })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 setGeneric("inputPath<-",
            function(object, value) {
              standardGeneric("inputPath<-")
@@ -832,7 +863,7 @@ setGeneric("inputPath<-",
 
 #' @name inputPath<-
 #' @aliases inputPath<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 #' @export
 setReplaceMethod("inputPath",
                  signature="simList",
@@ -850,14 +881,14 @@ setReplaceMethod("inputPath",
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 #'
 setGeneric("modulePath", function(object) {
   standardGeneric("modulePath")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 setMethod("modulePath",
           signature="simList",
           definition=function(object) {
@@ -865,7 +896,7 @@ setMethod("modulePath",
           })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 setGeneric("modulePath<-",
            function(object, value) {
              standardGeneric("modulePath<-")
@@ -873,7 +904,7 @@ setGeneric("modulePath<-",
 
 #' @name modulePath<-
 #' @aliases modulePath<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 #' @export
 setReplaceMethod("modulePath",
                  signature="simList",
@@ -891,14 +922,14 @@ setReplaceMethod("modulePath",
 #' @importFrom stats na.omit
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 #'
 setGeneric("paths", function(object) {
   standardGeneric("paths")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 setMethod("paths",
           signature="simList",
           definition=function(object) {
@@ -906,7 +937,7 @@ setMethod("paths",
           })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 setGeneric("paths<-",
            function(object, value) {
              standardGeneric("paths<-")
@@ -914,7 +945,7 @@ setGeneric("paths<-",
 
 #' @name paths<-
 #' @aliases paths<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-paths
 #' @export
 setReplaceMethod("paths",
                  signature="simList",
@@ -941,18 +972,22 @@ setReplaceMethod("paths",
                  })
 
 ################################################################################
+#' \code{inputArgs} and \code{outputArgs} are ways to specify any
+#' arguments that are needed for file loading and file saving. This
+#' is still somewhat experimental.
+#'
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 #'
 setGeneric("inputArgs", function(object) {
   standardGeneric("inputArgs")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 setMethod("inputArgs",
           signature="simList",
           definition=function(object) {
@@ -960,7 +995,7 @@ setMethod("inputArgs",
           })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 setGeneric("inputArgs<-",
            function(object, value) {
              standardGeneric("inputArgs<-")
@@ -968,7 +1003,7 @@ setGeneric("inputArgs<-",
 
 #' @name inputArgs<-
 #' @aliases inputArgs<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 #' @export
 setReplaceMethod("inputArgs",
                  signature="simList",
@@ -990,14 +1025,14 @@ setReplaceMethod("inputArgs",
 #' @include simList-class.R
 #' @export
 #' @docType methods
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 #'
 setGeneric("outputArgs", function(object) {
   standardGeneric("outputArgs")
 })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 setMethod("outputArgs",
           signature="simList",
           definition=function(object) {
@@ -1005,7 +1040,7 @@ setMethod("outputArgs",
           })
 
 #' @export
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 setGeneric("outputArgs<-",
            function(object, value) {
              standardGeneric("outputArgs<-")
@@ -1013,7 +1048,7 @@ setGeneric("outputArgs<-",
 
 #' @name outputArgs<-
 #' @aliases outputArgs<-,simList-method
-#' @rdname simList-accessors-params
+#' @rdname simList-inputs-outputs
 #' @export
 setReplaceMethod("outputArgs",
                  signature="simList",

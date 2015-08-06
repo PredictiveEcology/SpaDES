@@ -14,42 +14,14 @@
 \alias{globals,simList-method}
 \alias{globals<-}
 \alias{globals<-,simList-method}
-\alias{inputArgs}
-\alias{inputArgs,simList-method}
-\alias{inputArgs<-}
-\alias{inputArgs<-,simList-method}
-\alias{inputPath}
-\alias{inputPath,simList-method}
-\alias{inputPath<-}
-\alias{inputPath<-,simList-method}
-\alias{inputs}
-\alias{inputs,simList-method}
-\alias{inputs<-}
-\alias{inputs<-,simList-method}
-\alias{modulePath}
-\alias{modulePath,simList-method}
-\alias{modulePath<-}
-\alias{modulePath<-,simList-method}
-\alias{outputArgs}
-\alias{outputArgs,simList-method}
-\alias{outputArgs<-}
-\alias{outputArgs<-,simList-method}
 \alias{outputPath}
 \alias{outputPath,simList-method}
 \alias{outputPath<-}
 \alias{outputPath<-,simList-method}
-\alias{outputs}
-\alias{outputs,simList-method}
-\alias{outputs<-}
-\alias{outputs<-,simList-method}
 \alias{params}
 \alias{params,simList-method}
 \alias{params<-}
 \alias{params<-,simList-method}
-\alias{paths}
-\alias{paths,simList-method}
-\alias{paths<-}
-\alias{paths<-,simList-method}
 \alias{progressInterval}
 \alias{progressInterval,simList-method}
 \alias{progressInterval<-}
@@ -84,62 +56,6 @@ checkpointInterval(object)
 checkpointInterval(object) <- value
 
 \S4method{checkpointInterval}{simList}(object) <- value
-
-inputs(object)
-
-\S4method{inputs}{simList}(object)
-
-inputs(object) <- value
-
-\S4method{inputs}{simList}(object) <- value
-
-outputs(object)
-
-\S4method{outputs}{simList}(object)
-
-outputs(object) <- value
-
-\S4method{outputs}{simList}(object) <- value
-
-inputPath(object)
-
-\S4method{inputPath}{simList}(object)
-
-inputPath(object) <- value
-
-\S4method{inputPath}{simList}(object) <- value
-
-modulePath(object)
-
-\S4method{modulePath}{simList}(object)
-
-modulePath(object) <- value
-
-\S4method{modulePath}{simList}(object) <- value
-
-paths(object)
-
-\S4method{paths}{simList}(object)
-
-paths(object) <- value
-
-\S4method{paths}{simList}(object) <- value
-
-inputArgs(object)
-
-\S4method{inputArgs}{simList}(object)
-
-inputArgs(object) <- value
-
-\S4method{inputArgs}{simList}(object) <- value
-
-outputArgs(object)
-
-\S4method{outputArgs}{simList}(object)
-
-outputArgs(object) <- value
-
-\S4method{outputArgs}{simList}(object) <- value
 
 progressType(object)
 
@@ -199,17 +115,14 @@ Advanced use
    \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
    \code{inputPath} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
    \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs). (advanced)\cr
-   \code{inputs} \tab \code{inputs} \tab list of 2: table showing objects, files etc. & arguments (optional). (advanced)\cr
-   \code{outputs} \tab \code{outputs} \tab list of 2: table showing objects, files etc. & arguments (optional). (advanced)\cr
+   \code{inputs} \tab \code{inputs} \tab data.frame identifying objects to load, files etc. & arguments (optional). (advanced)\cr
+   \code{outputs} \tab \code{outputs} \tab data.frame identifying objects to save, files etc. & arguments (optional). (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
-
-\code{outputs} accepts a data.frame or data.table, with 6 columns. Currently, only one is required.
-Columns are \code{file}, \code{fun},
 }
 \seealso{
 \code{\link{simList-class}},

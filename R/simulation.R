@@ -142,9 +142,16 @@ setMethod(
 #' @param paths  An optional named list with up to 3 named elements, \code{modulePath},
 #' \code{inputPath}, and \code{outputPath}. See details.
 #'
-#' @param inputs A \code{data.frame} or \code{data.table}. See \code{?simList}.
+#' @param inputs A \code{data.frame}. Can specify from 1 to 6
+#' columns with following column names: \code{objectName} (character, required), \code{file} (character),
+#' \code{fun} (character), \code{package} (character), \code{interval} (numeric),
+#' \code{loadTime} (numeric). See \code{?simList}.
+#' See \code{\link{inputs}} and vignette("ii-modules") section about inputs.
 #'
-#' @param outputs A \code{data.frame} or \code{data.table}. See \code{?simList}.
+#' @param outputs A \code{data.frame}. Can specify from 1 to 5
+#' columns with following column names: \code{objectName} (character, required), \code{file} (character),
+#' \code{fun} (character), \code{package} (character), \code{saveTime} (numeric).
+#' See \code{?simList}. See \code{\link{outputs}} and vignette("ii-modules") section about outputs.
 #'
 #' @param loadOrder  An optional list of module names specfiying the order in
 #'                   which to load the modules. If not specified, the module
