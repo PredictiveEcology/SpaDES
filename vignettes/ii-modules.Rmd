@@ -330,8 +330,8 @@ unlink(ftmp)
 ```
 
 ```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
-mySim <- spades(mySim)            # runs the simulation
-eventDiagram(mySim, "0000-06-01", n=200, height=1700, width=1000) # overview of the events in the simulation
+mySim <- spades(mySim)                   # runs the simulation
+eventDiagram(mySim, "0000-06-01", n=200) # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
