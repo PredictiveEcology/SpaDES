@@ -1,5 +1,10 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.0.1
+=============
+* no longer `attach` the simulation environment (#212)
+* bug fixes
+
 version 1.0.0
 =============
 * no longer rely on side effects to update objects in global environment; instead uses simulation environments (#185) (not backwards compatible!)
