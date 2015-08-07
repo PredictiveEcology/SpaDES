@@ -96,7 +96,8 @@ setMethod(
       })
 
       # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir=envir(sim))
+      #eval(parsedFile[!defineModuleItem], envir=envir(sim))
+      eval(parsedFile[!defineModuleItem], envir=getNamespace("SpaDES"))
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed=TRUE)
@@ -842,6 +843,9 @@ setMethod("doEvent",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             stopifnot(class(sim) == "simList")
+
+            # core modules
+            core <- list("checkpoint", "save", "progress", "load")
 
             # get next event from the queue
             nextEvent <- events(sim, "second")[1L, ]
