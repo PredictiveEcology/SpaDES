@@ -19,6 +19,9 @@
 #' @param keepSmall Logical. Should "small" (fewer than 4 points after thinning) polygons 
 #' or holes be removed or kept. This allows a much smaller object, if desired.
 #' 
+#' @param removeOnlySmall Logical. This overrides \code{keepSmall} if TRUE. This has the effect that 
+#' "small" (fewer than 4 points after thinning) polygons will be removed, and larger polygons are unthinned.
+#' 
 #' @param verbose Logical. Print simple messages indicating what is being done.
 #'
 #' @return An object of the same class as the input \code{spGeom}, but
