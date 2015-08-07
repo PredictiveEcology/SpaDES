@@ -147,13 +147,14 @@ setMethod(
       arguments <- inputArgs(sim)
       # Check if arguments is a named list; the name may be concatenated
       # with the "arguments", separated by a ".". This will extract that.
-      if ((length(arguments)>0) & (is.null(names(arguments)))) {
+      if ((length(arguments)>0) & (!is.null(names(arguments)))) {
         names(arguments) <- sapply(strsplit(
           names(filelist)[pmatch("arguments", names(filelist))], ".", fixed=TRUE),
           function(x) { x[-1] }
         )
       }
 
+      # check if arguments should be, i.e,. recycled
       if (!is.null(arguments)) {
         if (length(arguments) < length(filelist$file)) {
           arguments <- rep(arguments, length.out=length(filelist$file))
