@@ -58,20 +58,14 @@ library("devtools")
 install_github("PredictiveEcology/SpaDES") # stable
 ```
 
-### Development version (unstable) [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
+### Development version (unstable) [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=development)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=development)
 
 **Install from GitHub:**
 
 ```r
-install.packages("devtools")
+#install.packages("devtools")
 library("devtools")
 install_github("PredictiveEcology/SpaDES", ref="development") # unstable
-```
-
-If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install LaTeX) by using:
-    
-```r
-install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
 ```
 
 ## Getting started
