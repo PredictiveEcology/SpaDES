@@ -3,6 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.0.1
 =============
 * no longer `attach` the simulation environment (#212)
+* improve documentation
 * bug fixes
 
 version 1.0.0
