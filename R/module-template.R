@@ -77,11 +77,37 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    sim$", name, "Init(sim)
+    sim <- sim$", name, "Init(sim)
 
     # schedule future event(s)
-    scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
-    scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+    sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
+  } else if (eventType==\"plot\") {
+    # ! ----- EDIT BELOW ----- ! #
+    # do stuff for this event
+
+    # e.g., call your custom functions/methods here
+    # you can define your own methods below this `doEvent` function
+
+    # schedule future event(s)
+
+    # e.g.,
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"plot\")
+
+    # ! ----- STOP EDITING ----- ! #
+  } else if (eventType==\"save\") {
+    # ! ----- EDIT BELOW ----- ! #
+    # do stuff for this event
+
+    # e.g., call your custom functions/methods here
+    # you can define your own methods below this `doEvent` function
+
+    # schedule future event(s)
+
+    # e.g.,
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\")
+
+    # ! ----- STOP EDITING ----- ! #
   } else if (eventType==\"templateEvent\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -92,7 +118,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
     } else {
@@ -108,7 +134,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initilization
-sim$", name, "Init = function(sim) {
+", name, "Init <- function(sim) {
 
   # # ! ----- EDIT BELOW ----- ! #
 
@@ -120,7 +146,7 @@ sim$", name, "Init = function(sim) {
 }
 
 ### template for save events
-sim$", name, "Save = function(sim) {
+", name, "Save <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
@@ -130,7 +156,7 @@ sim$", name, "Save = function(sim) {
 }
 
 ### template for plot events
-sim$", name, "Plot = function(sim) {
+", name, "Plot <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot(\"object\")
@@ -140,7 +166,7 @@ sim$", name, "Plot = function(sim) {
 }
 
 ### template for your event1
-sim$", name, "Event1 = function(sim) {
+", name, "Event1 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
 
 
