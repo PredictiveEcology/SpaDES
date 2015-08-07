@@ -49,12 +49,6 @@ library("devtools")
 install_github("PredictiveEcology/SpaDES", ref="development") # unstable
 ```
 
-If the install from GitHub fails during vignette building, you can skip this step (and avoid having to install `LaTeX`) by using:
-
-```r
-install_github("PredictiveEcology/SpaDES", ref="development", build=FALSE)
-```
-
 ## Getting started
 
 **Vignettes:**
