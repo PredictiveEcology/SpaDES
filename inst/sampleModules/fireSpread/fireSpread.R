@@ -53,7 +53,7 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
     }
 
     # do stuff for this event
-    sim <- fireSpreadInit(sim)
+    sim <- sim$fireSpreadInit(sim)
 
     # schedule the next events
     sim <- scheduleEvent(sim, params(sim)$fireSpread$startTime, "fireSpread", "burn")
@@ -62,14 +62,14 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else if (eventType=="burn") {
     # do stuff for this event
-    sim <- fireSpreadBurn(sim)
+    sim <- sim$fireSpreadBurn(sim)
 
     # schedule the next events
     sim <- scheduleEvent(sim, time(sim), "fireSpread", "stats") # do stats immediately following burn
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$returnInterval, "fireSpread", "burn")
   } else if (eventType=="stats") {
     # do stuff for this event
-    sim <- fireSpreadStats(sim)
+    sim <- sim$fireSpreadStats(sim)
 
     # schedule the next event
     ## stats scheduling done by burn event

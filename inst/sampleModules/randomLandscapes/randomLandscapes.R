@@ -34,7 +34,7 @@ defineModule(sim, list(
 doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
   if (eventType=="init") {
     # do stuff for this event
-    sim <- randomLandscapesInit(sim)
+    sim <- sim$randomLandscapesInit(sim)
 
     # schedule the next events
     sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,

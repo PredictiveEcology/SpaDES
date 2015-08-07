@@ -860,7 +860,7 @@ setMethod("doEvent",
 
                 # check the module call for validity
                 if(nextEvent$moduleName %in% modules(sim)) {
-                  sim <- get(moduleCall)(sim, nextEvent$eventTime,
+                  sim <- get(moduleCall, envir=envir(sim))(sim, nextEvent$eventTime,
                                          nextEvent$eventType, debug)
                 } else {
                   stop(paste("Invalid module call. The module `",
@@ -1060,8 +1060,8 @@ setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
-            attach(envir(sim), name=envName)
-            on.exit(detach(pos=match(envName, search())))
+            #attach(envir(sim), name=envName)
+            #on.exit(detach(pos=match(envName, search())))
 
             while(time(sim, "second") <= end(sim, "second")) {
 

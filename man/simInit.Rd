@@ -178,13 +178,13 @@ Example: a module named "caribou" will be sourced form the file
 \item{inputs}{A \code{data.frame}. Can specify from 1 to 6
 columns with following column names: \code{objectName} (character, required), \code{file} (character),
 \code{fun} (character), \code{package} (character), \code{interval} (numeric),
-\code{loadTime} (numeric). See \code{?simList}.
+\code{loadTime} (numeric). See \code{?simInit}.
 See \code{\link{inputs}} and vignette("ii-modules") section about inputs.}
 
 \item{outputs}{A \code{data.frame}. Can specify from 1 to 5
 columns with following column names: \code{objectName} (character, required), \code{file} (character),
 \code{fun} (character), \code{package} (character), \code{saveTime} (numeric).
-See \code{?simList}. See \code{\link{outputs}} and vignette("ii-modules") section about outputs.}
+See \code{?simInit}. See \code{\link{outputs}} and vignette("ii-modules") section about outputs.}
 
 \item{loadOrder}{An optional list of module names specfiying the order in
                   which to load the modules. If not specified, the module

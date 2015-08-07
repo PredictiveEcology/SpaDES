@@ -75,7 +75,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     ### (use `checkObject` or similar)
 
     # do stuff for this event
-    ", name, "Init(sim)
+    sim$", name, "Init(sim)
 
     # schedule future event(s)
     scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
@@ -106,7 +106,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 #   - keep event functions short and clean, modularize by calling subroutines from section below.
 
 ### template initilization
-", name, "Init = function(sim) {
+sim$", name, "Init = function(sim) {
 
   # # ! ----- EDIT BELOW ----- ! #
 
@@ -118,7 +118,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for save events
-", name, "Save = function(sim) {
+sim$", name, "Save = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   sim <- saveFiles(sim)
@@ -128,7 +128,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for plot events
-", name, "Plot = function(sim) {
+sim$", name, "Plot = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
   # do stuff for this event
   #Plot(\"object\")
@@ -138,7 +138,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for your event1
-", name, "Event1 = function(sim) {
+sim$", name, "Event1 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
 
 
@@ -148,7 +148,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for your event2
-", name, "Event2 = function(sim) {
+sim$", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
 
 

@@ -40,7 +40,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     checkObject(sim, name=globals(sim)$stackName, layer="habitatQuality")
 
     # do stuff for this event
-    sim <- caribouMovementInit(sim)
+    sim <- sim$caribouMovementInit(sim)
 
     # schedule the next event
     sim <- scheduleEvent(sim, params(sim)$caribouMovement$moveInitialTime, "caribouMovement", "move")
@@ -48,7 +48,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, params(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
   } else if (eventType=="move") {
     # do stuff for this event
-    sim <- caribouMovementMove(sim)
+    sim <- sim$caribouMovementMove(sim)
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
