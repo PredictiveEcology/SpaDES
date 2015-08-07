@@ -171,7 +171,7 @@ setMethod("eventDiagram",
                 # mermaid "header"
                 "gantt", "\n",
                 "dateFormat  YYYY-MM-DD", "\n",
-                "title SPaDES event diagram", "\n",
+                "title SpaDES event diagram", "\n",
 
                 # mermaid "body"
                 paste("section ", names(ll), "\n", lapply(ll, function(df) {
