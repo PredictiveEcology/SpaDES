@@ -33,36 +33,27 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 ## Installation
 
-Download the source tarball (`.tar.gz`) or Windows package binary (`.zip`), or install directly from GitHub.  The latter requires the `devtools` package, as well as the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source (which is done when installing a package from GitHub) you need to have a LaTeX distribution installed. We recommend [TexLive](https://www.tug.org/texlive/).
+Building packages from source the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source.
 
 The suggested package `fastshp` can be installed with:
 
 ```r
-install_github("s-u/fastshp")
+install.packages("fastshp", repos="http://rforge.net", type="source")
 ```
 
-### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](http://cran.r-project.org/web/packages/SpaDES)
-  
-**Install from package file:**
-    
-- Download:
-    
-    <ul style="list-style:none; height:40px; padding:0; background: #eee; background: -moz-linear-gradient(top, #f8f8f8 0%, #dddddd 100%); ackground: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f8f8f8), color-stop(100%,#dddddd)); background: -webkit-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -o-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: -ms-linear-gradient(top, #f8f8f8 0%,#dddddd 100%); background: linear-gradient(top, #f8f8f8 0%,#dddddd 100%); border-radius:5px; border:1px solid #d2d2d2; box-shadow:inset #fff 0 1px 0, inset rgba(0,0,0,0.03) 0 -1px 0; width:270px;">
-    <li style="width:89px; float:left; border-right:1px solid #d2d2d2; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES/zipball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">Download <strong style="font-size:14px; display:block; color:#222;">ZIP File</strong></a></li>
-    <li style="width:88px; float:left; border-left:1px solid #fff; border-right:1px solid #d2d2d2; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES/tarball/master" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">Download <strong style="font-size:14px; display:block; color:#222;">TAR Ball</strong></a></li>
-    <li style="width:89px; float:left; border-left:1px solid #fff; height:40px;"><a href="https://github.com/PredictiveEcology/SpaDES" style="line-height:1; font-size:11px; color:#999; display:block; text-align:center; padding-top:6px; height:40px;">View On <strong style="font-size:14px; display:block; color:#222;">GitHub</strong></a></li>
-    </ul>
-  
-- Install:
-    
-    ```r
-    install.packages("path/to/file", repos=NULL)
-    ```
-    
+
+### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=master) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](https://cran.r-project.org/package=SpaDES) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](https://cran.rstudio.com/package=SpaDES)
+
+**Install from CRAN:**
+
+```r
+install.packages("SpaDES")
+```
+
 **Install from GitHub:**
     
 ```r
-install.packages("devtools")
+#install.packages("devtools")
 library("devtools")
 install_github("PredictiveEcology/SpaDES") # stable
 ```
