@@ -96,8 +96,8 @@ setMethod(
       })
 
       # evaluate the rest of the parsed file
-      #eval(parsedFile[!defineModuleItem], envir=envir(sim))
-      eval(parsedFile[!defineModuleItem], envir=getNamespace("SpaDES"))
+      eval(parsedFile[!defineModuleItem], envir=envir(sim))
+      #eval(parsedFile[!defineModuleItem], envir=getNamespace("SpaDES"))
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed=TRUE)
@@ -864,8 +864,13 @@ setMethod("doEvent",
 
                 # check the module call for validity
                 if(nextEvent$moduleName %in% modules(sim)) {
-                  sim <- get(moduleCall, envir=envir(sim))(sim, nextEvent$eventTime,
-                                         nextEvent$eventType, debug)
+                  if(nextEvent$moduleName %in% core) {
+                      sim <- get(moduleCall)(sim, nextEvent$eventTime,
+                                                             nextEvent$eventType, debug)
+                   } else {
+                      sim <- get(moduleCall, envir=envir(sim))(sim, nextEvent$eventTime,
+                                          nextEvent$eventType, debug)
+                   }
                 } else {
                   stop(paste("Invalid module call. The module `",
                              nextEvent$moduleName,
