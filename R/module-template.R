@@ -46,6 +46,8 @@ setMethod("newModule",
             filenameR <- file.path(nestedPath, paste0(name, ".R"))
 
             cat("
+# Everything in this file gets sourced during simInit, and all functions and objects
+#  are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
   name=\"", name, "\",
   description=\"insert module description here\",
