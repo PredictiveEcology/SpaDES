@@ -381,11 +381,11 @@ setMethod("newModuleDocumentation",
 #' A module is defined as any file that ends in \code{.R} or \code{.r} and has a
 #' directory name identical to its filename. Thus, this must be case sensitive.
 #'
-#' @param basedir  Character string of length 1. The base directory within which there are only
-#' module subdirectories.
-#'
-#' @param names Character vector with names of modules to open. If missing, then all modules
+#' @param name Character vector with names of modules to open. If missing, then all modules
 #' will be opened within the basedir.
+#'
+#' @param path  Character string of length 1. The base directory within which there are only
+#' module subdirectories.
 #'
 #' @return Nothing is returned. All file are open via \code{file.edit}.
 #'
@@ -399,23 +399,23 @@ setMethod("newModuleDocumentation",
 #' @examples
 #' \dontrun{openModules("~\SpaDESModules")}
 #'
-setGeneric("openModules", function(basedir, names) {
+setGeneric("openModules", function(name, path) {
   standardGeneric("openModules")
 })
 
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(basedir="character", names="character"),
-          definition = function(basedir, names) {
-            basedir <- checkPath(basedir, create=FALSE)
+          signature=c(name="character", path="character"),
+          definition = function(name, path) {
+            basedir <- checkPath(path, create=FALSE)
             origDir <- getwd()
             setwd(basedir)
             if(any(names=="all")) {
               Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
             } else {
               Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
-              Rfiles <- Rfiles[pmatch(names,Rfiles)]
+              Rfiles <- Rfiles[pmatch(name,Rfiles)]
             }
             Rfiles <- Rfiles[grep(pattern="[/\\\\]",Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
@@ -427,17 +427,25 @@ setMethod("openModules",
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(basedir="missing", names="missing"),
+          signature=c(name="missing", path="missing"),
           definition = function() {
-            openModules(basedir=".", names="all")
+            openModules(name="all", path=".")
 })
 
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(basedir="character", names="missing"),
-          definition = function(basedir) {
-            openModules(basedir=basedir, names="all")
+          signature=c(name="missing", path="character"),
+          definition = function(path) {
+            openModules(name="all", path=path)
+})
+
+#' @export
+#' @rdname openModules
+setMethod("openModules",
+          signature=c(name="character", path="missing"),
+          definition = function(name) {
+            openModules(name=name, path=".")
 })
 
 ################################################################################

@@ -5,23 +5,26 @@
 \alias{openModules}
 \alias{openModules,character,character-method}
 \alias{openModules,character,missing-method}
+\alias{openModules,missing,character-method}
 \alias{openModules,missing,missing-method}
 \title{Open all modules nested within a base directory}
 \usage{
-openModules(basedir, names)
+openModules(name, path)
 
-\S4method{openModules}{character,character}(basedir, names)
+\S4method{openModules}{character,character}(name, path)
 
 \S4method{openModules}{missing,missing}()
 
-\S4method{openModules}{character,missing}(basedir)
+\S4method{openModules}{missing,character}(path)
+
+\S4method{openModules}{character,missing}(name)
 }
 \arguments{
-\item{basedir}{Character string of length 1. The base directory within which there are only
-module subdirectories.}
-
-\item{names}{Character vector with names of modules to open. If missing, then all modules
+\item{name}{Character vector with names of modules to open. If missing, then all modules
 will be opened within the basedir.}
+
+\item{path}{Character string of length 1. The base directory within which there are only
+module subdirectories.}
 }
 \value{
 Nothing is returned. All file are open via \code{file.edit}.
