@@ -102,7 +102,7 @@ parameters &lt;- list(.globals=list(stackName=&quot;landscape&quot;, burnStats=&
                      .plotInitialTime=NA, .plotInterval=NA))
 
 mySim &lt;- simInit(
-  times   = list(start=0.0, stop=3, timeunit=&quot;year&quot;),
+  times   = list(start=0.0, end=3, timeunit=&quot;year&quot;),
   params  = parameters,
   modules = list(&quot;randomLandscapes&quot;, &quot;fireSpread&quot;, &quot;caribouMovement&quot;),
   objects = list(), 

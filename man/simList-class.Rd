@@ -40,7 +40,7 @@ Various slot accessor methods (i.e., get and set functions) are provided
                  containing module object dependency information.}
 
 \item{\code{simtimes}}{List of numerical values describing the simulation start
-                 and stop times; as well as the current simulation time.}
+                 and end times; as well as the current simulation time.}
 
 \item{\code{inputs}}{The list of length 2: a \code{data.table} or \code{data.table} of files and metadata,
 and a list of optional arguments to pass to an import function}

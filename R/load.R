@@ -92,7 +92,7 @@ doEvent.load = function(sim, eventTime, eventType, debug=FALSE) {
 #'     full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
 #'     )
 #'
-#' times <- list(start=0, stop=3)
+#' times <- list(start=0, end=3)
 #' parameters <- list(.globals=list(stackName="landscape"))
 #' modules <- list("randomLandscapes", "caribouMovement")
 #' paths <- list(moduleName=system.file("sampleModules", package="SpaDES"))
@@ -290,7 +290,7 @@ setMethod("loadFiles",
           signature(sim="missing", filelist="ANY"),
           definition = function(filelist, ...) {
 
-            sim <- simInit(times=list(start=0.0, stop=1),
+            sim <- simInit(times=list(start=0.0, end=1),
                            params=list(),
                            inputs=filelist,
                            modules=list(), ...)

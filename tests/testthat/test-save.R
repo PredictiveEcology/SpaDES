@@ -4,7 +4,7 @@ test_that("saving files does not work correctly", {
   savePath <- file.path(tempdir(), "test_save")
   on.exit(unlink(savePath, recursive = TRUE))
 
-  times <- list(start=0, stop=6, "month")
+  times <- list(start=0, end=6, "month")
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA, torus=TRUE,
                                           .saveObjects="caribou",
@@ -35,7 +35,7 @@ test_that("saving files does not work correctly", {
 
 
   outputs <- data.frame(expand.grid(objectName=c("caribou", "landscape")), stringsAsFactors=FALSE)
-  times <- list(start=0, stop=7, "month")
+  times <- list(start=0, end=7, "month")
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA),
                      randomLandscapes=list(.plotInitialTime=NA,

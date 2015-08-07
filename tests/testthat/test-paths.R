@@ -1,5 +1,5 @@
 test_that("paths file does not work correctly", {
-  times <- list(start=0.0, stop=10)
+  times <- list(start=0.0, end=10)
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"))
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
 

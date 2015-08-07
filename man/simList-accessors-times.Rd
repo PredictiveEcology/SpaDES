@@ -112,20 +112,20 @@ frame timeunit. When used inside a module, then the time is in the units of the 
 If used in an interactive mode, then the time will be in the units of the spades
 simulation.
 
-Additonal methods are provided to access the current, start, and stop times
+Additonal methods are provided to access the current, start, and end times
 of the simulation:
 \tabular{ll}{
    \code{time} \tab Current simulation time.\cr
    \code{start} \tab Simulation start time.\cr
-   \code{end} \tab Simulation stop time.\cr
+   \code{end} \tab Simulation end time.\cr
    \code{timeunit} \tab Simulation timeunit.\cr
-   \code{times} \tab List of all simulation times (current, start, stop, timeunit).\cr
+   \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
 }
 
 \code{timeunit} will extract the current units of the time used in a
 \code{spades} call.
 If it is set within a \code{simInit}, e.g.,
-\code{times=list(start=0, stop=52, timeunit="week")}, it will set the
+\code{times=list(start=0, end=52, timeunit="week")}, it will set the
 units for that simulation.
 By default, a \code{simInit} call will use the smallest unit contained within
 the metadata for the modules being used.

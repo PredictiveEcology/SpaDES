@@ -1,5 +1,5 @@
 test_that("timeunit works correctly", {
-  times <- list(start=0.0, stop=10)
+  times <- list(start=0.0, end=10)
   params <- list(
     .globals=list(burnStats="npixelsburned", stackName="landscape"),
     randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),

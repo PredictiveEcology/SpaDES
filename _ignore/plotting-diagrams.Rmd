@@ -43,7 +43,7 @@ parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned
                      .plotInitialTime=NA, .plotInterval=NA))
 
 mySim <- simInit(
-  times   = list(start=0.0, stop=3, timeunit="year"),
+  times   = list(start=0.0, end=3, timeunit="year"),
   params  = parameters,
   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects = list(), 

@@ -127,8 +127,8 @@ setMethod(
 #' the data input files, and the saving output files. If no paths are specified,
 #' default is current working directory.
 #'
-#' @param times A named list of numeric simulation start and stop times
-#'        (e.g., \code{times=list(start=0.0, stop=10.0)}).
+#' @param times A named list of numeric simulation start and end times
+#'        (e.g., \code{times=list(start=0.0, end=10.0)}).
 #'
 #' @param params A named list of simulation parameters and their values.
 #'
@@ -178,7 +178,7 @@ setMethod(
 #' @examples
 #' \dontrun{
 #'  mySim <- simInit(
-#'    times=list(start=0.0, stop=2.0, timeunit="year"),
+#'    times=list(start=0.0, end=2.0, timeunit="year"),
 #'    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
 #'    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
@@ -188,7 +188,7 @@ setMethod(
 #' # A little more complicated with inputs and outputs
 #'  mapPath <- system.file("maps", package="SpaDES")
 #'  mySim <- simInit(
-#'    times=list(start=0.0, stop=2.0, timeunit="year"),
+#'    times=list(start=0.0, end=2.0, timeunit="year"),
 #'    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
 #'    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths=list(modulePath=system.file("sampleModules", package="SpaDES"),
@@ -276,7 +276,7 @@ setMethod(
     timestep <- inSeconds(timeunit(sim))
     times(sim) <- list(current=times$start*timestep,
                        start=times$start*timestep,
-                       stop=times$stop*timestep,
+                       end=times$end*timestep,
                        timeunit=timeunit(sim))
 
     # load core modules
@@ -763,7 +763,7 @@ setMethod("simInit",
             li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
             names(li) <- names(match.call())[-1]
             li$inputs <- inputs
-            li$times <- list(start=0, stop=1, timeunit="seconds")
+            li$times <- list(start=0, end=1, timeunit="seconds")
             li$modules <- list()
             li$params <- list()
             li$objects <- list()
@@ -782,7 +782,7 @@ setMethod("simInit",
           signature(times="missing", params="missing", modules="missing",
                     objects="missing", paths="missing", inputs="missing", outputs="missing", loadOrder="missing"),
           definition=function(inputs, outputs) {
-            sim <- simInit(times=list(start=0, stop=1),
+            sim <- simInit(times=list(start=0, end=1),
                            params=list(),
                            modules=list(),
                            objects=list(), paths=list("./"), inputs=as.data.frame(NULL),
@@ -1052,7 +1052,7 @@ setMethod("scheduleEvent",
 #' @examples
 #' \dontrun{
 #'  mySim <- simInit(
-#'    times=list(start=0.0, stop=2.0, timeunit="year"),
+#'    times=list(start=0.0, end=2.0, timeunit="year"),
 #'    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
 #'    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths=list(modulePath=system.file("sampleModules", package="SpaDES"))

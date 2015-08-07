@@ -78,7 +78,7 @@ filelist <- data.frame(
     full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
     )
 
-times <- list(start=0, stop=3)
+times <- list(start=0, end=3)
 parameters <- list(.globals=list(stackName="landscape"))
 modules <- list("randomLandscapes", "caribouMovement")
 paths <- list(moduleName=system.file("sampleModules", package="SpaDES"))

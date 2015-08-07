@@ -17,7 +17,7 @@ Module groups make loading multiple modules easier: only the name of the module 
 library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=20.0)
+times <- list(start=0.0, end=20.0)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),

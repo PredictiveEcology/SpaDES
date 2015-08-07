@@ -41,7 +41,7 @@ doEvent.progress = function(sim, eventTime, eventType, debug=FALSE) {
 ##############################################################
 #' Progress bar
 #'
-#' Shows a progress bar that is scaled to simulation stop time.
+#' Shows a progress bar that is scaled to simulation end time.
 #'
 #' The progress bar object is stored in a separate environment,
 #' \code{.spadesEnv}.

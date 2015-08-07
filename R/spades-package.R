@@ -1,5 +1,5 @@
 #
-#  SpaDES/R/spades-package.R by Alex M Chubaty and Eliot J B McIntire
+#  SpaDES/R/SpaDES-package.R by Alex M Chubaty and Eliot J B McIntire
 #  Copyright (C) 2015 Her Majesty the Queen in Right of Canada,
 #   as represented by the Minister of Natural Resources Canada
 #
@@ -22,8 +22,8 @@
 #'
 #' Wiki: \url{https://github.com/PredictiveEcology/SpaDES/wiki}
 #'
-#' @name spades-package
-#' @aliases SpaDES spades-package
+#' @name SpaDES-package
+#' @aliases SpaDES SpaDES-package spades-package
 #' @docType package
 #' @author Alex M. Chubaty \email{achubaty@@nrcan.gc.ca}
 #' @author Eliot J. B. McIntire \email{Eliot.McIntire@@nrcan.gc.ca}
@@ -74,6 +74,9 @@
 #'    \code{\link{checkpointFile}} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
 #'    \code{\link{checkpointInterval}} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
 #'    \code{\link{outputPath}} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
+#'    \code{\link{inputPath}} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
+#'    \code{\link{modulePath}} \tab \code{NA} \tab Global module path. (advanced)\cr
+#'    \code{\link{paths}} \tab \code{NA} \tab Show all paths (input, output, module). (advanced)\cr
 #'    \code{\link{progressType}} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
 #'    \code{\link{progressInterval}} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 #' }
@@ -83,10 +86,10 @@
 #' Accessor functions for the \code{simtimes} slot and its elements.
 #'
 #' \tabular{ll}{
-#'    \code{\link{time}} \tab Current simulation time.\cr
-#'    \code{\link{start}} \tab Simulation start time.\cr
-#'    \code{\link{end}} \tab Simulation stop time.\cr
-#'    \code{\link{times}} \tab List of all simulation times (current, start, stop).\cr
+#'    \code{\link{time}} \tab Current simulation time, in units of longest module.\cr
+#'    \code{\link{start}} \tab Simulation start time, in units of longest module.\cr
+#'    \code{\link{end}} \tab Simulation end time, in units of longest module.\cr
+#'    \code{\link{times}} \tab List of all simulation times (current, start, end), in units of longest module..\cr
 #' }
 #'
 #' @section 1.2.3 Simulation event queues:

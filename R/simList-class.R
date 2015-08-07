@@ -36,7 +36,7 @@
 #'                  containing module object dependency information.
 #'
 #' @slot simtimes   List of numerical values describing the simulation start
-#'                  and stop times; as well as the current simulation time.
+#'                  and end times; as well as the current simulation time.
 #'
 #' @slot inputs   The list of length 2: a \code{data.table} or \code{data.table} of files and metadata,
 #' and a list of optional arguments to pass to an import function
@@ -89,7 +89,7 @@ setClass(".simList",
                                     .progress=list(type=NULL, interval=NULL)),
                         events=as.data.table(NULL), completed=as.data.table(NULL),
                         depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, stop=1.00, timeunit=NA_character_),
+                        simtimes=list(current=0.00, start=0.00, end=1.00, timeunit=NA_character_),
                         inputs=data.frame(file=character(0), fun=character(0),
                                           package=character(0), objectName=character(0),
                                           loadTime=numeric(0), loaded=logical(0), arg=list(NULL)),
@@ -97,11 +97,11 @@ setClass(".simList",
                         paths=list(modulePath="./", inputPath="./", outputPath="./")),
          validity=function(object) {
            # check for valid sim times
-           if (is.na(object@simtimes$stop)) {
-             stop("simulation stop time must be specified.")
+           if (is.na(object@simtimes$end)) {
+             stop("simulation end time must be specified.")
            } else {
-             if (object@simtimes$start >= object@simtimes$stop) {
-               stop("simulation start time should occur before stop time.")
+             if (object@simtimes$start >= object@simtimes$end) {
+               stop("simulation start time should occur before end time.")
              }
            }
 })

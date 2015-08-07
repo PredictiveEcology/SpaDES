@@ -18,7 +18,7 @@ filelist = data.frame(
 stackName = "landscape"
 
 mySim <- simInit(
-  times=list(start=0.0, stop=100.00),
+  times=list(start=0.0, end=100.00),
   params=list(
     .progress=list(type="text", interval = 10),
     .globals=list(stackName=stackName, burnStats="nPixelsBurned"),

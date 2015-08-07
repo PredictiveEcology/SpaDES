@@ -3,7 +3,7 @@ test_that("simulation runs with simInit and spades", {
 
   set.seed(42)
 
-  times <- list(start=0.0, stop=10, timeunit="year")
+  times <- list(start=0.0, end=10, timeunit="year")
   params <- list(
     .globals=list(burnStats="npixelsburned", stackName="landscape"),
     randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),

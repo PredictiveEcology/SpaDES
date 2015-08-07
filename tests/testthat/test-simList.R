@@ -3,7 +3,7 @@ test_that("simList object initializes correctly", {
 
   defaults <- list("checkpoint", "save", "progress", "load")
 
-  times <- list(start=0.0, stop=10)
+  times <- list(start=0.0, end=10)
   params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"))
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
   paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
@@ -110,7 +110,7 @@ test_that("simList object initializes correctly", {
   ### SLOT simtimes
   expect_equivalent(
     times(mySim),
-    list(current=0.0, start=0.0, stop=as.numeric(dmonth(10)), timeunit="month")
+    list(current=0.0, start=0.0, end=as.numeric(dmonth(10)), timeunit="month")
   )
   expect_equivalent(end(mySim),  10)
   expect_equivalent(start(mySim), 0)
@@ -125,7 +125,7 @@ test_that("simList object initializes correctly", {
   expect_equal(timeunit(mySim), attr(time(mySim), "unit"))
 
   expect_equal("second", attr(mySim@simtimes$start, "unit"))
-  expect_equal("second", attr(mySim@simtimes$stop, "unit"))
+  expect_equal("second", attr(mySim@simtimes$end, "unit"))
   expect_equal("second", attr(mySim@simtimes$current, "unit"))
 
   ### required packages
@@ -138,7 +138,7 @@ test_that("simList test all signatures", {
   on.exit(rm(mySim))
 
   #times
-  times <- list(start=0.0, stop=10)
+  times <- list(start=0.0, end=10)
 
   #modules
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")

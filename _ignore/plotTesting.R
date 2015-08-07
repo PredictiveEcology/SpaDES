@@ -4,7 +4,7 @@ dev()
 clearPlot()
 #library(SpaDES)
 library(stringi)
-times <- list(start=0, stop=53, timeunit="year")
+times <- list(start=0, end=53, timeunit="year")
 parameters <- list(.globals=list(stackName="landscape", burnStats="burnStats"),#
                    .progress=list(type="graphical", interval = 1),
                    randomLandscapes=list(.plotInitialTime=times$start),

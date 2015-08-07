@@ -159,8 +159,8 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
   objects, paths, inputs, outputs, loadOrder)
 }
 \arguments{
-\item{times}{A named list of numeric simulation start and stop times
-       (e.g., \code{times=list(start=0.0, stop=10.0)}).}
+\item{times}{A named list of numeric simulation start and end times
+       (e.g., \code{times=list(start=0.0, end=10.0)}).}
 
 \item{params}{A named list of simulation parameters and their values.}
 
@@ -210,7 +210,7 @@ default is current working directory.
 \examples{
 \dontrun{
  mySim <- simInit(
-   times=list(start=0.0, stop=2.0, timeunit="year"),
+   times=list(start=0.0, end=2.0, timeunit="year"),
    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
    paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
@@ -220,7 +220,7 @@ default is current working directory.
 # A little more complicated with inputs and outputs
  mapPath <- system.file("maps", package="SpaDES")
  mySim <- simInit(
-   times=list(start=0.0, stop=2.0, timeunit="year"),
+   times=list(start=0.0, end=2.0, timeunit="year"),
    params=list(.globals=list(stackName="landscape", burnStats="nPixelsBurned")),
    modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
    paths=list(modulePath=system.file("sampleModules", package="SpaDES"),

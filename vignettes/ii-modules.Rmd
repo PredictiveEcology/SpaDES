@@ -172,7 +172,7 @@ Default parameter values can overridden by passing values in the parameter list 
 require(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=20.0)
+times <- list(start=0.0, end=20.0)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
@@ -319,7 +319,7 @@ ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
 pdf(ftmp)
 clearPlot()
 mySim <- simInit(
-  times=list(start=0.0, stop=2.0, timeunit="year"),
+  times=list(start=0.0, end=2.0, timeunit="year"),
   params=parameters,
   modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects=list(),
@@ -398,7 +398,7 @@ To view the dependencies for a simulation:
 ```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
 require(SpaDES)
 
-times <- list(start=0.0, stop=20)
+times <- list(start=0.0, end=20)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
@@ -456,7 +456,7 @@ By befault, checkpointing is not used unless the `interval` parameter is provide
 ```{r checkpoints, echo=TRUE, eval=TRUE, message=FALSE}
 
 # initialize a new simulation, setting the checkpoint interval and filename.
-times <- list(start=0, stop=30)
+times <- list(start=0, end=30)
 parameters <- list(.globals=list(stackName="landscape"),
                    .checkpoint=list(interval=10, file="chkpnt.RData"))
 modules <- list("randomLandscapes", "caribouMovement")
@@ -475,7 +475,7 @@ Schedule updates to the simulation progress bar.
 
 ```{r progress, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
-mySim <- simInit(times=list(start=0.0, stop=100.0),
+mySim <- simInit(times=list(start=0.0, end=100.0),
                  params=list(.globals=list(stackName="landscape"),
                              .progress=list(type="text", interval=10)),
                  modules=list("randomLandscapes"),
@@ -553,7 +553,7 @@ If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it m
 require(data.table)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-mySim <- simInit(times=list(start=0.0, stop=10),
+mySim <- simInit(times=list(start=0.0, end=10),
                  params=list(
                    .globals=list(stackName="landscape"),
                    randomLandscapes=list(
@@ -611,7 +611,7 @@ Plotting events can be scheduled similarly to save events, by passing module-spe
 
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-mySim <- simInit(times=list(start=0.0, stop=100),
+mySim <- simInit(times=list(start=0.0, end=100),
                  params=list(
                    .globals=list(stackName="landscape"),
                    randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
@@ -722,7 +722,7 @@ Module groups make loading multiple modules easier: only the name of the module 
 library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=20.0)
+times <- list(start=0.0, end=20.0)
 parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
                    .progress=list(NA),
                    randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),

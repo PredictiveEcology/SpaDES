@@ -6,7 +6,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
   filelist = data.frame(files=dir(file.path(mapPath),full.names = TRUE,
      pattern="tif")[1:2], functions="raster", package="raster", stringsAsFactors=FALSE)
 
-  times <- list(start=0, stop=1)
+  times <- list(start=0, end=1)
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA),
                      randomLandscapes=list(.plotInitialTime=NA,
@@ -83,7 +83,7 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
                intervals = c(NA, 1, 2, NA),
                args=I(rep(list("native"=TRUE),4)),
                stringsAsFactors=FALSE)
-  times <- list(start=0, stop=1, timeunit="seconds")
+  times <- list(start=0, end=1, timeunit="seconds")
 
   sim2 <- simInit(times=times, params=parameters, modules=modules,
                   paths=paths, inputs=inputs)
@@ -122,7 +122,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
 
 
 
-  times <- list(start=0, stop=1)
+  times <- list(start=0, end=1)
   parameters <- list(.globals=list(stackName="landscape"),
                      caribouMovement=list(.plotInitialTime=NA),
                      randomLandscapes=list(.plotInitialTime=NA,
@@ -161,7 +161,7 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
   DEM <- layers[[1]]
   forestAge <- layers[[2]]
 
-  times <- list(start=0, stop=1)
+  times <- list(start=0, end=1)
 
   sim3 <- simInit(inputs=filelist)
 

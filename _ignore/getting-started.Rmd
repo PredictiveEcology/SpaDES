@@ -31,7 +31,7 @@ vignette: >
 require(SpaDES)
 
 outputPath <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, stop=20.0)
+times <- list(start=0.0, end=20.0)
 parameters <- list(.globals=list(stackName="landscape", .outputPath=outputPath,
                                  burnStats="nPixelsBurned"),
                    .progress=list(NA),
@@ -171,7 +171,7 @@ set.seed(42)
 for (i in 1:nrow(paramsdf)) {
   # initialize each simulation with a param combo from paramsdf
   mySim <- with(paramsdf,
-                simInit(times=list(start=0.0, stop=20.0),
+                simInit(times=list(start=0.0, end=20.0),
                         params=list(
                           .progress=list(type=NA, interval=NA),
                           .globals=list(stackName="landscape", burnStats="nPixelsBurned"),
@@ -251,7 +251,7 @@ fileList <- data.frame(files=dir(pathToMaps, full.names=TRUE, pattern="tif"),
                        stringsAsFactors=FALSE)
 
 # this list can be passed to simInit() as an entry in the parameter list
-mySim <- simInit(times=list(start=0.0, stop=10),
+mySim <- simInit(times=list(start=0.0, end=10),
                  params=list(.load=list(fileList=fileList),
 				             .progress=list(NA),
                              .globals=list(stackName="landscape",

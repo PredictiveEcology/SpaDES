@@ -11,7 +11,7 @@ newProgressBar(sim)
 \item{sim}{A \code{simList} simulation object.}
 }
 \description{
-Shows a progress bar that is scaled to simulation stop time.
+Shows a progress bar that is scaled to simulation end time.
 }
 \details{
 The progress bar object is stored in a separate environment,

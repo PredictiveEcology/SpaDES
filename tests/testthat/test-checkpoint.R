@@ -6,7 +6,7 @@ test_that("test checkpointing", {
 
   ## save checkpoints; no load/restore
   set.seed(1234)
-  times <- list(start=0, stop=2, timeunit="second")
+  times <- list(start=0, end=2, timeunit="second")
   parameters <- list(.globals=list(stackName="landscape"),
                     .checkpoint=list(interval=1, file=file),
                     randomLandscapes=list(.plotInitialTime=NA),
@@ -19,7 +19,7 @@ test_that("test checkpointing", {
 
   ## save checkpoints; with load/restore
   set.seed(1234)
-  times <- list(start=0, stop=1, timeunit="second")
+  times <- list(start=0, end=1, timeunit="second")
   sim2 <- simInit(times=times, params=parameters, modules=modules, paths=paths)
   sim2 <- spades(sim2)
   rm(sim2)
