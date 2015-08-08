@@ -2,7 +2,7 @@
 
 This is a resubmission. In this version we:
 
-* create a new environment for storing simulation objects, instead of modifying the global environment;
+* create a new environment for storing simulation objects, instead of modifying the global environment (we no longer use attach);
 * use `Additional_repositories` for installation of the suggested package `fastshp`, which is not available on CRAN.
 
 ## Test environments
@@ -23,7 +23,7 @@ This is a resubmission. In this version we:
 
 There were no ERRORs or WARNINGs
 
-There were 2 NOTES:
+There was 1 NOTE:
 
 1. There are three parts to this note:
 
@@ -47,13 +47,6 @@ There were 2 NOTES:
         
         Availability using Additional_repositories specification:
           fastshp   yes   http://rforge.net
-
-2. Where we attach the simulation environment, we follow best practices by 1) following the call to `attach()` with `on.exit(detach())`; 2) assigning a unique name to the attached enviroment.
-
-        Found the following calls to attach():
-        File ‘SpaDES/R/simulation.R’:
-          attach(envir(sim), name = envName)
-        See section ‘Good practice’ in ‘?attach’.
 
 ## Downstream dependencies
 

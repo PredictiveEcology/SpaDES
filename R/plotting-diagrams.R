@@ -156,31 +156,37 @@ setMethod("eventDiagram",
           definition=function(sim, n, startDate, ...) {
             # get automatic scaling of vertical bars in Gantt chart
             dots <- list(...)
-            width <- if(any(grepl(pattern="width", names(dots)))) {
+            dots$width <- if(any(grepl(pattern="width", names(dots)))) {
               as.numeric(dots$width)
             } else {
               1000
             }
-            ll <- .sim2gantt(sim, n, startDate, width)
+            ll <- .sim2gantt(sim, n, startDate, dots$width)
 
             #remove progress bar events
             ll <- ll[names(ll)!="progress"]
 
-            mermaid(...,
-              paste0(
-                # mermaid "header"
-                "gantt", "\n",
-                "dateFormat  YYYY-MM-DD", "\n",
-                "title SPaDES event diagram", "\n",
+            # estimate the height of the diagram
+            dots$height <- if(any(grepl(pattern="height", names(dots)))) {
+              as.numeric(dots$height)
+            } else {
+              sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+            }
 
-                # mermaid "body"
-                paste("section ", names(ll), "\n", lapply(ll, function(df) {
-                  paste0(df$task, ":", df$status, ",",
-                         df$pos, ",", df$start, ",", df$end,
-                         collapse = "\n")
-                }), collapse = "\n"), "\n"
-              )
+            diagram <- paste0(
+              # mermaid "header"
+              "gantt", "\n",
+              "dateFormat  YYYY-MM-DD", "\n",
+              "title SpaDES event diagram", "\n",
+
+              # mermaid "body"
+              paste("section ", names(ll), "\n", lapply(ll, function(df) {
+                paste0(df$task, ":", df$status, ",",
+                       df$pos, ",", df$start, ",", df$end,
+                       collapse = "\n")
+              }), collapse = "\n"), "\n"
             )
+            do.call(mermaid, args=append(diagram, dots))
 })
 
 #' @export
