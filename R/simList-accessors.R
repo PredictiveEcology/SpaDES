@@ -1273,7 +1273,13 @@ setMethod(
   "times",
   signature="simList",
   definition=function(x) {
-    return(x@simtimes)
+    mUnit <- .callingFrameTimeunit(x)
+    if (is.null(mUnit)) {
+      mUnit <- NA_character_
+    }
+    t <- list(current=time(x, timeunit(x)), start=start(x, timeunit(x)),
+           end=end(x, timeunit(x)), timeunit=timeunit(x))
+    return(t)
 })
 
 #' @export
@@ -1289,8 +1295,28 @@ setGeneric("times<-", function(x, value) {
 setReplaceMethod("times",
                  signature="simList",
                  function(x, value) {
-                   x@simtimes <- value
+                   value <- as.list(value)
+                   if(!all(is(value$current, "numeric"),
+                          is(value$start, "numeric"),
+                          is(value$end, "numeric"),
+                          is(value$timeunit, "character"))) {
+                     stop("Please supply a named list, current, start, end, and timeunit")
+                   }
+
+                   if(is.null(attributes(value$current)$unit))
+                     attributes(value$current)$unit <- value$timeunit
+                   if(is.null(attributes(value$start)$unit))
+                     attributes(value$start)$unit <- value$timeunit
+                   if(is.null(attributes(value$end)$unit))
+                     attributes(value$end)$unit <- value$timeunit
+
+                   x@simtimes$current <- convertTimeunit(value$current, "second")
+                   x@simtimes$start <- convertTimeunit(value$start, "second")
+                   x@simtimes$end <- convertTimeunit(value$end, "second")
+                   x@simtimes$timeunit <- value$timeunit
+
                    validObject(x)
+
                    return(x)
 })
 
