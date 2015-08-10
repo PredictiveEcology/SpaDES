@@ -37,7 +37,7 @@ submodules to the simulation. We use S4 classes and methods, and use `data.table
 instead of `data.frame` to implement the event queue (because it is much faster).
 }
 \examples{
-\dontrun{scheduleEvent(x, 10.5, "firemodule", "burn")}
+\dontrun{scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn")}
 }
 \author{
 Alex Chubaty
