@@ -67,6 +67,7 @@ setMethod(
   definition=function(sim, modules) {
     all_children <- list()
     children <- list()
+    parent_ids <- integer()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
       filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
@@ -78,11 +79,8 @@ setMethod(
 
       # check that modulename == filename
       fname <- unlist(strsplit(basename(filename), "[.][r|R]$"))
-      i <- which(modules==m)
-      mname <- depends(sim)@dependencies[[i]]@name
-      if (fname != mname) {
-        stop("module name \'", mname, "\'",
-             "does not match filename \'", fname, "\'")
+      for (k in length(depends(sim)@dependencies)) {
+        if (depends(sim)@dependencies[[k]]@name == m) i <- k
       }
 
       # assign default param values
@@ -106,9 +104,15 @@ setMethod(
       children <- as.list(depends(sim)@dependencies[[i]]@childModules) %>%
         lapply(., `attributes<-`, list(parsed=FALSE))
       all_children <- append_attr(all_children, children)
+
+      # remove parent module from the list
+      if (length(children)) {
+        parent_ids <- c(parent_ids, j)
+      }
     }
 
-    modules(sim) <- append_attr(modules, children)
+    modules(sim) <- append_attr(modules, all_children)[-parent_ids] %>%
+      unique
 
     return(sim)
   }
@@ -302,8 +306,8 @@ setMethod(
 
     # check user-supplied load order
     if (!all( length(loadOrder),
-              all(modules %in% loadOrder),
-              all(loadOrder %in% modules) )) {
+              all(modules(sim) %in% loadOrder),
+              all(loadOrder %in% modules(sim)) )) {
       loadOrder <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
     }
 
@@ -937,7 +941,7 @@ setMethod("doEvent",
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
-#' \dontrun{scheduleEvent(x, 10.5, "firemodule", "burn")}
+#' \dontrun{scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn")}
 setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
     standardGeneric("scheduleEvent")
 })

@@ -18,7 +18,3 @@ defineModule(sim, list(
 ))
 
 ### no other code is needed for this module group
-## event types
-doEvent.SpaDES_sampleModules <- function(sim, eventTime, eventType, debug=FALSE) {
-  return(invisible(sim))
-}
