@@ -244,7 +244,7 @@ Keep these function definitions as short and clean as possible (you can further 
 
 Functions should get and return objects in the simulation environment (`envir`), rather than pass them as function arguments.
 This mostly allows for function definitions to be simpler, *i.e.*, they just take the one `sim` argument if parameters are passed within the `simInit` call.
-Accessing objects in the `envir` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=envir(sim))`.
+Accessing objects in the `envir` is similar to accessing items in a list, *i.e.*, `sim[["object"]]` or `sim$object` can be used, in addition to `get("object", envir=envir(sim))`. Likewise, simulation functions (*i.e.*, those defined in modules) are also accessed using the `$` accessor (*e.g.*, `sim$myFunction()`).
 
 Note that every module requires an `"init"` event type, which defines the initialization of the module; however, this `init` event need not do a whole lot (*i.e.*, it can be a stub).
 As such, the `modulenameInit()` function is required for initiliazation.
