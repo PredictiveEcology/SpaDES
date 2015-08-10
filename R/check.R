@@ -92,7 +92,9 @@ setMethod("checkObject",
                 }
               }
             } else {
-              message(paste(name, "does not exist in", sim))
+              message(
+                paste(name, "does not exist in", deparse(substitute(mySim)))
+              )
               return(FALSE)
             }
 })
