@@ -87,8 +87,6 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
 
 ## event functions
 caribouMovementInit <- function(sim) {
-  #landscape <- sim[[globals(sim)$stackName]]
-
   yrange <- c(ymin(sim[[globals(sim)$stackName]]), ymax(sim[[globals(sim)$stackName]]))
   xrange <- c(xmin(sim[[globals(sim)$stackName]]), xmax(sim[[globals(sim)$stackName]]))
 
@@ -110,8 +108,6 @@ caribouMovementInit <- function(sim) {
 }
 
 caribouMovementMove <- function(sim) {
-  #landscape <- sim[[globals(sim)$stackName]]
-
   # crop any caribou that went off maps
   sim$caribou <- crop(sim$caribou, sim[[globals(sim)$stackName]])
   if(length(sim$caribou)==0) stop("All agents are off map")
