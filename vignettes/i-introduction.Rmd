@@ -107,7 +107,7 @@ Thus, complex simulations involving multiple processes (activities) can be built
 This package provides tools for building modules natively in `R` that can be reused.
 Additionally, because of the flexibility `R` provides for interacting with other programming languages and external data sources, modules can also be built using external tools and integrated with `SpaDES` (see figure below).
 
-![](../inst/figs/SpaDES-overview-diagram.pdf "Schematic representation of a `SpaDES` simulation model.")
+![](../inst/figs/SpaDES-overview-diagram.png "Schematic representation of a `SpaDES` simulation model.")
 
 ## `SpaDES` modules
 
