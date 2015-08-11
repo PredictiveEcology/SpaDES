@@ -1,5 +1,11 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.0.2
+=============
+* fix bug in `.parseModule` (#215)
+* improve documentation
+* bug fixes
+
 version 1.0.1
 =============
 * no longer `attach` the simulation environment (#212)

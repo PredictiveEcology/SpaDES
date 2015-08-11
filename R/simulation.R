@@ -111,7 +111,11 @@ setMethod(
       }
     }
 
-    modules(sim) <- append_attr(modules, all_children)[-parent_ids] %>%
+    modules(sim) <- if (length(parent_ids)) {
+        append_attr(modules, all_children)[-parent_ids]
+      } else {
+        append_attr(modules, all_children)
+      } %>%
       unique
 
     return(sim)
