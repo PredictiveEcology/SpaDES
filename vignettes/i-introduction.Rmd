@@ -16,8 +16,6 @@ vignette: >
 bibliography: bibliography.bib
 ---
 
-\newpage
-
 # Introduction to `SpaDES`
 
 ## Package description
@@ -222,9 +220,6 @@ mySim <- spades(mySim)            # run the simulation, returning the completed 
 eventDiagram(mySim, "0000-06-01") # visualize the sequence of events for all modules
 ```
 
-
-\newpage
-
 # Types of models
 
 `SpaDES` provides a common platform for simulation model development and analysis.
@@ -267,8 +262,6 @@ Additionally, a `SpatialPointsDataFrame` can be used, which provides storage of 
 
 Analogously, it is possible to use `SpatialPolygons*`.
 Plotting methods using `Plot` are optimized for speed and are much faster than the default `plot` methods for polygons (via spatial subsampling of vector data), so have fewer options for customization than other approaches to visualizing polygons.
-
-\newpage
 
 # Simulation experiments
 

@@ -19,8 +19,6 @@ vignette: >
 SpaDES::clearPlot()
 ```
 
-\newpage
-
 # Plotting in `SpaDES`
 
 Most visualization approaches in R  (*e.g.*, `base`, `RgoogleVis`, `ggplot2`, `rgl`) are not optimized for speed or modularity.
@@ -60,8 +58,6 @@ mySim <- loadFiles(filelist=filelist)
 # put into a single stack object in the simulation environment for ease of use below
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```
-
-\newpage
 
 # The `Plot` function
 
@@ -110,8 +106,6 @@ Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialP
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(landscape, caribou, mySim$DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5), visualSqueeze=0.7)
 ```
-
-\newpage
 
 ## Other object types
 
@@ -329,8 +323,6 @@ This can be useful to see where agents are on a `RasterLayer`, or if there is tr
 Plot(landscape, new=TRUE)
 Plot(caribou, addTo="landscape$DEM", size=2, axes=FALSE)
 ```
-
-\newpage
 
 # Clearing Plot
 

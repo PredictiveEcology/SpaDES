@@ -17,8 +17,6 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-\newpage
-
 # Getting started with `SpaDES`
 
 - module organization/overview; module development philosophy

@@ -15,8 +15,6 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-\newpage
-
 # Introduction
 
 ## Module overview
@@ -55,8 +53,6 @@ Maintaining strict modularity allows the removal, additon, and replacement of mo
 
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity.
 If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
-
-\newpage
 
 # Module structure
 
@@ -361,8 +357,6 @@ Use [semantic versioning](http://semver.org), such that a version number `x.y.z`
 - `y` is the **minor** version (incremeted when you add functionality in a backwards-compatible manner)
 - `z` is the **patch** version (incremented when you make backwards-compatible bug fixes)
 
-\newpage
-
 # Passing data between modules
 
 Modularity in `SpaDES` simulations is maintained by ensuring modules interact indirectly with one another by reading in and modifying objects in the simluation environment.
@@ -415,8 +409,6 @@ The output of the `depsEdgeList` is an edgelist describing the relationships bet
 In the example above, line 2 of the output indicates that the `fireSpread` module relies on an object `landscape` provided by the `caribouMovement` module.
 This edgelist is used inside the `depsGraph` function to produce a dependency graph (network), where each module corresponds to a vertex (node), and object dependencies are denoted by the arrows.
 When plotting the dependency graph, it's often useful to use the `plot=TRUE` argument to simplify the network by showing no more than one object dependency between modules.
-
-\newpage
 
 # Core modules
 
@@ -633,8 +625,6 @@ nextPlot <- time(mySim) + params(mySim)$randomLandscapes$.plotInterval
 mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 ```
 
-\newpage
-
 # Using existing `SpaDES` modules
 
 One of the primary motivations of developing the `SpaDES` package is to facilitate module reuse.
@@ -683,8 +673,6 @@ Modules from this (or another suitable GitHub repository) can be downloaded usin
 ```{r download-module, echo=TRUE, eval=FALSE}
 downloadModule("moduleName", "path/to/my/modules/directory")
 ```
-
-\newpage
 
 # Creating new modules
 
