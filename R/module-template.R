@@ -176,7 +176,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for your event2
-sim$", name, "Event2 = function(sim) {
+", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
 
 
