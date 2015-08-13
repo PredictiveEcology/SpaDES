@@ -18,7 +18,7 @@ objectDiagram(sim, ...)
             Useful for specifying \code{height} and \code{width}.}
 }
 \value{
-Plots a sequence diagram.
+Plots a sequence diagram, invisibly returning a \link{mermaid} object.
 }
 \description{
 Create a sequence diagram illustrating the data object dependencies of a

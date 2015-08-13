@@ -114,8 +114,8 @@ setMethod(".sim2gantt",
 #' Each module appears in a color-coded row, within which each event for that
 #' module is displayed corresponding to the sequence of events for that module.
 #' Note that only the start time of the event is meaningful is these figures:
-#' the width of the bar associated with a particular module's event corresponds
-#' to the module's timeunit, not the event's "duration".
+#' the width of the bar associated with a particular module's event DOES NOT
+#' correspond to an event's "duration".
 #'
 #' Based on this StackOverflow answer: \url{http://stackoverflow.com/a/29999300/1380598}.
 #'
@@ -133,7 +133,7 @@ setMethod(".sim2gantt",
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
 #'
-#' @return Plots an event diagram as Gantt Chart.
+#' @return Plots an event diagram as Gantt Chart, invisibly returning a \link{mermaid} object.
 #'
 #' @seealso \code{\link{mermaid}}.
 #'
@@ -163,30 +163,35 @@ setMethod("eventDiagram",
             }
             ll <- .sim2gantt(sim, n, startDate, dots$width)
 
-            #remove progress bar events
+            # remove progress bar events
             ll <- ll[names(ll)!="progress"]
 
-            # estimate the height of the diagram
-            dots$height <- if(any(grepl(pattern="height", names(dots)))) {
-              as.numeric(dots$height)
+            if (length(ll)) {
+              # estimate the height of the diagram
+              dots$height <- if(any(grepl(pattern="height", names(dots)))) {
+                as.numeric(dots$height)
+              } else {
+                sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+              }
+
+              diagram <- paste0(
+                # mermaid "header"
+                "gantt", "\n",
+                "dateFormat  YYYY-MM-DD", "\n",
+                "title SpaDES event diagram", "\n",
+
+                # mermaid "body"
+                paste("section ", names(ll), "\n", lapply(ll, function(df) {
+                  paste0(df$task, ":", df$status, ",",
+                         df$pos, ",", df$start, ",", df$end,
+                         collapse = "\n")
+                }), collapse = "\n"), "\n"
+              )
+              do.call(mermaid, args=append(diagram, dots))
             } else {
-              sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+              stop("Unable to create eventDiagram for a simulation that hasn't been run.\n",
+                   "Run your simulation using `mySim <- spades(mySim)` and try again.")
             }
-
-            diagram <- paste0(
-              # mermaid "header"
-              "gantt", "\n",
-              "dateFormat  YYYY-MM-DD", "\n",
-              "title SpaDES event diagram", "\n",
-
-              # mermaid "body"
-              paste("section ", names(ll), "\n", lapply(ll, function(df) {
-                paste0(df$task, ":", df$status, ",",
-                       df$pos, ",", df$start, ",", df$end,
-                       collapse = "\n")
-              }), collapse = "\n"), "\n"
-            )
-            do.call(mermaid, args=append(diagram, dots))
 })
 
 #' @export
@@ -210,7 +215,7 @@ setMethod("eventDiagram",
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
 #'
-#' @return Plots a sequence diagram.
+#' @return Plots a sequence diagram, invisibly returning a \link{mermaid} object.
 #'
 #' @seealso \code{\link{mermaid}}.
 #'
@@ -295,4 +300,4 @@ setMethod("moduleDiagram",
           signature=c(sim="simList", type="missing"),
           definition=function(sim, type, ...) {
               plot(depsGraph(sim, TRUE), ...)
-          })
+})
