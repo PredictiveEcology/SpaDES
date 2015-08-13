@@ -57,12 +57,14 @@ defineModule(sim, list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_character_, # e.g., \"year\"
+  timeunit=NA_character_, # e.g., \"year\",
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
+    defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")),
+    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")),
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
   inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
@@ -108,7 +110,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\")
 
     # ! ----- STOP EDITING ----- ! #
-  } else if (eventType==\"templateEvent\") {
+  } else if (eventType==\"event1\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
@@ -121,10 +123,23 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
-    } else {
-      warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
-                    \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
-    }
+  } else if (eventType==\"event2\") {
+    # ! ----- EDIT BELOW ----- ! #
+    # do stuff for this event
+
+    # e.g., call your custom functions/methods here
+    # you can define your own methods below this `doEvent` function
+
+    # schedule future event(s)
+
+    # e.g.,
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
+
+    # ! ----- STOP EDITING ----- ! #
+  } else {
+    warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
+                  \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
+  }
   return(invisible(sim))
 }
 
