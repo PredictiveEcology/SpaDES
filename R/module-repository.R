@@ -199,7 +199,7 @@ setMethod("listModules",
 setMethod("listModules",
           signature=c(repo="missing",path="character"),
           definition = function(path) {
-            dir(pattern="[\\.][rR]$",recursive = TRUE) %>%
+            dir(path=path, pattern="[\\.][rR]$",recursive = TRUE) %>%
               strsplit(.,split="/") %>%
               sapply(., function(x) x[1])
           })
