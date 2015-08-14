@@ -3,8 +3,9 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.0.2
 =============
 * fix bug in `.parseModule` (#215)
+* fix `%>%` bug in demo (#218)
 * improve documentation
-* bug fixes (including library call to igraph in demo)
+* various other bug fixes
 
 version 1.0.1
 =============
