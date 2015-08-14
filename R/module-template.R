@@ -61,11 +61,12 @@ defineModule(sim, list(
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
+    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
-    defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")),
-    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")),
-    #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
+    defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
+    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
+  ),
   inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
