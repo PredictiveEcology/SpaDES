@@ -442,12 +442,13 @@ setMethod("openModules",
             basedir <- checkPath(path, create=FALSE)
             origDir <- getwd()
             setwd(basedir)
-            if(any(names=="all")) {
-              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
-            } else {
-              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+
+            Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+
+            if(!all(name=="all")) {
               Rfiles <- Rfiles[pmatch(name,Rfiles)]
             }
+
             Rfiles <- Rfiles[grep(pattern="[/\\\\]",Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
