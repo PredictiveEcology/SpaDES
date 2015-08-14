@@ -57,6 +57,14 @@ create the other 4 files.
 All 5 (or 4, if using \code{newModuleDocumentation}) files will be created
 within a subfolder named \code{name} within the \code{path}.
 }
+\note{
+On Windows there is currently a bug in RStudio that it doesn't know what editor to open with `file.edit` is called (which is what moduleName does). This will return an error:
+
+\code{Error in editor(file = file, title = title) :}
+\code{argument "name" is missing, with no default}
+
+You can just browse to the file and open it manually.
+}
 \examples{
 \dontrun{
   ## create a "myModule" module in the "modules" subdirectory.

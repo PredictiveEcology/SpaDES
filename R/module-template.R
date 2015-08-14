@@ -20,6 +20,14 @@
 #' @return Nothing is returned. The new module file is created at \code{path/name.R}, as
 #' well as anciliary files for documentation, citation, license, and readme.
 #'
+#' @note On Windows there is currently a bug in RStudio that it doesn't know what editor to open with `file.edit` is called (which is what moduleName does). This will return an error:
+#'
+#' \code{Error in editor(file = file, title = title) :}
+#' \code{argument "name" is missing, with no default}
+#'
+#' You can just browse to the file and open it manually.
+#'
+#'
 #' @export
 #' @docType methods
 #' @rdname newModule
@@ -401,6 +409,13 @@ setMethod("newModuleDocumentation",
 #' module subdirectories.
 #'
 #' @return Nothing is returned. All file are open via \code{file.edit}.
+#'
+#' @note On Windows there is currently a bug in RStudio that it doesn't know what editor to open with `file.edit` is called (which is what moduleName does). This will return an error:
+#'
+#' \code{Error in editor(file = file, title = title) :}
+#' \code{argument "name" is missing, with no default}
+#'
+#' You can just browse to the file and open it manually.
 #'
 #' @export
 #' @docType methods
