@@ -34,6 +34,15 @@ This is just a convenience wrapper for openning several modules at once, recursi
 A module is defined as any file that ends in \code{.R} or \code{.r} and has a
 directory name identical to its filename. Thus, this must be case sensitive.
 }
+\note{
+On Windows there is currently a bug in RStudio that it doesn't know what editor to
+open with \code{file.edit} is called (which is what moduleName does). This will return an error:
+
+\code{Error in editor(file = file, title = title) :}
+\code{argument "name" is missing, with no default}
+
+You can just browse to the file and open it manually.
+}
 \examples{
 \dontrun{openModules("~\\SpaDESModules")}
 }

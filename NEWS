@@ -4,8 +4,9 @@ version 1.0.2
 =============
 * fix bug in `.parseModule` (#215)
 * improve dependency graph & module diagram (#216)
+* fix `%>%` bug in demo (#218)
 * improve documentation
-* bug fixes
+* various other bug fixes
 
 version 1.0.1
 =============
