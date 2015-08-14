@@ -23,6 +23,8 @@ Easily implement a variety of simulation models, with a focus on spatially expli
 The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. 
 Included are numerous tools to rapidly visualize raster and other maps.
 
+[**Getting Started**](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started) 
+
 **Blog:** [http://PredictiveEcology.org](http://PredictiveEcology.org)
 
 **Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
