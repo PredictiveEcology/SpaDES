@@ -57,7 +57,7 @@ defineModule(sim, list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_character_, # e.g., \"year\",
+  timeunit=NA_character_, # e.g., \"year,\",
   citation=list(),
   reqdPkgs=list(),
   parameters=rbind(
@@ -88,13 +88,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
-
+    #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType==\"save\") {

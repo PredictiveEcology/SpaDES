@@ -4,7 +4,7 @@ version 1.0.2
 =============
 * fix bug in `.parseModule` (#215)
 * improve documentation
-* bug fixes
+* bug fixes (including library call to igraph in demo)
 
 version 1.0.1
 =============
