@@ -5,7 +5,8 @@
 # @demoTitle spades-simulation
 #
 
-library("SpaDES")
+library(SpaDES)
+library(igraph)
 
 filelist = data.frame(
   files=dir(file.path(
@@ -42,3 +43,4 @@ mySim <- simInit(
 mySim$landscape <- stack(mySim$DEM, mySim$forestAge, mySim$habitatQuality, mySim$percentPine)
 if (interactive()) { dev() };
 mySim <- spades(mySim, debug=TRUE)
+
