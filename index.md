@@ -25,6 +25,9 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 [**Getting Started**](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started) [https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started) 
 
+[**Vignettes**](https://github.com/PredictiveEcology/SpaDES/wiki/Package-Vignettes) [https://github.com/PredictiveEcology/SpaDES/wiki/Package-Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Package-Vignettes) 
+
+
 **Blog:** [http://PredictiveEcology.org](http://PredictiveEcology.org)
 
 **Website:** [http://SpaDES.PredictiveEcology.org](http://SpaDES.PredictiveEcology.org)
