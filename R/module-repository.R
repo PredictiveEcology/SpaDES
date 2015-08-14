@@ -127,3 +127,79 @@ setMethod("downloadModule",
             files <- downloadModule(name, path, version=NA_character_, repo=repo)
             return(invisible(files))
 })
+
+
+################################################################################
+#' List modules from local or on github repository
+#'
+#' Modified from
+#' \url{http://stackoverflow.com/questions/25485216/how-to-get-list-files-from-a-github-repository-folder-using-r}.
+#' If repo is unspecified, then modulesDir
+#'
+#' @param repo   GitHub repository name.
+#'                Default is \code{"PredictiveEcology/SpaDES-modules"},
+#'                which is specified by the global option \code{spades.modulesRepo}.
+#'
+#'  @param path  Character string of length 1. The base directory (relative)
+#'  within which there are only module subdirectories. Defaults to "modules".
+#'
+#'
+#' @importFrom httr content
+#' @importFrom httr GET
+#' @importFrom httr stop_for_status
+#' @export
+#' @rdname listModules
+#'
+#' @author Eliot McIntire
+#'
+# igraph exports %>% from magrittr
+setGeneric("listModules", function(repo,path) {
+  standardGeneric("listModules")
+})
+
+#' @rdname listModules
+setMethod("listModules",
+          signature=c(repo="character", path="character"),
+          definition = function(repo,path) {
+
+            #remove trailing slashes
+            repo <- gsub("/$", "", repo)
+
+            #remove trailing slashes, then add filepath on github to relative path,
+            #  including adding back trailing slash
+            fullPath <- gsub("/$", "", path) %>%
+              paste0(repo,"/tree/master/",.,"/")
+            gitFullPath <- paste0("https://github.com/",fullPath)
+
+            req <- GET(gitFullPath)
+            stop_for_status(req)
+            rawTxt = sapply(content(req, "text"), function(x) strsplit(x, split="<"))[[1]]
+
+            modules <- rawTxt[grep(rawTxt, pattern=fullPath)] %>%
+              strsplit(split=">") %>% sapply(., function(x) x[[2]])
+            return(modules)
+})
+
+#' @rdname listModules
+setMethod("listModules",
+          signature=c(repo="missing",path="missing"),
+          definition = function() {
+            repo <- getOption("spades.modulesRepo")
+            listModules(repo=repo, path="modules")
+          })
+
+#' @rdname listModules
+setMethod("listModules",
+          signature=c(repo="character",path="missing"),
+          definition = function(repo) {
+            listModules(repo=repo, path="modules")
+          })
+
+#' @rdname listModules
+setMethod("listModules",
+          signature=c(repo="missing",path="character"),
+          definition = function(path) {
+            dir(pattern="[\\.][rR]$",recursive = TRUE) %>%
+              strsplit(.,split="/") %>%
+              sapply(., function(x) x[1])
+          })
