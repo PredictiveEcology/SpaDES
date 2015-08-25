@@ -42,14 +42,16 @@ Various slot accessor methods (i.e., get and set functions) are provided
 \item{\code{simtimes}}{List of numerical values describing the simulation start
                  and end times; as well as the current simulation time.}
 
-\item{\code{inputs}}{The list of length 2: a \code{data.table} or \code{data.table} of files and metadata,
-and a list of optional arguments to pass to an import function}
+\item{\code{inputs}}{A list of length 2, containing:
+                 1) a \code{data.frame} or \code{data.table} of files and metadata,
+                 and 2) a list of optional arguments to pass to an import function.}
 
-\item{\code{outputs}}{The list of length 2: a \code{data.table}  or \code{data.table}  of files and metadata,
-and a list of optional arguments to pass to an import function}
+\item{\code{outputs}}{A list of length 2 containing:
+                 1) a \code{data.frame}  or \code{data.table} of files and metadata,
+                 and 2) a list of optional arguments to pass to an export function.}
 
-\item{\code{paths}}{Named list of \code{modulePath}, \code{inputPath}, and \code{outputPath} paths. Partial
-matching is performed.}
+\item{\code{paths}}{Named list of \code{modulePath}, \code{inputPath},
+                 and \code{outputPath} paths. Partial matching is performed.}
 
 \item{\code{.envir}}{Environment referencing the objects used in the simulation.
                  Several "shortcuts" to accessing objects referenced by this
@@ -74,10 +76,13 @@ The class \code{simList_} is only used internally.
 Several slot (and sub-slot) accessor methods are provided for use, and
 categorized into separate help pages:
 \tabular{ll}{
-  \code{\link{simList-accessors-envir}} \tab Simulation enviroment and objects. \cr
+  \code{\link{simList-accessors-envir}} \tab Simulation enviroment. \cr
   \code{\link{simList-accessors-events}} \tab Scheduled and completed events. \cr
+  \code{\link{simList-accessors-inout}} \tab Passing data in to / out of simulations. \cr
   \code{\link{simList-accessors-modules}} \tab Modules loaded and used; module dependencies. \cr
+  \code{\link{simList-accessors-objects}} \tab Accessing objects used in the simulation. \cr
   \code{\link{simList-accessors-params}} \tab Global and module-specific parameters. \cr
+  \code{\link{simList-accessors-paths}} \tab File paths for modules, inputs, and outputs. \cr
   \code{\link{simList-accessors-times}} \tab Simulation times. \cr
 }
 }

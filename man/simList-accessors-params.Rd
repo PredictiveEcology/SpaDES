@@ -3,91 +3,79 @@
 \docType{methods}
 \name{params}
 \alias{checkpointFile}
-\alias{checkpointFile,simList-method}
+\alias{checkpointFile,.simList-method}
 \alias{checkpointFile<-}
-\alias{checkpointFile<-,simList-method}
+\alias{checkpointFile<-,.simList-method}
 \alias{checkpointInterval}
-\alias{checkpointInterval,simList-method}
+\alias{checkpointInterval,.simList-method}
 \alias{checkpointInterval<-}
-\alias{checkpointInterval<-,simList-method}
+\alias{checkpointInterval<-,.simList-method}
 \alias{globals}
-\alias{globals,simList-method}
+\alias{globals,.simList-method}
 \alias{globals<-}
-\alias{globals<-,simList-method}
-\alias{outputPath}
-\alias{outputPath,simList-method}
-\alias{outputPath<-}
-\alias{outputPath<-,simList-method}
+\alias{globals<-,.simList-method}
 \alias{params}
-\alias{params,simList-method}
+\alias{params,.simList-method}
 \alias{params<-}
-\alias{params<-,simList-method}
+\alias{params<-,.simList-method}
 \alias{progressInterval}
-\alias{progressInterval,simList-method}
+\alias{progressInterval,.simList-method}
 \alias{progressInterval<-}
-\alias{progressInterval<-,simList-method}
+\alias{progressInterval<-,.simList-method}
 \alias{progressType}
-\alias{progressType,simList-method}
+\alias{progressType,.simList-method}
 \alias{progressType<-}
-\alias{progressType<-,simList-method}
+\alias{progressType<-,.simList-method}
 \alias{simList-accessors-params}
 \title{Get and set simulation parameters.}
 \usage{
 params(object)
 
-\S4method{params}{simList}(object)
+\S4method{params}{.simList}(object)
 
 params(object) <- value
 
-\S4method{params}{simList}(object) <- value
-
-checkpointFile(object)
-
-\S4method{checkpointFile}{simList}(object)
-
-checkpointFile(object) <- value
-
-\S4method{checkpointFile}{simList}(object) <- value
-
-checkpointInterval(object)
-
-\S4method{checkpointInterval}{simList}(object)
-
-checkpointInterval(object) <- value
-
-\S4method{checkpointInterval}{simList}(object) <- value
-
-progressType(object)
-
-\S4method{progressType}{simList}(object)
-
-progressType(object) <- value
-
-\S4method{progressType}{simList}(object) <- value
-
-progressInterval(object)
-
-\S4method{progressInterval}{simList}(object)
-
-progressInterval(object) <- value
-
-\S4method{progressInterval}{simList}(object) <- value
+\S4method{params}{.simList}(object) <- value
 
 globals(object)
 
-\S4method{globals}{simList}(object)
+\S4method{globals}{.simList}(object)
 
 globals(object) <- value
 
-\S4method{globals}{simList}(object) <- value
+\S4method{globals}{.simList}(object) <- value
 
-outputPath(object)
+checkpointFile(object)
 
-\S4method{outputPath}{simList}(object)
+\S4method{checkpointFile}{.simList}(object)
 
-outputPath(object) <- value
+checkpointFile(object) <- value
 
-\S4method{outputPath}{simList}(object) <- value
+\S4method{checkpointFile}{.simList}(object) <- value
+
+checkpointInterval(object)
+
+\S4method{checkpointInterval}{.simList}(object)
+
+checkpointInterval(object) <- value
+
+\S4method{checkpointInterval}{.simList}(object) <- value
+
+progressInterval(object)
+
+\S4method{progressInterval}{.simList}(object)
+
+progressInterval(object) <- value
+
+\S4method{progressInterval}{.simList}(object) <- value
+
+progressType(object)
+
+\S4method{progressType}{.simList}(object)
+
+progressType(object) <- value
+
+\S4method{progressType}{.simList}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -111,12 +99,6 @@ Advanced use
    Accessor method \tab Module \tab Description \cr
    \code{checkpointFile} \tab \code{.checkpoint} \tab Name of the checkpoint file. (advanced)\cr
    \code{checkpointInterval} \tab \code{.checkpoint} \tab The simulation checkpoint interval. (advanced)\cr
-   \code{modulePath} \tab \code{NA} \tab Global simulation module path. (advanced)\cr
-   \code{outputPath} \tab \code{NA} \tab Global simulation output path. (advanced)\cr
-   \code{inputPath} \tab \code{NA} \tab Global simulation input path. (advanced)\cr
-   \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs). (advanced)\cr
-   \code{inputs} \tab \code{inputs} \tab data.frame identifying objects to load, files etc. & arguments (optional). (advanced)\cr
-   \code{outputs} \tab \code{outputs} \tab data.frame identifying objects to save, files etc. & arguments (optional). (advanced)\cr
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
@@ -126,8 +108,12 @@ Currently, only get and set methods are defined. Subset methods are not.
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-envir}},
          \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-inout}},
+         \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-objects}},
+         \code{\link{simList-accessors-paths}},
          \code{\link{simList-accessors-times}}.
 }
 

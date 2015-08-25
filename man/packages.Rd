@@ -3,12 +3,12 @@
 \docType{methods}
 \name{packages}
 \alias{packages}
-\alias{packages,simList-method}
+\alias{packages,.simList-method}
 \title{Get simulation package dependencies}
 \usage{
 packages(sim)
 
-\S4method{packages}{simList}(sim)
+\S4method{packages}{.simList}(sim)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

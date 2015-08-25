@@ -6,10 +6,6 @@
 \alias{envir,simList-method}
 \alias{envir<-}
 \alias{envir<-,simList-method}
-\alias{objs}
-\alias{objs,simList-method}
-\alias{objs<-}
-\alias{objs<-,simList-method}
 \alias{simList-accessors-envir}
 \title{Simulation environment}
 \usage{
@@ -20,33 +16,18 @@ envir(object)
 envir(object) <- value
 
 \S4method{envir}{simList}(object) <- value
-
-objs(object, ...)
-
-\S4method{objs}{simList}(object, ...)
-
-objs(object) <- value
-
-\S4method{objs}{simList}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
-
-\item{...}{arguments passed to \code{ls}, allowing, e.g. \code{all.names=TRUE}}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
-
-Returns or sets a list of objects in the \code{simList} environment.
 }
 \description{
 Accessor functions for the \code{.envir} slot in a \code{simList} object.
 These are included for advanced users.
-
-\code{objs<-} requires takes a named list of values to be assigned in
-the simulation envirment.
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
@@ -56,15 +37,12 @@ Alex Chubaty
 }
 \seealso{
 \code{\link{simList-class}},
-         \code{\link{simList-accessors-modules}},
-         \code{\link{simList-accessors-params}},
          \code{\link{simList-accessors-events}},
-         \code{\link{simList-accessors-times}}.
-
-\code{\link{simList-class}},
+         \code{\link{simList-accessors-inout}},
          \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-objects}},
          \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-paths}},
          \code{\link{simList-accessors-times}}.
 }
 
