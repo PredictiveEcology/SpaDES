@@ -27,7 +27,6 @@ apt_packages:
   - latex-xcolor
   - libcurl4-openssl-dev
   - libgdal1h
-  - libgdal-dev
   - libgdal1-dev
   - libproj-dev
   
