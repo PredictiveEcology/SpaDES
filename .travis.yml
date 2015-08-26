@@ -23,13 +23,9 @@ warnings_are_errors: true
 
 apt_packages:
   - curl
-  - gdal-bin
   - latex-xcolor
   - libcurl4-openssl-dev
-  - libgdal1h
-  - libgdal1-dev
-  - libproj-dev
-  
+
 r_binary_packages:
   - chron
   - circstats
@@ -54,6 +50,7 @@ r_binary_packages:
   - rcolorbrewer
   - rcpp
   - reshape
+  - rgdal
   - scales
   - secr
   - snow
