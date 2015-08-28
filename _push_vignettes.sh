@@ -11,6 +11,7 @@ for files in '*.tar.gz'; do
   tar xfz $files
 done
 
+git fetch origin gh-pages
 git checkout gh-pages
 git config user.name "PredictiveEcology-travis"
 git config user.email "travis"
