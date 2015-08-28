@@ -9,8 +9,6 @@ GH_REPO="@github.com/PredictiveEcology/SpaDES.git"
 
 FULL_REPO="https://$GH_TOKEN$GH_REPO"
 
-GH_BRANCH="development"
-
 for files in '*.tar.gz'; do
   tar xfz $files
 done
