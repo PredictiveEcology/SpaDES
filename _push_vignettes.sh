@@ -23,4 +23,4 @@ cp ../SpaDES/inst/doc/ii-modules.html vignettes/ii-modules.html
 cp ../SpaDES/inst/doc/iii-plotting.html vignettes/iii-plotting.html
 
 git commit -m "deployed vignettes to gh-pages"
-git push --force --quiet $FULL_REPO master:gh-pages
+git push --force --quiet $FULL_REPO gh-pages
