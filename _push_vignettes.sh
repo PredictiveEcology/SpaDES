@@ -12,7 +12,7 @@ for files in '*.tar.gz'; do
 done
 
 git fetch origin gh-pages
-git checkout gh-pages
+git checkout -t -b gh-pages origin/gh-pages
 git config user.name "PredictiveEcology-travis"
 git config user.email "travis"
 
