@@ -25,8 +25,6 @@ apt_packages:
   - curl
   - latex-xcolor
   - libcurl4-openssl-dev
-  - libgdal-dev
-  - libproj-dev
 
 r_binary_packages:
   - chron
@@ -52,6 +50,7 @@ r_binary_packages:
   - rcolorbrewer
   - rcpp
   - reshape
+  - rgdal
   - scales
   - secr
   - snow
