@@ -4,6 +4,7 @@
 ## based on https://rmflight.github.io/posts/2014/11/travis_ci_gh_pages.html
 
 rm -rf tmp || exit 0;
+mkdir tmp
 
 GH_REPO="@github.com/PredictiveEcology/SpaDES.git"
 
@@ -13,14 +14,16 @@ for files in '*.tar.gz'; do
   tar xfz $files
 done
 
-git checkout --track -b gh-pages
-git config user.name "PredictiveEcology-travis"
-git config user.email "travis"
+ls -la # temporary for debug only
 
-cd tmp
-cp ../SpaDES/inst/doc/i-introduction.html vignettes/i-introduction.html
-cp ../SpaDES/inst/doc/ii-modules.html vignettes/ii-modules.html
-cp ../SpaDES/inst/doc/iii-plotting.html vignettes/iii-plotting.html
+#cd PredictiveEcology/SpaDES
+#git checkout --track -b gh-pages
+#git config user.name "PredictiveEcology-travis"
+#git config user.email "travis"
 
-git commit -m "deployed vignettes to gh-pages"
-git push --force --quiet $FULL_REPO gh-pages
+#cp ../../SpaDES/inst/doc/i-introduction.html vignettes/i-introduction.html
+#cp ../../SpaDES/inst/doc/ii-modules.html vignettes/ii-modules.html
+#cp ../../SpaDES/inst/doc/iii-plotting.html vignettes/iii-plotting.html
+
+#git commit -m "deployed vignettes to gh-pages"
+#git push --force --quiet $FULL_REPO gh-pages
