@@ -11,13 +11,12 @@ for files in '*.tar.gz'; do
   tar xfz $files
 done
 
-git checkout --track -b gh-pages
+git checkout gh-pages
 git config user.name "PredictiveEcology-travis"
 git config user.email "travis"
 
-cp SpaDES/inst/doc/i-introduction.html vignettes/i-introduction.html
-cp SpaDES/inst/doc/ii-modules.html vignettes/ii-modules.html
-cp SpaDES/inst/doc/iii-plotting.html vignettes/iii-plotting.html
+cp SpaDES/inst/doc/*.html vignettes/
 
+git add vignettes/*.html
 git commit -m "deployed vignettes to gh-pages"
 git push --quiet $FULL_REPO gh-pages
