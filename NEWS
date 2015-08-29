@@ -6,7 +6,8 @@ version 1.0.2
 * improve dependency graph & module diagram (#216)
 * `simList` accessors now work with `.simList` superclass (#217)
 * fix `%>%` bug in demo (#218)
-* improve documentation
+* use `rmarkdown::render` for vignettes (with #219)
+* improve documentation (including #219)
 * various other bug fixes
 
 version 1.0.1
