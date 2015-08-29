@@ -3,37 +3,37 @@
 \docType{methods}
 \name{events}
 \alias{completed}
-\alias{completed,simList,character-method}
-\alias{completed,simList,missing-method}
+\alias{completed,.simList,character-method}
+\alias{completed,.simList,missing-method}
 \alias{completed<-}
-\alias{completed<-,simList-method}
+\alias{completed<-,.simList-method}
 \alias{events}
-\alias{events,simList,character-method}
-\alias{events,simList,missing-method}
+\alias{events,.simList,character-method}
+\alias{events,.simList,missing-method}
 \alias{events<-}
-\alias{events<-,simList-method}
+\alias{events<-,.simList-method}
 \alias{simList-accessors-events}
 \title{Simulation event lists}
 \usage{
 events(object, unit)
 
-\S4method{events}{simList,character}(object, unit)
+\S4method{events}{.simList,character}(object, unit)
 
-\S4method{events}{simList,missing}(object, unit)
+\S4method{events}{.simList,missing}(object, unit)
 
 events(object) <- value
 
-\S4method{events}{simList}(object) <- value
+\S4method{events}{.simList}(object) <- value
 
 completed(object, unit)
 
-\S4method{completed}{simList,character}(object, unit)
+\S4method{completed}{.simList,character}(object, unit)
 
-\S4method{completed}{simList,missing}(object, unit)
+\S4method{completed}{.simList,missing}(object, unit)
 
 completed(object) <- value
 
-\S4method{completed}{simList}(object) <- value
+\S4method{completed}{.simList}(object) <- value
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -69,8 +69,11 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
 \seealso{
 \code{\link{simList-class}},
          \code{\link{simList-accessors-envir}},
+         \code{\link{simList-accessors-inout}},
          \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-objects}},
          \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-paths}},
          \code{\link{simList-accessors-times}}.
 }
 

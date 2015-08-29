@@ -3,12 +3,12 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
-\alias{defineModule,simList,list-method}
+\alias{defineModule,.simList,list-method}
 \title{Define a new module.}
 \usage{
 defineModule(sim, x)
 
-\S4method{defineModule}{simList,list}(sim, x)
+\S4method{defineModule}{.simList,list}(sim, x)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

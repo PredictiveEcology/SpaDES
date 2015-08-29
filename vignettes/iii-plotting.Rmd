@@ -5,8 +5,10 @@ author:
 date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
   html_document:
+    highlight: default
     number_sections: yes
     self_contained: yes
+    theme: default
     toc: yes
 vignette: >
   %\VignetteEngine{knitr::rmarkdown}

@@ -80,13 +80,25 @@ setClass(".moduleDeps",
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timeunit=NA_real_,
                         citation=list(), reqdPkgs=list(),
-                        parameters=data.frame(paramName=character(), paramClass=character(),
-                                              default=I(list()), min=numeric(), max=numeric(),
-                                              paramDesc=character()),
-                        inputObjects=data.frame(objectName=character(), objectClass=character(),
-                                                other=character(), stringsAsFactors=FALSE),
-                        outputObjects=data.frame(objectName=character(), objectClass=character(),
-                                                 other=character(), stringsAsFactors=FALSE)),
+                        parameters = data.frame(
+                          paramName=character(),
+                          paramClass=character(),
+                          default=I(list()), min=numeric(), max=numeric(),
+                          paramDesc=character()
+                        ),
+                        inputObjects = data.frame(
+                          objectName=character(),
+                          objectClass=character(),
+                          other=character(),
+                          stringsAsFactors=FALSE
+                        ),
+                        outputObjects = data.frame(
+                          objectName=character(),
+                          objectClass=character(),
+                          other=character(),
+                          stringsAsFactors=FALSE
+                        )
+                    ),
          validity=function(object) {
            if (length(object@name)!=1L) stop("name must be a single character string.")
            if (length(object@description)!=1L) stop("description must be a single character string.")

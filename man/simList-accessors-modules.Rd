@@ -3,37 +3,37 @@
 \docType{methods}
 \name{modules}
 \alias{.callingModuleName}
-\alias{.callingModuleName,simList-method}
+\alias{.callingModuleName,.simList-method}
 \alias{depends}
-\alias{depends,simList-method}
+\alias{depends,.simList-method}
 \alias{depends<-}
-\alias{depends<-,simList-method}
+\alias{depends<-,.simList-method}
 \alias{modules}
-\alias{modules,simList-method}
+\alias{modules,.simList-method}
 \alias{modules<-}
-\alias{modules<-,simList-method}
+\alias{modules<-,.simList-method}
 \alias{simList-accessors-modules}
 \title{Simulation modules and dependencies}
 \usage{
 modules(object)
 
-\S4method{modules}{simList}(object)
+\S4method{modules}{.simList}(object)
 
 modules(object) <- value
 
-\S4method{modules}{simList}(object) <- value
+\S4method{modules}{.simList}(object) <- value
 
 depends(object)
 
-\S4method{depends}{simList}(object)
+\S4method{depends}{.simList}(object)
 
 depends(object) <- value
 
-\S4method{depends}{simList}(object) <- value
+\S4method{depends}{.simList}(object) <- value
 
 .callingModuleName(object)
 
-\S4method{.callingModuleName}{simList}(object)
+\S4method{.callingModuleName}{.simList}(object)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -69,8 +69,11 @@ Eliot McIntire
 \seealso{
 \code{\link{simList-class}},
          \code{\link{simList-accessors-envir}},
-         \code{\link{simList-accessors-params}},
          \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-inout}},
+         \code{\link{simList-accessors-objects}},
+         \code{\link{simList-accessors-params}},
+         \code{\link{simList-accessors-paths}},
          \code{\link{simList-accessors-times}}.
 }
 

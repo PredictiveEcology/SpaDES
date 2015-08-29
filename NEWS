@@ -4,6 +4,7 @@ version 1.0.2
 =============
 * fix bug in `.parseModule` (#215)
 * improve dependency graph & module diagram (#216)
+* `simList` accessors now work with `.simList` superclass (#217)
 * fix `%>%` bug in demo (#218)
 * use `rmarkdown::render` for vignettes (with #219)
 * improve documentation (including #219)
