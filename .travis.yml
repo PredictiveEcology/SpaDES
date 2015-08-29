@@ -83,4 +83,3 @@ branches:
   only:
     - master
     - development
-    - 219-vignettes-travis
