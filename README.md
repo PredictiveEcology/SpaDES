@@ -1,7 +1,5 @@
 # Spatial Discrete Event Simulation (SpaDES)
 
-Copyright (C) 2015 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
-
 ### Develop and run spatially explicit discrete event simulation models
 
 Easily implement a variety of simulation models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models.
@@ -14,7 +12,7 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 ## Installation
 
-Building packages from source the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)). In order to build the vignettes from source.
+Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)).
 
 The suggested package `fastshp` can be installed with:
 
@@ -53,9 +51,7 @@ install_github("PredictiveEcology/SpaDES", ref="development") # unstable
 
 **Vignettes:**
 
-```r
-browseVignettes(package="SpaDES")
-```
+Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) or via `browseVignettes(package="SpaDES")`.
 
 **Wiki:**
 
@@ -64,3 +60,7 @@ browseVignettes(package="SpaDES")
 ## Reporting bugs
 
 Contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
+
+-----
+
+Copyright (C) 2015 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
