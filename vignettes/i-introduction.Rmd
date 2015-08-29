@@ -1,6 +1,8 @@
 ---
 title: "01 Introduction to `SpaDES`"
-author: "Alex M. Chubaty and Eliot J. B. McIntire"
+author:
+  - "Alex M. Chubaty"
+  - "Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
   html_document:
@@ -8,7 +10,7 @@ output:
     self_contained: yes
     toc: yes
 vignette: >
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{01 Introduction to SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{discrete event simulation, spatial simulation models}

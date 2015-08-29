@@ -32,6 +32,7 @@ Suggests:
     Matrix,
     RColorBrewer,
     rgdal,
+    rmarkdown,
     testthat,
     tkrplot
 Imports:

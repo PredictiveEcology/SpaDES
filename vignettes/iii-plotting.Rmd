@@ -1,6 +1,7 @@
 ---
 title: "03 Plotting with `SpaDES`"
-author: "Eliot J. B. McIntire"
+author:
+  - "Eliot J. B. McIntire"
 date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
   html_document:
@@ -8,7 +9,7 @@ output:
     self_contained: yes
     toc: yes
 vignette: >
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{03 Plotting with SpaDES}
   %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}

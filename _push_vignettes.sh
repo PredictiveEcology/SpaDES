@@ -9,11 +9,12 @@ GH_REPO="@github.com/PredictiveEcology/SpaDES.git"
 
 FULL_REPO="https://$GH_TOKEN$GH_REPO"
 
-mkdir /gh-pages
-cd /gh-pages
-cp $PKGDIR/vignettes/*.Rmd .
-Rscript -e 'rmarkdown::render(".", pattern="*.Rmd")'
+for files in '*.tar.gz'; do
+  tar xfz $files
+done
 
+mkdir ../../gh-pages
+cd ../../gh-pages
 git clone --depth=50 --branch=gh-pages $FULL_REPO SpaDES
 
 cd SpaDES
@@ -21,8 +22,7 @@ git checkout gh-pages
 git config user.name "PredictiveEcology-travis"
 git config user.email "travis"
 
-cp /gh-pages/*.html SpaDES/vignettes/
-cp -r /gh-pages/*_files SpaDES/vignettes/
+cp $PKGDIR/SpaDES/inst/doc/*.html vignettes/
 git add vignettes/*
 git commit -m "deployed vignettes to gh-pages"
 git push --quiet $FULL_REPO gh-pages
