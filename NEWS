@@ -2,6 +2,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.0.2
 =============
+* update maintainer's and authors' email addresses
 * fix bug in `.parseModule` (#215)
 * improve dependency graph & module diagram (#216)
 * `simList` accessors now work with `.simList` superclass (#217)

@@ -11,12 +11,12 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.0.1.9006
-Date: 2015-08-26
+Version: 1.0.1.9007
+Date: 2015-09-01
 Authors@R: c(
-    person(c("Alex", "M"), "Chubaty", email="achubaty@NRCan.gc.ca",
+    person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),
-    person(c("Eliot", "J", "B"), "McIntire", email="emcintir@NRCan.gc.ca",
+    person(c("Eliot", "J", "B"), "McIntire", email="eliot.mcintire@canada.ca",
     role=c("aut")),
     person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
     role=c("ctb")),
