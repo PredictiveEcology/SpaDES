@@ -263,7 +263,7 @@ setMethod("objectDiagram",
 #' or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
 #' \code{plot}.
 #'
-#' @param ...  Additional arguments passed to \code{plot}.
+#' @param ...  Additional arguments passed to plotting function specfied by \code{type}.
 #'
 #' @return Plots module dependency diagram.
 #'

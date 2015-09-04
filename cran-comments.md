@@ -1,8 +1,10 @@
-## Maintainance 
+## Updated release
 
 In this version we:
 
 * update maintainer's and authors' email addresses
+* reduced the size of the built vignettes
+* a few minor enhancements (see NEWS)
 * fix several bugs from the previous release
 
 ## Test environments
