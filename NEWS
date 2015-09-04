@@ -9,6 +9,7 @@ version 1.0.2
 * fix `%>%` bug in demo (#218)
 * use `rmarkdown::render` for vignettes (with #219)
 * improve documentation (including #219)
+* add slot `documentation` to module metadata (#224)
 * various other bug fixes
 
 version 1.0.1

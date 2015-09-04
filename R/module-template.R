@@ -28,7 +28,6 @@
 #'
 #' You can just browse to the file and open it manually.
 #'
-#'
 #' @export
 #' @docType methods
 #' @rdname newModule
@@ -67,7 +66,8 @@ defineModule(sim, list(
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timeunit=NA_character_, # e.g., \"year,\",
-  citation=list(),
+  citation=list(\"citation.bib\"),
+  documentation=list(\"README.txt\", \"", name, ".Rmd\"),
   reqdPkgs=list(),
   parameters=rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),

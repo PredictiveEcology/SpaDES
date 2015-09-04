@@ -12,6 +12,7 @@ test_that("defineModule correctly handles different inputs", {
     timeframe=as.POSIXlt(c(NA, NA)),
     timeunit=NA_character_,
     citation=list(),
+    documentation=list(),
     reqdPkgs=list("grid", "raster", "sp"),
     parameters=rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")),
     inputObjects=data.frame(objectName="testInput",

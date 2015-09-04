@@ -7,11 +7,12 @@ defineModule(sim, list(
   childModules=character(),
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
             person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("1.0.0"),
+  version=numeric_version("1.1.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timeunit="year",
   citation=list(),
+  documentation=list(),
   reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
   parameters=rbind(
     defineParameter("stackName", "character", "randomLandscape", NA, NA, "name of the RasterStack"),

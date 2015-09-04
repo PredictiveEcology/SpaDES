@@ -7,11 +7,12 @@ defineModule(sim, list(
   keywords=c("caribou", "individual based movement model", "correlated random walk"),
   childModules=character(),
   authors=c(person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("1.0.0"),
+  version=numeric_version("1.1.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timeunit="month",
   citation=list(),
+  documentation=list(),
   reqdPkgs=list("grid", "raster", "sp"),
   parameters=rbind(
     defineParameter("moveInitialTime", "numeric", 1.0, NA, NA, "time to schedule first movement event"),

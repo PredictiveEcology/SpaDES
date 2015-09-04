@@ -100,13 +100,15 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`keywords`**        | Character vector containing a module's keywords.
 **`childModules`**    | Character vector containing the names of the child modules that are part of this module.
 **`authors`**         | The author(s) of the module as a `person` object.
-**`version`**         | The module version as a `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
+**`version`**         | The module version as a character, numeric, or `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
 **`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
 **`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
 &nbsp;                | Must be a `POSIXt` object of length `2`, specifying the start and end times.
 &nbsp;                | (NOT YET FULLY IMPLEMENTED.)
 **`timeunit`**        | Describes the unit of time corresponding to `1.0` simulation time units.
-**`citation`**        | A citation for the module, as a character string.
+**`citation`**        | A list of citations for the module, as a character strings.
+&nbsp;                | Alternatively, the name of a \code{.bib} or similar file.
+**`documentation`**   | List of filenames refering to module documentation sources.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
