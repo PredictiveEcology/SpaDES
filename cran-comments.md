@@ -33,11 +33,15 @@ There was 1 NOTE:
 
 1. There are three parts to this note:
 
-    a. This is a new CRAN package submission.
+    a. The maintainer's email address has changed.
+      
+        Maintainer: 'Alex M Chubaty <alexander.chubaty@canada.ca>'
+        
+        New maintainer:
+          Alex M Chubaty <alexander.chubaty@canada.ca>
+        Old maintainer(s):
+          Alex M Chubaty <achubaty@NRCan.gc.ca>
 
-        * checking CRAN incoming feasibility ... NOTE
-        Maintainer: 'Alex M Chubaty <achubaty@NRCan.gc.ca>
-        New submission
 
     b. Several words were flagged as possibly mispelled, but they are not.
     
