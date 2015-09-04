@@ -516,7 +516,7 @@ definition = function(name, path, version, ...) {
   on.exit(setwd(callingWd))
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
-  print(paste("Zipping module into zip file"))
+  print(paste("Zipping module into zip file:", zipFileName))
   zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"), ...)
   file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)
@@ -535,5 +535,15 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),
           definition = function(name, ...) {
-            zipModule(name=name, path=".", version="0.0.0", ...)
+            vers <- moduleMetadata(name, ".")$version %>% as.character
+            zipModule(name=name, path=".", version=vers, ...)
+})
+
+#' @export
+#' @rdname zipModule
+setMethod("zipModule",
+          signature=c(name="character", path="character", version="missing"),
+          definition = function(name, path, ...) {
+            vers <- moduleMetadata(name, path)$version %>% as.character
+            zipModule(name=name, path=path, version=vers, ...)
 })
