@@ -45,6 +45,7 @@ removeClass("person4")
 #' @slot citation       A list of citations for the module, each as character strings. Alternatively, list of filenames of \code{.bib} or similar files. Defaults to \code{NA_character_}.
 #'
 #' @slot documentation  List of filenames refering to module documentation sources.
+#'
 #' @slot reqdPkgs       Character vector of R package names to be loaded. Defaults to \code{NA_character_}.
 #'
 #' @slot parameters     A \code{data.frame} specifying the object dependecies of the module,
@@ -82,7 +83,7 @@ setClass(".moduleDeps",
                         authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timeunit=NA_real_,
-                        citation=list(), reqdPkgs=list(),
+                        citation=list(), documentation=list(), reqdPkgs=list(),
                         parameters = data.frame(
                           paramName=character(),
                           paramClass=character(),
