@@ -849,11 +849,13 @@ setReplaceMethod(
      }
      fileTable <- data.frame(file=character(0), fun=character(0),
                              package=character(0), objectName=character(0),
-                             loadTime=numeric(0), loaded=logical(0))
-     columns <- pmatch(names(fileTable),names(value))
-     setnames(value,old = colnames(value)[na.omit(columns)],
-                    new=colnames(fileTable)[!is.na(columns)])
-     object@inputs <- as.data.frame(bind_rows(list(value, fileTable)))
+                             loadTime=numeric(0), loaded=logical(0),
+                             stringsAsFactors = FALSE)
+     columns <- pmatch(names(fileTable), names(value))
+     setnames(value, old = colnames(value)[na.omit(columns)],
+                     new = colnames(fileTable)[!is.na(columns)])
+     object@inputs <- bind_rows(list(value, fileTable), stringsAsFactors = FALSE) %>%
+       as.data.frame(stringsAsFactors = FALSE)
      #object@inputs$file <- file.path(inputPath(object),object@inputs$file)
    } else {
      object@inputs <- value
@@ -862,7 +864,7 @@ setReplaceMethod(
    # Deal with file names
    # 2 things: 1. if relative, concatenate inputPath
    #           2. if absolute, don't use inputPath
-   object@inputs[is.na(object@inputs$file),"file"] <-
+   object@inputs[is.na(object@inputs$file), "file"] <-
      paste0(object@inputs$objectName[is.na(object@inputs$file)])
    # If a filename is provided, determine if it is absolute path, if so,
    # use that, if not, then append it to inputPath(object)
