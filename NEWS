@@ -11,6 +11,7 @@ version 1.0.2
 * improve documentation (including #219)
 * reduce sizes of built vignettes (#222)
 * add slot `documentation` to module metadata (see `?defineModule`) (#224)
+* fix `inputs` data.frame construction in `simInit` (#225)
 * various other bug fixes
 
 version 1.0.1
