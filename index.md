@@ -90,6 +90,6 @@ browseVignettes(package="SpaDES")
 
 Contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
 
-This project is maintained by Eliot McIntire (emcintir at nrcan.gc.ca) and Alex Chubaty (achubaty at nrcan.gc.ca)
+This project is maintained by Eliot McIntire (eliot.mcintir at canada.ca) and Alex Chubaty (alexander.chubaty at canada.ca)
 
 <small>Hosted on GitHub Pages</small>
