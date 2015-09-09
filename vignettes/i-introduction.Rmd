@@ -1,22 +1,22 @@
 ---
 title: "01 Introduction to `SpaDES`"
-author: "Alex M. Chubaty and Eliot J. B. McIntire"
+author:
+  - "Alex M. Chubaty"
+  - "Eliot J. B. McIntire"
 date: "`r format(Sys.Date(), format='%B %d %Y')`"
 output:
-  html_document:
+  rmarkdown::html_vignette:
     number_sections: yes
     self_contained: yes
     toc: yes
 vignette: >
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{01 Introduction to SpaDES}
   %\VignetteDepends{SpaDES}
   %\VignetteKeyword{discrete event simulation, spatial simulation models}
   %\usepackage[utf8]{inputenc}
 bibliography: bibliography.bib
 ---
-
-\newpage
 
 # Introduction to `SpaDES`
 
@@ -107,7 +107,7 @@ Thus, complex simulations involving multiple processes (activities) can be built
 This package provides tools for building modules natively in `R` that can be reused.
 Additionally, because of the flexibility `R` provides for interacting with other programming languages and external data sources, modules can also be built using external tools and integrated with `SpaDES` (see figure below).
 
-![](../inst/figs/SpaDES-overview-diagram.pdf "Schematic representation of a `SpaDES` simulation model.")
+![](../inst/figs/SpaDES-overview-diagram.png "Schematic representation of a `SpaDES` simulation model.")
 
 ## `SpaDES` modules
 
@@ -222,9 +222,6 @@ mySim <- spades(mySim)            # run the simulation, returning the completed 
 eventDiagram(mySim, "0000-06-01") # visualize the sequence of events for all modules
 ```
 
-
-\newpage
-
 # Types of models
 
 `SpaDES` provides a common platform for simulation model development and analysis.
@@ -267,8 +264,6 @@ Additionally, a `SpatialPointsDataFrame` can be used, which provides storage of 
 
 Analogously, it is possible to use `SpatialPolygons*`.
 Plotting methods using `Plot` are optimized for speed and are much faster than the default `plot` methods for polygons (via spatial subsampling of vector data), so have fewer options for customization than other approaches to visualizing polygons.
-
-\newpage
 
 # Simulation experiments
 

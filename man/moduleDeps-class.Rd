@@ -36,7 +36,9 @@ Descriptor object for specifying SpaDES module dependecies.
 \item{\code{timeunit}}{Describes the time (in seconds) corresponding to 1.0 simulation time units.
                      Default is \code{NA}.}
 
-\item{\code{citation}}{A citation for the module, as a character string. Defaults to \code{NA_character_}.}
+\item{\code{citation}}{A list of citations for the module, each as character strings. Alternatively, list of filenames of \code{.bib} or similar files. Defaults to \code{NA_character_}.}
+
+\item{\code{documentation}}{List of filenames refering to module documentation sources.}
 
 \item{\code{reqdPkgs}}{Character vector of R package names to be loaded. Defaults to \code{NA_character_}.}
 

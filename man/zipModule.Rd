@@ -4,6 +4,7 @@
 \name{zipModule}
 \alias{zipModule}
 \alias{zipModule,character,character,character-method}
+\alias{zipModule,character,character,missing-method}
 \alias{zipModule,character,missing,character-method}
 \alias{zipModule,character,missing,missing-method}
 \title{Create a zip archive of a module subdirectory}
@@ -15,6 +16,8 @@ zipModule(name, path, version, ...)
 \S4method{zipModule}{character,missing,character}(name, path, version, ...)
 
 \S4method{zipModule}{character,missing,missing}(name, path, version, ...)
+
+\S4method{zipModule}{character,character,missing}(name, path, version, ...)
 }
 \arguments{
 \item{name}{Character string giving the module name.}

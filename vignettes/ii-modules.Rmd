@@ -1,21 +1,20 @@
 ---
 title: "02 Building modules in `SpaDES`"
-author: "Alex M. Chubaty"
+author:
+  - "Alex M. Chubaty"
 date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
-  html_document:
+  rmarkdown::html_vignette:
     number_sections: yes
     self_contained: yes
     toc: yes
 vignette: >
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{02 Building modules in SpaDES}
   %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{module development}
   %\usepackage[utf8]{inputenc}
 ---
-
-\newpage
 
 # Introduction
 
@@ -55,8 +54,6 @@ Maintaining strict modularity allows the removal, additon, and replacement of mo
 
 Module event dependencies complicate the construction of simulation models, and hinder the ability to develop and deploy models with modularity.
 If two modules are actually depedent on each others' events, then you should consider whether they really are separate modules or should be merged into a single module.
-
-\newpage
 
 # Module structure
 
@@ -101,13 +98,15 @@ Every module requires complete metadata, structured as a named list, and passed 
 **`keywords`**        | Character vector containing a module's keywords.
 **`childModules`**    | Character vector containing the names of the child modules that are part of this module.
 **`authors`**         | The author(s) of the module as a `person` object.
-**`version`**         | The module version as a `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
+**`version`**         | The module version as a character, numeric, or `numeric_version`. [Semantic versioning](http://semver.org/) is assumed.
 **`spatialExtent`**   | Specifies the module's spatial extent as an `Extent` object.
 **`timeframe`**       | Specifies the valid timeframe for which the module was designed to simulate.
 &nbsp;                | Must be a `POSIXt` object of length `2`, specifying the start and end times.
 &nbsp;                | (NOT YET FULLY IMPLEMENTED.)
 **`timeunit`**        | Describes the unit of time corresponding to `1.0` simulation time units.
-**`citation`**        | A citation for the module, as a character string.
+**`citation`**        | A list of citations for the module, as a character strings.
+&nbsp;                | Alternatively, the name of a \code{.bib} or similar file.
+**`documentation`**   | List of filenames refering to module documentation sources.
 **`reqdPkgs`**        | Character vector of R package names to be loaded.
 **`parameters`**      | A `data.frame` constructed using `rbind` with `defineParameter`, specifying module
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
@@ -329,9 +328,9 @@ dev.off()
 unlink(ftmp)
 ```
 
-```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=10}
-mySim <- spades(mySim)                   # runs the simulation
-eventDiagram(mySim, "0000-06-01", n=200) # overview of the events in the simulation
+```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=7}
+mySim <- spades(mySim) # runs the simulation
+eventDiagram(mySim, "0000-06-01", n=200, width=720) # overview of the events in the simulation
 ```
 
 ## Module documentation (`moduleName.Rmd`)
@@ -361,8 +360,6 @@ Use [semantic versioning](http://semver.org), such that a version number `x.y.z`
 - `y` is the **minor** version (incremeted when you add functionality in a backwards-compatible manner)
 - `z` is the **patch** version (incremented when you make backwards-compatible bug fixes)
 
-\newpage
-
 # Passing data between modules
 
 Modularity in `SpaDES` simulations is maintained by ensuring modules interact indirectly with one another by reading in and modifying objects in the simluation environment.
@@ -389,13 +386,13 @@ As noted above, modules should not depend on one another for event scheduling.
 However, it is often useful to develop collections of modules that interact indirectly and are dependent on shared data objects.
 Modules can be designed to rely on outputs (data objects) from other modules.
 When objects are shared between modules, it is important to state these dependencies explicitly.
-To check whether objects upon which a model depends exist, a call to `checkObject` is made during module initilization.
+To check whether objects upon which a model depends exist, a call to `checkObject` is made during module initialization.
 
 Note that modules need not be inter-dependent on one another: module B may depend on module A (for example to initialize a data object), without module A depending on module B.
 
 To view the dependencies for a simulation:
 
-```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE}
+```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE, fig.width=7}
 require(SpaDES)
 
 times <- list(start=0.0, end=20)
@@ -406,17 +403,15 @@ paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
 mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
 
 ## examine simulation module (object) dependencies
-depsEdgeList(mySim, FALSE)  # all object dependency relationships
-moduleDiagram(mySim)        # simplified visual representation of modules
-objectDiagram(mySim)        # detailed visual representation of objects
+depsEdgeList(mySim, FALSE)      # all object dependency relationships
+moduleDiagram(mySim)            # simplified visual representation of modules
+objectDiagram(mySim, width=720) # detailed visual representation of objects
 ```
 
 The output of the `depsEdgeList` is an edgelist describing the relationships between each module.
 In the example above, line 2 of the output indicates that the `fireSpread` module relies on an object `landscape` provided by the `caribouMovement` module.
 This edgelist is used inside the `depsGraph` function to produce a dependency graph (network), where each module corresponds to a vertex (node), and object dependencies are denoted by the arrows.
 When plotting the dependency graph, it's often useful to use the `plot=TRUE` argument to simplify the network by showing no more than one object dependency between modules.
-
-\newpage
 
 # Core modules
 
@@ -633,8 +628,6 @@ nextPlot <- time(mySim) + params(mySim)$randomLandscapes$.plotInterval
 mySim <- scheduleEvent(mySim, nextPlot, "randomLandscapes", "save")
 ```
 
-\newpage
-
 # Using existing `SpaDES` modules
 
 One of the primary motivations of developing the `SpaDES` package is to facilitate module reuse.
@@ -683,8 +676,6 @@ Modules from this (or another suitable GitHub repository) can be downloaded usin
 ```{r download-module, echo=TRUE, eval=FALSE}
 downloadModule("moduleName", "path/to/my/modules/directory")
 ```
-
-\newpage
 
 # Creating new modules
 

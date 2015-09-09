@@ -21,7 +21,7 @@ moduleDiagram(sim, type, ...)
 or \code{"tk"} for \code{igraph::tkplot}. Default missing, which uses regular
 \code{plot}.}
 
-\item{...}{Additional arguments passed to \code{plot}.}
+\item{...}{Additional arguments passed to plotting function specfied by \code{type}.}
 }
 \value{
 Plots module dependency diagram.

@@ -3,12 +3,12 @@
 \docType{methods}
 \name{.addDepends}
 \alias{.addDepends}
-\alias{.addDepends,simList,.moduleDeps-method}
+\alias{.addDepends,.simList,.moduleDeps-method}
 \title{Add simulation dependencies}
 \usage{
 .addDepends(sim, x)
 
-\S4method{.addDepends}{simList,.moduleDeps}(sim, x)
+\S4method{.addDepends}{.simList,.moduleDeps}(sim, x)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}

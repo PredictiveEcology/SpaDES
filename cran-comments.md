@@ -1,23 +1,31 @@
-## Resubmission
+## Updated release
 
-This is a resubmission. In this version we:
+In this version we:
 
-* create a new environment for storing simulation objects, instead of modifying the global environment (we no longer use attach);
-* use `Additional_repositories` for installation of the suggested package `fastshp`, which is not available on CRAN.
+* update maintainer's and authors' email addresses
+* reduced the size of the built vignettes
+* a few minor enhancements (see NEWS)
+* fix several bugs from the previous release
 
 ## Test environments
 
-### Current R versions
-* Debian Jessie           (local), R 3.2.1
-* OS X Yosemite           (local), R 3.2.0
-* Ubuntu 12.04        (travis-ci), R 3.2.1
-* Ubuntu 14.04            (local), R 3.2.1
+### Previous R versions
+* Windows 7               (local), R 3.1.2
+* Windows 7               (local), R 3.1.3
 * Windows 7               (local), R 3.2.0
-* Windows           (win-builder), R 3.2.1
+* Windows 7               (local), R 3.2.1
+
+### Current R versions
+* Debian Jessie           (local), R 3.2.2
+* OS X Yosemite           (local), R 3.2.2
+* Ubuntu 12.04        (travis-ci), R 3.2.2
+* Ubuntu 14.04            (local), R 3.2.2
+* Windows 7               (local), R 3.2.2
+* Windows           (win-builder), R 3.2.2
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.3.0 (2015-07-25 r68744)
-* Windows           (win-builder), R 3.3.0 (2015-08-09 r68965)
+* Debian:testing (rocker/r-devel), R 3.3.0 (2015-08-26 r69190)
+* Windows           (win-builder), R 3.3.0 (2015-09-01 r69241)
 
 ## R CMD check results
 
@@ -27,11 +35,15 @@ There was 1 NOTE:
 
 1. There are three parts to this note:
 
-    a. This is a new CRAN package submission.
+    a. The maintainer's email address has changed.
+      
+        Maintainer: 'Alex M Chubaty <alexander.chubaty@canada.ca>'
+        
+        New maintainer:
+          Alex M Chubaty <alexander.chubaty@canada.ca>
+        Old maintainer(s):
+          Alex M Chubaty <achubaty@NRCan.gc.ca>
 
-        * checking CRAN incoming feasibility ... NOTE
-        Maintainer: 'Alex M Chubaty <achubaty@NRCan.gc.ca>
-        New submission
 
     b. Several words were flagged as possibly mispelled, but they are not.
     

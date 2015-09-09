@@ -38,24 +38,29 @@
 #' @slot simtimes   List of numerical values describing the simulation start
 #'                  and end times; as well as the current simulation time.
 #'
-#' @slot inputs   The list of length 2: a \code{data.table} or \code{data.table} of files and metadata,
-#' and a list of optional arguments to pass to an import function
+#' @slot inputs     A list of length 2, containing:
+#'                  1) a \code{data.frame} or \code{data.table} of files and metadata,
+#'                  and 2) a list of optional arguments to pass to an import function.
 #'
-#' @slot outputs   The list of length 2: a \code{data.table}  or \code{data.table}  of files and metadata,
-#' and a list of optional arguments to pass to an import function
+#' @slot outputs    A list of length 2 containing:
+#'                  1) a \code{data.frame}  or \code{data.table} of files and metadata,
+#'                  and 2) a list of optional arguments to pass to an export function.
 #'
-#' @slot paths   Named list of \code{modulePath}, \code{inputPath}, and \code{outputPath} paths. Partial
-#' matching is performed.
+#' @slot paths      Named list of \code{modulePath}, \code{inputPath},
+#'                  and \code{outputPath} paths. Partial matching is performed.
 #'
 #' @section Accessor Methods:
 #'
 #' Several slot (and sub-slot) accessor methods are provided for use, and
 #' categorized into separate help pages:
 #' \tabular{ll}{
-#'   \code{\link{simList-accessors-envir}} \tab Simulation enviroment and objects. \cr
+#'   \code{\link{simList-accessors-envir}} \tab Simulation enviroment. \cr
 #'   \code{\link{simList-accessors-events}} \tab Scheduled and completed events. \cr
+#'   \code{\link{simList-accessors-inout}} \tab Passing data in to / out of simulations. \cr
 #'   \code{\link{simList-accessors-modules}} \tab Modules loaded and used; module dependencies. \cr
+#'   \code{\link{simList-accessors-objects}} \tab Accessing objects used in the simulation. \cr
 #'   \code{\link{simList-accessors-params}} \tab Global and module-specific parameters. \cr
+#'   \code{\link{simList-accessors-paths}} \tab File paths for modules, inputs, and outputs. \cr
 #'   \code{\link{simList-accessors-times}} \tab Simulation times. \cr
 #' }
 #'
@@ -78,32 +83,48 @@
 #'
 #' @author Alex Chubaty and Eliot McIntire
 #'
-setClass(".simList",
-         slots=list(modules="list", params="list",
-                    events="data.table", completed="data.table",
-                    depends=".simDeps", simtimes="list",
-                    inputs="list", outputs="list",
-                    paths="list"),
-         prototype=list(modules=as.list(NULL),
-                        params=list(.checkpoint=list(interval=NA_real_, file=NULL),
-                                    .progress=list(type=NULL, interval=NULL)),
-                        events=as.data.table(NULL), completed=as.data.table(NULL),
-                        depends=new(".simDeps", dependencies=list(NULL)),
-                        simtimes=list(current=0.00, start=0.00, end=1.00, timeunit=NA_character_),
-                        inputs=data.frame(file=character(0), fun=character(0),
-                                          package=character(0), objectName=character(0),
-                                          loadTime=numeric(0), loaded=logical(0), arg=list(NULL)),
-                        outputs=as.data.frame(NULL),
-                        paths=list(modulePath="./", inputPath="./", outputPath="./")),
-         validity=function(object) {
-           # check for valid sim times
-           if (is.na(object@simtimes$end)) {
-             stop("simulation end time must be specified.")
-           } else {
-             if (object@simtimes$start >= object@simtimes$end) {
-               stop("simulation start time should occur before end time.")
-             }
-           }
+setClass(
+  ".simList",
+  slots=list(modules="list", params="list",
+            events="data.table", completed="data.table",
+            depends=".simDeps", simtimes="list",
+            inputs="list", outputs="list",
+            paths="list"),
+  prototype=list(modules = as.list(NULL),
+                params = list(
+                  .checkpoint = list(interval=NA_real_, file=NULL),
+                  .progress = list(type=NULL, interval=NULL)
+                ),
+                events = as.data.table(NULL),
+                completed = as.data.table(NULL),
+                depends = new(".simDeps", dependencies=list(NULL)),
+                simtimes = list(
+                  current=0.00,
+                  start=0.00,
+                  end=1.00,
+                  timeunit=NA_character_
+                ),
+                inputs = data.frame(
+                  file=character(0), fun=character(0),
+                  package=character(0), objectName=character(0),
+                  loadTime=numeric(0), loaded=logical(0), arg=list(NULL)
+                ),
+                outputs = as.data.frame(NULL),
+                paths = list(
+                  modulePath="./",
+                  inputPath="./",
+                  outputPath="./"
+                )
+            ),
+  validity=function(object) {
+    # check for valid sim times
+    if (is.na(object@simtimes$end)) {
+     stop("simulation end time must be specified.")
+    } else {
+     if (object@simtimes$start >= object@simtimes$end) {
+       stop("simulation start time should occur before end time.")
+     }
+    }
 })
 
 ################################################################################

@@ -1,14 +1,16 @@
 ---
 title: "03 Plotting with `SpaDES`"
-author: "Eliot J. B. McIntire"
+author:
+  - "Eliot J. B. McIntire"
 date: '`r format(Sys.Date(), format="%B %d %Y")`'
 output:
-  html_document:
+  rmarkdown::html_vignette:
+    fig_width: 7
     number_sections: yes
     self_contained: yes
     toc: yes
 vignette: >
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteIndexEntry{03 Plotting with SpaDES}
   %\VignetteDepends{ggplot2, igraph, RColorBrewer, SpaDES}
   %\VignetteKeyword{visualization, plotting, mapping}
@@ -18,8 +20,6 @@ vignette: >
 ```{r initial-clearPlot, eval=TRUE, echo=FALSE, message=FALSE}
 SpaDES::clearPlot()
 ```
-
-\newpage
 
 # Plotting in `SpaDES`
 
@@ -60,8 +60,6 @@ mySim <- loadFiles(filelist=filelist)
 # put into a single stack object in the simulation environment for ease of use below
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```
-
-\newpage
 
 # The `Plot` function
 
@@ -107,11 +105,9 @@ Plot(Sl, gp=gpar(col = c("red", "blue"), lwd=2), addTo="landscape$DEM")
 
 Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialPolygons*` objects can be plotted from a single invocation of `Plot`:
 
-```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=2}
+```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=5}
 Plot(landscape, caribou, mySim$DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5), visualSqueeze=0.7)
 ```
-
-\newpage
 
 ## Other object types
 
@@ -193,7 +189,7 @@ The default value is 0.75 representing ~75% of the area.
 If the plots need to be slightly smaller, this could be set to 0.6; if they can be larger, `visualSqueeze` could be set to 0.8.
 `visualSqueeze` is 1 for fully filled device.
 
-```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
+```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2}
 # x axis gets cut off in pdf and html
 Plot(mySim$DEM, new=TRUE)
 Plot(mySim$DEM, visualSqueeze=0.6, new=TRUE)
@@ -210,7 +206,7 @@ This is useful in situations where, say, an version of a raster at the initial s
 Since the default is to automatically scale the legend to the values contained in the raster at the first time it is drawn, the legend will not cover the whole necessary range.
 Adding `legendRange=0:20`, where `0:20` covers the expected range of all stages of that raster, will work.
 
-```{r legendRange, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
+```{r legendRange, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(mySim$DEM, legendRange=c(0,500), new=TRUE)
 ```
 
@@ -222,14 +218,14 @@ A common way of using this would be to initially `Plot` an object, then use `cli
 Then call `Plot(obj, zoomExtent=newZoom)`.
 This new zoom will persist with rearrangements.
 
-```{r zoomExtent, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
+```{r zoomExtent, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(mySim$DEM, zoomExtent=extent(c(-1, 10, -1, 20)), new=TRUE)
 ```
 
 ### `length`
 
 For `SpatialLines*` objects, length will give arrow head length, in inches, meaning that the lines will be arrows.
-```{r arrows, eval=TRUE, echo=TRUE, fig.height=2, dpi=900}
+```{r arrows, eval=TRUE, echo=TRUE, fig.height=2}
 Plot(mySim$DEM, new=TRUE)
 Plot(Sl, addTo="mySim$DEM", length=0.2)
 ```
@@ -329,8 +325,6 @@ This can be useful to see where agents are on a `RasterLayer`, or if there is tr
 Plot(landscape, new=TRUE)
 Plot(caribou, addTo="landscape$DEM", size=2, axes=FALSE)
 ```
-
-\newpage
 
 # Clearing Plot
 

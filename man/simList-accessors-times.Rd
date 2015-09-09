@@ -3,91 +3,91 @@
 \docType{methods}
 \name{times}
 \alias{.callingFrameTimeunit}
+\alias{.callingFrameTimeunit,.simList-method}
 \alias{.callingFrameTimeunit,NULL-method}
-\alias{.callingFrameTimeunit,simList-method}
 \alias{end}
-\alias{end,simList,character-method}
-\alias{end,simList,missing-method}
+\alias{end,.simList,character-method}
+\alias{end,.simList,missing-method}
 \alias{end<-}
-\alias{end<-,simList-method}
+\alias{end<-,.simList-method}
 \alias{simList-accessors-times}
 \alias{start}
-\alias{start,simList,character-method}
-\alias{start,simList,missing-method}
+\alias{start,.simList,character-method}
+\alias{start,.simList,missing-method}
 \alias{start<-}
-\alias{start<-,simList-method}
+\alias{start<-,.simList-method}
 \alias{time}
-\alias{time,simList,character-method}
-\alias{time,simList,missing-method}
+\alias{time,.simList,character-method}
+\alias{time,.simList,missing-method}
 \alias{time<-}
-\alias{time<-,simList-method}
+\alias{time<-,.simList-method}
 \alias{times}
-\alias{times,simList-method}
+\alias{times,.simList-method}
 \alias{times<-}
-\alias{times<-,simList-method}
+\alias{times<-,.simList-method}
 \alias{timeunit}
-\alias{timeunit,simList-method}
+\alias{timeunit,.simList-method}
 \alias{timeunit<-}
-\alias{timeunit<-,simList-method}
+\alias{timeunit<-,.simList-method}
 \alias{timeunits}
-\alias{timeunits,simList-method}
+\alias{timeunits,.simList-method}
 \title{Get and set simulation times.}
 \usage{
 times(x, ...)
 
-\S4method{times}{simList}(x)
+\S4method{times}{.simList}(x)
 
 times(x) <- value
 
-\S4method{times}{simList}(x) <- value
+\S4method{times}{.simList}(x) <- value
 
 time(x, unit, ...)
 
-\S4method{time}{simList,missing}(x)
+\S4method{time}{.simList,missing}(x)
 
-\S4method{time}{simList,character}(x, unit)
+\S4method{time}{.simList,character}(x, unit)
 
 time(x) <- value
 
-\S4method{time}{simList}(x) <- value
+\S4method{time}{.simList}(x) <- value
 
 end(x, unit, ...)
 
-\S4method{end}{simList,missing}(x)
+\S4method{end}{.simList,missing}(x)
 
-\S4method{end}{simList,character}(x, unit)
+\S4method{end}{.simList,character}(x, unit)
 
 end(x) <- value
 
-\S4method{end}{simList}(x) <- value
+\S4method{end}{.simList}(x) <- value
 
 start(x, unit, ...)
 
-\S4method{start}{simList,missing}(x)
+\S4method{start}{.simList,missing}(x)
 
-\S4method{start}{simList,character}(x, unit)
+\S4method{start}{.simList,character}(x, unit)
 
 start(x) <- value
 
-\S4method{start}{simList}(x) <- value
+\S4method{start}{.simList}(x) <- value
 
 .callingFrameTimeunit(x)
 
-\S4method{.callingFrameTimeunit}{simList}(x)
+\S4method{.callingFrameTimeunit}{.simList}(x)
 
 \S4method{.callingFrameTimeunit}{`NULL`}(x)
 
 timeunit(x)
 
-\S4method{timeunit}{simList}(x)
+\S4method{timeunit}{.simList}(x)
 
 timeunit(x) <- value
 
-\S4method{timeunit}{simList}(x) <- value
+\S4method{timeunit}{.simList}(x) <- value
 
 timeunits(x)
 
-\S4method{timeunits}{simList}(x)
+\S4method{timeunits}{.simList}(x)
 }
 \arguments{
 \item{x}{A \code{simList} simulation object.}
@@ -144,8 +144,11 @@ Eliot McIntire
 \seealso{
 \code{\link{simList-class}},
          \code{\link{simList-accessors-envir}},
+         \code{\link{simList-accessors-events}},
+         \code{\link{simList-accessors-inout}},
          \code{\link{simList-accessors-modules}},
+         \code{\link{simList-accessors-objects}},
          \code{\link{simList-accessors-params}},
-         \code{\link{simList-accessors-events}}.
+         \code{\link{simList-accessors-paths}}.
 }
 

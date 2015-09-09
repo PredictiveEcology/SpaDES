@@ -20,6 +20,14 @@
 #' @return Nothing is returned. The new module file is created at \code{path/name.R}, as
 #' well as anciliary files for documentation, citation, license, and readme.
 #'
+#' @note On Windows there is currently a bug in RStudio that it doesn't know what editor
+#' to open with \code{file.edit} is called (which is what moduleName does). This will return an error:
+#'
+#' \code{Error in editor(file = file, title = title) :}
+#' \code{argument "name" is missing, with no default}
+#'
+#' You can just browse to the file and open it manually.
+#'
 #' @export
 #' @docType methods
 #' @rdname newModule
@@ -57,13 +65,17 @@ defineModule(sim, list(
   version=numeric_version(\"0.0.0\"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_character_, # e.g., \"year\"
-  citation=list(),
+  timeunit=NA_character_, # e.g., \"year,\",
+  citation=list(\"citation.bib\"),
+  documentation=list(\"README.txt\", \"", name, ".Rmd\"),
   reqdPkgs=list(),
   parameters=rbind(
-    defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
-    defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")),
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
+    defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
+    defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
+    defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
+    defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
+  ),
   inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
@@ -86,13 +98,11 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
-    # e.g., call your custom functions/methods here
-    # you can define your own methods below this `doEvent` function
-
+    #Plot(objectFromModule) # uncomment this, replace with object to plot
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"plot\")
+    #sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType==\"save\") {
@@ -108,7 +118,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\")
 
     # ! ----- STOP EDITING ----- ! #
-  } else if (eventType==\"templateEvent\") {
+  } else if (eventType==\"event1\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
@@ -121,10 +131,23 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
-    } else {
-      warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
-                    \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
-    }
+  } else if (eventType==\"event2\") {
+    # ! ----- EDIT BELOW ----- ! #
+    # do stuff for this event
+
+    # e.g., call your custom functions/methods here
+    # you can define your own methods below this `doEvent` function
+
+    # schedule future event(s)
+
+    # e.g.,
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
+
+    # ! ----- STOP EDITING ----- ! #
+  } else {
+    warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
+                  \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
+  }
   return(invisible(sim))
 }
 
@@ -176,7 +199,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### template for your event2
-sim$", name, "Event2 = function(sim) {
+", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
 
 
@@ -389,6 +412,14 @@ setMethod("newModuleDocumentation",
 #'
 #' @return Nothing is returned. All file are open via \code{file.edit}.
 #'
+#' @note On Windows there is currently a bug in RStudio that it doesn't know what editor to
+#' open with \code{file.edit} is called (which is what moduleName does). This will return an error:
+#'
+#' \code{Error in editor(file = file, title = title) :}
+#' \code{argument "name" is missing, with no default}
+#'
+#' You can just browse to the file and open it manually.
+#'
 #' @export
 #' @docType methods
 #' @rdname openModules
@@ -485,7 +516,7 @@ definition = function(name, path, version, ...) {
   on.exit(setwd(callingWd))
   setwd(path)
   zipFileName=paste0(name, "_", version, ".zip")
-  print(paste("Zipping module into zip file"))
+  print(paste("Zipping module into zip file:", zipFileName))
   zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"), ...)
   file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
   file.remove(zipFileName)
@@ -504,5 +535,15 @@ setMethod("zipModule",
 setMethod("zipModule",
           signature=c(name="character", path="missing", version="missing"),
           definition = function(name, ...) {
-            zipModule(name=name, path=".", version="0.0.0", ...)
+            vers <- moduleMetadata(name, ".")$version %>% as.character
+            zipModule(name=name, path=".", version=vers, ...)
+})
+
+#' @export
+#' @rdname zipModule
+setMethod("zipModule",
+          signature=c(name="character", path="character", version="missing"),
+          definition = function(name, path, ...) {
+            vers <- moduleMetadata(name, path)$version %>% as.character
+            zipModule(name=name, path=path, version=vers, ...)
 })

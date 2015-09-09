@@ -42,7 +42,9 @@ removeClass("person4")
 #' @slot timeunit       Describes the time (in seconds) corresponding to 1.0 simulation time units.
 #'                      Default is \code{NA}.
 #'
-#' @slot citation       A citation for the module, as a character string. Defaults to \code{NA_character_}.
+#' @slot citation       A list of citations for the module, each as character strings. Alternatively, list of filenames of \code{.bib} or similar files. Defaults to \code{NA_character_}.
+#'
+#' @slot documentation  List of filenames refering to module documentation sources.
 #'
 #' @slot reqdPkgs       Character vector of R package names to be loaded. Defaults to \code{NA_character_}.
 #'
@@ -69,24 +71,38 @@ removeClass("person4")
 #' @author Alex Chubaty
 #'
 setClass(".moduleDeps",
-         slots=list(name="character", description="character", keywords="character",
-                    childModules="character", authors="person", version="numeric_version",
+         slots=list(name="character", description="character",
+                    keywords="character", childModules="character",
+                    authors="person", version="numeric_version",
                     spatialExtent="Extent", timeframe="POSIXt", timeunit="ANY",
-                    citation="list", reqdPkgs="list", parameters="data.frame",
+                    citation="list", documentation="list",
+                    reqdPkgs="list", parameters="data.frame",
                     inputObjects="data.frame", outputObjects="data.frame"),
          prototype=list(name=character(), description=character(),
                         keywords=character(), childModules=character(),
                         authors=person(), version=numeric_version("0.0.0"),
                         spatialExtent=extent(rep(NA_real_, 4L)),
                         timeframe=as.POSIXlt(c(NA, NA)), timeunit=NA_real_,
-                        citation=list(), reqdPkgs=list(),
-                        parameters=data.frame(paramName=character(), paramClass=character(),
-                                              default=I(list()), min=numeric(), max=numeric(),
-                                              paramDesc=character()),
-                        inputObjects=data.frame(objectName=character(), objectClass=character(),
-                                                other=character(), stringsAsFactors=FALSE),
-                        outputObjects=data.frame(objectName=character(), objectClass=character(),
-                                                 other=character(), stringsAsFactors=FALSE)),
+                        citation=list(), documentation=list(), reqdPkgs=list(),
+                        parameters = data.frame(
+                          paramName=character(),
+                          paramClass=character(),
+                          default=I(list()), min=numeric(), max=numeric(),
+                          paramDesc=character()
+                        ),
+                        inputObjects = data.frame(
+                          objectName=character(),
+                          objectClass=character(),
+                          other=character(),
+                          stringsAsFactors=FALSE
+                        ),
+                        outputObjects = data.frame(
+                          objectName=character(),
+                          objectClass=character(),
+                          other=character(),
+                          stringsAsFactors=FALSE
+                        )
+                    ),
          validity=function(object) {
            if (length(object@name)!=1L) stop("name must be a single character string.")
            if (length(object@description)!=1L) stop("description must be a single character string.")

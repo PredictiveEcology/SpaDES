@@ -3,12 +3,12 @@
 \docType{methods}
 \name{defineModule}
 \alias{defineModule}
-\alias{defineModule,simList,list-method}
+\alias{defineModule,.simList,list-method}
 \title{Define a new module.}
 \usage{
 defineModule(sim, x)
 
-\S4method{defineModule}{simList,list}(sim, x)
+\S4method{defineModule}{.simList,list}(sim, x)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}
@@ -22,6 +22,27 @@ Updated \code{simList} object.
 \description{
 Specify a new module's metadata as well as object and package dependecies.
 Packages are loaded during this call.
+}
+\section{Required metadata elements}{
+
+
+\tabular{ll}{
+   \code{name} \tab Module name. Must match the filename (without the \code{.R} extension).\cr
+   \code{description} \tab Brief description of the module.\cr
+   \code{keywords} \tab Author-supplied keywords. \cr
+   \code{childModules} \tab Names of child modules. Can be \code{NA}. \cr
+   \code{authors} \tab Module author information (as a vector of \code{\link{person}} objects. \cr
+   \code{version} \tab Module version number (will be coerced to \code{\link{numeric_version}} if a character or numeric are supplied). \cr
+   \code{spatialExtent} \tab The spatial extent of the module supplied via \code{raster::extent}. \cr
+   \code{timeframe} \tab Vector (length 2) of POSIXt dates specifying the temporal extent of the module. \cr
+   \code{timeunit} \tab Time scale of the module (e.g., "day", "year"). \cr
+   \code{citation} \tab List of character strings specifying module citation information. Alternatively, a list of filenames of \code{.bib} or similar files. \cr
+   \code{documentation} \tab List of filenames refering to module documentation sources. \cr
+   \code{reqdPkgs} \tab List of R package names required by the module. \cr
+   \code{parameters} \tab A data.frame specifying the parameters used in the module. Usually produced by \code{rbind}-ing the outputs of multiple \code{\link{defineParameter}} calls. \cr
+   \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, and \code{other}. \cr
+   \code{outputObjects} \tab A data.frame specifying the data objects output by the module, with columns identical to those in \code{inputObjects}. \cr
+}
 }
 \examples{
 \dontrun{

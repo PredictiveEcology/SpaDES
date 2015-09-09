@@ -8,11 +8,12 @@ defineModule(sim, list(
   authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
             person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre")),
             person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca", role=c("aut"))),
-  version=numeric_version("1.0.0"),
+  version=numeric_version("1.1.0"),
   spatialExtent=raster::extent(rep(NA_real_, 4)),
   timeframe=as.POSIXlt(c(NA, NA)),
   timeunit="year",
   citation=list(),
+  documentation=list(),
   reqdPkgs=list("methods", "raster", "RColorBrewer"),
   parameters=rbind(
     defineParameter("nFires", "numeric", 10L, NA, NA, "number of fires to initiate"),
