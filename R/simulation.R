@@ -391,7 +391,7 @@ setMethod(
           loadTime = as.numeric(time(sim, "seconds")),
           loaded=TRUE,
           stringsAsFactors = FALSE)
-      ), stringsAsFactors = FALSE)
+      ))
     }
 
     # keep session info for debugging & checkpointing

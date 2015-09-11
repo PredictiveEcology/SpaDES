@@ -1,5 +1,9 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.0.3
+=============
+* fully fix `inputs` data.frame construction in `simInit` (#225)
+
 version 1.0.2
 =============
 * update maintainer's and authors' email addresses
