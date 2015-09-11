@@ -854,7 +854,7 @@ setReplaceMethod(
      columns <- pmatch(names(fileTable), names(value))
      setnames(value, old = colnames(value)[na.omit(columns)],
                      new = colnames(fileTable)[!is.na(columns)])
-     object@inputs <- bind_rows(list(value, fileTable), stringsAsFactors = FALSE) %>%
+     object@inputs <- bind_rows(list(value, fileTable)) %>%
        as.data.frame(stringsAsFactors = FALSE)
      #object@inputs$file <- file.path(inputPath(object),object@inputs$file)
    } else {
