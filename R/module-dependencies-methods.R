@@ -191,18 +191,20 @@ setMethod(".depsPruneEdges",
                   }
                 }
               }
-              pth <- pth %>% inner_join(simEdgeList, by=c("from","to"))
+              pth <- pth %>% inner_join(simEdgeList, by=c("from", "to"))
 
               # What is not provided in modules, but needed
               missingObjects <- simEdgeList %>% filter(from!=to) %>%
                 anti_join(pth, ., by=c("from","to"))
               if (nrow(missingObjects)) {
                 warning("Problem resolving the module dependencies:\n",
-                        missingObjects)
+                        paste(missingObjects), collapse="\n")
               }
 
               # What is provided in modules, and can be omitted from simEdgeList object
-              newEdgeList <- simEdgeList %>% filter(from!=to) %>% anti_join(pth, by=c("from","to"))
+              newEdgeList <- simEdgeList %>%
+                filter(from!=to) %>%
+                anti_join(pth, by=c("from","to"))
             } else {
               newEdgeList <- simEdgeList
             }

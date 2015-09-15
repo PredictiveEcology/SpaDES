@@ -48,7 +48,7 @@ biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
 setkey(reducedDT, biomass)
 
 communities <- rasterizeReduced(reducedDT, fullRas, "communities")
-setColors(communities) <- c("blue","orange","red")
+setColors(communities) <- c("blue", "orange", "red")
 Plot(biomass, communities, fullRas, new=TRUE)
 }
 \author{

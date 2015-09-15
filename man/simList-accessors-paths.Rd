@@ -2,6 +2,10 @@
 % Please edit documentation in R/simList-accessors.R
 \docType{methods}
 \name{paths}
+\alias{cachePath}
+\alias{cachePath,.simList-method}
+\alias{cachePath<-}
+\alias{cachePath<-,.simList-method}
 \alias{inputPath}
 \alias{inputPath,.simList-method}
 \alias{inputPath<-}
@@ -28,6 +32,14 @@ paths(object)
 paths(object) <- value
 
 \S4method{paths}{.simList}(object) <- value
+
+cachePath(object)
+
+\S4method{cachePath}{.simList}(object)
+
+cachePath(object) <- value
+
+\S4method{cachePath}{.simList}(object) <- value
 
 inputPath(object)
 
@@ -66,14 +78,18 @@ Accessor functions for the \code{paths} slot in a \code{simList} object.
 }
 \details{
 These are ways to add or access the file paths used by \code{\link{spades}}.
-There are three file paths: \code{modulePath}, \code{inputPath}, \code{outputPath}.
+There are four file paths: \code{cachePath}, \code{modulePath},
+\code{inputPath}, and \code{outputPath}.
 Each has a function to get or set the value in a \code{simList} object.
+When not otherwise specified, the default is to set the path values to the
+current working directory.
 
 \tabular{lll}{
+   \code{cachePath} \tab \code{NA} \tab Global simulation cache path.\cr
    \code{modulePath} \tab \code{NA} \tab Global simulation module path.\cr
-   \code{outputPath} \tab \code{NA} \tab Global simulation output path.\cr
    \code{inputPath} \tab \code{NA} \tab Global simulation input path.\cr
-   \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs).\cr
+   \code{outputPath} \tab \code{NA} \tab Global simulation output path.\cr
+   \code{paths} \tab \code{NA} \tab Global simulation paths (cache, modules, inputs, outputs).\cr
 }
 }
 \seealso{

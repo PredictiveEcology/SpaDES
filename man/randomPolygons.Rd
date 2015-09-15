@@ -50,7 +50,7 @@ polygon values, using code drawn from
 }
 \examples{
 r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3)
-Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
+Plot(r1, cols=c("white", "dark green", "blue", "dark red"), new=TRUE)
 }
 \references{
 Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.

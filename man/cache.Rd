@@ -23,13 +23,15 @@ cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 Identical to \code{\link[archivist]{cache}}
 }
 \description{
-Because the \code{simList} has an environment as one of its slots, the caching mechanism
-of the archivist package does not work. Here, we make a slight tweak to the
-\code{cache} function. Specifically, we remove all elements that have an environment
-as part of their attributes. This is generally functions that are loaded from the modules,
-but also the \code{.envir} slot in the \code{simList}. Thus, only non-function objects are
-used as part of the \code{digest} call in the \code{digest} package (used internally in
-the \code{cache} function).
+Because the \code{simList} has an environment as one of its slots,
+the caching mechanism of the archivist package does not work.
+Here, we make a slight tweak to the \code{cache} function.
+Specifically, we remove all elements that have an environment as part of
+their attributes.
+This is generally functions that are loaded from the modules,
+but also the \code{.envir} slot in the \code{simList}.
+Thus, only non-function objects are used as part of the \code{digest} call
+in the \code{digest} package (used internally in the \code{cache} function).
 }
 \author{
 Eliot McIntire

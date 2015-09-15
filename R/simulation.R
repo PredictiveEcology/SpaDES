@@ -249,7 +249,7 @@ setMethod(
     dotParamsChar <- list(".savePath", ".saveObjects")
     dotParams <- append(dotParamsChar, dotParamsReal)
 
-    # create simList object for the simluation
+    # create simList object for the simulation
     sim <- new("simList")
     modules(sim) <- modules
     paths(sim) <- paths
@@ -435,7 +435,7 @@ setMethod(
             loadOrder="character"),
   definition = function(times, params, modules, objects, inputs, loadOrder) {
     sim <- simInit(times=times, params=params, modules=modules, objects=objects,
-                   paths=list("./"), inputs=inputs, outputs=as.data.frame(NULL),
+                   paths=list("."), inputs=inputs, outputs=as.data.frame(NULL),
                    loadOrder=loadOrder)
     return(invisible(sim))
 })
@@ -461,7 +461,7 @@ setMethod(
             loadOrder="missing"),
   definition=function(times, params, modules, objects, inputs) {
     sim <- simInit(times=times, params=params, modules=modules, objects=objects,
-                   paths=list("./"), inputs=inputs, outputs=as.data.frame(NULL),
+                   paths=list("."), inputs=inputs, outputs=as.data.frame(NULL),
                    loadOrder=character())
     return(invisible(sim))
 })
@@ -474,7 +474,7 @@ setMethod(
             loadOrder="character"),
   definition=function(times, params, modules, inputs, loadOrder) {
     sim <- simInit(times=times, params=params, modules=modules, objects=list(),
-                   paths=list("./"), inputs=inputs, outputs=as.data.frame(NULL),
+                   paths=list("."), inputs=inputs, outputs=as.data.frame(NULL),
                    loadOrder=loadOrder)
     return(invisible(sim))
 })
@@ -500,7 +500,7 @@ setMethod(
             loadOrder="missing"),
   definition=function(times, params, modules, inputs) {
     sim <- simInit(times=times, params=params, modules=modules, objects=list(),
-                   paths=list("./"), inputs=inputs, outputs=as.data.frame(NULL),
+                   paths=list("."), inputs=inputs, outputs=as.data.frame(NULL),
                    loadOrder=character())
     return(invisible(sim))
 })
@@ -526,7 +526,7 @@ setMethod("simInit",
                     outputs="missing", loadOrder="character"),
           definition=function(times, params, modules, objects, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=list("./"),
+                           objects=objects, paths=list("."),
                            inputs=as.data.frame(NULL), outputs=as.data.frame(NULL),
                            loadOrder=loadOrder)
             return(invisible(sim))
@@ -552,7 +552,7 @@ setMethod("simInit",
                     outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, objects, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=list("./"),
+                           objects=objects, paths=list("."),
                            inputs=as.data.frame(NULL), outputs=as.data.frame(NULL),
                            loadOrder=character())
             return(invisible(sim))
@@ -565,7 +565,7 @@ setMethod("simInit",
                     outputs="missing", loadOrder="character"),
           definition=function(times, params, modules, inputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), paths=list("./"),
+                           objects=list(), paths=list("."),
                            inputs=as.data.frame(NULL), outputs=as.data.frame(NULL),
                            loadOrder=loadOrder)
             return(invisible(sim))
@@ -591,7 +591,7 @@ setMethod("simInit",
                     outputs="missing", loadOrder="missing"),
           definition=function(times, params, modules, inputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), paths=list("./"),
+                           objects=list(), paths=list("."),
                            inputs=as.data.frame(NULL), outputs=as.data.frame(NULL),
                            loadOrder=character())
             return(invisible(sim))
@@ -620,7 +620,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, objects, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=list("./"),
+                           objects=objects, paths=list("."),
                            inputs=as.data.frame(NULL), outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
@@ -646,7 +646,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, objects, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=list("./"),
+                           objects=objects, paths=list("."),
                            inputs=as.data.frame(NULL), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
@@ -659,7 +659,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), paths=list("./"),
+                           objects=list(), paths=list("."),
                            inputs=as.data.frame(NULL), outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
@@ -685,7 +685,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), paths=list("./"),
+                           objects=list(), paths=list("."),
                            inputs=as.data.frame(NULL), outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
@@ -712,7 +712,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, objects, inputs, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=list("./"),
+                           objects=objects, paths=list("."),
                            inputs=inputs, outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
@@ -738,7 +738,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, objects, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=objects, paths=list("./"),
+                           objects=objects, paths=list("."),
                            inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
@@ -751,7 +751,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="character"),
           definition=function(times, params, modules, inputs, outputs, loadOrder) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), paths=list("./"),
+                           objects=list(), paths=list("."),
                            inputs=inputs, outputs=outputs,
                            loadOrder=loadOrder)
             return(invisible(sim))
@@ -777,7 +777,7 @@ setMethod("simInit",
                     outputs="ANY", loadOrder="missing"),
           definition=function(times, params, modules, inputs, outputs) {
             sim <- simInit(times=times, params=params, modules=modules,
-                           objects=list(), paths=list("./"),
+                           objects=list(), paths=list("."),
                            inputs=inputs, outputs=outputs,
                            loadOrder=character())
             return(invisible(sim))
@@ -790,7 +790,8 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="ANY", params="ANY", modules="ANY",
-                    objects="character", paths="ANY", inputs="ANY", outputs="ANY", loadOrder="ANY"),
+                    objects="character", paths="ANY",
+                    inputs="ANY", outputs="ANY", loadOrder="ANY"),
           definition=function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
             li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
@@ -819,7 +820,7 @@ setMethod("simInit",
             li$objects <- list()
             li$outputs <- as.data.frame(NULL)
             li$loadOrder <- character()
-            li$paths=list("./")
+            li$paths <- list(".")
             sim <- do.call("simInit", args=li)
 
             return(invisible(sim))
@@ -830,12 +831,15 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="missing", params="missing", modules="missing",
-                    objects="missing", paths="missing", inputs="missing", outputs="missing", loadOrder="missing"),
+                    objects="missing", paths="missing",
+                    inputs="missing", outputs="missing", loadOrder="missing"),
           definition=function(inputs, outputs) {
             sim <- simInit(times=list(start=0, end=1),
                            params=list(),
                            modules=list(),
-                           objects=list(), paths=list("./"), inputs=as.data.frame(NULL),
+                           objects=list(),
+                           paths=list("."),
+                           inputs=as.data.frame(NULL),
                            outputs=as.data.frame(NULL),
                            loadOrder=character())
             return(invisible(sim))
@@ -845,7 +849,8 @@ setMethod("simInit",
 #' @rdname simInit
 setMethod("simInit",
           signature(times="ANY", params="ANY", modules="ANY",
-                    objects="ANY", paths="ANY", inputs="ANY", outputs="ANY", loadOrder="ANY"),
+                    objects="ANY", paths="ANY",
+                    inputs="ANY", outputs="ANY", loadOrder="ANY"),
           definition=function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
             stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
                  "Some of these can be missing, but it is safer to specify everything explicitly. ",
