@@ -37,6 +37,9 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 **Proof of concept:** [https://spades.shinyapps.io/ForestChange_ProofOfConcept](https://spades.shinyapps.io/ForestChange_ProofOfConcept)
 
+**GitHub Repository:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
+
+
 ## Installation
 
 Building packages from source requires the appropriate development libraries for your operating system (*e.g.*, Windows users should install [Rtools](http://cran.r-project.org/bin/windows/Rtools/)).
