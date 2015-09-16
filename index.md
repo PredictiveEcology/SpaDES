@@ -17,7 +17,7 @@ keywords: DES, R, spatially explicit models, ABM, agent based model, IBM, indivi
 
 ### Develop and run spatially explicit discrete event simulation models
 
-![](ageFourMaps.png)
+![](Maps.gif)
 
 Easily implement a variety of simulation models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models.
 The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. 
