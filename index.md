@@ -20,7 +20,7 @@ keywords: DES, R, spatially explicit models, ABM, agent based model, IBM, indivi
 ![](MapsSmall.gif) ![](lcc05.png)
 
 Easily implement a variety of simulation models, with a focus on spatially explicit models. These include raster-based, event-based, and agent-based models.
-The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. 
+The core simulation components are built upon a discrete event simulation framework that facilitates modularity, and easily enables the user to include additional functionality by running user-built simulation modules. We show above, a simple example with a mixture of an agent-based model and raster-based process models of vegetation change and fire.
 Included are numerous tools to rapidly visualize raster and other maps.
 
 [**Getting Started**](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide) [https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide](https://github.com/PredictiveEcology/SpaDES/wiki/Getting-Started-Guide) 
