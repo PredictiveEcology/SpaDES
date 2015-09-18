@@ -3,6 +3,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.0.4
 =============
 * more control of caching behaviour: added `cachePath` to paths slot (#227)
+* improve efficiency of `loadPackages`
 
 version 1.0.3
 =============

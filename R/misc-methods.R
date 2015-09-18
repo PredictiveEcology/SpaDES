@@ -168,9 +168,10 @@ setMethod("append_attr",
 #' @param quiet Logical flag. Should the final "packages loaded"
 #' message be suppressed?
 #'
-#' @return Specified packages are loaded and attached using \code{library()}.
+#' @return Specified packages are loaded and attached using \code{require()},
+#'         invisibly returning a logical vector of successes.
 #'
-#' @seealso \code{\link{library}}.
+#' @seealso \code{\link{require}}.
 #'
 #' @export
 #' @docType methods
@@ -192,32 +193,32 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
 
 #' @rdname loadPackages
 setMethod("loadPackages",
-           signature="list",
-            definition=function(packageList, install, quiet) {
-              loadPkg <- function(name, install) {
-                if (!require(name, character.only=TRUE)) {
-                  if (install) {
-                    cran <- if ( is.null(getOption("repos")) | getOption("repos")=="") {
-                      "https://cran.rstudio.com"
-                    } else {
-                      getOption("repos")[[1]]
-                    }
-                    install.packages(name, repos=cran)
-                    library(name, character.only=TRUE)
-                    } else {
-                      message(paste("NOTE: unable to load package ", name, ". Is it installed?", sep=""))
-                    }
-                  }
-                }
-              lapply(packageList, loadPkg, install)
-              if (!quiet) message(paste("Loaded", length(packageList), "packages.", sep=" "))
+          signature="character",
+          definition=function(packageList, install, quiet) {
+            if (install) {
+              repos <- getOption("repos")
+              if ( is.null(repos) | repos=="") {
+                repos <- "https://cran.rstudio.com"
+              }
+              installed <- unname(installed.packages()[,"Package"])
+              toInstall <- packageList[packageList %in% installed]
+              install.packages(toInstall, repos=repos)
+            }
+
+            loaded <- sapply(packageList, require, character.only=TRUE)
+
+            if (!quiet) {
+              message(paste("Loaded", length(which(loaded==TRUE)), "of",
+                            length(packageList), "packages.", sep=" "))
+            }
+            return(invisible(loaded))
 })
 
 #' @rdname loadPackages
 setMethod("loadPackages",
-          signature="character",
+          signature="list",
           definition=function(packageList, install, quiet) {
-            loadPackages(as.list(packageList), install, quiet)
+            loadPackages(unlist(packageList), install, quiet)
 })
 
 ################################################################################
