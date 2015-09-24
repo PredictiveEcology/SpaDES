@@ -25,7 +25,8 @@ already installed, should they be installed?}
 message be suppressed?}
 }
 \value{
-Specified packages are loaded and attached using \code{library()}.
+Specified packages are loaded and attached using \code{require()},
+        invisibly returning a logical vector of successes.
 }
 \description{
 Load and optionally install additional packages.
@@ -41,6 +42,6 @@ Load and optionally install additional packages.
 Alex Chubaty
 }
 \seealso{
-\code{\link{library}}.
+\code{\link{require}}.
 }
 

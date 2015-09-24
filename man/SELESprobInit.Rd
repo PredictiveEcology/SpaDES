@@ -8,7 +8,7 @@
 probInit(map, p = NULL, absolute = NULL)
 }
 \arguments{
-\item{map}{A \code{.spatialObjects} object. Currently, only provides CRS and, if p is not
+\item{map}{A \code{spatialObjects} object. Currently, only provides CRS and, if p is not
 a raster, then all the raster dimensions.}
 
 \item{p}{probability, provided as a numeric or raster}

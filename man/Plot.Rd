@@ -31,7 +31,7 @@ Plot(..., new = FALSE, addTo = NULL, gp = gpar(), gpText = gpar(),
 rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 }
 \arguments{
-\item{...}{A combination of \code{.spatialObjects} or some non-spatial objects.
+\item{...}{A combination of \code{spatialObjects} or some non-spatial objects.
            See details.}
 
 \item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a
@@ -150,7 +150,7 @@ The function is based on the grid package.
 Each panel in the multipanel plot must have a name.
 This name is used to overplot, rearrange the plots, or overlay using
 \code{addTo} when necessary.
-If the \code{...} are named .spatialObjects, then \code{Plot} will use
+If the \code{...} are named spatialObjects, then \code{Plot} will use
 these names. However, this name will not persist when there is a future call
 to \code{Plot} that forces a rearrangement of the plots.
 A more stable way is to use the object names directly, and any layer names

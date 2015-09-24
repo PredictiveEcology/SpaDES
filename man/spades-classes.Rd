@@ -31,8 +31,8 @@ are therefore intended for internal use only.
 \tabular{ll}{
   Unions of existing classes\tab \cr
   \code{\link{.spadesPlottables}} \tab The union of all object classes Plot can accept\cr
-  \code{\link{.spadesPlotObjects}} \tab The union of .spatialObjects and several others\cr
-  \code{\link{.spatialObjects}} \tab The union of several spatial classes\cr
+  \code{\link{.spadesPlotObjects}} \tab The union of spatialObjects and several others\cr
+  \code{\link{spatialObjects}} \tab The union of several spatial classes\cr
   --------------------------- \tab ------------------------------------------------------------------------------------------ \cr
 }
 }

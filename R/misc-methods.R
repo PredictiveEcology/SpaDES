@@ -256,7 +256,7 @@ setMethod("normPath",
               }) %>%
               unlist %>%
               gsub("^[.]", paste0(getwd()), .) %>%
-              gsub("\\\\", "/", .) %>%
+              gsub("\\\\", "//", .) %>%
               gsub("//", "/", .) %>%
               gsub("/$", "", .)
 })

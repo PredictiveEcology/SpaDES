@@ -5,7 +5,7 @@
 \alias{.spadesPlotObjects-class}
 \title{The \code{.spadesPlotObjects} class}
 \description{
-This class contains the union of .spatialObjects and several other plot-type objects.
+This class contains the union of spatialObjects and several other plot-type objects.
 These are the object classes that the \code{\link{Plot}} function can handle.
 }
 \section{Slots}{

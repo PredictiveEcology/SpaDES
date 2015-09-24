@@ -43,7 +43,7 @@ setMethod(
 
 
     isSpatialObjects <- sapply(plotObjects, function(x) {
-      is(x, ".spatialObjects")
+      is(x, "spatialObjects")
     })
 
     env <- list(...)$env
@@ -1118,7 +1118,7 @@ setMethod(
 #' Each panel in the multipanel plot must have a name.
 #' This name is used to overplot, rearrange the plots, or overlay using
 #' \code{addTo} when necessary.
-#' If the \code{...} are named .spatialObjects, then \code{Plot} will use
+#' If the \code{...} are named spatialObjects, then \code{Plot} will use
 #' these names. However, this name will not persist when there is a future call
 #' to \code{Plot} that forces a rearrangement of the plots.
 #' A more stable way is to use the object names directly, and any layer names
@@ -1170,7 +1170,7 @@ setMethod(
 #' The naming convention used is: \code{RasterStackName$layerName}, i.e,
 #' \code{landscape$DEM}.
 #'
-#' @param ... A combination of \code{.spatialObjects} or some non-spatial objects.
+#' @param ... A combination of \code{spatialObjects} or some non-spatial objects.
 #'            See details.
 #'
 #' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a
