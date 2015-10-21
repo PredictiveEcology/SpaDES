@@ -167,7 +167,7 @@ setMethod(
     if (length(urls[-ids])) {
       setwd(path); on.exit(setwd(cwd))
       files <- lapply(urls[-ids], function(x) {
-        download(x, destfile = basename(x), quiet = TRUE)
+        download(x, destfile = file.path(path, module, "data", basename(x)), quiet = TRUE)
         basename(x)
       })
     } else {
@@ -220,7 +220,7 @@ setMethod(
   "checksums",
   signature = c(module = "character", path = "character", write = "logical"),
   definition = function(module, path, write) {
-    path <- checkPath(path, create = FALSE) %>% file.path(., "data")
+    path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
     stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
 
     files <- list.files(path, full.names = TRUE) %>%
