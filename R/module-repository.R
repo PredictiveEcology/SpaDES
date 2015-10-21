@@ -230,7 +230,8 @@ setMethod(
       digest(file = x, algo = "md5") # use sha1?
     }) %>% unname
 
-    out <- data.frame(file = files, checksum = checksums, stringsAsFactors = FALSE)
+    out <- data.frame(file = basename(files), checksum = checksums,
+                      stringsAsFactors = FALSE)
 
     if (write) {
       write.table(out, file.path(path, "CHECKSUMS.txt"), eol = "\n",
