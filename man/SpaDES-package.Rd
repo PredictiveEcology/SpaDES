@@ -373,9 +373,9 @@ found with \code{file.path(find.package("SpaDES"), "sampleModules")}
 }
 }
 \author{
-Alex M. Chubaty \email{achubaty@nrcan.gc.ca}
+Alex M. Chubaty \email{alexander.chubaty@canada.ca}
 
-Eliot J. B. McIntire \email{Eliot.McIntire@nrcan.gc.ca}
+Eliot J. B. McIntire \email{eliot.mcintire@canada.ca}
 }
 \keyword{------------------------------------------------------------------------------------------}
 \keyword{package}

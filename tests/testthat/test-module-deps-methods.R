@@ -2,27 +2,28 @@ test_that("defineModule correctly handles different inputs", {
   tmp <- simInit()
 
   x1 <- list(
-    name="testModule",
-    description="this is a test.",
-    keywords=c("test"),
-    childModules=character(),
-    authors=c(person(c("Alex", "M"), "Chubaty", email="achubaty@nrcan.gc.ca", role=c("aut", "cre"))),
-    version=numeric_version("0.0.1"),
-    spatialExtent=raster::extent(rep(NA_real_, 4)),
-    timeframe=as.POSIXlt(c(NA, NA)),
-    timeunit=NA_character_,
-    citation=list(),
-    documentation=list(),
-    reqdPkgs=list("grid", "raster", "sp"),
-    parameters=rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")),
-    inputObjects=data.frame(objectName="testInput",
-                            objectClass="list",
-                            other=NA_character_,
-                            stringsAsFactors=FALSE),
-    outputObjects=data.frame(objectName="testOutput",
-                             objectClass="list",
-                             other=NA_character_,
-                             stringsAsFactors=FALSE)
+    name = "testModule",
+    description = "this is a test.",
+    keywords = c("test"),
+    childModules = character(),
+    authors = c(person(c("Alex", "M"), "Chubaty",
+                       email = "alexander.chubaty@canada.ca",
+                       role=c("aut", "cre"))),
+    version = numeric_version("0.0.1"),
+    spatialExtent = raster::extent(rep(NA_real_, 4)),
+    timeframe = as.POSIXlt(c(NA, NA)),
+    timeunit = NA_character_,
+    citation = list(),
+    documentation = list(),
+    reqdPkgs = list("grid", "raster", "sp"),
+    parameters = rbind(
+      defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")
+    ),
+    inputObjects = data.frame(objectName = "testInput", objectClass = "list",
+                              sourceURL = "", other=NA_character_,
+                              stringsAsFactors=FALSE),
+    outputObjects = data.frame(objectName = "testOutput", objectClass = "list",
+                               other = NA_character_, stringsAsFactors = FALSE)
   )
 
   ## check name

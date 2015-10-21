@@ -1,6 +1,6 @@
 test_that("downloadModule downloads and unzips module files", {
   tmpdir <- file.path(tempdir(), "modules")
-  on.exit(unlink(tmpdir, recursive=TRUE))
+  on.exit(unlink(tmpdir, recursive = TRUE))
 
   f <- downloadModule("caribouMovementLcc", tmpdir)
 

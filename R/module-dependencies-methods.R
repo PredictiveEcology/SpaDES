@@ -2,7 +2,7 @@
 if (getRversion() >= "3.1.0") {
   utils::globalVariables(c(".", "module.x", "module.y", "from", "to", "name",
                            "objectName", "objectClass", "other", "module",
-                           "i.objectClass", "i.module"))
+                           "i.objectClass", "i.module", "sourceURL"))
 }
 
 # register the S3 `igraph` class for use with S4 methods.
@@ -43,13 +43,13 @@ setMethod("depsEdgeList",
           definition=function(sim, plot) {
 
             deps <- depends(sim)
-            sim.in <- sim.out <- data.table(objectName=character(),
-                                            objectClass=character(),
-                                            module=character())
+            sim.in <- sim.out <- data.table(objectName = character(),
+                                            objectClass = character(),
+                                            module = character())
 
             lapply(deps@dependencies, function(x) {
               if (!is.null(x)) {
-                z.in <- as.data.table(x@inputObjects)[,other:=NULL]
+                z.in <- as.data.table(x@inputObjects)[,sourceURL:=NULL][,other:=NULL]
                 z.out <- as.data.table(x@outputObjects)[,other:=NULL]
                 z.in$module <- z.out$module <- x@name
                 if (!all(is.na(z.in[,objectName]), is.na(z.in[,objectClass]))) {
@@ -68,13 +68,13 @@ setMethod("depsEdgeList",
             if ((nrow(sim.in)) && (nrow(sim.out))) {
               dx <- sim.out[sim.in, nomatch=NA_character_, allow.cartesian=TRUE]
               dx[is.na(module), module:="_INPUT_"]
-              dt <- dx[,list(from=module, to=i.module,
-                             objName=objectName, objClass=i.objectClass)]
+              dt <- dx[,list(from = module, to = i.module,
+                             objName = objectName, objClass = i.objectClass)]
 
               if (plot) dt <- dt[!duplicated(dt[, 1:2, with=FALSE]),]
             } else {
-              dt <- data.table(from=character(), to=character(),
-                               objName=character(), objClass=character())
+              dt <- data.table(from = character(), to = character(),
+                               objName = character(), objClass = character())
             }
             setorder(dt, "from", "to", "objName")
             return(dt)

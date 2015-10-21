@@ -112,29 +112,32 @@ Every module requires complete metadata, structured as a named list, and passed 
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
 **`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
-&nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
-&nbsp;                | as both an input and an output, add the object to each of these `data.frame`s.
-**`outputObjects`**   | A `data.frame` specifying the objects output by the module, following the format of
-&nbsp;                | `inputObjects`.
+&nbsp;                | `objectName`, `objectClass`, `sourceURL`, and `other`.
+&nbsp;                | For objects that are used within the module as both an input and an output,
+&nbsp;                | add the object to each of these `data.frame`s.
+**`outputObjects`**   | A `data.frame` specifying the objects output by the module, with columns
+&nbsp;                | `objectName`, `objectClass`, and `other`.
 
 ```{r module-metadata, eval=FALSE, echo=TRUE}
 ## sample module metadata for the default `randomLandscapes` module
 ## NOTE: long lines have been truncated
 defineModule(sim, list(
-  name="randomLandscapes",
-  description="Generate RasterStack of random maps representative of a forest landsc...",
-  keywords=c("random map", "random landscape"),
-  authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca",
-                   role=c("aut", "cre")),
-            person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca",
-                   role=c("aut", "cre"))),
-  version=numeric_version("0.2.0"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_real_,
-  citation=list(),
-  reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  parameters=rbind(
+  name = "randomLandscapes",
+  description = "Generate RasterStack of random maps representative of a forest landsc...",
+  keywords = c("random map", "random landscape"),
+  authors = c(person(c("Alex", "M"), "Chubaty",
+                     email = "alexander.chubaty@canada.ca",
+                     role = c("aut", "cre")),
+              person(c("Eliot", "J", "B"), "McIntire",
+                     email = "eliot.mcintire@canada.ca",
+                     role = c("aut", "cre"))),
+  version = numeric_version("0.2.0"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = NA_real_,
+  citation = list(),
+  reqdPkgs = list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
+  parameters = rbind(
     defineParameter("stackName", "character", "randomLandscape", NA, NA, "..."),
     defineParameter("nx", "numeric", 100L, NA, NA, "size of map (number ..."),
     defineParameter("ny", "numeric", 100L, NA, NA, "size of map (number ..."),
@@ -143,9 +146,9 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval ..."),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")),
-  inputObjects=data.frame(objectName=character(),
-                          objectClass=character(),
-                          other=character(), stringsAsFactors=FALSE),
+  inputObjects=data.frame(objectName=character(), objectClass=character(),
+                          sourceURL = character(), other=character(),
+                          stringsAsFactors=FALSE),
   outputObjects=data.frame(objectName=globals(sim)$stackName,
                            objectClass="RasterStack",
                            other=NA_character_, stringsAsFactors=FALSE)
@@ -305,24 +308,26 @@ Note that only the start time of the event is meaningful is these figures: the w
 ```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 require(igraph) # for %>%
 require(SpaDES)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
-                   .progress=list(NA),
-                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
-                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=1, startTime=0,
-                                  .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
-                                        .plotInitialTime=1.01, .plotInterval=1))
+parameters <- list(
+  .globals = list(stackName="landscape", burnStats="nPixelsBurned"),
+  .progress = list(NA),
+  randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
+  fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6,
+                    persistprob = 0, returnInterval = 1, startTime = 0,
+                    .plotInitialTime = 0.1, .plotInterval = 10),
+  caribouMovement = list(N = 100L, moveInterval = 1, torus = TRUE,
+                         .plotInitialTime = 1.01, .plotInterval = 1)
+)
 
 ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
 pdf(ftmp)
 clearPlot()
 mySim <- simInit(
-  times=list(start=0.0, end=2.0, timeunit="year"),
-  params=parameters,
-  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-  objects=list(),
-  paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+  times = list(start = 0.0, end = 2.0, timeunit = "year"),
+  params = parameters,
+  modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+  objects = list(),
+  paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
   ) %>% spades
 dev.off()
 unlink(ftmp)
@@ -351,6 +356,16 @@ Most citation management software can read and output `.bib` format.
 For help selecting a license, see [choosealicense.com](http://choosealicense.com).
 
 - `README.txt` is used to briefly document module metadata and version change information.
+
+## Data
+
+All module data are located in the module's `data/` subdirectory.
+Also included in this folder is a `CHECKSUMS.txt` file that contains the expected checksums for each data file.
+Checksums can be verified (and optionally written) using `checksums()`.
+
+Modules may require data that for various reasons cannot be distributed with the module source code.
+In these cases, the module developer should ensure that the module downloads and extracts the data required.
+It is useful to not only check that the data files exist locally but that their checksums match those expected (see `checksums()`).
 
 ## Versioned zip archives (`moduleName_x.y.z.zip`)
 

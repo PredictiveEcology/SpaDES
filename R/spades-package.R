@@ -25,8 +25,8 @@
 #' @name SpaDES-package
 #' @aliases SpaDES SpaDES-package spades-package
 #' @docType package
-#' @author Alex M. Chubaty \email{achubaty@@nrcan.gc.ca}
-#' @author Eliot J. B. McIntire \email{Eliot.McIntire@@nrcan.gc.ca}
+#' @author Alex M. Chubaty \email{alexander.chubaty@@canada.ca}
+#' @author Eliot J. B. McIntire \email{eliot.mcintire@@canada.ca}
 #' @keywords package
 #'
 #' ------------------------------------------------------------------------------------------

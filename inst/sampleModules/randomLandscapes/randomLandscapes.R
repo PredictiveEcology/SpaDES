@@ -1,20 +1,20 @@
 stopifnot(packageVersion("SpaDES") >= "0.99.0")
 
 defineModule(sim, list(
-  name="randomLandscapes",
-  description="Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
-  keywords=c("random map", "random landscape"),
-  childModules=character(),
-  authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca", role=c("aut", "cre")),
-            person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("1.1.0"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit="year",
-  citation=list(),
-  documentation=list(),
-  reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  parameters=rbind(
+  name = "randomLandscapes",
+  description = "Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
+  keywords = c("random map", "random landscape"),
+  childModules = character(),
+  authors = c(person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca", role = c("aut", "cre")),
+            person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))),
+  version = numeric_version("1.1.1"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = "year",
+  citation = list(),
+  documentation = list(),
+  reqdPkgs = list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
+  parameters = rbind(
     defineParameter("stackName", "character", "randomLandscape", NA, NA, "name of the RasterStack"),
     defineParameter("nx", "numeric", 100L, NA, NA, "size of map (number of pixels) in the x dimension"),
     defineParameter("ny", "numeric", 100L, NA, NA, "size of map (number of pixels) in the y dimension"),
@@ -22,18 +22,22 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", NA, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
-    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")),
-  inputObjects=data.frame(objectName=character(),
-                          objectClass=character(),
-                          other=character(), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=globals(sim)$stackName,
-                           objectClass="RasterStack",
-                           other=NA_character_, stringsAsFactors=FALSE)
+    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
+  ),
+  inputObjects = data.frame(objectName = character(),
+                            objectClass = character(),
+                            sourceURL = character(),
+                            other = character(),
+                            stringsAsFactors = FALSE),
+  outputObjects = data.frame(objectName = globals(sim)$stackName,
+                             objectClass = "RasterStack",
+                             other = NA_character_,
+                             stringsAsFactors = FALSE)
 ))
 
 ## event types
-doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="init") {
+doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
+  if (eventType == "init") {
     # do stuff for this event
     sim <- sim$randomLandscapesInit(sim)
 
@@ -43,11 +47,11 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
                          "randomLandscapes", "save")
 
-  } else if (eventType=="plot") {
+  } else if (eventType == "plot") {
     # do stuff for this event
     Plot(sim[[globals(sim)$stackName]])
 
-  } else if (eventType=="save") {
+  } else if (eventType == "save") {
     # do stuff for this event
     sim <- saveFiles(sim)
 
