@@ -242,7 +242,7 @@ setMethod(
                      (out[,"checksum"] == txt[,"checksum"]) ) %>%
         as.character %>%
         gsub("TRUE", "OK", .) %>%
-        gsub("TRUE", "FAIL", .)
+        gsub("FALSE", "FAIL", .)
 
       if (all(results == "OK")) {
         message("All file checksums match.")
