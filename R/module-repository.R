@@ -239,7 +239,8 @@ setMethod(
                   col.names = TRUE, row.names = FALSE)
       return(out)
     } else {
-      txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE)
+      txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
+                        stringsAsFactors = FALSE)
       results <- ( (out[,"file"] == txt[,"file"]) &
                      (out[,"checksum"] == txt[,"checksum"]) ) %>%
         as.character %>%
