@@ -11,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.0.3.9005
-Date: 2015-09-18
+Version: 1.0.3.9006
+Date: 2015-10-20
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),
@@ -79,9 +79,9 @@ Collate:
     'load.R'
     'mapReduce.R'
     'module-dependencies-methods.R'
+    'moduleMetadata.R'
     'module-repository.R'
     'module-template.R'
-    'moduleMetadata.R'
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
