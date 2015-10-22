@@ -40,7 +40,7 @@ Packages are loaded during this call.
    \code{documentation} \tab List of filenames refering to module documentation sources. \cr
    \code{reqdPkgs} \tab List of R package names required by the module. \cr
    \code{parameters} \tab A data.frame specifying the parameters used in the module. Usually produced by \code{rbind}-ing the outputs of multiple \code{\link{defineParameter}} calls. \cr
-   \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, and \code{other}. \cr
+   \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, \code{sourceURL}, and \code{other}. \cr
    \code{outputObjects} \tab A data.frame specifying the data objects output by the module, with columns identical to those in \code{inputObjects}. \cr
 }
 }

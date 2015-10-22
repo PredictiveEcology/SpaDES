@@ -45,39 +45,47 @@ setGeneric("newModule", function(name, path, open) {
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="character", open="logical"),
-          definition = function(name, path, open) {
-            path <- checkPath(path, create=TRUE)
-            nestedPath <- file.path(path, name)
-            checkPath(nestedPath, create=TRUE)
-            filenameR <- file.path(nestedPath, paste0(name, ".R"))
+setMethod(
+  "newModule",
+  signature=c(name="character", path="character", open="logical"),
+  definition = function(name, path, open) {
+    path <- checkPath(path, create=TRUE)
+    nestedPath <- file.path(path, name)
+    dataPath <- file.path(nestedPath, "data")
+    checkPath(nestedPath, create=TRUE)
+    checkPath(dataPath, create=TRUE)
 
-            cat("
+    # empty data checksum file
+    cat("", file = file.path(dataPath, "CHECKSUMS.txt"))
+
+    # module code
+    filenameR <- file.path(nestedPath, paste0(name, ".R"))
+
+    cat("
 # Everything in this file gets sourced during simInit, and all functions and objects
 #  are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name=\"", name, "\",
-  description=\"insert module description here\",
-  keywords=c(\"insert key words here\"),
-  authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
-  childModules=character(),
-  version=numeric_version(\"0.0.0\"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_character_, # e.g., \"year,\",
-  citation=list(\"citation.bib\"),
-  documentation=list(\"README.txt\", \"", name, ".Rmd\"),
-  reqdPkgs=list(),
-  parameters=rbind(
+  name = \"", name, "\",
+  description = \"insert module description here\",
+  keywords = c(\"insert key words here\"),
+  authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  childModules = character(),
+  version = numeric_version(\"0.0.0\"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = NA_character_, # e.g., \"year,\",
+  citation = list(\"citation.bib\"),
+  documentation = list(\"README.txt\", \"", name, ".Rmd\"),
+  reqdPkgs = list(),
+  parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
   ),
-  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
+  inputObjects = data.frame(objectName=NA_character_, objectClass=NA_character_, sourceURL=\"\", other=NA_character_, stringsAsFactors=FALSE),
+  outputObjects = data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
 
 ## event types
@@ -209,36 +217,38 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### add additional events as needed by copy/pasting from above\n",
-            file=filenameR, fill=FALSE, sep="")
-            if(open) file.edit(filenameR)
+    file = filenameR, fill = FALSE, sep = "")
+    if (open) file.edit(filenameR)
 
-            ### Make Rmarkdown file for module documentation
-            newModuleDocumentation(name=name, path=path, open=open)
-
+    ### Make Rmarkdown file for module documentation
+    newModuleDocumentation(name=name, path=path, open=open)
 })
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="missing", open="logical"),
-          definition = function(name, open) {
-            newModule(name=name, path=".", open=open)
+setMethod(
+  "newModule",
+  signature=c(name="character", path="missing", open="logical"),
+  definition = function(name, open) {
+    newModule(name=name, path=".", open=open)
 })
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="character", open="missing"),
-          definition = function(name, path) {
-            newModule(name=name, path=path, open=TRUE)
+setMethod(
+  "newModule",
+  signature = c(name="character", path="character", open="missing"),
+  definition = function(name, path) {
+    newModule(name=name, path=path, open=TRUE)
 })
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="missing", open="missing"),
-          definition = function(name) {
-            newModule(name=name, path=".", open=TRUE)
+setMethod(
+  "newModule",
+  signature=c(name="character", path="missing", open="missing"),
+  definition = function(name) {
+    newModule(name=name, path=".", open=TRUE)
 })
 
 ###########################################################################
@@ -254,19 +264,20 @@ setGeneric("newModuleDocumentation", function(name, path, open) {
 
 #' @export
 #' @rdname newModule
-setMethod("newModuleDocumentation",
-          signature=c(name="character", path="character", open="logical"),
-          definition = function(name, path, open) {
-            path <- checkPath(path, create=TRUE)
-            nestedPath <- file.path(path, name)
-            checkPath(nestedPath, create=TRUE)
-            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            filenameCitation <- file.path(nestedPath, "citation.bib")
-            filenameLICENSE <- file.path(nestedPath, "LICENSE")
-            filenameREADME <- file.path(nestedPath, "README.txt")
+setMethod(
+  "newModuleDocumentation",
+  signature = c(name="character", path="character", open="logical"),
+  definition = function(name, path, open) {
+    path <- checkPath(path, create=TRUE)
+    nestedPath <- file.path(path, name)
+    checkPath(nestedPath, create=TRUE)
+    filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
+    filenameCitation <- file.path(nestedPath, "citation.bib")
+    filenameLICENSE <- file.path(nestedPath, "LICENSE")
+    filenameREADME <- file.path(nestedPath, "README.txt")
 
-### Make Rmarkdown file for module documentation
-cat(
+    ### Make Rmarkdown file for module documentation
+    cat(
 "---
 title: \"",name,"\"
 author: \"Module Author\"

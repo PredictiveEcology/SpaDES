@@ -1974,19 +1974,20 @@ setGeneric(".addDepends", function(sim, x) {
 })
 
 #' @rdname addDepends
-setMethod(".addDepends",
-          signature(sim=".simList", x=".moduleDeps"),
-          definition=function(sim, x) {
-            deps <- depends(sim)
-            n <- length(deps@dependencies)
-            if (n==1L) {
-              if (is.null(deps@dependencies[[1L]])) n <- 0L
-            }
-            deps@dependencies[[n+1L]] <- x
-            dupes <- which(duplicated(deps@dependencies))
-            if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
-            depends(sim) <- deps
-            return(sim)
+setMethod(
+  ".addDepends",
+  signature(sim = ".simList", x = ".moduleDeps"),
+  definition = function(sim, x) {
+    deps <- depends(sim)
+    n <- length(deps@dependencies)
+    if (n==1L) {
+      if (is.null(deps@dependencies[[1L]])) n <- 0L
+    }
+    deps@dependencies[[n+1L]] <- x
+    dupes <- which(duplicated(deps@dependencies))
+    if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
+    depends(sim) <- deps
+    return(sim)
 })
 
 ################################################################################
@@ -2010,17 +2011,18 @@ setGeneric("packages", function(sim) {
 
 #' @export
 #' @rdname packages
-setMethod("packages",
-          signature(sim=".simList"),
-          definition=function(sim) {
-            pkgs <- lapply(depends(sim)@dependencies, function(x) {
-              x@reqdPkgs
-              }) %>%
-              unlist %>%
-              append("SpaDES") %>%
-              unique %>%
-              sort
-            return(pkgs)
+setMethod(
+  "packages",
+  signature(sim = ".simList"),
+  definition = function(sim) {
+    pkgs <- lapply(depends(sim)@dependencies, function(x) {
+        x@reqdPkgs
+      }) %>%
+      unlist %>%
+      append("SpaDES") %>%
+      unique %>%
+      sort
+    return(pkgs)
 })
 
 ################################################################################
@@ -2045,7 +2047,7 @@ setMethod("packages",
 #'    \code{documentation} \tab List of filenames refering to module documentation sources. \cr
 #'    \code{reqdPkgs} \tab List of R package names required by the module. \cr
 #'    \code{parameters} \tab A data.frame specifying the parameters used in the module. Usually produced by \code{rbind}-ing the outputs of multiple \code{\link{defineParameter}} calls. \cr
-#'    \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, and \code{other}. \cr
+#'    \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, \code{sourceURL}, and \code{other}. \cr
 #'    \code{outputObjects} \tab A data.frame specifying the data objects output by the module, with columns identical to those in \code{inputObjects}. \cr
 #' }
 #'
@@ -2079,19 +2081,21 @@ setMethod(
   definition=function(sim, x) {
 
     # check that all metadata elements are present
-    metadataRequiredNames <- c("name", "description", "keywords", "childModules",
-                               "authors", "version", "spatialExtent",
-                               "timeframe", "timeunit", "citation", "documentation",
-                               "reqdPkgs", "parameters",
-                               "inputObjects", "outputObjects")
+    metadataRequiredNames <- c(
+      "name", "description", "keywords", "childModules", "authors", "version",
+      "spatialExtent", "timeframe", "timeunit", "citation", "documentation",
+      "reqdPkgs", "parameters", "inputObjects", "outputObjects"
+    )
 
     metadataNames <- metadataRequiredNames %in% names(x)
-    if(!all(metadataNames)) {
-      stop(paste0("The ",x$name," module is missing the metadata for ",
-                  metadataRequiredNames[!metadataNames],". ",
-                  "Please see ?defineModule and ?.moduleDeps ",
-                  "for more information on which named elements exist. ",
-                  " Currently, all elements must be present and valid."))
+    if (!all(metadataNames)) {
+      stop(paste0(
+        "The ",x$name," module is missing the metadata for ",
+        metadataRequiredNames[!metadataNames],". ",
+        "Please see ?defineModule and ?.moduleDeps ",
+        "for more information on which named elements exist. ",
+        " Currently, all elements must be present and valid."
+      ))
     }
 
     loadPackages(x$reqdPkgs)
@@ -2146,6 +2150,8 @@ setMethod(
       stop("invalid module definition: ", x$name,
            ": inputObjects must be a `data.frame`.")
     }
+    ids <- which(x$inputObjects$sourceURL == "")
+    x$inputObjects$sourceURL[ids] <- NA_character_
     if (!is(x$outputObjects, "data.frame")) {
       stop("invalid module definition: ", x$name,
            ": outputObjects must be a `data.frame`.")
