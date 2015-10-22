@@ -251,7 +251,7 @@ setMethod(
       } else {
         warning("All file checksums do not match!")
       }
-      return(cbind(out, results))
+      return(cbind(out, results, stringsAsFactors = FALSE))
     }
   })
 
