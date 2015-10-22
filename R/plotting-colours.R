@@ -32,6 +32,8 @@ setMethod("getColors",
 ################################################################################
 #' Set colours for plotting Raster* objects.
 #'
+#' setColors works as a replacement method or a normal function call
+#'
 #' @param object     A \code{Raster*} object.
 #'
 #' @param ...   Additional arguments to \code{colorRampPalette}.
@@ -56,6 +58,29 @@ setMethod("getColors",
 #'
 #' @author Alex Chubaty
 #'
+setGeneric("setColors", function(object, value, n) {
+  standardGeneric("setColors")
+})
+
+#' @rdname setColors
+setMethod("setColors",
+          signature("RasterLayer", "character", "numeric"),
+          function(object, value, n) {
+            setColors(object=object, n=n) <- value
+            return(object)
+          }
+)
+
+#' @rdname setColors
+setMethod("setColors",
+          signature("RasterLayer", "character", "missing"),
+          function(object, value) {
+            setColors(object=object) <- value
+            return(object)
+          }
+)
+
+#' @rdname setColors
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
