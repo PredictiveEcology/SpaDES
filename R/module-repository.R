@@ -163,10 +163,11 @@ setMethod(
     path <- checkPath(path, create = FALSE)
     urls <- moduleMetadata(module, path)$inputObjects$sourceURL
     ids <- which( urls == "" | is.na(urls) )
+    to.dl <- ifelse(length(ids), urls[-ids], urls)
 
-    if (length(urls[-ids])) {
+    if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
-      files <- lapply(urls[-ids], function(x) {
+      files <- lapply(to.dl, function(x) {
         download(x, destfile = file.path(path, module, "data", basename(x)), quiet = TRUE)
         basename(x)
       })
