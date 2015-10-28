@@ -176,6 +176,7 @@ setMethod("append_attr",
 #' @export
 #' @docType methods
 #' @rdname loadPackages
+# @importFrom igraph '%>%'
 # @importFrom utils install.packages
 #'
 #' @author Alex Chubaty
@@ -193,31 +194,36 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
 
 #' @rdname loadPackages
 setMethod("loadPackages",
-          signature="character",
-          definition=function(packageList, install, quiet) {
-            if (install) {
-              repos <- getOption("repos")
-              if ( is.null(repos) | any(repos=="") ) {
-                repos <- "https://cran.rstudio.com"
+          signature = "character",
+          definition = function(packageList, install, quiet) {
+            packageList <- na.omit(packageList) %>% as.character
+            if (length(packageList)) {
+              if (install) {
+                repos <- getOption("repos")
+                if ( is.null(repos) | any(repos=="") ) {
+                  repos <- "https://cran.rstudio.com"
+                }
+                installed <- unname(installed.packages()[,"Package"])
+                toInstall <- packageList[packageList %in% installed]
+                install.packages(toInstall, repos=repos)
               }
-              installed <- unname(installed.packages()[,"Package"])
-              toInstall <- packageList[packageList %in% installed]
-              install.packages(toInstall, repos=repos)
-            }
 
-            loaded <- sapply(packageList, require, character.only=TRUE)
+              loaded <- sapply(packageList, require, character.only=TRUE)
 
-            if (!quiet) {
-              message(paste("Loaded", length(which(loaded==TRUE)), "of",
-                            length(packageList), "packages.", sep=" "))
+              if (!quiet) {
+                message(paste("Loaded", length(which(loaded==TRUE)), "of",
+                              length(packageList), "packages.", sep=" "))
+              }
+            } else {
+              loaded <- character()
             }
             return(invisible(loaded))
 })
 
 #' @rdname loadPackages
 setMethod("loadPackages",
-          signature="list",
-          definition=function(packageList, install, quiet) {
+          signature = "list",
+          definition = function(packageList, install, quiet) {
             loadPackages(unlist(packageList), install, quiet)
 })
 
