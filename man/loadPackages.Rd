@@ -3,6 +3,7 @@
 \docType{methods}
 \name{loadPackages}
 \alias{loadPackages}
+\alias{loadPackages,NULL-method}
 \alias{loadPackages,character-method}
 \alias{loadPackages,list-method}
 \title{Load packages.}
@@ -13,6 +14,8 @@ loadPackages(packageList, install = FALSE, quiet = TRUE)
   quiet = TRUE)
 
 \S4method{loadPackages}{list}(packageList, install = FALSE, quiet = TRUE)
+
+\S4method{loadPackages}{`NULL`}(packageList, install = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{packageList}{A list of character strings specifying

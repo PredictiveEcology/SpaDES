@@ -68,8 +68,7 @@ setMethod("setColors",
           function(object, value, n) {
             setColors(object=object, n=n) <- value
             return(object)
-          }
-)
+})
 
 #' @rdname setColors
 setMethod("setColors",
@@ -77,8 +76,7 @@ setMethod("setColors",
           function(object, value) {
             setColors(object=object) <- value
             return(object)
-          }
-)
+})
 
 #' @rdname setColors
 setGeneric("setColors<-",
