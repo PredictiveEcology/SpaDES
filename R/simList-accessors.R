@@ -2150,8 +2150,13 @@ setMethod(
       stop("invalid module definition: ", x$name,
            ": inputObjects must be a `data.frame`.")
     }
+    if (is.null(x$inputObjects$sourceURL)) {
+      x$inputObjects$sourceURL <- rep(NA_character_, NROW(x$inputObjects))
+    }
     ids <- which(x$inputObjects$sourceURL == "")
-    x$inputObjects$sourceURL[ids] <- NA_character_
+    if (length(ids)) {
+      x$inputObjects$sourceURL[ids] <- NA_character_
+    }
     if (!is(x$outputObjects, "data.frame")) {
       stop("invalid module definition: ", x$name,
            ": outputObjects must be a `data.frame`.")
