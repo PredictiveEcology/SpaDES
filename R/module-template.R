@@ -365,16 +365,16 @@ Description of the module outputs.
 Describe any anticipated linkages to other modules.
 
 ",
-file=filenameRmd, fill=FALSE, sep="")
+    file=filenameRmd, fill=FALSE, sep="")
 
 ### Make citation.bib file
 cat("
 @Manual{,
-title = {",name,"},
+title = {", name ,"},
 author = {{Authors}},
 organization = {Organization},
 address = {Somewhere, Someplace},
-year = {2015},
+year = {", format(Sys.Date(), "%Y"), "},
 url = {},
 }
 ",
@@ -382,31 +382,19 @@ file=filenameCitation, fill=FALSE, sep="")
 
 ### Make LICENSE file
 cat("
-    # Provide explicit details of the license for this module.
-    # See http://choosealicense.com for help selecting one.",
+# Provide explicit details of the license for this module.
+# See http://choosealicense.com for help selecting one.",
     file=filenameLICENSE, fill=FALSE, sep="")
 
 ### Make README file
 cat("
 Any other details that a user may need to know, like where to get more information,
- where to download data etc.",
+where to download data etc.",
     file=filenameREADME, fill=FALSE, sep="")
 
-# If we choose to have the pdf of the documentation file made at this stage, uncomment this.
-#  Requires pandoc to be installed and working
-# knit(filenameRmd, output=filenameMd)
-# system(paste("pandoc",filenameMd,
-#              "--to latex --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash-implicit_figures",
-#              "-o", filenamePdf,
-#              "--template \"C:\\Eliot\\R\\win-library\\3.1\\rmarkdown\\rmd\\latex\\default.tex\"",
-#              "--highlight-style tango",
-#              "--latex-engine pdflatex",
-#              "--variable \"geometry:margin=1in\"
-#              "))
-# file.remove(filenameMd)
+    if(open) { file.edit(filenameRmd) }
 
-if(open) { file.edit(filenameRmd) }
-
+    return(invisible(NULL))
 })
 
 #' @export
