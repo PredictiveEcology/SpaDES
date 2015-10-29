@@ -227,6 +227,13 @@ setMethod("loadPackages",
             loadPackages(unlist(packageList), install, quiet)
 })
 
+#' @rdname loadPackages
+setMethod("loadPackages",
+          signature = "NULL",
+          definition = function(packageList, install, quiet) {
+            return(invisible(character()))
+})
+
 ################################################################################
 #' Normalize filepath.
 #'
