@@ -218,7 +218,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
 ### add additional events as needed by copy/pasting from above\n",
     file = filenameR, fill = FALSE, sep = "")
-    if (open) file.edit(filenameR)
+    if (open) { file.edit(filenameR) }
 
     ### Make Rmarkdown file for module documentation
     newModuleDocumentation(name=name, path=path, open=open)
@@ -285,8 +285,62 @@ date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
 
+# Overview
+
+Provide an overview of what the module does / how to use the module.
+
 Module documentation should be written so that others can use your module.
-This is a template for module documentation, and should be changed.
+This is a template for module documentation, and should be changed to reflect your module.
+
+## RMarkdown
+
+RMarkdown syntax allows R code, outputs, and figures to be rendered in the documentation.
+
+For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+
+# Usage
+
+```{r module_usage}
+library(SpaDES)
+
+inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
+outputDir <- file.path(tempdir(), \"outputs\")
+times <- list(start = 0, end = 10)
+parameters <- list(
+  .globals = list(burnStats = \"nPixelsBurned\"),
+  .progress = list(type = \"text\", interval = 1),
+  cropReprojectLccAge = list(useCache=TRUE),
+  forestSuccessionBeacons = list(
+    returnInterval = 1, startTime = times$start,
+    .plotInitialTime = times$start, .plotInterval = 1),
+  forestAge = list(
+    returnInterval = 1, startTime = times$start+0.5,
+    .plotInitialTime = times$start, .plotInterval = 1),
+  fireSpreadLcc = list(
+    nFires = 3, its = 1e6, drought = 1.2, persistprob = 0, returnInterval = 1,
+    startTime = times$start+1, .plotInitialTime = times$start, .plotInterval = 1),
+  caribouMovementLcc = list(
+    N = 1e3, moveInterval = 1, startTime = times$start+1, torus = TRUE,
+    glmInitialTime = NA_real_, .plotInitialTime = times$start, .plotInterval = 1)
+)
+modules <- list(\"", name, "\")
+  objects <- list()
+  paths <- list(
+    cachePath = file.path(outputDir, \"cache\"),
+    modulePath = file.path(\"..\"),
+    inputPath = inputDir,
+    outputPath = outputDir
+)
+
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
+
+spades(mySim)
+```
+
+# Events
+
+Describe what happens for each event type.
 
 ## Plotting
 
@@ -296,49 +350,20 @@ Write what is plotted.
 
 Write what is saved.
 
+# Data dependencies
+
 ## Input data
+
+How to obtain input data, and a description of the data required by the module.
 
 ## Output data
 
-## Anticipated linkages to other modules
+Description of the module outputs.
 
-## Other Markdown help
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/. We have also included
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+# Links to other modules
 
-output:
-rmarkdown::html_vignette:
-css: mystyles.css
+Describe any anticipated linkages to other modules.
 
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side.
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
-
-You can enable figure captions by `fig_caption: yes` in YAML:
-
-output:
-rmarkdown::html_vignette:
-fig_caption: yes
-
-Then you can use the chunk option `fig.cap = \"Your figure caption.\"` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\\beta + \\epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> \"He who gives up [code] safety for [code] speed deserves neither.\"
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
 ",
 file=filenameRmd, fill=FALSE, sep="")
 
@@ -380,7 +405,7 @@ Any other details that a user may need to know, like where to get more informati
 #              "))
 # file.remove(filenameMd)
 
-if(open) file.edit(filenameRmd)
+if(open) { file.edit(filenameRmd) }
 
 })
 
