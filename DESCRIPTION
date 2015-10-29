@@ -100,5 +100,4 @@ Collate:
     'spades-package.R'
     'splitRaster.R'
     'spread-process.R'
-    'temp.R'
     'zzz.R'
