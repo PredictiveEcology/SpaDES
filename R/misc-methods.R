@@ -70,8 +70,8 @@ setGeneric("updateList", function(x, y) {
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("list", "list"),
-          definition=function(x, y) {
+          signature = c("list", "list"),
+          definition = function(x, y) {
             if (any(is.null(names(x)), is.null(names(y)))) {
               stop("All elements in lists x,y must be named.")
             } else {
@@ -83,8 +83,8 @@ setMethod("updateList",
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("NULL", "list"),
-          definition=function(x, y) {
+          signature = c("NULL", "list"),
+          definition = function(x, y) {
             if (is.null(names(y))) {
               stop("All elements in list y must be named.")
             }
@@ -93,8 +93,8 @@ setMethod("updateList",
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("list", "NULL"),
-          definition=function(x, y) {
+          signature = c("list", "NULL"),
+          definition = function(x, y) {
             if (is.null(names(x))) {
               stop("All elements in list x must be named.")
             }
@@ -103,8 +103,8 @@ setMethod("updateList",
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("NULL", "NULL"),
-          definition=function(x, y) {
+          signature = c("NULL", "NULL"),
+          definition = function(x, y) {
             return(list())
 })
 

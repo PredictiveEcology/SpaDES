@@ -63,7 +63,7 @@ setGeneric(
 #' @rdname parseModule
 setMethod(
   ".parseModule",
-  signature(sim="simList", modules="list"),
+  signature(sim = "simList", modules = "list"),
   definition=function(sim, modules) {
     all_children <- list()
     children <- list()
@@ -121,6 +121,7 @@ setMethod(
     return(sim)
   }
 )
+
 ################################################################################
 #' Initialize a new simulation
 #'
@@ -299,7 +300,7 @@ setMethod(
     pnames <- unique(c(paste0(".", core[-omit]), names(params(sim))))
 
     if ( (is.null(params$.progress)) || (any(is.na(params$.progress))) ) {
-      params$.progress <- list(type=NA_character_, interval=NA_real_)
+      params$.progress <- list(type = NA_character_, interval = NA_real_)
     }
 
     tmp <- list()
@@ -326,7 +327,7 @@ setMethod(
       ### add NAs to any of the dotParams that are not specified by user
       # ensure the modules sublist exists by creating a tmp value in it
       if(is.null(params(sim)[[m]])) {
-        params(sim)[[m]] <- list(.tmp=NA_real_)
+        params(sim)[[m]] <- list(.tmp = NA_real_)
       }
 
       # add the necessary values to the sublist
@@ -355,11 +356,16 @@ setMethod(
     # load files in the filelist
     if (length(inputs)>0) {
       inputs(sim) <- inputs
-      if (NROW(events(sim)[moduleName=="load" & eventType=="inputs" & eventTime==start(sim)])>0) {
+      if (NROW(events(sim)[
+        moduleName == "load" &
+        eventType == "inputs" &
+        eventTime == start(sim)]
+        ) > 0) {
         sim <- doEvent.load(sim, time(sim, "second"), "inputs")
-        events(sim) <- events(sim, "second")[!(eventTime==time(sim, "second") &
-                                                 moduleName=="load" &
-                                                 eventType=="inputs"),]
+        events(sim) <- events(sim, "second")[
+          !(eventTime==time(sim, "second") &
+              moduleName=="load" &
+              eventType=="inputs"),]
       }
     }
 
@@ -408,9 +414,9 @@ setMethod(
             paths="list", inputs="data.frame", outputs="missing",
             loadOrder="character"),
   definition=function(times, params, modules, objects, paths, inputs, loadOrder) {
-    sim <- simInit(times=times, params=params, modules=modules, objects=objects,
-                   paths=paths, inputs=inputs, outputs=as.data.frame(NULL),
-                   loadOrder=character())
+    sim <- simInit(times = times, params = params, modules = modules,
+                   objects = objects, paths = paths, inputs = inputs,
+                   outputs = as.data.frame(NULL), loadOrder = character())
   return(invisible(sim))
 })
 
@@ -1000,9 +1006,9 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 #' @rdname scheduleEvent
 setMethod(
   "scheduleEvent",
-  signature(sim="simList", eventTime="numeric", moduleName="character",
-            eventType="character"),
-  definition=function(sim, eventTime, moduleName, eventType) {
+  signature(sim = "simList", eventTime = "numeric", moduleName = "character",
+            eventType = "character"),
+  definition = function(sim, eventTime, moduleName, eventType) {
     if (length(eventTime)) {
       if (!is.na(eventTime)) {
         # if there is no metadata, meaning for the first
