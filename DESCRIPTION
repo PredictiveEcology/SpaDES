@@ -68,8 +68,8 @@ ByteCompile: yes
 Collate:
     'agent.R'
     'SELES.R'
-    'module-dependencies-class.R'
     'misc-methods.R'
+    'module-dependencies-class.R'
     'simList-class.R'
     'check.R'
     'environment.R'
