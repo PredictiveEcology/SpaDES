@@ -2,16 +2,15 @@
 #' The \code{simList} class
 #'
 #' Contains the minimum components of a \code{SpaDES} simulation.
+#' Various slot accessor methods (i.e., get and set functions) are provided
+#' (see 'Accessor Methods' below).
 #'
 #' Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
-#' Here, we implement a discrete event simulation in a more modular fashion so it's
-#' easier to add simulation components (i.e., "simulation modules").
+#' Here, we implement a discrete event simulation in a more modular fashion so
+#' it's easier to add simulation components (i.e., "simulation modules").
 #' We use S4 classes and methods, and use \code{\link{data.table}} instead of
 #' \code{\link{data.frame}} to implement the event queue (because it is much
 #' more efficient).
-#'
-#' Various slot accessor methods (i.e., get and set functions) are provided
-#' (see 'Accessor Methods' below).
 #'
 #' @note The \code{simList} class extends the \code{.simList} superclass by adding
 #' a slot \code{.envir} to store the simulation environment containing references
