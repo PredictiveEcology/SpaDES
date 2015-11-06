@@ -108,6 +108,7 @@ setReplaceMethod("setColors",
                    return(object)
 })
 
+#' @export
 #' @rdname setColors
 setGeneric("setColors", function(object, value, n) {
   standardGeneric("setColors")
