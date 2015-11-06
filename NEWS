@@ -2,6 +2,8 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.0.4
 =============
+* require R version 3.2.2 or higher
+* remove `downloader` from Imports (#203)
 * add data source info module metadata (#205)
 * new function `downloadData` to download module data (with #205)
 * new function `checksums` to verify MD5 hashes of data files (with #205)
