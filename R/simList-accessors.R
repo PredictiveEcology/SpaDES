@@ -1121,14 +1121,18 @@ setReplaceMethod(
 #' Accessor functions for the \code{paths} slot in a \code{simList} object.
 #'
 #' These are ways to add or access the file paths used by \code{\link{spades}}.
-#' There are three file paths: \code{modulePath}, \code{inputPath}, \code{outputPath}.
+#' There are four file paths: \code{cachePath}, \code{modulePath},
+#' \code{inputPath}, and \code{outputPath}.
 #' Each has a function to get or set the value in a \code{simList} object.
+#' When not otherwise specified, the default is to set the path values to the
+#' current working directory.
 #'
 #' \tabular{lll}{
+#'    \code{cachePath} \tab \code{NA} \tab Global simulation cache path.\cr
 #'    \code{modulePath} \tab \code{NA} \tab Global simulation module path.\cr
-#'    \code{outputPath} \tab \code{NA} \tab Global simulation output path.\cr
 #'    \code{inputPath} \tab \code{NA} \tab Global simulation input path.\cr
-#'    \code{paths} \tab \code{NA} \tab Global simulation paths (modules, inputs, outputs).\cr
+#'    \code{outputPath} \tab \code{NA} \tab Global simulation output path.\cr
+#'    \code{paths} \tab \code{NA} \tab Global simulation paths (cache, modules, inputs, outputs).\cr
 #' }
 #'
 #' @param object A \code{simList} simulation object.
@@ -1180,22 +1184,64 @@ setReplaceMethod(
   "paths",
   signature=".simList",
   function(object, value) {
-    # get named elements and their position in value list
-    wh <- pmatch(c("m","i","o"),names(value))
+    N <- 4 # total number of named paths (cache, madule, input, output)
 
-    # keep named elements, use unnamed in remaining order: module, input, output
-    if (length(na.omit(wh))<length(value)) {
-      wh1 <- !(wh[1:length(value)] %in% (1:3)[1:length(value)])
-      wh2 <- !((1:3)[1:length(value)] %in% wh[1:length(value)])
-      if (length(wh1)<3) wh1 <- c(wh1, rep(FALSE, 3-length(wh1)))
-      if (length(wh2)<3) wh2 <- c(wh2, rep(FALSE, 3-length(wh2)))
-      wh[wh1] <- (1:3)[wh2]
+    # get named elements and their position in value list
+    wh <- pmatch(c("c", "m", "i", "o"), names(value))
+
+    # keep named elements, use unnamed in remaining order:
+    #  cache, module, input, output
+    if (length(na.omit(wh)) < length(value)) {
+      wh1 <- !(wh[1:length(value)] %in% (1:N)[1:length(value)])
+      wh2 <- !((1:N)[1:length(value)] %in% wh[1:length(value)])
+      if (length(wh1)<N) wh1 <- c(wh1, rep(FALSE, N-length(wh1)))
+      if (length(wh2)<N) wh2 <- c(wh2, rep(FALSE, N-length(wh2)))
+      wh[wh1] <- (1:N)[wh2]
     }
 
     object@paths[!is.na(wh)] <- value[na.omit(wh)]
     object@paths[is.na(wh)] <- lapply(object@paths[is.na(wh)], function(x) getwd())
 
-    names(object@paths) <- c("modulePath", "inputPath", "outputPath")
+    names(object@paths) <- c("cachePath", "modulePath", "inputPath", "outputPath")
+    validObject(object)
+    return(object)
+})
+
+################################################################################
+#' @inheritParams paths
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-paths
+#'
+setGeneric("cachePath", function(object) {
+  standardGeneric("cachePath")
+})
+
+#' @export
+#' @rdname simList-accessors-paths
+setMethod("cachePath",
+          signature=".simList",
+          definition=function(object) {
+            return(object@paths$cachePath)
+})
+
+#' @export
+#' @rdname simList-accessors-paths
+setGeneric("cachePath<-",
+           function(object, value) {
+             standardGeneric("cachePath<-")
+})
+
+#' @name cachePath<-
+#' @aliases cachePath<-,.simList-method
+#' @rdname simList-accessors-paths
+#' @export
+setReplaceMethod(
+  "cachePath",
+  signature=".simList",
+  function(object, value) {
+    object@paths$cachePath <- unname(unlist(value))
     validObject(object)
     return(object)
 })
@@ -1928,19 +1974,20 @@ setGeneric(".addDepends", function(sim, x) {
 })
 
 #' @rdname addDepends
-setMethod(".addDepends",
-          signature(sim=".simList", x=".moduleDeps"),
-          definition=function(sim, x) {
-            deps <- depends(sim)
-            n <- length(deps@dependencies)
-            if (n==1L) {
-              if (is.null(deps@dependencies[[1L]])) n <- 0L
-            }
-            deps@dependencies[[n+1L]] <- x
-            dupes <- which(duplicated(deps@dependencies))
-            if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
-            depends(sim) <- deps
-            return(sim)
+setMethod(
+  ".addDepends",
+  signature(sim = ".simList", x = ".moduleDeps"),
+  definition = function(sim, x) {
+    deps <- depends(sim)
+    n <- length(deps@dependencies)
+    if (n==1L) {
+      if (is.null(deps@dependencies[[1L]])) n <- 0L
+    }
+    deps@dependencies[[n+1L]] <- x
+    dupes <- which(duplicated(deps@dependencies))
+    if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
+    depends(sim) <- deps
+    return(sim)
 })
 
 ################################################################################
@@ -1964,17 +2011,18 @@ setGeneric("packages", function(sim) {
 
 #' @export
 #' @rdname packages
-setMethod("packages",
-          signature(sim=".simList"),
-          definition=function(sim) {
-            pkgs <- lapply(depends(sim)@dependencies, function(x) {
-              x@reqdPkgs
-              }) %>%
-              unlist %>%
-              append("SpaDES") %>%
-              unique %>%
-              sort
-            return(pkgs)
+setMethod(
+  "packages",
+  signature(sim = ".simList"),
+  definition = function(sim) {
+    pkgs <- lapply(depends(sim)@dependencies, function(x) {
+        x@reqdPkgs
+      }) %>%
+      unlist %>%
+      append("SpaDES") %>%
+      unique %>%
+      sort
+    return(pkgs)
 })
 
 ################################################################################
@@ -1999,7 +2047,7 @@ setMethod("packages",
 #'    \code{documentation} \tab List of filenames refering to module documentation sources. \cr
 #'    \code{reqdPkgs} \tab List of R package names required by the module. \cr
 #'    \code{parameters} \tab A data.frame specifying the parameters used in the module. Usually produced by \code{rbind}-ing the outputs of multiple \code{\link{defineParameter}} calls. \cr
-#'    \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, and \code{other}. \cr
+#'    \code{inputObjects} \tab A data.frame specifying the data objects required as inputs to the module, with columns \code{objectName}, \code{objectClass}, \code{sourceURL}, and \code{other}. \cr
 #'    \code{outputObjects} \tab A data.frame specifying the data objects output by the module, with columns identical to those in \code{inputObjects}. \cr
 #' }
 #'
@@ -2033,19 +2081,21 @@ setMethod(
   definition=function(sim, x) {
 
     # check that all metadata elements are present
-    metadataRequiredNames <- c("name", "description", "keywords", "childModules",
-                               "authors", "version", "spatialExtent",
-                               "timeframe", "timeunit", "citation", "documentation",
-                               "reqdPkgs", "parameters",
-                               "inputObjects", "outputObjects")
+    metadataRequiredNames <- c(
+      "name", "description", "keywords", "childModules", "authors", "version",
+      "spatialExtent", "timeframe", "timeunit", "citation", "documentation",
+      "reqdPkgs", "parameters", "inputObjects", "outputObjects"
+    )
 
     metadataNames <- metadataRequiredNames %in% names(x)
-    if(!all(metadataNames)) {
-      stop(paste0("The ",x$name," module is missing the metadata for ",
-                  metadataRequiredNames[!metadataNames],". ",
-                  "Please see ?defineModule and ?.moduleDeps ",
-                  "for more information on which named elements exist. ",
-                  " Currently, all elements must be present and valid."))
+    if (!all(metadataNames)) {
+      stop(paste0(
+        "The ",x$name," module is missing the metadata for ",
+        metadataRequiredNames[!metadataNames],". ",
+        "Please see ?defineModule and ?.moduleDeps ",
+        "for more information on which named elements exist. ",
+        " Currently, all elements must be present and valid."
+      ))
     }
 
     loadPackages(x$reqdPkgs)
@@ -2099,6 +2149,13 @@ setMethod(
     if (!is(x$inputObjects, "data.frame")) {
       stop("invalid module definition: ", x$name,
            ": inputObjects must be a `data.frame`.")
+    }
+    if (is.null(x$inputObjects$sourceURL)) {
+      x$inputObjects$sourceURL <- rep(NA_character_, NROW(x$inputObjects))
+    }
+    ids <- which(x$inputObjects$sourceURL == "")
+    if (length(ids)) {
+      x$inputObjects$sourceURL[ids] <- NA_character_
     }
     if (!is(x$outputObjects, "data.frame")) {
       stop("invalid module definition: ", x$name,

@@ -45,39 +45,47 @@ setGeneric("newModule", function(name, path, open) {
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="character", open="logical"),
-          definition = function(name, path, open) {
-            path <- checkPath(path, create=TRUE)
-            nestedPath <- file.path(path, name)
-            checkPath(nestedPath, create=TRUE)
-            filenameR <- file.path(nestedPath, paste0(name, ".R"))
+setMethod(
+  "newModule",
+  signature=c(name="character", path="character", open="logical"),
+  definition = function(name, path, open) {
+    path <- checkPath(path, create=TRUE)
+    nestedPath <- file.path(path, name)
+    dataPath <- file.path(nestedPath, "data")
+    checkPath(nestedPath, create=TRUE)
+    checkPath(dataPath, create=TRUE)
 
-            cat("
+    # empty data checksum file
+    cat("", file = file.path(dataPath, "CHECKSUMS.txt"))
+
+    # module code
+    filenameR <- file.path(nestedPath, paste0(name, ".R"))
+
+    cat("
 # Everything in this file gets sourced during simInit, and all functions and objects
 #  are put into the simList. To use objects and functions, use sim$xxx.
 defineModule(sim, list(
-  name=\"", name, "\",
-  description=\"insert module description here\",
-  keywords=c(\"insert key words here\"),
-  authors=c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
-  childModules=character(),
-  version=numeric_version(\"0.0.0\"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_character_, # e.g., \"year,\",
-  citation=list(\"citation.bib\"),
-  documentation=list(\"README.txt\", \"", name, ".Rmd\"),
-  reqdPkgs=list(),
-  parameters=rbind(
+  name = \"", name, "\",
+  description = \"insert module description here\",
+  keywords = c(\"insert key words here\"),
+  authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
+  childModules = character(),
+  version = numeric_version(\"0.0.0\"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = NA_character_, # e.g., \"year,\",
+  citation = list(\"citation.bib\"),
+  documentation = list(\"README.txt\", \"", name, ".Rmd\"),
+  reqdPkgs = list(),
+  parameters = rbind(
     #defineParameter(\"paramName\", \"paramClass\", value, min, max, \"parameter description\")),
     defineParameter(\".plotInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".plotInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first plot event should occur\"),
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
   ),
-  inputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
+  inputObjects = data.frame(objectName=NA_character_, objectClass=NA_character_, sourceURL=\"\", other=NA_character_, stringsAsFactors=FALSE),
+  outputObjects = data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
 ))
 
 ## event types
@@ -209,36 +217,38 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ### add additional events as needed by copy/pasting from above\n",
-            file=filenameR, fill=FALSE, sep="")
-            if(open) file.edit(filenameR)
+    file = filenameR, fill = FALSE, sep = "")
+    if (open) { file.edit(filenameR) }
 
-            ### Make Rmarkdown file for module documentation
-            newModuleDocumentation(name=name, path=path, open=open)
-
+    ### Make Rmarkdown file for module documentation
+    newModuleDocumentation(name=name, path=path, open=open)
 })
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="missing", open="logical"),
-          definition = function(name, open) {
-            newModule(name=name, path=".", open=open)
+setMethod(
+  "newModule",
+  signature=c(name="character", path="missing", open="logical"),
+  definition = function(name, open) {
+    newModule(name=name, path=".", open=open)
 })
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="character", open="missing"),
-          definition = function(name, path) {
-            newModule(name=name, path=path, open=TRUE)
+setMethod(
+  "newModule",
+  signature = c(name="character", path="character", open="missing"),
+  definition = function(name, path) {
+    newModule(name=name, path=path, open=TRUE)
 })
 
 #' @export
 #' @rdname newModule
-setMethod("newModule",
-          signature=c(name="character", path="missing", open="missing"),
-          definition = function(name) {
-            newModule(name=name, path=".", open=TRUE)
+setMethod(
+  "newModule",
+  signature=c(name="character", path="missing", open="missing"),
+  definition = function(name) {
+    newModule(name=name, path=".", open=TRUE)
 })
 
 ###########################################################################
@@ -254,19 +264,20 @@ setGeneric("newModuleDocumentation", function(name, path, open) {
 
 #' @export
 #' @rdname newModule
-setMethod("newModuleDocumentation",
-          signature=c(name="character", path="character", open="logical"),
-          definition = function(name, path, open) {
-            path <- checkPath(path, create=TRUE)
-            nestedPath <- file.path(path, name)
-            checkPath(nestedPath, create=TRUE)
-            filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
-            filenameCitation <- file.path(nestedPath, "citation.bib")
-            filenameLICENSE <- file.path(nestedPath, "LICENSE")
-            filenameREADME <- file.path(nestedPath, "README.txt")
+setMethod(
+  "newModuleDocumentation",
+  signature = c(name="character", path="character", open="logical"),
+  definition = function(name, path, open) {
+    path <- checkPath(path, create=TRUE)
+    nestedPath <- file.path(path, name)
+    checkPath(nestedPath, create=TRUE)
+    filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
+    filenameCitation <- file.path(nestedPath, "citation.bib")
+    filenameLICENSE <- file.path(nestedPath, "LICENSE")
+    filenameREADME <- file.path(nestedPath, "README.txt")
 
-### Make Rmarkdown file for module documentation
-cat(
+    ### Make Rmarkdown file for module documentation
+    cat(
 "---
 title: \"",name,"\"
 author: \"Module Author\"
@@ -274,8 +285,62 @@ date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
 ---
 
+# Overview
+
+Provide an overview of what the module does / how to use the module.
+
 Module documentation should be written so that others can use your module.
-This is a template for module documentation, and should be changed.
+This is a template for module documentation, and should be changed to reflect your module.
+
+## RMarkdown
+
+RMarkdown syntax allows R code, outputs, and figures to be rendered in the documentation.
+
+For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
+
+# Usage
+
+```{r module_usage}
+library(SpaDES)
+
+inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
+outputDir <- file.path(tempdir(), \"outputs\")
+times <- list(start = 0, end = 10)
+parameters <- list(
+  .globals = list(burnStats = \"nPixelsBurned\"),
+  .progress = list(type = \"text\", interval = 1),
+  cropReprojectLccAge = list(useCache=TRUE),
+  forestSuccessionBeacons = list(
+    returnInterval = 1, startTime = times$start,
+    .plotInitialTime = times$start, .plotInterval = 1),
+  forestAge = list(
+    returnInterval = 1, startTime = times$start+0.5,
+    .plotInitialTime = times$start, .plotInterval = 1),
+  fireSpreadLcc = list(
+    nFires = 3, its = 1e6, drought = 1.2, persistprob = 0, returnInterval = 1,
+    startTime = times$start+1, .plotInitialTime = times$start, .plotInterval = 1),
+  caribouMovementLcc = list(
+    N = 1e3, moveInterval = 1, startTime = times$start+1, torus = TRUE,
+    glmInitialTime = NA_real_, .plotInitialTime = times$start, .plotInterval = 1)
+)
+modules <- list(\"", name, "\")
+  objects <- list()
+  paths <- list(
+    cachePath = file.path(outputDir, \"cache\"),
+    modulePath = file.path(\"..\"),
+    inputPath = inputDir,
+    outputPath = outputDir
+)
+
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
+
+spades(mySim)
+```
+
+# Events
+
+Describe what happens for each event type.
 
 ## Plotting
 
@@ -285,60 +350,31 @@ Write what is plotted.
 
 Write what is saved.
 
+# Data dependencies
+
 ## Input data
+
+How to obtain input data, and a description of the data required by the module.
 
 ## Output data
 
-## Anticipated linkages to other modules
+Description of the module outputs.
 
-## Other Markdown help
-For help writing in RMarkdown, see http://rmarkdown.rstudio.com/. We have also included
-The `html_vignette` template includes a basic CSS theme. To override this theme you can specify your own CSS in the document metadata as follows:
+# Links to other modules
 
-output:
-rmarkdown::html_vignette:
-css: mystyles.css
+Describe any anticipated linkages to other modules.
 
-## Figures
-
-The figure sizes have been customised so that you can easily put two images side-by-side.
-
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
-```
-
-You can enable figure captions by `fig_caption: yes` in YAML:
-
-output:
-rmarkdown::html_vignette:
-fig_caption: yes
-
-Then you can use the chunk option `fig.cap = \"Your figure caption.\"` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\\beta + \\epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
-
-Also a quote using `>`:
-
-> \"He who gives up [code] safety for [code] speed deserves neither.\"
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
 ",
-file=filenameRmd, fill=FALSE, sep="")
+    file=filenameRmd, fill=FALSE, sep="")
 
 ### Make citation.bib file
 cat("
 @Manual{,
-title = {",name,"},
+title = {", name ,"},
 author = {{Authors}},
 organization = {Organization},
 address = {Somewhere, Someplace},
-year = {2015},
+year = {", format(Sys.Date(), "%Y"), "},
 url = {},
 }
 ",
@@ -346,31 +382,19 @@ file=filenameCitation, fill=FALSE, sep="")
 
 ### Make LICENSE file
 cat("
-    # Provide explicit details of the license for this module.
-    # See http://choosealicense.com for help selecting one.",
+# Provide explicit details of the license for this module.
+# See http://choosealicense.com for help selecting one.",
     file=filenameLICENSE, fill=FALSE, sep="")
 
 ### Make README file
 cat("
 Any other details that a user may need to know, like where to get more information,
- where to download data etc.",
+where to download data etc.",
     file=filenameREADME, fill=FALSE, sep="")
 
-# If we choose to have the pdf of the documentation file made at this stage, uncomment this.
-#  Requires pandoc to be installed and working
-# knit(filenameRmd, output=filenameMd)
-# system(paste("pandoc",filenameMd,
-#              "--to latex --from markdown+autolink_bare_uris+ascii_identifiers+tex_math_single_backslash-implicit_figures",
-#              "-o", filenamePdf,
-#              "--template \"C:\\Eliot\\R\\win-library\\3.1\\rmarkdown\\rmd\\latex\\default.tex\"",
-#              "--highlight-style tango",
-#              "--latex-engine pdflatex",
-#              "--variable \"geometry:margin=1in\"
-#              "))
-# file.remove(filenameMd)
+    if(open) { file.edit(filenameRmd) }
 
-if(open) file.edit(filenameRmd)
-
+    return(invisible(NULL))
 })
 
 #' @export

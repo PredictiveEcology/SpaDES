@@ -39,7 +39,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
   ### default is not to use checkpointing if unspecified
   ### - this default is set when a new simList object is initialized
 
-  useChkpnt = !any(is.na(params(sim)$.checkpoint))
+  useChkpnt <- !any(is.na(params(sim)$.checkpoint))
 
   ### determine checkpoint file location, for use in events below
   if (useChkpnt) {
@@ -72,9 +72,10 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug=FALSE) {
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
     }
   } else {
-    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'", events(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
-
+    warning(
+      paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
+            "\' in module \'", events(sim)[1, "moduleName", with=FALSE],"\'", sep="")
+    )
   }
   return(invisible(sim))
 }
@@ -118,18 +119,18 @@ checkpointLoad = function(file) {
   invisible(TRUE) # return "success" invisibly
 }
 
-
-
 ################################################################################
 #' Cache method for simList class objects
 #'
-#' Because the \code{simList} has an environment as one of its slots, the caching mechanism
-#' of the archivist package does not work. Here, we make a slight tweak to the
-#' \code{cache} function. Specifically, we remove all elements that have an environment
-#' as part of their attributes. This is generally functions that are loaded from the modules,
-#' but also the \code{.envir} slot in the \code{simList}. Thus, only non-function objects are
-#' used as part of the \code{digest} call in the \code{digest} package (used internally in
-#' the \code{cache} function).
+#' Because the \code{simList} has an environment as one of its slots,
+#' the caching mechanism of the archivist package does not work.
+#' Here, we make a slight tweak to the \code{cache} function.
+#' Specifically, we remove all elements that have an environment as part of
+#' their attributes.
+#' This is generally functions that are loaded from the modules,
+#' but also the \code{.envir} slot in the \code{simList}.
+#' Thus, only non-function objects are used as part of the \code{digest} call
+#' in the \code{digest} package (used internally in the \code{cache} function).
 #'
 #' @inheritParams archivist::cache
 #'
@@ -137,13 +138,14 @@ checkpointLoad = function(file) {
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @export
-#' @importFrom archivist cache showLocalRepo loadFromLocalRepo saveToRepo
+#' @importFrom archivist cache loadFromLocalRepo saveToRepo showLocalRepo
 #' @importFrom digest digest
 #' @include simList-class.R
 #' @docType methods
 #' @rdname cache
 #' @author Eliot McIntire
-setGeneric("cache", signature="...", function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
+setGeneric("cache", signature="...",
+           function(cacheRepo=NULL, FUN, ..., notOlderThan=NULL) {
   archivist::cache(cacheRepo, FUN, ..., notOlderThan)
 })
 
@@ -181,25 +183,27 @@ setMethod(
   }
 )
 
-
 ################################################################################
-#' Remove any reference to environments in a simList
+#' Remove any reference to environments in a \code{simList}
 #'
 #' Internal use only. Used when caching a SpaDES run a \code{simList}.
 #'
-#' This is a derivative of the class \code{simList}, except that all references to
-#' local environments are removed. Specifically, all functions (which are contained
-#' within environments) are converted to a text representation via a call to \code{format(fn)}.
-#' Also the objects that were contained within the \code{.envir} slot are hashed using \code{digest}
-#' in the \code{digest} package. Also, \code{paths} slot is not used to allow
-#' comparison across platforms and it is not relevant where the objects are gotten from,
-#' so long as the objects are the same. The \code{.envir} slot is emptied (NULL). The object is then
-#' converted to a \code{simList_} which has a \code{.list} slot. The hashes of the objects
-#' are then placed in that \code{.list} slot.
+#' This is a derivative of the class \code{simList}, except that all references
+#' to local environments are removed.
+#' Specifically, all functions (which are contained within environments) are
+#' converted to a text representation via a call to \code{format(fn)}.
+#' Also the objects that were contained within the \code{.envir} slot are hashed
+#' using \code{digest::digest}.
+#' The \code{paths} slot is not used (to allow comparison across platforms); it's
+#' not relevant where the objects are gotten from, so long as they are the same.
+#' The \code{.envir} slot is emptied (\code{NULL}).
+#' The object is then converted to a \code{simList_} which has a \code{.list} slot.
+#' The hashes of the objects are then placed in that \code{.list} slot.
 #'
 #' @param simList an object of class \code{simList}
 #'
-#' @return A simplified version of the \code{simList} object, but with no reference to any environments
+#' @return A simplified version of the \code{simList} object, but with no
+#'         reference to any environments
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @seealso \code{\link[digest]{digest}}.
@@ -218,7 +222,6 @@ setMethod(
   "makeDigestible",
   signature="simList",
   definition=function(simList) {
-
     envirHash <- (sapply(sort(ls(simList@.envir, all.names=TRUE)), function(x) {
       if(!(x==".sessionInfo")) {
         obj <- get(x, envir=envir(simList))
@@ -266,4 +269,3 @@ setMethod(
     simList
   }
 )
-

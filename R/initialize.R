@@ -147,7 +147,7 @@ gaussMap <- function(x, scale=10, var=1, speedup=10, inMemory=FALSE, ...) {
 #'
 #' @examples
 #' r1 <- randomPolygons(p=c(0.1, 0.3, 0.5), A=0.3)
-#' Plot(r1, cols=c("white","dark green","blue","dark red"), new=TRUE)
+#' Plot(r1, cols=c("white", "dark green", "blue", "dark red"), new=TRUE)
 #'
 randomPolygons <- function(ras=raster(extent(0,15,0,15), res=1), p=0.1, A=0.3,
                            speedup=1, numTypes=1, minpatch=2, ...) {
@@ -309,7 +309,7 @@ specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=N
 #       if (!is.null(numagents)) {
 #         if (is(agentlocation,"Raster")) {
 #           xy=matrix(runif(numagents*2, c(xmin(ext), ymin(ext)), c(xmax(ext), ymax(ext))), ncol=2, byrow=TRUE)
-#           colnames(xy)=c("x","y")
+#           colnames(xy)=c("x", "y")
 #           position <- SpatialPoints(xy)
 #           #                    position <- SpatialPoints(sampleRandom(agentlocation, numagents, xy=TRUE, sp=TRUE))
 #         } else if (is(agentlocation,"SpatialPoints")) {
