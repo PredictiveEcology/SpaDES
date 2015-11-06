@@ -79,8 +79,7 @@ setMethod("getModuleVersion",
 #'
 #' @return Invisibly, a character vector containing a list of extracted files.
 #'
-#' @importFrom downloader download
-# @importFrom utils unzip
+# @importFrom utils unzip download.file
 #' @export
 #' @rdname downloadModule
 #'
@@ -100,7 +99,7 @@ setMethod(
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
     localzip <- file.path(path, basename(zip))
-    download(zip, destfile=localzip, quiet=TRUE)
+    download.file(zip, destfile=localzip, quiet=TRUE)
     files <- unzip(localzip, exdir=file.path(path), overwrite=TRUE)
     return(invisible(files))
 })
@@ -144,7 +143,7 @@ setMethod(
 #' @return Invisibly, a character vector containing a list of downloaded files.
 #'
 #' @include moduleMetadata.R
-#' @importFrom downloader download
+# @importFrom utils download.file
 #' @export
 #' @rdname downloadData
 #'
@@ -168,7 +167,7 @@ setMethod(
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
       files <- lapply(to.dl, function(x) {
-        download(x, destfile = file.path(path, module, "data", basename(x)), quiet = TRUE)
+        download.file(x, destfile = file.path(path, module, "data", basename(x)), quiet = TRUE)
         basename(x)
       })
     } else {
