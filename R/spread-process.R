@@ -142,7 +142,7 @@ setMethod(
     maxSize <- if(!is.null(maxSize)) {
       rep_len(maxSize, length(loci))
     } else {
-      10 * ncell(landscape)
+      ncell(landscape)
     }
 
     if(lowMemory) {
