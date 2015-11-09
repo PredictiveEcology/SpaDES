@@ -2034,7 +2034,7 @@ setMethod(
 #'
 #' @importFrom raster extent
 #' @include simList-class.R
-#' @doctype methods
+#' @docType methods
 #' @rdname emptyMetadata
 #' @author Alex Chubaty
 #'
