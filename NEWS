@@ -8,6 +8,7 @@ version 1.0.4
 * new function `downloadData` to download module data (with #205)
 * new function `checksums` to verify MD5 hashes of data files (with #205)
 * more control of caching behaviour: added `cachePath` to paths slot (#227)
+* use warnings instead of errors for missing modules metadata (#233)
 * improve efficiency of `loadPackages`
 * change .spatialObjects class to spatialObjects and export
 * other bug fixes

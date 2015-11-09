@@ -84,8 +84,19 @@ defineModule(sim, list(
     defineParameter(\".saveInitialTime\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\"),
     defineParameter(\".saveInterval\", \"numeric\", NA, NA, NA, \"This describes the simulation time at which the first save event should occur\")
   ),
-  inputObjects = data.frame(objectName=NA_character_, objectClass=NA_character_, sourceURL=\"\", other=NA_character_, stringsAsFactors=FALSE),
-  outputObjects = data.frame(objectName=NA_character_, objectClass=NA_character_, other=NA_character_, stringsAsFactors=FALSE)
+  inputObjects = data.frame(
+    objectName = NA_character_,
+    objectClass = NA_character_,
+    sourceURL = \"\",
+    other = NA_character_,
+    stringsAsFactors = FALSE
+  ),
+  outputObjects = data.frame(
+    objectName = NA_character_,
+    objectClass = NA_character_,
+    other = NA_character_,
+    stringsAsFactors = FALSE
+  )
 ))
 
 ## event types

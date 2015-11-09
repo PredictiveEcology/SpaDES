@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "0.99.0")
+stopifnot(packageVersion("SpaDES") >= "1.0.3.9010")
 
 defineModule(sim, list(
   name = "fireSpread",
@@ -27,17 +27,17 @@ defineModule(sim, list(
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),
-  inputObjects = data.frame(objectName = c(globals(sim)$stackName,
-                                           globals(sim)$burnStats),
-                            objectClass = c("RasterStack", "numeric"),
-                            sourceURL = c(NA_character_, NA_character_),
-                            other = c(NA_character_, NA_character_),
-                            stringsAsFactors = FALSE),
-  outputObjects = data.frame(objectName = c(globals(sim)$stackName,
-                                            globals(sim)$burnStats),
-                           objectClass = c("RasterStack", "numeric"),
-                           other = c(NA_character_, NA_character_),
-                           stringsAsFactors = FALSE)
+  inputObjects = data.frame(
+    objectName = c(globals(sim)$stackName, globals(sim)$burnStats),
+    objectClass = c("RasterStack", "numeric"),
+    sourceURL = c(NA_character_, NA_character_),
+    other = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE),
+  outputObjects = data.frame(
+    objectName = c(globals(sim)$stackName, globals(sim)$burnStats),
+    objectClass = c("RasterStack", "numeric"),
+    other = c(NA_character_, NA_character_),
+    stringsAsFactors = FALSE)
 ))
 
 ## event types

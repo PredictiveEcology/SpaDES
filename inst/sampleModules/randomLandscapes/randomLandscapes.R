@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "0.99.0")
+stopifnot(packageVersion("SpaDES") >= "1.0.3.9010")
 
 defineModule(sim, list(
   name = "randomLandscapes",
@@ -24,15 +24,12 @@ defineModule(sim, list(
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),
-  inputObjects = data.frame(objectName = character(),
-                            objectClass = character(),
-                            sourceURL = character(),
-                            other = character(),
-                            stringsAsFactors = FALSE),
-  outputObjects = data.frame(objectName = globals(sim)$stackName,
-                             objectClass = "RasterStack",
-                             other = NA_character_,
-                             stringsAsFactors = FALSE)
+  inputObjects = data.frame(
+    objectName = character(), objectClass = character(), sourceURL = character(),
+    other = character(), stringsAsFactors = FALSE),
+  outputObjects = data.frame(
+    objectName = globals(sim)$stackName, objectClass = "RasterStack",
+    other = NA_character_, stringsAsFactors = FALSE)
 ))
 
 ## event types

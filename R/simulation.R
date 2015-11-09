@@ -64,15 +64,15 @@ setGeneric(
 setMethod(
   ".parseModule",
   signature(sim = "simList", modules = "list"),
-  definition=function(sim, modules) {
+  definition = function(sim, modules) {
     all_children <- list()
     children <- list()
     parent_ids <- integer()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
-      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
+      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
-      defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
       # evaluate only the 'defineModule' function of parsedFile
       sim <- eval(parsedFile[defineModuleItem])
@@ -86,16 +86,15 @@ setMethod(
       # assign default param values
       apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
         if (is.character(x$default)) {
-          tt <- paste0("params(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
+          tt <- paste0("params(sim)$", m, "$", x$paramName, "<<-\"", x$default, "\"")
         } else {
-          tt <- paste0("params(sim)$", m, "$", x$name, "<<-", x$default)
+          tt <- paste0("params(sim)$", m, "$", x$paramName, "<<-", x$default)
         }
-        eval(parse(text=tt), envir=environment())
+        eval(parse(text = tt), envir = environment())
       })
 
       # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir=envir(sim))
-      #eval(parsedFile[!defineModuleItem], envir=getNamespace("SpaDES"))
+      eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed=TRUE)
@@ -233,7 +232,7 @@ setMethod(
   definition=function(times, params, modules, objects, paths,
                       inputs, outputs, loadOrder) {
 
-    paths <- lapply(paths, checkPath, create=TRUE)
+    paths <- lapply(paths, checkPath, create = TRUE)
 
     modulesLoaded <- list()
 
@@ -283,10 +282,10 @@ setMethod(
     }
 
     timestep <- inSeconds(timeunit(sim))
-    times(sim) <- list(current=times$start*timestep,
-                       start=times$start*timestep,
-                       end=times$end*timestep,
-                       timeunit=timeunit(sim))
+    times(sim) <- list(current = times$start*timestep,
+                       start = times$start*timestep,
+                       end = times$end*timestep,
+                       timeunit = timeunit(sim))
 
     # load core modules
     for (c in core) {
@@ -354,7 +353,7 @@ setMethod(
     }
 
     # load files in the filelist
-    if (length(inputs)>0) {
+    if (length(inputs)) {
       inputs(sim) <- inputs
       if (NROW(events(sim)[
         moduleName == "load" &
@@ -369,14 +368,14 @@ setMethod(
       }
     }
 
-    if (length(outputs)>0) {
+    if (length(outputs)) {
       outputs(sim) <- outputs
     }
 
     # check the parameters supplied by the user
-    checkParams(sim, core, dotParams, modulePath(sim)) # returns invisible TRUE/FALSE
+    checkParams(sim, core, dotParams, modulePath(sim))
 
-    if(length(objects)>0) {
+    if (length(objects)) {
       # find the simInit call that was responsible for this, get the objects
       #  in the environment of the parents of that call, and pass them to new
       #  environment.
@@ -1130,8 +1129,6 @@ setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
-            #attach(envir(sim), name=envName)
-            #on.exit(detach(pos=match(envName, search())))
 
             while(time(sim, "second") <= end(sim, "second")) {
 

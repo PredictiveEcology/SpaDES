@@ -14,6 +14,52 @@ selectMethod("show", "person")
 removeClass("person4")
 
 ################################################################################
+#' Create an empty (template) inputObjects and outputObjects data.frames
+#'
+#' Internal function.
+#'
+#' @param x Not used. Should be missing.
+#'
+#' @return An empty inputObjects or outputObjects data.frame.
+#'
+#' @docType methods
+#' @rdname inputObjects
+#'
+#' @author Alex Chubaty
+#'
+setGeneric(".inputObjects", function(x) {
+  standardGeneric(".inputObjects")
+})
+
+#' @rdname inputObjects
+setMethod(".inputObjects",
+          signature(x = "missing"),
+          definition = function() {
+            in.df <- data.frame(
+              objectName = character(0), objectClass = character(0),
+              sourceURL = character(0), other = character(0),
+              stringsAsFactors = FALSE
+            )
+            return(in.df)
+})
+
+#' @rdname inputObjects
+setGeneric(".outputObjects", function(x) {
+  standardGeneric(".outputObjects")
+})
+
+#' @rdname inputObjects
+setMethod(".outputObjects",
+          signature(x = "missing"),
+          definition = function() {
+            out.df <- data.frame(
+              objectName = character(), objectClass = character(),
+              other = character(), stringsAsFactors = FALSE
+            )
+            return(out.df)
+})
+
+################################################################################
 #' The \code{.moduleDeps} class
 #'
 #' Descriptor object for specifying SpaDES module dependecies.
@@ -81,40 +127,27 @@ removeClass("person4")
 #'
 setClass(
   ".moduleDeps",
-  slots = list(name = "character", description = "character",
-               keywords = "character", childModules = "character",
-               authors = "person", version = "numeric_version",
-               spatialExtent = "Extent", timeframe = "POSIXt", timeunit = "ANY",
-               citation = "list", documentation = "list", reqdPkgs = "list",
-               parameters = "data.frame",
-               inputObjects = "data.frame", outputObjects = "data.frame"),
-  prototype = list(name = character(), description = character(),
-                   keywords = character(), childModules = character(),
-                   authors = person(), version = numeric_version("0.0.0"),
-                   spatialExtent = extent(rep(NA_real_, 4L)),
-                   timeframe = as.POSIXlt(c(NA, NA)), timeunit = NA_real_,
-                   citation = list(), documentation = list(), reqdPkgs = list(),
-                   parameters = data.frame(
-                     paramName = character(),
-                     paramClass = character(),
-                     default = I(list()), min = numeric(), max = numeric(),
-                     paramDesc = character()
-                   ),
-                   inputObjects = data.frame(
-                     objectName = character(),
-                     objectClass = character(),
-                     sourceURL = character(),
-                     other = character(),
-                     stringsAsFactors = FALSE
-                   ),
-                   outputObjects = data.frame(
-                     objectName = character(),
-                     objectClass = character(),
-                     other = character(),
-                     stringsAsFactors = FALSE
-                   )
-                  ),
-  validity=function(object) {
+  slots = list(
+    name = "character", description = "character", keywords = "character",
+    childModules = "character", authors = "person", version = "numeric_version",
+    spatialExtent = "Extent", timeframe = "POSIXt", timeunit = "ANY",
+    citation = "list", documentation = "list", reqdPkgs = "list",
+    parameters = "data.frame", inputObjects = "data.frame", outputObjects = "data.frame"
+  ),
+  prototype = list(
+    name = character(0), description = character(0), keywords = character(0),
+    childModules = character(0), authors = person(), version = numeric_version("0.0.0"),
+    spatialExtent = extent(rep(NA_real_, 4L)), timeframe = as.POSIXlt(c(NA, NA)),
+    timeunit = NA_real_, citation = list(), documentation = list(), reqdPkgs = list(),
+    parameters = data.frame(
+      paramName = character(), paramClass = character(),
+      default = I(list()), min = I(list()), max = I(list()),
+      paramDesc = character(), stringsAsFactors = FALSE
+    ),
+    inputObjects = .inputObjects(),
+    outputObjects = .outputObjects()
+  ),
+  validity = function(object) {
     if (length(object@name)!=1L) stop("name must be a single character string.")
     if (length(object@description)!=1L) stop("description must be a single character string.")
     if (length(object@keywords)<1L) stop("keywords must be supplied.")

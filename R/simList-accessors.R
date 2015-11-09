@@ -16,9 +16,8 @@ if (getRversion() >= "3.1.0") {
 #' @docType methods
 #' @rdname show-method
 setMethod("show",
-          signature="simList",
-          definition=function(object) {
-
+          signature = "simList",
+          definition = function(object) {
             out <- list()
             out[[1]] <- capture.output(cat(rep("=", getOption("width"), sep=""), "\n", sep=""))
 
@@ -2026,6 +2025,49 @@ setMethod(
 })
 
 ################################################################################
+#' Default (empty) metadata
+#'
+#' Internal use only.
+#' Default values to use for metadata elements when not otherwise supplied.
+#'
+#' @param x  Not used. Should be missing.
+#'
+#' @importFrom raster extent
+#' @include simList-class.R
+#' @doctype methods
+#' @rdname emptyMetadata
+#' @author Alex Chubaty
+#'
+setGeneric(".emptyMetadata", function(x) {
+  standardGeneric(".emptyMetadata")
+})
+
+#' @rdname emptyMetadata
+setMethod(
+  ".emptyMetadata",
+  signature(x = "missing"),
+  definition = function() {
+  out <- list(
+    name = character(0),
+    description = character(0),
+    keywords = character(0),
+    childModules = character(0),
+    authors = person("unknown"),
+    version = numeric_version(NULL),
+    spatialExtent = raster::extent(rep(NA_real_, 4)),
+    timeframe = as.POSIXlt(c(NA, NA)),
+    timeunit = NA_character_,
+    citation = list(),
+    documentation = list(),
+    reqdPkgs = list(),
+    parameters = defineParameter(),
+    inputObjects = .inputObjects(),
+    outputObjects = .outputObjects()
+  )
+  return(out)
+})
+
+################################################################################
 #' Define a new module.
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
@@ -2077,100 +2119,149 @@ setGeneric("defineModule", function(sim, x) {
 #' @rdname defineModule
 setMethod(
   "defineModule",
-  signature(sim=".simList", x="list"),
-  definition=function(sim, x) {
+  signature(sim = ".simList", x = "list"),
+  definition = function(sim, x) {
 
     # check that all metadata elements are present
-    metadataRequiredNames <- c(
-      "name", "description", "keywords", "childModules", "authors", "version",
-      "spatialExtent", "timeframe", "timeunit", "citation", "documentation",
-      "reqdPkgs", "parameters", "inputObjects", "outputObjects"
-    )
+    metadataRequired <- slotNames(new(".moduleDeps"))
 
-    metadataNames <- metadataRequiredNames %in% names(x)
-    if (!all(metadataNames)) {
-      stop(paste0(
-        "The ",x$name," module is missing the metadata for ",
-        metadataRequiredNames[!metadataNames],". ",
-        "Please see ?defineModule and ?.moduleDeps ",
-        "for more information on which named elements exist. ",
-        " Currently, all elements must be present and valid."
+    metadataProvided <- metadataRequired %in% names(x)
+    metadataMissing <- metadataRequired[!metadataProvided]
+    if (!all(metadataProvided)) {
+      warning(paste0(
+        "The \'", x$name, "\' module is missing the metadata for:\n",
+        paste(" - ", metadataMissing, collapse = "\n"), "\n",
+        "Please see ?defineModule and ?.moduleDeps for more info.\n",
+        "All metadata elements must be present and valid."
       ))
     }
 
-    loadPackages(x$reqdPkgs)
+    # provide default values for missing metadata elements
+    if (is.null(x$reqdPkgs)) {
+      x$reqdPkgs <- list()
+    } else {
+      loadPackages(x$reqdPkgs)
+    }
 
     ## enforce/coerce types for the user-supplied param list
-    x$name <- as.character(x$name)
-    x$description <- as.character(x$description)
-    x$keywords <- as.character(x$keywords)
-    x$childModules <- na.omit(x$childModules) %>% as.character
+    lapply(c("name", "description", "keywords"), function(z) {
+      x[[z]] <<- if ( is.null(x[[z]]) || (length(x[[z]])==0) ) {
+        NA_character_
+      } else {
+        as.character(x[[z]])
+      }
+    })
 
-    if (!is(x$authors, "person")) {
-      stop("invalid module definition: ", x$name,
-           ": authors must be a `person` class.")
-      }
-    if (is.character(x$version) || is.numeric(x$version)) {
-      x$version <- as.numeric_version(x$version)
+    x$childModules <- x$childModules %>% as.character %>% na.omit %>% as.character
+
+    x$authors <- if ( is.null(x$authors) || is.na(x$authors) ) {
+      person("unknown")
+    } else {
+      as.person(x$authors)
     }
-    if (!is(x$spatialExtent, "Extent")) {
-      if (is.na(x$spatialExtent)) {
-        x$spatialExtent <- extent(rep(NA_real_, 4))
-      }
-    }
-    if (!is.numeric.POSIXt(x$timeframe)) {
-      x$timeframe <- as.POSIXlt(x$timeframe)
-      if (length(x$timeframe)==1) {
-        if (is.na(x$timeframe)) {
-          x$timeframe <- as.POSIXlt(c(NA,NA))
+
+    x$version <- as.numeric_version(x$version)
+
+    x$spatialExtent <- if (!is(x$spatialExtent, "Extent")) {
+      if (is.null(x$spatialExtent)) {
+        extent(rep(NA_real_, 4))
+      } else {
+        if (is.na(x$spatialExtent)) {
+          extent(rep(NA_real_, 4))
         } else {
-          x$timeframe <- as.POSIXlt(c(x$timeframe[[1]],NA))
+          extent(x$spatialExtent)
         }
       }
     }
-    if (is.na(x$timeunit)) {
+
+    x$timeframe <- if ( is.null(x$timeframe) || is.na(x$timeframe) ) {
+      as.POSIXlt(c(NA, NA))
+    } else if (!is.numeric.POSIXt(x$timeframe)) {
+      as.POSIXlt(x$timeframe)
+    } %>% `[`(1:2)
+
+    if ( is.null(x$timeunit) || is.na(x$timeunit) ) {
       x$timeunit <- NA_character_
     }
-    x$reqdPkgs <- as.list(x$reqdPkgs)
-    x$citation <- as.list(x$citation)
-    x$documentation <- as.list(x$documentation)
 
-    ## check that documentation actually exists locally
-    lapply(x$childModules, function(y) {
-      if (!file.exists(file.path(modulePath(sim), y))) {
-        stop("Module documentation file", y, "not found in modulePath.")
+    lapply(c("citation", "documentation", "reqdPkgs"), function(z) {
+      x[[z]] <<- if (is.null(x[[z]])) {
+        list()
+      } else {
+        as.list(x[[z]])
       }
     })
 
-    if (!is(x$parameters, "data.frame")) {
-      stop("invalid module definition: ", x$name,
-           ": parameters must be a `data.frame`.")
+    if ( is.null(x$parameters) ) {
+      x$parameters <- defineParameter()
+    } else {
+      if ( is(x$parameters, "data.frame") ) {
+        if ( !all(colnames(x$parameters) %in% colnames(defineParameter())) ||
+             !all(colnames(defineParameter()) %in% colnames(x$parameters)) ) {
+          stop("invalid data.frame `parameters` in module `", x$name, "`")
+        }
+      } else {
+        x$parameters <- defineParameter()
+      }
     }
-    if (!is(x$inputObjects, "data.frame")) {
-      stop("invalid module definition: ", x$name,
-           ": inputObjects must be a `data.frame`.")
+
+    if (is.null(x$inputObjects)) {
+      x$inputObjects <- .inputObjects()
+    } else {
+      if (is(x$inputObjects, "data.frame")) {
+        if ( !all(colnames(x$inputObjects) %in% colnames(.inputObjects())) ||
+             !all(colnames(.inputObjects()) %in% colnames(x$inputObjects)) ) {
+          stop("invalid data.frame `inputObjects` in module `", x$name, "`")
+        }
+      } else {
+        x$inputObjects <- .inputObjects()
+      }
     }
-    if (is.null(x$inputObjects$sourceURL)) {
-      x$inputObjects$sourceURL <- rep(NA_character_, NROW(x$inputObjects))
+    if (NROW(x$inputObjects)) {
+      if (is.null(x$inputObjects$sourceURL)) {
+        x$inputObjects$sourceURL <- rep(NA_character_, NROW(x$inputObjects))
+      }
+      ids <- which(x$inputObjects$sourceURL == "")
+      if (length(ids)) {
+        x$inputObjects$sourceURL[ids] <- NA_character_
+      }
     }
-    ids <- which(x$inputObjects$sourceURL == "")
-    if (length(ids)) {
-      x$inputObjects$sourceURL[ids] <- NA_character_
+
+    if (is.null(x$outputObjects)) {
+      x$outputObjects <- .outputObjects()
+    } else {
+      if (is(x$outputObjects, "data.frame")) {
+        if ( !all(colnames(x$outputObjects) %in% colnames(.outputObjects())) ||
+             !all(colnames(.outputObjects()) %in% colnames(x$outputObjects)) ) {
+          stop("invalid data.frame `inputObjects` in module `", x$name, "`")
+        }
+      } else {
+        x$outputObjects <- .outputObjects()
+      }
     }
-    if (!is(x$outputObjects, "data.frame")) {
-      stop("invalid module definition: ", x$name,
-           ": outputObjects must be a `data.frame`.")
+
+    ## check that documentation actually exists locally
+    docs <- sapply(x$documentation, na.omit) %>%
+      (function(x) { if (length(x)) character(0) else as.character(x) })
+    if (length(docs)) {
+      lapply(docs, function(y) {
+        if (!file.exists(file.path(modulePath(sim), y))) {
+          stop("Module documentation file ", y, " not found in modulePath.")
+        }
+      })
     }
 
     ## check that children actually exist locally, and add to list of child modules
-    lapply(x$childModules, function(y) {
-      if (file.exists(file.path(modulePath(sim), y))) {
-        z <- y %>% lapply(., `attributes<-`, list(type="child"))
-        modules(sim) <- append_attr(modules(sim), z)
-      } else {
-        stop("Module ", y, "(a child module of ", x$name, ") not found in modulePath.")
-      }
-    })
+    if (length(x$childModules)) {
+      lapply(x$childModules, function(y) {
+        if (file.exists(file.path(modulePath(sim), y))) {
+          z <- y %>% lapply(., `attributes<-`, list(type = "child"))
+          modules(sim) <- append_attr(modules(sim), z)
+        } else {
+          stop("Module ", y, "(a child module of ", x$name, ") not found in modulePath.")
+        }
+      })
+    }
 
     ## create module deps object and add to sim deps
     m <- do.call(new, c(".moduleDeps", x))
@@ -2212,8 +2303,8 @@ setGeneric("defineParameter", function(name, class, default, min, max, desc) {
 
 #' @rdname defineParameter
 setMethod("defineParameter",
-          signature(name="character", class="character",
-                    default="ANY", min="ANY", max="ANY", desc="character"),
+          signature(name = "character", class = "character", default = "ANY",
+                    min = "ANY", max = "ANY", desc = "character"),
           definition=function(name, class, default, min, max, desc) {
             # coerce `min` and `max` to same type as `default`
             min <- as(min, class)
@@ -2221,30 +2312,39 @@ setMethod("defineParameter",
 
             # previously used `substitute()` instead of `I()`,
             # but it did not allow for a vector to be passed with `c()`
-            df <- data.frame(name=name, class=class,
-                             default=I(list(default)),
-                             min=I(list(min)),
-                             max=I(list(max)),
-                             desc=desc,
-                             stringsAsFactors=FALSE)
+            df <- data.frame(
+              paramName = name, paramClass = class, default = I(list(default)),
+              min = I(list(min)), max = I(list(max)), paramDesc = desc,
+              stringsAsFactors=FALSE)
             return(df)
 })
 
 #' @rdname defineParameter
 setMethod("defineParameter",
-          signature(name="character", class="character",
-                    default="ANY", min="missing", max="missing",
-                    desc="character"),
+          signature(name = "character", class = "character",
+                    default = "ANY", min = "missing", max = "missing",
+                    desc = "character"),
           definition=function(name, class, default, desc) {
             # coerce `min` and `max` to same type as `default`
             min <- as(NA, class)
             max <- as(NA, class)
 
-            df <- data.frame(name=name, class=class,
-                             default=I(list(default)),
-                             min=I(list(substitute(min))),
-                             max=I(list(substitute(max))),
-                             desc=desc,
-                             stringsAsFactors=FALSE)
+            df <- data.frame(
+              paramName = name, paramClass = class, default = I(list(default)),
+              min = I(list(substitute(min))), max = I(list(substitute(max))),
+              paramDesc = desc, stringsAsFactors = FALSE
+            )
+            return(df)
+})
+
+#' @rdname defineParameter
+setMethod("defineParameter",
+          signature(name = "missing", class = "missing", default = "missing",
+                    min = "missing", max = "missing", desc = "missing"),
+          definition = function() {
+            df <- data.frame(
+              paramName = character(0), paramClass = character(0),
+              default = I(list()), min = I(list()), max = I(list()),
+              paramDesc = character(0), stringsAsFactors = FALSE)
             return(df)
 })

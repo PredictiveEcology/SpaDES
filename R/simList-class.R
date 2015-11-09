@@ -84,37 +84,29 @@
 #'
 setClass(
   ".simList",
-  slots=list(modules="list", params="list",
-            events="data.table", completed="data.table",
-            depends=".simDeps", simtimes="list",
-            inputs="list", outputs="list",
-            paths="list"),
-  prototype=list(modules = as.list(NULL),
-                params = list(
-                  .checkpoint = list(interval=NA_real_, file=NULL),
-                  .progress = list(type=NULL, interval=NULL)
-                ),
-                events = as.data.table(NULL),
-                completed = as.data.table(NULL),
-                depends = new(".simDeps", dependencies=list(NULL)),
-                simtimes = list(
-                  current=0.00,
-                  start=0.00,
-                  end=1.00,
-                  timeunit=NA_character_
-                ),
-                inputs = data.frame(
-                  file=character(0), fun=character(0),
-                  package=character(0), objectName=character(0),
-                  loadTime=numeric(0), loaded=logical(0), arg=list(NULL)
-                ),
-                outputs = as.data.frame(NULL),
-                paths = list(
-                  modulePath="./",
-                  inputPath="./",
-                  outputPath="./"
-                )
-            ),
+  slots = list(
+    modules="list", params="list", events="data.table", completed="data.table",
+    depends=".simDeps", simtimes="list", inputs="list", outputs="list",
+    paths="list"
+  ),
+  prototype = list(
+    modules = as.list(NULL),
+    params = list(
+      .checkpoint = list(interval = NA_real_, file = NULL),
+      .progress = list(type = NULL, interval = NULL)
+    ),
+    events = as.data.table(NULL),
+    completed = as.data.table(NULL),
+    depends = new(".simDeps", dependencies = list(NULL)),
+    simtimes = list(current=0.00, start=0.00, end=1.00, timeunit=NA_character_),
+    inputs = data.frame(
+      file = character(0), fun = character(0), package = character(0),
+      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
+      arg = list(NULL)
+    ),
+    outputs = as.data.frame(NULL),
+    paths = list(modulePath = "./", inputPath = "./", outputPath = "./")
+  ),
   validity=function(object) {
     # check for valid sim times
     if (is.na(object@simtimes$end)) {
@@ -142,9 +134,9 @@ setClass(
 #' @exportClass simList
 #'
 setClass("simList",
-         contains=".simList",
-         slots=list(.envir="environment"),
-         prototype=list(.envir=new.env(parent=emptyenv()))
+         contains = ".simList",
+         slots = list(.envir = "environment"),
+         prototype = list(.envir = new.env(parent = emptyenv()))
 )
 
 ################################################################################
@@ -167,18 +159,18 @@ setClass("simList",
 #' @author Alex Chubaty
 #'
 setClass("simList_",
-         contains=".simList",
-         slots=list(.list="list"),
-         prototype=list(.list=list())
+         contains = ".simList",
+         slots = list(.list = "list"),
+         prototype = list(.list = list())
 )
 
-setAs(from="simList_", to="simList", def=function(from) {
+setAs(from = "simList_", to = "simList", def = function(from) {
   x <- as(as(from, ".simList"), "simList")
   x@.envir <- as.environment(from@.list)
   return(x)
 })
 
-setAs(from="simList", to="simList_", def=function(from) {
+setAs(from = "simList", to = "simList_", def = function(from) {
   x <- as(as(from, ".simList"), "simList_")
   x@.list <- as.list(envir(from))
   return(x)
