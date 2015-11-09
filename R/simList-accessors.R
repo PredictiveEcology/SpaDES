@@ -2324,10 +2324,16 @@ setMethod("defineParameter",
           signature(name = "character", class = "character",
                     default = "ANY", min = "missing", max = "missing",
                     desc = "character"),
-          definition=function(name, class, default, desc) {
-            # coerce `min` and `max` to same type as `default`
-            min <- as(NA, class)
-            max <- as(NA, class)
+          definition = function(name, class, default, desc) {
+            NAtypes <- c("character", "complex", "integer", "logical", "numeric")
+            if (class %in% NAtypes) {
+              # coerce `min` and `max` to same type as `default`
+              min <- as(NA, class)
+              max <- as(NA, class)
+            } else {
+              min <- NA
+              max <- NA
+            }
 
             df <- data.frame(
               paramName = name, paramClass = class, default = I(list(default)),
