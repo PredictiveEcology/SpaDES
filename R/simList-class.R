@@ -85,9 +85,9 @@
 setClass(
   ".simList",
   slots = list(
-    modules="list", params="list", events="data.table", completed="data.table",
-    depends=".simDeps", simtimes="list", inputs="list", outputs="list",
-    paths="list"
+    modules = "list", params = "list", events = "data.table",
+    completed = "data.table", depends = ".simDeps", simtimes = "list",
+    inputs = "list", outputs = "list", paths = "list"
   ),
   prototype = list(
     modules = as.list(NULL),
@@ -107,7 +107,7 @@ setClass(
     outputs = as.data.frame(NULL),
     paths = list(modulePath = "./", inputPath = "./", outputPath = "./")
   ),
-  validity=function(object) {
+  validity = function(object) {
     # check for valid sim times
     if (is.na(object@simtimes$end)) {
      stop("simulation end time must be specified.")
@@ -119,7 +119,6 @@ setClass(
 })
 
 ################################################################################
-#'
 #' @inheritParams .simList
 #'
 #' @slot .envir     Environment referencing the objects used in the simulation.
