@@ -28,28 +28,29 @@ setGeneric("getModuleVersion", function(name, repo) {
 })
 
 #' @rdname getModuleVersion
-setMethod("getModuleVersion",
-          signature=c(name="character", repo="character"),
-          definition = function(name, repo) {
-            if (length(name)>1) {
-              warning("name contains more than one module. Only the first will be used.")
-              name = name[1]
-            }
-            apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
-            request <- GET(apiurl)
-            stop_for_status(request)
-            allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names=FALSE)
-            moduleFiles <- grep(paste0("^modules/", name), allFiles, value=TRUE)
-            zipFiles <- grep("[.]zip$", moduleFiles, value=TRUE)
-            versions <- strsplit(zipFiles, "_") %>%
-                        unlist %>%
-                        grep("[.]zip$", ., value=TRUE) %>%
-                        strsplit(., "[.]zip$") %>%
-                        unlist %>%
-                        as.numeric_version
-            current <- sort(versions, decreasing=TRUE)[1]
+setMethod(
+  "getModuleVersion",
+  signature = c(name = "character", repo = "character"),
+  definition = function(name, repo) {
+    if (length(name)>1) {
+      warning("name contains more than one module. Only the first will be used.")
+      name = name[1]
+    }
+    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
+    request <- GET(apiurl)
+    stop_for_status(request)
+    allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names=FALSE)
+    moduleFiles <- grep(paste0("^modules/", name), allFiles, value=TRUE)
+    zipFiles <- grep("[.]zip$", moduleFiles, value=TRUE)
+    versions <- strsplit(zipFiles, "_") %>%
+                unlist %>%
+                grep("[.]zip$", ., value=TRUE) %>%
+                strsplit(., "[.]zip$") %>%
+                unlist %>%
+                as.numeric_version
+    current <- sort(versions, decreasing=TRUE)[1]
 
-            return(current)
+    return(current)
 })
 
 #' @rdname getModuleVersion
@@ -92,42 +93,48 @@ setGeneric("downloadModule", function(name, path, version, repo) {
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name="character", path="character", version="character", repo="character"),
+  signature = c(name = "character", path = "character", version = "character",
+                repo = "character"),
   definition = function(name, path, version, repo) {
     path <- checkPath(path, create=TRUE)
     if (is.na(version)) version <- getModuleVersion(name, repo)
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
     localzip <- file.path(path, basename(zip))
-    download.file(zip, destfile=localzip, quiet=TRUE)
-    files <- unzip(localzip, exdir=file.path(path), overwrite=TRUE)
+    download.file(zip, destfile = localzip, quiet = TRUE)
+    files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
     return(invisible(files))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name="character", path="character", version="character", repo="missing"),
+  signature = c(name = "character", path = "character", version = "character",
+                repo = "missing"),
   definition = function(name, path, version) {
-    files <- downloadModule(name, path, version, repo=getOption("spades.modulesRepo"))
+    files <- downloadModule(name, path, version,
+                            repo = getOption("spades.modulesRepo"))
     return(invisible(files))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature = c(name="character", path="character", version="missing", repo="missing"),
+  signature = c(name = "character", path = "character", version = "missing",
+                repo = "missing"),
   definition = function(name, path) {
-    files <- downloadModule(name, path, version=NA_character_, repo=getOption("spades.modulesRepo"))
+    files <- downloadModule(name, path, version = NA_character_,
+                            repo = getOption("spades.modulesRepo"))
     return(invisible(files))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
-  signature=c(name="character", path="character", version="missing", repo="character"),
+  signature = c(name = "character", path = "character", version = "missing",
+                repo = "character"),
   definition = function(name, path, repo) {
-    files <- downloadModule(name, path, version=NA_character_, repo=repo)
+    files <- downloadModule(name, path, version=NA_character_, repo = repo)
     return(invisible(files))
 })
 
@@ -161,20 +168,21 @@ setMethod(
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
     urls <- moduleMetadata(module, path)$inputObjects$sourceURL
-    ids <- which( urls == "" | is.na(urls) )
+    ids <- which( urls == "" || is.na(urls) )
     to.dl <- ifelse(length(ids), urls[-ids], urls)
 
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
       files <- lapply(to.dl, function(x) {
-        download.file(x, destfile = file.path(path, module, "data", basename(x)), quiet = TRUE)
+        download.file(x, destfile = file.path(path, module, "data", basename(x)),
+                      quiet = TRUE)
         basename(x)
       })
     } else {
       files <- list()
     }
 
-    checksum <- checksums(module, path) # will print warning if checksums don't match
+    checksum <- checksums(module, path) # prints warning if checksums don't match
 
     return(invisible(cbind(files, checksum$result)))
 })
