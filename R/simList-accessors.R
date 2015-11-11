@@ -921,14 +921,14 @@ setReplaceMethod(
    if (any(is.na(object@inputs[,"loaded"]))) {
      if (!all(is.na(object@inputs[,"loadTime"]))) {
        newTime <- object@inputs[is.na(object@inputs$loaded),"loadTime"] %>%
-         min(na.rm = TRUE)
+         min(., na.rm = TRUE)
        attributes(newTime)$unit <- timeunit(object)
        object <- scheduleEvent(object, newTime, "load", "inputs")
      } else {
        object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
          time(object, "seconds")
        newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-         min(na.rm = TRUE)
+         min(., na.rm = TRUE)
        attributes(newTime)$unit <- "seconds"
        object <- scheduleEvent(object, newTime, "load", "inputs")
      }
