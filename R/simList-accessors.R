@@ -2278,7 +2278,7 @@ setMethod(
       if (is(x$outputObjects, "data.frame")) {
         if ( !all(colnames(x$outputObjects) %in% colnames(.outputObjects())) ||
              !all(colnames(.outputObjects()) %in% colnames(x$outputObjects)) ) {
-          stop("invalid data.frame `inputObjects` in module `", x$name, "`")
+          stop("invalid data.frame `outputObjects` in module `", x$name, "`")
         }
       } else {
         x$outputObjects <- .outputObjects()
