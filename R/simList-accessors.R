@@ -2257,8 +2257,8 @@ setMethod(
         if ( !all(colnames(x$inputObjects) %in% colnames(.inputObjects())) ||
              !all(colnames(.inputObjects()) %in% colnames(x$inputObjects)) ) {
           stop("invalid data.frame `inputObjects` in module `", x$name, "`:\n",
-               "provided:", colnames(x$inputObjects), "\n",
-               "expected:", colnames(.inputObjects()), "\n")
+               "provided: ", paste(colnames(x$inputObjects), collapse = ", "),
+               "expected: ", paste(colnames(.inputObjects()), collapse = ", "))
         }
       } else {
         x$inputObjects <- .inputObjects()
@@ -2281,8 +2281,8 @@ setMethod(
         if ( !all(colnames(x$outputObjects) %in% colnames(.outputObjects())) ||
              !all(colnames(.outputObjects()) %in% colnames(x$outputObjects)) ) {
           stop("invalid data.frame `outputObjects` in module `", x$name, "`:",
-               "provided:", colnames(x$outputObjects), "\n",
-               "expected:", colnames(.outputObjects()), "\n")
+               "provided: ", paste(colnames(x$outputObjects), collapse = ", "), "\n",
+               "expected: ", paste(colnames(.outputObjects()), collapse = ", "))
         }
       } else {
         x$outputObjects <- .outputObjects()
