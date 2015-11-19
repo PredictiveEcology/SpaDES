@@ -52,8 +52,10 @@ setGeneric("heading", function(from, to) {
 setMethod("heading",
           signature(from="SpatialPoints", to="SpatialPoints"),
           definition = function(from, to) {
-            ys <- (to$y - from$y)
-            xs <- (to$x - from$x)
+            to <- coordinates(to)
+            from <- coordinates(from)
+            ys <- to[,2] - from[,2]
+            xs <- to[,1] - from[,1]
             heading = deg(atan((xs) / (ys)))
             ys <- (ys < 0)
             heading[(ys) & (xs) < 0] = heading[(ys) & (xs) < 0] - 180
