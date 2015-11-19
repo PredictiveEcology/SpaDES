@@ -25,9 +25,13 @@ hypothesis/method to test/use. Currently defaults to
 
 \item{...}{arguments passed to the function in \code{hypothesis}}
 
-\item{agent}{A SpatialPoints* object.}
+\item{agent}{A \code{SpatialPoints*} object.
+If a \code{SpatialPointsDataFrame}, 2 of the columns must
+be \code{x1} and \code{y1}, indicating the previous location.
+If a \code{SpatialPoints} object, then \code{x1} and
+\code{y1} will be assigned randomly.}
 
-\item{extent}{An optional extent object that will be used for \code{torus}}
+\item{extent}{An optional \code{Extent} object that will be used for \code{torus}.}
 
 \item{stepLength}{Numeric vector of length 1 or number of agents describing
 step length.}
@@ -39,8 +43,9 @@ standard deviation of wrapped normal turn angles.}
 If \code{FALSE} coordinates represent planar ('Euclidean')
 space (e.g. units of meters)}
 
-\item{torus}{Logical. Should the crw movement be wrapped to the opposite side
-of the map, as determined by the \code{extent} argument. Default FALSE.}
+\item{torus}{Logical. Should the crw movement be wrapped to the opposite
+side of the map, as determined by the \code{extent} argument.
+Default \code{FALSE}.}
 }
 \value{
 A SpatialPointsDataFrame object with updated spatial position defined by a
