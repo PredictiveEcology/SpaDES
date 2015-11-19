@@ -47,13 +47,13 @@ setGeneric("newModule", function(name, path, open) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature=c(name="character", path="character", open="logical"),
+  signature = c(name = "character", path = "character", open = "logical"),
   definition = function(name, path, open) {
-    path <- checkPath(path, create=TRUE)
+    path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name)
     dataPath <- file.path(nestedPath, "data")
-    checkPath(nestedPath, create=TRUE)
-    checkPath(dataPath, create=TRUE)
+    checkPath(nestedPath, create = TRUE)
+    checkPath(dataPath, create = TRUE)
 
     # empty data checksum file
     cat("", file = file.path(dataPath, "CHECKSUMS.txt"))
@@ -102,8 +102,8 @@ defineModule(sim, list(
 ## event types
 #   - type `init` is required for initiliazation
 
-doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType==\"init\") {
+doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
+  if (eventType == \"init\") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
 
@@ -113,7 +113,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # schedule future event(s)
     sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
     sim <- scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
-  } else if (eventType==\"plot\") {
+  } else if (eventType == \"plot\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
@@ -124,7 +124,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     #sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
-  } else if (eventType==\"save\") {
+  } else if (eventType == \"save\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
@@ -137,7 +137,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\")
 
     # ! ----- STOP EDITING ----- ! #
-  } else if (eventType==\"event1\") {
+  } else if (eventType == \"event1\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
@@ -150,7 +150,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
     # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
-  } else if (eventType==\"event2\") {
+  } else if (eventType == \"event2\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
 
@@ -164,8 +164,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
     # ! ----- STOP EDITING ----- ! #
   } else {
-    warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with=FALSE],
-                  \"\' in module \'\", events(sim)[1, \"moduleName\", with=FALSE], \"\'\", sep=\"\"))
+    warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with = FALSE],
+                  \"\' in module \'\", events(sim)[1, \"moduleName\", with = FALSE], \"\'\", sep = \"\"))
   }
   return(invisible(sim))
 }
@@ -229,37 +229,43 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug=FALSE) {
 
 ### add additional events as needed by copy/pasting from above\n",
     file = filenameR, fill = FALSE, sep = "")
-    if (open) { file.edit(filenameR) }
+    if (open) {
+      # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
+      tryCatch(file.edit(filenameR), error = function(e) {
+        warning("A bug in RStudio for Windows prevented the opening of the file:\n",
+                filenameR, "\nPlease open it manually.")
+      })
+    }
 
     ### Make Rmarkdown file for module documentation
-    newModuleDocumentation(name=name, path=path, open=open)
+    newModuleDocumentation(name = name, path = path, open = open)
 })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature=c(name="character", path="missing", open="logical"),
+  signature = c(name = "character", path = "missing", open = "logical"),
   definition = function(name, open) {
-    newModule(name=name, path=".", open=open)
+    newModule(name = name, path = ".", open = open)
 })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name="character", path="character", open="missing"),
+  signature = c(name = "character", path = "character", open = "missing"),
   definition = function(name, path) {
-    newModule(name=name, path=path, open=TRUE)
+    newModule(name = name, path = path, open = TRUE)
 })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature=c(name="character", path="missing", open="missing"),
+  signature = c(name = "character", path = "missing", open = "missing"),
   definition = function(name) {
-    newModule(name=name, path=".", open=TRUE)
+    newModule(name = name, path = ".", open = TRUE)
 })
 
 ###########################################################################
@@ -277,11 +283,11 @@ setGeneric("newModuleDocumentation", function(name, path, open) {
 #' @rdname newModule
 setMethod(
   "newModuleDocumentation",
-  signature = c(name="character", path="character", open="logical"),
+  signature = c(name = "character", path = "character", open = "logical"),
   definition = function(name, path, open) {
-    path <- checkPath(path, create=TRUE)
+    path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name)
-    checkPath(nestedPath, create=TRUE)
+    checkPath(nestedPath, create = TRUE)
     filenameRmd <- file.path(nestedPath, paste0(name, ".Rmd"))
     filenameCitation <- file.path(nestedPath, "citation.bib")
     filenameLICENSE <- file.path(nestedPath, "LICENSE")
@@ -320,7 +326,7 @@ times <- list(start = 0, end = 10)
 parameters <- list(
   .globals = list(burnStats = \"nPixelsBurned\"),
   .progress = list(type = \"text\", interval = 1),
-  cropReprojectLccAge = list(useCache=TRUE),
+  cropReprojectLccAge = list(useCache = TRUE),
   forestSuccessionBeacons = list(
     returnInterval = 1, startTime = times$start,
     .plotInitialTime = times$start, .plotInterval = 1),
@@ -376,7 +382,7 @@ Description of the module outputs.
 Describe any anticipated linkages to other modules.
 
 ",
-    file=filenameRmd, fill=FALSE, sep="")
+    file = filenameRmd, fill = FALSE, sep = "")
 
 ### Make citation.bib file
 cat("
@@ -389,21 +395,27 @@ year = {", format(Sys.Date(), "%Y"), "},
 url = {},
 }
 ",
-file=filenameCitation, fill=FALSE, sep="")
+file = filenameCitation, fill = FALSE, sep = "")
 
 ### Make LICENSE file
 cat("
 # Provide explicit details of the license for this module.
 # See http://choosealicense.com for help selecting one.",
-    file=filenameLICENSE, fill=FALSE, sep="")
+    file = filenameLICENSE, fill = FALSE, sep = "")
 
 ### Make README file
 cat("
 Any other details that a user may need to know, like where to get more information,
 where to download data etc.",
-    file=filenameREADME, fill=FALSE, sep="")
+    file = filenameREADME, fill = FALSE, sep = "")
 
-    if(open) { file.edit(filenameRmd) }
+    if (open) {
+      # use tryCatch: Rstudio bug causes file open to fail on Windows (#209)
+      tryCatch(file.edit(filenameRmd), error = function(e) {
+        warning("A bug in RStudio for Windows prevented the opening of the file:\n",
+                filenameRmd, "\nPlease open it manually.")
+      })
+    }
 
     return(invisible(NULL))
 })
@@ -411,25 +423,25 @@ where to download data etc.",
 #' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
-          signature=c(name="character", path="missing", open="logical"),
+          signature = c(name = "character", path = "missing", open = "logical"),
           definition = function(name, open) {
-            newModuleDocumentation(name=name, path=".", open=open)
+            newModuleDocumentation(name = name, path = ".", open = open)
 })
 
 #' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
-          signature=c(name="character", path="character", open="missing"),
+          signature = c(name = "character", path = "character", open = "missing"),
           definition = function(name, path) {
-            newModuleDocumentation(name=name, path=path, open=TRUE)
+            newModuleDocumentation(name = name, path = path, open = TRUE)
 })
 
 #' @export
 #' @rdname newModule
 setMethod("newModuleDocumentation",
-          signature=c(name="character", path="missing", open="missing"),
+          signature = c(name = "character", path = "missing", open = "missing"),
           definition = function(name) {
-            newModuleDocumentation(name=name, path=".", open=TRUE)
+            newModuleDocumentation(name = name, path = ".", open = TRUE)
 })
 
 ################################################################################
@@ -472,18 +484,18 @@ setGeneric("openModules", function(name, path) {
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(name="character", path="character"),
+          signature = c(name = "character", path = "character"),
           definition = function(name, path) {
-            basedir <- checkPath(path, create=FALSE)
+            basedir <- checkPath(path, create = FALSE)
             origDir <- getwd()
             setwd(basedir)
-            if(any(names=="all")) {
-              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+            if(any(names == "all")) {
+              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
             } else {
-              Rfiles <- dir(pattern="[\\.][rR]$",recursive = TRUE)
+              Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
               Rfiles <- Rfiles[pmatch(name,Rfiles)]
             }
-            Rfiles <- Rfiles[grep(pattern="[/\\\\]",Rfiles)]
+            Rfiles <- Rfiles[grep(pattern = "[/\\\\]",Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
                                     function(x) any(duplicated(x)))]
             lapply(Rfiles, file.edit)
@@ -493,25 +505,25 @@ setMethod("openModules",
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(name="missing", path="missing"),
+          signature = c(name = "missing", path = "missing"),
           definition = function() {
-            openModules(name="all", path=".")
+            openModules(name = "all", path = ".")
 })
 
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(name="missing", path="character"),
+          signature = c(name = "missing", path = "character"),
           definition = function(path) {
-            openModules(name="all", path=path)
+            openModules(name = "all", path = path)
 })
 
 #' @export
 #' @rdname openModules
 setMethod("openModules",
-          signature=c(name="character", path="missing"),
+          signature = c(name = "character", path = "missing"),
           definition = function(name) {
-            openModules(name=name, path=".")
+            openModules(name = name, path = ".")
 })
 
 ################################################################################
@@ -539,46 +551,45 @@ setGeneric("zipModule", function(name, path, version, ...) {
 #' @export
 # @importFrom utils zip
 #' @rdname zipModule
-setMethod("zipModule",
-signature=c(name="character", path="character", version="character"),
-definition = function(name, path, version, ...) {
-  # If we choose to have the pdf of the documentation file made at this stage, uncomment this.
-  #  Requires pandoc to be installed and working
+setMethod(
+  "zipModule",
+  signature = c(name = "character", path = "character", version = "character"),
+  definition = function(name, path, version, ...) {
 
-  path <- checkPath(path, create=FALSE)
+  path <- checkPath(path, create = FALSE)
 
   callingWd <- getwd()
   on.exit(setwd(callingWd))
   setwd(path)
-  zipFileName=paste0(name, "_", version, ".zip")
+  zipFileName = paste0(name, "_", version, ".zip")
   print(paste("Zipping module into zip file:", zipFileName))
-  zip(zipFileName, files=file.path(name), extras=c("-x","*.zip"), ...)
-  file.copy(zipFileName, to=paste0(name, "/", zipFileName), overwrite=TRUE)
+  zip(zipFileName, files = file.path(name), extras = c("-x","*.zip"), ...)
+  file.copy(zipFileName, to = paste0(name, "/", zipFileName), overwrite = TRUE)
   file.remove(zipFileName)
 })
 
 #' @rdname zipModule
 #' @export
 setMethod("zipModule",
-          signature=c(name="character", path="missing", version="character"),
+          signature = c(name = "character", path = "missing", version = "character"),
           definition = function(name, version, ...) {
-            zipModule(name=name, path=".", version=version, ...)
+            zipModule(name = name, path = ".", version = version, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
-          signature=c(name="character", path="missing", version="missing"),
+          signature = c(name = "character", path = "missing", version = "missing"),
           definition = function(name, ...) {
             vers <- moduleMetadata(name, ".")$version %>% as.character
-            zipModule(name=name, path=".", version=vers, ...)
+            zipModule(name = name, path = ".", version = vers, ...)
 })
 
 #' @export
 #' @rdname zipModule
 setMethod("zipModule",
-          signature=c(name="character", path="character", version="missing"),
+          signature = c(name = "character", path = "character", version = "missing"),
           definition = function(name, path, ...) {
             vers <- moduleMetadata(name, path)$version %>% as.character
-            zipModule(name=name, path=path, version=vers, ...)
+            zipModule(name = name, path = path, version = vers, ...)
 })
