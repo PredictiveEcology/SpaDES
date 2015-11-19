@@ -70,8 +70,8 @@ setGeneric("updateList", function(x, y) {
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("list", "list"),
-          definition=function(x, y) {
+          signature = c("list", "list"),
+          definition = function(x, y) {
             if (any(is.null(names(x)), is.null(names(y)))) {
               stop("All elements in lists x,y must be named.")
             } else {
@@ -83,8 +83,8 @@ setMethod("updateList",
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("NULL", "list"),
-          definition=function(x, y) {
+          signature = c("NULL", "list"),
+          definition = function(x, y) {
             if (is.null(names(y))) {
               stop("All elements in list y must be named.")
             }
@@ -93,8 +93,8 @@ setMethod("updateList",
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("list", "NULL"),
-          definition=function(x, y) {
+          signature = c("list", "NULL"),
+          definition = function(x, y) {
             if (is.null(names(x))) {
               stop("All elements in list x must be named.")
             }
@@ -103,8 +103,8 @@ setMethod("updateList",
 
 #' @rdname updateList
 setMethod("updateList",
-          signature=c("NULL", "NULL"),
-          definition=function(x, y) {
+          signature = c("NULL", "NULL"),
+          definition = function(x, y) {
             return(list())
 })
 
@@ -176,6 +176,7 @@ setMethod("append_attr",
 #' @export
 #' @docType methods
 #' @rdname loadPackages
+# @importFrom igraph '%>%'
 # @importFrom utils install.packages
 #'
 #' @author Alex Chubaty
@@ -193,32 +194,44 @@ setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
 
 #' @rdname loadPackages
 setMethod("loadPackages",
-          signature="character",
-          definition=function(packageList, install, quiet) {
-            if (install) {
-              repos <- getOption("repos")
-              if ( is.null(repos) | any(repos=="") ) {
-                repos <- "https://cran.rstudio.com"
+          signature = "character",
+          definition = function(packageList, install, quiet) {
+            packageList <- na.omit(packageList) %>% as.character
+            if (length(packageList)) {
+              if (install) {
+                repos <- getOption("repos")
+                if ( is.null(repos) | any(repos=="") ) {
+                  repos <- "https://cran.rstudio.com"
+                }
+                installed <- unname(installed.packages()[,"Package"])
+                toInstall <- packageList[packageList %in% installed]
+                install.packages(toInstall, repos=repos)
               }
-              installed <- unname(installed.packages()[,"Package"])
-              toInstall <- packageList[packageList %in% installed]
-              install.packages(toInstall, repos=repos)
-            }
 
-            loaded <- sapply(packageList, require, character.only=TRUE)
+              loaded <- sapply(packageList, require, character.only=TRUE)
 
-            if (!quiet) {
-              message(paste("Loaded", length(which(loaded==TRUE)), "of",
-                            length(packageList), "packages.", sep=" "))
+              if (!quiet) {
+                message(paste("Loaded", length(which(loaded==TRUE)), "of",
+                              length(packageList), "packages.", sep=" "))
+              }
+            } else {
+              loaded <- character()
             }
             return(invisible(loaded))
 })
 
 #' @rdname loadPackages
 setMethod("loadPackages",
-          signature="list",
-          definition=function(packageList, install, quiet) {
+          signature = "list",
+          definition = function(packageList, install, quiet) {
             loadPackages(unlist(packageList), install, quiet)
+})
+
+#' @rdname loadPackages
+setMethod("loadPackages",
+          signature = "NULL",
+          definition = function(packageList, install, quiet) {
+            return(invisible(character()))
 })
 
 ################################################################################

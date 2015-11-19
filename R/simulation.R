@@ -63,16 +63,16 @@ setGeneric(
 #' @rdname parseModule
 setMethod(
   ".parseModule",
-  signature(sim="simList", modules="list"),
-  definition=function(sim, modules) {
+  signature(sim = "simList", modules = "list"),
+  definition = function(sim, modules) {
     all_children <- list()
     children <- list()
     parent_ids <- integer()
     for (j in .unparsed(modules)) {
       m <- modules[[j]][1]
-      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep="")
+      filename <- paste(modulePath(sim), "/", m, "/", m, ".R", sep = "")
       parsedFile <- parse(filename)
-      defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+      defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
       # evaluate only the 'defineModule' function of parsedFile
       sim <- eval(parsedFile[defineModuleItem])
@@ -86,16 +86,15 @@ setMethod(
       # assign default param values
       apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
         if (is.character(x$default)) {
-          tt <- paste0("params(sim)$", m, "$", x$name, "<<-\"", x$default, "\"")
+          tt <- paste0("params(sim)$", m, "$", x$paramName, "<<-\"", x$default, "\"")
         } else {
-          tt <- paste0("params(sim)$", m, "$", x$name, "<<-", x$default)
+          tt <- paste0("params(sim)$", m, "$", x$paramName, "<<-", x$default)
         }
-        eval(parse(text=tt), envir=environment())
+        eval(parse(text = tt), envir = environment())
       })
 
       # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir=envir(sim))
-      #eval(parsedFile[!defineModuleItem], envir=getNamespace("SpaDES"))
+      eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed=TRUE)
@@ -121,6 +120,7 @@ setMethod(
     return(sim)
   }
 )
+
 ################################################################################
 #' Initialize a new simulation
 #'
@@ -232,7 +232,7 @@ setMethod(
   definition=function(times, params, modules, objects, paths,
                       inputs, outputs, loadOrder) {
 
-    paths <- lapply(paths, checkPath, create=TRUE)
+    paths <- lapply(paths, checkPath, create = TRUE)
 
     modulesLoaded <- list()
 
@@ -282,10 +282,10 @@ setMethod(
     }
 
     timestep <- inSeconds(timeunit(sim))
-    times(sim) <- list(current=times$start*timestep,
-                       start=times$start*timestep,
-                       end=times$end*timestep,
-                       timeunit=timeunit(sim))
+    times(sim) <- list(current = times$start*timestep,
+                       start = times$start*timestep,
+                       end = times$end*timestep,
+                       timeunit = timeunit(sim))
 
     # load core modules
     for (c in core) {
@@ -299,7 +299,7 @@ setMethod(
     pnames <- unique(c(paste0(".", core[-omit]), names(params(sim))))
 
     if ( (is.null(params$.progress)) || (any(is.na(params$.progress))) ) {
-      params$.progress <- list(type=NA_character_, interval=NA_real_)
+      params$.progress <- list(type = NA_character_, interval = NA_real_)
     }
 
     tmp <- list()
@@ -326,7 +326,7 @@ setMethod(
       ### add NAs to any of the dotParams that are not specified by user
       # ensure the modules sublist exists by creating a tmp value in it
       if(is.null(params(sim)[[m]])) {
-        params(sim)[[m]] <- list(.tmp=NA_real_)
+        params(sim)[[m]] <- list(.tmp = NA_real_)
       }
 
       # add the necessary values to the sublist
@@ -353,24 +353,29 @@ setMethod(
     }
 
     # load files in the filelist
-    if (length(inputs)>0) {
+    if (length(inputs)) {
       inputs(sim) <- inputs
-      if (NROW(events(sim)[moduleName=="load" & eventType=="inputs" & eventTime==start(sim)])>0) {
+      if (NROW(events(sim)[
+        moduleName == "load" &
+        eventType == "inputs" &
+        eventTime == start(sim)]
+        ) > 0) {
         sim <- doEvent.load(sim, time(sim, "second"), "inputs")
-        events(sim) <- events(sim, "second")[!(eventTime==time(sim, "second") &
-                                                 moduleName=="load" &
-                                                 eventType=="inputs"),]
+        events(sim) <- events(sim, "second")[
+          !(eventTime==time(sim, "second") &
+              moduleName=="load" &
+              eventType=="inputs"),]
       }
     }
 
-    if (length(outputs)>0) {
+    if (length(outputs)) {
       outputs(sim) <- outputs
     }
 
     # check the parameters supplied by the user
-    checkParams(sim, core, dotParams, modulePath(sim)) # returns invisible TRUE/FALSE
+    checkParams(sim, core, dotParams, modulePath(sim))
 
-    if(length(objects)>0) {
+    if (length(objects)) {
       # find the simInit call that was responsible for this, get the objects
       #  in the environment of the parents of that call, and pass them to new
       #  environment.
@@ -408,9 +413,9 @@ setMethod(
             paths="list", inputs="data.frame", outputs="missing",
             loadOrder="character"),
   definition=function(times, params, modules, objects, paths, inputs, loadOrder) {
-    sim <- simInit(times=times, params=params, modules=modules, objects=objects,
-                   paths=paths, inputs=inputs, outputs=as.data.frame(NULL),
-                   loadOrder=character())
+    sim <- simInit(times = times, params = params, modules = modules,
+                   objects = objects, paths = paths, inputs = inputs,
+                   outputs = as.data.frame(NULL), loadOrder = character())
   return(invisible(sim))
 })
 
@@ -1000,9 +1005,9 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 #' @rdname scheduleEvent
 setMethod(
   "scheduleEvent",
-  signature(sim="simList", eventTime="numeric", moduleName="character",
-            eventType="character"),
-  definition=function(sim, eventTime, moduleName, eventType) {
+  signature(sim = "simList", eventTime = "numeric", moduleName = "character",
+            eventType = "character"),
+  definition = function(sim, eventTime, moduleName, eventType) {
     if (length(eventTime)) {
       if (!is.na(eventTime)) {
         # if there is no metadata, meaning for the first
@@ -1124,8 +1129,6 @@ setMethod("spades",
           signature(sim="simList", debug="logical"),
           definition=function(sim, debug) {
             envName <- paste("SpaDES", deparse(substitute(sim)), sep="_")
-            #attach(envir(sim), name=envName)
-            #on.exit(detach(pos=match(envName, search())))
 
             while(time(sim, "second") <= end(sim, "second")) {
 

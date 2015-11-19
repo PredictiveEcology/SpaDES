@@ -1,20 +1,20 @@
-stopifnot(packageVersion("SpaDES") >= "0.99.0")
+stopifnot(packageVersion("SpaDES") >= "1.0.3.9010")
 
 ## module metadata
 defineModule(sim, list(
-  name="caribouMovement",
-  description="Simulate caribou movement via correlated random walk.",
-  keywords=c("caribou", "individual based movement model", "correlated random walk"),
-  childModules=character(),
-  authors=c(person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca", role=c("aut", "cre"))),
-  version=numeric_version("1.1.0"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit="month",
-  citation=list(),
-  documentation=list(),
-  reqdPkgs=list("grid", "raster", "sp"),
-  parameters=rbind(
+  name = "caribouMovement",
+  description = "Simulate caribou movement via correlated random walk.",
+  keywords = c("caribou", "individual based movement model", "correlated random walk"),
+  childModules = character(),
+  authors = c(person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))),
+  version = numeric_version("1.1.1"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = "month",
+  citation = list(),
+  documentation = list(),
+  reqdPkgs = list("grid", "raster", "sp"),
+  parameters = rbind(
     defineParameter("moveInitialTime", "numeric", 1.0, NA, NA, "time to schedule first movement event"),
     defineParameter("moveInterval", "numeric", 1.0, NA, NA, "time interval between movoment events"),
     defineParameter("N", "numeric", 100L, NA, NA, "initial number of caribou"),
@@ -22,20 +22,22 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
-    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")),
-  inputObjects=data.frame(objectName=globals(sim)$stackName,
-                          objectClass="RasterStack",
-                          other="layername=\"habitatQuality\"",
-                          stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=c(globals(sim)$stackName, "caribou"),
-                           objectClass=c("RasterStack", "SpatialPointsDataFrame"),
-                           other=c("layername=\"habitatQuality\"", NA_character_),
-                           stringsAsFactors=FALSE)
+    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
+  ),
+  inputObjects = data.frame(
+    objectName = globals(sim)$stackName, objectClass = "RasterStack",
+    sourceURL = NA_character_, other = "layername = \"habitatQuality\"",
+    stringsAsFactors = FALSE),
+  outputObjects = data.frame(
+    objectName = c(globals(sim)$stackName, "caribou"),
+    objectClass = c("RasterStack", "SpatialPointsDataFrame"),
+    other = c("layername = \"habitatQuality\"", NA_character_),
+    stringsAsFactors = FALSE)
 ))
 
 ## event types
-doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="init") {
+doEvent.caribouMovement <- function(sim, eventTime, eventType, debug = FALSE) {
+  if (eventType == "init") {
     ### check for more detailed object dependencies:
     ### (use `checkObject` or similar)
     checkObject(sim, name=globals(sim)$stackName, layer="habitatQuality")
@@ -47,14 +49,14 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, params(sim)$caribouMovement$moveInitialTime, "caribouMovement", "move")
     sim <- scheduleEvent(sim, params(sim)$caribouMovement$.plotInitialTime, "caribouMovement", "plot.init")
     sim <- scheduleEvent(sim, params(sim)$caribouMovement$.saveInitialTime, "caribouMovement", "save")
-  } else if (eventType=="move") {
+  } else if (eventType == "move") {
     # do stuff for this event
     sim <- sim$caribouMovementMove(sim)
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
                            params(sim)$caribouMovement$moveInterval, "caribouMovement", "move")
-  } else if (eventType=="plot.init") {
+  } else if (eventType == "plot.init") {
     # do stuff for this event
     Plot(sim$caribou, addTo=paste("sim", globals(sim)$stackName, "habitatQuality", sep="$"),
          new=FALSE, size=0.2, pch=19, gp=gpar(cex=0.6))
@@ -62,7 +64,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
                            params(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
-  } else if (eventType=="plot") {
+  } else if (eventType == "plot") {
     # do stuff for this event
     Plot(sim$caribou, addTo=paste("sim", globals(sim)$stackName, "habitatQuality", sep="$"),
          new=FALSE, pch=19, size=0.2, gp=gpar(cex=0.6))
@@ -71,7 +73,7 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) +
                            params(sim)$caribouMovement$.plotInterval, "caribouMovement", "plot")
-  } else if (eventType=="save") {
+  } else if (eventType == "save") {
     # do stuff for this event
     sim <- saveFiles(sim)
 
@@ -80,8 +82,10 @@ doEvent.caribouMovement <- function(sim, eventTime, eventType, debug=FALSE) {
                            params(sim)$caribouMovement$.saveInterval, "caribouMovement", "save")
 
   } else {
-    warning(paste("Undefined event type: \'", events(sim)[1,"eventType",with=FALSE],
-                  "\' in module \'", events(sim)[1,"moduleName",with=FALSE],"\'",sep=""))
+    warning(paste(
+      "Undefined event type: \'", events(sim)[1,"eventType", with=FALSE],
+      "\' in module \'", events(sim)[1,"moduleName", with=FALSE],"\'", sep=""
+    ))
   }
   return(invisible(sim))
 }
@@ -98,8 +102,7 @@ caribouMovementInit <- function(sim) {
   age <- round(rnorm(N, mean=8, sd=3))
   x1 <- rep(0, N)
   y1 <- rep(0, N)
-  starts <- cbind(x=runif(N, xrange[1],xrange[2]),
-                  y=runif(N, yrange[1],yrange[2]))
+  starts <- cbind(x = runif(N, xrange[1],xrange[2]), y = runif(N, yrange[1],yrange[2]))
 
   # create the caribou agent object
   sim$caribou <- SpatialPointsDataFrame(coords=starts, data=data.frame(x1, y1, sex, age))
@@ -111,7 +114,7 @@ caribouMovementInit <- function(sim) {
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
   sim$caribou <- crop(sim$caribou, sim[[globals(sim)$stackName]])
-  if(length(sim$caribou)==0) stop("All agents are off map")
+  if(length(sim$caribou) == 0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
   ex <- sim[[globals(sim)$stackName]][["habitatQuality"]][sim$caribou]

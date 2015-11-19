@@ -2,9 +2,17 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.0.4
 =============
+* require R version 3.2.2 or higher
+* remove `downloader` from Imports (#203)
+* add data source info module metadata (#205)
+* new function `downloadData` to download module data (with #205)
+* new function `checksums` to verify MD5 hashes of data files (with #205)
 * more control of caching behaviour: added `cachePath` to paths slot (#227)
+* fix error caused by coercing `NA` to arbitrary class for which no suitable `NA` type exists (#231)
+* use warnings instead of errors for missing modules metadata (#233)
 * improve efficiency of `loadPackages`
 * change .spatialObjects class to spatialObjects and export
+* other bug fixes
 
 version 1.0.3
 =============

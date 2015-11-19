@@ -32,6 +32,8 @@ setMethod("getColors",
 ################################################################################
 #' Set colours for plotting Raster* objects.
 #'
+#' \code{setColors} works as a replacement method or a normal function call.
+#'
 #' @param object     A \code{Raster*} object.
 #'
 #' @param ...   Additional arguments to \code{colorRampPalette}.
@@ -65,7 +67,7 @@ setGeneric("setColors<-",
 setReplaceMethod("setColors",
                  signature("RasterLayer", "numeric", "character"),
                  function(object, ..., n, value) {
-                   pal <- colorRampPalette(value, alpha=TRUE, ...)
+                   pal <- colorRampPalette(value, alpha = TRUE, ...)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
@@ -75,12 +77,12 @@ setReplaceMethod("setColors",
 setReplaceMethod("setColors",
                  signature("RasterLayer", "missing", "character"),
                  function(object, ..., value) {
-                   n <- round((maxValue(object)-minValue(object)))+1
-                   pal <- colorRampPalette(value, alpha=TRUE, ...)
+                   n <- round((maxValue(object) - minValue(object))) + 1
+                   pal <- colorRampPalette(value, alpha = TRUE, ...)
                    object@legend@colortable <- pal(n)
                    validObject(object)
                    return(object)
-})
+                 })
 
 #' @rdname setColors
 setReplaceMethod("setColors",
@@ -104,6 +106,28 @@ setReplaceMethod("setColors",
                    }
                    validObject(object)
                    return(object)
+})
+
+#' @export
+#' @rdname setColors
+setGeneric("setColors", function(object, value, n) {
+  standardGeneric("setColors")
+})
+
+#' @rdname setColors
+setMethod("setColors",
+          signature("RasterLayer", "character", "numeric"),
+          function(object, value, n) {
+            setColors(object = object, n = n) <- value
+            return(object)
+})
+
+#' @rdname setColors
+setMethod("setColors",
+          signature("RasterLayer", "character", "missing"),
+          function(object, value) {
+            setColors(object = object) <- value
+            return(object)
 })
 
 ################################################################################
