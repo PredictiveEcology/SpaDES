@@ -28,4 +28,7 @@ plotting the \code{depsEdgeList} directly with \code{\link{moduleDiagram}}.
 \author{
 Alex Chubaty
 }
+\seealso{
+\code{\link{mermaid}}.
+}
 

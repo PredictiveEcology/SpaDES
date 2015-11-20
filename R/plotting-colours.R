@@ -90,7 +90,7 @@ setReplaceMethod("setColors",
                  function(object, ..., n, value) {
                    i <- which(names(object) %in% names(value))
                    for(x in names(object)[i]) {
-                     setColors(object[[x]], ..., n=n) <- value[[x]]
+                     setColors(object[[x]], ..., n = n) <- value[[x]]
                    }
                    validObject(object)
                    return(object)

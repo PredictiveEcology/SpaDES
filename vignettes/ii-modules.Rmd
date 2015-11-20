@@ -17,13 +17,17 @@ vignette: >
 ---
 
 ```{r echo=FALSE}
-if (!requireNamespace("DiagrammeR", version = "0.7", quietly = TRUE)) {
+if (packageVersion("DiagrammeR") != "0.7") {
   message("A bug in recent versions of `DiagrammeR` prevents rendering this ",
           "vignette correctly.\n",
           "See https://github.com/rich-iannone/DiagrammeR/issues/139\n\n",
-          "Use `DiagrammeR` version 0.7 instead:\n",
-          "  devtools::install_version('DiagrammeR', '0.7')\n"
-          )
+          "Trying `DiagrammeR` version 0.7 instead.")
+  .Library.tmp <- file.path(tempdir(), "libs")
+  dir.create(.Library.tmp)
+  devtools::with_libpaths(
+    .Library.tmp,
+    devtools::install_version('DiagrammeR', version = '0.7',
+                              repos = 'http://cran.rstudio.com'))
 }
 ```
 
@@ -754,25 +758,34 @@ For example, the `SpaDES_sampleModules` module group lists the following modules
 Module groups make loading multiple modules easier: only the name of the module group needs to be specified in the `simInit` call, which will then initialize the simulation with the child modules.
 
 ```{r module-group-init, eval=FALSE}
+library(DiagrammeR, lib.loc = .Library.tmp)
 library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, end=20.0)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
-                   .progress=list(NA),
-                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
-                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=10, startTime=0,
-                                  .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
-                                        .plotInitialTime=1.01, .plotInterval=1))
+times <- list(start = 0.0, end = 20.0)
+parameters <- list(
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+  .progress = list(NA),
+  randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
+  fireSpread = list(
+    nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
+    returnInterval = 10, startTime = 0,
+    .plotInitialTime = 0.1, .plotInterval = 10
+  ),
+  caribouMovement = list(
+    N = 100L, moveInterval = 1, torus = TRUE,
+    .plotInitialTime = 1.01, .plotInterval = 1
+  )
+)
 modules <- list("SpaDES_sampleModules")
 objects <- list()
-paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-              outputPath=outputDir)
+paths <- list(
+  modulePath = system.file("sampleModules", package = "SpaDES"),
+  outputPath = outputDir
+)
 
-mySim <- simInit(times=times, params=parameters, modules=modules,
-                 objects=objects, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
 
 modules(mySim) # note the child modules are initialized
 ```
@@ -807,5 +820,6 @@ To submit your module for inclusion in our GitHub repository, login to GitHub wi
 See the [GitHub help documentation](https://help.github.com/articles/creating-a-pull-request/) for more details.
 
 ```{r cleanup, eval=TRUE, echo=FALSE}
+unlink(.Library.tmp, recursive = TRUE)
 unlink(outputDir, recursive = TRUE)
 ```

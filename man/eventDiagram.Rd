@@ -49,4 +49,7 @@ This is useful for Gantt Charts generally but can be considered a 'bug' here.
 \author{
 Alex Chubaty
 }
+\seealso{
+\code{\link{mermaid}}.
+}
 

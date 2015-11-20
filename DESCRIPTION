@@ -28,7 +28,6 @@ Depends:
     R (>= 3.2.2)
 Suggests:
     fastshp,
-    DiagrammeR,
     knitr,
     Matrix,
     RColorBrewer,
@@ -40,6 +39,7 @@ Imports:
     archivist,
     CircStats,
     data.table,
+    DiagrammeR,
     digest,
     dplyr,
     ff,
