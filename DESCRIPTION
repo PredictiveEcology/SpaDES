@@ -11,8 +11,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.0.3.9018
-Date: 2015-11-19
+Version: 1.0.3.9019
+Date: 2015-11-20
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),
@@ -28,6 +28,7 @@ Depends:
     R (>= 3.2.2)
 Suggests:
     fastshp,
+    DiagrammeR,
     knitr,
     Matrix,
     RColorBrewer,
@@ -39,7 +40,6 @@ Imports:
     archivist,
     CircStats,
     data.table,
-    DiagrammeR,
     digest,
     dplyr,
     ff,
@@ -100,4 +100,4 @@ Collate:
     'splitRaster.R'
     'spread-process.R'
     'zzz.R'
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.0

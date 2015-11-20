@@ -25,7 +25,7 @@ completed simulation).}
 Useful for specifying \code{height} and \code{width}.}
 }
 \value{
-Plots an event diagram as Gantt Chart, invisibly returning a \link{mermaid} object.
+Plots an event diagram as Gantt Chart, invisibly returning a \code{mermaid} object.
 }
 \description{
 Create a Gantt Chart representing the events in a completed simulation.
@@ -48,8 +48,5 @@ This is useful for Gantt Charts generally but can be considered a 'bug' here.
 }
 \author{
 Alex Chubaty
-}
-\seealso{
-\code{\link{mermaid}}.
 }
 

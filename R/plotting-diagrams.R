@@ -133,12 +133,12 @@ setMethod(".sim2gantt",
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
 #'
-#' @return Plots an event diagram as Gantt Chart, invisibly returning a \link{mermaid} object.
+#' @return Plots an event diagram as Gantt Chart, invisibly returning a \code{mermaid} object.
 #'
-#' @seealso \code{\link{mermaid}}.
+# @seealso \code{\link{mermaid}}.
 #'
 #' @include simList-accessors.R
-#' @importFrom DiagrammeR mermaid
+# @importFrom DiagrammeR mermaid
 #' @export
 #' @docType methods
 #' @rdname eventDiagram
@@ -151,47 +151,58 @@ setGeneric("eventDiagram", function(sim, n, startDate, ...) {
 
 #' @export
 #' @rdname eventDiagram
-setMethod("eventDiagram",
-          signature(sim="simList", n="numeric", startDate="character"),
-          definition=function(sim, n, startDate, ...) {
-            # get automatic scaling of vertical bars in Gantt chart
-            dots <- list(...)
-            dots$width <- if(any(grepl(pattern="width", names(dots)))) {
-              as.numeric(dots$width)
-            } else {
-              1000
-            }
-            ll <- .sim2gantt(sim, n, startDate, dots$width)
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "numeric", startDate = "character"),
+  definition = function(sim, n, startDate, ...) {
+    ## check to see if DiagrammeR 0.7 is installed (0.8 & 0.8.1 are broken)
+    ## https://github.com/rich-iannone/DiagrammeR/issues/139
+    if (requireNamespace("DiagrammeR", version = "0.7", quietly = TRUE)) {
+      # get automatic scaling of vertical bars in Gantt chart
+      dots <- list(...)
+      dots$width <- if(any(grepl(pattern="width", names(dots)))) {
+        as.numeric(dots$width)
+      } else {
+        1000
+      }
+      ll <- .sim2gantt(sim, n, startDate, dots$width)
 
-            # remove progress bar events
-            ll <- ll[names(ll)!="progress"]
+      # remove progress bar events
+      ll <- ll[names(ll) != "progress"]
 
-            if (length(ll)) {
-              # estimate the height of the diagram
-              dots$height <- if(any(grepl(pattern="height", names(dots)))) {
-                as.numeric(dots$height)
-              } else {
-                sapply(ll, NROW) %>% sum %>% `*`(., 26L)
-              }
+      if (length(ll)) {
+        # estimate the height of the diagram
+        dots$height <- if(any(grepl(pattern = "height", names(dots)))) {
+          as.numeric(dots$height)
+        } else {
+          sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+        }
 
-              diagram <- paste0(
-                # mermaid "header"
-                "gantt", "\n",
-                "dateFormat  YYYY-MM-DD", "\n",
-                "title SpaDES event diagram", "\n",
+        diagram <- paste0(
+          # mermaid "header"
+          "gantt", "\n",
+          "dateFormat  YYYY-MM-DD", "\n",
+          "title SpaDES event diagram", "\n",
 
-                # mermaid "body"
-                paste("section ", names(ll), "\n", lapply(ll, function(df) {
-                  paste0(df$task, ":", df$status, ",",
-                         df$pos, ",", df$start, ",", df$end,
-                         collapse = "\n")
-                }), collapse = "\n"), "\n"
-              )
-              do.call(mermaid, args=append(diagram, dots))
-            } else {
-              stop("Unable to create eventDiagram for a simulation that hasn't been run.\n",
-                   "Run your simulation using `mySim <- spades(mySim)` and try again.")
-            }
+          # mermaid "body"
+          paste("section ", names(ll), "\n", lapply(ll, function(df) {
+            paste0(df$task, ":", df$status, ",", df$pos, ",",
+                   df$start, ",", df$end, collapse = "\n")
+          }), collapse = "\n"), "\n"
+        )
+        do.call(DiagrammeR::mermaid, args = append(diagram, dots))
+      } else {
+        stop("Unable to create eventDiagram for a simulation that hasn't been run.\n",
+             "Run your simulation using `mySim <- spades(mySim)` and try again.")
+      }
+    } else {
+      ## https://github.com/rich-iannone/DiagrammeR/issues/139
+      warning("A bug in mermaid + pandoc prevents your installed version ",
+              " of the `DiagrammeR` package to render eventDiagram correctly.\n",
+              "Please install `DiagrammeR` version 0.7 using:\n",
+              "  devtools::install_version('DiagrammeR', '0.7')\n")
+      DiagrammeR::mermaid(..., "")
+    }
 })
 
 #' @export
@@ -215,12 +226,12 @@ setMethod("eventDiagram",
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
 #'
-#' @return Plots a sequence diagram, invisibly returning a \link{mermaid} object.
+#' @return Plots a sequence diagram, invisibly returning a \code{mermaid} object.
 #'
-#' @seealso \code{\link{mermaid}}.
+# @seealso \code{\link{mermaid}}.
 #'
 #' @include simList-accessors.R
-#' @importFrom DiagrammeR mermaid
+# @importFrom DiagrammeR mermaid
 #' @export
 #' @docType methods
 #' @rdname objectDiagram
@@ -233,20 +244,32 @@ setGeneric("objectDiagram", function(sim, ...) {
 
 #' @export
 #' @rdname objectDiagram
-setMethod("objectDiagram",
-          signature(sim="simList"),
-          definition=function(sim, ...) {
-            dt <- depsEdgeList(sim, FALSE)
-            mermaid(...,
-              paste0(
-                # mermaid "header"
-                "sequenceDiagram", "\n",
+setMethod(
+  "objectDiagram",
+  signature(sim = "simList"),
+  definition = function(sim, ...) {
+    ## check to see if DiagrammeR 0.7 is installed (0.8 & 0.8.1 are broken)
+    ## https://github.com/rich-iannone/DiagrammeR/issues/139
+    if (requireNamespace("DiagrammeR", version = "0.7", quietly = TRUE)) {
+      dt <- depsEdgeList(sim, FALSE)
+      DiagrammeR::mermaid(...,
+        paste0(
+          # mermaid "header"
+          "sequenceDiagram", "\n",
 
-                # mermaid "body"
-                paste(dt$from, "->>", dt$to, ":", dt$objName, collapse="\n"),
-                "\n"
-              )
-            )
+          # mermaid "body"
+          paste(dt$from, "->>", dt$to, ":", dt$objName, collapse="\n"),
+          "\n"
+        )
+      )
+    } else {
+      ## https://github.com/rich-iannone/DiagrammeR/issues/139
+      warning("A bug in mermaid + pandoc prevents your installed version ",
+              " of the `DiagrammeR` package to render objectDiagram correctly.\n",
+              "Please install `DiagrammeR` version 0.7 using:\n",
+              "  devtools::install_version('DiagrammeR', '0.7')\n")
+      DiagrammeR::mermaid(..., "")
+    }
 })
 
 ################################################################################

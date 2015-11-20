@@ -18,7 +18,7 @@ completed simulation).}
 Useful for specifying \code{height} and \code{width}.}
 }
 \value{
-Plots a sequence diagram, invisibly returning a \link{mermaid} object.
+Plots a sequence diagram, invisibly returning a \code{mermaid} object.
 }
 \description{
 Create a sequence diagram illustrating the data object dependencies of a
@@ -27,8 +27,5 @@ plotting the \code{depsEdgeList} directly with \code{\link{moduleDiagram}}.
 }
 \author{
 Alex Chubaty
-}
-\seealso{
-\code{\link{mermaid}}.
 }
 
