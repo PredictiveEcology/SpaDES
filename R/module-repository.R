@@ -10,13 +10,11 @@ if(getRversion() >= "3.1.0") {
 #'
 #' @param name  Character string giving the module name.
 #'
-#' @param repo   GitHub repository name.
-#'                Default is \code{"PredictiveEcology/SpaDES-modules"},
-#'                which is specified by the global option \code{spades.modulesRepo}.
+#' @param repo  GitHub repository name.
+#'              Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
+#'              specified by the global option \code{spades.modulesRepo}.
 #'
-#' @importFrom httr content
-#' @importFrom httr GET
-#' @importFrom httr stop_for_status
+#' @importFrom httr content GET stop_for_status
 #' @export
 #' @rdname getModuleVersion
 #'
@@ -39,23 +37,23 @@ setMethod(
     apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
     request <- GET(apiurl)
     stop_for_status(request)
-    allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names=FALSE)
-    moduleFiles <- grep(paste0("^modules/", name), allFiles, value=TRUE)
-    zipFiles <- grep("[.]zip$", moduleFiles, value=TRUE)
+    allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names = FALSE)
+    moduleFiles <- grep(paste0("^modules/", name), allFiles, value = TRUE)
+    zipFiles <- grep("[.]zip$", moduleFiles, value = TRUE)
     versions <- strsplit(zipFiles, "_") %>%
                 unlist %>%
-                grep("[.]zip$", ., value=TRUE) %>%
+                grep("[.]zip$", ., value = TRUE) %>%
                 strsplit(., "[.]zip$") %>%
                 unlist %>%
                 as.numeric_version
-    current <- sort(versions, decreasing=TRUE)[1]
+    current <- sort(versions, decreasing = TRUE)[1]
 
     return(current)
 })
 
 #' @rdname getModuleVersion
 setMethod("getModuleVersion",
-          signature=c(name="character", repo="missing"),
+          signature = c(name = "character", repo = "missing"),
           definition = function(name) {
             v <- getModuleVersion(name, getOption("spades.modulesRepo"))
             return(v)
@@ -96,7 +94,7 @@ setMethod(
   signature = c(name = "character", path = "character", version = "character",
                 repo = "character"),
   definition = function(name, path, version, repo) {
-    path <- checkPath(path, create=TRUE)
+    path <- checkPath(path, create = TRUE)
     if (is.na(version)) version <- getModuleVersion(name, repo)
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
@@ -134,7 +132,7 @@ setMethod(
   signature = c(name = "character", path = "character", version = "missing",
                 repo = "character"),
   definition = function(name, path, repo) {
-    files <- downloadModule(name, path, version=NA_character_, repo = repo)
+    files <- downloadModule(name, path, version = NA_character_, repo = repo)
     return(invisible(files))
 })
 

@@ -12,7 +12,7 @@
 #'                  because it will fail if the object does not exist.
 #'
 #' @param layer   Character string, specifying a layer name in a Raster, if the
-#'                \code{name} is a Raster* object.
+#'                \code{name} is a \code{Raster*} object.
 #'
 #' @param ...    Additional arguments. Not implemented.
 #'
