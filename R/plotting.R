@@ -48,7 +48,7 @@ setMethod(
 
     env <- list(...)$env
     suppliedNames <- names(plotObjects)
-    if(is.null(suppliedNames)){
+    if (is.null(suppliedNames)){
       objs <- .objectNames()[whichSpadesPlottables]
     } else {
       objs <- lapply(suppliedNames, function(x) list(objs=x, envs=env))
@@ -221,9 +221,9 @@ setMethod(
     whichParamsChanged <- lapply(newNames[overplots], function(x) {
       sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs), function(y) {
         !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
-                              curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
-        })
+                   curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
       })
+    })
     names(whichParamsChanged) <- newNames[overplots]
 
     # Set FALSE as default for needPlotting
@@ -347,29 +347,29 @@ setMethod(
   definition = function(sPlot) {
     sgl <- sPlot@spadesGrobList
 
-    dimx <- apply(do.call(rbind,
-                          sapply(1:length(sgl), function(x) {
-                            lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
-                              if (z == TRUE) {
-                                # for spatial objects
-                                apply(
-                                  bbox(
-                                    eval(
-                                      parse(text = sgl[[x]][[1]]@objName),
-                                      envir = sgl[[x]][[1]]@envir
-                                    )
-                                  ),
-                                  1,
-                                  function(y) {
-                                    diff(range(y))
-                                  }
-                                )
-                              } else {
-                                # for non spatial objects
-                                c(1,1)
-                              }
-                            })
-                          })), 2, max)
+    dimx <- apply(do.call(
+      rbind, sapply(1:length(sgl), function(x) {
+        lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
+          if (z == TRUE) {
+            # for spatial objects
+            apply(
+              bbox(
+                eval(
+                  parse(text = sgl[[x]][[1]]@objName),
+                  envir = sgl[[x]][[1]]@envir
+                )
+              ),
+              1,
+              function(y) {
+                diff(range(y))
+              }
+            )
+          } else {
+            # for non spatial objects
+            c(1,1)
+          }
+        })
+      })), 2, max)
 
     nPlots <- length(sgl)
     names <- names(sgl)
@@ -430,7 +430,7 @@ setMethod(
 #' plotting down.
 #'
 #' The suggested package \code{fastshp} can be installed with:
-#' \code{install.packages("fastshp", repos="http://rforge.net", type="source")}.
+#' \code{install.packages("fastshp", repos = "http://rforge.net", type = "source")}.
 #'
 #' NOTE: you may get errors relating to not having installed the software tools
 #' required for building R packages on your system.
@@ -645,7 +645,7 @@ setMethod(
 
     if (nrow(xyOrd) > 1e3) {
       # thin if greater than 1000 pts
-      if(speedup>0.1) {
+      if (speedup>0.1) {
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- data.table(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
@@ -661,7 +661,7 @@ setMethod(
               "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
             )
           )
-          if (Sys.info()[["sysname"]]=="Windows") {
+          if (Sys.info()[["sysname"]] == "Windows") {
             message(
               paste(
                 "You may also need to download and install Rtools from:\n",
@@ -755,7 +755,7 @@ setMethod(
 
     if (nrow(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
-      if(speedup>0.1) {
+      if (speedup>0.1) {
 
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- data.table(
@@ -772,7 +772,7 @@ setMethod(
               "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
             )
           )
-          if (Sys.info()[["sysname"]]=="Windows") {
+          if (Sys.info()[["sysname"]] == "Windows") {
             message(
               paste(
                 "You may also need to download and install Rtools from:\n",
@@ -826,7 +826,7 @@ setMethod(
 
     if (nrow(xy) > 1e3) {
       # thin if fewer than 1000 pts
-      if(speedup>0.1) {
+      if (speedup>0.1) {
 
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- fastshp::thin(xy[, 1], xy[, 2],
@@ -976,7 +976,7 @@ setMethod(
 #' @importFrom raster xmin xmax ymin ymax
 #' @rdname makeViewports
 #'
-.makeViewports <- function(sPlot, newArr=FALSE) {
+.makeViewports <- function(sPlot, newArr = FALSE) {
   arr <- sPlot@arr
   sgl <- sPlot@spadesGrobList
 
@@ -1095,7 +1095,7 @@ setMethod(
 #' This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 #' \code{SpatialPolygons*}, and any combination of those.
 #' It can also handle \code{ggplot2} objects or \code{base::histogram} objects
-#' via call to \code{exHist <- hist(1:10, plot=FALSE)}.
+#' via call to \code{exHist <- hist(1:10, plot = FALSE)}.
 #' Customization of the \code{ggplot2} elements can be done as a normal
 #' \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
 #'
@@ -1104,10 +1104,10 @@ setMethod(
 #' before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
 #' many errors.
 #'
-#' If \code{new=TRUE}, a new plot will be generated.
+#' If \code{new = TRUE}, a new plot will be generated.
 #' This is equivalent to calling \code{clearPlot(); Plot(Object)},
 #' i.e,. directly before creating a new Plot.
-#' When \code{new=FALSE}, any plot that already exists will be overplotted,
+#' When \code{new = FALSE}, any plot that already exists will be overplotted,
 #' while plots that have not already been plotted will be added.
 #' This function rearranges the plotting device to maximize the size of all the
 #' plots, minimizing white space.
@@ -1139,7 +1139,7 @@ setMethod(
 #' Silently, one hidden object is made, \code{.spadesPlot} in the
 #' \code{.spadesEnv} environment, which is used for arranging plots in the
 #' device window, and identifying the objects to be replotted if rearranging
-#' is required, subsequent to a \code{new=FALSE} additional plot.
+#' is required, subsequent to a \code{new = FALSE} additional plot.
 #'
 #' This function is optimized to allow modular Plotting. This means that several
 #' behaviours will appear unusual.
@@ -1187,10 +1187,10 @@ setMethod(
 #'           to change plotting parameters (see \code{grid} package).
 #'
 #' @param gpText A \code{gpar} object for the title text.
-#'               Default \code{gpar(col="black")}.
+#'               Default \code{gpar(col = "black")}.
 #'
 #' @param gpAxis A \code{gpar} object for the axes.
-#'               Default \code{gpar(col="black")}.
+#'               Default \code{gpar(col = "black")}.
 #'
 #' @param axes Logical or \code{"L"}, representing the left and bottom axes,
 #'             over all plots.
@@ -1253,7 +1253,7 @@ setMethod(
 #'
 #' @seealso \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 #' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
-#' \code{\link{ggplot2}}, \code{\link{dev}}
+#' \code{\link{ggplot}}, \code{\link{dev}}
 #'
 #' @rdname Plot
 #' @export
@@ -1263,12 +1263,15 @@ setMethod(
 #' @importFrom grid upViewport pushViewport seekViewport grid.text
 #' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
 #' @importFrom grDevices dev.cur dev.size
-#' @author Eliot McIntire
+#'
 #' @include environment.R
 #' @include plotting-classes.R
 #' @include plotting-colours.R
 #' @include plotting-helpers.R
 #' @include plotting-other.R
+#'
+#' @author Eliot McIntire
+#'
 #' @examples
 #' \dontrun{
 #' library(sp)
@@ -1276,18 +1279,18 @@ setMethod(
 #' library(rgdal)
 #' library(igraph)
 #' library(RColorBrewer)
-#' #  Make list of maps from package database to load, and what functions to use to load them
+#' # Make list of maps from package database to load, and what functions to use to load them
 #' filelist <-
 #'    data.frame(files =
 #'      dir(file.path(
-#'        find.package("SpaDES", quiet=FALSE), "maps"),
-#'        full.names=TRUE, pattern= "tif"),
-#'      functions="rasterToMemory",
-#'      packages="SpaDES",
-#'      stringsAsFactors=FALSE)
+#'        find.package("SpaDES", quiet = FALSE), "maps"),
+#'        full.names = TRUE, pattern= "tif"),
+#'      functions = "rasterToMemory",
+#'      packages = "SpaDES",
+#'      stringsAsFactors = FALSE)
 #'
 #' # Load files to memory (using rasterToMemory)
-#' mySim <- loadFiles(filelist=filelist)
+#' mySim <- loadFiles(filelist = filelist)
 #'
 #' # put layers into a single stack for convenience
 #' landscape <- stack(mySim$DEM, mySim$forestCover, mySim$forestAge,
@@ -1305,29 +1308,19 @@ setMethod(
 #' names(habitatQuality2) <- "habitatQuality2"
 #'
 #' # make a SpatialPoints object
-#' caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2, -50, 50), y=stats::runif(1e2, -50, 50)))
+#' caribou <- cbind(x = stats::runif (1e2, -50, 50), y = stats::runif (1e2, -50, 50)) %>%
+#'   SpatialPoints(coords = .)
 #'
-#'
-#' #Plot all maps on a new plot windows - Do not use RStudio window
 #' \notrun{
-#' if (is.null(grDevices::dev.list())) {
-#'   dev(2)
-#' } else {
-#'   if (any(names(grDevices::dev.list())=="RStudioGD")) {
-#'     dev(which(names(grDevices::dev.list())=="RStudioGD")+3)
-#'   } else {
-#'     dev(max(grDevices::dev.list()))
-#'   }
+#' dev(2)
 #' }
-#' }
-#'
-#' Plot(landscape, new=TRUE)
+#' Plot(landscape, new = TRUE)
 #'
 #' # Can overplot, using addTo
-#' Plot(caribou, addTo="landscape$forestAge", size=4, axes=FALSE)
+#' Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
 #'
 #' # can add a plot to the plotting window
-#' Plot(caribou, new=FALSE)
+#' Plot(caribou, new = FALSE)
 #'
 #' # Can add two maps with same name, if one is in a stack; they are given
 #' #  unique names based on object name
@@ -1338,29 +1331,28 @@ setMethod(
 #'
 #' # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
 #' Plot(landscape, caribou)
-#' Plot(habitatQuality2, new=FALSE)
+#' Plot(habitatQuality2, new = FALSE)
 #' Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
 #' Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
 #' Srs1 = Polygons(list(Sr1), "s1")
 #' Srs2 = Polygons(list(Sr2), "s2")
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #' Plot(SpP)
-#' Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
+#' Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
 #'
 #' }
 #'
 # igraph exports %>% from magrittr
-setGeneric("Plot",
-           signature = "...",
-           function(..., new = FALSE, addTo = NULL,
-                    gp = gpar(), gpText = gpar(), gpAxis = gpar(),
-                    axes = FALSE, speedup = 1,
-                    size = 5, cols = NULL, zoomExtent = NULL,
-                    visualSqueeze = NULL,
-                    legend = TRUE, legendRange = NULL, legendText = NULL,
-                    pch = 19, title = TRUE,
-                    na.color = "#FFFFFF00", zero.color = NULL, length = NULL) {
-             standardGeneric("Plot")
+setGeneric(
+  "Plot",
+  signature = "...",
+  function(..., new = FALSE, addTo = NULL,
+           gp = gpar(), gpText = gpar(), gpAxis = gpar(), axes = FALSE,
+           speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
+           visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
+           legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
+           zero.color = NULL, length = NULL) {
+    standardGeneric("Plot")
 })
 
 #' @rdname Plot
@@ -1368,10 +1360,10 @@ setGeneric("Plot",
 setMethod(
   "Plot",
   signature("ANY"),
-  definition = function(..., new, addTo, gp, gpText, gpAxis, axes,
-                        speedup, size, cols, zoomExtent, visualSqueeze,
-                        legend, legendRange, legendText, pch, title,
-                        na.color, zero.color, length) {
+  definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup,
+                        size, cols, zoomExtent, visualSqueeze, legend,
+                        legendRange, legendText, pch, title, na.color,
+                        zero.color, length) {
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
 
@@ -1379,13 +1371,13 @@ setMethod(
 
     # this covers the case where R thinks that there is nothing, but
     #  there may in fact be something.
-    if(length(ls(.spadesEnv))==0) clearPlot(dev.cur())
+    if (length(ls(.spadesEnv))==0) clearPlot(dev.cur())
 
     scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
     isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) #%>%
     dots <- list(...)
-    if(any(isDoCall)) {
+    if (any(isDoCall)) {
 
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame-1)
@@ -1403,12 +1395,11 @@ setMethod(
                        plotFrame)[-1]
 
     }
-    if(!is.null(dots$env)) {
+    if (!is.null(dots$env)) {
       objFrame <- dots$env
     } else {
       objFrame <- plotFrame
     }
-
 
     if (all(sapply(plotArgs$new, function(x) x))) {
       clearPlot(dev.cur())
@@ -1419,20 +1410,18 @@ setMethod(
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
 
-    canPlot <- if(!is.null(names(whichSpadesPlottables))) {
-      whichSpadesPlottables[names(whichSpadesPlottables)!="env"]
+    canPlot <- if (!is.null(names(whichSpadesPlottables))) {
+      whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
     } else {
       whichSpadesPlottables
     }
 
     if (!all(canPlot)) {
-      message(
-        paste(
-          "Plot can only plot objects of class .spadesPlottables.",
-          "Type 'showClass(\".spadesPlottables\")' to see current available",
-          "classes"
-        )
-      )
+      message(paste(
+        "Plot can only plot objects of class .spadesPlottables.",
+        "Use 'showClass(\".spadesPlottables\")' to see current available",
+        "classes"
+      ))
     }
 
     plotObjs <- dotObjs[whichSpadesPlottables]
@@ -1450,13 +1439,10 @@ setMethod(
           ),
         error = function(x) { FALSE }
       )) {
-        message(
-          paste(
-            "Plot called with 'addTo' argument specified,",
-            "but that layer does not exist.",
-            "Plotting object on its own plot."
-          )
-        )
+        message(paste(
+          "Plot called with 'addTo' argument specified, but that layer does",
+          "not exist. Plotting object on its own plot."
+        ))
         plotArgs$addTo <- NULL
       }
     }
@@ -1464,8 +1450,9 @@ setMethod(
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
-    newSpadesPlots <- .makeSpadesPlot(plotObjs, plotArgs,
-                                      whichSpadesPlottables, env=objFrame)
+    newSpadesPlots <- .makeSpadesPlot(
+      plotObjs, plotArgs, whichSpadesPlottables, env = objFrame
+    )
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -1523,13 +1510,10 @@ setMethod(
         visualSqueeze <- 0.75
       }
       updated$curr@arr <- .arrangeViewports(updated$curr)
-      updated$curr@arr@layout <- .makeLayout(updated$curr@arr,
-                                             sapply(visualSqueeze, max),
-                                             sapply(legend,any),
-                                             sapply(axes, function(x) {
-                                               !any(x == TRUE)
-                                              })
-                                            )
+      updated$curr@arr@layout <- .makeLayout(
+        updated$curr@arr, sapply(visualSqueeze, max), sapply(legend,any),
+        sapply(axes, function(x) { !any(x == TRUE) })
+      )
     }
 
     # Create the viewports as per the optimal layout
@@ -1550,9 +1534,7 @@ setMethod(
     # Section 3 - the actual Plotting
     # Plot each element passed to Plot function, one at a time
 
-
     for (subPlots in names(spadesSubPlots)) {
-
       spadesGrobCounter <- 0
 
       for (sGrob in spadesSubPlots[[subPlots]]) {
@@ -1571,7 +1553,7 @@ setMethod(
             stop(
               paste(
                 "Plot does not already exist on current device.",
-                "Try new=TRUE, clearPlot(), or change device to",
+                "Try new = TRUE, clearPlot(), or change device to",
                 "one that has a plot named", addTo[whGrobNamesi]
               )
             )
@@ -1665,20 +1647,20 @@ setMethod(
               }
 
               #len <- length(grobToPlot)
-              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=NULL, real=FALSE)
+              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=NULL, real = FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real = FALSE)
 
             } else if (is(grobToPlot, "SpatialLines")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real=FALSE)
+              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real = FALSE)
             }
 
             if (is(grobToPlot, "gg")) {
@@ -1688,7 +1670,7 @@ setMethod(
                 stop(
                   paste(
                     "Plot does not already exist on current device.",
-                    "Try new=TRUE or change device to one that has a",
+                    "Try new = TRUE or change device to one that has a",
                     "plot named", addTo[whGrobNamesi]
                   )
                 )
@@ -1805,12 +1787,13 @@ setMethod(
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
     sim <- list(...)[[1]]
-    plotList <- ls(sim@.envir, all.names=TRUE)
+    plotList <- ls(sim@.envir, all.names = TRUE)
     plotObjects = mget(plotList[sapply(plotList, function(x)
       is(get(x, envir=envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
       append(., list(env=envir(sim)))
     do.call(Plot, plotObjects)
-  })
+})
+
 ################################################################################
 #' Re-plot to a specific device
 #'
@@ -1868,28 +1851,30 @@ setGeneric(".identifyGrobToPlot", function(grobNamesi, toPlot, takeFromPlotObj) 
 })
 
 #' @rdname identifyGrobToPlot
-setMethod(".identifyGrobToPlot",
-          signature = c(".spadesGrob", "list", "logical"),
-          function(grobNamesi, toPlot, takeFromPlotObj) {
-            # get the object name associated with this grob
-            if (length(toPlot) == 0)
-              takeFromPlotObj <- FALSE
-            # Does it already exist on the plot device or not
-            if (nchar(grobNamesi@layerName) > 0) {
-              # means it is in a raster
-              grobToPlot <- eval(parse(text = grobNamesi@objName),
-                                 grobNamesi@envir)[[grobNamesi@layerName]]
-            } else {
-              grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
-            }
-            return(grobToPlot)
-          })
+setMethod(
+  ".identifyGrobToPlot",
+  signature = c(".spadesGrob", "list", "logical"),
+  function(grobNamesi, toPlot, takeFromPlotObj) {
+    # get the object name associated with this grob
+    if (length(toPlot) == 0)
+      takeFromPlotObj <- FALSE
+    # Does it already exist on the plot device or not
+    if (nchar(grobNamesi@layerName) > 0) {
+      # means it is in a raster
+      grobToPlot <- eval(parse(text = grobNamesi@objName),
+                         grobNamesi@envir)[[grobNamesi@layerName]]
+    } else {
+      grobToPlot <- eval(parse(text = grobNamesi@objName), grobNamesi@envir)
+    }
+    return(grobToPlot)
+})
 
 #' @rdname identifyGrobToPlot
-setMethod(".identifyGrobToPlot",
-          signature = c(".spadesGrob", "missing", "logical"),
-          function(grobNamesi, toPlot, takeFromPlotObj) {
-            .identifyGrobToPlot(grobNamesi, list(), FALSE)
+setMethod(
+  ".identifyGrobToPlot",
+  signature = c(".spadesGrob", "missing", "logical"),
+  function(grobNamesi, toPlot, takeFromPlotObj) {
+    .identifyGrobToPlot(grobNamesi, list(), FALSE)
 })
 
 ################################################################################
@@ -1926,7 +1911,7 @@ setMethod(".identifyGrobToPlot",
 
   # maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%
   #   min(., npixels)
-  if(speedup > 0.1) {
+  if (speedup > 0.1) {
     maxpixels <- min(5e5, 3e4 / (arr@columns * arr@rows) * prod(arr@ds)) %>%
       `/`(., speedup) %>%
       min(., npixels)

@@ -92,7 +92,7 @@ Too little thinning causes an overabundance of points to be plotted, slowing
 plotting down.
 
 The suggested package \code{fastshp} can be installed with:
-\code{install.packages("fastshp", repos="http://rforge.net", type="source")}.
+\code{install.packages("fastshp", repos = "http://rforge.net", type = "source")}.
 
 NOTE: you may get errors relating to not having installed the software tools
 required for building R packages on your system.

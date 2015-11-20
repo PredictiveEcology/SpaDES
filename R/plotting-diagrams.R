@@ -73,34 +73,35 @@ setGeneric(".sim2gantt", function(sim, n, startDate, width) {
 })
 
 #' @rdname sim2gantt
-setMethod(".sim2gantt",
-          signature(sim="simList", n="numeric", startDate="character"),
-          definition=function(sim, n, startDate, width) {
-            dt <- tail(completed(sim), n)
-            modules <- unique(dt$moduleName)
-            width <- 4500 / as.numeric(width) # fixed at 3 days
+setMethod(
+  ".sim2gantt",
+  signature(sim = "simList", n = "numeric", startDate = "character"),
+  definition = function(sim, n, startDate, width) {
+    dt <- tail(completed(sim), n)
+    modules <- unique(dt$moduleName)
+    width <- 4500 / as.numeric(width) # fixed at 3 days
 
-            # simulation timestep in 'days'
-            ts <- timeunit(sim) %>%
-              inSeconds %>%
-              convertTimeunit("day") %>%
-              as.numeric
+    # simulation timestep in 'days'
+    ts <- timeunit(sim) %>%
+      inSeconds %>%
+      convertTimeunit("day") %>%
+      as.numeric
 
-            out <- lapply(modules, function(x) {
-              data.frame(
-                task = dt[moduleName==x]$eventType,
-                status = ganttStatus(dt[moduleName==x]$eventType),
-                pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                start = as.Date(
-                  dt[moduleName==x]$eventTime * ts, origin=startDate
-                ),
-                end = as.Date(
-                  dt[moduleName==x]$eventTime * ts + width, origin=startDate
-                )
-              )
-            })
-            names(out) <- modules
-            return(out)
+    out <- lapply(modules, function(x) {
+      data.frame(
+        task = dt[moduleName==x]$eventType,
+        status = ganttStatus(dt[moduleName==x]$eventType),
+        pos = paste0(x, 1:nrow(dt[moduleName==x])),
+        start = as.Date(
+          dt[moduleName==x]$eventTime * ts, origin=startDate
+        ),
+        end = as.Date(
+          dt[moduleName==x]$eventTime * ts + width, origin=startDate
+        )
+      )
+    })
+    names(out) <- modules
+    return(out)
 })
 
 ################################################################################
@@ -207,10 +208,11 @@ setMethod(
 
 #' @export
 #' @rdname eventDiagram
-setMethod("eventDiagram",
-          signature(sim="simList", n="missing", startDate="character"),
-          definition=function(sim, startDate, ...) {
-            eventDiagram(sim=sim, n=NROW(completed(sim)), startDate=startDate, ...)
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "missing", startDate = "character"),
+  definition = function(sim, startDate, ...) {
+    eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = startDate, ...)
 })
 
 ################################################################################

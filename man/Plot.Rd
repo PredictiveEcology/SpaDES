@@ -48,10 +48,10 @@ the plot with the same name, such as plotting a
 to change plotting parameters (see \code{grid} package).}
 
 \item{gpText}{A \code{gpar} object for the title text.
-Default \code{gpar(col="black")}.}
+Default \code{gpar(col = "black")}.}
 
 \item{gpAxis}{A \code{gpar} object for the axes.
-Default \code{gpar(col="black")}.}
+Default \code{gpar(col = "black")}.}
 
 \item{axes}{Logical or \code{"L"}, representing the left and bottom axes,
 over all plots.}
@@ -124,7 +124,7 @@ The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 \code{SpatialPolygons*}, and any combination of those.
 It can also handle \code{ggplot2} objects or \code{base::histogram} objects
-via call to \code{exHist <- hist(1:10, plot=FALSE)}.
+via call to \code{exHist <- hist(1:10, plot = FALSE)}.
 Customization of the \code{ggplot2} elements can be done as a normal
 \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
 
@@ -136,10 +136,10 @@ base R graphics. Also, because it does not by default wipe the plotting device
 before plotting, a call to \code{\link{clearPlot}} could be helpful to resolve
 many errors.
 
-If \code{new=TRUE}, a new plot will be generated.
+If \code{new = TRUE}, a new plot will be generated.
 This is equivalent to calling \code{clearPlot(); Plot(Object)},
 i.e,. directly before creating a new Plot.
-When \code{new=FALSE}, any plot that already exists will be overplotted,
+When \code{new = FALSE}, any plot that already exists will be overplotted,
 while plots that have not already been plotted will be added.
 This function rearranges the plotting device to maximize the size of all the
 plots, minimizing white space.
@@ -171,7 +171,7 @@ for rasters, which is \code{terrain.color()}
 Silently, one hidden object is made, \code{.spadesPlot} in the
 \code{.spadesEnv} environment, which is used for arranging plots in the
 device window, and identifying the objects to be replotted if rearranging
-is required, subsequent to a \code{new=FALSE} additional plot.
+is required, subsequent to a \code{new = FALSE} additional plot.
 
 This function is optimized to allow modular Plotting. This means that several
 behaviours will appear unusual.
@@ -209,18 +209,18 @@ library(raster)
 library(rgdal)
 library(igraph)
 library(RColorBrewer)
-#  Make list of maps from package database to load, and what functions to use to load them
+# Make list of maps from package database to load, and what functions to use to load them
 filelist <-
    data.frame(files =
      dir(file.path(
-       find.package("SpaDES", quiet=FALSE), "maps"),
-       full.names=TRUE, pattern= "tif"),
-     functions="rasterToMemory",
-     packages="SpaDES",
-     stringsAsFactors=FALSE)
+       find.package("SpaDES", quiet = FALSE), "maps"),
+       full.names = TRUE, pattern= "tif"),
+     functions = "rasterToMemory",
+     packages = "SpaDES",
+     stringsAsFactors = FALSE)
 
 # Load files to memory (using rasterToMemory)
-mySim <- loadFiles(filelist=filelist)
+mySim <- loadFiles(filelist = filelist)
 
 # put layers into a single stack for convenience
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$forestAge,
@@ -238,29 +238,19 @@ habitatQuality2 <- landscape$habitatQuality ^ 0.3
 names(habitatQuality2) <- "habitatQuality2"
 
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2, -50, 50), y=stats::runif(1e2, -50, 50)))
+caribou <- cbind(x = stats::runif (1e2, -50, 50), y = stats::runif (1e2, -50, 50)) \%>\%
+  SpatialPoints(coords = .)
 
-
-#Plot all maps on a new plot windows - Do not use RStudio window
 \\notrun{
-if (is.null(grDevices::dev.list())) {
-  dev(2)
-} else {
-  if (any(names(grDevices::dev.list())=="RStudioGD")) {
-    dev(which(names(grDevices::dev.list())=="RStudioGD")+3)
-  } else {
-    dev(max(grDevices::dev.list()))
-  }
+dev(2)
 }
-}
-
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 
 # Can overplot, using addTo
-Plot(caribou, addTo="landscape$forestAge", size=4, axes=FALSE)
+Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
 
 # can add a plot to the plotting window
-Plot(caribou, new=FALSE)
+Plot(caribou, new = FALSE)
 
 # Can add two maps with same name, if one is in a stack; they are given
 #  unique names based on object name
@@ -271,14 +261,14 @@ Plot(landscape, habitatQuality2, caribou)
 
 # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
 Plot(landscape, caribou)
-Plot(habitatQuality2, new=FALSE)
+Plot(habitatQuality2, new = FALSE)
 Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
 Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
 Srs1 = Polygons(list(Sr1), "s1")
 Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 Plot(SpP)
-Plot(SpP, addTo="landscape$forestCover", gp=gpar(lwd=2))
+Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
 
 }
 
@@ -291,6 +281,6 @@ Eliot McIntire
 \seealso{
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
-\code{\link{ggplot2}}, \code{\link{dev}}
+\code{\link{ggplot}}, \code{\link{dev}}
 }
 
