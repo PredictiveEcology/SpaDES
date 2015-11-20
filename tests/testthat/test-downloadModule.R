@@ -15,7 +15,9 @@ test_that("downloadData downloads and unzips module data", {
 
   ## temporarily skip check on non-Windows because checksums for certain files
   ## are different due to different line-endings. See issue #230.
-  if (Sys.info()[["sysname"]] == "Windows") { skip("Only check on Windows.") }
+  if (Sys.info()[["sysname"]] == "Windows") {
+    testthat::skip("Not on Windows.")
+  }
 
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
