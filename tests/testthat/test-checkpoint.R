@@ -33,5 +33,5 @@ test_that("test checkpointing", {
   sim2 <- spades(sim2)
 
   ## both versions above should yield identical results
-  expect_true(all.equal(as(sim1,"simList_"), as(sim2,"simList_")))
+  expect_true(all.equal(as(sim1, "simList_"), as(sim2, "simList_")))
 })

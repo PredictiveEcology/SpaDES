@@ -1,22 +1,21 @@
 test_that("simList object initializes correctly", {
-  on.exit(rm(mySim))
-
   defaults <- list("checkpoint", "save", "progress", "load")
-
-  times <- list(start=0.0, end=10)
-  params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"))
+  times <- list(start = 0.0, end = 10)
+  params <- list(
+    .globals = list(burnStats = "npixelsburned", stackName = "landscape")
+  )
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
-  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
+  paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects=list(), paths)
+  mySim <- simInit(times, params, modules, objects = list(), paths)
 
   expect_is(mySim, "simList")
 
   w <- getOption("width")
-  options(width=100L)
+  options(width = 100L)
   out <- utils::capture.output(show(mySim))
   expect_equal(length(out), 78)
-  options(width=w); rm(w)
+  options(width = w); rm(w)
 
   ### SLOT .envir
   expect_is(envir(mySim), "environment")
@@ -31,7 +30,7 @@ test_that("simList object initializes correctly", {
 
   mySim$test1 <- TRUE
   mySim[["test2"]] <- TRUE
-  objs(mySim) <- list(test3=TRUE)
+  objs(mySim) <- list(test3 = TRUE)
 
   expect_true(mySim$test1)
   expect_true(mySim[["test2"]])
@@ -83,9 +82,10 @@ test_that("simList object initializes correctly", {
   # load
   expect_equal(
     inputs(mySim),
-    data.frame(file=character(0), fun=character(0),
-               package=character(0), objectName=character(0),
-               loadTime=numeric(0), loaded=logical(0))
+    data.frame(
+      file = character(0), fun=character(0), package = character(0),
+      objectName = character(0), loadTime = numeric(0), loaded = logical(0)
+    )
   )
   expect_error(inputs(mySim) <- "something", "inputs must be a list")
 
@@ -110,8 +110,11 @@ test_that("simList object initializes correctly", {
   ### SLOT simtimes
   expect_equivalent(
     times(mySim),
-    list(current=0.0, start=0.0, end=convertTimeunit(as.numeric(dmonth(10)), "month"),
-         timeunit="month")
+    list(
+      current = 0.0,
+      start = 0.0,
+      end = convertTimeunit(as.numeric(dmonth(10)), "month"),
+      timeunit = "month")
   )
   expect_equivalent(end(mySim),  10)
   expect_equivalent(start(mySim), 0)
@@ -133,75 +136,84 @@ test_that("simList object initializes correctly", {
   pkgs <- c("grid", "methods", "RandomFields", "raster", "RColorBrewer", "sp",
             "SpaDES", "tkrplot")
   expect_equal(sort(packages(mySim)), sort(pkgs))
+  rm(mySim)
 })
 
 test_that("simList test all signatures", {
-  on.exit(rm(mySim))
+  # times
+  times <- list(start = 0.0, end = 10)
 
-  #times
-  times <- list(start=0.0, end=10)
-
-  #modules
+  # modules
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
 
-  #paths
-  mapPath <- system.file("maps", package="SpaDES")
-  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-                inputPath=mapPath,
-                outputPath=tempdir())
+  # paths
+  mapPath <- system.file("maps", package = "SpaDES")
+  paths <- list(
+    modulePath = system.file("sampleModules", package = "SpaDES"),
+    inputPath = mapPath,
+    outputPath = tempdir()
+  )
 
-  #inputs
-  filelist <- data.frame(files=dir(file.path(mapPath),
-                                        full.names=TRUE, pattern="tif")[1:2],
-                              functions="raster", package="raster", loadTime=c(0,3),
-                              stringsAsFactors=FALSE)
+  # inputs
+  filelist <- data.frame(
+    files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+    functions = "raster",
+    package = "raster",
+    loadTime = c(0, 3),
+    stringsAsFactors = FALSE
+  )
+
   # objects
   layers <- lapply(filelist$files, raster)
   DEM <- layers[[1]]
   forestAge <- layers[[2]]
-  objects <- list(DEM="DEM", forestAge="forestAge")
+  objects <- list(DEM = "DEM", forestAge = "forestAge")
   objectsChar <- c("DEM", "forestAge")
 
-  #outputs
-  outputs <- data.frame(expand.grid(objectName=c("caribou","landscape"),saveTime=1:2,
-                                    stringsAsFactors = FALSE))
+  # outputs
+  outputs <- data.frame(
+    expand.grid(objectName = c("caribou","landscape"),
+                saveTime = 1:2,
+                stringsAsFactors = FALSE)
+  )
 
-  #parameters
-  parameters <- list(.globals=list(stackName="landscape"),
-                     caribouMovement=list(.plotInitialTime=NA),
-                     randomLandscapes=list(.plotInitialTime=NA,
-                                           nx=20, ny=20))
+  # parameters
+  parameters <- list(
+    .globals = list(stackName = "landscape"),
+    caribouMovement = list(.plotInitialTime = NA),
+    randomLandscapes = list(.plotInitialTime = NA, nx = 20, ny = 20)
+  )
 
-  #loadOrder
+  # loadOrder
   loadOrder <- c("randomLandscapes", "caribouMovement", "fireSpread")
 
   # In order in the simulation.R
   origWd <- getwd()
-  setwd(system.file("sampleModules", package="SpaDES"))
+  setwd(system.file("sampleModules", package = "SpaDES"))
 
   errors <- logical()
   argsTested <- list()
   for(i in 1:256) {
-    li <- list({if(i%%2^1==0) times=times},
-      {if(ceiling(i/2)%%2==0) params=parameters},
-      {if(ceiling(i/4)%%2==0) modules=modules},
-      {if(ceiling(i/8)%%2==0) objects=objects},
-      {if(ceiling(i/16)%%2==0) paths=paths},
-      {if(ceiling(i/32)%%2==0) inputs=filelist},
-      {if(ceiling(i/64)%%2==0) outputs=outputs},
-      {if(ceiling(i/128)%%2==0) loadOrder=loadOrder})
-    argNames <- c("times", "params", "modules", "objects", "paths", "inputs", "outputs", "loadOrder")
+    li <- list(
+      {if(i%%2^1 == 0) times = times},
+      {if(ceiling(i/2)%%2 == 0) params=parameters},
+      {if(ceiling(i/4)%%2 == 0) modules = modules},
+      {if(ceiling(i/8)%%2 == 0) objects = objects},
+      {if(ceiling(i/16)%%2 == 0) paths = paths},
+      {if(ceiling(i/32)%%2 == 0) inputs = filelist},
+      {if(ceiling(i/64)%%2 == 0) outputs = outputs},
+      {if(ceiling(i/128)%%2 == 0) loadOrder = loadOrder}
+    )
+    argNames <- c("times", "params", "modules", "objects", "paths", "inputs",
+                  "outputs", "loadOrder")
     names(li) <- argNames
     li <- li[!sapply(li, is.null)]
-#    try(do.call(simInit, args=li))
-     errors[i] <- tryCatch(is(do.call(simInit, args=li), "simList"),
-                           error=function(x) FALSE)
+    errors[i] <- tryCatch(is(do.call(simInit, args = li), "simList"),
+                           error = function(x) { FALSE })
     argsTested[[i]] <- names(li)
   }
-  expect_more_than(sum(errors, na.rm=TRUE), 15)
+  expect_more_than(sum(errors, na.rm = TRUE), 15)
   setwd(origWd)
   #print(errors)
   #print(argsTested[errors])
-
-
 })

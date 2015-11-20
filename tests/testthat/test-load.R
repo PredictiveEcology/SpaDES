@@ -129,7 +129,7 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
 test_that("test-load.R: passing objects to simInit does not work correctly", {
   mapPath <- mapPath <- system.file("maps", package = "SpaDES")
 
-    # test object passing directly
+  # test object passing directly
   filelist = data.frame(
     files = dir(file.path(mapPath),full.names = TRUE, pattern="tif")[1:2],
     functions = "raster",
