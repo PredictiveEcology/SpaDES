@@ -10,8 +10,12 @@ test_that("downloadModule downloads and unzips module files", {
 })
 
 test_that("downloadData downloads and unzips module data", {
-  skip_on_cran()
-  skip_on_travis()
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+
+  ## temporarily skip check on non-Windows because checksums for certain files
+  ## are different due to different line-endings. See issue #230.
+  if (Sys.info()[["sysname"]] == "Windows") { skip("Only check on Windows.") }
 
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
@@ -23,9 +27,5 @@ test_that("downloadData downloads and unzips module data", {
   result <- checksums(moduleName, tmpdir)$result
   expect_true(file.exists(file.path(tmpdir, moduleName, "data", filename)))
 
-  ## temporarily skip check on non-Windows because checksums for certain files
-  ## are different due to different line-endings. See issue #230.
-  if (Sys.info()[["sysname"]] == "Windows") {
-    expect_true(result == "OK")
-  }
+  expect_true(result == "OK")
 })
