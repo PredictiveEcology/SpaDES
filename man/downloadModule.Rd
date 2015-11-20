@@ -31,8 +31,8 @@ downloadModule(name, path, version, repo)
 (If not specified, or \code{NA}, the most recent version will be retrieved.)}
 
 \item{repo}{GitHub repository name.
-Default is \code{"PredictiveEcology/SpaDES-modules"},
-which is specified by the global option \code{spades.modulesRepo}.}
+Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
+specified by the global option \code{spades.modulesRepo}.}
 }
 \value{
 Invisibly, a character vector containing a list of extracted files.

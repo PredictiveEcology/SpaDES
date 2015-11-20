@@ -35,7 +35,7 @@ checkObject(sim, name, object, layer, ...)
 because it will fail if the object does not exist.}
 
 \item{layer}{Character string, specifying a layer name in a Raster, if the
-\code{name} is a Raster* object.}
+\code{name} is a \code{Raster*} object.}
 
 \item{...}{Additional arguments. Not implemented.}
 }

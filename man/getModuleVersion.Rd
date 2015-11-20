@@ -17,8 +17,8 @@ getModuleVersion(name, repo)
 \item{name}{Character string giving the module name.}
 
 \item{repo}{GitHub repository name.
-Default is \code{"PredictiveEcology/SpaDES-modules"},
-which is specified by the global option \code{spades.modulesRepo}.}
+Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
+specified by the global option \code{spades.modulesRepo}.}
 }
 \description{
 Modified from \url{http://stackoverflow.com/a/25485782/1380598}.
