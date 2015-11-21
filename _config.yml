@@ -4,7 +4,7 @@ pygments: true
 
 domain: predictiveecology.org
 author: Eliot McIntire
-email: eliot.mcintire@nrcan.gc.ca
+email: eliot.mcintire@canada.ca
 
 exclude: ["ReadMe.md", "Rakefile", "License.md"]
 
