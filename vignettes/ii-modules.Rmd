@@ -21,13 +21,8 @@ if (packageVersion("DiagrammeR") != "0.7") {
   message("A bug in recent versions of `DiagrammeR` prevents rendering this ",
           "vignette correctly.\n",
           "See https://github.com/rich-iannone/DiagrammeR/issues/139\n\n",
-          "Trying `DiagrammeR` version 0.7 instead.")
-  .Library.tmp <- file.path(tempdir(), "libs")
-  dir.create(.Library.tmp)
-  devtools::with_libpaths(
-    .Library.tmp,
-    devtools::install_version('DiagrammeR', version = '0.7',
-                              repos = 'http://cran.rstudio.com'))
+          "Use `DiagrammeR` version 0.7 instead:\n",
+          "  devtools::install_version('DiagrammeR', version = '0.7')\n")
 }
 ```
 
@@ -356,7 +351,7 @@ mySim <- spades(mySim) # runs the simulation
 #
 # devtools::install_version('DiagrammeR', '0.7')
 #
-if (requireNamespace("DiagrammeR", version = "0.7", quietly = TRUE)) {
+if (packageVersion("DiagrammeR") == "0.7") {
    # overview of the events in the simulation
   eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
 }
@@ -435,11 +430,13 @@ To view the dependencies for a simulation:
 require(SpaDES)
 
 times <- list(start=0.0, end=20)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
+parameters <- list(
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+)
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
+paths <- list(modulePath=system.file("sampleModules", package = "SpaDES"))
 
-mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules, paths=paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
@@ -450,7 +447,7 @@ moduleDiagram(mySim)            # simplified visual representation of modules
 #
 #   devtools::install_version('DiagrammeR', '0.7')
 #
-if (requireNamespace("DiagrammeR", version = "0.7", quietly = TRUE)) {
+if (packageVersion("DiagrammeR") == "0.7") {
   # detailed visual representation of objects
   objectDiagram(mySim, width = 720)
 }
