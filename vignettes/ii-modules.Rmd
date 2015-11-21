@@ -16,7 +16,7 @@ vignette: >
   %\usepackage[utf8]{inputenc}
 ---
 
-```{r echo=FALSE}
+```{r DiagrammeR-warning echo=FALSE}
 if (packageVersion("DiagrammeR") != "0.7") {
   message("A bug in recent versions of `DiagrammeR` prevents rendering this ",
           "vignette correctly.\n",
