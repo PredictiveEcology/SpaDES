@@ -27,7 +27,7 @@ Convert numeric to character with padding
 }
 \examples{
 paddedFloatToChar(1.25)
-paddedFloatToChar(1.25, padL=3, padR=5)
+paddedFloatToChar(1.25, padL = 3, padR = 5)
 
 }
 \author{

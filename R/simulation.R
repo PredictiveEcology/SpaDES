@@ -383,8 +383,9 @@ setMethod(
       scalls <- sys.calls()
       grep1 <- grep(as.character(scalls), pattern = "simInit")
       grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-        tryCatch(is(parse(text = x), "expression"),
-                 error = function(y) NA)
+        tryCatch(
+          is(parse(text = x), "expression"),
+          error = function(y) { NA })
         })], na.rm = TRUE)-1, 1)
       changeObjEnv(x = objects, toEnv = envir(sim),
                    fromEnv = sys.frames()[[grep1]],

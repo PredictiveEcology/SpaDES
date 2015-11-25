@@ -54,10 +54,10 @@ These (known) cases are checked manually and corrected.
   g <- lm( jitter(d) ~ d ) # class `lm`
   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
   classFilter(ls(), include=c("character", "list"))
-  classFilter(ls(), include="numeric")
-  classFilter(ls(), include="numeric", exclude="integer")
-  classFilter(ls(), include="lm")
-  classFilter(ls(), include="lm", exclude="glm")
+  classFilter(ls(), include = "numeric")
+  classFilter(ls(), include = "numeric", exclude = "integer")
+  classFilter(ls(), include = "lm")
+  classFilter(ls(), include = "lm", exclude = "glm")
   rm(a, b, d, f, g, h)
 }
 
@@ -70,11 +70,11 @@ local({
   f <- sample(1L:10L) # class `numeric`, `integer`
   g <- lm( jitter(d) ~ d ) # class `lm`
   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
-  classFilter(ls(), include=c("character", "list"), envir=e)
-  classFilter(ls(), include="numeric", envir=e)
-  classFilter(ls(), include="numeric", exclude="integer", envir=e)
-  classFilter(ls(), include="lm", envir=e)
-  classFilter(ls(), include="lm", exclude="glm", envir=e)
+  classFilter(ls(), include=c("character", "list"), envir = e)
+  classFilter(ls(), include = "numeric", envir = e)
+  classFilter(ls(), include = "numeric", exclude = "integer", envir = e)
+  classFilter(ls(), include = "lm", envir = e)
+  classFilter(ls(), include = "lm", exclude = "glm", envir = e)
   rm(a, b, d, e, f, g, h)
 })
 
@@ -86,12 +86,12 @@ e$d <- stats::runif(10)      # class `numeric`
 e$f <- sample(1L:10L) # class `numeric`, `integer`
 e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
 e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`
-classFilter(ls(e), include=c("character", "list"), envir=e)
-classFilter(ls(e), include="numeric", envir=e)
-classFilter(ls(e), include="numeric", exclude="integer", envir=e)
-classFilter(ls(e), include="lm", envir=e)
-classFilter(ls(e), include="lm", exclude="glm", envir=e)
-rm(a, b, d, f, g, h, envir=e)
+classFilter(ls(e), include=c("character", "list"), envir = e)
+classFilter(ls(e), include = "numeric", envir = e)
+classFilter(ls(e), include = "numeric", exclude = "integer", envir = e)
+classFilter(ls(e), include = "lm", envir = e)
+classFilter(ls(e), include = "lm", exclude = "glm", envir = e)
+rm(a, b, d, f, g, h, envir = e)
 rm(e)
 
 }

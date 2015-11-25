@@ -7,7 +7,7 @@
 \alias{normPath,character-method}
 \alias{normPath,list-method}
 \alias{normPath,missing-method}
-\title{Normalize filepath.}
+\title{Normalize filepath}
 \usage{
 normPath(path)
 

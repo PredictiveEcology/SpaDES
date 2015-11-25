@@ -10,7 +10,7 @@ if (getRversion() >= "3.1.0") {
 #' @param fullname   Logical (default \code{FALSE}) indicating whether the full
 #'                   path should be returned.
 #'
-#' @return Character String representing the filename.
+#' @return Character string representing the filename.
 #'
 #' @export
 #' @docType methods
@@ -25,13 +25,13 @@ setGeneric("getFileName", function(fullname) {
 
 #' @rdname getFileName
 setMethod("getFileName",
-          signature="logical",
-          definition=function(fullname) {
+          signature = "logical",
+          definition = function(fullname) {
             f <- lapply(sys.frames(), function(i) i$filename) %>%
               Filter(Negate(is.null), .) %>%
               unlist
             if (fullname) {
-              f <- normalizePath(file.path(getwd(), f), winslash="/")
+              f <- normalizePath(file.path(getwd(), f), winslash = "/")
             } else {
               f <- basename(f)
             }
@@ -60,8 +60,8 @@ setMethod("getFileName",
 #' @author Alex Chubaty
 #'
 #' @examples
-#' L1 <- list(a="hst", b=NA_character_, c=43)
-#' L2 <- list(a="gst", c=42, d=list(letters))
+#' L1 <- list(a = "hst", b = NA_character_, c = 43)
+#' L2 <- list(a = "gst", c = 42, d = list(letters))
 #' updateList(L1, L2)
 #'
 setGeneric("updateList", function(x, y) {
@@ -142,7 +142,7 @@ setGeneric("append_attr", function(x, y) {
 #' @export
 #' @rdname append_attr
 setMethod("append_attr",
-          signature = c(x="list", y="list"),
+          signature = c(x = "list", y = "list"),
           definition = function(x, y) {
             attrs <- c(lapply(x, attributes), lapply(y, attributes))
             out <- append(x, y)
@@ -185,39 +185,40 @@ setMethod("append_attr",
 #' \dontrun{
 #'   pkgs <- list("ggplot2", "lme4")
 #'   loadPackages(pkgs) # loads packages if installed
-#'   loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)
+#'   loadPackages(pkgs, install = TRUE) # loads packages after installation (if needed)
 #' }
 #'
-setGeneric("loadPackages", function(packageList, install=FALSE, quiet=TRUE) {
+setGeneric("loadPackages", function(packageList, install = FALSE, quiet = TRUE) {
   standardGeneric("loadPackages")
 })
 
 #' @rdname loadPackages
-setMethod("loadPackages",
-          signature = "character",
-          definition = function(packageList, install, quiet) {
-            packageList <- na.omit(packageList) %>% as.character
-            if (length(packageList)) {
-              if (install) {
-                repos <- getOption("repos")
-                if ( is.null(repos) | any(repos=="") ) {
-                  repos <- "https://cran.rstudio.com"
-                }
-                installed <- unname(installed.packages()[,"Package"])
-                toInstall <- packageList[packageList %in% installed]
-                install.packages(toInstall, repos=repos)
-              }
+setMethod(
+  "loadPackages",
+  signature = "character",
+  definition = function(packageList, install, quiet) {
+    packageList <- na.omit(packageList) %>% as.character
+    if (length(packageList)) {
+      if (install) {
+        repos <- getOption("repos")
+        if ( is.null(repos) | any(repos == "") ) {
+          repos <- "https://cran.rstudio.com"
+        }
+        installed <- unname(installed.packages()[,"Package"])
+        toInstall <- packageList[packageList %in% installed]
+        install.packages(toInstall, repos = repos)
+      }
 
-              loaded <- sapply(packageList, require, character.only=TRUE)
+      loaded <- sapply(packageList, require, character.only = TRUE)
 
-              if (!quiet) {
-                message(paste("Loaded", length(which(loaded==TRUE)), "of",
-                              length(packageList), "packages.", sep=" "))
-              }
-            } else {
-              loaded <- character()
-            }
-            return(invisible(loaded))
+      if (!quiet) {
+        message(paste("Loaded", length(which(loaded == TRUE)), "of",
+                      length(packageList), "packages.", sep = " "))
+      }
+    } else {
+      loaded <- character(0)
+    }
+    return(invisible(loaded))
 })
 
 #' @rdname loadPackages
@@ -231,11 +232,11 @@ setMethod("loadPackages",
 setMethod("loadPackages",
           signature = "NULL",
           definition = function(packageList, install, quiet) {
-            return(invisible(character()))
+            return(invisible(character(0)))
 })
 
 ################################################################################
-#' Normalize filepath.
+#' Normalize filepath
 #'
 #' Checks the specified filepath for formatting consistencies:
 #'  1) use slash instead of backslash;
@@ -258,13 +259,13 @@ setGeneric("normPath", function(path) {
 #' @export
 #' @rdname normPath
 setMethod("normPath",
-          signature(path="character"),
-          definition=function(path) {
+          signature(path = "character"),
+          definition = function(path) {
             lapply(path, function(x) {
                 if (is.na(x)) {
                   NA_character_
                 } else {
-                  normalizePath(x, winslash="/", mustWork=FALSE)
+                  normalizePath(x, winslash = "/", mustWork = FALSE)
                 }
               }) %>%
               unlist %>%
@@ -277,25 +278,25 @@ setMethod("normPath",
 #' @export
 #' @rdname normPath
 setMethod("normPath",
-          signature(path="list"),
-          definition=function(path) {
+          signature(path = "list"),
+          definition = function(path) {
             return(normPath(unlist(path)))
 })
 
 #' @export
 #' @rdname normPath
 setMethod("normPath",
-          signature(path="NULL"),
-          definition=function(path) {
-            return(character())
+          signature(path = "NULL"),
+          definition = function(path) {
+            return(character(0))
 })
 
 #' @export
 #' @rdname normPath
 setMethod("normPath",
-          signature(path="missing"),
-          definition=function() {
-            return(character())
+          signature(path = "missing"),
+          definition = function() {
+            return(character(0))
 })
 
 ################################################################################
@@ -324,51 +325,52 @@ setGeneric("checkPath", function(path, create) {
 
 #' @export
 #' @rdname checkPath
-setMethod("checkPath",
-          signature(path="character", create="logical"),
-          definition=function(path, create) {
-            if (length(path)!=1) {
-              stop("path must be a character vector of length 1.")
-            } else {
-              if (is.na(path)) {
-                stop("Invalid path: cannot be NA.")
-              } else {
-                path = normPath(path)
+setMethod(
+  "checkPath",
+  signature(path = "character", create = "logical"),
+  definition = function(path, create) {
+    if (length(path) != 1) {
+      stop("path must be a character vector of length 1.")
+    } else {
+      if (is.na(path)) {
+        stop("Invalid path: cannot be NA.")
+      } else {
+        path = normPath(path)
 
-                if (!file.exists(path)) {
-                  if (create==TRUE) {
-                    dir.create(file.path(path), recursive=TRUE, showWarnings=FALSE)
-                  } else {
-                    stop(paste("Specified path", path, "doesn't exist.",
-                               "Create it and try again."))
-                  }
-                }
-                return(path)
-              }
+        if (!file.exists(path)) {
+          if (create == TRUE) {
+            dir.create(file.path(path), recursive = TRUE, showWarnings = FALSE)
+          } else {
+            stop(paste("Specified path", path, "doesn't exist.",
+                       "Create it and try again."))
           }
+        }
+        return(path)
+      }
+    }
 })
 
 #' @export
 #' @rdname checkPath
 setMethod("checkPath",
-          signature(path="character", create="missing"),
-          definition=function(path) {
-            return(checkPath(path, create=FALSE))
+          signature(path = "character", create = "missing"),
+          definition = function(path) {
+            return(checkPath(path, create = FALSE))
 })
 
 #' @export
 #' @rdname checkPath
 setMethod("checkPath",
-          signature(path="NULL", create="ANY"),
-          definition=function(path) {
+          signature(path = "NULL", create = "ANY"),
+          definition = function(path) {
             stop("Invalid path: cannot be NULL.")
 })
 
 #' @export
 #' @rdname checkPath
 setMethod("checkPath",
-          signature(path="missing", create="ANY"),
-          definition=function() {
+          signature(path = "missing", create = "ANY"),
+          definition = function() {
             stop("Invalid path: no path specified.")
 })
 
@@ -398,17 +400,17 @@ setMethod("checkPath",
 #'
 #' @examples
 #' paddedFloatToChar(1.25)
-#' paddedFloatToChar(1.25, padL=3, padR=5)
+#' paddedFloatToChar(1.25, padL = 3, padR = 5)
 #'
 # igraph exports %>% from magrittr
-paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
+paddedFloatToChar <- function(x, padL = ceiling(log10(x+1)), padR = 3, pad = "0") {
   xIC <- x %/% 1 %>%
-    format(., trim=TRUE, digits=5,scientific=FALSE) %>%
-    str_pad(., pad=pad, width=padL, side="left")
+    format(., trim = TRUE, digits = 5,scientific = FALSE) %>%
+    str_pad(., pad = pad, width = padL, side = "left")
   xf <- x %% 1
   xFC <- ifelse(xf %==% 0 , "" ,
-    strsplit(format(xf, digits=padR, scientific=FALSE), split="\\.")[[1]][2] %>%
-      str_pad(., width=padR, side="right", pad=pad) %>%
+    strsplit(format(xf, digits = padR, scientific = FALSE), split = "\\.")[[1]][2] %>%
+      str_pad(., width = padR, side = "right", pad = pad) %>%
       paste0(".", .))
 
   return(paste0(xIC, xFC))
@@ -438,78 +440,79 @@ paddedFloatToChar <- function(x, padL=ceiling(log10(x+1)), padR=3, pad="0") {
 #' @examples
 #' set.seed(11)
 #' rndstr()
-#' rndstr(len=10)
-#' rndstr(characterFirst=FALSE)
-#' rndstr(n=5, len=10)
-#' rndstr(n=5)
-#' rndstr(n=5, characterFirst=TRUE)
-#' rndstr(len=10, characterFirst=TRUE)
-#' rndstr(n=5, len=10, characterFirst=TRUE)
+#' rndstr(len = 10)
+#' rndstr(characterFirst = FALSE)
+#' rndstr(n = 5, len = 10)
+#' rndstr(n = 5)
+#' rndstr(n = 5, characterFirst = TRUE)
+#' rndstr(len = 10, characterFirst = TRUE)
+#' rndstr(n = 5, len = 10, characterFirst = TRUE)
 #'
 setGeneric("rndstr", function(n, len, characterFirst) {
   standardGeneric("rndstr")
 })
 
 #' @rdname rndstr
-setMethod("rndstr",
-          signature(n="numeric", len="numeric", characterFirst="logical"),
-          definition=function(n, len, characterFirst) {
-            stopifnot(n>0, len>0)
-            unlist(lapply(character(as.integer(n)), function(x) {
-              i <- as.integer(characterFirst)
-              x <- paste0(c(sample(c(letters, LETTERS), size=i),
-                            sample(c((0:9), letters, LETTERS),
-                                   size=as.integer(len)-i, replace=TRUE)),
-                          collapse="")
-              }))
+setMethod(
+  "rndstr",
+  signature(n = "numeric", len = "numeric", characterFirst = "logical"),
+  definition = function(n, len, characterFirst) {
+    stopifnot(n > 0, len > 0)
+    unlist(lapply(character(as.integer(n)), function(x) {
+      i <- as.integer(characterFirst)
+      x <- paste0(c(sample(c(letters, LETTERS), size = i),
+                    sample(c((0:9), letters, LETTERS),
+                           size = as.integer(len) - i, replace = TRUE)),
+                  collapse = "")
+      }))
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="numeric", len="numeric", characterFirst="missing"),
-          definition=function(n, len) {
+          signature(n = "numeric", len = "numeric", characterFirst = "missing"),
+          definition = function(n, len) {
             rndstr(n=n, len=len, characterFirst=TRUE)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="numeric", len="missing", characterFirst="logical"),
-          definition=function(n, characterFirst) {
+          signature(n = "numeric", len = "missing", characterFirst = "logical"),
+          definition = function(n, characterFirst) {
             rndstr(n=n, len=8, characterFirst=characterFirst)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="missing", len="numeric", characterFirst="logical"),
-          definition=function(len, characterFirst) {
+          signature(n = "missing", len = "numeric", characterFirst = "logical"),
+          definition = function(len, characterFirst) {
             rndstr(n=1, len=len, characterFirst=characterFirst)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="numeric", len="missing", characterFirst="missing"),
-          definition=function(n) {
+          signature(n = "numeric", len = "missing", characterFirst = "missing"),
+          definition = function(n) {
             rndstr(n=n, len=8, characterFirst=TRUE)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="missing", len="numeric", characterFirst="missing"),
-          definition=function(len) {
+          signature(n = "missing", len = "numeric", characterFirst = "missing"),
+          definition = function(len) {
             rndstr(n=1, len=len, characterFirst=TRUE)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="missing", len="missing", characterFirst="logical"),
-          definition=function(characterFirst) {
+          signature(n = "missing", len = "missing", characterFirst = "logical"),
+          definition = function(characterFirst) {
             rndstr(n=1, len=8, characterFirst=characterFirst)
 })
 
 #' @rdname rndstr
 setMethod("rndstr",
-          signature(n="missing", len="missing", characterFirst="missing"),
-          definition=function(n, len, characterFirst) {
+          signature(n = "missing", len = "missing", characterFirst = "missing"),
+          definition = function(n, len, characterFirst) {
             rndstr(n=1, len=8, characterFirst=TRUE)
 })
 
@@ -550,10 +553,10 @@ setMethod("rndstr",
 #'   g <- lm( jitter(d) ~ d ) # class `lm`
 #'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
 #'   classFilter(ls(), include=c("character", "list"))
-#'   classFilter(ls(), include="numeric")
-#'   classFilter(ls(), include="numeric", exclude="integer")
-#'   classFilter(ls(), include="lm")
-#'   classFilter(ls(), include="lm", exclude="glm")
+#'   classFilter(ls(), include = "numeric")
+#'   classFilter(ls(), include = "numeric", exclude = "integer")
+#'   classFilter(ls(), include = "lm")
+#'   classFilter(ls(), include = "lm", exclude = "glm")
 #'   rm(a, b, d, f, g, h)
 #' }
 #'
@@ -566,11 +569,11 @@ setMethod("rndstr",
 #'   f <- sample(1L:10L) # class `numeric`, `integer`
 #'   g <- lm( jitter(d) ~ d ) # class `lm`
 #'   h <- glm( jitter(d) ~ d ) # class `lm`, `glm`
-#'   classFilter(ls(), include=c("character", "list"), envir=e)
-#'   classFilter(ls(), include="numeric", envir=e)
-#'   classFilter(ls(), include="numeric", exclude="integer", envir=e)
-#'   classFilter(ls(), include="lm", envir=e)
-#'   classFilter(ls(), include="lm", exclude="glm", envir=e)
+#'   classFilter(ls(), include=c("character", "list"), envir = e)
+#'   classFilter(ls(), include = "numeric", envir = e)
+#'   classFilter(ls(), include = "numeric", exclude = "integer", envir = e)
+#'   classFilter(ls(), include = "lm", envir = e)
+#'   classFilter(ls(), include = "lm", exclude = "glm", envir = e)
 #'   rm(a, b, d, e, f, g, h)
 #' })
 #'
@@ -582,12 +585,12 @@ setMethod("rndstr",
 #' e$f <- sample(1L:10L) # class `numeric`, `integer`
 #' e$g <- lm( jitter(e$d) ~ e$d ) # class `lm`
 #' e$h <- glm( jitter(e$d) ~ e$d ) # class `lm`, `glm`
-#' classFilter(ls(e), include=c("character", "list"), envir=e)
-#' classFilter(ls(e), include="numeric", envir=e)
-#' classFilter(ls(e), include="numeric", exclude="integer", envir=e)
-#' classFilter(ls(e), include="lm", envir=e)
-#' classFilter(ls(e), include="lm", exclude="glm", envir=e)
-#' rm(a, b, d, f, g, h, envir=e)
+#' classFilter(ls(e), include=c("character", "list"), envir = e)
+#' classFilter(ls(e), include = "numeric", envir = e)
+#' classFilter(ls(e), include = "numeric", exclude = "integer", envir = e)
+#' classFilter(ls(e), include = "lm", envir = e)
+#' classFilter(ls(e), include = "lm", exclude = "glm", envir = e)
+#' rm(a, b, d, f, g, h, envir = e)
 #' rm(e)
 #'
 setGeneric("classFilter", function(x, include, exclude, envir) {
@@ -595,51 +598,57 @@ setGeneric("classFilter", function(x, include, exclude, envir) {
 })
 
 #' @rdname classFilter
-setMethod("classFilter",
-          signature(x="character", include="character", exclude="character", envir="environment"),
-          definition=function(x, include, exclude, envir) {
-            f <- function(w) {
-              # -------------------- #
-              # using `inherits` doesn't work as expected in some cases,
-              #  so we tweak the 'include' to work with those cases:
-              if ( ("numeric" %in% include) &
-                   (inherits(get(w, envir=envir), "integer")) ) {
-                     include <- c(include, "integer")
-              }
-              # --- end tweaking --- #
+setMethod(
+  "classFilter",
+  signature(x = "character", include = "character", exclude = "character",
+            envir = "environment"),
+  definition = function(x, include, exclude, envir) {
+    f <- function(w) {
+      # -------------------- #
+      # using `inherits` doesn't work as expected in some cases,
+      #  so we tweak the 'include' to work with those cases:
+      if ( ("numeric" %in% include) &
+           (inherits(get(w, envir = envir), "integer")) ) {
+             include <- c(include, "integer")
+      }
+      # --- end tweaking --- #
 
-              if (is.na(exclude)) {
-                inherits(get(w, envir=envir), include)
-              } else {
-                inherits(get(w, envir=envir), include) &
-                  !inherits(get(w, envir=envir), exclude)
-              }
-            }
-            return(Filter(f, x))
+      if (is.na(exclude)) {
+        inherits(get(w, envir = envir), include)
+      } else {
+        inherits(get(w, envir = envir), include) &
+          !inherits(get(w, envir = envir), exclude)
+      }
+    }
+    return(Filter(f, x))
 })
 
 #' @rdname classFilter
-setMethod("classFilter",
-          signature(x="character", include="character", exclude="character", envir="missing"),
-          definition=function(x, include, exclude) {
-            return(classFilter(x, include, exclude, envir=sys.frame(-1)))
+setMethod(
+  "classFilter",
+  signature(x = "character", include = "character", exclude = "character",
+            envir = "missing"),
+  definition = function(x, include, exclude) {
+    return(classFilter(x, include, exclude, envir = sys.frame(-1)))
 })
 
 #' @rdname classFilter
-setMethod("classFilter",
-          signature(x="character", include="character", exclude="missing", envir="environment"),
-          definition=function(x, include, envir) {
-            return(classFilter(x, include, exclude=NA_character_, envir=envir))
+setMethod(
+  "classFilter",
+  signature(x = "character", include = "character", exclude = "missing",
+            envir = "environment"),
+  definition = function(x, include, envir) {
+    return(classFilter(x, include, exclude = NA_character_, envir = envir))
 })
 
 #' @rdname classFilter
-setMethod("classFilter",
-          signature(x="character", include="character", exclude="missing", envir="missing"),
-          definition=function(x, include) {
-            return(classFilter(x, include, exclude=NA_character_, envir=sys.frame(-1)))
+setMethod(
+  "classFilter",
+  signature(x = "character", include = "character", exclude = "missing",
+            envir = "missing"),
+  definition = function(x, include) {
+    return(classFilter(x, include, exclude = NA_character_, envir = sys.frame(-1)))
 })
-
-
 
 ################################################################################
 #' Sort a any named object with dotted names first
