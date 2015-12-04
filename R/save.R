@@ -44,17 +44,42 @@ doEvent.save = function(sim, eventTime, eventType, debug=FALSE) {
 }
 
 ##############################################################
-#' Save simulation objects according to params
+#' Save objects using \code{.saveObjects} in \code{params} slot of \code{simInit}
 #'
-#' If there is a list entry with \code{.saveObjects} as a character string vector of
-#' object names to save, then these objects will be saved with a call to saveFiles.
-#' The file names will be equal to the object name plus
-#' \code{time(sim)} is appended at the end. The files are saved as \code{.rds} files,
+#' In the \code{\link{simInit}} call, a parameter called \code{.saveObjects} can be provided in
+#' each module.
+#' This must be a character string vector of all object names to save. These objects will
+#' then be saved whenever a call to \code{saveFiles} is made.
+#'
+#' The file names will be equal to the object name plus \code{time(sim)} is appended at the end.
+#' The files are saved as \code{.rds} files,
 #' meaning, only one object gets saved per file.
+#' For objects saved using this function, the module developer must create save
+#' events that schedule a call to \code{saveFiles}.
+#'
+#' There are 3 ways to save objects using \code{SpaDES}.
+#'
+#' @section 1. Model-level saving:
+#'
+#' Using the \code{outputs} slot in the \code{\link{simInit}} call. See 2nd example in \code{\link{simInit}}.
+#' This can be convenient because it gives overall control of many modules at a time, and
+#' there is an implicit scheduling that gets created during the \code{\link{simInit}} call.
+#'
+#' @section 2. Module-level saving:
+#'
+#' Using the \code{saveFiles} function inside a module. This must be accompanied by a
+#' \code{.saveObjects} list element in the \code{params} slot in the \code{\link{simInit}} call.
+#' Usually a module developer will create this method for future users of their module.
+#'
+#' @section 3. User saving:
+#'
+#' A user can save any object at any time inside their module.
+#' This is the least modular approach.
 #'
 #' @author Eliot McIntire
 #' @author Alex Chubaty
-#'
+#' @note It is not possible to schedule separate saving events for each object that is listed in
+#' the \code{.saveObjects}.
 #' @param sim A \code{simList} simulation object.
 #'
 #' @importFrom dplyr bind_rows

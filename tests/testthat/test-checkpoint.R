@@ -18,13 +18,13 @@ test_that("test checkpointing", {
     modulePath = system.file("sampleModules", package = "SpaDES"),
     outputPath = tmpdir
   )
-  sim1 <- simInit(times=times, params=parameters, modules=modules, paths=paths)
+  sim1 <- simInit(times = times, params = parameters, modules = modules, paths = paths)
   sim1 <- spades(sim1)
 
   ## save checkpoints; with load/restore
   set.seed(1234)
   times <- list(start = 0, end = 1, timeunit = "second")
-  sim2 <- simInit(times=times, params=parameters, modules=modules, paths=paths)
+  sim2 <- simInit(times = times, params = parameters, modules = modules, paths = paths)
   sim2 <- spades(sim2)
   rm(sim2)
 
