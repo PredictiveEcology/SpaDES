@@ -50,13 +50,13 @@ Generate a vector of random alphanumeric strings each of an arbitrary length.
 \examples{
 set.seed(11)
 rndstr()
-rndstr(len=10)
-rndstr(characterFirst=FALSE)
-rndstr(n=5, len=10)
-rndstr(n=5)
-rndstr(n=5, characterFirst=TRUE)
-rndstr(len=10, characterFirst=TRUE)
-rndstr(n=5, len=10, characterFirst=TRUE)
+rndstr(len = 10)
+rndstr(characterFirst = FALSE)
+rndstr(n = 5, len = 10)
+rndstr(n = 5)
+rndstr(n = 5, characterFirst = TRUE)
+rndstr(len = 10, characterFirst = TRUE)
+rndstr(n = 5, len = 10, characterFirst = TRUE)
 
 }
 \author{

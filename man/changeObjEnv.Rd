@@ -14,6 +14,9 @@
 \usage{
 changeObjEnv(x, toEnv, fromEnv, rmSrc)
 
+\S4method{changeObjEnv}{character,environment,environment,logical}(x, toEnv,
+  fromEnv, rmSrc)
+
 \S4method{changeObjEnv}{character,environment,missing,missing}(x, toEnv)
 
 \S4method{changeObjEnv}{character,missing,environment,missing}(x, fromEnv)
@@ -27,9 +30,6 @@ changeObjEnv(x, toEnv, fromEnv, rmSrc)
   fromEnv)
 
 \S4method{changeObjEnv}{list,ANY,ANY,ANY}(x, toEnv, fromEnv, rmSrc)
-
-\S4method{changeObjEnv}{character,environment,environment,logical}(x, toEnv,
-  fromEnv, rmSrc)
 }
 \arguments{
 \item{x}{objects passed as character string vector}
@@ -41,9 +41,9 @@ changeObjEnv(x, toEnv, fromEnv, rmSrc)
 \item{rmSrc}{should the source copies of the objects be removed. Default is FALSE.}
 }
 \description{
-This will copy or move (if \code{rmSrc=TRUE}) objects passed as a character string to a
-different environment. This is used with a \code{spades} call to copy or move objects to the
-\code{envir} environment object.
+This will copy or move (if \code{rmSrc=TRUE}) objects passed as a character
+string to a different environment. This is used with a \code{spades} call to
+copy or move objects to the \code{envir} environment object.
 }
 \examples{
 a1 <- a2 <- a3 <- a4 <- 1:1e3

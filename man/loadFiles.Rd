@@ -48,7 +48,7 @@ Other optional columns are:
 - \code{objectName}: a character string indicating the name of the object once the
 file is loaded. Default is to use the file names, with file extension removed.
 
-- \code{package}: a character string indicating the package that the function is found in.
+- \code{packages}: a character string indicating the package that the function is found in.
 There is no default.
 
 - \code{functions}: a character string indicating the function to be used to load the file.

@@ -11,6 +11,7 @@ version 1.0.4
 * more control of caching behaviour: added `cachePath` to paths slot (#227)
 * fix error caused by coercing `NA` to arbitrary class for which no suitable `NA` type exists (#231)
 * use warnings instead of errors for missing modules metadata (#233)
+* new function `divergentColors` to generate divergent colour palettes for legends
 * improve efficiency of `loadPackages`
 * change .spatialObjects class to spatialObjects and export
 * other bug fixes

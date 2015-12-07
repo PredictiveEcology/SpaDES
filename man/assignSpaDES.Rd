@@ -18,8 +18,9 @@
 No coercion is done, and the first element of a character vector
 of length greater than one will be used, with a warning.}
 
-\item{value}{The object to assign. If this is missing, values will be found with
-\code{get(x)} in the same environment as the calling environment.}
+\item{value}{The object to assign. If this is missing, values will be found
+with \code{get(x)} in the same environment as the calling
+environment.}
 
 \item{...}{Additional arguments to pass to \code{assign}.}
 }

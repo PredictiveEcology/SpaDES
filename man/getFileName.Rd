@@ -15,7 +15,7 @@ getFileName(fullname)
 path should be returned.}
 }
 \value{
-Character String representing the filename.
+Character string representing the filename.
 }
 \description{
 Use \code{getFileName} in a file that is \code{source}-ed.

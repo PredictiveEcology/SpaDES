@@ -38,7 +38,7 @@ Load and optionally install additional packages.
 \dontrun{
   pkgs <- list("ggplot2", "lme4")
   loadPackages(pkgs) # loads packages if installed
-  loadPackages(pkgs, install=TRUE) # loads packages after installation (if needed)
+  loadPackages(pkgs, install = TRUE) # loads packages after installation (if needed)
 }
 
 }
