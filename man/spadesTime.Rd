@@ -71,7 +71,7 @@ When these units are not correct, a module developer can create their own
 time unit using, and create a function to calculate the number of seconds
 in that unit using the "d" prefix (for duration), following the
 \code{lubridate} package standard:
-\code{dfortNight <- function(x) lubridate::new_duration(dday(14))}.
+\code{dfortNight <- function(x) lubridate::duration(dday(14))}.
 Then the module developer can use "fortNight" as the module's time unit.
 }
 \author{
