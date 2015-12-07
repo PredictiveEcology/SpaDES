@@ -18,7 +18,7 @@
 #' time unit using, and create a function to calculate the number of seconds
 #' in that unit using the "d" prefix (for duration), following the
 #' \code{lubridate} package standard:
-#' \code{dfortNight <- function(x) lubridate::new_duration(dday(14))}.
+#' \code{dfortNight <- function(x) lubridate::duration(dday(14))}.
 #' Then the module developer can use "fortNight" as the module's time unit.
 #'
 #' @param x numeric. Number of the desired units
@@ -35,14 +35,14 @@ setGeneric("dyears", function(x) {
   standardGeneric("dyears")
 })
 
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @export
 #' @docType methods
 #' @rdname spadesTime
 setMethod("dyears",
           signature(x="numeric"),
           definition=function(x) {
-            new_duration(x * 60 * 60 * 24 * 365.25)
+            duration(x * 60 * 60 * 24 * 365.25)
 })
 
 #' @inheritParams dyears
@@ -53,12 +53,12 @@ setGeneric("dmonths", function(x) {
   standardGeneric("dmonths")
 })
 
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dmonths",
           signature(x="numeric"),
           definition=function(x) {
-            new_duration(x * as.numeric(SpaDES::dyears(1))/12)
+            duration(x * as.numeric(SpaDES::dyears(1))/12)
 })
 
 #' @export
@@ -68,12 +68,12 @@ setGeneric("dweeks", function(x) {
 })
 
 #' @export
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dweeks",
           signature(x="numeric"),
           definition=function(x) {
-            new_duration(x * as.numeric(SpaDES::dyears(1))/52)
+            duration(x * as.numeric(SpaDES::dyears(1))/52)
 })
 
 #' @export
@@ -122,12 +122,12 @@ setGeneric("dNA", function(x) {
 })
 
 #' @export
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dNA",
           signature(x="ANY"),
           definition=function(x) {
-            new_duration(0)
+            duration(0)
 })
 
 ################################################################################
