@@ -40,8 +40,8 @@ setGeneric("dyears", function(x) {
 #' @docType methods
 #' @rdname spadesTime
 setMethod("dyears",
-          signature(x="numeric"),
-          definition=function(x) {
+          signature(x = "numeric"),
+          definition = function(x) {
             duration(x * 60 * 60 * 24 * 365.25)
 })
 
@@ -56,8 +56,8 @@ setGeneric("dmonths", function(x) {
 #' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dmonths",
-          signature(x="numeric"),
-          definition=function(x) {
+          signature(x = "numeric"),
+          definition = function(x) {
             duration(x * as.numeric(SpaDES::dyears(1))/12)
 })
 
@@ -71,8 +71,8 @@ setGeneric("dweeks", function(x) {
 #' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dweeks",
-          signature(x="numeric"),
-          definition=function(x) {
+          signature(x = "numeric"),
+          definition = function(x) {
             duration(x * as.numeric(SpaDES::dyears(1))/52)
 })
 
@@ -125,8 +125,8 @@ setGeneric("dNA", function(x) {
 #' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dNA",
-          signature(x="ANY"),
-          definition=function(x) {
+          signature(x = "ANY"),
+          definition = function(x) {
             duration(0)
 })
 
@@ -156,12 +156,12 @@ setGeneric("inSeconds", function(unit) {
 #' @rdname timeConversion
 setMethod(
   "inSeconds",
-  signature=c("character"),
+  signature = c("character"),
   definition <- function(unit) {
     if(!is.na(unit)) {
       out <- switch(unit,
-                    second =  as.numeric(dsecond(1)),
-                    seconds =  as.numeric(dsecond(1)),
+                    second = as.numeric(dsecond(1)),
+                    seconds = as.numeric(dsecond(1)),
                     hour = as.numeric(dhour(1)),
                     hours = as.numeric(dhour(1)),
                     day = as.numeric(dday(1)),
@@ -175,7 +175,7 @@ setMethod(
     } else {
       out <- 0
     }
-    attributes(out)$unit="second"
+    attributes(out)$unit = "second"
     return(out)
 })
 
@@ -183,7 +183,7 @@ setMethod(
 #' @docType methods
 #' @rdname timeConversion
 setMethod("inSeconds",
-          signature=c("NULL"),
+          signature = c("NULL"),
           definition <- function(unit) {
             out <- NA_character_
             return(inSeconds(out))
@@ -216,8 +216,8 @@ setGeneric("convertTimeunit", function(time, unit) {
 #' @rdname timeConversion
 setMethod(
   "convertTimeunit",
-  signature=c("numeric", "character"),
-  definition=function(time, unit) {
+  signature = c("numeric", "character"),
+  definition = function(time, unit) {
     timeUnit <- attr(time, "unit")
 
     # Assume default of seconds if time has no units
@@ -228,11 +228,11 @@ setMethod(
     if (!is.na(timeUnit)) {
       # confirm that units are useable by SpaDES
       stopifnot(
-        any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm=FALSE)
+        any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm = FALSE)
       )
 
       # if time units are same as unit, skip calculations
-      if(!stri_detect_fixed(unit, pattern=timeUnit)) {
+      if(!stri_detect_fixed(unit, pattern = timeUnit)) {
         time <- time * inSeconds(timeUnit) / inSeconds(unit)
         attr(time, "unit") <- unit
       }
@@ -274,8 +274,8 @@ setGeneric("maxTimeunit", function(sim) {
 #' @rdname maxTimeunit
 setMethod(
   "maxTimeunit",
-  signature(sim="simList"),
-  definition=function(sim) {
+  signature(sim = "simList"),
+  definition = function(sim) {
     if (length(depends(sim)@dependencies)) {
       if (!is.null(depends(sim)@dependencies[[1]])) {
         timesteps <- lapply(depends(sim)@dependencies, function(x) {
@@ -284,7 +284,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text=paste0("d", ts, "(1)"))) }
+              eval(parse(text = paste0("d", ts, "(1)"))) }
           ))]])
         }
       }
@@ -318,8 +318,8 @@ setGeneric("minTimeunit", function(sim) {
 #' @rdname minTimeunit
 setMethod(
   "minTimeunit",
-  signature(sim="simList"),
-  definition=function(sim) {
+  signature(sim = "simList"),
+  definition = function(sim) {
     if (length(depends(sim)@dependencies)) {
       if (!is.null(depends(sim)@dependencies[[1]])) {
         timesteps <- lapply(depends(sim)@dependencies, function(x) {
@@ -328,7 +328,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text=paste0("d", ts, "(1)"))) }
+              eval(parse(text = paste0("d", ts, "(1)"))) }
           ))]])
         }
       }
@@ -343,5 +343,5 @@ setMethod(
 #' @export
 #' @rdname timeConversion
 spadesTimes <- function() {
-  gsub(.spadesTimes, pattern="[[:punct:]]", replacement = "")
+  gsub(.spadesTimes, pattern = "[[:punct:]]", replacement = "")
 }

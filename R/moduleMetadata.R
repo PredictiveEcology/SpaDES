@@ -18,7 +18,7 @@
 #' @author Alex Chubaty
 #'
 #' @examples
-#'   path <- system.file(package="SpaDES", "sampleModules")
+#'   path <- system.file(package = "SpaDES", "sampleModules")
 #'   sampleModules <- dir(path)
 #'   x <- moduleMetadata(sampleModules[1], path)
 #'
@@ -30,13 +30,13 @@ setGeneric("moduleMetadata", function(module, path) {
 #' @rdname moduleMetadata
 setMethod(
   "moduleMetadata",
-  signature = c(module="character", path="character"),
+  signature = c(module = "character", path = "character"),
   definition = function(module, path) {
-    filename <- paste(path, "/", module, "/", module, ".R", sep="")
+    filename <- paste(path, "/", module, "/", module, ".R", sep = "")
     stopifnot(file.exists(filename))
 
     parsedFile <- parse(filename)
-    defineModuleItem <- grepl(pattern="defineModule", parsedFile)
+    defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
     # pull out the list portion from "defineModule"
     x <- parsedFile[defineModuleItem] %>%
@@ -48,8 +48,8 @@ setMethod(
       gsub("[[:space:]]*=[[:space:]]*", " = ", .)
 
     # ensure variables in params are kept as strings
-    x <- gsub("(globals\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl=TRUE) %>%
-      gsub("(params\\(sim\\)\\$[^,]*)", "\"\\1\"", ., perl=TRUE)
+    x <- gsub("(globals\\(sim\\)\\$[^\\),]*)", "\"\\1\"", x, perl = TRUE) %>%
+      gsub("(params\\(sim\\)\\$[^,]*)", "\"\\1\"", ., perl = TRUE)
 
     # check input types
     x <- gsub("extent\\(rep\\(NA, 4\\)\\)", "extent\\(rep\\(NA_real_, 4\\)\\)", x) %>%
@@ -65,7 +65,7 @@ setMethod(
 #' @rdname moduleMetadata
 setMethod(
   "moduleMetadata",
-  signature = c(module="character", path="missing"),
+  signature = c(module = "character", path = "missing"),
   definition = function(module) {
     moduleMetadata(module, getwd())
 })

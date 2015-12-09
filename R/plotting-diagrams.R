@@ -27,12 +27,12 @@ setGeneric("ganttStatus", function(eventType) {
 
 #' @rdname ganttStatus
 setMethod("ganttStatus",
-          signature(eventType="character"),
-          definition=function(eventType) {
+          signature(eventType = "character"),
+          definition = function(eventType) {
             status <- lapply(eventType, function(x) {
-              if (x=="init") {
+              if (x == "init") {
                 "done"
-              } else if (x=="plot") {
+              } else if (x == "plot") {
                 "crit"
               } else {
                 "active"
@@ -89,14 +89,14 @@ setMethod(
 
     out <- lapply(modules, function(x) {
       data.frame(
-        task = dt[moduleName==x]$eventType,
-        status = ganttStatus(dt[moduleName==x]$eventType),
-        pos = paste0(x, 1:nrow(dt[moduleName==x])),
+        task = dt[moduleName == x]$eventType,
+        status = ganttStatus(dt[moduleName == x]$eventType),
+        pos = paste0(x, 1:nrow(dt[moduleName == x])),
         start = as.Date(
-          dt[moduleName==x]$eventTime * ts, origin=startDate
+          dt[moduleName == x]$eventTime * ts, origin = startDate
         ),
         end = as.Date(
-          dt[moduleName==x]$eventTime * ts + width, origin=startDate
+          dt[moduleName == x]$eventTime * ts + width, origin = startDate
         )
       )
     })
@@ -158,7 +158,7 @@ setMethod(
   definition = function(sim, n, startDate, ...) {
     # get automatic scaling of vertical bars in Gantt chart
     dots <- list(...)
-    dots$width <- if(any(grepl(pattern="width", names(dots)))) {
+    dots$width <- if(any(grepl(pattern = "width", names(dots)))) {
       as.numeric(dots$width)
     } else {
       1000
@@ -286,11 +286,11 @@ setGeneric("moduleDiagram", function(sim, type, ...) {
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature=c(sim="simList", type="character"),
-          definition=function(sim, type, ...) {
-            if(type=="rgl") {
+          signature = c(sim = "simList", type = "character"),
+          definition = function(sim, type, ...) {
+            if(type == "rgl") {
               rglplot(depsGraph(sim, TRUE), ...)
-            } else if (type=="tk"){
+            } else if (type == "tk") {
               tkplot(depsGraph(sim, TRUE), ...)
             } else {
               moduleDiagram(sim)
@@ -300,7 +300,7 @@ setMethod("moduleDiagram",
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature=c(sim="simList", type="missing"),
-          definition=function(sim, type, ...) {
+          signature = c(sim = "simList", type = "missing"),
+          definition = function(sim, type, ...) {
               plot(depsGraph(sim, TRUE), ...)
 })

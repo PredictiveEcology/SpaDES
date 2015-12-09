@@ -36,15 +36,15 @@ setMethod(
 
     ### modules loaded
     out[[8]] <- capture.output(cat(">> Modules:\n"))
-    out[[9]] <- capture.output(print(cbind(ModuleName=modules(object)),
-                                     quote=FALSE, row.names=FALSE))
+    out[[9]] <- capture.output(print(cbind(ModuleName = modules(object)),
+                                     quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
     ### objects loaded
     out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
 
-    out[[12]] <- if (NROW(inputs(object)[na.omit(inputs(object)$loaded==TRUE),])) {
-      capture.output(print(inputs(object)[na.omit(inputs(object)$loaded==TRUE),]))
+    out[[12]] <- if (NROW(inputs(object)[na.omit(inputs(object)$loaded == TRUE),])) {
+      capture.output(print(inputs(object)[na.omit(inputs(object)$loaded == TRUE),]))
     }
     out[[13]] <- capture.output(cat("\n"))
 
@@ -58,21 +58,21 @@ setMethod(
 
     p <- mapply(
       function(x, y) {
-        data.frame(Module=x, Parameter=names(y), Value=I(as.list(y)),
-                   stringsAsFactors=FALSE, row.names=NULL)
+        data.frame(Module = x, Parameter = names(y), Value = I(as.list(y)),
+                   stringsAsFactors = FALSE, row.names = NULL)
       },
-      x=names(params(object))[-omit],
-      y=params(object)[-omit],
-      USE.NAMES=TRUE, SIMPLIFY=FALSE
+      x = names(params(object))[-omit],
+      y = params(object)[-omit],
+      USE.NAMES = TRUE, SIMPLIFY = FALSE
     )
     if (length(p)) {
       q = do.call(rbind, p)
       q = q[order(q$Module, q$Parameter),]
     } else {
-      q = cbind(Module=list(), Parameter=list())
+      q = cbind(Module = list(), Parameter = list())
     }
     out[[17]] <- capture.output(cat(">> Parameters:\n"))
-    out[[18]] <- capture.output(print(q, row.names=FALSE))
+    out[[18]] <- capture.output(print(q, row.names = FALSE))
     out[[19]] <- capture.output(cat("\n"))
 
     ### completed events
@@ -86,7 +86,7 @@ setMethod(
     out[[25]] <- capture.output(cat("\n"))
 
     ### print result
-    cat(unlist(out), fill=FALSE, sep = "\n")
+    cat(unlist(out), fill = FALSE, sep = "\n")
 })
 
 ### `ls` generic is already defined in the base package
@@ -275,7 +275,7 @@ setMethod("objs",
           signature = "simList",
           definition = function(x, ...) {
             w <- lapply(ls(envir(x), ...), function(z) {
-              eval(parse(text=z), envir=envir(x))
+              eval(parse(text = z), envir = envir(x))
             })
             names(w) <- ls(envir(x), ...)
             return(w)

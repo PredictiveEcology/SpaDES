@@ -1,15 +1,15 @@
 test_that("timeunit works correctly", {
-  times <- list(start=0.0, end=10)
+  times <- list(start = 0.0, end = 10)
   params <- list(
-    .globals=list(burnStats="npixelsburned", stackName="landscape"),
-    randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),
-    caribouMovement=list(.plotInitialTime=NA, .plotInterval=NA),
-    fireSpread=list(.plotInitialTime=NA, .plotInterval=NA)
+    .globals = list(burnStats = "npixelsburned", stackName = "landscape"),
+    randomLandscapes = list(.plotInitialTime = NA, .plotInterval = NA),
+    caribouMovement = list(.plotInitialTime = NA, .plotInterval = NA),
+    fireSpread = list(.plotInitialTime = NA, .plotInterval = NA)
   )
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
-  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
+  paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects=list(), paths=paths)
+  mySim <- simInit(times, params, modules, objects = list(), paths = paths)
 
   expect_equal(maxTimeunit(sim = mySim), "year")
 
@@ -17,14 +17,18 @@ test_that("timeunit works correctly", {
     name = "testModule",
     description = "this is a test.",
     keywords = c("test"),
-    authors = c(person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca", role = c("aut", "cre"))),
+    authors = c(person(c("Alex", "M"), "Chubaty",
+                       email = "alexander.chubaty@canada.ca",
+                       role = c("aut", "cre"))),
     version = numeric_version("0.0.1"),
     spatialExtent = raster::extent(rep(NA_real_, 4)),
     timeframe = as.POSIXlt(c(NA, NA)),
     timeunit = NA_character_,
     citation = list(),
     reqdPkgs = list("grid", "raster", "sp"),
-    parameters = rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")),
+    parameters = rbind(
+      defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")
+    ),
     inputObjects = data.frame(objectName = "testInput", objectClass = "list",
                               sourceURL = "", other = NA_character_,
                               stringsAsFactors = FALSE),
@@ -57,10 +61,10 @@ test_that("timeunit works correctly", {
     text=paste0("d", minTimeunit(mySim), "(1)")))),
     min(sapply(depends(mySim)@dependencies[whNotNA],
                function(x) {
-                 eval(parse(text=paste0("d",x@timeunit,"(1)")))
+                 eval(parse(text = paste0("d", x@timeunit,"(1)")))
                }
     )))
-  expect_equal(as.numeric(inSeconds(NA_character_)),0)
+  expect_equal(as.numeric(inSeconds(NA_character_)), 0)
   expect_equal(as.numeric(inSeconds(NULL)), 0)
 
   exampleTime <- 1:10
@@ -74,7 +78,7 @@ test_that("timeunit works correctly", {
   mySim <- simInit()
   expect_equal(maxTimeunit(mySim), NA_character_)
 
-  expect_equal(c("years","months","weeks","days","hours","seconds"),
+  expect_equal(c("years", "months", "weeks", "days", "hours", "seconds"),
                  spadesTimes())
 
   expect_equal(as.numeric(dNA()), 0)

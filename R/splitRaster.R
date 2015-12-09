@@ -28,7 +28,7 @@
 #' # nrow = 77
 #' # ncol = 101
 #' # nlayers = 3
-#' b <- brick(system.file("external/rlogo.grd", package="raster"))
+#' b <- brick(system.file("external/rlogo.grd", package = "raster"))
 #' r <- b[[1]] # use first layer only
 #' nx <- 3
 #' ny <- 4
@@ -38,7 +38,7 @@
 #' plot(r) # may require a call to `dev()` if using RStudio
 #'
 #' # the split raster:
-#' layout(mat=matrix(seq_len(nx*ny), ncol=nx, nrow=ny))
+#' layout(mat = matrix(seq_len(nx*ny), ncol = nx, nrow = ny))
 #' plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
 #' invisible(lapply(y[plotOrder], plot))
 #'
@@ -53,41 +53,43 @@ setGeneric("splitRaster", function(x, nx, ny) {
 
 #' @export
 #' @rdname splitRaster
-setMethod("splitRaster",
-          signature=signature(x="RasterLayer", nx="integer", ny="integer"),
-          definition=function(x, nx, ny) {
-            ext <- extent(x)
-            tiles <- vector("list", length=nx*ny)
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "integer", ny = "integer"),
+  definition = function(x, nx, ny) {
+    ext <- extent(x)
+    tiles <- vector("list", length = nx*ny)
 
-            n <- 1L
-            for (i in seq_len(nx)-1L) {
-                for (j in seq_len(ny)-1L) {
-                    x0 <- ext@xmin + i*(ext@xmax / nx)
-                    x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
-                    y0 <- ext@ymin + j*(ext@ymax / ny)
-                    y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
+    n <- 1L
+    for (i in seq_len(nx)-1L) {
+      for (j in seq_len(ny)-1L) {
+            x0 <- ext@xmin + i*(ext@xmax / nx)
+            x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
+            y0 <- ext@ymin + j*(ext@ymax / ny)
+            y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
 
-                    x.coords <- c(x0, x1, x1, x0, x0)
-                    y.coords <- c(y0, y0, y1, y1, y0)
+            x.coords <- c(x0, x1, x1, x0, x0)
+            y.coords <- c(y0, y0, y1, y1, y0)
 
-                    box <- Polygon(cbind(x.coords, y.coords)) %>%
-                           list %>%
-                           Polygons("box") %>%
-                           list %>%
-                           SpatialPolygons
+            box <- Polygon(cbind(x.coords, y.coords)) %>%
+                   list %>%
+                   Polygons("box") %>%
+                   list %>%
+                   SpatialPolygons
 
-                    tiles[[n]] <- rasterize(box, x, mask=TRUE, silent=TRUE) %>%
-                                  crop(box)
-                    n <- n + 1L
-                }
-            }
-            return(tiles)
+            tiles[[n]] <- rasterize(box, x, mask = TRUE, silent = TRUE) %>%
+                          crop(box)
+            n <- n + 1L
+        }
+    }
+    return(tiles)
 })
 
 #' @export
 #' @rdname splitRaster
-setMethod("splitRaster",
-          signature=signature(x="RasterLayer", nx="numeric", ny="numeric"),
-          definition=function(x, nx, ny) {
-            return(splitRaster(x, as.integer(nx), as.integer(ny)))
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric"),
+  definition = function(x, nx, ny) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny)))
 })

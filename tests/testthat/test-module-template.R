@@ -17,7 +17,7 @@ test_that("module templates work", {
   expect_true(file.exists(file.path(mpath, "data", "CHECKSUMS.txt")))
 
   utils::capture.output(
-    zipModule(name="myModule", path=path, version="0.0.2", flags="-q -r9X")
+    zipModule(name = "myModule", path = path, version = "0.0.2", flags = "-q -r9X")
   )
 
   expect_true(file.exists(file.path(mpath, "myModule_0.0.2.zip")))

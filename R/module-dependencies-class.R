@@ -212,14 +212,14 @@ setClass(
 #'
 setClass(
   ".simDeps",
-  slots = list(dependencies="list"),
-  prototype = list(dependencies=list(NULL)),
+  slots = list(dependencies = "list"),
+  prototype = list(dependencies = list(NULL)),
   validity = function(object) {
     # remove empty (NULL) elements
     object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
     # ensure list contains only .moduleDeps objects
-    if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
+    if (!all(unlist(lapply(object@dependencies, is, class2 = ".moduleDeps")))) {
       stop("invalid type: not a .moduleDeps object")
     }
 })
