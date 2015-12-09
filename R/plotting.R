@@ -112,33 +112,33 @@ setMethod(
     newPlots@arr <- new(".arrangement")
 
     newPlots@spadesGrobList <- lapply(1:length(lN), function(x) {
-        spadesGrobList <- list()
+      spadesGrobList <- list()
 
-        if (isSpadesPlotLong[x]) {
-          spadesGrobList[[lN[x]]] <-
-            plotObjects[[match(
-              names(isSpadesPlotLong)[x],
-              names(plotObjects)
-            )]]@spadesGrobList[[match(
-              lN[x], layerNames(plotObjects[isSpadesPlot])
-            )]][[1]]
-        } else {
-          spadesGrobList[[lN[x]]] <- new(".spadesGrob")
-          spadesGrobList[[lN[x]]]@plotArgs <- lapply(plotArgs, function(y) y[[x]])
-          spadesGrobList[[lN[x]]]@plotArgs$gpText <- plotArgs$gpText[x]
-          spadesGrobList[[lN[x]]]@plotArgs$gpAxis <- plotArgs$gpAxis[x]
-          spadesGrobList[[lN[x]]]@plotArgs$gp <- plotArgs$gp[x]
-          spadesGrobList[[lN[x]]]@plotName <- lN[x]
-          spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
-          spadesGrobList[[lN[x]]]@envir <- lEnvs[[x]]
-          spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
-          spadesGrobList[[lN[x]]]@objClass <- class(
-            eval(parse(text = objectNamesLong[x]), lEnvs[[x]])
-          )
-          spadesGrobList[[lN[x]]]@isSpatialObjects <- isSpatialObjects[x]
-        }
-        return(spadesGrobList)
-      })
+      if (isSpadesPlotLong[x]) {
+        spadesGrobList[[lN[x]]] <-
+          plotObjects[[match(
+            names(isSpadesPlotLong)[x],
+            names(plotObjects)
+          )]]@spadesGrobList[[match(
+            lN[x], layerNames(plotObjects[isSpadesPlot])
+          )]][[1]]
+      } else {
+        spadesGrobList[[lN[x]]] <- new(".spadesGrob")
+        spadesGrobList[[lN[x]]]@plotArgs <- lapply(plotArgs, function(y) y[[x]])
+        spadesGrobList[[lN[x]]]@plotArgs$gpText <- plotArgs$gpText[x]
+        spadesGrobList[[lN[x]]]@plotArgs$gpAxis <- plotArgs$gpAxis[x]
+        spadesGrobList[[lN[x]]]@plotArgs$gp <- plotArgs$gp[x]
+        spadesGrobList[[lN[x]]]@plotName <- lN[x]
+        spadesGrobList[[lN[x]]]@objName <- objectNamesLong[x]
+        spadesGrobList[[lN[x]]]@envir <- lEnvs[[x]]
+        spadesGrobList[[lN[x]]]@layerName <- layerNames(plotObjects)[x]
+        spadesGrobList[[lN[x]]]@objClass <- class(
+          eval(parse(text = objectNamesLong[x]), lEnvs[[x]])
+        )
+        spadesGrobList[[lN[x]]]@isSpatialObjects <- isSpatialObjects[x]
+      }
+      return(spadesGrobList)
+    })
 
     names(newPlots@spadesGrobList) <- lN
     return(newPlots)
@@ -298,25 +298,22 @@ setMethod(
   ".updateSpadesPlot",
   signature = c(newSP = ".spadesPlot", curr = NULL),
   definition = function(newSP, ...) {
-    return(
-      list(
-        curr = newSP, whichParamsChanged = NULL,
-        needPlotting = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y) { TRUE })
-        }),
-        isReplot = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y) { FALSE })
-        }),
-        isNewPlot = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y) { TRUE })
-        }),
-        isBaseLayer = lapply(newSP@spadesGrobList, function(x) {
-          lapply(x, function(y) { TRUE })
-        })
-      )
-    )
-  }
-)
+    return(list(
+      curr = newSP, whichParamsChanged = NULL,
+      needPlotting = lapply(newSP@spadesGrobList, function(x) {
+        lapply(x, function(y) { TRUE })
+      }),
+      isReplot = lapply(newSP@spadesGrobList, function(x) {
+        lapply(x, function(y) { FALSE })
+      }),
+      isNewPlot = lapply(newSP@spadesGrobList, function(x) {
+        lapply(x, function(y) { TRUE })
+      }),
+      isBaseLayer = lapply(newSP@spadesGrobList, function(x) {
+        lapply(x, function(y) { TRUE })
+      })
+    ))
+})
 
 ################################################################################
 #' Determine optimal plotting arrangement of plot objects
@@ -795,8 +792,7 @@ setMethod(
     cl = "plotPoly")
     grid.draw(polyGrob)
     return(invisible(polyGrob))
-   }
-)
+})
 
 #' @rdname plotGrob
 #' @importFrom grid polylineGrob arrow
@@ -886,8 +882,7 @@ setMethod(
 
     grid.draw(lineGrob)
     return(invisible(lineGrob))
-  }
-)
+})
 
 ################################################################################
 #' Make an optimal layout of plots

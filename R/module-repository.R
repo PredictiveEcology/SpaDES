@@ -262,7 +262,7 @@ setMethod(
       }
       return(cbind(out, results, stringsAsFactors = FALSE))
     }
-  })
+})
 
 #' @rdname checksums
 setMethod(

@@ -535,10 +535,9 @@ setMethod(
     SpatialLines(lapply(seq_len(length(from)), function(x) {
       Lines(list(Line(
         coords = rbind(coordinates(from)[x,], coordinates(to)[x,])
-      )),ID = x)
+      )), ID = x)
     }), proj4string = crs(from))
-  }
-)
+})
 
 ################################################################################
 #' Parse arguments and find environments
@@ -791,5 +790,5 @@ setGeneric("gpar", function(...) {
 #' @rdname grid-functions
 setMethod("gpar",
           definition = function(...) {
-                   return(grid::gpar(...))
-                 })
+            return(grid::gpar(...))
+})
