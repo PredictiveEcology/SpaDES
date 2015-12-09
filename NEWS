@@ -12,6 +12,7 @@ version 1.0.4
 * allow multiple checksums per file in `checksum` (#230)
 * fix error caused by coercing `NA` to arbitrary class for which no suitable `NA` type exists (#231)
 * use warnings instead of errors for missing modules metadata (#233)
+* add event priorities (#236)
 * new function `divergentColors` to generate divergent colour palettes for legends
 * improve efficiency of `loadPackages`
 * change .spatialObjects class to spatialObjects and export
