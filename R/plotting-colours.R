@@ -10,7 +10,8 @@
 #' @aliases getColours
 #' @rdname getColors
 #'
-#' @seealso \code{\link{setColors<-}}, \code{\link[RColorBrewer]{brewer.pal}}
+#' @seealso \code{\link{setColors<-}},
+#'          \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
 #'
@@ -331,8 +332,7 @@ setMethod(
     z <- z + 1 # for the NAs
     z[is.na(z)] <- max(1, minz)
 
-    cols <-
-      c(na.color, cols) # make first index of colors be transparent
+    cols <- c(na.color, cols) # make first index of colors be transparent
 
     if ((minz > 1) | (minz < 0)) {
       z <- matrix(
