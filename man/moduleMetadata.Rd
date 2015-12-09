@@ -27,7 +27,7 @@ A list of module metadata, matching the structure in
 Parse and extract module metadata
 }
 \examples{
-  path <- system.file(package="SpaDES", "sampleModules")
+  path <- system.file(package = "SpaDES", "sampleModules")
   sampleModules <- dir(path)
   x <- moduleMetadata(sampleModules[1], path)
 

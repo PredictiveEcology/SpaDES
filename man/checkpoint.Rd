@@ -18,11 +18,11 @@ checkpointLoad(file)
 
 \item{eventTime}{A numeric specifying the time of the next event.}
 
-\item{eventType}{A character string specifying the type of event:
-one of either \code{"init"}, \code{"load"}, or \code{"save"}.}
+\item{eventType}{A character string specifying the type of event: one of
+either \code{"init"}, \code{"load"}, or \code{"save"}.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
-will be printed (default \code{debug=FALSE}).}
+will be printed (default \code{debug = FALSE}).}
 
 \item{file}{The checkpoint file.}
 }

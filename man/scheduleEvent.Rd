@@ -3,26 +3,35 @@
 \docType{methods}
 \name{scheduleEvent}
 \alias{scheduleEvent}
-\alias{scheduleEvent,simList,NULL,character,character-method}
-\alias{scheduleEvent,simList,numeric,character,character-method}
+\alias{scheduleEvent,simList,NULL,character,character,numeric-method}
+\alias{scheduleEvent,simList,numeric,character,character,missing-method}
+\alias{scheduleEvent,simList,numeric,character,character,numeric-method}
 \title{Schedule a simulation event}
 \usage{
-scheduleEvent(sim, eventTime, moduleName, eventType)
+scheduleEvent(sim, eventTime, moduleName, eventType, eventPriority)
 
-\S4method{scheduleEvent}{simList,numeric,character,character}(sim, eventTime,
-  moduleName, eventType)
+\S4method{scheduleEvent}{simList,numeric,character,character,numeric}(sim,
+  eventTime, moduleName, eventType, eventPriority)
 
-\S4method{scheduleEvent}{simList,`NULL`,character,character}(sim, eventTime,
-  moduleName, eventType)
+\S4method{scheduleEvent}{simList,`NULL`,character,character,numeric}(sim,
+  eventTime, moduleName, eventType, eventPriority)
+
+\S4method{scheduleEvent}{simList,numeric,character,character,missing}(sim,
+  eventTime, moduleName, eventType, eventPriority)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object.}
 
 \item{eventTime}{A numeric specifying the time of the next event.}
 
-\item{moduleName}{A character string specifying the module from which to call the event.}
+\item{moduleName}{A character string specifying the module from which to
+call the event.}
 
-\item{eventType}{A character string specifying the type of event from within the module.}
+\item{eventType}{A character string specifying the type of event from
+within the module.}
+
+\item{eventPriority}{A numeric specifying the priority of the event.
+Lower number means higher priority.}
 }
 \value{
 Returns the modified \code{simList} object.
@@ -37,7 +46,16 @@ submodules to the simulation. We use S4 classes and methods, and use `data.table
 instead of `data.frame` to implement the event queue (because it is much faster).
 }
 \examples{
-\dontrun{scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn")}
+\dontrun{
+ scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn") # default priority
+ scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .normal()) # default priority
+
+ scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .normal()-1) # higher priority
+ scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .normal()+1) # lower priority
+
+ scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .highest()) # highest priority
+ scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .lowest()) # lowest priority
+}
 }
 \author{
 Alex Chubaty

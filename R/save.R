@@ -12,10 +12,10 @@ doEvent.save = function(sim, eventTime, eventType, debug = FALSE) {
     # The load doEvent
 
     if (NROW(outputs(sim)) > 0) {
-      firstSave <- min(outputs(sim)[,"saveTime"], na.rm = TRUE)
+      firstSave <- min(outputs(sim)[, "saveTime"], na.rm = TRUE)
       attributes(firstSave)$unit <- timeunit(sim)
-      sim <- scheduleEvent(sim, firstSave, "save", "spades")
-      sim <- scheduleEvent(sim, end(sim, timeunit(sim)), "save", "end")
+      sim <- scheduleEvent(sim, firstSave, "save", "spades", .last())
+      sim <- scheduleEvent(sim, end(sim, timeunit(sim)), "save", "end", .last())
     }
 
   } else if (eventType == "spades") {
@@ -25,7 +25,6 @@ doEvent.save = function(sim, eventTime, eventType, debug = FALSE) {
   } else if (eventType == "end") {
     message(paste0("Files saved. Use outputs(your simList) for details"))
   }
-
 
 #     # make paths if they don't exist
 #     lapply(pathsToCheck, function(x) {
@@ -143,7 +142,7 @@ saveFiles = function(sim) {
   if(any(is.na(outputs(sim)[outputs(sim)$saveTime>curTime,"saved"]))) {
     nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved),"saveTime"], na.rm = TRUE)
     attributes(nextTime)$unit <- timeunit(sim)
-    sim <- scheduleEvent(sim, nextTime, "save", "later")
+    sim <- scheduleEvent(sim, nextTime, "save", "later", .last())
   }
 
   return(invisible(sim))

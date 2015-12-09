@@ -28,10 +28,10 @@ setMethod(
   ".unparsed",
   signature(modules = "list"),
   definition = function(modules) {
-  ids <- lapply(modules, function(x) {
-    (attr(x, "parsed") == FALSE)
-  }) %>% `==`(., TRUE) %>% which
-  return(ids)
+    ids <- lapply(modules, function(x) {
+      (attr(x, "parsed") == FALSE)
+    }) %>% `==`(., TRUE) %>% which
+    return(ids)
 })
 
 ################################################################################
@@ -175,6 +175,7 @@ setMethod(
 #' @include module-dependencies-class.R
 #' @include simList-class.R
 #' @include environment.R
+#' @include priority.R
 # @importFrom utils sessionInfo
 #' @export
 #' @docType methods
@@ -284,15 +285,15 @@ setMethod(
     }
 
     timestep <- inSeconds(timeunit(sim))
-    times(sim) <- list(current = times$start*timestep,
-                       start = times$start*timestep,
-                       end = times$end*timestep,
+    times(sim) <- list(current = times$start * timestep,
+                       start = times$start * timestep,
+                       end = times$end * timestep,
                        timeunit = timeunit(sim))
 
     # load core modules
     for (c in core) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, start(sim), c, "init")
+      sim <- scheduleEvent(sim, start(sim), c, "init", .normal())
     }
 
     # assign user-specified non-global params, while
@@ -314,13 +315,13 @@ setMethod(
     if (!all( length(loadOrder),
               all(modules(sim) %in% loadOrder),
               all(loadOrder %in% modules(sim)) )) {
-      loadOrder <- depsGraph(sim, plot=FALSE) %>% .depsLoadOrder(sim, .)
+      loadOrder <- depsGraph(sim, plot = FALSE) %>% .depsLoadOrder(sim, .)
     }
 
     # load user-defined modules
     for (m in loadOrder) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, start(sim, "seconds"), m, "init")
+      sim <- scheduleEvent(sim, start(sim, "seconds"), m, "init", .normal())
 
       ### add module name to the loaded list
       modulesLoaded <- append(modulesLoaded, m)
@@ -823,7 +824,7 @@ setMethod("simInit",
             li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
             names(li) <- names(match.call())[-1]
             li$inputs <- inputs
-            li$times <- list(start=0, end=1, timeunit = "seconds")
+            li$times <- list(start = 0, end = 1, timeunit = "seconds")
             li$modules <- list()
             li$params <- list()
             li$objects <- list()
@@ -838,34 +839,35 @@ setMethod("simInit",
 ########## All missing
 
 #' @rdname simInit
-setMethod("simInit",
-          signature(times = "missing", params = "missing", modules = "missing",
-                    objects = "missing", paths = "missing",
-                    inputs = "missing", outputs = "missing", loadOrder = "missing"),
-          definition = function(inputs, outputs) {
-            sim <- simInit(times=list(start=0, end=1),
-                           params=list(),
-                           modules=list(),
-                           objects=list(),
-                           paths=list("."),
-                           inputs=as.data.frame(NULL),
-                           outputs=as.data.frame(NULL),
-                           loadOrder=character(0))
-            return(invisible(sim))
+setMethod(
+  "simInit",
+  signature(times = "missing", params = "missing", modules = "missing",
+            objects = "missing", paths = "missing", inputs = "missing",
+            outputs = "missing", loadOrder = "missing"),
+  definition = function(inputs, outputs) {
+    sim <- simInit(times = list(start = 0, end = 1, timeunit = "seconds"),
+                   params = list(),
+                   modules = list(),
+                   objects = list(),
+                   paths = list("."),
+                   inputs = as.data.frame(NULL),
+                   outputs = as.data.frame(NULL),
+                   loadOrder = character(0))
+    return(invisible(sim))
 })
 
 ### All other
 #' @rdname simInit
-setMethod("simInit",
-          signature(times = "ANY", params = "ANY", modules = "ANY",
-                    objects = "ANY", paths = "ANY",
-                    inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
-          definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
-            stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
-                 "Some of these can be missing, but it is safer to specify everything explicitly. ",
-                 "A common issue is that an argument is passed as a character string instead of list.",
-                 "For the currently defined options for simInit, type showMethods'simInit'")
-          })
+setMethod(
+  "simInit",
+  signature(times = "ANY", params = "ANY", modules = "ANY", objects = "ANY",
+            paths = "ANY", inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
+  definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+    stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
+         "Some of these can be missing, but it is safer to specify everything explicitly. ",
+         "A common issue is that an argument is passed as a character string instead of list.",
+         "For the currently defined options for simInit, type showMethods'simInit'.")
+})
 
 ################################################################################
 #' Process a simulation event
@@ -886,7 +888,7 @@ setMethod("simInit",
 #'
 #' @return Returns the modified \code{simList} object.
 #'
-#' @importFrom data.table data.table rbindlist setkey
+#' @importFrom data.table data.table rbindlist setkey set2key
 # @importFrom utils tail
 #' @export
 #' @keywords internal
@@ -930,10 +932,11 @@ setMethod("doEvent",
                 if(nextEvent$moduleName %in% modules(sim)) {
                   if(nextEvent$moduleName %in% core) {
                       sim <- get(moduleCall)(sim, nextEvent$eventTime,
-                                                             nextEvent$eventType, debug)
+                                             nextEvent$eventType, debug)
                    } else {
-                      sim <- get(moduleCall, envir=envir(sim))(sim, nextEvent$eventTime,
-                                          nextEvent$eventType, debug)
+                      sim <- get(moduleCall,
+                                 envir = envir(sim))(sim, nextEvent$eventTime,
+                                                     nextEvent$eventType, debug)
                    }
                 } else {
                   stop(paste("Invalid module call. The module `",
@@ -945,15 +948,17 @@ setMethod("doEvent",
                 events(sim) <- events(sim, "second")[-1L,]
 
                 # add to list of completed events
-                if(length(completed(sim, "second"))) {
+                if (length(completed(sim, "second"))) {
                   completed <- list(completed(sim, "second"), nextEvent) %>%
                     rbindlist %>%
-                    setkey("eventTime")
+                    setkey("eventTime") %>%
+                    set2key("eventPriority")
                   if (NROW(completed) > getOption("spades.nCompleted")) {
-                    completed <- tail(completed, n=getOption("spades.nCompleted"))
+                    completed <- tail(completed, n = getOption("spades.nCompleted"))
                   }
                 } else {
-                  completed <- setkey(nextEvent, "eventTime")
+                  completed <- setkey(nextEvent, "eventTime") %>%
+                    set2key("eventPriority")
                 }
                 completed(sim) <- completed
               } else {
@@ -969,7 +974,7 @@ setMethod("doEvent",
           signature(sim = "simList", debug = "missing"),
           definition = function(sim) {
             stopifnot(class(sim) == "simList")
-            return(doEvent(sim, debug=FALSE))
+            return(doEvent(sim, debug = FALSE))
 })
 
 ################################################################################
@@ -982,16 +987,23 @@ setMethod("doEvent",
 #' submodules to the simulation. We use S4 classes and methods, and use `data.table`
 #' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
-#' @param sim          A \code{simList} simulation object.
+#' @param sim            A \code{simList} simulation object.
 #'
-#' @param eventTime    A numeric specifying the time of the next event.
+#' @param eventTime      A numeric specifying the time of the next event.
 #'
-#' @param moduleName   A character string specifying the module from which to call the event.
+#' @param moduleName     A character string specifying the module from which to
+#'                       call the event.
 #'
-#' @param eventType    A character string specifying the type of event from within the module.
+#' @param eventType      A character string specifying the type of event from
+#'                       within the module.
+#'
+#' @param eventPriority  A numeric specifying the priority of the event.
+#'                       Lower number means higher priority.
 #'
 #' @return Returns the modified \code{simList} object.
 #'
+#' @importFrom data.table setkey set2key
+#' @include priority.R
 #' @export
 #' @docType methods
 #' @rdname scheduleEvent
@@ -1001,8 +1013,19 @@ setMethod("doEvent",
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 #'
 #' @examples
-#' \dontrun{scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn")}
-setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
+#' \dontrun{
+#'  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn") # default priority
+#'  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .normal()) # default priority
+#'
+#'  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .normal()-1) # higher priority
+#'  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .normal()+1) # lower priority
+#'
+#'  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .highest()) # highest priority
+#'  scheduleEvent(x, time(sim) + 1.0, "firemodule", "burn", .lowest()) # lowest priority
+#' }
+setGeneric(
+  "scheduleEvent",
+  function(sim, eventTime, moduleName, eventType, eventPriority) {
     standardGeneric("scheduleEvent")
 })
 
@@ -1010,13 +1033,13 @@ setGeneric("scheduleEvent", function(sim, eventTime, moduleName, eventType) {
 setMethod(
   "scheduleEvent",
   signature(sim = "simList", eventTime = "numeric", moduleName = "character",
-            eventType = "character"),
-  definition = function(sim, eventTime, moduleName, eventType) {
+            eventType = "character", eventPriority = "numeric"),
+  definition = function(sim, eventTime, moduleName, eventType, eventPriority) {
     if (length(eventTime)) {
       if (!is.na(eventTime)) {
         # if there is no metadata, meaning for the first
         #  "default" modules...load, save, checkpoint, progress
-        if(!is.null(depends(sim)@dependencies[[1]])) {
+        if (!is.null(depends(sim)@dependencies[[1]])) {
           # first check if this moduleName matches the name of a module
           #  with meta-data (i.e., depends(sim)@dependencies filled)
           if (moduleName %in% sapply(
@@ -1025,7 +1048,7 @@ setMethod(
             #  value, likely because of times in the simInit call.
             #  This must be intercepted, and units added based on this
             #  assumption, that the units are in \code{timeunit}
-            if(is.null(attr(eventTime, "unit"))) {
+            if (is.null(attr(eventTime, "unit"))) {
               attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
               eventTimeInSeconds <- convertTimeunit(
                   (eventTime -
@@ -1033,56 +1056,69 @@ setMethod(
                   "seconds"
                 ) +
                 time(sim, "seconds") %>%
-                as.numeric
+                as.numeric()
             } else {
               eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
-                as.numeric
+                as.numeric()
             }
           } else { # for core modules because they have no metadata
             eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
-              as.numeric
+              as.numeric()
           }
         } else { # when eventTime is NA... can't seem to get an example
           eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
-            as.numeric
+            as.numeric()
         }
         attributes(eventTimeInSeconds)$unit <- "second"
 
-        newEvent <- as.data.table(list(eventTime=eventTimeInSeconds,
-                                       moduleName=moduleName,
-                                       eventType=eventType))
+        newEvent <- as.data.table(list(
+          eventTime = eventTimeInSeconds,
+          moduleName = moduleName,
+          eventType = eventType,
+          eventPriority = eventPriority
+        ))
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
-        if (length(events(sim,"second")) == 0L) {
-          events(sim) <- setkey(newEvent, "eventTime")
+        if (length(events(sim, "second")) == 0L) {
+          events(sim) <- setkey(newEvent, "eventTime") %>%
+            set2key("eventPriority")
         } else {
           events(sim) <- rbindlist(list(events(sim, "second"), newEvent)) %>%
-            setkey("eventTime")
+            setkey("eventTime") %>%
+            set2key("eventPriority")
         }
       }
     } else {
-        warning(paste("Invalid or missing eventTime. This is usually caused by",
-                      "an attempt to scheduleEvent at an empty eventTime or by",
-                      "using an undefined parameter."))
+      warning(paste("Invalid or missing eventTime. This is usually caused by",
+                    "an attempt to scheduleEvent at an empty eventTime or by",
+                    "using an undefined parameter."))
     }
 
     return(invisible(sim))
 })
 
 #' @rdname scheduleEvent
-setMethod("scheduleEvent",
-          signature(sim = "simList", eventTime = "NULL",
-                    moduleName = "character", eventType = "character"),
-          definition = function(sim, eventTime, moduleName, eventType) {
-            stopifnot(class(sim) == "simList")
-            warning(paste("Invalid or missing eventTime. This is usually",
-                          "caused by an attempt to scheduleEvent at time NULL",
-                          "or by using an undefined parameter."))
-            return(invisible(sim))
+setMethod(
+  "scheduleEvent",
+  signature(sim = "simList", eventTime = "NULL", moduleName = "character",
+            eventType = "character", eventPriority = "numeric"),
+  definition = function(sim, eventTime, moduleName, eventType, eventPriority) {
+    warning(paste("Invalid or missing eventTime. This is usually",
+                  "caused by an attempt to scheduleEvent at time NULL",
+                  "or by using an undefined parameter."))
+    return(invisible(sim))
 })
 
-
+#' @rdname scheduleEvent
+setMethod(
+  "scheduleEvent",
+  signature(sim = "simList", eventTime = "numeric", moduleName = "character",
+            eventType = "character", eventPriority = "missing"),
+  definition = function(sim, eventTime, moduleName, eventType, eventPriority) {
+    scheduleEvent(sim = sim, eventTime = eventTime, moduleName = moduleName,
+                  eventType = eventType, eventPriority = .normal())
+})
 
 ################################################################################
 #' Run a spatial discrete event simulation

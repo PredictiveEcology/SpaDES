@@ -918,19 +918,19 @@ setReplaceMethod(
      file.path(inputPath(object),
                object@inputs$file[!isAbsolutePath(object@inputs$file)])
 
-   if (any(is.na(object@inputs[,"loaded"]))) {
-     if (!all(is.na(object@inputs[,"loadTime"]))) {
-       newTime <- object@inputs[is.na(object@inputs$loaded),"loadTime"] %>%
+   if (any(is.na(object@inputs[, "loaded"]))) {
+     if (!all(is.na(object@inputs[, "loadTime"]))) {
+       newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
          min(., na.rm = TRUE)
        attributes(newTime)$unit <- timeunit(object)
-       object <- scheduleEvent(object, newTime, "load", "inputs")
+       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
      } else {
        object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
          time(object, "seconds")
        newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
          min(., na.rm = TRUE)
        attributes(newTime)$unit <- "seconds"
-       object <- scheduleEvent(object, newTime, "load", "inputs")
+       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
      }
    }
 
@@ -1954,16 +1954,17 @@ setGeneric("completed", function(object, unit) {
 
 #' @rdname simList-accessors-events
 #' @export
-setMethod("completed",
-          signature = c(".simList", "character"),
-          definition = function(object, unit) {
-            out <- if (!is.null(object@completed$eventTime)) {
-              object@completed %>%
-                dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
-            } else {
-              object@completed
-            }
-            return(out)
+setMethod(
+  "completed",
+  signature = c(".simList", "character"),
+  definition = function(object, unit) {
+    out <- if (!is.null(object@completed$eventTime)) {
+      object@completed %>%
+        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
+    } else {
+      object@completed
+    }
+    return(out)
 })
 
 #' @export

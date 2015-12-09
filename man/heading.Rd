@@ -39,22 +39,22 @@ x0 <- stats::rnorm(N, x1, 5)   # current X location
 y0 <- stats::rnorm(N, y1, 5)   # current Y location
 
 # using SpatialPoints
-prev <- SpatialPoints(cbind(x=x1, y=y1))
-curr <- SpatialPoints(cbind(x=x0, y=y0))
+prev <- SpatialPoints(cbind(x = x1, y = y1))
+curr <- SpatialPoints(cbind(x = x0, y = y0))
 heading(prev, curr)
 
 # using matrix
-prev <- matrix(c(x1, y1), ncol=2, dimnames=list(NULL, c("x","y")))
-curr <- matrix(c(x0, y0), ncol=2, dimnames=list(NULL, c("x","y")))
+prev <- matrix(c(x1, y1), ncol = 2, dimnames = list(NULL, c("x","y")))
+curr <- matrix(c(x0, y0), ncol = 2, dimnames = list(NULL, c("x","y")))
 heading(prev, curr)
 
 #using both
-prev <- SpatialPoints(cbind(x=x1, y=y1))
-curr <- matrix(c(x0, y0), ncol=2, dimnames=list(NULL, c("x","y")))
+prev <- SpatialPoints(cbind(x = x1, y = y1))
+curr <- matrix(c(x0, y0), ncol = 2, dimnames = list(NULL, c("x","y")))
 heading(prev, curr)
 
-prev <- matrix(c(x1, y1), ncol=2, dimnames=list(NULL, c("x","y")))
-curr <- SpatialPoints(cbind(x=x0, y=y0))
+prev <- matrix(c(x1, y1), ncol = 2, dimnames = list(NULL, c("x","y")))
+curr <- SpatialPoints(cbind(x = x0, y = y0))
 heading(prev, curr)
 
 }

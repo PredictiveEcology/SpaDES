@@ -20,8 +20,8 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
     # if NA then don't use progress bar
     if (any(!is.na(params(sim)$.progress))) {
       newProgressBar(sim)
-      sim <- scheduleEvent(sim, start(sim, "seconds"), "progress", "set")
-      sim <- scheduleEvent(sim, end(sim, "seconds"), "progress", "set")
+      sim <- scheduleEvent(sim, start(sim, "seconds"), "progress", "set", .last())
+      sim <- scheduleEvent(sim, end(sim, "seconds"), "progress", "set", .last())
     }
   } else if (eventType == "set") {
       # update progress bar
@@ -30,15 +30,17 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
       # schedule the next save
       timeNextUpdate <- time(sim, timeunit(sim)) + params(sim)$.progress$interval
 
-      sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set")
+      sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set", .last())
   } else {
-    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-                  "\' in module \'", events(sim)[1, "moduleName", with = FALSE],"\'", sep = ""))
+    warning(paste(
+      "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
+      "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'", sep = ""
+    ))
   }
   return(invisible(sim))
 }
 
-##############################################################
+################################################################################
 #' Progress bar
 #'
 #' Shows a progress bar that is scaled to simulation end time.

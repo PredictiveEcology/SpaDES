@@ -16,8 +16,8 @@
 #'
 #' @param eventTime    A numeric specifying the time of the next event.
 #'
-#' @param eventType    A character string specifying the type of event:
-#'                      one of either \code{"init"}, \code{"load"}, or \code{"save"}.
+#' @param eventType      A character string specifying the type of event: one of
+#'                       either \code{"init"}, \code{"load"}, or \code{"save"}.
 #'
 #' @param debug         Optional logical flag determines whether sim debug info
 #'                      will be printed (default \code{debug = FALSE}).
@@ -29,6 +29,7 @@
 #' @author Alex Chubaty
 #'
 #' @include environment.R
+#' @include priority.R
 #' @importFrom R.utils isAbsolutePath
 #' @export
 #' @docType methods
@@ -61,7 +62,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
   ### event definitions
   if (eventType == "init") {
     if (useChkpnt) {
-      sim <- scheduleEvent(sim, 0.00, "checkpoint", "save")
+      sim <- scheduleEvent(sim, 0.00, "checkpoint", "save", .last())
     }
   } else if (eventType == "save") {
     if (useChkpnt) {
@@ -69,13 +70,14 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
 
       # schedule the next save
       timeNextSave <- time(sim) + checkpointInterval(sim)
-      sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save")
+      sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save", .last())
     }
   } else {
-    warning(
-      paste("Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-            "\' in module \'", events(sim)[1, "moduleName", with = FALSE],"\'", sep = "")
-    )
+    warning(paste(
+      "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
+      "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'",
+      sep = ""
+    ))
   }
   return(invisible(sim))
 }

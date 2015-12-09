@@ -25,10 +25,11 @@ more efficient).
 \describe{
 \item{\code{modules}}{List of character names specifying which modules to load.}
 
-\item{\code{params}}{Named list of potentially other lists specifying simulation parameters.}
+\item{\code{params}}{Named list of potentially other lists specifying simulation
+parameters.}
 
-\item{\code{events}}{The list of scheduled events (i.e., event queue), as a \code{data.table}.
-See 'Event Lists' for more information.}
+\item{\code{events}}{The list of scheduled events (i.e., event queue), as a
+\code{data.table}. See 'Event Lists' for more information.}
 
 \item{\code{completed}}{The list of completed events, as a \code{data.table}.
 See 'Event Lists' for more information.}
@@ -40,12 +41,14 @@ containing module object dependency information.}
 and end times; as well as the current simulation time.}
 
 \item{\code{inputs}}{A list of length 2, containing:
-1) a \code{data.frame} or \code{data.table} of files and metadata,
-and 2) a list of optional arguments to pass to an import function.}
+1) a \code{data.frame} or \code{data.table} of files and
+metadata, and 2) a list of optional arguments to pass to an
+import function.}
 
 \item{\code{outputs}}{A list of length 2 containing:
-1) a \code{data.frame}  or \code{data.table} of files and metadata,
-and 2) a list of optional arguments to pass to an export function.}
+1) a \code{data.frame}  or \code{data.table} of files and
+metadata, and 2) a list of optional arguments to pass to an
+export function.}
 
 \item{\code{paths}}{Named list of \code{modulePath}, \code{inputPath},
 and \code{outputPath} paths. Partial matching is performed.}
@@ -93,6 +96,7 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
   \code{eventTime} \tab The time the event is to occur.\cr
   \code{moduleName} \tab The module from which the event is taken.\cr
   \code{eventType} \tab A character string for the programmer-defined event type.\cr
+  \code{eventPriority} \tab The priority given to the event. \cr
 }
 }
 \author{

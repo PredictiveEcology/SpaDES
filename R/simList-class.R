@@ -23,10 +23,11 @@
 #'
 #' @slot modules    List of character names specifying which modules to load.
 #'
-#' @slot params     Named list of potentially other lists specifying simulation parameters.
+#' @slot params     Named list of potentially other lists specifying simulation
+#'                  parameters.
 #'
-#' @slot events     The list of scheduled events (i.e., event queue), as a \code{data.table}.
-#'                  See 'Event Lists' for more information.
+#' @slot events     The list of scheduled events (i.e., event queue), as a
+#'                  \code{data.table}. See 'Event Lists' for more information.
 #'
 #' @slot completed  The list of completed events, as a \code{data.table}.
 #'                  See 'Event Lists' for more information.
@@ -38,12 +39,14 @@
 #'                  and end times; as well as the current simulation time.
 #'
 #' @slot inputs     A list of length 2, containing:
-#'                  1) a \code{data.frame} or \code{data.table} of files and metadata,
-#'                  and 2) a list of optional arguments to pass to an import function.
+#'                  1) a \code{data.frame} or \code{data.table} of files and
+#'                  metadata, and 2) a list of optional arguments to pass to an
+#'                  import function.
 #'
 #' @slot outputs    A list of length 2 containing:
-#'                  1) a \code{data.frame}  or \code{data.table} of files and metadata,
-#'                  and 2) a list of optional arguments to pass to an export function.
+#'                  1) a \code{data.frame}  or \code{data.table} of files and
+#'                  metadata, and 2) a list of optional arguments to pass to an
+#'                  export function.
 #'
 #' @slot paths      Named list of \code{modulePath}, \code{inputPath},
 #'                  and \code{outputPath} paths. Partial matching is performed.
@@ -71,6 +74,7 @@
 #'   \code{eventTime} \tab The time the event is to occur.\cr
 #'   \code{moduleName} \tab The module from which the event is taken.\cr
 #'   \code{eventType} \tab A character string for the programmer-defined event type.\cr
+#'   \code{eventPriority} \tab The priority given to the event. \cr
 #' }
 #'
 #' @include module-dependencies-class.R
@@ -98,7 +102,9 @@ setClass(
     events = as.data.table(NULL),
     completed = as.data.table(NULL),
     depends = new(".simDeps", dependencies = list(NULL)),
-    simtimes = list(current=0.00, start=0.00, end=1.00, timeunit=NA_character_),
+    simtimes = list(
+      current = 0.00, start = 0.00, end = 1.00, timeunit = NA_character_
+    ),
     inputs = data.frame(
       file = character(0), fun = character(0), package = character(0),
       objectName = character(0), loadTime = numeric(0), loaded = logical(0),

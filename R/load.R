@@ -281,9 +281,7 @@ setMethod(
 #        if (any(is.na(filelistDT[,loaded]))) {
 #          newTime <- filelistDT[is.na(loaded), min(loadTime, na.rm = TRUE)]
 #          attributes(newTime)$unit <- timeunit(sim)
-#          sim <- scheduleEvent(sim,
-#                               newTime,
-#                               "load", "inputs")
+#          sim <- scheduleEvent(sim, newTime, "load", "inputs", .normal())
 #        }
     }
     message("") ## print empty message to add linebreak to console message output

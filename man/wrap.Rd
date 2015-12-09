@@ -36,7 +36,7 @@ wrap(X, bounds, withHeading)
 \item{bounds}{Either a Raster*, Extent, or bbox object defining bounds to wrap around}
 
 \item{withHeading}{logical. If TRUE, then the previous points must be wrapped also
-so that the subsequent heading calculation will work. Default if FALSE. See details}
+so that the subsequent heading calculation will work. Default FALSE. See details.}
 }
 \value{
 Same class as X, but with coordinates updated to reflect the wrapping
@@ -45,8 +45,9 @@ Same class as X, but with coordinates updated to reflect the wrapping
 Generally for model development purposes.
 }
 \details{
-If \code{withHeading} used, then X must be a SpatialPointsDataFrame that contains
-two columns, x1 and y1, with the immediately previous agent locations.
+If \code{withHeading} used, then X must be a \code{SpatialPointsDataFrame}
+that contains two columns, x1 and y1, with the immediately previous agent
+locations.
 }
 \examples{
 library(raster)

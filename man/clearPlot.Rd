@@ -27,7 +27,7 @@ clearPlot(dev = dev.cur(), removeData = TRUE)
 }
 \description{
 Under some conditions, a device and its metadata need to be cleared manually.
-This can be done with either the \code{new=TRUE} argument within the call to
+This can be done with either the \code{new = TRUE} argument within the call to
 \code{Plot}.
 Sometimes, the metadata of a previous plot will prevent correct plotting of
 a new \code{Plot} call.
