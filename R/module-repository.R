@@ -234,7 +234,7 @@ setMethod(
 
     checksums <- sapply(files, function(x) {
       digest(file = x, algo = "md5") # use sha1?
-    }) %>% unname
+    }) %>% unname()
 
     out <- data.frame(file = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
@@ -246,9 +246,12 @@ setMethod(
     } else {
       txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
                         stringsAsFactors = FALSE)
-      results <- ( (out[,"file"] == txt[,"file"]) &
-                     (out[,"checksum"] == txt[,"checksum"]) ) %>%
-        as.character %>%
+      results <- apply(out, 1, function(x) {
+        which(txt[, "file"] == x["file"]) %>%
+          txt[., "checksum"] %in% x["checksum"] %>%
+          any()
+        }) %>%
+        as.character() %>%
         gsub("TRUE", "OK", .) %>%
         gsub("FALSE", "FAIL", .)
 
