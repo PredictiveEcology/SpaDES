@@ -10,7 +10,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
 
   times <- list(start = 0, end = 1)
   parameters <- list(
-    .globals = list(stackName="landscape"),
+    .globals = list(stackName = "landscape"),
     caribouMovement = list(.plotInitialTime = NA),
     randomLandscapes = list(.plotInitialTime = NA, nx = 20, ny = 20)
   )
@@ -78,8 +78,8 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   #  at time = 10 and 20 (via "intervals").
   # Also, pass the single argument as a list to all functions...
   #  specifically, when add "native = TRUE" as an argument to the raster function
-  mapPath <- system.file("maps", package="SpaDES")
-  files <- dir(file.path(mapPath), full.names=TRUE, pattern= "tif")[1:4]
+  mapPath <- system.file("maps", package = "SpaDES")
+  files <- dir(file.path(mapPath), full.names = TRUE, pattern =  "tif")[1:4]
   parameters <- list(
     .globals = list(stackName = "landscape"),
     caribouMovement = list(.plotInitialTime = NA),
@@ -131,7 +131,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
 
   # test object passing directly
   filelist = data.frame(
-    files = dir(file.path(mapPath),full.names = TRUE, pattern="tif")[1:2],
+    files = dir(file.path(mapPath),full.names = TRUE, pattern = "tif")[1:2],
     functions = "raster",
     package = "raster",
     stringsAsFactors=FALSE

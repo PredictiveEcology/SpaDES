@@ -50,8 +50,8 @@ two columns, x1 and y1, with the immediately previous agent locations.
 }
 \examples{
 library(raster)
-xrange <- yrange <- c(-50,50)
-hab <- raster(extent(c(xrange,yrange)))
+xrange <- yrange <- c(-50, 50)
+hab <- raster(extent(c(xrange, yrange)))
 hab[] <- 0
 
 # initialize caribou agents
@@ -61,23 +61,22 @@ N <- 10
 x1 <- rep(0, N)
 y1 <- rep(0, N)
 # initial points
-starts <- cbind(x=stats::runif(N, xrange[1],xrange[2]),
-                y=stats::runif(N, yrange[1],yrange[2]))
+starts <- cbind(x = stats::runif(N, xrange[1], xrange[2]),
+                y = stats::runif(N, yrange[1], yrange[2]))
 
 # create the caribou agent object
-caribou <- SpatialPointsDataFrame(coords=starts, data=data.frame(x1, y1))
+caribou <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
 
 
 ln <- rlnorm(N, 1, 0.02) # log normal step length
 sd <- 30 # could be specified globally in params
 
-Plot(hab, zero.color="white", new=TRUE, axes="L")
+Plot(hab, zero.color = "white", new = TRUE, axes = "L")
 for(i in 1:10) {
-  caribou <- SpaDES::crw(agent=caribou,
-                 extent=extent(hab), stepLength=ln,
-                 stddev=sd, lonlat=FALSE,
-                 torus=TRUE)
-  Plot(caribou, addTo="hab", axes=TRUE)
+  caribou <- SpaDES::crw(agent = caribou,
+                         extent = extent(hab), stepLength = ln,
+                         stddev = sd, lonlat = FALSE, torus = TRUE)
+  Plot(caribou, addTo = "hab", axes = TRUE)
 }
 }
 \author{

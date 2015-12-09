@@ -2,7 +2,7 @@
 #' Clear plotting device
 #'
 #' Under some conditions, a device and its metadata need to be cleared manually.
-#' This can be done with either the \code{new=TRUE} argument within the call to
+#' This can be done with either the \code{new = TRUE} argument within the call to
 #' \code{Plot}.
 #' Sometimes, the metadata of a previous plot will prevent correct plotting of
 #' a new \code{Plot} call.
@@ -21,7 +21,7 @@
 #' @rdname clearPlot
 #' @include plotting-classes.R
 #' @author Eliot McIntire
-setGeneric("clearPlot", function(dev=dev.cur(), removeData=TRUE) {
+setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE) {
   standardGeneric("clearPlot")
 })
 
@@ -32,12 +32,12 @@ setMethod(
   signature = c("numeric", "logical"),
   definition = function(dev, removeData) {
     suppressWarnings(
-      try(rm(list=paste0("spadesPlot", dev), envir=.spadesEnv))
+      try(rm(list = paste0("spadesPlot", dev), envir = .spadesEnv))
     )
     if (removeData) {
       suppressWarnings(
-        try(rm(list= ls(.spadesEnv[[paste0("dev", dev)]]),
-               envir=.spadesEnv[[paste0("dev", dev)]]), silent=TRUE)
+        try(rm(list = ls(.spadesEnv[[paste0("dev", dev)]]),
+               envir = .spadesEnv[[paste0("dev", dev)]]), silent = TRUE)
       )
     }
     devActive <- dev.cur()
@@ -51,25 +51,25 @@ setMethod(
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature=c("numeric", "missing"),
-          definition=function(dev) {
-            clearPlot(dev, removeData=FALSE)
+          signature = c("numeric", "missing"),
+          definition = function(dev) {
+            clearPlot(dev, removeData = FALSE)
 })
 
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature=c("missing","logical"),
-          definition= function(removeData) {
-            clearPlot(dev=dev.cur(), removeData=removeData)
+          signature = c("missing","logical"),
+          definition =  function(removeData) {
+            clearPlot(dev = dev.cur(), removeData = removeData)
 })
 
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature=c("missing","missing"),
-          definition= function(dev, removeData) {
-            clearPlot(dev.cur(), removeData=FALSE)
+          signature = c("missing","missing"),
+          definition =  function(dev, removeData) {
+            clearPlot(dev.cur(), removeData = FALSE)
 })
 
 ################################################################################
@@ -128,26 +128,26 @@ setMethod("clearPlot",
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
 #'
-clickValues <- function(n=1) {
-  coords <- clickCoordinates(n=n)
+clickValues <- function(n = 1) {
+  coords <- clickCoordinates(n = n)
   objLay <- strsplit(coords$map, "\\$")
   objNames <- sapply(objLay, function(x) { x[1] })
   layNames <- sapply(objLay, function(x) { x[2] })
   for (i in 1:n) {
     if(!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text=objNames[i]),
-             envir=coords$envir[[i]])[[layNames[i]]][cellFromXY(
-               eval(parse(text=objNames[i]),
-                    envir=coords$envir[[i]])[[layNames[i]]],
+        eval(parse(text = objNames[i]),
+             envir = coords$envir[[i]])[[layNames[i]]][cellFromXY(
+               eval(parse(text = objNames[i]),
+                    envir = coords$envir[[i]])[[layNames[i]]],
                coords$coords[i,1:2])]
       })
     } else {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text=objNames[i]),
-             envir=coords$envir[[i]])[cellFromXY(
-               eval(parse(text=objNames[i]),
-                    envir=coords$envir[[i]]),
+        eval(parse(text = objNames[i]),
+             envir = coords$envir[[i]])[cellFromXY(
+               eval(parse(text = objNames[i]),
+                    envir = coords$envir[[i]]),
                coords$coords[i,1:2])]
       })
     }
@@ -166,7 +166,7 @@ clickValues <- function(n=1) {
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
-clickExtent <- function(devNum=NULL, plot.it=TRUE) {
+clickExtent <- function(devNum = NULL, plot.it = TRUE) {
 
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners[[3]]$x), sort(corners[[3]]$y)))
@@ -183,10 +183,10 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
     if(!is.na(layNames)) {
-      Plot(eval(parse(text=objNames), envir=corners$envir[[1]])[[layNames]],
-           zoomExtent=zoom, new=TRUE)
+      Plot(eval(parse(text = objNames), envir = corners$envir[[1]])[[layNames]],
+           zoomExtent = zoom, new = TRUE)
     } else {
-      Plot(get(objNames, envir=corners$envir[[1]]), zoomExtent=zoom, new=TRUE)
+      Plot(get(objNames, envir = corners$envir[[1]]), zoomExtent = zoom, new = TRUE)
     }
 
     dev(devActive)
@@ -205,19 +205,19 @@ clickExtent <- function(devNum=NULL, plot.it=TRUE) {
 #' @importFrom grid grid.layout grid.locator unit
 #' @importFrom grDevices dev.cur
 # igraph exports %>% from magrittr
-clickCoordinates <- function(n=1) {
+clickCoordinates <- function(n = 1) {
   dc <- dev.cur()
 
   arr <- try(.getSpaDES(paste0("spadesPlot", dc)))
   if (is(arr, "try-error")) {
     stop(paste("Plot does not already exist on current device.",
-               "Try new=TRUE, clearPlot() or change device to",
+               "Try new = TRUE, clearPlot() or change device to",
                "one that has objects from a call to Plot()."))
   }
-  gl <- grid.layout(nrow=arr@arr@rows*3+2,
-                    ncol=arr@arr@columns*3+2,
-                    widths=arr@arr@layout$wdth,
-                    heights=arr@arr@layout$ht)
+  gl <- grid.layout(nrow = arr@arr@rows*3+2,
+                    ncol = arr@arr@columns*3+2,
+                    widths = arr@arr@layout$wdth,
+                    heights = arr@arr@layout$ht)
 
   grepNullsW <- grep("null$", gl$widths)
   grepNpcsW <- grep("npc$", gl$widths)
@@ -251,7 +251,7 @@ clickCoordinates <- function(n=1) {
   npcForNulls <- nulls*remaining/sum(nulls)
   heightNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsH, grepNullsH))]
 
-  clickCoords <- data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
+  clickCoords <- data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
   mapNames <- character(n)
   envs <- list()
 
@@ -259,7 +259,7 @@ clickCoordinates <- function(n=1) {
 
   for(i in 1:n) {
     seekViewport("top")
-    gloc <- grid.locator(unit="npc")
+    gloc <- grid.locator(unit = "npc")
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]),
                          c(0, cumsum(widthNpcs)))
     # for the y, grid package treats bottom left as origin, Plot treats top left
@@ -269,8 +269,8 @@ clickCoordinates <- function(n=1) {
     if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")
     }
-    column <-  which(xInt==grepNpcsW)
-    row <- which((yInt==grepNpcsH)[length(grepNpcsH):1])
+    column <-  which(xInt == grepNpcsW)
+    row <- which((yInt == grepNpcsH)[length(grepNpcsH):1])
     map <- column + (row-1)*arr@arr@columns
 
     maxLayX <- cumsum(widthNpcs)[xInt]
@@ -286,11 +286,11 @@ clickCoordinates <- function(n=1) {
       )[[1]]) - minLayY) / (maxLayY - minLayY), "npc")
 
     clickCoords[i, ] <- .clickCoord(arr@spadesGrobList[[map]][[1]]@plotName,
-                                    n=1, gl=grobLoc)
+                                    n = 1, gl = grobLoc)
     mapNames[i] <- arr@spadesGrobList[[map]][[1]]@plotName
     envs[[i]] <- arr@spadesGrobList[[map]][[1]]@envir
   }
-  return(list(map=mapNames, envir=envs, coords=clickCoords))
+  return(list(map = mapNames, envir = envs, coords = clickCoords))
 }
 
 #' @param X The raster object whose values will be returned where mouse clicks occur.
@@ -303,8 +303,8 @@ clickCoordinates <- function(n=1) {
 #' @docType methods
 #' @rdname spadesMouseClicks
 #' @importFrom grid seekViewport grid.locator convertX convertY
-.clickCoord <- function(X, n=1, gl=NULL) {
-  pts<-data.frame(x=NA_real_, y=NA_real_, stringsAsFactors = FALSE)
+.clickCoord <- function(X, n = 1, gl = NULL) {
+  pts<-data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
   for(i in 1:n) {
     if(is.null(gl)) {
@@ -347,9 +347,9 @@ dev <- function(x, ...) {
     if(is.null(dev.list())) {
       x <- 2L
     } else {
-      if(any(names(dev.list())=="RStudioGD")) {
+      if(any(names(dev.list()) == "RStudioGD")) {
         x <- min(max(dev.list())+1,
-                 which(names(dev.list())=="RStudioGD")+3L)
+                 which(names(dev.list()) == "RStudioGD")+3L)
         dev(x)
       } else {
         x <- max(dev.list())
@@ -379,6 +379,6 @@ dev <- function(x, ...) {
 #' @importFrom grDevices dev.new
 #' @docType methods
 #' @rdname newPlot
-newPlot <- function(noRStudioGD=TRUE, ...) {
-  dev.new(noRStudioGD=TRUE, ...)
+newPlot <- function(noRStudioGD = TRUE, ...) {
+  dev.new(noRStudioGD = TRUE, ...)
 }

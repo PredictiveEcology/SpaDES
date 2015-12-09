@@ -1,7 +1,7 @@
 test_that("updateList behaves correctly", {
-  L1 <- list(a="hst", b=NA_character_, c=43)
-  L2 <- list(a="gst", c=42, d=list(letters))
-  L12 <- list(a="gst", b=NA_character_, c=42, d=list(letters))
+  L1 <- list(a = "hst", b = NA_character_, c = 43)
+  L2 <- list(a = "gst", c = 42, d = list(letters))
+  L12 <- list(a = "gst", b = NA_character_, c = 42, d = list(letters))
 
   expect_equal(L1, updateList(NULL, L1))
   expect_equal(L1, updateList(L1, NULL))
