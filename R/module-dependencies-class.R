@@ -53,8 +53,8 @@ setMethod(".outputObjects",
           signature(x = "missing"),
           definition = function() {
             out.df <- data.frame(
-              objectName = character(), objectClass = character(),
-              other = character(), stringsAsFactors = FALSE
+              objectName = character(0), objectClass = character(0),
+              other = character(0), stringsAsFactors = FALSE
             )
             return(out.df)
 })
@@ -140,9 +140,9 @@ setClass(
     spatialExtent = extent(rep(NA_real_, 4L)), timeframe = as.POSIXlt(c(NA, NA)),
     timeunit = NA_real_, citation = list(), documentation = list(), reqdPkgs = list(),
     parameters = data.frame(
-      paramName = character(), paramClass = character(),
+      paramName = character(0), paramClass = character(0),
       default = I(list()), min = I(list()), max = I(list()),
-      paramDesc = character(), stringsAsFactors = FALSE
+      paramDesc = character(0), stringsAsFactors = FALSE
     ),
     inputObjects = .inputObjects(),
     outputObjects = .outputObjects()
