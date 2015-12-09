@@ -6,7 +6,7 @@ test_that("downloadModule downloads and unzips module files", {
 
   expect_more_than(length(f), 0)
   expect_more_than(length(file.path(tmpdir)), 0)
-  expect_more_than(length(file.path(tmpdir, "forastAge")), 0)
+  expect_more_than(length(file.path(tmpdir, "forestAge")), 0)
 })
 
 test_that("downloadData downloads and unzips module data", {
