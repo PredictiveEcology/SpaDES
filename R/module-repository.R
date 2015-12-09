@@ -173,7 +173,7 @@ setMethod(
       setwd(path); on.exit(setwd(cwd))
       files <- lapply(to.dl, function(x) {
         download.file(x, destfile = file.path(path, module, "data", basename(x)),
-                      quiet = TRUE)
+                      quiet = TRUE, mode = "wb")
         basename(x)
       })
     } else {
