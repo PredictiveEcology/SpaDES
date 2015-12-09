@@ -1,4 +1,10 @@
 test_that("downloadModule downloads and unzips module files", {
+  if (Sys.info()['sysname'] == "Windows") {
+    options(download.file.method = "auto")
+  } else {
+    options(download.file.method = "curl")
+  }
+
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
 
@@ -10,6 +16,12 @@ test_that("downloadModule downloads and unzips module files", {
 })
 
 test_that("downloadData downloads and unzips module data", {
+  if (Sys.info()['sysname'] == "Windows") {
+    options(download.file.method = "auto")
+  } else {
+    options(download.file.method = "curl")
+  }
+
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
 
