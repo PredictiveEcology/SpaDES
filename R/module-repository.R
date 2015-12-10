@@ -169,7 +169,7 @@ setMethod(
     path <- checkPath(path, create = FALSE)
     urls <- moduleMetadata(module, path)$inputObjects$sourceURL
     ids <- which( urls == "" || is.na(urls) )
-    to.dl <- ifelse(length(ids), urls[-ids], urls)
+    to.dl <- if (length(ids)) { urls[-ids] } else { urls }
 
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
