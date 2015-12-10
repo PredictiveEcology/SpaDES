@@ -139,7 +139,9 @@ setMethod(
 ################################################################################
 #' Download module data
 #'
-#' Download external data for a module.
+#' Download external data for a module if not already present in the module
+#' directory or if there is a checksum mismatch indicating that the file is not
+#' the correct one.
 #'
 #' @param module  Character string giving the name of the module.
 #'
@@ -172,8 +174,10 @@ setMethod(
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
       files <- lapply(to.dl, function(x) {
-        download.file(x, destfile = file.path(path, module, "data", basename(x)),
-                      quiet = TRUE, mode = "wb")
+        destfile <- file.path(path, module, "data", basename(x))
+        if ( !file.exists(destfile) || checksums(module, path)$results != "OK" ) {
+          download.file(x, destfile = destfile, quiet = TRUE, mode = "wb")
+        }
         basename(x)
       })
     } else {

@@ -9,6 +9,7 @@ version 1.0.4
 * new function `checksums` to verify MD5 hashes of data files (with #205)
 * warn instead of error when using e.g., `newModule` with Rstudio on Windows (#209)
 * more control of caching behaviour: added `cachePath` to paths slot (#227)
+* only download data if file doesn't exist or checksum mismatch (#229)
 * allow multiple checksums per file in `checksum` (#230)
 * fix error caused by coercing `NA` to arbitrary class for which no suitable `NA` type exists (#231)
 * use warnings instead of errors for missing modules metadata (#233)

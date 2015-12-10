@@ -28,9 +28,12 @@ test_that("downloadData downloads and unzips module data", {
   moduleName <- "forestAge"
   filename <- "can_age04_1km.tif"
   m <- downloadModule(moduleName, tmpdir)
-  d <- downloadData(moduleName, tmpdir)
-  result <- checksums(moduleName, tmpdir)$result
+  t1 <- system.time(suppressMessages(downloadData(moduleName, tmpdir)))
+  result <- suppressMessages(checksums(moduleName, tmpdir)$results)
   expect_true(file.exists(file.path(tmpdir, moduleName, "data", filename)))
-
   expect_true(result == "OK")
+
+  # shouldn't need a redownload because file exists
+  t2 <- system.time(suppressMessages(downloadData(moduleName, tmpdir)))
+  expect_true(t1[3] > t2[3]) # compare elapsed times
 })
