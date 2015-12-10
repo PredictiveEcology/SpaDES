@@ -175,7 +175,9 @@ setMethod(
       setwd(path); on.exit(setwd(cwd))
       files <- lapply(to.dl, function(x) {
         destfile <- file.path(path, module, "data", basename(x))
-        if ( !file.exists(destfile) || checksums(module, path)$results != "OK" ) {
+        id <- which(checksums(module, path)$file == basename(x))
+        chksum <- suppressMessages(checksums(module, path)[id, "results"])
+        if ( !file.exists(destfile) || chksum != "OK" ) {
           download.file(x, destfile = destfile, quiet = TRUE, mode = "wb")
         }
         basename(x)
@@ -184,7 +186,8 @@ setMethod(
       files <- list()
     }
 
-    checksum <- checksums(module, path) # prints warning if checksums don't match
+    # will print warning if checksums don't match
+    checksum <- suppressMessages(checksums(module, path))
 
     return(invisible(cbind(files, checksum$result)))
 })
