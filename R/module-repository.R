@@ -231,7 +231,7 @@ setMethod(
   signature = c(module = "character", path = "character", write = "logical"),
   definition = function(module, path, write) {
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
-    stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
+    if (!write) stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
 
     files <- list.files(path, full.names = TRUE) %>%
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)

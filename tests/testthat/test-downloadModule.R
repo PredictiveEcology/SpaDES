@@ -25,13 +25,13 @@ test_that("downloadData downloads and unzips module data", {
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
 
-  moduleName <- "forestAge"
-  filename <- "can_age04_1km.tif"
+  moduleName <- "test"
+  filenames <- c("DEM.tif", "habitatQuality.tif")
   m <- downloadModule(moduleName, tmpdir)
   t1 <- system.time(suppressMessages(downloadData(moduleName, tmpdir)))
   result <- suppressMessages(checksums(moduleName, tmpdir)$results)
-  expect_true(file.exists(file.path(tmpdir, moduleName, "data", filename)))
-  expect_true(result == "OK")
+  expect_true(all(file.exists(file.path(tmpdir, moduleName, "data", filenames))))
+  expect_true(all(result == "OK"))
 
   # shouldn't need a redownload because file exists
   t2 <- system.time(suppressMessages(downloadData(moduleName, tmpdir)))
