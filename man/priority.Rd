@@ -8,7 +8,7 @@
 \alias{.lowest}
 \alias{.normal}
 \alias{priority}
-\title{Event prority}
+\title{Event priority}
 \usage{
 .first()
 

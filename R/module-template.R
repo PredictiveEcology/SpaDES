@@ -111,8 +111,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$", name, "Init(sim)
 
     # schedule future event(s)
-    sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\", .normal())
-    sim <- scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\", .normal())
+    sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
+    sim <- scheduleEvent(sim, params(sim)$", name, "$.saveInitialTime, \"", name, "\", \"save\")
   } else if (eventType == \"plot\") {
     # ! ----- EDIT BELOW ----- ! #
     # do stuff for this event
@@ -121,7 +121,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    #sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\", .normal())
+    #sim <- scheduleEvent(sim, params(sim)$", name, "$.plotInitialTime, \"", name, "\", \"plot\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"save\") {
@@ -134,7 +134,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\", .normal())
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"save\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"event1\") {
@@ -147,7 +147,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\", .normal())
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
   } else if (eventType == \"event2\") {
@@ -160,7 +160,7 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     # schedule future event(s)
 
     # e.g.,
-    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\", .normal())
+    # sim <- scheduleEvent(sim, time(sim) + increment, \"", name, "\", \"templateEvent\")
 
     # ! ----- STOP EDITING ----- ! #
   } else {

@@ -1,5 +1,5 @@
 ################################################################################
-#' Event prority
+#' Event priority
 #'
 #' Preset envent priorities: 1 = first (highest); 5 = normal; 10 = last (lowest).
 #'

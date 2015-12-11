@@ -85,7 +85,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
 #' @param file The checkpoint file.
 #' @rdname checkpoint
 #' @export
-checkpointLoad = function(file) {
+checkpointLoad <- function(file) {
   f <- strsplit(file, split = "[.][R|r][D|d]ata$")
   fobj <- paste0(f, "_objs", ".RData")
 
@@ -105,7 +105,7 @@ checkpointLoad = function(file) {
 }
 
 #' @rdname checkpoint
-.checkpointSave = function(sim, file) {
+.checkpointSave <- function(sim, file) {
   sim$.timestamp <- Sys.time()
   sim$.rng.state <- get(".Random.seed", envir = .GlobalEnv)
   sim$.rng.kind <- RNGkind()
