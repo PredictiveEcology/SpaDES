@@ -19,21 +19,25 @@
 }
 
 #' @rdname priority
+#' @export
 .highest <- function() {
   return(1)
 }
 
 #' @rdname priority
+#' @export
 .last <- function() {
   .lowest()
 }
 
 #' @rdname priority
+#' @export
 .lowest <- function() {
   return(10)
 }
 
 #' @rdname priority
+#' @export
 .normal <- function() {
   5
 }
