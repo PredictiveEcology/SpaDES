@@ -512,6 +512,7 @@ setMethod(
     }
 
     pr <- pr[pr <= maxv & pr >= minv]
+    if(length(pr)==0) pr <- seq(minv, maxv, by=2)
     #maxNumCols = 100
     maxcol <- length(col)
     mincol <- 2
@@ -519,6 +520,7 @@ setMethod(
     gpText$cex <- gpText$cex * 0.6
     if (length(gpText) == 0)
       gpText <- gpar(col = "black", cex = 0.6)
+
     rastGrob <- gTree(
       grobToPlot = grobToPlot, pr = pr, col = col,
       children = gList(
