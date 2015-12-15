@@ -173,23 +173,34 @@ setMethod(
 
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
+      browser()
       files <- lapply(to.dl, function(x) {
         destfile <- file.path(path, module, "data", basename(x))
-        id <- which(checksums(module, path)$file == basename(x))
-        chksum <- suppressMessages(checksums(module, path)[id, "results"])
-        if ( !file.exists(destfile) || chksum != "OK" ) {
-          download.file(x, destfile = destfile, quiet = TRUE, mode = "wb")
+        chksums <- checksums(module, path)
+        if ( is.na(chksums$actualFile)  ) {
+          message("Started download. This may take a while depending on your", 
+                  " connection speed.")
+          tmpFile <- file.path(tempdir(), basename(x))
+          download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
+          copied <- file.copy(from = tmpFile, to=destfile, overwrite=TRUE)
+          # will print warning if checksums don't match
+          chksums <- suppressMessages(checksums(module, path))
         }
-        basename(x)
-      })
+        if (chksums$actualFile != chksums$expectedFile) {
+          renamed <- file.rename(from = file.path(dirname(destfile), chksums$actualFile), 
+                      to = file.path(dirname(destfile), chksums$expectedFile))
+          if(!renamed) warning(paste("Please rename downloaded file",
+                                     file.path(dirname(destfile), chksums$actualFile),
+                                     "to",
+                                     file.path(dirname(destfile), chksums$expectedFile)))
+        }
+        chksums
+      }) %>% rbindlist()
     } else {
       files <- list()
     }
 
-    # will print warning if checksums don't match
-    checksum <- suppressMessages(checksums(module, path))
-
-    return(invisible(cbind(files, checksum$result)))
+    return(invisible(files))
 })
 
 ################################################################################
@@ -219,6 +230,7 @@ setMethod(
 #'
 #' @include moduleMetadata.R
 #' @importFrom digest digest
+#' @importFrom dplyr rename_ mutate left_join select_
 #' @export
 #' @rdname checksums
 #'
@@ -241,9 +253,9 @@ setMethod(
 
     checksums <- sapply(files, function(x) {
       digest(file = x, algo = "md5") # use sha1?
-    }) %>% unname()
+    }) %>% unname() %>% as.character() # need as.character for empty case
 
-    out <- data.frame(file = basename(files), checksum = checksums,
+    out <- data.frame(actualFile = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
 
     if (write) {
@@ -253,21 +265,19 @@ setMethod(
     } else {
       txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
                         stringsAsFactors = FALSE)
-      results <- apply(out, 1, function(x) {
-        which(txt[, "file"] == x["file"]) %>%
-          txt[., "checksum"] %in% x["checksum"] %>%
-          any()
-        }) %>%
-        as.character() %>%
-        gsub("TRUE", "OK", .) %>%
-        gsub("FALSE", "FAIL", .)
-
-      if (all(results == "OK")) {
+      
+      results <- left_join(txt, out, by="checksum") %>%
+        rename_(expectedFile="file") %>%
+        mutate(results=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
+        select_("results", "expectedFile", "actualFile", "checksum")
+        
+      
+      if (all(results$results == "OK")) {
         message("All file checksums match.")
       } else {
         warning("All file checksums do not match!")
       }
-      return(cbind(out, results, stringsAsFactors = FALSE))
+      return(results)
     }
 })
 
