@@ -3,8 +3,8 @@
 #'
 #' This can be used to simulated fires or other things.
 #' Essentially, it starts from a collection of cells (\code{loci}) and spreads
-#' to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
-#' This can become quite general, if \code{spreadProb} is 1 as it will expand
+#' to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
+#' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
 #' from every loci until all pixels in the landscape have been covered.
 #' With \code{mapID} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the pixel where that event propagated from.
@@ -17,8 +17,11 @@
 #'
 #' @param loci          A vector of locations in \code{landscape}
 #'
-#' @param spreadProb    Numeric or rasterLayer. The overall probability of
-#'                      spreading, or probability raster driven.
+#' @param spreadProb    Numeric or rasterLayer.  The overall probability of
+#'                      spreading, or probability raster driven. Default is 0.23.
+#'                      If a \code{spreadProbLater} is provided, then this is
+#'                      only used for the first iteration. Also called Escape
+#'                      probability.
 #'
 #' @param persistence   A probability that a burning cell will continue to burn,
 #'                      per time step.
@@ -46,6 +49,9 @@
 #'                      indices and values of successful spread events, or
 #'                      return a raster with values. See Details.
 #'
+#' @param spreadProbLater    Numeric or rasterLayer. If provided, then this
+#'                      will become the spreadProb after the first iteration. See details.
+#'
 #' @param ...           Additional parameters.
 #'
 #' @return A \code{RasterLayer} indicating the spread of the process in the landscape.
@@ -64,11 +70,13 @@
 #' @aliases spread
 #' @rdname spread
 #'
-setGeneric("spread", function(landscape, loci = NULL, spreadProb = 0.23,
+setGeneric("spread", function(landscape, loci = NULL,
+                              spreadProb,
                               persistence = 0L, mask = NULL, maxSize = NULL,
                               directions = 8L, iterations = NULL,
                               lowMemory = getOption("spades.lowMemory"),
-                              returnIndices = FALSE, ...) {
+                              returnIndices = FALSE, plot.it = FALSE,
+                              spreadProbLater, ...) {
   standardGeneric("spread")
 })
 
@@ -106,7 +114,8 @@ setGeneric("spread", function(landscape, loci = NULL, spreadProb = 0.23,
 #'
 #' # initiate 10 fires at to loci
 #' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)),
-#'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
+#'                 0.335, 0, NULL, 1e8, 8, 1e6, mapID = TRUE,
+#'                 spreadProbLater=0.135)
 #' #set colors of raster, including a transparent layer for zeros
 #' setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 #' Plot(fires)
@@ -129,21 +138,27 @@ setGeneric("spread", function(landscape, loci = NULL, spreadProb = 0.23,
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
-  definition = function(landscape, loci, spreadProb, persistence, mask,
-                        maxSize, directions = 8L, iterations = NULL, lowMemory,
-                        returnIndices, mapID = FALSE,
-                        plot.it = FALSE, ...) {
+  definition = function(landscape, loci, spreadProb=0.23,
+                        persistence = 0, mask = NULL,
+                        maxSize = 1e8, directions = 8L, iterations = NULL,
+                        lowMemory = FALSE, returnIndices = FALSE, mapID = FALSE,
+                        plot.it = FALSE, spreadProbLater=0.23, ...) {
+
     ### should sanity check map extents
     if (is.null(loci))  {
       # start it in the centre cell
       loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
     }
 
-    if(is(spreadProb,"RasterLayer")) {
+    if(is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
+      if ( (minValue(spreadProbLater)>1L) || (maxValue(spreadProbLater)<0L) ) {
+        stop("spreadProbLater is not a probability")
+      }
       if ( (minValue(spreadProb)>1L) || (maxValue(spreadProb)<0L) ) {
         stop("spreadProb is not a probability")
       }
     } else {
+      if (!inRange(spreadProbLater)) stop("spreadProbLater is not a probability")
       if (!inRange(spreadProb)) stop("spreadProb is not a probability")
     }
 
@@ -155,8 +170,6 @@ setMethod(
     }
 
     if(lowMemory) {
-      #spreads <- sparseVector(1, 1, length = ncell(landscape))
-      #spreads[1] <- 0
       spreads <- ff(vmode = "short", 0, length = ncell(landscape))
     } else {
       spreads <- vector("integer", ncell(landscape))
@@ -175,18 +188,35 @@ setMethod(
       size <- length(loci)
     }
 
+    # Convert mask and NAs to 0 on the spreadProbLater Raster
+    if (is(spreadProbLater, "Raster")) {
+      # convert NA to 0s
+      spreadProbLater[is.na(spreadProbLater)] <- 0L
+    } else if (is.numeric(spreadProbLater)) {
+      # Translate numeric spreadProbLater into a Raster, if there is a mask
+      if(!is.null(mask)) {
+        spreadProbLater <- raster(extent(landscape), res = res(landscape), vals = spreadProbLater)
+      }
+    }
+
+
     # Convert mask and NAs to 0 on the spreadProb Raster
     if (is(spreadProb, "Raster")) {
+      # convert NA to 0s
       spreadProb[is.na(spreadProb)] <- 0L
-      if(!is.null(mask)) {
-        spreadProb[mask == 1L] <- 0L
-      }
     } else if (is.numeric(spreadProb)) {
-      # Translate numeric spreadProb into a Raster
+      # Translate numeric spreadProb into a Raster, if there is a mask
       if(!is.null(mask)) {
         spreadProb <- raster(extent(landscape), res = res(landscape), vals = spreadProb)
-        spreadProb[mask == 1L] <- 0L
       }
+    }
+
+    # Mask spreadProbLater and spreadProb
+    if(!is.null(mask)) {
+      spreadProbLater[mask == 1L] <- 0L
+    }
+    if(!is.null(mask)) {
+      spreadProb[mask == 1L] <- 0L
     }
 
     # while there are active cells
@@ -203,6 +233,9 @@ setMethod(
       # keep only neighbours that have not been spread to yet
       potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
 
+      if (n>1) {
+        spreadProb <- spreadProbLater
+      }
 
       if (is.numeric(spreadProb)) {
         spreadProbs <- spreadProb

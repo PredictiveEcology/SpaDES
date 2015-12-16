@@ -6,21 +6,26 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
-  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
-  lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE, ...)
+spread(landscape, loci = NULL, spreadProb, persistence = 0L, mask = NULL,
+  maxSize = NULL, directions = 8L, iterations = NULL,
+  lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
+  plot.it = FALSE, spreadProbLater, ...)
 
-\S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence, mask,
-  maxSize, directions = 8L, iterations = NULL, lowMemory, returnIndices,
-  mapID = FALSE, plot.it = FALSE, ...)
+\S4method{spread}{RasterLayer}(landscape, loci, spreadProb = 0.23,
+  persistence = 0, mask = NULL, maxSize = 1e+08, directions = 8L,
+  iterations = NULL, lowMemory = FALSE, returnIndices = FALSE,
+  mapID = FALSE, plot.it = FALSE, spreadProbLater = 0.23, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
 
 \item{loci}{A vector of locations in \code{landscape}}
 
-\item{spreadProb}{Numeric or rasterLayer. The overall probability of
-spreading, or probability raster driven.}
+\item{spreadProb}{Numeric or rasterLayer.  The overall probability of
+spreading, or probability raster driven. Default is 0.23.
+If a \code{spreadProbLater} is provided, then this is
+only used for the first iteration. Also called Escape
+probability.}
 
 \item{persistence}{A probability that a burning cell will continue to burn,
 per time step.}
@@ -48,14 +53,17 @@ internally. This is slower, but much lower memory footprint.}
 indices and values of successful spread events, or
 return a raster with values. See Details.}
 
+\item{plot.it}{If TRUE, then plot the raster at every iteraction,
+so one can watch the spread event grow.}
+
+\item{spreadProbLater}{Numeric or rasterLayer. If provided, then this
+will become the spreadProb after the first iteration. See details.}
+
 \item{...}{Additional parameters.}
 
 \item{mapID}{Logical. If TRUE, returns a raster of events ids.
 If FALSE, returns a raster of iteration numbers,
 i.e., the spread history of one or more events.}
-
-\item{plot.it}{If TRUE, then plot the raster at every iteraction,
-so one can watch the spread event grow.}
 }
 \value{
 A \code{RasterLayer} indicating the spread of the process in the landscape.
@@ -63,8 +71,8 @@ A \code{RasterLayer} indicating the spread of the process in the landscape.
 \description{
 This can be used to simulated fires or other things.
 Essentially, it starts from a collection of cells (\code{loci}) and spreads
-to neighbours, according to the \code{directions} and \code{spreadProb} arguments.
-This can become quite general, if \code{spreadProb} is 1 as it will expand
+to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
+This can become quite general, if \code{spreadProbLater} is 1 as it will expand
 from every loci until all pixels in the landscape have been covered.
 With \code{mapID} set to \code{TRUE}, the resulting map will be classified
 by the index of the pixel where that event propagated from.
@@ -99,7 +107,8 @@ Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyrami
 
 # initiate 10 fires at to loci
 fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)),
-                0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
+                0.335, 0, NULL, 1e8, 8, 1e6, mapID = TRUE,
+                spreadProbLater=0.135)
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 Plot(fires)
