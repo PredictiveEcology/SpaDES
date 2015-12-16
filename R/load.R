@@ -178,7 +178,7 @@ setMethod(
 #       }
 
       #  assume loadTime = start(sim) if missing
-      if(any(is.na(filelistDT[,loadTime]))) {
+      if(any(is.na(filelistDT[, loadTime]))) {
         filelistDT[is.na(loadTime), loadTime:=start(sim, "second")]
       #  filelistDT[, loadTime:=start(sim, "second")]
       }
@@ -187,7 +187,7 @@ setMethod(
       cur <- filelistDT$loadTime == curTime
 
       if (any(cur)) {
-        fl <- filelistDT[cur,file]
+        fl <- filelistDT[cur ,file]
         # extract file extensions, to be used to determine which function to use
         exts <- match(fileExt(fl), .fileExts[, "exts"])
 

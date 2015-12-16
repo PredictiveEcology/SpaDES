@@ -50,7 +50,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
       checkpointFile <- checkpointFile(sim)
     }
 
-    if(isAbsolutePath(checkpointFile(sim))) {
+    if (isAbsolutePath(checkpointFile(sim))) {
       checkpointDir <- checkPath(dirname(checkpointFile(sim)), create = TRUE)
     } else {
       checkpointDir <- checkPath(outputPath(sim), create = TRUE)
@@ -224,13 +224,13 @@ setMethod(
   signature = "simList",
   definition = function(simList) {
     envirHash <- (sapply(sort(ls(simList@.envir, all.names = TRUE)), function(x) {
-      if(!(x == ".sessionInfo")) {
+      if (!(x == ".sessionInfo")) {
         obj <- get(x, envir = envir(simList))
-        if(!is(obj, "function")) {
-          if(is(obj, "Raster")) {
+        if (!is(obj, "function")) {
+          if (is(obj, "Raster")) {
             # convert Rasters in the simList to some of their metadata.
             dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
-            if(nchar(obj@file@name)>0) {
+            if (nchar(obj@file@name)>0) {
               # if the Raster is on disk, has the first 1e6 characters
                dig <- append(dig, digest(file = obj@file@name, length = 1e6))
             }
