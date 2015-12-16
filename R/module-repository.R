@@ -101,7 +101,15 @@ setMethod(
     localzip <- file.path(path, basename(zip))
     download.file(zip, destfile = localzip, quiet = TRUE)
     files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
-    return(invisible(files))
+
+    # after download, check for childModules that also require downloading
+    children <- moduleMetadata(name, path)$childModules
+    if (!is.null(children)) {
+      if ( all( nzchar(children) & !is.na(children) ) ) {
+        files2 <- lapply(children, downloadModule, path = path)
+      }
+    }
+    return(invisible(c(files, files2)))
 })
 
 #' @rdname downloadModule
