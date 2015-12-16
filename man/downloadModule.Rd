@@ -25,10 +25,11 @@ downloadModule(name, path, version, repo)
 \arguments{
 \item{name}{Character string giving the module name.}
 
-\item{path}{Character string giving the location in which to save the downloaded module.}
+\item{path}{Character string giving the location in which to save the
+downloaded module.}
 
-\item{version}{The module version to download.
-(If not specified, or \code{NA}, the most recent version will be retrieved.)}
+\item{version}{The module version to download. (If not specified, or \code{NA},
+the most recent version will be retrieved.)}
 
 \item{repo}{GitHub repository name.
 Default is \code{"PredictiveEcology/SpaDES-modules"}, which is

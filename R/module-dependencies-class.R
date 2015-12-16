@@ -148,12 +148,12 @@ setClass(
     outputObjects = .outputObjects()
   ),
   validity = function(object) {
-    if (length(object@name)!=1L) stop("name must be a single character string.")
-    if (length(object@description)!=1L) stop("description must be a single character string.")
-    if (length(object@keywords)<1L) stop("keywords must be supplied.")
-    if (length(object@authors)<1L) stop("authors must be specified.")
-    if (length(object@timeframe)!=2L) stop("timeframe must be specified using two date-times.")
-    if (length(object@timeunit)<1L) stop("timeunit must be specified.")
+    if (length(object@name) != 1L) stop("name must be a single character string.")
+    if (length(object@description) != 1L) stop("description must be a single character string.")
+    if (length(object@keywords) < 1L) stop("keywords must be supplied.")
+    if (length(object@authors) < 1L) stop("authors must be specified.")
+    if (length(object@timeframe) != 2L) stop("timeframe must be specified using two date-times.")
+    if (length(object@timeunit) < 1L) stop("timeunit must be specified.")
     if (length(object@reqdPkgs)) {
       if (!any(unlist(lapply(object@reqdPkgs, is.character)))) {
         stop("reqdPkgs must be specified as a list of package names.")

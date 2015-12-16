@@ -71,12 +71,20 @@ setMethod("getModuleVersion",
 #'
 #' @inheritParams getModuleVersion
 #'
-#' @param path  Character string giving the location in which to save the downloaded module.
+#' @param path    Character string giving the location in which to save the
+#'                downloaded module.
 #'
-#' @param version The module version to download.
-#'                (If not specified, or \code{NA}, the most recent version will be retrieved.)
+#' @param version The module version to download. (If not specified, or \code{NA},
+#'                the most recent version will be retrieved.)
 #'
-#' @return Invisibly, a character vector containing a list of extracted files.
+#' @param data    Logical. If TRUE, then the data that is identified in the module
+#'                metadata will be downloaded, if possible. Default if FALSE.
+#'
+#' @return A list of length 2. The first elemet is a character vector containing
+#'    a character vector of extracted files for the module. The second element is
+#'    a tbl with details about the data that is relevant for the function, including
+#'    whether it was downloaded or not, whether it was renamed (because there
+#'    was a local copy that had the wrong file name).
 #'
 # @importFrom utils unzip download.file
 #' @export
@@ -84,7 +92,7 @@ setMethod("getModuleVersion",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadModule", function(name, path, version, repo) {
+setGeneric("downloadModule", function(name, path, version, repo, data = FALSE) {
   standardGeneric("downloadModule")
 })
 
@@ -92,8 +100,8 @@ setGeneric("downloadModule", function(name, path, version, repo) {
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "character",
-                repo = "character"),
-  definition = function(name, path, version, repo) {
+                repo = "character", data = "logical"),
+  definition = function(name, path, version, repo, data) {
     path <- checkPath(path, create = TRUE)
     if (is.na(version)) version <- getModuleVersion(name, repo)
     zip <- paste0("https://raw.githubusercontent.com/", repo,
@@ -101,17 +109,32 @@ setMethod(
     localzip <- file.path(path, basename(zip))
     download.file(zip, destfile = localzip, quiet = TRUE)
     files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
-    return(invisible(files))
+
+    # after download, check for childModules that also require downloading
+    children <- moduleMetadata(name, path)$childModules
+    if (!is.null(children)) {
+      if ( all( nzchar(children) & !is.na(children) ) ) {
+        files2 <- lapply(children, downloadModule, path = path)
+      }
+    }
+
+    if(data) {
+      dataList <- downloadData(module=module, path=path)
+    } else {
+      dataList <- checksums(module=module, path=path)
+    }
+    return(list(c(files, files2)), dataList)
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "character",
-                repo = "missing"),
-  definition = function(name, path, version) {
+                repo = "missing", data="ANY"),
+  definition = function(name, path, version, data) {
     files <- downloadModule(name, path, version,
-                            repo = getOption("spades.modulesRepo"))
+                            repo = getOption("spades.modulesRepo"),
+                            data = data)
     return(invisible(files))
 })
 
@@ -119,10 +142,11 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
-                repo = "missing"),
-  definition = function(name, path) {
+                repo = "missing", data="ANY"),
+  definition = function(name, path, data) {
     files <- downloadModule(name, path, version = NA_character_,
-                            repo = getOption("spades.modulesRepo"))
+                            repo = getOption("spades.modulesRepo"),
+                            data = data)
     return(invisible(files))
 })
 
@@ -130,9 +154,10 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
-                repo = "character"),
-  definition = function(name, path, repo) {
-    files <- downloadModule(name, path, version = NA_character_, repo = repo)
+                repo = "character", data="ANY"),
+  definition = function(name, path, repo, data) {
+    files <- downloadModule(name, path, version = NA_character_, repo = repo,
+                            data = data)
     return(invisible(files))
 })
 
@@ -147,10 +172,12 @@ setMethod(
 #'
 #' @param path    Character string giving the path to the module directory.
 #'
-#' @return Invisibly, a character vector containing a list of downloaded files.
+#' @return Invisibly, a list of downloaded files.
 #'
 #' @include moduleMetadata.R
 # @importFrom utils download.file
+#' @importFrom dplyr mutate_
+#' @importFrom lazyeval interp
 #' @export
 #' @rdname downloadData
 #'
@@ -170,36 +197,85 @@ setMethod(
     urls <- moduleMetadata(module, path)$inputObjects$sourceURL
     ids <- which( urls == "" | is.na(urls) )
     to.dl <- if (length(ids)) { urls[-ids] } else { urls }
+    chksums <- checksums(module, path) %>%
+      mutate(renamed=NA, module=module)
+    dataDir <- file.path(path, module, "data" )
 
-    if (length(to.dl)) {
+    if (any(chksums$result=="FAIL")) {
       setwd(path); on.exit(setwd(cwd))
-      files <- lapply(to.dl, function(x) {
-        destfile <- file.path(path, module, "data", basename(x))
-        chksums <- suppressMessages(checksums(module, path))
-        if ( is.na(chksums$actualFile)  ) {
+
+
+      files <- sapply(to.dl, function(x) {
+        destfile <- file.path(dataDir, basename(x))
+        id <- which(chksums$expectedFile == basename(x))
+        if ( is.na(chksums$actualFile[id]) ) {
+          message("Downloading data for module ", module, " ...")
           tmpFile <- file.path(tempdir(), basename(x))
           message("Started download. This may take a while depending on your",
                   " connection speed.")
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
           copied <- file.copy(from = tmpFile, to=destfile, overwrite=TRUE)
-          # will print warning if checksums don't match
-          chksums <- suppressMessages(checksums(module, path))
+          destfile
         }
-        if (chksums$actualFile != chksums$expectedFile) {
-          chksums$renamed <- file.rename(from = file.path(dirname(destfile), chksums$actualFile),
-                      to = file.path(dirname(destfile), chksums$expectedFile))
-          if(!chksums$renamed) warning(paste("Please rename downloaded file",
-                                     file.path(dirname(destfile), chksums$actualFile),
-                                     "to",
-                                     file.path(dirname(destfile), chksums$expectedFile)))
-        }
-        chksums
-      }) %>% rbindlist()
-    } else {
-      files <- list()
+      })
+
+      chksums <- checksums(module, path) %>%
+        mutate(renamed=NA, module=module)
     }
 
-    return(files)
+    wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
+    if(length(wh)) {
+      chksums[wh, "renamed"] <- sapply(wh, function(id) {
+        renamed <- file.rename(
+          from = file.path(dataDir, chksums$actualFile[id]),
+          to = file.path(dataDir, chksums$expectedFile[id])
+        )
+      })
+    }
+
+    if(any(!chksums$renamed %>% na.omit)) {
+      warning("Unable to automatically give proper name to downloaded files. ",
+              "Manual file rename is required.")
+    }
+
+    # after download, check for childModules that also require downloading
+    children <- moduleMetadata(module, path)$childModules
+    if (!is.null(children)) {
+      if ( all( nzchar(children) & !is.na(children) ) ) {
+        chksums2 <- lapply(children, downloadData, path = path) %>% bind_rows()
+      }
+    }
+    message("Download complete for module ", module, ".")
+    return(bind_rows(chksums, chksums2))
+})
+
+################################################################################
+#' Calculate the hashes of multiple files
+#'
+#' Internal function. Wrapper for \code{\link[digest]{digest}} using md5sum.
+#'
+#' @param file  Character vector of file paths.
+#' @param ...   Additional arguments to \code{digest::digest}.
+#'
+#' @return A character vector of hashes.
+#'
+#' @importFrom digest digest
+#' @rdname digest
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("digest", function(file, ...) {
+  standardGeneric("digest")
+})
+
+#' @rdname digest
+setMethod(
+  "digest",
+  signature = c(file = "character"),
+  definition = function(file, ...) {
+    sapply(file, function(f) {
+      digest::digest(object = f, file = TRUE, algo = "md5", ...) # use sha1?
+    }) %>% unname() %>% as.character() # need as.character for empty case
 })
 
 ################################################################################
@@ -208,7 +284,8 @@ setMethod(
 #' Verify (and optionally write) checksums for data files in a module's
 #' \code{data/} subdirectory. The file \code{data/CHECKSUMS.txt} contains the
 #' expected checksums for each data file.
-#' Checksums are computed using \code{digest::digest(..., algo = "md5")}.
+#' Checksums are computed using \code{SpaDES:::digest}, which is simply a
+#' wrapper around \code{digest::digest}.
 #'
 #' Modules may require data that for various reasons cannot be distributed with
 #' the module source code. In these cases, the module developer should ensure
@@ -225,11 +302,10 @@ setMethod(
 #'                Module developers should write this file prior to distributing
 #'                their module code, and update accordingly when the data change.
 #'
-#' @return A data.frame of filenames, checksums, and results.
+#' @return A data.frame with 4 columns: result, expectedFile, actualFile, and checksum.
 #'
 #' @include moduleMetadata.R
-#' @importFrom digest digest
-#' @importFrom dplyr rename_ mutate left_join select_
+#' @importFrom dplyr funs group_by_ left_join mutate rename_ select_ summarize_each_
 #' @export
 #' @rdname checksums
 #'
@@ -250,35 +326,32 @@ setMethod(
     files <- list.files(path, full.names = TRUE) %>%
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
 
-    checksums <- sapply(files, function(x) {
-      digest(file = x, algo = "md5") # use sha1?
-    }) %>% unname() %>% as.character() # need as.character for empty case
+    checksums <- digest(files) # uses SpaDES:::digest()
 
-    out <- data.frame(actualFile = basename(files), checksum = checksums,
+    out <- data.frame(file = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
 
     if (write) {
+      # TODO needs to intelligently merge, not just append. i.e., keep only
+      #   two rows max per file (UNIX and Windows)
       write.table(out, file.path(path, "CHECKSUMS.txt"), eol = "\n",
-                  col.names = TRUE, row.names = FALSE)
+                  col.names = TRUE, row.names = FALSE, append=TRUE)
       return(out)
     } else {
       txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
                         stringsAsFactors = FALSE)
 
-      results <- left_join(txt, out, by="checksum") %>%
+      results.df <- out %>%
+        rename_(actualFile="file") %>%
+        left_join(txt, ., by="checksum") %>%
         rename_(expectedFile="file") %>%
         dplyr::group_by(expectedFile) %>%
-        mutate(results=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
-        dplyr::arrange(desc(results)) %>%
-        select_("results", "expectedFile", "actualFile", "checksum") %>%
+        mutate(result=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
+        dplyr::arrange(desc(result)) %>%
+        select_("result", "expectedFile", "actualFile", "checksum") %>%
         filter(row_number()==1L)
 
-      if (all(results$results == "OK")) {
-        message("All file checksums match.")
-      } else {
-        warning("All file checksums do not match!")
-      }
-      return(results)
+      return(results.df)
     }
 })
 
