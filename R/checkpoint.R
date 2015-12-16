@@ -164,7 +164,7 @@ setMethod(
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
 
-    outputHash <- digest(tmpl)
+    outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag ==
                             paste0("cacheId:", outputHash), , drop = FALSE]
@@ -209,7 +209,6 @@ setMethod(
 #'
 #' @seealso \code{\link[archivist]{cache}}.
 #' @seealso \code{\link[digest]{digest}}.
-#' @importFrom digest digest
 #' @include simList-class.R
 #' @include misc-methods.R
 #' @docType methods
@@ -235,19 +234,20 @@ setMethod(
               # if the Raster is on disk, has the first 1e6 characters
                dig <- append(dig, digest(file = obj@file@name, length = 1e6))
             }
-            dig <- digest(dig)
+            dig <- digest::digest(dig)
           } else {
             # convert functions in the simList to their digest.
             #  functions have environments so are always unique
-            dig <- digest(obj)
+            dig <- digest::digest(obj)
           }
         } else {
           # for functions, use a character representation via format
-          dig <- digest(format(obj))
+          dig <- digest::digest(format(obj))
         }
       } else {
         # for .sessionInfo, just keep the major and minor R version
-        dig <- digest(get(x, envir = envir(simList))[[1]] %>% .[c("major","minor")])
+        dig <- digest::digest(get(x, envir = envir(simList))[[1]] %>%
+                                .[c("major", "minor")])
       }
       return(dig)
     }))

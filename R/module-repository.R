@@ -71,10 +71,11 @@ setMethod("getModuleVersion",
 #'
 #' @inheritParams getModuleVersion
 #'
-#' @param path  Character string giving the location in which to save the downloaded module.
+#' @param path    Character string giving the location in which to save the
+#'                downloaded module.
 #'
-#' @param version The module version to download.
-#'                (If not specified, or \code{NA}, the most recent version will be retrieved.)
+#' @param version The module version to download. (If not specified, or \code{NA},
+#'                the most recent version will be retrieved.)
 #'
 #' @return Invisibly, a character vector containing a list of extracted files.
 #'
@@ -224,12 +225,42 @@ setMethod(
 })
 
 ################################################################################
+#' Calculate the hashes of multiple files
+#'
+#' Internal function. Wrapper for \code{\link[digest]{digest}} using md5sum.
+#'
+#' @param file  Character vector of file paths.
+#' @param ...   Additional arguments to \code{digest::digest}.
+#'
+#' @return A character vector of hashes.
+#'
+#' @importFrom digest digest
+#' @rdname digest
+#'
+#' @author Alex Chubaty
+#'
+setGeneric("digest", function(file, ...) {
+  standardGeneric("digest")
+})
+
+#' @rdname digest
+setMethod(
+  "digest",
+  signature = c(file = "character"),
+  definition = function(file, ...) {
+    sapply(file, function(f) {
+      digest::digest(object = f, file = TRUE, algo = "md5", ...) # use sha1?
+    }) %>% unname() %>% as.character() # need as.character for empty case
+})
+
+################################################################################
 #' Calculate checksums for a module's data files
 #'
 #' Verify (and optionally write) checksums for data files in a module's
 #' \code{data/} subdirectory. The file \code{data/CHECKSUMS.txt} contains the
 #' expected checksums for each data file.
-#' Checksums are computed using \code{digest::digest(..., algo = "md5")}.
+#' Checksums are computed using \code{SpaDES:::digest}, which is simply a
+#' wrapper around \code{digest::digest}.
 #'
 #' Modules may require data that for various reasons cannot be distributed with
 #' the module source code. In these cases, the module developer should ensure
@@ -249,7 +280,6 @@ setMethod(
 #' @return A data.frame of filenames, checksums, and results.
 #'
 #' @include moduleMetadata.R
-#' @importFrom digest digest
 #' @importFrom dplyr funs group_by_ left_join mutate rename_ select_ summarize_each_
 #' @export
 #' @rdname checksums
@@ -271,9 +301,7 @@ setMethod(
     files <- list.files(path, full.names = TRUE) %>%
       grep("CHECKSUMS.txt", ., value = TRUE, invert = TRUE)
 
-    checksums <- sapply(files, function(x) {
-      digest(file = x, algo = "md5") # use sha1?
-    }) %>% unname() %>% as.character() # need as.character for empty case
+    checksums <- digest(files) # uses SpaDES:::digest()
 
     out <- data.frame(actualFile = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
