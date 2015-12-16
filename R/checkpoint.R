@@ -211,6 +211,7 @@ setMethod(
 #' @seealso \code{\link[digest]{digest}}.
 #' @include simList-class.R
 #' @include misc-methods.R
+#' @importFrom digest digest
 #' @docType methods
 #' @rdname makeDigestible
 #' @author Eliot McIntire
@@ -230,9 +231,10 @@ setMethod(
           if (is(obj, "Raster")) {
             # convert Rasters in the simList to some of their metadata.
             dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
-            if (nchar(obj@file@name)>0) {
-              # if the Raster is on disk, has the first 1e6 characters
-               dig <- append(dig, digest(file = obj@file@name, length = 1e6))
+            if (nchar(obj@file@name) > 0) {
+              # if the Raster is on disk, has the first 1e6 characters;
+              # uses SpaDES:::digest on the file
+              dig <- append(dig, digest(file = obj@file@name, length = 1e6))
             }
             dig <- digest::digest(dig)
           } else {
@@ -269,5 +271,4 @@ setMethod(
     simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
 
     simList
-  }
-)
+})
