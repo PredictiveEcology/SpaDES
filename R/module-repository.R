@@ -210,9 +210,17 @@ setMethod(
       files <- list()
     }
 
+    # after download, check for childModules that also require downloading
+    children <- moduleMetadata(module, path)$childModules
+    if (!is.null(children)) {
+      if ( all( nzchar(children) & !is.na(children) ) ) {
+        files2 <- lapply(children, downloadData, path = path)
+      }
+    }
+
     message("Download complete for module ", module, ".")
     suppressMessages(checksums(module, path)) # will warn if checksums don't match
-    return(invisible(files))
+    return(invisible(c(files, files2)))
 })
 
 ################################################################################
