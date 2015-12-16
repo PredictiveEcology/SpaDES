@@ -196,7 +196,7 @@ setMethod(
             from = file.path(dirname(destfile), chksums$actualFile[id]),
             to = file.path(dirname(destfile), chksums$expectedFile[id])
           )
-          if(!renamed) {
+          if (!renamed) {
             warning(paste(
               "Please rename downloaded file",
               file.path(dirname(destfile), chksums$actualFile[id]),
