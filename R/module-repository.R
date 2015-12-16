@@ -181,26 +181,30 @@ setMethod(
 
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
-      browser()
       files <- lapply(to.dl, function(x) {
+        browser()
         destfile <- file.path(path, module, "data", basename(x))
         chksums <- checksums(module, path)
         if ( is.na(chksums$actualFile)  ) {
-          message("Started download. This may take a while depending on your", 
-                  " connection speed.")
+          message("Downloading data for module ", module, " ...")
           tmpFile <- file.path(tempdir(), basename(x))
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
-          copied <- file.copy(from = tmpFile, to=destfile, overwrite=TRUE)
+          copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
+
           # will print warning if checksums don't match
           chksums <- suppressMessages(checksums(module, path))
         }
         if (chksums$actualFile != chksums$expectedFile) {
-          renamed <- file.rename(from = file.path(dirname(destfile), chksums$actualFile), 
-                      to = file.path(dirname(destfile), chksums$expectedFile))
-          if(!renamed) warning(paste("Please rename downloaded file",
-                                     file.path(dirname(destfile), chksums$actualFile),
-                                     "to",
-                                     file.path(dirname(destfile), chksums$expectedFile)))
+          renamed <- file.rename(
+            from = file.path(dirname(destfile), chksums$actualFile),
+            to = file.path(dirname(destfile), chksums$expectedFile)
+          )
+          if(!renamed) {
+            warning(paste("Please rename downloaded file",
+                          file.path(dirname(destfile), chksums$actualFile),
+                          "to",
+                          file.path(dirname(destfile), chksums$expectedFile)))
+          }
         }
         chksums
       }) %>% rbindlist()
@@ -208,6 +212,7 @@ setMethod(
       files <- list()
     }
 
+    message("Download complete for module ", module, ".")
     return(invisible(files))
 })
 
@@ -273,13 +278,13 @@ setMethod(
     } else {
       txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
                         stringsAsFactors = FALSE)
-      
+
       results <- left_join(txt, out, by="checksum") %>%
         rename_(expectedFile="file") %>%
         mutate(results=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
         select_("results", "expectedFile", "actualFile", "checksum")
-        
-      
+
+
       if (all(results$results == "OK")) {
         message("All file checksums match.")
       } else {
