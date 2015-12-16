@@ -155,7 +155,7 @@ setMethod(
 #'
 #' @param path    Character string giving the path to the module directory.
 #'
-#' @return Invisibly, a character vector containing a list of downloaded files.
+#' @return Invisibly, a list of downloaded files.
 #'
 #' @include moduleMetadata.R
 # @importFrom utils download.file
@@ -178,41 +178,40 @@ setMethod(
     urls <- moduleMetadata(module, path)$inputObjects$sourceURL
     ids <- which( urls == "" | is.na(urls) )
     to.dl <- if (length(ids)) { urls[-ids] } else { urls }
+    chksums <- suppressMessages(suppressWarnings(checksums(module, path)))
 
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
+
       files <- lapply(to.dl, function(x) {
-        browser()
         destfile <- file.path(path, module, "data", basename(x))
-        chksums <- checksums(module, path)
-        if ( is.na(chksums$actualFile)  ) {
+        id <- which(chksums$expectedFile == basename(x))
+        if ( is.na(chksums$actualFile[id]) ) {
           message("Downloading data for module ", module, " ...")
           tmpFile <- file.path(tempdir(), basename(x))
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
-
-          # will print warning if checksums don't match
-          chksums <- suppressMessages(checksums(module, path))
-        }
-        if (chksums$actualFile != chksums$expectedFile) {
+        } else if (chksums$actualFile[id] != chksums$expectedFile[id]) {
           renamed <- file.rename(
-            from = file.path(dirname(destfile), chksums$actualFile),
-            to = file.path(dirname(destfile), chksums$expectedFile)
+            from = file.path(dirname(destfile), chksums$actualFile[id]),
+            to = file.path(dirname(destfile), chksums$expectedFile[id])
           )
           if(!renamed) {
-            warning(paste("Please rename downloaded file",
-                          file.path(dirname(destfile), chksums$actualFile),
-                          "to",
-                          file.path(dirname(destfile), chksums$expectedFile)))
+            warning(paste(
+              "Please rename downloaded file",
+              file.path(dirname(destfile), chksums$actualFile[id]),
+              "to",
+              file.path(dirname(destfile), chksums$expectedFile[id])
+            ))
           }
         }
-        chksums
-      }) %>% rbindlist()
+      })
     } else {
       files <- list()
     }
 
     message("Download complete for module ", module, ".")
+    suppressMessages(checksums(module, path)) # will warn if checksums don't match
     return(invisible(files))
 })
 
@@ -243,7 +242,7 @@ setMethod(
 #'
 #' @include moduleMetadata.R
 #' @importFrom digest digest
-#' @importFrom dplyr rename_ mutate left_join select_
+#' @importFrom dplyr funs group_by_ left_join mutate rename_ select_ summarize_each_
 #' @export
 #' @rdname checksums
 #'
@@ -279,18 +278,24 @@ setMethod(
       txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
                         stringsAsFactors = FALSE)
 
-      results <- left_join(txt, out, by="checksum") %>%
-        rename_(expectedFile="file") %>%
-        mutate(results=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
-        select_("results", "expectedFile", "actualFile", "checksum")
+      is.ok <- function(x) {
+        if (any(!is.na(x))) { x[!is.na(x)] } else { NA_character_ }
+      }
 
+      results.df <- left_join(txt, out, by = "checksum") %>%
+        rename_(expectedFile = "file") %>%
+        group_by_("expectedFile") %>%
+        summarize_each_(funs(is.ok), c("actualFile")) %>%
+        # TO DO: definitely need the checksum column still!!
+        mutate(results = ifelse(is.na(actualFile), "FAIL", "OK")) %>%
+        select_("results", "expectedFile", "actualFile")#, "checksum")
 
-      if (all(results$results == "OK")) {
+      if (all(results.df$results == "OK")) {
         message("All file checksums match.")
       } else {
         warning("All file checksums do not match!")
       }
-      return(results)
+      return(results.df)
     }
 })
 
