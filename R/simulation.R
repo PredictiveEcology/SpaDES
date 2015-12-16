@@ -905,68 +905,69 @@ setGeneric("doEvent", function(sim, debug) {
 })
 
 #' @rdname doEvent
-setMethod("doEvent",
-          signature(sim = "simList", debug = "logical"),
-          definition = function(sim, debug) {
-            stopifnot(class(sim) == "simList")
+setMethod(
+  "doEvent",
+  signature(sim = "simList", debug = "logical"),
+  definition = function(sim, debug) {
+    stopifnot(class(sim) == "simList")
 
-            # core modules
-            core <- list("checkpoint", "save", "progress", "load")
+    # core modules
+    core <- list("checkpoint", "save", "progress", "load")
 
-            # get next event from the queue
-            nextEvent <- events(sim, "second")[1L, ]
+    # get next event from the queue
+    nextEvent <- events(sim, "second")[1L, ]
 
-            # catches the situation where no future event is scheduled,
-            #  but StopTime is not reached
-            if(any(is.na(nextEvent))) {
-               time(sim) <- end(sim, "second") + 1
-            } else {
-              if (nextEvent$eventTime <= end(sim, "second")) {
-                # update current simulated time
-                time(sim) <- nextEvent$eventTime
+    # catches the situation where no future event is scheduled,
+    #  but stop time is not reached
+    if (any(is.na(nextEvent))) {
+       time(sim) <- end(sim, "second") + 1
+    } else {
+      if (nextEvent$eventTime <= end(sim, "second")) {
+        # update current simulated time
+        time(sim) <- nextEvent$eventTime
 
-                # call the module responsible for processing this event
-                moduleCall <- paste("doEvent", nextEvent$moduleName, sep = ".")
+        # call the module responsible for processing this event
+        moduleCall <- paste("doEvent", nextEvent$moduleName, sep = ".")
 
-                # check the module call for validity
-                if(nextEvent$moduleName %in% modules(sim)) {
-                  if(nextEvent$moduleName %in% core) {
-                      sim <- get(moduleCall)(sim, nextEvent$eventTime,
+        # check the module call for validity
+        if (nextEvent$moduleName %in% modules(sim)) {
+          if (nextEvent$moduleName %in% core) {
+              sim <- get(moduleCall)(sim, nextEvent$eventTime,
+                                     nextEvent$eventType, debug)
+           } else {
+              sim <- get(moduleCall,
+                         envir = envir(sim))(sim, nextEvent$eventTime,
                                              nextEvent$eventType, debug)
-                   } else {
-                      sim <- get(moduleCall,
-                                 envir = envir(sim))(sim, nextEvent$eventTime,
-                                                     nextEvent$eventType, debug)
-                   }
-                } else {
-                  stop(paste("Invalid module call. The module `",
-                             nextEvent$moduleName,
-                             "` wasn't specified to be loaded."))
-                }
+           }
+        } else {
+          stop(paste("Invalid module call. The module `",
+                     nextEvent$moduleName,
+                     "` wasn't specified to be loaded."))
+        }
 
-                # now that it is run, without error, remove it from the queue
-                events(sim) <- events(sim, "second")[-1L,]
+        # now that it is run, without error, remove it from the queue
+        events(sim) <- events(sim, "second")[-1L,]
 
-                # add to list of completed events
-                if (length(completed(sim, "second"))) {
-                  completed <- list(completed(sim, "second"), nextEvent) %>%
-                    rbindlist %>%
-                    setkey("eventTime") %>%
-                    set2key("eventPriority")
-                  if (NROW(completed) > getOption("spades.nCompleted")) {
-                    completed <- tail(completed, n = getOption("spades.nCompleted"))
-                  }
-                } else {
-                  completed <- setkey(nextEvent, "eventTime") %>%
-                    set2key("eventPriority")
-                }
-                completed(sim) <- completed
-              } else {
-                # update current simulated time to
-                time(sim) <- end(sim) + 1
-              }
-            }
-            return(invisible(sim))
+        # add to list of completed events
+        if (length(completed(sim, "second"))) {
+          completed <- list(completed(sim, "second"), nextEvent) %>%
+            rbindlist %>%
+            setkey("eventTime") %>%
+            set2key("eventPriority")
+          if (NROW(completed) > getOption("spades.nCompleted")) {
+            completed <- tail(completed, n = getOption("spades.nCompleted"))
+          }
+        } else {
+          completed <- setkey(nextEvent, "eventTime") %>%
+            set2key("eventPriority")
+        }
+        completed(sim) <- completed
+      } else {
+        # update current simulated time to
+        time(sim) <- end(sim) + 1
+      }
+    }
+    return(invisible(sim))
 })
 
 #' @rdname doEvent
