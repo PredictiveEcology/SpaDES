@@ -173,23 +173,22 @@ setMethod(
 
     if (length(to.dl)) {
       setwd(path); on.exit(setwd(cwd))
-      browser()
       files <- lapply(to.dl, function(x) {
         destfile <- file.path(path, module, "data", basename(x))
-        chksums <- checksums(module, path)
+        chksums <- suppressMessages(checksums(module, path))
         if ( is.na(chksums$actualFile)  ) {
-          message("Started download. This may take a while depending on your", 
-                  " connection speed.")
           tmpFile <- file.path(tempdir(), basename(x))
+          message("Started download. This may take a while depending on your",
+                  " connection speed.")
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
           copied <- file.copy(from = tmpFile, to=destfile, overwrite=TRUE)
           # will print warning if checksums don't match
           chksums <- suppressMessages(checksums(module, path))
         }
         if (chksums$actualFile != chksums$expectedFile) {
-          renamed <- file.rename(from = file.path(dirname(destfile), chksums$actualFile), 
+          chksums$renamed <- file.rename(from = file.path(dirname(destfile), chksums$actualFile),
                       to = file.path(dirname(destfile), chksums$expectedFile))
-          if(!renamed) warning(paste("Please rename downloaded file",
+          if(!chksums$renamed) warning(paste("Please rename downloaded file",
                                      file.path(dirname(destfile), chksums$actualFile),
                                      "to",
                                      file.path(dirname(destfile), chksums$expectedFile)))
@@ -200,7 +199,7 @@ setMethod(
       files <- list()
     }
 
-    return(invisible(files))
+    return(files)
 })
 
 ################################################################################
@@ -265,13 +264,15 @@ setMethod(
     } else {
       txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
                         stringsAsFactors = FALSE)
-      
+
       results <- left_join(txt, out, by="checksum") %>%
         rename_(expectedFile="file") %>%
+        dplyr::group_by(expectedFile) %>%
         mutate(results=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
-        select_("results", "expectedFile", "actualFile", "checksum")
-        
-      
+        dplyr::arrange(desc(results)) %>%
+        select_("results", "expectedFile", "actualFile", "checksum") %>%
+        filter(row_number()==1L)
+
       if (all(results$results == "OK")) {
         message("All file checksums match.")
       } else {
