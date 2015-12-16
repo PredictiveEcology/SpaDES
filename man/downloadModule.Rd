@@ -3,24 +3,26 @@
 \docType{methods}
 \name{downloadModule}
 \alias{downloadModule}
-\alias{downloadModule,character,character,character,character-method}
-\alias{downloadModule,character,character,character,missing-method}
-\alias{downloadModule,character,character,missing,character-method}
-\alias{downloadModule,character,character,missing,missing-method}
+\alias{downloadModule,character,character,character,character,logical-method}
+\alias{downloadModule,character,character,character,missing,ANY-method}
+\alias{downloadModule,character,character,missing,character,ANY-method}
+\alias{downloadModule,character,character,missing,missing,ANY-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
-downloadModule(name, path, version, repo)
+downloadModule(name, path, version, repo, data = FALSE)
 
-\S4method{downloadModule}{character,character,character,character}(name, path,
-  version, repo)
 
-\S4method{downloadModule}{character,character,character,missing}(name, path,
-  version)
+  \S4method{downloadModule}{character,character,character,character,logical}(name,
+  path, version, repo, data = FALSE)
 
-\S4method{downloadModule}{character,character,missing,missing}(name, path)
+\S4method{downloadModule}{character,character,character,missing,ANY}(name, path,
+  version, data)
 
-\S4method{downloadModule}{character,character,missing,character}(name, path,
-  repo)
+\S4method{downloadModule}{character,character,missing,missing,ANY}(name, path,
+  data)
+
+\S4method{downloadModule}{character,character,missing,character,ANY}(name, path,
+  repo, data)
 }
 \arguments{
 \item{name}{Character string giving the module name.}
@@ -34,9 +36,16 @@ the most recent version will be retrieved.)}
 \item{repo}{GitHub repository name.
 Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
 specified by the global option \code{spades.modulesRepo}.}
+
+\item{data}{Logical. If TRUE, then the data that is identified in the module
+metadata will be downloaded, if possible. Default if FALSE.}
 }
 \value{
-Invisibly, a character vector containing a list of extracted files.
+A list of length 2. The first elemet is a character vector containing
+   a character vector of extracted files for the module. The second element is
+   a tbl with details about the data that is relevant for the function, including
+   whether it was downloaded or not, whether it was renamed (because there
+   was a local copy that had the wrong file name).
 }
 \description{
 Download a .zip file of the module and extract (unzip) it to a user-specified location.

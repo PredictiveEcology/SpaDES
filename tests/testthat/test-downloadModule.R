@@ -58,12 +58,31 @@ test_that("downloadData downloads and unzips module data", {
   m <- "test"
   filenames <- c("DEM.tif", "habitatQuality.tif")
   f <- downloadModule(m, tmpdir)
-  t1 <- system.time(suppressMessages(downloadData(m, tmpdir)))
-  result <- suppressMessages(checksums(m, tmpdir)$results)
+  t1 <- system.time(downloadData(m, tmpdir))
+  result <- checksums(m, tmpdir)$result
   expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
   expect_true(all(result == "OK"))
 
   # shouldn't need a redownload because file exists
-  t2 <- system.time(suppressMessages(downloadData(m, tmpdir)))
+  t2 <- system.time(downloadData(m, tmpdir))
   expect_true(t1[3] > t2[3]) # compare elapsed times
+
+  # if one file is missing, will fill in correctly
+  unlink(file.path(tmpdir, m, "data", filenames)[1])
+  downloadData(m, tmpdir)
+  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
+
+  # if files are there, but one is renamed
+  file.rename(file.path(tmpdir, m, "data", filenames[1]),
+              to=file.path(tmpdir, m, "data", "test.tif"))
+  downloadData(m, tmpdir)
+  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
+
+  # if files are there with correct names, but wrong content
+  ras <- raster(file.path(tmpdir, m, "data", filenames[1]))
+  ras[4] <- maxValue(ras)+1
+  writeRaster(ras, filename=file.path(tmpdir, m, "data", filenames[1]), overwrite=TRUE)
+  downloadData(m, tmpdir)
+  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
+
 })
