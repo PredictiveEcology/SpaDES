@@ -774,10 +774,10 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
 modules(mySim) # note the child modules are initialized
 ```
 
-Module groups can also be used to simplify the download of multiple modules (not yet implemented; [issue #208](https://github.com/PredictiveEcology/SpaDES/issues/208)):
+Module groups can also be used to simplify the download of multiple modules:
 
 ```{r module-group-dl, eval=FALSE}
-downloadModule("SpaDES_sampleModules") # not yet implemented
+downloadModule("SpaDES_sampleModules")
 ```
 
 ## Contributing modules

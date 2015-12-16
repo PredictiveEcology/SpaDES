@@ -580,8 +580,7 @@ setMethod(
     if (grepl(deparse(parseTxt[[1]]), pattern = "^eval")) {
       callEnv <- tryCatch(
         eval(
-          match.call(definition = eval,
-                     call = parseTxt)$envir,
+          match.call(definition = eval, call = parseTxt)$envir,
           envir = eminus1
         ),
         error = function(x) {

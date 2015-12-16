@@ -30,7 +30,8 @@ A data.frame of filenames, checksums, and results.
 Verify (and optionally write) checksums for data files in a module's
 \code{data/} subdirectory. The file \code{data/CHECKSUMS.txt} contains the
 expected checksums for each data file.
-Checksums are computed using \code{digest::digest(..., algo = "md5")}.
+Checksums are computed using \code{SpaDES:::digest}, which is simply a
+wrapper around \code{digest::digest}.
 }
 \details{
 Modules may require data that for various reasons cannot be distributed with
