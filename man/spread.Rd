@@ -6,15 +6,17 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
-  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
-  lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
-  plot.it = FALSE, spreadProbLater = NULL, ...)
+spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
+  mask = NA, maxSize = 100000000L, directions = 8L,
+  iterations = 1000000L, lowMemory = getOption("spades.lowMemory"),
+  returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
+  spreadProbLater = NA_real_, ...)
 
-\S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence = 0,
-  mask = NULL, maxSize = 1e+08, directions = 8L, iterations = NULL,
-  lowMemory = FALSE, returnIndices = FALSE, mapID = FALSE,
-  plot.it = FALSE, spreadProbLater, ...)
+\S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
+  spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
+  directions = 8L, iterations = 1000000L,
+  lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
+  mapID = FALSE, plot.it = FALSE, spreadProbLater = NA_real_, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -53,6 +55,10 @@ internally. This is slower, but much lower memory footprint.}
 indices and values of successful spread events, or
 return a raster with values. See Details.}
 
+\item{mapID}{Logical. If TRUE, returns a raster of events ids.
+If FALSE, returns a raster of iteration numbers,
+i.e., the spread history of one or more events.}
+
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spread event grow.}
 
@@ -60,10 +66,6 @@ so one can watch the spread event grow.}
 will become the spreadProb after the first iteration. See details.}
 
 \item{...}{Additional parameters.}
-
-\item{mapID}{Logical. If TRUE, returns a raster of events ids.
-If FALSE, returns a raster of iteration numbers,
-i.e., the spread history of one or more events.}
 }
 \value{
 A \code{RasterLayer} indicating the spread of the process in the landscape.

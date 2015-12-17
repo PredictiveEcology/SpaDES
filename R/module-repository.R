@@ -94,7 +94,7 @@ setMethod(
     allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names = FALSE)
     moduleFiles <- grep(paste0("^modules/", name), allFiles, value = TRUE)
     if(length(moduleFiles)==0) {
-      agrep(name, allFiles, max.distance = 0.3,
+      agrep(name, allFiles, max.distance = 0.25,
             value = TRUE, ignore.case = FALSE) %>% strsplit(., split="/") %>%
         lapply(., function(x) x[2]) %>% unique %>% unlist %>% paste(., collapse=", ") %>%
         stop("Module ", name, " does not exist in the repository. ",
