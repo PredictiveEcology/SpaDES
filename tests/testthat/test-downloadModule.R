@@ -54,7 +54,7 @@ test_that("downloadData downloads and unzips module data", {
 
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
-  datadir <- file.path(datadir)
+  datadir <- file.path(tmpdir, m, "data")
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   filenames <- c("DEM.tif", "habitatQuality.tif")
