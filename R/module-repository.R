@@ -42,7 +42,7 @@ setMethod(
       strsplit(., "[.]zip$") %>%
       unlist() %>%
       as.numeric_version()
-    currentVersion <- sort(., decreasing = TRUE)[1]
+    currentVersion <- sort(versions, decreasing = TRUE)[1]
 
     return(currentVersion)
 })
