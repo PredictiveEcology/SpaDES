@@ -18,7 +18,7 @@
 #' time unit using, and create a function to calculate the number of seconds
 #' in that unit using the "d" prefix (for duration), following the
 #' \code{lubridate} package standard:
-#' \code{dfortNight <- function(x) lubridate::new_duration(dday(14))}.
+#' \code{dfortNight <- function(x) lubridate::duration(dday(14))}.
 #' Then the module developer can use "fortNight" as the module's time unit.
 #'
 #' @param x numeric. Number of the desired units
@@ -35,14 +35,14 @@ setGeneric("dyears", function(x) {
   standardGeneric("dyears")
 })
 
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @export
 #' @docType methods
 #' @rdname spadesTime
 setMethod("dyears",
-          signature(x="numeric"),
-          definition=function(x) {
-            new_duration(x * 60 * 60 * 24 * 365.25)
+          signature(x = "numeric"),
+          definition = function(x) {
+            duration(x * 60 * 60 * 24 * 365.25)
 })
 
 #' @inheritParams dyears
@@ -53,12 +53,12 @@ setGeneric("dmonths", function(x) {
   standardGeneric("dmonths")
 })
 
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dmonths",
-          signature(x="numeric"),
-          definition=function(x) {
-            new_duration(x * as.numeric(SpaDES::dyears(1))/12)
+          signature(x = "numeric"),
+          definition = function(x) {
+            duration(x * as.numeric(SpaDES::dyears(1))/12)
 })
 
 #' @export
@@ -68,12 +68,12 @@ setGeneric("dweeks", function(x) {
 })
 
 #' @export
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dweeks",
-          signature(x="numeric"),
-          definition=function(x) {
-            new_duration(x * as.numeric(SpaDES::dyears(1))/52)
+          signature(x = "numeric"),
+          definition = function(x) {
+            duration(x * as.numeric(SpaDES::dyears(1))/52)
 })
 
 #' @export
@@ -122,12 +122,12 @@ setGeneric("dNA", function(x) {
 })
 
 #' @export
-#' @importFrom lubridate new_duration
+#' @importFrom lubridate duration
 #' @rdname spadesTime
 setMethod("dNA",
-          signature(x="ANY"),
-          definition=function(x) {
-            new_duration(0)
+          signature(x = "ANY"),
+          definition = function(x) {
+            duration(0)
 })
 
 ################################################################################
@@ -156,12 +156,12 @@ setGeneric("inSeconds", function(unit) {
 #' @rdname timeConversion
 setMethod(
   "inSeconds",
-  signature=c("character"),
+  signature = c("character"),
   definition <- function(unit) {
     if(!is.na(unit)) {
       out <- switch(unit,
-                    second =  as.numeric(dsecond(1)),
-                    seconds =  as.numeric(dsecond(1)),
+                    second = as.numeric(dsecond(1)),
+                    seconds = as.numeric(dsecond(1)),
                     hour = as.numeric(dhour(1)),
                     hours = as.numeric(dhour(1)),
                     day = as.numeric(dday(1)),
@@ -175,7 +175,7 @@ setMethod(
     } else {
       out <- 0
     }
-    attributes(out)$unit="second"
+    attributes(out)$unit = "second"
     return(out)
 })
 
@@ -183,7 +183,7 @@ setMethod(
 #' @docType methods
 #' @rdname timeConversion
 setMethod("inSeconds",
-          signature=c("NULL"),
+          signature = c("NULL"),
           definition <- function(unit) {
             out <- NA_character_
             return(inSeconds(out))
@@ -216,8 +216,8 @@ setGeneric("convertTimeunit", function(time, unit) {
 #' @rdname timeConversion
 setMethod(
   "convertTimeunit",
-  signature=c("numeric", "character"),
-  definition=function(time, unit) {
+  signature = c("numeric", "character"),
+  definition = function(time, unit) {
     timeUnit <- attr(time, "unit")
 
     # Assume default of seconds if time has no units
@@ -228,11 +228,11 @@ setMethod(
     if (!is.na(timeUnit)) {
       # confirm that units are useable by SpaDES
       stopifnot(
-        any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm=FALSE)
+        any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm = FALSE)
       )
 
       # if time units are same as unit, skip calculations
-      if(!stri_detect_fixed(unit, pattern=timeUnit)) {
+      if(!stri_detect_fixed(unit, pattern = timeUnit)) {
         time <- time * inSeconds(timeUnit) / inSeconds(unit)
         attr(time, "unit") <- unit
       }
@@ -274,8 +274,8 @@ setGeneric("maxTimeunit", function(sim) {
 #' @rdname maxTimeunit
 setMethod(
   "maxTimeunit",
-  signature(sim="simList"),
-  definition=function(sim) {
+  signature(sim = "simList"),
+  definition = function(sim) {
     if (length(depends(sim)@dependencies)) {
       if (!is.null(depends(sim)@dependencies[[1]])) {
         timesteps <- lapply(depends(sim)@dependencies, function(x) {
@@ -284,7 +284,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text=paste0("d", ts, "(1)"))) }
+              eval(parse(text = paste0("d", ts, "(1)"))) }
           ))]])
         }
       }
@@ -318,8 +318,8 @@ setGeneric("minTimeunit", function(sim) {
 #' @rdname minTimeunit
 setMethod(
   "minTimeunit",
-  signature(sim="simList"),
-  definition=function(sim) {
+  signature(sim = "simList"),
+  definition = function(sim) {
     if (length(depends(sim)@dependencies)) {
       if (!is.null(depends(sim)@dependencies[[1]])) {
         timesteps <- lapply(depends(sim)@dependencies, function(x) {
@@ -328,7 +328,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text=paste0("d", ts, "(1)"))) }
+              eval(parse(text = paste0("d", ts, "(1)"))) }
           ))]])
         }
       }
@@ -343,5 +343,5 @@ setMethod(
 #' @export
 #' @rdname timeConversion
 spadesTimes <- function() {
-  gsub(.spadesTimes, pattern="[[:punct:]]", replacement = "")
+  gsub(.spadesTimes, pattern = "[[:punct:]]", replacement = "")
 }

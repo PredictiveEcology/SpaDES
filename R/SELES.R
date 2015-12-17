@@ -212,7 +212,7 @@ agentLocation <- function(map) {
 #'
 #' You must know how to use SELES for these to be useful.
 #'
-#' @param map A \code{.spatialObjects} object. Currently, only provides CRS and, if p is not
+#' @param map A \code{spatialObjects} object. Currently, only provides CRS and, if p is not
 #' a raster, then all the raster dimensions.
 #'
 #' @param p probability, provided as a numeric or raster

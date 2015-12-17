@@ -27,12 +27,12 @@ setGeneric("ganttStatus", function(eventType) {
 
 #' @rdname ganttStatus
 setMethod("ganttStatus",
-          signature(eventType="character"),
-          definition=function(eventType) {
+          signature(eventType = "character"),
+          definition = function(eventType) {
             status <- lapply(eventType, function(x) {
-              if (x=="init") {
+              if (x == "init") {
                 "done"
-              } else if (x=="plot") {
+              } else if (x == "plot") {
                 "crit"
               } else {
                 "active"
@@ -73,34 +73,35 @@ setGeneric(".sim2gantt", function(sim, n, startDate, width) {
 })
 
 #' @rdname sim2gantt
-setMethod(".sim2gantt",
-          signature(sim="simList", n="numeric", startDate="character"),
-          definition=function(sim, n, startDate, width) {
-            dt <- tail(completed(sim), n)
-            modules <- unique(dt$moduleName)
-            width <- 4500 / as.numeric(width) # fixed at 3 days
+setMethod(
+  ".sim2gantt",
+  signature(sim = "simList", n = "numeric", startDate = "character"),
+  definition = function(sim, n, startDate, width) {
+    dt <- tail(completed(sim), n)
+    modules <- unique(dt$moduleName)
+    width <- 4500 / as.numeric(width) # fixed at 3 days
 
-            # simulation timestep in 'days'
-            ts <- timeunit(sim) %>%
-              inSeconds %>%
-              convertTimeunit("day") %>%
-              as.numeric
+    # simulation timestep in 'days'
+    ts <- timeunit(sim) %>%
+      inSeconds %>%
+      convertTimeunit("day") %>%
+      as.numeric
 
-            out <- lapply(modules, function(x) {
-              data.frame(
-                task = dt[moduleName==x]$eventType,
-                status = ganttStatus(dt[moduleName==x]$eventType),
-                pos = paste0(x, 1:nrow(dt[moduleName==x])),
-                start = as.Date(
-                  dt[moduleName==x]$eventTime * ts, origin=startDate
-                ),
-                end = as.Date(
-                  dt[moduleName==x]$eventTime * ts + width, origin=startDate
-                )
-              )
-            })
-            names(out) <- modules
-            return(out)
+    out <- lapply(modules, function(x) {
+      data.frame(
+        task = dt[moduleName == x]$eventType,
+        status = ganttStatus(dt[moduleName == x]$eventType),
+        pos = paste0(x, 1:nrow(dt[moduleName == x])),
+        start = as.Date(
+          dt[moduleName == x]$eventTime * ts, origin = startDate
+        ),
+        end = as.Date(
+          dt[moduleName == x]$eventTime * ts + width, origin = startDate
+        )
+      )
+    })
+    names(out) <- modules
+    return(out)
 })
 
 ################################################################################
@@ -133,7 +134,7 @@ setMethod(".sim2gantt",
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
 #'
-#' @return Plots an event diagram as Gantt Chart, invisibly returning a \link{mermaid} object.
+#' @return Plots an event diagram as Gantt Chart, invisibly returning a \code{mermaid} object.
 #'
 #' @seealso \code{\link{mermaid}}.
 #'
@@ -151,55 +152,56 @@ setGeneric("eventDiagram", function(sim, n, startDate, ...) {
 
 #' @export
 #' @rdname eventDiagram
-setMethod("eventDiagram",
-          signature(sim="simList", n="numeric", startDate="character"),
-          definition=function(sim, n, startDate, ...) {
-            # get automatic scaling of vertical bars in Gantt chart
-            dots <- list(...)
-            dots$width <- if(any(grepl(pattern="width", names(dots)))) {
-              as.numeric(dots$width)
-            } else {
-              1000
-            }
-            ll <- .sim2gantt(sim, n, startDate, dots$width)
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "numeric", startDate = "character"),
+  definition = function(sim, n, startDate, ...) {
+    # get automatic scaling of vertical bars in Gantt chart
+    dots <- list(...)
+    dots$width <- if(any(grepl(pattern = "width", names(dots)))) {
+      as.numeric(dots$width)
+    } else {
+      1000
+    }
+    ll <- .sim2gantt(sim, n, startDate, dots$width)
 
-            # remove progress bar events
-            ll <- ll[names(ll)!="progress"]
+    # remove progress bar events
+    ll <- ll[names(ll) != "progress"]
 
-            if (length(ll)) {
-              # estimate the height of the diagram
-              dots$height <- if(any(grepl(pattern="height", names(dots)))) {
-                as.numeric(dots$height)
-              } else {
-                sapply(ll, NROW) %>% sum %>% `*`(., 26L)
-              }
+    if (length(ll)) {
+      # estimate the height of the diagram
+      dots$height <- if(any(grepl(pattern = "height", names(dots)))) {
+        as.numeric(dots$height)
+      } else {
+        sapply(ll, NROW) %>% sum %>% `*`(., 26L)
+      }
 
-              diagram <- paste0(
-                # mermaid "header"
-                "gantt", "\n",
-                "dateFormat  YYYY-MM-DD", "\n",
-                "title SpaDES event diagram", "\n",
+      diagram <- paste0(
+        # mermaid "header"
+        "gantt", "\n",
+        "dateFormat  YYYY-MM-DD", "\n",
+        "title SpaDES event diagram", "\n",
 
-                # mermaid "body"
-                paste("section ", names(ll), "\n", lapply(ll, function(df) {
-                  paste0(df$task, ":", df$status, ",",
-                         df$pos, ",", df$start, ",", df$end,
-                         collapse = "\n")
-                }), collapse = "\n"), "\n"
-              )
-              do.call(mermaid, args=append(diagram, dots))
-            } else {
-              stop("Unable to create eventDiagram for a simulation that hasn't been run.\n",
-                   "Run your simulation using `mySim <- spades(mySim)` and try again.")
-            }
+        # mermaid "body"
+        paste("section ", names(ll), "\n", lapply(ll, function(df) {
+          paste0(df$task, ":", df$status, ",", df$pos, ",",
+                 df$start, ",", df$end, collapse = "\n")
+        }), collapse = "\n"), "\n"
+      )
+      do.call(mermaid, args = append(diagram, dots))
+    } else {
+      stop("Unable to create eventDiagram for a simulation that hasn't been run.\n",
+           "Run your simulation using `mySim <- spades(mySim)` and try again.")
+    }
 })
 
 #' @export
 #' @rdname eventDiagram
-setMethod("eventDiagram",
-          signature(sim="simList", n="missing", startDate="character"),
-          definition=function(sim, startDate, ...) {
-            eventDiagram(sim=sim, n=NROW(completed(sim)), startDate=startDate, ...)
+setMethod(
+  "eventDiagram",
+  signature(sim = "simList", n = "missing", startDate = "character"),
+  definition = function(sim, startDate, ...) {
+    eventDiagram(sim = sim, n = NROW(completed(sim)), startDate = startDate, ...)
 })
 
 ################################################################################
@@ -215,7 +217,7 @@ setMethod("eventDiagram",
 #' @param ...  Additional arguments passed to \code{mermaid}.
 #'             Useful for specifying \code{height} and \code{width}.
 #'
-#' @return Plots a sequence diagram, invisibly returning a \link{mermaid} object.
+#' @return Plots a sequence diagram, invisibly returning a \code{mermaid} object.
 #'
 #' @seealso \code{\link{mermaid}}.
 #'
@@ -233,20 +235,21 @@ setGeneric("objectDiagram", function(sim, ...) {
 
 #' @export
 #' @rdname objectDiagram
-setMethod("objectDiagram",
-          signature(sim="simList"),
-          definition=function(sim, ...) {
-            dt <- depsEdgeList(sim, FALSE)
-            mermaid(...,
-              paste0(
-                # mermaid "header"
-                "sequenceDiagram", "\n",
+setMethod(
+  "objectDiagram",
+  signature(sim = "simList"),
+  definition = function(sim, ...) {
+    dt <- depsEdgeList(sim, FALSE)
+    DiagrammeR::mermaid(...,
+      paste0(
+        # mermaid "header"
+        "sequenceDiagram", "\n",
 
-                # mermaid "body"
-                paste(dt$from, "->>", dt$to, ":", dt$objName, collapse="\n"),
-                "\n"
-              )
-            )
+        # mermaid "body"
+        paste(dt$from, "->>", dt$to, ":", dt$objName, collapse = "\n"),
+        "\n"
+      )
+    )
 })
 
 ################################################################################
@@ -283,11 +286,11 @@ setGeneric("moduleDiagram", function(sim, type, ...) {
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature=c(sim="simList", type="character"),
-          definition=function(sim, type, ...) {
-            if(type=="rgl") {
+          signature = c(sim = "simList", type = "character"),
+          definition = function(sim, type, ...) {
+            if(type == "rgl") {
               rglplot(depsGraph(sim, TRUE), ...)
-            } else if (type=="tk"){
+            } else if (type == "tk") {
               tkplot(depsGraph(sim, TRUE), ...)
             } else {
               moduleDiagram(sim)
@@ -297,7 +300,7 @@ setMethod("moduleDiagram",
 #' @export
 #' @rdname moduleDiagram
 setMethod("moduleDiagram",
-          signature=c(sim="simList", type="missing"),
-          definition=function(sim, type, ...) {
+          signature = c(sim = "simList", type = "missing"),
+          definition = function(sim, type, ...) {
               plot(depsGraph(sim, TRUE), ...)
 })

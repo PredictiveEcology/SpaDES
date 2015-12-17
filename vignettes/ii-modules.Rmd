@@ -64,11 +64,13 @@ A module consists of a collection of files that ...
 ```
 /moduleRepository
   |_ moduleName/
-      |_ moduleName.R           # the actual module code file, incl. module metadata
-      |_ moduleName.Rmd         # longform documentation and usage info, etc.
+      |_ data/
+          |_ CHECKSUMS.txt
       |_ citation.bib           # properly formatted bibtex citation for the module
       |_ LICENSE.txt            # license file describing the allowed usage etc. of the module
       |_ README.txt             # incl. module metadata in addition to version change info, etc.
+      |_ moduleName.R           # the actual module code file, incl. module metadata
+      |_ moduleName.Rmd         # longform documentation and usage info, etc.
       |_ moduleName_x.y.z.zip   # zip archive of previous module versions
 ```
 
@@ -112,29 +114,32 @@ Every module requires complete metadata, structured as a named list, and passed 
 &nbsp;                | parameters, with columns `paramName`, `paramClass`, `default`, `min`, `max`, and `paramDesc`.
 &nbsp;                | Default values may be overridden by the user by passing a list of parameters to `simInit`.
 **`inputObjects`**    | A `data.frame` specifying the object dependencies of the module, with columns
-&nbsp;                | `objectName`, `objectClass`, and `other`. For objects that are used within the module
-&nbsp;                | as both an input and an output, add the object to each of these `data.frame`s.
-**`outputObjects`**   | A `data.frame` specifying the objects output by the module, following the format of
-&nbsp;                | `inputObjects`.
+&nbsp;                | `objectName`, `objectClass`, `sourceURL`, and `other`.
+&nbsp;                | For objects that are used within the module as both an input and an output,
+&nbsp;                | add the object to each of these `data.frame`s.
+**`outputObjects`**   | A `data.frame` specifying the objects output by the module, with columns
+&nbsp;                | `objectName`, `objectClass`, and `other`.
 
 ```{r module-metadata, eval=FALSE, echo=TRUE}
 ## sample module metadata for the default `randomLandscapes` module
 ## NOTE: long lines have been truncated
 defineModule(sim, list(
-  name="randomLandscapes",
-  description="Generate RasterStack of random maps representative of a forest landsc...",
-  keywords=c("random map", "random landscape"),
-  authors=c(person(c("Alex", "M"), "Chubaty", email="Alexander.Chubaty@NRCan.gc.ca",
-                   role=c("aut", "cre")),
-            person(c("Eliot", "J", "B"), "McIntire", email="Eliot.McIntire@NRCan.gc.ca",
-                   role=c("aut", "cre"))),
-  version=numeric_version("0.2.0"),
-  spatialExtent=raster::extent(rep(NA_real_, 4)),
-  timeframe=as.POSIXlt(c(NA, NA)),
-  timeunit=NA_real_,
-  citation=list(),
-  reqdPkgs=list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
-  parameters=rbind(
+  name = "randomLandscapes",
+  description = "Generate RasterStack of random maps representative of a forest landsc...",
+  keywords = c("random map", "random landscape"),
+  authors = c(person(c("Alex", "M"), "Chubaty",
+                     email = "alexander.chubaty@canada.ca",
+                     role = c("aut", "cre")),
+              person(c("Eliot", "J", "B"), "McIntire",
+                     email = "eliot.mcintire@canada.ca",
+                     role = c("aut", "cre"))),
+  version = numeric_version("0.2.0"),
+  spatialExtent = raster::extent(rep(NA_real_, 4)),
+  timeframe = as.POSIXlt(c(NA, NA)),
+  timeunit = NA_real_,
+  citation = list(),
+  reqdPkgs = list("raster", "RColorBrewer", "tkrplot", "RandomFields"),
+  parameters = rbind(
     defineParameter("stackName", "character", "randomLandscape", NA, NA, "..."),
     defineParameter("nx", "numeric", 100L, NA, NA, "size of map (number ..."),
     defineParameter("ny", "numeric", 100L, NA, NA, "size of map (number ..."),
@@ -143,12 +148,12 @@ defineModule(sim, list(
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval ..."),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")),
-  inputObjects=data.frame(objectName=character(),
-                          objectClass=character(),
-                          other=character(), stringsAsFactors=FALSE),
-  outputObjects=data.frame(objectName=globals(sim)$stackName,
-                           objectClass="RasterStack",
-                           other=NA_character_, stringsAsFactors=FALSE)
+  inputObjects = data.frame(objectName = character(), objectClass = character(),
+                            sourceURL = character(), other = character(),
+                            stringsAsFactors = FALSE),
+  outputObjects = data.frame(objectName = globals(sim)$stackName,
+                             objectClass = "RasterStack",
+                             other = NA_character_, stringsAsFactors = FALSE)
 ))
 ```
 
@@ -172,21 +177,26 @@ require(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
 times <- list(start=0.0, end=20.0)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
-                   .progress=list(NA),
-                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
-                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=10, startTime=0,
-                                  .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
-                                        .plotInitialTime=1.01, .plotInterval=1))
+parameters <- list(
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+  .progress = list(NA),
+  randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
+  fireSpread = list(
+    nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
+    returnInterval = 10, startTime = 0, .plotInitialTime=0.1, .plotInterval = 10
+  ),
+  caribouMovement = list(
+    N = 100L, moveInterval = 1, torus = TRUE,
+    .plotInitialTime = 1.01, .plotInterval = 1
+  )
+)
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 objects <- list()
-paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-              outputPath=outputDir)
+paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
+              outputPath = outputDir)
 
-mySim <- simInit(times=times, params=parameters, modules=modules,
-                 objects=objects, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
 ```
 
 ### Event types
@@ -197,8 +207,8 @@ To keep the `doEvent.moduleName` code block as clear and readable as possible, k
 
 ```{r event-types, echo=TRUE, eval=FALSE}
 ## sample event type definitions from the default `randomLandscapes` module
-doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
-  if (eventType=="init") {
+doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
+  if (eventType == "init") {
     # do stuff for this event
     sim <- randomLandscapesInit(sim)
 
@@ -216,7 +226,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
     sim <- scheduleEvent(sim, time(sim) +
                            params(sim)$randomLandscapes$.plotInterval,
                          "randomLandscapes", "plot")
-  } else if (eventType=="save") {
+  } else if (eventType == "save") {
     # do stuff for this event
     saveFiles(sim)
 
@@ -227,10 +237,10 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug=FALSE) {
 
   } else {
     warning(paste("Undefined event type: \'",
-                  events(sim)[1, "eventType", with=FALSE],
+                  events(sim)[1, "eventType", with = FALSE],
                   "\' in module \'",
-                  events(sim)[1, "moduleName", with=FALSE],
-                  "\'", sep=""))
+                  events(sim)[1, "moduleName", with = FALSE],
+                  "\'", sep = ""))
   }
   return(invisible(sim))
 }
@@ -261,34 +271,34 @@ randomLandscapesInit <- function(sim) {
   # Give dimensions of dummy raster
   nx <- params(sim)$randomLandscapes$nx
   ny <- params(sim)$randomLandscapes$ny
-  r <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
+  r <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
   speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
-  DEM <- gaussMap(template, scale=300, var=0.03, speedup=speedup, 
-                  inMemory=inMemory)
-  DEM[] <- round(getValues(DEM),1)*1000
-  forestAge <- gaussMap(template, scale=10, var=0.1, speedup=speedup, 
-                        inMemory=inMemory)
-  forestAge[] <- round(getValues(forestAge),1)*20
-  percentPine <- gaussMap(template, scale=50, var=1, speedup=speedup, 
-                          inMemory=inMemory)
+  DEM <- gaussMap(template, scale = 300, var = 0.03, speedup = speedup, 
+                  inMemory = inMemory)
+  DEM[] <- round(getValues(DEM), 1) * 1000
+  forestAge <- gaussMap(template, scale = 10, var = 0.1, speedup = speedup, 
+                        inMemory = inMemory)
+  forestAge[] <- round(getValues(forestAge), 1) * 20
+  percentPine <- gaussMap(template, scale = 50, var = 1, speedup = speedup, 
+                          inMemory = inMemory)
   percentPine[] <- round(getValues(percentPine), 1)
 
   # Scale them as needed
-  forestAge <- forestAge/maxValue(forestAge)*100
-  percentPine <- percentPine/maxValue(percentPine)*100
+  forestAge <- forestAge / maxValue(forestAge) * 100
+  percentPine <- percentPine / maxValue(percentPine) * 100
 
   # Make layers that are derived from other layers
-  habitatQuality <- (DEM+10 + (forestAge+2.5)*10)/100
-  habitatQuality <- habitatQuality/maxValue(habitatQuality)
+  habitatQuality <- (DEM + 10 + (forestAge + 2.5) * 10) / 100
+  habitatQuality <- habitatQuality / maxValue(habitatQuality)
 
   # Stack them into a single stack and assign to sim envir
   mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
   names(mapStack) <- c("DEM", "forestAge", "habitatQuality", "percentPine")
-  setColors(mapStack) <- list(DEM=grDevices::terrain.colors(100),
-                              forestAge=brewer.pal(9,"BuGn"),
-                              habitatQuality=brewer.pal(8,"Spectral"),
-                              percentPine=brewer.pal(9,"Greens"))
+  setColors(mapStack) <- list(DEM = grDevices::terrain.colors(100),
+                              forestAge = brewer.pal(9, "BuGn"),
+                              habitatQuality = brewer.pal(8, "Spectral"),
+                              percentPine = brewer.pal(9, "Greens"))
   sim[[globals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }
@@ -305,24 +315,26 @@ Note that only the start time of the event is meaningful is these figures: the w
 ```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 require(igraph) # for %>%
 require(SpaDES)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
-                   .progress=list(NA),
-                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
-                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=1, startTime=0,
-                                  .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
-                                        .plotInitialTime=1.01, .plotInterval=1))
+parameters <- list(
+  .globals = list(stackName="landscape", burnStats="nPixelsBurned"),
+  .progress = list(NA),
+  randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
+  fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6,
+                    persistprob = 0, returnInterval = 1, startTime = 0,
+                    .plotInitialTime = 0.1, .plotInterval = 10),
+  caribouMovement = list(N = 100L, moveInterval = 1, torus = TRUE,
+                         .plotInitialTime = 1.01, .plotInterval = 1)
+)
 
 ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
 pdf(ftmp)
 clearPlot()
 mySim <- simInit(
-  times=list(start=0.0, end=2.0, timeunit="year"),
-  params=parameters,
-  modules=list("randomLandscapes", "fireSpread", "caribouMovement"),
-  objects=list(),
-  paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+  times = list(start = 0.0, end = 2.0, timeunit = "year"),
+  params = parameters,
+  modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+  objects = list(),
+  paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
   ) %>% spades
 dev.off()
 unlink(ftmp)
@@ -330,7 +342,9 @@ unlink(ftmp)
 
 ```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=7}
 mySim <- spades(mySim) # runs the simulation
-eventDiagram(mySim, "0000-06-01", n=200, width=720) # overview of the events in the simulation
+
+# overview of the events in the simulation
+eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
 ```
 
 ## Module documentation (`moduleName.Rmd`)
@@ -351,6 +365,16 @@ Most citation management software can read and output `.bib` format.
 For help selecting a license, see [choosealicense.com](http://choosealicense.com).
 
 - `README.txt` is used to briefly document module metadata and version change information.
+
+## Data
+
+All module data are located in the module's `data/` subdirectory.
+Also included in this folder is a `CHECKSUMS.txt` file that contains the expected checksums for each data file.
+Checksums can be verified (and optionally written) using `checksums()`.
+
+Modules may require data that for various reasons cannot be distributed with the module source code.
+In these cases, the module developer should ensure that the module downloads and extracts the data required.
+It is useful to not only check that the data files exist locally but that their checksums match those expected (see `checksums()`).
 
 ## Versioned zip archives (`moduleName_x.y.z.zip`)
 
@@ -396,16 +420,20 @@ To view the dependencies for a simulation:
 require(SpaDES)
 
 times <- list(start=0.0, end=20)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"))
+parameters <- list(
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+)
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
-paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
+paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules, paths=paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
 moduleDiagram(mySim)            # simplified visual representation of modules
-objectDiagram(mySim, width=720) # detailed visual representation of objects
+
+# detailed visual representation of objects
+objectDiagram(mySim, width = 720)
 ```
 
 The output of the `depsEdgeList` is an edgelist describing the relationships between each module.
@@ -452,10 +480,14 @@ By befault, checkpointing is not used unless the `interval` parameter is provide
 
 # initialize a new simulation, setting the checkpoint interval and filename.
 times <- list(start=0, end=30)
-parameters <- list(.globals=list(stackName="landscape"),
-                   .checkpoint=list(interval=10, file="chkpnt.RData"))
+parameters <- list(
+  .globals = list(stackName = "landscape"),
+  .checkpoint = list(interval = 10, file = "chkpnt.RData")
+)
 modules <- list("randomLandscapes", "caribouMovement")
-paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
+paths <- list(
+  modulePath = system.file("sampleModules", package="SpaDES")
+)
 
 mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths)
 
@@ -710,25 +742,34 @@ For example, the `SpaDES_sampleModules` module group lists the following modules
 Module groups make loading multiple modules easier: only the name of the module group needs to be specified in the `simInit` call, which will then initialize the simulation with the child modules.
 
 ```{r module-group-init, eval=FALSE}
+library(DiagrammeR, lib.loc = .Library.tmp)
 library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, end=20.0)
-parameters <- list(.globals=list(stackName="landscape", burnStats="nPixelsBurned"),
-                   .progress=list(NA),
-                   randomLandscapes=list(nx=100L, ny=100L, inRAM=TRUE),
-                   fireSpread=list(nFires=10L, spreadprob=0.225, its=1e6,
-                                   persistprob=0, returnInterval=10, startTime=0,
-                                  .plotInitialTime=0.1, .plotInterval=10),
-                   caribouMovement=list(N=100L, moveInterval=1, torus=TRUE,
-                                        .plotInitialTime=1.01, .plotInterval=1))
+times <- list(start = 0.0, end = 20.0)
+parameters <- list(
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+  .progress = list(NA),
+  randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
+  fireSpread = list(
+    nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
+    returnInterval = 10, startTime = 0,
+    .plotInitialTime = 0.1, .plotInterval = 10
+  ),
+  caribouMovement = list(
+    N = 100L, moveInterval = 1, torus = TRUE,
+    .plotInitialTime = 1.01, .plotInterval = 1
+  )
+)
 modules <- list("SpaDES_sampleModules")
 objects <- list()
-paths <- list(modulePath=system.file("sampleModules", package="SpaDES"),
-              outputPath=outputDir)
+paths <- list(
+  modulePath = system.file("sampleModules", package = "SpaDES"),
+  outputPath = outputDir
+)
 
-mySim <- simInit(times=times, params=parameters, modules=modules,
-                 objects=objects, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules,
+                 objects = objects, paths = paths)
 
 modules(mySim) # note the child modules are initialized
 ```
