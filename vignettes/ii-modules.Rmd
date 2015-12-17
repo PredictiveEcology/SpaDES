@@ -147,7 +147,8 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to ..."),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval ..."),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
-    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")),
+    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")
+  ),
   inputObjects = data.frame(objectName = character(), objectClass = character(),
                             sourceURL = character(), other = character(),
                             stringsAsFactors = FALSE),
@@ -176,14 +177,15 @@ Default parameter values can overridden by passing values in the parameter list 
 require(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, end=20.0)
+times <- list(start = 0.0, end = 20.0)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
   .progress = list(NA),
   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
   fireSpread = list(
     nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
-    returnInterval = 10, startTime = 0, .plotInitialTime=0.1, .plotInterval = 10
+    returnInterval = 10, startTime = 0,
+    .plotInitialTime=0.1, .plotInterval = 10
   ),
   caribouMovement = list(
     N = 100L, moveInterval = 1, torus = TRUE,
@@ -271,17 +273,18 @@ randomLandscapesInit <- function(sim) {
   # Give dimensions of dummy raster
   nx <- params(sim)$randomLandscapes$nx
   ny <- params(sim)$randomLandscapes$ny
-  r <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
+  r <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2,
+              ymn = -ny/2, ymx = ny/2)
   speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
-  DEM <- gaussMap(template, scale = 300, var = 0.03, speedup = speedup, 
-                  inMemory = inMemory)
+  DEM <- gaussMap(template, scale = 300, var = 0.03,
+                  speedup = speedup, inMemory = inMemory)
   DEM[] <- round(getValues(DEM), 1) * 1000
-  forestAge <- gaussMap(template, scale = 10, var = 0.1, speedup = speedup, 
-                        inMemory = inMemory)
+  forestAge <- gaussMap(template, scale = 10, var = 0.1,
+                        speedup = speedup, inMemory = inMemory)
   forestAge[] <- round(getValues(forestAge), 1) * 20
-  percentPine <- gaussMap(template, scale = 50, var = 1, speedup = speedup, 
-                          inMemory = inMemory)
+  percentPine <- gaussMap(template, scale = 50, var = 1,
+                          speedup = speedup, inMemory = inMemory)
   percentPine[] <- round(getValues(percentPine), 1)
 
   # Scale them as needed
@@ -335,7 +338,7 @@ mySim <- simInit(
   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects = list(),
   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
-  ) %>% spades
+  ) %>% spades()
 dev.off()
 unlink(ftmp)
 ```
@@ -426,7 +429,7 @@ parameters <- list(
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-mySim <- simInit(times = times, params = parameters, modules = modules, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
