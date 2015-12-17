@@ -30,21 +30,21 @@ setMethod(
   "getModuleVersion",
   signature = c(name = "character", repo = "character"),
   definition = function(name, repo) {
-    if (length(name)>1) {
+    if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
       name = name[1]
     }
     moduleFiles <- checkModule(name, repo)
     zipFiles <- grep("[.]zip$", moduleFiles, value = TRUE)
     versions <- strsplit(zipFiles, "_") %>%
-                unlist %>%
-                grep("[.]zip$", ., value = TRUE) %>%
-                strsplit(., "[.]zip$") %>%
-                unlist %>%
-                as.numeric_version
-    current <- sort(versions, decreasing = TRUE)[1]
+      unlist() %>%
+      grep("[.]zip$", ., value = TRUE) %>%
+      strsplit(., "[.]zip$") %>%
+      unlist() %>%
+      as.numeric_version()
+    currentVersion <- sort(., decreasing = TRUE)[1]
 
-    return(current)
+    return(currentVersion)
 })
 
 #' @rdname getModuleVersion
@@ -54,8 +54,6 @@ setMethod("getModuleVersion",
             v <- getModuleVersion(name, getOption("spades.modulesRepo"))
             return(v)
 })
-
-
 
 ################################################################################
 #' Check for the existence of a remote module
@@ -88,15 +86,20 @@ setMethod(
       warning("name contains more than one module. Only the first will be used.")
       name = name[1]
     }
-    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
+    apiurl <- paste0("https://api.github.com/repos/", repo,
+                     "/git/trees/master?recursive=1")
     request <- GET(apiurl)
     stop_for_status(request)
     allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names = FALSE)
     moduleFiles <- grep(paste0("^modules/", name), allFiles, value = TRUE)
-    if(length(moduleFiles)==0) {
-      agrep(name, allFiles, max.distance = 0.25,
-            value = TRUE, ignore.case = FALSE) %>% strsplit(., split="/") %>%
-        lapply(., function(x) x[2]) %>% unique %>% unlist %>% paste(., collapse=", ") %>%
+    if (length(moduleFiles) == 0) {
+      agrep(name, allFiles, max.distance = 0.25, value = TRUE,
+            ignore.case = FALSE) %>%
+        strsplit(., split="/") %>%
+        lapply(., function(x) x[2]) %>%
+        unique() %>%
+        unlist() %>%
+        paste(., collapse = ", ") %>%
         stop("Module ", name, " does not exist in the repository. ",
              "Did you mean: ", ., "?")
     }
@@ -109,8 +112,7 @@ setMethod("checkModule",
           definition = function(name) {
             v <- checkModule(name, getOption("spades.modulesRepo"))
             return(v)
-          })
-
+})
 
 ################################################################################
 #' Download a module from a SpaDES module GitHub repository
