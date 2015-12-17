@@ -34,11 +34,7 @@ setMethod(
       warning("name contains more than one module. Only the first will be used.")
       name = name[1]
     }
-    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
-    request <- GET(apiurl)
-    stop_for_status(request)
-    allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names = FALSE)
-    moduleFiles <- grep(paste0("^modules/", name), allFiles, value = TRUE)
+    moduleFiles <- checkModule(name, repo)
     zipFiles <- grep("[.]zip$", moduleFiles, value = TRUE)
     versions <- strsplit(zipFiles, "_") %>%
                 unlist %>%
@@ -58,6 +54,63 @@ setMethod("getModuleVersion",
             v <- getModuleVersion(name, getOption("spades.modulesRepo"))
             return(v)
 })
+
+
+
+################################################################################
+#' Check for the existence of a remote module
+#'
+#' Looks in the remote \code{repo} for a module named \code{name}.
+#'
+#' @param name  Character string giving the module name.
+#'
+#' @param repo  GitHub repository name.
+#'              Default is \code{"PredictiveEcology/SpaDES-modules"}, which is
+#'              specified by the global option \code{spades.modulesRepo}.
+#'
+#' @importFrom httr content GET stop_for_status
+#' @export
+#' @rdname checkModule
+#'
+#' @author Eliot McIntire
+#'
+# igraph exports %>% from magrittr
+setGeneric("checkModule", function(name, repo) {
+  standardGeneric("checkModule")
+})
+
+#' @rdname checkModule
+setMethod(
+  "checkModule",
+  signature = c(name = "character", repo = "character"),
+  definition = function(name, repo) {
+    if (length(name)>1) {
+      warning("name contains more than one module. Only the first will be used.")
+      name = name[1]
+    }
+    apiurl <- paste0("https://api.github.com/repos/", repo, "/git/trees/master?recursive=1")
+    request <- GET(apiurl)
+    stop_for_status(request)
+    allFiles <- unlist(lapply(content(request)$tree, "[", "path"), use.names = FALSE)
+    moduleFiles <- grep(paste0("^modules/", name), allFiles, value = TRUE)
+    if(length(moduleFiles)==0) {
+      agrep(name, allFiles, max.distance = 0.3,
+            value = TRUE, ignore.case = FALSE) %>% strsplit(., split="/") %>%
+        lapply(., function(x) x[2]) %>% unique %>% unlist %>% paste(., collapse=", ") %>%
+        stop("Module ", name, " does not exist in the repository. ",
+             "Did you mean: ", ., "?")
+    }
+    return(invisible(moduleFiles))
+  })
+
+#' @rdname checkModule
+setMethod("checkModule",
+          signature = c(name = "character", repo = "missing"),
+          definition = function(name) {
+            v <- checkModule(name, getOption("spades.modulesRepo"))
+            return(v)
+          })
+
 
 ################################################################################
 #' Download a module from a SpaDES module GitHub repository
@@ -103,6 +156,7 @@ setMethod(
                 repo = "character", data = "logical"),
   definition = function(name, path, version, repo, data) {
     path <- checkPath(path, create = TRUE)
+    checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
@@ -121,6 +175,7 @@ setMethod(
     if(data) {
       dataList <- downloadData(module=module, path=path)
     } else {
+      browser()
       dataList <- checksums(module=module, path=path)
     }
     return(list(c(files, files2)), dataList)
@@ -177,7 +232,6 @@ setMethod(
 #' @include moduleMetadata.R
 # @importFrom utils download.file
 #' @importFrom dplyr mutate_
-#' @importFrom lazyeval interp
 #' @export
 #' @rdname downloadData
 #'
@@ -321,6 +375,7 @@ setMethod(
   signature = c(module = "character", path = "character", write = "logical"),
   definition = function(module, path, write) {
     path <- checkPath(path, create = FALSE) %>% file.path(., module, "data")
+    browser()
     if (!write) stopifnot(file.exists(file.path(path, "CHECKSUMS.txt")))
 
     files <- list.files(path, full.names = TRUE) %>%
