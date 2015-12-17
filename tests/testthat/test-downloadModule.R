@@ -80,10 +80,10 @@ test_that("downloadData downloads and unzips module data", {
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there with correct names, but wrong content
-  ras <- raster::raster(file.path(datadir, filenames[1]))
-  ras[4] <- raster::maxValue(ras)+1
-  raster::writeRaster(ras, filename = file.path(datadir, filenames[1]),
-                      overwrite = TRUE)
+  library(raster); on.exit(detach("package:raster"))
+  ras <- raster(file.path(datadir, filenames[1]))
+  ras[4] <- maxValue(ras) + 1
+  writeRaster(ras, filename = file.path(datadir, filenames[1]), overwrite = TRUE)
   downloadData(m, tmpdir)
   expect_true(all(file.exists(file.path(datadir, filenames))))
 })
