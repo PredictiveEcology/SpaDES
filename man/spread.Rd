@@ -6,15 +6,15 @@
 \alias{spread,RasterLayer-method}
 \title{Simulate a spread process on a landscape.}
 \usage{
-spread(landscape, loci = NULL, spreadProb, persistence = 0L, mask = NULL,
-  maxSize = NULL, directions = 8L, iterations = NULL,
+spread(landscape, loci = NULL, spreadProb = 0.23, persistence = 0L,
+  mask = NULL, maxSize = NULL, directions = 8L, iterations = NULL,
   lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
-  plot.it = FALSE, spreadProbLater, ...)
+  plot.it = FALSE, spreadProbLater = NULL, ...)
 
-\S4method{spread}{RasterLayer}(landscape, loci, spreadProb = 0.23,
-  persistence = 0, mask = NULL, maxSize = 1e+08, directions = 8L,
-  iterations = NULL, lowMemory = FALSE, returnIndices = FALSE,
-  mapID = FALSE, plot.it = FALSE, spreadProbLater = 0.23, ...)
+\S4method{spread}{RasterLayer}(landscape, loci, spreadProb, persistence = 0,
+  mask = NULL, maxSize = 1e+08, directions = 8L, iterations = NULL,
+  lowMemory = FALSE, returnIndices = FALSE, mapID = FALSE,
+  plot.it = FALSE, spreadProbLater, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -107,8 +107,7 @@ Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyrami
 
 # initiate 10 fires at to loci
 fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)),
-                0.335, 0, NULL, 1e8, 8, 1e6, mapID = TRUE,
-                spreadProbLater=0.135)
+                0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 Plot(fires)

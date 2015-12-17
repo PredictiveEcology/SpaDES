@@ -71,12 +71,12 @@
 #' @rdname spread
 #'
 setGeneric("spread", function(landscape, loci = NULL,
-                              spreadProb,
+                              spreadProb = 0.23,
                               persistence = 0L, mask = NULL, maxSize = NULL,
                               directions = 8L, iterations = NULL,
                               lowMemory = getOption("spades.lowMemory"),
                               returnIndices = FALSE, plot.it = FALSE,
-                              spreadProbLater, ...) {
+                              spreadProbLater = NULL, ...) {
   standardGeneric("spread")
 })
 
@@ -114,8 +114,7 @@ setGeneric("spread", function(landscape, loci = NULL,
 #'
 #' # initiate 10 fires at to loci
 #' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)),
-#'                 0.335, 0, NULL, 1e8, 8, 1e6, mapID = TRUE,
-#'                 spreadProbLater=0.135)
+#'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
 #' #set colors of raster, including a transparent layer for zeros
 #' setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
 #' Plot(fires)
@@ -138,12 +137,15 @@ setGeneric("spread", function(landscape, loci = NULL,
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
-  definition = function(landscape, loci, spreadProb=0.23,
+  definition = function(landscape, loci, spreadProb,
                         persistence = 0, mask = NULL,
                         maxSize = 1e8, directions = 8L, iterations = NULL,
                         lowMemory = FALSE, returnIndices = FALSE, mapID = FALSE,
-                        plot.it = FALSE, spreadProbLater=0.23, ...) {
+                        plot.it = FALSE, spreadProbLater, ...) {
 
+    if(is.null(spreadProbLater)) {
+      spreadProbLater <- spreadProb
+    }
     ### should sanity check map extents
     if (is.null(loci))  {
       # start it in the centre cell
@@ -233,7 +235,7 @@ setMethod(
       # keep only neighbours that have not been spread to yet
       potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
 
-      if (n>1) {
+      if (n==2) {
         spreadProb <- spreadProbLater
       }
 
