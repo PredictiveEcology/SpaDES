@@ -70,13 +70,13 @@
 #' @aliases spread
 #' @rdname spread
 #'
-setGeneric("spread", function(landscape, loci = NULL,
+setGeneric("spread", function(landscape, loci = NA_real_,
                               spreadProb = 0.23,
-                              persistence = 0L, mask = NULL, maxSize = NULL,
-                              directions = 8L, iterations = NULL,
+                              persistence = 0, mask = NA, maxSize = 1e8L,
+                              directions = 8L, iterations = 1e6L,
                               lowMemory = getOption("spades.lowMemory"),
-                              returnIndices = FALSE, plot.it = FALSE,
-                              spreadProbLater = NULL, ...) {
+                              returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
+                              spreadProbLater = NA_real_, ...) {
   standardGeneric("spread")
 })
 
@@ -138,34 +138,36 @@ setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
   definition = function(landscape, loci, spreadProb,
-                        persistence = 0, mask = NULL,
-                        maxSize = 1e8, directions = 8L, iterations = NULL,
-                        lowMemory = FALSE, returnIndices = FALSE, mapID = FALSE,
-                        plot.it = FALSE, spreadProbLater, ...) {
+                        persistence, mask,
+                        maxSize, directions, iterations,
+                        lowMemory, returnIndices, mapID,
+                        plot.it, spreadProbLater, ...) {
 
-    if(is.null(spreadProbLater)) {
-      spreadProbLater <- spreadProb
+    if(!is(spreadProbLater, "Raster")) {
+      if(is.na(spreadProbLater)) {
+        spreadProbLater <- spreadProb
+      }
     }
     ### should sanity check map extents
-    if (is.null(loci))  {
+    if (any(is.na(loci)))  {
       # start it in the centre cell
       loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
     }
 
     if(is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
-      if ( (minValue(spreadProbLater)>1L) || (maxValue(spreadProbLater)<0L) ) {
-        stop("spreadProbLater is not a probability")
-      }
       if ( (minValue(spreadProb)>1L) || (maxValue(spreadProb)<0L) ) {
         stop("spreadProb is not a probability")
       }
+      if ( (minValue(spreadProbLater)>1L) || (maxValue(spreadProbLater)<0L) ) {
+        stop("spreadProbLater is not a probability")
+      }
     } else {
-      if (!inRange(spreadProbLater)) stop("spreadProbLater is not a probability")
       if (!inRange(spreadProb)) stop("spreadProb is not a probability")
+      if (!inRange(spreadProbLater)) stop("spreadProbLater is not a probability")
     }
 
     ## Recycling maxSize as needed
-    maxSize <- if(!is.null(maxSize)) {
+    maxSize <- if(any(!is.na(maxSize))) {
       rep_len(maxSize, length(loci))
     } else {
       ncell(landscape)
@@ -196,7 +198,7 @@ setMethod(
       spreadProbLater[is.na(spreadProbLater)] <- 0L
     } else if (is.numeric(spreadProbLater)) {
       # Translate numeric spreadProbLater into a Raster, if there is a mask
-      if(!is.null(mask)) {
+      if(is(mask, "Raster")) {
         spreadProbLater <- raster(extent(landscape), res = res(landscape), vals = spreadProbLater)
       }
     }
@@ -208,16 +210,16 @@ setMethod(
       spreadProb[is.na(spreadProb)] <- 0L
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
-      if(!is.null(mask)) {
+      if(is(mask, "Raster")) {
         spreadProb <- raster(extent(landscape), res = res(landscape), vals = spreadProb)
       }
     }
 
     # Mask spreadProbLater and spreadProb
-    if(!is.null(mask)) {
+    if(is(mask, "Raster")) {
       spreadProbLater[mask == 1L] <- 0L
     }
-    if(!is.null(mask)) {
+    if(is(mask, "Raster")) {
       spreadProb[mask == 1L] <- 0L
     }
 
@@ -300,7 +302,7 @@ setMethod(
       }
 
       # drop or keep loci
-      if (is.null(persistence) | is.na(persistence) | persistence == 0L) {
+      if (is.na(persistence) | is.na(persistence) | persistence == 0L) {
         loci <- NULL
       } else {
         if (inRange(persistence)) {
