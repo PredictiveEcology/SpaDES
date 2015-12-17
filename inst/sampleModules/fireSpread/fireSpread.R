@@ -26,7 +26,8 @@ defineModule(sim, list(
     defineParameter("its", "numeric", 1e6, NA, NA, "number of iterations for fire spread"),
     defineParameter("persistprob", "numeric", 0.00, 0, 1, "probability of fire persisting in a pixel"),
     defineParameter("returnInterval", "numeric", 1.0, NA, NA, "fire return interval"),
-    defineParameter("spreadprob", "numeric", 0.225, 0, 1, "probability of fire spreading into a pixel"),
+    defineParameter("spreadprob", "numeric", 0.23, 0, 1, "probability of fire spreading into a pixel; aka escape probability"),
+    defineParameter("spreadproblater", "numeric", 0.135, 0, 1, "probability of fire spreading into a pixel, after the first iteration"),
     defineParameter("startTime", "numeric", 1.0, 0, NA, "time of initial fire ignition"),
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval between plot events"),
@@ -138,15 +139,16 @@ fireSpreadBurn <- function(sim) {
   landscapes <- sim[[globals(sim)$stackName]]
 
   Fires <- spread(landscapes[[1]],
-                   loci = as.integer(sample(1:ncell(landscapes), params(sim)$fireSpread$nFires)),
-                   spreadProb = params(sim)$fireSpread$spreadprob,
-                   persistance = params(sim)$fireSpread$persistprob,
-                   mask = NULL,
-                   maxSize = 1e8,
-                   directions = 8,
-                   iterations = params(sim)$fireSpread$its,
-                   plot.it = FALSE,
-                   mapID = TRUE)
+                  loci = as.integer(sample(1:ncell(landscapes), params(sim)$fireSpread$nFires)),
+                  spreadProb = params(sim)$fireSpread$spreadprob,
+                  spreadProbLater = params(sim)$fireSpread$spreadproblater,
+                  persistance = params(sim)$fireSpread$persistprob,
+                  mask = NULL,
+                  maxSize = 1e8,
+                  directions = 8,
+                  iterations = params(sim)$fireSpread$its,
+                  plot.it = FALSE,
+                  mapID = TRUE)
   names(Fires) <- "Fires"
   setColors(Fires) <- c("white", rev(heat.colors(9)))
   landscapes$Fires <- Fires
