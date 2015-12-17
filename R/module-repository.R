@@ -1,6 +1,6 @@
 ### deal with spurious httr warnings
 if(getRversion() >= "3.1.0") {
-  utils::globalVariables(c("content"))
+  utils::globalVariables(c("actualFile", "content", "result"))
 }
 
 ################################################################################
@@ -107,30 +107,38 @@ setMethod(
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
     localzip <- file.path(path, basename(zip))
-    download.file(zip, destfile = localzip, quiet = TRUE)
+    download.file(zip, destfile = localzip, mode = "wb", quiet = TRUE)
     files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
 
     # after download, check for childModules that also require downloading
+    files2 <- list()
     children <- moduleMetadata(name, path)$childModules
+    dataList2 <- data.frame(result = character(0), expectedFile = character(0),
+                            actualFile = character(0), checksum = character(0),
+                            stringsAsFactors = FALSE)
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
-        files2 <- lapply(children, downloadModule, path = path)
+        tmp <- lapply(children, function (x) {
+          f <- downloadModule(x, path = path, data = data)
+          files2 <<- append(files2, f[[1]])
+          dataList2 <<- bind_rows(dataList2, f[[2]])
+        })
       }
     }
 
-    if(data) {
-      dataList <- downloadData(module=module, path=path)
+    if (data) {
+      dataList <- downloadData(module = name, path = path)
     } else {
-      dataList <- checksums(module=module, path=path)
+      dataList <- checksums(module = name, path = path)
     }
-    return(list(c(files, files2)), dataList)
+    return(list(c(files, files2), bind_rows(dataList, dataList2)))
 })
 
 #' @rdname downloadModule
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "character",
-                repo = "missing", data="ANY"),
+                repo = "missing", data = "ANY"),
   definition = function(name, path, version, data) {
     files <- downloadModule(name, path, version,
                             repo = getOption("spades.modulesRepo"),
@@ -142,7 +150,7 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
-                repo = "missing", data="ANY"),
+                repo = "missing", data = "ANY"),
   definition = function(name, path, data) {
     files <- downloadModule(name, path, version = NA_character_,
                             repo = getOption("spades.modulesRepo"),
@@ -154,7 +162,7 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
-                repo = "character", data="ANY"),
+                repo = "character", data = "ANY"),
   definition = function(name, path, repo, data) {
     files <- downloadModule(name, path, version = NA_character_, repo = repo,
                             data = data)
@@ -177,7 +185,6 @@ setMethod(
 #' @include moduleMetadata.R
 # @importFrom utils download.file
 #' @importFrom dplyr mutate_
-#' @importFrom lazyeval interp
 #' @export
 #' @rdname downloadData
 #'
@@ -198,12 +205,11 @@ setMethod(
     ids <- which( urls == "" | is.na(urls) )
     to.dl <- if (length(ids)) { urls[-ids] } else { urls }
     chksums <- checksums(module, path) %>%
-      mutate(renamed=NA, module=module)
+      mutate(renamed = NA, module = module)
     dataDir <- file.path(path, module, "data" )
 
     if (any(chksums$result=="FAIL")) {
       setwd(path); on.exit(setwd(cwd))
-
 
       files <- sapply(to.dl, function(x) {
         destfile <- file.path(dataDir, basename(x))
@@ -214,13 +220,13 @@ setMethod(
           message("Started download. This may take a while depending on your",
                   " connection speed.")
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
-          copied <- file.copy(from = tmpFile, to=destfile, overwrite=TRUE)
+          copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
         }
       })
 
       chksums <- checksums(module, path) %>%
-        mutate(renamed=NA, module=module)
+        mutate(renamed = NA, module = module)
     }
 
     wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
@@ -234,8 +240,8 @@ setMethod(
     }
 
     if(any(!chksums$renamed %>% na.omit)) {
-      warning("Unable to automatically give proper name to downloaded files. ",
-              "Manual file rename is required.")
+      warning("Unable to automatically give proper name to downloaded files.",
+              " Manual file rename is required.")
     }
 
     # after download, check for childModules that also require downloading
@@ -305,7 +311,7 @@ setMethod(
 #' @return A data.frame with 4 columns: result, expectedFile, actualFile, and checksum.
 #'
 #' @include moduleMetadata.R
-#' @importFrom dplyr funs group_by_ left_join mutate rename_ select_ summarize_each_
+#' @importFrom dplyr arrange desc filter group_by_ left_join mutate rename_ row_number select_
 #' @export
 #' @rdname checksums
 #'
@@ -331,25 +337,31 @@ setMethod(
     out <- data.frame(file = basename(files), checksum = checksums,
                       stringsAsFactors = FALSE)
 
+    checksumFile <- file.path(path, "CHECKSUMS.txt")
+
     if (write) {
       # TODO needs to intelligently merge, not just append. i.e., keep only
       #   two rows max per file (UNIX and Windows)
-      write.table(out, file.path(path, "CHECKSUMS.txt"), eol = "\n",
-                  col.names = TRUE, row.names = FALSE, append=TRUE)
+      write.table(out, checksumFile, eol = "\n",
+                  col.names = TRUE, row.names = FALSE, append = TRUE)
       return(out)
     } else {
-      txt <- read.table(file.path(path, "CHECKSUMS.txt"), header = TRUE,
-                        stringsAsFactors = FALSE)
+      txt <- if (file.info(checksumFile)$size > 0) {
+        read.table(checksumFile, header = TRUE, stringsAsFactors = FALSE)
+      } else {
+        data.frame(file = character(0), checksum = character(0),
+                   stringsAsFactors = FALSE)
+      }
 
       results.df <- out %>%
-        rename_(actualFile="file") %>%
-        left_join(txt, ., by="checksum") %>%
-        rename_(expectedFile="file") %>%
-        dplyr::group_by(expectedFile) %>%
-        mutate(result=ifelse(is.na(actualFile), "FAIL", "OK")) %>%
+        rename_(actualFile = "file") %>%
+        left_join(txt, ., by = "checksum") %>%
+        rename_(expectedFile = "file") %>%
+        dplyr::group_by_("expectedFile") %>%
+        mutate(result = ifelse(is.na(actualFile), "FAIL", "OK")) %>%
         dplyr::arrange(desc(result)) %>%
         select_("result", "expectedFile", "actualFile", "checksum") %>%
-        filter(row_number()==1L)
+        filter(row_number() == 1L)
 
       return(results.df)
     }

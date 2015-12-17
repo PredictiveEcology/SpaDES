@@ -7,11 +7,11 @@ test_that("downloadModule downloads and unzips a single module", {
 
   library(magrittr); on.exit(detach("package:magrittr", unload = TRUE))
 
+  m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
 
-  m <- "test"
-  f <- downloadModule(m, tmpdir) %>% unlist() %>% basename()
+  f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% basename()
 
   f_expected <- c("citation.bib", "CHECKSUMS.txt", "LICENSE",
                   "README.txt", "test.R", "test.Rmd")
@@ -31,11 +31,11 @@ test_that("downloadModule downloads and unzips a parent module", {
 
   library(magrittr); on.exit(detach("package:magrittr", unload = TRUE))
 
+  m <- "LCC2005"
   tmpdir <- file.path(tempdir(), "modules")
   on.exit(unlink(tmpdir, recursive = TRUE))
 
-  m <- "LCC2005"
-  f <- downloadModule(m, tmpdir) %>% unlist()
+  f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% as.character()
   d <- f %>% dirname() %>% basename() %>% unique() %>% sort()
 
   d_expected <- moduleMetadata("LCC2005", tmpdir)$childModules %>%
@@ -52,15 +52,16 @@ test_that("downloadData downloads and unzips module data", {
     options(download.file.method = "curl")
   }
 
+  m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
+  datadir <- file.path(datadir)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
-  m <- "test"
   filenames <- c("DEM.tif", "habitatQuality.tif")
   f <- downloadModule(m, tmpdir)
   t1 <- system.time(downloadData(m, tmpdir))
   result <- checksums(m, tmpdir)$result
-  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
+  expect_true(all(file.exists(file.path(datadir, filenames))))
   expect_true(all(result == "OK"))
 
   # shouldn't need a redownload because file exists
@@ -68,21 +69,21 @@ test_that("downloadData downloads and unzips module data", {
   expect_true(t1[3] > t2[3]) # compare elapsed times
 
   # if one file is missing, will fill in correctly
-  unlink(file.path(tmpdir, m, "data", filenames)[1])
+  unlink(file.path(datadir, filenames)[1])
   downloadData(m, tmpdir)
-  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
+  expect_true(all(file.exists(file.path(dataDir, filenames))))
 
-  # if files are there, but one is renamed
-  file.rename(file.path(tmpdir, m, "data", filenames[1]),
-              to=file.path(tmpdir, m, "data", "test.tif"))
+  # if files are there, but one is incorrectly named
+  file.rename(from = file.path(datadir, filenames[1]),
+              to = file.path(datadir, "test.tif"))
   downloadData(m, tmpdir)
-  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
+  expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there with correct names, but wrong content
-  ras <- raster(file.path(tmpdir, m, "data", filenames[1]))
+  ras <- raster(file.path(datadir, filenames[1]))
   ras[4] <- maxValue(ras)+1
-  writeRaster(ras, filename=file.path(tmpdir, m, "data", filenames[1]), overwrite=TRUE)
+  writeRaster(ras, filename = file.path(datadir, filenames[1]),
+              overwrite = TRUE)
   downloadData(m, tmpdir)
-  expect_true(all(file.exists(file.path(tmpdir, m, "data", filenames))))
-
+  expect_true(all(file.exists(file.path(datadir, filenames))))
 })
