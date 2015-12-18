@@ -81,7 +81,8 @@ test_that("downloadData downloads and unzips module data", {
 
   # if files are there with correct names, but wrong content
   library(raster); on.exit(detach("package:raster"))
-  ras <- raster(file.path(datadir, filenames[2]))
+  f2 <- file.path(datadir, filenames[2])
+  ras <- raster(f2)
   ras[4] <- maxValue(ras) + 1
   writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
   downloadData(m, tmpdir)
