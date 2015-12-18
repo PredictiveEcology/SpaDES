@@ -82,7 +82,7 @@ setMethod(
   "checkModule",
   signature = c(name = "character", repo = "character"),
   definition = function(name, repo) {
-    if (length(name)>1) {
+    if (length(name) > 1) {
       warning("name contains more than one module. Only the first will be used.")
       name = name[1]
     }
@@ -271,10 +271,8 @@ setMethod(
         destfile <- file.path(dataDir, basename(x))
         id <- which(chksums$expectedFile == basename(x))
         if ( is.na(chksums$actualFile[id]) ) {
+          tmpFile <- file.path(tempdir(), "SpaDES_module_data", basename(x))
           message("Downloading data for module ", module, " ...")
-          tmpFile <- file.path(tempdir(), basename(x))
-          message("Started download. This may take a while depending on your",
-                  " connection speed.")
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
