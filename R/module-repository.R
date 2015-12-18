@@ -271,7 +271,9 @@ setMethod(
         destfile <- file.path(dataDir, basename(x))
         id <- which(chksums$expectedFile == basename(x))
         if ( is.na(chksums$actualFile[id]) ) {
-          tmpFile <- file.path(tempdir(), "SpaDES_module_data", basename(x))
+          tmpFile <- file.path(tempdir(), "SpaDES_module_data") %>%
+            checkPath(create = TRUE) %>%
+            file.path(., basename(x))
           message("Downloading data for module ", module, " ...")
           download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
