@@ -1,3 +1,7 @@
+if (getRversion() >= "3.1.0") {
+  utils::globalVariables(c("indices", "eventID", "initialLocus"))
+}
+
 ###############################################################################
 #' Simulate a spread process on a landscape.
 #'
