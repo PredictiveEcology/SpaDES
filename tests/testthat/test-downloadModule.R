@@ -2,7 +2,7 @@ test_that("downloadModule downloads and unzips a single module", {
   if (Sys.info()['sysname'] == "Windows") {
     options(download.file.method = "auto")
   } else {
-    options(download.file.method = "curl")
+    options(download.file.method = "curl", download.file.extra = "-L")
   }
 
   library(magrittr); on.exit(detach("package:magrittr", unload = TRUE))
@@ -49,7 +49,7 @@ test_that("downloadData downloads and unzips module data", {
   if (Sys.info()['sysname'] == "Windows") {
     options(download.file.method = "auto")
   } else {
-    options(download.file.method = "curl")
+    options(download.file.method = "curl", download.file.extra = "-L")
   }
 
   m <- "test"
@@ -76,13 +76,12 @@ test_that("downloadData downloads and unzips module data", {
   # if files are there, but one is incorrectly named
   file.rename(from = file.path(datadir, filenames[1]),
               to = file.path(datadir, "test.tif"))
-  downloadData(m, tmpdir)
+  downloadData(m, tmpdir) # renames the file back to expected
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there with correct names, but wrong content
   library(raster); on.exit(detach("package:raster"))
-  f2 <- file.path(datadir, filenames[2])
-  ras <- raster(f2)
+  ras <- raster(file.path(datadir, filenames[2]))
   ras[4] <- maxValue(ras) + 1
   writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
   downloadData(m, tmpdir)
