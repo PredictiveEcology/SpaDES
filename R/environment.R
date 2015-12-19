@@ -115,16 +115,20 @@ setMethod(".getSpaDES",
 #' @author Eliot Mcintire
 #'
 #' @examples
-#' a1 <- a2 <- a3 <- a4 <- 1:1e3
-#' objs <- c("a1", "a2", "a3", "a4")
-#' e <- new.env()
+#' e1 <- new.env()
+#' assign("a1", 1:1e3, envir=e1)
+#' assign("a2", 1:1e3, envir=e1)
+#' objs <- c("a1", "a2")
+#' e2 <- new.env()
 #'
-#' # move objects from .GlobalEnv to e
-#' changeObjEnv(objs, e)
+#' # move objects between environments
+#' changeObjEnv(objs, fromEnv=e1, toEnv=e2)
 #'
+#' \dontrun{
 #' # move objects back to .GlobalEnv from e
 #' changeObjEnv(objs, .GlobalEnv, e)
 #' rm(e)
+#' }
 #'
 setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc) {
   standardGeneric("changeObjEnv")
