@@ -468,13 +468,17 @@ setMethod("simInit",
             if(missing(loadOrder))
               li$loadOrder <- character(0)
 
-            listClasses <- sapply(li, class)
+            expectedClasses <- c("list", "list", "list", "list",
+                                 "list", "data.frame", "data.frame", "character")
+            listNames <- names(li)
             expectedOrder = c("times", "params", "modules", "objects",
                   "paths", "inputs", "outputs","loadOrder")
-            ma <- match(expectedOrder,names(listClasses))
+            ma <- match(expectedOrder,listNames)
+            li <- li[ma]
 
-            if(!all(listClasses[ma]==c("list", "list", "list", "list",
-                                    "list", "data.frame", "data.frame", "character")))
+
+            if(!all(sapply(1:length(li), function(x)
+              is(li[[x]], expectedClasses[x]))))
                    stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
                         "Some of these can be missing, but it is safer to specify everything explicitly. ",
                         "A common issue is that an argument is passed as a character string instead of list.",
