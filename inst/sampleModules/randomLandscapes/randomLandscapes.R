@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "1.0.3.9010")
+stopifnot(packageVersion("SpaDES") >= "1.0.3.9034")
 
 defineModule(sim, list(
   name = "randomLandscapes",
@@ -11,7 +11,7 @@ defineModule(sim, list(
             person(c("Eliot", "J", "B"), "McIntire",
                    email = "eliot.mcintire@canada.ca",
                    role = c("aut", "cre"))),
-  version = numeric_version("1.1.1"),
+  version = numeric_version("2.0.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
@@ -44,9 +44,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next events
     sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,
-                         "randomLandscapes", "plot")
+                         "randomLandscapes", "plot", .last())
     sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
-                         "randomLandscapes", "save")
+                         "randomLandscapes", "save", .last()+1)
 
   } else if (eventType == "plot") {
     # do stuff for this event
@@ -58,7 +58,7 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$randomLandscapes$.saveInterval,
-                         "randomLandscapes", "save")
+                         "randomLandscapes", "save", .last()+1)
 
   } else {
     warning(

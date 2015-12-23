@@ -6,8 +6,8 @@ test_that("saving files does not work correctly", {
   parameters <- list(
     .globals = list(stackName = "landscape"),
     caribouMovement = list(
-      .plotInitialTime = NA, torus=TRUE, .saveObjects = "caribou",
-      .saveInitialTime = 1, .saveInterval=1
+      .plotInitialTime = NA, torus = TRUE, .saveObjects = "caribou",
+      .saveInitialTime = 1, .saveInterval = 1
     ),
     randomLandscapes = list(.plotInitialTime = NA, nx = 20, ny = 20))
 
