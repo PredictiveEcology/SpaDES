@@ -147,7 +147,8 @@ defineModule(sim, list(
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to ..."),
     defineParameter(".plotInterval", "numeric", 1, NA, NA, "time interval ..."),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time ..."),
-    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")),
+    defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time ...")
+  ),
   inputObjects = data.frame(objectName = character(), objectClass = character(),
                             sourceURL = character(), other = character(),
                             stringsAsFactors = FALSE),
@@ -176,18 +177,19 @@ Default parameter values can overridden by passing values in the parameter list 
 require(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-times <- list(start=0.0, end=20.0)
+times <- list(start = 0.0, end = 20.0)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
   .progress = list(NA),
   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
   fireSpread = list(
     nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
-    returnInterval = 10, startTime = 0, .plotInitialTime=0.1, .plotInterval = 10
+    returnInterval = 10, startTime = 0,
+    .plotInitialTime = 0, .plotInterval = 10
   ),
   caribouMovement = list(
     N = 100L, moveInterval = 1, torus = TRUE,
-    .plotInitialTime = 1.01, .plotInterval = 1
+    .plotInitialTime = 1, .plotInterval = 1
   )
 )
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
@@ -271,17 +273,18 @@ randomLandscapesInit <- function(sim) {
   # Give dimensions of dummy raster
   nx <- params(sim)$randomLandscapes$nx
   ny <- params(sim)$randomLandscapes$ny
-  r <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
+  r <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2,
+              ymn = -ny/2, ymx = ny/2)
   speedup <- max(1, nx/5e2)
   # Make dummy maps for testing of models
-  DEM <- gaussMap(template, scale = 300, var = 0.03, speedup = speedup, 
-                  inMemory = inMemory)
+  DEM <- gaussMap(template, scale = 300, var = 0.03,
+                  speedup = speedup, inMemory = inMemory)
   DEM[] <- round(getValues(DEM), 1) * 1000
-  forestAge <- gaussMap(template, scale = 10, var = 0.1, speedup = speedup, 
-                        inMemory = inMemory)
+  forestAge <- gaussMap(template, scale = 10, var = 0.1,
+                        speedup = speedup, inMemory = inMemory)
   forestAge[] <- round(getValues(forestAge), 1) * 20
-  percentPine <- gaussMap(template, scale = 50, var = 1, speedup = speedup, 
-                          inMemory = inMemory)
+  percentPine <- gaussMap(template, scale = 50, var = 1,
+                          speedup = speedup, inMemory = inMemory)
   percentPine[] <- round(getValues(percentPine), 1)
 
   # Scale them as needed
@@ -321,9 +324,9 @@ parameters <- list(
   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
   fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6,
                     persistprob = 0, returnInterval = 1, startTime = 0,
-                    .plotInitialTime = 0.1, .plotInterval = 10),
+                    .plotInitialTime = 0, .plotInterval = 10),
   caribouMovement = list(N = 100L, moveInterval = 1, torus = TRUE,
-                         .plotInitialTime = 1.01, .plotInterval = 1)
+                         .plotInitialTime = 1, .plotInterval = 1)
 )
 
 ftmp <- file.path(tempdir(), "spades_vignetteOutputs")
@@ -335,7 +338,7 @@ mySim <- simInit(
   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
   objects = list(),
   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
-  ) %>% spades
+  ) %>% spades()
 dev.off()
 unlink(ftmp)
 ```
@@ -426,7 +429,7 @@ parameters <- list(
 modules <- list("randomLandscapes", "fireSpread", "caribouMovement")
 paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-mySim <- simInit(times = times, params = parameters, modules = modules, paths=paths)
+mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
 
 ## examine simulation module (object) dependencies
 depsEdgeList(mySim, FALSE)      # all object dependency relationships
@@ -580,18 +583,18 @@ If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it m
 require(data.table)
 
 outputDir <- file.path(tempdir(), "simOutputs")
-mySim <- simInit(times=list(start=0.0, end=10),
-                 params=list(
-                   .globals=list(stackName="landscape"),
-                   randomLandscapes=list(
-                     .saveInitialTime=0, .saveInterval=10, .saveObjects=c("landscape"),
-                     .savePath=file.path(outputDir, "randomLandscapes"))
+mySim <- simInit(times = list(start = 0.0, end = 10),
+                 params = list(
+                   .globals = list(stackName = "landscape"),
+                   randomLandscapes = list(
+                     .saveInitialTime = 0, .saveInterval = 10, .saveObjects = c("landscape"),
+                     .savePath = file.path(outputDir, "randomLandscapes"))
                    ),
-                 modules=list("randomLandscapes"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES"),
-                            outputPath=outputDir),
-                 #inputs=data.table(file=filelist),
-                 outputs=data.table(objectName="landscape")
+                 modules = list("randomLandscapes"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                            outputPath = outputDir),
+                 #inputs = data.table(file = filelist),
+                 outputs = data.table(objectName = "landscape")
 )
 
 # retrieve the load and save params from the simulation object
@@ -609,9 +612,9 @@ mySim2 <- spades(mySim)
 
 # More sophisticated, passing arguments to outputs()
 outputs(mySim) <- data.table(
-  objectName="landscape", fun="writeRaster", package="raster",
-  saveTime=c(3,6), args=lapply(c(3,6), function(x) {
-    list(dataType="FLT4S", format="raster", overwrite=TRUE)
+  objectName = "landscape", fun = "writeRaster", package = "raster",
+  saveTime = c(3,6), args = lapply(c(3,6), function(x) {
+    list(dataType = "FLT4S", format = "raster", overwrite = TRUE)
   }))
 mySim2 <- spades(mySim)
 dev.off()
@@ -638,13 +641,13 @@ Plotting events can be scheduled similarly to save events, by passing module-spe
 
 ```{r plotting, echo=TRUE, eval=FALSE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-mySim <- simInit(times=list(start=0.0, end=100),
-                 params=list(
-                   .globals=list(stackName="landscape"),
-                   randomLandscapes=list(.plotInitialTime=0, .plotInterval=1)
+mySim <- simInit(times = list(start = 0.0, end = 100),
+                 params = list(
+                   .globals = list(stackName = "landscape"),
+                   randomLandscapes = list(.plotInitialTime = 0, .plotInterval = 1)
                  ),
-                 modules=list("randomLandscapes"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES"))
+                 modules = list("randomLandscapes"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 )
 
 # retrieve the plotting params from the simulation object
@@ -678,12 +681,12 @@ See the `SpaDES` wiki ([https://github.com/PredictiveEcology/SpaDES/wiki](https:
 
 ## Included sample modules
 
-Use `system.file("sampleModules", package="SpaDES")` to get the path to the `sampleModules` directory.
+Use `system.file("sampleModules", package = "SpaDES")` to get the path to the `sampleModules` directory.
 To view the contents of a module, use the `openModules` function.
 Note that you shouldn't edit the sample modules directly, but save them as a copy in another location.
 
 ```{r caribouMovement, echo=TRUE, eval=FALSE}
-openModules(system.file("sampleModules", package="SpaDES"), "moduleName")
+openModules(system.file("sampleModules", package = "SpaDES"), "moduleName")
 ```
 
 1. `randomLandscapes`:
@@ -723,7 +726,7 @@ Code for new modules can be developed quickly using the template generator funct
 ```{r create-new-module, eval=FALSE, echo=TRUE, message=FALSE}
 # create a new module called "randomLandscape" in the "custom-modules" subdirectory
 # and open the resulting file immediately for editing.
-newModule(name="randomLandscapes", path="custom-modules", open=TRUE)
+newModule(name = "randomLandscapes", path = "custom-modules", open = TRUE)
 ```
 
 The newly created file can now be modified in the identified sections and customized to your module.
@@ -754,11 +757,11 @@ parameters <- list(
   fireSpread = list(
     nFires = 10L, spreadprob = 0.225, its = 1e6, persistprob = 0,
     returnInterval = 10, startTime = 0,
-    .plotInitialTime = 0.1, .plotInterval = 10
+    .plotInitialTime = 0, .plotInterval = 10
   ),
   caribouMovement = list(
     N = 100L, moveInterval = 1, torus = TRUE,
-    .plotInitialTime = 1.01, .plotInterval = 1
+    .plotInitialTime = 1, .plotInterval = 1
   )
 )
 modules <- list("SpaDES_sampleModules")
@@ -774,10 +777,10 @@ mySim <- simInit(times = times, params = parameters, modules = modules,
 modules(mySim) # note the child modules are initialized
 ```
 
-Module groups can also be used to simplify the download of multiple modules (not yet implemented; [issue #208](https://github.com/PredictiveEcology/SpaDES/issues/208)):
+Module groups can also be used to simplify the download of multiple modules:
 
 ```{r module-group-dl, eval=FALSE}
-downloadModule("SpaDES_sampleModules") # not yet implemented
+downloadModule("SpaDES_sampleModules")
 ```
 
 ## Contributing modules

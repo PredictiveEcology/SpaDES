@@ -1,6 +1,6 @@
 test_that("Plot is not error-free", {
-  library(raster); on.exit(detach(package:raster))
-  library(sp); on.exit(detach(package:sp))
+  library(raster); on.exit(detach("package:raster"))
+  library(sp); on.exit(detach("package:sp"))
   on.exit({
     if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
       unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))

@@ -103,9 +103,7 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 #' sim1 <- loadFiles(filelist = filelist)
 #' clearPlot()
 #' Plot(sim1$DEM)
-#' }
 #'
-#' \dontrun{
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #' #  at time = 10 and 20 (via "intervals").
 #' # Also, pass the single argument as a list to all functions...
@@ -178,7 +176,7 @@ setMethod(
 #       }
 
       #  assume loadTime = start(sim) if missing
-      if(any(is.na(filelistDT[,loadTime]))) {
+      if(any(is.na(filelistDT[, loadTime]))) {
         filelistDT[is.na(loadTime), loadTime:=start(sim, "second")]
       #  filelistDT[, loadTime:=start(sim, "second")]
       }
@@ -187,7 +185,7 @@ setMethod(
       cur <- filelistDT$loadTime == curTime
 
       if (any(cur)) {
-        fl <- filelistDT[cur,file]
+        fl <- filelistDT[cur ,file]
         # extract file extensions, to be used to determine which function to use
         exts <- match(fileExt(fl), .fileExts[, "exts"])
 

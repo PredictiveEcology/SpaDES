@@ -512,6 +512,7 @@ setMethod(
     }
 
     pr <- pr[pr <= maxv & pr >= minv]
+    if(length(pr)==0) pr <- seq(minv, maxv, by=2)
     #maxNumCols = 100
     maxcol <- length(col)
     mincol <- 2
@@ -519,6 +520,7 @@ setMethod(
     gpText$cex <- gpText$cex * 0.6
     if (length(gpText) == 0)
       gpText <- gpar(col = "black", cex = 0.6)
+
     rastGrob <- gTree(
       grobToPlot = grobToPlot, pr = pr, col = col,
       children = gList(
@@ -1370,25 +1372,20 @@ setMethod(
 
     scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
-    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) #%>%
+    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls)
     dots <- list(...)
     if (any(isDoCall)) {
-
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame-1)
       argsFrame <- sys.frame(whFrame-2)
       dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
-                      envir=plotFrame)
+                     envir = plotFrame)
       plotArgs <- mget(names(formals("Plot")[-1]), argsFrame)
-
-
     } else {
       whFrame <- grep(scalls, pattern = "^Plot")
       dotObjs <- dots
       plotFrame <- sys.frame(whFrame)
-      plotArgs <- mget(names(formals("Plot")),
-                       plotFrame)[-1]
-
+      plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
     if (!is.null(dots$env)) {
       objFrame <- dots$env

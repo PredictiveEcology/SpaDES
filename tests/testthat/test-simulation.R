@@ -1,5 +1,5 @@
 test_that("simulation runs with simInit and spades", {
-  library(igraph); on.exit(detach(package:igraph))
+  library(igraph); on.exit(detach("package:igraph"))
 
   set.seed(42)
 
@@ -13,7 +13,7 @@ test_that("simulation runs with simInit and spades", {
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
   paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-  mySim <- simInit(times, params, modules, objects = list(), paths) %>% spades
+  mySim <- simInit(times, params, modules, objects = list(), paths) %>% spades()
 
   # simtime
   expect_equivalent(time(mySim), 10.0)

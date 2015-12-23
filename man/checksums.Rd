@@ -24,13 +24,14 @@ Module developers should write this file prior to distributing
 their module code, and update accordingly when the data change.}
 }
 \value{
-A data.frame of filenames, checksums, and results.
+A data.frame with 4 columns: result, expectedFile, actualFile, and checksum.
 }
 \description{
 Verify (and optionally write) checksums for data files in a module's
 \code{data/} subdirectory. The file \code{data/CHECKSUMS.txt} contains the
 expected checksums for each data file.
-Checksums are computed using \code{digest::digest(..., algo = "md5")}.
+Checksums are computed using \code{SpaDES:::digest}, which is simply a
+wrapper around \code{digest::digest}.
 }
 \details{
 Modules may require data that for various reasons cannot be distributed with

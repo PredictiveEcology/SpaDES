@@ -1,5 +1,5 @@
 ################################################################################
-#' Event prority
+#' Event priority
 #'
 #' Preset envent priorities: 1 = first (highest); 5 = normal; 10 = last (lowest).
 #'
@@ -19,21 +19,25 @@
 }
 
 #' @rdname priority
+#' @export
 .highest <- function() {
   return(1)
 }
 
 #' @rdname priority
+#' @export
 .last <- function() {
   .lowest()
 }
 
 #' @rdname priority
+#' @export
 .lowest <- function() {
   return(10)
 }
 
 #' @rdname priority
+#' @export
 .normal <- function() {
   5
 }
