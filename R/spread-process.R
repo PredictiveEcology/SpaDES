@@ -310,24 +310,6 @@ setMethod(
       size <- length(loci)
     }
 
-#     if((length(maxSize) > 1L) & mapID) { # if maxSize is a vector, need
-#       size <- rep_len(1L, length(unique(spreads[loci])))
-#     } else {
-#       size <- length(loci)
-#     }
-
-#     if(spreadStateExists) {
-#       if((length(maxSize) > 1L) & mapID) { # if maxSize is a vector, need
-#         browser()
-#         spreads[loci][spreads[loci] <= spreadState[,max(eventID)]] %>% table
-#         addPrevSize <- spreadState[, list(len=length(initialLocus)), by=eventID]
-#         size <- size
-#       } else {
-#         size <- size + NROW(spreadState[active==FALSE])
-#       }
-#     }
-
-
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
 
