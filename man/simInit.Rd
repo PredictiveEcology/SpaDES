@@ -68,7 +68,6 @@ as times, paths, modules, and module load order. See more details below.
 }
 \details{
 Calling this simInit function does several things including the following:
-
 - sources all module files, placing all function definitions in the sim object
 - optionally copies objects from the global environment to the sim object
 - optionally loads objects from disk

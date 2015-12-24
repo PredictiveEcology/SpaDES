@@ -241,46 +241,40 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
       })
     }
     if (unitTests){
-      # create a folder for unit tests
-      checkPath(paste0(nestedPath,"/unit tests",sep=""),create=TRUE)
       # create another folder which will store the specific tests
-      checkPath(paste0(nestedPath,"/unit tests/tests",sep=""),create=TRUE)
+      checkPath(file.path(nestedPath,"tests"),create=TRUE)
+      checkPath(file.path(nestedPath,"tests", "testthat"),create=TRUE)
       # create two R files in unit tests folder
       # the first one is named as unitTests.R, source this file will triger
       # all unit tests that are contained in tests folder
-      unitTestsR <- file.path(nestedPath, "unit tests/unitTests.R")
+      unitTestsR <- file.path(nestedPath, "tests/unitTests.R")
       cat("# Please build your own test file from test-Template.R, and place it in tests folder \n\n",
-          "rm(list=ls()) # clear up the working space \n",
-          "library(testthat) # must have this package \n",
-          "library(SpaDES) # must have this package \n",
-          "library(data.table) # the packages you may need to run the sim function \n",
-          "library(raster) # the package you may need to run the sim function \n",
           "# please specify the package you need to run the sim function in the test files. \n",
           "test_dir(\"",
-          paste0(nestedPath,"/unit tests/tests\")",sep=""),"\n",
+          file.path(nestedPath,"tests\")",sep=""),"\n",
           "# the above line is used to test all the test files in the tests folder. \n\n",
           "# Alternative, you can use test_file to test individual test file, e.g., \n",
           "test_file(\"",
-          paste0(nestedPath,"/unit tests/tests/test-DryRun.R\")",sep=""),"\n",
+          file.path(nestedPath,"tests","testthat","test-DryRun.R\")",sep=""),"\n",
           file = unitTestsR, fill = FALSE, sep = "")
-      testTemplate <- file.path(nestedPath, "unit tests/test-Template.R")
+      testTemplate <- file.path(nestedPath, "tests", "testthat", "test-DryRun.R")
 
       cat("# please do three things when this template is corrected modified.
           # 1. rename this file based on the content you are testing, e.g., test-treeGrowthFunction.R
-          # 2. copy this file to tests folder, i.e.,",paste0(nestedPath,"/unit tests/tests",sep=""),"\n",
+          # 2. copy this file to tests folder, i.e.,",file.path(nestedPath,"tests",sep=""),"\n",
           "          # 3. modify the test description, i.e., test tree growth function, based on the content you are testing \n",
           "test_that(\"test tree growth function\",{ \n",
           "  module <- list(\"",name,"\") \n",
-          "  path <- list(modulePath=",nestedPath,", outputPath=\"~/output\") \n",
-          "  parameters <- list(.progress=list(type=\"graphical\", interval=1),
+          "  path <- list(modulePath=\"",path,"\", outputPath=\"~/output\") \n",
+          "  parameters <- list( # .progress=list(type=\"graphical\", interval=1),
                      .globals=list(verbose=FALSE),
-                     moduleName=list(.saveInitialTime=NA)) \n",
+                     ",name,"=list(.saveInitialTime=NA)) \n",
           "  times=list(start=0,end=1) \n",
           "  # If your test function contains time(sim), you can test the function at a particular simulation time by define start time above. \n\n",
           "  object1 <- \"object1\" # please specify \n",
           "  object2 <- \"object2\" # please specify \n",
           "  objects <- list(\"object1\"=object1, \"object2\"=object2) \n\n",
-          "  mySim <- sim(simInit(times=times),
+          "  mySim <- simInit(times=times,
                params=parameters,
                modules=module,
                objects=objects,
@@ -290,21 +284,21 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
           "  # You have two strategies to test your module: \n",
           "  # 1. test the overall simulation results for the given objects, then, use the code below: \n",
           "  output <- spades(mySim,debug=FALSE) \n\n",
+          "  # is output a simList \n",
+          "  expect_is(output, \"simList\")  \n",
+          "  # does output have your module in it  \n",
+          "  expect_true(any(unlist(modules(output)) %in%  \n",
+          "                    c(unlist(module)))) \n",
+          "  # did it simulate to the end \n",
+          "  expect_true(time(output)==1) \n",
           "  # 2. test the function inside of the module, then, use the line below: \n",
-          "  output <- mySim$treeGrowthFunction(mySim,otherArguments) \n",
+          "  # output <- mySim$treeGrowthFunction(mySim,otherArguments) \n",
           "  # treeGrowthFunction is the function you would like to test, please specify your function name \n",
           "  # otherArguments is the arguments needed for running the function. \n\n",
-          "  output_expected <- # please define your expection of your output. \n",
-          "  expect_equal(output,output_expected) # or other expect function in testthat package. \n",
+          "  # output_expected <- # please define your expection of your output. \n",
+          "  # expect_equal(output,output_expected) # or other expect function in testthat package. \n",
           "})", file = testTemplate, fill = FALSE, sep = "")
 
-      testDryRun <- file.path(nestedPath, "unit tests/tests/test-DryRun.R")
-
-      cat("test_that(\"test tree growth function\",{ \n",
-          "  a <- 1 \n",
-          "  b <- 1 \n",
-          "  expect_equal(a,b) \n",
-          "})", file = testDryRun, fill = FALSE, sep = "")
     }
 
     ### Make Rmarkdown file for module documentation
@@ -425,26 +419,29 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 
 ```{r module_usage}
 library(SpaDES)
+library(magrittr)
 
 inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), \"outputs\")
 times <- list(start = 0, end = 10)
 parameters <- list(
   .globals = list(burnStats = \"nPixelsBurned\"),
-  .progress = list(type = \"text\", interval = 1),
-  cropReprojectLccAge = list(useCache = TRUE),
-  forestSuccessionBeacons = list(
-    returnInterval = 1, startTime = times$start,
-    .plotInitialTime = times$start, .plotInterval = 1),
-  forestAge = list(
-    returnInterval = 1, startTime = times$start+0.5,
-    .plotInitialTime = times$start, .plotInterval = 1),
-  fireSpreadLcc = list(
-    nFires = 3, its = 1e6, drought = 1.2, persistprob = 0, returnInterval = 1,
-    startTime = times$start+1, .plotInitialTime = times$start, .plotInterval = 1),
-  caribouMovementLcc = list(
-    N = 1e3, moveInterval = 1, startTime = times$start+1, torus = TRUE,
-    glmInitialTime = NA_real_, .plotInitialTime = times$start, .plotInterval = 1)
+  #.progress = list(type = \"text\", interval = 1), # for a progress bar
+  # If there are further modules, each can have its own set of parameters, assigned
+  # as examples below
+  #cropReprojectLccAge = list(useCache = TRUE),
+  #forestSuccessionBeacons = list(
+  #  returnInterval = 1, startTime = times$start,
+  #  .plotInitialTime = times$start, .plotInterval = 1),
+  #forestAge = list(
+  #  returnInterval = 1, startTime = times$start+0.5,
+  #  .plotInitialTime = times$start, .plotInterval = 1),
+  #fireSpreadLcc = list(
+  #  nFires = 3, its = 1e6, drought = 1.2, persistprob = 0, returnInterval = 1,
+  #  startTime = times$start+1, .plotInitialTime = times$start, .plotInterval = 1),
+  #caribouMovementLcc = list(
+  #  N = 1e3, moveInterval = 1, startTime = times$start+1, torus = TRUE,
+  #  glmInitialTime = NA_real_, .plotInitialTime = times$start, .plotInterval = 1)
 )
 modules <- list(\"", name, "\")
   objects <- list()
