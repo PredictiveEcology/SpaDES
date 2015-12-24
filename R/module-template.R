@@ -2,7 +2,8 @@
 #' Create new module from template.
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a
-#' documentation file, a citation file, a license file, and a readme.txt file.
+#' documentation file, a citation file, a license file, a readme.txt file, and a folder
+#' that contains unit tests information.
 #' The \code{newModuleDocumentation} will not generate the module file, but will
 #' create the other 4 files.
 #'
@@ -17,8 +18,11 @@
 #' @param open  Logical. Should the new module file be opened after creation?
 #'              Default \code{TRUE}.
 #'
+#' @param unitTests Logical. Should the new module start with unit tests using testthat package?
+#'                           Defaults \code{TRUE}.
+#'
 #' @return Nothing is returned. The new module file is created at \code{path/name.R}, as
-#' well as anciliary files for documentation, citation, license, and readme.
+#' well as anciliary files for documentation, citation, license, readme, and unit tests folder.
 #'
 #' @note On Windows there is currently a bug in RStudio that it doesn't know what editor
 #' to open with \code{file.edit} is called (which is what moduleName does). This will return an error:
@@ -39,7 +43,7 @@
 #'   ## create a "myModule" module in the "modules" subdirectory.
 #'   newModule("myModule", "modules")
 #' }
-setGeneric("newModule", function(name, path, open) {
+setGeneric("newModule", function(name, path, open, unitTests) {
   standardGeneric("newModule")
 })
 
@@ -47,8 +51,8 @@ setGeneric("newModule", function(name, path, open) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "logical"),
-  definition = function(name, path, open) {
+  signature = c(name = "character", path = "character", open = "logical", unitTests = "logical"),
+  definition = function(name, path, open, unitTests) {
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name)
     dataPath <- file.path(nestedPath, "data")
@@ -236,6 +240,66 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
                 filenameR, "\nPlease open it manually.")
       })
     }
+    if (unitTests){
+      # create another folder which will store the specific tests
+      checkPath(file.path(nestedPath,"tests"),create=TRUE)
+      checkPath(file.path(nestedPath,"tests", "testthat"),create=TRUE)
+      # create two R files in unit tests folder
+      # the first one is named as unitTests.R, source this file will triger
+      # all unit tests that are contained in tests folder
+      unitTestsR <- file.path(nestedPath, "tests/unitTests.R")
+      cat("# Please build your own test file from test-Template.R, and place it in tests folder \n\n",
+          "# please specify the package you need to run the sim function in the test files. \n",
+          "test_dir(\"",
+          file.path(nestedPath,"tests\")",sep=""),"\n",
+          "# the above line is used to test all the test files in the tests folder. \n\n",
+          "# Alternative, you can use test_file to test individual test file, e.g., \n",
+          "test_file(\"",
+          file.path(nestedPath,"tests","testthat","test-DryRun.R\")",sep=""),"\n",
+          file = unitTestsR, fill = FALSE, sep = "")
+      testTemplate <- file.path(nestedPath, "tests", "testthat", "test-DryRun.R")
+
+      cat("# please do three things when this template is corrected modified.
+          # 1. rename this file based on the content you are testing, e.g., test-treeGrowthFunction.R
+          # 2. copy this file to tests folder, i.e.,",file.path(nestedPath,"tests",sep=""),"\n",
+          "          # 3. modify the test description, i.e., test tree growth function, based on the content you are testing \n",
+          "test_that(\"test tree growth function\",{ \n",
+          "  module <- list(\"",name,"\") \n",
+          "  path <- list(modulePath=\"",path,"\", outputPath=\"~/output\") \n",
+          "  parameters <- list( # .progress=list(type=\"graphical\", interval=1),
+                     .globals=list(verbose=FALSE),
+                     ",name,"=list(.saveInitialTime=NA)) \n",
+          "  times=list(start=0,end=1) \n",
+          "  # If your test function contains time(sim), you can test the function at a particular simulation time by define start time above. \n\n",
+          "  object1 <- \"object1\" # please specify \n",
+          "  object2 <- \"object2\" # please specify \n",
+          "  objects <- list(\"object1\"=object1, \"object2\"=object2) \n\n",
+          "  mySim <- simInit(times=times,
+               params=parameters,
+               modules=module,
+               objects=objects,
+               paths=path) \n\n",
+          "  # You may need to set seed if your module or the function has the random number generator. \n",
+          "  set.seed(1234) \n\n",
+          "  # You have two strategies to test your module: \n",
+          "  # 1. test the overall simulation results for the given objects, then, use the code below: \n",
+          "  output <- spades(mySim,debug=FALSE) \n\n",
+          "  # is output a simList \n",
+          "  expect_is(output, \"simList\")  \n",
+          "  # does output have your module in it  \n",
+          "  expect_true(any(unlist(modules(output)) %in%  \n",
+          "                    c(unlist(module)))) \n",
+          "  # did it simulate to the end \n",
+          "  expect_true(time(output)==1) \n",
+          "  # 2. test the function inside of the module, then, use the line below: \n",
+          "  # output <- mySim$treeGrowthFunction(mySim,otherArguments) \n",
+          "  # treeGrowthFunction is the function you would like to test, please specify your function name \n",
+          "  # otherArguments is the arguments needed for running the function. \n\n",
+          "  # output_expected <- # please define your expection of your output. \n",
+          "  # expect_equal(output,output_expected) # or other expect function in testthat package. \n",
+          "})", file = testTemplate, fill = FALSE, sep = "")
+
+    }
 
     ### Make Rmarkdown file for module documentation
     newModuleDocumentation(name = name, path = path, open = open)
@@ -245,28 +309,64 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "logical"),
+  signature = c(name = "character", path = "missing", open = "logical", unitTests = "logical"),
+  definition = function(name, open, unitTests) {
+    newModule(name = name, path = ".", open = open, unitTests = unitTests)
+})
+
+#' @export
+#' @rdname newModule
+setMethod(
+  "newModule",
+  signature = c(name = "character", path = "character", open = "missing", unitTests = "logical"),
+  definition = function(name, path, unitTests) {
+    newModule(name = name, path = path, open = TRUE, unitTests = unitTests)
+})
+
+#' @export
+#' @rdname newModule
+setMethod(
+  "newModule",
+  signature = c(name = "character", path = "missing", open = "missing", unitTests = "logical"),
+  definition = function(name, unitTests) {
+    newModule(name = name, path = ".", open = TRUE, unitTests = unitTests)
+})
+
+#' @export
+#' @rdname newModule
+setMethod(
+  "newModule",
+  signature = c(name = "character", path = "character", open = "logical", unitTests = "missing"),
+  definition = function(name, path, open) {
+    newModule(name = name, path = path, open = open, unitTests = TRUE)
+  })
+
+#' @export
+#' @rdname newModule
+setMethod(
+  "newModule",
+  signature = c(name = "character", path = "missing", open = "logical", unitTests = "missing"),
   definition = function(name, open) {
-    newModule(name = name, path = ".", open = open)
-})
+    newModule(name = name, path = ".", open = open, unitTests = TRUE)
+  })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "missing"),
+  signature = c(name = "character", path = "character", open = "missing", unitTests = "missing"),
   definition = function(name, path) {
-    newModule(name = name, path = path, open = TRUE)
-})
+    newModule(name = name, path = path, open = TRUE, unitTests = TRUE)
+  })
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "missing"),
+  signature = c(name = "character", path = "missing", open = "missing", unitTests = "missing"),
   definition = function(name) {
-    newModule(name = name, path = ".", open = TRUE)
-})
+    newModule(name = name, path = ".", open = TRUE, unitTests = TRUE)
+  })
 
 ###########################################################################
 #' @export
@@ -319,26 +419,29 @@ For help writing in RMarkdown, see http://rmarkdown.rstudio.com/.
 
 ```{r module_usage}
 library(SpaDES)
+library(magrittr)
 
 inputDir <- file.path(tempdir(), \"inputs\") %>% checkPath(create = TRUE)
 outputDir <- file.path(tempdir(), \"outputs\")
 times <- list(start = 0, end = 10)
 parameters <- list(
   .globals = list(burnStats = \"nPixelsBurned\"),
-  .progress = list(type = \"text\", interval = 1),
-  cropReprojectLccAge = list(useCache = TRUE),
-  forestSuccessionBeacons = list(
-    returnInterval = 1, startTime = times$start,
-    .plotInitialTime = times$start, .plotInterval = 1),
-  forestAge = list(
-    returnInterval = 1, startTime = times$start+0.5,
-    .plotInitialTime = times$start, .plotInterval = 1),
-  fireSpreadLcc = list(
-    nFires = 3, its = 1e6, drought = 1.2, persistprob = 0, returnInterval = 1,
-    startTime = times$start+1, .plotInitialTime = times$start, .plotInterval = 1),
-  caribouMovementLcc = list(
-    N = 1e3, moveInterval = 1, startTime = times$start+1, torus = TRUE,
-    glmInitialTime = NA_real_, .plotInitialTime = times$start, .plotInterval = 1)
+  #.progress = list(type = \"text\", interval = 1), # for a progress bar
+  # If there are further modules, each can have its own set of parameters, assigned
+  # as examples below
+  #cropReprojectLccAge = list(useCache = TRUE),
+  #forestSuccessionBeacons = list(
+  #  returnInterval = 1, startTime = times$start,
+  #  .plotInitialTime = times$start, .plotInterval = 1),
+  #forestAge = list(
+  #  returnInterval = 1, startTime = times$start+0.5,
+  #  .plotInitialTime = times$start, .plotInterval = 1),
+  #fireSpreadLcc = list(
+  #  nFires = 3, its = 1e6, drought = 1.2, persistprob = 0, returnInterval = 1,
+  #  startTime = times$start+1, .plotInitialTime = times$start, .plotInterval = 1),
+  #caribouMovementLcc = list(
+  #  N = 1e3, moveInterval = 1, startTime = times$start+1, torus = TRUE,
+  #  glmInitialTime = NA_real_, .plotInitialTime = times$start, .plotInterval = 1)
 )
 modules <- list(\"", name, "\")
   objects <- list()

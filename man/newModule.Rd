@@ -3,10 +3,14 @@
 \docType{methods}
 \name{newModule}
 \alias{newModule}
-\alias{newModule,character,character,logical-method}
-\alias{newModule,character,character,missing-method}
-\alias{newModule,character,missing,logical-method}
-\alias{newModule,character,missing,missing-method}
+\alias{newModule,character,character,logical,logical-method}
+\alias{newModule,character,character,logical,missing-method}
+\alias{newModule,character,character,missing,logical-method}
+\alias{newModule,character,character,missing,missing-method}
+\alias{newModule,character,missing,logical,logical-method}
+\alias{newModule,character,missing,logical,missing-method}
+\alias{newModule,character,missing,missing,logical-method}
+\alias{newModule,character,missing,missing,missing-method}
 \alias{newModuleDocumentation}
 \alias{newModuleDocumentation,character,character,logical-method}
 \alias{newModuleDocumentation,character,character,missing-method}
@@ -14,15 +18,24 @@
 \alias{newModuleDocumentation,character,missing,missing-method}
 \title{Create new module from template.}
 \usage{
-newModule(name, path, open)
+newModule(name, path, open, unitTests)
 
-\S4method{newModule}{character,character,logical}(name, path, open)
+\S4method{newModule}{character,character,logical,logical}(name, path, open,
+  unitTests)
 
-\S4method{newModule}{character,missing,logical}(name, open)
+\S4method{newModule}{character,missing,logical,logical}(name, open, unitTests)
 
-\S4method{newModule}{character,character,missing}(name, path)
+\S4method{newModule}{character,character,missing,logical}(name, path, unitTests)
 
-\S4method{newModule}{character,missing,missing}(name)
+\S4method{newModule}{character,missing,missing,logical}(name, unitTests)
+
+\S4method{newModule}{character,character,logical,missing}(name, path, open)
+
+\S4method{newModule}{character,missing,logical,missing}(name, open)
+
+\S4method{newModule}{character,character,missing,missing}(name, path)
+
+\S4method{newModule}{character,missing,missing,missing}(name)
 
 newModuleDocumentation(name, path, open)
 
@@ -42,14 +55,18 @@ The default is the current working directory.}
 
 \item{open}{Logical. Should the new module file be opened after creation?
 Default \code{TRUE}.}
+
+\item{unitTests}{Logical. Should the new module start with unit tests using testthat package?
+Defaults \code{TRUE}.}
 }
 \value{
 Nothing is returned. The new module file is created at \code{path/name.R}, as
-well as anciliary files for documentation, citation, license, and readme.
+well as anciliary files for documentation, citation, license, readme, and unit tests folder.
 }
 \description{
 Autogenerate a skeleton for a new SpaDES module, a template for a
-documentation file, a citation file, a license file, and a readme.txt file.
+documentation file, a citation file, a license file, a readme.txt file, and a folder
+that contains unit tests information.
 The \code{newModuleDocumentation} will not generate the module file, but will
 create the other 4 files.
 }

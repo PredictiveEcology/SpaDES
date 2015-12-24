@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "1.0.3.9010")
+stopifnot(packageVersion("SpaDES") >= "1.0.3.9034")
 
 defineModule(sim, list(
   name = "fireSpread",
@@ -14,7 +14,7 @@ defineModule(sim, list(
             person("Steve", "Cumming",
                    email = "Steve.Cumming@sbf.ulaval.ca",
                    role = c("aut"))),
-  version = numeric_version("1.1.1"),
+  version = numeric_version("2.0.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
@@ -65,9 +65,12 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
     sim <- sim$fireSpreadInit(sim)
 
     # schedule the next events
-    sim <- scheduleEvent(sim, params(sim)$fireSpread$startTime, "fireSpread", "burn")
-    sim <- scheduleEvent(sim, params(sim)$fireSpread$.saveInterval, "fireSpread", "save")
-    sim <- scheduleEvent(sim, params(sim)$fireSpread$.plotInitialTime, "fireSpread", "plot.init")
+    sim <- scheduleEvent(sim, params(sim)$fireSpread$startTime,
+                         "fireSpread", "burn")
+    sim <- scheduleEvent(sim, params(sim)$fireSpread$.saveInterval,
+                         "fireSpread", "save", .last())
+    sim <- scheduleEvent(sim, params(sim)$fireSpread$.plotInitialTime,
+                         "fireSpread", "plot.init", .last())
 
   } else if (eventType == "burn") {
     # do stuff for this event
@@ -75,7 +78,8 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next events
     sim <- scheduleEvent(sim, time(sim), "fireSpread", "stats") # do stats immediately following burn
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$returnInterval, "fireSpread", "burn")
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$returnInterval,
+                         "fireSpread", "burn")
   } else if (eventType == "stats") {
     # do stuff for this event
     sim <- sim$fireSpreadStats(sim)
@@ -96,22 +100,28 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
     Plot(sim[[globals(sim)$stackName]], new = TRUE)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.plotInterval,
+                         "fireSpread", "plot", .last())
   } else if (eventType == "plot") {
     # do stuff for this event
     Plot(sim[[globals(sim)$stackName]]$Fires, new = FALSE)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.plotInterval, "fireSpread", "plot")
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.plotInterval,
+                         "fireSpread", "plot", .last())
   } else if (eventType == "save") {
     # do stuff for this event
     sim <- saveFiles(sim)
 
     # schedule the next event
-    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.saveInterval, "fireSpread", "save")
+    sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.saveInterval,
+                         "fireSpread", "save", .last()+1)
   } else {
-    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-                  "\' in module \'", events(sim)[1, "moduleName", with = FALSE],"\'", sep = ""))
+    warning(paste(
+      "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
+      "\' in module \'", events(sim)[1, "moduleName", with = FALSE],"\'",
+      sep = ""
+    ))
   }
   return(invisible(sim))
 }
@@ -121,7 +131,8 @@ fireSpreadInit <- function(sim) {
   landscapes <- sim[[globals(sim)$stackName]]
 
   ### create burn map that tracks fire locations over time
-  Fires <- raster(extent(landscapes), ncol = ncol(landscapes), nrow = nrow(landscapes), vals = 0)
+  Fires <- raster(extent(landscapes), ncol = ncol(landscapes),
+                  nrow = nrow(landscapes), vals = 0)
   names(Fires) <- "Fires"
   setColors(Fires) <- c("white", rev(heat.colors(9)))
   Fires <- setValues(Fires, 0)
@@ -138,15 +149,15 @@ fireSpreadBurn <- function(sim) {
   landscapes <- sim[[globals(sim)$stackName]]
 
   Fires <- spread(landscapes[[1]],
-                   loci = as.integer(sample(1:ncell(landscapes), params(sim)$fireSpread$nFires)),
-                   spreadProb = params(sim)$fireSpread$spreadprob,
-                   persistance = params(sim)$fireSpread$persistprob,
-                   mask = NULL,
-                   maxSize = 1e8,
-                   directions = 8,
-                   iterations = params(sim)$fireSpread$its,
-                   plot.it = FALSE,
-                   mapID = TRUE)
+                  loci = as.integer(sample(1:ncell(landscapes), params(sim)$fireSpread$nFires)),
+                  spreadProb = params(sim)$fireSpread$spreadprob,
+                  persistance = params(sim)$fireSpread$persistprob,
+                  mask = NULL,
+                  maxSize = 1e8,
+                  directions = 8,
+                  iterations = params(sim)$fireSpread$its,
+                  plot.it = FALSE,
+                  mapID = TRUE)
   names(Fires) <- "Fires"
   setColors(Fires) <- c("white", rev(heat.colors(9)))
   landscapes$Fires <- Fires
