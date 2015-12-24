@@ -16,6 +16,10 @@ test_that("module templates work", {
   expect_true(file.exists(file.path(mpath, paste0(moduleName,".Rmd"))))
   expect_true(file.exists(file.path(mpath, "README.txt")))
   expect_true(dir.exists(file.path(mpath, "data")))
+  expect_true(dir.exists(file.path(mpath, "tests")))
+  expect_true(dir.exists(file.path(mpath, "tests", "testthat")))
+  expect_true(file.exists(file.path(mpath, "tests", "unitTests.R")))
+  expect_true(file.exists(file.path(mpath, "tests", "testthat","test-DryRun.R")))
   expect_true(file.exists(file.path(mpath, "data", "CHECKSUMS.txt")))
 
   utils::capture.output(
