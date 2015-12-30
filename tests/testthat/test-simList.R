@@ -23,10 +23,11 @@ test_that("simList object initializes correctly", {
   expect_equal(sort(names(objs(mySim))),
                sort(names(as(mySim, "simList_")@.list)))
   expect_equivalent(mySim, as(as(mySim, "simList_"), "simList"))
+  expect_equal(ls(mySim), objects(mySim))
   expect_equal(ls(mySim), sort(names(objs(mySim))))
   expect_equivalent(ls.str(mySim), ls.str(objs(mySim)))
-  expect_equivalent(ls.str(pos=mySim), ls.str(objs(mySim)))
-  expect_equivalent(ls.str(name=mySim), ls.str(objs(mySim)))
+  expect_equivalent(ls.str(pos = mySim), ls.str(objs(mySim)))
+  expect_equivalent(ls.str(name = mySim), ls.str(objs(mySim)))
 
   mySim$test1 <- TRUE
   mySim[["test2"]] <- TRUE
