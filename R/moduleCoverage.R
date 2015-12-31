@@ -30,10 +30,16 @@
 #'
 #' @examples
 #' \dontrun{
-#'  # test module and function coverage for biomassSuccessionLANDIS
-#'  name <- "biomassSuccessionLANDIS"
-#'  path <- "~/GitHub/nrv-succession/code blitz succession/modules"
-#'  testResults <- moduleCoverage(name=name,path=path)
+#'  # test module and function coverage for forestAge module
+#'  library(SpaDES)
+#'  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+#'  modulePath <- file.path(tmpdir, "Modules")
+#'  moduleName <- "forestAge"
+#'  downloadModule(name = moduleName, path = modulePath)
+#'  testResults <- moduleCoverage(name = moduleName, path = modulePath)
+#'  shine(testResults$moduleCoverage)
+#'  shine(testResults$functionCoverage)
+#'  unlink(tmpdir, recursive = TRUE)
 #' }
 setGeneric("moduleCoverage", function(name, path) {
   standardGeneric("moduleCoverage")
@@ -45,58 +51,58 @@ setMethod(
   "moduleCoverage",
   signature(name = "character", path = "character"),
   definition = function(name, path) {
-    # read the module into the work space
-    mySim <- simInit(times=list(start=0, end=1),
-                     params=list(),
-                     modules=list(paste0(name)),
-                     objects=list(),
-                     paths=list(modulePath=path,
-                                outputPath="~/output"))
+    # read the module
+    mySim <- simInit(times = list(start = 0, end = 1),
+                     params = list(),
+                     modules = list(paste0(name)),
+                     objects = list(),
+                     paths = list(modulePath = path,
+                                  outputPath = "~/output"))
 
-    objects <- mget(objects(mySim),mySim@.envir)
-    function_index <- which(lapply(objects,is.function)==TRUE)
+    objects <- mget(objects(mySim), envir(mySim))
+    functionIndex <- which(lapply(objects, is.function) == TRUE)
 
-    if(dir.exists(file.path(path, name, "tests","testthat"))){
-      testFileFolder <- file.path(path, name, "tests","testthat")
+    if(dir.exists(file.path(path, name, "tests", "testthat"))){
+      testFileFolder <- file.path(path, name, "tests", "testthat")
       functionFolder <- checkPath(file.path(path, name, "moduleFunctions"), create=TRUE)
       moduleCoverage <- list()
       functionCoverage <- list()
-      for (i in function_index){
-        functionName <- file.path(functionFolder,paste0(names(objects[i]),".R",sep=""))
+      for (i in functionIndex){
+        functionName <- file.path(functionFolder, paste0(names(objects[i]), ".R", sep=""))
         functionLines <- deparse(objects[i][[1]])
-        cat(names(objects[i])," <- ",functionLines[1:2],"\n",sep="",file=functionName)
-        cat(functionLines[3:length(functionLines)],sep="\n",file=functionName,append = TRUE)
+        cat(names(objects[i]), " <- ", functionLines[1:2], "\n",sep="", file=functionName)
+        cat(functionLines[3:length(functionLines)], sep="\n", file=functionName, append = TRUE)
         source(functionName)
       }
       rm(i)
 
-      for(i in function_index){
-        testfiles <- file.path(testFileFolder,paste("test-",objects(mySim)[i],".R",sep=""))
+      for(i in functionIndex){
+        testfiles <- file.path(testFileFolder, paste("test-", objects(mySim)[i], ".R", sep=""))
         if(file.exists(testfiles)){
-          moduleTest <- covr::function_coverage(objects(mySim)[i], env=mySim@.envir,
-                                                testthat::test_file(testfiles,env = mySim@.envir))
+          moduleTest <- covr::function_coverage(objects(mySim)[i], env=envir(mySim),
+                                                testthat::test_file(testfiles, env = envir(mySim)))
           functionTest <- covr::function_coverage(objects(mySim)[i],
                                                   testthat::test_file(testfiles))
-          moduleCoverage <- append(moduleCoverage,moduleTest)
-          functionCoverage <- append(functionCoverage,functionTest)
+          moduleCoverage <- append(moduleCoverage, moduleTest)
+          functionCoverage <- append(functionCoverage, functionTest)
 
         } else {
-          moduleTest <- covr::function_coverage(objects(mySim)[i], env=mySim@.envir,
-                                                testthat::test_dir(testFileFolder,env = mySim@.envir))
+          moduleTest <- covr::function_coverage(objects(mySim)[i], env=envir(mySim),
+                                                testthat::test_dir(testFileFolder, env = envir(mySim)))
           functionTest <- covr::function_coverage(objects(mySim)[i],
                                                   testthat::test_dir(testFileFolder))
-          moduleCoverage <- append(moduleCoverage,moduleTest)
-          functionCoverage <- append(functionCoverage,functionTest)
+          moduleCoverage <- append(moduleCoverage, moduleTest)
+          functionCoverage <- append(functionCoverage, functionTest)
         }
       }
       class(moduleCoverage) <- "coverage"
       class(functionCoverage) <- "coverage"
       unlink(functionFolder, recursive=TRUE)
-      return(list(moduleCoverage=moduleCoverage,functionCoverage=functionCoverage))
+      return(list(moduleCoverage = moduleCoverage, functionCoverage = functionCoverage))
     } else {
-      stop("Your test files must be placed in ",file.path(path,name,"tests","testthat"))
+      stop("Your test files must be placed in ", file.path(path, name, "tests", "testthat"))
     }
-})
+  })
 
 #' @export
 #' @rdname moduleCoverage
@@ -105,5 +111,4 @@ setMethod(
   signature(name = "character", path = "missing"),
   definition = function(name){
     moduleCoverage(name = name, path = ".")
-})
-
+  })
