@@ -264,7 +264,7 @@ setMethod(
       mutate(renamed = NA, module = module)
     dataDir <- file.path(path, module, "data" )
 
-    if (any(chksums$result=="FAIL")) {
+    if (any(chksums$result == "FAIL")) {
       setwd(path); on.exit(setwd(cwd))
 
       files <- sapply(to.dl, function(x) {

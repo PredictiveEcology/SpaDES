@@ -7,8 +7,7 @@
 #' The \code{newModuleDocumentation} will not generate the module file, but will
 #' create the other 4 files.
 #'
-#' All 5 (or 4, if using \code{newModuleDocumentation}) files will be created
-#' within a subfolder named \code{name} within the \code{path}.
+#' All files will be created within a subfolder named \code{name} within the \code{path}.
 #'
 #' @param name  Character string. Your module's name.
 #'
@@ -18,11 +17,18 @@
 #' @param open  Logical. Should the new module file be opened after creation?
 #'              Default \code{TRUE}.
 #'
-#' @param unitTests Logical. Should the new module start with unit tests using testthat package?
-#'                           Defaults \code{TRUE}.
+#' @param unitTests Logical. Should the new module include unit test files?
+#'                  Default \code{TRUE}.
+#'                  Unit testing relies on the \code{testthat} package.
 #'
+<<<<<<< HEAD
 #' @return Nothing is returned. The new module file is created at \code{path/name.R}, as
 #' well as anciliary files for documentation, citation, license, readme, and tests folder.
+=======
+#' @return Nothing is returned. The new module file is created at
+#' \code{path/name.R}, as well as ancillary files for documentation, citation,
+#' license, readme, and unit tests folder.
+>>>>>>> refs/remotes/PredictiveEcology/development
 #'
 #' @note On Windows there is currently a bug in RStudio that it doesn't know what editor
 #' to open with \code{file.edit} is called (which is what moduleName does). This will return an error:
@@ -51,7 +57,8 @@ setGeneric("newModule", function(name, path, open, unitTests) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "logical", unitTests = "logical"),
+  signature = c(name = "character", path = "character", open = "logical",
+                unitTests = "logical"),
   definition = function(name, path, open, unitTests) {
     path <- checkPath(path, create = TRUE)
     nestedPath <- file.path(path, name)
@@ -242,8 +249,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
     }
     if (unitTests){
       # create another folder which will store the specific tests
-      checkPath(file.path(nestedPath,"tests"),create=TRUE)
-      checkPath(file.path(nestedPath,"tests", "testthat"),create=TRUE)
+      checkPath(file.path(nestedPath, "tests"), create = TRUE)
+      checkPath(file.path(nestedPath, "tests", "testthat"), create = TRUE)
       # create two R files in unit tests folder
       # the first one is named as unitTests.R, source this file will triger
       # all unit tests that are contained in tests folder
@@ -251,47 +258,48 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
       cat("# Please build your own test file from test-Template.R, and place it in tests folder \n\n",
           "# please specify the package you need to run the sim function in the test files. \n",
           "test_dir(\"",
-          file.path(nestedPath,"tests\")",sep=""),"\n",
+          file.path(nestedPath, "tests\")", sep=""), "\n",
           "# the above line is used to test all the test files in the tests folder. \n\n",
           "# Alternative, you can use test_file to test individual test file, e.g., \n",
           "test_file(\"",
-          file.path(nestedPath,"tests","testthat","test-DryRun.R\")",sep=""),"\n",
+          file.path(nestedPath, "tests", "testthat", "test-DryRun.R\")", sep=""), "\n",
           file = unitTestsR, fill = FALSE, sep = "")
       testTemplate <- file.path(nestedPath, "tests", "testthat", "test-DryRun.R")
 
       cat("# please do three things when this template is corrected modified.
           # 1. rename this file based on the content you are testing, e.g., test-treeGrowthFunction.R
-          # 2. copy this file to tests folder, i.e.,",file.path(nestedPath,"tests",sep=""),"\n",
+          # 2. copy this file to tests folder, i.e.,", file.path(nestedPath, "tests", sep = ""),"\n",
           "          # 3. modify the test description, i.e., test tree growth function, based on the content you are testing \n",
-          "test_that(\"test tree growth function\",{ \n",
-          "  module <- list(\"",name,"\") \n",
-          "  path <- list(modulePath=\"",path,"\", outputPath=\"~/output\") \n",
-          "  parameters <- list( # .progress=list(type=\"graphical\", interval=1),
-                     .globals=list(verbose=FALSE),
-                     ",name,"=list(.saveInitialTime=NA)) \n",
-          "  times=list(start=0,end=1) \n",
+          "test_that(\"test tree growth function\", { \n",
+          "  module <- list(\"", name, "\") \n",
+          "  path <- list(modulePath = \"", path, "\", outputPath = \"~/output\") \n",
+          "  parameters <- list( # .progress = list(type = \"graphical\", interval = 1),
+                     .globals = list(verbose = FALSE),
+                     ", name ," = list(.saveInitialTime = NA)) \n",
+          "  times = list(start = 0, end = 1) \n",
           "  # If your test function contains time(sim), you can test the function at a particular simulation time by define start time above. \n\n",
           "  object1 <- \"object1\" # please specify \n",
           "  object2 <- \"object2\" # please specify \n",
-          "  objects <- list(\"object1\"=object1, \"object2\"=object2) \n\n",
-          "  mySim <- simInit(times=times,
-               params=parameters,
-               modules=module,
-               objects=objects,
-               paths=path) \n\n",
+          "  objects <- list(\"object1\" = object1, \"object2\" = object2) \n\n",
+          "  mySim <- simInit(times = times,
+               params = parameters,
+               modules = module,
+               objects = objects,
+               paths = path) \n\n",
           "  # You may need to set seed if your module or the function has the random number generator. \n",
           "  set.seed(1234) \n\n",
           "  # You have two strategies to test your module: \n",
           "  # 1. test the overall simulation results for the given objects, then, use the code below: \n",
-          "  output <- spades(mySim,debug=FALSE) \n\n",
+          "  output <- spades(mySim, debug = FALSE) \n\n",
           "  # is output a simList \n",
           "  expect_is(output, \"simList\")  \n",
           "  # does output have your module in it  \n",
           "  expect_true(any(unlist(modules(output)) %in%  \n",
           "                    c(unlist(module)))) \n",
           "  # did it simulate to the end \n",
-          "  expect_true(time(output)==1) \n",
+          "  expect_true(time(output) == 1) \n",
           "  # 2. test the function inside of the module, then, use the line below: \n",
+<<<<<<< HEAD
           "  # To allow the moduleCoverage function to calculate unit test coverage \n",
           "  #  level, it needs access to all functions directly. Use this approach \n",
           "  #  to when using any function within the simList object, i.e., one \n",
@@ -299,12 +307,14 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
           "  output <- try(treeGrowthFunction(mySim,otherArguments)) \n",
           "  if(is(output,\"try-error\")){ \n",
           "   output <- mySim$treeGrowthFunction(mySim,otherArguments)} \n",
+=======
+          "  # output <- mySim$treeGrowthFunction(mySim, otherArguments) \n",
+>>>>>>> refs/remotes/PredictiveEcology/development
           "  # treeGrowthFunction is the function you would like to test, please specify your function name \n",
           "  # otherArguments is the arguments needed for running the function. \n\n",
           "  # output_expected <- # please define your expection of your output. \n",
           "  # expect_equal(output,output_expected) # or other expect function in testthat package. \n",
           "})", file = testTemplate, fill = FALSE, sep = "")
-
     }
 
     ### Make Rmarkdown file for module documentation
@@ -315,7 +325,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "logical", unitTests = "logical"),
+  signature = c(name = "character", path = "missing", open = "logical",
+                unitTests = "logical"),
   definition = function(name, open, unitTests) {
     newModule(name = name, path = ".", open = open, unitTests = unitTests)
 })
@@ -324,7 +335,8 @@ setMethod(
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "missing", unitTests = "logical"),
+  signature = c(name = "character", path = "character", open = "missing",
+                unitTests = "logical"),
   definition = function(name, path, unitTests) {
     newModule(name = name, path = path, open = TRUE, unitTests = unitTests)
 })
@@ -333,7 +345,8 @@ setMethod(
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "missing", unitTests = "logical"),
+  signature = c(name = "character", path = "missing", open = "missing",
+                unitTests = "logical"),
   definition = function(name, unitTests) {
     newModule(name = name, path = ".", open = TRUE, unitTests = unitTests)
 })
@@ -342,37 +355,41 @@ setMethod(
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "logical", unitTests = "missing"),
+  signature = c(name = "character", path = "character", open = "logical",
+                unitTests = "missing"),
   definition = function(name, path, open) {
     newModule(name = name, path = path, open = open, unitTests = TRUE)
-  })
+})
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "logical", unitTests = "missing"),
+  signature = c(name = "character", path = "missing", open = "logical",
+                unitTests = "missing"),
   definition = function(name, open) {
     newModule(name = name, path = ".", open = open, unitTests = TRUE)
-  })
+})
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "character", open = "missing", unitTests = "missing"),
+  signature = c(name = "character", path = "character", open = "missing",
+                unitTests = "missing"),
   definition = function(name, path) {
     newModule(name = name, path = path, open = TRUE, unitTests = TRUE)
-  })
+})
 
 #' @export
 #' @rdname newModule
 setMethod(
   "newModule",
-  signature = c(name = "character", path = "missing", open = "missing", unitTests = "missing"),
+  signature = c(name = "character", path = "missing", open = "missing",
+                unitTests = "missing"),
   definition = function(name) {
     newModule(name = name, path = ".", open = TRUE, unitTests = TRUE)
-  })
+})
 
 ###########################################################################
 #' @export
@@ -402,7 +419,7 @@ setMethod(
     ### Make Rmarkdown file for module documentation
     cat(
 "---
-title: \"",name,"\"
+title: \"", name, "\"
 author: \"Module Author\"
 date: \"", format(Sys.Date(), "%d %B %Y"), "\"
 output: pdf_document
@@ -556,25 +573,25 @@ setMethod("newModuleDocumentation",
 ################################################################################
 #' Open all modules nested within a base directory
 #'
-#' This is just a convenience wrapper for openning several modules at once, recursively.
+#' This is just a convenience wrapper for opening several modules at once, recursively.
 #' A module is defined as any file that ends in \code{.R} or \code{.r} and has a
 #' directory name identical to its filename. Thus, this must be case sensitive.
 #'
-#' @param name Character vector with names of modules to open. If missing, then all modules
-#' will be opened within the basedir.
+#' @param name  Character vector with names of modules to open. If missing, then
+#'              all modules will be opened within the basedir.
 #'
-#' @param path  Character string of length 1. The base directory within which there are only
-#' module subdirectories.
+#' @param path  Character string of length 1. The base directory within which
+#'              there are only module subdirectories.
 #'
 #' @return Nothing is returned. All file are open via \code{file.edit}.
 #'
-#' @note On Windows there is currently a bug in RStudio that it doesn't know what editor to
-#' open with \code{file.edit} is called (which is what moduleName does). This will return an error:
+#' @note On Windows there is currently a bug in RStudio that prevents the editor
+#' from opening when \code{file.edit} is called:
 #'
 #' \code{Error in editor(file = file, title = title) :}
 #' \code{argument "name" is missing, with no default}
 #'
-#' You can just browse to the file and open it manually.
+#' The workaround is to browse to the file and open it manually.
 #'
 #' @export
 #' @docType methods
