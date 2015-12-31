@@ -35,10 +35,16 @@ For running this function, the tests file must be restrictly placed in tests/tes
 }
 \examples{
 \dontrun{
- # test module and function coverage for biomassSuccessionLANDIS
- name <- "biomassSuccessionLANDIS"
- path <- "~/GitHub/nrv-succession/code blitz succession/modules"
- testResults <- moduleCoverage(name=name,path=path)
+ # test module and function coverage for forestAge module
+ library(SpaDES)
+ tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+ modulePath <- file.path(tmpdir, "Modules")
+ moduleName <- "forestAge"
+ downloadModule(name = moduleName, path = modulePath)
+ testResults <- moduleCoverage(name = moduleName, path = modulePath)
+ shine(testResults$moduleCoverage)
+ shine(testResults$functionCoverage)
+ unlink(tmpdir, recursive = TRUE)
 }
 }
 \author{
