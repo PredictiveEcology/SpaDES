@@ -56,12 +56,14 @@ The default is the current working directory.}
 \item{open}{Logical. Should the new module file be opened after creation?
 Default \code{TRUE}.}
 
-\item{unitTests}{Logical. Should the new module start with unit tests using testthat package?
-Defaults \code{TRUE}.}
+\item{unitTests}{Logical. Should the new module include unit test files?
+Default \code{TRUE}.
+Unit testing relies on the \code{testthat} package.}
 }
 \value{
-Nothing is returned. The new module file is created at \code{path/name.R}, as
-well as anciliary files for documentation, citation, license, readme, and unit tests folder.
+Nothing is returned. The new module file is created at
+\code{path/name.R}, as well as ancillary files for documentation, citation,
+license, readme, and unit tests folder.
 }
 \description{
 Autogenerate a skeleton for a new SpaDES module, a template for a
@@ -71,8 +73,7 @@ The \code{newModuleDocumentation} will not generate the module file, but will
 create the other 4 files.
 }
 \details{
-All 5 (or 4, if using \code{newModuleDocumentation}) files will be created
-within a subfolder named \code{name} within the \code{path}.
+All files will be created within a subfolder named \code{name} within the \code{path}.
 }
 \note{
 On Windows there is currently a bug in RStudio that it doesn't know what editor
