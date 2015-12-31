@@ -61,7 +61,7 @@ Defaults \code{TRUE}.}
 }
 \value{
 Nothing is returned. The new module file is created at \code{path/name.R}, as
-well as anciliary files for documentation, citation, license, readme, and unit tests folder.
+well as anciliary files for documentation, citation, license, readme, and tests folder.
 }
 \description{
 Autogenerate a skeleton for a new SpaDES module, a template for a
