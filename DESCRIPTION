@@ -59,9 +59,7 @@ Imports:
     secr,
     sp,
     stringi,
-    stringr,
-    covr,
-    testthat
+    stringr
 License: GPL-3
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
@@ -84,7 +82,6 @@ Collate:
     'moduleMetadata.R'
     'module-repository.R'
     'module-template.R'
-    'moduleCoverage.R'
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
