@@ -22,7 +22,7 @@
 #'                           Defaults \code{TRUE}.
 #'
 #' @return Nothing is returned. The new module file is created at \code{path/name.R}, as
-#' well as anciliary files for documentation, citation, license, readme, and unit tests folder.
+#' well as anciliary files for documentation, citation, license, readme, and tests folder.
 #'
 #' @note On Windows there is currently a bug in RStudio that it doesn't know what editor
 #' to open with \code{file.edit} is called (which is what moduleName does). This will return an error:
@@ -292,7 +292,13 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
           "  # did it simulate to the end \n",
           "  expect_true(time(output)==1) \n",
           "  # 2. test the function inside of the module, then, use the line below: \n",
-          "  # output <- mySim$treeGrowthFunction(mySim,otherArguments) \n",
+          "  # To allow the moduleCoverage function to calculate unit test coverage \n",
+          "  #  level, it needs access to all functions directly. Use this approach \n",
+          "  #  to when using any function within the simList object, i.e., one \n",
+          "  #  version as a direct call, and one with simList prepended \n",
+          "  output <- try(treeGrowthFunction(mySim,otherArguments)) \n",
+          "  if(is(output,\"try-error\")){ \n",
+          "   output <- mySim$treeGrowthFunction(mySim,otherArguments)} \n",
           "  # treeGrowthFunction is the function you would like to test, please specify your function name \n",
           "  # otherArguments is the arguments needed for running the function. \n\n",
           "  # output_expected <- # please define your expection of your output. \n",
