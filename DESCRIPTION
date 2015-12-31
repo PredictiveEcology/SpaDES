@@ -27,6 +27,7 @@ Additional_repositories: http://rforge.net
 Depends:
     R (>= 3.2.2)
 Suggests:
+    covr,
     fastshp,
     knitr,
     Matrix,
@@ -59,9 +60,7 @@ Imports:
     secr,
     sp,
     stringi,
-    stringr,
-    covr,
-    testthat
+    stringr
 License: GPL-3
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
