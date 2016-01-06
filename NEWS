@@ -18,7 +18,7 @@ version 1.1.0
 * use warnings instead of errors for missing modules metadata (#233)
 * add event priorities (#236)
 * enhanced functionality of `spread()` (#237)
-* add unit tests and coverage to `newModule` (PR242, PR243)
+* add unit tests and coverage to `newModule` (PR242, PR245)
 * `downloadModule` and `downloadData` now also download children modules/data
 * new function `divergentColors` to generate divergent colour palettes for legends
 * improve efficiency of `loadPackages`
