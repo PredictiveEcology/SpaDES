@@ -24,7 +24,7 @@ In this version we:
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.3.0 (2015-12-28 r69816)
-* Windows           (win-builder), R 3.3.0 (2015-09-10 r69342)
+* Windows           (win-builder), R 3.3.0 (2016-01-06 r69875)
 
 ## R CMD check results
 
