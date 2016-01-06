@@ -2,29 +2,28 @@
 
 In this version we:
 
+* fix issues with `ggplot2` links in .Rd files
 * update maintainer's and authors' email addresses
 * reduced the size of the built vignettes
-* a few minor enhancements (see NEWS)
-* fix several bugs from the previous release
+* several enhancements and bug fixes (see NEWS)
 
 ## Test environments
 
 ### Previous R versions
-* Windows 7               (local), R 3.1.2
-* Windows 7               (local), R 3.1.3
-* Windows 7               (local), R 3.2.0
-* Windows 7               (local), R 3.2.1
-
-### Current R versions
 * Debian Jessie           (local), R 3.2.2
-* OS X Yosemite           (local), R 3.2.2
-* Ubuntu 12.04        (travis-ci), R 3.2.2
 * Ubuntu 14.04            (local), R 3.2.2
 * Windows 7               (local), R 3.2.2
-* Windows           (win-builder), R 3.2.2
+
+### Current R versions
+* Debian Jessie           (local), R 3.2.3
+* OS X Yosemite           (local), R 3.2.3
+* Ubuntu 12.04        (travis-ci), R 3.2.3
+* Ubuntu 14.04            (local), R 3.2.3
+* Windows 7               (local), R 3.2.3
+* Windows           (win-builder), R 3.2.3
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.3.0 (2015-08-26 r69190)
+* Debian:testing (rocker/r-devel), R 3.3.0 (2015-12-28 r69816)
 * Windows           (win-builder), R 3.3.0 (2015-09-10 r69342)
 
 ## R CMD check results
