@@ -118,7 +118,7 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 #'    arguments = arguments,
 #'    loadTime = 0,
 #'    intervals = c(rep(NA, length(files)-1), 10)
-#'    )
+#' )
 #'
 #' sim2 <- loadFiles(filelist = filelist)
 #' end(sim2) <- 20
