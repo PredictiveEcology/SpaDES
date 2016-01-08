@@ -159,13 +159,14 @@ setMethod(
         }
       }
 
-      if (is(filelist, "list")) {
-        filelistDT <- do.call(
-          data.table,
-          args = list(filelist[-match("arguments", names(filelist))])
-        )
-      } else if(!is(filelist, "data.table")) {
+      if(!is(filelist, "data.table") & is(filelist, "data.frame")) {
         filelistDT <- data.table(filelist)
+      } else if (is(filelist, "list")) {
+        filelistDT <- do.call(
+            data.table,
+            args = list(filelist[!(names(filelist) %in% "arguments" )])
+         )
+
       } else {
         filelistDT <- filelist
       }
@@ -268,10 +269,11 @@ setMethod(
   #       filelistDT = filelistDT[keepOnFileList,]
 
       } # if there are no files to load at curTime, then nothing
-      if (is(filelist, "list")) {
-        inputs(sim) <- c(as.list(filelistDT), arguments = arguments[keepOnFileList])
-      } else if (is(filelist, "data.frame")) {
+
+      if (is(filelist, "data.frame")) {
         inputs(sim) <- filelistDT # this is required if intervals is used
+      } else if (is(filelist, "list")) {
+        inputs(sim) <- c(as.list(filelistDT), arguments = arguments)
       } else {
         stop("filelist must be either a list or data.frame")
       }
