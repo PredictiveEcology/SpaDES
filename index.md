@@ -40,6 +40,8 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 **GitHub Repository:** [https://github.com/PredictiveEcology/SpaDES](https://github.com/PredictiveEcology/SpaDES)
 
+**[One of CFS tools](http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)**
+
 **Example Model for R-savy users** [LandCoverChange](https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd). Copy the linked `.Rmd` file to your computer. Open it with a text editor (such as Rstudio), run all chunks in R. It is not intended to be knitted; knitting will only output the script. 
 
 ## Installation
