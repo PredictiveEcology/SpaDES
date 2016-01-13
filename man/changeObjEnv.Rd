@@ -47,19 +47,13 @@ copy or move objects to the \code{envir} environment object.
 }
 \examples{
 e1 <- new.env()
-assign("a1", 1:1e3, envir=e1)
-assign("a2", 1:1e3, envir=e1)
-objs <- c("a1", "a2")
 e2 <- new.env()
+assign("a1", 1:1e3, envir = e1)
+assign("a2", 1:1e3, envir = e1)
+objs <- c("a1", "a2")
 
 # move objects between environments
-changeObjEnv(objs, fromEnv=e1, toEnv=e2)
-
-\dontrun{
-# move objects back to .GlobalEnv from e
-changeObjEnv(objs, .GlobalEnv, e)
-rm(e)
-}
+changeObjEnv(objs, fromEnv = e1, toEnv = e2)
 
 }
 \author{

@@ -104,7 +104,7 @@ filelist = data.frame(
    arguments = arguments,
    loadTime = 0,
    intervals = c(rep(NA, length(files)-1), 10)
-   )
+)
 
 sim2 <- loadFiles(filelist = filelist)
 end(sim2) <- 20
