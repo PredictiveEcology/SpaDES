@@ -42,7 +42,7 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 **Canadian Forest Service:** [Part of CFS adaptation toolkit](http://www.nrcan.gc.ca/forests/climate-change/tools-resources/17770)
 
-**Example Model for R-savy users** [LandCoverChange](https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd). Copy the linked `.Rmd` file to your computer. Open it with a text editor (such as Rstudio), run all chunks in R. It is not intended to be knitted; knitting will only output the script. 
+**Example Model for R-savvy users** [LandCoverChange](https://raw.githubusercontent.com/PredictiveEcology/SpaDES-modules/master/modules/LCC2005/LCC2005.Rmd). Copy the linked `.Rmd` file to your computer. Open it with a text editor (such as Rstudio), run all chunks in R. It is not intended to be knitted; knitting will only output the script. 
 
 ## Installation
 
