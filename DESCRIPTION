@@ -12,7 +12,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
 Version: 1.1.0
-Date: 2016-01-06
+Date: 2016-01-20
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),
