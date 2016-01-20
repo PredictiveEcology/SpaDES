@@ -155,14 +155,13 @@ setGeneric("cache", signature = "...",
 #' @rdname cache
 setMethod(
   "cache",
-  signature = "simList",
   definition = function(cacheRepo, FUN, ..., notOlderThan) {
     tmpl <- list(...)
-
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
-    tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
+    if(length(wh)>0)
+      tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
