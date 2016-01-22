@@ -159,9 +159,12 @@ setMethod(
     tmpl <- list(...)
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
     if(length(wh)>0)
-      tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
+      tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    if(length(whFun)>0)
+      tmpl[whFun] <- lapply(tmpl[whFun], format)
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
