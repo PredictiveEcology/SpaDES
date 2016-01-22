@@ -29,6 +29,7 @@ Additional_repositories: http://rforge.net
 Depends:
     R (>= 3.2.2)
 Suggests:
+    covr,
     fastshp,
     knitr,
     Matrix,
@@ -84,6 +85,7 @@ Collate:
     'moduleMetadata.R'
     'module-repository.R'
     'module-template.R'
+    'moduleCoverage.R'
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
