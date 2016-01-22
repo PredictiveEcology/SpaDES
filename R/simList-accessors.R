@@ -1882,8 +1882,9 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
-#' @importFrom data.table ':='
-#' @importFrom dplyr mutate
+#' @importFrom data.table ':=' data.table
+#' @importFrom dplyr mutate_
+#' @importFrom lazyeval interp
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1898,13 +1899,15 @@ setMethod(
   "events",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@events$eventTime)) {
-      object@events %>%
-        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
-      } else {
-        object@events
-      }
-    return(out)
+    if (!is.null(object@events$eventTime)) {
+      res <- object@events %>%
+        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit)) # NSE doesn't work reliably
+        dplyr::mutate_(.dots=setNames(list(interp(~convertTimeunit(eventTime, unit))), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when events(sim) is invoked. This line brings it back.
+    } else {
+      res <- object@events
+    }
+    return(res)
 })
 
 #' @export
@@ -1912,8 +1915,8 @@ setMethod(
 setMethod("events",
           signature = c(".simList", "missing"),
           definition = function(object, unit) {
-            out <- events(object, timeunit(object))
-            return(out)
+            res <- events(object, timeunit(object))
+            return(res)
 })
 
 #' @export

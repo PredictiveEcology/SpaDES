@@ -1,4 +1,4 @@
-if(getRversion() >= "3.1.0") {
+if (getRversion() >= "3.1.0") {
   utils::globalVariables(c("angles", "pixIDs", "x", "y", "rasterVal"))
 }
 
@@ -9,10 +9,11 @@ if(getRversion() >= "3.1.0") {
 #'  neighbours of the \code{cells}. This is a hybrid function that uses
 #'  matrix for small numbers of loci (<1e4) and data.table for larger numbers of loci
 #'
-#' Between 4x (large number loci) to 200x (small number loci) speed gains over \code{adjacent} in raster package. There is some extra
-#' speed gain if NumCol and NumCells are passed rather than a raster.
+#' Between 4x (large number loci) to 200x (small number loci) speed gains over
+#' \code{adjacent} in raster package. There is some extra speed gain if
+#' \code{NumCol} and \code{NumCells} are passed rather than a raster.
 #' Efficiency gains come from:
-#'  1. use data.table internally
+#'  1. use \code{data.table} internally
 #'     - no need to remove NAs because wrapped or outside points are
 #'       just removed directly with data.table
 #'     - use data.table to sort and fast select (though not fastest possible)
