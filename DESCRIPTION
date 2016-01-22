@@ -54,6 +54,7 @@ Imports:
     gridBase,
     httr,
     igraph,
+    lazyeval,
     lubridate (>= 1.3.3),
     methods,
     R.utils,
