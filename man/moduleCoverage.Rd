@@ -16,18 +16,18 @@ moduleCoverage(name, path)
 \arguments{
 \item{name}{Character string. The module's name.}
 
-\item{path}{Character string. Subdirectory in which to place the new module code file.
-The default is the current working directory.}
+\item{path}{Character string. The path to the module directory
+(default is the current working directory).}
 }
 \value{
 Return two coverage objects: moduleCoverage and functionCoverage.
-               The moduleCoverage contains percentage of coverage by unit tests for the module.
-               The functioinCoverage contains percentages of coverage by unit tests for functions in the module.
-               The returned two objects are compatible to \code{shine} function in \code{covr} package.
-               Please use \code{shine} to view the information of coverage.
+The moduleCoverage contains percentage of coverage by unit tests for the module.
+The functioinCoverage contains percentages of coverage by unit tests for functions in the module.
+The returned two objects are compatible to \code{shine} function in \code{covr} package.
+Please use \code{shine} to view the information of coverage.
 }
 \description{
-Calculate the test coverage by unit tests for the module and functions in module
+Calculate the test coverage by unit tests for the module and its functions.
 }
 \note{
 For running this function, the tests file must be restrictly placed in tests/testthat folder under module path.
@@ -35,12 +35,12 @@ For running this function, the tests file must be restrictly placed in tests/tes
 }
 \examples{
 \dontrun{
- # test module and function coverage for forestAge module
+ library(magrittr)
  library(SpaDES)
- tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
- modulePath <- file.path(tmpdir, "Modules")
- moduleName <- "forestAge"
- downloadModule(name = moduleName, path = modulePath)
+ tmpdir <- tempdir()
+ modulePath <- file.path(tmpdir, "Modules") \%>\% checkPath(create = TRUE)
+ moduleName <- "forestAge" # sample module to test
+ downloadModule(name = moduleName, path = modulePath) # download sample module
  testResults <- moduleCoverage(name = moduleName, path = modulePath)
  shine(testResults$moduleCoverage)
  shine(testResults$functionCoverage)

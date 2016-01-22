@@ -43,9 +43,9 @@ test_that("downloadModule downloads and unzips a parent module", {
   d <- f %>% dirname() %>% basename() %>% unique() %>% sort()
 
   d_expected <- moduleMetadata("LCC2005", tmpdir)$childModules %>%
-    c(m, "data") %>% sort()
+    c(m, "data", "testthat") %>% sort()
 
-  expect_equal(length(f), 40)
+  expect_equal(length(f), 42)
   expect_equal(d, d_expected)
 })
 
