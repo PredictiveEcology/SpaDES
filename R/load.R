@@ -233,8 +233,14 @@ setMethod(
           }
 
           # The actual load call
-          sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
-                                          args = argument)
+          if(identical(loadFun[x], "load")) {
+            do.call(getFromNamespace(loadFun[x], loadPackage[x]),
+                                            args = argument, envir=envir(sim))
+
+          } else {
+            sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
+                                            args = argument)
+          }
           filelistDT[y, loaded:=TRUE]
 
           if (loadFun[x] == "raster") {
@@ -314,6 +320,11 @@ setMethod("loadFiles",
 #' @rdname loadFiles
 .fileExtensions = function() {
   .fE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
+    "Rdata", "load", "base",
+    "rdata", "load", "base",
+    "RData", "load", "base",
+    "rds", "readRDS", "base",
+    "RDS", "readRDS", "base",
     "tif", "raster", "raster",
     "png", "raster", "raster",
     "csv", "read.csv", "utils",
