@@ -283,11 +283,19 @@ setMethod(
       modulesLoaded <- append(modulesLoaded, c)
     }
 
-    # source module metadata and code files
+    # source module metadata and code files, checking version info
+    lapply(modules(sim), function(m) {
+      md <- moduleMetadata(m, modulePath(sim))
+      if (md$version != packageVersion("SpaDES")) {
+        warning("Module ", m, " version (", md$version,
+                ") does not match SpaDES package version (",
+                packageVersion("SpaDES"), ").\n")
+      }
+    })
     all_parsed <- FALSE
     while (!all_parsed) {
       sim <- .parseModule(sim, modules(sim))
-      if (length(.unparsed(modules(sim))) == 0) all_parsed <- TRUE
+      if (length(.unparsed(modules(sim))) == 0) { all_parsed <- TRUE }
     }
 
     # timeunit has no meaning until all modules are loaded,
