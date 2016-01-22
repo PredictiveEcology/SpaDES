@@ -287,7 +287,7 @@ setMethod(
     all_parsed <- FALSE
     while (!all_parsed) {
       sim <- .parseModule(sim, modules(sim))
-      if (length(.unparsed(modules(sim))) == 0) all_parsed <- TRUE
+      if (length(.unparsed(modules(sim))) == 0) { all_parsed <- TRUE }
     }
 
     # timeunit has no meaning until all modules are loaded,
