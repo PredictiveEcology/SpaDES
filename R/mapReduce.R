@@ -49,9 +49,10 @@ if (getRversion() >= "3.1.0") {
 #' setkey(reducedDT, biomass)
 #'
 #' communities <- rasterizeReduced(reducedDT, fullRas, "communities")
-#' setColors(communities) <- c("blue","orange","red")
+#' setColors(communities) <- c("blue", "orange", "red")
 #' Plot(biomass, communities, fullRas, new=TRUE)
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
+
   reduced <- data.table(reduced)
   if (!is.null(key(reduced))) {
     if (key(reduced)!=mapcode) {
@@ -75,8 +76,6 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
   BsumVec[is.na(get(plotCol)), c(plotCol):=NA]
   setkey(BsumVec, row_number)
   ras <- as.character(match.call(expand.dots=TRUE)$reduced)
-  assign(ras,
-         value = raster(res=res(fullRaster), ext=extent(fullRaster), vals=BsumVec[[plotCol]])
-  )
+  assign(ras, value = raster(res=res(fullRaster), ext=extent(fullRaster), vals=BsumVec[[plotCol]]))
   return(get(ras))
 }

@@ -535,10 +535,9 @@ setMethod(
     SpatialLines(lapply(seq_len(length(from)), function(x) {
       Lines(list(Line(
         coords = rbind(coordinates(from)[x,], coordinates(to)[x,])
-      )),ID = x)
+      )), ID = x)
     }), proj4string = crs(from))
-  }
-)
+})
 
 ################################################################################
 #' Parse arguments and find environments
@@ -581,8 +580,7 @@ setMethod(
     if (grepl(deparse(parseTxt[[1]]), pattern = "^eval")) {
       callEnv <- tryCatch(
         eval(
-          match.call(definition = eval,
-                     call = parseTxt)$envir,
+          match.call(definition = eval, call = parseTxt)$envir,
           envir = eminus1
         ),
         error = function(x) {
@@ -791,5 +789,5 @@ setGeneric("gpar", function(...) {
 #' @rdname grid-functions
 setMethod("gpar",
           definition = function(...) {
-                   return(grid::gpar(...))
-                 })
+            return(grid::gpar(...))
+})

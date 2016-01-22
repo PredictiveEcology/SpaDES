@@ -10,7 +10,8 @@
 #' @aliases getColours
 #' @rdname getColors
 #'
-#' @seealso \code{\link{setColors<-}}, \code{\link[RColorBrewer]{brewer.pal}}
+#' @seealso \code{\link{setColors<-}},
+#'          \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
 #'
@@ -20,8 +21,8 @@ setGeneric("getColors", function(object) {
 
 #' @rdname getColors
 setMethod("getColors",
-          signature="Raster",
-          definition=function(object) {
+          signature = "Raster",
+          definition = function(object) {
             cols <- lapply(names(object), function(x) {
               as.character(object[[x]]@legend@colortable)
             })
@@ -31,6 +32,8 @@ setMethod("getColors",
 
 ################################################################################
 #' Set colours for plotting Raster* objects.
+#'
+#' \code{setColors} works as a replacement method or a normal function call.
 #'
 #' @param object     A \code{Raster*} object.
 #'
@@ -62,48 +65,76 @@ setGeneric("setColors<-",
 })
 
 #' @rdname setColors
-setReplaceMethod("setColors",
-                 signature("RasterLayer", "numeric", "character"),
-                 function(object, ..., n, value) {
-                   pal <- colorRampPalette(value, alpha=TRUE, ...)
-                   object@legend@colortable <- pal(n)
-                   validObject(object)
-                   return(object)
+setReplaceMethod(
+  "setColors",
+  signature("RasterLayer", "numeric", "character"),
+  function(object, ..., n, value) {
+    pal <- colorRampPalette(value, alpha = TRUE, ...)
+    object@legend@colortable <- pal(n)
+    validObject(object)
+    return(object)
 })
 
 #' @rdname setColors
-setReplaceMethod("setColors",
-                 signature("RasterLayer", "missing", "character"),
-                 function(object, ..., value) {
-                   n <- round((maxValue(object)-minValue(object)))+1
-                   pal <- colorRampPalette(value, alpha=TRUE, ...)
-                   object@legend@colortable <- pal(n)
-                   validObject(object)
-                   return(object)
+setReplaceMethod(
+  "setColors",
+  signature("RasterLayer", "missing", "character"),
+  function(object, ..., value) {
+    n <- round((maxValue(object) - minValue(object))) + 1
+    pal <- colorRampPalette(value, alpha = TRUE, ...)
+    object@legend@colortable <- pal(n)
+    validObject(object)
+    return(object)
 })
 
 #' @rdname setColors
-setReplaceMethod("setColors",
-                 signature("Raster", "numeric", "list"),
-                 function(object, ..., n, value) {
-                   i <- which(names(object) %in% names(value))
-                   for(x in names(object)[i]) {
-                     setColors(object[[x]], ..., n=n) <- value[[x]]
-                   }
-                   validObject(object)
-                   return(object)
+setReplaceMethod(
+  "setColors",
+   signature("Raster", "numeric", "list"),
+   function(object, ..., n, value) {
+     i <- which(names(object) %in% names(value))
+     for(x in names(object)[i]) {
+       setColors(object[[x]], ..., n = n) <- value[[x]]
+     }
+     validObject(object)
+     return(object)
 })
 
 #' @rdname setColors
-setReplaceMethod("setColors",
-                 signature("Raster", "missing", "list"),
-                 function(object, ..., value) {
-                   i <- which(names(object) %in% names(value))
-                   for(x in names(object)[i]) {
-                     setColors(object[[x]], ...) <- value[[x]]
-                   }
-                   validObject(object)
-                   return(object)
+setReplaceMethod(
+  "setColors",
+   signature("Raster", "missing", "list"),
+   function(object, ..., value) {
+     i <- which(names(object) %in% names(value))
+     for(x in names(object)[i]) {
+       setColors(object[[x]], ...) <- value[[x]]
+     }
+     validObject(object)
+     return(object)
+})
+
+#' @export
+#' @rdname setColors
+setGeneric("setColors", function(object, value, n) {
+  standardGeneric("setColors")
+})
+
+#' @rdname setColors
+setMethod(
+  "setColors",
+  signature("RasterLayer", "character", "numeric"),
+  function(object, value, n) {
+    setColors(object = object, n = n) <- value
+    return(object)
+})
+
+#' @rdname setColors
+setMethod(
+  "setColors",
+  signature("RasterLayer", "character", "missing"),
+  function(object, value) {
+    setColors(object = object) <- value
+    return(object)
 })
 
 ################################################################################
@@ -151,11 +182,10 @@ setReplaceMethod("setColors",
 #'
 setGeneric(".makeColorMatrix",
            function(grobToPlot, zoomExtent, maxpixels, legendRange,
-                    cols=NULL, na.color="#FFFFFF00", zero.color=NULL,
+                    cols = NULL, na.color = "#FFFFFF00", zero.color = NULL,
                     skipSample = TRUE) {
   standardGeneric(".makeColorMatrix")
 })
-
 
 #' @rdname makeColorMatrix
 setMethod(
@@ -302,8 +332,7 @@ setMethod(
     z <- z + 1 # for the NAs
     z[is.na(z)] <- max(1, minz)
 
-    cols <-
-      c(na.color, cols) # make first index of colors be transparent
+    cols <- c(na.color, cols) # make first index of colors be transparent
 
     if ((minz > 1) | (minz < 0)) {
       z <- matrix(
@@ -321,3 +350,64 @@ setMethod(
     )
   }
 )
+
+#' Divergent colour palette
+#'
+#' Creates a palette for the current session for a divergent-color graphic with
+#' a non-symmetric range.
+#' Based on ideas from Maureen Kennedy, Nick Povak, and Alina Cansler.
+#'
+#' @param start.color  Start colour to be passed to \code{colorRampPalette}.
+#' @param end.color    End colour to be passed to \code{colorRampPalette}.
+#' @param min.value    Numeric minimum value corresponding to \code{start.colour}.
+#' @param max.value    Numeric maximum value corresponding to \code{end.colour}.
+#' @param mid.value    Numeric middle value corresponding to \code{mid.colour}.
+#'                     Default is \code{0}.
+#' @param mid.color    Middle colour to be passed to \code{colorRampPalette}.
+#'                     Defaults to \code{"white"}.
+#'
+#' @return A diverging colour palette.
+#'
+#' @seealso \code{\link{colorRampPalette}}
+#' @docType methods
+#' @aliases divergentColours
+#' @importFrom  grDevices colorRampPalette
+#' @export
+#' @author Eliot McIntire and Alex Chubaty
+#'
+#' @examples
+#' divergentColors("darkred", "darkblue", -10, 10, 0, "white")
+setGeneric("divergentColors",
+           function(start.color, end.color, min.value, max.value,
+                    mid.value = 0, mid.color = "white") {
+             standardGeneric("divergentColors")
+})
+
+#' @rdname divergentColors
+#' @aliases divergentColours
+setMethod(
+  "divergentColors",
+  signature = c("character", "character", "numeric", "numeric",
+                "numeric", "character"),
+  definition = function(start.color, end.color, min.value, max.value,
+                        mid.value = 0, mid.color = "white") {
+  ramp1 <- colorRampPalette(c(start.color, mid.color))
+  ramp2 <- colorRampPalette(c(mid.color, end.color))
+
+  # now specify the number of values on either side of "mid.value"
+  max.breaks <- floor((max.value - mid.value) + 1)
+  min.breaks <- floor((mid.value - min.value) + 1)
+
+  # num.breaks <- max(max.breaks, min.breaks)
+  low.ramp <- ramp1(min.breaks)
+  high.ramp <- ramp2(max.breaks)
+  if (min.breaks == 1) { low.ramp <- mid.color }
+
+  # now create a combined ramp from the higher values of "low.ramp" and
+  # the lower values of "high.ramp", with the longer one using all values
+  # high.ramp starts at 2 to avoid duplicating zero
+
+  myColors <- c(low.ramp[1:min.breaks], high.ramp[2:max.breaks])
+
+  return(myColors)
+})

@@ -11,13 +11,15 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.0.3
-Date: 2015-09-10
+Version: 1.1.0
+Date: 2016-01-22
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),
     person(c("Eliot", "J", "B"), "McIntire", email="eliot.mcintire@canada.ca",
     role=c("aut")),
+    person("Yong", "Luo", email="yong.luo@canada.ca",
+    role=c("ctb")),
     person("Steve", "Cumming", email="Steve.Cumming@sbf.ulaval.ca",
     role=c("ctb")),
     person("Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada",
@@ -25,8 +27,9 @@ Authors@R: c(
     )
 Additional_repositories: http://rforge.net
 Depends:
-    R (>= 3.2.0)
+    R (>= 3.2.2)
 Suggests:
+    covr,
     fastshp,
     knitr,
     Matrix,
@@ -41,7 +44,6 @@ Imports:
     data.table,
     DiagrammeR,
     digest,
-    downloader,
     dplyr,
     ff,
     ffbase,
@@ -52,7 +54,8 @@ Imports:
     gridBase,
     httr,
     igraph,
-    lubridate,
+    lazyeval,
+    lubridate (>= 1.3.3),
     methods,
     R.utils,
     RandomFields,
@@ -68,10 +71,11 @@ ByteCompile: yes
 Collate:
     'agent.R'
     'SELES.R'
-    'module-dependencies-class.R'
     'misc-methods.R'
+    'module-dependencies-class.R'
     'simList-class.R'
     'check.R'
+    'priority.R'
     'environment.R'
     'checkpoint.R'
     'initialize.R'
@@ -79,9 +83,10 @@ Collate:
     'load.R'
     'mapReduce.R'
     'module-dependencies-methods.R'
+    'moduleMetadata.R'
     'module-repository.R'
     'module-template.R'
-    'moduleMetadata.R'
+    'moduleCoverage.R'
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
@@ -101,3 +106,4 @@ Collate:
     'splitRaster.R'
     'spread-process.R'
     'zzz.R'
+RoxygenNote: 5.0.1

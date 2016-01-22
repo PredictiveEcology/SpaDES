@@ -25,22 +25,22 @@
 #' y0 <- stats::rnorm(N, y1, 5)   # current Y location
 #'
 #' # using SpatialPoints
-#' prev <- SpatialPoints(cbind(x=x1, y=y1))
-#' curr <- SpatialPoints(cbind(x=x0, y=y0))
+#' prev <- SpatialPoints(cbind(x = x1, y = y1))
+#' curr <- SpatialPoints(cbind(x = x0, y = y0))
 #' heading(prev, curr)
 #'
 #' # using matrix
-#' prev <- matrix(c(x1, y1), ncol=2, dimnames=list(NULL, c("x","y")))
-#' curr <- matrix(c(x0, y0), ncol=2, dimnames=list(NULL, c("x","y")))
+#' prev <- matrix(c(x1, y1), ncol = 2, dimnames = list(NULL, c("x","y")))
+#' curr <- matrix(c(x0, y0), ncol = 2, dimnames = list(NULL, c("x","y")))
 #' heading(prev, curr)
 #'
 #' #using both
-#' prev <- SpatialPoints(cbind(x=x1, y=y1))
-#' curr <- matrix(c(x0, y0), ncol=2, dimnames=list(NULL, c("x","y")))
+#' prev <- SpatialPoints(cbind(x = x1, y = y1))
+#' curr <- matrix(c(x0, y0), ncol = 2, dimnames = list(NULL, c("x","y")))
 #' heading(prev, curr)
 #'
-#' prev <- matrix(c(x1, y1), ncol=2, dimnames=list(NULL, c("x","y")))
-#' curr <- SpatialPoints(cbind(x=x0, y=y0))
+#' prev <- matrix(c(x1, y1), ncol = 2, dimnames = list(NULL, c("x","y")))
+#' curr <- SpatialPoints(cbind(x = x0, y = y0))
 #' heading(prev, curr)
 #'
 setGeneric("heading", function(from, to) {
@@ -50,21 +50,23 @@ setGeneric("heading", function(from, to) {
 #' @export
 #' @rdname heading
 setMethod("heading",
-          signature(from="SpatialPoints", to="SpatialPoints"),
+          signature(from = "SpatialPoints", to = "SpatialPoints"),
           definition = function(from, to) {
-            ys <- (to$y - from$y)
-            xs <- (to$x - from$x)
-            heading = deg(atan((xs) / (ys)))
+            to <- coordinates(to)
+            from <- coordinates(from)
+            ys <- to[,2] - from[,2]
+            xs <- to[,1] - from[,1]
+            heading <- deg(atan((xs) / (ys)))
             ys <- (ys < 0)
-            heading[(ys) & (xs) < 0] = heading[(ys) & (xs) < 0] - 180
-            heading[(ys) & (xs) > 0] = heading[(ys) & (xs) > 0] + 180
+            heading[(ys) & (xs) < 0] <- heading[(ys) & (xs) < 0] - 180
+            heading[(ys) & (xs) > 0] <- heading[(ys) & (xs) > 0] + 180
             return(heading%%360)
 })
 
 #' @export
 #' @rdname heading
 setMethod("heading",
-          signature(from="matrix", to="matrix"),
+          signature(from = "matrix", to = "matrix"),
           definition = function(from, to) {
             return(heading(SpatialPoints(from), SpatialPoints(to)))
 })
@@ -72,7 +74,7 @@ setMethod("heading",
 #' @export
 #' @rdname heading
 setMethod("heading",
-          signature(from="matrix", to="SpatialPoints"),
+          signature(from = "matrix", to = "SpatialPoints"),
           definition = function(from, to) {
             return(heading(SpatialPoints(from), to))
 })
@@ -80,7 +82,7 @@ setMethod("heading",
 #' @export
 #' @rdname heading
 setMethod("heading",
-          signature(from="SpatialPoints", to="matrix"),
+          signature(from = "SpatialPoints", to = "matrix"),
           definition = function(from, to) {
             return(heading(from, SpatialPoints(to)))
 })

@@ -1,5 +1,30 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.1.0
+=============
+* require R version 3.2.2 or higher
+* remove `downloader` from Imports (#203)
+* add `covr` to Suggests and `lazyeval` to Imports
+* require `DiagrammeR` version 0.8.2 or higher which fixes mermaid/knitr/pandoc error (https://github.com/rich-iannone/DiagrammeR/issues/139)
+* add data source info module metadata (#205)
+* new function `downloadData` to download module data (with #205)
+* new function `checksums` to verify MD5 hashes of data files (with #205)
+* warn instead of error when using *e.g.*, `newModule` with Rstudio on Windows (#209)
+* more control of caching behaviour: added `cachePath` to paths slot (#227)
+* only download data if file doesn't exist or checksum mismatch (#229)
+* allow multiple checksums per file in `checksum` (#230)
+* fix error caused by coercing `NA` to arbitrary class for which no suitable `NA` type exists (#231)
+* use warnings instead of errors for missing modules metadata (#233)
+* add event priorities (#236)
+* enhanced functionality of `spread()` (#237)
+* add unit tests and coverage to `newModule` (PR242, PR245)
+* `downloadModule` and `downloadData` now also download children modules/data
+* new function `divergentColors` to generate divergent colour palettes for legends
+* improve efficiency of `loadPackages`
+* change `.spatialObjects` class to `spatialObjects` and export
+* warn user if `SpaDES package` version doesn't match module version
+* other bug fixes
+
 version 1.0.3
 =============
 * fully fix `inputs` data.frame construction in `simInit` (#225)

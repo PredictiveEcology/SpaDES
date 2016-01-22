@@ -1,28 +1,39 @@
 test_that("defineModule correctly handles different inputs", {
   tmp <- simInit()
 
+  # check empty metadata
+  x0 <- list()
+  expect_warning(defineModule(tmp, x0))
+  expect_identical(suppressWarnings(defineModule(tmp, x0)),
+                   suppressWarnings(defineModule(tmp, .emptyMetadata())))
+
+  # check each element in metadata
   x1 <- list(
-    name="testModule",
-    description="this is a test.",
-    keywords=c("test"),
-    childModules=character(),
-    authors=c(person(c("Alex", "M"), "Chubaty", email="achubaty@nrcan.gc.ca", role=c("aut", "cre"))),
-    version=numeric_version("0.0.1"),
-    spatialExtent=raster::extent(rep(NA_real_, 4)),
-    timeframe=as.POSIXlt(c(NA, NA)),
-    timeunit=NA_character_,
-    citation=list(),
-    documentation=list(),
-    reqdPkgs=list("grid", "raster", "sp"),
-    parameters=rbind(defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")),
-    inputObjects=data.frame(objectName="testInput",
-                            objectClass="list",
-                            other=NA_character_,
-                            stringsAsFactors=FALSE),
-    outputObjects=data.frame(objectName="testOutput",
-                             objectClass="list",
-                             other=NA_character_,
-                             stringsAsFactors=FALSE)
+    name = "testModule",
+    description = "this is a test.",
+    keywords = c("test"),
+    childModules = character(),
+    authors = c(person(c("Alex", "M"), "Chubaty",
+                       email = "alexander.chubaty@canada.ca",
+                       role=c("aut", "cre"))),
+    version = numeric_version("0.0.1"),
+    spatialExtent = raster::extent(rep(NA_real_, 4)),
+    timeframe = as.POSIXlt(c(NA, NA)),
+    timeunit = NA_character_,
+    citation = list(),
+    documentation = list(),
+    reqdPkgs = list("grid", "raster", "sp"),
+    parameters = rbind(
+      defineParameter("dummyVal", "numeric", 1.0, NA, NA, "vague description")
+    ),
+    inputObjects = data.frame(
+      objectName = "testInput", objectClass = "list", sourceURL = "",
+      other=NA_character_, stringsAsFactors=FALSE
+    ),
+    outputObjects = data.frame(
+      objectName = "testOutput", objectClass = "list", other = NA_character_,
+      stringsAsFactors = FALSE
+    )
   )
 
   ## check name
@@ -43,9 +54,7 @@ test_that("defineModule correctly handles different inputs", {
   ## check authors
   x2 <- x1
   x2$authors <- "not a person class"
-  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
-                                             x2$name,
-                                             ": authors must be a `person` class."))
+  expect_true({defineModule(tmp, x2); TRUE}) # if error, then TRUE not eval'ed
 
   ## check version
   x2 <- x1
@@ -80,35 +89,31 @@ test_that("defineModule correctly handles different inputs", {
   ## check parameters
   x2 <- x1
   x2$parameters <- "not a data.frame"
-  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
-                                             x2$name,
-                                             ": parameters must be a `data.frame`."))
+  expect_true({defineModule(tmp, x2); TRUE}) # if error, then TRUE not eval'ed
 
   ## check inputObjects
   x2 <- x1
   x2$inputObjects <- "not a data.frame"
-  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
-                                             x2$name,
-                                             ": inputObjects must be a `data.frame`."))
+  expect_true({defineModule(tmp, x2); TRUE}) # if error, then TRUE not eval'ed
+
   ## check authors
   x2 <- x1
   x2$outputObjects <- "not a person class"
-  expect_error(defineModule(tmp, x2), paste0("invalid module definition: ",
-                                             x2$name,
-                                             ": outputObjects must be a `data.frame`."))
+  expect_true({defineModule(tmp, x2); TRUE}) # if error, then TRUE not eval'ed
 })
 
-
-test_that("depsEdgeList and depsGraph do not work", {
-  times <- list(start=0.0, end=10)
-  params <- list(.globals=list(burnStats="npixelsburned", stackName="landscape"),
-                 randomLandscapes=list(.plotInitialTime=NA, .plotInterval=NA),
-                 caribouMovement=list(.plotInitialTime=NA, .plotInterval=NA),
-                 fireSpread=list(.plotInitialTime=NA, .plotInterval=NA))
+test_that("depsEdgeList and depsGraph work", {
+  times <- list(start = 0.0, end = 10)
+  params <- list(
+    .globals = list(burnStats = "npixelsburned", stackName = "landscape"),
+    randomLandscapes = list(.plotInitialTime = NA, .plotInterval = NA),
+    caribouMovement = list(.plotInitialTime = NA, .plotInterval = NA),
+    fireSpread = list(.plotInitialTime = NA, .plotInterval = NA)
+  )
   modules <- list("randomLandscapes", "caribouMovement", "fireSpread")
-  paths <- list(modulePath=system.file("sampleModules", package="SpaDES"))
+  paths <- list(modulePath = system.file("sampleModules", package = "SpaDES"))
 
-  mySim <- simInit(times, params, modules, paths=paths)
+  mySim <- simInit(times, params, modules, paths = paths)
 
   # depsEdgeList
   el <- depsEdgeList(mySim)
@@ -116,8 +121,8 @@ test_that("depsEdgeList and depsGraph do not work", {
                "fireSpread", "randomLandscapes", "randomLandscapes")
   el_to <- c("caribouMovement", "fireSpread", "caribouMovement", "fireSpread",
              "fireSpread", "caribouMovement", "fireSpread")
-  el_objName <- c("landscape", "landscape", "landscape", "landscape", "npixelsburned",
-                  "landscape", "landscape")
+  el_objName <- c("landscape", "landscape", "landscape", "landscape",
+                  "npixelsburned", "landscape", "landscape")
   el_objClass <- c("RasterStack", "RasterStack", "RasterStack", "RasterStack",
                    "numeric", "RasterStack", "RasterStack")
 
@@ -134,7 +139,9 @@ test_that("depsEdgeList and depsGraph do not work", {
   p_to <- c("caribouMovement", "fireSpread")
   p_objName <- c("landscape", "landscape")
   p_objClass <- c("RasterStack", "RasterStack")
-  p_ <- data.table(from=p_from, to=p_to, objName=p_objName, objClass=p_objClass)
+  p_ <- data.table(
+    from = p_from, to = p_to, objName = p_objName, objClass = p_objClass
+  )
 
   expect_is(p, "data.table")
   expect_equivalent(p, p_)

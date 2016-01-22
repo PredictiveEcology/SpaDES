@@ -33,7 +33,7 @@ setAs(from = "list", to = "gpar", function(from) {
 })
 
 ################################################################################
-#' The \code{.spatialObjects} class
+#' The \code{spatialObjects} class
 #'
 #' This class is the union of several spatial objects from raster and sp packages.
 #' Notably missing is \code{RasterBrick}, for now.
@@ -43,16 +43,17 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
 #'
-#' @aliases .spatialObjects
+#' @aliases spatialObjects
 #' @importClassesFrom raster RasterLayer RasterLayerSparse RasterStack
 #' @importClassesFrom sp SpatialLines SpatialLinesDataFrame
 #' @importClassesFrom sp SpatialPixels SpatialPixelsDataFrame
 #' @importClassesFrom sp SpatialPoints SpatialPointsDataFrame
 #' @importClassesFrom sp SpatialPolygons SpatialPolygonsDataFrame
-#' @name .spatialObjects-class
+#' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
-setClassUnion(name=".spatialObjects",
+#' @exportClass spatialObjects
+setClassUnion(name="spatialObjects",
               members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
                         "RasterLayer", "RasterStack")
 )
@@ -60,7 +61,7 @@ setClassUnion(name=".spatialObjects",
 ################################################################################
 #' The \code{.spadesPlotObjects} class
 #'
-#' This class contains the union of .spatialObjects and several other plot-type objects.
+#' This class contains the union of spatialObjects and several other plot-type objects.
 #' These are the object classes that the \code{\link{Plot}} function can handle.
 #'
 #' @seealso \code{\link{spadesClasses}}
@@ -74,7 +75,7 @@ setClassUnion(name=".spatialObjects",
 ## all of `graphics` (for histogram) is being imported in `spades-package.R`
 ## all of `igraph` (for igraph) has to be imported in `spades-package.R`
 setClassUnion(name=".spadesPlotObjects",
-              members=c(".spatialObjects", "gg", "histogram", "igraph"))
+              members=c("spatialObjects", "gg", "histogram", "igraph"))
 
 ################################################################################
 #' The \code{.spadesGrob} class
@@ -174,7 +175,7 @@ setClass(".spadesGrob",
 #' @slot extents list of class Extent objects. These are needed to calculate the
 #' \code{ds.dimensionRatio}, which is used to scale the Spatial objects correctly
 #'
-#' @slot isSpatialObjects logical indicating whether the object(s) are \code{.spatialObjects}
+#' @slot isSpatialObjects logical indicating whether the object(s) are \code{spatialObjects}
 #' or not
 #'
 #' @slot layout list of length 2, with width and height measurements for layout.
