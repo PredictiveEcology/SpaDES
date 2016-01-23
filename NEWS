@@ -22,6 +22,7 @@ version 1.1.0
 * new function `divergentColors` to generate divergent colour palettes for legends
 * improve efficiency of `loadPackages`
 * change `.spatialObjects` class to `spatialObjects` and export
+* add .Rdata and .rds files to automatic loading.
 * warn user if `SpaDES package` version doesn't match module version
 * other bug fixes
 
