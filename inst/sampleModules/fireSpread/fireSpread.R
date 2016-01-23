@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "1.0.3.9034")
+stopifnot(packageVersion("SpaDES") >= "1.1.0")
 
 defineModule(sim, list(
   name = "fireSpread",
@@ -14,7 +14,7 @@ defineModule(sim, list(
             person("Steve", "Cumming",
                    email = "Steve.Cumming@sbf.ulaval.ca",
                    role = c("aut"))),
-  version = numeric_version("2.0.0"),
+  version = numeric_version("1.1.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",

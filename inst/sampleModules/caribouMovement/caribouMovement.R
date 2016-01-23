@@ -1,4 +1,4 @@
-stopifnot(packageVersion("SpaDES") >= "1.0.3.9034")
+stopifnot(packageVersion("SpaDES") >= "1.1.0")
 
 ## module metadata
 defineModule(sim, list(
@@ -9,7 +9,7 @@ defineModule(sim, list(
   authors = c(person(c("Eliot", "J", "B"), "McIntire",
                      email = "eliot.mcintire@canada.ca",
                      role = c("aut", "cre"))),
-  version = numeric_version("2.0.0"),
+  version = numeric_version("1.1.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "month",
