@@ -253,6 +253,10 @@ setMethod(
     paths <- lapply(paths, checkPath, create = TRUE)
     modulesLoaded <- list()
 
+    if (is.null(names(objects))) {
+      stop("Please pass a named list or character vector of object names whose values",
+           "can be found in the parent frame of the simInit call")
+    }
     # user modules
     modules <- modules[!sapply(modules, is.null)] %>%
       lapply(., `attributes<-`, list(parsed=FALSE))
@@ -400,19 +404,7 @@ setMethod(
     checkParams(sim, core, dotParams, modulePath(sim))
 
     if (length(objects)) {
-      # find the simInit call that was responsible for this, get the objects
-      #  in the environment of the parents of that call, and pass them to new
-      #  environment.
-      scalls <- sys.calls()
-      grep1 <- grep(as.character(scalls), pattern = "simInit")
-      grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-        tryCatch(
-          is(parse(text = x), "expression"),
-          error = function(y) { NA })
-        })], na.rm = TRUE)-1, 1)
-      changeObjEnv(x = objects, toEnv = envir(sim),
-                   fromEnv = sys.frames()[[grep1]],
-                   rmSrc = getOption("spades.lowMemory"))
+      list2env(objects, envir=envir(sim))
       inputs(sim) <- bind_rows(list(
         inputs(sim),
         data.frame(
@@ -443,7 +435,19 @@ setMethod("simInit",
 
             li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
             names(li) <- names(match.call())[-1]
-            li$objects <- lapply(objects, function(x) x)
+            # find the simInit call that was responsible for this, get the objects
+            #   in the environment of the parents of that call, and pass them to new
+            #   environment.
+            scalls <- sys.calls()
+            grep1 <- grep(as.character(scalls), pattern = "simInit")
+            grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+              tryCatch(
+                is(parse(text = x), "expression"),
+                error = function(y) { NA })
+            })], na.rm = TRUE)-1, 1)
+            # Convert character strings to their objects
+            li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+            #li$objects <- lapply(objects, function(x) x)
             names(li$objects) <- objects
             sim <- do.call("simInit", args=li)
 
