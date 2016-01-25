@@ -1,7 +1,7 @@
 test_that("module templates work", {
-  library(knitr)
-  path <- file.path(tempdir(), "modules")
-  dir.create(path)
+  library(knitr); on.exit(detach('package:knitr'))
+  library(magrittr); on.exit(detach('package:magrittr'))
+  path <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   expect_true(file.exists(path))
   moduleName <- "myModule"
 
@@ -34,7 +34,7 @@ test_that("module templates work", {
                paste0(moduleName, ".md"))
 
   # Test that the dummy unit tests work
-  test_file(file.path(mpath,"tests", "testthat", "test-DryRun.R"))
+  #test_file(file.path(mpath, "tests", "testthat", "test-DryRun.R"))
 
-  unlink(path, recursive=TRUE)
+  unlink(path, recursive = TRUE)
 })
