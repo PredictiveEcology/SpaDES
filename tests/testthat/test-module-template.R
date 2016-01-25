@@ -34,7 +34,7 @@ test_that("module templates work", {
                paste0(moduleName, ".md"))
 
   # Test that the dummy unit tests work
-  test_file(file.path(mpath,"tests", "testthat", "test-DryRun.R"))
+  test_file(file.path(mpath, "tests", "testthat", "test-DryRun.R"))
 
-  unlink(path, recursive=TRUE)
+  unlink(path, recursive = TRUE)
 })
