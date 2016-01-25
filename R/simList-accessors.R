@@ -907,16 +907,18 @@ setReplaceMethod(
      object@inputs <- value
    }
 
-   # Deal with file names
-   # 2 things: 1. if relative, concatenate inputPath
-   #           2. if absolute, don't use inputPath
-   object@inputs[is.na(object@inputs$file), "file"] <-
-     paste0(object@inputs$objectName[is.na(object@inputs$file)])
+   # Deal with objects and files differently... if files (via inputs arg in simInit)...
+     # Deal with file names
+     # 2 things: 1. if relative, concatenate inputPath
+     #           2. if absolute, don't use inputPath
+   object@inputs[is.na(object@inputs$file), "file"] <- NA
+   #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
+
    # If a filename is provided, determine if it is absolute path, if so,
    # use that, if not, then append it to inputPath(object)
-   object@inputs[!isAbsolutePath(object@inputs$file), "file"] <-
+   object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
      file.path(inputPath(object),
-               object@inputs$file[!isAbsolutePath(object@inputs$file)])
+               object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
    if (any(is.na(object@inputs[, "loaded"]))) {
      if (!all(is.na(object@inputs[, "loadTime"]))) {
