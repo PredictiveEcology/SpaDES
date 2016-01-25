@@ -1,6 +1,6 @@
 ## Updated release
 
-In this version we:
+This is a resubmission. In this version we:
 
 * fix issues with `ggplot2` links in .Rd files
 * update maintainer's and authors' email addresses
@@ -23,7 +23,7 @@ In this version we:
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.3.0 (2016-01-11 r69918)
-* Windows           (win-builder), R 3.3.0 (2016-01-21 r69971)
+* Windows           (win-builder), R 3.3.0 (2016-01-24 r69993)
 
 ## R CMD check results
 
