@@ -64,6 +64,10 @@ setMethod("getFileName",
 #' L2 <- list(a = "gst", c = 42, d = list(letters))
 #' updateList(L1, L2)
 #'
+#' updateList(L1, NULL)
+#' updateList(NULL, L2)
+#' updateList(NULL, NULL) # should return empty list
+#'
 setGeneric("updateList", function(x, y) {
   standardGeneric("updateList")
 })
