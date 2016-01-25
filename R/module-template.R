@@ -170,7 +170,7 @@ defineModule(sim, list(
   keywords = c(\"insert key words here\"),
   authors = c(person(c(\"First\", \"Middle\"), \"Last\", email=\"email@example.com\", role=c(\"aut\", \"cre\"))),
   childModules = character(),
-  version = numeric_version(\"", packageVersion("SpaDES"), "\"),
+  version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = NA_character_, # e.g., \"year,\",
