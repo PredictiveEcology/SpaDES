@@ -1885,6 +1885,7 @@ setMethod(
 #' @importFrom data.table ':=' data.table
 #' @importFrom dplyr mutate_
 #' @importFrom lazyeval interp
+#' @importFrom stats setNames
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1902,8 +1903,9 @@ setMethod(
     if (!is.null(object@events$eventTime)) {
       res <- object@events %>%
         # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit)) # NSE doesn't work reliably
-        dplyr::mutate_(.dots=setNames(list(interp(~convertTimeunit(eventTime, unit))), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when events(sim) is invoked. This line brings it back.
+        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit))), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # events(sim) is invoked. This line brings it back.
     } else {
       res <- object@events
     }
