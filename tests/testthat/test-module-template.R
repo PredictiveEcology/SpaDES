@@ -1,6 +1,6 @@
 test_that("module templates work", {
-  library(knitr); on.exit(detach(knitr))
-  library(magrittr); on.exit(detach(magrittr))
+  library(knitr); on.exit(detach('package:knitr'))
+  library(magrittr); on.exit(detach('package:magrittr'))
   path <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   expect_true(file.exists(path))
   moduleName <- "myModule"
