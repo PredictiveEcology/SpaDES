@@ -452,6 +452,22 @@ setMethod("simInit",
             return(invisible(sim))
 })
 
+## Only deal with modules as character vector
+#' @rdname simInit
+setMethod("simInit",
+          signature(times = "ANY", params = "ANY", modules = "character",
+                    objects = "ANY", paths = "ANY",
+                    inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
+          definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+
+            li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
+            names(li) <- names(match.call())[-1]
+            li$modules <- as.list(modules)
+            sim <- do.call("simInit", args=li)
+
+            return(invisible(sim))
+          })
+
 ###### individual missing elements
 #' @rdname simInit
 setMethod("simInit",
