@@ -18,12 +18,14 @@ version 1.1.0
 * add event priorities (#236)
 * enhanced functionality of `spread()` (#237)
 * add unit tests and coverage to `newModule` (PR242, PR245)
+* objects passed to `simInit` can be named differently from their objects (#247)
 * `downloadModule` and `downloadData` now also download children modules/data
 * new function `divergentColors` to generate divergent colour palettes for legends
 * improve efficiency of `loadPackages`
 * change `.spatialObjects` class to `spatialObjects` and export
 * add .Rdata and .rds files to automatic loading.
 * warn user if `SpaDES package` version doesn't match module version
+* allow more signatures in simInit (modules can be character)
 * other bug fixes
 
 version 1.0.3

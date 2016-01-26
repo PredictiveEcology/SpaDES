@@ -23,7 +23,7 @@ This is a resubmission. In this version we:
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.3.0 (2016-01-11 r69918)
-* Windows           (win-builder), R 3.3.0 (2016-01-24 r69993)
+* Windows           (win-builder), R 3.3.0 (2016-01-25 r70000)
 
 ## R CMD check results
 

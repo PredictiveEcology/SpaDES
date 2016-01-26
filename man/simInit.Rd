@@ -5,6 +5,7 @@
 \alias{simInit}
 \alias{simInit,ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY-method}
 \alias{simInit,ANY,ANY,ANY,character,ANY,ANY,ANY,ANY-method}
+\alias{simInit,ANY,ANY,character,ANY,ANY,ANY,ANY,ANY-method}
 \alias{simInit,list,list,list,list,list,data.frame,data.frame,character-method}
 \title{Initialize a new simulation}
 \usage{
@@ -15,6 +16,9 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
   params, modules, objects, paths, inputs, outputs, loadOrder)
 
 \S4method{simInit}{ANY,ANY,ANY,character,ANY,ANY,ANY,ANY}(times, params,
+  modules, objects, paths, inputs, outputs, loadOrder)
+
+\S4method{simInit}{ANY,ANY,character,ANY,ANY,ANY,ANY,ANY}(times, params,
   modules, objects, paths, inputs, outputs, loadOrder)
 
 \S4method{simInit}{ANY,ANY,ANY,ANY,ANY,ANY,ANY,ANY}(times, params, modules,
