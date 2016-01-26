@@ -425,7 +425,6 @@ setMethod(
 })
 
 ## Only deal with objects as character
-
 #' @rdname simInit
 setMethod("simInit",
           signature(times = "ANY", params = "ANY", modules = "ANY",
@@ -447,7 +446,6 @@ setMethod("simInit",
             })], na.rm = TRUE)-1, 1)
             # Convert character strings to their objects
             li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
-            #li$objects <- lapply(objects, function(x) x)
             names(li$objects) <- objects
             sim <- do.call("simInit", args=li)
 
@@ -492,9 +490,11 @@ setMethod("simInit",
             if(!all(sapply(1:length(li), function(x)
               is(li[[x]], expectedClasses[x]))))
                    stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
-                        "Some of these can be missing, but it is safer to specify everything explicitly. ",
-                        "A common issue is that an argument is passed as a character string instead of list.",
-                        "For the currently defined options for simInit, type showMethods'simInit'.")
+                        "Currently, times, params, modules, and paths must be lists (or missing), ",
+                        "objects can be named list or character vector (or missing),",
+                        "inputs and outputs must be data.frames (or missing)",
+                        "and loadOrder must be a character vector (or missing)",
+                        "For the currently defined options for simInit, type showMethods('simInit').")
             sim <- do.call("simInit", args=li)
 
             return(invisible(sim))
