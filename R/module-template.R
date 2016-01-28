@@ -530,7 +530,7 @@ setMethod(
 
     # create two R files in unit tests folder:
     unitTestsR <- file.path(testDir, "unitTests.R") # source this to run all tests
-    testTemplate <- file.path(testthatDir, "test-DryRun.R")
+    testTemplate <- file.path(testthatDir, "test-template.R")
 
     cat("
 # Please build your own test file from test-Template.R, and place it in tests folder
@@ -540,7 +540,7 @@ setMethod(
 test_dir(\"", testDir, "\")
 
 # Alternative, you can use test_file to test individual test file, e.g.:
-test_file(\"", file.path(testthatDir, "test-DryRun.R"), "\")\n",
+test_file(\"", file.path(testthatDir, "test-template.R"), "\")\n",
         file = unitTestsR, fill = FALSE, sep = "")
 
     ## test template file
@@ -587,7 +587,7 @@ expect_true(any(unlist(modules(output)) %in% c(unlist(module))))
 # did it simulate to the end?
 expect_true(time(output) == 1)
 
-# 2. test the function inside of the module, then, use the line below:
+# 2. test the functions inside of the module, then, use the line below:
 # To allow the moduleCoverage function to calculate unit test coverage
 # level, it needs access to all functions directly. Use this approach
 # to when using any function within the simList object,

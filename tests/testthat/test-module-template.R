@@ -19,7 +19,7 @@ test_that("module templates work", {
   expect_true(dir.exists(file.path(mpath, "tests")))
   expect_true(dir.exists(file.path(mpath, "tests", "testthat")))
   expect_true(file.exists(file.path(mpath, "tests", "unitTests.R")))
-  expect_true(file.exists(file.path(mpath, "tests", "testthat", "test-DryRun.R")))
+  expect_true(file.exists(file.path(mpath, "tests", "testthat", "test-template.R")))
   expect_true(file.exists(file.path(mpath, "data", "CHECKSUMS.txt")))
 
   utils::capture.output(
@@ -34,7 +34,7 @@ test_that("module templates work", {
                paste0(moduleName, ".md"))
 
   # Test that the dummy unit tests work
-  #test_file(file.path(mpath, "tests", "testthat", "test-DryRun.R"))
+  #test_file(file.path(mpath, "tests", "testthat", "test-template.R"))
 
   unlink(path, recursive = TRUE)
 })
