@@ -594,7 +594,7 @@ expect_true(time(output) == 1)
 # i.e., one version as a direct call, and one with simList prepended.
 
 output <- try(treeGrowthFunction(mySim, otherArguments))
-if (is(output,\"try-error\")) {
+if (is(output, \"try-error\")) {
   output <- mySim$treeGrowthFunction(mySim, otherArguments)
 }
 
