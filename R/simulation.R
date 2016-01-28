@@ -253,6 +253,10 @@ setMethod(
     paths <- lapply(paths, checkPath, create = TRUE)
     modulesLoaded <- list()
 
+    if (length(names(objects)) != length(objects)) {
+      stop("Please pass a named list or character vector of object names whose values",
+           "can be found in the parent frame of the simInit call")
+    }
     # user modules
     modules <- modules[!sapply(modules, is.null)] %>%
       lapply(., `attributes<-`, list(parsed=FALSE))
@@ -283,11 +287,19 @@ setMethod(
       modulesLoaded <- append(modulesLoaded, c)
     }
 
-    # source module metadata and code files
+    # source module metadata and code files, checking version info
+    lapply(modules(sim), function(m) {
+      md <- moduleMetadata(m, modulePath(sim))
+      if (md$version != packageVersion("SpaDES")) {
+        warning("Module ", m, " version (", md$version,
+                ") does not match SpaDES package version (",
+                packageVersion("SpaDES"), ").\n")
+      }
+    })
     all_parsed <- FALSE
     while (!all_parsed) {
       sim <- .parseModule(sim, modules(sim))
-      if (length(.unparsed(modules(sim))) == 0) all_parsed <- TRUE
+      if (length(.unparsed(modules(sim))) == 0) { all_parsed <- TRUE }
     }
 
     # timeunit has no meaning until all modules are loaded,
@@ -392,19 +404,7 @@ setMethod(
     checkParams(sim, core, dotParams, modulePath(sim))
 
     if (length(objects)) {
-      # find the simInit call that was responsible for this, get the objects
-      #  in the environment of the parents of that call, and pass them to new
-      #  environment.
-      scalls <- sys.calls()
-      grep1 <- grep(as.character(scalls), pattern = "simInit")
-      grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-        tryCatch(
-          is(parse(text = x), "expression"),
-          error = function(y) { NA })
-        })], na.rm = TRUE)-1, 1)
-      changeObjEnv(x = objects, toEnv = envir(sim),
-                   fromEnv = sys.frames()[[grep1]],
-                   rmSrc = getOption("spades.lowMemory"))
+      list2env(objects, envir=envir(sim))
       inputs(sim) <- bind_rows(list(
         inputs(sim),
         data.frame(
@@ -425,7 +425,6 @@ setMethod(
 })
 
 ## Only deal with objects as character
-
 #' @rdname simInit
 setMethod("simInit",
           signature(times = "ANY", params = "ANY", modules = "ANY",
@@ -435,12 +434,39 @@ setMethod("simInit",
 
             li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
             names(li) <- names(match.call())[-1]
-            li$objects <- lapply(objects, function(x) x)
+            # find the simInit call that was responsible for this, get the objects
+            #   in the environment of the parents of that call, and pass them to new
+            #   environment.
+            scalls <- sys.calls()
+            grep1 <- grep(as.character(scalls), pattern = "simInit")
+            grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+              tryCatch(
+                is(parse(text = x), "expression"),
+                error = function(y) { NA })
+            })], na.rm = TRUE)-1, 1)
+            # Convert character strings to their objects
+            li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
             names(li$objects) <- objects
             sim <- do.call("simInit", args=li)
 
             return(invisible(sim))
 })
+
+## Only deal with modules as character vector
+#' @rdname simInit
+setMethod("simInit",
+          signature(times = "ANY", params = "ANY", modules = "character",
+                    objects = "ANY", paths = "ANY",
+                    inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
+          definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+
+            li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
+            names(li) <- names(match.call())[-1]
+            li$modules <- as.list(modules)
+            sim <- do.call("simInit", args=li)
+
+            return(invisible(sim))
+          })
 
 ###### individual missing elements
 #' @rdname simInit
@@ -480,9 +506,11 @@ setMethod("simInit",
             if(!all(sapply(1:length(li), function(x)
               is(li[[x]], expectedClasses[x]))))
                    stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
-                        "Some of these can be missing, but it is safer to specify everything explicitly. ",
-                        "A common issue is that an argument is passed as a character string instead of list.",
-                        "For the currently defined options for simInit, type showMethods'simInit'.")
+                        "Currently, times, params, modules, and paths must be lists (or missing), ",
+                        "objects can be named list or character vector (or missing),",
+                        "inputs and outputs must be data.frames (or missing)",
+                        "and loadOrder must be a character vector (or missing)",
+                        "For the currently defined options for simInit, type showMethods('simInit').")
             sim <- do.call("simInit", args=li)
 
             return(invisible(sim))

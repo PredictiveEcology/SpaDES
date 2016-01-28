@@ -11,11 +11,15 @@
 \alias{newModule,character,missing,logical,missing-method}
 \alias{newModule,character,missing,missing,logical-method}
 \alias{newModule,character,missing,missing,missing-method}
+\alias{newModuleCode}
+\alias{newModuleCode,character,character,logical-method}
 \alias{newModuleDocumentation}
 \alias{newModuleDocumentation,character,character,logical-method}
 \alias{newModuleDocumentation,character,character,missing-method}
 \alias{newModuleDocumentation,character,missing,logical-method}
 \alias{newModuleDocumentation,character,missing,missing-method}
+\alias{newModuleTests}
+\alias{newModuleTests,character,character,logical-method}
 \title{Create new module from template.}
 \usage{
 newModule(name, path, open, unitTests)
@@ -37,6 +41,10 @@ newModule(name, path, open, unitTests)
 
 \S4method{newModule}{character,missing,missing,missing}(name)
 
+newModuleCode(name, path, open)
+
+\S4method{newModuleCode}{character,character,logical}(name, path, open)
+
 newModuleDocumentation(name, path, open)
 
 \S4method{newModuleDocumentation}{character,character,logical}(name, path, open)
@@ -46,6 +54,10 @@ newModuleDocumentation(name, path, open)
 \S4method{newModuleDocumentation}{character,character,missing}(name, path)
 
 \S4method{newModuleDocumentation}{character,missing,missing}(name)
+
+newModuleTests(name, path, open)
+
+\S4method{newModuleTests}{character,character,logical}(name, path, open)
 }
 \arguments{
 \item{name}{Character string. Your module's name.}
@@ -93,6 +105,10 @@ You can just browse to the file and open it manually.
 \author{
 Alex Chubaty and Eliot McIntire
 
+Eliot McIntire and Alex Chubaty
+
 Eliot McIntire
+
+Eliot McIntire and Alex Chubaty
 }
 

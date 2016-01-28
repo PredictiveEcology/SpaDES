@@ -155,14 +155,16 @@ setGeneric("cache", signature = "...",
 #' @rdname cache
 setMethod(
   "cache",
-  signature = "simList",
   definition = function(cacheRepo, FUN, ..., notOlderThan) {
     tmpl <- list(...)
-
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
+    whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
-    tmpl[[wh]] <- makeDigestible(tmpl[[wh]])
+    if(length(wh)>0)
+      tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    if(length(whFun)>0)
+      tmpl[whFun] <- lapply(tmpl[whFun], format)
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
@@ -272,3 +274,42 @@ setMethod(
 
     simList
 })
+
+
+
+################################################################################
+#' Clear erroneous archivist artifacts
+#'
+#' When an archive object is being saved, if this is occurring at the same time
+#' as another process doing the same thing, a stub of a artifact occurs. This
+#' function will clear those stubs.
+#'
+#' @return Done for its side effect on the repoDir
+#'
+#' @param repoDir A character denoting an existing directory of the Repository for
+#' which metadata will be returned. If it is set to NULL (by default), it
+#' will use the repoDir specified in \code{archivist::setLocalRepo}.
+#'
+#' @export
+#' @importFrom archivist showLocalRepo rmFromRepo
+#' @docType methods
+#' @rdname clearStubArtifacts
+#' @author Eliot McIntire
+setGeneric("clearStubArtifacts", function(repoDir = NULL) {
+             standardGeneric("clearStubArtifacts")
+           })
+
+#' @export
+#' @rdname clearStubArtifacts
+setMethod(
+  "clearStubArtifacts",
+  definition = function(repoDir) {
+    md5hashInBackpack = showLocalRepo(repoDir=repoDir)$md5hash
+    listFiles <- dir(file.path(repoDir, "gallery")) %>% strsplit(".rda") %>% unlist()
+    toRemove <- !(md5hashInBackpack %in% listFiles)
+    md5hashInBackpack[toRemove] %>%
+      sapply(., rmFromRepo, repoDir=repoDir)
+    return(invisible(md5hashInBackpack[toRemove]))
+  }
+)
+

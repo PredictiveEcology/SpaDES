@@ -118,7 +118,7 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 #'    arguments = arguments,
 #'    loadTime = 0,
 #'    intervals = c(rep(NA, length(files)-1), 10)
-#'    )
+#' )
 #'
 #' sim2 <- loadFiles(filelist = filelist)
 #' end(sim2) <- 20
@@ -159,13 +159,14 @@ setMethod(
         }
       }
 
-      if (is(filelist, "list")) {
-        filelistDT <- do.call(
-          data.table,
-          args = list(filelist[-match("arguments", names(filelist))])
-        )
-      } else if(!is(filelist, "data.table")) {
+      if(!is(filelist, "data.table") & is(filelist, "data.frame")) {
         filelistDT <- data.table(filelist)
+      } else if (is(filelist, "list")) {
+        filelistDT <- do.call(
+            data.table,
+            args = list(filelist[!(names(filelist) %in% "arguments" )])
+         )
+
       } else {
         filelistDT <- filelist
       }
@@ -232,8 +233,14 @@ setMethod(
           }
 
           # The actual load call
-          sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
-                                          args = argument)
+          if(identical(loadFun[x], "load")) {
+            do.call(getFromNamespace(loadFun[x], loadPackage[x]),
+                                            args = argument, envir=envir(sim))
+
+          } else {
+            sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),
+                                            args = argument)
+          }
           filelistDT[y, loaded:=TRUE]
 
           if (loadFun[x] == "raster") {
@@ -268,10 +275,11 @@ setMethod(
   #       filelistDT = filelistDT[keepOnFileList,]
 
       } # if there are no files to load at curTime, then nothing
-      if (is(filelist, "list")) {
-        inputs(sim) <- c(as.list(filelistDT), arguments = arguments[keepOnFileList])
-      } else if (is(filelist, "data.frame")) {
+
+      if (is(filelist, "data.frame")) {
         inputs(sim) <- filelistDT # this is required if intervals is used
+      } else if (is(filelist, "list")) {
+        inputs(sim) <- c(as.list(filelistDT), arguments = arguments)
       } else {
         stop("filelist must be either a list or data.frame")
       }
@@ -312,6 +320,11 @@ setMethod("loadFiles",
 #' @rdname loadFiles
 .fileExtensions = function() {
   .fE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
+    "Rdata", "load", "base",
+    "rdata", "load", "base",
+    "RData", "load", "base",
+    "rds", "readRDS", "base",
+    "RDS", "readRDS", "base",
     "tif", "raster", "raster",
     "png", "raster", "raster",
     "csv", "read.csv", "utils",

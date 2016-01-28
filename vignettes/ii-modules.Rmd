@@ -315,7 +315,7 @@ Simulation time is presented on the x-axis, starting at date `startDate`.
 Each module appears in a color-coded row, within which each event for that module is displayed corresponding to the sequence of events for that module.
 Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
 
-```{r sim-event-diagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+```{r sim-eventDiagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 require(igraph) # for %>%
 require(SpaDES)
 parameters <- list(
@@ -343,11 +343,13 @@ dev.off()
 unlink(ftmp)
 ```
 
-```{r gantt-chart-sim, eval=TRUE, fig.height=10, fig.width=7}
+```{r eventDiagram, eval=TRUE, fig.height=10, fig.width=7}
 mySim <- spades(mySim) # runs the simulation
 
 # overview of the events in the simulation
-eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
+if (packageVersion("DiagrammeR") >= "0.8.2") {
+  eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
+}
 ```
 
 ## Module documentation (`moduleName.Rmd`)
@@ -419,7 +421,7 @@ Note that modules need not be inter-dependent on one another: module B may depen
 
 To view the dependencies for a simulation:
 
-```{r depsGraph, eval=TRUE, echo=TRUE, message=FALSE, fig.width=7}
+```{r module-object-diagrams, eval=TRUE, echo=TRUE, message=FALSE, fig.width=7}
 require(SpaDES)
 
 times <- list(start=0.0, end=20)
@@ -436,7 +438,9 @@ depsEdgeList(mySim, FALSE)      # all object dependency relationships
 moduleDiagram(mySim)            # simplified visual representation of modules
 
 # detailed visual representation of objects
-objectDiagram(mySim, width = 720)
+if (packageVersion("DiagrammeR") >= "0.8.2") {
+  objectDiagram(mySim, width = 720)
+}
 ```
 
 The output of the `depsEdgeList` is an edgelist describing the relationships between each module.

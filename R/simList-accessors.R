@@ -907,16 +907,18 @@ setReplaceMethod(
      object@inputs <- value
    }
 
-   # Deal with file names
-   # 2 things: 1. if relative, concatenate inputPath
-   #           2. if absolute, don't use inputPath
-   object@inputs[is.na(object@inputs$file), "file"] <-
-     paste0(object@inputs$objectName[is.na(object@inputs$file)])
+   # Deal with objects and files differently... if files (via inputs arg in simInit)...
+     # Deal with file names
+     # 2 things: 1. if relative, concatenate inputPath
+     #           2. if absolute, don't use inputPath
+   object@inputs[is.na(object@inputs$file), "file"] <- NA
+   #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
+
    # If a filename is provided, determine if it is absolute path, if so,
    # use that, if not, then append it to inputPath(object)
-   object@inputs[!isAbsolutePath(object@inputs$file), "file"] <-
+   object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
      file.path(inputPath(object),
-               object@inputs$file[!isAbsolutePath(object@inputs$file)])
+               object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
    if (any(is.na(object@inputs[, "loaded"]))) {
      if (!all(is.na(object@inputs[, "loadTime"]))) {
@@ -1882,8 +1884,10 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
-#' @importFrom data.table ':='
-#' @importFrom dplyr mutate
+#' @importFrom data.table ':=' data.table
+#' @importFrom dplyr mutate_
+#' @importFrom lazyeval interp
+#' @importFrom stats setNames
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1898,13 +1902,16 @@ setMethod(
   "events",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@events$eventTime)) {
-      object@events %>%
-        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
-      } else {
-        object@events
-      }
-    return(out)
+    if (!is.null(object@events$eventTime)) {
+      res <- object@events %>%
+        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit)) # NSE doesn't work reliably
+        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit))), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # events(sim) is invoked. This line brings it back.
+    } else {
+      res <- object@events
+    }
+    return(res)
 })
 
 #' @export
@@ -1912,8 +1919,8 @@ setMethod(
 setMethod("events",
           signature = c(".simList", "missing"),
           definition = function(object, unit) {
-            out <- events(object, timeunit(object))
-            return(out)
+            res <- events(object, timeunit(object))
+            return(res)
 })
 
 #' @export

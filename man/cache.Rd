@@ -3,12 +3,12 @@
 \docType{methods}
 \name{cache}
 \alias{cache}
-\alias{cache,simList-method}
+\alias{cache,ANY-method}
 \title{Cache method for simList class objects}
 \usage{
 cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 
-\S4method{cache}{simList}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
+\S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 }
 \arguments{
 \item{cacheRepo}{An object repository used for storing cached objects.}

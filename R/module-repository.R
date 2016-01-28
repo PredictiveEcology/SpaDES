@@ -160,6 +160,13 @@ setMethod(
     path <- checkPath(path, create = TRUE)
     checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
+
+    if (packageVersion("SpaDES") != as.numeric_version(version)) {
+      warning("Module version (", as.numeric_version(version),
+              ") does not match SpaDES package version (",
+              packageVersion("SpaDES"), ").\n")
+    }
+
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
     localzip <- file.path(path, basename(zip))

@@ -470,8 +470,9 @@ setMethod(
     spre <- raster(landscape)
     spre[] <- 0
     spre[wh] <- spreads[wh]
-    if(NROW(potentials)>0)
-      spre[potentials[,1L]] <- spreads[potentials[,2L]]
+    if(exists("potentials"))
+      if(NROW(potentials)>0)
+        spre[potentials[,1L]] <- spreads[potentials[,2L]]
     return(spre)
   }
 )
