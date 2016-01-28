@@ -551,7 +551,7 @@ test_file(\"", file.path(testthatDir, "test-DryRun.R"), "\")\n",
 # 3. modify the test description, i.e., test tree growth function, based on the content you are testing:,
 test_that(\"test tree growth function\", {
 module <- list(\"", name, "\")
-path <- list(modulePath = \"", path, "\", outputPath = \"~/output\")
+path <- list(modulePath = \"", path, "\", outputPath = file.path(tempdir(), \"outputs\"))
 parameters <- list(
   #.progress = list(type = \"graphical\", interval = 1),
   .globals = list(verbose = FALSE),
