@@ -582,7 +582,7 @@ output <- spades(mySim, debug = FALSE)
 expect_is(output, \"simList\")
 
 # does output have your module in it
-expect_true(any(unlist(modules(output)) %in%  c(unlist(module))))
+expect_true(any(unlist(modules(output)) %in% c(unlist(module))))
 
 # did it simulate to the end?
 expect_true(time(output) == 1)
@@ -602,7 +602,7 @@ if (is(output, \"try-error\")) {
 # otherArguments is the arguments needed for running the function.
 
 # output_expected <- # please define your expection of your output
-# expect_equal(output,output_expected) # or other expect function in testthat package.
+# expect_equal(output, output_expected) # or other expect function in testthat package.
 })",
       file = testTemplate, fill = FALSE, sep = "")
 })
