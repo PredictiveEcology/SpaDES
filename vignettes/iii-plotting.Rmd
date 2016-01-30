@@ -2,7 +2,7 @@
 title: "03 Plotting with `SpaDES`"
 author:
   - "Eliot J. B. McIntire"
-date: '`r format(Sys.Date(), format="%B %d %Y")`'
+date: '`r format(Sys.Date(), format = "%B %d %Y")`'
 output:
   rmarkdown::html_vignette:
     fig_width: 7
@@ -46,17 +46,17 @@ Then we load that list of files.
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
-require(igraph)
-require(SpaDES)
 require(data.table)
+require(igraph)
 require(raster)
-filelist <- system.file("maps", package="SpaDES") %>%
-  dir(., full.names=TRUE, pattern= "tif") %>%
-  data.table(files=., functions="rasterToMemory", package="SpaDES") %>%
-  .[-c(2,5),]  # omit forestAge and percentPine for simplicity
+require(SpaDES)
+filelist <- system.file("maps", package = "SpaDES") %>%
+  dir(., full.names = TRUE, pattern = "tif") %>%
+  data.table(files = ., functions = "rasterToMemory", package = "SpaDES") %>%
+  .[-c(2, 5), ]  # omit forestAge and percentPine for simplicity
 print(filelist)
 # Load files to memory (using rasterToMemory), assign to a simList we call mySim 
-mySim <- loadFiles(filelist=filelist)
+mySim <- loadFiles(filelist = filelist)
 # put into a single stack object in the simulation environment for ease of use below
 landscape <- stack(mySim$DEM, mySim$forestCover, mySim$habitatQuality)
 ```
@@ -74,39 +74,41 @@ Because `Plot` uses the `grid` graphics system, changing plot parameters is done
 See `?gpar` for options.
 
 ```{r first_plot, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 # make a SpatialPoints object
-caribou <- SpatialPoints(coords=cbind(x=stats::runif(1e2,-50,50), y=stats::runif(1e2,-50,50)))
+caribou <- SpatialPoints(coords = cbind(x = stats::runif(1e2, -50, 50),
+                                        y = stats::runif(1e2, -50, 50)))
 Plot(caribou)
-Plot(caribou, addTo="landscape$habitatQuality")
+Plot(caribou, addTo = "landscape$habitatQuality")
 
 # from SpatialPolygons help file
-Sr1 = Polygon(cbind(c(2,4,4,1,2), c(2,3,5,4,2))*20-50)
-Sr2 = Polygon(cbind(c(5,4,2,5), c(2,3,2,2))*20-50)
+Sr1 <- Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
+Sr2 <- Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
 
-Srs1 = Polygons(list(Sr1), "s1")
-Srs2 = Polygons(list(Sr2), "s2")
-SpP = SpatialPolygons(list(Srs1,Srs2), 1:2)
+Srs1 <- Polygons(list(Sr1), "s1")
+Srs2 <- Polygons(list(Sr2), "s2")
+SpP <- SpatialPolygons(list(Srs1, Srs2), 1:2)
 Plot(SpP)
-Plot(SpP, addTo="landscape$habitatQuality", gp=gpar(lwd=2))
+Plot(SpP, addTo = "landscape$habitatQuality", gp = gpar(lwd = 2))
 
 # from SpatialLines help file
-l1 = cbind(c(10,2,30),c(30,2,2))
-l1a = cbind(l1[,1]+.05,l1[,2]+.05)
-l2 = cbind(c(1,20,3),c(10,1.5,1))
+l1 = cbind(c(10, 2, 30), c(30, 2, 2))
+l1a = cbind(l1[, 1] + .05, l1[, 2] + .05)
+l2 = cbind(c(1, 20, 3), c(10, 1.5, 1))
 Sl1 = Line(l1)
 Sl1a = Line(l1a)
 Sl2 = Line(l2)
-S1 = Lines(list(Sl1, Sl1a), ID="a")
-S2 = Lines(list(Sl2), ID="b")
-Sl = SpatialLines(list(S1,S2))
-Plot(Sl, gp=gpar(col = c("red", "blue"), lwd=2), addTo="landscape$DEM")
+S1 = Lines(list(Sl1, Sl1a), ID = "a")
+S2 = Lines(list(Sl2), ID = "b")
+Sl = SpatialLines(list(S1, S2))
+Plot(Sl, gp = gpar(col = c("red", "blue"), lwd = 2), addTo = "landscape$DEM")
 ```
 
 Any combination of `RasterStack`, `RasterLayer`, `SpatialPoints*`, and `SpatialPolygons*` objects can be plotted from a single invocation of `Plot`:
 
 ```{r mixing_layer_types, eval=TRUE, echo=TRUE, fig.height=5}
-Plot(landscape, caribou, mySim$DEM, SpP, new=TRUE, axes=TRUE, gp=gpar(cex=0.5), visualSqueeze=0.7)
+Plot(landscape, caribou, mySim$DEM, SpP, new = TRUE, axes = TRUE,
+     gp = gpar(cex = 0.5), visualSqueeze = 0.7)
 ```
 
 ## Other object types
@@ -118,9 +120,9 @@ These can be combined with spatial objects as well.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
 require(ggplot2)
-ggObj <- qplot(stats::rnorm(1e3), binwidth=0.1)
+ggObj <- qplot(stats::rnorm(1e3), binwidth = 0.1)
 
-Plot(caribou, ggObj, new=TRUE) 
+Plot(caribou, ggObj, new = TRUE) 
 ```
 
 ### `simList` objects
@@ -129,7 +131,7 @@ Plot(caribou, ggObj, new=TRUE)
 A call to Plot will search for all plottable object types in the `simList` environment and plot them.
 
 ```{r simList, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
-Plot(mySim, new=TRUE) 
+Plot(mySim, new = TRUE) 
 ```
 
 ## Colours
@@ -156,13 +158,15 @@ See text about `na.color` below after raster values have changed.
 library(RColorBrewer)
 
 # can change colour palette
-Plot(landscape, new=TRUE) # original
+Plot(landscape, new = TRUE) # original
 
-mapColours <- list(DEM=topo.colors(50),
-                   forestCover=colorRampPalette(c("blue","orange","purple","red"))(50),
-                   habitatQuality=brewer.pal(9, "Spectral"))
-setColors(landscape, n=50) <- mapColours
-Plot(landscape, new=TRUE) # oh, how pretty!
+mapColours <- list(
+  DEM = topo.colors(50),
+  forestCover = colorRampPalette(c("blue", "orange", "purple", "red"))(50),
+  habitatQuality = brewer.pal(9, "Spectral")
+)
+setColors(landscape, n = 50) <- mapColours
+Plot(landscape, new = TRUE) # oh, how pretty!
 ```
 
 ## `Plot` arguments
@@ -175,9 +179,9 @@ These parameters will specify plot parameters that are available with `gpar()`.
 Multiple entries can be used, but they must be passed as list elements and they will be matched to the `...` items to plot.
 
 ```{r gp_gpAxis_gpText, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(caribou, new=TRUE, gpAxis=gpar(cex=0.4), size=1)
-Plot(mySim$DEM, gpText=gpar(cex=0.4))
-Plot(mySim$DEM, caribou, gpText=list(gpar(cex=2), gpar(cex=0.1)), new=T)
+Plot(caribou, new = TRUE, gpAxis = gpar(cex = 0.4), size = 1)
+Plot(mySim$DEM, gpText = gpar(cex = 0.4))
+Plot(mySim$DEM, caribou, gpText = list(gpar(cex = 2), gpar(cex = 0.1)), new = TRUE)
 ```
 
 ### `visualSqueeze`
@@ -191,8 +195,8 @@ If the plots need to be slightly smaller, this could be set to 0.6; if they can 
 
 ```{r visualSqueeze, eval=TRUE, echo=TRUE, fig.height=2}
 # x axis gets cut off in pdf and html
-Plot(mySim$DEM, new=TRUE)
-Plot(mySim$DEM, visualSqueeze=0.6, new=TRUE)
+Plot(mySim$DEM, new = TRUE)
+Plot(mySim$DEM, visualSqueeze = 0.6, new = TRUE)
 ```
  
 A key reason why the legends or axes are cut off sometimes is because there is a minimum threshold for font size for readability.
@@ -204,10 +208,10 @@ So, either `visualSqueeze` can be set or making a larger device will usually als
 `legendRange` will allow overriding of the default automatic legend creation.
 This is useful in situations where, say, an version of a raster at the initial stage of a simulation does not cover the range of the eventual values of that raster.
 Since the default is to automatically scale the legend to the values contained in the raster at the first time it is drawn, the legend will not cover the whole necessary range.
-Adding `legendRange=0:20`, where `0:20` covers the expected range of all stages of that raster, will work.
+Adding `legendRange = 0:20`, where `0:20` covers the expected range of all stages of that raster, will work.
 
 ```{r legendRange, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(mySim$DEM, legendRange=c(0,500), new=TRUE)
+Plot(mySim$DEM, legendRange = c(0, 500), new = TRUE)
 ```
 
 ### `zoomExtent`
@@ -219,15 +223,15 @@ Then call `Plot(obj, zoomExtent=newZoom)`.
 This new zoom will persist with rearrangements.
 
 ```{r zoomExtent, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(mySim$DEM, zoomExtent=extent(c(-1, 10, -1, 20)), new=TRUE)
+Plot(mySim$DEM, zoomExtent = extent(c(-1, 10, -1, 20)), new = TRUE)
 ```
 
 ### `length`
 
 For `SpatialLines*` objects, length will give arrow head length, in inches, meaning that the lines will be arrows.
 ```{r arrows, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(mySim$DEM, new=TRUE)
-Plot(Sl, addTo="mySim$DEM", length=0.2)
+Plot(mySim$DEM, new = TRUE)
+Plot(Sl, addTo = "mySim$DEM", length = 0.2)
 ```
 
 # Modularity
@@ -250,9 +254,9 @@ There are essentially 3 types of adding that are addressed by this argument: 1) 
 The `Plot` function simply adds the new plot in the available empty space.
 
 ```{r simple_add, eval=TRUE, echo=TRUE, fig.height=3}
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 # can add a new plot to the plotting window
-Plot(caribou, new=FALSE, axes=FALSE)
+Plot(caribou, new = FALSE, axes = FALSE)
 ```
 
 ### A new name to a device without enough space
@@ -261,9 +265,9 @@ The `Plot` function creates a new arrangement, keeping the pre-exising order of 
 The plots will all be a little bit smaller (assuming the device has not changed size), and they will be in different locations on the device.
 
 ```{r add_with_rearrangement, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 # can add a new plot to the plotting window
-Plot(caribou, new=FALSE, axes=FALSE)
+Plot(caribou, new = FALSE, axes = FALSE)
 ```
 
 ### A pre-existing name to a device
@@ -273,13 +277,13 @@ If colours in the layer are not transparent, then this will effectively block th
 *This will automatically set legend, title and axes to FALSE*.
 
 ```{r add_with_same_name, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 landscape$forestCover[] = ((landscape$forestCover[] +10) %% 30)
 # can add a new plot to the plotting window
-Plot(landscape, new=FALSE)
+Plot(landscape, new = FALSE)
 # note: zeros are treated as no colour by default.
 # if this is not the correct behavior, use `zero.color=NULL`
-Plot(landscape, new=FALSE, zero.color=NULL)
+Plot(landscape, new = FALSE, zero.color = NULL)
 ```
 
 # Plotting Speed
@@ -309,8 +313,8 @@ In the example here, the speedup actually slows down plotting because the raster
 This would not be the case when the original Raster had `1e8` pixels.
 
 ```{r speedup, eval=TRUE, echo=TRUE, fig.height=2}
-system.time(Plot(landscape, caribou, mySim$DEM, new=TRUE))
-system.time(Plot(landscape, caribou, mySim$DEM, speedup=10, new=TRUE))
+system.time(Plot(landscape, caribou, mySim$DEM, new = TRUE))
+system.time(Plot(landscape, caribou, mySim$DEM, speedup = 10, new = TRUE))
 # can add a new plot to the plotting window
 ```
 
@@ -322,8 +326,8 @@ The argument `addTo` will allow plotting of a `RasterLayer` or `SpatialPoints*` 
 This can be useful to see where agents are on a `RasterLayer`, or if there is transparency on a second `RasterLayer`, it could be plotted on top of a first `RasterLayer`.
 
 ```{r add, eval=TRUE, echo=TRUE, fig.height=2}
-Plot(landscape, new=TRUE)
-Plot(caribou, addTo="landscape$DEM", size=2, axes=FALSE)
+Plot(landscape, new = TRUE)
+Plot(caribou, addTo = "landscape$DEM", size = 2, axes = FALSE)
 ```
 
 # Clearing Plot
@@ -359,7 +363,7 @@ As a result, the edges of pixels may not perfectly line up with the coordinates 
 *Do not rely on exact values when zoomed it*
 
 ```{r clickValues, eval=FALSE, echo=TRUE}
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 clickValues(3) # click at three locations on the Plot device
 ```
 
@@ -369,7 +373,7 @@ This can be used like `zoom` for base package plot window.
 Click two corners of a Plot.
 
 ```{r clickExtent, eval=FALSE, echo=TRUE}
-Plot(landscape, new=TRUE)
+Plot(landscape, new = TRUE)
 clickExtent() # click at two locations on the Plot device
 ```
 
@@ -384,7 +388,7 @@ Further functionality like this will likely be in a future update.K
 ```{r rePlot, eval=FALSE, echo=TRUE, cache=TRUE}
 rePlot()
 rePlot(4)
-rePlot(visualSqueeze=1, axes=FALSE)
+rePlot(visualSqueeze = 1, axes = FALSE)
 ```
 
 # Assigning `Plot()` to object
@@ -395,16 +399,16 @@ Any data changes made to the objects contained within the plot, if they are in t
 This provides the same behavior as a call to `rePlot()`.
 
 ```{r Plot a .spadesPlot object, eval=FALSE, echo=TRUE, cache=TRUE}
-plots <- Plot(landscape, new=TRUE)
+plots <- Plot(landscape, new = TRUE)
 
 # change values
-landscape$forestCover[landscape$habitatQuality>0.9] <- 0
+landscape$forestCover[landscape$habitatQuality > 0.9] <- 0
 
 Plot(plots)
 # same as:
 rePlot()
 
 # but can be combined with other objects
-Plot(caribou, plots, new=TRUE)
+Plot(caribou, plots, new = TRUE)
 Plot(caribou, plots, Sl)
 ```

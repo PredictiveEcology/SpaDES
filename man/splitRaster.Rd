@@ -33,7 +33,7 @@ require(raster)
 # nrow = 77
 # ncol = 101
 # nlayers = 3
-b <- brick(system.file("external/rlogo.grd", package="raster"))
+b <- brick(system.file("external/rlogo.grd", package = "raster"))
 r <- b[[1]] # use first layer only
 nx <- 3
 ny <- 4
@@ -43,7 +43,7 @@ y <- splitRaster(r, nx, ny)
 plot(r) # may require a call to `dev()` if using RStudio
 
 # the split raster:
-layout(mat=matrix(seq_len(nx*ny), ncol=nx, nrow=ny))
+layout(mat = matrix(seq_len(nx*ny), ncol = nx, nrow = ny))
 plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
 invisible(lapply(y[plotOrder], plot))
 

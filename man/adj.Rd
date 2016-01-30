@@ -52,10 +52,11 @@ Faster function for determining the cells of the 4, 8 or bishop
  matrix for small numbers of loci (<1e4) and data.table for larger numbers of loci
 }
 \details{
-Between 4x (large number loci) to 200x (small number loci) speed gains over \code{adjacent} in raster package. There is some extra
-speed gain if NumCol and NumCells are passed rather than a raster.
+Between 4x (large number loci) to 200x (small number loci) speed gains over
+\code{adjacent} in raster package. There is some extra speed gain if
+\code{NumCol} and \code{NumCells} are passed rather than a raster.
 Efficiency gains come from:
- 1. use data.table internally
+ 1. use \code{data.table} internally
     - no need to remove NAs because wrapped or outside points are
       just removed directly with data.table
     - use data.table to sort and fast select (though not fastest possible)
@@ -70,13 +71,13 @@ The steps used in the algorithm are:
 }
 \examples{
 library(raster)
-a <- raster(extent(0,1000,0,1000),res=1)
-sam <- sample(1:length(a),1e4)
+a <- raster(extent(0, 1000, 0, 1000), res = 1)
+sam <- sample(1:length(a), 1e4)
 numCol <- ncol(a)
 numCell <- ncell(a)
-adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8)
-adj.new <- adj(numCol=numCol,numCell=numCell,cells=sam,directions=8,
-  include=TRUE)
+adj.new <- adj(numCol = numCol, numCell = numCell, cells = sam, directions = 8)
+adj.new <- adj(numCol = numCol, numCell = numCell, cells = sam, directions = 8,
+  include = TRUE)
 if (interactive()) print(head(adj.new))
 
 }

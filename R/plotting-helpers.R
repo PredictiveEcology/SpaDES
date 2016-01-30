@@ -535,10 +535,9 @@ setMethod(
     SpatialLines(lapply(seq_len(length(from)), function(x) {
       Lines(list(Line(
         coords = rbind(coordinates(from)[x,], coordinates(to)[x,])
-      )),ID = x)
+      )), ID = x)
     }), proj4string = crs(from))
-  }
-)
+})
 
 ################################################################################
 #' Parse arguments and find environments
@@ -581,8 +580,7 @@ setMethod(
     if (grepl(deparse(parseTxt[[1]]), pattern = "^eval")) {
       callEnv <- tryCatch(
         eval(
-          match.call(definition = eval,
-                     call = parseTxt)$envir,
+          match.call(definition = eval, call = parseTxt)$envir,
           envir = eminus1
         ),
         error = function(x) {
@@ -703,18 +701,20 @@ setMethod(
     envs <- callEnv
   }
 
+#browser()
+
   if (!inGlobal) {
     if (!exists(paste0("dev", dev.cur()), envir = .spadesEnv)) {
       .spadesEnv[[paste0("dev", dev.cur())]] <- new.env(parent = emptyenv())
     }
-    if(is(get(deparse(rev(elems)[[1]]), envir=envs), "simList")) { # If it is a simList
-      changeObjEnv(deparse(elems[[1]]),
-                   fromEnv=envir(get(deparse(rev(elems)[[1]]), envir=envs)),
-                   toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
-    } else { # If it is NOT a simList.
+    #if(is(get(deparse(rev(elems)[[1]]), envir=envs), "simList")) { # If it is a simList
+    #  changeObjEnv(deparse(elems[[1]]),
+    #               fromEnv=envir(get(deparse(rev(elems)[[1]]), envir=envs)),
+    #               toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
+    #} else { # If it is NOT a simList.
       changeObjEnv(paste(sapply(rev(elems), deparse), collapse = "$"),
                  fromEnv=envs, toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
-    }
+    #}
   }
 
   if(sapply(elems[[1]], is.numeric)) {
@@ -791,5 +791,5 @@ setGeneric("gpar", function(...) {
 #' @rdname grid-functions
 setMethod("gpar",
           definition = function(...) {
-                   return(grid::gpar(...))
-                 })
+            return(grid::gpar(...))
+})

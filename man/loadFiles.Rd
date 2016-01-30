@@ -74,41 +74,39 @@ and will be repeated for each load function.
 \dontrun{
 # Load random maps included with package
 filelist <- data.frame(
-    files=dir(file.path(find.package("SpaDES", quiet=FALSE), "maps"),
-    full.names=TRUE, pattern="tif"), functions="rasterToMemory", package="SpaDES"
-    )
+    files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
+    full.names = TRUE, pattern = "tif"), functions = "rasterToMemory", package = "SpaDES"
+)
 
-times <- list(start=0, end=3)
-parameters <- list(.globals=list(stackName="landscape"))
+times <- list(start = 0, end = 3)
+parameters <- list(.globals = list(stackName = "landscape"))
 modules <- list("randomLandscapes", "caribouMovement")
-paths <- list(moduleName=system.file("sampleModules", package="SpaDES"))
-mySim <- simInit(times=times, params=parameters, modules=modules, paths=paths,
-inputs=filelist)
+paths <- list(moduleName = system.file("sampleModules", package = "SpaDES"))
+mySim <- simInit(times = times, params = parameters, modules = modules,
+paths = paths, inputs = filelist)
 ls(mySim)
 
-sim1 <- loadFiles(filelist=filelist)
+sim1 <- loadFiles(filelist = filelist)
 clearPlot()
 Plot(sim1$DEM)
-}
 
-\dontrun{
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #  at time = 10 and 20 (via "intervals").
 # Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
 files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-        full.names=TRUE, pattern= "tif")
-arguments = I(rep(list(native=TRUE), length(files)))
+        full.names = TRUE, pattern = "tif")
+arguments = I(rep(list(native = TRUE), length(files)))
 filelist = data.frame(
    files = files,
-   functions="raster::raster",
+   functions = "raster::raster",
    objectName = NA,
    arguments = arguments,
    loadTime = 0,
    intervals = c(rep(NA, length(files)-1), 10)
-   )
+)
 
-sim2 <- loadFiles(filelist=filelist)
+sim2 <- loadFiles(filelist = filelist)
 end(sim2) <- 20
 sim2 <- spades(sim2)
 }

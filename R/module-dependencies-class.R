@@ -53,8 +53,8 @@ setMethod(".outputObjects",
           signature(x = "missing"),
           definition = function() {
             out.df <- data.frame(
-              objectName = character(), objectClass = character(),
-              other = character(), stringsAsFactors = FALSE
+              objectName = character(0), objectClass = character(0),
+              other = character(0), stringsAsFactors = FALSE
             )
             return(out.df)
 })
@@ -140,20 +140,20 @@ setClass(
     spatialExtent = extent(rep(NA_real_, 4L)), timeframe = as.POSIXlt(c(NA, NA)),
     timeunit = NA_real_, citation = list(), documentation = list(), reqdPkgs = list(),
     parameters = data.frame(
-      paramName = character(), paramClass = character(),
+      paramName = character(0), paramClass = character(0),
       default = I(list()), min = I(list()), max = I(list()),
-      paramDesc = character(), stringsAsFactors = FALSE
+      paramDesc = character(0), stringsAsFactors = FALSE
     ),
     inputObjects = .inputObjects(),
     outputObjects = .outputObjects()
   ),
   validity = function(object) {
-    if (length(object@name)!=1L) stop("name must be a single character string.")
-    if (length(object@description)!=1L) stop("description must be a single character string.")
-    if (length(object@keywords)<1L) stop("keywords must be supplied.")
-    if (length(object@authors)<1L) stop("authors must be specified.")
-    if (length(object@timeframe)!=2L) stop("timeframe must be specified using two date-times.")
-    if (length(object@timeunit)<1L) stop("timeunit must be specified.")
+    if (length(object@name) != 1L) stop("name must be a single character string.")
+    if (length(object@description) != 1L) stop("description must be a single character string.")
+    if (length(object@keywords) < 1L) stop("keywords must be supplied.")
+    if (length(object@authors) < 1L) stop("authors must be specified.")
+    if (length(object@timeframe) != 2L) stop("timeframe must be specified using two date-times.")
+    if (length(object@timeunit) < 1L) stop("timeunit must be specified.")
     if (length(object@reqdPkgs)) {
       if (!any(unlist(lapply(object@reqdPkgs, is.character)))) {
         stop("reqdPkgs must be specified as a list of package names.")
@@ -212,14 +212,14 @@ setClass(
 #'
 setClass(
   ".simDeps",
-  slots = list(dependencies="list"),
-  prototype = list(dependencies=list(NULL)),
+  slots = list(dependencies = "list"),
+  prototype = list(dependencies = list(NULL)),
   validity = function(object) {
     # remove empty (NULL) elements
     object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
 
     # ensure list contains only .moduleDeps objects
-    if (!all(unlist(lapply(object@dependencies, is, class2=".moduleDeps")))) {
+    if (!all(unlist(lapply(object@dependencies, is, class2 = ".moduleDeps")))) {
       stop("invalid type: not a .moduleDeps object")
     }
 })

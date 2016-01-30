@@ -115,16 +115,14 @@ setMethod(".getSpaDES",
 #' @author Eliot Mcintire
 #'
 #' @examples
-#' a1 <- a2 <- a3 <- a4 <- 1:1e3
-#' objs <- c("a1", "a2", "a3", "a4")
-#' e <- new.env()
+#' e1 <- new.env()
+#' e2 <- new.env()
+#' assign("a1", 1:1e3, envir = e1)
+#' assign("a2", 1:1e3, envir = e1)
+#' objs <- c("a1", "a2")
+#' # move objects between environments
 #'
-#' # move objects from .GlobalEnv to e
-#' changeObjEnv(objs, e)
-#'
-#' # move objects back to .GlobalEnv from e
-#' changeObjEnv(objs, .GlobalEnv, e)
-#' rm(e)
+#' changeObjEnv(objs, fromEnv = e1, toEnv = e2)
 #'
 setGeneric("changeObjEnv", function(x, toEnv, fromEnv, rmSrc) {
   standardGeneric("changeObjEnv")
@@ -135,13 +133,14 @@ setMethod(
   "changeObjEnv",
   signature = c("character", "environment", "environment", "logical"),
   definition = function(x, toEnv, fromEnv, rmSrc) {
+
     lapply(x, function(obj) {
-      tryCatch(
-        assign(obj, envir = toEnv, value = get(obj, envir = fromEnv)),
-        error = function(x) {
-          warning(paste("object", obj, "not found and not copied"))
-      })
-      return(invisible())
+       tryCatch(
+         assign(obj, envir = toEnv, value = get(obj, envir = fromEnv)),
+         error = function(x) {
+           warning(paste("object", obj, "not found and not copied"))
+       })
+       return(invisible())
     })
     if (rmSrc) rm(list = x, envir = fromEnv)
 })
@@ -200,8 +199,6 @@ setMethod(
   "changeObjEnv",
   signature = c("list", "ANY", "ANY", "ANY"),
   definition = function(x, toEnv, fromEnv, rmSrc) {
-    if (is.null(names(x))) {
-      stop("Please pass a named list or character vector of object names")
-    }
-    changeObjEnv(names(x), toEnv, fromEnv, rmSrc)
+    list2env(x, envir=toEnv)
+
 })

@@ -1,13 +1,17 @@
-stopifnot(packageVersion("SpaDES") >= "1.0.3.9010")
+stopifnot(packageVersion("SpaDES") >= "1.1.0")
 
 defineModule(sim, list(
   name = "randomLandscapes",
   description = "Generate RasterStack of random maps representative of a forest landscape (DEM, forestAge, forestCover, habitatQuality, percentPine). Requires a global simulation parameter `stackName` be set.",
   keywords = c("random map", "random landscape"),
   childModules = character(),
-  authors = c(person(c("Alex", "M"), "Chubaty", email = "alexander.chubaty@canada.ca", role = c("aut", "cre")),
-            person(c("Eliot", "J", "B"), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre"))),
-  version = numeric_version("1.1.1"),
+  authors = c(person(c("Alex", "M"), "Chubaty",
+                     email = "alexander.chubaty@canada.ca",
+                     role = c("aut", "cre")),
+            person(c("Eliot", "J", "B"), "McIntire",
+                   email = "eliot.mcintire@canada.ca",
+                   role = c("aut", "cre"))),
+  version = numeric_version("1.1.0"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
   timeunit = "year",
@@ -25,8 +29,8 @@ defineModule(sim, list(
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),
   inputObjects = data.frame(
-    objectName = character(), objectClass = character(), sourceURL = character(),
-    other = character(), stringsAsFactors = FALSE),
+    objectName = character(0), objectClass = character(0), sourceURL = character(0),
+    other = character(0), stringsAsFactors = FALSE),
   outputObjects = data.frame(
     objectName = globals(sim)$stackName, objectClass = "RasterStack",
     other = NA_character_, stringsAsFactors = FALSE)
@@ -40,9 +44,9 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next events
     sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.plotInitialTime,
-                         "randomLandscapes", "plot")
+                         "randomLandscapes", "plot", .last())
     sim <- scheduleEvent(sim, params(sim)$randomLandscapes$.saveInitialTime,
-                         "randomLandscapes", "save")
+                         "randomLandscapes", "save", .last()+1)
 
   } else if (eventType == "plot") {
     # do stuff for this event
@@ -54,11 +58,13 @@ doEvent.randomLandscapes <- function(sim, eventTime, eventType, debug = FALSE) {
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$randomLandscapes$.saveInterval,
-                         "randomLandscapes", "save")
+                         "randomLandscapes", "save", .last()+1)
 
   } else {
-    warning(paste("Undefined event type: \'", events(sim)[1, "eventType", with=FALSE],
-                  "\' in module \'", events(sim)[1, "moduleName", with=FALSE] , "\'", sep=""))
+    warning(
+      paste("Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
+            "\' in module \'", events(sim)[1, "moduleName", with = FALSE] , "\'", sep = "")
+    )
   }
   return(invisible(sim))
 }
@@ -73,15 +79,15 @@ randomLandscapesInit <- function(sim) {
   # Give dimensions of dummy raster
   nx <- params(sim)$randomLandscapes$nx
   ny <- params(sim)$randomLandscapes$ny
-  template <- raster(nrows=ny, ncols=nx, xmn=-nx/2, xmx=nx/2, ymn=-ny/2, ymx=ny/2)
+  template <- raster(nrows = ny, ncols = nx, xmn = -nx/2, xmx = nx/2, ymn = -ny/2, ymx = ny/2)
   speedup <- max(1, nx/5e2)
 
   # Make dummy maps for testing of models
-  DEM <- gaussMap(template, scale=300, var=0.03, speedup=speedup, inMemory=inMemory)
+  DEM <- gaussMap(template, scale = 300, var = 0.03, speedup = speedup, inMemory = inMemory)
   DEM[] <- round(getValues(DEM),1)*1000
-  forestAge <- gaussMap(template, scale=10, var=0.1, speedup=speedup, inMemory=inMemory)
+  forestAge <- gaussMap(template, scale = 10, var = 0.1, speedup = speedup, inMemory = inMemory)
   forestAge[] <- round(getValues(forestAge),1)*20
-  percentPine <- gaussMap(template, scale=50, var=1, speedup=speedup, inMemory=inMemory)
+  percentPine <- gaussMap(template, scale = 50, var = 1, speedup = speedup, inMemory = inMemory)
   percentPine[] <- round(getValues(percentPine), 1)
 
   # Scale them as needed
@@ -96,10 +102,10 @@ randomLandscapesInit <- function(sim) {
   mapStack <- stack(DEM, forestAge, habitatQuality, percentPine)
   names(mapStack) <- c("DEM", "forestAge", "habitatQuality", "percentPine")
 
-  setColors(mapStack) <- list(DEM=grDevices::terrain.colors(100),
-                              forestAge=brewer.pal(9,"BuGn"),
-                              habitatQuality=brewer.pal(8,"Spectral"),
-                              percentPine=brewer.pal(9,"Greens"))
+  setColors(mapStack) <- list(DEM = grDevices::terrain.colors(100),
+                              forestAge = brewer.pal(9,"BuGn"),
+                              habitatQuality = brewer.pal(8,"Spectral"),
+                              percentPine = brewer.pal(9,"Greens"))
   sim[[globals(sim)$stackName]] <- mapStack
   return(invisible(sim))
 }

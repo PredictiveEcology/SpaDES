@@ -8,7 +8,8 @@
 \alias{checkObject,simList,character,missing,missing-method}
 \alias{checkObject,simList,missing,ANY,missing-method}
 \alias{checkObject,simList,missing,Raster,character-method}
-\title{Check for existence of object(s) referenced by a \code{objects} slot of a \code{simList} object}
+\title{Check for existence of object(s) referenced by a \code{objects} slot of a
+\code{simList} object}
 \usage{
 checkObject(sim, name, object, layer, ...)
 

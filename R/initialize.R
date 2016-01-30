@@ -223,11 +223,11 @@ randomPolygons <- function(ras=raster(extent(0,15,0,15), res=1), p=0.1, A=0.3,
 #' @docType methods
 #' @rdname specnumperpatch-probs
 #'
-specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=NULL) {
+specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap = NULL) {
   patchids <- as.numeric(na.omit(getValues(patches)))
-  wh <- Which(patches, cells=TRUE)
+  wh <- Which(patches, cells = TRUE)
   if (!is.null(numPerPatchTable)) {
-    dt1 <- data.table(wh, pops=patchids)
+    dt1 <- data.table(wh, pops = patchids)
     setkey(dt1, "pops")
     if (is(numPerPatchTable, "data.table")) {
       numPerPatchTable <- data.table(numPerPatchTable)
@@ -236,13 +236,13 @@ specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=N
     dt2 <- dt1[numPerPatchTable]
   } else if (!is.null(numPerPatchMap)) {
     numPerPatchTable <- as.numeric(na.omit(getValues(numPerPatchMap)))
-    dt2 <- data.table(wh, pops=patchids, num.in.pop=numPerPatchTable)
+    dt2 <- data.table(wh, pops=patchids, num.in.pop = numPerPatchTable)
   } else {
     stop("need numPerPatchMap or numPerPatchTable")
   }
 
   resample <- function(x, ...) x[sample.int(length(x), ...)]
-  dt3 <- dt2[, list(cells=resample(wh, unique(num.in.pop))), by="pops"]
+  dt3 <- dt2[, list(cells = resample(wh, unique(num.in.pop))), by = "pops"]
   dt3$ids <- rownames(dt3)
 
   al <- raster(patches)
@@ -250,7 +250,6 @@ specificNumPerPatch <- function(patches, numPerPatchTable=NULL, numPerPatchMap=N
 
   return(al)
 }
-
 
 ###
 # ### INCORPORATE RELEVANT PARTS OF THIS OLD INIT FUNCTION INTO INITCOODRS()

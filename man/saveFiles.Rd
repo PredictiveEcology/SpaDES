@@ -17,32 +17,37 @@ This must be a character string vector of all object names to save. These object
 then be saved whenever a call to \code{saveFiles} is made.
 }
 \details{
-The file names will be equal to the object name plus \code{time(sim)} is appended at the end.
-The files are saved as \code{.rds} files,
-meaning, only one object gets saved per file.
+The file names will be equal to the object name plus \code{time(sim)} is
+appended at the end.
+The files are saved as \code{.rds} files, meaning, only one object gets
+saved per file.
 For objects saved using this function, the module developer must create save
 events that schedule a call to \code{saveFiles}.
 
 There are 3 ways to save objects using \code{SpaDES}.
 }
 \note{
-It is not possible to schedule separate saving events for each object that is listed in
-the \code{.saveObjects}.
+It is not possible to schedule separate saving events for each object
+that is listed in the \code{.saveObjects}.
 }
 \section{1. Model-level saving}{
 
 
-Using the \code{outputs} slot in the \code{\link{simInit}} call. See 2nd example in \code{\link{simInit}}.
-This can be convenient because it gives overall control of many modules at a time, and
-there is an implicit scheduling that gets created during the \code{\link{simInit}} call.
+Using the \code{outputs} slot in the \code{\link{simInit}} call.
+See 2nd example in \code{\link{simInit}}.
+This can be convenient because it gives overall control of many modules at a
+time, and there is an implicit scheduling that gets created during the
+\code{\link{simInit}} call.
 }
 
 \section{2. Module-level saving}{
 
 
-Using the \code{saveFiles} function inside a module. This must be accompanied by a
-\code{.saveObjects} list element in the \code{params} slot in the \code{\link{simInit}} call.
-Usually a module developer will create this method for future users of their module.
+Using the \code{saveFiles} function inside a module.
+This must be accompanied by a \code{.saveObjects} list element in the
+\code{params} slot in the \code{\link{simInit}} call.
+Usually a module developer will create this method for future users of
+their module.
 }
 
 \section{3. User saving}{

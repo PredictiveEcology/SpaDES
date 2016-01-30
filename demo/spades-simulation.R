@@ -33,12 +33,12 @@ mySim <- simInit(
     ),
     caribouMovement = list(
       N = 1e2, .saveObjects = c("caribou"),
-      .plotInitialTime = 1.01, .plotInterval = 1, moveInterval = 1
+      .plotInitialTime = 1, .plotInterval = 1, moveInterval = 1
     ),
     fireSpread = list(
       nFires = 1e1, spreadprob = 0.235, persistprob = 0, its = 1e6,
-      .plotInitialTime = 0.1, .plotInterval = 10, returnInterval = 10,
-      startTime = 0
+      returnInterval = 10, startTime = 0,
+      .plotInitialTime = 0, .plotInterval = 10
     )
   ),
   #modules = list("randomLandscapes", "fireSpread", "caribouMovement"),

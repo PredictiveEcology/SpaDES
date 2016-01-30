@@ -36,15 +36,15 @@ setMethod(
 
     ### modules loaded
     out[[8]] <- capture.output(cat(">> Modules:\n"))
-    out[[9]] <- capture.output(print(cbind(ModuleName=modules(object)),
-                                     quote=FALSE, row.names=FALSE))
+    out[[9]] <- capture.output(print(cbind(ModuleName = modules(object)),
+                                     quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
     ### objects loaded
     out[[11]] <- capture.output(cat(">> Objects Loaded:\n"))
 
-    out[[12]] <- if (NROW(inputs(object)[na.omit(inputs(object)$loaded==TRUE),])) {
-      capture.output(print(inputs(object)[na.omit(inputs(object)$loaded==TRUE),]))
+    out[[12]] <- if (NROW(inputs(object)[na.omit(inputs(object)$loaded == TRUE),])) {
+      capture.output(print(inputs(object)[na.omit(inputs(object)$loaded == TRUE),]))
     }
     out[[13]] <- capture.output(cat("\n"))
 
@@ -58,21 +58,21 @@ setMethod(
 
     p <- mapply(
       function(x, y) {
-        data.frame(Module=x, Parameter=names(y), Value=I(as.list(y)),
-                   stringsAsFactors=FALSE, row.names=NULL)
+        data.frame(Module = x, Parameter = names(y), Value = I(as.list(y)),
+                   stringsAsFactors = FALSE, row.names = NULL)
       },
-      x=names(params(object))[-omit],
-      y=params(object)[-omit],
-      USE.NAMES=TRUE, SIMPLIFY=FALSE
+      x = names(params(object))[-omit],
+      y = params(object)[-omit],
+      USE.NAMES = TRUE, SIMPLIFY = FALSE
     )
     if (length(p)) {
       q = do.call(rbind, p)
       q = q[order(q$Module, q$Parameter),]
     } else {
-      q = cbind(Module=list(), Parameter=list())
+      q = cbind(Module = list(), Parameter = list())
     }
     out[[17]] <- capture.output(cat(">> Parameters:\n"))
-    out[[18]] <- capture.output(print(q, row.names=FALSE))
+    out[[18]] <- capture.output(print(q, row.names = FALSE))
     out[[19]] <- capture.output(cat("\n"))
 
     ### completed events
@@ -86,7 +86,7 @@ setMethod(
     out[[25]] <- capture.output(cat("\n"))
 
     ### print result
-    cat(unlist(out), fill=FALSE, sep = "\n")
+    cat(unlist(out), fill = FALSE, sep = "\n")
 })
 
 ### `ls` generic is already defined in the base package
@@ -275,7 +275,7 @@ setMethod("objs",
           signature = "simList",
           definition = function(x, ...) {
             w <- lapply(ls(envir(x), ...), function(z) {
-              eval(parse(text=z), envir=envir(x))
+              eval(parse(text = z), envir = envir(x))
             })
             names(w) <- ls(envir(x), ...)
             return(w)
@@ -935,30 +935,32 @@ setReplaceMethod(
      object@inputs <- value
    }
 
-   # Deal with file names
-   # 2 things: 1. if relative, concatenate inputPath
-   #           2. if absolute, don't use inputPath
-   object@inputs[is.na(object@inputs$file), "file"] <-
-     paste0(object@inputs$objectName[is.na(object@inputs$file)])
+   # Deal with objects and files differently... if files (via inputs arg in simInit)...
+     # Deal with file names
+     # 2 things: 1. if relative, concatenate inputPath
+     #           2. if absolute, don't use inputPath
+   object@inputs[is.na(object@inputs$file), "file"] <- NA
+   #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
+
    # If a filename is provided, determine if it is absolute path, if so,
    # use that, if not, then append it to inputPath(object)
-   object@inputs[!isAbsolutePath(object@inputs$file), "file"] <-
+   object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
      file.path(inputPath(object),
-               object@inputs$file[!isAbsolutePath(object@inputs$file)])
+               object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
-   if (any(is.na(object@inputs[,"loaded"]))) {
-     if (!all(is.na(object@inputs[,"loadTime"]))) {
-       newTime <- object@inputs[is.na(object@inputs$loaded),"loadTime"] %>%
+   if (any(is.na(object@inputs[, "loaded"]))) {
+     if (!all(is.na(object@inputs[, "loadTime"]))) {
+       newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
          min(., na.rm = TRUE)
        attributes(newTime)$unit <- timeunit(object)
-       object <- scheduleEvent(object, newTime, "load", "inputs")
+       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
      } else {
        object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
          time(object, "seconds")
        newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
          min(., na.rm = TRUE)
        attributes(newTime)$unit <- "seconds"
-       object <- scheduleEvent(object, newTime, "load", "inputs")
+       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
      }
    }
 
@@ -1910,8 +1912,10 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
-#' @importFrom data.table ':='
-#' @importFrom dplyr mutate
+#' @importFrom data.table ':=' data.table
+#' @importFrom dplyr mutate_
+#' @importFrom lazyeval interp
+#' @importFrom stats setNames
 #' @docType methods
 #' @aliases simList-accessors-events
 #' @rdname simList-accessors-events
@@ -1926,13 +1930,16 @@ setMethod(
   "events",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@events$eventTime)) {
-      object@events %>%
-        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
-      } else {
-        object@events
-      }
-    return(out)
+    if (!is.null(object@events$eventTime)) {
+      res <- object@events %>%
+        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit)) # NSE doesn't work reliably
+        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit))), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # events(sim) is invoked. This line brings it back.
+    } else {
+      res <- object@events
+    }
+    return(res)
 })
 
 #' @export
@@ -1940,8 +1947,8 @@ setMethod(
 setMethod("events",
           signature = c(".simList", "missing"),
           definition = function(object, unit) {
-            out <- events(object, timeunit(object))
-            return(out)
+            res <- events(object, timeunit(object))
+            return(res)
 })
 
 #' @export
@@ -1982,16 +1989,17 @@ setGeneric("completed", function(object, unit) {
 
 #' @rdname simList-accessors-events
 #' @export
-setMethod("completed",
-          signature = c(".simList", "character"),
-          definition = function(object, unit) {
-            out <- if (!is.null(object@completed$eventTime)) {
-              object@completed %>%
-                dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
-            } else {
-              object@completed
-            }
-            return(out)
+setMethod(
+  "completed",
+  signature = c(".simList", "character"),
+  definition = function(object, unit) {
+    out <- if (!is.null(object@completed$eventTime)) {
+      object@completed %>%
+        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
+    } else {
+      object@completed
+    }
+    return(out)
 })
 
 #' @export

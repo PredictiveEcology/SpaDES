@@ -64,6 +64,10 @@ setMethod("getFileName",
 #' L2 <- list(a = "gst", c = 42, d = list(letters))
 #' updateList(L1, L2)
 #'
+#' updateList(L1, NULL)
+#' updateList(NULL, L2)
+#' updateList(NULL, NULL) # should return empty list
+#'
 setGeneric("updateList", function(x, y) {
   standardGeneric("updateList")
 })
@@ -131,8 +135,8 @@ setMethod("updateList",
 #'
 #' @examples
 #' library(igraph) # igraph exports magrittr's pipe operator
-#' tmp1 <- list("apple", "banana") %>% lapply(., `attributes<-`, list(type="fruit"))
-#' tmp2 <- list("carrot") %>% lapply(., `attributes<-`, list(type="vegetable"))
+#' tmp1 <- list("apple", "banana") %>% lapply(., `attributes<-`, list(type = "fruit"))
+#' tmp2 <- list("carrot") %>% lapply(., `attributes<-`, list(type = "vegetable"))
 #' append_attr(tmp1, tmp2)
 #' rm(tmp1, tmp2)
 setGeneric("append_attr", function(x, y) {
@@ -516,7 +520,7 @@ setMethod("rndstr",
             rndstr(n=1, len=8, characterFirst=TRUE)
 })
 
-###############################################################################
+################################################################################
 #' Filter objects by class
 #'
 #' Based on \url{http://stackoverflow.com/a/5158978/1380598}.

@@ -16,10 +16,12 @@ downloadData(module, path)
 \item{path}{Character string giving the path to the module directory.}
 }
 \value{
-Invisibly, a character vector containing a list of downloaded files.
+Invisibly, a list of downloaded files.
 }
 \description{
-Download external data for a module.
+Download external data for a module if not already present in the module
+directory or if there is a checksum mismatch indicating that the file is not
+the correct one.
 }
 \author{
 Alex Chubaty
