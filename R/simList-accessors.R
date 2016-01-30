@@ -505,7 +505,7 @@ setMethod(
 #' Commonly used
 #' \tabular{ll}{
 #'    \code{globals} \tab List of global simulation parameters.\cr
-#'    \code{params} \tab Nested list of all simulation parameter.\cr
+#'    \code{params} \tab Nested list of all simulation parameters.\cr
 #' }
 #' Advanced use
 #' \tabular{lll}{
@@ -688,9 +688,37 @@ setReplaceMethod("checkpointInterval",
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
+#' @details Progress Bar:
+#' Progress type can be "text", "graphical" or "shiny".
+#' Progress interval can be a numeric.
+#' These both can get set by passing a
+#' \code{.progress=list(type="graphical", interval=1)} into the
+#' simInit call. See examples
 #' @docType methods
 #' @rdname simList-accessors-params
+#' @examples
+#' \dontrun{
+#' mySim <- simInit(times=list(start=0.0, end=100.0),
+#'                  params=list(.globals=list(stackName="landscape"),
+#'                              .progress=list(type="text", interval=10),
+#'                              .checkpoint = list(interval = 10, file = "chkpnt.RData")),
+#'                  modules=list("randomLandscapes"),
+#'                  paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
 #'
+#' # progress bar
+#' progressType(mySim) # "text"
+#' progressInterval(mySim) # 10
+#'
+#' # parameters
+#' params(mySim) # returns all parameters in all modules
+#'               # including .global, .progress, .checkpoint
+#' globals(mySim) # returns only global parameters
+#'
+#' # checkpoint
+#' checkpointFile(mySim) # returns the name of the checkpoint file
+#'                       # In this example, "chkpnt.RData"
+#' checkpointInterval(mySim) # 10
+#' }
 setGeneric("progressInterval", function(object) {
   standardGeneric("progressInterval")
 })
