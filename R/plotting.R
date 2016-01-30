@@ -505,7 +505,16 @@ setMethod(
       pretty(range(minv, maxv))
     } else {
       if (!is.null(legendText)) {
-        unique(round(pretty(range(minv, maxv), n=length(legendText))))
+        if(NCOL(legendText)>1){ # means it was a factor
+          if(nlevels(legendText[,2]) == NROW(legendText)) {
+            unique(round(pretty(range(minv, maxv), n=length(levels(legendText[,2])))))
+          } else {
+            legendText$contigValue <- 1:NROW(legendText)
+            legendText$contigValue
+          }
+        } else {
+          unique(round(pretty(range(minv, maxv), n=length(legendText))))
+        }
       } else {
         unique(round(pretty(range(minv, maxv))))
       }
@@ -530,25 +539,40 @@ setMethod(
           name = "raster"
         ),
         if (legend) {
+
+          if(NCOL(legendText)>1) {
+            # for factors
+            colForLegend <- col[rev(legendText$ID+1)]
+          } else {
+            colForLegend <- col[(maxcol):mincol]
+          }
           rasterGrob(
-            as.raster(col[(maxcol):mincol]),
+            as.raster(colForLegend),
             x = 1.04, y = 0.5,
             height = 0.5, width = 0.03,
             interpolate = FALSE,
             name = "legend"
           )
+
         },
         if (legend) {
           txt <- if (is.null(legendText)) {
             pr
           } else {
             legendIndex <- pr - min(pr) + 1
-            legendText[legendIndex]
+            if(NCOL(legendText)>1){ # for factor legends
+              legendText[legendIndex,2]
+            } else {
+              legendText[legendIndex]
+            }
           }
           textGrob(
             txt,
             x = 1.08,
             y = if (maxv >= 3) {
+              if(NCOL(legendText)>1){ # factors
+                maxv <- NROW(legendText)
+              }
               ((pr - minv) / ((maxv + 1) - minv)) / 2 + 0.25 + 1 /
                 (diff(range(minv, maxv)) + 1) / 4
             } else {
@@ -1256,7 +1280,7 @@ setMethod(
 #' @export
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
-#' @importFrom raster crop
+#' @importFrom raster crop is.factor
 #' @importFrom grid upViewport pushViewport seekViewport grid.text
 #' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
 #' @importFrom grDevices dev.cur dev.size
@@ -1622,6 +1646,7 @@ setMethod(
               )
             }
 
+
             if (is(grobToPlot, "Raster")) {
               # Rasters may be zoomed into and subsampled and have unique legend
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
@@ -1712,13 +1737,21 @@ setMethod(
               }
             } else {
               # Extract legend text if the raster is a factored raster
-              if (is.factor(grobToPlot) & is.null(legendText)) {
-                sGrob@plotArgs$legendTxt <- levels(grobToPlot)[[1]][,2]
+              if(is.null(legendText)) {
+                if(is.null(sGrob@plotArgs$legendTxt)) {
+                  if (raster::is.factor(grobToPlot)) {
+                    sGrob@plotArgs$legendTxt <- grobToPlot@data@attributes[[1]]#[,2]
+                  }
+                }
               } else {
                 sGrob@plotArgs$legendTxt <- legendText
+                updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs$legendTxt <-
+                  legendText
+
               }
-              sGrob@plotArgs$legendTxt <- if (!isBaseSubPlot | !isReplot) {
-                NULL
+
+              if (!isBaseSubPlot ) {#| isReplot) {
+                sGrob@plotArgs$legendTxt <- NULL
               }
 
               plotGrobCall <- list(
