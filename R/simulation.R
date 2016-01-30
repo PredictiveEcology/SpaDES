@@ -290,9 +290,27 @@ setMethod(
     # source module metadata and code files, checking version info
     lapply(modules(sim), function(m) {
       md <- moduleMetadata(m, modulePath(sim))
-      if (md$version != packageVersion("SpaDES")) {
+      mVersion <- unlist(md$version)
+      pVersion <- unlist(packageVersion("SpaDES"))
+      maxLength <- max(length(mVersion), length(pVersion))
+      if(length(mVersion) != length(pVersion)){
+        if(length(mVersion) != maxLength){
+          mVersion[(length(mVersion)+1):maxLength] <- 0
+        } else {
+          pVersion[(length(pVersion)+1):maxLength] <- 0
+        }
+      }
+      maxDigits <- max(max(ceiling(log10(mVersion+1)), na.rm = TRUE),
+                       max(ceiling(log10(pVersion+1)), na.rm = TRUE))
+      mVersionNumeric <- mVersion[maxLength]
+      pVersionNumeric <- pVersion[maxLength]
+      for(i in 1:(maxLength-1)){
+        mVersionNumeric <- mVersionNumeric + mVersion[i]*10^((maxLength-i)*maxDigits)
+        pVersionNumeric <- pVersionNumeric + pVersion[i]*10^((maxLength-i)*maxDigits)
+      }
+      if (mVersionNumeric %>>% pVersionNumeric) {
         warning("Module ", m, " version (", md$version,
-                ") does not match SpaDES package version (",
+                ") should have lower version than SpaDES package version (",
                 packageVersion("SpaDES"), ").\n")
       }
     })
