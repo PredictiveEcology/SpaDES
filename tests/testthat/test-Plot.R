@@ -114,3 +114,86 @@ test_that("Plot is not error-free", {
   expect_error(Plot(ls()), "Not a plottable object")
   expect_that(rePlot, testthat::not(throws_error()))
 })
+
+
+test_that("Unit tests for image content is not error-free", {
+  skip_if_not_installed("visualTest")
+
+  # require(devtools)
+  # install visualTest
+  # install_github("MangoTheCat/visualTest")
+
+  library(visualTest); on.exit(detach("package:visualTest"))
+  library(raster); on.exit(detach("package:raster"))
+  on.exit({
+    if (length(dir(pattern = "*.png"))>0) {
+      unlink(dir(pattern = "*.png"))
+    }
+  })
+
+  ncol <- 3
+  nrow <- 4
+  N <- ncol*nrow
+  nLevels <- 4
+
+  # Test legend with a factor raster
+  set.seed(24334)
+  ras <- raster(matrix(sample(1:nLevels, size = N, replace = TRUE),
+                          ncol=ncol, nrow=nrow))
+  levels(ras) <- data.frame(
+    ID = 1:nLevels,
+    Class = paste0("Level",1:nLevels)
+  )
+  png(file="test1.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras)
+  dev.off()
+
+  #dput(getFingerprint(file = "test1.png"))
+  orig1 <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
+            6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
+            7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
+  expect_true(isSimilar(file="test1.png", fingerprint = orig1, threshold = 0.1))
+
+  # Test legend with a factor raster
+  set.seed(24334)
+  ras <- raster(matrix(sample(1:nLevels, size = N, replace = TRUE),
+                       ncol=ncol, nrow=nrow))
+  png(file="test2.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras)
+  dev.off()
+
+  #dput(getFingerprint(file = "test2.png"))
+  orig2 <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
+            3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
+            8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
+            3L, 5L)
+  expect_true(isSimilar(file="test2.png", fingerprint = orig2, threshold = 0.1))
+
+
+
+
+  nLevels <- 6
+  N <- ncol*nrow
+  set.seed(24334)
+  levs <- (1:nLevels)[-((nLevels-2):(nLevels-1))]
+  ras <- raster(matrix(sample(levs, size = N, replace = TRUE),
+                       ncol=ncol, nrow=nrow))
+  levels(ras) <- data.frame(
+    ID = levs,
+    Class = paste0("Level",levs)
+  )
+
+  png(file="test1.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras, new=T)
+  dev.off()
+
+  #dput(getFingerprint(file = "test1.png"))
+  orig1 <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
+             6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
+             7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
+  expect_true(isSimilar(file="test1.png", fingerprint = orig1, threshold = 0.1))
+
+})

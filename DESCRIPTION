@@ -11,7 +11,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.1.0.9000
+Version: 1.1.0.9001
 Date: 2016-01-26
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
@@ -33,6 +33,7 @@ Suggests:
     fastshp,
     knitr,
     Matrix,
+    png,
     RColorBrewer,
     rgdal,
     rmarkdown,

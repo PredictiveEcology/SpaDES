@@ -506,7 +506,7 @@ setMethod(
     } else {
       if (!is.null(legendText)) {
         if(NCOL(legendText)>1){ # means it was a factor
-          if(nlevels(legendText[,2]) == NROW(legendText)) {
+          if(identical(legendText$ID,1:NROW(legendText))) {
             unique(round(pretty(range(minv, maxv), n=length(levels(legendText[,2])))))
           } else {
             legendText$contigValue <- 1:NROW(legendText)
@@ -1339,6 +1339,12 @@ setMethod(
 #' levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
 #' Plot(ras, new=T)
 #'
+#' # Arbitrary values for factors
+#' levels <- c(1,2,7)
+#' ras <- raster(matrix(sample(levels, size=12, replace=TRUE),
+#'    ncol=4, nrow=3))
+#' levels(ras) <- data.frame(ID=levels, Name=sample(LETTERS,3))
+#' Plot(ras, new=T)
 #' \notrun{
 #' dev(2)
 #' }
