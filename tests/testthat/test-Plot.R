@@ -28,6 +28,10 @@ test_that("Plot is not error-free", {
   clearPlot()
   expect_that(Plot(caribou87654), testthat::not(throws_error()))
 
+  # Test speedup > 0.1 for SpatialPoints
+  clearPlot()
+  expect_that(Plot(caribou87654, speedup=2), testthat::not(throws_error()))
+
   #   # can add a plot to the plotting window
   clearPlot()
   expect_that(Plot(landscape87654), testthat::not(throws_error()))
