@@ -175,7 +175,7 @@ setMethod(
 #' @aliases makeColourMatrix
 #' @include plotting-classes.R
 #' @importFrom grDevices colorRampPalette terrain.colors
-#' @importFrom raster minValue getValues sampleRegular
+#' @importFrom raster minValue getValues sampleRegular is.factor
 #' @importFrom stats na.omit
 #' @docType methods
 #' @author Eliot McIntire
@@ -249,7 +249,13 @@ setMethod(
         } else if (nValues <= (lenColTable)) {
           # one more color than needed:
           #   assume bottom is NA
-          colTable
+          if(raster::is.factor(grobToPlot)) {
+            factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
+              unique %>% na.omit %>% sort
+            colTable[c(1,1+factorValues)] # CHANGE HERE
+          } else {
+            colTable
+          }
         } else if (nValues <= (lenColTable - 1)) {
           # one more color than needed:
           #  assume bottom is NA
@@ -302,10 +308,10 @@ setMethod(
 
     if (any(!is.na(legendRange))) {
       if ((max(legendRange) - min(legendRange) + 1) < length(cols)) {
-        message(paste0(
-          "legendRange is not wide enough, ",
-          "scaling to min and max raster values"
-        ))
+#        message(paste0(
+#          "legendRange is not wide enough, ",
+#          "scaling to min and max raster values"
+#        ))
       } else {
         minz <- min(legendRange)
         maxz <- max(legendRange)
@@ -336,12 +342,12 @@ setMethod(
 
     if ((minz > 1) | (minz < 0)) {
       z <- matrix(
-        cols[z - minz + 1], nrow = nrow(grobToPlot),
+        cols[z - minz + 1], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
     } else {
       z <- matrix(
-        cols[z], nrow = nrow(grobToPlot),
+        cols[z], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
     }
