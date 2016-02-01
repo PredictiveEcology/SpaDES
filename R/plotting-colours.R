@@ -342,12 +342,12 @@ setMethod(
 
     if ((minz > 1) | (minz < 0)) {
       z <- matrix(
-        cols[z - minz + 1], nrow = nrow(grobToPlot),
+        cols[z - minz + 1], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
     } else {
       z <- matrix(
-        cols[z], nrow = nrow(grobToPlot),
+        cols[z], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
     }

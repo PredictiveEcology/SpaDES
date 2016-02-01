@@ -666,7 +666,7 @@ setMethod(
 
 #     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
 
-    if (nrow(xyOrd) > 1e3) {
+    if (NROW(xyOrd) > 1e3) {
       # thin if greater than 1000 pts
       if (speedup>0.1) {
         if (requireNamespace("fastshp", quietly = TRUE)) {
@@ -674,7 +674,7 @@ setMethod(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
                                  tolerance = speedupScale * speedup)
           )
-          #thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+          #thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
           #idLength <- thinned[, sum(thin),by = groups]
           xyOrd <- xyOrd[thinned$thin, ]
         } else {
@@ -776,7 +776,7 @@ setMethod(
 
     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
 
-    if (nrow(xyOrd) > 1e3) {
+    if (NROW(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
       if (speedup>0.1) {
 
@@ -785,7 +785,7 @@ setMethod(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
                                  tolerance = speedupScale * speedup)
           )
-          thinned[, groups:= rep(1:nrow(idLength), idLength$V1)]
+          thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
           idLength <- thinned[, sum(thin),by = groups]
           xyOrd <- xyOrd[thinned$thin, ]
         } else {
@@ -846,7 +846,7 @@ setMethod(
     idLength <- unlist(lapply(xy, length)) / 2
     xy <- do.call(rbind,xy)
 
-    if (nrow(xy) > 1e3) {
+    if (NROW(xy) > 1e3) {
       # thin if fewer than 1000 pts
       if (speedup>0.1) {
 

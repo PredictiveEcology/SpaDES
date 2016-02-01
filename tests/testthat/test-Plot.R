@@ -61,6 +61,29 @@ test_that("Plot is not error-free", {
   clearPlot()
   expect_that(Plot(landscape87654, caribou87654, SpP87654, new = TRUE), testthat::not(throws_error()))
 
+
+  Sr1 <- sp::Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2)))
+  Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)))
+  Srs1 <- sp::Polygons(list(Sr1), "s1")
+  Srs2 <- sp::Polygons(list(Sr2), "s2")
+  SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
+
+  # Test polygon with > 1e3 points to test the speedup parameter
+  r <- 1
+  N <- 1000
+  cx = 0
+  cy <- 0
+  a <- seq(0,2*pi,length.out = N)
+  x = cx + r * cos(a)
+  y = cy + r * sin(a)
+  Sr1 <- sp::Polygon(cbind(x, y))
+  Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)))
+  Srs1 <- sp::Polygons(list(Sr1), "s1")
+  Srs2 <- sp::Polygons(list(Sr2), "s2")
+  SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
+  expect_that(Plot(SpP87, new=T), testthat::not(throws_error()))
+
+
   # test SpatialLines
   l1 <- cbind(c(10, 2, 30), c(30, 2, 2))
   l1a <- cbind(l1[, 1] + .05, l1[, 2] + .05)
@@ -72,6 +95,26 @@ test_that("Plot is not error-free", {
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
   expect_that(Plot(Sl87654), testthat::not(throws_error()))
+
+  # Test polygon with > 1e3 points to test the speedup parameter
+  r <- 1
+  N <- 1000
+  cx = 0
+  cy <- 0
+  a <- seq(0,2*pi,length.out = N)
+  x = cx + r * cos(a)
+  y = cy + r * sin(a)
+  l1 <- cbind(x, y)
+  l1a <- cbind(l1[, 1] + .05, l1[, 2] + .05)
+  l2 <- cbind(c(1, 20, 3), c(10, 1.5, 1))
+  Sl1 <- sp::Line(l1)
+  Sl1a <- sp::Line(l1a)
+  Sl2 <- sp::Line(l2)
+  S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
+  S2 <- sp::Lines(list(Sl2), ID = "b")
+  Sl87654 <- sp::SpatialLines(list(S1, S2))
+  expect_that(Plot(Sl87654,new=TRUE), testthat::not(throws_error()))
+
 
   # test addTo
   expect_that(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654",
@@ -92,7 +135,10 @@ test_that("Plot is not error-free", {
   expect_that(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE), testthat::not(throws_error()))
 
   # test speedup
-  expect_that(Plot(landscape87654, caribou87654, DEM87654, speedup = 10, new = TRUE), testthat::not(throws_error()))
+  caribou87 <- sp::SpatialPoints(
+    coords = cbind(x = stats::runif(1.1e3, 0, 10), y=stats::runif(1e1, 0, 10))
+  )
+  expect_that(Plot(caribou87, speedup = 10, new = TRUE), testthat::not(throws_error()))
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
@@ -150,7 +196,7 @@ test_that("Unit tests for image content is not error-free", {
   )
   png(file="test1.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras)
+  Plot(ras, new=TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test1.png"))
@@ -176,8 +222,7 @@ test_that("Unit tests for image content is not error-free", {
   expect_true(isSimilar(file="test2.png", fingerprint = orig2, threshold = 0.1))
 
 
-
-
+  # test non contiguous factor raster
   nLevels <- 6
   N <- ncol*nrow
   set.seed(24334)
@@ -189,15 +234,15 @@ test_that("Unit tests for image content is not error-free", {
     Class = paste0("Level",levs)
   )
 
-  png(file="test1.png", width = 400, height = 300)
+  png(file="test3.png", width = 400, height = 300)
   clearPlot()
   Plot(ras, new=T)
   dev.off()
 
-  #dput(getFingerprint(file = "test1.png"))
-  orig1 <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
-             6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
-             7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
-  expect_true(isSimilar(file="test1.png", fingerprint = orig1, threshold = 0.1))
+  #dput(getFingerprint(file = "test3.png"))
+  orig3 <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 6L, 5L, 8L, 8L, 8L, 8L,
+             5L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 6L, 7L, 11L, 5L, 11L,
+             3L, 8L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
+  expect_true(isSimilar(file="test3.png", fingerprint = orig3, threshold = 0.1))
 
 })
