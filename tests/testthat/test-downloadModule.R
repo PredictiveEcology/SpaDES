@@ -7,7 +7,7 @@ test_that("downloadModule downloads and unzips a single module", {
     options(download.file.method = "curl", download.file.extra = "-L")
   }
 
-  library(magrittr); on.exit(detach("package:magrittr", unload = TRUE))
+  library(igraph); on.exit(detach("package:igraph", unload = TRUE))
 
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
@@ -33,7 +33,7 @@ test_that("downloadModule downloads and unzips a parent module", {
     options(download.file.method = "curl")
   }
 
-  library(magrittr); on.exit(detach("package:magrittr", unload = TRUE))
+  library(igraph); on.exit(detach("package:igraph", unload = TRUE))
 
   m <- "LCC2005"
   tmpdir <- file.path(tempdir(), "modules")
@@ -45,7 +45,11 @@ test_that("downloadModule downloads and unzips a parent module", {
   d_expected <- moduleMetadata("LCC2005", tmpdir)$childModules %>%
     c(m, "data", "testthat") %>% sort()
 
+<<<<<<< HEAD
 #   expect_equal(length(f), 42)
+=======
+  expect_equal(length(f), 44)
+>>>>>>> refs/remotes/PredictiveEcology/development
   expect_equal(d, d_expected)
 })
 

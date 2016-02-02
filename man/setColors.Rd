@@ -7,9 +7,9 @@
 \alias{setColors,RasterLayer,character,numeric-method}
 \alias{setColors<-}
 \alias{setColors<-,Raster,missing,list-method}
-\alias{setColors<-,Raster,numeric,list-method}
 \alias{setColors<-,RasterLayer,missing,character-method}
 \alias{setColors<-,RasterLayer,numeric,character-method}
+\alias{setColors<-,RasterStack,numeric,list-method}
 \alias{setColours}
 \title{Set colours for plotting Raster* objects.}
 \usage{
@@ -19,7 +19,7 @@ setColors(object, ..., n) <- value
 
 \S4method{setColors}{RasterLayer,missing,character}(object, ..., n) <- value
 
-\S4method{setColors}{Raster,numeric,list}(object, ..., n) <- value
+\S4method{setColors}{RasterStack,numeric,list}(object, ..., n) <- value
 
 \S4method{setColors}{Raster,missing,list}(object, ..., n) <- value
 
@@ -46,6 +46,41 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
 }
 \description{
 \code{setColors} works as a replacement method or a normal function call.
+}
+\examples{
+  library(raster); on.exit(detach("package:raster"))
+  library(igraph) # need pipe for one example below
+  ras <- raster(matrix(c(0,0,1,2), ncol=2, nrow=2))
+
+  # Use replacement method
+  setColors(ras, n=3) <- c("red", "blue", "green")
+  Plot(ras, new=TRUE)
+
+  # Use function method
+  ras <- setColors(ras, n=3, c("red", "blue", "yellow"))
+  Plot(ras, new=TRUE)
+
+  # Using the wrong number of colors, e.g., here 2 provided,
+  # for a raster with 3 values... causes interpolation, which may be surprising
+  ras <- setColors(ras, c("red", "blue"))
+  Plot(ras, new=TRUE)
+
+  # Real number rasters - interpolation is used
+  ras <- raster(matrix(runif(9), ncol=3, nrow=3)) \%>\%
+    setColors(c("red", "yellow")) # interpolates when real numbers
+  Plot(ras, new=TRUE)
+
+  # Factor rasters, can be contiguous (numerically) or not, in this case not:
+  ras <- raster(matrix(sample(c(1,3,6), size=9, replace=TRUE), ncol=3, nrow=3))
+  levels(ras) <- data.frame(ID=c(1,3,6), Names=c("red", "purple", "yellow"))
+  ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
+  Plot(ras, new=TRUE)
+
+  # if a factor rastere, and not enough labels are provided, then a warning
+  #   will be given, and colors will be interpolated
+  #   The level called purple is not purple, but interpolated betwen red and yellow
+  ras <- setColors(ras, c("red", "yellow"))
+  Plot(ras, new=TRUE)
 }
 \author{
 Alex Chubaty
