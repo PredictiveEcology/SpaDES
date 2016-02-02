@@ -1,15 +1,10 @@
 test_that("Plot is not error-free", {
-  tmpdir <- tempdir()
-  setwd(tmpdir)
-
   library(raster); on.exit(detach("package:raster"))
   library(sp); on.exit(detach("package:sp"))
-  on.exit({
-    if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
-      unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))
-    }
-    unlink(tmpdir)
-  })
+
+  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+  cwd <- getwd()
+  setwd(tmpdir); on.exit(setwd(cwd))
 
   ras <- raster::raster(xmn = 0, xmx = 10, ymn = 0, ymx = 10, vals = 1, res = 1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup = 1)
@@ -18,7 +13,7 @@ test_that("Plot is not error-free", {
   names(habitatQuality87654) <- "habitatQuality87654"
   landscape87654 <- raster::stack(DEM87654, habitatQuality87654)
   caribou87654 <- sp::SpatialPoints(
-    coords = cbind(x = stats::runif(1e1, 0, 10), y=stats::runif(1e1, 0, 10))
+    coords = cbind(x = stats::runif(1e1, 0, 10), y = stats::runif(1e1, 0, 10))
   )
 
   # If any rearrangements are required, Plot searches for objects in Global Env
@@ -34,7 +29,7 @@ test_that("Plot is not error-free", {
 
   # Test speedup > 0.1 for SpatialPoints
   clearPlot()
-  expect_that(Plot(caribou87654, speedup=2), testthat::not(throws_error()))
+  expect_that(Plot(caribou87654, speedup = 2), testthat::not(throws_error()))
 
   #   # can add a plot to the plotting window
   clearPlot()
@@ -44,11 +39,13 @@ test_that("Plot is not error-free", {
   # Can add two maps with same name, if one is in a stack; they are given
   #  unique names based on object name
   clearPlot()
-  expect_that(Plot(landscape87654, caribou87654, DEM87654), testthat::not(throws_error()))
+  expect_that(Plot(landscape87654, caribou87654, DEM87654),
+              testthat::not(throws_error()))
 
   # can mix stacks, rasters, SpatialPoint*
   clearPlot()
-  expect_that(Plot(landscape87654, habitatQuality87654, caribou87654), testthat::not(throws_error()))
+  expect_that(Plot(landscape87654, habitatQuality87654, caribou87654),
+              testthat::not(throws_error()))
 
   # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
   clearPlot()
@@ -63,8 +60,8 @@ test_that("Plot is not error-free", {
   clearPlot()
   expect_that(Plot(SpP87654), testthat::not(throws_error()))
   clearPlot()
-  expect_that(Plot(landscape87654, caribou87654, SpP87654, new = TRUE), testthat::not(throws_error()))
-
+  expect_that(Plot(landscape87654, caribou87654, SpP87654, new = TRUE),
+              testthat::not(throws_error()))
 
   Sr1 <- sp::Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2)))
   Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)))
@@ -85,8 +82,7 @@ test_that("Plot is not error-free", {
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
-  expect_that(Plot(SpP87, new=TRUE), testthat::not(throws_error()))
-
+  expect_that(Plot(SpP87, new = TRUE), testthat::not(throws_error()))
 
   # test SpatialLines
   l1 <- cbind(c(10, 2, 30), c(30, 2, 2))
@@ -117,8 +113,7 @@ test_that("Plot is not error-free", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
-  expect_that(Plot(Sl87654,new=TRUE), testthat::not(throws_error()))
-
+  expect_that(Plot(Sl87654,new = TRUE), testthat::not(throws_error()))
 
   # test addTo
   expect_that(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654",
@@ -129,20 +124,24 @@ test_that("Plot is not error-free", {
   expect_that(Plot(caribou87654, new = TRUE, gpAxis = gpar(cex = 0.4), size = 1),
               testthat::not(throws_error()))
   clearPlot()
-  expect_that(Plot(DEM87654, gpText = gpar(cex = 0.4)), testthat::not(throws_error()))
+  expect_that(Plot(DEM87654, gpText = gpar(cex = 0.4)),
+              testthat::not(throws_error()))
 
   # test colors
   clearPlot()
-  expect_that(Plot(DEM87654, cols = c("blue", "red")), testthat::not(throws_error()))
+  expect_that(Plot(DEM87654, cols = c("blue", "red")),
+              testthat::not(throws_error()))
 
   # test visualSqueeze
-  expect_that(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE), testthat::not(throws_error()))
+  expect_that(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE),
+              testthat::not(throws_error()))
 
   # test speedup
   caribou87 <- sp::SpatialPoints(
-    coords = cbind(x = stats::runif(1.1e3, 0, 10), y=stats::runif(1e1, 0, 10))
+    coords = cbind(x = stats::runif(1.1e3, 0, 10), y = stats::runif(1e1, 0, 10))
   )
-  expect_that(Plot(caribou87, speedup = 10, new = TRUE), testthat::not(throws_error()))
+  expect_that(Plot(caribou87, speedup = 10, new = TRUE),
+              testthat::not(throws_error()))
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
@@ -151,7 +150,8 @@ test_that("Plot is not error-free", {
 
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
-  ggplot87654 <- ggplot2::qplot(stats::rnorm(1e3), binwidth = 0.3, geom  =  "histogram")
+  ggplot87654 <- ggplot2::qplot(stats::rnorm(1e3), binwidth = 0.3,
+                                geom = "histogram")
   expect_that(Plot(ggplot87654, new = TRUE), testthat::not(throws_error()))
 
   # test rearrangements
@@ -169,24 +169,14 @@ test_that("Plot is not error-free", {
   expect_that(rePlot, testthat::not(throws_error()))
 })
 
-
 test_that("Unit tests for image content is not error-free", {
   skip_if_not_installed("visualTest")
-  tmpdir <- tempdir()
-  setwd(tmpdir)
-
-  # require(devtools)
-  # install visualTest
-  # install_github("MangoTheCat/visualTest")
+  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+  cwd <- getwd()
+  setwd(tmpdir); on.exit(setwd(cwd))
 
   library(visualTest); on.exit(detach("package:visualTest"))
   library(raster); on.exit(detach("package:raster"))
-  on.exit({
-    if (length(dir(pattern = "*.png"))>0) {
-      unlink(dir(pattern = "*.png"))
-    }
-    unlink(tmpdir)
-  })
 
   ncol <- 3
   nrow <- 4
@@ -196,286 +186,262 @@ test_that("Unit tests for image content is not error-free", {
   # Test legend with a factor raster
   set.seed(24334)
   ras <- raster(matrix(sample(1:nLevels, size = N, replace = TRUE),
-                          ncol=ncol, nrow=nrow))
-  levels(ras) <- data.frame(
-    ID = 1:nLevels,
-    Class = paste0("Level",1:nLevels)
-  )
-  png(file="test.png", width = 400, height = 300)
+                       ncol = ncol, nrow = nrow))
+  levels(ras) <- data.frame(ID = 1:nLevels, Class = paste0("Level", 1:nLevels))
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE)
+  Plot(ras, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"]=="Linux") {
     orig <- c(3L, 13L, 3L, 5L, 5L, 13L, 3L, 11L, 8L, 3L, 5L, 5L, 11L, 5L,
               16L, 7L, 4L, 8L, 18L, 8L, 8L, 4L, 15L, 5L, 11L, 5L, 5L, 8L, 3L,
               11L, 13L, 3L, 5L, 5L, 13L, 3L)
   } else {
     orig <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
-            6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
-            7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
+              6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
+              7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test legend with a factor raster
   set.seed(24334)
   ras <- raster(matrix(sample(1:nLevels, size = N, replace = TRUE),
-                       ncol=ncol, nrow=nrow))
-  png(file="test.png", width = 400, height = 300)
+                       ncol = ncol, nrow = nrow))
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
   Plot(ras)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
 
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
+              3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
+              8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
+              3L, 5L)
+  } else {
     orig <- c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 3L, 3L, 5L, 5L, 8L, 3L,
               5L, 16L, 3L, 3L, 13L, 18L, 13L, 3L, 5L, 14L, 5L, 8L, 3L, 5L,
               5L, 3L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L)
-  } else {
-    orig <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
-            3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
-            8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
-            3L, 5L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
-
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # test non contiguous factor raster
   nLevels <- 6
   N <- ncol*nrow
   set.seed(24334)
-  levs <- (1:nLevels)[-((nLevels-2):(nLevels-1))]
+  levs <- (1:nLevels)[-((nLevels - 2):(nLevels - 1))]
   ras <- raster(matrix(sample(levs, size = N, replace = TRUE),
-                       ncol=ncol, nrow=nrow))
-  levels(ras) <- data.frame(
-    ID = levs,
-    Class = paste0("Level",levs)
-  )
-  ras <- setColors(ras, n=4, c("red", "orange", "blue", "yellow"))
+                       ncol = ncol, nrow = nrow))
+  levels(ras) <- data.frame(ID = levs, Class = paste0("Level", levs))
+  ras <- setColors(ras, n = 4, c("red", "orange", "blue", "yellow"))
 
-  png(file="test.png", width = 400, height = 300)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE)
+  Plot(ras, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
+              7L, 3L, 10L, 11L, 5L, 3L, 7L, 4L, 12L, 6L, 17L, 8L, 7L, 3L, 7L,
+              6L, 15L, 3L, 8L, 21L, 4L)
+  } else {
     orig <- c(7L, 29L, 15L, 12L, 10L, 22L, 4L, 7L, 4L, 27L, 12L, 26L, 3L,
               7L, 4L, 23L, 9L, 13L, 15L, 29L, 7L)
-  } else {
-    orig <- c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
-             7L, 3L, 10L, 11L, 5L, 3L, 7L, 4L, 12L, 6L, 17L, 8L, 7L, 3L, 7L,
-             6L, 15L, 3L, 8L, 21L, 4L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
-
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 })
 
 test_that("Unit tests for plotting colors", {
   skip_if_not_installed("visualTest")
 
-  tmpdir <- tempdir()
-  setwd(tmpdir)
+  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+  cwd <- getwd()
+  setwd(tmpdir); on.exit(setwd(cwd))
 
   library(visualTest); on.exit(detach("package:visualTest"))
   library(raster); on.exit(detach("package:raster"))
-  on.exit({
-    if (length(dir(pattern = "*.png"))>0) {
-      unlink(dir(pattern = "*.png"))
-    }
-    unlink(tmpdir)
-  })
-  ras <- raster(matrix(c(0,0,1,2), ncol=2))
-  setColors(ras, n=3) <- c("red", "blue", "green")
 
-  png(file="test.png", width = 400, height = 300)
+  ras <- raster(matrix(c(0, 0, 1, 2), ncol = 2))
+  setColors(ras, n = 3) <- c("red", "blue", "green")
+
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE)
+  Plot(ras, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
+  } else {
     orig <- c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
               8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
               9L, 13L, 7L, 7L)
-  } else {
-    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
-             14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
-  ras2 <- raster(matrix(c(3,1,1,2), ncol=2))
+  ras2 <- raster(matrix(c(3, 1, 1, 2), ncol = 2))
   rasStack <- stack(ras, ras2)
   names(rasStack) <- c("ras", "ras2")
-  setColors(rasStack, n=3) <- list(ras=c("black", "blue", "green"))
-  png(file="test.png", width = 400, height = 300)
+  setColors(rasStack, n = 3) <- list(ras = c("black", "blue", "green"))
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(rasStack, new=TRUE)
+  Plot(rasStack, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
+              35L, 5L, 7L, 5L, 13L, 7L)
+  } else {
     orig <- c(8L, 7L, 6L, 4L, 4L, 4L, 5L, 13L, 15L, 40L, 19L, 19L, 20L, 20L,
               40L, 14L, 13L, 4L, 4L, 4L, 5L, 7L, 9L)
-  } else {
-    orig <- c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
-             35L, 5L, 7L, 5L, 13L, 7L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
   # Test setColors
-  ras <- setColors(ras, c("red", "purple", "orange"), n=3)
-  png(file="test.png", width = 400, height = 300)
+  ras <- setColors(ras, c("red", "purple", "orange"), n = 3)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE)
+  Plot(ras, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(7L, 22L, 7L, 9L, 3L, 5L, 7L, 5L, 9L, 7L, 6L, 14L, 8L, 7L, 8L,
+              7L, 4L, 14L, 5L, 7L, 8L, 6L, 8L, 15L, 6L, 7L, 9L, 6L, 5L, 5L,
+              6L, 7L, 22L, 7L)
+  } else {
     orig <- c(7L, 9L, 13L, 3L, 18L, 8L, 10L, 5L, 7L, 8L, 7L, 15L, 12L, 7L,
               9L, 4L, 5L, 8L, 8L, 11L, 16L, 7L, 8L, 7L, 4L, 12L, 7L, 17L, 8L,
               11L, 7L)
-  } else {
-    orig <- c(7L, 22L, 7L, 9L, 3L, 5L, 7L, 5L, 9L, 7L, 6L, 14L, 8L, 7L, 8L,
-             7L, 4L, 14L, 5L, 7L, 8L, 6L, 8L, 15L, 6L, 7L, 9L, 6L, 5L, 5L,
-             6L, 7L, 22L, 7L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
   ras <- setColors(ras, c("yellow", "orange"))
-  png(file="test.png", width = 400, height = 300)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE)
+  Plot(ras, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
+  } else {
     orig <- c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
               8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
               9L, 13L, 7L, 7L)
-  } else {
-    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
-              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
-
 })
 
-
 test_that("Unit tests for internal functions in Plot", {
-
   skip_if_not_installed("visualTest")
-  tmpdir <- tempdir()
-  setwd(tmpdir)
+
+  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+  cwd <- getwd()
+  setwd(tmpdir); on.exit(setwd(cwd))
 
   library(visualTest); on.exit(detach("package:visualTest"))
   library(raster); on.exit(detach("package:raster"))
-  on.exit({
-    if (length(dir(pattern = "*.png"))>0) {
-      unlink(dir(pattern = "*.png"))
-    }
-    unlink(tmpdir)
-  })
 
-  # Test .makeColorMatrix for subsampled rasters (i.e., where speedup is high compared to ncells)
+  # Test .makeColorMatrix for subsampled rasters
+  # (i.e., where speedup is high compared to ncells)
   set.seed(1234)
-  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol=10))
-  setColors(ras, n=3) <- c("red", "blue", "green")
+  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+  setColors(ras, n = 3) <- c("red", "blue", "green")
 
-  png(file="test.png", width = 400, height = 300)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE, speedup=2e5)
+  Plot(ras, new = TRUE, speedup = 2e5)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <-c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+             8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+             8L, 7L, 14L, 8L, 7L)
+  } else {
     orig <- c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
               8L, 8L, 6L, 5L, 6L, 6L, 8L, 8L, 12L, 8L, 7L, 8L, 7L, 7L, 4L,
               4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L)
-  } else {
-    orig <-c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-            8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-            8L, 7L, 14L, 8L, 7L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
-
-
-
-
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test that NA rasters plot correctly, i.e., with na.color only
-  ras <- raster(matrix(NA, ncol=3, nrow=3))
-  setColors(ras, n=3) <- c("red", "blue", "green")
+  ras <- raster(matrix(NA, ncol = 3, nrow = 3))
+  setColors(ras, n = 3) <- c("red", "blue", "green")
 
-  png(file="test.png", width = 400, height = 300)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE, speedup=2e5)
+  Plot(ras, new = TRUE, speedup = 2e5)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+             8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+             8L, 7L, 14L, 8L, 7L)
+  } else {
     orig <- c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
               8L, 8L, 6L, 5L, 6L, 6L, 8L, 8L, 12L, 8L, 7L, 8L, 7L, 7L, 4L,
               4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L)
-  } else {
-    orig <-c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-            8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-            8L, 7L, 14L, 8L, 7L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
-
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test that NA rasters plot correctly, i.e., with na.color only, not default
-  ras <- raster(matrix(NA, ncol=3, nrow=3))
-  setColors(ras, n=3) <- c("red", "blue", "green")
+  ras <- raster(matrix(NA, ncol = 3, nrow = 3))
+  setColors(ras, n = 3) <- c("red", "blue", "green")
 
-  png(file="test.png", width = 400, height = 300)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=TRUE, speedup=2e5, na.color="black")
+  Plot(ras, new = TRUE, speedup = 2e5, na.color = "black")
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <-c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
+             4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
+             7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
+             4L, 7L, 8L, 4L, 5L, 7L, 4L)
+  } else {
     orig <- c(7L, 4L, 5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 4L, 4L, 7L, 4L,
               5L, 4L, 7L, 4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L,
               5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 4L, 4L, 5L, 7L,
               4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 4L)
-  } else {
-    orig <-c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
-            4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
-            7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
-            4L, 7L, 8L, 4L, 5L, 7L, 4L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test legendRange in Plot
   set.seed(1234)
-  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol=10))
-  setColors(ras, n=3) <- c("red", "blue", "green")
+  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+  setColors(ras, n = 3) <- c("red", "blue", "green")
 
-  png(file="test.png", width = 400, height = 300)
+  png(file = "test.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, legendRange = 0:5, new=TRUE)
+  Plot(ras, legendRange = 0:5, new = TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if(Sys.info()["sysname"]=="Linux") {
-    orig <- c(13L, 14L, 3L, 5L, 3L, 6L, 7L, 10L, 10L, 7L, 6L, 8L, 5L, 5L,
-      3L, 6L, 4L, 5L, 4L, 4L, 3L, 3L, 5L, 5L, 3L, 4L, 4L, 4L, 5L, 3L,
-      6L, 3L, 6L, 4L, 8L, 6L, 7L, 11L, 9L, 7L, 6L, 5L, 3L, 10L, 13L,
-      14L)
+  if (Sys.info()["sysname"] == "Windows") {
+    orig <- c(10L, 5L, 8L, 9L, 4L, 4L, 10L, 6L, 5L, 8L, 7L, 4L, 8L, 8L, 6L,
+             13L, 8L, 9L, 18L, 9L, 9L, 13L, 7L, 9L, 6L, 5L, 8L, 5L, 8L, 8L,
+             5L, 5L, 9L, 5L, 8L, 5L)
   } else {
-    orig <-c(10L, 5L, 8L, 9L, 4L, 4L, 10L, 6L, 5L, 8L, 7L, 4L, 8L, 8L, 6L,
-            13L, 8L, 9L, 18L, 9L, 9L, 13L, 7L, 9L, 6L, 5L, 8L, 5L, 8L, 8L,
-            5L, 5L, 9L, 5L, 8L, 5L)
+    orig <- c(13L, 14L, 3L, 5L, 3L, 6L, 7L, 10L, 10L, 7L, 6L, 8L, 5L, 5L,
+              3L, 6L, 4L, 5L, 4L, 4L, 3L, 3L, 5L, 5L, 3L, 4L, 4L, 4L, 5L, 3L,
+              6L, 3L, 6L, 4L, 8L, 6L, 7L, 11L, 9L, 7L, 6L, 5L, 3L, 10L, 13L,
+              14L)
   }
-  expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
-
 })
