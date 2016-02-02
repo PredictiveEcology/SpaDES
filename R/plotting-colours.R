@@ -61,6 +61,7 @@ setMethod("getColors",
 #'
 #' @examples
 #'   library(raster); on.exit(detach("package:raster"))
+#'   library(igraph) # need pipe for one example below
 #'   ras <- raster(matrix(c(0,0,1,2), ncol=2, nrow=2))
 #'
 #'   # Use replacement method
@@ -77,13 +78,11 @@ setMethod("getColors",
 #'   Plot(ras, new=TRUE)
 #'
 #'   # Real number rasters - interpolation is used
-#'   library(magrittr) # can use pipe with setColors method
 #'   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) %>%
 #'     setColors(c("red", "yellow")) # interpolates when real numbers
 #'   Plot(ras, new=TRUE)
 #'
 #'   # Factor rasters
-#'   library(magrittr) # can use pipe with setColors method
 #'   ras <- raster(matrix(sample(1:3, size=9, replace=TRUE), ncol=3, nrow=3))
 #'   levels(ras) <- data.frame(ID=1:3, Names=c("red", "purple", "yellow"))
 #'   ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
