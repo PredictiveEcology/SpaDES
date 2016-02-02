@@ -348,9 +348,8 @@ test_that("Unit tests for plotting colors", {
               8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
               9L, 13L, 7L, 7L)
   } else {
-    orig <- c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
-            8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
-            9L, 13L, 7L, 7L)
+    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
   }
   expect_true(isSimilar(file="test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
