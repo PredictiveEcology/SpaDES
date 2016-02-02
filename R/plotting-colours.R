@@ -59,6 +59,36 @@ setMethod("getColors",
 #'
 #' @author Alex Chubaty
 #'
+#' @examples
+#'   library(raster); on.exit(detach("package:raster"))
+#'   ras <- raster(matrix(c(0,0,1,2), ncol=2, nrow=2))
+#'
+#'   # Use replacement method
+#'   setColors(ras, n=3) <- c("red", "blue", "green")
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Use function method
+#'   ras <- setColors(ras, n=3, c("red", "blue", "yellow"))
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Using the wrong number of colors, e.g., here 2 provided,
+#'   # for a raster with 3 values... causes interpolation, which may be surprising
+#'   ras <- setColors(ras, c("red", "blue"))
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Real number rasters - interpolation is used
+#'   library(magrittr) # can use pipe with setColors method
+#'   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) %>%
+#'     setColors(c("red", "yellow")) # interpolates when real numbers
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Factor rasters
+#'   library(magrittr) # can use pipe with setColors method
+#'   ras <- raster(matrix(sample(1:3, size=9, replace=TRUE), ncol=3, nrow=3))
+#'   levels(ras) <- data.frame(ID=1:3, Names=c("red", "purple", "yellow"))
+#'   ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
+#'   Plot(ras, new=TRUE)
+#'
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
