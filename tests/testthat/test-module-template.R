@@ -2,6 +2,9 @@ test_that("module templates work", {
   library(knitr); on.exit(detach('package:knitr'))
   library(igraph); on.exit(detach('package:igraph'))
   path <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
+
+  on.exit(unlink(path, recursive = TRUE))
+
   expect_true(file.exists(path))
   moduleName <- "myModule"
 
@@ -35,6 +38,4 @@ test_that("module templates work", {
 
   # Test that the dummy unit tests work
   #test_file(file.path(mpath, "tests", "testthat", "test-template.R"))
-
-  unlink(path, recursive = TRUE)
 })

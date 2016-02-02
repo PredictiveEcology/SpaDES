@@ -1,7 +1,7 @@
 test_that("checkPath: normPath consistency", {
-  currdir <- getwd()
-  on.exit(setwd(currdir))
+  currdir <- getwd(); on.exit(setwd(currdir))
   tmpdir <- normalizePath(tempdir(), winslash = "/", mustWork = FALSE)
+  on.exit(unlink(tmpdir, recursive = TRUE))
   setwd(tmpdir)
 
   paths <- list("./aaa/zzz",
@@ -25,9 +25,8 @@ test_that("checkPath: normPath consistency", {
 })
 
 test_that("checkPath: checkPath consistency", {
-  currdir <- getwd()
-  on.exit(setwd(currdir))
-  setwd(tmpdir <- tempdir())
+  currdir <- getwd(); on.exit(setwd(currdir))
+  setwd(tmpdir <- tempdir()); on.exit(unlink(tmpdir, recursive = TRUE))
 
   dir.create("aaa/zzz", recursive = TRUE, showWarnings = FALSE)
   paths <- list("./aaa/zzz",
