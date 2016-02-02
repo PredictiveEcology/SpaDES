@@ -71,7 +71,7 @@ setMethod(
     }
     stopifnot(dir.exists(testDir))
 
-    fCoverage <- list()
+    fnCoverage <- list()
     mCoverage <- list()
 
     # read the module
