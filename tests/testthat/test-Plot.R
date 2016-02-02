@@ -1,10 +1,14 @@
 test_that("Plot is not error-free", {
+  tmpdir <- tempdir()
+  setwd(tmpdir)
+
   library(raster); on.exit(detach("package:raster"))
   library(sp); on.exit(detach("package:sp"))
   on.exit({
     if (length(dir(pattern = "Rplots[[:alnum:]]*.pdf"))>0) {
       unlink(dir(pattern = "Rplots[[:alnum:]]*.pdf"))
     }
+    unlink(tmpdir)
   })
 
   ras <- raster::raster(xmn = 0, xmx = 10, ymn = 0, ymx = 10, vals = 1, res = 1)
@@ -168,6 +172,8 @@ test_that("Plot is not error-free", {
 
 test_that("Unit tests for image content is not error-free", {
   skip_if_not_installed("visualTest")
+  tmpdir <- tempdir()
+  setwd(tmpdir)
 
   # require(devtools)
   # install visualTest
@@ -179,6 +185,7 @@ test_that("Unit tests for image content is not error-free", {
     if (length(dir(pattern = "*.png"))>0) {
       unlink(dir(pattern = "*.png"))
     }
+    unlink(tmpdir)
   })
 
   ncol <- 3
@@ -269,12 +276,16 @@ test_that("Unit tests for image content is not error-free", {
 test_that("Unit tests for plotting colors", {
   skip_if_not_installed("visualTest")
 
+  tmpdir <- tempdir()
+  setwd(tmpdir)
+
   library(visualTest); on.exit(detach("package:visualTest"))
   library(raster); on.exit(detach("package:raster"))
   on.exit({
     if (length(dir(pattern = "*.png"))>0) {
       unlink(dir(pattern = "*.png"))
     }
+    unlink(tmpdir)
   })
   ras <- raster(matrix(c(0,0,1,2), ncol=2))
   setColors(ras, n=3) <- c("red", "blue", "green")
@@ -360,6 +371,8 @@ test_that("Unit tests for plotting colors", {
 test_that("Unit tests for internal functions in Plot", {
 
   skip_if_not_installed("visualTest")
+  tmpdir <- tempdir()
+  setwd(tmpdir)
 
   library(visualTest); on.exit(detach("package:visualTest"))
   library(raster); on.exit(detach("package:raster"))
@@ -367,6 +380,7 @@ test_that("Unit tests for internal functions in Plot", {
     if (length(dir(pattern = "*.png"))>0) {
       unlink(dir(pattern = "*.png"))
     }
+    unlink(tmpdir)
   })
 
   # Test .makeColorMatrix for subsampled rasters (i.e., where speedup is high compared to ncells)
