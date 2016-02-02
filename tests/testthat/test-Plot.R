@@ -257,23 +257,58 @@ test_that("Unit tests for plotting colors", {
   })
   ras <- raster(matrix(c(0,0,1,2), ncol=2))
   setColors(ras, n=3) <- c("red", "blue", "green")
+
+  png(file="test3.png", width = 400, height = 300)
+  clearPlot()
   Plot(ras, new=TRUE)
-  expect_equal(ras@legend@colortable, c("#FF0000FF", "#0000FFFF", "#00FF00FF"))
+  dev.off()
+
+  #dput(getFingerprint(file = "test3.png"))
+  orig3 <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+             14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
+  expect_true(isSimilar(file="test3.png", fingerprint = orig3, threshold = 0.1))
+  unlink("test3.png")
 
   ras2 <- raster(matrix(c(3,1,1,2), ncol=2))
   rasStack <- stack(ras, ras2)
   names(rasStack) <- c("ras", "ras2")
   setColors(rasStack, n=3) <- list(ras=c("black", "blue", "green"))
-  Plot(ras, new=TRUE)
-  expect_equal(rasStack[[1]]@legend@colortable, c("#000000FF", "#0000FFFF", "#00FF00FF"))
+  png(file="test3.png", width = 400, height = 300)
+  clearPlot()
+  Plot(rasStack, new=TRUE)
+  dev.off()
 
+  #dput(getFingerprint(file = "test3.png"))
+  orig3 <- c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
+             35L, 5L, 7L, 5L, 13L, 7L)
+  expect_true(isSimilar(file="test3.png", fingerprint = orig3, threshold = 0.1))
+  unlink("test3.png")
+
+  # Test setColors
   ras <- setColors(ras, c("red", "purple", "orange"), n=3)
+  png(file="test3.png", width = 400, height = 300)
+  clearPlot()
   Plot(ras, new=TRUE)
-  expect_equal(ras@legend@colortable, c("#FF0000FF", "#A020F0FF", "#FFA500FF"))
+  dev.off()
+
+  #dput(getFingerprint(file = "test3.png"))
+  orig3 <- c(7L, 22L, 7L, 9L, 3L, 5L, 7L, 5L, 9L, 7L, 6L, 14L, 8L, 7L, 8L,
+             7L, 4L, 14L, 5L, 7L, 8L, 6L, 8L, 15L, 6L, 7L, 9L, 6L, 5L, 5L,
+             6L, 7L, 22L, 7L)
+  expect_true(isSimilar(file="test3.png", fingerprint = orig3, threshold = 0.1))
+  unlink("test3.png")
 
   ras <- setColors(ras, c("yellow", "orange"))
+  png(file="test3.png", width = 400, height = 300)
+  clearPlot()
   Plot(ras, new=TRUE)
-  expect_equal(ras@legend@colortable, c("#FFFF00FF", "#FFD200FF", "#FFA500FF"))
+  dev.off()
+
+  #dput(getFingerprint(file = "test3.png"))
+  orig3 <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+             14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
+  expect_true(isSimilar(file="test3.png", fingerprint = orig3, threshold = 0.1))
+  unlink("test3.png")
 
 })
 
