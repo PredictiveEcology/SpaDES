@@ -248,7 +248,9 @@ test_that("Unit tests for image content is not error-free", {
 })
 
 test_that("Unit tests for plotting colors", {
+  skip_if_not_installed("visualTest")
 
+  library(visualTest); on.exit(detach("package:visualTest"))
   library(raster); on.exit(detach("package:raster"))
   on.exit({
     if (length(dir(pattern = "*.png"))>0) {
