@@ -28,7 +28,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'  library(magrittr)
+#'  library(igraph)
 #'  library(SpaDES)
 #'  tmpdir <- tempdir()
 #'  modulePath <- file.path(tmpdir, "Modules") %>% checkPath(create = TRUE)
