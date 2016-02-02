@@ -7,9 +7,9 @@
 \alias{setColors,RasterLayer,character,numeric-method}
 \alias{setColors<-}
 \alias{setColors<-,Raster,missing,list-method}
-\alias{setColors<-,Raster,numeric,list-method}
 \alias{setColors<-,RasterLayer,missing,character-method}
 \alias{setColors<-,RasterLayer,numeric,character-method}
+\alias{setColors<-,RasterStack,numeric,list-method}
 \alias{setColours}
 \title{Set colours for plotting Raster* objects.}
 \usage{
@@ -19,7 +19,7 @@ setColors(object, ..., n) <- value
 
 \S4method{setColors}{RasterLayer,missing,character}(object, ..., n) <- value
 
-\S4method{setColors}{Raster,numeric,list}(object, ..., n) <- value
+\S4method{setColors}{RasterStack,numeric,list}(object, ..., n) <- value
 
 \S4method{setColors}{Raster,missing,list}(object, ..., n) <- value
 
