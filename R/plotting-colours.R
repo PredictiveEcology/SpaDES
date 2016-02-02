@@ -82,36 +82,59 @@ setMethod("getColors",
 #'     setColors(c("red", "yellow")) # interpolates when real numbers
 #'   Plot(ras, new=TRUE)
 #'
-#'   # Factor rasters
-#'   ras <- raster(matrix(sample(1:3, size=9, replace=TRUE), ncol=3, nrow=3))
-#'   levels(ras) <- data.frame(ID=1:3, Names=c("red", "purple", "yellow"))
+#'   # Factor rasters, can be contiguous (numerically) or not, in this case not:
+#'   ras <- raster(matrix(sample(c(1,3,6), size=9, replace=TRUE), ncol=3, nrow=3))
+#'   levels(ras) <- data.frame(ID=c(1,3,6), Names=c("red", "purple", "yellow"))
 #'   ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
 #'   Plot(ras, new=TRUE)
 #'
+#'   # if a factor rastere, and not enough labels are provided, then a warning
+#'   #   will be given, and colors will be interpolated
+#'   #   The level called purple is not purple, but interpolated betwen red and yellow
+#'   ras <- setColors(ras, c("red", "yellow"))
+#'   Plot(ras, new=TRUE)
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
 })
 
 #' @rdname setColors
+#' @importFrom raster is.factor
 setReplaceMethod(
   "setColors",
   signature("RasterLayer", "numeric", "character"),
   function(object, ..., n, value) {
-    pal <- colorRampPalette(value, alpha = TRUE, ...)
-    object@legend@colortable <- pal(n)
+    if(raster::is.factor(object)) {
+      if(n != NROW(object@data@attributes[[1]])) {
+        warning("Number of colors not equal number of values: interpolating")
+        pal <- colorRampPalette(value, alpha = TRUE, ...)
+        n <- NROW(object@data@attributes[[1]])
+        object@legend@colortable <- pal(n)
+      } else {
+        object@legend@colortable <- value
+      }
+    } else {
+      pal <- colorRampPalette(value, alpha = TRUE, ...)
+      object@legend@colortable <- pal(n)
+    }
     validObject(object)
     return(object)
 })
 
 #' @rdname setColors
+#' @importFrom raster is.factor
 setReplaceMethod(
   "setColors",
   signature("RasterLayer", "missing", "character"),
   function(object, ..., value) {
-    n <- round((maxValue(object) - minValue(object))) + 1
-    pal <- colorRampPalette(value, alpha = TRUE, ...)
-    object@legend@colortable <- pal(n)
+    if(!raster::is.factor(object)) {
+      n <- round((maxValue(object) - minValue(object))) + 1
+    } else {
+      n <- length(value)
+    }
+    setColors(object, n=n) <- value
+#    pal <- colorRampPalette(value, alpha = TRUE, ...)
+#    object@legend@colortable <- pal(n)
     validObject(object)
     return(object)
 })
@@ -270,7 +293,11 @@ setMethod(
     #  too many numbers
     maxNumCols <- 100
 
-    nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+#    if(raster::is.factor(grobToPlot)) {
+#      nValues <- NROW(grobToPlot@data@attributes[[1]])
+#    } else {
+      nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+#    }
     colTable <- NULL
 
     if (is.null(cols)) {
@@ -279,16 +306,20 @@ setMethod(
         colTable <- getColors(grobToPlot)[[1]]
         lenColTable <- length(colTable)
 
-        cols <- if (nValues > lenColTable) {
+        cols <- if ((nValues > lenColTable) & !raster::is.factor(grobToPlot)) {
           # not enough colors, use colorRamp
           colorRampPalette(colTable)(nValues)
-        } else if (nValues <= (lenColTable)) {
+        } else if ((nValues <= (lenColTable)) | raster::is.factor(grobToPlot)) {
           # one more color than needed:
           #   assume bottom is NA
           if(raster::is.factor(grobToPlot)) {
             factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
               unique %>% na.omit %>% sort
-            colTable[c(1,1+factorValues)] # CHANGE HERE
+            if(length(factorValues)==length(colTable)) {
+              colTable[seq.int(length(factorValues))]
+            } else {
+              colTable[c(1,1+factorValues)] # CHANGE HERE
+            }
           } else {
             colTable
           }
@@ -374,6 +405,10 @@ setMethod(
     z <- z + 1 # for the NAs
     z[is.na(z)] <- max(1, minz)
 
+    if(raster::is.factor(grobToPlot) & !is.null(colTable)){
+      cols <- rep(na.color,max(factorValues))
+      cols[factorValues] <- colTable
+    }
     cols <- c(na.color, cols) # make first index of colors be transparent
 
     if ((minz > 1) | (minz < 0)) {
