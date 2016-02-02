@@ -607,7 +607,7 @@ expect_equal(simOutput$event1Test1, expectedOutputEvent1Test1) # or other expect
 expect_equal(simOutput$event1Test2, as.numeric(999)) # or other expect function in testthat package.
 
 if(exists(\"", name, "Event2\", envir = .GlobalEnv)){
-  simOutput <- ", name, "Event1(mySim)
+  simOutput <- ", name, "Event2(mySim)
 } else {
   simOutput <- mySim$", name, "Event2(mySim)
 }
