@@ -72,11 +72,11 @@ test_that("Plot is not error-free", {
   # Test polygon with > 1e3 points to test the speedup parameter
   r <- 1
   N <- 1000
-  cx = 0
+  cx <- 0
   cy <- 0
-  a <- seq(0,2*pi,length.out = N)
-  x = cx + r * cos(a)
-  y = cy + r * sin(a)
+  a <- seq(0, 2*pi, length.out = N)
+  x <- cx + r * cos(a)
+  y <- cy + r * sin(a)
   Sr1 <- sp::Polygon(cbind(x, y))
   Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)))
   Srs1 <- sp::Polygons(list(Sr1), "s1")
@@ -99,11 +99,11 @@ test_that("Plot is not error-free", {
   # Test polygon with > 1e3 points to test the speedup parameter
   r <- 1
   N <- 1000
-  cx = 0
+  cx <- 0
   cy <- 0
-  a <- seq(0,2*pi,length.out = N)
-  x = cx + r * cos(a)
-  y = cy + r * sin(a)
+  a <- seq(0, 2*pi, length.out = N)
+  x <- cx + r * cos(a)
+  y <- cy + r * sin(a)
   l1 <- cbind(x, y)
   l1a <- cbind(l1[, 1] + .05, l1[, 2] + .05)
   l2 <- cbind(c(1, 20, 3), c(10, 1.5, 1))
@@ -113,7 +113,7 @@ test_that("Plot is not error-free", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
-  expect_that(Plot(Sl87654,new = TRUE), testthat::not(throws_error()))
+  expect_that(Plot(Sl87654, new = TRUE), testthat::not(throws_error()))
 
   # test addTo
   expect_that(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654",
@@ -166,7 +166,7 @@ test_that("Plot is not error-free", {
   expect_message(Plot(habitatQuality87654, addTo = "test"),
                  "Plot called with 'addTo' argument specified")
   expect_error(Plot(ls()), "Not a plottable object")
-  expect_that(rePlot, testthat::not(throws_error()))
+  expect_that(rePlot(), testthat::not(throws_error()))
 })
 
 test_that("Unit tests for image content is not error-free", {
@@ -180,7 +180,7 @@ test_that("Unit tests for image content is not error-free", {
 
   ncol <- 3
   nrow <- 4
-  N <- ncol*nrow
+  N <- ncol * nrow
   nLevels <- 4
 
   # Test legend with a factor raster
@@ -194,15 +194,18 @@ test_that("Unit tests for image content is not error-free", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"]=="Linux") {
-    orig <- c(3L, 13L, 3L, 5L, 5L, 13L, 3L, 11L, 8L, 3L, 5L, 5L, 11L, 5L,
+  orig <- switch(
+    Sys.info()["sysname"],
+    Darwin = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 3L,
+               5L, 5L, 8L, 3L, 16L, 24L, 16L, 8L, 3L, 5L, 5L, 3L, 3L, 5L, 5L,
+               8L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L),
+    Linux = c(3L, 13L, 3L, 5L, 5L, 13L, 3L, 11L, 8L, 3L, 5L, 5L, 11L, 5L,
               16L, 7L, 4L, 8L, 18L, 8L, 8L, 4L, 15L, 5L, 11L, 5L, 5L, 8L, 3L,
-              11L, 13L, 3L, 5L, 5L, 13L, 3L)
-  } else {
-    orig <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
-              6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
-              7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
-  }
+              11L, 13L, 3L, 5L, 5L, 13L, 3L),
+    Windows = c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
+                6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
+                7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test legend with a factor raster
@@ -216,21 +219,23 @@ test_that("Unit tests for image content is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
 
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
-              3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
-              8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
-              3L, 5L)
-  } else {
-    orig <- c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 3L, 3L, 5L, 5L, 8L, 3L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 3L,
+               5L, 5L, 8L, 3L, 16L, 24L, 16L, 8L, 3L, 5L, 5L, 3L, 3L, 5L, 5L,
+               8L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L),
+    Linux = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 3L, 3L, 5L, 5L, 8L, 3L,
               5L, 16L, 3L, 3L, 13L, 18L, 13L, 3L, 5L, 14L, 5L, 8L, 3L, 5L,
-              5L, 3L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L)
-  }
+              5L, 3L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L),
+    Windows = c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
+                3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
+                8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
+                3L, 5L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # test non contiguous factor raster
   nLevels <- 6
-  N <- ncol*nrow
+  N <- ncol * nrow
   set.seed(24334)
   levs <- (1:nLevels)[-((nLevels - 2):(nLevels - 1))]
   ras <- raster(matrix(sample(levs, size = N, replace = TRUE),
@@ -244,14 +249,16 @@ test_that("Unit tests for image content is not error-free", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
-              7L, 3L, 10L, 11L, 5L, 3L, 7L, 4L, 12L, 6L, 17L, 8L, 7L, 3L, 7L,
-              6L, 15L, 3L, 8L, 21L, 4L)
-  } else {
-    orig <- c(7L, 29L, 15L, 12L, 10L, 22L, 4L, 7L, 4L, 27L, 12L, 26L, 3L,
-              7L, 4L, 23L, 9L, 13L, 15L, 29L, 7L)
-  }
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(9L, 3L, 4L, 9L, 3L, 5L, 7L, 8L, 6L, 10L, 3L, 5L, 11L, 5L, 7L,
+               9L, 4L, 13L, 9L, 30L, 10L, 12L, 5L, 8L, 8L, 5L, 12L, 3L, 3L,
+               13L, 3L, 10L, 5L, 5L, 9L, 3L, 4L, 9L, 3L),
+    Linux = c(7L, 29L, 15L, 12L, 10L, 22L, 4L, 7L, 4L, 27L, 12L, 26L, 3L,
+              7L, 4L, 23L, 9L, 13L, 15L, 29L, 7L),
+    Windows = c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
+                7L, 3L, 10L, 11L, 5L, 3L, 7L, 4L, 12L, 6L, 17L, 8L, 7L, 3L, 7L,
+                6L, 15L, 3L, 8L, 21L, 4L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 })
 
@@ -274,14 +281,16 @@ test_that("Unit tests for plotting colors", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
-              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
-  } else {
-    orig <- c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(7L, 7L, 8L, 14L, 7L, 7L, 8L, 10L, 11L, 7L, 7L, 7L, 8L, 5L,
+               8L, 9L, 12L, 13L, 8L, 9L, 5L, 8L, 7L, 7L, 7L, 10L, 11L, 8L, 7L,
+               7L, 14L, 8L, 7L, 7L),
+    Linux = c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
               8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
-              9L, 13L, 7L, 7L)
-  }
+              9L, 13L, 7L, 7L),
+    Windows = c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+                14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
@@ -295,13 +304,14 @@ test_that("Unit tests for plotting colors", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
-              35L, 5L, 7L, 5L, 13L, 7L)
-  } else {
-    orig <- c(8L, 7L, 6L, 4L, 4L, 4L, 5L, 13L, 15L, 40L, 19L, 19L, 20L, 20L,
-              40L, 14L, 13L, 4L, 4L, 4L, 5L, 7L, 9L)
-  }
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(8L, 7L, 6L, 4L, 4L, 4L, 5L, 28L, 42L, 36L, 38L, 42L, 27L, 4L,
+               4L, 4L, 5L, 7L, 9L),
+    Linux = c(8L, 7L, 6L, 4L, 4L, 4L, 5L, 13L, 15L, 40L, 19L, 19L, 20L, 20L,
+              40L, 14L, 13L, 4L, 4L, 4L, 5L, 7L, 9L),
+    Windows = c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
+                35L, 5L, 7L, 5L, 13L, 7L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
@@ -313,15 +323,17 @@ test_that("Unit tests for plotting colors", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(7L, 22L, 7L, 9L, 3L, 5L, 7L, 5L, 9L, 7L, 6L, 14L, 8L, 7L, 8L,
-              7L, 4L, 14L, 5L, 7L, 8L, 6L, 8L, 15L, 6L, 7L, 9L, 6L, 5L, 5L,
-              6L, 7L, 22L, 7L)
-  } else {
-    orig <- c(7L, 9L, 13L, 3L, 18L, 8L, 10L, 5L, 7L, 8L, 7L, 15L, 12L, 7L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(7L, 9L, 8L, 5L, 7L, 7L, 7L, 8L, 14L, 7L, 7L, 7L, 7L, 7L, 8L,
+               5L, 4L, 6L, 6L, 6L, 7L, 6L, 6L, 4L, 5L, 8L, 7L, 7L, 7L, 7L, 17L,
+               5L, 7L, 7L, 7L, 8L, 5L, 9L, 7L),
+    Linux = c(7L, 9L, 13L, 3L, 18L, 8L, 10L, 5L, 7L, 8L, 7L, 15L, 12L, 7L,
               9L, 4L, 5L, 8L, 8L, 11L, 16L, 7L, 8L, 7L, 4L, 12L, 7L, 17L, 8L,
-              11L, 7L)
-  }
+              11L, 7L),
+    Windows = c(7L, 22L, 7L, 9L, 3L, 5L, 7L, 5L, 9L, 7L, 6L, 14L, 8L, 7L, 8L,
+                7L, 4L, 14L, 5L, 7L, 8L, 6L, 8L, 15L, 6L, 7L, 9L, 6L, 5L, 5L,
+                6L, 7L, 22L, 7L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
@@ -332,14 +344,16 @@ test_that("Unit tests for plotting colors", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
-              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
-  } else {
-    orig <- c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(7L, 7L, 8L, 14L, 7L, 7L, 8L, 10L, 11L, 7L, 7L, 7L, 8L, 5L,
+               8L, 9L, 5L, 7L, 8L, 5L, 8L, 9L, 5L, 8L, 7L, 7L, 7L, 10L, 11L,
+               8L, 7L, 7L, 14L, 8L, 7L, 7L),
+    Linux = c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
               8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
-              9L, 13L, 7L, 7L)
-  }
+              9L, 13L, 7L, 7L),
+    Windows = c(7L, 8L, 7L, 3L, 12L, 8L, 20L, 8L, 8L, 28L, 7L, 8L, 6L, 5L,
+              14L, 5L, 7L, 8L, 6L, 29L, 8L, 8L, 20L, 8L, 11L, 3L, 8L, 8L, 7L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 })
@@ -366,15 +380,17 @@ test_that("Unit tests for internal functions in Plot", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <-c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-             8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-             8L, 7L, 14L, 8L, 7L)
-  } else {
-    orig <- c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(7L, 7L, 8L, 6L, 3L, 5L, 7L, 8L, 6L, 13L, 9L, 7L, 8L, 6L, 7L,
+               7L, 5L, 4L, 6L, 7L, 6L, 7L, 7L, 6L, 4L, 5L, 7L, 7L, 6L, 8L, 7L,
+               9L, 13L, 6L, 8L, 7L, 4L, 3L, 7L, 8L, 7L, 7L),
+    Linux = c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
               8L, 8L, 6L, 5L, 6L, 6L, 8L, 8L, 12L, 8L, 7L, 8L, 7L, 7L, 4L,
-              4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L)
-  }
+              4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L),
+    Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+                8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+                8L, 7L, 14L, 8L, 7L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test that NA rasters plot correctly, i.e., with na.color only
@@ -387,15 +403,17 @@ test_that("Unit tests for internal functions in Plot", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-             8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-             8L, 7L, 14L, 8L, 7L)
-  } else {
-    orig <- c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(7L, 7L, 8L, 14L, 7L, 8L, 7L, 14L, 7L, 7L, 7L, 7L, 7L, 7L, 5L,
+               5L, 6L, 6L, 6L, 7L, 6L, 6L, 5L, 5L, 7L, 7L, 7L, 7L, 7L, 7L, 14L,
+               7L, 8L, 7L, 14L, 8L, 7L, 7L),
+    Linux = c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
               8L, 8L, 6L, 5L, 6L, 6L, 8L, 8L, 12L, 8L, 7L, 8L, 7L, 7L, 4L,
-              4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L)
-  }
+              4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L),
+    Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+                8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+                8L, 7L, 14L, 8L, 7L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test that NA rasters plot correctly, i.e., with na.color only, not default
@@ -408,17 +426,20 @@ test_that("Unit tests for internal functions in Plot", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <-c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
-             4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
-             7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
-             4L, 7L, 8L, 4L, 5L, 7L, 4L)
-  } else {
-    orig <- c(7L, 4L, 5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 4L, 4L, 7L, 4L,
-              5L, 4L, 7L, 4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L,
-              5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 4L, 4L, 5L, 7L,
-              4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 4L)
-  }
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(7L, 4L, 5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 5L, 7L, 4L,
+               5L, 7L, 4L, 4L, 5L, 7L, 4L, 4L, 4L, 5L, 4L, 3L, 3L, 3L, 3L, 3L,
+               4L, 4L, 5L, 4L, 4L, 7L, 4L, 5L, 4L, 7L, 4L, 5L, 7L, 4L, 8L, 4L,
+               5L, 7L, 4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 4L),
+    Linux =  c(7L, 4L, 5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 4L, 4L, 7L, 4L,
+               5L, 4L, 7L, 4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L,
+               5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 4L, 4L, 5L, 7L,
+               4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 4L),
+    Windows = c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
+                4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
+                7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
+                4L, 7L, 8L, 4L, 5L, 7L, 4L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test legendRange in Plot
@@ -432,16 +453,18 @@ test_that("Unit tests for internal functions in Plot", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-  if (Sys.info()["sysname"] == "Windows") {
-    orig <- c(10L, 5L, 8L, 9L, 4L, 4L, 10L, 6L, 5L, 8L, 7L, 4L, 8L, 8L, 6L,
-             13L, 8L, 9L, 18L, 9L, 9L, 13L, 7L, 9L, 6L, 5L, 8L, 5L, 8L, 8L,
-             5L, 5L, 9L, 5L, 8L, 5L)
-  } else {
-    orig <- c(13L, 14L, 3L, 5L, 3L, 6L, 7L, 10L, 10L, 7L, 6L, 8L, 5L, 5L,
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = c(10L, 3L, 10L, 3L, 11L, 3L, 10L, 3L, 10L, 3L, 11L, 3L, 10L,
+               5L, 17L, 5L, 3L, 10L, 22L, 10L, 3L, 5L, 19L, 3L, 10L, 4L, 10L,
+               4L, 9L, 4L, 9L, 5L, 9L, 4L, 9L, 5L, 13L),
+    Linux = c(13L, 14L, 3L, 5L, 3L, 6L, 7L, 10L, 10L, 7L, 6L, 8L, 5L, 5L,
               3L, 6L, 4L, 5L, 4L, 4L, 3L, 3L, 5L, 5L, 3L, 4L, 4L, 4L, 5L, 3L,
               6L, 3L, 6L, 4L, 8L, 6L, 7L, 11L, 9L, 7L, 6L, 5L, 3L, 10L, 13L,
-              14L)
-  }
+              14L),
+    Windows = c(10L, 5L, 8L, 9L, 4L, 4L, 10L, 6L, 5L, 8L, 7L, 4L, 8L, 8L, 6L,
+                13L, 8L, 9L, 18L, 9L, 9L, 13L, 7L, 9L, 6L, 5L, 8L, 5L, 8L, 8L,
+                5L, 5L, 9L, 5L, 8L, 5L)
+  )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 })
