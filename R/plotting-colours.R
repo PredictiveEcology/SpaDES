@@ -90,7 +90,7 @@ setReplaceMethod(
 #' @rdname setColors
 setReplaceMethod(
   "setColors",
-   signature("Raster", "numeric", "list"),
+   signature("RasterStack", "numeric", "list"),
    function(object, ..., n, value) {
      i <- which(names(object) %in% names(value))
      for(x in names(object)[i]) {
@@ -220,13 +220,20 @@ setMethod(
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
     if (!exists("minz")) {
-      minz <- min(z, na.rm = TRUE)
+      minz <- suppressWarnings(min(z, na.rm = TRUE))
     }
     if (is.na(minz)) {
-      minz <- min(z, na.rm = TRUE)
+      minz <- suppressWarnings(min(z, na.rm = TRUE))
+    }
+    if(is.infinite(minz)) {
+      minz <- 0
     }
     #
-    maxz <- max(z, na.rm = TRUE)
+    maxz <- suppressWarnings(max(z, na.rm = TRUE))
+    if(is.infinite(maxz)) {
+      maxz <- 0
+    }
+
     real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
 
     # Deal with colors - This gets all combinations, real vs. integers,

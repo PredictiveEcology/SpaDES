@@ -81,7 +81,7 @@ test_that("Plot is not error-free", {
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
-  expect_that(Plot(SpP87, new=T), testthat::not(throws_error()))
+  expect_that(Plot(SpP87, new=TRUE), testthat::not(throws_error()))
 
 
   # test SpatialLines
@@ -236,7 +236,7 @@ test_that("Unit tests for image content is not error-free", {
 
   png(file="test3.png", width = 400, height = 300)
   clearPlot()
-  Plot(ras, new=T)
+  Plot(ras, new=TRUE)
   dev.off()
 
   #dput(getFingerprint(file = "test3.png"))
@@ -244,5 +244,119 @@ test_that("Unit tests for image content is not error-free", {
              5L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 6L, 7L, 11L, 5L, 11L,
              3L, 8L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
   expect_true(isSimilar(file="test3.png", fingerprint = orig3, threshold = 0.1))
+
+})
+
+test_that("Unit tests for plotting colors", {
+
+  library(raster); on.exit(detach("package:raster"))
+  on.exit({
+    if (length(dir(pattern = "*.png"))>0) {
+      unlink(dir(pattern = "*.png"))
+    }
+  })
+  ras <- raster(matrix(c(0,0,1,2), ncol=2))
+  setColors(ras, n=3) <- c("red", "blue", "green")
+  Plot(ras, new=TRUE)
+  expect_equal(ras@legend@colortable, c("#FF0000FF", "#0000FFFF", "#00FF00FF"))
+
+  ras2 <- raster(matrix(c(3,1,1,2), ncol=2))
+  rasStack <- stack(ras, ras2)
+  names(rasStack) <- c("ras", "ras2")
+  setColors(rasStack, n=3) <- list(ras=c("black", "blue", "green"))
+  Plot(ras, new=TRUE)
+  expect_equal(rasStack[[1]]@legend@colortable, c("#000000FF", "#0000FFFF", "#00FF00FF"))
+
+  ras <- setColors(ras, c("red", "purple", "orange"), n=3)
+  Plot(ras, new=TRUE)
+  expect_equal(ras@legend@colortable, c("#FF0000FF", "#A020F0FF", "#FFA500FF"))
+
+  ras <- setColors(ras, c("yellow", "orange"))
+  Plot(ras, new=TRUE)
+  expect_equal(ras@legend@colortable, c("#FFFF00FF", "#FFD200FF", "#FFA500FF"))
+
+})
+
+
+test_that("Unit tests for internal functions in Plot", {
+
+  skip_if_not_installed("visualTest")
+
+  # require(devtools)
+  # install visualTest
+  # install_github("MangoTheCat/visualTest")
+
+  library(visualTest); on.exit(detach("package:visualTest"))
+  library(raster); on.exit(detach("package:raster"))
+  on.exit({
+    if (length(dir(pattern = "*.png"))>0) {
+      unlink(dir(pattern = "*.png"))
+    }
+  })
+
+  # Test .makeColorMatrix for subsampled rasters (i.e., where speedup is high compared to ncells)
+  set.seed(1234)
+  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol=10))
+  setColors(ras, n=3) <- c("red", "blue", "green")
+
+  png(file="test4.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras, new=TRUE, speedup=2e5)
+  dev.off()
+
+  #dput(getFingerprint(file = "test4.png"))
+  orig4 <-c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+            8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+            8L, 7L, 14L, 8L, 7L)
+  expect_true(isSimilar(file="test4.png", fingerprint = orig4, threshold = 0.1))
+
+  # Test that NA rasters plot correctly, i.e., with na.color only
+  ras <- raster(matrix(NA, ncol=3, nrow=3))
+  setColors(ras, n=3) <- c("red", "blue", "green")
+
+  png(file="test5.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras, new=TRUE, speedup=2e5)
+  dev.off()
+
+  #dput(getFingerprint(file = "test5.png"))
+  orig5 <-c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+            8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+            8L, 7L, 14L, 8L, 7L)
+  expect_true(isSimilar(file="test5.png", fingerprint = orig5, threshold = 0.1))
+
+
+  # Test that NA rasters plot correctly, i.e., with na.color only, not default
+  ras <- raster(matrix(NA, ncol=3, nrow=3))
+  setColors(ras, n=3) <- c("red", "blue", "green")
+
+  png(file="test6.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras, new=TRUE, speedup=2e5, na.color="black")
+  dev.off()
+
+  #dput(getFingerprint(file = "test6.png"))
+  orig6 <-c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
+            4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
+            7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
+            4L, 7L, 8L, 4L, 5L, 7L, 4L)
+  expect_true(isSimilar(file="test6.png", fingerprint = orig6, threshold = 0.1))
+
+  # Test legendRange in Plot
+  set.seed(1234)
+  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol=10))
+  setColors(ras, n=3) <- c("red", "blue", "green")
+  Plot(ras, legendRange = 0:5, new=TRUE)
+
+  png(file="test7.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras, legendRange = 0:5, new=TRUE)
+  dev.off()
+
+  #dput(getFingerprint(file = "test7.png"))
+  orig7 <-c(10L, 5L, 8L, 9L, 4L, 4L, 10L, 6L, 5L, 8L, 7L, 4L, 8L, 8L, 6L,
+            13L, 8L, 9L, 18L, 9L, 9L, 13L, 7L, 9L, 6L, 5L, 8L, 5L, 8L, 8L,
+            5L, 5L, 9L, 5L, 8L, 5L)
+  expect_true(isSimilar(file="test7.png", fingerprint = orig7, threshold = 0.1))
 
 })
