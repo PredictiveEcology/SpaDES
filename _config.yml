@@ -1,5 +1,5 @@
 name: Eliot McIntire
-markdown: redcarpet
+markdown: kramdown
 pygments: true
 
 domain: predictiveecology.org
