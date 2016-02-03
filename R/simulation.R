@@ -289,12 +289,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim), function(m) {
-      md <- moduleMetadata(m, modulePath(sim))
-      if (md$version != packageVersion("SpaDES")) {
-        warning("Module ", m, " version (", md$version,
-                ") does not match SpaDES package version (",
-                packageVersion("SpaDES"), ").\n")
-      }
+      mVersion <- moduleMetadata(m, modulePath(sim))$version
+      versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
     while (!all_parsed) {
@@ -304,7 +300,7 @@ setMethod(
 
     # timeunit has no meaning until all modules are loaded,
     #  so this has to be after loading
-    timeunit(sim) <- if(!is.null(times$timeunit)) {
+    timeunit(sim) <- if (!is.null(times$timeunit)) {
       times$timeunit
     } else {
       minTimeunit(sim)
