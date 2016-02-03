@@ -60,8 +60,13 @@ setMethod("getColors",
 #' @author Alex Chubaty
 #'
 #' @examples
-#'   library(raster); on.exit(detach("package:raster"))
+#'   library(raster)
 #'   library(igraph) # need pipe for one example below
+#'
+#'   on.exit({
+#'     detach("package:raster")
+#'     detach("package:igraph")
+#'   })
 #'   ras <- raster(matrix(c(0,0,1,2), ncol=2, nrow=2))
 #'
 #'   # Use replacement method
@@ -104,8 +109,8 @@ setReplaceMethod(
   "setColors",
   signature("RasterLayer", "numeric", "character"),
   function(object, ..., n, value) {
-    if(raster::is.factor(object)) {
-      if(n != NROW(object@data@attributes[[1]])) {
+    if (raster::is.factor(object)) {
+      if (n != NROW(object@data@attributes[[1]])) {
         warning("Number of colors not equal number of values: interpolating")
         pal <- colorRampPalette(value, alpha = TRUE, ...)
         n <- NROW(object@data@attributes[[1]])

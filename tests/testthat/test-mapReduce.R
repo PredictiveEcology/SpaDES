@@ -1,6 +1,11 @@
 test_that("mapReduce: file does not work correctly 1", {
-  library(data.table); on.exit(detach("package:data.table"))
-  library(raster); on.exit(detach("package:raster"))
+  library(data.table)
+  library(raster)
+
+  on.exit({
+    detach("package:data.table")
+    detach("package:raster")
+  })
 
   Ras <- raster(extent(0, 15, 0, 15), res = 1)
   set.seed(123)
@@ -8,9 +13,9 @@ test_that("mapReduce: file does not work correctly 1", {
   names(fullRas) <- "mapcodeAll"
   uniqueComms <- raster::unique(fullRas)
   reducedDT <- data.table(
-    mapcodeAll=uniqueComms,
-    communities=sample(1:1000, length(uniqueComms)),
-    biomass=rnbinom(length(uniqueComms), mu = 4000, 0.4)
+    mapcodeAll = uniqueComms,
+    communities = sample(1:1000, length(uniqueComms)),
+    biomass = rnbinom(length(uniqueComms), mu = 4000, 0.4)
   )
   biomass <- rasterizeReduced(reducedDT, fullRas, "biomass")
 
@@ -19,8 +24,13 @@ test_that("mapReduce: file does not work correctly 1", {
 })
 #
 # test_that("mapReduce: file does not work correctly 2", {
-#   library(data.table); on.exit(detach("package:data.table"))
-#   library(raster); on.exit(detach("package:raster"))
+#   library(data.table)
+#   library(raster)
+#
+#   on.exit({
+#    detach("package:data.table")
+#    detach("package:raster"))
+#   })
 #
 #   Ras <- raster(extent(0,15,0,15), res=1)
 #   fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
@@ -43,8 +53,13 @@ test_that("mapReduce: file does not work correctly 1", {
 # })
 #
 # test_that("mapReduce: file does not work correctly 3", {
-#   library(data.table); on.exit(detach("package:data.table"))
-#   library(raster); on.exit(detach("package:raster"))
+#   library(data.table)
+#   library(raster)
+#
+#   on.exit({
+#    detach("package:data.table")
+#    detach("package:raster"))
+#   })
 #
 #   Ras <- raster(extent(0, 15, 0, 15), res = 1)
 #   fullRas <- randomPolygons(Ras, numTypes = 5, speedup = 1, p = 0.3)
@@ -63,8 +78,13 @@ test_that("mapReduce: file does not work correctly 1", {
 # })
 #
 # test_that("mapReduce: file does not work correctly 4", {
-#   library(data.table); on.exit(detach("package:data.table"))
-#   library(raster); on.exit(detach("package:raster"))
+#   library(data.table)
+#   library(raster)
+#
+#   on.exit({
+#    detach("package:data.table")
+#    detach("package:raster"))
+#   })
 #
 #   Ras <- raster(extent(0,15,0,15), res=1)
 #   fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)

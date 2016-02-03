@@ -30,7 +30,7 @@
 #' \dontrun{
 #'  library(igraph)
 #'  library(SpaDES)
-#'  tmpdir <- tempdir()
+#'  tmpdir <- file.path(tempdir(), "coverage")
 #'  modulePath <- file.path(tmpdir, "Modules") %>% checkPath(create = TRUE)
 #'  moduleName <- "forestAge" # sample module to test
 #'  downloadModule(name = moduleName, path = modulePath) # download sample module
@@ -49,7 +49,8 @@ setMethod(
   "moduleCoverage",
   signature(name = "character", path = "character"),
   definition = function(name, path) {
-    tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+    tmpdir <- file.path(tempdir(), "moduleCoverage")
+    dir.create(tmpdir); on.exit(unlink(tmpdir, recursive = TRUE))
     fnDir <- file.path(path, name, "moduleFunctions") %>%
       checkPath(create = TRUE)
     testDir <- file.path(path, name, "tests", "testthat")

@@ -272,10 +272,11 @@ setMethod("normPath",
                   normalizePath(x, winslash = "/", mustWork = FALSE)
                 }
               }) %>%
-              unlist %>%
+              unlist() %>%
               gsub("^[.]", paste0(getwd()), .) %>%
               gsub("\\\\", "//", .) %>%
               gsub("//", "/", .) %>%
+              gsub("^/private/var/", "/var/", .) %>%
               gsub("/$", "", .)
 })
 

@@ -1,10 +1,19 @@
 test_that("Plot is not error-free", {
-  library(raster); on.exit(detach("package:raster"))
-  library(sp); on.exit(detach("package:sp"))
+  library(sp)
+  library(raster)
 
-  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
+  tmpdir <- file.path(tempdir(), "test_Plot")
+  dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
-  setwd(tmpdir); on.exit(setwd(cwd))
+  setwd(tmpdir)
+
+  on.exit({
+    detach("package:RandomFields")
+    detach("package:raster")
+    detach("package:sp")
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   ras <- raster::raster(xmn = 0, xmx = 10, ymn = 0, ymx = 10, vals = 1, res = 1)
   DEM87654 <- SpaDES::gaussMap(ras, var = 2, speedup = 1)
@@ -171,12 +180,21 @@ test_that("Plot is not error-free", {
 
 test_that("Unit tests for image content is not error-free", {
   skip_if_not_installed("visualTest")
-  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
-  cwd <- getwd()
-  setwd(tmpdir); on.exit(setwd(cwd))
 
-  library(visualTest); on.exit(detach("package:visualTest"))
-  library(raster); on.exit(detach("package:raster"))
+  library(raster)
+  library(visualTest)
+
+  tmpdir <- file.path(tempdir(), "test_Plot_imageContent")
+  dir.create(tmpdir, recursive = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    detach("package:raster")
+    detach("package:visualTest")
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   ncol <- 3
   nrow <- 4
@@ -219,7 +237,6 @@ test_that("Unit tests for image content is not error-free", {
   dev.off()
 
   #dput(getFingerprint(file = "test.png"))
-
   orig <- switch(Sys.info()["sysname"],
     Darwin = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 3L,
                5L, 5L, 8L, 3L, 16L, 24L, 16L, 8L, 3L, 5L, 5L, 3L, 3L, 5L, 5L,
@@ -265,12 +282,20 @@ test_that("Unit tests for image content is not error-free", {
 test_that("Unit tests for plotting colors", {
   skip_if_not_installed("visualTest")
 
-  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
-  cwd <- getwd()
-  setwd(tmpdir); on.exit(setwd(cwd))
+  library(raster)
+  library(visualTest)
 
-  library(visualTest); on.exit(detach("package:visualTest"))
-  library(raster); on.exit(detach("package:raster"))
+  tmpdir <- file.path(tempdir(), "test_Plot_colors")
+  dir.create(tmpdir, recursive = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    detach("package:raster")
+    detach("package:visualTest")
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   ras <- raster(matrix(c(0, 0, 1, 2), ncol = 2))
   setColors(ras, n = 3) <- c("red", "blue", "green")
@@ -295,7 +320,7 @@ test_that("Unit tests for plotting colors", {
   unlink("test.png")
 
   ras2 <- raster(matrix(c(3, 1, 1, 2), ncol = 2))
-  rasStack <- stack(ras, ras2)
+  rasStack <- raster::stack(ras, ras2)
   names(rasStack) <- c("ras", "ras2")
   setColors(rasStack, n = 3) <- list(ras = c("black", "blue", "green"))
   png(file = "test.png", width = 400, height = 300)
@@ -361,12 +386,20 @@ test_that("Unit tests for plotting colors", {
 test_that("Unit tests for internal functions in Plot", {
   skip_if_not_installed("visualTest")
 
-  tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
-  cwd <- getwd()
-  setwd(tmpdir); on.exit(setwd(cwd))
+  library(raster)
+  library(visualTest)
 
-  library(visualTest); on.exit(detach("package:visualTest"))
-  library(raster); on.exit(detach("package:raster"))
+  tmpdir <- file.path(tempdir(), "test_Plot_internal")
+  dir.create(tmpdir, recursive = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+
+  on.exit({
+    detach("package:raster")
+    detach("package:visualTest")
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   # Test .makeColorMatrix for subsampled rasters
   # (i.e., where speedup is high compared to ncells)

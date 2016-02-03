@@ -1,9 +1,14 @@
 test_that("module templates work", {
-  library(knitr); on.exit(detach('package:knitr'))
-  library(igraph); on.exit(detach('package:igraph'))
+  library(knitr)
+  library(igraph)
+
   path <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
 
-  on.exit(unlink(path, recursive = TRUE))
+  on.exit({
+    detach('package:knitr')
+    detach('package:igraph')
+    unlink(path, recursive = TRUE)
+  })
 
   expect_true(file.exists(path))
   moduleName <- "myModule"

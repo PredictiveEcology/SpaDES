@@ -7,11 +7,12 @@ test_that("downloadModule downloads and unzips a single module", {
     options(download.file.method = "curl", download.file.extra = "-L")
   }
 
-  library(igraph); on.exit(detach("package:igraph", unload = TRUE))
+  library(igraph); on.exit(detach("package:igraph"))
 
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  dir.create(tmpdir, recursive = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% basename()
 
@@ -33,11 +34,12 @@ test_that("downloadModule downloads and unzips a parent module", {
     options(download.file.method = "curl")
   }
 
-  library(igraph); on.exit(detach("package:igraph", unload = TRUE))
+  library(igraph); on.exit(detach("package:igraph"))
 
   m <- "LCC2005"
   tmpdir <- file.path(tempdir(), "modules")
-  on.exit(unlink(tmpdir, recursive = TRUE))
+  dir.create(tmpdir, recursive = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% as.character()
   d <- f %>% dirname() %>% basename() %>% unique() %>% sort()
@@ -61,6 +63,7 @@ test_that("downloadData downloads and unzips module data", {
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
   datadir <- file.path(tmpdir, m, "data")
+  dir.create(datadir, recursive = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   filenames <- c("DEM.tif", "habitatQuality.tif")
@@ -86,7 +89,7 @@ test_that("downloadData downloads and unzips module data", {
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there with correct names, but wrong content
-  library(raster); on.exit(detach("package:raster"))
+  library(raster); on.exit(detach("package:raster"), add = TRUE)
   ras <- raster(file.path(datadir, filenames[2]))
   ras[4] <- maxValue(ras) + 1
   writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
