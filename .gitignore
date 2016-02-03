@@ -8,6 +8,7 @@ last.dump.rda
 cache/
 figure/
 man/spadesEnv.Rd
+myModule.md
 output/
 tests/testthat/*.pdf
 tests/testthat/*.RData
