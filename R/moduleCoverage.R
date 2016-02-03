@@ -58,10 +58,7 @@ setMethod(
   "moduleCoverage",
   signature(name = "character", path = "character", byFunctionName = "logical"),
   definition = function(name, path, byFunctionName) {
-    tmpdir <- tempdir()
-    if(dir.exits(tmpdir)){
-      unlink(tmpdir, recursive = TRUE)
-    }
+    tmpdir <- tempdir(); on.exit(unlink(tmpdir, recursive = TRUE))
     fnDir <- file.path(tmpdir, "moduleFunctions") %>%
       checkPath(create = TRUE)
     outputDir <- file.path(tmpdir, "output") %>%
