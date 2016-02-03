@@ -8,7 +8,6 @@ test_that("Plot is not error-free", {
   setwd(tmpdir)
 
   on.exit({
-    detach("package:RandomFields")
     detach("package:raster")
     detach("package:sp")
     setwd(cwd)
