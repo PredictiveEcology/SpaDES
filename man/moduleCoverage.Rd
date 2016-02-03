@@ -35,9 +35,9 @@ For running this function, the tests file must be restrictly placed in tests/tes
 }
 \examples{
 \dontrun{
- library(magrittr)
+ library(igraph)
  library(SpaDES)
- tmpdir <- tempdir()
+ tmpdir <- file.path(tempdir(), "coverage")
  modulePath <- file.path(tmpdir, "Modules") \%>\% checkPath(create = TRUE)
  moduleName <- "forestAge" # sample module to test
  downloadModule(name = moduleName, path = modulePath) # download sample module
