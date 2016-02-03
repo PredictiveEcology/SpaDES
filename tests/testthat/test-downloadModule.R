@@ -45,7 +45,11 @@ test_that("downloadModule downloads and unzips a parent module", {
   d_expected <- moduleMetadata("LCC2005", tmpdir)$childModules %>%
     c(m, "data", "testthat") %>% sort()
 
+<<<<<<< HEAD
+#   expect_equal(length(f), 42)
+=======
   expect_equal(length(f), 44)
+>>>>>>> refs/remotes/PredictiveEcology/development
   expect_equal(d, d_expected)
 })
 

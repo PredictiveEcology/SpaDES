@@ -289,11 +289,12 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim), function(m) {
-      md <- moduleMetadata(m, modulePath(sim))
-      if (md$version != packageVersion("SpaDES")) {
-        warning("Module ", m, " version (", md$version,
-                ") does not match SpaDES package version (",
-                packageVersion("SpaDES"), ").\n")
+      mVersion <- moduleMetadata(m, modulePath(sim))$version
+      pVersion <- packageVersion("SpaDES")
+      if (mVersion > pVersion) {
+        warning("Module ", m, " version (", mVersion,
+                ") should have lower version than SpaDES package version (",
+                pVersion, ").\n")
       }
     })
     all_parsed <- FALSE
