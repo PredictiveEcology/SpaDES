@@ -196,9 +196,10 @@ test_that("Unit tests for image content is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(
     Sys.info()["sysname"],
-    Darwin = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 3L,
-               5L, 5L, 8L, 3L, 16L, 24L, 16L, 8L, 3L, 5L, 5L, 3L, 3L, 5L, 5L,
-               8L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L),
+    Darwin = c(3L, 5L, 13L, 3L, 5L, 13L, 3L, 8L, 3L, 5L, 3L, 3L, 7L, 3L, 5L,
+               3L, 5L, 5L, 11L, 4L, 5L, 4L, 7L, 25L, 5L, 4L, 5L, 8L, 7L, 6L,
+               3L, 3L, 5L, 7L, 3L, 3L, 3L, 5L, 8L, 3L, 13L, 3L, 5L, 13L, 3L,
+               5L),
     Linux = c(3L, 13L, 3L, 5L, 5L, 13L, 3L, 11L, 8L, 3L, 5L, 5L, 11L, 5L,
               16L, 7L, 4L, 8L, 18L, 8L, 8L, 4L, 15L, 5L, 11L, 5L, 5L, 8L, 3L,
               11L, 13L, 3L, 5L, 5L, 13L, 3L),
@@ -250,9 +251,8 @@ test_that("Unit tests for image content is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(9L, 3L, 4L, 9L, 3L, 5L, 7L, 8L, 6L, 10L, 3L, 5L, 11L, 5L, 7L,
-               9L, 4L, 13L, 9L, 30L, 10L, 12L, 5L, 8L, 8L, 5L, 12L, 3L, 3L,
-               13L, 3L, 10L, 5L, 5L, 9L, 3L, 4L, 9L, 3L),
+    Darwin = c(8L, 12L, 6L, 3L, 7L, 16L, 20L, 16L, 14L, 13L, 11L, 40L, 11L,
+               8L, 14L, 20L, 16L, 16L, 6L, 5L, 4L, 13L, 8L),
     Linux = c(7L, 29L, 15L, 12L, 10L, 22L, 4L, 7L, 4L, 27L, 12L, 26L, 3L,
               7L, 4L, 23L, 9L, 13L, 15L, 29L, 7L),
     Windows = c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
