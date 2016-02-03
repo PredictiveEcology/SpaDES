@@ -8,6 +8,7 @@ test_that("Plot is not error-free", {
   setwd(tmpdir)
 
   on.exit({
+    detach("package:RandomFields") # used by gaussMap; can't detach sp w/o detach this
     detach("package:raster")
     detach("package:sp")
     setwd(cwd)
