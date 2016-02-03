@@ -3,28 +3,44 @@
 \docType{methods}
 \name{moduleCoverage}
 \alias{moduleCoverage}
-\alias{moduleCoverage,character,character-method}
-\alias{moduleCoverage,character,missing-method}
+\alias{moduleCoverage,character,character,logical-method}
+\alias{moduleCoverage,character,character,missing-method}
+\alias{moduleCoverage,character,missing,logical-method}
+\alias{moduleCoverage,character,missing,missing-method}
 \title{Calculate module coverage of unit tests}
 \usage{
-moduleCoverage(name, path)
+moduleCoverage(name, path, byFunctionName)
 
-\S4method{moduleCoverage}{character,character}(name, path)
+\S4method{moduleCoverage}{character,character,logical}(name, path,
+  byFunctionName)
 
-\S4method{moduleCoverage}{character,missing}(name)
+\S4method{moduleCoverage}{character,missing,logical}(name, byFunctionName)
+
+\S4method{moduleCoverage}{character,character,missing}(name, path)
+
+\S4method{moduleCoverage}{character,missing,missing}(name)
 }
 \arguments{
 \item{name}{Character string. The module's name.}
 
 \item{path}{Character string. The path to the module directory
 (default is the current working directory).}
+
+\item{byFunctionName}{Logical. Specify whether moduleCoverage scans test files by module's function
+names, i.e., test-functionName.R. Set this argument as TRUE can
+speed up the function with expense of ignoring the test files do not
+match the functions' name. Otherwise, for the function that does not have
+corresponding test file, the moduleCoverage tests all the test files in the test
+folder.
+The default is \code{TRUE}.}
 }
 \value{
-Return two coverage objects: moduleCoverage and functionCoverage.
-The moduleCoverage contains percentage of coverage by unit tests for the module.
+Return two coverage objects and two data tables. The two coverage objects are
+moduleCoverage and functionCoverage. The moduleCoverage contains percentage of coverage by unit tests for the module.
 The functioinCoverage contains percentages of coverage by unit tests for functions in the module.
 The returned two objects are compatible to \code{shine} function in \code{covr} package.
-Please use \code{shine} to view the information of coverage.
+Please use \code{shine} to view the information of coverage. Two data tables give the information
+of the tested and untested functions in module.
 }
 \description{
 Calculate the test coverage by unit tests for the module and its functions.
