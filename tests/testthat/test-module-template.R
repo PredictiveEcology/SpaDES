@@ -38,8 +38,9 @@ test_that("module templates work", {
 
   # Test that the .Rmd file actually can run with knitr
   expect_equal(knitr::knit(input = file.path(mpath, paste0(moduleName, ".Rmd")),
+                           output = file.path(mpath, paste0(moduleName, ".md")),
                            quiet = TRUE),
-               paste0(moduleName, ".md"))
+               file.path(mpath, paste0(moduleName, ".md")))
 
   # Test that the dummy unit tests work
   #test_file(file.path(mpath, "tests", "testthat", "test-template.R"))
