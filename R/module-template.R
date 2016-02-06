@@ -553,6 +553,9 @@ test_file(\"", file.path(testthatDir, "test-template.R"), "\")\n",
     cat("
 # please do three things when this template is corrected modified.
 # 1. rename this file based on the content you are testing, e.g., test-Event1 and Event2.R
+#    we highly suggest using test-functionName.R format to name your test file,
+#    so that your can direct call moduleCoverage to calculate module coverage information.
+#    functionName is a function's name in your module, e.g., ", name, "Event1.
 # 2. copy this file to tests folder, i.e., `", testthatDir, "`.\n
 # 3. modify the test description, i.e., test Event1 and Event2, based on the content you are testing:,
 test_that(\"test Event1 and Event2.\", {
