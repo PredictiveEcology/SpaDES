@@ -309,7 +309,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 ### template for your event1
 ", name, "Event1 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-
+  # THE BELOW TWO LINES ARE FOR DUMMY UNIT TESTS, CHANGE OR DELETE THEM
+  sim$event1Test1 <- \" this is test for event 1. \" # for dummy unit test
+  sim$event1Test2 <- 999 # for dummy unit test
 
 
   # ! ----- STOP EDITING ----- ! #
@@ -319,7 +321,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 ### template for your event2
 ", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-
+  # THE BELOW TWO LINES ARE FOR DUMMY UNIT TESTS, CHANGE OR DELETE THEM
+  sim$event2Test1 <- \" this is test for event 2. \" # for dummy unit test
+  sim$event2Test2 <- 777  # for dummy unit test
 
 
   # ! ----- STOP EDITING ----- ! #
@@ -539,7 +543,7 @@ setMethod(
 # please specify the package you need to run the sim function in the test files.
 
 # to test all the test files in the tests folder:
-test_dir(\"", testDir, "\")
+test_dir(\"", testthatDir, "\")
 
 # Alternative, you can use test_file to test individual test file, e.g.:
 test_file(\"", file.path(testthatDir, "test-template.R"), "\")\n",
@@ -548,10 +552,10 @@ test_file(\"", file.path(testthatDir, "test-template.R"), "\")\n",
     ## test template file
     cat("
 # please do three things when this template is corrected modified.
-# 1. rename this file based on the content you are testing, e.g., test-treeGrowthFunction.R
-# 2. copy this file to tests folder, i.e., `", testDir, "`.\n
-# 3. modify the test description, i.e., test tree growth function, based on the content you are testing:,
-test_that(\"test tree growth function\", {
+# 1. rename this file based on the content you are testing, e.g., test-Event1 and Event2.R
+# 2. copy this file to tests folder, i.e., `", testthatDir, "`.\n
+# 3. modify the test description, i.e., test Event1 and Event2, based on the content you are testing:,
+test_that(\"test Event1 and Event2.\", {
 module <- list(\"", name, "\")
 path <- list(modulePath = \"", path, "\", outputPath = file.path(tempdir(), \"outputs\"))
 parameters <- list(
@@ -595,16 +599,25 @@ expect_true(time(output) == 1)
 # to when using any function within the simList object,
 # i.e., one version as a direct call, and one with simList prepended.
 
-output <- try(treeGrowthFunction(mySim, otherArguments))
-if (is(output, \"try-error\")) {
-  output <- mySim$treeGrowthFunction(mySim, otherArguments)
+if(exists(\"", name, "Event1\", envir = .GlobalEnv)){
+  simOutput <- ", name, "Event1(mySim)
+} else {
+  simOutput <- mySim$", name, "Event1(mySim)
 }
+  expectedOutputEvent1Test1 <- \" this is test for event 1. \" # please define your expection of your output
+  expect_is(class(simOutput$event1Test1), \"character\")
+  expect_equal(simOutput$event1Test1, expectedOutputEvent1Test1) # or other expect function in testthat package.
+  expect_equal(simOutput$event1Test2, as.numeric(999)) # or other expect function in testthat package.
 
-# treeGrowthFunction is the function you would like to test, please specify your function name
-# otherArguments is the arguments needed for running the function.
-
-# output_expected <- # please define your expection of your output
-# expect_equal(output, output_expected) # or other expect function in testthat package.
+  if(exists(\"", name, "Event2\", envir = .GlobalEnv)){
+  simOutput <- ", name, "Event2(mySim)
+  } else {
+  simOutput <- mySim$", name, "Event2(mySim)
+  }
+  expectedOutputEvent2Test1 <- \" this is test for event 2. \" # please define your expection of your output
+  expect_is(class(simOutput$event2Test1), \"character\")
+  expect_equal(simOutput$event2Test1, expectedOutputEvent2Test1) # or other expect function in testthat package.
+  expect_equal(simOutput$event2Test2, as.numeric(777)) # or other expect function in testthat package.
 })",
       file = testTemplate, fill = FALSE, sep = "")
 })
