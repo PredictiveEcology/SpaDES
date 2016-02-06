@@ -8,11 +8,12 @@
 #' @param path  Character string. The path to the module directory
 #'              (default is the current working directory).
 #'
-#' @return Return two coverage objects: moduleCoverage and functionCoverage.
-#' The moduleCoverage contains percentage of coverage by unit tests for the module.
+#' @return Return two coverage objects and two data tables. The two coverage objects are
+#' moduleCoverage and functionCoverage. The moduleCoverage contains percentage of coverage by unit tests for the module.
 #' The functioinCoverage contains percentages of coverage by unit tests for functions in the module.
 #' The returned two objects are compatible to \code{shine} function in \code{covr} package.
-#' Please use \code{shine} to view the information of coverage.
+#' Please use \code{shine} to view the information of coverage. Two data tables give the information
+#' of the tested and untested functions in module.
 #'
 #' @note For running this function, the tests file must be restrictly placed in tests/testthat folder under module path.
 #'       To automatically generate this folder, please set unitTests = TRUE when develop a new module using \code{\link{newModule}}.
@@ -118,7 +119,7 @@ setMethod(
     }
     class(mCoverage) <- "coverage"
     class(fnCoverage) <- "coverage"
-    unlink(fnDir, recursive = TRUE)
+    unlink(tmpdir, recursive = TRUE)
     return(list(moduleCoverage = mCoverage, functionCoverage = fnCoverage,
                 testedFunctions = testedFunctions,
                 untestedFunctions = untestedFunctions))
