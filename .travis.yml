@@ -30,6 +30,7 @@ apt_packages:
   - curl
   - latex-xcolor
   - libcurl4-openssl-dev
+  - texlive-fonts-extra
 
 r_binary_packages:
   - chron
