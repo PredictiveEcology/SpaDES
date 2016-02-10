@@ -40,20 +40,17 @@ setMethod(
   ".makeSpadesPlot",
   signature = c(plotObjects = "list", plotArgs = "list"),
   definition = function(plotObjects, plotArgs, ...) {
-
-
     isSpatialObjects <- sapply(plotObjects, function(x) {
       is(x, "spatialObjects")
     })
 
     env <- list(...)$env
     suppliedNames <- names(plotObjects)
-    if (is.null(suppliedNames)){
+    if (is.null(suppliedNames)) {
       objs <- .objectNames()[whichSpadesPlottables]
     } else {
-      objs <- lapply(suppliedNames, function(x) list(objs=x, envs=env))
+      objs <- lapply(suppliedNames, function(x) list(objs = x, envs = env))
     }
-
 
     names(plotObjects) <- sapply(objs,function(x)
       x$objs)
@@ -61,7 +58,6 @@ setMethod(
     if (!is.null(suppliedNames)) {
       if (all(sapply(suppliedNames, nchar) > 0)) {
         names(plotObjects)[!is.na(suppliedNames)] <- suppliedNames
-
       }
     }
     numLayers <- pmax(1, sapply(plotObjects, nlayers))
