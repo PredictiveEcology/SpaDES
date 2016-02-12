@@ -31,7 +31,7 @@
 \alias{timeunit<-,.simList-method}
 \alias{timeunits}
 \alias{timeunits,.simList-method}
-\title{Get and set simulation times.}
+\title{Time usage in \code{SpaDES}}
 \usage{
 times(x, ...)
 
@@ -94,7 +94,9 @@ timeunits(x)
 
 \item{...}{Additional parameters.}
 
-\item{value}{The object to be stored at the slot.}
+\item{value}{A time, given as a numeric, optionally with a unit attribute, but this
+will be deduced from the model time units or module time units (if used
+within a module)}
 
 \item{unit}{Character. One of the time units used in \code{SpaDES}.}
 }
@@ -102,9 +104,11 @@ timeunits(x)
 Returns or sets the value of the slot from the \code{simList} object.
 }
 \description{
-Accessor functions for the \code{simtimes} slot of a \code{simList} object
+Functions for the \code{simtimes} slot of a \code{simList} object
 and its elements. To maintain modularity, the behavior of these functions depends
-on where they are used.
+on where they are used. In other words, different modules can have their own
+timeunit. \code{SpaDES} converts these to seconds when running a simulation, but
+shows the user time in the units of the model as shown with \code{timeunit(sim)}
 }
 \details{
 NOTE: These have default behavior that is based on the calling
@@ -119,6 +123,7 @@ of the simulation:
    \code{start} \tab Simulation start time.\cr
    \code{end} \tab Simulation end time.\cr
    \code{timeunit} \tab Simulation timeunit.\cr
+   \code{timeunits} \tab Module timeunits.\cr
    \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
 }
 
@@ -130,6 +135,15 @@ units for that simulation.
 By default, a \code{simInit} call will use the smallest unit contained within
 the metadata for the modules being used.
 If \code{NA}, \code{timeunit} defaults to none.
+
+Currently, available units are "second", "hours", day", "week", "month", and "year"
+can be used in the metadata of a module.
+
+The user can also define a new unit. The unit name can be anything, but the function
+definition must be of the form, "dunitName", e.g., dyear or dfortNight. The unit
+name is the part without the d and the function name definition includes the "d".
+This new function, e.g., #' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+can be placed anywhere in the search path or in a module.
 
 \code{timeunits} will extract the current units of the time of all
 modules used in a simulation.

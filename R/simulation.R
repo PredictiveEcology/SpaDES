@@ -306,7 +306,7 @@ setMethod(
       minTimeunit(sim)
     }
 
-    timestep <- inSeconds(timeunit(sim))
+    timestep <- inSeconds(timeunit(sim), envir(sim))
     times(sim) <- list(current = times$start * timestep,
                        start = times$start * timestep,
                        end = times$end * timestep,
@@ -697,21 +697,21 @@ setMethod(
               attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
               eventTimeInSeconds <- convertTimeunit(
                   (eventTime -
-                     convertTimeunit(start(sim),timeunit(sim))),
-                  "seconds"
+                     convertTimeunit(start(sim),timeunit(sim), envir(sim))),
+                  "seconds", envir(sim)
                 ) +
                 time(sim, "seconds") %>%
                 as.numeric()
             } else {
-              eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
+              eventTimeInSeconds <- convertTimeunit(eventTime, "seconds", envir(sim)) %>%
                 as.numeric()
             }
           } else { # for core modules because they have no metadata
-            eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
+            eventTimeInSeconds <- convertTimeunit(eventTime, "seconds", envir(sim)) %>%
               as.numeric()
           }
         } else { # when eventTime is NA... can't seem to get an example
-          eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
+          eventTimeInSeconds <- convertTimeunit(eventTime, "seconds", envir(sim)) %>%
             as.numeric()
         }
         attributes(eventTimeInSeconds)$unit <- "second"
