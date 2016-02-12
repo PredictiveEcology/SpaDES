@@ -1792,6 +1792,9 @@ setMethod(
 #' By default, a \code{simInit} call will use the smallest unit contained within
 #' the metadata for the modules being used.
 #' If \code{NA}, \code{timeunit} defaults to none.
+#' 
+#' Currently, available units are "second", "hours", day", "week", "month", and "year" 
+#' can be used in the metadata of a module. 
 #'
 #' @importFrom stringr str_detect
 #' @include simList-class.R
