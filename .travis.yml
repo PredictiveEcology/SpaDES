@@ -5,10 +5,10 @@
 #   https://github.com/craigcitro/r-travis/wiki
 
 language: r
-
+sudo: false
 cran: http://cran.rstudio.com/
 
-sudo: required
+cache: packages
 
 env:
   global:
