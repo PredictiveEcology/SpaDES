@@ -1846,7 +1846,7 @@ setReplaceMethod(
 #     if (any(str_detect(.spadesTimes, pattern = value), na.rm = TRUE)) {
 #       x@simtimes$timeunit <- value
 #     } else
-    if (checkTimeunit(value, envir=envir(x))) {
+    if (checkTimeunit(value, envir = envir(x))) {
         x@simtimes$timeunit <- value
     } else {
       x@simtimes$timeunit <- NA_character_

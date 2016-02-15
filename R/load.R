@@ -235,7 +235,7 @@ setMethod(
           # The actual load call
           if(identical(loadFun[x], "load")) {
             do.call(getFromNamespace(loadFun[x], loadPackage[x]),
-                                            args = argument, envir=envir(sim))
+                    args = argument, envir = envir(sim))
 
           } else {
             sim[[objectName[x]]] <- do.call(getFromNamespace(loadFun[x], loadPackage[x]),

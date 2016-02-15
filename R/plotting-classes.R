@@ -120,14 +120,14 @@ setClassUnion(name=".spadesPlotObjects",
 #' @author Eliot McIntire
 #'
 setClass(".spadesGrob",
-         slots=list(plotName="character", objName="character", envir="environment",
-                    layerName="character",
-                    objClass="character", isSpatialObjects="logical",
-                    plotArgs="list"),
-         prototype=list(plotName=NA_character_, objName=NA_character_, layerName=NA_character_,
-                        objClass=NA_character_, isSpatialObjects=NA,
-                        plotArgs=as.list(NULL)),
-         validity=function(object) {
+         slots = list(plotName = "character", objName = "character",
+                      envir = "environment", layerName = "character",
+                      objClass = "character", isSpatialObjects = "logical",
+                      plotArgs = "list"),
+         prototype = list(plotName = NA_character_, objName = NA_character_,
+                          layerName = NA_character_, objClass = NA_character_,
+                          isSpatialObjects = NA, plotArgs = as.list(NULL)),
+         validity = function(object) {
            # check for valid extents
            if (any(is.character(object@objName))) {
              stop("must supply an object name")

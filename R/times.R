@@ -172,7 +172,7 @@ setMethod(
   "inSeconds",
   signature = c("character", "environment"),
   definition <- function(unit, envir) {
-    if(!is.na(unit)) {
+    if (!is.na(unit)) {
       out <- switch(unit,
                     second = as.numeric(dsecond(1)),
                     seconds = as.numeric(dsecond(1)),
@@ -193,9 +193,9 @@ setMethod(
     # Allow for user defined time units in metadata - null is result
     #  from switch fn above if it does not appear. So search through SpaDES
     # functions first above, then check user defined units
-    if(is.null(out)) {
-      if(checkTimeunit(unit, envir)) {
-        out <- as.numeric(get(paste0("d", unit), envir=envir)(1))
+    if (is.null(out)) {
+      if (checkTimeunit(unit, envir)) {
+        out <- as.numeric(get(paste0("d", unit), envir = envir)(1))
       }
     }
     attributes(out)$unit = "second"
@@ -262,7 +262,7 @@ setMethod(
       checkTimeunit(c(timeUnit, unit), envir)
 
       # if timeUnit is same as unit, skip calculations
-      if(!stri_detect_fixed(unit, pattern = timeUnit)) {
+      if (!stri_detect_fixed(unit, pattern = timeUnit)) {
         time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
         attr(time, "unit") <- unit
       }
@@ -322,7 +322,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)")), envir=envir(sim)) }
+              eval(parse(text = paste0("d", ts, "(1)")), envir = envir(sim)) }
           ))]])
         }
       }
@@ -366,7 +366,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)")), envir=envir(sim)) }
+              eval(parse(text = paste0("d", ts, "(1)")), envir = envir(sim)) }
           ))]])
         }
       }
@@ -409,21 +409,21 @@ setMethod("checkTimeunit",
 
             # check for .spadesTimes first, then user defined ones
             #   d*unit*, then d*units* then "d*unit omit s"
-            if(sum(str_detect(.spadesTimes, pattern = unit), na.rm = TRUE)==
+            if (sum(str_detect(.spadesTimes, pattern = unit), na.rm = TRUE)==
                length(unit)) {
               out <- TRUE
             } else {
               out <- sapply(unit, function(unit) {
-                if(exists(paste0("d",unit), envir=envir )) {
-                  if(is.function(get(paste0("d",unit), envir=envir)))
+                if (exists(paste0("d", unit), envir = envir )) {
+                  if (is.function(get(paste0("d", unit), envir = envir)))
                     out <- TRUE
-                } else if(exists(paste0("d",unit, "s"), envir=envir) ) {
-                  if(is.function(get(paste0("d",unit, "s"), envir=envir)))
+                } else if (exists(paste0("d", unit, "s"), envir = envir) ) {
+                  if (is.function(get(paste0("d", unit, "s"), envir = envir)))
                     out <- TRUE
-                } else if(exists(gsub(x = paste0("d",unit),
-                                      pattern="s$", replacement = ""), envir=envir) ) {
-                  if(is.function(get(gsub(x = paste0("d",unit),
-                                          pattern="s$", replacement = ""), envir=envir)))
+                } else if (exists(gsub(x = paste0("d", unit),
+                                      pattern="s$", replacement = ""), envir = envir) ) {
+                  if (is.function(get(gsub(x = paste0("d", unit),
+                                          pattern="s$", replacement = ""), envir = envir)))
                     out <- TRUE
                 } else {
                   out <- FALSE
@@ -431,6 +431,6 @@ setMethod("checkTimeunit",
               })
             }
 
-            if(!all(out)) message("unknown timeunit provided: ", unit[!out])
+            if (!all(out)) message("unknown timeunit provided: ", unit[!out])
             return(invisible(out))
           })

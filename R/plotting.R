@@ -1823,8 +1823,8 @@ setMethod(
     sim <- list(...)[[1]]
     plotList <- ls(sim@.envir, all.names = TRUE)
     plotObjects = mget(plotList[sapply(plotList, function(x)
-      is(get(x, envir=envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
-      append(., list(env=envir(sim)))
+      is(get(x, envir = envir(sim)), ".spadesPlottables"))], envir(sim)) %>%
+      append(., list(env = envir(sim)))
     do.call(Plot, plotObjects)
 })
 

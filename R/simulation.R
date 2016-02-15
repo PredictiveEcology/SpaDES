@@ -400,7 +400,7 @@ setMethod(
     checkParams(sim, core, dotParams, modulePath(sim))
 
     if (length(objects)) {
-      list2env(objects, envir=envir(sim))
+      list2env(objects, envir = envir(sim))
       inputs(sim) <- bind_rows(list(
         inputs(sim),
         data.frame(
