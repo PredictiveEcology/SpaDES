@@ -14,11 +14,11 @@ env:
 
 before_install:
   - tlmgr install xcolor
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
   - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
+  - Rscript -e '.libPaths("/usr/lib/R/site-library")'
   - "chmod 755 ./_push_vignettes.sh"
-  - "Rscript -e '.libPaths()'"
 
 r_build_args: " "
 
