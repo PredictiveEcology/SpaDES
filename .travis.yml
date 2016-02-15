@@ -64,7 +64,6 @@ r_binary_packages:
 r_github_packages:
   - s-u/fastshp
   - jimhester/covr
-  - rich-iannone/DiagrammeR
   - MangoTheCat/visualTest
 
 after_success:
