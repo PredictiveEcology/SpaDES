@@ -2,6 +2,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.1.1
 =============
+* due to changes to `archivist`, we now require `archivist` version 2.0 or greater
 * improved `moduleCoverage` testing  and template (PR257)
 * correct legends from rasters so that `is.factor(raster)` is `TRUE`
 * user defined time units can be used in module metadata "timeunit".

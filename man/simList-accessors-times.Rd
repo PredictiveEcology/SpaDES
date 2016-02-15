@@ -128,7 +128,7 @@ of the simulation:
 }
 
 \code{timeunit} will extract the current units of the time used in a
-\code{spades} call.
+simulation (i.e., within a \code{spades} call).
 If it is set within a \code{simInit}, e.g.,
 \code{times=list(start=0, end=52, timeunit = "week")}, it will set the
 units for that simulation.
@@ -136,13 +136,14 @@ By default, a \code{simInit} call will use the smallest unit contained within
 the metadata for the modules being used.
 If \code{NA}, \code{timeunit} defaults to none.
 
-Currently, available units are "second", "hours", day", "week", "month", and "year"
-can be used in the metadata of a module.
+Currently, available units are "second", "hours", day", "week", "month", and
+"year" can be used in the metadata of a module.
 
-The user can also define a new unit. The unit name can be anything, but the function
-definition must be of the form, "dunitName", e.g., dyear or dfortNight. The unit
-name is the part without the d and the function name definition includes the "d".
-This new function, e.g., #' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+The user can also define a new unit. The unit name can be anything, but the
+function definition must be of the form, dunitName, e.g., dyear or dfortnight.
+The unit name is the part without the 'd' and the function name definition
+includes the 'd'. This new function, e.g.,
+\code{dfortNight <- function(x) lubridate::duration(dday(14))}
 can be placed anywhere in the search path or in a module.
 
 \code{timeunits} will extract the current units of the time of all
