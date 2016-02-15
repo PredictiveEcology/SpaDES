@@ -36,8 +36,10 @@ setMethod(
 
     ### modules loaded
     out[[8]] <- capture.output(cat(">> Modules:\n"))
-    out[[9]] <- capture.output(print(cbind(ModuleName = modules(object)),
-                                     quote = FALSE, row.names = FALSE))
+    out[[9]] <- capture.output(print(
+      cbind(Name = modules(object),
+            Timeunit = c(rep(NA_character_, 4), unname(timeunits(object)))),
+      quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
     ### objects loaded
