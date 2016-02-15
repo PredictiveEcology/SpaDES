@@ -5,8 +5,10 @@
 #   https://github.com/craigcitro/r-travis/wiki
 
 language: r
-sudo: required
+sudo: false
 cran: http://cran.rstudio.com/
+
+cache: packages
 
 env:
   global:
@@ -24,51 +26,6 @@ r_build_args: " "
 r_check_args: "--as-cran"
 
 warnings_are_errors: true
-
-apt_packages:
-  - curl
-  - libcurl4-openssl-dev
-
-r_binary_packages:
-  - chron
-  - circstats
-  - colorspace
-  - data.table
-  - dichromat
-  - digest
-  - dplyr
-  - ggplot2
-  - gtable
-  - httr
-  - igraph
-  - knitr
-  - labeling
-  - latticeextra
-  - lubridate
-  - magrittr
-  - munsell
-  - proto
-  - randomfields
-  - raster
-  - rcolorbrewer
-  - rcpp
-  - reshape
-  - rgdal
-  - scales
-  - secr
-  - snow
-  - sp
-  - stringr
-  - testthat
-  - tkrplot
-  - xts
-  - zoo
-
-r_github_packages:
-  - s-u/fastshp
-  - jimhester/covr
-  - rich-iannone/DiagrammeR
-  - MangoTheCat/visualTest
 
 after_success:
   - ./_push_vignettes.sh
