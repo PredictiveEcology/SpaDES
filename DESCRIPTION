@@ -66,9 +66,9 @@ Imports:
     stringi,
     stringr
 Remotes:
-    s-u/fastshp
-    jimhester/covr
-    rich-iannone/DiagrammeR
+    s-u/fastshp,
+    jimhester/covr,
+    rich-iannone/DiagrammeR,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr
