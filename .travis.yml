@@ -18,8 +18,6 @@ before_install:
   - sh -e /etc/init.d/xvfb start
   - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
   - chmod 755 ./_push_vignettes.sh
-  - Rscript -e "capabilities()"
-  - Rscript -e "installed.packages()"
 
 r_build_args: " "
 
