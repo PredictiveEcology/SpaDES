@@ -17,7 +17,7 @@ before_install:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - echo "options(repos = c(CRAN='http://cran.rstudio.com'))" >> ~/.Rprofile
-  - Rscript -e ".libPaths('/usr/lib/R/site-library')"
+  - echo ".libPaths('/usr/lib/R/site-library')"  >> ~/.Rprofile
   - chmod 755 ./_push_vignettes.sh
 
 r_build_args: " "
