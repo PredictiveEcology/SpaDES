@@ -3,34 +3,53 @@
 \docType{methods}
 \name{inSeconds}
 \alias{.spadesTimes}
+\alias{checkTimeunit}
+\alias{checkTimeunit,character,environment-method}
+\alias{checkTimeunit,character,missing-method}
 \alias{convertTimeunit}
-\alias{convertTimeunit,numeric,character-method}
-\alias{convertTimeunit,numeric,missing-method}
+\alias{convertTimeunit,numeric,character,environment-method}
+\alias{convertTimeunit,numeric,character,missing-method}
+\alias{convertTimeunit,numeric,missing,missing-method}
 \alias{inSeconds}
-\alias{inSeconds,NULL-method}
-\alias{inSeconds,character-method}
+\alias{inSeconds,NULL,missing-method}
+\alias{inSeconds,character,environment-method}
+\alias{inSeconds,character,missing-method}
 \alias{spadesTimes}
 \title{Convert time units}
 \format{An object of class \code{character} of length 6.}
 \usage{
-inSeconds(unit)
+inSeconds(unit, envir)
 
-\S4method{inSeconds}{character}(unit)
+\S4method{inSeconds}{character,environment}(unit, envir)
 
-\S4method{inSeconds}{`NULL`}(unit)
+\S4method{inSeconds}{`NULL`,missing}(unit)
 
-convertTimeunit(time, unit)
+\S4method{inSeconds}{character,missing}(unit)
 
-\S4method{convertTimeunit}{numeric,character}(time, unit)
+convertTimeunit(time, unit, envir)
 
-\S4method{convertTimeunit}{numeric,missing}(time)
+\S4method{convertTimeunit}{numeric,character,environment}(time, unit, envir)
+
+\S4method{convertTimeunit}{numeric,missing,missing}(time)
+
+\S4method{convertTimeunit}{numeric,character,missing}(time, unit)
 
 .spadesTimes
 
 spadesTimes()
+
+checkTimeunit(unit, envir)
+
+\S4method{checkTimeunit}{character,missing}(unit, envir)
+
+\S4method{checkTimeunit}{character,environment}(unit, envir)
 }
 \arguments{
-\item{unit}{Character. One of the time units used in \code{SpaDES}.}
+\item{unit}{Character. One of the time units used in \code{SpaDES} or user
+defined time unit, given as the unit name only. See details.}
+
+\item{envir}{An environment. This is where to look up the function definition for
+the time unit. See details.}
 
 \item{time}{Numeric. With a unit attribute, indicating the time unit of the
 input numeric. See Details.}
@@ -49,7 +68,18 @@ If the units passed to argument \code{units} are the same as
 \code{attr(time, "unit")}, then it simply returns input \code{time}.
 }
 \details{
-Currently available units are found within the \code{spadesTimes()} function.
+Current pre-defined units are found within the \code{spadesTimes()} function.
+The user can define a new unit. The unit name can be anything, but the function
+definition must be of the form, "dunitName", e.g., dyear or dfortNight. The unit
+name is the part without the d and the function name definition includes the "d".
+This new function, e.g., #' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+can be placed anywhere in the search path or in a module.
+
+Because of R scoping, if \code{envir} is a simList environment, then this function
+will search there first, then up the current search() path. Thus, it will find a
+user defined or module defined unit before a SpaDEs unit. This means that a user can
+override the dyear given in SpaDES, for example, which is 365.25 days, with
+\code{dyear <- function(x) lubridate::duration(dday(365))}
 
 If \code{time} has no \code{units} attribute, then it is assumed to be
 seconds.

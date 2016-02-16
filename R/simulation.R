@@ -289,12 +289,8 @@ setMethod(
 
     # source module metadata and code files, checking version info
     lapply(modules(sim), function(m) {
-      md <- moduleMetadata(m, modulePath(sim))
-      if (md$version != packageVersion("SpaDES")) {
-        warning("Module ", m, " version (", md$version,
-                ") does not match SpaDES package version (",
-                packageVersion("SpaDES"), ").\n")
-      }
+      mVersion <- moduleMetadata(m, modulePath(sim))$version
+      versionWarning(m, mVersion)
     })
     all_parsed <- FALSE
     while (!all_parsed) {
@@ -304,13 +300,13 @@ setMethod(
 
     # timeunit has no meaning until all modules are loaded,
     #  so this has to be after loading
-    timeunit(sim) <- if(!is.null(times$timeunit)) {
+    timeunit(sim) <- if (!is.null(times$timeunit)) {
       times$timeunit
     } else {
       minTimeunit(sim)
     }
 
-    timestep <- inSeconds(timeunit(sim))
+    timestep <- inSeconds(timeunit(sim), envir(sim))
     times(sim) <- list(current = times$start * timestep,
                        start = times$start * timestep,
                        end = times$end * timestep,
@@ -404,7 +400,7 @@ setMethod(
     checkParams(sim, core, dotParams, modulePath(sim))
 
     if (length(objects)) {
-      list2env(objects, envir=envir(sim))
+      list2env(objects, envir = envir(sim))
       inputs(sim) <- bind_rows(list(
         inputs(sim),
         data.frame(
@@ -701,21 +697,21 @@ setMethod(
               attributes(eventTime)$unit <- .callingFrameTimeunit(sim)
               eventTimeInSeconds <- convertTimeunit(
                   (eventTime -
-                     convertTimeunit(start(sim),timeunit(sim))),
-                  "seconds"
+                     convertTimeunit(start(sim),timeunit(sim), envir(sim))),
+                  "seconds", envir(sim)
                 ) +
                 time(sim, "seconds") %>%
                 as.numeric()
             } else {
-              eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
+              eventTimeInSeconds <- convertTimeunit(eventTime, "seconds", envir(sim)) %>%
                 as.numeric()
             }
           } else { # for core modules because they have no metadata
-            eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
+            eventTimeInSeconds <- convertTimeunit(eventTime, "seconds", envir(sim)) %>%
               as.numeric()
           }
         } else { # when eventTime is NA... can't seem to get an example
-          eventTimeInSeconds <- convertTimeunit(eventTime, "seconds") %>%
+          eventTimeInSeconds <- convertTimeunit(eventTime, "seconds", envir(sim)) %>%
             as.numeric()
         }
         attributes(eventTimeInSeconds)$unit <- "second"

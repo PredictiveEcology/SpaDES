@@ -40,6 +40,23 @@ test_that("timeunit works correctly", {
   expect_message(timeunit(mySim) <- 1, "^unknown timeunit provided:")
   expect_message(timeunit(mySim) <- "LeapYear", "^unknown timeunit provided:")
 
+  # Test for user defined timeunits, in .GlobalEnv
+  expect_message(timeunit(mySim) <- "fortNight", "^unknown timeunit provided:")
+  assign("dfortNight", function(x) lubridate::duration(dday(14)),
+         envir=.GlobalEnv)
+  expect_match(timeunit(mySim) <- "fortNight", "")
+  expect_match(timeunit(mySim), "fortNight")
+  expect_equivalent(as.numeric(dfortNight(1)), 1209600)
+  rm(dfortNight, envir=.GlobalEnv)
+
+  # check for new unit being put into simList
+  assign("dfortNight", function(x) lubridate::duration(dday(14)),
+         envir=envir(mySim))
+  expect_match(timeunit(mySim) <- "fortNight", "")
+  expect_match(timeunit(mySim), "fortNight")
+  expect_equivalent(as.numeric(mySim$dfortNight(1)), 1209600)
+  rm(dfortNight, envir=envir(mySim))
+
   # test that NA_real_ gets coerced to NA_character_
   timeunit(mySim) <- NA_real_
   expect_identical(timeunit(mySim), NA_character_)

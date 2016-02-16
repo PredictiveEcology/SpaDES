@@ -1,5 +1,5 @@
 ### deal with spurious httr warnings
-if(getRversion() >= "3.1.0") {
+if (getRversion() >= "3.1.0") {
   utils::globalVariables(c("actualFile", "content", "result"))
 }
 
@@ -161,11 +161,7 @@ setMethod(
     checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
 
-    if (packageVersion("SpaDES") != as.numeric_version(version)) {
-      warning("Module version (", as.numeric_version(version),
-              ") does not match SpaDES package version (",
-              packageVersion("SpaDES"), ").\n")
-    }
+    versionWarning(name, version)
 
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
@@ -181,7 +177,7 @@ setMethod(
                             stringsAsFactors = FALSE)
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
-        tmp <- lapply(children, function (x) {
+        tmp <- lapply(children, function(x) {
           f <- downloadModule(x, path = path, data = data)
           files2 <<- append(files2, f[[1]])
           dataList2 <<- bind_rows(dataList2, f[[2]])

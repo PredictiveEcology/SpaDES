@@ -1,7 +1,15 @@
 test_that("module templates work", {
-  library(knitr); on.exit(detach('package:knitr'))
-  library(magrittr); on.exit(detach('package:magrittr'))
+  library(knitr)
+  library(igraph)
+
   path <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
+
+  on.exit({
+    detach('package:knitr')
+    detach('package:igraph')
+    unlink(path, recursive = TRUE)
+  })
+
   expect_true(file.exists(path))
   moduleName <- "myModule"
 
@@ -19,22 +27,21 @@ test_that("module templates work", {
   expect_true(dir.exists(file.path(mpath, "tests")))
   expect_true(dir.exists(file.path(mpath, "tests", "testthat")))
   expect_true(file.exists(file.path(mpath, "tests", "unitTests.R")))
-  expect_true(file.exists(file.path(mpath, "tests", "testthat", "test-DryRun.R")))
+  expect_true(file.exists(file.path(mpath, "tests", "testthat", "test-template.R")))
   expect_true(file.exists(file.path(mpath, "data", "CHECKSUMS.txt")))
 
   utils::capture.output(
     zipModule(name = moduleName, path = path, version = "0.0.2", flags = "-q -r9X")
   )
 
-  expect_true(file.exists(file.path(mpath, paste0(moduleName,"_0.0.2.zip"))))
+  expect_true(file.exists(file.path(mpath, paste0(moduleName, "_0.0.2.zip"))))
 
   # Test that the .Rmd file actually can run with knitr
-  expect_equal(knitr::knit(input = file.path(mpath, paste0(moduleName,".Rmd")),
+  expect_equal(knitr::knit(input = file.path(mpath, paste0(moduleName, ".Rmd")),
+                           output = file.path(mpath, paste0(moduleName, ".md")),
                            quiet = TRUE),
-               paste0(moduleName, ".md"))
+               file.path(mpath, paste0(moduleName, ".md")))
 
   # Test that the dummy unit tests work
-  #test_file(file.path(mpath, "tests", "testthat", "test-DryRun.R"))
-
-  unlink(path, recursive = TRUE)
+  #test_file(file.path(mpath, "tests", "testthat", "test-template.R"))
 })

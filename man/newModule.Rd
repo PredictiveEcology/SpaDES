@@ -79,17 +79,19 @@ license, readme, and unit tests folder.
 }
 \description{
 Autogenerate a skeleton for a new SpaDES module, a template for a
-documentation file, a citation file, a license file, a readme.txt file, and a folder
-that contains unit tests information.
+documentation file, a citation file, a license file, a README.txt file, and a
+folder that contains unit tests information.
 The \code{newModuleDocumentation} will not generate the module file, but will
 create the other 4 files.
 }
 \details{
-All files will be created within a subfolder named \code{name} within the \code{path}.
+All files will be created within a subfolder named \code{name} within the
+\code{path}.
 }
 \note{
-On Windows there is currently a bug in RStudio that it doesn't know what editor
-to open with \code{file.edit} is called (which is what moduleName does). This will return an error:
+On Windows there is currently a bug in RStudio that it doesn't know
+what editor to open with \code{file.edit} is called (which is what moduleName
+does). This will return an error:
 
 \code{Error in editor(file = file, title = title) :}
 \code{argument "name" is missing, with no default}

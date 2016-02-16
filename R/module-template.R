@@ -2,12 +2,13 @@
 #' Create new module from template.
 #'
 #' Autogenerate a skeleton for a new SpaDES module, a template for a
-#' documentation file, a citation file, a license file, a readme.txt file, and a folder
-#' that contains unit tests information.
+#' documentation file, a citation file, a license file, a README.txt file, and a
+#' folder that contains unit tests information.
 #' The \code{newModuleDocumentation} will not generate the module file, but will
 #' create the other 4 files.
 #'
-#' All files will be created within a subfolder named \code{name} within the \code{path}.
+#' All files will be created within a subfolder named \code{name} within the
+#' \code{path}.
 #'
 #' @param name  Character string. Your module's name.
 #'
@@ -25,8 +26,9 @@
 #' \code{path/name.R}, as well as ancillary files for documentation, citation,
 #' license, readme, and unit tests folder.
 #'
-#' @note On Windows there is currently a bug in RStudio that it doesn't know what editor
-#' to open with \code{file.edit} is called (which is what moduleName does). This will return an error:
+#' @note On Windows there is currently a bug in RStudio that it doesn't know
+#' what editor to open with \code{file.edit} is called (which is what moduleName
+#' does). This will return an error:
 #'
 #' \code{Error in editor(file = file, title = title) :}
 #' \code{argument "name" is missing, with no default}
@@ -173,7 +175,7 @@ defineModule(sim, list(
   version = numeric_version(\"", as.character(packageVersion("SpaDES")), "\"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
   timeframe = as.POSIXlt(c(NA, NA)),
-  timeunit = NA_character_, # e.g., \"year,\",
+  timeunit = NA_character_, # e.g., \"year\",
   citation = list(\"citation.bib\"),
   documentation = list(\"README.txt\", \"", name, ".Rmd\"),
   reqdPkgs = list(),
@@ -307,7 +309,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 ### template for your event1
 ", name, "Event1 <- function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-
+  # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
+  sim$event1Test1 <- \" this is test for event 1. \" # for dummy unit test
+  sim$event1Test2 <- 999 # for dummy unit test
 
 
   # ! ----- STOP EDITING ----- ! #
@@ -317,7 +321,9 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 ### template for your event2
 ", name, "Event2 = function(sim) {
   # ! ----- EDIT BELOW ----- ! #
-
+  # THE NEXT TWO LINES ARE FOR DUMMY UNIT TESTS; CHANGE OR DELETE THEM.
+  sim$event2Test1 <- \" this is test for event 2. \" # for dummy unit test
+  sim$event2Test2 <- 777  # for dummy unit test
 
 
   # ! ----- STOP EDITING ----- ! #
@@ -530,79 +536,97 @@ setMethod(
 
     # create two R files in unit tests folder:
     unitTestsR <- file.path(testDir, "unitTests.R") # source this to run all tests
-    testTemplate <- file.path(testthatDir, "test-DryRun.R")
+    testTemplate <- file.path(testthatDir, "test-template.R")
 
     cat("
 # Please build your own test file from test-Template.R, and place it in tests folder
 # please specify the package you need to run the sim function in the test files.
 
 # to test all the test files in the tests folder:
-test_dir(\"", testDir, "\")
+test_dir(\"", testthatDir, "\")
 
 # Alternative, you can use test_file to test individual test file, e.g.:
-test_file(\"", file.path(testthatDir, "test-DryRun.R"), "\")\n",
+test_file(\"", file.path(testthatDir, "test-template.R"), "\")\n",
         file = unitTestsR, fill = FALSE, sep = "")
 
     ## test template file
     cat("
-# please do three things when this template is corrected modified.
-# 1. rename this file based on the content you are testing, e.g., test-treeGrowthFunction.R
-# 2. copy this file to tests folder, i.e., `", testDir, "`.\n
-# 3. modify the test description, i.e., test tree growth function, based on the content you are testing:,
-test_that(\"test tree growth function\", {
-module <- list(\"", name, "\")
-path <- list(modulePath = \"", path, "\", outputPath = \"~/output\")
-parameters <- list(
-  #.progress = list(type = \"graphical\", interval = 1),
-  .globals = list(verbose = FALSE),
-  ", name ," = list(.saveInitialTime = NA)
-)
-times <- list(start = 0, end = 1)
+# Please do three things to ensure this template is correctly modified:
+# 1. Rename this file based on the content you are testing using
+#    `test-functionName.R` format so that your can directly call `moduleCoverage`
+#    to calculate module coverage information.
+#    `functionName` is a function's name in your module (e.g., `", name, "Event1`).
+# 2. Copy this file to the tests folder (i.e., `", testthatDir, "`).\n
+# 3. Modify the test description based on the content you are testing:
+test_that(\"test Event1 and Event2.\", {
+  module <- list(\"", name, "\")
+  path <- list(modulePath = \"", path, "\",
+               outputPath = file.path(tempdir(), \"outputs\"))
+  parameters <- list(
+    #.progress = list(type = \"graphical\", interval = 1),
+    .globals = list(verbose = FALSE),
+    ", name ," = list(.saveInitialTime = NA)
+  )
+  times <- list(start = 0, end = 1)
 
-# If your test function contains `time(sim)`, you can test the function at a particular simulation time by define start time above.
-object1 <- \"object1\" # please specify
-object2 <- \"object2\" # please specify
-objects <- list(\"object1\" = object1, \"object2\" = object2)
+  # If your test function contains `time(sim)`, you can test the function at a
+  # particular simulation time by defining the start time above.
+  object1 <- \"object1\" # please specify
+  object2 <- \"object2\" # please specify
+  objects <- list(\"object1\" = object1, \"object2\" = object2)
 
-mySim <- simInit(times = times,
-                 params = parameters,
-                 modules = module,
-                 objects = objects,
-                 paths = path)
+  mySim <- simInit(times = times,
+                   params = parameters,
+                   modules = module,
+                   objects = objects,
+                   paths = path)
 
-# You may need to set seed if your module or the function has the random number generator.
-set.seed(1234)
+  # You may need to set the random seed if your module or its functions use the
+  # random number generator.
+  set.seed(1234)
 
-# You have two strategies to test your module:
-# 1. test the overall simulation results for the given objects, then, use the code below:
+  # You have two strategies to test your module:
+  # 1. Test the overall simulation results for the given objects, using the
+  #    sample code below:
 
-output <- spades(mySim, debug = FALSE)
+  output <- spades(mySim, debug = FALSE)
 
-# is output a simList?
-expect_is(output, \"simList\")
+  # is output a simList?
+  expect_is(output, \"simList\")
 
-# does output have your module in it
-expect_true(any(unlist(modules(output)) %in%  c(unlist(module))))
+  # does output have your module in it
+  expect_true(any(unlist(modules(output)) %in% c(unlist(module))))
 
-# did it simulate to the end?
-expect_true(time(output) == 1)
+  # did it simulate to the end?
+  expect_true(time(output) == 1)
 
-# 2. test the function inside of the module, then, use the line below:
-# To allow the moduleCoverage function to calculate unit test coverage
-# level, it needs access to all functions directly. Use this approach
-# to when using any function within the simList object,
-# i.e., one version as a direct call, and one with simList prepended.
+  # 2. Test the functions inside of the module using the sample code below:
+  #    To allow the `moduleCoverage` function to calculate unit test coverage
+  #    level, it needs access to all functions directly.
+  #    Use this approach when using any function within the simList object
+  #    (i.e., one version as a direct call, and one with `simList` object prepended).
 
-output <- try(treeGrowthFunction(mySim, otherArguments))
-if (is(output,\"try-error\")) {
-  output <- mySim$treeGrowthFunction(mySim, otherArguments)
-}
+  if (exists(\"", name, "Event1\", envir = .GlobalEnv)) {
+    simOutput <- ", name, "Event1(mySim)
+  } else {
+    simOutput <- mySim$", name, "Event1(mySim)
+  }
 
-# treeGrowthFunction is the function you would like to test, please specify your function name
-# otherArguments is the arguments needed for running the function.
+  expectedOutputEvent1Test1 <- \" this is test for event 1. \" # please define your expection of your output
+  expect_is(class(simOutput$event1Test1), \"character\")
+  expect_equal(simOutput$event1Test1, expectedOutputEvent1Test1) # or other expect function in testthat package.
+  expect_equal(simOutput$event1Test2, as.numeric(999)) # or other expect function in testthat package.
 
-# output_expected <- # please define your expection of your output
-# expect_equal(output,output_expected) # or other expect function in testthat package.
+  if (exists(\"", name, "Event2\", envir = .GlobalEnv)) {
+    simOutput <- ", name, "Event2(mySim)
+  } else {
+    simOutput <- mySim$", name, "Event2(mySim)
+  }
+
+  expectedOutputEvent2Test1 <- \" this is test for event 2. \" # please define your expection of your output
+  expect_is(class(simOutput$event2Test1), \"character\")
+  expect_equal(simOutput$event2Test1, expectedOutputEvent2Test1) # or other expect function in testthat package.
+  expect_equal(simOutput$event2Test2, as.numeric(777)) # or other expect function in testthat package.
 })",
       file = testTemplate, fill = FALSE, sep = "")
 })

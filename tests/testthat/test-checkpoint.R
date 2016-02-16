@@ -1,8 +1,7 @@
 test_that("test checkpointing", {
-  tmpdir <- tempdir()
+  tmpdir <- file.path(tempdir(), "test_checkpoint")
   file <- file.path("chkpnt.RData")
-  fobj <- file.path("chkpnt_objs.RData")
-  on.exit(unlink(c(file, fobj, tmpdir)))
+  on.exit(unlink(tmpdir, recursive = TRUE))
 
   ## save checkpoints; no load/restore
   set.seed(1234)
@@ -18,14 +17,16 @@ test_that("test checkpointing", {
     modulePath = system.file("sampleModules", package = "SpaDES"),
     outputPath = tmpdir
   )
-  simA <- simInit(times = times, params = parameters, modules = modules, paths = paths)
-  simA <- spades(simA)
+  simA <- simInit(times = times, params = parameters, modules = modules,
+                  paths = paths)
+  simA <- suppressWarnings(spades(simA))
 
   ## save checkpoints; with load/restore
   set.seed(1234)
   times <- list(start = 0, end = 1, timeunit = "second")
-  simB <- simInit(times = times, params = parameters, modules = modules, paths = paths)
-  simB <- spades(simB)
+  simB <- simInit(times = times, params = parameters, modules = modules,
+                  paths = paths)
+  simB <- suppressWarnings(spades(simB))
   rm(simB)
 
   checkpointLoad(file = file.path(paths$outputPath, file))

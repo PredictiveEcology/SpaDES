@@ -347,9 +347,7 @@ unlink(ftmp)
 mySim <- spades(mySim) # runs the simulation
 
 # overview of the events in the simulation
-if (packageVersion("DiagrammeR") >= "0.8.2") {
-  eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
-}
+eventDiagram(mySim, "0000-06-01", n = 200, width = 720)
 ```
 
 ## Module documentation (`moduleName.Rmd`)
@@ -438,9 +436,7 @@ depsEdgeList(mySim, FALSE)      # all object dependency relationships
 moduleDiagram(mySim)            # simplified visual representation of modules
 
 # detailed visual representation of objects
-if (packageVersion("DiagrammeR") >= "0.8.2") {
-  objectDiagram(mySim, width = 720)
-}
+objectDiagram(mySim, width = 720)
 ```
 
 The output of the `depsEdgeList` is an edgelist describing the relationships between each module.
@@ -749,7 +745,7 @@ For example, the `SpaDES_sampleModules` module group lists the following modules
 Module groups make loading multiple modules easier: only the name of the module group needs to be specified in the `simInit` call, which will then initialize the simulation with the child modules.
 
 ```{r module-group-init, eval=FALSE}
-library(DiagrammeR, lib.loc = .Library.tmp)
+library(DiagrammeR)
 library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")

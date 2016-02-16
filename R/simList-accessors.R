@@ -36,8 +36,10 @@ setMethod(
 
     ### modules loaded
     out[[8]] <- capture.output(cat(">> Modules:\n"))
-    out[[9]] <- capture.output(print(cbind(ModuleName = modules(object)),
-                                     quote = FALSE, row.names = FALSE))
+    out[[9]] <- capture.output(print(
+      cbind(Name = modules(object),
+            Timeunit = c(rep(NA_character_, 4), unname(timeunits(object)))),
+      quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
     ### objects loaded
@@ -505,7 +507,7 @@ setMethod(
 #' Commonly used
 #' \tabular{ll}{
 #'    \code{globals} \tab List of global simulation parameters.\cr
-#'    \code{params} \tab Nested list of all simulation parameter.\cr
+#'    \code{params} \tab Nested list of all simulation parameters.\cr
 #' }
 #' Advanced use
 #' \tabular{lll}{
@@ -688,9 +690,37 @@ setReplaceMethod("checkpointInterval",
 #' @inheritParams params
 #' @include simList-class.R
 #' @export
+#' @details Progress Bar:
+#' Progress type can be "text", "graphical" or "shiny".
+#' Progress interval can be a numeric.
+#' These both can get set by passing a
+#' \code{.progress=list(type="graphical", interval=1)} into the
+#' simInit call. See examples
 #' @docType methods
 #' @rdname simList-accessors-params
+#' @examples
+#' \dontrun{
+#' mySim <- simInit(times=list(start=0.0, end=100.0),
+#'                  params=list(.globals=list(stackName="landscape"),
+#'                              .progress=list(type="text", interval=10),
+#'                              .checkpoint = list(interval = 10, file = "chkpnt.RData")),
+#'                  modules=list("randomLandscapes"),
+#'                  paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
 #'
+#' # progress bar
+#' progressType(mySim) # "text"
+#' progressInterval(mySim) # 10
+#'
+#' # parameters
+#' params(mySim) # returns all parameters in all modules
+#'               # including .global, .progress, .checkpoint
+#' globals(mySim) # returns only global parameters
+#'
+#' # checkpoint
+#' checkpointFile(mySim) # returns the name of the checkpoint file
+#'                       # In this example, "chkpnt.RData"
+#' checkpointInterval(mySim) # 10
+#' }
 setGeneric("progressInterval", function(object) {
   standardGeneric("progressInterval")
 })
@@ -1409,11 +1439,13 @@ setReplaceMethod(
 })
 
 ################################################################################
-#' Get and set simulation times.
+#' Time usage in \code{SpaDES}
 #'
-#' Accessor functions for the \code{simtimes} slot of a \code{simList} object
+#' Functions for the \code{simtimes} slot of a \code{simList} object
 #' and its elements. To maintain modularity, the behavior of these functions depends
-#' on where they are used.
+#' on where they are used. In other words, different modules can have their own
+#' timeunit. \code{SpaDES} converts these to seconds when running a simulation, but
+#' shows the user time in the units of the model as shown with \code{timeunit(sim)}
 #'
 #' NOTE: These have default behavior that is based on the calling
 #' frame timeunit. When used inside a module, then the time is in the units of the module.
@@ -1427,6 +1459,7 @@ setReplaceMethod(
 #'    \code{start} \tab Simulation start time.\cr
 #'    \code{end} \tab Simulation end time.\cr
 #'    \code{timeunit} \tab Simulation timeunit.\cr
+#'    \code{timeunits} \tab Module timeunits.\cr
 #'    \code{times} \tab List of all simulation times (current, start, end, timeunit).\cr
 #' }
 #'
@@ -1434,7 +1467,9 @@ setReplaceMethod(
 #'
 #' @param unit   Character. One of the time units used in \code{SpaDES}.
 #'
-#' @param value  The object to be stored at the slot.
+#' @param value  A time, given as a numeric, optionally with a unit attribute, but this
+#'               will be deduced from the model time units or module time units (if used
+#'               within a module)
 #'
 #' @param ...    Additional parameters.
 #'
@@ -1506,9 +1541,9 @@ setReplaceMethod(
      if (is.null(attributes(value$end)$unit))
        attributes(value$end)$unit <- value$timeunit
 
-     x@simtimes$current <- convertTimeunit(value$current, "second")
-     x@simtimes$start <- convertTimeunit(value$start, "second")
-     x@simtimes$end <- convertTimeunit(value$end, "second")
+     x@simtimes$current <- convertTimeunit(value$current, "second", envir(x))
+     x@simtimes$start <- convertTimeunit(value$start, "second", envir(x))
+     x@simtimes$end <- convertTimeunit(value$end, "second", envir(x))
      x@simtimes$timeunit <- value$timeunit
 
      validObject(x)
@@ -1552,7 +1587,7 @@ setMethod(
     if (!is.na(unit)) {
       if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
-        t <- convertTimeunit(x@simtimes$current, unit)
+        t <- convertTimeunit(x@simtimes$current, unit, envir(x))
         return(t)
       }
     }
@@ -1577,7 +1612,7 @@ setReplaceMethod(
      if (is.null(attributes(value)$unit)) {
        attributes(value)$unit <- timeunit(x)
      }
-     x@simtimes$current <- convertTimeunit(value, "second")
+     x@simtimes$current <- convertTimeunit(value, "second", envir(x))
      validObject(x)
      return(x)
 })
@@ -1618,7 +1653,7 @@ setMethod(
     if (!is.na(unit)) {
       if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
-        t <- convertTimeunit(x@simtimes$end, unit)
+        t <- convertTimeunit(x@simtimes$end, unit, envir(x))
         return(t)
       }
     }
@@ -1644,7 +1679,7 @@ setReplaceMethod(
     if (is.null(attributes(value)$unit)) {
       attributes(value)$unit <- timeunit(x)
     }
-    x@simtimes$end <- convertTimeunit(value, "second")
+    x@simtimes$end <- convertTimeunit(value, "second", envir(x))
     validObject(x)
     return(x)
 })
@@ -1684,7 +1719,7 @@ setMethod(
     if (!is.na(unit)) {
       if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
-        t <- convertTimeunit(x@simtimes$start, unit)
+        t <- convertTimeunit(x@simtimes$start, unit, envir(x))
         return(t)
       }
     }
@@ -1709,7 +1744,7 @@ setReplaceMethod(
      if (is.null(attributes(value)$unit)) {
        attributes(value)$unit <- timeunit(x)
      }
-     x@simtimes$start <- convertTimeunit(value, "second")
+     x@simtimes$start <- convertTimeunit(value, "second", envir(x))
      validObject(x)
      return(x)
 })
@@ -1757,13 +1792,23 @@ setMethod(
 #' @inheritParams times
 #'
 #' @details \code{timeunit} will extract the current units of the time used in a
-#' \code{spades} call.
+#' simulation (i.e., within a \code{spades} call).
 #' If it is set within a \code{simInit}, e.g.,
 #' \code{times=list(start=0, end=52, timeunit = "week")}, it will set the
 #' units for that simulation.
 #' By default, a \code{simInit} call will use the smallest unit contained within
 #' the metadata for the modules being used.
 #' If \code{NA}, \code{timeunit} defaults to none.
+#'
+#' Currently, available units are "second", "hours", day", "week", "month", and
+#' "year" can be used in the metadata of a module.
+#'
+#' The user can also define a new unit. The unit name can be anything, but the
+#' function definition must be of the form, dunitName, e.g., dyear or dfortnight.
+#' The unit name is the part without the 'd' and the function name definition
+#' includes the 'd'. This new function, e.g.,
+#' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+#' can be placed anywhere in the search path or in a module.
 #'
 #' @importFrom stringr str_detect
 #' @include simList-class.R
@@ -1800,13 +1845,13 @@ setReplaceMethod(
   signature = ".simList",
   function(x, value) {
     value <- as.character(value)
-    if (any(str_detect(.spadesTimes, pattern = value), na.rm = TRUE)) {
-      x@simtimes$timeunit <- value
+#     if (any(str_detect(.spadesTimes, pattern = value), na.rm = TRUE)) {
+#       x@simtimes$timeunit <- value
+#     } else
+    if (checkTimeunit(value, envir = envir(x))) {
+        x@simtimes$timeunit <- value
     } else {
       x@simtimes$timeunit <- NA_character_
-      if (!is.na(value)) {
-        message("unknown timeunit provided: ", value)
-      }
     }
     validObject(x)
     return(x)
@@ -1904,8 +1949,8 @@ setMethod(
   definition = function(object, unit) {
     if (!is.null(object@events$eventTime)) {
       res <- object@events %>%
-        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit)) # NSE doesn't work reliably
-        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit))), "eventTime")) %>%
+        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit, envir(object))) # NSE doesn't work reliably
+        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit, envir(object)))), "eventTime")) %>%
         data.table() # dplyr removes something that makes this not print when
                      # events(sim) is invoked. This line brings it back.
     } else {
@@ -1941,7 +1986,7 @@ setReplaceMethod(
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
      } else {
-       value[, eventTime:=convertTimeunit(eventTime, "second")]
+       value[, eventTime:=convertTimeunit(eventTime, "second", envir(object))]
      }
      object@events <- value
      validObject(object)
@@ -1967,7 +2012,7 @@ setMethod(
   definition = function(object, unit) {
     out <- if (!is.null(object@completed$eventTime)) {
       object@completed %>%
-        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit))
+        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit, envir(object)))
     } else {
       object@completed
     }

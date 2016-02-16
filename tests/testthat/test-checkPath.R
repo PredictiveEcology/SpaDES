@@ -1,8 +1,14 @@
 test_that("checkPath: normPath consistency", {
-  currdir <- getwd()
-  on.exit(setwd(currdir))
-  tmpdir <- normalizePath(tempdir(), winslash = "/", mustWork = FALSE)
+  cwd <- getwd()
+  tmpdir <- normalizePath(file.path(tempdir(), "test_normPath"),
+                          winslash = "/", mustWork = FALSE)
+  dir.create(tmpdir, recursive = TRUE)
   setwd(tmpdir)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   paths <- list("./aaa/zzz",
                 "./aaa/zzz/",
@@ -16,7 +22,6 @@ test_that("checkPath: normPath consistency", {
 
   checked <- normPath(paths)
   expect_that(length(unique(checked)), testthat::equals(1))
-  unlink(file.path(tmpdir, "aaa"), recursive = TRUE)
 
   # extra checks for missing/NA/NULL
   expect_equal(normPath(), character())
@@ -26,8 +31,10 @@ test_that("checkPath: normPath consistency", {
 
 test_that("checkPath: checkPath consistency", {
   currdir <- getwd()
-  on.exit(setwd(currdir))
-  setwd(tmpdir <- tempdir())
+  tmpdir <- normalizePath(file.path(tempdir(), "test_checkPath"),
+                          winslash = "/", mustWork = FALSE)
+  dir.create(tmpdir, recursive = TRUE)
+  setwd(tmpdir); on.exit(setwd(currdir))
 
   dir.create("aaa/zzz", recursive = TRUE, showWarnings = FALSE)
   paths <- list("./aaa/zzz",
@@ -42,7 +49,7 @@ test_that("checkPath: checkPath consistency", {
 
   checked <- lapply(paths, checkPath, create = FALSE)
   expect_that(length(unique(checked)), testthat::equals(1))
-  unlink(file.path(tmpdir, "aaa"), recursive = TRUE)
+  unlink(tmpdir, recursive = TRUE)
 
   # check that length(path)==1
   expect_error(checkPath(unlist(paths)), "path must be a character vector of length 1.")

@@ -241,6 +241,19 @@ names(habitatQuality2) <- "habitatQuality2"
 caribou <- cbind(x = stats::runif (1e2, -50, 50), y = stats::runif (1e2, -50, 50)) \%>\%
   SpatialPoints(coords = .)
 
+# use factor raster to give legends as character strings
+ras <- raster(matrix(sample(1:4, size=12, replace=TRUE),
+   ncol=4, nrow=3))
+# needs to have a data.frame with ID as first column - see ?raster::ratify
+levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
+Plot(ras, new=T)
+
+# Arbitrary values for factors
+levels <- c(1,2,7)
+ras <- raster(matrix(sample(levels, size=12, replace=TRUE),
+   ncol=4, nrow=3))
+levels(ras) <- data.frame(ID=levels, Name=sample(LETTERS,3))
+Plot(ras, new=T)
 \\notrun{
 dev(2)
 }

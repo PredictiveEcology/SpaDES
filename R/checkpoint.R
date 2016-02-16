@@ -291,24 +291,24 @@ setMethod(
 #' will use the repoDir specified in \code{archivist::setLocalRepo}.
 #'
 #' @export
-#' @importFrom archivist showLocalRepo rmFromRepo
+#' @importFrom archivist showLocalRepo rmFromLocalRepo
 #' @docType methods
 #' @rdname clearStubArtifacts
 #' @author Eliot McIntire
 setGeneric("clearStubArtifacts", function(repoDir = NULL) {
-             standardGeneric("clearStubArtifacts")
-           })
+  standardGeneric("clearStubArtifacts")
+})
 
 #' @export
 #' @rdname clearStubArtifacts
 setMethod(
   "clearStubArtifacts",
   definition = function(repoDir) {
-    md5hashInBackpack = showLocalRepo(repoDir=repoDir)$md5hash
+    md5hashInBackpack = showLocalRepo(repoDir = repoDir)$md5hash
     listFiles <- dir(file.path(repoDir, "gallery")) %>% strsplit(".rda") %>% unlist()
     toRemove <- !(md5hashInBackpack %in% listFiles)
     md5hashInBackpack[toRemove] %>%
-      sapply(., rmFromRepo, repoDir=repoDir)
+      sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
   }
 )

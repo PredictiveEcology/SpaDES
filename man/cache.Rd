@@ -11,13 +11,13 @@ cache(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 \S4method{cache}{ANY}(cacheRepo = NULL, FUN, ..., notOlderThan = NULL)
 }
 \arguments{
-\item{cacheRepo}{An object repository used for storing cached objects.}
+\item{cacheRepo}{A repository used for storing cached objects.}
 
 \item{FUN}{A function to be called.}
 
-\item{...}{Arguments for function \code{FUN}.}
+\item{...}{Arguments of \code{FUN} function .}
 
-\item{notOlderThan}{Restore an artifact from database only if it was created after notOlderThan.}
+\item{notOlderThan}{load an artifact from the database only if it was created after notOlderThan.}
 }
 \value{
 Identical to \code{\link[archivist]{cache}}

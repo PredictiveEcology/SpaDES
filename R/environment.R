@@ -32,7 +32,7 @@ setGeneric(".assignSpaDES", function(x, value, ...) {
 setMethod(".assignSpaDES",
           signature(x = "character", value = "ANY"),
           definition = function(x, value, ...) {
-            assign(x, value, envir=.spadesEnv, ...)
+            assign(x, value, envir = .spadesEnv, ...)
 })
 
 #' @rdname assignSpaDES
@@ -199,6 +199,6 @@ setMethod(
   "changeObjEnv",
   signature = c("list", "ANY", "ANY", "ANY"),
   definition = function(x, toEnv, fromEnv, rmSrc) {
-    list2env(x, envir=toEnv)
+    list2env(x, envir = toEnv)
 
 })

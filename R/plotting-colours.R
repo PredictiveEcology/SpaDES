@@ -59,30 +59,87 @@ setMethod("getColors",
 #'
 #' @author Alex Chubaty
 #'
+#' @examples
+#'   library(raster)
+#'   library(igraph) # need pipe for one example below
+#'
+#'   on.exit({
+#'     detach("package:raster")
+#'     detach("package:igraph")
+#'   })
+#'   ras <- raster(matrix(c(0,0,1,2), ncol=2, nrow=2))
+#'
+#'   # Use replacement method
+#'   setColors(ras, n=3) <- c("red", "blue", "green")
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Use function method
+#'   ras <- setColors(ras, n=3, c("red", "blue", "yellow"))
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Using the wrong number of colors, e.g., here 2 provided,
+#'   # for a raster with 3 values... causes interpolation, which may be surprising
+#'   ras <- setColors(ras, c("red", "blue"))
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Real number rasters - interpolation is used
+#'   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) %>%
+#'     setColors(c("red", "yellow")) # interpolates when real numbers
+#'   Plot(ras, new=TRUE)
+#'
+#'   # Factor rasters, can be contiguous (numerically) or not, in this case not:
+#'   ras <- raster(matrix(sample(c(1,3,6), size=9, replace=TRUE), ncol=3, nrow=3))
+#'   levels(ras) <- data.frame(ID=c(1,3,6), Names=c("red", "purple", "yellow"))
+#'   ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
+#'   Plot(ras, new=TRUE)
+#'
+#'   # if a factor rastere, and not enough labels are provided, then a warning
+#'   #   will be given, and colors will be interpolated
+#'   #   The level called purple is not purple, but interpolated betwen red and yellow
+#'   ras <- setColors(ras, c("red", "yellow"))
+#'   Plot(ras, new=TRUE)
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
 })
 
 #' @rdname setColors
+#' @importFrom raster is.factor
 setReplaceMethod(
   "setColors",
   signature("RasterLayer", "numeric", "character"),
   function(object, ..., n, value) {
-    pal <- colorRampPalette(value, alpha = TRUE, ...)
-    object@legend@colortable <- pal(n)
+    if (raster::is.factor(object)) {
+      if (n != NROW(object@data@attributes[[1]])) {
+        warning("Number of colors not equal number of values: interpolating")
+        pal <- colorRampPalette(value, alpha = TRUE, ...)
+        n <- NROW(object@data@attributes[[1]])
+        object@legend@colortable <- pal(n)
+      } else {
+        object@legend@colortable <- value
+      }
+    } else {
+      pal <- colorRampPalette(value, alpha = TRUE, ...)
+      object@legend@colortable <- pal(n)
+    }
     validObject(object)
     return(object)
 })
 
 #' @rdname setColors
+#' @importFrom raster is.factor
 setReplaceMethod(
   "setColors",
   signature("RasterLayer", "missing", "character"),
   function(object, ..., value) {
-    n <- round((maxValue(object) - minValue(object))) + 1
-    pal <- colorRampPalette(value, alpha = TRUE, ...)
-    object@legend@colortable <- pal(n)
+    if(!raster::is.factor(object)) {
+      n <- round((maxValue(object) - minValue(object))) + 1
+    } else {
+      n <- length(value)
+    }
+    setColors(object, n=n) <- value
+#    pal <- colorRampPalette(value, alpha = TRUE, ...)
+#    object@legend@colortable <- pal(n)
     validObject(object)
     return(object)
 })
@@ -90,7 +147,7 @@ setReplaceMethod(
 #' @rdname setColors
 setReplaceMethod(
   "setColors",
-   signature("Raster", "numeric", "list"),
+   signature("RasterStack", "numeric", "list"),
    function(object, ..., n, value) {
      i <- which(names(object) %in% names(value))
      for(x in names(object)[i]) {
@@ -175,7 +232,7 @@ setMethod(
 #' @aliases makeColourMatrix
 #' @include plotting-classes.R
 #' @importFrom grDevices colorRampPalette terrain.colors
-#' @importFrom raster minValue getValues sampleRegular
+#' @importFrom raster minValue getValues sampleRegular is.factor
 #' @importFrom stats na.omit
 #' @docType methods
 #' @author Eliot McIntire
@@ -220,13 +277,20 @@ setMethod(
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
     if (!exists("minz")) {
-      minz <- min(z, na.rm = TRUE)
+      minz <- suppressWarnings(min(z, na.rm = TRUE))
     }
     if (is.na(minz)) {
-      minz <- min(z, na.rm = TRUE)
+      minz <- suppressWarnings(min(z, na.rm = TRUE))
+    }
+    if(is.infinite(minz)) {
+      minz <- 0
     }
     #
-    maxz <- max(z, na.rm = TRUE)
+    maxz <- suppressWarnings(max(z, na.rm = TRUE))
+    if(is.infinite(maxz)) {
+      maxz <- 0
+    }
+
     real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
 
     # Deal with colors - This gets all combinations, real vs. integers,
@@ -234,7 +298,11 @@ setMethod(
     #  too many numbers
     maxNumCols <- 100
 
-    nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+#    if(raster::is.factor(grobToPlot)) {
+#      nValues <- NROW(grobToPlot@data@attributes[[1]])
+#    } else {
+      nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+#    }
     colTable <- NULL
 
     if (is.null(cols)) {
@@ -243,13 +311,23 @@ setMethod(
         colTable <- getColors(grobToPlot)[[1]]
         lenColTable <- length(colTable)
 
-        cols <- if (nValues > lenColTable) {
+        cols <- if ((nValues > lenColTable) & !raster::is.factor(grobToPlot)) {
           # not enough colors, use colorRamp
           colorRampPalette(colTable)(nValues)
-        } else if (nValues <= (lenColTable)) {
+        } else if ((nValues <= (lenColTable)) | raster::is.factor(grobToPlot)) {
           # one more color than needed:
           #   assume bottom is NA
-          colTable
+          if(raster::is.factor(grobToPlot)) {
+            factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
+              unique %>% na.omit %>% sort
+            if(length(factorValues)==length(colTable)) {
+              colTable[seq.int(length(factorValues))]
+            } else {
+              colTable[c(1,1+factorValues)] # CHANGE HERE
+            }
+          } else {
+            colTable
+          }
         } else if (nValues <= (lenColTable - 1)) {
           # one more color than needed:
           #  assume bottom is NA
@@ -302,10 +380,10 @@ setMethod(
 
     if (any(!is.na(legendRange))) {
       if ((max(legendRange) - min(legendRange) + 1) < length(cols)) {
-        message(paste0(
-          "legendRange is not wide enough, ",
-          "scaling to min and max raster values"
-        ))
+#        message(paste0(
+#          "legendRange is not wide enough, ",
+#          "scaling to min and max raster values"
+#        ))
       } else {
         minz <- min(legendRange)
         maxz <- max(legendRange)
@@ -332,16 +410,20 @@ setMethod(
     z <- z + 1 # for the NAs
     z[is.na(z)] <- max(1, minz)
 
+    if(raster::is.factor(grobToPlot) & !is.null(colTable)){
+      cols <- rep(na.color,max(factorValues))
+      cols[factorValues] <- colTable
+    }
     cols <- c(na.color, cols) # make first index of colors be transparent
 
     if ((minz > 1) | (minz < 0)) {
       z <- matrix(
-        cols[z - minz + 1], nrow = nrow(grobToPlot),
+        cols[z - minz + 1], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
     } else {
       z <- matrix(
-        cols[z], nrow = nrow(grobToPlot),
+        cols[z], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
     }
