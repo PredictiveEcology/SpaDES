@@ -114,7 +114,7 @@ checkpointLoad <- function(file) {
   fobj <- paste0(f, "_objs", ".RData")
 
   tmpEnv <- new.env()
-  assign(.objectNames("spades","simList","sim")[[1]]$objs, sim, envir = tmpEnv)
+  assign(objectNames("spades","simList","sim")[[1]]$objs, sim, envir = tmpEnv)
 
   save(list = ls(tmpEnv, all.names = TRUE), file = file, envir = tmpEnv)
   save(list = ls(envir(sim), all.names = TRUE), file = fobj, envir = envir(sim))

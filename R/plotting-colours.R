@@ -381,15 +381,20 @@ setMethod(
       # rescale so the minimum is 1, not <1:
       #z <- z + (((maxNumCols / maxz * minz) < 1) *
       #            (-(maxNumCols / maxz * minz) + 1))
-      minz <- min(z, na.rm=TRUE)
-      maxz <- max(z, na.rm=TRUE)
     } else {
       # rescale so that the minimum is 1, not <1:
       z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
-      minz <- min(z, na.rm=TRUE)
-      maxz <- max(z, na.rm=TRUE)
       #z <- z + ((minz < 1) * (-minz + 1))
     }
+    minz <- suppressWarnings(min(z, na.rm=TRUE))
+    maxz <- suppressWarnings(max(z, na.rm=TRUE))
+    if(is.infinite(minz)) {
+      maxz <- 0
+    }
+    if(is.infinite(minz)) {
+      minz <- 0
+    }
+
 
     if (any(!is.na(legendRange))) {
       if ((max(legendRange) - min(legendRange) + 1) < length(cols)) {

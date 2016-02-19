@@ -542,7 +542,7 @@ setMethod(
 ################################################################################
 #' Parse arguments and find environments
 #'
-#' Internal function used within .objectNames.
+#' Internal function used within objectNames.
 #'
 #' @param y  A character representation of the arguments passed to a function,
 #'           e.g., \code{Plot}.
@@ -747,9 +747,10 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname objectNames
+#' @export
 #' @author Eliot McIntire
 #'
-.objectNames <- function(calledFrom = "Plot",
+objectNames <- function(calledFrom = "Plot",
                          argClass = ".spadesPlotObjects",
                          argName = "") {
   scalls <- sys.calls()

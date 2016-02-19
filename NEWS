@@ -2,7 +2,8 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.1.1.9xxx
 ==================
-
+* Plot bug fixes for some kinds of real-numbered rasters
+* export and unhide objectNames function for external use
 
 version 1.1.1
 =============

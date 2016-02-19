@@ -47,7 +47,7 @@ setMethod(
     env <- list(...)$env
     suppliedNames <- names(plotObjects)
     if (is.null(suppliedNames)) {
-      objs <- .objectNames()[whichSpadesPlottables]
+      objs <- objectNames()[whichSpadesPlottables]
     } else {
       objs <- lapply(suppliedNames, function(x) list(objs = x, envs = env))
     }
