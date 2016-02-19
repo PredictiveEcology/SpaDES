@@ -525,7 +525,7 @@ test_that("Plot is not error-free", {
   Plot(r1, new=TRUE)
 
   # 0 < vals <= 1
-  r1 <- r / maxValue(r)
+  r1 <- r / max(getValues(r), na.rm=TRUE)
   Plot(r1, new=TRUE)
 
   # 0 <= vals < 1
@@ -542,7 +542,7 @@ test_that("Plot is not error-free", {
   r1[] <- sample(0:3, replace=TRUE, size = 9)
   Plot(r1, new=TRUE)
 
-  # 0, 1 # Incorrect, presently because it is treating it as real
+  # 0, 1 #
   r1 <- raster(ncol=3, nrow=3)
   r1[] <- sample(0:1, replace=TRUE, size = 9)
   Plot(r1, new=TRUE)
@@ -557,9 +557,9 @@ test_that("Plot is not error-free", {
   r1[] <- sample(0:6, replace=TRUE, size = 900)
   Plot(r1, new=TRUE)
 
-  # 1, 2, 3, 4, 5, 6
+  # 1, 2, 3, 4, 5, 6, ... 200
   r1 <- raster(ncol=30, nrow=30)
-  r1[] <- sample(1:6, replace=TRUE, size = 900)
+  r1[] <- sample(1:200, replace=TRUE, size = 900)
   Plot(r1, new=TRUE)
 
 })
