@@ -498,3 +498,68 @@ test_that("Unit tests for internal functions in Plot", {
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 })
+
+test_that("Plot is not error-free", {
+  skip("This is a visual only test")
+  tmpdir <- file.path(tempdir(), "test_Plot")
+  dir.create(tmpdir, recursive = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+  library(raster)
+  library(SpaDES)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+  r<-raster(system.file("external/test.grd", package="raster"))
+  message("These two plots should look similar")
+  plot(r)
+  dev()
+
+  # 128 < vals < 1806
+  Plot(r, new=TRUE)
+
+  # -71 < vals < 1606
+  r1 <- r-200
+  Plot(r1, new=TRUE)
+
+  # 0 < vals <= 1
+  r1 <- r / maxValue(r)
+  Plot(r1, new=TRUE)
+
+  # 0 <= vals < 1
+  r1 <- (r - min(getValues(r), na.rm= TRUE)) / max(getValues(r), na.rm=TRUE)
+  Plot(r1, new=TRUE)
+
+  # 0 <= vals <= 1
+  r1 <- r - min(getValues(r), na.rm=TRUE)
+  r1 <- r1/max(getValues(r1), na.rm=TRUE)
+  Plot(r1, new=TRUE)
+
+  # 0, 1, 2, 3
+  r1 <- raster(ncol=3, nrow=3)
+  r1[] <- sample(0:3, replace=TRUE, size = 9)
+  Plot(r1, new=TRUE)
+
+  # 0, 1 # Incorrect, presently because it is treating it as real
+  r1 <- raster(ncol=3, nrow=3)
+  r1[] <- sample(0:1, replace=TRUE, size = 9)
+  Plot(r1, new=TRUE)
+
+  # 0, 1, 2, 3, ... 30
+  r1 <- raster(ncol=30, nrow=30)
+  r1[] <- sample(0:30, replace=TRUE, size = 900)
+  Plot(r1, new=TRUE)
+
+  # 0, 1, 2, 3, 4, 5, 6
+  r1 <- raster(ncol=30, nrow=30)
+  r1[] <- sample(0:6, replace=TRUE, size = 900)
+  Plot(r1, new=TRUE)
+
+  # 1, 2, 3, 4, 5, 6
+  r1 <- raster(ncol=30, nrow=30)
+  r1[] <- sample(1:6, replace=TRUE, size = 900)
+  Plot(r1, new=TRUE)
+
+})

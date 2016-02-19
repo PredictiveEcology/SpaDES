@@ -565,7 +565,7 @@ setMethod(
           textGrob(
             txt,
             x = 1.08,
-            y = if (maxv >= 3) {
+            y = if (maxv >= 3) { # (real){#
               if(NCOL(legendText)>1){ # factors
                 maxv <- NROW(legendText)
               }

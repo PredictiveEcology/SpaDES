@@ -302,6 +302,7 @@ setMethod(
 #      nValues <- NROW(grobToPlot@data@attributes[[1]])
 #    } else {
       nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+      #nValues <- maxz - minz + 1
 #    }
     colTable <- NULL
 
@@ -368,11 +369,20 @@ setMethod(
     #  to max = 100.
     # These are, of course, only used for the color matrix, not the
     #  values on the Raster.
-    if ((maxz <= maxNumCols) & real) {
-      z <- maxNumCols / maxz * z
+
+    # Plotting works by making a maxNumCols value raster if
+    #  it is a real value original raster. So, we need to keep
+    #  the original minz and maxz for legend purposes, but
+    #  work with the new rescaled minz and maxz
+    minzOrig <- minz
+    maxzOrig <- maxz
+    if (real ){#& (maxz <= maxNumCols) ) {
+      z <- maxNumCols / (maxz - minz) * (z - minz)
       # rescale so the minimum is 1, not <1:
-      z <- z + (((maxNumCols / maxz * minz) < 1) *
-                  (-(maxNumCols / maxz * minz) + 1))
+      #z <- z + (((maxNumCols / maxz * minz) < 1) *
+      #            (-(maxNumCols / maxz * minz) + 1))
+      minz <- min(z, na.rm=TRUE)
+      maxz <- max(z, na.rm=TRUE)
     } else {
       # rescale so that the minimum is 1, not <1:
       z <- z + ((minz < 1) * (-minz + 1))
@@ -380,13 +390,11 @@ setMethod(
 
     if (any(!is.na(legendRange))) {
       if ((max(legendRange) - min(legendRange) + 1) < length(cols)) {
-#        message(paste0(
-#          "legendRange is not wide enough, ",
-#          "scaling to min and max raster values"
-#        ))
       } else {
         minz <- min(legendRange)
         maxz <- max(legendRange)
+        minzOrig <- minz
+        maxzOrig <- maxz
         if (is.null(colTable)) {
           cols <- colorRampPalette(cols)(maxz - minz + 1)
         } else {
@@ -428,7 +436,8 @@ setMethod(
       )
     }
     list(
-      z = z, minz = minz, maxz = maxz, cols = cols, real = real
+      z = z, minz = minzOrig, maxz = maxzOrig,
+      cols = cols, real = real
     )
   }
 )
