@@ -500,7 +500,7 @@ test_that("Unit tests for internal functions in Plot", {
 })
 
 test_that("Plot is not error-free", {
-  skip("This is a visual only test")
+  skip("This is a visual only test - primarily to test legends")
   tmpdir <- file.path(tempdir(), "test_Plot")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
@@ -562,4 +562,19 @@ test_that("Plot is not error-free", {
   r1[] <- sample(1:200, replace=TRUE, size = 900)
   Plot(r1, new=TRUE)
 
+  # 31, 32, ... 40
+  r1 <- raster(ncol=30, nrow=30)
+  r1[] <- sample(31:40, replace=TRUE, size = 900)
+  Plot(r1, new=TRUE)
+
+  pixelGroupMap <- raster(xmn=50,xmx=50+3*100,
+                          ymn=50,ymx=50+3*100,
+                          res=c(100,100), val=1)
+  pixelGroupMap[1] <- -1
+  pixelGroupMap[2:6] <- 2
+  Plot(pixelGroupMap, new=TRUE)
+
+  # Should have all colors
+  Plot(pixelGroupMap, new=TRUE, cols= c("red", "yellow", "green", "blue"))
+  dev.off()
 })

@@ -385,7 +385,10 @@ setMethod(
       maxz <- max(z, na.rm=TRUE)
     } else {
       # rescale so that the minimum is 1, not <1:
-      z <- z + ((minz < 1) * (-minz + 1))
+      z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
+      minz <- min(z, na.rm=TRUE)
+      maxz <- max(z, na.rm=TRUE)
+      #z <- z + ((minz < 1) * (-minz + 1))
     }
 
     if (any(!is.na(legendRange))) {
@@ -415,6 +418,7 @@ setMethod(
         cols[1] <- zero.color
       }
     }
+
     z <- z + 1 # for the NAs
     z[is.na(z)] <- max(1, minz)
 
@@ -424,17 +428,18 @@ setMethod(
     }
     cols <- c(na.color, cols) # make first index of colors be transparent
 
-    if ((minz > 1) | (minz < 0)) {
-      z <- matrix(
-        cols[z - minz + 1], nrow = NROW(grobToPlot),
-        ncol = ncol(grobToPlot), byrow = TRUE
-      )
-    } else {
+#     if ((minz > 1) ) { #| (minz < 0)) {
+#       z <- matrix(
+#         cols[z - minz + 1], nrow = NROW(grobToPlot),
+#         ncol = ncol(grobToPlot), byrow = TRUE
+#       )
+#     } else {
       z <- matrix(
         cols[z], nrow = NROW(grobToPlot),
         ncol = ncol(grobToPlot), byrow = TRUE
       )
-    }
+#    }
+
     list(
       z = z, minz = minzOrig, maxz = maxzOrig,
       cols = cols, real = real
