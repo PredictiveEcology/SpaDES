@@ -58,7 +58,8 @@ return a raster with values. See Details.}
 
 \item{mapID}{Logical. If TRUE, returns a raster of events ids.
 If FALSE, returns a raster of iteration numbers,
-i.e., the spread history of one or more events.}
+i.e., the spread history of one or more events. NOTE:
+this is overridden if \code{returnIndices} is \code{TRUE}.}
 
 \item{plot.it}{If TRUE, then plot the raster at every iteraction,
 so one can watch the spread event grow.}
