@@ -1218,7 +1218,8 @@ setMethod(
 #' @param size Numeric. The size, in points, for \code{SpatialPoints} symbols,
 #'             if using a scalable symbol.
 #'
-#' @param cols Character vector or list of character vectors of colours.
+#' @param cols Character vector or list of character vectors of colours. Can also
+#'             accept \code{RColorBrewer} colors by keyword.
 #'             Default \code{terrain.color()}. See Details.
 #'
 #' @param zoomExtent An \code{Extent} object. Supplying a single extent that is
@@ -1661,6 +1662,7 @@ setMethod(
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,
                                    arr, sGrob@plotArgs$speedup, newArr=newArr)
+              browser()
               zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                        pR$legendRange,
                                        na.color = sGrob@plotArgs$na.color,
@@ -1939,8 +1941,10 @@ setMethod(
     zoom <- zoomExtent
     npixels <- ncell(crop(grobToPlot,zoom))
   }
-  if (is.null(legendRange) | ((takeFromPlotObj == FALSE) * !newArr)) {
-    legendRange <- NA
+  if(is.null(legendRange)) {
+#    if (is.null(legendRange) | ((takeFromPlotObj == FALSE) * !newArr)) {
+      legendRange <- NA
+#    }
   }
 
   # maxpixels <- min(5e5,3e4/(arr@columns*arr@rows)*prod(arr@ds))/speedup %>%

@@ -518,11 +518,11 @@ test_that("Plot is not error-free", {
   dev()
 
   # 128 < vals < 1806
-  Plot(r, new=TRUE)
+  Plot(r, new=TRUE) # Expect rainbow colors, lots of peach, little green
 
   # -71 < vals < 1606
   r1 <- r-200
-  Plot(r1, new=TRUE)
+  Plot(r1, new=TRUE) # Expect legend from below 0 to just above 1500
 
   # 0 < vals <= 1
   r1 <- r / max(getValues(r), na.rm=TRUE)
@@ -546,11 +546,14 @@ test_that("Plot is not error-free", {
   r1 <- raster(ncol=3, nrow=3)
   r1[] <- sample(0:1, replace=TRUE, size = 9)
   Plot(r1, new=TRUE)
+  Plot(r1, new=TRUE, zero.color="black") # black zeros
 
   # 0, 1, 2, 3, ... 30
   r1 <- raster(ncol=30, nrow=30)
   r1[] <- sample(0:30, replace=TRUE, size = 900)
   Plot(r1, new=TRUE)
+  Plot(r1, new=TRUE, zero.color = "black") # black zeros
+  Plot(r1, new=TRUE, zero.color = "black", legendRange = c(-10,40)) # black zeros, plus legend -10 to 40
 
   # 0, 1, 2, 3, 4, 5, 6
   r1 <- raster(ncol=30, nrow=30)
@@ -561,11 +564,17 @@ test_that("Plot is not error-free", {
   r1 <- raster(ncol=30, nrow=30)
   r1[] <- sample(1:200, replace=TRUE, size = 900)
   Plot(r1, new=TRUE)
+  Plot(r1, new=TRUE, zero.color = "black") # should be no black because no zeros
+  Plot(r1, new=TRUE, zero.color = "black", legendRange=c(-10, 200)) # should be slim black in legend,
+                                                                    # none in fig
 
   # 31, 32, ... 40
   r1 <- raster(ncol=30, nrow=30)
   r1[] <- sample(31:40, replace=TRUE, size = 900)
   Plot(r1, new=TRUE)
+  Plot(r1, new=TRUE, legendRange = c(0,40)) # legend frmo 0 to 40, mostly green
+  Plot(r1, new=TRUE, zero.color="black") # no black
+  Plot(r1, new=TRUE, zero.color="black", legendRange = c(35,40)) # lots of white, legend from 35 to 40
 
   pixelGroupMap <- raster(xmn=50,xmx=50+3*100,
                           ymn=50,ymx=50+3*100,
@@ -576,5 +585,29 @@ test_that("Plot is not error-free", {
 
   # Should have all colors
   Plot(pixelGroupMap, new=TRUE, cols= c("red", "yellow", "green", "blue"))
+
+
+  # Test legend that is pre-set, even with various types of rasters
+  Plot(r, legendRange=c(0,200), new=TRUE,
+       cols=c("red", "green")) # should be mostly empty raster, legend from 0 to 200
+
+  Plot(r, legendRange=c(-200,2000), new=TRUE,
+       cols=c("red", "green")) # should be mostly red raster, a bit of green, legend below 0 to 2000
+
+  # zero.color on Real numbers doesn't do anything - expect NO BLACK
+  r1 <- r - 200
+  Plot(r1, new=TRUE, zero.color="black") # NO BLACK
+
+  # zero.color on Integer numbers should work - expect BLACK both in legend and in a few cells
+  r1 <- r - 1000
+  r1 <- round(r1/300, 0)
+  Plot(r1, new=TRUE, zero.color="black")
+
+  Plot(pixelGroupMap, zero.color="red")
+  Plot(r)
   dev.off()
+
+
+
+
 })

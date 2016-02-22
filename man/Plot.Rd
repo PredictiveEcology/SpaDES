@@ -62,7 +62,8 @@ by to plot rasters. See Details.}
 \item{size}{Numeric. The size, in points, for \code{SpatialPoints} symbols,
 if using a scalable symbol.}
 
-\item{cols}{Character vector or list of character vectors of colours.
+\item{cols}{Character vector or list of character vectors of colours. Can also
+accept \code{RColorBrewer} colors by keyword.
 Default \code{terrain.color()}. See Details.}
 
 \item{zoomExtent}{An \code{Extent} object. Supplying a single extent that is
