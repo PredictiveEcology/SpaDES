@@ -2,8 +2,12 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.1.1.9xxx
 ==================
-* Plot bug fixes for some kinds of real-numbered rasters
-* export and unhide objectNames function for external use
+* add `RColorBrewer` to Imports
+* allow Plot colours to be set in the `Plot` call using `cols` argument
+* allow Plot colours to be set in the `Plot` call using `RColorBrewer` palettes
+* fix bug when plotting certain real-numbered rasters
+* fix bug in Plot legends
+* export `objectNames()` for external use
 
 version 1.1.1
 =============
