@@ -308,7 +308,7 @@ setMethod(
       nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
     } else {
       #realRange <- any(legendRange %% 1 != 0) # Test for real values or not
-      nValues <- ifelse(real, maxNumCols + 1, length(seq(legendRange[1], legendRange[2])))
+      nValues <- ifelse(real, maxNumCols + 1, length(seq(legendRange[1], legendRange[length(legendRange)])))
     }
       #nValues <- maxz - minz + 1
 #    }
@@ -433,10 +433,10 @@ setMethod(
 #          cols <- colorRampPalette(cols)(maxz - minz + 1)
         } else {
           if (length(getColors(grobToPlot)[[1]]) > 0) {
-            cols <- colorRampPalette(colTable)(maxz - minz + 1)
+            cols <- colorRampPalette(colTable)(maxzOrig - minzOrig + 1)
           } else {
             # default color if nothing specified
-            cols <- rev(terrain.colors(maxz - minz + 1))
+            cols <- rev(terrain.colors(maxzOrig - minzOrig + 1))
           }
         }
       }

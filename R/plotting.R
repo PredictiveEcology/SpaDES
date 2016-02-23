@@ -216,8 +216,12 @@ setMethod(
 
     whichParamsChanged <- lapply(newNames[overplots], function(x) {
       sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs), function(y) {
-        !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
+        if(!is.null(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]])) {
+          !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
                    curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
+        } else {
+          FALSE
+        }
       })
     })
     names(whichParamsChanged) <- newNames[overplots]
@@ -243,7 +247,11 @@ setMethod(
 
     # For overplots
     for (plots in newNames[overplots]) {
-      curr@spadesGrobList[[plots]] <- newSP@spadesGrobList[[plots]]
+
+      # update only those plotArgs that have changed.
+      curr@spadesGrobList[[plots]][[1]]@plotArgs[whichParamsChanged[[plots]]] <-
+        newSP@spadesGrobList[[plots]][[1]]@plotArgs[whichParamsChanged[[plots]]]
+
       needPlotting[[plots]] <- TRUE
       isReplot[[plots]] <- TRUE
       isBaseLayer[[plots]] <- FALSE
@@ -278,7 +286,6 @@ setMethod(
       isBaseLayer[[plots]] <- TRUE
       isNewPlot[[plots]] <- TRUE
     }
-
     return(
       list(
         curr = curr, whichParamsChanged = whichParamsChanged,
@@ -1480,6 +1487,7 @@ setMethod(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame
     )
 
+
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
 
@@ -1668,6 +1676,12 @@ setMethod(
                                        zero.color = sGrob@plotArgs$zero.color,
                                        cols = sGrob@plotArgs$cols,
                                        skipSample = pR$skipSample)
+              # Add legendRange if not provided
+              if(is.null(sGrob@plotArgs$legendRange)) {
+                updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs$legendRange <-
+                  c(zMat$minz, zMat$maxz)
+              }
+
             } else if (is(grobToPlot, "SpatialPoints")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
