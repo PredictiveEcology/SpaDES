@@ -212,9 +212,7 @@ test_that("Unit tests for image content is not error-free", {
     Sys.info()["sysname"],
     Darwin = "BB1FC0E03E1E3B30",
     Linux = "BB1EC4E03E1E3B30",
-    Windows = c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
-                6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
-                7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
+    Windows = "E49B649B8A64DB64"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
@@ -231,10 +229,7 @@ test_that("Unit tests for image content is not error-free", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "BB1FC0E03E1E3B30",
     Linux = "BB1EC4E03E1E3B30",
-    Windows = c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
-                3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
-                8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
-                3L, 5L)
+    Windows = "A6997E268926D966"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
@@ -257,9 +252,7 @@ test_that("Unit tests for image content is not error-free", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "EEC0913E4AE16E2E",
     Linux = "EEC0913E4AE16E2E",
-    Windows = c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
-                7L, 3L, 10L, 11L, 5L, 3L, 7L, 4L, 12L, 6L, 17L, 8L, 7L, 3L, 7L,
-                6L, 15L, 3L, 8L, 21L, 4L)
+    Windows = "A49B659B8A64DB64"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 })
@@ -294,9 +287,7 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "BF6AC491C0663B66",
     Linux = "BF6AC491C0663B36",
-    Windows = c(7L, 8L, 7L, 7L, 8L, 7L, 12L, 9L, 8L, 7L, 16L, 8L, 13L, 15L,
-                21L, 15L, 12L, 9L, 16L, 7L, 8L, 8L, 13L, 7L, 8L, 6L, 8L, 8L,
-                7L)
+    Windows = "A0937D7C8224DF6C"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.002))
   unlink("test.png")
@@ -314,8 +305,7 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "B93964CAC2C6939B",
     Linux = "B938649AC6C6939B",
-    Windows = c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
-                35L, 5L, 7L, 5L, 13L, 7L)
+    Windows = "9F1F33C0E0C0339F"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
@@ -331,8 +321,7 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "BF6AC491C0663B66",
     Linux = "BF6AC491C06E3B26",
-    Windows = c(7L, 22L, 7L, 9L, 8L, 5L, 7L, 9L, 6L, 16L, 5L, 14L, 10L, 7L,
-                21L, 7L, 10L, 13L, 6L, 16L, 6L, 9L, 8L, 5L, 9L, 7L, 22L, 7L)
+    Windows = "A0937D7C8224DF6C"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
@@ -347,9 +336,7 @@ test_that("Unit tests for plotting colors", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "AB95D06E84916F71",
     Linux = "BB95D06EC4916F30",
-    Windows = c(7L, 8L, 7L, 7L, 8L, 7L, 12L, 9L, 8L, 7L, 16L, 8L, 13L, 15L,
-                21L, 15L, 12L, 9L, 16L, 7L, 8L, 8L, 13L, 7L, 8L, 6L, 8L, 8L,
-                7L)
+    Windows = "A0937D7C8224DF6C"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
   unlink("test.png")
@@ -388,9 +375,7 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "A0CB77708A30DF74",
     Linux = "A0CF75708A30DF74",
-    Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-                8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-                8L, 7L, 14L, 8L, 7L)
+    Windows = "8000FFFE0000FFFF"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
@@ -407,9 +392,7 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "A0CB77708A30DF74",
     Linux = "A0CF75708A30DF74",
-    Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-                8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-                8L, 7L, 14L, 8L, 7L)
+    Windows = "A288FF760022DD77"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
@@ -426,10 +409,7 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "AF8FD0F080303F75",
     Linux = "AF8FD0F0C0302F75",
-    Windows = c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
-                4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
-                7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
-                4L, 7L, 8L, 4L, 5L, 7L, 4L)
+    Windows = "A288FF760022DD77"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
@@ -447,10 +427,7 @@ test_that("Unit tests for internal functions in Plot", {
   orig <- switch(Sys.info()["sysname"],
     Darwin = "AF99D0E4C0653F64",
     Linux = "AF9BD0E4C1253F60",
-    Windows = c(8L, 5L, 5L, 6L, 11L, 7L, 4L, 4L, 8L, 5L, 4L, 7L, 4L, 5L, 3L,
-                4L, 8L, 5L, 4L, 7L, 4L, 8L, 5L, 5L, 4L, 4L, 6L, 5L, 8L, 7L, 4L,
-                4L, 8L, 5L, 3L, 3L, 6L, 7L, 4L, 4L, 8L, 5L, 4L, 5L, 10L, 6L,
-                8L, 5L, 5L, 11L)
+    Windows = "A49B7E648964DB64"
   )
   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
