@@ -1662,7 +1662,6 @@ setMethod(
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,
                                    arr, sGrob@plotArgs$speedup, newArr=newArr)
-              browser()
               zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                        pR$legendRange,
                                        na.color = sGrob@plotArgs$na.color,
