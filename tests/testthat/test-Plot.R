@@ -23,7 +23,7 @@ test_that("Plot is not error-free", {
   )
 
   # If any rearrangements are required, Plot searches for objects in Global Env
-  # So all tests must run a clearPlot or a new=TRUE to be cleared to
+  # So all tests must run a clearPlot or a new = TRUE to be cleared to
   # prevent rearrangements
   clearPlot()
   expect_error(Plot(asdfd))
@@ -37,10 +37,10 @@ test_that("Plot is not error-free", {
   clearPlot()
   expect_that(Plot(caribou87654, speedup = 2), testthat::not(throws_error()))
 
-  #   # can add a plot to the plotting window
+  # can add a plot to the plotting window
   clearPlot()
   expect_that(Plot(landscape87654), testthat::not(throws_error()))
-  #   expect_that(Plot(caribou87654, new=FALSE), testthat::not(throws_error()))
+  expect_that(Plot(caribou87654, new = FALSE), testthat::not(throws_error()))
 
   # Can add two maps with same name, if one is in a stack; they are given
   #  unique names based on object name
@@ -57,7 +57,6 @@ test_that("Plot is not error-free", {
   clearPlot()
   expect_that(Plot(landscape87654, caribou87654), testthat::not(throws_error()))
 
-  #expect_that(Plot(habitatQuality2, new=FALSE), not(throws_error()))
   Sr1 <- sp::Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2)))
   Sr2 <- sp::Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2)))
   Srs1 <- sp::Polygons(list(Sr1), "s1")
@@ -107,7 +106,7 @@ test_that("Plot is not error-free", {
   N <- 1000
   cx <- 0
   cy <- 0
-  a <- seq(0, 2*pi, length.out = N)
+  a <- seq(0, 2 * pi, length.out = N)
   x <- cx + r * cos(a)
   y <- cy + r * sin(a)
   l1 <- cbind(x, y)
@@ -176,9 +175,7 @@ test_that("Plot is not error-free", {
 })
 
 test_that("Unit tests for image content is not error-free", {
-  #if (Sys.info()[["sysname"]] != "Windows")
-  skip("visualTest not working properly")
-  #skip_if_not_installed("visualTest")
+  skip_if_not_installed("visualTest")
 
   library(raster)
   library(visualTest)
@@ -213,18 +210,13 @@ test_that("Unit tests for image content is not error-free", {
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(
     Sys.info()["sysname"],
-    Darwin = c(3L, 5L, 13L, 3L, 5L, 13L, 3L, 8L, 3L, 5L, 3L, 3L, 7L, 3L, 5L,
-               3L, 5L, 5L, 11L, 4L, 5L, 4L, 7L, 25L, 5L, 4L, 5L, 8L, 7L, 6L,
-               3L, 3L, 5L, 7L, 3L, 3L, 3L, 5L, 8L, 3L, 13L, 3L, 5L, 13L, 3L,
-               5L),
-    Linux = c(3L, 13L, 3L, 5L, 5L, 13L, 3L, 11L, 8L, 3L, 5L, 5L, 11L, 5L,
-              16L, 7L, 4L, 8L, 18L, 8L, 8L, 4L, 15L, 5L, 11L, 5L, 5L, 8L, 3L,
-              11L, 13L, 3L, 5L, 5L, 13L, 3L),
+    Darwin = "BB1FC0E03E1E3B30",
+    Linux = "BB1EC4E03E1E3B30",
     Windows = c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 5L, 6L, 5L, 3L, 8L, 5L,
                 6L, 4L, 6L, 6L, 4L, 6L, 20L, 11L, 15L, 7L, 3L, 8L, 5L, 3L, 6L,
                 7L, 6L, 3L, 7L, 6L, 5L, 3L, 5L, 8L, 3L, 5L, 13L, 3L, 5L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 3))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test legend with a factor raster
   set.seed(24334)
@@ -237,18 +229,14 @@ test_that("Unit tests for image content is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 3L,
-               5L, 5L, 8L, 3L, 16L, 24L, 16L, 8L, 3L, 5L, 5L, 3L, 3L, 5L, 5L,
-               8L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L),
-    Linux = c(3L, 13L, 3L, 5L, 18L, 3L, 8L, 3L, 5L, 3L, 3L, 5L, 5L, 8L, 3L,
-              5L, 16L, 3L, 3L, 13L, 18L, 13L, 3L, 5L, 14L, 5L, 8L, 3L, 5L,
-              5L, 3L, 3L, 5L, 8L, 3L, 18L, 3L, 5L, 13L, 3L),
+    Darwin = "BB1FC0E03E1E3B30",
+    Linux = "BB1EC4E03E1E3B30",
     Windows = c(3L, 5L, 13L, 3L, 5L, 8L, 3L, 5L, 5L, 3L, 8L, 5L, 3L, 8L, 5L,
                 3L, 7L, 6L, 6L, 5L, 7L, 4L, 5L, 5L, 7L, 9L, 4L, 5L, 7L, 4L, 4L,
                 8L, 5L, 6L, 3L, 7L, 6L, 3L, 7L, 6L, 3L, 5L, 5L, 8L, 3L, 5L, 13L,
                 3L, 5L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 6))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # test non contiguous factor raster
   nLevels <- 6
@@ -267,21 +255,17 @@ test_that("Unit tests for image content is not error-free", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(8L, 12L, 6L, 3L, 7L, 16L, 20L, 16L, 14L, 13L, 11L, 40L, 11L,
-               8L, 14L, 20L, 16L, 16L, 6L, 5L, 4L, 13L, 8L),
-    Linux = c(7L, 29L, 15L, 12L, 10L, 22L, 4L, 7L, 4L, 27L, 12L, 26L, 3L,
-              7L, 4L, 23L, 9L, 13L, 15L, 29L, 7L),
+    Darwin = "EEC0913E4AE16E2E",
+    Linux = "EEC0913E4AE16E2E",
     Windows = c(4L, 22L, 7L, 4L, 14L, 7L, 6L, 4L, 7L, 8L, 17L, 8L, 9L, 4L,
                 7L, 3L, 10L, 11L, 5L, 3L, 7L, 4L, 12L, 6L, 17L, 8L, 7L, 3L, 7L,
                 6L, 15L, 3L, 8L, 21L, 4L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 })
 
 test_that("Unit tests for plotting colors", {
-  #if (Sys.info()[["sysname"]] != "Windows")
-  skip("visualTest not working properly")
-  #skip_if_not_installed("visualTest")
+  skip_if_not_installed("visualTest")
 
   library(raster)
   library(visualTest)
@@ -308,12 +292,8 @@ test_that("Unit tests for plotting colors", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(7L, 7L, 8L, 14L, 7L, 7L, 8L, 10L, 11L, 7L, 7L, 7L, 8L, 5L,
-               8L, 9L, 12L, 13L, 8L, 9L, 5L, 8L, 7L, 7L, 7L, 10L, 11L, 8L, 7L,
-               7L, 14L, 8L, 7L, 7L),
-    Linux = c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
-              8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
-              9L, 13L, 7L, 7L),
+    Darwin = "BF6AC491C0663B66",
+    Linux = "BF6AC491C0663B36",
     Windows = c(7L, 8L, 7L, 7L, 8L, 7L, 12L, 9L, 8L, 7L, 16L, 8L, 13L, 15L,
                 21L, 15L, 12L, 9L, 16L, 7L, 8L, 8L, 13L, 7L, 8L, 6L, 8L, 8L,
                 7L)
@@ -332,14 +312,12 @@ test_that("Unit tests for plotting colors", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(8L, 7L, 6L, 4L, 4L, 4L, 5L, 28L, 42L, 36L, 38L, 42L, 27L, 4L,
-               4L, 4L, 5L, 7L, 9L),
-    Linux = c(8L, 7L, 6L, 4L, 4L, 4L, 5L, 13L, 15L, 40L, 19L, 19L, 20L, 20L,
-              40L, 14L, 13L, 4L, 4L, 4L, 5L, 7L, 9L),
+    Darwin = "B93964CAC2C6939B",
+    Linux = "B938649AC6C6939B",
     Windows = c(7L, 7L, 10L, 4L, 8L, 5L, 36L, 32L, 20L, 18L, 20L, 20L, 32L,
                 35L, 5L, 7L, 5L, 13L, 7L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
   # Test setColors
@@ -351,16 +329,12 @@ test_that("Unit tests for plotting colors", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(7L, 9L, 8L, 5L, 7L, 7L, 7L, 8L, 14L, 7L, 7L, 7L, 7L, 7L, 8L,
-               5L, 4L, 6L, 6L, 6L, 7L, 6L, 6L, 4L, 5L, 8L, 7L, 7L, 7L, 7L, 17L,
-               5L, 7L, 7L, 7L, 8L, 5L, 9L, 7L),
-    Linux = c(7L, 9L, 13L, 3L, 18L, 8L, 10L, 5L, 7L, 8L, 7L, 15L, 12L, 7L,
-              9L, 4L, 5L, 8L, 8L, 11L, 16L, 7L, 8L, 7L, 4L, 12L, 7L, 17L, 8L,
-              11L, 7L),
+    Darwin = "BF6AC491C0663B66",
+    Linux = "BF6AC491C06E3B26",
     Windows = c(7L, 22L, 7L, 9L, 8L, 5L, 7L, 9L, 6L, 16L, 5L, 14L, 10L, 7L,
                 21L, 7L, 10L, 13L, 6L, 16L, 6L, 9L, 8L, 5L, 9L, 7L, 22L, 7L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 
   ras <- setColors(ras, c("yellow", "orange"))
@@ -371,12 +345,8 @@ test_that("Unit tests for plotting colors", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(7L, 7L, 8L, 14L, 7L, 7L, 8L, 10L, 11L, 7L, 7L, 7L, 8L, 5L,
-               8L, 9L, 5L, 7L, 8L, 5L, 8L, 9L, 5L, 8L, 7L, 7L, 7L, 10L, 11L,
-               8L, 7L, 7L, 14L, 8L, 7L, 7L),
-    Linux = c(7L, 7L, 12L, 10L, 7L, 8L, 6L, 8L, 8L, 7L, 8L, 8L, 6L, 8L, 20L,
-              8L, 4L, 5L, 8L, 19L, 8L, 7L, 8L, 8L, 7L, 7L, 8L, 7L, 8L, 7L,
-              9L, 13L, 7L, 7L),
+    Darwin = "AB95D06E84916F71",
+    Linux = "BB95D06EC4916F30",
     Windows = c(7L, 8L, 7L, 7L, 8L, 7L, 12L, 9L, 8L, 7L, 16L, 8L, 13L, 15L,
                 21L, 15L, 12L, 9L, 16L, 7L, 8L, 8L, 13L, 7L, 8L, 6L, 8L, 8L,
                 7L)
@@ -386,9 +356,7 @@ test_that("Unit tests for plotting colors", {
 })
 
 test_that("Unit tests for internal functions in Plot", {
-#  if (Sys.info()[["sysname"]] != "Windows")
-    skip("visualTest not working properly")
-    #skip_if_not_installed("visualTest")
+  skip_if_not_installed("visualTest")
 
   library(raster)
   library(visualTest)
@@ -407,28 +375,24 @@ test_that("Unit tests for internal functions in Plot", {
 
   # Test .makeColorMatrix for subsampled rasters
   # (i.e., where speedup is high compared to ncells)
-#   set.seed(1234)
-#   ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
-#   setColors(ras, n = 3) <- c("red", "blue", "green")
-#
-#   png(file = "test.png", width = 400, height = 300)
-#   clearPlot()
-#   Plot(ras, new = TRUE, speedup = 2e5)
-#   dev.off()
-#
-#   #dput(getFingerprint(file = "test.png"))
-#   orig <- switch(Sys.info()["sysname"],
-#     Darwin = c(7L, 7L, 8L, 6L, 3L, 5L, 7L, 8L, 6L, 13L, 9L, 7L, 8L, 6L, 7L,
-#                7L, 5L, 4L, 6L, 7L, 6L, 7L, 7L, 6L, 4L, 5L, 7L, 7L, 6L, 8L, 7L,
-#                9L, 13L, 6L, 8L, 7L, 4L, 3L, 7L, 8L, 7L, 7L),
-#     Linux = c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
-#               8L, 8L, 6L, 5L, 6L, 6L, 8L, 8L, 12L, 8L, 7L, 8L, 7L, 7L, 4L,
-#               4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L),
-#     Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
-#                 8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
-#                 8L, 7L, 14L, 8L, 7L)
-#   )
-#   expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  set.seed(1234)
+  ras <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+  setColors(ras, n = 3) <- c("red", "blue", "green")
+
+  png(file = "test.png", width = 400, height = 300)
+  clearPlot()
+  Plot(ras, new = TRUE, speedup = 2e5)
+  dev.off()
+
+  #dput(getFingerprint(file = "test.png"))
+  orig <- switch(Sys.info()["sysname"],
+    Darwin = "A0CB77708A30DF74",
+    Linux = "A0CF75708A30DF74",
+    Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
+                8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
+                8L, 7L, 14L, 8L, 7L)
+  )
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test that NA rasters plot correctly, i.e., with na.color only
   ras <- raster(matrix(NA, ncol = 3, nrow = 3))
@@ -441,17 +405,13 @@ test_that("Unit tests for internal functions in Plot", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(7L, 7L, 8L, 14L, 7L, 8L, 7L, 14L, 7L, 7L, 7L, 7L, 7L, 7L, 5L,
-               5L, 6L, 6L, 6L, 7L, 6L, 6L, 5L, 5L, 7L, 7L, 7L, 7L, 7L, 7L, 14L,
-               7L, 8L, 7L, 14L, 8L, 7L, 7L),
-    Linux = c(7L, 8L, 8L, 13L, 8L, 7L, 7L, 4L, 4L, 7L, 7L, 8L, 7L, 8L, 12L,
-              8L, 8L, 6L, 5L, 6L, 6L, 8L, 8L, 12L, 8L, 7L, 8L, 7L, 7L, 4L,
-              4L, 7L, 7L, 8L, 13L, 8L, 8L, 7L),
+    Darwin = "A0CB77708A30DF74",
+    Linux = "A0CF75708A30DF74",
     Windows = c(7L, 8L, 14L, 7L, 8L, 8L, 13L, 8L, 8L, 7L, 8L, 9L, 11L, 8L,
                 8L, 7L, 3L, 3L, 8L, 8L, 8L, 11L, 9L, 8L, 7L, 8L, 8L, 13L, 8L,
                 8L, 7L, 14L, 8L, 7L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test that NA rasters plot correctly, i.e., with na.color only, not default
   ras <- raster(matrix(NA, ncol = 3, nrow = 3))
@@ -464,20 +424,14 @@ test_that("Unit tests for internal functions in Plot", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(7L, 4L, 5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 5L, 7L, 4L,
-               5L, 7L, 4L, 4L, 5L, 7L, 4L, 4L, 4L, 5L, 4L, 3L, 3L, 3L, 3L, 3L,
-               4L, 4L, 5L, 4L, 4L, 7L, 4L, 5L, 4L, 7L, 4L, 5L, 7L, 4L, 8L, 4L,
-               5L, 7L, 4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 4L),
-    Linux =  c(7L, 4L, 5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 4L, 4L, 7L, 4L,
-               5L, 4L, 7L, 4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L,
-               5L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 4L, 4L, 5L, 7L,
-               4L, 5L, 7L, 5L, 7L, 4L, 5L, 7L, 4L),
+    Darwin = "AF8FD0F080303F75",
+    Linux = "AF8FD0F0C0302F75",
     Windows = c(7L, 4L, 5L, 7L, 8L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
                 4L, 7L, 4L, 8L, 4L, 5L, 7L, 4L, 5L, 7L, 3L, 3L, 3L, 7L, 4L, 5L,
                 7L, 4L, 5L, 7L, 5L, 7L, 4L, 4L, 5L, 7L, 4L, 8L, 5L, 7L, 4L, 5L,
                 4L, 7L, 8L, 4L, 5L, 7L, 4L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
 
   # Test legendRange in Plot
   set.seed(1234)
@@ -491,19 +445,14 @@ test_that("Unit tests for internal functions in Plot", {
 
   #dput(getFingerprint(file = "test.png"))
   orig <- switch(Sys.info()["sysname"],
-    Darwin = c(10L, 3L, 10L, 3L, 11L, 3L, 10L, 3L, 10L, 3L, 11L, 3L, 10L,
-               5L, 17L, 5L, 3L, 10L, 22L, 10L, 3L, 5L, 19L, 3L, 10L, 4L, 10L,
-               4L, 9L, 4L, 9L, 5L, 9L, 4L, 9L, 5L, 13L),
-    Linux = c(13L, 14L, 3L, 5L, 3L, 6L, 7L, 10L, 10L, 7L, 6L, 8L, 5L, 5L,
-              3L, 6L, 4L, 5L, 4L, 4L, 3L, 3L, 5L, 5L, 3L, 4L, 4L, 4L, 5L, 3L,
-              6L, 3L, 6L, 4L, 8L, 6L, 7L, 11L, 9L, 7L, 6L, 5L, 3L, 10L, 13L,
-              14L),
+    Darwin = "AF99D0E4C0653F64",
+    Linux = "AF9BD0E4C1253F60",
     Windows = c(8L, 5L, 5L, 6L, 11L, 7L, 4L, 4L, 8L, 5L, 4L, 7L, 4L, 5L, 3L,
                 4L, 8L, 5L, 4L, 7L, 4L, 8L, 5L, 5L, 4L, 4L, 6L, 5L, 8L, 7L, 4L,
                 4L, 8L, 5L, 3L, 3L, 6L, 7L, 4L, 4L, 8L, 5L, 4L, 5L, 10L, 6L,
                 8L, 5L, 5L, 11L)
   )
-  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 8))
+  expect_true(isSimilar(file = "test.png", fingerprint = orig, threshold = 0.3))
   unlink("test.png")
 })
 
@@ -520,106 +469,109 @@ test_that("Plot is not error-free", {
     setwd(cwd)
     unlink(tmpdir, recursive = TRUE)
   })
-  r<-raster(system.file("external/test.grd", package="raster"))
+
+  r <- raster(system.file("external/test.grd", package = "raster"))
   message("These two plots should look similar")
   plot(r)
   dev()
 
   # 128 < vals < 1806
-  Plot(r, new=TRUE) # Expect rainbow colors, lots of peach, little green
+  Plot(r, new = TRUE) # Expect rainbow colors, lots of peach, little green
 
   # -71 < vals < 1606
-  r1 <- r-200
-  Plot(r1, new=TRUE) # Expect legend from below 0 to just above 1500
+  r1 <- r - 200
+  Plot(r1, new = TRUE) # Expect legend from below 0 to just above 1500
 
   # 0 < vals <= 1
-  r1 <- r / max(getValues(r), na.rm=TRUE)
-  Plot(r1, new=TRUE)
+  r1 <- r / max(getValues(r), na.rm = TRUE)
+  Plot(r1, new = TRUE)
 
   # 0 <= vals < 1
-  r1 <- (r - min(getValues(r), na.rm= TRUE)) / max(getValues(r), na.rm=TRUE)
-  Plot(r1, new=TRUE)
+  r1 <- (r - min(getValues(r), na.rm = TRUE)) / max(getValues(r), na.rm = TRUE)
+  Plot(r1, new = TRUE)
 
   # 0 <= vals <= 1
-  r1 <- r - min(getValues(r), na.rm=TRUE)
-  r1 <- r1/max(getValues(r1), na.rm=TRUE)
-  Plot(r1, new=TRUE)
+  r1 <- r - min(getValues(r), na.rm = TRUE)
+  r1 <- r1/max(getValues(r1), na.rm = TRUE)
+  Plot(r1, new = TRUE)
 
   # 0, 1, 2, 3
-  r1 <- raster(ncol=3, nrow=3)
-  r1[] <- sample(0:3, replace=TRUE, size = 9)
-  Plot(r1, new=TRUE) # integers - 0, 1, 2 and 3 should line up with centre of each color
+  r1 <- raster(ncol = 3, nrow = 3)
+  r1[] <- sample(0:3, replace = TRUE, size = 9)
+  Plot(r1, new = TRUE) # integers - 0, 1, 2 and 3 should line up with centre of each color
 
   # 0, 1 #
-  r1 <- raster(ncol=3, nrow=3)
-  r1[] <- sample(0:1, replace=TRUE, size = 9)
-  Plot(r1, new=TRUE)
-  Plot(r1, new=TRUE, zero.color="black") # black zeros
+  r1 <- raster(ncol = 3, nrow = 3)
+  r1[] <- sample(0:1, replace = TRUE, size = 9)
+  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE, zero.color = "black") # black zeros
 
   # 0, 1, 2, 3, ... 30
-  r1 <- raster(ncol=30, nrow=30)
-  r1[] <- sample(0:30, replace=TRUE, size = 900)
-  Plot(r1, new=TRUE)
-  Plot(r1, new=TRUE, zero.color = "black") # black zeros, some scattered
-  Plot(r1, new=TRUE, zero.color = "black", legendRange = c(-10,40)) # black zeros, plus legend -10 to 40
+  r1 <- raster(ncol = 30, nrow = 30)
+  r1[] <- sample(0:30, replace = TRUE, size = 900)
+  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE, zero.color = "black") # black zeros, some scattered
+
+  # black zeros, plus legend -10 to 40
+  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(-10,40))
 
   # 0, 1, 2, 3, 4, 5, 6
-  r1 <- raster(ncol=30, nrow=30)
-  r1[] <- sample(0:6, replace=TRUE, size = 900)
-  Plot(r1, new=TRUE)
+  r1 <- raster(ncol = 30, nrow = 30)
+  r1[] <- sample(0:6, replace = TRUE, size = 900)
+  Plot(r1, new = TRUE)
 
   # 1, 2, 3, 4, 5, 6, ... 200
-  r1 <- raster(ncol=30, nrow=30)
-  r1[] <- sample(1:200, replace=TRUE, size = 900)
-  Plot(r1, new=TRUE)
-  Plot(r1, new=TRUE, zero.color = "black") # should be no black because no zeros
-  Plot(r1, new=TRUE, zero.color = "black", legendRange=c(-10, 200)) # should be slim black in legend,
-                                                                    # none in fig
+  r1 <- raster(ncol = 30, nrow = 30)
+  r1[] <- sample(1:200, replace = TRUE, size = 900)
+  Plot(r1, new = TRUE)
+
+  # should be no black because no zeros
+  Plot(r1, new = TRUE, zero.color = "black")
+
+  # should be slim black in legend, none in fig
+  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(-10, 200))
 
   # 31, 32, ... 40
-  r1 <- raster(ncol=30, nrow=30)
-  r1[] <- sample(31:40, replace=TRUE, size = 900)
-  Plot(r1, new=TRUE)
-  Plot(r1, new=TRUE, legendRange = c(0,40)) # legend frmo 0 to 40, mostly green
-  Plot(r1, new=TRUE, zero.color="black") # no black
-  Plot(r1, new=TRUE, zero.color="black", legendRange = c(35,40)) # lots of white, legend from 35 to 40
+  r1 <- raster(ncol = 30, nrow = 30)
+  r1[] <- sample(31:40, replace = TRUE, size = 900)
+  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE, legendRange = c(0,40)) # legend frmo 0 to 40, mostly green
+  Plot(r1, new = TRUE, zero.color = "black") # no black
+  Plot(r1, new = TRUE, zero.color = "black", legendRange = c(35,40)) # lots of white, legend from 35 to 40
 
-  pixelGroupMap <- raster(xmn=50,xmx=50+3*100,
-                          ymn=50,ymx=50+3*100,
-                          res=c(100,100), val=1)
+  pixelGroupMap <- raster(xmn = 50, xmx = 50 + 3 * 100,
+                          ymn = 50, ymx = 50 + 3 * 100,
+                          res = c(100, 100), val = 1)
   pixelGroupMap[1] <- -1
   pixelGroupMap[2:6] <- 2
-  Plot(pixelGroupMap, new=TRUE)
+  Plot(pixelGroupMap, new = TRUE)
 
   # Should have all colors
-  Plot(pixelGroupMap, new=TRUE, cols= c("red", "yellow", "green", "blue"))
+  Plot(pixelGroupMap, new = TRUE, cols = c("red", "yellow", "green", "blue"))
 
+  ### Test legend that is pre-set, even with various types of rasters
+  # should be mostly empty raster, legend from 0 to 200
+  Plot(r, legendRange = c(0, 200), new = TRUE, cols = c("red", "green"))
 
-  # Test legend that is pre-set, even with various types of rasters
-  Plot(r, legendRange=c(0,200), new=TRUE,
-       cols=c("red", "green")) # should be mostly empty raster, legend from 0 to 200
-
-  Plot(r, legendRange=c(-200,2000), new=TRUE,
-       cols=c("red", "green")) # should be mostly red raster, a bit of green, legend below 0 to 2000
+  # should be mostly red raster, a bit of green, legend below 0 to 2000
+  Plot(r, legendRange = c(-200, 2000), new = TRUE, cols = c("red", "green"))
 
   # zero.color on Real numbers doesn't do anything - expect NO BLACK
   r1 <- r - 200
-  Plot(r1, new=TRUE, zero.color="black") # NO BLACK
+  Plot(r1, new = TRUE, zero.color = "black") # NO BLACK
 
   # zero.color on Integer numbers should work - expect BLACK both in legend and in a few cells
   r1 <- r - 1000
   r1 <- round(r1/300, 0)
-  Plot(r1, new=TRUE, zero.color="black")
+  Plot(r1, new = TRUE, zero.color = "black")
 
-  Plot(pixelGroupMap, zero.color="red")
+  Plot(pixelGroupMap, zero.color = "red")
   Plot(r)
 
-  Plot(pixelGroupMap, cols="Blues", new=TRUE, legendRange=c(-3,4))
+  Plot(pixelGroupMap, cols = "Blues", new = TRUE, legendRange = c(-3, 4))
   Plot(r)
   pixelGroupMap[] <- pixelGroupMap[] + 5
   Plot(pixelGroupMap, na.color = "white") # Should keep one dark Blue, rest white
 
   dev.off()
-
-
 })

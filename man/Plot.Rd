@@ -63,7 +63,9 @@ by to plot rasters. See Details.}
 if using a scalable symbol.}
 
 \item{cols}{Character vector or list of character vectors of colours. Can also
-accept \code{RColorBrewer} colors by keyword.
+accept \code{RColorBrewer} colors by keyword if it is character vector
+of length 1. i.e., This cannot be used to set many objects by keyword in
+the same Plot call.
 Default \code{terrain.color()}. See Details.}
 
 \item{zoomExtent}{An \code{Extent} object. Supplying a single extent that is
