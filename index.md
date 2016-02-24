@@ -29,6 +29,7 @@ Included are numerous tools to rapidly visualize raster and other maps.
 
 [**Vignettes**](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) [https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes](https://github.com/PredictiveEcology/SpaDES/wiki/Help-Vignettes) 
 
+**`SpaDES` User Group:** [https://groups.google.com/forum/#!forum/spades-users](https://groups.google.com/forum/#!forum/spades-users)
 
 **Blog:** [http://PredictiveEcology.org](http://PredictiveEcology.org)
 
