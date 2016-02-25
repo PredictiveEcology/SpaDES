@@ -56,6 +56,10 @@ Available via our [wiki](https://github.com/PredictiveEcology/SpaDES/wiki/Help-V
 
 [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
+**Q&A Forum:**
+
+[https://groups.google.com/d/forum/spades-users](https://groups.google.com/d/forum/spades-users)
+
 ## Reporting bugs
 
 Contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
