@@ -318,6 +318,7 @@ We welcome additional contributions to this module repository.
 As with any software, there are likely to be issues.
 If you believe you have found a bug, please contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
 Please do not use the issue tracker for general help requests.
-We will soon be setting up a help mailing list soon for users who seek assistance using `SpaDES`.
+
+For general help and discussion of `SpaDES` and module development please see our Q&A Forum [https://groups.google.com/d/forum/spades-users](https://groups.google.com/d/forum/spades-users).
 
 # References
