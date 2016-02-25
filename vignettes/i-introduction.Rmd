@@ -299,6 +299,12 @@ Additional guides for getting started with `SpaDES` are provided at our wiki:
 
 [https://github.com/PredictiveEcology/SpaDES/wiki](https://github.com/PredictiveEcology/SpaDES/wiki)
 
+### Q&A Forum
+
+General help and discussion of `SpaDES` usage and module development.
+
+[https://groups.google.com/d/forum/spades-users](https://groups.google.com/d/forum/spades-users)
+
 ## `SpaDES` module repository
 
 We provide a number of modules to facilitate getting started:
@@ -319,6 +325,6 @@ As with any software, there are likely to be issues.
 If you believe you have found a bug, please contact us via the package GitHub site: [https://github.com/PredictiveEcology/SpaDES/issues](https://github.com/PredictiveEcology/SpaDES/issues).
 Please do not use the issue tracker for general help requests.
 
-For general help and discussion of `SpaDES` and module development please see our Q&A Forum [https://groups.google.com/d/forum/spades-users](https://groups.google.com/d/forum/spades-users).
+For general help with `SpaDES` and module development please see our Q&A Forum [https://groups.google.com/d/forum/spades-users](https://groups.google.com/d/forum/spades-users).
 
 # References
