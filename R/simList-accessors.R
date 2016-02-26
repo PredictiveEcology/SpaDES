@@ -2219,10 +2219,8 @@ setMethod(
   "defineModule",
   signature(sim = ".simList", x = "list"),
   definition = function(sim, x) {
-
     # check that all metadata elements are present
     metadataRequired <- slotNames(new(".moduleDeps"))
-
     metadataProvided <- metadataRequired %in% names(x)
     metadataMissing <- metadataRequired[!metadataProvided]
     if (!all(metadataProvided)) {
@@ -2289,7 +2287,6 @@ setMethod(
         as.list(x[[z]])
       }
     })
-
     if ( is.null(x$parameters) ) {
       x$parameters <- defineParameter()
     } else {
@@ -2417,7 +2414,7 @@ setMethod("defineParameter",
             df <- data.frame(
               paramName = name, paramClass = class, default = I(list(default)),
               min = I(list(min)), max = I(list(max)), paramDesc = desc,
-              stringsAsFactors=FALSE)
+              stringsAsFactors = FALSE)
             return(df)
 })
 

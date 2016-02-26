@@ -85,11 +85,8 @@ setMethod(
 
       # assign default param values
       apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
-        if (is.character(x$default)) {
-          tt <- paste0("params(sim)$", m, "$", x$paramName, "<<-\"", x$default, "\"")
-        } else {
-          tt <- paste0("params(sim)$", m, "$", x$paramName, "<<-", x$default)
-        }
+        tt <- paste0("params(sim)$", m, "$", x$paramName, " <<- ",
+                     dput(deparse(x$default)))
         eval(parse(text = tt), envir = environment())
       })
 
@@ -259,7 +256,7 @@ setMethod(
     }
     # user modules
     modules <- modules[!sapply(modules, is.null)] %>%
-      lapply(., `attributes<-`, list(parsed=FALSE))
+      lapply(., `attributes<-`, list(parsed = FALSE))
 
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
