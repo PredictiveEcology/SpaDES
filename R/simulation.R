@@ -85,8 +85,10 @@ setMethod(
 
       # assign default param values
       apply(depends(sim)@dependencies[[i]]@parameters, 1, function(x) {
-        tt <- paste0("params(sim)$", m, "$", x$paramName, " <<- ",
+        capture.output(
+          tt <- paste0("params(sim)$", m, "$", x$paramName, " <<- ",
                      dput(deparse(x$default)))
+          )
         eval(parse(text = tt), envir = environment())
       })
 
