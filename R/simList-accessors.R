@@ -1880,12 +1880,16 @@ setMethod(
   "timeunits",
   signature = ".simList",
   definition = function(x) {
-    timestepUnits <- lapply(depends(x)@dependencies, function(y) {
-      y@timeunit
-    })
-    names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
-      y@name
-    })
+    if(all(sapply(depends(x)@dependencies, is.null))) {
+      timestepUnits <- NULL
+    } else {
+      timestepUnits <- lapply(depends(x)@dependencies, function(y) {
+        y@timeunit
+      })
+      names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
+        y@name
+      })
+    }
     return(timestepUnits)
 })
 
