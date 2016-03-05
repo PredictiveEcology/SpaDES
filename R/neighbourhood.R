@@ -366,9 +366,10 @@ adj <- compiler::cmpfun(adj.raw)
 #' cirs <- cir(caribou, rep(3, length(caribou)), Ras, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, list(x, y)])
 #' cirsRas <- raster(Ras)
+#' cirsRas[] <- 0
 #' cirsRas[cirs[, pixIDs]] <- 1
 #' Plot(Ras, new = TRUE)
-#' Plot(cirsRas, addTo = "Ras", cols = "#13006333")
+#' Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
 #' Plot(caribou, addTo = "Ras")
 #' Plot(cirsSP, addTo = "Ras")
 #'
@@ -421,8 +422,9 @@ cir <- function(spatialPoints, radii, raster, simplify = TRUE) {
   DT[, rasterVal:=extract(raster, pixIDs)]
 
   if(simplify){
+    browser()
     setkey(DT, "pixIDs")
-    DT <- unique(DT)
+    DT <- unique(DT) %>% na.omit
   }
 
   # list of df with x and y coordinates of each unique pixel of the circle of each individual

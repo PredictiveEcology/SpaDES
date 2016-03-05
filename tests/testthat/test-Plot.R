@@ -175,6 +175,7 @@ test_that("Plot is not error-free", {
 })
 
 test_that("Unit tests for image content is not error-free", {
+  if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
 
   library(raster)
@@ -258,6 +259,7 @@ test_that("Unit tests for image content is not error-free", {
 })
 
 test_that("Unit tests for plotting colors", {
+  if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
 
   library(raster)
@@ -343,6 +345,7 @@ test_that("Unit tests for plotting colors", {
 })
 
 test_that("Unit tests for internal functions in Plot", {
+  if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
 
   library(raster)
@@ -461,26 +464,29 @@ test_that("Plot is not error-free", {
 
   # 0 < vals <= 1
   r1 <- r / max(getValues(r), na.rm = TRUE)
-  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE) # Expect legend from below 0.2 to exactly 1
 
   # 0 <= vals < 1
   r1 <- (r - min(getValues(r), na.rm = TRUE)) / max(getValues(r), na.rm = TRUE)
-  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE)# Expect legend from exactly 0 to above 0.8
 
   # 0 <= vals <= 1
   r1 <- r - min(getValues(r), na.rm = TRUE)
   r1 <- r1/max(getValues(r1), na.rm = TRUE)
-  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE)# Expect legend from exactly 0 to exactly 1
 
   # 0, 1, 2, 3
   r1 <- raster(ncol = 3, nrow = 3)
+  set.seed(234)
   r1[] <- sample(0:3, replace = TRUE, size = 9)
-  Plot(r1, new = TRUE) # integers - 0, 1, 2 and 3 should line up with centre of each color
+  Plot(r1, new = TRUE) # integers - 0, 1, 2 and 3 should line up with centre of
+                      # each color, even though there is no peach in plot
 
   # 0, 1 #
   r1 <- raster(ncol = 3, nrow = 3)
   r1[] <- sample(0:1, replace = TRUE, size = 9)
-  Plot(r1, new = TRUE)
+  Plot(r1, new = TRUE) # Expect 0 and 1 lined up to middle of green and light grey
+                       #  only Green and light grey
   Plot(r1, new = TRUE, zero.color = "black") # black zeros
 
   # 0, 1, 2, 3, ... 30
