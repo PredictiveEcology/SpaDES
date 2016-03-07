@@ -102,6 +102,7 @@ Collate:
     'probability.R'
     'progress.R'
     'save.R'
+    'shine.R'
     'spades-classes.R'
     'spades-package.R'
     'splitRaster.R'
