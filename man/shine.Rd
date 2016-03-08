@@ -2,21 +2,25 @@
 % Please edit documentation in R/shine.R
 \name{shine}
 \alias{shine}
-\title{Display covr results using a shiny app}
+\title{Display a simple, interactive shiny app of the simList}
 \usage{
-shine(sim, title, ...)
+shine(sim, title = "SpaDES App", ...)
 }
 \arguments{
 \item{sim}{a simInit object}
 
 \item{title}{character string. The title of the shiny page.}
 
-\item{...}{additional arguments passed to methods}
+\item{...}{additional arguments. Currently not used}
 }
 \description{
-The shiny app is designed to provide local information to coverage
-information similar to the coveralls.io website.  However it does not and
-will not track coverage over time.
+Currently, this is quite simple. It creates a side bar with the simulation times,
+plus a set of tabs, one for each module, with numeric sliders. Currently, this
+does not treat NAs correctly. Also, it is slow (shiny is not built to be fast
+out of the box). Currently, it does not show plotting updates; it only shows
+the final output of a spades call. There are two buttons, one to run the entire
+spades call, the other to do just one time step at a time. It can be repeatedly
+pressed.
 }
 \examples{
 \dontrun{
@@ -39,5 +43,6 @@ mySim <- simInit(times = times, params = parameters, modules = modules, path = p
 
 shine(mySim)
 }
+
 }
 
