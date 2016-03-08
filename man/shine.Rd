@@ -9,6 +9,8 @@ shine(sim, title, ...)
 \arguments{
 \item{sim}{a simInit object}
 
+\item{title}{character string. The title of the shiny page.}
+
 \item{...}{additional arguments passed to methods}
 }
 \description{
@@ -35,7 +37,7 @@ path <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
 
 mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
 
-shine(mySim, "CFS")
+shine(mySim)
 }
 }
 
