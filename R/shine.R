@@ -1,11 +1,20 @@
-#' Display covr results using a shiny app
+#' Display a simple, interactive shiny app of the simList
 #'
-#' The shiny app is designed to provide local information to coverage
-#' information similar to the coveralls.io website.  However it does not and
-#' will not track coverage over time.
+#' Currently, this is quite simple. It creates a side bar with the simulation times,
+#' plus a set of tabs, one for each module, with numeric sliders. Currently, this
+#' does not treat NAs correctly. Also, it is slow (shiny is not built to be fast
+#' out of the box). Currently, it does not show plotting updates; it only shows
+#' the final output of a spades call. There are two buttons, one to run the entire
+#' spades call, the other to do just one time step at a time. It can be repeatedly
+#' pressed.
+#'
 #' @param sim a simInit object
 #' @param title character string. The title of the shiny page.
-#' @param ... additional arguments passed to methods
+#' @param ... additional arguments. Currently not used
+#' @export
+#' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout actionButton sliderInput uiOutput
+#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
+#' @importFrom shiny eventReactive renderPlot runApp downloadButton downloadHandler h3
 #' @examples
 #' \dontrun{
 #' times <- list(start = 0.0, end = 20.0)
@@ -27,44 +36,49 @@
 #'
 #' shine(mySim)
 #' }
-#' @export
-#' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout actionButton sliderInput uiOutput
-#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
-#' @importFrom shiny eventReactive renderPlot runApp
-shine <- function(sim, title, ...) UseMethod("shine")
+#'
+setGeneric("shine", function(sim, title="SpaDES App", ...) {
+  standardGeneric("shine")
+})
 
-shine.default <- function(sim, title="SpaDES App", ...) {
-  stop("shine must be called on a simList object!", call. = FALSE)
-}
+setMethod(
+  "shine",
+  signature(sim = "simList"),
+  definition = function(sim, title, ...) {
 
-#' @export
-shine.simList <- function(sim, title="SpaDES App", ...) {
+  simOrig_ <- as(sim, "simList_")
+  simOrig <- sim
 
-  sessionEnv <- new.env()
   i = 1
   ui <- fluidPage(
     titlePanel(title),
     sidebarLayout(
       sidebarPanel(
-        actionButton("goButton", "Run model"),
-
-        sliderInput("simTimes", paste0("Simuated ",timeunit(sim)),
+        actionButton("fullSpaDESButton", "Run model"),
+        actionButton("oneTimestepSpaDESButton", "Run model 1 timestep"),
+        actionButton("resetSimInit", "Reset"),
+        downloadButton('downloadData', 'Download'),
+        sliderInput("simTimes", paste0("Simuated ",timeunit(sim)), sep="",
                     start(sim) , end(sim), c(start(sim), end(sim))),
-
-        uiOutput("tabPanels")
+        h3("Modules"),
+        uiOutput("moduleTabs")
       ),
       mainPanel(
-        plotOutput("spadesPlot")
+        plotOutput("spadesPlot", height = "800px"),
+        plotOutput("spadesPlotFull", height = "800px"),
+        plotOutput("spadesReset", height = "800px")
       )
     )
   )
 
-  server <- function(input, output, session) {
+  server <- function(input, output) {
 
-    output$tabPanels = renderUI({
+    output$moduleTabs = renderUI({
       mods <- unlist(modules(sim))[-(1:4)]
       nTabs = length(mods)
-      myTabs = lapply(mods, function(x) tabPanel(x, uiOutput(outputId = x)))
+      myTabs = lapply(mods, function(x) tabPanel(x,
+                                                 h4("Parameters"),
+                                                 uiOutput(outputId = x)))
       do.call(tabsetPanel, myTabs)
     })
 
@@ -81,13 +95,14 @@ shine.simList <- function(sim, title="SpaDES App", ...) {
               min = params(sim)[[kLocal]][[i]]*0.5,
               max = params(sim)[[kLocal]][[i]]*2,
               value = params(sim)[[kLocal]][[i]],
-              step =(params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10)
+              step =(params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
+              sep="")
           })
         })
       })
     }
 
-    spadesCall <- eventReactive(input$goButton, {
+    spadesCallFull <- eventReactive(input$fullSpaDESButton, {
       # Update simInit with values obtained from UI
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
       start(sim) <- input$simTimes[1]
@@ -101,16 +116,55 @@ shine.simList <- function(sim, title="SpaDES App", ...) {
        }
       }
 
-      sim <- spades(sim)
+      sim <<- spades(sim)
+    })
+
+    simReset <- eventReactive(input$resetSimInit, {
+      # Update simInit with values obtained from UI
+      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+      rm(list=ls(sim), envir=envir(sim))
+      sim <<- simOrig
+      for(i in names(simOrig_@.list)) {
+        sim[[i]]  <<- simOrig_@.list[[i]]
+      }
+
+    })
+
+    spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
+      # Update simInit with values obtained from UI
+      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+      mods <- unlist(modules(sim))[-(1:4)]
+      for(m in mods) {
+        for(i in names(params(sim)[[m]][sapply(params(sim)[[m]], is.numeric)])) {
+          if(!is.null(input[[paste0(m,"$",i)]])) # only if it is not null
+            params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
+        }
+      }
+
+      end(sim) <- time(sim) + 1
+      sim <<- spades(sim)
     })
 
     output$spadesPlot <- renderPlot({
       spadesCall()
     })
+    output$spadesPlotFull <- renderPlot({
+      spadesCallFull()
+    })
+    output$spadesReset <- renderPlot({
+      simReset()
+    })
+
+    output$downloadData <- downloadHandler(
+      filename = function() { paste("simObj.rds", sep="") },
+      content = function(file) {
+        saveRDS(sim, file = file)
+      }
+    )
   }
 
   runApp(list(ui = ui, server = server),
                 launch.browser = getOption("viewer", browseURL),
                 quiet = TRUE
   )
-}
+})
