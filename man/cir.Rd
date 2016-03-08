@@ -39,9 +39,10 @@ caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)
 cirs <- cir(caribou, rep(3, length(caribou)), Ras, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, list(x, y)])
 cirsRas <- raster(Ras)
+cirsRas[] <- 0
 cirsRas[cirs[, pixIDs]] <- 1
 Plot(Ras, new = TRUE)
-Plot(cirsRas, addTo = "Ras", cols = "#13006333")
+Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
 Plot(caribou, addTo = "Ras")
 Plot(cirsSP, addTo = "Ras")
 
