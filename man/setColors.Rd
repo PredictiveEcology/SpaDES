@@ -72,7 +72,7 @@ Returns a Raster with the \code{colortable} slot set to \code{values}.
 
   # Real number rasters - interpolation is used
   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) \%>\%
-    setColors(c("red", "yellow")) # interpolates when real numbers
+    setColors(c("red", "yellow")) # interpolates when real numbers, gives warning
   Plot(ras, new=TRUE)
 
   # Factor rasters, can be contiguous (numerically) or not, in this case not:

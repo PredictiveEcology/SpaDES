@@ -1559,7 +1559,7 @@ setMethod(
         upViewport(1)
       }
       pushViewport(vps$wholeVp, recording = FALSE)
-      upViewport(2)
+      upViewport(0)
     }
     updated$curr@arr@extents <- vps$extents
     updated$curr@arr@names <- names(updated$curr@spadesGrobList)
