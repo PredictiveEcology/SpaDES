@@ -55,6 +55,7 @@ setMethod(
     sidebarLayout(
       sidebarPanel(
         actionButton("fullSpaDESButton", "Run model"),
+        actionButton("stopButton", "Stop"),
         actionButton("oneTimestepSpaDESButton", "Run model 1 timestep"),
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
@@ -64,9 +65,7 @@ setMethod(
         uiOutput("moduleTabs")
       ),
       mainPanel(
-        plotOutput("spadesPlot", height = "800px"),
-        plotOutput("spadesPlotFull", height = "800px"),
-        plotOutput("spadesReset", height = "800px")
+        plotOutput("spadesPlot", height = "800px")
       )
     )
   )
@@ -102,22 +101,29 @@ setMethod(
       })
     }
 
-    spadesCallFull <- eventReactive(input$fullSpaDESButton, {
+    spadesCallFull <- function() {#eventReactive(input$fullSpaDESButton, {
       # Update simInit with values obtained from UI
-      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-      start(sim) <- input$simTimes[1]
-      end(sim) <- input$simTimes[2]
-
       mods <- unlist(modules(sim))[-(1:4)]
       for(m in mods) {
-       for(i in names(params(sim)[[m]][sapply(params(sim)[[m]], is.numeric)])) {
-         if(!is.null(input[[paste0(m,"$",i)]])) # only if it is not null
-           params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
-       }
+        for(i in names(params(sim)[[m]][sapply(params(sim)[[m]], is.numeric)])) {
+          if(!is.null(input[[paste0(m,"$",i)]])) # only if it is not null
+            params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
+        }
       }
 
+      end(sim) <- time(sim) + 1
+      curDev <- dev.cur()
+      alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+      if(any(alreadyPlotted)) {
+        rePlot()
+      } else {
+        clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+      }
+
+      if(is.null(v$stop)) {v$stop="go"}
+      if((time(sim) < input$simTimes[2]) & (v$stop!="stop")) invalidateLater(0)
       sim <<- spades(sim)
-    })
+    }
 
     simReset <- eventReactive(input$resetSimInit, {
       # Update simInit with values obtained from UI
@@ -132,7 +138,6 @@ setMethod(
 
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
       # Update simInit with values obtained from UI
-      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
       mods <- unlist(modules(sim))[-(1:4)]
       for(m in mods) {
         for(i in names(params(sim)[[m]][sapply(params(sim)[[m]], is.numeric)])) {
@@ -142,18 +147,47 @@ setMethod(
       }
 
       end(sim) <- time(sim) + 1
+      curDev <- dev.cur()
+      alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+      if(any(alreadyPlotted)) {
+        rePlot()
+      } else {
+        clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+      }
       sim <<- spades(sim)
     })
 
+    v <- reactiveValues(data = NULL)
+
+    observeEvent(input$oneTimestepSpaDESButton, {
+      v$data <- "oneTime"
+      v$stop <- "go"
+    })
+
+    observeEvent(input$stopButton, {
+      v$stop <- "stop"
+    })
+
+    observeEvent(input$resetSimInit, {
+      v$data <- "reset"
+    })
+
+    observeEvent(input$fullSpaDESButton, {
+      v$data <- "full"
+      v$stop <- "go"
+    })
+
     output$spadesPlot <- renderPlot({
-      spadesCall()
+      if (is.null(v$data)) return()
+      if(v$data=="oneTime") {
+        spadesCall()
+      } else if (v$data=="full") {
+        spadesCallFull()
+      } else if (v$data=="reset") {
+        simReset()
+      }
     })
-    output$spadesPlotFull <- renderPlot({
-      spadesCallFull()
-    })
-    output$spadesReset <- renderPlot({
-      simReset()
-    })
+
 
     output$downloadData <- downloadHandler(
       filename = function() { paste("simObj.rds", sep="") },
