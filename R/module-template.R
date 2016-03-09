@@ -676,7 +676,7 @@ setMethod("openModules",
             basedir <- checkPath(path, create = FALSE)
             origDir <- getwd()
             setwd(basedir)
-            if (any(names == "all")) {
+            if (any(name == "all")) {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
             } else {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
