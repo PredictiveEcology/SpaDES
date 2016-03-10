@@ -30,6 +30,7 @@ addons:
   apt:
     packages:
     - gdal-bin
+    - libgdal-dev
     - libgdal1-dev
     - libgeos-dev
     - libgeos++-dev
