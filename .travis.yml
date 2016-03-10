@@ -5,7 +5,8 @@
 #   https://github.com/craigcitro/r-travis/wiki
 
 language: r
-sudo: required
+sudo: false
+cache: packages
 cran: http://cran.rstudio.com/
 
 env:
@@ -25,45 +26,17 @@ r_check_args: "--as-cran"
 
 warnings_are_errors: true
 
-r_binary_packages:
-  - chron
-  - circstats
-  - colorspace
-  - data.table
-  - dichromat
-  - digest
-  - dplyr
-  - ggplot2
-  - gtable
-  - httr
-  - igraph
-  - knitr
-  - labeling
-  - latticeextra
-  - lubridate
-  - magrittr
-  - munsell
-  - proto
-  - randomfields
-  - raster
-  - rcolorbrewer
-  - rcpp
-  - reshape
-  - rgdal
-  - scales
-  - secr
-  - snow
-  - sp
-  - stringr
-  - testthat
-  - tkrplot
-  - xts
-  - zoo
-
-r_github_packages:
-  - s-u/fastshp
-  - jimhester/covr
-  - MangoTheCat/visualTest
+addons:
+  apt:
+    packages:
+    - gdal-bin
+    - libgdal1-dev
+    - libgeos-dev
+    - libgeos++-dev
+    - libproj-dev
+    - libspatialite-dev
+    - libsqlite3-dev
+    - libv8-dev
 
 after_success:
   - ./_push_vignettes.sh
