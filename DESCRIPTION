@@ -65,10 +65,6 @@ Imports:
     sp,
     stringi,
     stringr
-Remotes:
-  jimhester/covr,
-  s-u/fastshp,
-  MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
