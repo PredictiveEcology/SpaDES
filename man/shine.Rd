@@ -4,12 +4,14 @@
 \alias{shine}
 \title{Display a simple, interactive shiny app of the simList}
 \usage{
-shine(sim, title = "SpaDES App", ...)
+shine(sim, title = "SpaDES App", debug = FALSE, ...)
 }
 \arguments{
 \item{sim}{a simInit object}
 
 \item{title}{character string. The title of the shiny page.}
+
+\item{debug}{Logical. If TRUE, then will show spades event debugger in console.}
 
 \item{...}{additional arguments. Currently not used}
 }

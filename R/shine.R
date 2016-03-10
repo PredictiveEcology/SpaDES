@@ -10,6 +10,7 @@
 #'
 #' @param sim a simInit object
 #' @param title character string. The title of the shiny page.
+#' @param debug Logical. If TRUE, then will show spades event debugger in console.
 #' @param ... additional arguments. Currently not used
 #' @export
 #' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout actionButton sliderInput uiOutput
@@ -37,30 +38,33 @@
 #' shine(mySim)
 #' }
 #'
-setGeneric("shine", function(sim, title="SpaDES App", ...) {
+setGeneric("shine", function(sim, title="SpaDES App", debug=FALSE, ...) {
   standardGeneric("shine")
 })
 
 setMethod(
   "shine",
   signature(sim = "simList"),
-  definition = function(sim, title, ...) {
+  definition = function(sim, title, debug, ...) {
 
-  simOrig_ <- as(sim, "simList_")
-  simOrig <- sim
+  # Keep a copy of input simList so Reset button works
+  simOrig_ <- as(sim, "simList_") # convert objects first
+  simOrig <- sim # Not enough because objects are in an environment, so they both change
 
-  i = 1
+  #i = 1
+  endTime <- end(sim)
   ui <- fluidPage(
     titlePanel(title),
     sidebarLayout(
       sidebarPanel(
         actionButton("fullSpaDESButton", "Run model"),
         actionButton("stopButton", "Stop"),
-        actionButton("oneTimestepSpaDESButton", "Run model 1 timestep"),
+        actionButton("oneTimestepSpaDESButton", label=textOutput("StepActionButton")),
+        numericInput("Steps", "Step size", 1, width="100px"),
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
         sliderInput("simTimes", paste0("Simuated ",timeunit(sim)), sep="",
-                    start(sim) , end(sim), c(start(sim), end(sim))),
+                    start(sim) , end(sim), start(sim)),
         h3("Modules"),
         uiOutput("moduleTabs")
       ),
@@ -70,8 +74,7 @@ setMethod(
     )
   )
 
-  server <- function(input, output) {
-
+  server <- function(input, output, session) {
     output$moduleTabs = renderUI({
       mods <- unlist(modules(sim))[-(1:4)]
       nTabs = length(mods)
@@ -111,18 +114,21 @@ setMethod(
         }
       }
 
-      end(sim) <- time(sim) + 1
-      curDev <- dev.cur()
-      alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
-      if(any(alreadyPlotted)) {
-        rePlot()
-      } else {
-        clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-      }
+      end(sim) <- pmin(endTime, time(sim) + 1)
+#       curDev <- dev.cur()
+#       alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+#       if(any(alreadyPlotted)) {
+#         rePlot()
+#       } else {
+#         clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+#       }
+
 
       if(is.null(v$stop)) {v$stop="go"}
-      if((time(sim) < input$simTimes[2]) & (v$stop!="stop")) invalidateLater(0)
-      sim <<- spades(sim)
+      if((time(sim) < endTime) & (v$stop!="stop")) invalidateLater(0)
+      sim <<- spades(sim, debug=debug)
+      v$time <- time(sim)
+
     }
 
     simReset <- eventReactive(input$resetSimInit, {
@@ -146,18 +152,18 @@ setMethod(
         }
       }
 
-      end(sim) <- time(sim) + 1
-      curDev <- dev.cur()
-      alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
-      if(any(alreadyPlotted)) {
-        rePlot()
-      } else {
-        clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-      }
-      sim <<- spades(sim)
+      end(sim) <- time(sim) + input$Steps
+#       curDev <- dev.cur()
+#       alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+#       if(any(alreadyPlotted)) {
+#         rePlot()
+#       } else {
+#         clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+#       }
+      sim <<- spades(sim, debug=debug)
     })
 
-    v <- reactiveValues(data = NULL)
+    v <- reactiveValues(data = NULL, time=time(sim), end=end(sim), sliderUsed=FALSE)
 
     observeEvent(input$oneTimestepSpaDESButton, {
       v$data <- "oneTime"
@@ -170,6 +176,8 @@ setMethod(
 
     observeEvent(input$resetSimInit, {
       v$data <- "reset"
+      v$time <- start(sim)
+      v$end <- endTime
     })
 
     observeEvent(input$fullSpaDESButton, {
@@ -178,6 +186,13 @@ setMethod(
     })
 
     output$spadesPlot <- renderPlot({
+      curDev <- dev.cur()
+      alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+      if(any(alreadyPlotted)) {
+        rePlot()
+      } else {
+        clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+      }
       if (is.null(v$data)) return()
       if(v$data=="oneTime") {
         spadesCall()
@@ -186,8 +201,38 @@ setMethod(
       } else if (v$data=="reset") {
         simReset()
       }
+      v$time <- time(sim)
+      if(time(sim)>=endTime) {
+        v$end <- end(sim)
+      }
+      v$sliderUsed=FALSE
     })
 
+    observeEvent(input$simTimes, {
+#      browser()
+#      if(v$sliderUsed == "No") {
+
+#      }
+      #start(sim) <<- input$simTimes
+      time(sim) <<- input$simTimes
+      #v$time <- input$simTimes
+    })
+
+    observe({
+#      browser()
+      updateSliderInput(session, "simTimes", value=v$time, max=v$end)
+#      v$sliderUsed <- "No"
+    })
+
+    output$StepActionButton <- renderPrint({
+#      browser()
+#      if(v$sliderUsed=="Yes") {
+#        cat("Step to time ", input$simTimes, sep="")
+#      } else {
+        cat("Step ", input$Steps, " timestep", "s"[input$Steps!=1], sep="")
+#      }
+#      v$sliderUsed <- "Yes"
+    })
 
     output$downloadData <- downloadHandler(
       filename = function() { paste("simObj.rds", sep="") },
