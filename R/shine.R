@@ -87,7 +87,7 @@ setMethod(
       mainPanel(
         tabsetPanel(
           tabPanel("Preview", plotOutput("spadesPlot", height = "800px")),
-          tabPanel("Module diagram", plotOutput("moduleDiagram", height = "800px")),
+          tabPanel("Module diagram", uiOutput("moduleDiagramUI")),
           tabPanel("Object diagram", uiOutput("objectDiagramUI")),
           tabPanel("Event diagram", uiOutput("eventDiagramUI"))
         )
@@ -246,6 +246,11 @@ setMethod(
       moduleDiagram(sim)
     })
 
+    output$moduleDiagramUI <- renderUI({
+      plotOutput("moduleDiagram",
+                 height = max(600, (length(modules(sim))-4)*100))
+    })
+
     output$objectDiagram <- renderDiagrammeR({
           if (v$time<=start(sim)) {
             return()
@@ -279,14 +284,6 @@ setMethod(
                          height = max(800, NROW(completed(sim))*30))#textOutput("objectDiagramTextHeight"))),
       }
     })
-
-#     output$eventDiagram <- renderDiagrammeR({
-#       if (v$time<=start(sim)) {
-#         return()
-#       } else {
-#         eventDiagram(sim, startDate="0000-01-01")
-#       }
-#     })
 
     observeEvent(input$simTimes, {
       time(sim) <<- input$simTimes
