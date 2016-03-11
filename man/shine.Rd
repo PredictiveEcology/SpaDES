@@ -24,6 +24,17 @@ the final output of a spades call. There are two buttons, one to run the entire
 spades call, the other to do just one time step at a time. It can be repeatedly
 pressed.
 }
+\note{
+Many module parameters are only accessed by modules at the start
+of a model run. So, even if the user changes them mid run, there won't be
+an effect on the model runs until \code{Reset} is pressed, and one of the
+Run buttons is pressed.
+
+\code{.plotInterval} changes will only affect plots that are the base layer of
+a given plot image. If there are layers on top of a base layer
+(e.g., an agent on top of a raster layer), the .plotInterval of the
+overlayed layers is ignored.
+}
 \examples{
 \dontrun{
 times <- list(start = 0.0, end = 20.0)
@@ -44,6 +55,9 @@ path <- list(modulePath = system.file("sampleModules", package = "SpaDES"),
 mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
 
 shine(mySim)
+
+# if the user wants to see the events go by, which can help with debugging:
+shine(mySim, debug=TRUE)
 }
 
 }

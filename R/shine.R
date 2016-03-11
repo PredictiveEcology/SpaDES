@@ -8,6 +8,16 @@
 #' spades call, the other to do just one time step at a time. It can be repeatedly
 #' pressed.
 #'
+#' @note Many module parameters are only accessed by modules at the start
+#' of a model run. So, even if the user changes them mid run, there won't be
+#' an effect on the model runs until \code{Reset} is pressed, and one of the
+#' Run buttons is pressed.
+#'
+#' @note \code{.plotInterval} changes will only affect plots that are the base layer of
+#' a given plot image. If there are layers on top of a base layer
+#' (e.g., an agent on top of a raster layer), the .plotInterval of the
+#' overlayed layers is ignored.
+#'
 #' @param sim a simInit object
 #' @param title character string. The title of the shiny page.
 #' @param debug Logical. If TRUE, then will show spades event debugger in console.
@@ -38,6 +48,9 @@
 #' mySim <- simInit(times = times, params = parameters, modules = modules, path = path)
 #'
 #' shine(mySim)
+#'
+#' # if the user wants to see the events go by, which can help with debugging:
+#' shine(mySim, debug=TRUE)
 #' }
 #'
 setGeneric("shine", function(sim, title="SpaDES App", debug=FALSE, ...) {
@@ -55,6 +68,7 @@ setMethod(
 
   #i = 1
   endTime <- end(sim)
+  startTime <- start(sim)
   ui <- fluidPage(
     titlePanel(title),
     sidebarLayout(
@@ -107,20 +121,39 @@ setMethod(
       local({ # local is needed because it must force evaluation, avoid lazy evaluation
         kLocal <- k
         output[[kLocal]] <- renderUI({
-          whSliders <- params(sim)[[kLocal]]
-          # To do make ones for logical, character, functions, text etc.
-          whSliders <- names(whSliders[sapply(whSliders, is.numeric)]) # only numeric parameters
-          lapply(whSliders, function(i) {
-            sliderInput(
-              inputId = paste0(kLocal,"$",i),
-              label = i,
-              min = params(sim)[[kLocal]][[i]]*0.5,
-              max = params(sim)[[kLocal]][[i]]*2,
-              value = params(sim)[[kLocal]][[i]],
-              step =(params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
-              sep="")
+          Params <- params(sim)[[kLocal]]
+          lapply(names(Params), function(i) {
+            if(i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
+              if(!is.na(params(sim)[[kLocal]][[i]])) {
+                sliderInput(
+                  inputId = paste0(kLocal,"$",i),
+                  label = i,
+                  min = max(start(sim), params(sim)[[kLocal]][[i]]),
+                  max = min(endTime, end(sim)) -
+                    ifelse(i %in% c(".plotInterval", ".saveInterval"), start(sim), 0),
+                  value = params(sim)[[kLocal]][[i]],
+                  step = ((min(endTime, end(sim)) - start(sim))/10) %>% as.numeric(),
+                  sep="")
+              }
+            } else if (is.numeric(Params[[i]])) {
+              sliderInput(
+                inputId = paste0(kLocal,"$",i),
+                label = i,
+                min = params(sim)[[kLocal]][[i]]*0.5,
+                max = params(sim)[[kLocal]][[i]]*2,
+                value = params(sim)[[kLocal]][[i]],
+                step =(params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
+                sep="")
+            } else if(is.logical(Params[[i]])) {
+              checkboxInput(
+                inputId = paste0(kLocal,"$",i),
+                label = i,
+                value = params(sim)[[kLocal]][[i]])
+            }
+            # To do make ones for logical, character, functions, text etc.
           })
         })
+
       })
     }
 
@@ -128,7 +161,7 @@ setMethod(
       # Update simInit with values obtained from UI
       mods <- unlist(modules(sim))[-(1:4)]
       for(m in mods) {
-        for(i in names(params(sim)[[m]][sapply(params(sim)[[m]], is.numeric)])) {
+        for(i in names(params(sim)[[m]])) {
           if(!is.null(input[[paste0(m,"$",i)]])) # only if it is not null
             params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
         }
@@ -144,9 +177,10 @@ setMethod(
       # Update simInit with values obtained from UI
       mods <- unlist(modules(sim))[-(1:4)]
       for(m in mods) {
-        for(i in names(params(sim)[[m]][sapply(params(sim)[[m]], is.numeric)])) {
-          if(!is.null(input[[paste0(m,"$",i)]])) # only if it is not null
+        for(i in names(params(sim)[[m]])) {
+          if(!is.null(input[[paste0(m,"$",i)]])) {# only if it is not null
             params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
+          }
         }
       }
       end(sim) <- time(sim) + input$Steps
