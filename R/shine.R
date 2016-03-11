@@ -28,6 +28,7 @@
 #' @importFrom shiny eventReactive renderPlot runApp downloadButton downloadHandler h3
 #' @importFrom shiny numericInput
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
+#' @importFrom DT renderDataTable dataTableOutput
 #' @examples
 #' \dontrun{
 #' times <- list(start = 0.0, end = 20.0)
@@ -85,11 +86,13 @@ setMethod(
         uiOutput("moduleTabs")
       ),
       mainPanel(
-        tabsetPanel(
+        tabsetPanel(id="topTabsetPanel",
           tabPanel("Preview", plotOutput("spadesPlot", height = "800px")),
           tabPanel("Module diagram", uiOutput("moduleDiagramUI")),
           tabPanel("Object diagram", uiOutput("objectDiagramUI")),
-          tabPanel("Event diagram", uiOutput("eventDiagramUI"))
+          tabPanel("Event diagram", uiOutput("eventDiagramUI")),
+          tabPanel("Object browser", uiOutput("objectBrowserUI")),
+          tabPanel("Inputs loaded", uiOutput("inputObjectsUI"))
         )
 
       )
@@ -201,6 +204,7 @@ setMethod(
     observeEvent(input$oneTimestepSpaDESButton, {
       v$data <- "oneTime"
       v$stop <- "go"
+      updateTabsetPanel(session, "topTabsetPanel", selected = "Preview")
     })
 
     observeEvent(input$stopButton, {
@@ -216,6 +220,7 @@ setMethod(
     observeEvent(input$fullSpaDESButton, {
       v$data <- "full"
       v$stop <- "go"
+      updateTabsetPanel(session, "topTabsetPanel", selected = "Preview")
     })
 
     # Main plot
@@ -281,8 +286,28 @@ setMethod(
         return()
       } else {
         DiagrammeROutput("eventDiagram",
-                         height = max(800, NROW(completed(sim))*30))#textOutput("objectDiagramTextHeight"))),
+                         height = max(800, NROW(completed(sim))*25))
       }
+    })
+
+    output$objectBrowser <- renderDataTable({
+      v$time
+      dt <- lapply(names(objs(sim)), function(x) {
+            data.frame(Name=x, Class=is(objs(sim)[[x]])[1] )}) %>%
+      do.call(args=., rbind)
+    })
+
+    output$objectBrowserUI <- renderUI({
+      v$time
+      dataTableOutput("objectBrowser")
+    })
+
+    output$inputObjects <- renderDataTable({
+      dt <- inputs(sim)
+    })
+
+    output$inputObjectsUI <- renderUI({
+      dataTableOutput("inputObjects")
     })
 
     observeEvent(input$simTimes, {
@@ -293,6 +318,7 @@ setMethod(
     observe({
       updateSliderInput(session, "simTimes", value=v$time, max=v$end)
     })
+
 
     output$StepActionButton <- renderPrint({
 #      browser()
