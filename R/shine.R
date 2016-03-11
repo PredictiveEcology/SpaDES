@@ -1,31 +1,35 @@
 #' Display a simple, interactive shiny app of the simList
 #'
-#' Currently, this is quite simple. It creates a side bar with the simulation times,
-#' plus a set of tabs, one for each module, with numeric sliders. Currently, this
-#' does not treat NAs correctly. Also, it is slow (shiny is not built to be fast
-#' out of the box). Currently, it does not show plotting updates; it only shows
-#' the final output of a spades call. There are two buttons, one to run the entire
-#' spades call, the other to do just one time step at a time. It can be repeatedly
-#' pressed.
+#' Currently, this is quite simple. It creates a side bar with the simulation
+#' times, plus a set of tabs, one for each module, with numeric sliders.
+#' Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
+#' built to be fast out of the box). Currently, it does not show plotting
+#' updates; it only shows the final output of a spades call. There are two
+#' buttons, one to run the entire spades call, the other to do just one time
+#' step at a time. It can be repeatedly pressed.
 #'
-#' @note Many module parameters are only accessed by modules at the start
-#' of a model run. So, even if the user changes them mid run, there won't be
-#' an effect on the model runs until \code{Reset} is pressed, and one of the
-#' Run buttons is pressed.
+#' @note Many module parameters are only accessed by modules at the start of a
+#'   model run. So, even if the user changes them mid run, there won't be an
+#'   effect on the model runs until \code{Reset} is pressed, and one of the Run
+#'   buttons is pressed.
 #'
-#' @note \code{.plotInterval} changes will only affect plots that are the base layer of
-#' a given plot image. If there are layers on top of a base layer
-#' (e.g., an agent on top of a raster layer), the .plotInterval of the
-#' overlayed layers is ignored.
+#' @note \code{.plotInterval} changes will only affect plots that are the base
+#'   layer of a given plot image. If there are layers on top of a base layer
+#'   (e.g., an agent on top of a raster layer), the .plotInterval of the
+#'   overlayed layers is ignored.
 #'
 #' @param sim a simInit object
 #' @param title character string. The title of the shiny page.
-#' @param debug Logical. If TRUE, then will show spades event debugger in console.
+#' @param debug Logical. If TRUE, then will show spades event debugger in
+#'   console.
 #' @param ... additional arguments. Currently not used
 #' @export
-#' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout actionButton sliderInput uiOutput
-#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel textOutput
-#' @importFrom shiny eventReactive renderPlot runApp downloadButton downloadHandler h3
+#' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout
+#'   actionButton sliderInput uiOutput
+#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
+#'   textOutput
+#' @importFrom shiny eventReactive renderPlot runApp downloadButton
+#'   downloadHandler h3
 #' @importFrom shiny numericInput
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
 #' @importFrom DT renderDataTable dataTableOutput

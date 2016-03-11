@@ -11,29 +11,30 @@ shine(sim, title = "SpaDES App", debug = FALSE, ...)
 
 \item{title}{character string. The title of the shiny page.}
 
-\item{debug}{Logical. If TRUE, then will show spades event debugger in console.}
+\item{debug}{Logical. If TRUE, then will show spades event debugger in
+console.}
 
 \item{...}{additional arguments. Currently not used}
 }
 \description{
-Currently, this is quite simple. It creates a side bar with the simulation times,
-plus a set of tabs, one for each module, with numeric sliders. Currently, this
-does not treat NAs correctly. Also, it is slow (shiny is not built to be fast
-out of the box). Currently, it does not show plotting updates; it only shows
-the final output of a spades call. There are two buttons, one to run the entire
-spades call, the other to do just one time step at a time. It can be repeatedly
-pressed.
+Currently, this is quite simple. It creates a side bar with the simulation
+times, plus a set of tabs, one for each module, with numeric sliders.
+Currently, this does not treat NAs correctly. Also, it is slow (shiny is not
+built to be fast out of the box). Currently, it does not show plotting
+updates; it only shows the final output of a spades call. There are two
+buttons, one to run the entire spades call, the other to do just one time
+step at a time. It can be repeatedly pressed.
 }
 \note{
-Many module parameters are only accessed by modules at the start
-of a model run. So, even if the user changes them mid run, there won't be
-an effect on the model runs until \code{Reset} is pressed, and one of the
-Run buttons is pressed.
+Many module parameters are only accessed by modules at the start of a
+  model run. So, even if the user changes them mid run, there won't be an
+  effect on the model runs until \code{Reset} is pressed, and one of the Run
+  buttons is pressed.
 
-\code{.plotInterval} changes will only affect plots that are the base layer of
-a given plot image. If there are layers on top of a base layer
-(e.g., an agent on top of a raster layer), the .plotInterval of the
-overlayed layers is ignored.
+\code{.plotInterval} changes will only affect plots that are the base
+  layer of a given plot image. If there are layers on top of a base layer
+  (e.g., an agent on top of a raster layer), the .plotInterval of the
+  overlayed layers is ignored.
 }
 \examples{
 \dontrun{
