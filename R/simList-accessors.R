@@ -998,7 +998,8 @@ setReplaceMethod(
 
 ################################################################################
 #' @details \code{outputs} accepts a data.frame, with 5 columns.
-#' Currently, only \code{objectName} is required. #' Columns are: \code{objectName} (character, required),
+#' Currently, only \code{objectName} is required. #' Columns are:
+#' \code{objectName} (character, required),
 #' \code{file} (character),
 #' \code{fun} (character),
 #' \code{package} (character),
@@ -1009,6 +1010,10 @@ setReplaceMethod(
 #' \code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
 #' \code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
+#'
+#' @note The automatic file type handling only adds the correct extension from a given
+#' \code{fun} and \code{package}. It does not do the inverse, from a given extension find the
+#' correct \code{fun} and \code{package}.
 #'
 #' @inheritParams inputs
 #' @include simList-class.R
@@ -1064,6 +1069,31 @@ setReplaceMethod(
 #' newObj <- read.csv(dir(tempdir(), pattern=".csv", full.name=TRUE))
 #' newObj
 #'
+#' # using saving with SpaDES-aware methods
+#' # To see current ones SpaDES can do
+#' .saveFileExtensions()
+#'
+#' library(raster)
+#' ras <- raster(ncol=4, nrow=5)
+#' ras[] <- 1:20
+#'
+#' sim <- simInit(objects=c("ras"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) = data.frame(
+#'      file="test",
+#'      fun = "writeRaster",
+#'      package = "raster",
+#'      objectName = "ras",
+#'      stringsAsFactors = FALSE)
+#'
+#' outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
+#' simOut <- spades(sim)
+#' outputs(simOut)
+#' newRas <- raster(dir(tempdir(), full.name=TRUE, pattern=".tif"))
+#' all.equal(newRas, ras) # Should be TRUE
+#'
+#' # since write.csv has a default of adding a column, x, with rownames, must add additional
+#' #   argument for 6th row in data.frame (corresponding to the write.csv function)
 #' # Clean up after
 #' endFiles <- dir(tempdir(), full.names=TRUE)
 #' file.remove(endFiles[!(endFiles %in% startFiles)])
