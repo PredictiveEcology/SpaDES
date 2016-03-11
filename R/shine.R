@@ -14,8 +14,10 @@
 #' @param ... additional arguments. Currently not used
 #' @export
 #' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout actionButton sliderInput uiOutput
-#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
+#' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel textOutput
 #' @importFrom shiny eventReactive renderPlot runApp downloadButton downloadHandler h3
+#' @importFrom shiny numericInput
+#' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
 #' @examples
 #' \dontrun{
 #' times <- list(start = 0.0, end = 20.0)
@@ -69,12 +71,26 @@ setMethod(
         uiOutput("moduleTabs")
       ),
       mainPanel(
-        plotOutput("spadesPlot", height = "800px")
+        tabsetPanel(
+          tabPanel("Preview", plotOutput("spadesPlot", height = "800px")),
+          tabPanel("Module diagram", plotOutput("moduleDiagram", height = "400px")),
+          tabPanel("Object diagram",
+                   DiagrammeROutput("objectDiagram",
+                                    height = "400px")),#textOutput("objectDiagramTextHeight"))),
+          tabPanel("Event diagram", DiagrammeROutput("eventDiagram", height = "400px"))
+        )
+
       )
     )
   )
 
   server <- function(input, output, session) {
+    curDev <- dev.cur()
+    alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+    if(any(alreadyPlotted)) {
+      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+    }
+
     output$moduleTabs = renderUI({
       mods <- unlist(modules(sim))[-(1:4)]
       nTabs = length(mods)
@@ -115,32 +131,13 @@ setMethod(
       }
 
       end(sim) <- pmin(endTime, time(sim) + 1)
-#       curDev <- dev.cur()
-#       alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
-#       if(any(alreadyPlotted)) {
-#         rePlot()
-#       } else {
-#         clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-#       }
-
 
       if(is.null(v$stop)) {v$stop="go"}
       if((time(sim) < endTime) & (v$stop!="stop")) invalidateLater(0)
       sim <<- spades(sim, debug=debug)
-      v$time <- time(sim)
+#      v$time <- time(sim)
 
     }
-
-    simReset <- eventReactive(input$resetSimInit, {
-      # Update simInit with values obtained from UI
-      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-      rm(list=ls(sim), envir=envir(sim))
-      sim <<- simOrig
-      for(i in names(simOrig_@.list)) {
-        sim[[i]]  <<- simOrig_@.list[[i]]
-      }
-
-    })
 
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
       # Update simInit with values obtained from UI
@@ -153,14 +150,18 @@ setMethod(
       }
 
       end(sim) <- time(sim) + input$Steps
-#       curDev <- dev.cur()
-#       alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
-#       if(any(alreadyPlotted)) {
-#         rePlot()
-#       } else {
-#         clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-#       }
       sim <<- spades(sim, debug=debug)
+    })
+
+    simReset <- eventReactive(input$resetSimInit, {
+      # Update simInit with values obtained from UI
+      clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
+      rm(list=ls(sim), envir=envir(sim))
+      sim <<- simOrig
+      for(i in names(simOrig_@.list)) {
+        sim[[i]]  <<- simOrig_@.list[[i]]
+      }
+
     })
 
     v <- reactiveValues(data = NULL, time=time(sim), end=end(sim), sliderUsed=FALSE)
@@ -208,14 +209,35 @@ setMethod(
       v$sliderUsed=FALSE
     })
 
-    observeEvent(input$simTimes, {
-#      browser()
-#      if(v$sliderUsed == "No") {
+    output$moduleDiagram <- renderPlot({
+      moduleDiagram(sim)
+    })
 
-#      }
-      #start(sim) <<- input$simTimes
+    output$objectDiagram <-
+      renderDiagrammeR({
+          if (v$time<=start(sim)) {
+            return()
+          } else {
+            objectDiagram(sim)
+          }
+      })
+
+    output$objectDiagramTextHeight <- renderText({
+      #browser()
+      print("400px")
+      #length(completed(sim))
+    })
+
+    output$eventDiagram <- renderDiagrammeR({
+      if (v$time<=start(sim)) {
+        return()
+      } else {
+        eventDiagram(sim, startDate="0000-01-01")
+      }
+    })
+
+    observeEvent(input$simTimes, {
       time(sim) <<- input$simTimes
-      #v$time <- input$simTimes
     })
 
     observe({
