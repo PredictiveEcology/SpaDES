@@ -73,11 +73,11 @@ setMethod(
       mainPanel(
         tabsetPanel(
           tabPanel("Preview", plotOutput("spadesPlot", height = "800px")),
-          tabPanel("Module diagram", plotOutput("moduleDiagram", height = "400px")),
+          tabPanel("Module diagram", plotOutput("moduleDiagram", height = "800px")),
           tabPanel("Object diagram",
                    DiagrammeROutput("objectDiagram",
-                                    height = "400px")),#textOutput("objectDiagramTextHeight"))),
-          tabPanel("Event diagram", DiagrammeROutput("eventDiagram", height = "400px"))
+                                    height = "800px")),#textOutput("objectDiagramTextHeight"))),
+          tabPanel("Event diagram", DiagrammeROutput("eventDiagram", height = "800px"))
         )
 
       )
@@ -85,12 +85,14 @@ setMethod(
   )
 
   server <- function(input, output, session) {
+    # Some cases there may be an error due to a previous plot still existing - this should clear
     curDev <- dev.cur()
     alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
     if(any(alreadyPlotted)) {
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
     }
 
+    # Left side module tabs
     output$moduleTabs = renderUI({
       mods <- unlist(modules(sim))[-(1:4)]
       nTabs = length(mods)
@@ -100,11 +102,13 @@ setMethod(
       do.call(tabsetPanel, myTabs)
     })
 
+    # Sliders in module tabs
     for(k in unlist(modules(sim))[-(1:4)]) {
       local({ # local is needed because it must force evaluation, avoid lazy evaluation
         kLocal <- k
         output[[kLocal]] <- renderUI({
           whSliders <- params(sim)[[kLocal]]
+          # To do make ones for logical, character, functions, text etc.
           whSliders <- names(whSliders[sapply(whSliders, is.numeric)]) # only numeric parameters
           lapply(whSliders, function(i) {
             sliderInput(
@@ -129,16 +133,13 @@ setMethod(
             params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
         }
       }
-
       end(sim) <- pmin(endTime, time(sim) + 1)
-
       if(is.null(v$stop)) {v$stop="go"}
       if((time(sim) < endTime) & (v$stop!="stop")) invalidateLater(0)
-      sim <<- spades(sim, debug=debug)
-#      v$time <- time(sim)
-
+      sim <<- spades(sim, debug=debug) # Run spades
     }
 
+    # Needs cleaning up - This should just be a subset of above
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
       # Update simInit with values obtained from UI
       mods <- unlist(modules(sim))[-(1:4)]
@@ -148,7 +149,6 @@ setMethod(
             params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
         }
       }
-
       end(sim) <- time(sim) + input$Steps
       sim <<- spades(sim, debug=debug)
     })
@@ -161,11 +161,11 @@ setMethod(
       for(i in names(simOrig_@.list)) {
         sim[[i]]  <<- simOrig_@.list[[i]]
       }
-
     })
 
     v <- reactiveValues(data = NULL, time=time(sim), end=end(sim), sliderUsed=FALSE)
 
+    # Button clicks
     observeEvent(input$oneTimestepSpaDESButton, {
       v$data <- "oneTime"
       v$stop <- "go"
@@ -186,6 +186,7 @@ setMethod(
       v$stop <- "go"
     })
 
+    # Main plot
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
       alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
@@ -194,7 +195,7 @@ setMethod(
       } else {
         clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
       }
-      if (is.null(v$data)) return()
+      if (is.null(v$data)) return() # catch if no data yet
       if(v$data=="oneTime") {
         spadesCall()
       } else if (v$data=="full") {
@@ -213,20 +214,13 @@ setMethod(
       moduleDiagram(sim)
     })
 
-    output$objectDiagram <-
-      renderDiagrammeR({
+    output$objectDiagram <- renderDiagrammeR({
           if (v$time<=start(sim)) {
             return()
           } else {
             objectDiagram(sim)
           }
       })
-
-    output$objectDiagramTextHeight <- renderText({
-      #browser()
-      print("400px")
-      #length(completed(sim))
-    })
 
     output$eventDiagram <- renderDiagrammeR({
       if (v$time<=start(sim)) {
@@ -240,10 +234,9 @@ setMethod(
       time(sim) <<- input$simTimes
     })
 
+    # the time slider must update if stepping through with buttons
     observe({
-#      browser()
       updateSliderInput(session, "simTimes", value=v$time, max=v$end)
-#      v$sliderUsed <- "No"
     })
 
     output$StepActionButton <- renderPrint({
