@@ -80,7 +80,6 @@ Currently, only get and set methods are defined. Subset methods are not.
 \code{inputs} accepts a data.frame, with 6 columns.
 Currently, only one is required.
 See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-
 Columns are \code{objectName} (required, character),
 \code{file} (character),
 \code{fun} (character),
@@ -89,14 +88,87 @@ Columns are \code{objectName} (required, character),
 and \code{loadTime} (numeric).
 
 \code{outputs} accepts a data.frame, with 5 columns.
-Currently, only one is required.
-See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-
-Columns are: \code{objectName} (character, required),
+Currently, only \code{objectName} is required. #' Columns are: \code{objectName} (character, required),
 \code{file} (character),
 \code{fun} (character),
 \code{package} (character),
 and \code{saveTime} (numeric).
+Defaults:
+\code{file} is derived from \code{objectName}, but appending the model timeunit and
+\code{saveTime} to the file name (separated by underscore, "_"); \code{fun} is
+\code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
+\code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
+See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
+}
+\examples{
+sim <- simInit()
+
+# inputs
+
+test <- 1:10
+tmpFile <- file.path(tempdir(), "test.rds")
+saveRDS(test, file=tmpFile)
+inputs(sim) <- data.frame(file = tmpFile)
+inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
+sim <- spades(sim)
+inputs(sim) # confirm it was loaded
+
+# can put data.frame for inputs directly inside simInit call
+sim <- simInit(
+   inputs = data.frame(
+     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+     functions = "raster",
+     package = "raster",
+     loadTime = 3,
+     stringsAsFactors = FALSE)
+   )
+sim$test
+# Clean up after
+file.remove(tmpFile)
+# outputs
+startFiles <- dir(tempdir(), full.names=TRUE)
+tmpFile <- file.path(tempdir(), "temp.rds")
+tempObj <- 1:10
+
+# Can add data.frame of outputs directly into simInit call
+sim <- simInit(objects=c("tempObj"),
+  outputs=data.frame(objectName="tempObj"),
+  paths=list(outputPath=tempdir()))
+outputs(sim) # To see what will be saved, when, what filename
+sim <- spades(sim)
+outputs(sim) # To see that it was saved, when, what filename
+
+# Also can add using assignment after a simList object has been made
+sim <- simInit(objects=c("tempObj"),
+  paths=list(outputPath=tempdir()))
+outputs(sim) <- data.frame(objectName = "tempObj", saveTime=1:10)
+sim <- spades(sim)
+outputs(sim) # To see that it was saved, when, what filename.
+
+# can do highly variable saving
+tempObj2 <- paste("val",1:10)
+df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
+sim <- simInit(objects=c("tempObj", "tempObj2", "df1"),
+  paths=list(outputPath=tempdir()))
+outputs(sim) = data.frame(
+     objectName = c(rep("tempObj",2), rep("tempObj2", 3), "df1"),
+     saveTime = c(c(1,4), c(2,6,7), end(sim)),
+     fun = c(rep("saveRDS", 5), "write.csv"),
+     package = c(rep("base", 5), "utils"),
+     stringsAsFactors = FALSE)
+# since write.csv has a default of adding a column, x, with rownames, must add additional
+#   argument for 6th row in data.frame (corresponding to the write.csv function)
+outputArgs(sim)[[6]] <- list(row.names=FALSE)
+sim <- spades(sim)
+outputs(sim)
+
+# read one back in just to test it all worked as planned
+newObj <- read.csv(dir(tempdir(), pattern=".csv", full.name=TRUE))
+newObj
+
+# Clean up after
+endFiles <- dir(tempdir(), full.names=TRUE)
+file.remove(endFiles[!(endFiles \%in\% startFiles)])
 }
 \seealso{
 \code{\link{simList-class}},

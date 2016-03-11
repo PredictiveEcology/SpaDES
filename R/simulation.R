@@ -167,13 +167,13 @@ setMethod(
 #' @param inputs A \code{data.frame}. Can specify from 1 to 6
 #' columns with following column names: \code{objectName} (character, required),
 #' \code{file} (character), \code{fun} (character), \code{package} (character),
-#' \code{interval} (numeric), \code{loadTime} (numeric). See \code{?simInit}.
+#' \code{interval} (numeric), \code{loadTime} (numeric).
 #' See \code{\link{inputs}} and vignette("ii-modules") section about inputs.
 #'
 #' @param outputs A \code{data.frame}. Can specify from 1 to 5
 #' columns with following column names: \code{objectName} (character, required),
 #' \code{file} (character), \code{fun} (character), \code{package} (character),
-#' \code{saveTime} (numeric). See \code{?simInit}. See \code{\link{outputs}} and
+#' \code{saveTime} (numeric). See \code{\link{outputs}} and
 #' \code{vignette("ii-modules")} section about outputs.
 #'
 #' @param loadOrder  An optional list of module names specfiying the order in
@@ -183,7 +183,7 @@ setMethod(
 #' @return A \code{simList} simulation object, pre-initialized from values
 #' specified in the arguments supplied.
 #'
-#' @seealso \code{\link{spades}}.
+#' @seealso \code{\link{spades}}, \code{\link{outputs}}, \code{\link{inputs}}.
 #'
 #' @include module-dependencies-class.R
 #' @include simList-class.R

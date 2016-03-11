@@ -854,7 +854,6 @@ setMethod(
 #' @details \code{inputs} accepts a data.frame, with 6 columns.
 #' Currently, only one is required.
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-#'
 #' Columns are \code{objectName} (required, character),
 #' \code{file} (character),
 #' \code{fun} (character),
@@ -886,7 +885,32 @@ setMethod(
 #' @name inputs
 #' @aliases simList-accessors-inout
 #' @rdname simList-accessors-inout
+#' @examples
+#' sim <- simInit()
 #'
+#' # inputs
+#'
+#' test <- 1:10
+#' tmpFile <- file.path(tempdir(), "test.rds")
+#' saveRDS(test, file=tmpFile)
+#' inputs(sim) <- data.frame(file = tmpFile)
+#' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
+#' sim <- spades(sim)
+#' inputs(sim) # confirm it was loaded
+#'
+#' # can put data.frame for inputs directly inside simInit call
+#' sim <- simInit(
+#'    inputs = data.frame(
+#'      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+#'      functions = "raster",
+#'      package = "raster",
+#'      loadTime = 3,
+#'      stringsAsFactors = FALSE)
+#'    )
+
+#' sim$test
+#' # Clean up after
+#' file.remove(tmpFile)
 setGeneric("inputs", function(object) {
   standardGeneric("inputs")
 })
@@ -941,28 +965,30 @@ setReplaceMethod(
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
-   object@inputs[is.na(object@inputs$file), "file"] <- NA
-   #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
+   if(NROW(value)>0) {
+     object@inputs[is.na(object@inputs$file), "file"] <- NA
+     #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
 
-   # If a filename is provided, determine if it is absolute path, if so,
-   # use that, if not, then append it to inputPath(object)
-   object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
-     file.path(inputPath(object),
-               object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
+     # If a filename is provided, determine if it is absolute path, if so,
+     # use that, if not, then append it to inputPath(object)
+     object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
+       file.path(inputPath(object),
+                 object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
-   if (any(is.na(object@inputs[, "loaded"]))) {
-     if (!all(is.na(object@inputs[, "loadTime"]))) {
-       newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-         min(., na.rm = TRUE)
-       attributes(newTime)$unit <- timeunit(object)
-       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
-     } else {
-       object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
-         time(object, "seconds")
-       newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-         min(., na.rm = TRUE)
-       attributes(newTime)$unit <- "seconds"
-       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+     if (any(is.na(object@inputs[, "loaded"]))) {
+       if (!all(is.na(object@inputs[, "loadTime"]))) {
+         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
+           min(., na.rm = TRUE)
+         attributes(newTime)$unit <- timeunit(object)
+         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+       } else {
+         object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
+           time(object, "seconds")
+         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
+           min(., na.rm = TRUE)
+         attributes(newTime)$unit <- "seconds"
+         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+       }
      }
    }
 
@@ -972,14 +998,17 @@ setReplaceMethod(
 
 ################################################################################
 #' @details \code{outputs} accepts a data.frame, with 5 columns.
-#' Currently, only one is required.
-#' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-#'
-#' Columns are: \code{objectName} (character, required),
+#' Currently, only \code{objectName} is required. #' Columns are: \code{objectName} (character, required),
 #' \code{file} (character),
 #' \code{fun} (character),
 #' \code{package} (character),
 #' and \code{saveTime} (numeric).
+#' Defaults:
+#' \code{file} is derived from \code{objectName}, but appending the model timeunit and
+#' \code{saveTime} to the file name (separated by underscore, "_"); \code{fun} is
+#' \code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
+#' \code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
+#' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 #'
 #' @inheritParams inputs
 #' @include simList-class.R
@@ -993,6 +1022,51 @@ setReplaceMethod(
 #' @docType methods
 #' @name outputs
 #' @rdname simList-accessors-inout
+#' @examples
+#' # outputs
+#' startFiles <- dir(tempdir(), full.names=TRUE)
+#' tmpFile <- file.path(tempdir(), "temp.rds")
+#' tempObj <- 1:10
+#'
+#' # Can add data.frame of outputs directly into simInit call
+#' sim <- simInit(objects=c("tempObj"),
+#'   outputs=data.frame(objectName="tempObj"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) # To see what will be saved, when, what filename
+#' sim <- spades(sim)
+#' outputs(sim) # To see that it was saved, when, what filename
+#'
+#' # Also can add using assignment after a simList object has been made
+#' sim <- simInit(objects=c("tempObj"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) <- data.frame(objectName = "tempObj", saveTime=1:10)
+#' sim <- spades(sim)
+#' outputs(sim) # To see that it was saved, when, what filename.
+#'
+#' # can do highly variable saving
+#' tempObj2 <- paste("val",1:10)
+#' df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
+#' sim <- simInit(objects=c("tempObj", "tempObj2", "df1"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) = data.frame(
+#'      objectName = c(rep("tempObj",2), rep("tempObj2", 3), "df1"),
+#'      saveTime = c(c(1,4), c(2,6,7), end(sim)),
+#'      fun = c(rep("saveRDS", 5), "write.csv"),
+#'      package = c(rep("base", 5), "utils"),
+#'      stringsAsFactors = FALSE)
+#' # since write.csv has a default of adding a column, x, with rownames, must add additional
+#' #   argument for 6th row in data.frame (corresponding to the write.csv function)
+#' outputArgs(sim)[[6]] <- list(row.names=FALSE)
+#' sim <- spades(sim)
+#' outputs(sim)
+#'
+#' # read one back in just to test it all worked as planned
+#' newObj <- read.csv(dir(tempdir(), pattern=".csv", full.name=TRUE))
+#' newObj
+#'
+#' # Clean up after
+#' endFiles <- dir(tempdir(), full.names=TRUE)
+#' file.remove(endFiles[!(endFiles %in% startFiles)])
 setGeneric("outputs", function(object) {
   standardGeneric("outputs")
 })
@@ -1080,12 +1154,13 @@ setReplaceMethod(
        object@outputs[,"saveTime"],
        ceiling(log10(end(object, timeunit(object))+1))
      )
+     # Add time unit and saveTime to filename, without stripping extension
      wh <- !stri_detect_fixed(str = object@outputs$file,pattern = txtTimeA)
      object@outputs[wh, "file"] <- paste0(
        file_path_sans_ext(object@outputs[wh, "file"]),
        "_", txtTimeA, txtTimeB[wh],
        ifelse(nchar(file_ext(object@outputs[wh, "file"]))>0,".",""),
-       ifelse(!is.null(file_ext(object@outputs[wh, "file"])),
+       ifelse(nchar(file_ext(object@outputs[wh, "file"]))>0,
               file_ext(object@outputs[wh, "file"]),
               "")
      )

@@ -45,13 +45,13 @@ See details.}
 \item{inputs}{A \code{data.frame}. Can specify from 1 to 6
 columns with following column names: \code{objectName} (character, required),
 \code{file} (character), \code{fun} (character), \code{package} (character),
-\code{interval} (numeric), \code{loadTime} (numeric). See \code{?simInit}.
+\code{interval} (numeric), \code{loadTime} (numeric).
 See \code{\link{inputs}} and vignette("ii-modules") section about inputs.}
 
 \item{outputs}{A \code{data.frame}. Can specify from 1 to 5
 columns with following column names: \code{objectName} (character, required),
 \code{file} (character), \code{fun} (character), \code{package} (character),
-\code{saveTime} (numeric). See \code{?simInit}. See \code{\link{outputs}} and
+\code{saveTime} (numeric). See \code{\link{outputs}} and
 \code{vignette("ii-modules")} section about outputs.}
 
 \item{loadOrder}{An optional list of module names specfiying the order in
@@ -132,6 +132,6 @@ Alex Chubaty and Eliot McIntire
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 }
 \seealso{
-\code{\link{spades}}.
+\code{\link{spades}}, \code{\link{outputs}}, \code{\link{inputs}}.
 }
 
