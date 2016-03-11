@@ -127,7 +127,8 @@ saveFiles = function(sim) {
         args <- args[!sapply(args, is.null)]
 
         # The actual save line
-        do.call(outputs(sim)[i,"fun"], args = args)
+        do.call(outputs(sim)[i,"fun"], args = args,
+                envir=getNamespace(outputs(sim)[i,"package"]))
 
         outputs(sim)[i,"saved"] <- TRUE
       } else {
@@ -160,7 +161,7 @@ saveFiles = function(sim) {
     "rds", "saveRDS", "base" ,
     "txt", "write.table", "utils" ,
     "csv", "write.csv", "utils" ,
-    "", "writeRaster", "raster"
+    "grd", "writeRaster", "raster"
   )))
   setnames(.sFE, new = c("exts", "fun", "package"), old = paste0("V", 1:3))
   setkey(.sFE, package, fun)
