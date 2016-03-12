@@ -901,7 +901,7 @@ setMethod(
 #' # can put data.frame for inputs directly inside simInit call
 #' sim <- simInit(
 #'    inputs = data.frame(
-#'      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+#'      files = dir(file.path(tmpFile), full.names = TRUE, pattern = "tif")[1:2],
 #'      functions = "raster",
 #'      package = "raster",
 #'      loadTime = 3,
