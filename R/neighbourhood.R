@@ -422,7 +422,6 @@ cir <- function(spatialPoints, radii, raster, simplify = TRUE) {
   DT[, rasterVal:=extract(raster, pixIDs)]
 
   if(simplify){
-    browser()
     setkey(DT, "pixIDs")
     DT <- unique(DT) %>% na.omit
   }

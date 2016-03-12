@@ -45,13 +45,13 @@ See details.}
 \item{inputs}{A \code{data.frame}. Can specify from 1 to 6
 columns with following column names: \code{objectName} (character, required),
 \code{file} (character), \code{fun} (character), \code{package} (character),
-\code{interval} (numeric), \code{loadTime} (numeric). See \code{?simInit}.
+\code{interval} (numeric), \code{loadTime} (numeric).
 See \code{\link{inputs}} and vignette("ii-modules") section about inputs.}
 
 \item{outputs}{A \code{data.frame}. Can specify from 1 to 5
 columns with following column names: \code{objectName} (character, required),
 \code{file} (character), \code{fun} (character), \code{package} (character),
-\code{saveTime} (numeric). See \code{?simInit}. See \code{\link{outputs}} and
+\code{saveTime} (numeric). See \code{\link{outputs}} and
 \code{vignette("ii-modules")} section about outputs.}
 
 \item{loadOrder}{An optional list of module names specfiying the order in
@@ -88,6 +88,12 @@ queue (because it is much faster).
 the data input files, and the saving output files. If no paths are specified,
 default is current working directory.
 }
+\note{
+The user can opt to run a simpler simInit call without inputs, outputs, and times.
+These can be added later with the accessor methods (See last example). These are not required for initializing the
+simulation via simInit. \code{modules}, \code{paths}, \code{params}, and \code{objects}
+are all needed for initialization.
+}
 \examples{
 \dontrun{
  mySim <- simInit(
@@ -121,7 +127,25 @@ default is current working directory.
      saveTime = 1:2,
      stringsAsFactors = FALSE))
  )
- spades(mySim)
+
+ # Use accessors for inputs, outputs, times
+ mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+                   params = list(.globals = list(stackName = "landscape", burnStats = "nPixelsBurned")),
+                   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                                outputPath = tempdir()))
+ # add by accessor: note need current in times() accessor
+ times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
+ inputs(mySim2) <- data.frame(
+     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+     functions = "raster",
+     package = "raster",
+     loadTime = 3,
+     stringsAsFactors = FALSE)
+ outputs(mySim2) <- data.frame(
+     expand.grid(objectName = c("caribou","landscape"),
+     saveTime = 1:2,
+     stringsAsFactors = FALSE))
+ all.equal(mySim, mySim2) # TRUE
 }
 
 }
@@ -132,6 +156,8 @@ Alex Chubaty and Eliot McIntire
 Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
 }
 \seealso{
-\code{\link{spades}}.
+\code{\link{spades}},
+\code{\link{times}}, \code{\link{params}}, \code{\link{objs}}, \code{\link{paths}},
+\code{\link{modules}}, \code{\link{inputs}}, \code{\link{outputs}}
 }
 

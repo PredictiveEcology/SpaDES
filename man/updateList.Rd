@@ -33,7 +33,8 @@ A named list, with elements sorted by name.
 Merge two named list based on their named entries. Where
 any element matches in both lists, the value from the
 second list is used in the updated list.
-Subelements are not examined and are simply replaced.
+Subelements are not examined and are simply replaced. If one list is empty, then
+it returns the other one, unchanged.
 }
 \examples{
 L1 <- list(a = "hst", b = NA_character_, c = 43)
