@@ -147,6 +147,12 @@ setMethod(
 #' the data input files, and the saving output files. If no paths are specified,
 #' default is current working directory.
 #'
+#' @note
+#' The user can opt to run a simpler simInit call without inputs, outputs, and times.
+#' These can be added later with the accessor methods (See last example). These are not required for initializing the
+#' simulation via simInit. \code{modules}, \code{paths}, \code{params}, and \code{objects}
+#' are all needed for initialization.
+#'
 #' @param times A named list of numeric simulation start and end times
 #'        (e.g., \code{times = list(start = 0.0, end = 10.0)}).
 #'
@@ -183,7 +189,9 @@ setMethod(
 #' @return A \code{simList} simulation object, pre-initialized from values
 #' specified in the arguments supplied.
 #'
-#' @seealso \code{\link{spades}}, \code{\link{outputs}}, \code{\link{inputs}}.
+#' @seealso \code{\link{spades}},
+#' \code{\link{times}}, \code{\link{params}}, \code{\link{objs}}, \code{\link{paths}},
+#' \code{\link{modules}}, \code{\link{inputs}}, \code{\link{outputs}}
 #'
 #' @include module-dependencies-class.R
 #' @include simList-class.R
@@ -231,7 +239,25 @@ setMethod(
 #'      saveTime = 1:2,
 #'      stringsAsFactors = FALSE))
 #'  )
-#'  spades(mySim)
+#'
+#'  # Use accessors for inputs, outputs, times
+#'  mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'                    params = list(.globals = list(stackName = "landscape", burnStats = "nPixelsBurned")),
+#'                    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'                                 outputPath = tempdir()))
+#'  # add by accessor: note need current in times() accessor
+#'  times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
+#'  inputs(mySim2) <- data.frame(
+#'      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+#'      functions = "raster",
+#'      package = "raster",
+#'      loadTime = 3,
+#'      stringsAsFactors = FALSE)
+#'  outputs(mySim2) <- data.frame(
+#'      expand.grid(objectName = c("caribou","landscape"),
+#'      saveTime = 1:2,
+#'      stringsAsFactors = FALSE))
+#'  all.equal(mySim, mySim2) # TRUE
 #' }
 #'
 # igraph exports %>% from magrittr
