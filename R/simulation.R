@@ -241,9 +241,12 @@ setMethod(
 #'  )
 #'
 #'  # Use accessors for inputs, outputs, times
-#'  mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
-#'                    params = list(.globals = list(stackName = "landscape", burnStats = "nPixelsBurned")),
-#'                    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'  mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread",
+#'                                   "caribouMovement"),
+#'                    params = list(.globals = list(stackName = "landscape",
+#'                                                  burnStats = "nPixelsBurned")),
+#'                    paths = list(modulePath = system.file("sampleModules",
+#'                                                          package = "SpaDES"),
 #'                                 outputPath = tempdir()))
 #'  # add by accessor: note need current in times() accessor
 #'  times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")

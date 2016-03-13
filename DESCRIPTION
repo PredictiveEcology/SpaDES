@@ -45,6 +45,7 @@ Imports:
     DiagrammeR (>= 0.8.2),
     digest,
     dplyr,
+    DT,
     ff,
     ffbase,
     fpCompare,

@@ -18,7 +18,7 @@
 #'   (e.g., an agent on top of a raster layer), the .plotInterval of the
 #'   overlayed layers is ignored.
 #'
-#' @param sim a simInit object
+#' @param sim a simList object
 #' @param title character string. The title of the shiny page.
 #' @param debug Logical. If TRUE, then will show spades event debugger in
 #'   console.
@@ -27,10 +27,10 @@
 #' @importFrom shiny fluidPage titlePanel sidebarPanel sidebarLayout
 #'   actionButton sliderInput uiOutput
 #' @importFrom shiny mainPanel plotOutput renderUI tabPanel tabsetPanel
-#'   textOutput
 #' @importFrom shiny eventReactive renderPlot runApp downloadButton
-#'   downloadHandler h3
-#' @importFrom shiny numericInput
+#' @importFrom shiny numericInput h4 checkboxInput invalidateLater observe
+#' @importFrom shiny updateTabsetPanel downloadHandler h3 textOutput
+#' @importFrom shiny reactiveValues observeEvent updateSliderInput renderPrint
 #' @importFrom DiagrammeR DiagrammeROutput renderDiagrammeR
 #' @importFrom DT renderDataTable dataTableOutput
 #' @examples
@@ -57,14 +57,15 @@
 #' # if the user wants to see the events go by, which can help with debugging:
 #' shine(mySim, debug=TRUE)
 #' }
-#'
 setGeneric("shine", function(sim, title="SpaDES App", debug=FALSE, ...) {
   standardGeneric("shine")
 })
 
+#' @export
+#' @rdname shine
 setMethod(
   "shine",
-  signature(sim = "simList"),
+  signature= signature(sim = "simList"),
   definition = function(sim, title, debug, ...) {
 
   # Keep a copy of input simList so Reset button works
