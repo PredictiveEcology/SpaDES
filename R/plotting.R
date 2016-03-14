@@ -751,6 +751,14 @@ setMethod(
 
     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
 
+    if(!is.null(col)) {
+      if(!is.null(gp)) {
+        gp$col <- col # Accept col argument
+      } else {
+        gp <- gpar(col) #
+      }
+    }
+
     if (NROW(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
       if (speedup>0.1) {
@@ -1132,6 +1140,15 @@ setMethod(
 #' will revert to the \code{colortable} slot of the object, or the default
 #' for rasters, which is \code{terrain.color()}
 #'
+#' \code{cols} can also accept \code{RColorBrewer} colors by keyword if it is
+#' character vector of length 1. i.e., this cannot be used to set many objects by keyword in
+#' the same Plot call. Default \code{terrain.color()}. See Details.
+#'
+#' Some coloring will be automatic. If the object being plotted is a Raster, then
+#' this will take the colorTable slot (can be changed via setColors() or other ways).
+#' If this is a SpatialPointsDataFrame, this function will use a column called \code{colors}
+#' and apply these to the symbols.
+#'
 #' Silently, one hidden object is made, \code{.spadesPlot} in the
 #' \code{.spadesEnv} environment, which is used for arranging plots in the
 #' device window, and identifying the objects to be replotted if rearranging
@@ -1197,11 +1214,7 @@ setMethod(
 #' @param size Numeric. The size, in points, for \code{SpatialPoints} symbols,
 #'             if using a scalable symbol.
 #'
-#' @param cols Character vector or list of character vectors of colours. Can also
-#'             accept \code{RColorBrewer} colors by keyword if it is character vector
-#'             of length 1. i.e., This cannot be used to set many objects by keyword in
-#'             the same Plot call.
-#'             Default \code{terrain.color()}. See Details.
+#' @param cols (also \code{col}) Character vector or list of character vectors of colours. See details.
 #'
 #' @param zoomExtent An \code{Extent} object. Supplying a single extent that is
 #'                   smaller than the rasters will call a crop statement before
@@ -1406,6 +1419,12 @@ setMethod(
       plotFrame <- sys.frame(whFrame)
       plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
+
+    if(any(grepl(pattern="col", names(dots)))) {
+      cols <- dots$col
+      plotArgs$cols <- cols
+    }
+
     if (!is.null(dots$env)) {
       objFrame <- dots$env
     } else {
@@ -1428,11 +1447,13 @@ setMethod(
     }
 
     if (!all(canPlot)) {
-      message(paste(
-        "Plot can only plot objects of class .spadesPlottables.",
-        "Use 'showClass(\".spadesPlottables\")' to see current available",
-        "classes"
-      ))
+      if((sum(canPlot) - length(grep(pattern="col", names(canPlot))))>0) { # don't message if col is passed
+        message(paste(
+          "Plot can only plot objects of class .spadesPlottables.",
+          "Use 'showClass(\".spadesPlottables\")' to see current available",
+          "classes"
+        ))
+      }
     }
 
     plotObjs <- dotObjs[whichSpadesPlottables]
@@ -1441,6 +1462,9 @@ setMethod(
       stop("Not a plottable object")
     }
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
+    if(any(grepl(pattern="col", names(nonPlotArgs)))){
+      nonPlotArgs$col <- NULL
+    }
 
     # intercept cases that don't make sense, and give meaningful error
     if (!is.null(addTo)) {
