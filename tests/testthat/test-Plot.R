@@ -137,6 +137,12 @@ test_that("Plot is not error-free", {
   expect_that(Plot(DEM87654, cols = c("blue", "red")),
               testthat::not(throws_error()))
 
+  # Should work with col as well as cols
+  clearPlot()
+  expect_that(Plot(DEM87654, col = c("blue", "red")),
+              testthat::not(throws_error()))
+
+
   # test visualSqueeze
   expect_that(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE),
               testthat::not(throws_error()))

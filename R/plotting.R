@@ -46,10 +46,15 @@ setMethod(
 
     env <- list(...)$env
     suppliedNames <- names(plotObjects)
+    if(any(nchar(suppliedNames)==0)) {
+      suppliedNames <- NULL
+    }
     if (is.null(suppliedNames)) {
       objs <- objectNames()[whichSpadesPlottables]
     } else {
-      objs <- lapply(suppliedNames, function(x) list(objs = x, envs = env))
+      objs <- lapply(suppliedNames, function(x) {
+        list(objs = x, envs = env)
+        })
     }
 
     names(plotObjects) <- sapply(objs,function(x)
@@ -252,10 +257,10 @@ setMethod(
       curr@spadesGrobList[[plots]][[1]]@plotArgs[whichParamsChanged[[plots]]] <-
         newSP@spadesGrobList[[plots]][[1]]@plotArgs[whichParamsChanged[[plots]]]
 
-      needPlotting[[plots]] <- TRUE
-      isReplot[[plots]] <- TRUE
-      isBaseLayer[[plots]] <- FALSE
-      isNewPlot[[plots]] <- FALSE
+      needPlotting[[plots]][[plots]] <- TRUE
+      isReplot[[plots]][[plots]] <- TRUE
+      isBaseLayer[[plots]][[plots]] <- FALSE
+      isNewPlot[[plots]][[plots]] <- FALSE
     }
 
     # put addTo plots into list of spadesGrobs that it will be added to
@@ -637,37 +642,15 @@ setMethod(
           xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
         speedupScale
     }
-    # For speed of plotting
-#     xy <- lapply(1:length(grobToPlot), function(i) {
-#       lapply(grobToPlot@polygons[[i]]@Polygons, function(j) {
-#         j@coords
-#       })
-#     })
     xyOrd <- coordinates(grobToPlot)
 
-#     hole <- lapply(1:length(grobToPlot), function(x) {
-#       lapply(grobToPlot@polygons[[x]]@Polygons, function(x)
-#         x@hole)
-#     }) %>%
-#       unlist
-
-#     ord <- grobToPlot@plotOrder
-
-#     ordInner <- lapply(1:length(grobToPlot), function(x) {
-#       grobToPlot@polygons[[x]]@plotOrder
-#     })
-
-#     xyOrd.l <- lapply(ord, function(i) {
-#       xy[[i]][ordInner[[i]]]
-#     })
-
-    # idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
-#     idLength <- lapply(xyOrd.l, function(i) { lapply(i, length) }) %>%
-#       unlist %>%
-#       `/`(., 2) %>%
-#       data.table(V1 = .)
-
-#     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
+    if(!is.null(col)) {
+      if(!is.null(gp)) {
+        gp$col <- col # Accept col argument
+      } else {
+        gp <- gpar(col) #
+      }
+    }
 
     if (NROW(xyOrd) > 1e3) {
       # thin if greater than 1000 pts
@@ -713,17 +696,6 @@ setMethod(
     grid.draw(pntGrob)
     return(invisible(pntGrob))
 
-    #gp$fill[hole] <- "#FFFFFF00"
-#     polyGrob <- gTree(children = gList(
-#       polygonGrob(
-#         x = xyOrd[, 1], y = xyOrd[, 2], id.lengths = idLength$V1,
-#         gp = gp, default.units = "native"
-#       )
-#     ),
-#     gp = gp,
-#     cl = "plotPoly")
-#     grid.draw(polyGrob)
-#     return(invisible(polyGrob))
   }
 )
 
@@ -1417,6 +1389,10 @@ setMethod(
     # Section 1 # Determine object names that were passed and layer names of each
     isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls)
     dots <- list(...)
+#    if(any(grepl(pattern="col", names(dots)))) {
+#      usedCol <- dots$col
+      #cols <- dots$col
+#    }
     if (any(isDoCall)) {
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame-1)
@@ -1520,6 +1496,7 @@ setMethod(
         })
         clearPlot(removeData = FALSE)
       }
+
     } else if (all(isSpadesPlot)) {
       currSpadesPlots <- .makeSpadesPlot()
       newSpadesPlots <- plotObjs[[1]]
@@ -1688,22 +1665,25 @@ setMethod(
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
+              # This handles SpatialPointsDataFrames with column "color"
+              if(any(grepl(pattern="color", names(grobToPlot))) & is.null(cols))
+                sGrob@plotArgs$cols <- grobToPlot@data$color
 
-              #len <- length(grobToPlot)
-              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=NULL, real = FALSE)
+              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=sGrob@plotArgs$cols,
+                           real = FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real = FALSE)
+              zMat <- list(z=z, minz=0, maxz=0, cols=sGrob@plotArgs$cols, real = FALSE)
 
             } else if (is(grobToPlot, "SpatialLines")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <- list(z=z, minz=0, maxz=0, cols=NULL, real = FALSE)
+              zMat <- list(z=z, minz=0, maxz=0, cols=sGrob@plotArgs$cols, real = FALSE)
             }
 
             if (is(grobToPlot, "gg")) {
