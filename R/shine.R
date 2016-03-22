@@ -81,11 +81,11 @@ setMethod(
       sidebarPanel(
         actionButton("fullSpaDESButton", "Run model"),
         actionButton("stopButton", "Stop"),
-        actionButton("oneTimestepSpaDESButton", label=textOutput("StepActionButton")),
-        numericInput("Steps", "Step size", 1, width="100px"),
+        actionButton("oneTimestepSpaDESButton", label = textOutput("StepActionButton")),
+        numericInput("Steps", "Step size", 1, width = "100px"),
         actionButton("resetSimInit", "Reset"),
         downloadButton('downloadData', 'Download'),
-        sliderInput("simTimes", paste0("Simuated ",timeunit(sim)), sep="",
+        sliderInput("simTimes", paste0("Simuated ", timeunit(sim)), sep = "",
                     start(sim) , end(sim), start(sim)),
         h3("Modules"),
         uiOutput("moduleTabs")
@@ -107,30 +107,30 @@ setMethod(
   server <- function(input, output, session) {
     # Some cases there may be an error due to a previous plot still existing - this should clear
     curDev <- dev.cur()
-    alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
-    if(any(alreadyPlotted)) {
+    alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
+    if (any(alreadyPlotted)) {
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
     }
 
     # Left side module tabs
-    output$moduleTabs = renderUI({
+    output$moduleTabs <- renderUI({
       mods <- unlist(modules(sim))[-(1:4)]
-      nTabs = length(mods)
-      myTabs = lapply(mods, function(x) tabPanel(x,
-                                                 h4("Parameters"),
-                                                 uiOutput(outputId = x)))
+      nTabs <- length(mods)
+      myTabs <- lapply(mods, function(x) {
+        tabPanel(x, h4("Parameters"), uiOutput(outputId = x))
+      })
       do.call(tabsetPanel, myTabs)
     })
 
     # Sliders in module tabs
-    for(k in unlist(modules(sim))[-(1:4)]) {
+    for (k in unlist(modules(sim))[-(1:4)]) {
       local({ # local is needed because it must force evaluation, avoid lazy evaluation
         kLocal <- k
         output[[kLocal]] <- renderUI({
           Params <- params(sim)[[kLocal]]
           lapply(names(Params), function(i) {
-            if(i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
-              if(!is.na(params(sim)[[kLocal]][[i]])) {
+            if (i %in% c(".plotInitialTime", ".saveInitialTime", ".plotInterval", ".saveInterval")) {
+              if (!is.na(params(sim)[[kLocal]][[i]])) {
                 sliderInput(
                   inputId = paste0(kLocal,"$",i),
                   label = i,
@@ -139,20 +139,20 @@ setMethod(
                     ifelse(i %in% c(".plotInterval", ".saveInterval"), start(sim), 0),
                   value = params(sim)[[kLocal]][[i]],
                   step = ((min(endTime, end(sim)) - start(sim))/10) %>% as.numeric(),
-                  sep="")
+                  sep = "")
               }
             } else if (is.numeric(Params[[i]])) {
               sliderInput(
-                inputId = paste0(kLocal,"$",i),
+                inputId = paste0(kLocal, "$", i),
                 label = i,
                 min = params(sim)[[kLocal]][[i]]*0.5,
                 max = params(sim)[[kLocal]][[i]]*2,
                 value = params(sim)[[kLocal]][[i]],
                 step =(params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
                 sep="")
-            } else if(is.logical(Params[[i]])) {
+            } else if (is.logical(Params[[i]])) {
               checkboxInput(
-                inputId = paste0(kLocal,"$",i),
+                inputId = paste0(kLocal, "$", i),
                 label = i,
                 value = params(sim)[[kLocal]][[i]])
             }
@@ -166,16 +166,16 @@ setMethod(
     spadesCallFull <- function() {#eventReactive(input$fullSpaDESButton, {
       # Update simInit with values obtained from UI
       mods <- unlist(modules(sim))[-(1:4)]
-      for(m in mods) {
-        for(i in names(params(sim)[[m]])) {
-          if(!is.null(input[[paste0(m,"$",i)]])) # only if it is not null
-            params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
+      for (m in mods) {
+        for (i in names(params(sim)[[m]])) {
+          if (!is.null(input[[paste0(m, "$", i)]])) # only if it is not null
+            params(sim)[[m]][[i]] <- input[[paste0(m, "$", i)]]
         }
       }
       end(sim) <- pmin(endTime, time(sim) + 1)
-      if(is.null(v$stop)) {v$stop="go"}
-      if((time(sim) < endTime) & (v$stop!="stop")) invalidateLater(0)
-      sim <<- spades(sim, debug=debug) # Run spades
+      if(is.null(v$stop)) {v$stop = "go"}
+      if((time(sim) < endTime) & (v$stop != "stop")) invalidateLater(0)
+      sim <<- spades(sim, debug = debug) # Run spades
     }
 
     # Needs cleaning up - This should just be a subset of above
@@ -190,7 +190,7 @@ setMethod(
         }
       }
       end(sim) <- time(sim) + input$Steps
-      sim <<- spades(sim, debug=debug)
+      sim <<- spades(sim, debug = debug)
     })
 
     simReset <- eventReactive(input$resetSimInit, {
@@ -203,7 +203,7 @@ setMethod(
       }
     })
 
-    v <- reactiveValues(data = NULL, time=time(sim), end=end(sim), sliderUsed=FALSE)
+    v <- reactiveValues(data = NULL, time = time(sim), end = end(sim), sliderUsed = FALSE)
 
     # Button clicks
     observeEvent(input$oneTimestepSpaDESButton, {
@@ -231,7 +231,7 @@ setMethod(
     # Main plot
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
-      alreadyPlotted <- grepl(ls(.spadesEnv), pattern=paste0("spadesPlot",curDev))
+      alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
       if(any(alreadyPlotted)) {
         rePlot()
       } else {
@@ -274,7 +274,7 @@ setMethod(
         return()
       } else {
         DiagrammeROutput("objectDiagram",
-                       height = max(600, length(ls(sim))*30))#textOutput("objectDiagramTextHeight"))),
+                         height = max(600, length(ls(sim))*30))
       }
     })
 
@@ -298,8 +298,8 @@ setMethod(
     output$objectBrowser <- renderDataTable({
       v$time
       dt <- lapply(names(objs(sim)), function(x) {
-            data.frame(Name=x, Class=is(objs(sim)[[x]])[1] )}) %>%
-      do.call(args=., rbind)
+            data.frame(Name = x, Class = is(objs(sim)[[x]])[1])}) %>%
+      do.call(args = ., rbind)
     })
 
     output$objectBrowserUI <- renderUI({
@@ -321,7 +321,7 @@ setMethod(
 
     # the time slider must update if stepping through with buttons
     observe({
-      updateSliderInput(session, "simTimes", value=v$time, max=v$end)
+      updateSliderInput(session, "simTimes", value = v$time, max = v$end)
     })
 
 
@@ -330,13 +330,13 @@ setMethod(
 #      if(v$sliderUsed=="Yes") {
 #        cat("Step to time ", input$simTimes, sep="")
 #      } else {
-        cat("Step ", input$Steps, " timestep", "s"[input$Steps!=1], sep="")
+        cat("Step ", input$Steps, " timestep", "s"[input$Steps != 1], sep = "")
 #      }
 #      v$sliderUsed <- "Yes"
     })
 
     output$downloadData <- downloadHandler(
-      filename = function() { paste("simObj.rds", sep="") },
+      filename = function() { paste("simObj.rds", sep = "") },
       content = function(file) {
         saveRDS(sim, file = file)
       }
