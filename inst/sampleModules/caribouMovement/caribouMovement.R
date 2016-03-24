@@ -3,6 +3,7 @@ if(packageVersion("SpaDES") < usesSpaDESVersion) {
   stop("This caribouMovement module was built with SpaDES version", usesSpaDESVersion,
        "Please update SpaDES to use this module")
 }
+rm(usesSpaDESVersion)
 
 ## module metadata
 defineModule(sim, list(
