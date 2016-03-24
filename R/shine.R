@@ -326,7 +326,6 @@ setMethod(
 
 
     output$StepActionButton <- renderPrint({
-#      browser()
 #      if(v$sliderUsed=="Yes") {
 #        cat("Step to time ", input$simTimes, sep="")
 #      } else {
