@@ -581,7 +581,9 @@ setMethod(
   "doEvent",
   signature(sim = "simList", debug = "logical"),
   definition = function(sim, debug) {
-    stopifnot(class(sim) == "simList")
+    if(class(sim)!="simList") {
+      stop("doEvent can only accept a simList object")
+    }
 
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
