@@ -77,7 +77,7 @@
 #'   \code{eventPriority} \tab The priority given to the event. \cr
 #' }
 #'
-#' @include module-dependencies-class.R
+#' @include helpers.R module-dependencies-class.R
 #' @aliases .simList
 #' @rdname simList-class
 #' @importFrom data.table as.data.table data.table
@@ -99,8 +99,8 @@ setClass(
       .checkpoint = list(interval = NA_real_, file = NULL),
       .progress = list(type = NULL, interval = NULL)
     ),
-    events = as.data.table(NULL),
-    completed = as.data.table(NULL),
+    events = .emptyEventList(),
+    completed = .emptyEventList(),
     depends = new(".simDeps", dependencies = list(NULL)),
     simtimes = list(
       current = 0.00, start = 0.00, end = 1.00, timeunit = NA_character_
@@ -195,6 +195,6 @@ setAs(from = "simList", to = "simList_", def = function(from) {
 setMethod("initialize",
           signature(.Object = "simList"),
           definition=function(.Object) {
-            .Object@.envir <- new.env(parent=.GlobalEnv)
+            .Object@.envir <- new.env(parent = .GlobalEnv)
             return(.Object)
 })

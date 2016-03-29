@@ -79,6 +79,7 @@ Collate:
     'SELES.R'
     'misc-methods.R'
     'module-dependencies-class.R'
+    'helpers.R'
     'simList-class.R'
     'check.R'
     'priority.R'

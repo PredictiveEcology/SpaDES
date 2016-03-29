@@ -233,7 +233,7 @@ setMethod(
           }
 
           # The actual load call
-          if(identical(loadFun[x], "load")) {
+          if (identical(loadFun[x], "load")) {
             do.call(getFromNamespace(loadFun[x], loadPackage[x]),
                     args = argument, envir = envir(sim))
 
@@ -265,7 +265,7 @@ setMethod(
             filelistDT <- filelistDT[loaded == TRUE & !is.na(intervals),] %>%
               .[, `:=`(loadTime = curTime+intervals, loaded = NA, intervals = NA)] %>%
               list(filelistDT, .) %>%
-              rbindlist
+              rbindlist()
             #usedIntervals <- TRUE
           }
         }
