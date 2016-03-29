@@ -450,95 +450,91 @@ setMethod(
 
 ## Only deal with objects as character
 #' @rdname simInit
-setMethod("simInit",
-          signature(times = "ANY", params = "ANY", modules = "ANY",
-                    objects = "character", paths = "ANY",
-                    inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
-          definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+setMethod(
+  "simInit",
+  signature(times = "ANY", params = "ANY", modules = "ANY",
+            objects = "character", paths = "ANY",
+            inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
+  definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
-            li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
-            names(li) <- names(match.call())[-1]
-            # find the simInit call that was responsible for this, get the objects
-            #   in the environment of the parents of that call, and pass them to new
-            #   environment.
-            scalls <- sys.calls()
-            grep1 <- grep(as.character(scalls), pattern = "simInit")
-            grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-              tryCatch(
-                is(parse(text = x), "expression"),
-                error = function(y) { NA })
-            })], na.rm = TRUE)-1, 1)
-            # Convert character strings to their objects
-            li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
-            names(li$objects) <- objects
-            sim <- do.call("simInit", args=li)
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
+    names(li) <- names(match.call())[-1]
+    # find the simInit call that was responsible for this, get the objects
+    #   in the environment of the parents of that call, and pass them to new
+    #   environment.
+    scalls <- sys.calls()
+    grep1 <- grep(as.character(scalls), pattern = "simInit")
+    grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+      tryCatch(
+        is(parse(text = x), "expression"),
+        error = function(y) { NA })
+    })], na.rm = TRUE)-1, 1)
+    # Convert character strings to their objects
+    li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+    names(li$objects) <- objects
+    sim <- do.call("simInit", args = li)
 
-            return(invisible(sim))
+    return(invisible(sim))
 })
 
 ## Only deal with modules as character vector
 #' @rdname simInit
-setMethod("simInit",
-          signature(times = "ANY", params = "ANY", modules = "character",
-                    objects = "ANY", paths = "ANY",
-                    inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
-          definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+setMethod(
+  "simInit",
+  signature(times = "ANY", params = "ANY", modules = "character",
+            objects = "ANY", paths = "ANY",
+            inputs = "ANY", outputs = "ANY", loadOrder = "ANY"),
+  definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
-            li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
-            names(li) <- names(match.call())[-1]
-            li$modules <- as.list(modules)
-            sim <- do.call("simInit", args=li)
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
+    names(li) <- names(match.call())[-1]
+    li$modules <- as.list(modules)
+    sim <- do.call("simInit", args = li)
 
-            return(invisible(sim))
-          })
+    return(invisible(sim))
+})
 
 ###### individual missing elements
 #' @rdname simInit
-setMethod("simInit",
-          signature(),
-          definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
+setMethod(
+  "simInit",
+  signature(),
+  definition = function(times, params, modules, objects, paths, inputs, outputs, loadOrder) {
 
-            li <- lapply(names(match.call()[-1]), function(x) eval(parse(text=x)))
-            names(li) <- names(match.call())[-1]
+    li <- lapply(names(match.call()[-1]), function(x) eval(parse(text = x)))
+    names(li) <- names(match.call())[-1]
 
-            if(missing(times))
-              li$times <- list(start = 0, end = 10)
-            if(missing(params))
-              li$params <- list()
-            if(missing(modules))
-              li$modules <- list()
-            if(missing(objects))
-              li$objects <- list()
-            if(missing(paths))
-              li$paths <- list(".")
-            if(missing(inputs))
-              li$inputs <- as.data.frame(NULL)
-            if(missing(outputs))
-              li$outputs <- as.data.frame(NULL)
-            if(missing(loadOrder))
-              li$loadOrder <- character(0)
+    if (missing(times)) li$times <- list(start = 0, end = 10)
+    if (missing(params)) li$params <- list()
+    if (missing(modules)) li$modules <- list()
+    if (missing(objects)) li$objects <- list()
+    if (missing(paths)) li$paths <- list(".")
+    if (missing(inputs)) li$inputs <- as.data.frame(NULL)
+    if (missing(outputs)) li$outputs <- as.data.frame(NULL)
+    if (missing(loadOrder)) li$loadOrder <- character(0)
 
-            expectedClasses <- c("list", "list", "list", "list",
-                                 "list", "data.frame", "data.frame", "character")
-            listNames <- names(li)
-            expectedOrder = c("times", "params", "modules", "objects",
-                  "paths", "inputs", "outputs","loadOrder")
-            ma <- match(expectedOrder,listNames)
-            li <- li[ma]
+    expectedClasses <- c("list", "list", "list", "list", "list",
+                         "data.frame", "data.frame", "character")
+    listNames <- names(li)
+    expectedOrder <- c("times", "params", "modules", "objects", "paths",
+                       "inputs", "outputs","loadOrder")
+    ma <- match(expectedOrder, listNames)
+    li <- li[ma]
 
+    if (!all(sapply(1:length(li), function(x) {
+      is(li[[x]], expectedClasses[x])
+    }))) {
+      stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
+           "Currently, times, params, modules, and paths must be lists (or missing), ",
+           "objects can be named list or character vector (or missing),",
+           "inputs and outputs must be data.frames (or missing)",
+           "and loadOrder must be a character vector (or missing)",
+           "For the currently defined options for simInit, type showMethods('simInit').")
+    }
+    sim <- do.call("simInit", args = li)
 
-            if(!all(sapply(1:length(li), function(x)
-              is(li[[x]], expectedClasses[x]))))
-                   stop("simInit is incorrectly specified. simInit takes 8 arguments. ",
-                        "Currently, times, params, modules, and paths must be lists (or missing), ",
-                        "objects can be named list or character vector (or missing),",
-                        "inputs and outputs must be data.frames (or missing)",
-                        "and loadOrder must be a character vector (or missing)",
-                        "For the currently defined options for simInit, type showMethods('simInit').")
-            sim <- do.call("simInit", args=li)
-
-            return(invisible(sim))
-          })
+    return(invisible(sim))
+})
 
 
 ################################################################################
