@@ -24,7 +24,7 @@ defineModule(sim, list(
     defineParameter("ny", "numeric", 100L, NA, NA, "size of map (number of pixels) in the y dimension"),
     defineParameter("inRAM", "logical", FALSE, NA, NA, "should the raster be stored in memory?"),
     defineParameter(".plotInitialTime", "numeric", 0, NA, NA, "time to schedule first plot event"),
-    defineParameter(".plotInterval", "numeric", NA, NA, NA, "time interval between plot events"),
+    defineParameter(".plotInterval", "numeric", NA_real_, NA, NA, "time interval between plot events"),
     defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "time to schedule first save event"),
     defineParameter(".saveInterval", "numeric", NA_real_, NA, NA, "time interval between save events")
   ),

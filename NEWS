@@ -11,6 +11,7 @@ version 1.1.1.9xxx
 * fix bug when plotting certain real-numbered rasters
 * fix bug in Plot legends
 * fix bug in assigning vectors as default module param values
+* `defineParameter` now coerces the `default` value to match the type `class`
 * export `objectNames()` for external use
 
 version 1.1.1
