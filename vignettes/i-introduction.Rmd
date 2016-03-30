@@ -133,7 +133,7 @@ This demo loads three sample modules provided with the packages: 1) `randomLands
 These sample modules, respectively, highlight several keys features of the package: 1) the import, update, and plotting of raster map layers; 2) the computational speed of modeling spatial spread processes; and 3) the implementation of an agent-based (a.k.a., individual-based) model.
 
 ```{r SpaDES-demo, eval=FALSE, echo=TRUE}
-require("SpaDES")
+library("SpaDES")
 demo("spades-simulation", package="SpaDES")
 ```
 

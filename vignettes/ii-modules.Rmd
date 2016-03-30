@@ -174,7 +174,7 @@ A module's metadata defines default values for module-specific parameters, and t
 Default parameter values can overridden by passing values in the parameter list to `simInit`.
 
 ```{r passing-params, eval=FALSE, echo=TRUE}
-require(SpaDES)
+library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
 times <- list(start = 0.0, end = 20.0)
@@ -263,7 +263,7 @@ Modules may also include `"save"` and `"plot"` events, though these are optional
 
 ```{r event-functions, echo=TRUE, eval=FALSE}
 ## sample event functions from the default `randomLandscapes` module
-require(raster)
+library(raster)
 randomLandscapesInit <- function(sim) {
   if (is.null(params(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
@@ -316,8 +316,8 @@ Each module appears in a color-coded row, within which each event for that modul
 Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
 
 ```{r sim-eventDiagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-require(igraph) # for %>%
-require(SpaDES)
+library(igraph) # for %>%
+library(SpaDES)
 parameters <- list(
   .globals = list(stackName="landscape", burnStats="nPixelsBurned"),
   .progress = list(NA),
@@ -420,9 +420,9 @@ Note that modules need not be inter-dependent on one another: module B may depen
 To view the dependencies for a simulation:
 
 ```{r module-object-diagrams, eval=TRUE, echo=TRUE, message=FALSE, fig.width=7}
-require(SpaDES)
+library(SpaDES)
 
-times <- list(start=0.0, end=20)
+times <- list(start = 0.0, end = 20)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 )
@@ -580,20 +580,20 @@ If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it m
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-require(data.table)
+library(data.table)
 
 outputDir <- file.path(tempdir(), "simOutputs")
 mySim <- simInit(times = list(start = 0.0, end = 10),
                  params = list(
                    .globals = list(stackName = "landscape"),
                    randomLandscapes = list(
-                     .saveInitialTime = 0, .saveInterval = 10, .saveObjects = c("landscape"),
+                     .saveInitialTime = 0, .saveInterval = 10,
+                     .saveObjects = c("landscape"),
                      .savePath = file.path(outputDir, "randomLandscapes"))
                    ),
                  modules = list("randomLandscapes"),
                  paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                            outputPath = outputDir),
-                 #inputs = data.table(file = filelist),
+                              outputPath = outputDir),
                  outputs = data.table(objectName = "landscape")
 )
 

@@ -26,7 +26,7 @@ vignette: >
 # Sample model
 
 ```{r using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
-require(SpaDES)
+library(SpaDES)
 
 times <- list(start = 0.0, end = 20.0)
 parameters <- list(
@@ -51,8 +51,8 @@ spades(mySim)
 
 ## fire spread
 ```{r fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE, message=FALSE}
-require(ggplot2)
-require(RColorBrewer)
+library(ggplot2)
+library(RColorBrewer)
 nFires <- 10L
 landscape[["Fires"]] <- spread(landscape[["percentPine"]],
                                loci = sample(1L:ncell(landscape), nFires),
@@ -124,8 +124,8 @@ row.names(caribou) <- IDs
 Using a simple landscape-dependent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 ```{r agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE}
-require(sp)
-if(interactive()) dev()
+library(sp)
+if (interactive()) dev()
 Plot(landscape[["habitatQuality"]], new = TRUE)
 
 for (t in 1:30) {
