@@ -2300,49 +2300,6 @@ setMethod(
 })
 
 ################################################################################
-#' Default (empty) metadata
-#'
-#' Internal use only.
-#' Default values to use for metadata elements when not otherwise supplied.
-#'
-#' @param x  Not used. Should be missing.
-#'
-#' @importFrom raster extent
-#' @include simList-class.R
-#' @docType methods
-#' @rdname emptyMetadata
-#' @author Alex Chubaty
-#'
-setGeneric(".emptyMetadata", function(x) {
-  standardGeneric(".emptyMetadata")
-})
-
-#' @rdname emptyMetadata
-setMethod(
-  ".emptyMetadata",
-  signature(x = "missing"),
-  definition = function() {
-  out <- list(
-    name = character(0),
-    description = character(0),
-    keywords = character(0),
-    childModules = character(0),
-    authors = person("unknown"),
-    version = numeric_version(NULL),
-    spatialExtent = raster::extent(rep(NA_real_, 4)),
-    timeframe = as.POSIXlt(c(NA, NA)),
-    timeunit = NA_character_,
-    citation = list(),
-    documentation = list(),
-    reqdPkgs = list(),
-    parameters = defineParameter(),
-    inputObjects = .inputObjects(),
-    outputObjects = .outputObjects()
-  )
-  return(out)
-})
-
-################################################################################
 #' Define a new module.
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
