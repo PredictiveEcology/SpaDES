@@ -88,13 +88,11 @@ saveFiles = function(sim) {
   curTime <- time(sim, timeunit(sim))
 
   # extract the current module name that called this function
-  moduleName <- events(sim)[1L,moduleName]
+  moduleName <- current(sim)[1L, moduleName]
 
-  if(moduleName != "save") { # i.e., .a module driven save event
-
+  if (moduleName != "save") { # i.e., .a module driven save event
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
-      data.frame(objectName = ., saveTime = curTime,
-                 file = ., stringsAsFactors = FALSE)
+      data.frame(objectName = ., saveTime = curTime, file = ., stringsAsFactors = FALSE)
     outputs(sim) <- bind_rows(list(outputs(sim), toSave))
 
     # don't need to save exactly same thing more than once

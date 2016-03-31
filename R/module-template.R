@@ -266,8 +266,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 
     # ! ----- STOP EDITING ----- ! #
   } else {
-    warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with = FALSE],
-                  \"\' in module \'\", events(sim)[1, \"moduleName\", with = FALSE], \"\'\", sep = \"\"))
+    warning(paste(\"Undefined event type: \'\", current(sim)[1, \"eventType\", with = FALSE],
+                  \"\' in module \'\", current(sim)[1, \"moduleName\", with = FALSE], \"\'\", sep = \"\"))
   }
   return(invisible(sim))
 }

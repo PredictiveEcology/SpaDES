@@ -505,11 +505,11 @@ Schedule updates to the simulation progress bar.
 
 ```{r progress, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
-mySim <- simInit(times=list(start=0.0, end=100.0),
-                 params=list(.globals=list(stackName="landscape"),
-                             .progress=list(type="text", interval=10)),
-                 modules=list("randomLandscapes"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
+mySim <- simInit(times = list(start = 0.0, end = 100.0),
+                 params = list(.globals = list(stackName = "landscape"),
+                               .progress = list(type = "text", interval = 10)),
+                 modules = list("randomLandscapes"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 
 # retrieve the checkpoint params from the simulation object
 progressType(mySim)
@@ -569,13 +569,12 @@ Additional columns can also be provided:
 **`file`**      | Character string indicating the base name to use to name the saved file.
 **`fun`**       | Character string indicating the function to be used to save the file.
 **`package`**   | Character string indicating the package to find the previous `fun` in.
-**`saveTime`**  | Numeric indicating when the file should be saved. Defaults to `end(simList)`, but this can be any time. For multiple saves of the same object, use unique lines, e.g., via `data.table(expand.grid(objectName=c("caribou", "veg"), saveTime=1:10))`
+**`saveTime`**  | Numeric indicating when the file should be saved. Defaults to `end(simList)`, but this can be any time. For multiple saves of the same object, use unique lines, e.g., via `data.table(expand.grid(objectName = c("caribou", "veg"), saveTime = 1:10))`
 
-SpaDES will add a sixth column, `saved`, a logical, which will become TRUE when (immediately following) the successful save occurs.  
+SpaDES will add a sixth column, `saved`, a logical, which will become `TRUE` when (immediately following) the successful save occurs.  
 Therefore, a call to `outputs(mySim)` will indicate which objects have been saved.
 
-There is partial string matching of these names, so 
-If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it must be the same length as the `outputs()` `data.frame`.
+There is partial string matching of these names, so if the `fun` requires arguments to be passed to it, use `outputArgs()`, and it must be the same length as the `outputs()` `data.frame`.
 
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
@@ -587,12 +586,13 @@ mySim <- simInit(times = list(start = 0.0, end = 10),
                  params = list(
                    .globals = list(stackName = "landscape"),
                    randomLandscapes = list(
-                     .saveInitialTime = 0, .saveInterval = 10, .saveObjects = c("landscape"),
+                     .saveInitialTime = 0, .saveInterval = 10,
+                     .saveObjects = c("landscape"),
                      .savePath = file.path(outputDir, "randomLandscapes"))
                    ),
                  modules = list("randomLandscapes"),
                  paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                            outputPath = outputDir),
+                              outputPath = outputDir),
                  #inputs = data.table(file = filelist),
                  outputs = data.table(objectName = "landscape")
 )

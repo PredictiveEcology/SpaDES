@@ -139,7 +139,7 @@ test_that("depsEdgeList and depsGraph work", {
   p_to <- c("caribouMovement", "fireSpread")
   p_objName <- c("landscape", "landscape")
   p_objClass <- c("RasterStack", "RasterStack")
-  p_ <- data.table(
+  p_ <- data.table::data.table(
     from = p_from, to = p_to, objName = p_objName, objClass = p_objClass
   )
 

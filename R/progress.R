@@ -33,8 +33,8 @@ doEvent.progress = function(sim, eventTime, eventType, debug = FALSE) {
       sim <- scheduleEvent(sim, timeNextUpdate, "progress", "set", .last())
   } else {
     warning(paste(
-      "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-      "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'", sep = ""
+      "Undefined event type: \'", current(sim)[1, "eventType", with = FALSE],
+      "\' in module \'", current(sim)[1, "moduleName", with = FALSE], "\'", sep = ""
     ))
   }
   return(invisible(sim))
