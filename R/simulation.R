@@ -556,7 +556,8 @@ setMethod(
 #'
 #' @return Returns the modified \code{simList} object.
 #'
-#' @importFrom data.table data.table rbindlist setkey set2key
+#' @include helpers.R
+#' @importFrom data.table data.table rbindlist setkey
 # @importFrom utils tail
 #' @export
 #' @keywords internal
@@ -582,56 +583,59 @@ setMethod(
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
 
-    # get next event from the queue
-    nextEvent <- events(sim, "second")[1L, ]
+    if ( NROW(current(sim)) == 0 || any(is.na(current(sim))) ) {
+      # get next event from the queue and remove it from the queue
+      if (NROW(events(sim))) {
+        current(sim) <- events(sim, "second")[1L,]
+        events(sim) <- events(sim, "second")[-1L,]
+      } else {
+        # no more events, return event list of NAs
+        current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+      }
+    }
 
     # catches the situation where no future event is scheduled,
     #  but stop time is not reached
-    if (any(is.na(nextEvent))) {
-       time(sim) <- end(sim, "second") + 1
+    if (any(is.na(current(sim)))) {
+      time(sim) <- end(sim, "second") + 1
     } else {
-      if (nextEvent$eventTime <= end(sim, "second")) {
+      if (current(sim, "second")$eventTime <= end(sim, "second")) {
         # update current simulated time
-        time(sim) <- nextEvent$eventTime
+        time(sim) <- current(sim, "second")$eventTime
 
         # call the module responsible for processing this event
-        moduleCall <- paste("doEvent", nextEvent$moduleName, sep = ".")
+        moduleCall <- paste("doEvent", current(sim)$moduleName, sep = ".")
 
         # check the module call for validity
-        if (nextEvent$moduleName %in% modules(sim)) {
-          if (nextEvent$moduleName %in% core) {
-              sim <- get(moduleCall)(sim, nextEvent$eventTime,
-                                     nextEvent$eventType, debug)
+        if (current(sim)$moduleName %in% modules(sim)) {
+          if (current(sim)$moduleName %in% core) {
+              sim <- get(moduleCall)(sim, current(sim)$eventTime,
+                                     current(sim)$eventType, debug)
            } else {
               sim <- get(moduleCall,
-                         envir = envir(sim))(sim, nextEvent$eventTime,
-                                             nextEvent$eventType, debug)
+                         envir = envir(sim))(sim, current(sim)$eventTime,
+                                             current(sim)$eventType, debug)
            }
         } else {
           stop(paste("Invalid module call. The module `",
-                     nextEvent$moduleName,
+                     current(sim)$moduleName,
                      "` wasn't specified to be loaded."))
         }
 
-        # now that it is run, without error, remove it from the queue
-        events(sim) <- events(sim, "second")[-1L,]
-
         # add to list of completed events
-        if (length(completed(sim, "second"))) {
-          completed <- list(completed(sim, "second"), nextEvent) %>%
-            rbindlist %>%
-            setkey("eventTime") %>%
-            set2key("eventPriority")
+        if (NROW(completed(sim, "second"))) {
+          completed <- list(completed(sim, "second"), current(sim, "second")) %>%
+            rbindlist()
           if (NROW(completed) > getOption("spades.nCompleted")) {
             completed <- tail(completed, n = getOption("spades.nCompleted"))
           }
         } else {
-          completed <- setkey(nextEvent, "eventTime") %>%
-            set2key("eventPriority")
+          completed <- current(sim, "second")
         }
         completed(sim) <- completed
+        current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
       } else {
-        # update current simulated time to
+        # update current simulated time and event
         time(sim) <- end(sim) + 1
       }
     }
@@ -671,7 +675,7 @@ setMethod("doEvent",
 #'
 #' @return Returns the modified \code{simList} object.
 #'
-#' @importFrom data.table setkey set2key
+#' @importFrom data.table setkey
 #' @include priority.R
 #' @export
 #' @docType methods
@@ -740,22 +744,18 @@ setMethod(
         }
         attributes(eventTimeInSeconds)$unit <- "second"
 
-        newEvent <- as.data.table(list(
-          eventTime = eventTimeInSeconds,
-          moduleName = moduleName,
-          eventType = eventType,
-          eventPriority = eventPriority
-        ))
+        newEvent <- .emptyEventList(eventTime = eventTimeInSeconds,
+                                    moduleName = moduleName,
+                                    eventType = eventType,
+                                    eventPriority = eventPriority)
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
         if (length(events(sim, "second")) == 0L) {
-          events(sim) <- setkey(newEvent, "eventTime") %>%
-            set2key("eventPriority")
+          events(sim) <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
           events(sim) <- rbindlist(list(events(sim, "second"), newEvent)) %>%
-            setkey("eventTime") %>%
-            set2key("eventPriority")
+            setkey("eventTime", "eventPriority")
         }
       }
     } else {

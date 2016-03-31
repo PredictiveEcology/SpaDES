@@ -29,6 +29,9 @@
 #' @slot events     The list of scheduled events (i.e., event queue), as a
 #'                  \code{data.table}. See 'Event Lists' for more information.
 #'
+#' @slot current    The current event, as a \code{data.table}.
+#'                  See 'Event Lists' for more information..
+#'
 #' @slot completed  The list of completed events, as a \code{data.table}.
 #'                  See 'Event Lists' for more information.
 #'
@@ -68,7 +71,7 @@
 #'
 #' @section Event Lists:
 #'
-#' Event lists are sorted (keyed) by time.
+#' Event lists are sorted (keyed) first by time, second by priority.
 #' Each event is represented by a \code{\link{data.table}} row consisting of:
 #' \tabular{ll}{
 #'   \code{eventTime} \tab The time the event is to occur.\cr
@@ -90,8 +93,8 @@ setClass(
   ".simList",
   slots = list(
     modules = "list", params = "list", events = "data.table",
-    completed = "data.table", depends = ".simDeps", simtimes = "list",
-    inputs = "list", outputs = "list", paths = "list"
+    current = "data.table", completed = "data.table", depends = ".simDeps",
+    simtimes = "list", inputs = "list", outputs = "list", paths = "list"
   ),
   prototype = list(
     modules = as.list(NULL),
@@ -100,6 +103,7 @@ setClass(
       .progress = list(type = NULL, interval = NULL)
     ),
     events = .emptyEventList(),
+    current = .emptyEventList(),
     completed = .emptyEventList(),
     depends = new(".simDeps", dependencies = list(NULL)),
     simtimes = list(

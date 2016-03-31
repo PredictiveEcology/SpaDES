@@ -3,6 +3,29 @@ if (getRversion() >= "3.1.0") {
                            "loaded", "loadTime", "objectName", "package"))
 }
 
+#' File extensions map
+#'
+#' How to load various types of files in R.
+#'
+#' @export
+#' @rdname loadFiles
+.fileExtensions = function() {
+  .fE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
+    "Rdata", "load", "base",
+    "rdata", "load", "base",
+    "RData", "load", "base",
+    "rds", "readRDS", "base",
+    "RDS", "readRDS", "base",
+    "tif", "raster", "raster",
+    "png", "raster", "raster",
+    "csv", "read.csv", "utils",
+    "shp", "readOGR", "rgdal",
+    "txt", "read.table", "utils",
+    "asc", "raster", "raster")))
+  colnames(.fE) = c("exts", "fun", "package")
+  return(.fE)
+}
+
 # extract filename (without extension) of a file
 # - will accept list or charcter vector
 # - outputs character vector
@@ -17,7 +40,7 @@ fileName = function (x) {
 # igraph exports %>% from magrittr
 fileExt = function (x) {
   strsplit(basename(unlist(x)), "^.*\\.") %>%
-      sapply(., function(y) { y[[length(y)]] })
+    sapply(., function(y) { y[[length(y)]] })
 }
 
 # The load doEvent
@@ -251,29 +274,22 @@ setMethod(
                      paste("\n  at time", filelistDT[y, loadTime]),"")
             ))
           } else {
-              message(paste0(
-                objectName[x], " read from ", fl[x], " using ", loadFun[x],
-                ifelse(filelistDT[y, loadTime != start(sim, "seconds")],
-                       paste("\n   at time", filelistDT[y, loadTime]), "")
-              ))
+            message(paste0(
+              objectName[x], " read from ", fl[x], " using ", loadFun[x],
+              ifelse(filelistDT[y, loadTime != start(sim, "seconds")],
+                     paste("\n   at time", filelistDT[y, loadTime]), "")
+            ))
           }
-
         } # end x
         # add new rows of files to load based on filelistDT$Interval
         if (!is.na(match("intervals", names(filelistDT)))) {
-          if (any(!is.na(filelistDT[loaded == TRUE,intervals]))) {
+          if (any(!is.na(filelistDT[loaded == TRUE, intervals]))) {
             filelistDT <- filelistDT[loaded == TRUE & !is.na(intervals),] %>%
               .[, `:=`(loadTime = curTime+intervals, loaded = NA, intervals = NA)] %>%
               list(filelistDT, .) %>%
               rbindlist()
-            #usedIntervals <- TRUE
           }
         }
-
-  #       # remove files that have been loaded from filelistDT
-  #       keepOnFileList <- filelistDT$loadTime!=curTime
-  #       filelistDT = filelistDT[keepOnFileList,]
-
       } # if there are no files to load at curTime, then nothing
 
       if (is(filelist, "data.frame")) {
@@ -283,12 +299,6 @@ setMethod(
       } else {
         stop("filelist must be either a list or data.frame")
       }
-
-#        if (any(is.na(filelistDT[,loaded]))) {
-#          newTime <- filelistDT[is.na(loaded), min(loadTime, na.rm = TRUE)]
-#          attributes(newTime)$unit <- timeunit(sim)
-#          sim <- scheduleEvent(sim, newTime, "load", "inputs", .normal())
-#        }
     }
     message("") ## print empty message to add linebreak to console message output
     return(invisible(sim))
@@ -312,30 +322,6 @@ setMethod("loadFiles",
             message("no files loaded because sim and filelist are empty")
 })
 
-#' File extensions map
-#'
-#' How to load various types of files in R.
-#'
-#' @export
-#' @rdname loadFiles
-.fileExtensions = function() {
-  .fE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
-    "Rdata", "load", "base",
-    "rdata", "load", "base",
-    "RData", "load", "base",
-    "rds", "readRDS", "base",
-    "RDS", "readRDS", "base",
-    "tif", "raster", "raster",
-    "png", "raster", "raster",
-    "csv", "read.csv", "utils",
-    "shp", "readOGR", "rgdal",
-    "txt", "read.table", "utils",
-    "asc", "raster", "raster")))
-  colnames(.fE) = c("exts", "fun", "package")
-  return(.fE)
-}
-
-
 #######################################################
 #' Read raster to memory
 #'
@@ -345,12 +331,13 @@ setMethod("loadFiles",
 #' @param x An object passed directly to the function raster (e.g., character string of a filename).
 #'
 #' @param ... Additional arguments to \code{raster}.
+#'
 #' @return A raster object whose values are stored in memory.
 #'
 #' @seealso \code{\link{raster}}.
 #'
 #' @name rasterToMemory
-#' @importFrom raster raster setValues getValues
+#' @importFrom raster getValues raster setValues
 #' @export
 #' @docType methods
 #' @rdname rasterToMemory
@@ -369,4 +356,3 @@ setMethod("rasterToMemory",
             r <- setValues(r, getValues(r))
             return(r)
 })
-
