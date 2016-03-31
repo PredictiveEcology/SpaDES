@@ -2514,7 +2514,8 @@ setMethod("defineParameter",
           signature(name = "character", class = "character", default = "ANY",
                     min = "ANY", max = "ANY", desc = "character"),
           definition = function(name, class, default, min, max, desc) {
-            # coerce `min` and `max` to same type as `default`
+            # coerce `default`, `min`, and `max` to same specified type
+            default <- as(default, class)
             min <- as(min, class)
             max <- as(max, class)
 

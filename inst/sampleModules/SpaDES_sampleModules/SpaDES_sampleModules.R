@@ -12,8 +12,8 @@ defineModule(sim, list(
   documentation = list("SpaDES_sampleModules.Rmd"),
   reqdPkgs = list(),
   parameters = rbind(
-    defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),
-    defineParameter(".saveInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first save event should occur")
+    defineParameter(".plotInitialTime", "numeric", NA_real_, NA, NA, "This describes the simulation time at which the first plot event should occur"),
+    defineParameter(".saveInitialTime", "numeric", NA_real_, NA, NA, "This describes the simulation time at which the first save event should occur")
   ),
   inputObjects = data.frame(objectName = NA_character_, objectClass = NA_character_, sourceURL = NA_character_, other = NA_character_, stringsAsFactors = FALSE),
   outputObjects = data.frame(objectName = NA_character_, objectClass = NA_character_, other = NA_character_, stringsAsFactors = FALSE)
