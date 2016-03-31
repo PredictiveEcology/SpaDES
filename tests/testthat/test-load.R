@@ -1,4 +1,7 @@
 test_that("test-load.R: loading inputs does not work correctly", {
+  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  on.exit(unlink(tmpdir, recursive = TRUE))
+
   mapPath <- system.file("maps", package = "SpaDES")
 
   filelist <- data.frame(
@@ -18,7 +21,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
   paths <- list(
     modulePath = system.file("sampleModules", package = "SpaDES"),
     inputPath = mapPath,
-    outputPath = tempdir()
+    outputPath = tmpdir
   )
 
   mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
@@ -39,9 +42,10 @@ test_that("test-load.R: loading inputs does not work correctly", {
     paths = list(
       modulePath = system.file("sampleModules", package = "SpaDES"),
       inputPath = mapPath,
-      outputPath = tempdir())
+      outputPath = file.path(tempdir(), "test_load", rndstr()))
   )
   expect_true(all(c("DEM", "forestAge") %in% ls(sim1)))
+  file.remove(paths(sim1)$outputPath, recursive = TRUE)
   rm(sim1)
 
   # load at future time, i.e., nothing gets loaded
@@ -70,10 +74,14 @@ test_that("test-load.R: loading inputs does not work correctly", {
 
   expect_true(c("DEM") %in% ls(mySim))
   expect_true(!any(c("forestAge") %in% ls(mySim)))
+
   rm(mySim)
 })
 
 test_that("test-load.R: passing arguments to filelist in simInit does not work correctly", {
+  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  on.exit(unlink(tmpdir, recursive = TRUE))
+
   # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
   #  at time = 10 and 20 (via "intervals").
   # Also, pass the single argument as a list to all functions...
@@ -89,8 +97,9 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   paths <- list(
     modulePath = system.file("sampleModules", package = "SpaDES"),
     inputPath = mapPath,
-    outputPath = file.path(tempdir(), "test-load")
+    outputPath = tmpdir
   )
+
   inputs <- data.frame(
     files = files,
     functions = rep("raster::raster", 4),
@@ -104,8 +113,8 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
 
   sim <- simInit(times = times, params = parameters, modules = modules,
                  paths = paths, inputs = inputs)
-  expect_true(c("DEM") %in% ls(sim2))
-  expect_true(!any(c("forestCover", "forestAge", "habitatQuality") %in% ls(sim2)))
+  expect_true(c("DEM") %in% ls(sim))
+  expect_true(!any(c("forestCover", "forestAge", "habitatQuality") %in% ls(sim)))
 
   sim2 <- spades(sim)
   expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim2)))
@@ -123,10 +132,14 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   expect_message(spades(sim), "forestCover")
   expect_message(spades(sim), "forestAge")
   expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim)))
+
   rm(sim, sim2)
 })
 
 test_that("test-load.R: passing objects to simInit does not work correctly", {
+  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  on.exit(unlink(tmpdir, recursive = TRUE))
+
   mapPath <- mapPath <- system.file("maps", package = "SpaDES")
 
   # test object passing directly
@@ -150,7 +163,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
   paths <- list(
     modulePath = system.file("sampleModules", package = "SpaDES"),
     inputPath = mapPath,
-    outputPath = tempdir()
+    outputPath = tmpdir
   )
 
   # Pass as a named list
