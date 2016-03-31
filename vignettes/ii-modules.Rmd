@@ -319,7 +319,7 @@ Note that only the start time of the event is meaningful is these figures: the w
 library(igraph) # for %>%
 library(SpaDES)
 parameters <- list(
-  .globals = list(stackName="landscape", burnStats="nPixelsBurned"),
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
   .progress = list(NA),
   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
   fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6,
