@@ -7,6 +7,11 @@
 \alias{completed,.simList,missing-method}
 \alias{completed<-}
 \alias{completed<-,.simList-method}
+\alias{current}
+\alias{current,.simList,character-method}
+\alias{current,.simList,missing-method}
+\alias{current<-}
+\alias{current<-,.simList-method}
 \alias{events}
 \alias{events,.simList,character-method}
 \alias{events,.simList,missing-method}
@@ -24,6 +29,16 @@ events(object, unit)
 events(object) <- value
 
 \S4method{events}{.simList}(object) <- value
+
+current(object, unit)
+
+\S4method{current}{.simList,character}(object, unit)
+
+\S4method{current}{.simList,missing}(object, unit)
+
+current(object) <- value
+
+\S4method{current}{.simList}(object) <- value
 
 completed(object, unit)
 

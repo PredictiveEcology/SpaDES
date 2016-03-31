@@ -2039,7 +2039,6 @@ setMethod(
 #' @export
 #' @include simList-class.R
 #' @importFrom data.table ':=' data.table
-#' @importFrom dplyr mutate_
 #' @importFrom lazyeval interp
 #' @importFrom stats setNames
 #' @docType methods
@@ -2058,8 +2057,9 @@ setMethod(
   definition = function(object, unit) {
     if (!is.null(object@events$eventTime)) {
       res <- object@events %>%
-        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit, envir(object))) # NSE doesn't work reliably
-        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit, envir(object)))), "eventTime")) %>%
+        dplyr::mutate_(.dots = setNames(list(
+          interp(~convertTimeunit(eventTime, unit, envir(object)))
+        ), "eventTime")) %>%
         data.table() # dplyr removes something that makes this not print when
                      # events(sim) is invoked. This line brings it back.
     } else {
@@ -2095,7 +2095,7 @@ setReplaceMethod(
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
      } else {
-       value[, eventTime:=convertTimeunit(eventTime, "second", envir(object))]
+       value[, eventTime := convertTimeunit(eventTime, "second", envir(object))]
      }
      object@events <- value
      validObject(object)
@@ -2105,6 +2105,70 @@ setReplaceMethod(
 ################################################################################
 #' @inheritParams events
 #' @include simList-class.R
+#' @importFrom data.table ':=' data.table
+#' @importFrom lazyeval interp
+#' @importFrom stats setNames
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-events
+#'
+setGeneric("current", function(object, unit) {
+  standardGeneric("current")
+})
+
+#' @rdname simList-accessors-events
+#' @export
+setMethod(
+  "current",
+  signature = c(".simList", "character"),
+  definition = function(object, unit) {
+    out <- if (!is.null(object@current$eventTime)) {
+      object@current %>%
+        dplyr::mutate_(.dots = setNames(list(
+          interp(~convertTimeunit(eventTime, unit, envir(object)))
+        ), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # current(sim) is invoked. This line brings it back.
+    } else {
+      object@current
+    }
+    return(out)
+})
+
+#' @export
+#' @rdname simList-accessors-events
+setMethod("current",
+          signature = c(".simList", "missing"),
+          definition = function(object, unit) {
+            out <- current(object, timeunit(object))
+            return(out)
+})
+
+#' @export
+#' @rdname simList-accessors-events
+setGeneric("current<-",
+           function(object, value) {
+             standardGeneric("current<-")
+})
+
+#' @name current<-
+#' @aliases current<-,.simList-method
+#' @export
+#' @rdname simList-accessors-events
+setReplaceMethod("current",
+                 signature = ".simList",
+                 function(object, value) {
+                   object@current <- value
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
+#' @inheritParams events
+#' @include simList-class.R
+#' @importFrom data.table ':=' data.table
+#' @importFrom lazyeval interp
+#' @importFrom stats setNames
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-events
@@ -2121,7 +2185,11 @@ setMethod(
   definition = function(object, unit) {
     out <- if (!is.null(object@completed$eventTime)) {
       object@completed %>%
-        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit, envir(object)))
+        dplyr::mutate_(.dots = setNames(list(
+          interp(~convertTimeunit(eventTime, unit, envir(object)))
+        ), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # completed(sim) is invoked. This line brings it back.
     } else {
       object@completed
     }
