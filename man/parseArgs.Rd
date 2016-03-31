@@ -21,7 +21,7 @@ standardized representation (i.e., replacing \code{[[]]} with \code{$}
 notation for objects) of objects and their layers (if \code{RasterStacks}).
 }
 \description{
-Internal function used within .objectNames.
+Internal function used within objectNames.
 }
 \author{
 Eliot McIntire and Alex Chubaty

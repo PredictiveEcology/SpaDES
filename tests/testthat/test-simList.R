@@ -14,7 +14,7 @@ test_that("simList object initializes correctly", {
   w <- getOption("width")
   options(width = 100L)
   out <- utils::capture.output(show(mySim))
-  expect_equal(length(out), 78)
+  expect_equal(length(out), 82)
   options(width = w); rm(w)
 
   ### SLOT .envir
@@ -84,7 +84,7 @@ test_that("simList object initializes correctly", {
   expect_equal(
     inputs(mySim),
     data.frame(
-      file = character(0), fun=character(0), package = character(0),
+      file = character(0), fun = character(0), package = character(0),
       objectName = character(0), loadTime = numeric(0), loaded = logical(0)
     )
   )
@@ -97,6 +97,10 @@ test_that("simList object initializes correctly", {
   expect_is(events(mySim), "data.table")
   expect_equal(nrow(events(mySim)), length(modules(mySim)))
 
+  ### SLOT current
+  expect_is(current(mySim), "data.table")
+  expect_equal(nrow(current(mySim)), 0)
+
   ### SLOT completed
   expect_is(completed(mySim), "data.table")
   expect_equal(nrow(completed(mySim)), 0)
@@ -105,7 +109,7 @@ test_that("simList object initializes correctly", {
   expect_is(depends(mySim), ".simDeps")
   expect_is(depends(mySim)@dependencies, "list")
   expect_is(depends(mySim)@dependencies[[3]], ".moduleDeps")
-  expect_equal(depends(mySim)@dependencies[[3]]@name, "fireSpread")
+  expect_equal(depends(mySim)@dependencies[[3]]@name, modules[[3]])
   # not going to go though each level...object validity checking does types
 
   ### SLOT simtimes
@@ -196,14 +200,14 @@ test_that("simList test all signatures", {
   argsTested <- list()
   for(i in 1:256) {
     li <- list(
-      {if(i%%2^1 == 0) times = times},
-      {if(ceiling(i/2)%%2 == 0) params=parameters},
-      {if(ceiling(i/4)%%2 == 0) modules = modules},
-      {if(ceiling(i/8)%%2 == 0) objects = objects},
-      {if(ceiling(i/16)%%2 == 0) paths = paths},
-      {if(ceiling(i/32)%%2 == 0) inputs = filelist},
-      {if(ceiling(i/64)%%2 == 0) outputs = outputs},
-      {if(ceiling(i/128)%%2 == 0) loadOrder = loadOrder}
+      {if(i %% 2^1 == 0) times = times},
+      {if(ceiling(i/2) %% 2 == 0) params=parameters},
+      {if(ceiling(i/4) %% 2 == 0) modules = modules},
+      {if(ceiling(i/8) %% 2 == 0) objects = objects},
+      {if(ceiling(i/16) %% 2 == 0) paths = paths},
+      {if(ceiling(i/32) %% 2 == 0) inputs = filelist},
+      {if(ceiling(i/64) %% 2 == 0) outputs = outputs},
+      {if(ceiling(i/128) %% 2 == 0) loadOrder = loadOrder}
     )
     argNames <- c("times", "params", "modules", "objects", "paths", "inputs",
                   "outputs", "loadOrder")
@@ -215,6 +219,4 @@ test_that("simList test all signatures", {
   }
   expect_more_than(sum(errors, na.rm = TRUE), 27) # needs paths and params
   setwd(origWd)
-  #print(errors)
-  #print(argsTested[errors])
 })

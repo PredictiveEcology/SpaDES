@@ -84,7 +84,7 @@ setMethod("getColors",
 #'
 #'   # Real number rasters - interpolation is used
 #'   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) %>%
-#'     setColors(c("red", "yellow")) # interpolates when real numbers
+#'     setColors(c("red", "yellow")) # interpolates when real numbers, gives warning
 #'   Plot(ras, new=TRUE)
 #'
 #'   # Factor rasters, can be contiguous (numerically) or not, in this case not:
@@ -234,6 +234,7 @@ setMethod(
 #' @importFrom grDevices colorRampPalette terrain.colors
 #' @importFrom raster minValue getValues sampleRegular is.factor
 #' @importFrom stats na.omit
+#' @importFrom RColorBrewer brewer.pal.info brewer.pal
 #' @docType methods
 #' @author Eliot McIntire
 #'
@@ -276,19 +277,24 @@ setMethod(
     #  so, use the metadata version of minValue, but use the max(z) to
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
-    if (!exists("minz")) {
-      minz <- suppressWarnings(min(z, na.rm = TRUE))
-    }
-    if (is.na(minz)) {
-      minz <- suppressWarnings(min(z, na.rm = TRUE))
-    }
-    if(is.infinite(minz)) {
-      minz <- 0
-    }
-    #
-    maxz <- suppressWarnings(max(z, na.rm = TRUE))
-    if(is.infinite(maxz)) {
-      maxz <- 0
+    if(any(is.na(legendRange))) {
+      if (!exists("minz")) {
+        minz <- suppressWarnings(min(z, na.rm = TRUE))
+      }
+      if (is.na(minz)) {
+        minz <- suppressWarnings(min(z, na.rm = TRUE))
+      }
+      if(is.infinite(minz)) {
+        minz <- 0
+      }
+      #
+      maxz <- suppressWarnings(max(z, na.rm = TRUE))
+      if(is.infinite(maxz)) {
+        maxz <- 0
+      }
+    } else {
+      minz <- min(legendRange)
+      maxz <- max(legendRange)
     }
 
     real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
@@ -298,13 +304,15 @@ setMethod(
     #  too many numbers
     maxNumCols <- 100
 
-#    if(raster::is.factor(grobToPlot)) {
-#      nValues <- NROW(grobToPlot@data@attributes[[1]])
-#    } else {
+    if (any(is.na(legendRange))) {
       nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+    } else {
+      #realRange <- any(legendRange %% 1 != 0) # Test for real values or not
+      nValues <- ifelse(real, maxNumCols + 1, length(seq(legendRange[1], legendRange[length(legendRange)])))
+    }
+      #nValues <- maxz - minz + 1
 #    }
     colTable <- NULL
-
     if (is.null(cols)) {
       # i.e., contained within raster or nothing
       if (length(getColors(grobToPlot)[[1]]) > 0) {
@@ -347,6 +355,13 @@ setMethod(
         cols <- rev(terrain.colors(nValues))
       }
     } else {
+      if(is.character(cols) & (length(cols)==1)) {
+        if(cols %in% rownames(brewer.pal.info)) {
+          suppressWarnings(cols <- brewer.pal(nValues, cols))
+        } else {
+          warning("Color not recognized. Try RColorBrewer or default R colors")
+        }
+      }
       cols <- if (nValues > length(cols)) {
         colorRampPalette(cols)(nValues)
       } else if (nValues < length(cols)) {
@@ -368,33 +383,60 @@ setMethod(
     #  to max = 100.
     # These are, of course, only used for the color matrix, not the
     #  values on the Raster.
-    if ((maxz <= maxNumCols) & real) {
-      z <- maxNumCols / maxz * z
+
+    # Plotting works by making a maxNumCols value raster if
+    #  it is a real value original raster. So, we need to keep
+    #  the original minz and maxz for legend purposes, but
+    #  work with the new rescaled minz and maxz
+    minzOrig <- minz
+    maxzOrig <- maxz
+    whichZero <- numeric()
+    whichZeroLegend <- numeric()
+    if(!is.null(zero.color)){
+      whichZero <- which(z==0)
+      whichZeroLegend <- which(seq(minz, maxz, length.out=nValues)==0)
+    }
+
+    # Here, rescale so it is between 0 and maxNumCols or nValues
+    if (real ){#& (maxz <= maxNumCols) ) {
+      z <- maxNumCols / (maxz - minz) * (z - minz)
+      if(length(whichZero)) {
+        zeroValue <- maxNumCols / (maxz - minz) * (0 - minz)
+      }
       # rescale so the minimum is 1, not <1:
-      z <- z + (((maxNumCols / maxz * minz) < 1) *
-                  (-(maxNumCols / maxz * minz) + 1))
+      #z <- z + (((maxNumCols / maxz * minz) < 1) *
+      #            (-(maxNumCols / maxz * minz) + 1))
     } else {
       # rescale so that the minimum is 1, not <1:
-      z <- z + ((minz < 1) * (-minz + 1))
+      z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
+      if(length(whichZero)) {
+        zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
+      }
+    }
+    minz <- suppressWarnings(min(z, na.rm=TRUE))
+    maxz <- suppressWarnings(max(z, na.rm=TRUE))
+    if(is.infinite(minz)) {
+      maxz <- 0
+    }
+    if(is.infinite(minz)) {
+      minz <- 0
     }
 
     if (any(!is.na(legendRange))) {
       if ((max(legendRange) - min(legendRange) + 1) < length(cols)) {
-#        message(paste0(
-#          "legendRange is not wide enough, ",
-#          "scaling to min and max raster values"
-#        ))
       } else {
-        minz <- min(legendRange)
-        maxz <- max(legendRange)
+        #minz <- min(legendRange)
+        #maxz <- max(legendRange)
+        #minzOrig <- minz
+        #maxzOrig <- maxz
         if (is.null(colTable)) {
-          cols <- colorRampPalette(cols)(maxz - minz + 1)
+#          cols <- colorRampPalette(cols)(maxz - minz + 1)
         } else {
           if (length(getColors(grobToPlot)[[1]]) > 0) {
-            cols <- colorRampPalette(colTable)(maxz - minz + 1)
+            cols <- colorRampPalette(colTable)(maxzOrig - minzOrig + 1)
           } else {
             # default color if nothing specified
-            cols <- rev(terrain.colors(maxz - minz + 1))
+            cols <- rev(terrain.colors(maxzOrig - minzOrig + 1))
           }
         }
       }
@@ -402,33 +444,36 @@ setMethod(
 
     # here, the default color (transparent) for zero:
     # if it is the minimum value, can be overridden.
-    if (!is.null(zero.color)) {
-      if (minz == 0) {
-        cols[1] <- zero.color
-      }
+
+    # if range of values is not within the legend range, then give them NA
+    if(minz<0) z[z<0] <- 0
+    if(real) {
+      if(maxz>maxNumCols) z[z>maxNumCols] <- 0
+    } else {
+      if(maxz>nValues) z[z>nValues] <- 0
     }
+
     z <- z + 1 # for the NAs
-    z[is.na(z)] <- max(1, minz)
+    z[is.na(z)] <- 1 # max(1, minz)
 
     if(raster::is.factor(grobToPlot) & !is.null(colTable)){
       cols <- rep(na.color,max(factorValues))
       cols[factorValues] <- colTable
     }
+    if(length(whichZeroLegend)) {
+      cols[whichZeroLegend] <- zero.color
+    }
     cols <- c(na.color, cols) # make first index of colors be transparent
 
-    if ((minz > 1) | (minz < 0)) {
-      z <- matrix(
-        cols[z - minz + 1], nrow = NROW(grobToPlot),
-        ncol = ncol(grobToPlot), byrow = TRUE
-      )
-    } else {
-      z <- matrix(
-        cols[z], nrow = NROW(grobToPlot),
-        ncol = ncol(grobToPlot), byrow = TRUE
-      )
-    }
+    # Convert numeric z to a matrix of hex colors
+    z <- matrix(
+      cols[z], nrow = NROW(grobToPlot),
+      ncol = ncol(grobToPlot), byrow = TRUE
+    )
+
     list(
-      z = z, minz = minz, maxz = maxz, cols = cols, real = real
+      z = z, minz = minzOrig, maxz = maxzOrig,
+      cols = cols, real = real
     )
   }
 )

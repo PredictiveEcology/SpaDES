@@ -82,10 +82,15 @@ setMethod(
     out[[21]] <- capture.output(print(completed(object)))
     out[[22]] <- capture.output(cat("\n"))
 
-    ### scheduled events
-    out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
-    out[[24]] <- capture.output(print(events(object)))
+    ### current event
+    out[[23]] <- capture.output(cat(">> Current Event:\n"))
+    out[[24]] <- capture.output(print(current(object)))
     out[[25]] <- capture.output(cat("\n"))
+
+    ### scheduled events
+    out[[26]] <- capture.output(cat(">> Scheduled Events:\n"))
+    out[[27]] <- capture.output(print(events(object)))
+    out[[28]] <- capture.output(cat("\n"))
 
     ### print result
     cat(unlist(out), fill = FALSE, sep = "\n")
@@ -854,7 +859,6 @@ setMethod(
 #' @details \code{inputs} accepts a data.frame, with 6 columns.
 #' Currently, only one is required.
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-#'
 #' Columns are \code{objectName} (required, character),
 #' \code{file} (character),
 #' \code{fun} (character),
@@ -886,7 +890,32 @@ setMethod(
 #' @name inputs
 #' @aliases simList-accessors-inout
 #' @rdname simList-accessors-inout
+#' @examples
+#' sim <- simInit()
 #'
+#' # inputs
+#'
+#' test <- 1:10
+#' tmpFile <- file.path(tempdir(), "test.rds")
+#' saveRDS(test, file=tmpFile)
+#' inputs(sim) <- data.frame(file = tmpFile)
+#' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
+#' sim <- spades(sim)
+#' inputs(sim) # confirm it was loaded
+#'
+#' # can put data.frame for inputs directly inside simInit call
+#' sim <- simInit(
+#'    inputs = data.frame(
+#'      files = dir(file.path(tmpFile), full.names = TRUE, pattern = "tif")[1:2],
+#'      functions = "raster",
+#'      package = "raster",
+#'      loadTime = 3,
+#'      stringsAsFactors = FALSE)
+#'    )
+
+#' sim$test
+#' # Clean up after
+#' file.remove(tmpFile)
 setGeneric("inputs", function(object) {
   standardGeneric("inputs")
 })
@@ -941,28 +970,30 @@ setReplaceMethod(
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
-   object@inputs[is.na(object@inputs$file), "file"] <- NA
-   #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
+   if(NROW(value)>0) {
+     object@inputs[is.na(object@inputs$file), "file"] <- NA
+     #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
 
-   # If a filename is provided, determine if it is absolute path, if so,
-   # use that, if not, then append it to inputPath(object)
-   object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
-     file.path(inputPath(object),
-               object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
+     # If a filename is provided, determine if it is absolute path, if so,
+     # use that, if not, then append it to inputPath(object)
+     object@inputs[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file), "file"] <-
+       file.path(inputPath(object),
+                 object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
-   if (any(is.na(object@inputs[, "loaded"]))) {
-     if (!all(is.na(object@inputs[, "loadTime"]))) {
-       newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-         min(., na.rm = TRUE)
-       attributes(newTime)$unit <- timeunit(object)
-       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
-     } else {
-       object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
-         time(object, "seconds")
-       newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-         min(., na.rm = TRUE)
-       attributes(newTime)$unit <- "seconds"
-       object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+     if (any(is.na(object@inputs[, "loaded"]))) {
+       if (!all(is.na(object@inputs[, "loadTime"]))) {
+         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
+           min(., na.rm = TRUE)
+         attributes(newTime)$unit <- timeunit(object)
+         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+       } else {
+         object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
+           time(object, "seconds")
+         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
+           min(., na.rm = TRUE)
+         attributes(newTime)$unit <- "seconds"
+         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+       }
      }
    }
 
@@ -972,14 +1003,22 @@ setReplaceMethod(
 
 ################################################################################
 #' @details \code{outputs} accepts a data.frame, with 5 columns.
-#' Currently, only one is required.
-#' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-#'
-#' Columns are: \code{objectName} (character, required),
+#' Currently, only \code{objectName} is required. #' Columns are:
+#' \code{objectName} (character, required),
 #' \code{file} (character),
 #' \code{fun} (character),
 #' \code{package} (character),
 #' and \code{saveTime} (numeric).
+#' Defaults:
+#' \code{file} is derived from \code{objectName}, but appending the model timeunit and
+#' \code{saveTime} to the file name (separated by underscore, "_"); \code{fun} is
+#' \code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
+#' \code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
+#' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
+#'
+#' @note The automatic file type handling only adds the correct extension from a given
+#' \code{fun} and \code{package}. It does not do the inverse, from a given extension find the
+#' correct \code{fun} and \code{package}.
 #'
 #' @inheritParams inputs
 #' @include simList-class.R
@@ -993,6 +1032,76 @@ setReplaceMethod(
 #' @docType methods
 #' @name outputs
 #' @rdname simList-accessors-inout
+#' @examples
+#' # outputs
+#' startFiles <- dir(tempdir(), full.names=TRUE)
+#' tmpFile <- file.path(tempdir(), "temp.rds")
+#' tempObj <- 1:10
+#'
+#' # Can add data.frame of outputs directly into simInit call
+#' sim <- simInit(objects=c("tempObj"),
+#'   outputs=data.frame(objectName="tempObj"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) # To see what will be saved, when, what filename
+#' sim <- spades(sim)
+#' outputs(sim) # To see that it was saved, when, what filename
+#'
+#' # Also can add using assignment after a simList object has been made
+#' sim <- simInit(objects=c("tempObj"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) <- data.frame(objectName = "tempObj", saveTime=1:10)
+#' sim <- spades(sim)
+#' outputs(sim) # To see that it was saved, when, what filename.
+#'
+#' # can do highly variable saving
+#' tempObj2 <- paste("val",1:10)
+#' df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
+#' sim <- simInit(objects=c("tempObj", "tempObj2", "df1"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) = data.frame(
+#'      objectName = c(rep("tempObj",2), rep("tempObj2", 3), "df1"),
+#'      saveTime = c(c(1,4), c(2,6,7), end(sim)),
+#'      fun = c(rep("saveRDS", 5), "write.csv"),
+#'      package = c(rep("base", 5), "utils"),
+#'      stringsAsFactors = FALSE)
+#' # since write.csv has a default of adding a column, x, with rownames, must add additional
+#' #   argument for 6th row in data.frame (corresponding to the write.csv function)
+#' outputArgs(sim)[[6]] <- list(row.names=FALSE)
+#' sim <- spades(sim)
+#' outputs(sim)
+#'
+#' # read one back in just to test it all worked as planned
+#' newObj <- read.csv(dir(tempdir(), pattern=".csv", full.name=TRUE))
+#' newObj
+#'
+#' # using saving with SpaDES-aware methods
+#' # To see current ones SpaDES can do
+#' .saveFileExtensions()
+#'
+#' library(raster)
+#' ras <- raster(ncol=4, nrow=5)
+#' ras[] <- 1:20
+#'
+#' sim <- simInit(objects=c("ras"),
+#'   paths=list(outputPath=tempdir()))
+#' outputs(sim) = data.frame(
+#'      file="test",
+#'      fun = "writeRaster",
+#'      package = "raster",
+#'      objectName = "ras",
+#'      stringsAsFactors = FALSE)
+#'
+#' outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
+#' simOut <- spades(sim)
+#' outputs(simOut)
+#' newRas <- raster(dir(tempdir(), full.name=TRUE, pattern=".tif"))
+#' all.equal(newRas, ras) # Should be TRUE
+#'
+#' # since write.csv has a default of adding a column, x, with rownames, must add additional
+#' #   argument for 6th row in data.frame (corresponding to the write.csv function)
+#' # Clean up after
+#' endFiles <- dir(tempdir(), full.names=TRUE)
+#' file.remove(endFiles[!(endFiles %in% startFiles)])
 setGeneric("outputs", function(object) {
   standardGeneric("outputs")
 })
@@ -1080,12 +1189,13 @@ setReplaceMethod(
        object@outputs[,"saveTime"],
        ceiling(log10(end(object, timeunit(object))+1))
      )
+     # Add time unit and saveTime to filename, without stripping extension
      wh <- !stri_detect_fixed(str = object@outputs$file,pattern = txtTimeA)
      object@outputs[wh, "file"] <- paste0(
        file_path_sans_ext(object@outputs[wh, "file"]),
        "_", txtTimeA, txtTimeB[wh],
        ifelse(nchar(file_ext(object@outputs[wh, "file"]))>0,".",""),
-       ifelse(!is.null(file_ext(object@outputs[wh, "file"])),
+       ifelse(nchar(file_ext(object@outputs[wh, "file"]))>0,
               file_ext(object@outputs[wh, "file"]),
               "")
      )
@@ -1880,12 +1990,16 @@ setMethod(
   "timeunits",
   signature = ".simList",
   definition = function(x) {
-    timestepUnits <- lapply(depends(x)@dependencies, function(y) {
-      y@timeunit
-    })
-    names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
-      y@name
-    })
+    if(all(sapply(depends(x)@dependencies, is.null))) {
+      timestepUnits <- NULL
+    } else {
+      timestepUnits <- lapply(depends(x)@dependencies, function(y) {
+        y@timeunit
+      })
+      names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
+        y@name
+      })
+    }
     return(timestepUnits)
 })
 
@@ -1930,7 +2044,6 @@ setMethod(
 #' @export
 #' @include simList-class.R
 #' @importFrom data.table ':=' data.table
-#' @importFrom dplyr mutate_
 #' @importFrom lazyeval interp
 #' @importFrom stats setNames
 #' @docType methods
@@ -1949,8 +2062,9 @@ setMethod(
   definition = function(object, unit) {
     if (!is.null(object@events$eventTime)) {
       res <- object@events %>%
-        # dplyr::mutate(eventTime=convertTimeunit(eventTime, unit, envir(object))) # NSE doesn't work reliably
-        dplyr::mutate_(.dots = setNames(list(interp(~convertTimeunit(eventTime, unit, envir(object)))), "eventTime")) %>%
+        dplyr::mutate_(.dots = setNames(list(
+          interp(~convertTimeunit(eventTime, unit, envir(object)))
+        ), "eventTime")) %>%
         data.table() # dplyr removes something that makes this not print when
                      # events(sim) is invoked. This line brings it back.
     } else {
@@ -1986,7 +2100,7 @@ setReplaceMethod(
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
      } else {
-       value[, eventTime:=convertTimeunit(eventTime, "second", envir(object))]
+       value[, eventTime := convertTimeunit(eventTime, "second", envir(object))]
      }
      object@events <- value
      validObject(object)
@@ -1996,6 +2110,70 @@ setReplaceMethod(
 ################################################################################
 #' @inheritParams events
 #' @include simList-class.R
+#' @importFrom data.table ':=' data.table
+#' @importFrom lazyeval interp
+#' @importFrom stats setNames
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-events
+#'
+setGeneric("current", function(object, unit) {
+  standardGeneric("current")
+})
+
+#' @rdname simList-accessors-events
+#' @export
+setMethod(
+  "current",
+  signature = c(".simList", "character"),
+  definition = function(object, unit) {
+    out <- if (!is.null(object@current$eventTime)) {
+      object@current %>%
+        dplyr::mutate_(.dots = setNames(list(
+          interp(~convertTimeunit(eventTime, unit, envir(object)))
+        ), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # current(sim) is invoked. This line brings it back.
+    } else {
+      object@current
+    }
+    return(out)
+})
+
+#' @export
+#' @rdname simList-accessors-events
+setMethod("current",
+          signature = c(".simList", "missing"),
+          definition = function(object, unit) {
+            out <- current(object, timeunit(object))
+            return(out)
+})
+
+#' @export
+#' @rdname simList-accessors-events
+setGeneric("current<-",
+           function(object, value) {
+             standardGeneric("current<-")
+})
+
+#' @name current<-
+#' @aliases current<-,.simList-method
+#' @export
+#' @rdname simList-accessors-events
+setReplaceMethod("current",
+                 signature = ".simList",
+                 function(object, value) {
+                   object@current <- value
+                   validObject(object)
+                   return(object)
+})
+
+################################################################################
+#' @inheritParams events
+#' @include simList-class.R
+#' @importFrom data.table ':=' data.table
+#' @importFrom lazyeval interp
+#' @importFrom stats setNames
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-events
@@ -2012,7 +2190,11 @@ setMethod(
   definition = function(object, unit) {
     out <- if (!is.null(object@completed$eventTime)) {
       object@completed %>%
-        dplyr::mutate(eventTime = convertTimeunit(eventTime, unit, envir(object)))
+        dplyr::mutate_(.dots = setNames(list(
+          interp(~convertTimeunit(eventTime, unit, envir(object)))
+        ), "eventTime")) %>%
+        data.table() # dplyr removes something that makes this not print when
+                     # completed(sim) is invoked. This line brings it back.
     } else {
       object@completed
     }
@@ -2123,49 +2305,6 @@ setMethod(
 })
 
 ################################################################################
-#' Default (empty) metadata
-#'
-#' Internal use only.
-#' Default values to use for metadata elements when not otherwise supplied.
-#'
-#' @param x  Not used. Should be missing.
-#'
-#' @importFrom raster extent
-#' @include simList-class.R
-#' @docType methods
-#' @rdname emptyMetadata
-#' @author Alex Chubaty
-#'
-setGeneric(".emptyMetadata", function(x) {
-  standardGeneric(".emptyMetadata")
-})
-
-#' @rdname emptyMetadata
-setMethod(
-  ".emptyMetadata",
-  signature(x = "missing"),
-  definition = function() {
-  out <- list(
-    name = character(0),
-    description = character(0),
-    keywords = character(0),
-    childModules = character(0),
-    authors = person("unknown"),
-    version = numeric_version(NULL),
-    spatialExtent = raster::extent(rep(NA_real_, 4)),
-    timeframe = as.POSIXlt(c(NA, NA)),
-    timeunit = NA_character_,
-    citation = list(),
-    documentation = list(),
-    reqdPkgs = list(),
-    parameters = defineParameter(),
-    inputObjects = .inputObjects(),
-    outputObjects = .outputObjects()
-  )
-  return(out)
-})
-
-################################################################################
 #' Define a new module.
 #'
 #' Specify a new module's metadata as well as object and package dependecies.
@@ -2219,10 +2358,8 @@ setMethod(
   "defineModule",
   signature(sim = ".simList", x = "list"),
   definition = function(sim, x) {
-
     # check that all metadata elements are present
     metadataRequired <- slotNames(new(".moduleDeps"))
-
     metadataProvided <- metadataRequired %in% names(x)
     metadataMissing <- metadataRequired[!metadataProvided]
     if (!all(metadataProvided)) {
@@ -2289,7 +2426,6 @@ setMethod(
         as.list(x[[z]])
       }
     })
-
     if ( is.null(x$parameters) ) {
       x$parameters <- defineParameter()
     } else {
@@ -2408,7 +2544,8 @@ setMethod("defineParameter",
           signature(name = "character", class = "character", default = "ANY",
                     min = "ANY", max = "ANY", desc = "character"),
           definition = function(name, class, default, min, max, desc) {
-            # coerce `min` and `max` to same type as `default`
+            # coerce `default`, `min`, and `max` to same specified type
+            default <- as(default, class)
             min <- as(min, class)
             max <- as(max, class)
 
@@ -2417,7 +2554,7 @@ setMethod("defineParameter",
             df <- data.frame(
               paramName = name, paramClass = class, default = I(list(default)),
               min = I(list(min)), max = I(list(max)), paramDesc = desc,
-              stringsAsFactors=FALSE)
+              stringsAsFactors = FALSE)
             return(df)
 })
 

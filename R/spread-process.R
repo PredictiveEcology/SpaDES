@@ -122,7 +122,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'
 #' @param mapID    Logical. If TRUE, returns a raster of events ids.
 #'                 If FALSE, returns a raster of iteration numbers,
-#'                 i.e., the spread history of one or more events.
+#'                 i.e., the spread history of one or more events. NOTE:
+#'                 this is overridden if \code{returnIndices} is \code{TRUE}.
 #'
 #' @rdname spread
 #'
@@ -248,7 +249,7 @@ setMethod(
     }
 
     n <- 1L
-    if (mapID) {
+    if (mapID | returnIndices) {
       spreads[loci] <- 1L:length(loci)
     } else {
       spreads[loci] <- n
@@ -314,7 +315,7 @@ setMethod(
     while (length(loci) & (n <= iterations) ) {
 
       # identify neighbours
-      if (mapID) {
+      if (mapID | returnIndices) {
         potentials <- adj(landscape, loci, directions, pairs = TRUE)
       } else {
         # must pad the first column of potentials
@@ -383,7 +384,7 @@ setMethod(
       n <- n + 1L
 
       if (length(events) > 0){
-        if (mapID) {
+        if (mapID | returnIndices) {
           spreads[events] <- spreads[potentials[, 1L]]
         } else {
           spreads[events] <- n

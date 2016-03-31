@@ -26,19 +26,6 @@ doEvent.save = function(sim, eventTime, eventType, debug = FALSE) {
     message(paste0("Files saved. Use outputs(your simList) for details"))
   }
 
-#     # make paths if they don't exist
-#     lapply(pathsToCheck, function(x) {
-#       if (is.null(outputPath(sim))){
-#         outputPath <- x
-#       } else {
-#         outputPath <- file.path(outputPath(sim), x)
-#       }
-#       outputPath <- checkPath(outputPath, create = TRUE)
-#     })
-
-    # no scheduling of new event. Saving will be called by other events,
-    #   in an event-specific manner.
-
   return(invisible(sim))
 }
 
@@ -101,13 +88,11 @@ saveFiles = function(sim) {
   curTime <- time(sim, timeunit(sim))
 
   # extract the current module name that called this function
-  moduleName <- events(sim)[1L,moduleName]
+  moduleName <- current(sim)[1L, moduleName]
 
-  if(moduleName != "save") { # i.e., .a module driven save event
-
+  if (moduleName != "save") { # i.e., .a module driven save event
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
-      data.frame(objectName = ., saveTime = curTime,
-                 file = ., stringsAsFactors = FALSE)
+      data.frame(objectName = ., saveTime = curTime, file = ., stringsAsFactors = FALSE)
     outputs(sim) <- bind_rows(list(outputs(sim), toSave))
 
     # don't need to save exactly same thing more than once
@@ -127,7 +112,8 @@ saveFiles = function(sim) {
         args <- args[!sapply(args, is.null)]
 
         # The actual save line
-        do.call(outputs(sim)[i,"fun"], args = args)
+        do.call(outputs(sim)[i,"fun"], args = args,
+                envir=getNamespace(outputs(sim)[i,"package"]))
 
         outputs(sim)[i,"saved"] <- TRUE
       } else {
@@ -160,7 +146,7 @@ saveFiles = function(sim) {
     "rds", "saveRDS", "base" ,
     "txt", "write.table", "utils" ,
     "csv", "write.csv", "utils" ,
-    "", "writeRaster", "raster"
+    "grd", "writeRaster", "raster"
   )))
   setnames(.sFE, new = c("exts", "fun", "package"), old = paste0("V", 1:3))
   setkey(.sFE, package, fun)

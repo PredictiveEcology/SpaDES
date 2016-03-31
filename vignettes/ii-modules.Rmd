@@ -28,7 +28,7 @@ Upon initialization of a simulation via `simInit`, the dependencies of every mod
 If dependency incompatibilities exists, the initialization fails and the user is notified.
 Also during this initialization, module code is `source`-ed into the simulation environment, making all module objects and functions available during the simulation.
 
-Each `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the simluation environment.
+Each `SpaDES` module describes the processes or activities that drive simulation state changes via changes to objects stored in the simulation environment.
 Each activity consists of a collection of events which are scheduled depending on the rules of the simulation.
 Each event may evaluate or modify a simulation data object (*e.g.*, update the values on a raster map), or perform other operations such as saving and loading data objects, plotting, or scheduling other events.
 
@@ -389,7 +389,7 @@ Use [semantic versioning](http://semver.org), such that a version number `x.y.z`
 
 # Passing data between modules
 
-Modularity in `SpaDES` simulations is maintained by ensuring modules interact indirectly with one another by reading in and modifying objects in the simluation environment.
+Modularity in `SpaDES` simulations is maintained by ensuring modules interact indirectly with one another by reading in and modifying objects in the simulation environment.
 
 ## Data types
 
@@ -397,7 +397,7 @@ As you build your modules for your simulation, you can use any of `R`'s data typ
 In particular, matrices (including vectors) and lists work well for this purpose because, as of `R` version `3.1.0`, they are more efficient, reducing your model's memory footprint and speeding up your code's execution.
 Other useful datatypes include `Raster*` and `SpatialPoints*` objects (see examples below).
 
-## Global objects and the simluation environment
+## Global objects and the simulation environment
 
 `R` passes copies of objects to functions (instead of using pass-by-reference), so the typical `R` function never acts directly on the global copy of the variable.
 Within a function, all operations are generally performed on a local copy of the object, which is then either discarded or returned back to the parent environment upon when the function completes.
@@ -505,11 +505,11 @@ Schedule updates to the simulation progress bar.
 
 ```{r progress, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the progress parameters
-mySim <- simInit(times=list(start=0.0, end=100.0),
-                 params=list(.globals=list(stackName="landscape"),
-                             .progress=list(type="text", interval=10)),
-                 modules=list("randomLandscapes"),
-                 paths=list(modulePath=system.file("sampleModules", package="SpaDES")))
+mySim <- simInit(times = list(start = 0.0, end = 100.0),
+                 params = list(.globals = list(stackName = "landscape"),
+                               .progress = list(type = "text", interval = 10)),
+                 modules = list("randomLandscapes"),
+                 paths = list(modulePath = system.file("sampleModules", package = "SpaDES")))
 
 # retrieve the checkpoint params from the simulation object
 progressType(mySim)
@@ -569,13 +569,12 @@ Additional columns can also be provided:
 **`file`**      | Character string indicating the base name to use to name the saved file.
 **`fun`**       | Character string indicating the function to be used to save the file.
 **`package`**   | Character string indicating the package to find the previous `fun` in.
-**`saveTime`**  | Numeric indicating when the file should be saved. Defaults to `end(simList)`, but this can be any time. For multiple saves of the same object, use unique lines, e.g., via `data.table(expand.grid(objectName=c("caribou", "veg"), saveTime=1:10))`
+**`saveTime`**  | Numeric indicating when the file should be saved. Defaults to `end(simList)`, but this can be any time. For multiple saves of the same object, use unique lines, e.g., via `data.table(expand.grid(objectName = c("caribou", "veg"), saveTime = 1:10))`
 
-SpaDES will add a 6th column, `saved`, a logical, which will become TRUE when (immediately following) the successful save occurs.  
+SpaDES will add a sixth column, `saved`, a logical, which will become `TRUE` when (immediately following) the successful save occurs.  
 Therefore, a call to `outputs(mySim)` will indicate which objects have been saved.
 
-There is partial string matching of these names, so 
-If the `fun` requires arguments to be passed to it, use `outputArgs()`, and it must be the same length as the `outputs()` `data.frame`.
+There is partial string matching of these names, so if the `fun` requires arguments to be passed to it, use `outputArgs()`, and it must be the same length as the `outputs()` `data.frame`.
 
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
@@ -587,12 +586,13 @@ mySim <- simInit(times = list(start = 0.0, end = 10),
                  params = list(
                    .globals = list(stackName = "landscape"),
                    randomLandscapes = list(
-                     .saveInitialTime = 0, .saveInterval = 10, .saveObjects = c("landscape"),
+                     .saveInitialTime = 0, .saveInterval = 10,
+                     .saveObjects = c("landscape"),
                      .savePath = file.path(outputDir, "randomLandscapes"))
                    ),
                  modules = list("randomLandscapes"),
                  paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                            outputPath = outputDir),
+                              outputPath = outputDir),
                  #inputs = data.table(file = filelist),
                  outputs = data.table(objectName = "landscape")
 )

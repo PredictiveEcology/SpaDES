@@ -1,5 +1,24 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.1.1.9xxx
+==================
+* fix issues associated with upcoming `dplyr` updates
+* Plot accepts color column in SpatialPointDataFrame objects
+* add `col` arg to `Plot` (mimicks `cols`)
+* add shine function, with simList signature
+* add `RColorBrewer` to Imports
+* allow Plot colours to be set in the `Plot` call using `cols` argument
+* allow Plot colours to be set in the `Plot` call using `RColorBrewer` palettes
+* fix bug when plotting certain real-numbered rasters
+* fix bug in Plot legends
+* fix bug in assigning vectors as default module param values
+* fix bug that prevented printing simulation times
+* fix bug in event list sorting by `eventPriority`
+* new slot in `simList` object: `current`, to store the current event
+* new accessors `current` and `current<-` to get and set the current event
+* `defineParameter` now coerces the `default` value to match the type `class`
+* export `objectNames()` for external use
+
 version 1.1.1
 =============
 * require `archivist` version 2.0 or greater

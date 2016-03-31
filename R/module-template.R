@@ -266,8 +266,8 @@ doEvent.", name, " = function(sim, eventTime, eventType, debug = FALSE) {
 
     # ! ----- STOP EDITING ----- ! #
   } else {
-    warning(paste(\"Undefined event type: \'\", events(sim)[1, \"eventType\", with = FALSE],
-                  \"\' in module \'\", events(sim)[1, \"moduleName\", with = FALSE], \"\'\", sep = \"\"))
+    warning(paste(\"Undefined event type: \'\", current(sim)[1, \"eventType\", with = FALSE],
+                  \"\' in module \'\", current(sim)[1, \"moduleName\", with = FALSE], \"\'\", sep = \"\"))
   }
   return(invisible(sim))
 }
@@ -676,7 +676,7 @@ setMethod("openModules",
             basedir <- checkPath(path, create = FALSE)
             origDir <- getwd()
             setwd(basedir)
-            if (any(names == "all")) {
+            if (any(name == "all")) {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
             } else {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)

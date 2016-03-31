@@ -60,11 +60,6 @@ r_binary_packages:
   - xts
   - zoo
 
-r_github_packages:
-  - s-u/fastshp
-  - jimhester/covr
-  - MangoTheCat/visualTest
-
 after_success:
   - ./_push_vignettes.sh
   - Rscript -e 'library(covr); coveralls(coverage = print(package_coverage(quiet = FALSE))); devtools::session_info()'
