@@ -187,7 +187,7 @@ setMethod(
             pth2 <- data.frame(from = rownames(M)[pth2],
                                to = rownames(M)[lead(match(names(pth2), rownames(M)),1)],
                                stringsAsFactors = FALSE) %>%
-                    na.omit %>% as.data.table
+                    na.omit %>% as.data.table()
 
             pth <- rbindlist(list(pth, rbindlist(list(pth1, pth2))))
           }

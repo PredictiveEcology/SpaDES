@@ -11,6 +11,10 @@ version 1.1.1.9xxx
 * fix bug when plotting certain real-numbered rasters
 * fix bug in Plot legends
 * fix bug in assigning vectors as default module param values
+* fix bug that prevented printing simulation times
+* fix bug in event list sorting by `eventPriority`
+* new slot in `simList` object: `current`, to store the current event
+* new accessors `current` and `current<-` to get and set the current event
 * `defineParameter` now coerces the `default` value to match the type `class`
 * export `objectNames()` for external use
 

@@ -31,6 +31,9 @@ parameters.}
 \item{\code{events}}{The list of scheduled events (i.e., event queue), as a
 \code{data.table}. See 'Event Lists' for more information.}
 
+\item{\code{current}}{The current event, as a \code{data.table}.
+See 'Event Lists' for more information..}
+
 \item{\code{completed}}{The list of completed events, as a \code{data.table}.
 See 'Event Lists' for more information.}
 
@@ -90,7 +93,7 @@ categorized into separate help pages:
 \section{Event Lists}{
 
 
-Event lists are sorted (keyed) by time.
+Event lists are sorted (keyed) first by time, second by priority.
 Each event is represented by a \code{\link{data.table}} row consisting of:
 \tabular{ll}{
   \code{eventTime} \tab The time the event is to occur.\cr
