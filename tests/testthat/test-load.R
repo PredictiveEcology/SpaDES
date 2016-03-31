@@ -89,7 +89,7 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   paths <- list(
     modulePath = system.file("sampleModules", package = "SpaDES"),
     inputPath = mapPath,
-    outputPath = tempdir()
+    outputPath = file.path(tempdir(), "test-load")
   )
   inputs <- data.frame(
     files = files,
@@ -102,28 +102,28 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   )
   times <- list(start = 0, end = 1, timeunit = "seconds")
 
-  sim2 <- simInit(times = times, params = parameters, modules = modules,
-                  paths = paths, inputs = inputs)
+  sim <- simInit(times = times, params = parameters, modules = modules,
+                 paths = paths, inputs = inputs)
   expect_true(c("DEM") %in% ls(sim2))
   expect_true(!any(c("forestCover", "forestAge", "habitatQuality") %in% ls(sim2)))
 
-  sim2 <- spades(sim2)
+  sim2 <- spades(sim)
   expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim2)))
   expect_true(!any(c("habitatQuality") %in% ls(sim2)))
 
   rm(forestAge, envir = envir(sim2))
   expect_true(!("forestAge" %in% ls(sim2)))
 
-  end(sim2) <- 2
-  sim2 <- spades(sim2)
+  end(sim) <- 2
+  sim2 <- spades(sim)
   expect_true(all(c("forestAge") %in% names(sim2$landscape)))
 
-  end(sim2) <- 3
-  expect_message(spades(sim2), "habitatQuality read from")
-  expect_message(spades(sim2), "forestCover")
-  expect_message(spades(sim2), "forestAge")
-  expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim2)))
-  rm(sim2)
+  end(sim) <- 3
+  expect_message(spades(sim), "habitatQuality read from")
+  expect_message(spades(sim), "forestCover")
+  expect_message(spades(sim), "forestAge")
+  expect_true(all(c("DEM", "forestAge", "forestCover") %in% ls(sim)))
+  rm(sim, sim2)
 })
 
 test_that("test-load.R: passing objects to simInit does not work correctly", {
