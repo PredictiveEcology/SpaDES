@@ -799,7 +799,7 @@ setMethod(
 #' submodules to the simulation. We use S4 classes and methods, and use `data.table`
 #' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
-#' @param sim Character string for the \code{simList} simulation object.
+#' @param sim A \code{simList} simulation object, generally produced by \code{simInit}.
 #'
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).

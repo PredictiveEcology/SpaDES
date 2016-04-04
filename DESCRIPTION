@@ -67,8 +67,7 @@ Imports:
     sp,
     stringi,
     stringr
-Remotes:
-    s-u/fastshp,
+Remotes: s-u/fastshp,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr
@@ -97,6 +96,7 @@ Collate:
     'movement.R'
     'neighbourhood.R'
     'numerical-comparisons.R'
+    'parallel.R'
     'plotting-classes.R'
     'plotting-colours.R'
     'times.R'
