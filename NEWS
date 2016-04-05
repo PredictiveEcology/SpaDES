@@ -18,7 +18,7 @@ version 1.1.1.9xxx
 * new accessors `current` and `current<-` to get and set the current event
 * `defineParameter` now coerces the `default` value to match the type `class`
 * export `objectNames()` for external use
-* outputPath updates output(sim)$file file paths, in addition to just paths(sim)$outputPath
+* `outputPath` updates `output(sim)$file` file paths, in addition to just `paths(sim)$outputPath`
 
 version 1.1.1
 =============
