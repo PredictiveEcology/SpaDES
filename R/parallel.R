@@ -10,15 +10,24 @@
 #' varying parameters and varying modules, then it may not make sense to be fully factorial as some
 #' parameters that are varying may not be defined in all module sets. The function will fully
 #' factorial where it makes sense to do this, and a complete set otherwise. The function
-#' requires a \code{simList} object, plus optional params and/or modules and/or replications. Future
-#' updates will allow varying objects or inputs.
+#' requires a \code{simList} object, plus optional inputs and/or params and/or modules and/or
+#' replications. Future updates will allow varying objects.
 #'
 #' @inheritParams spades
 #'
 #' @inheritParams simInit
 #' @param replicates The number of replicates to run of the same \code{simList}
 #'
-#' @param substrLength For outputPath, how many characters should be kept from each factor level. See Details.
+#' @param substrLength Numeric. While making \code{outputPath}, this is the number of characters
+#' kept from each factor level. See Details.
+#'
+#' @param dirPrefix String vector. This will be concatenated as a prefix on the directory names.
+#' See Details.
+#'
+#' @param experimentFile String. Filename of the experiment data.frame to be saved in
+#' \code{outputPath(sim)}. Saved as a csv. See Details.
+#'
+#' @param ... Passed to \code{spades}. This would only be useful for \code{debug=TRUE}.
 #'
 #' @details
 #' This function requires a complete simList. All values passed into this function will
@@ -27,22 +36,51 @@
 #' There are a few behaviours that are assumed, notably with output directories. If there
 #' are only replications, then a set of subdirectories will be created, one for each replicate.
 #' If there are varying parameters and or modules, \code{outputPath} is updated to include
-#' a subdirectory for each level of the experiment. Specifically, the module(s) and parameter
-#' names and the parameter values are all part of the
-#' subdirectory names.
+#' a subdirectory for each level of the experiment. These are not nested, i.e., even if there
+#' are nexted factors, all subdirectories will be at the same level.
+#' The subdirectory names will include the module(s), parameter names, the parameter values,
+#' and input index number (i.e., which row of the inputs data.frame).
 #' The default rule for naming is a concatenation of:
+#'
 #' 1. The experiment level (arbitrarily starting at 1).
+#'
 #' 2. The module, parameter name and parameter value, for each parameter that is varying.
+#'
 #' 3. The module set.
+#'
+#' 4. The input index number
+#'
+#' 5. Individual identifiers are separated by a dash.
+#'
+#' 6. Module - Parameter - Parameter value triplets are separated by underscore.
+#'
 #' This subdirectory name could be long
 #' if there are many dimensions to the experiment. The parameter \code{substrLength} determines
-#' the level of truncation of the parameter and module names for these subdirectories. For example,
-#' The  resulting directory name for a parameter value of 0.225 for the pspread parameter in the
-#' fireSpread module and the N parameter in the caribouMovement module would be:
+#' the level of truncation of the parameter, module and input names for these subdirectories. For example,
+#' The  resulting directory name for a parameter value of 0.225 for the \code{spreadprob} parameter in the
+#' \code{fireSpread} module and the \code{N} parameter in the \code{caribouMovement} module would be:
 #' \code{1_fir_spr_0.225-car_N_10} if \code{substrLength} is 3, the default.
 #'
+#' Replication is treated slightly differently. \code{outputPath} is always 1 level below the
+#' experiment level for a replicate.
+#' If the call to \code{experiment} is not a factoria experiment (i.e., it is just replication), then the
+#' default is to put the replicate subdirectories at the top level of \code{outputPath}. To force
+#' this one level down, \code{dirPrefix} can be used or a manual change to \code{outputPath} before
+#' the call to experiment.
+#'
+#' \code{dirPrefix} can be used to give custom names to directories for outputs. There is a special
+#' value, \code{"simNum"}, that is used as default, which is an arbitrary number associated with the
+#' experiment. This corresponds to the row number in the \code{attr(sims, "experiment")}.
+#' This \code{"simNum"} can be used with other strings, such as \code{dirPrefix=c("expt","simNum")}.
+#'
+#' The experiment structure is kept in two places: the return object has an attribute, and a file
+#' named "experiment.rds" (see argument \code{experimentFile}) located in \code{outputPath(sim)}.
+#'
+#' \code{substrLength}, if \code{0}, this will eliminate the subfolder naming convention and use
+#' only \code{dirPrefix}.
+#'
 #' @return Invisibly returns a list of the resulting \code{simList} objects from the fully
-#' factorial experiment.
+#' factorial experiment. This list has an attribute, which is the experiment data.frame.
 #' Since this may be large, the user is not obliged to return this object (as it is returned invisibly).
 #' Clearly, there may be objects saved during simulations. This would be determined as per a
 #' normal \code{\link{spades}} call, using \code{outputs}.
@@ -53,7 +91,7 @@
 #' @importFrom snow clusterApplyLB
 #' @export
 #' @docType methods
-#' @rdname spades
+#' @rdname experiment
 #'
 #' @author Eliot McIntire
 #'
@@ -61,10 +99,11 @@
 #' \dontrun{
 #'
 #'  library(raster)
-#'  beginCluster(4)
+#'  beginCluster(8)
+#'  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 #'
 #' # Example of changing parameter values
-#'  mySim <- simInit(
+#'  mySimFull <- simInit(
 #'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'    params = list(
 #'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
@@ -87,10 +126,15 @@
 #'                                              nFires = c(20, 10)),
 #'                        caribouMovement = list(N = c(100, 1000)))
 #'
-#'  sims <- experiment(mySim, params=experimentParams)
+#'  sims <- experiment(mySimFull, params=experimentParams)
+#'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+#'
+#'  # see experiment:
+#'  attr(sims, "experiment")
 #'
 #'  # Read in outputs from sims object
-#'  FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")), function(x) sims[[x]]$landscape$Fires))
+#'  FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")),
+#'                     function(x) sims[[x]]$landscape$Fires))
 #'  Plot(FireMaps, new=TRUE)
 #'
 #'  # Or reload objects from files, useful if sim objects too large to store in RAM
@@ -104,6 +148,9 @@
 #'       caribouMaps[[5]], caribouMaps[[6]], caribouMaps[[7]], caribouMaps[[8]],
 #'       size=0.1)
 #'
+#' # Remove all temp files
+#' unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
+#'               full.names=TRUE) %in% startFiles)], recursive=TRUE)
 #' #######
 #' # Example of changing modules, i.e., caribou with and without fires
 #'  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
@@ -113,45 +160,49 @@
 #'      c("randomLandscapes", "caribouMovement")
 #'      )
 #'
-#'  sims <- experiment(mySim, modules=experimentModules, params=experimentParams)
+#'  # Note, this isn't fully factorial because all parameters are not defined inside smaller module list
+#'  sims <- experiment(mySimFull, modules=experimentModules, params=experimentParams)
 #'
 #'  # manipulate directory names
-#'  sims <- experiment(mySim, params=experimentParams, dirPrefix=c("expt", "simNum"))
+#'  sims <- experiment(mySimFull, params=experimentParams, dirPrefix=c("expt", "simNum"))
 #'
-#'  # doing replicate runs - THESE TAKE SOME TIME (minutes if not using a cluster)
-#'  sims <- experiment(mySim, replicates = 3)
+#'  # doing replicate runs - THESE MAY TAKE SOME TIME (minutes if not using a cluster)
+#'  sims <- experiment(mySimFull, replicates = 2)
 #'  # putting them in a subdirectory
-#'  sims <- experiment(mySim, replicates = 3, dirPrefix = c("expt"))
+#'  sims <- experiment(mySimFull, replicates = 2, dirPrefix = c("expt"))
 #'
 #'  # Both replication and experiment, both params and modules
 #'  # use a sub directory
-#'  outputPath(mySim) <- file.path(tempdir(), "myExpt3")
-#'  sims <- experiment(mySim, replicates = 5, modules=experimentModules,
-#'                     params=experimentParams, dirPrefix=c("expt", "simNum"))
-#'
-#'
+#'  outputPath(mySimFull) <- file.path(tempdir(), "myExpt3")
+#'  sims <- experiment(mySimFull, replicates = 2, params=experimentParams,
+#'                     dirPrefix=c("expt", "simNum"))
 #'
 #'  # Use replication to build a probability surface.
 #'  # For this to be meaningful, we need to provide a fixed landscape,
 #'  #   not a randomLandscape for each experiment level. So requires 2 steps.
 #'  # Step 1 - run randomLandscapes once to get a landscape map
-#'  mySim <- simInit(
+#'  mySimRL <- simInit(
 #'    times = list(start = 0.0, end = 0.1, timeunit = "year"),
 #'    params = list(
 #'      .globals = list(stackName = "landscape"),
 #'      # Turn off interactive plotting
-#'      fireSpread = list(.plotInitialTime=NA)
+#'      randomLandscapes = list(.plotInitialTime=NA)
 #'    ),
 #'    modules = list("randomLandscapes"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
 #'                 outputPath = file.path(tempdir(), "landscapeMaps1")),
 #'    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
 #'  )
-#'  mySim1 <- spades(mySim)  # Run it
-#'  #extract the landscape, which will be passed into next as an object
-#'  landscape <- mySim1$landscape
+#'  mySimRL1 <- spades(mySimRL)  # Run it once to get a copy of the randomly generated landscape
 #'
-#'  mySim <- simInit(
+#'  # Run it again to get a 2nd copy of the randomly generated landscape (used later in this example)
+#'  outputPath(mySimRL) <- file.path(tempdir(), "landscapeMaps2")
+#'  mySimRL2 <- spades(mySimRL)
+#'
+#'  #extract the landscape, which will be passed into next as an object
+#'  landscape <- mySimRL1$landscape
+#'
+#'  mySimCarFir <- simInit(
 #'    times = list(start = 0.0, end = 1, timeunit = "year"),
 #'    params = list(
 #'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
@@ -167,11 +218,11 @@
 #'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
 #'  )
 #'
-#'  outputPath(mySim) <- file.path(tempdir(), "myExpt6")
-#'  sims <- experiment(mySim, replicates = 50) # Run experiment
+#'  outputPath(mySimCarFir) <- file.path(tempdir(), "myExpt6")
+#'  sims <- experiment(mySimCarFir, replicates = 8) # Run experiment
 #'  attr(sims, "experiment") # shows the experiment, which in this case is just replicates
 #'  # list all files that were saved called 'landscape'
-#'  files1 <- dir(outputPath(mySim), recursive=TRUE, pattern="landscape", full.names=TRUE)
+#'  files1 <- dir(outputPath(mySimCarFir), recursive=TRUE, pattern="landscape", full.names=TRUE)
 #'  # Read them in - alternatively, this could use the sims object directly also, e.g., sims[[1]]$landscape$Fires
 #'  landscapes <- lapply(files1, readRDS)
 #'  fires1 <- do.call(stack, lapply(landscapes, function(x) x$Fires)) # Extract just Fire layer
@@ -179,14 +230,8 @@
 #'  fireProb <- sum(fires1)/nlayers(fires1) # sum them and convert to probability
 #'  Plot(fireProb, new=TRUE)
 #'
-#'  endCluster()
-#'  library(magrittr)
-#'  dir(file.path(tempdir()), pattern="myExpt[.]*", full.names=TRUE) %>%
-#'    unlink(recursive=TRUE)
-#'
 #'  ### Changing inputs
-#'  mapPath <- system.file("maps", package = "SpaDES")
-#'  mySim <- simInit(
+#'  mySimCarFir2 <- simInit(
 #'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'    params = list(
 #'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
@@ -200,23 +245,39 @@
 #'    # Save final state of landscape and caribou
 #'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
 #'  )
-#'  experiment(mySim, params=experimentParams,
-#'    inputs=lapply(dir(tempdir(), pattern="landscape_year0", recursive=TRUE, full.names=TRUE),function(filenames) {
+#'  landscapeFiles <- dir(tempdir(), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+#'  experiment(mySimCarFir2, params=experimentParams, replicates = 2,
+#'    inputs=lapply(landscapeFiles,function(filenames) {
 #'      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
 #'   )
+#'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+#'  print(exptDesign)
+#'
+#'  # Use simple outputPath file names
+#'  experiment(mySimFull, modules=experimentModules, substrLength=0)
+#'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+#'  print(exptDesign)
+#'
+#'  endCluster()
+#'
+#' # Remove all temp files
+#' unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
+#'                     full.names=TRUE) %in% startFiles)], recursive=TRUE)
 #' }
 #'
 setGeneric("experiment", function(sim, replicates = 1, params = list(), modules = list(),
                                   objects = list(), inputs = list(),
-                                  dirPrefix = "simNum", substrLength=3, ...) {
+                                  dirPrefix = "simNum", substrLength=3,
+                                  experimentFile = "experiment.csv", ...) {
   standardGeneric("experiment")
 })
 
-#' @rdname spades
+#' @rdname experiment
 setMethod(
   "experiment",
   signature(sim = "simList"),
-  definition = function(sim, replicates, params, modules, objects, inputs, substrLength, ...) {
+  definition = function(sim, replicates, params, modules, objects, inputs,
+                        dirPrefix, substrLength, experimentFile, ...) {
 
     cl <- tryCatch(getCluster(), error=function(x) NULL)
     on.exit(if(!is.null(cl)) returnCluster())
@@ -243,7 +304,7 @@ setMethod(
 
 #      factorialExpInner2 <- factorialExpInner[inputsDT][,inputs:=NULL]
 
-      modulesShort <- paste(substr(x,1,substrLength),collapse=",")
+      modulesShort <- paste(x,collapse=",")
       if(NROW(factorialExpInner)>0) {
         factorialExpInner[["modules"]] <- modulesShort
       } else {
@@ -269,6 +330,10 @@ setMethod(
       param<- strsplit(names(factorialExp), split="\\.") %>% sapply(function(x) x[2])
       param[is.na(param)] <- ""
       paramValues <- factorialExp[ind,]
+      if("modules" %in% mod) {
+        paramValues$modules <- strsplit(paramValues$modules, split = ",")[[1]] %>%
+          substr(1,substrLength) %>% paste(collapse=",")
+      }
 
       whNotExpLevel <- which(colnames(paramValues)!="expLevel")
       if(length(whNotExpLevel)<length(paramValues)) {
@@ -302,13 +367,15 @@ setMethod(
       }
 
       # Deal with directory structures
-      if(numExpLevels>1) {
+      if(any(dirPrefix=="simNum")) {
+        exptNum <- paddedFloatToChar(factorialExp$expLevel[ind], ceiling(log10(numExpLevels+1)))
+      }
+      if((numExpLevels>1) & (substrLength>0)) {
         dirName <- paste(collapse = "-",substr(mod,1,substrLength),
                          substr(param, 1,substrLength),
                          paramValues, sep="_")
         dirName <- gsub(dirName, pattern="__", replacement = "_")
         if(any(dirPrefix=="simNum")) {
-          exptNum <- paddedFloatToChar(factorialExp$expLevel[ind], ceiling(log10(numExpLevels+1)))
           dirPrefixTmp <- paste0(dirPrefix, collapse="")
           dirPrefix <- gsub(dirPrefixTmp, pattern="simNum", replacement=exptNum)
         }
@@ -317,8 +384,9 @@ setMethod(
         }
       } else {
         if(any(dirPrefix!="")) {
+          simplePrefix <- if(any(dirPrefix=="simNum")) exptNum else ""
           dirPrefixTmp <- paste0(dirPrefix, collapse="")
-          dirName <- gsub(dirPrefixTmp, pattern="simNum", replacement="")
+          dirName <- gsub(dirPrefixTmp, pattern="simNum", replacement=simplePrefix)
         }
       }
 
@@ -353,13 +421,7 @@ setMethod(
 
     sims <- do.call(get(parFun), args)
     attr(sims, "experiment") <- factorialExp
+    write.csv(factorialExp, file = file.path(outputPath(sim), experimentFile), row.names = FALSE)
     return(invisible(sims))
   })
 
-#' @rdname spades
-setMethod("spades",
-          signature(sim = "simList", debug = "missing"),
-          definition = function(sim) {
-            stopifnot(class(sim) == "simList")
-            return(spades(sim, debug = FALSE))
-          })
