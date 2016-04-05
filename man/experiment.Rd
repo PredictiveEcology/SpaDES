@@ -155,7 +155,8 @@ only \code{dirPrefix}.
  attr(sims, "experiment")
 
  # Read in outputs from sims object
- FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")), function(x) sims[[x]]$landscape$Fires))
+ FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")),
+                    function(x) sims[[x]]$landscape$Fires))
  Plot(FireMaps, new=TRUE)
 
  # Or reload objects from files, useful if sim objects too large to store in RAM
@@ -214,14 +215,10 @@ unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
                 outputPath = file.path(tempdir(), "landscapeMaps1")),
    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
  )
- mySimRL1 <- spades(mySimRL)  # Run it once to get a copy of the randomly generated landscape
-
- # Run it again to get a 2nd copy of the randomly generated landscape (used later in this example)
- outputPath(mySimRL) <- file.path(tempdir(), "landscapeMaps2")
- mySimRL2 <- spades(mySimRL)
-
+ # Run it twice to get two copies of the randomly generated landscape
+ mySimRLOut <- experiment(mySimRL, replicate=2)
  #extract the landscape, which will be passed into next as an object
- landscape <- mySimRL1$landscape
+ landscape <- mySimRLOut[[1]]$landscape
 
  mySimCarFir <- simInit(
    times = list(start = 0.0, end = 1, timeunit = "year"),

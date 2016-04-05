@@ -193,14 +193,10 @@
 #'                 outputPath = file.path(tempdir(), "landscapeMaps1")),
 #'    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
 #'  )
-#'  mySimRL1 <- spades(mySimRL)  # Run it once to get a copy of the randomly generated landscape
-#'
-#'  # Run it again to get a 2nd copy of the randomly generated landscape (used later in this example)
-#'  outputPath(mySimRL) <- file.path(tempdir(), "landscapeMaps2")
-#'  mySimRL2 <- spades(mySimRL)
-#'
+#'  # Run it twice to get two copies of the randomly generated landscape
+#'  mySimRLOut <- experiment(mySimRL, replicate=2)
 #'  #extract the landscape, which will be passed into next as an object
-#'  landscape <- mySimRL1$landscape
+#'  landscape <- mySimRLOut[[1]]$landscape
 #'
 #'  mySimCarFir <- simInit(
 #'    times = list(start = 0.0, end = 1, timeunit = "year"),
@@ -299,10 +295,7 @@ setMethod(
         setkey(inputsDT, inputs)
       }
 
-      factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE) %>% data.table()
-#      setkey(factorialExpInner, inputs)
-
-#      factorialExpInner2 <- factorialExpInner[inputsDT][,inputs:=NULL]
+      factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE)
 
       modulesShort <- paste(x,collapse=",")
       if(NROW(factorialExpInner)>0) {
@@ -370,23 +363,27 @@ setMethod(
       if(any(dirPrefix=="simNum")) {
         exptNum <- paddedFloatToChar(factorialExp$expLevel[ind], ceiling(log10(numExpLevels+1)))
       }
+      dirPrefixTmp <- paste0(dirPrefix, collapse="")
+
       if((numExpLevels>1) & (substrLength>0)) {
         dirName <- paste(collapse = "-",substr(mod,1,substrLength),
                          substr(param, 1,substrLength),
                          paramValues, sep="_")
         dirName <- gsub(dirName, pattern="__", replacement = "_")
         if(any(dirPrefix=="simNum")) {
-          dirPrefixTmp <- paste0(dirPrefix, collapse="")
           dirPrefix <- gsub(dirPrefixTmp, pattern="simNum", replacement=exptNum)
         }
         if(any(dirPrefix!="")) {
           dirName <- paste(paste(dirPrefix, collapse=""), dirName, sep="_")
         }
-      } else {
+      } else if (substrLength==0){
         if(any(dirPrefix!="")) {
           simplePrefix <- if(any(dirPrefix=="simNum")) exptNum else ""
-          dirPrefixTmp <- paste0(dirPrefix, collapse="")
           dirName <- gsub(dirPrefixTmp, pattern="simNum", replacement=simplePrefix)
+        }
+      } else {
+        if(any(dirPrefix!="")) {
+          dirName <- gsub(dirPrefixTmp, pattern="simNum", replacement="")
         }
       }
 
@@ -398,7 +395,7 @@ setMethod(
         }
       }
       newOutputPath <- file.path(paths(sim_)$outputPath,dirName) %>%
-        gsub(pattern="/$", replacement="")
+        gsub(pattern="/$", replacement="") %>% gsub(pattern="//", replacement="/")
       if(!dir.exists(newOutputPath)) dir.create(newOutputPath, recursive = TRUE)
       paths(sim_)$outputPath <- newOutputPath
       outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))

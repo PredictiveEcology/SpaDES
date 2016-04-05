@@ -1,9 +1,16 @@
 test_that("experiment does not work correctly", {
   library(raster)
-  beginCluster(8)
+  beginCluster(4)
+  on.exit({
+    endCluster()
+    detach("package:raster")
+    newFiles <- dir(tempdir(), full.names=TRUE) %in% startFiles
+    unlink(dir(tempdir(), full.names=TRUE)[!newFiles], recursive=TRUE)
+  })
+
   startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
-  #'
-  #' # Example of changing parameter values
+
+ # Example of changing parameter values
   mySimFull <- simInit(
     times = list(start = 0.0, end = 2.0, timeunit = "year"),
     params = list(
@@ -19,21 +26,86 @@ test_that("experiment does not work correctly", {
     # Save final state of landscape and caribou
     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
   )
-  #'
-  #'
+
+
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)
-  experimentParams <- list(fireSpread = list(spreadprob = c(0.2, 0.23),
+  caribouNums <- c(100, 1000)
+  experimentParams <- list(fireSpread = list(spreadprob = c(0.2),
                                               nFires = c(20, 10)),
-                        caribouMovement = list(N = c(100, 1000)))
-  #'
+                        caribouMovement = list(N = caribouNums))
+
   sims <- experiment(mySimFull, params=experimentParams)
-  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"), stringsAsFactors=FALSE)
 
-    expect_equal(paths(mySim),
-               list(cachePath = paths[[2]], modulePath = paths$modulePath,
-                    inputPath = getwd(), outputPath = getwd())
-              )
+  expect_equal(NROW(exptDesign), 4)
+  expect_equal(exptDesign$caribouMovement, c(rep(caribouNums, 2)))
+  expect_equal(exptDesign$modules, rep("randomLandscapes,caribouMovement,fireSpread", 4))
+  expect_equal(length(sims), NROW(exptDesign))
 
-  # test for non consecutive order, but named
+  # test that experimental design object is indeed what is in the sims object
+  mods <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[1]])
+  params <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[2]])
+  out2 <- lapply(seq_len(length(mods)), function(y) {
+    out <- lapply(seq_len(NROW(exptDesign)), function(x) {
+      expect_equal(params(sims[[x]])[[mods[y]]][[params[[y]]]], exptDesign[x,paste(mods[y],params[y],sep=".")])
+    })
+  })
+
+  sims <- experiment(mySimFull, replicates=3)
+  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"), stringsAsFactors=FALSE)
+  lapply(seq_len(length(sims)), function(x) {
+    expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
+    expect_equal(outputs(sims[[x]])$file,
+                 file.path(tempdir(), paste0("rep",x), paste0(c("landscape","caribou"),"_year2.rds"))
+    )
+  })
+
+
+
+  ### Test inputs - first, have to make the input map
+  mySimRL <- simInit(
+    times = list(start = 0.0, end = 0.1, timeunit = "year"),
+    params = list(
+      .globals = list(stackName = "landscape"),
+      # Turn off interactive plotting
+      randomLandscapes = list(.plotInitialTime=NA)
+    ),
+    modules = list("randomLandscapes"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = file.path(tempdir(), "landscapeMaps1")),
+    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
+  )
+  sims2 <- experiment(mySimRL, replicate=2)
+
+  mySimCarFir2 <- simInit(
+    times = list(start = 0.0, end = 2.0, timeunit = "year"),
+    params = list(
+      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+      # Turn off interactive plotting
+      fireSpread = list(.plotInitialTime=NA),
+      caribouMovement = list(.plotInitialTime=NA)
+    ),
+    modules = list("fireSpread", "caribouMovement"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = tempdir()),
+    # Save final state of landscape and caribou
+    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+  )
+  landscapeFiles <- dir(file.path(tempdir(), "landscapeMaps1"), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+  sims <- experiment(mySimCarFir2, replicates = 2,
+    inputs=lapply(landscapeFiles,function(filenames) {
+      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
+   )
+
+  # Make sure these are using the same, identical input maps
+  expect_true(identical(sims[[1]]$landscape$habitatQuality, sims[[3]]$landscape$habitatQuality))
+  expect_true(identical(sims[[2]]$landscape$habitatQuality, sims[[4]]$landscape$habitatQuality))
+  # Make sure there are two different input maps (i.e,. the inverse of the above test)
+  expect_false(identical(sims[[2]]$landscape$habitatQuality, sims[[3]]$landscape$habitatQuality))
+
+  # Make sure random number generator is working. These start with the same maps, but should end up different
+  expect_false(identical(sims[[2]]$landscape$Fires, sims[[4]]$landscape$Fires))
+  expect_false(identical(sims[[1]]$landscape$Fires, sims[[3]]$landscape$Fires))
+
 })
