@@ -8,12 +8,13 @@
 \usage{
 experiment(sim, replicates = 1, params = list(), modules = list(),
   objects = list(), inputs = list(), dirPrefix = "simNum",
-  substrLength = 3, experimentFile = "experiment.csv", ...)
+  substrLength = 3, experimentFile = "experiment.csv",
+  clearSimEnv = FALSE, ...)
 
 \S4method{experiment}{simList}(sim, replicates = 1, params = list(),
   modules = list(), objects = list(), inputs = list(),
   dirPrefix = "simNum", substrLength = 3,
-  experimentFile = "experiment.csv", ...)
+  experimentFile = "experiment.csv", clearSimEnv = FALSE, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -44,6 +45,9 @@ kept from each factor level. See Details.}
 
 \item{experimentFile}{String. Filename of the experiment data.frame to be saved in
 \code{outputPath(sim)}. Saved as a csv. See Details.}
+
+\item{clearSimEnv}{Logical. If TRUE, then the envir(sim) of each simList in the return list is
+emptied. This is to reduce RAM load of large return object. Default FALSE.}
 
 \item{...}{Passed to \code{spades}. This would only be useful for \code{debug=TRUE}.}
 }
@@ -121,7 +125,7 @@ only \code{dirPrefix}.
 \dontrun{
 
  library(raster)
- beginCluster(8)
+ beginCluster(4)
  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 
 # Example of changing parameter values
@@ -182,10 +186,11 @@ unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
      c("randomLandscapes", "caribouMovement")
      )
 
- # Note, this isn't fully factorial because all parameters are not defined inside smaller module list
+ # Note, this isn't fully factorial because all parameters are not
+ #   defined inside smaller module list
  sims <- experiment(mySimFull, modules=experimentModules, params=experimentParams)
 
- # manipulate directory names
+ # manipulate directory names - "simNum" is special, it is converted to 1, 2, ...
  sims <- experiment(mySimFull, params=experimentParams, dirPrefix=c("expt", "simNum"))
 
  # doing replicate runs - THESE MAY TAKE SOME TIME (minutes if not using a cluster)
@@ -199,6 +204,8 @@ unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
  sims <- experiment(mySimFull, replicates = 2, params=experimentParams,
                     dirPrefix=c("expt", "simNum"))
 
+ #############################################################
+ #############################################################
  # Use replication to build a probability surface.
  # For this to be meaningful, we need to provide a fixed landscape,
  #   not a randomLandscape for each experiment level. So requires 2 steps.
@@ -241,7 +248,8 @@ unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
  attr(sims, "experiment") # shows the experiment, which in this case is just replicates
  # list all files that were saved called 'landscape'
  files1 <- dir(outputPath(mySimCarFir), recursive=TRUE, pattern="landscape", full.names=TRUE)
- # Read them in - alternatively, this could use the sims object directly also, e.g., sims[[1]]$landscape$Fires
+ # Read them in - alternatively, this could use the sims object directly also,
+ #    e.g., sims[[1]]$landscape$Fires
  landscapes <- lapply(files1, readRDS)
  fires1 <- do.call(stack, lapply(landscapes, function(x) x$Fires)) # Extract just Fire layer
  fires1[fires1>0] <- 1 # convert to 1s and 0s
