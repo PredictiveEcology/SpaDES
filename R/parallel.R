@@ -1,10 +1,17 @@
 ################################################################################
 #' Run an experiment using spades
 #'
-#' This is essentially a wrapper around the \code{spades} call that allows for
-#' parameters or modules to vary. This function will create a fully factorial experiment
-#' among all levels of the variables passed into the function. The function
-#' requires a \code{simList} object, plus optional params and/or modules and/or replications.
+#' This is essentially a wrapper around the \code{spades} call that allows for multiple
+#' calls to spades. Generally, there are 2 reasons to do this: replication and varying inputs
+#' to accomplish some sort of simulation experiment. This function deals with both of these
+#' cases. In the case of varying inputs, this function will create a fully factorial experiment
+#' among all levels of the variables passed into the function, if they are parameters. If varying
+#' modules are passed into the function, then it is likewise fully factorial. However, if it is both
+#' varying parameters and varying modules, then it may not make sense to be fully factorial as some
+#' parameters that are varying may not be defined in all module sets. The function will fully
+#' factorial where it makes sense to do this, and a complete set otherwise. The function
+#' requires a \code{simList} object, plus optional params and/or modules and/or replications. Future
+#' updates will allow varying objects or inputs.
 #'
 #' @inheritParams spades
 #'
@@ -14,28 +21,36 @@
 #' @param substrLength For outputPath, how many characters should be kept from each factor level. See Details.
 #'
 #' @details
-#' This function takes a simList where the majority of parameters are defined, and changes
-#' a few, passed as arguments here, to create a fully factorial experiment.
+#' This function requires a complete simList. All values passed into this function will
+#' override the \code{simList} values.
 #'
-#' There are a few behaviours that are assumed:
+#' There are a few behaviours that are assumed, notably with output directories. If there
+#' are only replications, then a set of subdirectories will be created, one for each replicate.
+#' If there are varying parameters and or modules, \code{outputPath} is updated to include
+#' a subdirectory for each level of the experiment. Specifically, the module(s) and parameter
+#' names and the parameter values are all part of the
+#' subdirectory names.
+#' The default rule for naming is a concatenation of:
+#' 1. The experiment level (arbitrarily starting at 1).
+#' 2. The module, parameter name and parameter value, for each parameter that is varying.
+#' 3. The module set.
+#' This subdirectory name could be long
+#' if there are many dimensions to the experiment. The parameter \code{substrLength} determines
+#' the level of truncation of the parameter and module names for these subdirectories. For example,
+#' The  resulting directory name for a parameter value of 0.225 for the pspread parameter in the
+#' fireSpread module and the N parameter in the caribouMovement module would be:
+#' \code{1_fir_spr_0.225-car_N_10} if \code{substrLength} is 3, the default.
 #'
-#' - outputPath is updated to include a subdirectory with names identifying which values of parameters
-#' were used. This subdirectory could be long if there are lots of dimensions to the experiment.
-#'
-#' When making sub directories for saving outputs, in order for the filenames to be meaningful (the default),
-#' the module(s) are listed, and the parameter names and the parameter values. This can become very long. To
-#' truncate these names to shorter, manageable lengths, \code{substrLength} can be used, and it represents the length
-#' of each character string (module name, parameter name) is truncated to. The resulting directory name would be, say
-#' psprea_0.225-N_10 if \code{substrLength} is 6, the default.
-#'
-#' @return Invisibly returns all resulting \code{simList} objects from the fully factorial experiment.
+#' @return Invisibly returns a list of the resulting \code{simList} objects from the fully
+#' factorial experiment.
 #' Since this may be large, the user is not obliged to return this object (as it is returned invisibly).
-#' Any objects that are desired as outputs, will be contained within these
+#' Clearly, there may be objects saved during simulations. This would be determined as per a
+#' normal \code{\link{spades}} call, using \code{outputs}.
 #'
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
 #'
 #' @importFrom raster getCluster returnCluster
-#' @importFrom parallel clusterApplyLB
+#' @importFrom snow clusterApplyLB
 #' @export
 #' @docType methods
 #' @rdname spades
@@ -46,7 +61,7 @@
 #' \dontrun{
 #'
 #'  library(raster)
-#'  beginCluster(10)
+#'  beginCluster(4)
 #'
 #' # Example of changing parameter values
 #'  mySim <- simInit(
@@ -238,7 +253,6 @@ setMethod(
 
       whNotExpLevel <- which(colnames(paramValues)!="expLevel")
       if(length(whNotExpLevel)<length(paramValues)) {
-        repl <- paramValues$expLevel
         mod <- mod[whNotExpLevel]
         param <- param[whNotExpLevel]
         paramValues <- paramValues[whNotExpLevel]
@@ -271,8 +285,8 @@ setMethod(
       # Deal with directory structures
       if(numExpLevels>1) {
         dirName <- paste(collapse = "-",substr(mod,1,substrLength),
-                       substr(param, 1,substrLength),
-                       paramValues, sep="_")
+                         substr(param, 1,substrLength),
+                         paramValues, sep="_")
         dirName <- gsub(dirName, pattern="__", replacement = "_")
         if(any(dirPrefix=="simNum")) {
           exptNum <- paddedFloatToChar(factorialExp$expLevel[ind], ceiling(log10(numExpLevels+1)))

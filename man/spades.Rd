@@ -54,9 +54,11 @@ See \code{\link{inputs}} and vignette("ii-modules") section about inputs.}
 \value{
 Invisibly returns the modified \code{simList} object.
 
-Invisibly returns all resulting \code{simList} objects from the fully factorial experiment.
+Invisibly returns a list of the resulting \code{simList} objects from the fully
+factorial experiment.
 Since this may be large, the user is not obliged to return this object (as it is returned invisibly).
-Any objects that are desired as outputs, will be contained within these
+Clearly, there may be objects saved during simulations. This would be determined as per a
+normal \code{\link{spades}} call, using \code{outputs}.
 }
 \description{
 Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
@@ -64,25 +66,38 @@ Here, we implement a simulation in a more modular fashion so it's easier to add
 submodules to the simulation. We use S4 classes and methods, and use `data.table`
 instead of `data.frame` to implement the event queue (because it is much faster).
 
-This is essentially a wrapper around the \code{spades} call that allows for
-parameters or modules to vary. This function will create a fully factorial experiment
-among all levels of the variables passed into the function. The function
-requires a \code{simList} object, plus optional params and/or modules and/or replications.
+This is essentially a wrapper around the \code{spades} call that allows for multiple
+calls to spades. Generally, there are 2 reasons to do this: replication and varying inputs
+to accomplish some sort of simulation experiment. This function deals with both of these
+cases. In the case of varying inputs, this function will create a fully factorial experiment
+among all levels of the variables passed into the function, if they are parameters. If varying
+modules are passed into the function, then it is likewise fully factorial. However, if it is both
+varying parameters and varying modules, then it may not make sense to be fully factorial as some
+parameters that are varying may not be defined in all module sets. The function will fully
+factorial where it makes sense to do this, and a complete set otherwise. The function
+requires a \code{simList} object, plus optional params and/or modules and/or replications. Future
+updates will allow varying objects or inputs.
 }
 \details{
-This function takes a simList where the majority of parameters are defined, and changes
-a few, passed as arguments here, to create a fully factorial experiment.
+This function requires a complete simList. All values passed into this function will
+override the \code{simList} values.
 
-There are a few behaviours that are assumed:
-
-- outputPath is updated to include a subdirectory with names identifying which values of parameters
-were used. This subdirectory could be long if there are lots of dimensions to the experiment.
-
-When making sub directories for saving outputs, in order for the filenames to be meaningful (the default),
-the module(s) are listed, and the parameter names and the parameter values. This can become very long. To
-truncate these names to shorter, manageable lengths, \code{substrLength} can be used, and it represents the length
-of each character string (module name, parameter name) is truncated to. The resulting directory name would be, say
-psprea_0.225-N_10 if \code{substrLength} is 6, the default.
+There are a few behaviours that are assumed, notably with output directories. If there
+are only replications, then a set of subdirectories will be created, one for each replicate.
+If there are varying parameters and or modules, \code{outputPath} is updated to include
+a subdirectory for each level of the experiment. Specifically, the module(s) and parameter
+names and the parameter values are all part of the
+subdirectory names.
+The default rule for naming is a concatenation of:
+1. The experiment level (arbitrarily starting at 1).
+2. The module, parameter name and parameter value, for each parameter that is varying.
+3. The module set.
+This subdirectory name could be long
+if there are many dimensions to the experiment. The parameter \code{substrLength} determines
+the level of truncation of the parameter and module names for these subdirectories. For example,
+The  resulting directory name for a parameter value of 0.225 for the pspread parameter in the
+fireSpread module and the N parameter in the caribouMovement module would be:
+\code{1_fir_spr_0.225-car_N_10} if \code{substrLength} is 3, the default.
 }
 \note{
 The debug option is primarily intended to facilitate building simulation
@@ -105,7 +120,7 @@ to the values of various simList slot components.
 \dontrun{
 
  library(raster)
- beginCluster(10)
+ beginCluster(4)
 
 # Example of changing parameter values
  mySim <- simInit(
