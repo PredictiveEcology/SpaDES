@@ -103,7 +103,6 @@
 #'  Plot(caribouMaps[[1]], caribouMaps[[2]], caribouMaps[[3]], caribouMaps[[4]],
 #'       caribouMaps[[5]], caribouMaps[[6]], caribouMaps[[7]], caribouMaps[[8]],
 #'       size=0.1)
-#'  endCluster()
 #'
 #' #######
 #' # Example of changing modules, i.e., caribou with and without fires
@@ -116,28 +115,13 @@
 #'
 #'  sims <- experiment(mySim, modules=experimentModules, params=experimentParams)
 #'
-#'  # Read in outputs from sims object
-#'  FireMaps = do.call(stack, lapply(1:8, function(x) sims[[x]]$landscape$Fires))
-#'  Plot(FireMaps, new=TRUE)
-#'
-#'  # Or reload objects from files, useful if sim objects too large to store in RAM
-#'  caribouMaps <- lapply(sims, function(sim) {
-#'    caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName=="caribou"])
-#'    }
-#'  )
-#'  names(caribouMaps) <- paste0("caribou",1:8)
-#'  # Plot does not plot whole lists (yet)
-#'  Plot(caribouMaps[[1]], caribouMaps[[2]], caribouMaps[[3]], caribouMaps[[4]],
-#'       caribouMaps[[5]], caribouMaps[[6]], caribouMaps[[7]], caribouMaps[[8]],
-#'       size=0.1)
-#'
 #'  # manipulate directory names
 #'  sims <- experiment(mySim, params=experimentParams, dirPrefix=c("expt", "simNum"))
 #'
 #'  # doing replicate runs - THESE TAKE SOME TIME (minutes if not using a cluster)
-#'  sims <- experiment(mySim, replicates = 10)
+#'  sims <- experiment(mySim, replicates = 3)
 #'  # putting them in a subdirectory
-#'  sims <- experiment(mySim, replicates = 10, dirPrefix = c("expt"))
+#'  sims <- experiment(mySim, replicates = 3, dirPrefix = c("expt"))
 #'
 #'  # Both replication and experiment, both params and modules
 #'  # use a sub directory
@@ -147,7 +131,9 @@
 #'
 #'
 #'
-#'  # Use replication to build a probability surface, here, need to provide a fixed landscape
+#'  # Use replication to build a probability surface.
+#'  # For this to be meaningful, we need to provide a fixed landscape,
+#'  #   not a randomLandscape for each experiment level. So requires 2 steps.
 #'  # Step 1 - run randomLandscapes once to get a landscape map
 #'  mySim <- simInit(
 #'    times = list(start = 0.0, end = 0.1, timeunit = "year"),
