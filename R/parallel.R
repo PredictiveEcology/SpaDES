@@ -144,11 +144,12 @@
 #'    ),
 #'    modules = list("randomLandscapes"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = tempdir()),
+#'                 outputPath = file.path(tempdir(), "landscapeMaps1")),
+#'    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
 #'  )
-#'  mySim <- spades(mySim)  # Run it
+#'  mySim1 <- spades(mySim)  # Run it
 #'  #extract the landscape, which will be passed into next as an object
-#'  landscape <- mySim$landscape
+#'  landscape <- mySim1$landscape
 #'
 #'  mySim <- simInit(
 #'    times = list(start = 0.0, end = 1, timeunit = "year"),
@@ -182,6 +183,27 @@
 #'  library(magrittr)
 #'  dir(file.path(tempdir()), pattern="myExpt[.]*", full.names=TRUE) %>%
 #'    unlink(recursive=TRUE)
+#'
+#'  ### Changing inputs
+#'  mapPath <- system.file("maps", package = "SpaDES")
+#'  mySim <- simInit(
+#'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
+#'    params = list(
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+#'      # Turn off interactive plotting
+#'      fireSpread = list(.plotInitialTime=NA),
+#'      caribouMovement = list(.plotInitialTime=NA)
+#'    ),
+#'    modules = list("fireSpread", "caribouMovement"),
+#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'                 outputPath = tempdir()),
+#'    # Save final state of landscape and caribou
+#'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+#'  )
+#'  experiment(mySim, params=experimentParams,
+#'    inputs=lapply(dir(tempdir(), pattern="landscape_year0", recursive=TRUE, full.names=TRUE),function(filenames) {
+#'      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
+#'   )
 #' }
 #'
 setGeneric("experiment", function(sim, replicates = 1, params = list(), modules = list(),
@@ -208,8 +230,19 @@ setMethod(
         params
       }
 
-      factorsX <- append(factorsTmp, list(modules=x))
-      factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE)
+      factorsTmp1 <- factorsTmp
+      if(length(inputs)>0) {
+        inputsList <- list(inputs = seq_len(NROW(inputs)))
+        factorsTmp <- append(factorsTmp, inputsList)
+        inputsDT <- data.table(inputs=unlist(inputsList), do.call(rbind, inputs))
+        setkey(inputsDT, inputs)
+      }
+
+      factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE) %>% data.table()
+#      setkey(factorialExpInner, inputs)
+
+#      factorialExpInner2 <- factorialExpInner[inputsDT][,inputs:=NULL]
+
       modulesShort <- paste(substr(x,1,substrLength),collapse=",")
       if(NROW(factorialExpInner)>0) {
         factorialExpInner[["modules"]] <- modulesShort
@@ -296,10 +329,14 @@ setMethod(
           dirName <- file.path(paste0("rep",paddedFloatToChar(repl, ceiling(log10(length(replicates)+1)))))
         }
       }
-      newOutputPath <- file.path(paths(sim_)$outputPath,dirName)
+      newOutputPath <- file.path(paths(sim_)$outputPath,dirName) %>%
+        gsub(pattern="/$", replacement="")
       if(!dir.exists(newOutputPath)) dir.create(newOutputPath, recursive = TRUE)
       paths(sim_)$outputPath <- newOutputPath
       outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
+      if(length(inputs)>0) {
+        inputs(sim_) <- inputs[[factorialExp[ind,"inputs"]]]
+      }
 
       sim_ <- spades(sim_, ...)
       return(sim_)

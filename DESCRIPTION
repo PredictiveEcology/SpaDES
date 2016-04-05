@@ -64,6 +64,7 @@ Imports:
     RColorBrewer,
     secr,
     shiny,
+    snow,
     sp,
     stringi,
     stringr
