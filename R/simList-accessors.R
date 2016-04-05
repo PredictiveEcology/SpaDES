@@ -1505,6 +1505,11 @@ setReplaceMethod("outputPath",
                  signature = ".simList",
                  function(object, value) {
                    object@paths$outputPath <- unname(unlist(value))
+                   if("saved" %in% colnames(outputs(object))) {
+                     notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
+                     outputs(object)$file[notYetSaved] <-
+                       file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
+                   }
                    validObject(object)
                    return(object)
 })
