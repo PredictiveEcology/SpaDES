@@ -26,6 +26,8 @@
 #'
 #' @param experimentFile String. Filename of the experiment data.frame to be saved in
 #' \code{outputPath(sim)}. Saved as a csv. See Details.
+#' @param clearSimEnv Logical. If TRUE, then the envir(sim) of each simList in the return list is
+#' emptied. This is to reduce RAM load of large return object. Default FALSE.
 #'
 #' @param ... Passed to \code{spades}. This would only be useful for \code{debug=TRUE}.
 #'
@@ -99,7 +101,7 @@
 #' \dontrun{
 #'
 #'  library(raster)
-#'  beginCluster(8)
+#'  beginCluster(4)
 #'  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 #'
 #' # Example of changing parameter values
@@ -160,10 +162,11 @@
 #'      c("randomLandscapes", "caribouMovement")
 #'      )
 #'
-#'  # Note, this isn't fully factorial because all parameters are not defined inside smaller module list
+#'  # Note, this isn't fully factorial because all parameters are not
+#'  #   defined inside smaller module list
 #'  sims <- experiment(mySimFull, modules=experimentModules, params=experimentParams)
 #'
-#'  # manipulate directory names
+#'  # manipulate directory names - "simNum" is special, it is converted to 1, 2, ...
 #'  sims <- experiment(mySimFull, params=experimentParams, dirPrefix=c("expt", "simNum"))
 #'
 #'  # doing replicate runs - THESE MAY TAKE SOME TIME (minutes if not using a cluster)
@@ -177,6 +180,8 @@
 #'  sims <- experiment(mySimFull, replicates = 2, params=experimentParams,
 #'                     dirPrefix=c("expt", "simNum"))
 #'
+#'  #############################################################
+#'  #############################################################
 #'  # Use replication to build a probability surface.
 #'  # For this to be meaningful, we need to provide a fixed landscape,
 #'  #   not a randomLandscape for each experiment level. So requires 2 steps.
@@ -219,7 +224,8 @@
 #'  attr(sims, "experiment") # shows the experiment, which in this case is just replicates
 #'  # list all files that were saved called 'landscape'
 #'  files1 <- dir(outputPath(mySimCarFir), recursive=TRUE, pattern="landscape", full.names=TRUE)
-#'  # Read them in - alternatively, this could use the sims object directly also, e.g., sims[[1]]$landscape$Fires
+#'  # Read them in - alternatively, this could use the sims object directly also,
+#'  #    e.g., sims[[1]]$landscape$Fires
 #'  landscapes <- lapply(files1, readRDS)
 #'  fires1 <- do.call(stack, lapply(landscapes, function(x) x$Fires)) # Extract just Fire layer
 #'  fires1[fires1>0] <- 1 # convert to 1s and 0s
@@ -264,7 +270,7 @@
 setGeneric("experiment", function(sim, replicates = 1, params = list(), modules = list(),
                                   objects = list(), inputs = list(),
                                   dirPrefix = "simNum", substrLength=3,
-                                  experimentFile = "experiment.csv", ...) {
+                                  experimentFile = "experiment.csv", clearSimEnv=FALSE, ...) {
   standardGeneric("experiment")
 })
 
@@ -273,7 +279,7 @@ setMethod(
   "experiment",
   signature(sim = "simList"),
   definition = function(sim, replicates, params, modules, objects, inputs,
-                        dirPrefix, substrLength, experimentFile, ...) {
+                        dirPrefix, substrLength, experimentFile, clearSimEnv, ...) {
 
     cl <- tryCatch(getCluster(), error=function(x) NULL)
     on.exit(if(!is.null(cl)) returnCluster())
@@ -419,6 +425,8 @@ setMethod(
     sims <- do.call(get(parFun), args)
     attr(sims, "experiment") <- factorialExp
     write.csv(factorialExp, file = file.path(outputPath(sim), experimentFile), row.names = FALSE)
+    browser()
+    if(clearSimEnv) lapply(sims, function(x) rm(list=ls(envir(x)), envir=envir(x)))
     return(invisible(sims))
   })
 
