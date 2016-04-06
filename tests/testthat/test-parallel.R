@@ -90,6 +90,7 @@ test_that("experiment does not work correctly", {
     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
   )
   landscapeFiles <- dir(file.path(tmpdir, "landscapeMaps1"), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+  set.seed(1232)
   sims <- experiment(mySimCarFir2, replicates = 2,
     inputs=lapply(landscapeFiles,function(filenames) {
       data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
@@ -104,5 +105,19 @@ test_that("experiment does not work correctly", {
   # Make sure random number generator is working. These start with the same maps, but should end up different
   expect_false(identical(sims[[2]]$landscape$Fires, sims[[4]]$landscape$Fires))
   expect_false(identical(sims[[1]]$landscape$Fires, sims[[3]]$landscape$Fires))
+
+  # Test clearing of the final objects
+  expect_equal(length(ls(sims[[1]])), 10)
+  set.seed(1232)
+  sims2 <- experiment(mySimCarFir2, replicates = 2, clearSimEnv = TRUE,
+                     inputs=lapply(landscapeFiles,function(filenames) {
+                       data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
+  )
+  # This version has no objects
+  expect_equal(length(ls(sims2[[1]])), 0)
+
+  # Test that the only difference is their objects, which we can pass back in manually
+  list2env(mget(ls(sims[[1]]), envir=envir(sims[[1]])), envir = envir(sims2[[1]]))
+  expect_equal(sims[[1]], sims2[[1]] )
 
 })
