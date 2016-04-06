@@ -352,9 +352,9 @@ setMethod(
         param <- param[notNA]
         paramValues <- paramValues[notNA]
       }
-      browser()
 
-      sim_ <- sim
+      sim_ <- copy(sim)
+
       for(x in 1:length(mod)) {
         if(any(mod!="modules")) {
           if(!is.na(factorialExp[ind,x])) {
@@ -415,7 +415,6 @@ setMethod(
       args <- list(x=1:NROW(factorialExp), fun=FunDef)
       args <- append(list(cl=cl), args)
     } else {
-      browser()
       parFun <- "lapply"
       args <- list(X=1:NROW(factorialExp), FUN=FunDef)
     }
