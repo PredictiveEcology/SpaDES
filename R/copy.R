@@ -18,8 +18,10 @@ setMethod("copy",
           signature(sim = "simList"),
           definition=function(sim) {
             sim_ <- sim
-            sim_@.envir <- new.env(parent = emptyenv())
-            sim_@.envir <- list2env(mget(objects(sim), envir=sim@.envir), envir=sim_@.envir)
+            sim_@.envir <- new.env(parent = parent.env(envir(sim)))
+            sim_@.envir <- list2env(mget(ls(sim@.envir, all.names=TRUE),
+                                         envir=sim@.envir),
+                                    envir=sim_@.envir)
             return(sim_)
           })
 
