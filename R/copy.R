@@ -14,6 +14,7 @@ setGeneric("copy", function(sim) {
   standardGeneric("copy")
 })
 
+#' @rdname copy
 setMethod("copy",
           signature(sim = "simList"),
           definition=function(sim) {

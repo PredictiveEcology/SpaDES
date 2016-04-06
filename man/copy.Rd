@@ -3,6 +3,7 @@
 \docType{methods}
 \name{copy}
 \alias{copy}
+\alias{copy,simList-method}
 \title{Because a simList works with an environment to hold all objects,
 all objects within that slot are pass-by-reference. That means
 it is not possible to simply copy an object with an assignment operator:
@@ -10,6 +11,8 @@ the two objects will share the same objects. As one simList object changes
 so will the other. when this is not the desired behaviour, use this function.}
 \usage{
 copy(sim)
+
+\S4method{copy}{simList}(sim)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}
