@@ -120,13 +120,13 @@ setClass(
   validity = function(object) {
     # check for valid sim times
     if (is.na(object@simtimes$end)) {
-     stop("simulation end time must be specified.")
+      stop("simulation end time must be specified.")
     } else {
-     if (object@simtimes$start >= object@simtimes$end) {
-       stop("simulation start time should occur before end time.")
-     }
+      if (object@simtimes$start >= object@simtimes$end) {
+        stop("simulation start time should occur before end time.")
+      }
     }
-})
+  })
 
 ################################################################################
 #' @inheritParams .simList
@@ -175,7 +175,9 @@ setClass("simList_",
 
 setAs(from = "simList_", to = "simList", def = function(from) {
   x <- as(as(from, ".simList"), "simList")
-  x@.envir <- as.environment(from@.list)
+  #x@.envir <- as.environment(from@.list)
+  x@.envir <- new.env(new.env(parent = emptyenv()))
+  list2env(from@.list, envir=x@.envir)
   return(x)
 })
 
@@ -201,4 +203,4 @@ setMethod("initialize",
           definition=function(.Object) {
             .Object@.envir <- new.env(parent = .GlobalEnv)
             return(.Object)
-})
+          })
