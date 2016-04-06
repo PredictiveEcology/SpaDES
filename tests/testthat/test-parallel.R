@@ -1,6 +1,7 @@
 test_that("experiment does not work correctly", {
   library(raster)
   tmpdir <- file.path(tempdir(), "testParallel")
+  tmpdir <- gsub(tmpdir, pattern="[/\\]", replacement="/") # Force all forward slash
   on.exit({
     detach("package:raster")
     unlink(tmpdir, recursive=TRUE)
