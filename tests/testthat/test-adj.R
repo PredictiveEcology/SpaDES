@@ -4,7 +4,6 @@ test_that("adj.R results not identical to adjacent", {
 
   on.exit({
     detach("package:raster")
-    detach("package:sp")
   })
 
   a <- raster::raster(raster::extent(0, 1e3, 0, 1e3), res = 1)

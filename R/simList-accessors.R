@@ -1071,7 +1071,7 @@ setReplaceMethod(
 #' outputs(sim)
 #'
 #' # read one back in just to test it all worked as planned
-#' newObj <- read.csv(dir(tempdir(), pattern=".csv", full.name=TRUE))
+#' newObj <- read.csv(dir(tempdir(), pattern="second10.csv", full.name=TRUE))
 #' newObj
 #'
 #' # using saving with SpaDES-aware methods
@@ -2600,3 +2600,5 @@ setMethod(
       paramDesc = character(0), stringsAsFactors = FALSE)
     return(df)
 })
+
+
