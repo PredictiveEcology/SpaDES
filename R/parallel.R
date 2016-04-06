@@ -405,7 +405,7 @@ setMethod(
       if(length(inputs)>0) {
         inputs(sim_) <- inputs[[factorialExp[ind,"inputs"]]]
       }
-
+      browser()
       sim_ <- spades(sim_, ...)
       return(sim_)
     }
@@ -415,6 +415,7 @@ setMethod(
       args <- list(x=1:NROW(factorialExp), fun=FunDef)
       args <- append(list(cl=cl), args)
     } else {
+      browser()
       parFun <- "lapply"
       args <- list(X=1:NROW(factorialExp), FUN=FunDef)
     }
