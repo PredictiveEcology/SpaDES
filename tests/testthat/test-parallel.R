@@ -1,12 +1,10 @@
 test_that("experiment does not work correctly", {
   library(raster)
+  tmpdir <- file.path(tempdir(), "testParallel")
   on.exit({
     detach("package:raster")
-    newFiles <- dir(tempdir(), full.names=TRUE) %in% startFiles
-    unlink(dir(tempdir(), full.names=TRUE)[!newFiles], recursive=TRUE)
+    unlink(tmpdir, recursive=TRUE)
   })
-
-  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 
  # Example of changing parameter values
   mySimFull <- simInit(
@@ -20,7 +18,7 @@ test_that("experiment does not work correctly", {
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                 outputPath = tempdir()),
+                 outputPath = tmpdir),
     # Save final state of landscape and caribou
     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
   )
@@ -34,7 +32,7 @@ test_that("experiment does not work correctly", {
                         caribouMovement = list(N = caribouNums))
 
   sims <- experiment(mySimFull, params=experimentParams)
-  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"), stringsAsFactors=FALSE)
+  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"), stringsAsFactors=FALSE)
 
   expect_equal(NROW(exptDesign), 4)
   expect_equal(exptDesign$caribouMovement, c(rep(caribouNums, 2)))
@@ -51,11 +49,11 @@ test_that("experiment does not work correctly", {
   })
 
   sims <- experiment(mySimFull, replicates=3)
-  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"), stringsAsFactors=FALSE)
+  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"), stringsAsFactors=FALSE)
   lapply(seq_len(length(sims)), function(x) {
     expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
     expect_equal(outputs(sims[[x]])$file,
-                 file.path(tempdir(), paste0("rep",x), paste0(c("landscape","caribou"),"_year2.rds"))
+                 file.path(tmpdir, paste0("rep",x), paste0(c("landscape","caribou"),"_year2.rds"))
     )
   })
 
@@ -71,7 +69,7 @@ test_that("experiment does not work correctly", {
     ),
     modules = list("randomLandscapes"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                 outputPath = file.path(tempdir(), "landscapeMaps1")),
+                 outputPath = file.path(tmpdir, "landscapeMaps1")),
     outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
   )
   sims2 <- experiment(mySimRL, replicate=2)
@@ -86,11 +84,11 @@ test_that("experiment does not work correctly", {
     ),
     modules = list("fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                 outputPath = tempdir()),
+                 outputPath = tmpdir),
     # Save final state of landscape and caribou
     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
   )
-  landscapeFiles <- dir(file.path(tempdir(), "landscapeMaps1"), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+  landscapeFiles <- dir(file.path(tmpdir, "landscapeMaps1"), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
   sims <- experiment(mySimCarFir2, replicates = 2,
     inputs=lapply(landscapeFiles,function(filenames) {
       data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
