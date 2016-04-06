@@ -90,7 +90,7 @@
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
 #'
 #' @importFrom raster getCluster returnCluster
-#' @importFrom snow clusterApplyLB
+#' @importFrom snow clusterApplyLB clusterEvalQ
 #' @export
 #' @docType methods
 #' @rdname experiment
@@ -414,6 +414,10 @@ setMethod(
       parFun <- "clusterApplyLB"
       args <- list(x=1:NROW(factorialExp), fun=FunDef)
       args <- append(list(cl=cl), args)
+      if(!is.na(pmatch("Windows",Sys.getenv("OS")))) {
+        clusterEvalQ(cl, library(SpaDES))
+      }
+
     } else {
       parFun <- "lapply"
       args <- list(X=1:NROW(factorialExp), FUN=FunDef)
