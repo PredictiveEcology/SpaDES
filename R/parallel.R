@@ -352,6 +352,7 @@ setMethod(
         param <- param[notNA]
         paramValues <- paramValues[notNA]
       }
+      browser()
 
       sim_ <- sim
       for(x in 1:length(mod)) {
@@ -405,9 +406,8 @@ setMethod(
       if(length(inputs)>0) {
         inputs(sim_) <- inputs[[factorialExp[ind,"inputs"]]]
       }
-      browser()
-      sim_ <- spades(sim_, ...)
-      return(sim_)
+      sim3 <- spades(sim_, ...)
+      return(sim3)
     }
 
     if(!is.null(cl)) {
