@@ -101,7 +101,6 @@
 #' \dontrun{
 #'
 #'  library(raster)
-#'  beginCluster(4)
 #'  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 #'
 #' # Example of changing parameter values
@@ -259,8 +258,6 @@
 #'  experiment(mySimFull, modules=experimentModules, substrLength=0)
 #'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
 #'  print(exptDesign)
-#'
-#'  endCluster()
 #'
 #' # Remove all temp files
 #' unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
@@ -425,8 +422,11 @@ setMethod(
     sims <- do.call(get(parFun), args)
     attr(sims, "experiment") <- factorialExp
     write.csv(factorialExp, file = file.path(outputPath(sim), experimentFile), row.names = FALSE)
-    browser()
-    if(clearSimEnv) lapply(sims, function(x) rm(list=ls(envir(x)), envir=envir(x)))
+    if(clearSimEnv) {sims <- lapply(sims, function(x) {
+         rm(list=ls(envir(x)), envir=envir(x))
+         x
+      })
+    }
     return(invisible(sims))
   })
 

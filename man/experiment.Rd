@@ -125,7 +125,6 @@ only \code{dirPrefix}.
 \dontrun{
 
  library(raster)
- beginCluster(4)
  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 
 # Example of changing parameter values
@@ -283,8 +282,6 @@ unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
  experiment(mySimFull, modules=experimentModules, substrLength=0)
  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
  print(exptDesign)
-
- endCluster()
 
 # Remove all temp files
 unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),

@@ -1,8 +1,6 @@
 test_that("experiment does not work correctly", {
   library(raster)
-  beginCluster(4)
   on.exit({
-    endCluster()
     detach("package:raster")
     newFiles <- dir(tempdir(), full.names=TRUE) %in% startFiles
     unlink(dir(tempdir(), full.names=TRUE)[!newFiles], recursive=TRUE)
