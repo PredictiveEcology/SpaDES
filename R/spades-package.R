@@ -41,6 +41,7 @@
 #' \tabular{ll}{
 #'   \code{\link{simInit}} \tab Initialize a new simulation\cr
 #'   \code{\link{spades}} \tab Run a discrete event simulation\cr
+#'   \code{\link{experiment}} \tab Run multiple \code{\link{spades}} calls\cr
 #' }
 #'
 #' @section 1.2 Events:
@@ -52,9 +53,9 @@
 #'   \code{removeEvent} \tab Remove an event from the simulation queue (not yet implemented)\cr
 #' }
 #'
-#' @section 1.2 \code{simList} accessor methods:
+#' @section 1.2 \code{simList} methods:
 #'
-#' Collections of commonly used accessor functions for the slots (and their elements)
+#' Collections of commonly used functions to retrieve or set slots (and their elements)
 #' of a \code{\link{simList}} object are summarized further below.
 #'
 #' @section 1.2.1 Simulation parameters:
@@ -100,6 +101,7 @@
 #'
 #' \tabular{ll}{
 #'    \code{\link{events}} \tab Scheduled simulation events (the event queue). (advanced)\cr
+#'    \code{\link{current}} \tab Currently executing event. (advanced)\cr
 #'    \code{\link{completed}} \tab Completed simulation events. (advanced)\cr
 #' }
 #'
@@ -114,6 +116,19 @@
 #'    \code{\link{modules}} \tab List of simulation modules to be loaded. (advanced)\cr
 #'    \code{\link{inputs}} \tab List of loaded objects used in simulation. (advanced)\cr
 #'    \code{\link{outputs}} \tab List of objects to save during simulation. (advanced)\cr
+#' }
+#'
+#' @section 1.2.5 Copy simList:
+#'
+#' The \code{\link{simList}} has a slot with all objects, called ".envir". This is an
+#' environment. In R, environments use pass-by-reference semantics, which means that
+#' copying an simList object using normal R assignment operation, e.g., sim2 <- sim1,
+#' will not copy the objects contained within the .envir slot. The two objects sim1 and
+#' sim2 will shared identical objects within that slot. Sometimes, this not desired, and
+#' a true copy is required.
+#'
+#' \tabular{ll}{
+#'    \code{\link{copy}} \tab Deep copy of a simList. (advanced)\cr
 #' }
 #'
 #' @section 1.3 Module operations:
