@@ -85,6 +85,7 @@ Collate:
     'priority.R'
     'environment.R'
     'checkpoint.R'
+    'copy.R'
     'initialize.R'
     'simulation.R'
     'load.R'
