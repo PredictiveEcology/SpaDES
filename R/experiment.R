@@ -288,13 +288,13 @@ setMethod(
                         experimentFile, clearSimEnv, ...) {
 
     if(missing(params)) params <- list()
-    if(missing(modules)) modules <- list()
+    if(missing(modules)) modules <- list(modules(sim)[-(1:4)])
     if(missing(inputs)) inputs <- list()
 
     cl <- tryCatch(getCluster(), error=function(x) NULL)
     on.exit(if(!is.null(cl)) returnCluster())
 
-    if(length(modules)==0) modules <- list(modules(sim)[-(1:4)])
+    #if(length(modules)==0) modules <- list(modules(sim)[-(1:4)])
     factorialExpList <- lapply(seq_along(modules), function(x) {
       paramsTmp <- pmatch(modules[[x]], names(params)) %>% na.omit
       factorsTmp <- if(NROW(paramsTmp)>0) {
@@ -375,7 +375,7 @@ setMethod(
       experimentDF <- data.frame(module=character(), param=character(), val=character(),
                                  input=data.frame(),
                                  expLevel=numeric())
-      for(x in seq_along(mod[!(mod %in% c("inputs", "modules"))])) {
+      for(x in seq_along(mod[!(mod %in% c("inputs"))])) {
         if(any(mod!="modules")) {
           y <- factorialExp[ind,names(paramValues)[x]]
           if(!is.na(y)) {
@@ -387,8 +387,15 @@ setMethod(
                                     input=if(length(inputs)>0) inputs[[factorialExp[ind,"inputs"]]] else NA,
                                     expLevel=factorialExp[ind,"expLevel"]))
           }
+        } else {
+          sim_ <- simInit(params=params(sim_),
+                          modules=as.list(unlist(modules[factorialExp[ind,"modules"]])),
+                  times=append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
+                  paths=paths(sim_),
+                  outputs = outputs(sim_))
         }
       }
+      browser()
 
       # Deal with directory structures
       if(any(dirPrefix=="simNum")) {
