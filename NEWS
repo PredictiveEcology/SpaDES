@@ -7,6 +7,7 @@ version 1.1.1.9xxx
 * add `col` arg to `Plot` (mimicks `cols`)
 * add experiment function, a wrapper around spades() for running multiple simulations
 * add shine function, with simList signature
+* add copy function, which does a deep copy of a simList
 * add `RColorBrewer` to Imports
 * allow Plot colours to be set in the `Plot` call using `cols` argument
 * allow Plot colours to be set in the `Plot` call using `RColorBrewer` palettes
