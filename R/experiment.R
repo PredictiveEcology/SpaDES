@@ -372,30 +372,41 @@ setMethod(
       }
 
       sim_ <- copy(sim)
-      experimentDF <- data.frame(module=character(), param=character(), val=character(),
+      experimentDF <- data.frame(module=character(), param=character(),
+                                 val=character(), modules=character(),
                                  input=data.frame(),
                                  expLevel=numeric())
       for(x in seq_along(mod[!(mod %in% c("inputs"))])) {
         if(any(mod!="modules")) {
           y <- factorialExp[ind,names(paramValues)[x]]
-          if(!is.na(y)) {
+          if(!is.na(y) & (mod[x]!="modules")) {
             val <- params[[mod[x]]][[param[[x]]]][[y]]
             params(sim_)[[mod[x]]][[param[[x]]]] <- val #factorialExp[ind,x]
-            experimentDF <- rbind(experimentDF,
-                                  data.frame(module=mod[x],param=param[x],
-                                    val=val,
-                                    input=if(length(inputs)>0) inputs[[factorialExp[ind,"inputs"]]] else NA,
-                                    expLevel=factorialExp[ind,"expLevel"]))
+            experimentDF <- rbindlist(l=list(experimentDF,
+                                             data.frame(module=mod[x],param=param[x],
+                                                        val=val,
+                                                        modules=paste0(unlist(modules[factorialExp[ind,"modules"]]), collapse=","),
+                                                        input=if(length(inputs)>0) inputs[[factorialExp[ind,"inputs"]]] else NA,
+                                                        expLevel=factorialExp[ind,"expLevel"])), use.names = TRUE,
+                                      fill=TRUE)
           }
         } else {
+          experimentDF <- rbindlist(l=list(experimentDF,
+                                           data.frame(modules=paste0(unlist(modules[factorialExp[ind,"modules"]]), collapse=","),
+                                                      expLevel=factorialExp[ind,"expLevel"])), use.names = TRUE,
+                                    fill=TRUE)
+        }
+        if (!identical(sort(unlist(modules[factorialExp[ind,names(paramValues)[[x]]]])),
+                         sort(unlist(modules(sim)[-(1:4)])))){ # test if modules are different from sim,
+                      #  if yes, rerun simInit
           sim_ <- simInit(params=params(sim_),
                           modules=as.list(unlist(modules[factorialExp[ind,"modules"]])),
-                  times=append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
-                  paths=paths(sim_),
-                  outputs = outputs(sim_))
+                          times=append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
+                          paths=paths(sim_),
+                          outputs = outputs(sim_))
+
         }
       }
-      browser()
 
       # Deal with directory structures
       if(any(dirPrefix=="simNum")) {
@@ -460,13 +471,16 @@ setMethod(
     expOut <- do.call(get(parFun), args)
     sims <- lapply(expOut, function(x) x[[1]])
     expDFs <- lapply(expOut, function(x) x[[2]])
-    experimentDF <- rbindlist(expDFs, fill=TRUE, use.names=TRUE)
+    experimentDF <- rbindlist(expDFs, fill=TRUE, use.names=TRUE) %>% data.frame()
+
+    keepCols <- which(apply(!is.na(experimentDF),2,all))
+    experimentDF <- experimentDF[,keepCols]
 
     attr(sims, "experiment") <- list(expDesign=factorialExp, expVals=experimentDF)
     if(clearSimEnv) {sims <- lapply(sims, function(x) {
-         rm(list=ls(envir(x)), envir=envir(x))
-         x
-      })
+      rm(list=ls(envir(x)), envir=envir(x))
+      x
+    })
     }
     return(invisible(sims))
   })
