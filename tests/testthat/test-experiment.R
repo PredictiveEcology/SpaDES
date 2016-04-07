@@ -43,7 +43,7 @@ test_that("experiment does not work correctly", {
   # test that experimental design object is indeed what is in the sims object
   mods <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[1]])
   params <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[2]])
-  out2 <- lapply(seq_len(length(mods)), function(y) {
+  out2 <- lapply(seq_along(mods), function(y) {
     out <- lapply(seq_len(NROW(exptDesign)), function(x) {
       expect_equal(params(sims[[x]])[[mods[y]]][[params[[y]]]], exptDesign[x,paste(mods[y],params[y],sep=".")])
     })
@@ -51,7 +51,7 @@ test_that("experiment does not work correctly", {
 
   sims <- experiment(mySimFull, replicates=3)
   exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"), stringsAsFactors=FALSE)
-  lapply(seq_len(length(sims)), function(x) {
+  lapply(seq_along(sims), function(x) {
     expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
     expect_equal(outputs(sims[[x]])$file,
                  file.path(tmpdir, paste0("rep",x), paste0(c("landscape","caribou"),"_year2.rds"))

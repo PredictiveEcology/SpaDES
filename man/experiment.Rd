@@ -4,38 +4,27 @@
 \name{experiment}
 \alias{experiment}
 \alias{experiment,simList-method}
-\title{Run an experiment using spades}
+\title{Run an experiment using \code{\link{spades}}}
 \usage{
-experiment(sim, replicates = 1, params = list(), modules = list(),
-  objects = list(), inputs = list(), dirPrefix = "simNum",
-  substrLength = 3, experimentFile = "experiment.csv",
-  clearSimEnv = FALSE, ...)
+experiment(sim, replicates = 1, params, modules, objects = list(), inputs,
+  dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
+  experimentFile = "experiment", clearSimEnv = FALSE, ...)
 
-\S4method{experiment}{simList}(sim, replicates = 1, params = list(),
-  modules = list(), objects = list(), inputs = list(),
-  dirPrefix = "simNum", substrLength = 3,
-  experimentFile = "experiment.csv", clearSimEnv = FALSE, ...)
+\S4method{experiment}{simList}(sim, replicates = 1, params, modules,
+  objects = list(), inputs, dirPrefix = "simNum", substrLength = 3,
+  saveExperiment = TRUE, experimentFile = "experiment",
+  clearSimEnv = FALSE, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
 \item{replicates}{The number of replicates to run of the same \code{simList}}
 
-\item{params}{A named list of simulation parameters and their values.}
+\item{params}{Like for \code{\link{simInit}}, but a list of \code{params} lists. See details.}
 
-\item{modules}{A named list of character strings specfying the names
-of modules to be loaded for the simulation. Note: the module name
-should correspond to the R source file from which the module is loaded.
-Example: a module named "caribou" will be sourced form the file
-\file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
+\item{modules}{Like for \code{\link{simInit}}, but a list of \code{modules} lists. See details.}
 
-\item{objects}{An optional list of data objects to be used in the simulation.}
-
-\item{inputs}{A \code{data.frame}. Can specify from 1 to 6
-columns with following column names: \code{objectName} (character, required),
-\code{file} (character), \code{fun} (character), \code{package} (character),
-\code{interval} (numeric), \code{loadTime} (numeric).
-See \code{\link{inputs}} and vignette("ii-modules") section about inputs.}
+\item{inputs}{Like for \code{\link{simInit}}, but a list of \code{inputs} data.frames. See details.}
 
 \item{dirPrefix}{String vector. This will be concatenated as a prefix on the directory names.
 See Details.}
@@ -43,8 +32,12 @@ See Details.}
 \item{substrLength}{Numeric. While making \code{outputPath}, this is the number of characters
 kept from each factor level. See Details.}
 
-\item{experimentFile}{String. Filename of the experiment data.frame to be saved in
-\code{outputPath(sim)}. Saved as a csv. See Details.}
+\item{saveExperiment}{Logical. Should params, modules, inputs, sim, and resulting
+experimental design be saved to a file. If TRUE are saved to a single list
+called \code{experiment}. Default TRUE.}
+
+\item{experimentFile}{String. Filename if \code{saveExperiment} is TRUE; saved to
+\code{outputPath(sim)} in \code{.RData} format. See Details.}
 
 \item{clearSimEnv}{Logical. If TRUE, then the envir(sim) of each simList in the return list is
 emptied. This is to reduce RAM load of large return object. Default FALSE.}
@@ -72,8 +65,9 @@ requires a \code{simList} object, plus optional inputs and/or params and/or modu
 replications. Future updates will allow varying objects.
 }
 \details{
-This function requires a complete simList. All values passed into this function will
-override the \code{simList} values.
+This function requires a complete simList. All params, modules, or inputs passed into this
+function will override the corresponding params, modules or inputs that are in the \code{sim} argument.
+Wherase
 
 There are a few behaviours that are assumed, notably with output directories. If there
 are only replications, then a set of subdirectories will be created, one for each replicate.
@@ -125,7 +119,6 @@ only \code{dirPrefix}.
 \dontrun{
 
  library(raster)
- startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 
 # Example of changing parameter values
  mySimFull <- simInit(
@@ -147,9 +140,9 @@ only \code{dirPrefix}.
 
  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
  #    and 2 levels of 1 param in caribouMovement)
- experimentParams <- list(fireSpread = list(spreadprob = c(0.2, 0.23),
-                                             nFires = c(20, 10)),
-                       caribouMovement = list(N = c(100, 1000)))
+ experimentParams <- list(fireSpread = list(spreadprob = list(0.2, 0.23),
+                                             nFires = list(20, 10)),
+                       caribouMovement = list(N = list(100, 1000)))
 
  sims <- experiment(mySimFull, params=experimentParams)
  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
@@ -271,7 +264,7 @@ unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
  )
  landscapeFiles <- dir(tempdir(), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
- experiment(mySimCarFir2, params=experimentParams, replicates = 2,
+ experiment(mySimCarFir2, params=experimentParams, modules=experimentModules, replicates = 2,
    inputs=lapply(landscapeFiles,function(filenames) {
      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
   )

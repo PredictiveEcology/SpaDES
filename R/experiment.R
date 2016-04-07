@@ -1,5 +1,5 @@
 ################################################################################
-#' Run an experiment using spades
+#' Run an experiment using \code{\link{spades}}
 #'
 #' This is essentially a wrapper around the \code{spades} call that allows for multiple
 #' calls to spades. Generally, there are 2 reasons to do this: replication and varying inputs
@@ -15,7 +15,9 @@
 #'
 #' @inheritParams spades
 #'
-#' @inheritParams simInit
+#' @param inputs Like for \code{\link{simInit}}, but a list of \code{inputs} data.frames. See details.
+#' @param params Like for \code{\link{simInit}}, but a list of \code{params} lists. See details.
+#' @param modules Like for \code{\link{simInit}}, but a list of \code{modules} lists. See details.
 #' @param replicates The number of replicates to run of the same \code{simList}
 #'
 #' @param substrLength Numeric. While making \code{outputPath}, this is the number of characters
@@ -24,16 +26,22 @@
 #' @param dirPrefix String vector. This will be concatenated as a prefix on the directory names.
 #' See Details.
 #'
-#' @param experimentFile String. Filename of the experiment data.frame to be saved in
-#' \code{outputPath(sim)}. Saved as a csv. See Details.
+#' @param saveExperiment Logical. Should params, modules, inputs, sim, and resulting
+#' experimental design be saved to a file. If TRUE are saved to a single list
+#' called \code{experiment}. Default TRUE.
+#'
+#' @param experimentFile String. Filename if \code{saveExperiment} is TRUE; saved to
+#' \code{outputPath(sim)} in \code{.RData} format. See Details.
+#'
 #' @param clearSimEnv Logical. If TRUE, then the envir(sim) of each simList in the return list is
 #' emptied. This is to reduce RAM load of large return object. Default FALSE.
 #'
 #' @param ... Passed to \code{spades}. This would only be useful for \code{debug=TRUE}.
 #'
 #' @details
-#' This function requires a complete simList. All values passed into this function will
-#' override the \code{simList} values.
+#' This function requires a complete simList. All params, modules, or inputs passed into this
+#' function will override the corresponding params, modules or inputs that are in the \code{sim} argument.
+#' Wherase
 #'
 #' There are a few behaviours that are assumed, notably with output directories. If there
 #' are only replications, then a set of subdirectories will be created, one for each replicate.
@@ -101,7 +109,6 @@
 #' \dontrun{
 #'
 #'  library(raster)
-#'  startFiles <- dir(file.path(tempdir()), full.names=TRUE, recursive=TRUE)
 #'
 #' # Example of changing parameter values
 #'  mySimFull <- simInit(
@@ -123,9 +130,9 @@
 #'
 #'  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
 #'  #    and 2 levels of 1 param in caribouMovement)
-#'  experimentParams <- list(fireSpread = list(spreadprob = c(0.2, 0.23),
-#'                                              nFires = c(20, 10)),
-#'                        caribouMovement = list(N = c(100, 1000)))
+#'  experimentParams <- list(fireSpread = list(spreadprob = list(0.2, 0.23),
+#'                                              nFires = list(20, 10)),
+#'                        caribouMovement = list(N = list(100, 1000)))
 #'
 #'  sims <- experiment(mySimFull, params=experimentParams)
 #'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
@@ -247,7 +254,7 @@
 #'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
 #'  )
 #'  landscapeFiles <- dir(tempdir(), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
-#'  experiment(mySimCarFir2, params=experimentParams, replicates = 2,
+#'  experiment(mySimCarFir2, params=experimentParams, modules=experimentModules, replicates = 2,
 #'    inputs=lapply(landscapeFiles,function(filenames) {
 #'      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
 #'   )
@@ -264,10 +271,11 @@
 #'                     full.names=TRUE) %in% startFiles)], recursive=TRUE)
 #' }
 #'
-setGeneric("experiment", function(sim, replicates = 1, params = list(), modules = list(),
-                                  objects = list(), inputs = list(),
+setGeneric("experiment", function(sim, replicates = 1, params, modules,
+                                  objects = list(), inputs,
                                   dirPrefix = "simNum", substrLength=3,
-                                  experimentFile = "experiment.csv", clearSimEnv=FALSE, ...) {
+                                  saveExperiment=TRUE, experimentFile = "experiment",
+                                  clearSimEnv=FALSE, ...) {
   standardGeneric("experiment")
 })
 
@@ -276,35 +284,38 @@ setMethod(
   "experiment",
   signature(sim = "simList"),
   definition = function(sim, replicates, params, modules, objects, inputs,
-                        dirPrefix, substrLength, experimentFile, clearSimEnv, ...) {
+                        dirPrefix, substrLength, saveExperiment,
+                        experimentFile, clearSimEnv, ...) {
+
+    if(missing(params)) params <- list()
+    if(missing(modules)) modules <- list()
+    if(missing(inputs)) inputs <- list()
 
     cl <- tryCatch(getCluster(), error=function(x) NULL)
     on.exit(if(!is.null(cl)) returnCluster())
 
     if(length(modules)==0) modules <- list(modules(sim)[-(1:4)])
-    factorialExpList <- lapply(modules, function(x) {
-      paramsTmp <- pmatch(x, names(params)) %>% na.omit
+    factorialExpList <- lapply(seq_along(modules), function(x) {
+      paramsTmp <- pmatch(modules[[x]], names(params)) %>% na.omit
       factorsTmp <- if(NROW(paramsTmp)>0) {
-        unlist(params[paramsTmp], recursive = FALSE)
+        # unlist(params[paramsTmp], recursive = FALSE)
+        lapply(params[paramsTmp], function(z) lapply(z, function(y) seq_along(y))) %>% unlist(recursive=FALSE)
       } else {
         params
       }
 
-      factorsTmp1 <- factorsTmp
       if(length(inputs)>0) {
         inputsList <- list(inputs = seq_len(NROW(inputs)))
         factorsTmp <- append(factorsTmp, inputsList)
-        inputsDT <- data.table(inputs=unlist(inputsList), do.call(rbind, inputs))
-        setkey(inputsDT, inputs)
       }
 
       factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE)
 
-      modulesShort <- paste(x,collapse=",")
+      modulesShort <- paste(modules[[x]],collapse=",")
       if(NROW(factorialExpInner)>0) {
-        factorialExpInner[["modules"]] <- modulesShort
+        factorialExpInner[["modules"]] <- x
       } else {
-        factorialExpInner <- data.frame(modules=modulesShort, stringsAsFactors = FALSE)
+        factorialExpInner <- data.frame(modules=x, stringsAsFactors = FALSE)
       }
       factorialExpInner
     })
@@ -321,15 +332,22 @@ setMethod(
       factorialExp$replicates=rep(replicates, each=numExpLevels)
     }
 
+    # Factorial Levels are determined at this point. Save file.
+    #write.csv(factorialExp, file = file.path(outputPath(sim), experimentFile), row.names = FALSE)
+    if(saveExperiment) {
+      experiment = list(params=params, modules=modules, inputs=inputs, factoriaExp=factorialExp)
+      save(experiment, file = file.path(outputPath(sim), paste0(experimentFile, ".RData")))
+    }
+
     FunDef <- function(ind, ...) {
       mod <- strsplit(names(factorialExp), split="\\.") %>% sapply(function(x) x[1])
       param<- strsplit(names(factorialExp), split="\\.") %>% sapply(function(x) x[2])
       param[is.na(param)] <- ""
       paramValues <- factorialExp[ind,]
-      if("modules" %in% mod) {
-        paramValues$modules <- strsplit(paramValues$modules, split = ",")[[1]] %>%
-          substr(1,substrLength) %>% paste(collapse=",")
-      }
+      #if("modules" %in% mod) {
+      #  paramValues$modules <- strsplit(paramValues$modules, split = ",")[[1]] %>%
+      #    substr(1,substrLength) %>% paste(collapse=",")
+      #}
 
       whNotExpLevel <- which(colnames(paramValues)!="expLevel")
       if(length(whNotExpLevel)<length(paramValues)) {
@@ -354,11 +372,20 @@ setMethod(
       }
 
       sim_ <- copy(sim)
-
-      for(x in 1:length(mod)) {
+      experimentDF <- data.frame(module=character(), param=character(), val=character(),
+                                 input=data.frame(),
+                                 expLevel=numeric())
+      for(x in seq_along(mod[!(mod %in% c("inputs", "modules"))])) {
         if(any(mod!="modules")) {
-          if(!is.na(factorialExp[ind,x])) {
-            params(sim_)[[mod[x]]][[param[[x]]]] <- factorialExp[ind,x]
+          y <- factorialExp[ind,names(paramValues)[x]]
+          if(!is.na(y)) {
+            val <- params[[mod[x]]][[param[[x]]]][[y]]
+            params(sim_)[[mod[x]]][[param[[x]]]] <- val #factorialExp[ind,x]
+            experimentDF <- rbind(experimentDF,
+                                  data.frame(module=mod[x],param=param[x],
+                                    val=val,
+                                    input=if(length(inputs)>0) inputs[[factorialExp[ind,"inputs"]]] else NA,
+                                    expLevel=factorialExp[ind,"expLevel"]))
           }
         }
       }
@@ -407,7 +434,7 @@ setMethod(
         inputs(sim_) <- inputs[[factorialExp[ind,"inputs"]]]
       }
       sim3 <- spades(sim_, ...)
-      return(sim3)
+      return(list(sim3, experimentDF))
     }
 
     if(!is.null(cl)) {
@@ -423,9 +450,12 @@ setMethod(
       args <- list(X=1:NROW(factorialExp), FUN=FunDef)
     }
 
-    sims <- do.call(get(parFun), args)
-    attr(sims, "experiment") <- factorialExp
-    write.csv(factorialExp, file = file.path(outputPath(sim), experimentFile), row.names = FALSE)
+    expOut <- do.call(get(parFun), args)
+    sims <- lapply(expOut, function(x) x[[1]])
+    expDFs <- lapply(expOut, function(x) x[[2]])
+    experimentDF <- rbindlist(expDFs, fill=TRUE, use.names=TRUE)
+
+    attr(sims, "experiment") <- list(expDesign=factorialExp, expVals=experimentDF)
     if(clearSimEnv) {sims <- lapply(sims, function(x) {
          rm(list=ls(envir(x)), envir=envir(x))
          x
