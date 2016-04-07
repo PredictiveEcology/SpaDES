@@ -287,8 +287,9 @@ setMethod(
                         dirPrefix, substrLength, saveExperiment,
                         experimentFile, clearSimEnv, ...) {
 
+    browser()
     if(missing(params)) params <- list()
-    if(missing(modules)) modules <- list(modules(sim)[-(1:4)])
+    if(missing(modules)) modules <- list(SpaDES::modules(sim)[-(1:4)])
     if(missing(inputs)) inputs <- list()
 
     cl <- tryCatch(getCluster(), error=function(x) NULL)
@@ -397,7 +398,7 @@ setMethod(
                                     fill=TRUE)
         }
         if (!identical(sort(unlist(modules[factorialExp[ind,names(paramValues)[[x]]]])),
-                         sort(unlist(modules(sim)[-(1:4)])))){ # test if modules are different from sim,
+                         sort(unlist(SpaDES::modules(sim)[-(1:4)])))){ # test if modules are different from sim,
                       #  if yes, rerun simInit
           sim_ <- simInit(params=params(sim_),
                           modules=as.list(unlist(modules[factorialExp[ind,"modules"]])),
