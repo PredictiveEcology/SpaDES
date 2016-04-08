@@ -121,7 +121,7 @@
 #' @examples
 #' \dontrun{
 #'
-#'  library(raster)
+#'  tmpdir <- file.path(tempdir(), "examples")
 #'
 #' # Example of changing parameter values
 #'  mySimFull <- simInit(
@@ -135,7 +135,7 @@
 #'    ),
 #'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = tempdir()),
+#'                 outputPath = tmpdir),
 #'    # Save final state of landscape and caribou
 #'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
 #'  )
@@ -152,13 +152,13 @@
 #'                        caribouMovement = list(N = list(100, 1000)))
 #'
 #'  sims <- experiment(mySimFull, params=experimentParams)
-#'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+#'  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"))
 #'
 #'  # see experiment:
 #'  attr(sims, "experiment")
 #'
 #'  # Read in outputs from sims object
-#'  FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")),
+#'  FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")$expDesign),
 #'                     function(x) sims[[x]]$landscape$Fires))
 #'  Plot(FireMaps, new=TRUE)
 #'
@@ -174,8 +174,7 @@
 #'       size=0.1)
 #'
 #' # Remove all temp files
-#' unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
-#'               full.names=TRUE) %in% startFiles)], recursive=TRUE)
+#' unlink(tmpdir, recursive=TRUE)
 #' #######
 #' # Example of changing modules, i.e., caribou with and without fires
 #'  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
@@ -199,7 +198,7 @@
 #'
 #'  # Both replication and experiment, both params and modules
 #'  # use a sub directory
-#'  outputPath(mySimFull) <- file.path(tempdir(), "myExpt3")
+#'  outputPath(mySimFull) <- file.path(tmpdir, "myExpt3")
 #'  sims <- experiment(mySimFull, replicates = 2, params=experimentParams,
 #'                     dirPrefix=c("expt", "simNum"))
 #'
@@ -218,7 +217,7 @@
 #'    ),
 #'    modules = list("randomLandscapes"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = file.path(tempdir(), "landscapeMaps1")),
+#'                 outputPath = file.path(tmpdir, "landscapeMaps1")),
 #'    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
 #'  )
 #'  # Run it twice to get two copies of the randomly generated landscape
@@ -236,13 +235,13 @@
 #'    ),
 #'    modules = list("fireSpread", "caribouMovement"), # No randomLandscapes modules
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = tempdir()),
+#'                 outputPath = tmpdir),
 #'    objects = c("landscape"), # Pass in the object here
 #'    # Save final state of landscape and caribou
 #'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
 #'  )
 #'
-#'  outputPath(mySimCarFir) <- file.path(tempdir(), "myExpt6")
+#'  outputPath(mySimCarFir) <- file.path(tmpdir, "myExpt6")
 #'  sims <- experiment(mySimCarFir, replicates = 8) # Run experiment
 #'  attr(sims, "experiment") # shows the experiment, which in this case is just replicates
 #'  # list all files that were saved called 'landscape'
@@ -266,26 +265,25 @@
 #'    ),
 #'    modules = list("fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = tempdir()),
+#'                 outputPath = tmpdir),
 #'    # Save final state of landscape and caribou
 #'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
 #'  )
-#'  landscapeFiles <- dir(tempdir(), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+#'  landscapeFiles <- dir(tmpdir, pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
 #'  experiment(mySimCarFir2, params=experimentParams, modules=experimentModules, replicates = 2,
 #'    inputs=lapply(landscapeFiles,function(filenames) {
 #'      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
 #'   )
-#'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+#'  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"))
 #'  print(exptDesign)
 #'
 #'  # Use simple outputPath file names
 #'  experiment(mySimFull, modules=experimentModules, substrLength=0)
-#'  exptDesign <- read.csv(file.path(tempdir(), "experiment.csv"))
+#'  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"))
 #'  print(exptDesign)
 #'
 #' # Remove all temp files
-#' unlink(dir(tempdir(), full.names=TRUE)[!(dir(tempdir(),
-#'                     full.names=TRUE) %in% startFiles)], recursive=TRUE)
+#' unlink(tmpdir, recursive=TRUE)
 #' }
 #'
 setGeneric("experiment", function(sim, replicates = 1, params, modules,
