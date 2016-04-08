@@ -1,9 +1,13 @@
 test_that("experiment does not work correctly", {
   library(raster)
+  library(magrittr)
+  library(dplyr)
   tmpdir <- file.path(tempdir(), "testParallel")
   tmpdir <- gsub(tmpdir, pattern="[/\\]", replacement="/") # Force all forward slash
   on.exit({
     detach("package:raster")
+    detach("package:magrittr")
+    detach("package:dplyr")
     unlink(tmpdir, recursive=TRUE)
   })
 
@@ -33,25 +37,34 @@ test_that("experiment does not work correctly", {
                         caribouMovement = list(N = caribouNums))
 
   sims <- experiment(mySimFull, params=experimentParams)
-  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"), stringsAsFactors=FALSE)
+  expt <- load(file.path(tmpdir, "experiment.RData")) %>% get() # Loads an object named experiment
+  exptDesign <- expt$expDesign
+  expVals <- expt$expVals
 
   expect_equal(NROW(exptDesign), 4)
-  expect_equal(exptDesign$caribouMovement, c(rep(caribouNums, 2)))
-  expect_equal(exptDesign$modules, rep("randomLandscapes,caribouMovement,fireSpread", 4))
-  expect_equal(length(sims), NROW(exptDesign))
+  expect_equal(expVals[expVals$module=="caribouMovement","val"] %>% unlist(),
+               c(rep(caribouNums, 2)))
+  expect_equal(expVals$modules %>% unique(), "randomLandscapes,caribouMovement,fireSpread")
+  expect_equal(NROW(attr(sims, "experiment")$expDesign), NROW(exptDesign))
 
   # test that experimental design object is indeed what is in the sims object
   mods <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[1]])
   params <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[2]])
   out2 <- lapply(seq_along(mods), function(y) {
     out <- lapply(seq_len(NROW(exptDesign)), function(x) {
-      expect_equal(params(sims[[x]])[[mods[y]]][[params[[y]]]], exptDesign[x,paste(mods[y],params[y],sep=".")])
+      expect_equivalent(0,params(sims[[x]])[[mods[y]]][[params[[y]]]] -
+                   expVals %>% dplyr::filter(module==mods[[y]] &
+                                               param==params[[y]] &
+                                               expLevel==x) %>%
+                     dplyr::select(val) %>% unlist() )
     })
   })
 
   sims <- experiment(mySimFull, replicates=3)
-  exptDesign <- read.csv(file.path(tmpdir, "experiment.csv"), stringsAsFactors=FALSE)
-  lapply(seq_along(sims), function(x) {
+  expt <- load(file.path(tmpdir, "experiment.RData")) %>% get() # Loads an object named experiment
+  exptDesign <- expt$expDesign
+  expVals <- expt$expVals
+  out <- lapply(seq_along(sims), function(x) {
     expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
     expect_equal(outputs(sims[[x]])$file,
                  file.path(tmpdir, paste0("rep",x), paste0(c("landscape","caribou"),"_year2.rds"))
@@ -106,7 +119,7 @@ test_that("experiment does not work correctly", {
   expect_false(identical(sims[[2]]$landscape$Fires, sims[[4]]$landscape$Fires))
   expect_false(identical(sims[[1]]$landscape$Fires, sims[[3]]$landscape$Fires))
 
-  # Test clearing of the final objects
+  # Test clearSimEnv argument... i.e., clearing of the final objects
   expect_equal(length(ls(sims[[1]])), 10)
   set.seed(1232)
   sims2 <- experiment(mySimCarFir2, replicates = 2, clearSimEnv = TRUE,

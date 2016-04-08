@@ -20,7 +20,7 @@ experiment(sim, replicates = 1, params, modules, objects = list(), inputs,
 
 \item{replicates}{The number of replicates to run of the same \code{simList}}
 
-\item{params}{Like for \code{\link{simInit}}, but a list of \code{params} lists. See details.}
+\item{params}{Like for \code{\link{simInit}}, but for each parameter, provide a list of alternative values. See examples.}
 
 \item{modules}{Like for \code{\link{simInit}}, but a list of \code{modules} lists. See details.}
 
@@ -46,10 +46,14 @@ emptied. This is to reduce RAM load of large return object. Default FALSE.}
 }
 \value{
 Invisibly returns a list of the resulting \code{simList} objects from the fully
-factorial experiment. This list has an attribute, which is the experiment data.frame.
-Since this may be large, the user is not obliged to return this object (as it is returned invisibly).
+factorial experiment. This list has an attribute, which a list with 2 elements: the experimental
+design provided in a wide data.frame and the experiment values in a long data.frame. There is
+also a file saved with these two data.frames. It is named whatever is passed into
+\code{experimentFile}.
+Since returned list of \code{simList} objects may be large, the user is not obliged to
+return this object (as it is returned invisibly).
 Clearly, there may be objects saved during simulations. This would be determined as per a
-normal \code{\link{spades}} call, using \code{outputs}.
+normal \code{\link{spades}} call, using \code{outputs} like, say, \code{outputs(sims[[1]])}.
 }
 \description{
 This is essentially a wrapper around the \code{spades} call that allows for multiple
@@ -65,22 +69,27 @@ requires a \code{simList} object, plus optional inputs and/or params and/or modu
 replications. Future updates will allow varying objects.
 }
 \details{
-This function requires a complete simList. All params, modules, or inputs passed into this
-function will override the corresponding params, modules or inputs that are in the \code{sim} argument.
-Wherase
+This function requires a complete simList: this simList will form the basis of the
+modifications as passed by params, modules, inputs. All params, modules, or inputs
+passed into this function will override the corresponding params, modules or inputs
+that are in the \code{sim} argument.
 
-There are a few behaviours that are assumed, notably with output directories. If there
-are only replications, then a set of subdirectories will be created, one for each replicate.
+Output directories are changed using this function: this is one of the dominant
+side effects of this function. If there are only replications, then a set of
+subdirectories will be created, one for each replicate.
 If there are varying parameters and or modules, \code{outputPath} is updated to include
 a subdirectory for each level of the experiment. These are not nested, i.e., even if there
-are nexted factors, all subdirectories will be at the same level.
+are nested factors, all subdirectories due to the experimental setup will be
+at the same level. Replicates will be one level below this.
 The subdirectory names will include the module(s), parameter names, the parameter values,
 and input index number (i.e., which row of the inputs data.frame).
 The default rule for naming is a concatenation of:
 
-1. The experiment level (arbitrarily starting at 1).
+1. The experiment level (arbitrarily starting at 1). This is padded with zeros if there are
+many experiment levels.
 
-2. The module, parameter name and parameter value, for each parameter that is varying.
+2. The module, parameter name and parameter experiment level (not the parameter value,
+as values could be complex), for each parameter that is varying.
 
 3. The module set.
 
@@ -88,18 +97,22 @@ The default rule for naming is a concatenation of:
 
 5. Individual identifiers are separated by a dash.
 
-6. Module - Parameter - Parameter value triplets are separated by underscore.
+6. Module - Parameter - Parameter index triplets are separated by underscore.
+
+e.g., a folder called: \code{01-fir_spr_1-car_N_1-inp_1} would be the first experiment level
+(01), the first parameter value for the spr* parameter of the fir* module, the first parameter
+value of the N parameter of the car* module, and the first input dataset provided.
 
 This subdirectory name could be long
 if there are many dimensions to the experiment. The parameter \code{substrLength} determines
-the level of truncation of the parameter, module and input names for these subdirectories. For example,
-The  resulting directory name for a parameter value of 0.225 for the \code{spreadprob} parameter in the
+the level of truncation of the parameter, module and input names for these subdirectories.
+For example, the  resulting directory name for changes to the \code{spreadprob} parameter in the
 \code{fireSpread} module and the \code{N} parameter in the \code{caribouMovement} module would be:
-\code{1_fir_spr_0.225-car_N_10} if \code{substrLength} is 3, the default.
+\code{1_fir_spr_1-car_N_1} if \code{substrLength} is 3, the default.
 
 Replication is treated slightly differently. \code{outputPath} is always 1 level below the
 experiment level for a replicate.
-If the call to \code{experiment} is not a factoria experiment (i.e., it is just replication), then the
+If the call to \code{experiment} is not a factorial experiment (i.e., it is just replication), then the
 default is to put the replicate subdirectories at the top level of \code{outputPath}. To force
 this one level down, \code{dirPrefix} can be used or a manual change to \code{outputPath} before
 the call to experiment.
@@ -140,6 +153,10 @@ only \code{dirPrefix}.
 
  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
  #    and 2 levels of 1 param in caribouMovement)
+
+ # Here is a list of alternative values for each parameter. They are length one
+ #   numerics here -- e.g., list(0.2, 0.23) for spreadprob in fireSpread module,
+ #   but they can be anything, as long as it is a list.
  experimentParams <- list(fireSpread = list(spreadprob = list(0.2, 0.23),
                                              nFires = list(20, 10)),
                        caribouMovement = list(N = list(100, 1000)))
