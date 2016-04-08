@@ -148,8 +148,7 @@ test_that("experiment does not work correctly", {
 })
 
 test_that("parallel does not work with experiment function", {
-  skip_on_travis()
-  skip_on_cran()
+  skip("Can't automatically test parallel processing - Run Manually")
   library(raster)
   library(magrittr)
   library(dplyr)

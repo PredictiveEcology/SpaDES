@@ -64,6 +64,21 @@ return this object (as it is returned invisibly).
 Clearly, there may be objects saved during simulations. This would be determined as per a
 normal \code{\link{spades}} call, using \code{outputs} like, say, \code{outputs(sims[[1]])}.
 }
+\description{
+This is essentially a wrapper around the \code{spades} call that allows for multiple
+calls to spades. This function will use a single processor, or multiple processors if
+\code{\link[raster]{beginCluster}} has been run first.
+Generally, there are 2 reasons to do this: replication and varying simulation inputs
+to accomplish some sort of simulation experiment. This function deals with both of these
+cases. In the case of varying inputs, this function will attempt to create a fully
+factorial experiment among all levels of the variables passed into the function.
+If all combinations do not make sense, e.g., if parameters and modules are varied,
+and some of the parameters don't exist in all combinations of modules, then the function
+will do an "all meaningful combinations" factorial experiment. Likewise, fully factorial
+combinations of parameters and inputs may not be the desired behaviour. The function
+requires a \code{simList} object, acting as the basis for the experiment,
+plus optional inputs and/or objects and/or params and/or modules and/or replications.
+}
 \details{
 This function requires a complete simList: this simList will form the basis of the
 modifications as passed by params, modules, inputs, and objects.

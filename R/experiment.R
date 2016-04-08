@@ -3,7 +3,7 @@
 #'
 #' This is essentially a wrapper around the \code{spades} call that allows for multiple
 #' calls to spades. This function will use a single processor, or multiple processors if
-#' \code{\link[raster](beginCluster)}} has been run first.
+#' \code{\link[raster]{beginCluster}} has been run first.
 #' Generally, there are 2 reasons to do this: replication and varying simulation inputs
 #' to accomplish some sort of simulation experiment. This function deals with both of these
 #' cases. In the case of varying inputs, this function will attempt to create a fully
