@@ -88,7 +88,7 @@ test_that("experiment does not work correctly", {
   )
   sims2 <- experiment(mySimRL, replicate=2)
 
-  mySimCarFir2 <- simInit(
+  mySimNoRL <- simInit(
     times = list(start = 0.0, end = 2.0, timeunit = "year"),
     params = list(
       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
@@ -102,9 +102,10 @@ test_that("experiment does not work correctly", {
     # Save final state of landscape and caribou
     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
   )
-  landscapeFiles <- dir(file.path(tmpdir, "landscapeMaps1"), pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+  landscapeFiles <- dir(outputPath(mySimRL), pattern="landscape_year0", recursive=TRUE,
+                        full.names=TRUE)
   set.seed(1232)
-  sims <- experiment(mySimCarFir2, replicates = 2,
+  sims <- experiment(mySimNoRL, replicates = 2,
     inputs=lapply(landscapeFiles,function(filenames) {
       data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
    )
@@ -122,7 +123,7 @@ test_that("experiment does not work correctly", {
   # Test clearSimEnv argument... i.e., clearing of the final objects
   expect_equal(length(ls(sims[[1]])), 10)
   set.seed(1232)
-  sims2 <- experiment(mySimCarFir2, replicates = 2, clearSimEnv = TRUE,
+  sims2 <- experiment(mySimNoRL, replicates = 2, clearSimEnv = TRUE,
                      inputs=lapply(landscapeFiles,function(filenames) {
                        data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
   )
@@ -133,4 +134,67 @@ test_that("experiment does not work correctly", {
   list2env(mget(ls(sims[[1]]), envir=envir(sims[[1]])), envir = envir(sims2[[1]]))
   expect_equal(sims[[1]], sims2[[1]] )
 
+  # Test object passing in
+  experimentObj <- list(landscape = lapply(landscapeFiles, readRDS) %>%
+                                   setNames(paste0("landscape",1:2)))
+  # Pass in this list of landscape objects
+  set.seed(1232)
+  sims3 <- experiment(mySimNoRL, objects = experimentObj)
+  # Compare simulations that had objects read from disk with objects passed via objects arg
+  expect_equal(sims3[[1]]$landscape, sims[[1]]$landscape)
+  expect_equal(sims3[[2]]$landscape, sims[[2]]$landscape)
+
+
 })
+
+test_that("parallel does not work with experiment function", {
+  skip_on_travis()
+  skip_on_cran()
+  library(raster)
+  library(magrittr)
+  library(dplyr)
+  tmpdir <- file.path(tempdir(), "testParallel")
+  tmpdir <- gsub(tmpdir, pattern="[/\\]", replacement="/") # Force all forward slash
+  on.exit({
+    detach("package:raster")
+    detach("package:magrittr")
+    detach("package:dplyr")
+    unlink(tmpdir, recursive=TRUE)
+  })
+
+  # Example of changing parameter values
+  mySimFull <- simInit(
+    times = list(start = 0.0, end = 2.0, timeunit = "year"),
+    params = list(
+      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+      # Turn off interactive plotting
+      fireSpread = list(.plotInitialTime=NA),
+      caribouMovement = list(.plotInitialTime=NA),
+      randomLandscapes = list(.plotInitialTime=NA)
+    ),
+    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                 outputPath = tmpdir),
+    # Save final state of landscape and caribou
+    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+  )
+
+
+  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
+  #    and 2 levels of 1 param in caribouMovement)
+  caribouNums <- c(100, 1000)
+  experimentParams <- list(fireSpread = list(spreadprob = c(0.2),
+                                             nFires = c(20, 10)),
+                           caribouMovement = list(N = caribouNums))
+
+  set.seed(2343)
+  seqTime <- system.time(simsSeq <- experiment(mySimFull, params=experimentParams))
+
+  beginCluster(4)
+  set.seed(2343)
+  parTime <- system.time(simsPar <- experiment(mySimFull, params=experimentParams))
+  endCluster()
+  expect_equal(attr(simsPar, "experiment"),attr(simsSeq, "experiment"))
+  expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
+})
+
