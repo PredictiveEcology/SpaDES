@@ -369,7 +369,8 @@ setMethod(
     # load core modules
     for (c in core) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, start(sim), c, "init", .normal())
+      sim <- scheduleEvent(sim, start(sim, unit=timeunit(sim)),
+                           c, "init", .normal())
     }
 
     # assign user-specified non-global params, while
@@ -779,7 +780,7 @@ setMethod(
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
-        if (length(events(sim, "second")) == 0L) {
+        if (NROW(events(sim, "second")) == 0L) {
           events(sim) <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
           events(sim) <- rbindlist(list(events(sim, "second"), newEvent)) %>%
