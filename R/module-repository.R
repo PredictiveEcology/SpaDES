@@ -135,6 +135,8 @@ setMethod("checkModule",
 #' @param data    Logical. If TRUE, then the data that is identified in the module
 #'                metadata will be downloaded, if possible. Default if FALSE.
 #'
+#' @param quiet   Logical. This is passed to \code{download.file}. Default is FALSE.
+#'
 #' @return A list of length 2. The first elemet is a character vector containing
 #'    a character vector of extracted files for the module. The second element is
 #'    a tbl with details about the data that is relevant for the function, including
@@ -147,7 +149,8 @@ setMethod("checkModule",
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadModule", function(name, path, version, repo, data = FALSE) {
+setGeneric("downloadModule", function(name, path, version, repo, data = FALSE,
+                                      quiet = FALSE) {
   standardGeneric("downloadModule")
 })
 
@@ -155,8 +158,8 @@ setGeneric("downloadModule", function(name, path, version, repo, data = FALSE) {
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "character",
-                repo = "character", data = "logical"),
-  definition = function(name, path, version, repo, data) {
+                repo = "character", data = "logical", quiet = "logical"),
+  definition = function(name, path, version, repo, data, quiet) {
     path <- checkPath(path, create = TRUE)
     checkModule(name, repo)
     if (is.na(version)) version <- getModuleVersion(name, repo)
@@ -166,7 +169,7 @@ setMethod(
     zip <- paste0("https://raw.githubusercontent.com/", repo,
                   "/master/modules/", name, "/", name, "_", version, ".zip")
     localzip <- file.path(path, basename(zip))
-    download.file(zip, destfile = localzip, mode = "wb", quiet = TRUE)
+    download.file(zip, destfile = localzip, mode = "wb", quiet = quiet)
     files <- unzip(localzip, exdir = file.path(path), overwrite = TRUE)
 
     # after download, check for childModules that also require downloading
@@ -186,7 +189,7 @@ setMethod(
     }
 
     if (data) {
-      dataList <- downloadData(module = name, path = path)
+      dataList <- downloadData(module = name, path = path, quiet = quiet)
     } else {
       dataList <- checksums(module = name, path = path)
     }
@@ -197,11 +200,11 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "character",
-                repo = "missing", data = "ANY"),
-  definition = function(name, path, version, data) {
+                repo = "missing", data = "ANY", quiet = "ANY"),
+  definition = function(name, path, version, data, quiet) {
     files <- downloadModule(name, path, version,
                             repo = getOption("spades.modulesRepo"),
-                            data = data)
+                            data = data, quiet = quiet)
     return(invisible(files))
 })
 
@@ -209,11 +212,12 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
-                repo = "missing", data = "ANY"),
-  definition = function(name, path, data) {
+                repo = "missing", data = "ANY", quiet = "ANY"),
+  definition = function(name, path, data, quiet) {
     files <- downloadModule(name, path, version = NA_character_,
                             repo = getOption("spades.modulesRepo"),
-                            data = data)
+                            data = data,
+                            quiet = quiet)
     return(invisible(files))
 })
 
@@ -221,10 +225,10 @@ setMethod(
 setMethod(
   "downloadModule",
   signature = c(name = "character", path = "character", version = "missing",
-                repo = "character", data = "ANY"),
-  definition = function(name, path, repo, data) {
+                repo = "character", data = "ANY", quiet = "ANY"),
+  definition = function(name, path, repo, data, quiet) {
     files <- downloadModule(name, path, version = NA_character_, repo = repo,
-                            data = data)
+                            data = data, quiet)
     return(invisible(files))
 })
 
@@ -239,6 +243,8 @@ setMethod(
 #'
 #' @param path    Character string giving the path to the module directory.
 #'
+#' @param quiet   Logical. This is passed to \code{download.file}. Default is FALSE.
+#'
 #' @return Invisibly, a list of downloaded files.
 #'
 #' @include moduleMetadata.R
@@ -249,15 +255,15 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #'
-setGeneric("downloadData", function(module, path) {
+setGeneric("downloadData", function(module, path, quiet = FALSE) {
   standardGeneric("downloadData")
 })
 
 #' @rdname downloadData
 setMethod(
   "downloadData",
-  signature = c(module = "character", path = "character"),
-  definition = function(module, path) {
+  signature = c(module = "character", path = "character", quiet = "logical"),
+  definition = function(module, path, quiet) {
     cwd <- getwd()
     path <- checkPath(path, create = FALSE)
     urls <- moduleMetadata(module, path)$inputObjects$sourceURL
@@ -278,7 +284,7 @@ setMethod(
             checkPath(create = TRUE) %>%
             file.path(., basename(x))
           message("Downloading data for module ", module, " ...")
-          download.file(x, destfile = tmpFile, quiet = TRUE, mode = "wb")
+          download.file(x, destfile = tmpFile, mode = "wb", quiet=quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
         }
@@ -307,7 +313,8 @@ setMethod(
     children <- moduleMetadata(module, path)$childModules
     if (!is.null(children)) {
       if ( all( nzchar(children) & !is.na(children) ) ) {
-        chksums2 <- lapply(children, downloadData, path = path) %>% bind_rows()
+        chksums2 <- lapply(children, downloadData, path = path, quiet = quiet) %>%
+          bind_rows()
       }
     }
     message("Download complete for module ", module, ".")
