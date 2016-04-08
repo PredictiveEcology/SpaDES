@@ -925,7 +925,18 @@ setGeneric("inputs", function(object) {
 setMethod("inputs",
           signature = ".simList",
           definition = function(object) {
-            return(object@inputs)
+            unit <- timeunit(object)
+            if (!is.null(object@inputs$loadTime)) {
+              res <- object@inputs %>%
+                dplyr::mutate_(.dots = setNames(list(
+                  interp(~convertTimeunit(loadTime, unit, envir(object)))
+                ), "loadTime")) %>%
+                data.table() # dplyr removes something that makes this not print when
+              # events(sim) is invoked. This line brings it back.
+            } else {
+              res <- object@inputs
+            }
+            return(res)
 })
 
 #' @export
@@ -1111,7 +1122,19 @@ setGeneric("outputs", function(object) {
 setMethod("outputs",
           signature = ".simList",
           definition = function(object) {
-            return(object@outputs)
+            unit <- timeunit(object)
+            if (!is.null(object@outputs$saveTime)) {
+              res <- object@outputs %>%
+                dplyr::mutate_(.dots = setNames(list(
+                  interp(~convertTimeunit(saveTime, unit, envir(object)))
+                ), "saveTime")) %>%
+                data.table() # dplyr removes something that makes this not print when
+              # events(sim) is invoked. This line brings it back.
+            } else {
+              res <- object@outputs
+            }
+            return(res)
+
 })
 
 #' @export
@@ -1996,13 +2019,15 @@ setMethod(
   "timeunits",
   signature = ".simList",
   definition = function(x) {
-    if(all(sapply(depends(x)@dependencies, is.null))) {
+    isNonParent <- !sapply(depends(x)@dependencies, function(x)
+      length(x@childModules)>0)
+    if(all(sapply(depends(x)@dependencies[isNonParent], is.null))) {
       timestepUnits <- NULL
     } else {
-      timestepUnits <- lapply(depends(x)@dependencies, function(y) {
+      timestepUnits <- lapply(depends(x)@dependencies[isNonParent], function(y) {
         y@timeunit
       })
-      names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
+      names(timestepUnits) <- sapply(depends(x)@dependencies[isNonParent], function(y) {
         y@name
       })
     }
