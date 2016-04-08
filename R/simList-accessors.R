@@ -930,7 +930,7 @@ setMethod("inputs",
             if (!is.null(object@inputs$loadTime)) {
               res <- object@inputs %>%
                 dplyr::mutate_(.dots = setNames(list(
-                  interp(~convertTimeunit(loadTime, unit, envir(object)))
+                  interp(~as.numeric(convertTimeunit(loadTime, unit, envir(object))))
                 ), "loadTime")) %>%
                 data.table() %>% data.frame() # dplyr removes something that makes this not print when
               # events(sim) is invoked. This line brings it back.
@@ -1127,7 +1127,7 @@ setMethod("outputs",
             if (!is.null(object@outputs$saveTime)) {
               res <- object@outputs %>%
                 dplyr::mutate_(.dots = setNames(list(
-                  interp(~convertTimeunit(saveTime, unit, envir(object)))
+                  interp(~as.numeric(convertTimeunit(saveTime, unit, envir(object))))
                 ), "saveTime")) %>%
                 data.table() %>% data.frame() # dplyr removes something that makes this not print when
               # events(sim) is invoked. This line brings it back.
