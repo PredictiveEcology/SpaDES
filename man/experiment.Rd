@@ -21,7 +21,8 @@ experiment(sim, replicates = 1, params = list(), modules = list(),
 
 \item{replicates}{The number of replicates to run of the same \code{simList}}
 
-\item{params}{A named list of simulation parameters and their values.}
+\item{params}{A list of lists of the form list(moduleName=list(param1=value, param2=value)).
+See details.}
 
 \item{modules}{A named list of character strings specfying the names
 of modules to be loaded for the simulation. Note: the module name
