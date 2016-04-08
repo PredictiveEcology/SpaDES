@@ -3,7 +3,7 @@
 #'
 #' This is essentially a wrapper around the \code{spades} call that allows for multiple
 #' calls to spades. This function will use a single processor, or multiple processors if
-#' \code{\link{raster::beginCluster(N)}} has been run first.
+#' \code{\link[raster](beginCluster)}} has been run first.
 #' Generally, there are 2 reasons to do this: replication and varying simulation inputs
 #' to accomplish some sort of simulation experiment. This function deals with both of these
 #' cases. In the case of varying inputs, this function will attempt to create a fully
@@ -56,9 +56,9 @@
 #' or identically named objects that are in the \code{sim} argument.
 #'
 #' This function is parallel aware, using the same mechanism as used in the \code{raster}
-#' package. Specifically, if you start a cluster using \code{\link{beginCluster()}}, then
+#' package. Specifically, if you start a cluster using \code{\link{beginCluster}}, then
 #' this experiment function will automatically use that cluster. It is always a good
-#' idea to stop the cluster when finished, using \code{\link{endCluster()}}. See
+#' idea to stop the cluster when finished, using \code{\link{endCluster}}. See
 #'
 #' Here are generic examples of how \code{params}, \code{modules}, \code{objects},
 #' and \code{inputs} should be structured.
@@ -341,7 +341,8 @@
 #'   outputPath(mySimInputs) <- file.path(tmpdir, "example9")
 #'   sims <- experiment(mySimInputs,
 #'      inputs=lapply(landscapeFiles,function(filenames) {
-#'        data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
+#'        data.frame(file = filenames, loadTime=0, objectName= "landscape",
+#'                   stringsAsFactors = FALSE) })
 #'    )
 #'
 #'   # load in experimental design object
