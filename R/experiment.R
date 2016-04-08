@@ -4,32 +4,36 @@
 #' This is essentially a wrapper around the \code{spades} call that allows for multiple
 #' calls to spades. This function will use a single processor, or multiple processors if
 #' \code{\link{raster::beginCluster(N)}} has been run first.
-#' Generally, there are 2 reasons to do this: replication and varying inputs
+#' Generally, there are 2 reasons to do this: replication and varying simulation inputs
 #' to accomplish some sort of simulation experiment. This function deals with both of these
-#' cases. In the case of varying inputs, this function will create a fully factorial experiment
-#' among all levels of the variables passed into the function, if they are parameters. If varying
-#' modules are passed into the function, then it is likewise fully factorial. However, if it is both
-#' varying parameters and varying modules, then it may not make sense to be fully factorial as some
-#' parameters that are varying may not be defined in all module sets. The function will fully
-#' factorial where it makes sense to do this, and a complete set otherwise. The function
-#' requires a \code{simList} object, plus optional inputs and/or params and/or modules and/or
-#' replications. Future updates will allow varying objects.
+#' cases. In the case of varying inputs, this function will attempt to create a fully
+#' factorial experiment among all levels of the variables passed into the function.
+#' If all combinations do not make sense, e.g., if parameters and modules are varied,
+#' and some of the parameters don't exist in all combinations of modules, then the function
+#' will do an "all meaningful combinations" factorial experiment. Likewise, fully factorial
+#' combinations of parameters and inputs may not be the desired behaviour. The function
+#' requires a \code{simList} object, acting as the basis for the experiment,
+#' plus optional inputs and/or objects and/or params and/or modules and/or replications.
 #'
 #' @inheritParams spades
 #'
 #' @param inputs Like for \code{\link{simInit}}, but a list of \code{inputs} data.frames.
-#'               See details.
+#'               See details and examples.
+#' @param objects Like for \code{\link{simInit}}, but a list of named lists of named objects.
+#'               See details and examples.
 #' @param params Like for \code{\link{simInit}}, but for each parameter, provide a list of
-#'               alternative values. See examples.
-#' @param modules Like for \code{\link{simInit}}, but a list of \code{modules} lists.
-#'                See details.
-#' @param replicates The number of replicates to run of the same \code{simList}
+#'               alternative values. See details and examples.
+#' @param modules Like for \code{\link{simInit}}, but a list of \code{module} names (as strings).
+#'                See details and examples.
+#' @param replicates The number of replicates to run of the same \code{simList}.
+#'                   See details and examples.
 #'
 #' @param substrLength Numeric. While making \code{outputPath} for each spades call, this
-#'                     is the number of characters kept from each factor level. See Details.
+#'                     is the number of characters kept from each factor level.
+#'                     See details and examples.
 #'
-#' @param dirPrefix String vector. This will be concatenated as a prefix on the directory names.
-#' See Details.
+#' @param dirPrefix String vector. This will be concatenated as a prefix on the
+#'                  directory names. See details and examples.
 #'
 #' @param saveExperiment Logical. Should params, modules, inputs, sim, and resulting
 #' experimental design be saved to a file. If TRUE are saved to a single list
@@ -46,14 +50,35 @@
 #'
 #' @details
 #' This function requires a complete simList: this simList will form the basis of the
-#' modifications as passed by params, modules, inputs. All params, modules, or inputs
-#' passed into this function will override the corresponding params, modules or inputs
-#' that are in the \code{sim} argument.
+#' modifications as passed by params, modules, inputs, and objects.
+#' All params, modules, inputs or objects
+#' passed into this function will override the corresponding params, modules, inputs,
+#' or identically named objects that are in the \code{sim} argument.
 #'
 #' This function is parallel aware, using the same mechanism as used in the \code{raster}
 #' package. Specifically, if you start a cluster using \code{\link{beginCluster()}}, then
 #' this experiment function will automatically use that cluster. It is always a good
 #' idea to stop the cluster when finished, using \code{\link{endCluster()}}. See
+#'
+#' Here are generic examples of how \code{params}, \code{modules}, \code{objects},
+#' and \code{inputs} should be structured.
+#'
+#'   \code{params = list(moduleName = list(paramName = list(val1, val2)))}.
+#'
+#'   \code{modules = list(c("module1","module2"), c("module1","module3"))}
+#'
+#'   \code{objects = list(objName = list(object1=object1, object2=object2))}
+#'
+#'   \code{inputs=list(
+#'
+#'        data.frame(file = pathToFile1, loadTime=0, objectName= "landscape",
+#'                    stringsAsFactors = FALSE),
+#'
+#'        data.frame(file = pathToFile2, loadTime=0, objectName= "landscape",
+#'                    stringsAsFactors = FALSE)
+#'
+#'      )}
+#'
 #'
 #' Output directories are changed using this function: this is one of the dominant
 #' side effects of this function. If there are only replications, then a set of
@@ -109,9 +134,9 @@
 #' \code{dirPrefix=c("expt","simNum")}.
 #'
 #' The experiment structure is kept in two places: the return object has an attribute, and a file
-#' named "experiment.rds" (see argument \code{experimentFile}) located in \code{outputPath(sim)}.
+#' named \code{experiment.RData} (see argument \code{experimentFile}) located in \code{outputPath(sim)}.
 #'
-#' \code{substrLength}, if \code{0}, this will eliminate the subfolder naming convention and use
+#' \code{substrLength}, if \code{0}, will eliminate the subfolder naming convention and use
 #' only \code{dirPrefix}.
 #'
 #' @return Invisibly returns a list of the resulting \code{simList} objects from the fully
@@ -142,57 +167,51 @@
 #'  tmpdir <- file.path(tempdir(), "examples")
 #'
 #' # Create a default simList object for use through these examples
-#'  mySim <- simInit(
-#'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
-#'    params = list(
-#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-#'      # Turn off interactive plotting
-#'      fireSpread = list(.plotInitialTime=NA),
-#'      caribouMovement = list(.plotInitialTime=NA),
-#'      randomLandscapes = list(.plotInitialTime=NA)
-#'    ),
-#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
-#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = tmpdir),
-#'    # Save final state of landscape and caribou
-#'    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
-#'  )
+#'   mySim <- simInit(
+#'     times = list(start = 0.0, end = 2.0, timeunit = "year"),
+#'     params = list(
+#'       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+#'       # Turn off interactive plotting
+#'       fireSpread = list(.plotInitialTime=NA),
+#'       caribouMovement = list(.plotInitialTime=NA),
+#'       randomLandscapes = list(.plotInitialTime=NA)
+#'     ),
+#'     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'                  outputPath = tmpdir),
+#'     # Save final state of landscape and caribou
+#'     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+#'   )
 #'
+#' # Example 1 - test alternative parameter values
+#'   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
+#'   #    and 2 levels of 1 param in caribouMovement)
 #'
-#'  # Example 1 - test alternative parameter values
-#'    # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
-#'    #    and 2 levels of 1 param in caribouMovement)
-#'
-#'    # Here is a list of alternative values for each parameter. They are length one
-#'    #   numerics here -- e.g., list(0.2, 0.23) for spreadprob in fireSpread module,
-#'    #   but they can be anything, as long as it is a list.
-#'    experimentParams <- list(fireSpread = list(spreadprob = list(0.2, 0.23),
+#'   # Here is a list of alternative values for each parameter. They are length one
+#'   #   numerics here -- e.g., list(0.2, 0.23) for spreadprob in fireSpread module,
+#'   #   but they can be anything, as long as it is a list.
+#'   experimentParams <- list(fireSpread = list(spreadprob = list(0.2, 0.23),
 #'                                              nFires = list(20, 10)),
 #'                             caribouMovement = list(N = list(100, 1000)))
 #'
-#'    sims <- experiment(mySim, params=experimentParams)
+#'   sims <- experiment(mySim, params=experimentParams)
 #'
-#'    # see experiment:
-#'    attr(sims, "experiment")
+#'   # see experiment:
+#'   attr(sims, "experiment")
 #'
-#'    # Read in outputs from sims object
-#'    FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")$expDesign),
-#'                       function(x) sims[[x]]$landscape$Fires))
-#'    Plot(FireMaps, new=TRUE)
+#'   # Read in outputs from sims object
+#'   FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")$expDesign),
+#'                      function(x) sims[[x]]$landscape$Fires))
+#'   Plot(FireMaps, new=TRUE)
 #'
-#'    # Or reload objects from files, useful if sim objects too large to store in RAM
-#'    caribouMaps <- lapply(sims, function(sim) {
-#'      caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName=="caribou"])
-#'      })
-#'    names(caribouMaps) <- paste0("caribou",1:8)
-#'    # Plot does not plot whole lists (yet)
-#'    for(i in 1:NROW(attr(sims,"experiment")$expDesign)){
-#'      Plot(caribouMaps[[i]], size=0.1)}
-#'
-#'
-#' # Remove all temp files
-#' unlink(tmpdir, recursive=TRUE)
-#' #######
+#'   # Or reload objects from files, useful if sim objects too large to store in RAM
+#'   caribouMaps <- lapply(sims, function(sim) {
+#'     caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName=="caribou"])
+#'     })
+#'   names(caribouMaps) <- paste0("caribou",1:8)
+#'   # Plot does not plot whole lists (yet)
+#'   for(i in 1:NROW(attr(sims,"experiment")$expDesign)){
+#'     Plot(caribouMaps[[i]], size=0.1)}
 #'
 #' # Example 2 - test alternative modules
 #'   # Example of changing modules, i.e., caribou with and without fires
@@ -239,15 +258,13 @@
 #'   # endCluster() # end the clusters
 #'   attr(sims, "experiment")
 #'
-#'  #############################################################
-#'  #############################################################
-#'  # Example 8 - Use replication to build a probability map.
-#'    # For this to be meaningful, we need to provide a fixed input landscape,
-#'    #   not a randomLandscape for each experiment level. So requires 2 steps.
-#'    # Step 1 - run randomLandscapes module twice to get 2 randomly
-#'    #  generated landscape maps. We will use 1 right away, and we will
-#'    #  use the two further below
-#'    mySimRL <- simInit(
+#' # Example 8 - Use replication to build a probability map.
+#'   # For this to be meaningful, we need to provide a fixed input landscape,
+#'   #   not a randomLandscape for each experiment level. So requires 2 steps.
+#'   # Step 1 - run randomLandscapes module twice to get 2 randomly
+#'   #  generated landscape maps. We will use 1 right away, and we will
+#'   #  use the two further below
+#'   mySimRL <- simInit(
 #'      times = list(start = 0.0, end = 0.1, timeunit = "year"),
 #'      params = list(
 #'        .globals = list(stackName = "landscape"),
@@ -258,16 +275,16 @@
 #'      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
 #'                   outputPath = file.path(tmpdir, "landscapeMaps1")),
 #'      outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
-#'    )
-#'    # Run it twice to get two copies of the randomly generated landscape
-#'    mySimRLOut <- experiment(mySimRL, replicate=2)
+#'   )
+#'   # Run it twice to get two copies of the randomly generated landscape
+#'   mySimRLOut <- experiment(mySimRL, replicate=2)
 #'
-#'    #extract one of the random landscapes, which will be passed into next as an object
-#'    landscape <- mySimRLOut[[1]]$landscape
+#'   #extract one of the random landscapes, which will be passed into next as an object
+#'   landscape <- mySimRLOut[[1]]$landscape
 #'
-#'    # here we don't run the randomLandscapes module; instead we pass in a landscape
-#'    #  as an object, i.e., a fixed input
-#'    mySimProb <- simInit(
+#'   # here we don't run the randomLandscapes module; instead we pass in a landscape
+#'   #  as an object, i.e., a fixed input
+#'   mySimNoRL <- simInit(
 #'      times = list(start = 0.0, end = 1, timeunit = "year"), # only 1 year to save time
 #'      params = list(
 #'        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
@@ -281,29 +298,30 @@
 #'      objects = c("landscape"), # Pass in the object here
 #'      # Save final state (the default if saveTime is not specified) of landscape and caribou
 #'      outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
-#'    )
+#'   )
 #'
-#'    # Put outputs into a specific folder to keep them easy to find
-#'    outputPath(mySimProb) <- file.path(tmpdir, "example8")
-#'    sims <- experiment(mySimProb, replicates = 8) # Run experiment
-#'    attr(sims, "experiment") # shows the experiment, which in this case is just replicates
+#'   # Put outputs into a specific folder to keep them easy to find
+#'   outputPath(mySimNoRL) <- file.path(tmpdir, "example8")
+#'   sims <- experiment(mySimNoRL, replicates = 8) # Run experiment
+#'   attr(sims, "experiment") # shows the experiment, which in this case is just replicates
 #'
-#'    # list all files that were saved called 'landscape'
-#'    landscapeFiles <- dir(outputPath(mySimProb), recursive=TRUE, pattern="landscape", full.names=TRUE)
+#'   # list all files that were saved called 'landscape'
+#'   landscapeFiles <- dir(outputPath(mySimNoRL), recursive=TRUE, pattern="landscape",
+#'                         full.names=TRUE)
 #'
-#'    # Can read in Fires layers from disk since they were saved, or from the sims
-#'    #  object
-#'    # Fires <- lapply(sims, function(x) x$landscape$Fires) %>% stack
-#'    Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) %>% stack
-#'    Fires[Fires>0] <- 1 # convert to 1s and 0s
-#'    fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
-#'    Plot(fireProb, new=TRUE)
+#'   # Can read in Fires layers from disk since they were saved, or from the sims
+#'   #  object
+#'   # Fires <- lapply(sims, function(x) x$landscape$Fires) %>% stack
+#'   Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) %>% stack
+#'   Fires[Fires>0] <- 1 # convert to 1s and 0s
+#'   fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
+#'   Plot(fireProb, new=TRUE)
 #'
-#'  # Example 9 - Changing inputs, i.e., input data objects read from disk
-#'  #  Here, we, again, don't provide randomLandscapes module, so we need to
-#'  #  provide an input stack called lanscape. We point to the 2 that we have
-#'  #  saved to disk in Example 8
-#'    mySimInputs <- simInit(
+#' # Example 9 - Pass in inputs, i.e., input data objects taken from disk
+#'   #  Here, we, again, don't provide randomLandscapes module, so we need to
+#'   #  provide an input stack called lanscape. We point to the 2 that we have
+#'   #  saved to disk in Example 8
+#'   mySimInputs <- simInit(
 #'      times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'      params = list(
 #'        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
@@ -316,50 +334,56 @@
 #'                   outputPath = tmpdir),
 #'      # Save final state of landscape and caribou
 #'      outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
-#'    )
-#'    landscapeFiles <- dir(tmpdir, pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+#'   )
+#'   landscapeFiles <- dir(tmpdir, pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
 #'
-#'    # Varying inputs files - This could be combined with params, modules, replicates also
-#'    outputPath(mySimInputs) <- file.path(tmpdir, "example9")
-#'    sims <- experiment(mySimInputs,
+#'   # Varying inputs files - This could be combined with params, modules, replicates also
+#'   outputPath(mySimInputs) <- file.path(tmpdir, "example9")
+#'   sims <- experiment(mySimInputs,
 #'      inputs=lapply(landscapeFiles,function(filenames) {
 #'        data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
-#'     )
+#'    )
 #'
-#'    # load in experimental design object
-#'    experiment <- load(file=file.path(tmpdir, "example9", "experiment.RData")) %>% get()
-#'    print(experiment) # shows input files and details
+#'   # load in experimental design object
+#'   experiment <- load(file=file.path(tmpdir, "example9", "experiment.RData")) %>% get()
+#'   print(experiment) # shows input files and details
 #'
-#'  # Example 10 - Use a very simple output dir name using substrLength = 0,
-#'    #   i.e., just the simNum is used for outputPath of each spades call
-#'    outputPath(mySim) <- file.path(tmpdir, "example10")
-#'    sims <- experiment(mySim, modules=experimentModules, replicates = 2,
-#'                       substrLength=0)
-#'    lapply(sims, outputPath) # shows that the path is just the simNum
-#'    experiment <- load(file=file.path(tmpdir, "example10", "experiment.RData")) %>% get()
-#'    print(experiment) # shows input files and details
+#' # Example 10 - Use a very simple output dir name using substrLength = 0,
+#'   #   i.e., just the simNum is used for outputPath of each spades call
+#'   outputPath(mySim) <- file.path(tmpdir, "example10")
+#'   sims <- experiment(mySim, modules=experimentModules, replicates = 2,
+#'                      substrLength=0)
+#'   lapply(sims, outputPath) # shows that the path is just the simNum
+#'   experiment <- load(file=file.path(tmpdir, "example10", "experiment.RData")) %>% get()
+#'   print(experiment) # shows input files and details
 #'
-#'  # Example 11 - use clearSimEnv = TRUE to remove objects from simList
-#'    # This will shrink size of return object, which may be useful because the
-#'    #  return from experiment function may be a large object (it is a list of
-#'    # simLists). To see size of a simList, you have to look at the objects
-#'    #  contained in the  envir(simList).  These can be obtained via objs(sim)
-#'    sapply(sims, function(x) object.size(objs(x))) %>% sum + object.size(sims)
-#'    # around 3 MB
-#'    # rerun with clearSimEnv = TRUE
-#'    sims <- experiment(mySim, modules=experimentModules, replicates = 2, substrLength=0,
-#'                       clearSimEnv = TRUE)
-#'    sapply(sims, function(x) object.size(objs(x))) %>% sum + object.size(sims)
-#'    # around 250 kB, i.e., all the simList contents except the objects.
+#' # Example 11 - use clearSimEnv = TRUE to remove objects from simList
+#'   # This will shrink size of return object, which may be useful because the
+#'   #  return from experiment function may be a large object (it is a list of
+#'   # simLists). To see size of a simList, you have to look at the objects
+#'   #  contained in the  envir(simList).  These can be obtained via objs(sim)
+#'   sapply(sims, function(x) object.size(objs(x))) %>% sum + object.size(sims)
+#'   # around 3 MB
+#'   # rerun with clearSimEnv = TRUE
+#'   sims <- experiment(mySim, modules=experimentModules, replicates = 2, substrLength=0,
+#'                      clearSimEnv = TRUE)
+#'   sapply(sims, function(x) object.size(objs(x))) %>% sum + object.size(sims)
+#'   # around 250 kB, i.e., all the simList contents except the objects.
+#'
+#' # Example 12 - pass in objects
+#'   experimentObj <- list(landscape = lapply(landscapeFiles, readRDS) %>%
+#'                                     setNames(paste0("landscape",1:2)))
+#'   # Pass in this list of landscape objects
+#'   sims <- experiment(mySimNoRL, objects = experimentObj)
 #'
 #' # Remove all temp files
-#' unlink(tmpdir, recursive=TRUE)
+#'   unlink(tmpdir, recursive=TRUE)
 #' }
 #'
 setGeneric("experiment", function(sim, replicates = 1, params, modules,
                                   objects = list(), inputs,
                                   dirPrefix = "simNum", substrLength=3,
-                                  saveExperiment=TRUE, experimentFile = "experiment",
+                                  saveExperiment=TRUE, experimentFile = "experiment.RData",
                                   clearSimEnv=FALSE, ...) {
   standardGeneric("experiment")
 })
@@ -375,6 +399,9 @@ setMethod(
     if(missing(params)) params <- list()
     if(missing(modules)) modules <- list(unlist(SpaDES::modules(sim)[-(1:4)]))
     if(missing(inputs)) inputs <- list()
+    if(missing(objects)) {objects <- list() } else if(length(objects)==1) {
+      objects <- unlist(objects, recursive = FALSE)
+    }
 
     cl <- tryCatch(getCluster(), error=function(x) NULL)
     on.exit(if(!is.null(cl)) returnCluster())
@@ -390,15 +417,21 @@ setMethod(
       }
 
       if(length(inputs)>0) {
-        inputsList <- list(inputs = seq_len(NROW(inputs)))
+        inputsList <- list(input = seq_len(NROW(inputs)))
         factorsTmp <- append(factorsTmp, inputsList)
+      }
+      if(length(objects)>0) {
+        objectsList <- list(object = seq_along(objects))
+        factorsTmp <- append(factorsTmp, objectsList)
       }
 
       factorialExpInner <- expand.grid(factorsTmp, stringsAsFactors = FALSE)
 
       modulesShort <- paste(modules[[x]],collapse=",")
-      if(NROW(factorialExpInner)>0) {
-        factorialExpInner[["modules"]] <- x
+      if(NROW(factorialExpInner)>0 ) {
+        if(any(!(names(factorialExpInner) %in% c("object", "input")))) {
+          factorialExpInner[["modules"]] <- x
+        }
       } else {
         factorialExpInner <- data.frame(modules=x, stringsAsFactors = FALSE)
       }
@@ -414,7 +447,7 @@ setMethod(
         replicates=seq_len(replicates)
       }
       factorialExp <- do.call(rbind, replicate(length(replicates), factorialExp, simplify = FALSE))
-      factorialExp$replicates=rep(replicates, each=numExpLevels)
+      factorialExp$replicate=rep(replicates, each=numExpLevels)
     }
 
     FunDef <- function(ind, ...) {
@@ -435,9 +468,9 @@ setMethod(
         paramValues <- paramValues[whNotExpLevel]
       }
 
-      whNotRepl <- which(colnames(paramValues)!="replicates")
+      whNotRepl <- which(colnames(paramValues)!="replicate")
       if(length(whNotRepl)<length(paramValues)) {
-        repl <- paramValues$replicates
+        repl <- paramValues$replicate
         mod <- mod[whNotRepl]
         param <- param[whNotRepl]
         paramValues <- paramValues[whNotRepl]
@@ -455,8 +488,9 @@ setMethod(
       experimentDF <- data.frame(module=character(), param=character(),
                                  val=I(list()), modules=character(),
                                  input=data.frame(),
+                                 object=character(),
                                  expLevel=numeric(), stringsAsFactors = FALSE)
-      for(x in seq_along(mod[!(mod %in% c("inputs"))])) {
+      for(x in seq_along(mod)) {
         if(any(mod!="modules")) {
           y <- factorialExp[ind,names(paramValues)[x]]
 
@@ -464,10 +498,14 @@ setMethod(
             val <- params[[mod[x]]][[param[[x]]]][[y]]
             params(sim_)[[mod[x]]][[param[[x]]]] <- val #factorialExp[ind,x]
             experimentDF <- rbindlist(l=list(experimentDF,
-                                             data.frame(module=mod[x],param=param[x],
-                                                        val=I(list(val)),
+                                             data.frame(module=if(!(mod[x] %in% c("input", "object"))) mod[x] else NA,
+                                                        param=if(!(mod[x] %in% c("input", "object"))) param[x] else NA,
+                                                        val=if(!(mod[x] %in% c("input", "object"))) I(list(val)) else list(NA),
                                                         modules=paste0(unlist(modules[factorialExp[ind,"modules"]]), collapse=","),
-                                                        input=if(length(inputs)>0) inputs[[factorialExp[ind,"inputs"]]] else NA,
+                                                        #input=if(length(inputs)>0) inputs[[factorialExp[ind,"input"]]] else NA,
+                                                        input=if((mod[x] %in% c("input"))) inputs[[factorialExp[ind,"input"]]] else NA,
+                                                        #object=if(length(objects)>0) names(objects)[[factorialExp[ind,"object"]]] else NA,
+                                                        object=if((mod[x] %in% c("object"))) names(objects)[[factorialExp[ind,"object"]]] else NA,
                                                         expLevel=factorialExp[ind,"expLevel"],
                                                         stringsAsFactors = FALSE)),
                                       use.names = TRUE,
@@ -482,15 +520,17 @@ setMethod(
                                     use.names = TRUE,
                                     fill=TRUE)
         }
-        if (!identical(sort(unlist(modules[factorialExp[ind,"modules"]])),
-                         sort(unlist(SpaDES::modules(sim)[-(1:4)])))){ # test if modules are different from sim,
-                      #  if yes, rerun simInit
-          sim_ <- simInit(params=params(sim_),
-                          modules=as.list(unlist(modules[factorialExp[ind,"modules"]])),
-                          times=append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
-                          paths=paths(sim_),
-                          outputs = outputs(sim_))
+        if("modules" %in% names(factorialExp)) {
+          if (!identical(sort(unlist(modules[factorialExp[ind,"modules"]])),
+                           sort(unlist(SpaDES::modules(sim)[-(1:4)])))){ # test if modules are different from sim,
+                        #  if yes, rerun simInit
+            sim_ <- simInit(params=params(sim_),
+                            modules=as.list(unlist(modules[factorialExp[ind,"modules"]])),
+                            times=append(lapply(times(sim_)[2:3], as.numeric), times(sim_)[4]),
+                            paths=paths(sim_),
+                            outputs = outputs(sim_))
 
+          }
         }
       }
 
@@ -534,8 +574,14 @@ setMethod(
       if(!dir.exists(newOutputPath)) dir.create(newOutputPath, recursive = TRUE)
       paths(sim_)$outputPath <- newOutputPath
       outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
+      # Actually put inputs into simList
       if(length(inputs)>0) {
-        SpaDES::inputs(sim_) <- inputs[[factorialExp[ind,"inputs"]]]
+        SpaDES::inputs(sim_) <- inputs[[factorialExp[ind,"input"]]]
+      }
+      # Actually put objects into simList
+      if(length(objects)>0) {
+        replaceObjName <- strsplit(names(objects)[[factorialExp[ind,"object"]]], split = "\\.")[[1]][1]
+        sim_[[replaceObjName]] <- objects[[factorialExp[ind,"object"]]]
       }
       sim3 <- spades(sim_, ...)
       return(list(sim3, experimentDF))
@@ -560,15 +606,20 @@ setMethod(
     experimentDF <- rbindlist(expDFs, fill=TRUE, use.names=TRUE) %>%
       data.frame(stringsAsFactors=FALSE)
 
-    keepCols <- which(apply(!is.na(experimentDF),2,all))
+    keepCols <- names(experimentDF) %in% c(names(factorialExp),
+                                           "param"[length(params)>1],
+                                           "module"[(length(params)>1)],
+                                           "modules"[length(modules)>1],
+                                           "val"[length(params)>1])
 
     experimentDF <- experimentDF[,keepCols]
+
 
     experiment = list(expDesign=factorialExp, expVals=experimentDF)
 
     # Factorial Levels are determined at this point. Save file.
     if(saveExperiment) {
-      save(experiment, file = file.path(outputPath(sim), paste0(experimentFile, ".RData")))
+      save(experiment, file = file.path(outputPath(sim), experimentFile))
     }
     attr(sims, "experiment") <- experiment
     if(clearSimEnv) {sims <- lapply(sims, function(x) {

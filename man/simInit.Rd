@@ -37,7 +37,7 @@ should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
 \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
-\item{objects}{An optional list of data objects to be used in the simulation.}
+\item{objects}{An optional list of data objects to be passed into the simList.}
 
 \item{paths}{An optional named list with up to 4 named elements,
 \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.

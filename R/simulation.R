@@ -175,7 +175,7 @@ setMethod(
 #' Example: a module named "caribou" will be sourced form the file
 #' \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
-#' @param objects An optional list of data objects to be used in the simulation.
+#' @param objects An optional list of data objects to be passed into the simList.
 #'
 #' @param paths  An optional named list with up to 4 named elements,
 #' \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
