@@ -99,7 +99,7 @@ setMethod(
       }
     } else {
       message(
-        paste(name, "does not exist in", deparse(substitute(mySim)))
+        paste(name, "does not exist in", deparse(substitute(sim)))
       )
       return(FALSE)
     }
