@@ -468,7 +468,10 @@ setMethod(
   "rndstr",
   signature(n = "numeric", len = "numeric", characterFirst = "logical"),
   definition = function(n, len, characterFirst) {
-    stopifnot(n > 0, len > 0)
+    if(!((n > 0) & (len > 0))) {
+      stop("rndstr requires n > 0 and len > 0")
+    }
+
     unlist(lapply(character(as.integer(n)), function(x) {
       i <- as.integer(characterFirst)
       x <- paste0(c(sample(c(letters, LETTERS), size = i),

@@ -1,4 +1,9 @@
-stopifnot(packageVersion("SpaDES") >= "1.1.0")
+usesSpaDESVersion <- "1.1.0"
+if(packageVersion("SpaDES") < usesSpaDESVersion) {
+  stop("This randomLandscapes module was built with SpaDES version", usesSpaDESVersion,
+       "Please update SpaDES to use this module")
+}
+rm(usesSpaDESVersion)
 
 defineModule(sim, list(
   name = "randomLandscapes",

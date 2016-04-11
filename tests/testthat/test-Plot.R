@@ -183,6 +183,8 @@ test_that("Plot is not error-free", {
 test_that("Unit tests for image content is not error-free", {
   if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
+  skip("Not reliable yet")
+
 
   library(raster)
   library(visualTest)
@@ -267,6 +269,7 @@ test_that("Unit tests for image content is not error-free", {
 test_that("Unit tests for plotting colors", {
   if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
+  skip("Not reliable yet")
 
   library(raster)
   library(visualTest)
@@ -353,6 +356,7 @@ test_that("Unit tests for plotting colors", {
 test_that("Unit tests for internal functions in Plot", {
   if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
+  skip("Not reliable yet")
 
   library(raster)
   library(visualTest)
