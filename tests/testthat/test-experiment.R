@@ -3,38 +3,37 @@ test_that("experiment does not work correctly", {
   library(magrittr)
   library(dplyr)
   tmpdir <- file.path(tempdir(), "testParallel")
-  tmpdir <- gsub(tmpdir, pattern="[/\\]", replacement="/") # Force all forward slash
+  tmpdir <- gsub(tmpdir, pattern = "[/\\]", replacement = "/") # Force all forward slash
   on.exit({
     detach("package:raster")
     detach("package:magrittr")
     detach("package:dplyr")
-    unlink(tmpdir, recursive=TRUE)
+    unlink(tmpdir, recursive = TRUE)
   })
 
- # Example of changing parameter values
+  # Example of changing parameter values
   mySimFull <- simInit(
     times = list(start = 0.0, end = 2.0, timeunit = "year"),
     params = list(
       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
       # Turn off interactive plotting
-      fireSpread = list(.plotInitialTime=NA),
-      caribouMovement = list(.plotInitialTime=NA),
-      randomLandscapes = list(.plotInitialTime=NA)
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA),
+      randomLandscapes = list(.plotInitialTime = NA)
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                  outputPath = tmpdir),
     # Save final state of landscape and caribou
-    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+    outputs = data.frame(objectName = c("landscape", "caribou"),
+                         stringsAsFactors = FALSE)
   )
-
 
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)
   caribouNums <- c(100, 1000)
-  experimentParams <- list(fireSpread = list(spreadprob = c(0.2),
-                                              nFires = c(20, 10)),
-                        caribouMovement = list(N = caribouNums))
+  experimentParams <- list(fireSpread = list(spreadprob = c(0.2), nFires = c(20, 10)),
+                           caribouMovement = list(N = caribouNums))
 
   sims <- experiment(mySimFull, params=experimentParams)
   expt <- load(file.path(tmpdir, "experiment.RData")) %>% get() # Loads an object named experiment
@@ -42,7 +41,7 @@ test_that("experiment does not work correctly", {
   expVals <- expt$expVals
 
   expect_equal(NROW(exptDesign), 4)
-  expect_equal(expVals[expVals$module=="caribouMovement","val"] %>% unlist(),
+  expect_equal(expVals[expVals$module == "caribouMovement","val"] %>% unlist(),
                c(rep(caribouNums, 2)))
   expect_equal(expVals$modules %>% unique(), "randomLandscapes,caribouMovement,fireSpread")
   expect_equal(NROW(attr(sims, "experiment")$expDesign), NROW(exptDesign))
@@ -52,26 +51,24 @@ test_that("experiment does not work correctly", {
   params <- sapply(strsplit(names(exptDesign)[-(4:5)], split = "\\."), function(x) x[[2]])
   out2 <- lapply(seq_along(mods), function(y) {
     out <- lapply(seq_len(NROW(exptDesign)), function(x) {
-      expect_equivalent(0,params(sims[[x]])[[mods[y]]][[params[[y]]]] -
-                   expVals %>% dplyr::filter(module==mods[[y]] &
-                                               param==params[[y]] &
-                                               expLevel==x) %>%
+      expect_equivalent(0, params(sims[[x]])[[mods[y]]][[params[[y]]]] -
+                   expVals %>% dplyr::filter(module == mods[[y]] &
+                                               param == params[[y]] &
+                                               expLevel == x) %>%
                      dplyr::select(val) %>% unlist() )
     })
   })
 
-  sims <- experiment(mySimFull, replicates=3)
+  sims <- experiment(mySimFull, replicates = 3)
   expt <- load(file.path(tmpdir, "experiment.RData")) %>% get() # Loads an object named experiment
   exptDesign <- expt$expDesign
   expVals <- expt$expVals
   out <- lapply(seq_along(sims), function(x) {
     expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
     expect_equal(outputs(sims[[x]])$file,
-                 file.path(tmpdir, paste0("rep",x), paste0(c("landscape","caribou"),"_year2.rds"))
+                 file.path(tmpdir, paste0("rep", x), paste0(c("landscape", "caribou"), "_year2.rds"))
     )
   })
-
-
 
   ### Test inputs - first, have to make the input map
   mySimRL <- simInit(
@@ -79,36 +76,38 @@ test_that("experiment does not work correctly", {
     params = list(
       .globals = list(stackName = "landscape"),
       # Turn off interactive plotting
-      randomLandscapes = list(.plotInitialTime=NA)
+      randomLandscapes = list(.plotInitialTime = NA)
     ),
     modules = list("randomLandscapes"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                  outputPath = file.path(tmpdir, "landscapeMaps1")),
-    outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
+    outputs = data.frame(objectName = "landscape", saveTime = 0, stringsAsFactors = FALSE)
   )
-  sims2 <- experiment(mySimRL, replicate=2)
+  sims2 <- experiment(mySimRL, replicate = 2)
 
   mySimNoRL <- simInit(
     times = list(start = 0.0, end = 2.0, timeunit = "year"),
     params = list(
       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
       # Turn off interactive plotting
-      fireSpread = list(.plotInitialTime=NA),
-      caribouMovement = list(.plotInitialTime=NA)
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA)
     ),
     modules = list("fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                  outputPath = tmpdir),
     # Save final state of landscape and caribou
-    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
-  landscapeFiles <- dir(outputPath(mySimRL), pattern="landscape_year0", recursive=TRUE,
-                        full.names=TRUE)
+  landscapeFiles <- dir(outputPath(mySimRL), pattern = "landscape_year0", recursive = TRUE,
+                        full.names = TRUE)
   set.seed(1232)
   sims <- experiment(mySimNoRL, replicates = 2,
-    inputs=lapply(landscapeFiles,function(filenames) {
-      data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
-   )
+                     inputs = lapply(landscapeFiles, function(filenames) {
+                       data.frame(file = filenames, loadTime=0,
+                                  objectName= "landscape", stringsAsFactors = FALSE)
+                     })
+  )
 
   # Make sure these are using the same, identical input maps
   expect_true(identical(sims[[1]]$landscape$habitatQuality, sims[[3]]$landscape$habitatQuality))
@@ -124,14 +123,16 @@ test_that("experiment does not work correctly", {
   expect_equal(length(ls(sims[[1]])), 10)
   set.seed(1232)
   sims2 <- experiment(mySimNoRL, replicates = 2, clearSimEnv = TRUE,
-                     inputs=lapply(landscapeFiles,function(filenames) {
-                       data.frame(file = filenames, loadTime=0, objectName= "landscape", stringsAsFactors = FALSE) })
+                     inputs = lapply(landscapeFiles, function(filenames) {
+                       data.frame(file = filenames, loadTime = 0,
+                                  objectName = "landscape", stringsAsFactors = FALSE)
+                     })
   )
   # This version has no objects
   expect_equal(length(ls(sims2[[1]])), 0)
 
   # Test that the only difference is their objects, which we can pass back in manually
-  list2env(mget(ls(sims[[1]]), envir=envir(sims[[1]])), envir = envir(sims2[[1]]))
+  list2env(mget(ls(sims[[1]]), envir = envir(sims[[1]])), envir = envir(sims2[[1]]))
   expect_equal(sims[[1]], sims2[[1]] )
 
   # Test object passing in
@@ -153,12 +154,12 @@ test_that("parallel does not work with experiment function", {
   library(magrittr)
   library(dplyr)
   tmpdir <- file.path(tempdir(), "testParallel")
-  tmpdir <- gsub(tmpdir, pattern="[/\\]", replacement="/") # Force all forward slash
+  tmpdir <- gsub(tmpdir, pattern = "[/\\]", replacement = "/") # Force all forward slash
   on.exit({
     detach("package:raster")
     detach("package:magrittr")
     detach("package:dplyr")
-    unlink(tmpdir, recursive=TRUE)
+    unlink(tmpdir, recursive = TRUE)
   })
 
   # Example of changing parameter values
@@ -167,15 +168,15 @@ test_that("parallel does not work with experiment function", {
     params = list(
       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
       # Turn off interactive plotting
-      fireSpread = list(.plotInitialTime=NA),
-      caribouMovement = list(.plotInitialTime=NA),
-      randomLandscapes = list(.plotInitialTime=NA)
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA),
+      randomLandscapes = list(.plotInitialTime = NA)
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                  outputPath = tmpdir),
     # Save final state of landscape and caribou
-    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
 
 
@@ -187,11 +188,11 @@ test_that("parallel does not work with experiment function", {
                            caribouMovement = list(N = caribouNums))
 
   set.seed(2343)
-  seqTime <- system.time(simsSeq <- experiment(mySimFull, params=experimentParams))
+  seqTime <- system.time(simsSeq <- experiment(mySimFull, params = experimentParams))
 
   beginCluster(4)
   set.seed(2343)
-  parTime <- system.time(simsPar <- experiment(mySimFull, params=experimentParams))
+  parTime <- system.time(simsPar <- experiment(mySimFull, params = experimentParams))
   endCluster()
   expect_equal(attr(simsPar, "experiment"),attr(simsSeq, "experiment"))
   expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
