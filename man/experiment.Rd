@@ -51,7 +51,7 @@ called \code{experiment}. Default TRUE.}
 is emptied. This is to reduce RAM load of large return object.
 Default FALSE.}
 
-\item{...}{Passed to \code{spades}. This would only be useful for \code{debug=TRUE}.}
+\item{...}{Passed to \code{spades}. This would only be useful for \code{debug = TRUE}.}
 }
 \value{
 Invisibly returns a list of the resulting \code{simList} objects from the fully
@@ -100,12 +100,12 @@ and \code{inputs} should be structured.
 
   \code{objects = list(objName = list(object1=object1, object2=object2))}
 
-  \code{inputs=list(
+  \code{inputs = list(
 
-       data.frame(file = pathToFile1, loadTime=0, objectName= "landscape",
+       data.frame(file = pathToFile1, loadTime = 0, objectName = "landscape",
                    stringsAsFactors = FALSE),
 
-       data.frame(file = pathToFile2, loadTime=0, objectName= "landscape",
+       data.frame(file = pathToFile2, loadTime = 0, objectName = "landscape",
                    stringsAsFactors = FALSE)
 
      )}
@@ -162,7 +162,7 @@ There is a special value, \code{"simNum"}, that is used as default, which is an 
 number  associated with the experiment.
 This corresponds to the row number in the \code{attr(sims, "experiment")}.
 This \code{"simNum"} can be used with other strings, such as
-\code{dirPrefix=c("expt","simNum")}.
+\code{dirPrefix = c("expt","simNum")}.
 
 The experiment structure is kept in two places: the return object has an attribute, and a file
 named \code{experiment.RData} (see argument \code{experimentFile}) located in \code{outputPath(sim)}.
@@ -183,15 +183,15 @@ only \code{dirPrefix}.
     params = list(
       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
       # Turn off interactive plotting
-      fireSpread = list(.plotInitialTime=NA),
-      caribouMovement = list(.plotInitialTime=NA),
-      randomLandscapes = list(.plotInitialTime=NA)
+      fireSpread = list(.plotInitialTime = NA),
+      caribouMovement = list(.plotInitialTime = NA),
+      randomLandscapes = list(.plotInitialTime = NA)
     ),
     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                  outputPath = tmpdir),
     # Save final state of landscape and caribou
-    outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
 
 # Example 1 - test alternative parameter values
@@ -205,24 +205,24 @@ only \code{dirPrefix}.
                                              nFires = list(20, 10)),
                             caribouMovement = list(N = list(100, 1000)))
 
-  sims <- experiment(mySim, params=experimentParams)
+  sims <- experiment(mySim, params = experimentParams)
 
   # see experiment:
   attr(sims, "experiment")
 
   # Read in outputs from sims object
-  FireMaps = do.call(stack, lapply(1:NROW(attr(sims,"experiment")$expDesign),
+  FireMaps <- do.call(stack, lapply(1:NROW(attr(sims, "experiment")$expDesign),
                      function(x) sims[[x]]$landscape$Fires))
-  Plot(FireMaps, new=TRUE)
+  Plot(FireMaps, new = TRUE)
 
   # Or reload objects from files, useful if sim objects too large to store in RAM
   caribouMaps <- lapply(sims, function(sim) {
-    caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName=="caribou"])
+    caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName == "caribou"])
     })
   names(caribouMaps) <- paste0("caribou",1:8)
   # Plot does not plot whole lists (yet)
   for(i in 1:NROW(attr(sims,"experiment")$expDesign)){
-    Plot(caribouMaps[[i]], size=0.1)}
+    Plot(caribouMaps[[i]], size = 0.1)}
 
 # Example 2 - test alternative modules
   # Example of changing modules, i.e., caribou with and without fires
@@ -231,18 +231,18 @@ only \code{dirPrefix}.
   experimentModules <- list(
       c("randomLandscapes", "fireSpread", "caribouMovement"),
       c("randomLandscapes", "caribouMovement"))
-  sims <- experiment(mySim, modules=experimentModules)
+  sims <- experiment(mySim, modules = experimentModules)
   attr(sims, "experiment")$expVals # shows 2 alternative experiment levels
 
 # Example 3 - test alternative parameter values and modules
   # Note, this isn't fully factorial because all parameters are not
   #   defined inside smaller module list
-  sims <- experiment(mySim, modules=experimentModules, params=experimentParams)
+  sims <- experiment(mySim, modules = experimentModules, params = experimentParams)
   attr(sims, "experiment")$expVals # shows 10 alternative experiment levels
 
 # Example 4 - manipulate manipulate directory names -
   #  "simNum" is special value for dirPrefix, it is converted to 1, 2, ...
-  sims <- experiment(mySim, params=experimentParams, dirPrefix=c("expt", "simNum"))
+  sims <- experiment(mySim, params = experimentParams, dirPrefix = c("expt", "simNum"))
   attr(sims, "experiment")$expVals # shows 10 alternative experiment levels, 26 unique
                                    #   parameter values
 
@@ -263,9 +263,9 @@ only \code{dirPrefix}.
   # module is not loaded:
   # library(raster)
   # beginCluster(20) # if you have multiple clusters available, use them here to save time
-  sims <- experiment(mySim, replicates = 2, params=experimentParams,
+  sims <- experiment(mySim, replicates = 2, params = experimentParams,
                     modules = experimentModules,
-                    dirPrefix=c("expt", "simNum"))
+                    dirPrefix = c("expt", "simNum"))
   # endCluster() # end the clusters
   attr(sims, "experiment")
 
@@ -280,15 +280,15 @@ only \code{dirPrefix}.
      params = list(
        .globals = list(stackName = "landscape"),
        # Turn off interactive plotting
-       randomLandscapes = list(.plotInitialTime=NA)
+       randomLandscapes = list(.plotInitialTime = NA)
      ),
      modules = list("randomLandscapes"),
      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                   outputPath = file.path(tmpdir, "landscapeMaps1")),
-     outputs = data.frame(objectName="landscape", saveTime = 0, stringsAsFactors=FALSE)
+     outputs = data.frame(objectName = "landscape", saveTime = 0, stringsAsFactors = FALSE)
   )
   # Run it twice to get two copies of the randomly generated landscape
-  mySimRLOut <- experiment(mySimRL, replicate=2)
+  mySimRLOut <- experiment(mySimRL, replicate = 2)
 
   #extract one of the random landscapes, which will be passed into next as an object
   landscape <- mySimRLOut[[1]]$landscape
@@ -300,15 +300,15 @@ only \code{dirPrefix}.
      params = list(
        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
        # Turn off interactive plotting
-       fireSpread = list(.plotInitialTime=NA),
-       caribouMovement = list(.plotInitialTime=NA)
+       fireSpread = list(.plotInitialTime = NA),
+       caribouMovement = list(.plotInitialTime = NA)
      ),
      modules = list("fireSpread", "caribouMovement"), # No randomLandscapes modules
      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                   outputPath = tmpdir),
      objects = c("landscape"), # Pass in the object here
      # Save final state (the default if saveTime is not specified) of landscape and caribou
-     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+     outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
 
   # Put outputs into a specific folder to keep them easy to find
@@ -317,16 +317,16 @@ only \code{dirPrefix}.
   attr(sims, "experiment") # shows the experiment, which in this case is just replicates
 
   # list all files that were saved called 'landscape'
-  landscapeFiles <- dir(outputPath(mySimNoRL), recursive=TRUE, pattern="landscape",
-                        full.names=TRUE)
+  landscapeFiles <- dir(outputPath(mySimNoRL), recursive = TRUE, pattern = "landscape",
+                        full.names = TRUE)
 
   # Can read in Fires layers from disk since they were saved, or from the sims
   #  object
   # Fires <- lapply(sims, function(x) x$landscape$Fires) \%>\% stack
   Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) \%>\% stack
-  Fires[Fires>0] <- 1 # convert to 1s and 0s
+  Fires[Fires > 0] <- 1 # convert to 1s and 0s
   fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
-  Plot(fireProb, new=TRUE)
+  Plot(fireProb, new = TRUE)
 
 # Example 9 - Pass in inputs, i.e., input data objects taken from disk
   #  Here, we, again, don't provide randomLandscapes module, so we need to
@@ -337,36 +337,36 @@ only \code{dirPrefix}.
      params = list(
        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
        # Turn off interactive plotting
-       fireSpread = list(.plotInitialTime=NA),
-       caribouMovement = list(.plotInitialTime=NA)
+       fireSpread = list(.plotInitialTime = NA),
+       caribouMovement = list(.plotInitialTime = NA)
      ),
      modules = list("fireSpread", "caribouMovement"),
      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                   outputPath = tmpdir),
      # Save final state of landscape and caribou
-     outputs = data.frame(objectName=c("landscape", "caribou"), stringsAsFactors=FALSE)
+     outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
   )
-  landscapeFiles <- dir(tmpdir, pattern="landscape_year0", recursive=TRUE, full.names=TRUE)
+  landscapeFiles <- dir(tmpdir, pattern = "landscape_year0", recursive = TRUE, full.names = TRUE)
 
   # Varying inputs files - This could be combined with params, modules, replicates also
   outputPath(mySimInputs) <- file.path(tmpdir, "example9")
   sims <- experiment(mySimInputs,
-     inputs=lapply(landscapeFiles,function(filenames) {
-       data.frame(file = filenames, loadTime=0, objectName= "landscape",
+     inputs = lapply(landscapeFiles,function(filenames) {
+       data.frame(file = filenames, loadTime = 0, objectName = "landscape",
                   stringsAsFactors = FALSE) })
    )
 
   # load in experimental design object
-  experiment <- load(file=file.path(tmpdir, "example9", "experiment.RData")) \%>\% get()
+  experiment <- load(file = file.path(tmpdir, "example9", "experiment.RData")) \%>\% get()
   print(experiment) # shows input files and details
 
 # Example 10 - Use a very simple output dir name using substrLength = 0,
   #   i.e., just the simNum is used for outputPath of each spades call
   outputPath(mySim) <- file.path(tmpdir, "example10")
-  sims <- experiment(mySim, modules=experimentModules, replicates = 2,
-                     substrLength=0)
+  sims <- experiment(mySim, modules = experimentModules, replicates = 2,
+                     substrLength = 0)
   lapply(sims, outputPath) # shows that the path is just the simNum
-  experiment <- load(file=file.path(tmpdir, "example10", "experiment.RData")) \%>\% get()
+  experiment <- load(file = file.path(tmpdir, "example10", "experiment.RData")) \%>\% get()
   print(experiment) # shows input files and details
 
 # Example 11 - use clearSimEnv = TRUE to remove objects from simList
@@ -377,7 +377,7 @@ only \code{dirPrefix}.
   sapply(sims, function(x) object.size(objs(x))) \%>\% sum + object.size(sims)
   # around 3 MB
   # rerun with clearSimEnv = TRUE
-  sims <- experiment(mySim, modules=experimentModules, replicates = 2, substrLength=0,
+  sims <- experiment(mySim, modules = experimentModules, replicates = 2, substrLength = 0,
                      clearSimEnv = TRUE)
   sapply(sims, function(x) object.size(objs(x))) \%>\% sum + object.size(sims)
   # around 250 kB, i.e., all the simList contents except the objects.
@@ -389,7 +389,7 @@ only \code{dirPrefix}.
   sims <- experiment(mySimNoRL, objects = experimentObj)
 
 # Remove all temp files
-  unlink(tmpdir, recursive=TRUE)
+  unlink(tmpdir, recursive = TRUE)
 }
 
 }

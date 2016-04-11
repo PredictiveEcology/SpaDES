@@ -562,7 +562,7 @@ setMethod(
           dirName <- gsub(dirPrefixTmp, pattern = "simNum", replacement = simplePrefix)
         }
       } else {
-        if (any(dirPrefix! = "")) {
+        if (any(dirPrefix != "")) {
           dirName <- gsub(dirPrefixTmp, pattern = "simNum", replacement = "")
         }
       }
