@@ -137,9 +137,7 @@ setReplaceMethod(
     } else {
       n <- length(value)
     }
-    setColors(object, n=n) <- value
-#    pal <- colorRampPalette(value, alpha = TRUE, ...)
-#    object@legend@colortable <- pal(n)
+    setColors(object, n = n) <- value
     validObject(object)
     return(object)
 })

@@ -83,15 +83,10 @@ setMethod(
     out[[21]] <- capture.output(print(completed(object)))
     out[[22]] <- capture.output(cat("\n"))
 
-    ### current event
-    out[[23]] <- capture.output(cat(">> Current Event:\n"))
-    out[[24]] <- capture.output(print(current(object)))
-    out[[25]] <- capture.output(cat("\n"))
-
     ### scheduled events
-    out[[26]] <- capture.output(cat(">> Scheduled Events:\n"))
-    out[[27]] <- capture.output(print(events(object)))
-    out[[28]] <- capture.output(cat("\n"))
+    out[[23]] <- capture.output(cat(">> Scheduled Events:\n"))
+    out[[24]] <- capture.output(print(events(object)))
+    out[[25]] <- capture.output(cat("\n"))
 
     ### print result
     cat(unlist(out), fill = FALSE, sep = "\n")
@@ -1164,7 +1159,7 @@ setReplaceMethod(
 
      # create a dummy data.frame with correct columns and
      fileTable <- .fileTableOut()
-     columns <- pmatch(names(fileTable),names(value))
+     columns <- pmatch(names(fileTable), names(value))
      setnames(value, old = colnames(value)[na.omit(columns)],
               new = colnames(fileTable)[!is.na(columns)])
      # Merge
