@@ -1135,7 +1135,7 @@ setReplaceMethod(
 
      # create a dummy data.frame with correct columns and
      fileTable <- .fileTableOut()
-     columns <- pmatch(names(fileTable),names(value))
+     columns <- pmatch(names(fileTable), names(value))
      setnames(value, old = colnames(value)[na.omit(columns)],
               new = colnames(fileTable)[!is.na(columns)])
      # Merge
