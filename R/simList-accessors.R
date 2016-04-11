@@ -2093,7 +2093,7 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(object, unit) {
 
-    res <- if(is.na(pmatch("second",unit))) {
+    res <- if(is.na(pmatch("second", unit))) {
       if (!is.null(object@events$eventTime)) {
         res <- object@events %>%
           dplyr::mutate_(.dots = setNames(list(
@@ -2162,7 +2162,7 @@ setMethod(
   "current",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if(is.na(pmatch("second",unit))) {
+    out <- if(is.na(pmatch("second", unit))) {
       if (!is.null(object@current$eventTime)) {
         object@current %>%
           dplyr::mutate_(.dots = setNames(list(
@@ -2225,7 +2225,7 @@ setMethod(
   "completed",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if(is.na(pmatch("second",unit))) {
+    out <- if(is.na(pmatch("second", unit))) {
       if (!is.null(object@completed$eventTime)) {
         object@completed %>%
           dplyr::mutate_(.dots = setNames(list(

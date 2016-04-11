@@ -421,7 +421,6 @@ setMethod("checkTimeunit",
             #   length(unit)) {
               out <- TRUE
             } else {
-              browser()
               out <- sapply(unit, function(unit) {
                 if (exists(paste0("d", unit), envir = envir )) {
                   if (is.function(get(paste0("d", unit), envir = envir)))

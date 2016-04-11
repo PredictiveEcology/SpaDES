@@ -680,7 +680,7 @@ setMethod("openModules",
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
             } else {
               Rfiles <- dir(pattern = "[\\.][rR]$", recursive = TRUE)
-              Rfiles <- Rfiles[pmatch(name,Rfiles)]
+              Rfiles <- Rfiles[pmatch(name, Rfiles)]
             }
             Rfiles <- Rfiles[grep(pattern = "[/\\\\]",Rfiles)]
             Rfiles <- Rfiles[sapply(strsplit(Rfiles,"[/\\\\\\.]"),
