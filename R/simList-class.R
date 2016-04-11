@@ -122,8 +122,8 @@ setClass(
     if (is.na(object@simtimes$end)) {
       stop("simulation end time must be specified.")
     } else {
-      if (object@simtimes$start >= object@simtimes$end) {
-        stop("simulation start time should occur before end time.")
+      if (object@simtimes$start > object@simtimes$end) {
+        stop("simulation end time cannot be before start time.")
       }
     }
   })
