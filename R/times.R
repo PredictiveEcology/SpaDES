@@ -58,7 +58,7 @@ setGeneric("dmonths", function(x) {
 setMethod("dmonths",
           signature(x = "numeric"),
           definition = function(x) {
-            duration(x * as.numeric(SpaDES::dyears(1))/12)
+            duration(x * as.numeric(yearsInSeconds)/12)
 })
 
 #' @export
@@ -73,7 +73,7 @@ setGeneric("dweeks", function(x) {
 setMethod("dweeks",
           signature(x = "numeric"),
           definition = function(x) {
-            duration(x * as.numeric(SpaDES::dyears(1))/52)
+            duration(x * as.numeric(yearsInSeconds)/52)
 })
 
 #' @export
@@ -100,6 +100,13 @@ dyear <- function(x) {
 dsecond <- function(x) {
   dseconds(x)
 }
+
+
+hoursInSeconds <- 3600L
+daysInSeconds <- 86400L
+weeksInSeconds <- 606876.92307692
+monthsInSeconds <- 2629800L
+yearsInSeconds <- 31557600L
 
 #' @export
 #' @rdname spadesTime
@@ -174,18 +181,18 @@ setMethod(
   definition <- function(unit, envir) {
     if (!is.na(unit)) {
       out <- switch(unit,
-                    second = as.numeric(dsecond(1)),
-                    seconds = as.numeric(dsecond(1)),
-                    hour = as.numeric(dhour(1)),
-                    hours = as.numeric(dhour(1)),
-                    day = as.numeric(dday(1)),
-                    days = as.numeric(dday(1)),
-                    week = as.numeric(dweek(1)),
-                    weeks = as.numeric(dweek(1)),
-                    month = as.numeric(dmonth(1)),
-                    months = as.numeric(dmonth(1)),
-                    year = as.numeric(dyear(1)),
-                    years = as.numeric(dyear(1)))
+                    second = 1,
+                    seconds = 1,
+                    hour = hoursInSeconds,
+                    hours = hoursInSeconds,
+                    day = daysInSeconds,
+                    days = daysInSeconds,
+                    week = weeksInSeconds,
+                    weeks = weeksInSeconds,
+                    month = monthsInSeconds,
+                    months = monthsInSeconds,
+                    year = yearsInSeconds,
+                    years = yearsInSeconds)
     } else {
       out <- 0
     }
@@ -375,8 +382,7 @@ setMethod(
 })
 
 #' @rdname timeConversion
-.spadesTimes <- c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$",
-                  "^seconds?$")
+.spadesTimes <- c("year", "month", "week", "day", "hour", "second")
 
 #' @export
 #' @rdname timeConversion
@@ -409,10 +415,13 @@ setMethod("checkTimeunit",
 
             # check for .spadesTimes first, then user defined ones
             #   d*unit*, then d*units* then "d*unit omit s"
-            if (sum(str_detect(.spadesTimes, pattern = unit), na.rm = TRUE)==
-               length(unit)) {
+            if (length(!is.na(pmatch(unit, .spadesTimes)))==
+                length(unit)) {
+            #if (sum(str_detect(.spadesTimes, pattern = unit), na.rm = TRUE)==
+            #   length(unit)) {
               out <- TRUE
             } else {
+              browser()
               out <- sapply(unit, function(unit) {
                 if (exists(paste0("d", unit), envir = envir )) {
                   if (is.function(get(paste0("d", unit), envir = envir)))

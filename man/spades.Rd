@@ -38,7 +38,10 @@ to the values of various simList slot components.
  mySim <- simInit(
    times = list(start = 0.0, end = 2.0, timeunit = "year"),
    params = list(
-     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+     fireSpread = list(.plotInitialTime=NA),
+     randomLandscapes = list(.plotInitialTime=NA),
+     caribouMovement = list(.plotInitialTime=NA)
    ),
    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))

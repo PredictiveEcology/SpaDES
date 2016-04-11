@@ -2092,15 +2092,18 @@ setMethod(
   "events",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    if (!is.null(object@events$eventTime)) {
-      res <- object@events %>%
-        dplyr::mutate_(.dots = setNames(list(
-          interp(~convertTimeunit(eventTime, unit, envir(object)))
-        ), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when
-                     # events(sim) is invoked. This line brings it back.
+
+    res <- if(is.na(pmatch("second",unit))) {
+      if (!is.null(object@events$eventTime)) {
+        res <- object@events %>%
+          dplyr::mutate_(.dots = setNames(list(
+            interp(~convertTimeunit(eventTime, unit, envir(object)))
+          ), "eventTime")) %>%
+          data.table() # dplyr removes something that makes this not print when
+                       # events(sim) is invoked. This line brings it back.
+      }
     } else {
-      res <- object@events
+      object@events
     }
     return(res)
 })
@@ -2159,13 +2162,15 @@ setMethod(
   "current",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@current$eventTime)) {
-      object@current %>%
-        dplyr::mutate_(.dots = setNames(list(
-          interp(~convertTimeunit(eventTime, unit, envir(object)))
-        ), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when
-                     # current(sim) is invoked. This line brings it back.
+    out <- if(is.na(pmatch("second",unit))) {
+      if (!is.null(object@current$eventTime)) {
+        object@current %>%
+          dplyr::mutate_(.dots = setNames(list(
+            interp(~convertTimeunit(eventTime, unit, envir(object)))
+          ), "eventTime")) %>%
+          data.table() # dplyr removes something that makes this not print when
+        # current(sim) is invoked. This line brings it back.
+      }
     } else {
       object@current
     }
@@ -2220,13 +2225,15 @@ setMethod(
   "completed",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@completed$eventTime)) {
-      object@completed %>%
-        dplyr::mutate_(.dots = setNames(list(
-          interp(~convertTimeunit(eventTime, unit, envir(object)))
-        ), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when
-                     # completed(sim) is invoked. This line brings it back.
+    out <- if(is.na(pmatch("second",unit))) {
+      if (!is.null(object@completed$eventTime)) {
+        object@completed %>%
+          dplyr::mutate_(.dots = setNames(list(
+            interp(~convertTimeunit(eventTime, unit, envir(object)))
+          ), "eventTime")) %>%
+          data.table() # dplyr removes something that makes this not print when
+                       # completed(sim) is invoked. This line brings it back.
+      }
     } else {
       object@completed
     }

@@ -612,7 +612,8 @@ setMethod(
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
 
-    if ( NROW(current(sim)) == 0 || any(is.na(current(sim))) ) {
+    cur <- current(sim)
+    if ( NROW(cur) == 0 || any(is.na(cur)) ) {
       # get next event from the queue and remove it from the queue
       if (NROW(events(sim))) {
         current(sim) <- events(sim, "second")[1L,]
@@ -625,41 +626,43 @@ setMethod(
 
     # catches the situation where no future event is scheduled,
     #  but stop time is not reached
-    if (any(is.na(current(sim)))) {
+    cur <- current(sim, "second")
+    if (any(is.na(cur))) {
       time(sim) <- end(sim, "second") + 1
     } else {
-      if (current(sim, "second")$eventTime <= end(sim, "second")) {
+      if (cur$eventTime <= end(sim, "second")) {
         # update current simulated time
-        time(sim) <- current(sim, "second")$eventTime
+        time(sim) <- cur$eventTime
 
         # call the module responsible for processing this event
-        moduleCall <- paste("doEvent", current(sim)$moduleName, sep = ".")
+        moduleCall <- paste("doEvent", cur$moduleName, sep = ".")
 
         # check the module call for validity
-        if (current(sim)$moduleName %in% modules(sim)) {
-          if (current(sim)$moduleName %in% core) {
-              sim <- get(moduleCall)(sim, current(sim)$eventTime,
-                                     current(sim)$eventType, debug)
+        if (cur$moduleName %in% modules(sim)) {
+          if (cur$moduleName %in% core) {
+              sim <- get(moduleCall)(sim, cur$eventTime,
+                                     cur$eventType, debug)
            } else {
               sim <- get(moduleCall,
-                         envir = envir(sim))(sim, current(sim)$eventTime,
-                                             current(sim)$eventType, debug)
+                         envir = envir(sim))(sim, cur$eventTime,
+                                             cur$eventType, debug)
            }
         } else {
           stop(paste("Invalid module call. The module `",
-                     current(sim)$moduleName,
+                     cur$moduleName,
                      "` wasn't specified to be loaded."))
         }
 
         # add to list of completed events
-        if (NROW(completed(sim, "second"))) {
-          completed <- list(completed(sim, "second"), current(sim, "second")) %>%
+        compl <- completed(sim, "second")
+        if (NROW(compl)) {
+          completed <- list(compl, cur) %>%
             rbindlist()
           if (NROW(completed) > getOption("spades.nCompleted")) {
             completed <- tail(completed, n = getOption("spades.nCompleted"))
           }
         } else {
-          completed <- current(sim, "second")
+          completed <- cur
         }
         completed(sim) <- completed
         current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
@@ -737,6 +740,7 @@ setMethod(
   signature(sim = "simList", eventTime = "numeric", moduleName = "character",
             eventType = "character", eventPriority = "numeric"),
   definition = function(sim, eventTime, moduleName, eventType, eventPriority) {
+
     if (length(eventTime)) {
       if (!is.na(eventTime)) {
         # if there is no metadata, meaning for the first
@@ -780,10 +784,11 @@ setMethod(
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
-        if (NROW(events(sim, "second")) == 0L) {
+        evnts <- events(sim, "second")
+        if (NROW(evnts) == 0L) {
           events(sim) <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
-          events(sim) <- rbindlist(list(events(sim, "second"), newEvent)) %>%
+          events(sim) <- rbindlist(list(evnts, newEvent)) %>%
             setkey("eventTime", "eventPriority")
         }
       }
@@ -852,7 +857,10 @@ setMethod(
 #'  mySim <- simInit(
 #'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'    params = list(
-#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+#'      fireSpread = list(.plotInitialTime=NA),
+#'      randomLandscapes = list(.plotInitialTime=NA),
+#'      caribouMovement = list(.plotInitialTime=NA)
 #'    ),
 #'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
