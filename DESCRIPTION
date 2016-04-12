@@ -11,7 +11,7 @@ Description: Easily implement a variety of simulation models, with a focus on
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
 URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.1.1.9010
+Version: 1.1.2
 Date: 2016-04-12
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
@@ -68,10 +68,8 @@ Imports:
     sp,
     stringi,
     stringr
-Remotes: s-u/fastshp,
-    MangoTheCat/visualTest
 License: GPL-3
-VignetteBuilder: knitr
+VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
 Collate:

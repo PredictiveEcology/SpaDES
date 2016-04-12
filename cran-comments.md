@@ -6,20 +6,21 @@ We also include a number of bug fixes and performance enhancements.
 ## Test environments
 
 ### Previous R versions
-* Ubuntu 14.04            (local), R 3.2.2
 * Windows 7               (local), R 3.2.2
+* Windows 7               (local), R 3.2.3
 
 ### Current R versions
-* Debian Jessie           (local), R 3.2.4
+* Debian Jessie           (local), R 3.2.4 Revised (2016-03-16 r70336)
 * OS X El Capitan         (local), R 3.2.4
-* Ubuntu 12.04        (travis-ci), R 3.2.4
-* Ubuntu 14.04            (local), R 3.2.4
-* Windows 7               (local), R 3.2.4
-* Windows           (win-builder), R 3.2.4 ()
+* Ubuntu 12.04        (travis-ci), R 3.2.4 Revised (2016-03-16 r70338)
+* Ubuntu 14.04            (local), R 3.2.4 Revised (2016-03-16 r70336)
+* Windows 7               (local), R 3.2.4 Revised (2016-03-16 r70336)
+* Windows           (win-builder), R 3.2.4 Revised (2016-03-16 r70336)
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.3.0 (2016-04-04 r70420)
-* Windows           (win-builder), R 3.3.0 ()
+* Debian:testing (rocker/r-base),  R 3.3.0 beta (2016-04-05 r70427)
+* Debian:testing (rocker/r-devel), R 3.4.0 (2016-04-04 r70420)
+* Windows           (win-builder), R 3.3.0 beta (2016-04-10 r70465)
 
 ## R CMD check results
 
@@ -27,7 +28,7 @@ There were no ERRORs or WARNINGs
 
 There were 2 NOTEs:
 
-1. There are two parts to this note:
+1. There are three parts to this note:
 
     a. Several words were flagged as possibly mispelled, but they are not.
     
@@ -43,6 +44,10 @@ There were 2 NOTEs:
           
             Availability using Additional_repositories specification:
               fastshp   yes   http://rforge.net
+
+    c. We rely on the `snow` package to allow parallel computation on Windows, since the `parallel` package doesn't work there.
+    
+            Uses the superseded package: 'snow'
 
 2. As noted above, we provide instructions for the user to install the suggested `fastshp` package.
 
