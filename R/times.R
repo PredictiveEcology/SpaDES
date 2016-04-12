@@ -61,7 +61,7 @@ setGeneric("dmonths", function(x) {
 setMethod("dmonths",
           signature(x = "numeric"),
           definition = function(x) {
-            duration(x * as.numeric(yearsInSeconds)/12)
+            duration(x * as.numeric(yearsInSeconds) / 12)
 })
 
 #' @export
@@ -76,7 +76,7 @@ setGeneric("dweeks", function(x) {
 setMethod("dweeks",
           signature(x = "numeric"),
           definition = function(x) {
-            duration(x * as.numeric(yearsInSeconds)/52)
+            duration(x * as.numeric(yearsInSeconds) / 52)
 })
 
 #' @export
@@ -228,7 +228,7 @@ setMethod("inSeconds",
           signature = c("character", "missing"),
           definition <- function(unit) {
             return(inSeconds(unit, .GlobalEnv))
-          })
+})
 
 ################################################################################
 #' Convert time units
@@ -297,7 +297,7 @@ setMethod("convertTimeunit",
           signature = c("numeric", "character", "missing"),
           definition = function(time, unit) {
             return(convertTimeunit(time, unit, .GlobalEnv))
-          })
+})
 
 ################################################################################
 #' Determine the largest timestep unit in a simulation
@@ -405,8 +405,8 @@ setGeneric("checkTimeunit", function(unit, envir) {
 setMethod("checkTimeunit",
           signature(unit = "character", "missing"),
           definition = function(unit, envir) {
-            checkTimeunit(unit, envir=.GlobalEnv)
-          })
+            checkTimeunit(unit, envir = .GlobalEnv)
+})
 
 #' @export
 #' @docType methods
@@ -431,9 +431,9 @@ setMethod("checkTimeunit",
                   if (is.function(get(paste0("d", unit, "s"), envir = envir)))
                     out <- TRUE
                 } else if (exists(gsub(x = paste0("d", unit),
-                                      pattern="s$", replacement = ""), envir = envir) ) {
+                                       pattern = "s$", replacement = ""), envir = envir) ) {
                   if (is.function(get(gsub(x = paste0("d", unit),
-                                          pattern="s$", replacement = ""), envir = envir)))
+                                          pattern = "s$", replacement = ""), envir = envir)))
                     out <- TRUE
                 } else {
                   out <- FALSE
@@ -443,4 +443,4 @@ setMethod("checkTimeunit",
 
             if (!all(out)) message("unknown timeunit provided: ", unit[!out])
             return(invisible(out))
-          })
+})

@@ -68,6 +68,8 @@ normal \code{\link{spades}} call, using \code{outputs} like, say, \code{outputs(
 This is essentially a wrapper around the \code{spades} call that allows for multiple
 calls to spades. This function will use a single processor, or multiple processors if
 \code{\link[raster]{beginCluster}} has been run first.
+}
+\details{
 Generally, there are 2 reasons to do this: replication and varying simulation inputs
 to accomplish some sort of simulation experiment. This function deals with both of these
 cases. In the case of varying inputs, this function will attempt to create a fully
@@ -78,8 +80,8 @@ will do an "all meaningful combinations" factorial experiment. Likewise, fully f
 combinations of parameters and inputs may not be the desired behaviour. The function
 requires a \code{simList} object, acting as the basis for the experiment,
 plus optional inputs and/or objects and/or params and/or modules and/or replications.
-}
-\details{
+
+
 This function requires a complete simList: this simList will form the basis of the
 modifications as passed by params, modules, inputs, and objects.
 All params, modules, inputs or objects
@@ -101,14 +103,12 @@ and \code{inputs} should be structured.
   \code{objects = list(objName = list(object1=object1, object2=object2))}
 
   \code{inputs = list(
-
-       data.frame(file = pathToFile1, loadTime = 0, objectName = "landscape",
+        data.frame(file = pathToFile1, loadTime = 0, objectName = "landscape",
                    stringsAsFactors = FALSE),
 
-       data.frame(file = pathToFile2, loadTime = 0, objectName = "landscape",
+        data.frame(file = pathToFile2, loadTime = 0, objectName = "landscape",
                    stringsAsFactors = FALSE)
-
-     )}
+  )}
 
 
 Output directories are changed using this function: this is one of the dominant
@@ -172,7 +172,6 @@ only \code{dirPrefix}.
 }
 \examples{
 \dontrun{
-
  library(magrittr) # use \%>\% in a few examples
 
  tmpdir <- file.path(tempdir(), "examples")

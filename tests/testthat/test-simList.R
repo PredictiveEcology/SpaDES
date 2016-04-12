@@ -14,7 +14,7 @@ test_that("simList object initializes correctly", {
   w <- getOption("width")
   options(width = 100L)
   out <- utils::capture.output(show(mySim))
-  expect_equal(length(out), 82)
+  expect_equal(length(out), 78)
   options(width = w); rm(w)
 
   ### SLOT .envir
