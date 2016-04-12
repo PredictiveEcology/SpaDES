@@ -1,6 +1,7 @@
 ## Updated release
 
-This is a maintenance release to fix a problem due to a recent change in the `archivist` package.
+This is a maintenance release to address forthcoming changes to the `dplyr` package.
+We also include a number of bug fixes and performance enhancements.
 
 ## Test environments
 
@@ -9,16 +10,16 @@ This is a maintenance release to fix a problem due to a recent change in the `ar
 * Windows 7               (local), R 3.2.2
 
 ### Current R versions
-* Debian Jessie           (local), R 3.2.3
-* OS X Yosemite           (local), R 3.2.3
-* Ubuntu 12.04        (travis-ci), R 3.2.3
-* Ubuntu 14.04            (local), R 3.2.3
-* Windows 7               (local), R 3.2.3
-* Windows           (win-builder), R 3.2.3 (2016-02-04 r70085)
+* Debian Jessie           (local), R 3.2.4
+* OS X El Capitan         (local), R 3.2.4
+* Ubuntu 12.04        (travis-ci), R 3.2.4
+* Ubuntu 14.04            (local), R 3.2.4
+* Windows 7               (local), R 3.2.4
+* Windows           (win-builder), R 3.2.4 ()
 
 ### Development R version
-* Debian:testing (rocker/r-devel), R 3.3.0 (2016-02-02 r70074)
-* Windows           (win-builder), R 3.3.0 (2016-02-15 r70179)
+* Debian:testing (rocker/r-devel), R 3.3.0 (2016-04-04 r70420)
+* Windows           (win-builder), R 3.3.0 ()
 
 ## R CMD check results
 
