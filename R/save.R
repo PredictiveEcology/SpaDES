@@ -86,9 +86,8 @@ doEvent.save = function(sim, eventTime, eventType, debug = FALSE) {
 #' }
 saveFiles = function(sim) {
   curTime <- time(sim, timeunit(sim))
-
   # extract the current module name that called this function
-  moduleName <- current(sim)[1L, moduleName]
+  moduleName <- currentModule(sim)
 
   if (moduleName != "save") { # i.e., .a module driven save event
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
