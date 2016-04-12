@@ -122,7 +122,7 @@ setReplaceMethod(
       pal <- colorRampPalette(value, alpha = TRUE, ...)
       object@legend@colortable <- pal(n)
     }
-    validObject(object)
+    if(!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
 })
 
@@ -138,9 +138,7 @@ setReplaceMethod(
       n <- length(value)
     }
     setColors(object, n=n) <- value
-#    pal <- colorRampPalette(value, alpha = TRUE, ...)
-#    object@legend@colortable <- pal(n)
-    validObject(object)
+    if(!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
 })
 
@@ -153,7 +151,6 @@ setReplaceMethod(
      for(x in names(object)[i]) {
        setColors(object[[x]], ..., n = n) <- value[[x]]
      }
-     validObject(object)
      return(object)
 })
 
@@ -166,7 +163,6 @@ setReplaceMethod(
      for(x in names(object)[i]) {
        setColors(object[[x]], ...) <- value[[x]]
      }
-     validObject(object)
      return(object)
 })
 
