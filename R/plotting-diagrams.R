@@ -75,28 +75,28 @@ setGeneric(".sim2gantt", function(sim, n, startDate, width) {
 #' @rdname sim2gantt
 setMethod(
   ".sim2gantt",
-  signature(sim = "simList", n = "numeric", startDate = "character"),
+  signature(sim = "simList", n = "numeric", startDate = "character", width = "numeric"),
   definition = function(sim, n, startDate, width) {
-    dt <- tail(completed(sim), n)
-    modules <- unique(dt$moduleName)
+    DT <- tail(completed(sim), n)
+    modules <- unique(DT$moduleName)
     width <- 4500 / as.numeric(width) # fixed at 3 days
 
     # simulation timestep in 'days'
     ts <- timeunit(sim) %>%
       inSeconds(envir = envir(sim)) %>%
       convertTimeunit("day", envir = envir(sim)) %>%
-      as.numeric
+      as.numeric()
 
     out <- lapply(modules, function(x) {
       data.frame(
-        task = dt[moduleName == x]$eventType,
-        status = ganttStatus(dt[moduleName == x]$eventType),
-        pos = paste0(x, 1:nrow(dt[moduleName == x])),
+        task = DT[moduleName == x]$eventType,
+        status = ganttStatus(DT[moduleName == x]$eventType),
+        pos = paste0(x, 1:nrow(DT[moduleName == x])),
         start = as.Date(
-          dt[moduleName == x]$eventTime * ts, origin = startDate
+          DT[moduleName == x]$eventTime * ts, origin = startDate
         ),
         end = as.Date(
-          dt[moduleName == x]$eventTime * ts + width, origin = startDate
+          DT[moduleName == x]$eventTime * ts + width, origin = startDate
         )
       )
     })

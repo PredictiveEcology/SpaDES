@@ -46,10 +46,10 @@ Then we load that list of files.
 
 ```{r load_files, eval=TRUE, echo=TRUE, message=FALSE, fig.height=2}
 #  Make list of maps from package database to load, and what functions to use to load them
-require(data.table)
-require(igraph)
-require(raster)
-require(SpaDES)
+library(data.table)
+library(igraph)
+library(raster)
+library(SpaDES)
 filelist <- system.file("maps", package = "SpaDES") %>%
   dir(., full.names = TRUE, pattern = "tif") %>%
   data.table(files = ., functions = "rasterToMemory", package = "SpaDES") %>%
@@ -119,7 +119,7 @@ Plot(landscape, caribou, mySim$DEM, SpP, new = TRUE, axes = TRUE,
 These can be combined with spatial objects as well.
 
 ```{r ggplot, eval=TRUE, echo=TRUE, cache=TRUE, fig.height=2}
-require(ggplot2)
+library(ggplot2)
 ggObj <- qplot(stats::rnorm(1e3), binwidth = 0.1)
 
 Plot(caribou, ggObj, new = TRUE) 

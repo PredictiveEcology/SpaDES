@@ -23,7 +23,7 @@
 #' @author Alex Chubaty
 #'
 #' @examples
-#' require(raster)
+#' library(raster)
 #' # an example with dimensions:
 #' # nrow = 77
 #' # ncol = 101
