@@ -227,8 +227,8 @@ setGeneric("envir<-",
 setReplaceMethod("envir",
                  signature = "simList",
                  function(object, value) {
+                   if(!is.environment(value)) stop("Must be an environment")
                    object@.envir <- value
-                   validObject(object)
                    return(object)
 })
 
@@ -334,7 +334,6 @@ setMethod("[[", signature(x = "simList", i = "ANY", j = "ANY"),
 setReplaceMethod("[[", signature(x = "simList", value = "ANY"),
                  definition = function(x, i, value) {
                    assign(i, value, envir = x@.envir, inherits = FALSE)
-                   validObject(x)
                    return(x)
 })
 
@@ -354,7 +353,6 @@ setMethod("$", signature(x = "simList"),
 setReplaceMethod("$", signature(x = "simList", value = "ANY"),
                  definition = function(x, name, value) {
                    x@.envir[[name]] <- value
-                   validObject(x)
                    return(x)
 })
 
@@ -851,6 +849,9 @@ setMethod(
 })
 
 #' @rdname fileTable
+.fileTableInCols <- colnames(.fileTableIn())
+
+#' @rdname fileTable
 setGeneric(".fileTableOut", function(x) {
   standardGeneric(".fileTableOut")
 })
@@ -867,6 +868,9 @@ setMethod(
     )
     return(ft)
 })
+
+#' @rdname fileTable
+.fileTableOutCols <- colnames(.fileTableOut())
 
 ################################################################################
 #' Inputs and outputs
@@ -950,18 +954,27 @@ setGeneric("inputs", function(object) {
 setMethod("inputs",
           signature = ".simList",
           definition = function(object) {
-            unit <- timeunit(object)
-            if (!is.null(object@inputs$loadTime)) {
-              res <- object@inputs %>%
-                dplyr::mutate_(.dots = setNames(list(
-                  interp(~as.numeric(convertTimeunit(loadTime, unit, envir(object))))
-                ), "loadTime")) %>%
-                data.table() %>% data.frame() # dplyr removes something that makes this not print when
-              # events(sim) is invoked. This line brings it back.
+
+            simUnit <- timeunit(object)
+            loadTimeUnit <- attr(object@inputs$loadTime, "unit")
+            if(is.null(loadTimeUnit)) loadTimeUnit <- simUnit
+            out <- if(is.na(pmatch(loadTimeUnit, simUnit)) & (length(object@inputs$loadTime)>0)) {
+              #note the above line captures empty loadTime,
+              # whereas is.na does not
+              if(any(!is.na(object@inputs$loadTime))) {
+                if (!is.null(object@inputs$loadTime)) {
+                  obj <- data.table::copy(object@inputs) # don't change original object
+                  obj[,loadTime:=convertTimeunit(loadTime, unit, envir(object))]
+                  obj[]
+                }
+              } else {
+                object@inputs
+              }
             } else {
-              res <- object@inputs
+              object@inputs
             }
-            return(res)
+
+            return(out)
 })
 
 #' @export
@@ -997,7 +1010,6 @@ setReplaceMethod(
                      new = colnames(fileTable)[!is.na(columns)])
      object@inputs <- bind_rows(list(value, fileTable)) %>%
        as.data.frame(stringsAsFactors = FALSE)
-     #object@inputs$file <- file.path(inputPath(object),object@inputs$file)
    } else {
      object@inputs <- value
    }
@@ -1008,7 +1020,6 @@ setReplaceMethod(
      #           2. if absolute, don't use inputPath
    if(NROW(value)>0) {
      object@inputs[is.na(object@inputs$file), "file"] <- NA
-     #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
 
      # If a filename is provided, determine if it is absolute path, if so,
      # use that, if not, then append it to inputPath(object)
@@ -1016,6 +1027,8 @@ setReplaceMethod(
        file.path(inputPath(object),
                  object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
+     if(!all(.fileTableInCols %in% names(object@inputs))) stop(paste("input table must have columns named",
+                                                                paste(.fileTableInCols, collapse=", ")))
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
@@ -1033,7 +1046,6 @@ setReplaceMethod(
      }
    }
 
-   validObject(object)
    return(object)
 })
 
@@ -1147,18 +1159,28 @@ setGeneric("outputs", function(object) {
 setMethod("outputs",
           signature = ".simList",
           definition = function(object) {
-            unit <- timeunit(object)
-            if (!is.null(object@outputs$saveTime)) {
-              res <- object@outputs %>%
-                dplyr::mutate_(.dots = setNames(list(
-                  interp(~as.numeric(convertTimeunit(saveTime, unit, envir(object))))
-                ), "saveTime")) %>%
-                data.table() %>% data.frame() # dplyr removes something that makes this not print when
-              # events(sim) is invoked. This line brings it back.
+            simUnit <- timeunit(object)
+            saveTimeUnit <- attr(object@outputs$saveTime, "unit")
+            if(is.null(saveTimeUnit)) saveTimeUnit <- simUnit
+
+            out <- if(is.na(pmatch(saveTimeUnit, simUnit)) & (length(object@outputs$saveTime)>0)) {
+              #note the above line captures empty saveTime,
+              # whereas is.na does not
+              if(any(!is.na(object@outputs$saveTime))) {
+                if (!is.null(object@outputs$saveTime)) {
+                  obj <- data.table::copy(object@outputs) # don't change original object
+                  obj[,saveTime:=convertTimeunit(saveTime, unit, envir(object))]
+                  obj[]
+                  obj
+                }
+              } else {
+                object@outputs
+              }
             } else {
-              res <- object@outputs
+              object@outputs
             }
-            return(res)
+
+            return(out)
 
 })
 
@@ -1251,7 +1273,9 @@ setReplaceMethod(
      object@outputs <- value
    }
 
-   validObject(object)
+   if(!all(.fileTableOutCols %in% names(object@outputs))) stop(paste("output table must have columns named",
+                                                                     paste(.fileTableOutCols, collapse=", ")))
+
    return(object)
 })
 
@@ -1749,7 +1773,7 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
-      if (!str_detect("^seconds?$", pattern = unit)) {
+      if(is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$current, unit, envir(x))
         return(t)
@@ -1777,7 +1801,10 @@ setReplaceMethod(
        attributes(value)$unit <- timeunit(x)
      }
      x@simtimes$current <- convertTimeunit(value, "second", envir(x))
-     validObject(x)
+
+     if(!is.numeric(x@simtimes$current)) stop("time must be a numeric")
+     if(!any(pmatch(.spadesTimes,attr(x@simtimes$current, "unit")))) stop("time must be one of",
+                                                                   paste(.spadesTimes, collapse=", "))
      return(x)
 })
 
@@ -1814,8 +1841,11 @@ setMethod(
   "end",
   signature=c(".simList", "character"),
   definition = function(x, unit) {
+
     if (!is.na(unit)) {
-      if (!str_detect("^seconds?$", pattern = unit)) {
+      if(is.na(pmatch("second", unit))) {
+
+        #if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$end, unit, envir(x))
         return(t)
@@ -1881,7 +1911,7 @@ setMethod(
   signature = c(".simList","character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
-      if (!str_detect("^seconds?$", pattern = unit)) {
+      if(is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$start, unit, envir(x))
         return(t)
@@ -2099,7 +2129,7 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
-#' @importFrom data.table ':=' data.table
+#' @importFrom data.table ':=' data.table copy
 #' @importFrom lazyeval interp
 #' @importFrom stats setNames
 #' @docType methods
@@ -2117,19 +2147,24 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(object, unit) {
 
-    res <- if(is.na(pmatch("second", unit))) {
-      if (!is.null(object@events$eventTime)) {
-        res <- object@events %>%
-          dplyr::mutate_(.dots = setNames(list(
-            interp(~convertTimeunit(eventTime, unit, envir(object)))
-          ), "eventTime")) %>%
-          data.table() # dplyr removes something that makes this not print when
-                       # events(sim) is invoked. This line brings it back.
+    out <- if(is.na(pmatch("second", unit)) & (length(object@events$eventTime)>0)) {
+      #note the above line captures empty eventTime,
+      # whereas is.na does not
+      if(any(!is.na(object@events$eventTime))) {
+        if (!is.null(object@events$eventTime)) {
+          obj <- data.table::copy(object@events) # don't change original object
+          obj[,eventTime:=convertTimeunit(eventTime, unit, envir(object))]
+          obj[]
+          obj
+        }
+      } else {
+        object@events
       }
     } else {
       object@events
     }
-    return(res)
+
+    return(out)
 })
 
 #' @export
@@ -2156,13 +2191,18 @@ setReplaceMethod(
   "events",
    signature = ".simList",
    function(object, value) {
+     if(!is(value, "data.table")) stop("Event queue must be a data.table")
+     if(!identical(names(value), .emptyEventListCols))
+       stop("Event queue must be a data.table with 4 columns, ",
+            "eventTime, moduleName, eventType, and eventPriority")
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
-     } else {
+     }
+     if(is.na(pmatch("second", attributes(value$eventTime)$unit))){
        value[, eventTime := convertTimeunit(eventTime, "second", envir(object))]
      }
+
      object@events <- value
-     validObject(object)
      return(object)
 })
 
@@ -2186,14 +2226,18 @@ setMethod(
   "current",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if(is.na(pmatch("second", unit))) {
-      if (!is.null(object@current$eventTime)) {
-        object@current %>%
-          dplyr::mutate_(.dots = setNames(list(
-            interp(~convertTimeunit(eventTime, unit, envir(object)))
-          ), "eventTime")) %>%
-          data.table() # dplyr removes something that makes this not print when
-        # current(sim) is invoked. This line brings it back.
+    out <- if(is.na(pmatch("second", unit)) & (length(object@current$eventTime)>0)) {
+      #note the above line captures empty eventTime,
+      # whereas is.na does not
+      if(any(!is.na(object@current$eventTime))) {
+        if (!is.null(object@current$eventTime)) {
+          obj <- data.table::copy(object@current) # don't change original object
+          obj[,eventTime:=convertTimeunit(eventTime, unit, envir(object))]
+          obj[]
+          obj
+        }
+      } else {
+        object@current
       }
     } else {
       object@current
@@ -2215,7 +2259,7 @@ setMethod("current",
 setGeneric("current<-",
            function(object, value) {
              standardGeneric("current<-")
-})
+           })
 
 #' @name current<-
 #' @aliases current<-,.simList-method
@@ -2224,8 +2268,12 @@ setGeneric("current<-",
 setReplaceMethod("current",
                  signature = ".simList",
                  function(object, value) {
+                   if(!is(value, "data.table")) stop("Event queue must be a data.table")
+                   if(!identical(names(value), .emptyEventListCols))
+                     stop("Event queue must be a data.table with 4 columns, ",
+                          "eventTime, moduleName, eventType, and eventPriority")
+
                    object@current <- value
-                   validObject(object)
                    return(object)
 })
 
@@ -2249,18 +2297,24 @@ setMethod(
   "completed",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if(is.na(pmatch("second", unit))) {
-      if (!is.null(object@completed$eventTime)) {
-        object@completed %>%
-          dplyr::mutate_(.dots = setNames(list(
-            interp(~convertTimeunit(eventTime, unit, envir(object)))
-          ), "eventTime")) %>%
-          data.table() # dplyr removes something that makes this not print when
-                       # completed(sim) is invoked. This line brings it back.
+
+    out <- if(is.na(pmatch("second", unit)) & (length(object@completed$eventTime)>0)) {
+      #note the above line captures empty eventTime,
+      # whereas is.na does not
+      if(any(!is.na(object@completed$eventTime))) {
+        if (!is.null(object@completed$eventTime)) {
+          obj <- data.table::copy(object@completed) # don't change original object
+          obj[,eventTime:=convertTimeunit(eventTime, unit, envir(object))]
+          obj[]
+          obj
+        }
+      } else {
+        object@completed
       }
     } else {
       object@completed
     }
+
     return(out)
 })
 
@@ -2287,10 +2341,16 @@ setGeneric("completed<-",
 setReplaceMethod("completed",
                  signature = ".simList",
                  function(object, value) {
+                   if(!is(value, "data.table")) stop("Completed queue must be a data.table")
+                   if(!identical(names(value), .emptyEventListCols))
+                     stop("Event queue must be a data.table with 4 columns, ",
+                          "eventTime, moduleName, eventType, and eventPriority")
+
                    object@completed <- value
-                   validObject(object)
                    return(object)
 })
+
+
 
 ################################################################################
 #' Add simulation dependencies
@@ -2657,5 +2717,4 @@ setMethod(
       paramDesc = character(0), stringsAsFactors = FALSE)
     return(df)
 })
-
 
