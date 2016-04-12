@@ -51,6 +51,15 @@ setMethod(
       setkey('eventTime', 'eventPriority')
 })
 
+#' @rdname emptyEventList
+.emptyEventListCols <- colnames(.emptyEventList())
+
+#' @rdname emptyEventList
+.emptyEventListObj <- .emptyEventList()
+
+#' @rdname emptyEventList
+.emptyEventListNA <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+
 ################################################################################
 #' Default (empty) metadata
 #'
