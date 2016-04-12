@@ -4,17 +4,24 @@
 \name{.fileTableIn}
 \alias{.fileTableIn}
 \alias{.fileTableIn,missing-method}
+\alias{.fileTableInCols}
 \alias{.fileTableOut}
 \alias{.fileTableOut,missing-method}
+\alias{.fileTableOutCols}
 \title{Create empty fileTable for inputs and outputs}
+\format{An object of class \code{character} of length 6.}
 \usage{
 .fileTableIn(x)
 
 \S4method{.fileTableIn}{missing}()
 
+.fileTableInCols
+
 .fileTableOut(x)
 
 \S4method{.fileTableOut}{missing}()
+
+.fileTableOutCols
 }
 \arguments{
 \item{x}{Not used (should be missing)}
@@ -26,4 +33,5 @@ An empty data.frame with structure needed for input/output fileTable.
 Internal functions.
 Returns an empty fileTable to be used with inputs and outputs.
 }
+\keyword{datasets}
 

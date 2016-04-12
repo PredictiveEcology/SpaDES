@@ -5,7 +5,11 @@
 \alias{.emptyEventList}
 \alias{.emptyEventList,missing,missing,missing,missing-method}
 \alias{.emptyEventList,numeric,character,character,numeric-method}
+\alias{.emptyEventListCols}
+\alias{.emptyEventListNA}
+\alias{.emptyEventListObj}
 \title{Blank (template) event list}
+\format{An object of class \code{character} of length 4.}
 \usage{
 .emptyEventList(eventTime, moduleName, eventType, eventPriority)
 
@@ -13,6 +17,12 @@
   moduleName, eventType, eventPriority)
 
 \S4method{.emptyEventList}{missing,missing,missing,missing}()
+
+.emptyEventListCols
+
+.emptyEventListObj
+
+.emptyEventListNA
 }
 \arguments{
 \item{eventTime}{The time the event is to occur.}
@@ -42,5 +52,6 @@ Each event is represented by a \code{\link{data.table}} row consisting of:
 \author{
 Alex Chubaty
 }
+\keyword{datasets}
 \keyword{internal}
 

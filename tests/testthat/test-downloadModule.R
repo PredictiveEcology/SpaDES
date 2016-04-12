@@ -79,13 +79,13 @@ test_that("downloadData downloads and unzips module data", {
 
   # if one file is missing, will fill in correctly
   unlink(file.path(datadir, filenames)[1])
-  downloadData(m, tmpdir)
+  downloadData(m, tmpdir, quiet = TRUE)
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there, but one is incorrectly named
   file.rename(from = file.path(datadir, filenames[1]),
               to = file.path(datadir, "test.tif"))
-  downloadData(m, tmpdir) # renames the file back to expected
+  downloadData(m, tmpdir, quiet = TRUE) # renames the file back to expected
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there with correct names, but wrong content
@@ -93,6 +93,6 @@ test_that("downloadData downloads and unzips module data", {
   ras <- raster(file.path(datadir, filenames[2]))
   ras[4] <- maxValue(ras) + 1
   writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
-  downloadData(m, tmpdir)
+  downloadData(m, tmpdir, quiet = TRUE)
   expect_true(all(file.exists(file.path(datadir, filenames))))
 })

@@ -4,6 +4,7 @@
 \name{modules}
 \alias{.callingModuleName}
 \alias{.callingModuleName,.simList-method}
+\alias{currentModule}
 \alias{depends}
 \alias{depends,.simList-method}
 \alias{depends<-}
@@ -34,6 +35,8 @@ depends(object) <- value
 .callingModuleName(object)
 
 \S4method{.callingModuleName}{.simList}(object)
+
+currentModule(object)
 }
 \arguments{
 \item{object}{A \code{simList} simulation object.}
@@ -57,12 +60,17 @@ These are included for advanced users.
 the active module calling functions like \code{scheduleEvent}.
 This will only return the module name if it is inside a \code{spades}
 function call, i.e., it will return \code{NULL} if used in interactive mode.
+The related function \code{currentModule} is simply a rapid accessor for the
+current module name. This latter will return the module that is in the current
+event queue, which will never be \code{NULL}
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
 }
 \author{
 Alex Chubaty
+
+Eliot McIntire
 
 Eliot McIntire
 }
