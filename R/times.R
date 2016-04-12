@@ -45,6 +45,9 @@ setMethod("dyears",
             duration(x * 60 * 60 * 24 * 365.25)
 })
 
+yearsInSeconds <- as.numeric(dyears(1)) #31557600L
+
+
 #' @inheritParams dyears
 #' @export
 #' @docType methods
@@ -101,13 +104,6 @@ dsecond <- function(x) {
   dseconds(x)
 }
 
-
-hoursInSeconds <- 3600L
-daysInSeconds <- 86400L
-weeksInSeconds <- 606876.92307692
-monthsInSeconds <- 2629800L
-yearsInSeconds <- 31557600L
-
 #' @export
 #' @rdname spadesTime
 #' @importFrom lubridate ddays
@@ -136,6 +132,11 @@ setMethod("dNA",
           definition = function(x) {
             duration(0)
 })
+
+hoursInSeconds <- as.numeric(dhour(1)) #3600L
+daysInSeconds <- as.numeric(dday(1)) #86400L
+weeksInSeconds <- as.numeric(dweek(1)) #606876.92307692
+monthsInSeconds <- as.numeric(dmonth(1)) #2629800L
 
 ################################################################################
 #' Convert time units
@@ -179,6 +180,7 @@ setMethod(
   "inSeconds",
   signature = c("character", "environment"),
   definition <- function(unit, envir) {
+
     if (!is.na(unit)) {
       out <- switch(unit,
                     second = 1,
@@ -261,21 +263,22 @@ setMethod(
 
     # Assume default of seconds if time has no units
     if (!is.character(timeUnit)) {
-      timeUnit <- "second"
+      attr(time, "unit") <- timeUnit <- "second"
     }
+    if(is.na(pmatch("second", unit)) | is.na(pmatch("second", timeUnit))) {
+      if (!is.na(timeUnit) & !is.na(unit)) {
+        # confirm that units are useable by SpaDES
+        checkTimeunit(c(timeUnit, unit), envir)
 
-    if (!is.na(timeUnit) & !is.na(unit)) {
-      # confirm that units are useable by SpaDES
-      checkTimeunit(c(timeUnit, unit), envir)
-
-      # if timeUnit is same as unit, skip calculations
-      if (!stri_detect_fixed(unit, pattern = timeUnit)) {
-        time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
+        # if timeUnit is same as unit, skip calculations
+        if (!stri_detect_fixed(unit, pattern = timeUnit)) {
+          time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
+          attr(time, "unit") <- unit
+        }
+      } else { # if timeunit is NA
+        time <- 0
         attr(time, "unit") <- unit
       }
-    } else { # if timeunit is NA
-      time <- 0
-      attr(time, "unit") <- unit
     }
     return(time)
 })
@@ -415,8 +418,7 @@ setMethod("checkTimeunit",
 
             # check for .spadesTimes first, then user defined ones
             #   d*unit*, then d*units* then "d*unit omit s"
-            if (length(!is.na(pmatch(unit, .spadesTimes)))==
-                length(unit)) {
+            if (all(!is.na(pmatch(unit, .spadesTimes)))) {
             #if (sum(str_detect(.spadesTimes, pattern = unit), na.rm = TRUE)==
             #   length(unit)) {
               out <- TRUE
