@@ -321,6 +321,12 @@ setMethod(
     return(bind_rows(chksums, chksums2))
 })
 
+setMethod(
+  "downloadData",
+  signature = c(module = "character", path = "character", quiet = "missing"),
+  definition = function(module, path, quiet) {
+    downloadData(module=module, path=path, quiet=FALSE)
+  })
 ################################################################################
 #' Calculate the hashes of multiple files
 #'
