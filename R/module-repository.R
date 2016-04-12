@@ -321,10 +321,11 @@ setMethod(
     return(bind_rows(chksums, chksums2))
 })
 
+#' @rdname downloadData
 setMethod(
   "downloadData",
   signature = c(module = "character", path = "character", quiet = "missing"),
-  definition = function(module, path, quiet) {
+  definition = function(module, path) {
     downloadData(module=module, path=path, quiet=FALSE)
   })
 ################################################################################
