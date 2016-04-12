@@ -36,8 +36,8 @@ setMethod(
             eventType = "character", eventPriority = "numeric"),
   definition = function(eventTime, moduleName, eventType, eventPriority) {
     data.table(eventTime = eventTime, moduleName = moduleName,
-               eventType = eventType, eventPriority = eventPriority) %>%
-      setkey('eventTime', 'eventPriority')
+               eventType = eventType, eventPriority = eventPriority) #%>%
+      #setkey('eventTime', 'eventPriority')
 })
 
 #' @rdname emptyEventList
@@ -47,8 +47,8 @@ setMethod(
             eventType = "missing", eventPriority = "missing"),
   definition = function() {
     data.table(eventTime = numeric(0L), moduleName = character(0L),
-               eventType = character(0L), eventPriority = numeric(0L)) %>%
-      setkey('eventTime', 'eventPriority')
+               eventType = character(0L), eventPriority = numeric(0L)) #%>%
+      #setkey('eventTime', 'eventPriority')
 })
 
 #' @rdname emptyEventList
