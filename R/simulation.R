@@ -614,13 +614,14 @@ setMethod(
 
     cur <- current(sim)
     if ( NROW(cur) == 0 || any(is.na(cur)) ) {
+      evnts <- events(sim, "second")
       # get next event from the queue and remove it from the queue
-      if (NROW(events(sim))) {
-        current(sim) <- events(sim, "second")[1L,]
-        events(sim) <- events(sim, "second")[-1L,]
+      if (NROW(evnts)) {
+        current(sim) <- evnts[1L,]
+        events(sim) <- evnts[-1L,]
       } else {
         # no more events, return event list of NAs
-        current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+        current(sim) <- .emptyEventListNA
       }
     }
 
@@ -665,7 +666,7 @@ setMethod(
           completed <- cur
         }
         completed(sim) <- completed
-        current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+        current(sim) <- .emptyEventListNA
       } else {
         # update current simulated time and event
         time(sim) <- end(sim) + 1
