@@ -2,8 +2,7 @@ test_that("experiment does not work correctly", {
   library(raster)
   library(magrittr)
   library(dplyr)
-  tmpdir <- file.path(tempdir(), "testParallel")
-  tmpdir <- gsub(tmpdir, pattern = "[/\\]", replacement = "/") # Force all forward slash
+  tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
   on.exit({
     detach("package:raster")
     detach("package:magrittr")
@@ -32,18 +31,21 @@ test_that("experiment does not work correctly", {
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)
   caribouNums <- c(100, 1000)
-  experimentParams <- list(fireSpread = list(spreadprob = c(0.2), nFires = c(20, 10)),
-                           caribouMovement = list(N = caribouNums))
+  experimentParams <- list(
+    fireSpread = list(spreadprob = c(0.2), nFires = c(20, 10)),
+    caribouMovement = list(N = caribouNums)
+  )
 
-  sims <- experiment(mySimFull, params=experimentParams)
+  sims <- experiment(mySimFull, params = experimentParams)
   expt <- load(file.path(tmpdir, "experiment.RData")) %>% get() # Loads an object named experiment
   exptDesign <- expt$expDesign
-  expVals <- expt$expVals
+  exptVals <- expt$expVals
 
   expect_equal(NROW(exptDesign), 4)
-  expect_equal(expVals[expVals$module == "caribouMovement","val"] %>% unlist(),
+  expect_equal(exptVals[exptVals$module == "caribouMovement","val"] %>% unlist(),
                c(rep(caribouNums, 2)))
-  expect_equal(expVals$modules %>% unique(), "randomLandscapes,caribouMovement,fireSpread")
+  expect_equal(exptVals$modules %>% unique(),
+               "randomLandscapes,caribouMovement,fireSpread")
   expect_equal(NROW(attr(sims, "experiment")$expDesign), NROW(exptDesign))
 
   # test that experimental design object is indeed what is in the sims object
@@ -52,21 +54,22 @@ test_that("experiment does not work correctly", {
   out2 <- lapply(seq_along(mods), function(y) {
     out <- lapply(seq_len(NROW(exptDesign)), function(x) {
       expect_equivalent(0, params(sims[[x]])[[mods[y]]][[params[[y]]]] -
-                   expVals %>% dplyr::filter(module == mods[[y]] &
-                                               param == params[[y]] &
-                                               expLevel == x) %>%
-                     dplyr::select(val) %>% unlist() )
+                          exptVals %>% dplyr::filter(module == mods[[y]] &
+                                                       param == params[[y]] &
+                                                       expLevel == x) %>%
+                          dplyr::select(val) %>% unlist() )
     })
   })
 
   sims <- experiment(mySimFull, replicates = 3)
   expt <- load(file.path(tmpdir, "experiment.RData")) %>% get() # Loads an object named experiment
   exptDesign <- expt$expDesign
-  expVals <- expt$expVals
+  exptVals <- expt$expVals
   out <- lapply(seq_along(sims), function(x) {
     expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
     expect_equal(outputs(sims[[x]])$file,
-                 file.path(tmpdir, paste0("rep", x), paste0(c("landscape", "caribou"), "_year2.rds"))
+                 file.path(tmpdir, paste0("rep", x),
+                           paste0(c("landscape", "caribou"), "_year2.rds"))
     )
   })
 
@@ -123,10 +126,10 @@ test_that("experiment does not work correctly", {
   expect_equal(length(ls(sims[[1]])), 10)
   set.seed(1232)
   sims2 <- experiment(mySimNoRL, replicates = 2, clearSimEnv = TRUE,
-                     inputs = lapply(landscapeFiles, function(filenames) {
-                       data.frame(file = filenames, loadTime = 0,
-                                  objectName = "landscape", stringsAsFactors = FALSE)
-                     })
+                      inputs = lapply(landscapeFiles, function(filenames) {
+                        data.frame(file = filenames, loadTime = 0,
+                                   objectName = "landscape", stringsAsFactors = FALSE)
+                      })
   )
   # This version has no objects
   expect_equal(length(ls(sims2[[1]])), 0)
@@ -137,15 +140,13 @@ test_that("experiment does not work correctly", {
 
   # Test object passing in
   experimentObj <- list(landscape = lapply(landscapeFiles, readRDS) %>%
-                                   setNames(paste0("landscape",1:2)))
+                          setNames(paste0("landscape",1:2)))
   # Pass in this list of landscape objects
   set.seed(1232)
   sims3 <- experiment(mySimNoRL, objects = experimentObj)
   # Compare simulations that had objects read from disk with objects passed via objects arg
   expect_equal(sims3[[1]]$landscape, sims[[1]]$landscape)
   expect_equal(sims3[[2]]$landscape, sims[[2]]$landscape)
-
-
 })
 
 test_that("parallel does not work with experiment function", {
@@ -153,8 +154,7 @@ test_that("parallel does not work with experiment function", {
   library(raster)
   library(magrittr)
   library(dplyr)
-  tmpdir <- file.path(tempdir(), "testParallel")
-  tmpdir <- gsub(tmpdir, pattern = "[/\\]", replacement = "/") # Force all forward slash
+  tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
   on.exit({
     detach("package:raster")
     detach("package:magrittr")
@@ -183,18 +183,19 @@ test_that("parallel does not work with experiment function", {
   # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
   #    and 2 levels of 1 param in caribouMovement)
   caribouNums <- c(100, 1000)
-  experimentParams <- list(fireSpread = list(spreadprob = c(0.2),
-                                             nFires = c(20, 10)),
-                           caribouMovement = list(N = caribouNums))
+  experimentParams <- list(
+    fireSpread = list(spreadprob = c(0.2), nFires = c(20, 10)),
+    caribouMovement = list(N = caribouNums)
+  )
 
   set.seed(2343)
   seqTime <- system.time(simsSeq <- experiment(mySimFull, params = experimentParams))
 
-  beginCluster(4)
+  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+  beginCluster(n)
   set.seed(2343)
   parTime <- system.time(simsPar <- experiment(mySimFull, params = experimentParams))
   endCluster()
-  expect_equal(attr(simsPar, "experiment"),attr(simsSeq, "experiment"))
+  expect_equal(attr(simsPar, "experiment"), attr(simsSeq, "experiment"))
   expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
 })
-

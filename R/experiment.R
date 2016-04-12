@@ -150,7 +150,7 @@
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
 #'
 #' @importFrom raster getCluster returnCluster
-#' @importFrom snow clusterApplyLB clusterEvalQ
+# @importFrom parallel clusterApplyLB clusterEvalQ
 #' @export
 #' @docType methods
 #' @rdname experiment
@@ -437,7 +437,8 @@ setMethod(
       }
       factorialExpInner
     })
-    factorialExp <- rbindlist(factorialExpList, fill = TRUE) %>% data.frame(stringsAsFactors = FALSE)
+    factorialExp <- rbindlist(factorialExpList, fill = TRUE) %>%
+      data.frame(stringsAsFactors = FALSE)
     numExpLevels <- NROW(factorialExp)
     factorialExp$expLevel <- seq_len(numExpLevels)
 
@@ -446,30 +447,29 @@ setMethod(
       if (length(replicates == 1)) {
         replicates = seq_len(replicates)
       }
-      factorialExp <- do.call(rbind, replicate(length(replicates), factorialExp, simplify = FALSE))
+      factorialExp <- do.call(rbind, replicate(length(replicates), factorialExp,
+                                               simplify = FALSE))
       factorialExp$replicate = rep(replicates, each = numExpLevels)
     }
 
     FunDef <- function(ind, ...) {
-      mod <- strsplit(names(factorialExp), split = "\\.") %>% sapply(function(x) x[1])
-      param<- strsplit(names(factorialExp), split = "\\.") %>% sapply(function(x) x[2])
+      mod <- strsplit(names(factorialExp), split = "\\.") %>%
+        sapply(function(x) x[1])
+      param <- strsplit(names(factorialExp), split = "\\.") %>%
+        sapply(function(x) x[2])
       param[is.na(param)] <- ""
 
       paramValues <- factorialExp[ind,]
-      #if ("modules" %in% mod) {
-      #  paramValues$modules <- strsplit(paramValues$modules, split = ",")[[1]] %>%
-      #    substr(1,substrLength) %>% paste(collapse = ",")
-      #}
 
       whNotExpLevel <- which(colnames(paramValues) != "expLevel")
-      if (length(whNotExpLevel)<length(paramValues)) {
+      if (length(whNotExpLevel) < length(paramValues)) {
         mod <- mod[whNotExpLevel]
         param <- param[whNotExpLevel]
         paramValues <- paramValues[whNotExpLevel]
       }
 
       whNotRepl <- which(colnames(paramValues) != "replicate")
-      if (length(whNotRepl)<length(paramValues)) {
+      if (length(whNotRepl) < length(paramValues)) {
         repl <- paramValues$replicate
         mod <- mod[whNotRepl]
         param <- param[whNotRepl]
@@ -478,18 +478,22 @@ setMethod(
 
       notNA <- which(!is.na(paramValues))
 
-      if (length(notNA)<length(mod)) {
+      if (length(notNA) < length(mod)) {
         mod <- mod[notNA]
         param <- param[notNA]
         paramValues <- paramValues[notNA]
       }
 
       sim_ <- copy(sim)
-      experimentDF <- data.frame(module = character(0), param = character(0),
-                                 val = I(list()), modules = character(0),
+      experimentDF <- data.frame(module = character(0),
+                                 param = character(0),
+                                 val = I(list()),
+                                 modules = character(0),
                                  input = data.frame(),
                                  object = character(0),
-                                 expLevel = numeric(0), stringsAsFactors = FALSE)
+                                 expLevel = numeric(0),
+                                 stringsAsFactors = FALSE)
+
       for (x in seq_along(mod)) {
         if (any(mod != "modules")) {
           y <- factorialExp[ind, names(paramValues)[x]]
@@ -498,28 +502,31 @@ setMethod(
             val <- params[[mod[x]]][[param[[x]]]][[y]]
             params(sim_)[[mod[x]]][[param[[x]]]] <- val #factorialExp[ind,x]
             experimentDF <- rbindlist(
-              l = list(experimentDF,
-                       data.frame(module = if (!(mod[x] %in% c("input", "object"))) mod[x] else NA,
-                                  param = if (!(mod[x] %in% c("input", "object"))) param[x] else NA,
-                                  val = if (!(mod[x] %in% c("input", "object"))) I(list(val)) else list(NA),
-                                  modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
-                                  #input = if (length(inputs) > 0) inputs[[factorialExp[ind, "input"]]] else NA,
-                                  input = if ((mod[x] %in% c("input"))) inputs[[factorialExp[ind, "input"]]] else NA,
-                                  #object = if (length(objects) > 0) names(objects)[[factorialExp[ind, "object"]]] else NA,
-                                  object = if ((mod[x] %in% c("object"))) names(objects)[[factorialExp[ind, "object"]]] else NA,
-                                  expLevel = factorialExp[ind, "expLevel"],
-                                  stringsAsFactors = FALSE)),
+              l = list(
+                experimentDF,
+                data.frame(
+                  module = if (!(mod[x] %in% c("input", "object"))) mod[x] else NA,
+                  param = if (!(mod[x] %in% c("input", "object"))) param[x] else NA,
+                  val = if (!(mod[x] %in% c("input", "object"))) I(list(val)) else list(NA),
+                  modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
+                  input = if ((mod[x] %in% c("input"))) inputs[[factorialExp[ind, "input"]]] else NA,
+                  object = if ((mod[x] %in% c("object"))) names(objects)[[factorialExp[ind, "object"]]] else NA,
+                  expLevel = factorialExp[ind, "expLevel"],
+                  stringsAsFactors = FALSE
+              )),
               use.names = TRUE,
-              fill=TRUE)
+              fill = TRUE)
           }
         } else {
           experimentDF <- rbindlist(
-            l = list(experimentDF,
-                     data.frame(modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
-                                expLevel = factorialExp[ind,"expLevel"],
-                                stringsAsFactors = FALSE)),
+            l = list(
+              experimentDF,
+              data.frame(modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
+                         expLevel = factorialExp[ind,"expLevel"],
+                         stringsAsFactors = FALSE
+            )),
             use.names = TRUE,
-            fill=TRUE)
+            fill = TRUE)
         }
 
         if ("modules" %in% names(factorialExp)) {
@@ -538,7 +545,8 @@ setMethod(
 
       # Deal with directory structures
       if (any(dirPrefix == "simNum")) {
-        exptNum <- paddedFloatToChar(factorialExp$expLevel[ind], ceiling(log10(numExpLevels+1)))
+        exptNum <- paddedFloatToChar(factorialExp$expLevel[ind],
+                                     ceiling(log10(numExpLevels + 1)))
       }
       dirPrefixTmp <- paste0(dirPrefix, collapse = "")
 
@@ -553,7 +561,7 @@ setMethod(
         if (any(dirPrefix != "")) {
           dirName <- paste(paste(dirPrefix, collapse = ""), dirName, sep = "_")
         }
-      } else if (substrLength == 0){
+      } else if (substrLength == 0) {
         if (any(dirPrefix != "")) {
           simplePrefix <- if (any(dirPrefix == "simNum")) exptNum else ""
           dirName <- gsub(dirPrefixTmp, pattern = "simNum", replacement = simplePrefix)
@@ -565,10 +573,11 @@ setMethod(
       }
 
       if (exists("repl", inherits = FALSE)) {
-        if (!is.null(dirName)) {
-          dirName <- file.path(dirName, paste0("rep", paddedFloatToChar(repl, ceiling(log10(length(replicates)+1)))))
+        nn <- paste0("rep", paddedFloatToChar(repl, ceiling(log10(length(replicates) + 1))))
+        dirName <- if (!is.null(dirName)) {
+          file.path(dirName, nn)
         } else {
-          dirName <- file.path(paste0("rep", paddedFloatToChar(repl, ceiling(log10(length(replicates)+1)))))
+          file.path(nn)
         }
       }
       newOutputPath <- file.path(paths(sim_)$outputPath, dirName) %>%
@@ -578,11 +587,12 @@ setMethod(
       outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
       # Actually put inputs into simList
       if (length(inputs) > 0) {
-        SpaDES::inputs(sim_) <- inputs[[factorialExp[ind,"input"]]]
+        SpaDES::inputs(sim_) <- inputs[[factorialExp[ind, "input"]]]
       }
       # Actually put objects into simList
       if (length(objects) > 0) {
-        replaceObjName <- strsplit(names(objects)[[factorialExp[ind, "object"]]], split = "\\.")[[1]][1]
+        replaceObjName <- strsplit(names(objects)[[factorialExp[ind, "object"]]],
+                                   split = "\\.")[[1]][1]
         sim_[[replaceObjName]] <- objects[[factorialExp[ind, "object"]]]
       }
       sim3 <- spades(sim_, ...)
@@ -590,13 +600,12 @@ setMethod(
     }
 
     if (!is.null(cl)) {
-      parFun <- "clusterApplyLB"
+      parFun <- "parallel::clusterApplyLB"
       args <- list(x = 1:NROW(factorialExp), fun = FunDef)
       args <- append(list(cl = cl), args)
       if (!is.na(pmatch("Windows", Sys.getenv("OS")))) {
-        clusterEvalQ(cl, library(SpaDES))
+        parallel::clusterEvalQ(cl, library(SpaDES))
       }
-
     } else {
       parFun <- "lapply"
       args <- list(X = 1:NROW(factorialExp), FUN = FunDef)
@@ -610,7 +619,7 @@ setMethod(
 
     keepCols <- names(experimentDF) %in% c(names(factorialExp),
                                            "param"[length(params) > 1],
-                                           "module"[(length(params) > 1)],
+                                           "module"[length(params) > 1],
                                            "modules"[length(modules) > 1],
                                            "val"[length(params) > 1])
 
@@ -631,4 +640,3 @@ setMethod(
     }
     return(invisible(sims))
   })
-
