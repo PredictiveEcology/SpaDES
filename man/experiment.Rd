@@ -105,7 +105,6 @@ and \code{inputs} should be structured.
   \code{inputs = list(
         data.frame(file = pathToFile1, loadTime = 0, objectName = "landscape",
                    stringsAsFactors = FALSE),
-
         data.frame(file = pathToFile2, loadTime = 0, objectName = "landscape",
                    stringsAsFactors = FALSE)
   )}

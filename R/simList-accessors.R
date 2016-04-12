@@ -2189,7 +2189,7 @@ setReplaceMethod(
      if(!is(value, "data.table")) stop("Event queue must be a data.table")
      if(!identical(names(value), .emptyEventListCols))
        stop("Event queue must be a data.table with 4 columns, ",
-            "eventTime, moduleName, eventType, and eventPriority")
+          paste(.emptyEventListCols, collapse=", "))
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
      }
@@ -2266,8 +2266,7 @@ setReplaceMethod("current",
                    if(!is(value, "data.table")) stop("Event queue must be a data.table")
                    if(!identical(names(value), .emptyEventListCols))
                      stop("Event queue must be a data.table with 4 columns, ",
-                          "eventTime, moduleName, eventType, and eventPriority")
-
+                          paste(.emptyEventListCols, collapse=", "))
                    object@current <- value
                    return(object)
 })
@@ -2339,7 +2338,7 @@ setReplaceMethod("completed",
                    if(!is(value, "data.table")) stop("Completed queue must be a data.table")
                    if(!identical(names(value), .emptyEventListCols))
                      stop("Event queue must be a data.table with 4 columns, ",
-                          "eventTime, moduleName, eventType, and eventPriority")
+                          paste(.emptyEventListCols, collapse=", "))
 
                    object@completed <- value
                    return(object)

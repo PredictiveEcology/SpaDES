@@ -4,12 +4,15 @@
 \name{downloadData}
 \alias{downloadData}
 \alias{downloadData,character,character,logical-method}
+\alias{downloadData,character,character,missing-method}
 \title{Download module data}
 \usage{
 downloadData(module, path, quiet = FALSE)
 
 \S4method{downloadData}{character,character,logical}(module, path,
   quiet = FALSE)
+
+\S4method{downloadData}{character,character,missing}(module, path)
 }
 \arguments{
 \item{module}{Character string giving the name of the module.}
