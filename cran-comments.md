@@ -8,10 +8,11 @@ We also include a number of bug fixes and performance enhancements.
 ### Previous R versions
 * Windows 7               (local), R 3.2.2
 * Windows 7               (local), R 3.2.3
+* Windows 7               (local), R 3.2.4
+* OS X El Capitan         (local), R 3.2.4
 
 ### Current R versions
 * Debian Jessie           (local), R 3.2.4 Revised (2016-03-16 r70336)
-* OS X El Capitan         (local), R 3.2.4
 * Ubuntu 12.04        (travis-ci), R 3.2.4 Revised (2016-03-16 r70338)
 * Ubuntu 14.04            (local), R 3.2.4 Revised (2016-03-16 r70336)
 * Windows 7               (local), R 3.2.4 Revised (2016-03-16 r70336)
