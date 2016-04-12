@@ -104,7 +104,7 @@ setMethod(
              "Did you mean: ", ., "?")
     }
     return(invisible(moduleFiles))
-  })
+})
 
 #' @rdname checkModule
 setMethod("checkModule",
@@ -284,7 +284,7 @@ setMethod(
             checkPath(create = TRUE) %>%
             file.path(., basename(x))
           message("Downloading data for module ", module, " ...")
-          download.file(x, destfile = tmpFile, mode = "wb", quiet=quiet)
+          download.file(x, destfile = tmpFile, mode = "wb", quiet = quiet)
           copied <- file.copy(from = tmpFile, to = destfile, overwrite = TRUE)
           destfile
         }
@@ -295,7 +295,7 @@ setMethod(
     }
 
     wh <- match(chksums$actualFile, chksums$expectedFile) %>% is.na() %>% which()
-    if(length(wh)) {
+    if (length(wh)) {
       chksums[wh, "renamed"] <- sapply(wh, function(id) {
         renamed <- file.rename(
           from = file.path(dataDir, chksums$actualFile[id]),
@@ -304,7 +304,7 @@ setMethod(
       })
     }
 
-    if(any(!chksums$renamed %>% na.omit)) {
+    if (any(!chksums$renamed %>% na.omit())) {
       warning("Unable to automatically give proper name to downloaded files.",
               " Manual file rename is required.")
     }
@@ -326,7 +326,7 @@ setMethod(
   "downloadData",
   signature = c(module = "character", path = "character", quiet = "missing"),
   definition = function(module, path) {
-    downloadData(module=module, path=path, quiet=FALSE)
+    downloadData(module = module, path = path, quiet = FALSE)
   })
 ################################################################################
 #' Calculate the hashes of multiple files
@@ -381,7 +381,7 @@ setMethod(
 #'                Module developers should write this file prior to distributing
 #'                their module code, and update accordingly when the data change.
 #'
-#' @return A data.frame with 4 columns: result, expectedFile, actualFile, and checksum.
+#' @return A data.frame with columns: result, expectedFile, actualFile, and checksum.
 #'
 #' @include moduleMetadata.R
 #' @importFrom dplyr arrange desc filter group_by_ left_join mutate rename_ row_number select_

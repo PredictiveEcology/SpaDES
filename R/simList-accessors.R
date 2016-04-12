@@ -415,7 +415,7 @@ setReplaceMethod("modules",
                    object@modules <- value
                    validObject(object)
                    return(object)
- })
+})
 
 ################################################################################
 #' @inheritParams modules
@@ -518,7 +518,7 @@ setMethod(
   signature = c(".simList"),
   definition = function(object) {
     object@current$module
-  })
+})
 
 
 ################################################################################
@@ -2069,9 +2069,10 @@ setMethod(
   "timeunits",
   signature = ".simList",
   definition = function(x) {
-    isNonParent <- !sapply(depends(x)@dependencies, function(x)
-      length(x@childModules)>0)
-    if(all(sapply(depends(x)@dependencies[isNonParent], is.null))) {
+    isNonParent <- !sapply(depends(x)@dependencies, function(x) {
+      length(x@childModules) > 0
+    })
+    if (all(sapply(depends(x)@dependencies[isNonParent], is.null))) {
       timestepUnits <- NULL
     } else {
       timestepUnits <- lapply(depends(x)@dependencies[isNonParent], function(y) {
@@ -2148,7 +2149,7 @@ setMethod(
       if(any(!is.na(object@events$eventTime))) {
         if (!is.null(object@events$eventTime)) {
           obj <- data.table::copy(object@events) # don't change original object
-          obj[,eventTime:=convertTimeunit(eventTime, unit, envir(object))]
+          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
           obj[]
           obj
         }
@@ -2186,14 +2187,14 @@ setReplaceMethod(
   "events",
    signature = ".simList",
    function(object, value) {
-     if(!is(value, "data.table")) stop("Event queue must be a data.table")
-     if(!identical(names(value), .emptyEventListCols))
-       stop("Event queue must be a data.table with 4 columns, ",
-          paste(.emptyEventListCols, collapse=", "))
+     if (!is(value, "data.table")) stop("Event queue must be a data.table")
+     if (!identical(names(value), .emptyEventListCols))
+       stop("Event queue must be a data.table with columns: ",
+            paste(.emptyEventListCols, collapse = ", "), ".")
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
      }
-     if(is.na(pmatch("second", attributes(value$eventTime)$unit))){
+     if (is.na(pmatch("second", attributes(value$eventTime)$unit))) {
        value[, eventTime := convertTimeunit(eventTime, "second", envir(object))]
      }
 
@@ -2221,13 +2222,12 @@ setMethod(
   "current",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if(is.na(pmatch("second", unit)) & (length(object@current$eventTime)>0)) {
-      #note the above line captures empty eventTime,
-      # whereas is.na does not
-      if(any(!is.na(object@current$eventTime))) {
+    out <- if (is.na(pmatch("second", unit)) & (length(object@current$eventTime))) {
+      # note the above line captures empty eventTime, whereas `is.na` does not
+      if (any(!is.na(object@current$eventTime))) {
         if (!is.null(object@current$eventTime)) {
           obj <- data.table::copy(object@current) # don't change original object
-          obj[,eventTime:=convertTimeunit(eventTime, unit, envir(object))]
+          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
           obj[]
           obj
         }
@@ -2254,7 +2254,7 @@ setMethod("current",
 setGeneric("current<-",
            function(object, value) {
              standardGeneric("current<-")
-           })
+})
 
 #' @name current<-
 #' @aliases current<-,.simList-method
@@ -2263,10 +2263,11 @@ setGeneric("current<-",
 setReplaceMethod("current",
                  signature = ".simList",
                  function(object, value) {
-                   if(!is(value, "data.table")) stop("Event queue must be a data.table")
-                   if(!identical(names(value), .emptyEventListCols))
-                     stop("Event queue must be a data.table with 4 columns, ",
-                          paste(.emptyEventListCols, collapse=", "))
+                   if (!is(value, "data.table")) stop("Event queue must be a data.table")
+                   if (!identical(names(value), .emptyEventListCols)) {
+                     stop("Event queue must be a data.table with columns: ",
+                          paste(.emptyEventListCols, collapse = ", "), ".")
+                   }
                    object@current <- value
                    return(object)
 })
@@ -2291,14 +2292,12 @@ setMethod(
   "completed",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-
-    out <- if(is.na(pmatch("second", unit)) & (length(object@completed$eventTime)>0)) {
-      #note the above line captures empty eventTime,
-      # whereas is.na does not
-      if(any(!is.na(object@completed$eventTime))) {
+    out <- if (is.na(pmatch("second", unit)) & (length(object@completed$eventTime))) {
+      # note the above line captures empty eventTime, whereas `is.na` does not
+      if (any(!is.na(object@completed$eventTime))) {
         if (!is.null(object@completed$eventTime)) {
           obj <- data.table::copy(object@completed) # don't change original object
-          obj[,eventTime:=convertTimeunit(eventTime, unit, envir(object))]
+          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
           obj[]
           obj
         }
@@ -2308,7 +2307,6 @@ setMethod(
     } else {
       object@completed
     }
-
     return(out)
 })
 
@@ -2335,16 +2333,14 @@ setGeneric("completed<-",
 setReplaceMethod("completed",
                  signature = ".simList",
                  function(object, value) {
-                   if(!is(value, "data.table")) stop("Completed queue must be a data.table")
-                   if(!identical(names(value), .emptyEventListCols))
-                     stop("Event queue must be a data.table with 4 columns, ",
-                          paste(.emptyEventListCols, collapse=", "))
-
+                   if (!is(value, "data.table")) stop("Completed queue must be a data.table")
+                   if (!identical(names(value), .emptyEventListCols)) {
+                     stop("Event queue must be a data.table with columns, ",
+                          paste(.emptyEventListCols, collapse = ", "), ".")
+                   }
                    object@completed <- value
                    return(object)
 })
-
-
 
 ################################################################################
 #' Add simulation dependencies
@@ -2376,10 +2372,10 @@ setMethod(
   definition = function(sim, x) {
     deps <- depends(sim)
     n <- length(deps@dependencies)
-    if (n==1L) {
+    if (n == 1L) {
       if (is.null(deps@dependencies[[1L]])) n <- 0L
     }
-    deps@dependencies[[n+1L]] <- x
+    deps@dependencies[[n + 1L]] <- x
     dupes <- which(duplicated(deps@dependencies))
     if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
     depends(sim) <- deps
@@ -2413,11 +2409,7 @@ setMethod(
   definition = function(sim) {
     pkgs <- lapply(depends(sim)@dependencies, function(x) {
         x@reqdPkgs
-      }) %>%
-      unlist %>%
-      append("SpaDES") %>%
-      unique %>%
-      sort
+      }) %>% unlist() %>% append("SpaDES") %>% unique() %>% sort()
     return(pkgs)
 })
 
@@ -2497,7 +2489,7 @@ setMethod(
 
     ## enforce/coerce types for the user-supplied param list
     lapply(c("name", "description", "keywords"), function(z) {
-      x[[z]] <<- if ( is.null(x[[z]]) || (length(x[[z]])==0) ) {
+      x[[z]] <<- if ( is.null(x[[z]]) || (length(x[[z]]) == 0) ) {
         NA_character_
       } else {
         as.character(x[[z]])

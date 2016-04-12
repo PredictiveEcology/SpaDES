@@ -45,7 +45,7 @@ setMethod("dyears",
             duration(x * 60 * 60 * 24 * 365.25)
 })
 
-yearsInSeconds <- as.numeric(dyears(1)) #31557600L
+yearsInSeconds <- as.numeric(dyears(1)) # 31557600L
 
 
 #' @inheritParams dyears
@@ -133,10 +133,10 @@ setMethod("dNA",
             duration(0)
 })
 
-hoursInSeconds <- as.numeric(dhour(1)) #3600L
-daysInSeconds <- as.numeric(dday(1)) #86400L
-weeksInSeconds <- as.numeric(dweek(1)) #606876.92307692
-monthsInSeconds <- as.numeric(dmonth(1)) #2629800L
+hoursInSeconds <- as.numeric(dhour(1))    # 3600L
+daysInSeconds <- as.numeric(dday(1))      # 86400L
+weeksInSeconds <- as.numeric(dweek(1))    # 606876.92307692
+monthsInSeconds <- as.numeric(dmonth(1))  # 2629800L
 
 ################################################################################
 #' Convert time units
