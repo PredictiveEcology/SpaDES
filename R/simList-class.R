@@ -102,9 +102,9 @@ setClass(
       .checkpoint = list(interval = NA_real_, file = NULL),
       .progress = list(type = NULL, interval = NULL)
     ),
-    events = .emptyEventList(),
-    current = .emptyEventList(),
-    completed = .emptyEventList(),
+    events = .emptyEventListObj,
+    current = .emptyEventListObj,
+    completed = .emptyEventListObj,
     depends = new(".simDeps", dependencies = list(NULL)),
     simtimes = list(
       current = 0.00, start = 0.00, end = 1.00, timeunit = NA_character_
