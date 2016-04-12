@@ -150,7 +150,7 @@
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
 #'
 #' @importFrom raster getCluster returnCluster
-# @importFrom parallel clusterApplyLB clusterEvalQ
+#' @importFrom parallel clusterApplyLB clusterEvalQ
 #' @export
 #' @docType methods
 #' @rdname experiment
