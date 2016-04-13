@@ -148,8 +148,25 @@ setReplaceMethod(
    signature("RasterStack", "numeric", "list"),
    function(object, ..., n, value) {
      i <- which(names(object) %in% names(value))
-     for(x in names(object)[i]) {
-       setColors(object[[x]], ..., n = n) <- value[[x]]
+     whValNamed <- names(value) %in% names(n)
+     whNNamed <- names(n) %in% names(value)
+     nFull <- n
+     if(length(n)!=length(i)) { # not enough n values}
+       if(sum(nchar(names(n))==0) > 0) { # are there unnamed ones
+         nFull <- rep(n[!whNNamed], length.out = length(i))
+         nFull[whValNamed] <- n[whNNamed]
+         names(nFull)[whValNamed] <- names(n)[whNNamed]
+       } else if (is.null(names(n))) {
+         nFull <- rep(n, length.out = length(i))
+       }
+     }
+
+     for(x in i) {
+       if((x %in% i[whValNamed])) {
+         setColors(object[[names(value)[x]]], ..., n = nFull[[names(value)[x]]]) <- value[[names(value)[x]]]
+       } else {
+         setColors(object[[names(value)[x]]], ...) <- value[[names(value)[x]]]
+       }
      }
      return(object)
 })
