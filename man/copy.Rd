@@ -3,15 +3,21 @@
 \docType{methods}
 \name{copy}
 \alias{copy}
-\alias{copy,simList-method}
+\alias{copy,simList,logical-method}
+\alias{copy,simList,missing-method}
 \title{Copy a simList object}
 \usage{
-copy(sim)
+copy(sim, objects = TRUE)
 
-\S4method{copy}{simList}(sim)
+\S4method{copy}{simList,logical}(sim, objects = TRUE)
+
+\S4method{copy}{simList,missing}(sim)
 }
 \arguments{
 \item{sim}{A \code{simList} object.}
+
+\item{objects}{Whether the objects contained within the simList environment
+should be copied. Default = TRUE, which may be slow.}
 }
 \description{
 Because a simList works with an environment to hold all objects,

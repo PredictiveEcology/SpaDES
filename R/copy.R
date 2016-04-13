@@ -7,21 +7,33 @@
 #' so will the other. when this is not the desired behaviour, use this function.
 #'
 #' @param sim  A \code{simList} object.
+#' @param objects  Whether the objects contained within the simList environment
+#'                 should be copied. Default = TRUE, which may be slow.
 #' @export
 #' @docType methods
 #' @rdname copy
-setGeneric("copy", function(sim) {
+setGeneric("copy", function(sim, objects = TRUE) {
   standardGeneric("copy")
 })
 
 #' @rdname copy
 setMethod("copy",
-          signature(sim = "simList"),
-          definition = function(sim) {
+          signature(sim = "simList", objects = "logical"),
+          definition = function(sim, objects) {
             sim_ <- sim
-            sim_@.envir <- new.env(parent = parent.env(envir(sim)))
-            sim_@.envir <- list2env(mget(ls(sim@.envir, all.names = TRUE),
-                                         envir = sim@.envir),
-                                    envir = sim_@.envir)
+            if(objects) {
+              sim_@.envir <- new.env(parent = parent.env(envir(sim)))
+              sim_@.envir <- list2env(mget(ls(sim@.envir, all.names = TRUE),
+                                           envir = sim@.envir),
+                                      envir = sim_@.envir)
+            }
             return(sim_)
 })
+
+#' @rdname copy
+setMethod("copy",
+          signature(sim = "simList", objects = "missing"),
+          definition = function(sim) {
+            sim_ <- copy(sim, objects = TRUE)
+            return(sim_)
+          })
