@@ -837,17 +837,29 @@ setMethod(
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
-#' @param .plotInitialTime Numeric. This will override the .plotInitialTime argument
-#'                                  in the simInit for all modules. Can be used to
-#'                                  turn off plotting with \code{.plotInitialTime=NA}.
+#' @param .plotInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
+#'                                  parameter for all modules. See Details.
 #'
-#' @param .saveInitialTime Numeric. This will override the .plotInitialTime argument
-#'                                  in the simInit for all modules. Can be used to
-#'                                  turn off plotting with \code{.saveInitialTime=NA}.
+#' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
+#'                                  parameter for all modules. See Details.
 #'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
+#'
+#' @details
+#' The is the workhorse function in the SpaDES package. It runs simulations by
+#' implementing the rules outlined in the \code{simList}.
+#'
+#' This function gives simple access to two sets of module parameters:
+#' \code{.plotInitialTime} and with \code{.plotInitialTime}. The primary use of
+#' these arguments is to temporarily turn off plotting and saving. "Temporary"
+#' means that the \code{simList} is not changed, so it can be used again with
+#' the simList values reinstated. To turn off plotting and saving, use
+#' \code{.plotInitialTime = NA} or \code{.saveInitialTime = NA}. NOTE: if a
+#' module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
+#' these arguments will not do anything.
+#'
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates

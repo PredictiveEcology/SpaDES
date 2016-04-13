@@ -20,13 +20,11 @@ spades(sim, debug, .plotInitialTime, .saveInitialTime)
 \item{debug}{Optional logical flag determines whether sim debug info
 will be printed (default is \code{debug=FALSE}).}
 
-\item{.plotInitialTime}{Numeric. This will override the .plotInitialTime argument
-in the simInit for all modules. Can be used to
-turn off plotting with \code{.plotInitialTime=NA}.}
+\item{.plotInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
+parameter for all modules. See Details.}
 
-\item{.saveInitialTime}{Numeric. This will override the .plotInitialTime argument
-in the simInit for all modules. Can be used to
-turn off plotting with \code{.saveInitialTime=NA}.}
+\item{.saveInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
+parameter for all modules. See Details.}
 }
 \value{
 Invisibly returns the modified \code{simList} object.
@@ -36,6 +34,19 @@ Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
 Here, we implement a simulation in a more modular fashion so it's easier to add
 submodules to the simulation. We use S4 classes and methods, and use `data.table`
 instead of `data.frame` to implement the event queue (because it is much faster).
+}
+\details{
+The is the workhorse function in the SpaDES package. It runs simulations by
+implementing the rules outlined in the \code{simList}.
+
+This function gives simple access to two sets of module parameters:
+\code{.plotInitialTime} and with \code{.plotInitialTime}. The primary use of
+these arguments is to temporarily turn off plotting and saving. "Temporary"
+means that the \code{simList} is not changed, so it can be used again with
+the simList values reinstated. To turn off plotting and saving, use
+\code{.plotInitialTime = NA} or \code{.saveInitialTime = NA}. NOTE: if a
+module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
+these arguments will not do anything.
 }
 \note{
 The debug option is primarily intended to facilitate building simulation

@@ -144,6 +144,7 @@
 #'   \code{\link{newModule}} \tab Create new module from template\cr
 #'   \code{\link{newModuleDocumentation}} \tab Create empty documentation for a new module\cr
 #'   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
+#'   \code{\link{moduleMetadata}} \tab Shows the default values for a module\cr
 #'   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
 #' }
 #'
