@@ -584,7 +584,7 @@ setMethod(
         gsub(pattern = "/$", replacement = "") %>% gsub(pattern = "//", replacement = "/")
       if (!dir.exists(newOutputPath)) dir.create(newOutputPath, recursive = TRUE)
       paths(sim_)$outputPath <- newOutputPath
-      outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
+      if(NROW(outputs(sim_))) outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
       # Actually put inputs into simList
       if (length(inputs) > 0) {
         SpaDES::inputs(sim_) <- inputs[[factorialExp[ind, "input"]]]
