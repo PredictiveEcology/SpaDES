@@ -47,7 +47,8 @@
 #'                    is emptied. This is to reduce RAM load of large return object.
 #'                    Default FALSE.
 #'
-#' @param ... Passed to \code{spades}. This would only be useful for \code{debug = TRUE}.
+#' @param ... Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime}, or
+#'            \code{.saveInitialTime}.
 #'
 #' @details
 #' This function requires a complete simList: this simList will form the basis of the

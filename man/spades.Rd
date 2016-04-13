@@ -7,17 +7,26 @@
 \alias{spades,simList,missing-method}
 \title{Run a spatial discrete event simulation}
 \usage{
-spades(sim, debug)
+spades(sim, debug, .plotInitialTime, .saveInitialTime)
 
-\S4method{spades}{simList,logical}(sim, debug)
+\S4method{spades}{simList,logical}(sim, debug, .plotInitialTime,
+  .saveInitialTime)
 
-\S4method{spades}{simList,missing}(sim)
+\S4method{spades}{simList,missing}(sim, .plotInitialTime, .saveInitialTime)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
 will be printed (default is \code{debug=FALSE}).}
+
+\item{.plotInitialTime}{Numeric. This will override the .plotInitialTime argument
+in the simInit for all modules. Can be used to
+turn off plotting with \code{.plotInitialTime=NA}.}
+
+\item{.saveInitialTime}{Numeric. This will override the .plotInitialTime argument
+in the simInit for all modules. Can be used to
+turn off plotting with \code{.saveInitialTime=NA}.}
 }
 \value{
 Invisibly returns the modified \code{simList} object.
@@ -38,15 +47,16 @@ to the values of various simList slot components.
  mySim <- simInit(
    times = list(start = 0.0, end = 2.0, timeunit = "year"),
    params = list(
-     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-     fireSpread = list(.plotInitialTime=NA),
-     randomLandscapes = list(.plotInitialTime=NA),
-     caribouMovement = list(.plotInitialTime=NA)
+     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
    ),
    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
  spades(mySim)
+
+ # Can turn off plotting, and inspect the output simList instead
+ out <- spades(mySim, .plotInitialTime = NA) # much faster
+ completed(out) # shows completed events
 }
 
 }

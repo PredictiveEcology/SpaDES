@@ -837,6 +837,14 @@ setMethod(
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
+#' @param .plotInitialTime Numeric. This will override the .plotInitialTime argument
+#'                                  in the simInit for all modules. Can be used to
+#'                                  turn off plotting with \code{.plotInitialTime=NA}.
+#'
+#' @param .saveInitialTime Numeric. This will override the .plotInitialTime argument
+#'                                  in the simInit for all modules. Can be used to
+#'                                  turn off plotting with \code{.saveInitialTime=NA}.
+#'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
@@ -858,27 +866,49 @@ setMethod(
 #'  mySim <- simInit(
 #'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'    params = list(
-#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-#'      fireSpread = list(.plotInitialTime=NA),
-#'      randomLandscapes = list(.plotInitialTime=NA),
-#'      caribouMovement = list(.plotInitialTime=NA)
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 #'    ),
 #'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'  spades(mySim)
+#'
+#'  # Can turn off plotting, and inspect the output simList instead
+#'  out <- spades(mySim, .plotInitialTime = NA) # much faster
+#'  completed(out) # shows completed events
 #' }
 #'
-setGeneric("spades", function(sim, debug) {
+setGeneric("spades", function(sim, debug, .plotInitialTime, .saveInitialTime) {
     standardGeneric("spades")
 })
 
 #' @rdname spades
 setMethod(
   "spades",
-  signature(sim = "simList", debug = "logical"),
-  definition = function(sim, debug) {
-    envName <- paste("SpaDES", deparse(substitute(sim)), sep = "_")
+  signature(sim = "simList", debug = "logical", .plotInitialTime = "ANY",
+            .saveInitialTime = "ANY"),
+  definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
+
+    if(!is.null(.plotInitialTime)) {
+      if(!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
+      paramsLocal <- params(sim)
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern="\\.")
+      paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
+        x$.plotInitialTime <- .plotInitialTime
+        x
+      })
+      params(sim) <- paramsLocal
+    }
+    if(!is.null(.saveInitialTime)) {
+      if(!is.numeric(.saveInitialTime)) .saveInitialTime <- as.numeric(.saveInitialTime)
+      paramsLocal <- params(sim)
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern="\\.")
+      paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
+        x$.saveInitialTime <- NA_real_
+        x
+      })
+      params(sim) <- paramsLocal
+    }
 
     while(time(sim, "second") <= end(sim, "second")) {
 
@@ -896,8 +926,13 @@ setMethod(
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim = "simList", debug = "missing"),
-          definition = function(sim) {
+          signature(sim = "simList", debug = "missing",
+                    .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
+          definition = function(sim, .plotInitialTime, .saveInitialTime) {
             stopifnot(class(sim) == "simList")
-            return(spades(sim, debug = FALSE))
+
+                        if(missing(.plotInitialTime)) .plotInitialTime = NULL
+            if(missing(.saveInitialTime)) .saveInitialTime = NULL
+            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime,
+                          .saveInitialTime = .saveInitialTime))
 })
