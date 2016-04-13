@@ -600,7 +600,7 @@ setMethod(
     }
 
     if (!is.null(cl)) {
-      parFun <- "parallel::clusterApplyLB"
+      parFun <- "clusterApplyLB"
       args <- list(x = 1:NROW(factorialExp), fun = FunDef)
       args <- append(list(cl = cl), args)
       if (!is.na(pmatch("Windows", Sys.getenv("OS")))) {
