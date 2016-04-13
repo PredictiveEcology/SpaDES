@@ -1670,6 +1670,7 @@ setReplaceMethod(
 #' @export
 #' @include simList-class.R
 #' @include times.R
+#' @importFrom chron times
 #' @docType methods
 #' @aliases simList-accessors-times
 #' @rdname simList-accessors-times
