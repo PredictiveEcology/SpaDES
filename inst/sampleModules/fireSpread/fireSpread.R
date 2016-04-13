@@ -93,17 +93,17 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
     ## stats scheduling done by burn event
   } else if (eventType == "plot.init") {
     # do stuff for this event
-    setColors(sim[[globals(sim)$stackName]]) <- list(
-      DEM = grDevices::terrain.colors(100),
-      forestAge = brewer.pal(9,"BuGn"),
-      forestCover = brewer.pal(8,"BrBG"),
-      habitatQuality = brewer.pal(8,"Spectral"),
-      percentPine = brewer.pal(9,"Greens"),
-      Fires = c("white", rev(heat.colors(9)))
-    )
+    setColors(sim[[globals(sim)$stackName]], n = c(Fires=10)) <-
+      list(
+        DEM = grDevices::terrain.colors(10),
+        forestAge = brewer.pal(9,"BuGn"),
+        habitatQuality = brewer.pal(8,"Spectral"),
+        percentPine = brewer.pal(9,"Greens"),
+        Fires = c("white", rev(heat.colors(9)))
+      )
 
     Plot(sim[[globals(sim)$stackName]], new = TRUE,
-         legendRange = list(0:400, 0:100, c(0,1), 0:100, 0:10))
+         legendRange = list(0:maxValue(sim[[globals(sim)$stackName]]$DEM), 0:100, c(0,1), 0:100, 0:10))
 
     # schedule the next event
     sim <- scheduleEvent(sim, time(sim) + params(sim)$fireSpread$.plotInterval,
