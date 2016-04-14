@@ -200,6 +200,7 @@ setMethod(
       # only load those that are to be loaded at their loadTime
       cur <- filelist$loadTime == curTime
 
+      browser()
       if (any(cur)) {
         # load files
         loadPackage <- filelist$package
