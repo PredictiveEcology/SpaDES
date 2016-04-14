@@ -208,7 +208,7 @@ setMethod(
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
-# @importFrom utils sessionInfo
+#' @importFrom gtools smartbind
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -456,17 +456,19 @@ setMethod(
 
     if (length(objects)) {
       list2env(objects, envir = envir(sim))
-      inputs(sim) <- bind_rows(list(
-        inputs(sim),
-        data.frame(
-          file = NA_character_,
-          fun = NA_character_,
-          package = NA_character_,
-          objectName = names(objects),
-          loadTime = as.numeric(time(sim, "seconds")),
-          loaded = TRUE,
-          stringsAsFactors = FALSE)
-      ))
+      newInputs <- data.frame(
+        file = NA_character_,
+        fun = NA_character_,
+        package = NA_character_,
+        objectName = names(objects),
+        loadTime = as.numeric(time(sim, "seconds")),
+        loaded = TRUE,
+        stringsAsFactors = FALSE)
+      if(NROW(inputs)>0) {
+        inputs(sim) <- smartbind(inputs(sim), newInputs)
+      } else {
+        inputs(sim) <- newInputs
+      }
     }
 
     # keep session info for debugging & checkpointing

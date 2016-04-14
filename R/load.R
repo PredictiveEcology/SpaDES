@@ -55,39 +55,11 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 ###############################################################################
 #' Load simulation objects according to \code{filelist}
 #'
-#' This function takes the filelist argument in the \code{simList} object and
-#' loads all the files using the identified functions and arguments.
+#' This function has two roles: 1) to proceed with the loading of files that
+#' are in a simList or 2) as a short cut to simInit(inputs = filelist). Generally
+#' not to be used by a user.
 #'
-#' In the \code{filelist} object, either a \code{list} or a \code{data.frame},
-#' there will be minimally a column called "files".
-#' All other columns are optional.
-#'
-#' Other optional columns are:
-#'
-#' - \code{objectName}: a character string indicating the name of the object once the
-#' file is loaded. Default is to use the file names, with file extension removed.
-#'
-#' - \code{packages}: a character string indicating the package that the function is found in.
-#' There is no default.
-#'
-#' - \code{functions}: a character string indicating the function to be used to load the file.
-#' Default is to use the mapping between file extensions in the \code{.fileExtensions} function
-#' and the actual file extensions.
-#'
-#' - \code{intervals}: a numeric indicating the interval between repeated loading of the same
-#' file. This should be NA or the column absent if the file is only loaded once. Default is
-#' absent, so files are loaded only at \code{start} in the \code{simList}.
-#'
-#' - \code{loadTime}: a numeric indicating when the file should be loaded. Defaults to
-#' \code{simTime=0},but this can be any time. The loading will be scheduled to occur
-#' at the "loadTime", whatever that is. If the same file is to loaded many times,
-#' but not at a regular interval, then there should be separate line, with a unique
-#' loadTime for each.
-#'
-#' - \code{arguments}: is a list of lists of named arguments, one list for each loading function.
-#' For example, if raster is a loading function, \code{arguments = list(native = TRUE)}.
-#' If there is only one list, then it is assumed to apply to all load attempts
-#' and will be repeated for each load function.
+#' @seealso \code{\link{inputs}}
 #'
 #' @param sim      \code{simList} object.
 #'
@@ -110,20 +82,13 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 #'
 #' @examples
 #' \dontrun{
+#'
 #' # Load random maps included with package
 #' filelist <- data.frame(
-#'     files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-#'     full.names = TRUE, pattern = "tif"), functions = "rasterToMemory", package = "SpaDES"
+#'     files = dir(system.file("maps", package = "SpaDES"),
+#'             full.names = TRUE, pattern = "tif"),
+#'     functions = "rasterToMemory", package = "SpaDES"
 #' )
-#'
-#' times <- list(start = 0, end = 3)
-#' parameters <- list(.globals = list(stackName = "landscape"))
-#' modules <- list("randomLandscapes", "caribouMovement")
-#' paths <- list(moduleName = system.file("sampleModules", package = "SpaDES"))
-#' mySim <- simInit(times = times, params = parameters, modules = modules,
-#' paths = paths, inputs = filelist)
-#' ls(mySim)
-#'
 #' sim1 <- loadFiles(filelist = filelist)
 #' clearPlot()
 #' Plot(sim1$DEM)
@@ -145,8 +110,12 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 #' )
 #'
 #' sim2 <- loadFiles(filelist = filelist)
+#'
+#' # if we extend the end time and continue running, it will load an object scheduled
+#' #  at time = 10, and it will also schedule a new object loading at 20 because
+#' #  interval = 10
 #' end(sim2) <- 20
-#' sim2 <- spades(sim2)
+#' sim2 <- spades(sim2) # loads the percentPine map 2 more times, once at 10, once at 20
 #' }
 setGeneric("loadFiles", function(sim, filelist, ...)  {
   standardGeneric("loadFiles")
@@ -185,27 +154,13 @@ setMethod(
         }
       }
 
-      # if(!is(filelist, "data.table") & is(filelist, "data.frame")) {
-      #   filelistDT <- data.table(filelist)
-      # } else if (is(filelist, "list")) {
-      #   filelistDT <- do.call(
-      #       data.table,
-      #       args = list(filelist[!(names(filelist) %in% "arguments" )])
-      #    )
-      #
-      # } else {
-      #   filelistDT <- filelist
-      # }
-
       # only load those that are to be loaded at their loadTime
-      cur <- filelist$loadTime == curTime
+      cur <- (filelist$loadTime == curTime) & !(sapply(filelist$loaded, isTRUE))
 
-      browser()
       if (any(cur)) {
         # load files
         loadPackage <- filelist$package
         loadFun <- filelist$fun
-
         for (y in which(cur)) {
           #y <- which(cur)[x]
           nam = names(arguments[y])
@@ -263,7 +218,6 @@ setMethod(
         stop("filelist must be either a list or data.frame")
       }
     }
-    message("") ## print empty message to add linebreak to console message output
     return(invisible(sim))
 })
 

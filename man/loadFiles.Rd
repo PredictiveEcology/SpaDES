@@ -107,6 +107,7 @@ filelist = data.frame(
 )
 
 sim2 <- loadFiles(filelist = filelist)
+inputs(sim) <- data.frame(file = filelist)
 end(sim2) <- 20
 sim2 <- spades(sim2)
 }

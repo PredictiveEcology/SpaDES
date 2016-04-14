@@ -59,52 +59,103 @@ outputArgs(object) <- value
 \item{value}{The object to be stored at the slot.}
 }
 \value{
-Returns or sets the value of the slot from the \code{simList} object.
+Returns or sets the value(s) of the \code{input} or \code{output} slots
+in the \code{simList} object.
 }
 \description{
-Accessor functions for the \code{inputs} and \code{outputs} slots in a
-\code{simList} object.
+These functions are one of two mechanisms to add the information about which
+input files to load in a \code{spades} call and the information about which
+output files to save.
+The other way is to pass them as arguments to a \code{simInit} call.
 
 \code{inputArgs} and \code{outputArgs} are ways to specify any
 arguments that are needed for file loading and file saving. This
 is still somewhat experimental.
 }
 \details{
-These functions are one of two mechanisms to add the information about which
-input files to load in a \code{spades} call and the information about which
-output files to save.
-The other way is to pass them as arguments to a \code{simInit} call.
-
-Currently, only get and set methods are defined. Subset methods are not.
-
-\code{inputs} accepts a data.frame, with 6 columns.
-Currently, only one is required.
-See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-Columns are \code{objectName} (required, character),
-\code{file} (character),
-\code{fun} (character),
-\code{package} (character),
-\code{interval} (numeric),
-and \code{loadTime} (numeric).
-
-\code{outputs} accepts a data.frame, with 5 columns.
-Currently, only \code{objectName} is required. #' Columns are:
-\code{objectName} (character, required),
-\code{file} (character),
-\code{fun} (character),
-\code{package} (character),
-and \code{saveTime} (numeric).
-Defaults:
-\code{file} is derived from \code{objectName}, but appending the model timeunit and
-\code{saveTime} to the file name (separated by underscore, "_"); \code{fun} is
-\code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
-\code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
-See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
+Accessor functions for the \code{inputs} and \code{outputs} slots in a
+\code{simList} object.
 }
 \note{
 The automatic file type handling only adds the correct extension from a given
 \code{fun} and \code{package}. It does not do the inverse, from a given extension find the
 correct \code{fun} and \code{package}.
+}
+\section{inputs}{
+
+
+\code{inputs} accepts a data.frame, with up to 7 columns.
+Columns are:
+
+\tabular{ll}{
+\code{file} \tab required, a character string indicating the file path. There is no
+default.\cr
+\code{objectName} \tab optional, character string indicating the name of the object
+that the loaded file will be assigned to in the \code{simList}. This object
+can therefore be accessed with \code{sim$xxx} in any module, where
+\code{objectName = "xxx"}. Defaults to the filename without file extension or
+directory information.\cr
+
+\code{fun} \tab optional, a character string indicating the function to use to
+load that file. Defaults to the known extentions in \code{SpaDES} (found by
+examining \code{.fileExtensions()}). The \code{package} and \code{fun} can be
+jointly specified here as \code{"packageName::functionName"}, e.g.,
+\code{"raster::raster"}.\cr
+
+\code{package} \tab optional character string indicating the package in
+which to find the \code{fun});\cr
+
+\code{loadTime} \tab optional numeric, indicating when in simulation time the file
+should be loaded. The default is the highest priority at \code{start(sim)},
+i.e., at the very start. \cr
+
+\code{interval} \tab optional numeric, indicating at what interval should this same
+exact file  be reloaded from disk, e.g,. 10 would mean every 10 time units. The
+default is NA or no interval, i.e, load the file only once as described in
+\code{loadTime} \cr
+
+\code{arguments} \tab is a list of lists of named arguments, one list for each
+\code{fun}. For example, if \code{fun="raster"}, \code{arguments = list(native = TRUE)}
+will pass the argument "native = TRUE" to raster.  If there is only one list,
+then it is assumed to apply to all files and will be recycled as per normal R
+rules of recycling for each \code{fun}.\cr
+
+}
+
+Currently, only \code{file} is required. All others will be filled with defaults
+if not specified.
+
+See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
+}
+
+\section{outputs}{
+
+
+\code{outputs} accepts a data.frame similar to the \code{inputs} data.frame, but
+with up to 5 columns.
+
+\tabular{ll}{
+\code{objectName} \tab required, character string indicating the name of the object
+in the \code{simList} that will be saved to disk (without the \code{sim$} prefix).\cr
+
+\code{file} \tab optional, a character string indicating the file path to save to.
+The default is to concatenate \code{objectName} with the model timeunit and
+\code{saveTime}, separated by underscore, "_". So a default filename would be
+"Fires_year1.rds"\cr
+
+\code{fun} \tab optional, a character string indicating the function to use to
+save that file. The default is \code{\link{saveRDS}} \cr
+
+\code{package} \tab optional character string indicating the package in
+which to find the \code{fun});\cr
+
+\code{saveTime} \tab optional numeric, indicating when in simulation time the file
+should be saved. The default is the lowest priority at \code{end(sim)},
+i.e., at the very end. \cr
+
+}
+
+See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 }
 \examples{
 sim <- simInit()
@@ -114,10 +165,11 @@ sim <- simInit()
 test <- 1:10
 tmpFile <- file.path(tempdir(), "test.rds")
 saveRDS(test, file=tmpFile)
-inputs(sim) <- data.frame(file = tmpFile)
+inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
 simOut <- spades(sim)
-inputs(sim) # confirm it was loaded
+inputs(simOut) # confirm it was loaded
+simOut$test
 
 # can put data.frame for inputs directly inside simInit call
 allTifs <- dir(system.file("maps", package = "SpaDES"),
@@ -134,8 +186,20 @@ sim <- simInit(
      loadTime = 0,
      stringsAsFactors = FALSE)
    )
+
+arguments = I(rep(list(native = TRUE), length(files)))
+filelist = data.frame(
+   files = files,
+   functions = "raster::raster",
+   objectName = NA,
+   arguments = arguments,
+   loadTime = 0,
+   intervals = c(rep(NA, length(files)-1), 10)
+)
+
 # Clean up after
 file.remove(tmpFile)
+#######################
 # outputs
 startFiles <- dir(tempdir(), full.names=TRUE)
 tmpFile <- file.path(tempdir(), "temp.rds")

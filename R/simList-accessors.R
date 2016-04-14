@@ -813,88 +813,69 @@ setReplaceMethod("progressType",
                    return(object)
 })
 
-################################################################################
-#' Create empty fileTable for inputs and outputs
-#'
-#' Internal functions.
-#' Returns an empty fileTable to be used with inputs and outputs.
-#'
-#' @param x  Not used (should be missing)
-#'
-#' @return An empty data.frame with structure needed for input/output fileTable.
-#'
-#' @docType methods
-#' @rdname fileTable
-#'
-setGeneric(".fileTableIn", function(x) {
-  standardGeneric(".fileTableIn")
-})
-
-#' @rdname fileTable
-setMethod(
-  ".fileTableIn",
-  signature = "missing",
-  definition = function() {
-    ft <- data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
-      stringsAsFactors = FALSE
-    )
-    return(ft)
-})
-
-#' @rdname fileTable
-.fileTableInCols <- colnames(.fileTableIn())
-
-#' @rdname fileTable
-setGeneric(".fileTableOut", function(x) {
-  standardGeneric(".fileTableOut")
-})
-
-#' @rdname fileTable
-setMethod(
-  ".fileTableOut",
-  signature = "missing",
-  definition = function() {
-    ft <- data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), saveTime = numeric(0), saved = logical(0),
-      stringsAsFactors = FALSE
-    )
-    return(ft)
-})
-
-#' @rdname fileTable
-.fileTableOutCols <- colnames(.fileTableOut())
 
 ################################################################################
 #' Inputs and outputs
-#'
-#' Accessor functions for the \code{inputs} and \code{outputs} slots in a
-#' \code{simList} object.
 #'
 #' These functions are one of two mechanisms to add the information about which
 #' input files to load in a \code{spades} call and the information about which
 #' output files to save.
 #' The other way is to pass them as arguments to a \code{simInit} call.
 #'
-#' Currently, only get and set methods are defined. Subset methods are not.
+#' Accessor functions for the \code{inputs} and \code{outputs} slots in a
+#' \code{simList} object.
 #'
-#' @details \code{inputs} accepts a data.frame, with 6 columns.
-#' Currently, only one is required.
+#' @section inputs:
+#'
+#' \code{inputs} accepts a data.frame, with up to 7 columns.
+#' Columns are:
+#'
+#' \tabular{ll}{
+#' \code{file} \tab required, a character string indicating the file path. There is no
+#' default.\cr
+#' \code{objectName} \tab optional, character string indicating the name of the object
+#' that the loaded file will be assigned to in the \code{simList}. This object
+#' can therefore be accessed with \code{sim$xxx} in any module, where
+#' \code{objectName = "xxx"}. Defaults to the filename without file extension or
+#' directory information.\cr
+#'
+#' \code{fun} \tab optional, a character string indicating the function to use to
+#' load that file. Defaults to the known extentions in \code{SpaDES} (found by
+#' examining \code{.fileExtensions()}). The \code{package} and \code{fun} can be
+#' jointly specified here as \code{"packageName::functionName"}, e.g.,
+#' \code{"raster::raster"}.\cr
+#'
+#' \code{package} \tab optional character string indicating the package in
+#' which to find the \code{fun});\cr
+#'
+#' \code{loadTime} \tab optional numeric, indicating when in simulation time the file
+#' should be loaded. The default is the highest priority at \code{start(sim)},
+#' i.e., at the very start. \cr
+#'
+#' \code{interval} \tab optional numeric, indicating at what interval should this same
+#' exact file  be reloaded from disk, e.g,. 10 would mean every 10 time units. The
+#' default is NA or no interval, i.e, load the file only once as described in
+#' \code{loadTime} \cr
+#'
+#' \code{arguments} \tab is a list of lists of named arguments, one list for each
+#' \code{fun}. For example, if \code{fun="raster"}, \code{arguments = list(native = TRUE)}
+#' will pass the argument "native = TRUE" to raster.  If there is only one list,
+#' then it is assumed to apply to all files and will be recycled as per normal R
+#' rules of recycling for each \code{fun}.\cr
+#'
+#' }
+#'
+#' Currently, only \code{file} is required. All others will be filled with defaults
+#' if not specified.
+#'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-#' Columns are \code{objectName} (required, character),
-#' \code{file} (character),
-#' \code{fun} (character),
-#' \code{package} (character),
-#' \code{interval} (numeric),
-#' and \code{loadTime} (numeric).
 #'
 #' @param object A \code{simList} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
-#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' @return Returns or sets the value(s) of the \code{input} or \code{output} slots
+#' in the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
 #'          \code{\link{simList-accessors-modules}},
@@ -922,7 +903,7 @@ setMethod(
 #' test <- 1:10
 #' tmpFile <- file.path(tempdir(), "test.rds")
 #' saveRDS(test, file=tmpFile)
-#' inputs(sim) <- data.frame(file = tmpFile)
+#' inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 #' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
 #' simOut <- spades(sim)
 #' inputs(simOut) # confirm it was loaded
@@ -943,6 +924,26 @@ setMethod(
 #'      loadTime = 0,
 #'      stringsAsFactors = FALSE)
 #'    )
+#'
+#' ##############################
+#' A fully described inputs object, including arguments:
+#' files = dir(system.file("maps", package = "SpaDES"),
+#'             full.names = TRUE, pattern = "tif")
+#' # arguments must be a list of lists. This may require I() to keep it as a list
+#' #   once it gets coerced into the data.frame.
+#' arguments = I(rep(list(native = TRUE), length(files)))
+#' filelist = data.frame(
+#'    objectName = paste0("Maps",1:5),
+#'    files = files,
+#'    functions = "raster::raster",
+#'    arguments = arguments,
+#'    loadTime = 0,
+#'    intervals = c(rep(NA, length(files)-1), 10)
+#' )
+#' inputs(sim) <- filelist
+#' spades(sim)
+#'
+#'
 #' # Clean up after
 #' file.remove(tmpFile)
 setGeneric("inputs", function(object) {
@@ -993,28 +994,32 @@ setReplaceMethod(
   signature = ".simList",
   function(object, value) {
    if (length(value)>0) {
+     whFactors <- sapply(value, function(x) is.factor(x))
+     if(any(whFactors)) {
+       value[,whFactors] <- sapply(value[,whFactors], as.character)
+     }
+
      if (!is.data.frame(value)) {
        if (!is.list(value)) {
          stop("inputs must be a list, data.frame")
        }
-       # pull out any "arguments" that will be passed to input functions
-#       if (any(stri_detect_fixed(pattern = "arg", names(value)))) {
-#         inputArgs(object) <- rep(value$arg, length.out=length(value$files))
-#         value <- value[-pmatch("arg", names(value))]
-#       }
         value <- data.frame(value, stringsAsFactors = FALSE)
      }
      fileTable <- .fileTableIn()
      columns <- pmatch(names(fileTable), names(value))
+     if(any(grepl(names(value), pattern="args")))
+       setnames(value, old = "args", new="arguments")
      setnames(value, old = colnames(value)[na.omit(columns)],
                      new = colnames(fileTable)[!is.na(columns)])
-     object@inputs <- bind_rows(list(value, fileTable)) %>%
-       as.data.frame(stringsAsFactors = FALSE)
+     columns2 <- pmatch(names(value), names(fileTable))
+     object@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
+     if(any(is.na(columns))) {
+       object@inputs[,names(fileTable[,is.na(columns)])] <- NA
+     }
      object@inputs <- .fillInputRows(object@inputs, start(object))
    } else {
      object@inputs <- value
    }
-
    # Deal with objects and files differently... if files (via inputs arg in simInit)...
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
@@ -1028,8 +1033,10 @@ setReplaceMethod(
        file.path(inputPath(object),
                  object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
-     if(!all(.fileTableInCols %in% names(object@inputs))) stop(paste("input table must have columns named",
-                                                                paste(.fileTableInCols, collapse=", ")))
+     if(!all(names(object@inputs) %in% .fileTableInCols)) {
+       stop(paste("input table can only have columns named",
+                  paste(.fileTableInCols, collapse=", ")))
+     }
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
@@ -1051,18 +1058,32 @@ setReplaceMethod(
 })
 
 ################################################################################
-#' @details \code{outputs} accepts a data.frame, with 5 columns.
-#' Currently, only \code{objectName} is required. #' Columns are:
-#' \code{objectName} (character, required),
-#' \code{file} (character),
-#' \code{fun} (character),
-#' \code{package} (character),
-#' and \code{saveTime} (numeric).
-#' Defaults:
-#' \code{file} is derived from \code{objectName}, but appending the model timeunit and
-#' \code{saveTime} to the file name (separated by underscore, "_"); \code{fun} is
-#' \code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
-#' \code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
+#' @section outputs:
+#'
+#' \code{outputs} accepts a data.frame similar to the \code{inputs} data.frame, but
+#' with up to 5 columns.
+#'
+#' \tabular{ll}{
+#' \code{objectName} \tab required, character string indicating the name of the object
+#' in the \code{simList} that will be saved to disk (without the \code{sim$} prefix).\cr
+#'
+#' \code{file} \tab optional, a character string indicating the file path to save to.
+#' The default is to concatenate \code{objectName} with the model timeunit and
+#' \code{saveTime}, separated by underscore, "_". So a default filename would be
+#' "Fires_year1.rds"\cr
+#'
+#' \code{fun} \tab optional, a character string indicating the function to use to
+#' save that file. The default is \code{\link{saveRDS}} \cr
+#'
+#' \code{package} \tab optional character string indicating the package in
+#' which to find the \code{fun});\cr
+#'
+#' \code{saveTime} \tab optional numeric, indicating when in simulation time the file
+#' should be saved. The default is the lowest priority at \code{end(sim)},
+#' i.e., at the very end. \cr
+#'
+#' }
+#'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 #'
 #' @note The automatic file type handling only adds the correct extension from a given
@@ -1082,6 +1103,7 @@ setReplaceMethod(
 #' @name outputs
 #' @rdname simList-accessors-inout
 #' @examples
+#' #######################
 #' # outputs
 #' startFiles <- dir(tempdir(), full.names=TRUE)
 #' tmpFile <- file.path(tempdir(), "temp.rds")
@@ -2714,11 +2736,11 @@ setMethod(
     return(df)
 })
 
-
-#' .fillInputRows is internal
+#' An internal function for coercing a data.frame to inputs()
 #' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
 #' @param startTime Numeric time. The start(sim).
-#' @rdname inputs
+#' @name .fillInputRows
+#' @details \code{.fillInputRows} is internal
 .fillInputRows <- function(inputDF, startTime) {
 
   if(any(is.na(inputDF[, "loadTime"]))) {
