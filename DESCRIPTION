@@ -53,6 +53,7 @@ Imports:
     graphics,
     grid,
     gridBase,
+    gtools,
     httr,
     igraph,
     lazyeval,

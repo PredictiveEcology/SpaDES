@@ -187,15 +187,24 @@ sim <- simInit(
      stringsAsFactors = FALSE)
    )
 
+##############################
+#A fully described inputs object, including arguments:
+files = dir(system.file("maps", package = "SpaDES"),
+            full.names = TRUE, pattern = "tif")
+# arguments must be a list of lists. This may require I() to keep it as a list
+#   once it gets coerced into the data.frame.
 arguments = I(rep(list(native = TRUE), length(files)))
 filelist = data.frame(
+   objectName = paste0("Maps",1:5),
    files = files,
    functions = "raster::raster",
-   objectName = NA,
    arguments = arguments,
    loadTime = 0,
    intervals = c(rep(NA, length(files)-1), 10)
 )
+inputs(sim) <- filelist
+spades(sim)
+
 
 # Clean up after
 file.remove(tmpFile)

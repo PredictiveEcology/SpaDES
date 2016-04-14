@@ -833,6 +833,7 @@ setReplaceMethod("progressType",
 #' \tabular{ll}{
 #' \code{file} \tab required, a character string indicating the file path. There is no
 #' default.\cr
+#'
 #' \code{objectName} \tab optional, character string indicating the name of the object
 #' that the loaded file will be assigned to in the \code{simList}. This object
 #' can therefore be accessed with \code{sim$xxx} in any module, where
@@ -888,7 +889,6 @@ setReplaceMethod("progressType",
 #'
 #' @include simList-class.R
 #' @importFrom data.table is.data.table
-#' @importFrom dplyr bind_rows
 #' @importFrom stats na.omit
 #' @export
 #' @docType methods
@@ -926,7 +926,7 @@ setReplaceMethod("progressType",
 #'    )
 #'
 #' ##############################
-#' A fully described inputs object, including arguments:
+#' #A fully described inputs object, including arguments:
 #' files = dir(system.file("maps", package = "SpaDES"),
 #'             full.names = TRUE, pattern = "tif")
 #' # arguments must be a list of lists. This may require I() to keep it as a list
@@ -1005,18 +1005,21 @@ setReplaceMethod(
        }
         value <- data.frame(value, stringsAsFactors = FALSE)
      }
-     fileTable <- .fileTableIn()
-     columns <- pmatch(names(fileTable), names(value))
-     if(any(grepl(names(value), pattern="args")))
-       setnames(value, old = "args", new="arguments")
-     setnames(value, old = colnames(value)[na.omit(columns)],
-                     new = colnames(fileTable)[!is.na(columns)])
-     columns2 <- pmatch(names(value), names(fileTable))
-     object@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
-     if(any(is.na(columns))) {
-       object@inputs[,names(fileTable[,is.na(columns)])] <- NA
-     }
-     object@inputs <- .fillInputRows(object@inputs, start(object))
+#      fileTable <- .fileTableIn()
+#      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
+#      if(any(needRenameArgs)) {
+#        colnames(value)[needRenameArgs] <-
+#          .fileTableInCols[pmatch("arg", .fileTableInCols)]
+#      }
+#      columns <- pmatch(names(fileTable), names(value))
+#      setnames(value, old = colnames(value)[na.omit(columns)],
+#                      new = colnames(fileTable)[!is.na(columns)])
+#      columns2 <- pmatch(names(value), names(fileTable))
+#      object@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
+#      if(any(is.na(columns))) {
+#        object@inputs[,names(fileTable[,is.na(columns)])] <- NA
+#      }
+     object@inputs <- .fillInputRows(value, start(object))
    } else {
      object@inputs <- value
    }
@@ -1061,7 +1064,7 @@ setReplaceMethod(
 #' @section outputs:
 #'
 #' \code{outputs} accepts a data.frame similar to the \code{inputs} data.frame, but
-#' with up to 5 columns.
+#' with up to 6 columns.
 #'
 #' \tabular{ll}{
 #' \code{objectName} \tab required, character string indicating the name of the object
@@ -1081,6 +1084,13 @@ setReplaceMethod(
 #' \code{saveTime} \tab optional numeric, indicating when in simulation time the file
 #' should be saved. The default is the lowest priority at \code{end(sim)},
 #' i.e., at the very end. \cr
+#'
+#' \code{arguments} \tab is a list of lists of named arguments, one list for each
+#' \code{fun}. For example, if \code{fun="write.csv"},
+#' \code{arguments = list(row.names = TRUE)}
+#' will pass the argument "row.names = TRUE" to write.csv  If there is only one list,
+#' then it is assumed to apply to all files and will be recycled as per normal R
+#' rules of recycling for each \code{fun}.\cr
 #'
 #' }
 #'
@@ -1232,17 +1242,33 @@ setReplaceMethod(
      }
 
      # create a dummy data.frame with correct columns and
-     fileTable <- .fileTableOut()
-     columns <- pmatch(names(fileTable), names(value))
-     setnames(value, old = colnames(value)[na.omit(columns)],
-              new = colnames(fileTable)[!is.na(columns)])
+     #fileTable <- .fileTableOut()
+     #columns <- pmatch(names(fileTable), names(value))
+     #setnames(value, old = colnames(value)[na.omit(columns)],
+     #         new = colnames(fileTable)[!is.na(columns)])
      # Merge
-     object@outputs <- as.data.frame(bind_rows(list(value, fileTable)))
+#      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
+#      if(any(needRenameArgs)) {
+#        colnames(value)[needRenameArgs] <-
+#          .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
+#      }
+#      columns <- pmatch(names(fileTable), names(value))
+#      setnames(value, old = colnames(value)[na.omit(columns)],
+#               new = colnames(fileTable)[!is.na(columns)])
+#      columns2 <- pmatch(names(value), names(fileTable))
+#      browser()
+#      object@outputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
+#
+#      if(any(is.na(columns))) {
+#        object@outputs[,names(fileTable[,is.na(columns)])] <- NA
+#      }
+     object@outputs <- .fillOutputRows(value, end(object))
+
      #object@outputs$file <- file.path(outputPath(object),object@outputs$file)
 
      # coerce any factors to the correct class
      for (col in which(sapply(object@outputs, is.factor))) {
-       object@outputs[,col] <- as(object@outputs[[col]], class(fileTable[[col]]))
+       object@outputs[,col] <- as(object@outputs[[col]], class(.fileTableOut()[[col]]))
      }
 
      # if saveTime not provided, give it end(object)
@@ -1385,10 +1411,11 @@ setReplaceMethod(
   "outputArgs",
   signature = ".simList",
   function(object, value) {
+    argName <- .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
    if (is.list(value) & !is.data.frame(value)) {
-     object@outputs$arg = value
+     object@outputs[[argName]] = value
    } else if (is.null(value)) {
-     object@outputs$arg = rep(list(NULL), NROW(outputs(object)))
+     object@outputs[[argName]] = rep(list(NULL), NROW(outputs(object)))
    } else {
      stop("value passed to outputArgs() must be a list of named elements")
    }
@@ -1601,10 +1628,12 @@ setReplaceMethod("outputPath",
                  function(object, value) {
                    object@paths$outputPath <- unname(unlist(value))
                    checkPath(object@paths$outputPath, create=TRUE)
-                   if("saved" %in% colnames(outputs(object))) {
-                     notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
-                     outputs(object)$file[notYetSaved] <-
-                       file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
+                   if(NROW(outputs(object))>0) {
+                     if("saved" %in% colnames(outputs(object))) {
+                       notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
+                       outputs(object)$file[notYetSaved] <-
+                         file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
+                     }
                    }
                    validObject(object)
                    return(object)
@@ -2743,6 +2772,21 @@ setMethod(
 #' @details \code{.fillInputRows} is internal
 .fillInputRows <- function(inputDF, startTime) {
 
+  fileTable <- .fileTableInCols
+  needRenameArgs <- grepl(names(inputDF), pattern="arg[s]?$")
+  if(any(needRenameArgs)) {
+    colnames(inputDF)[needRenameArgs] <-
+      .fileTableInCols[pmatch("arg", .fileTableInCols)]
+  }
+  columns <- pmatch(.fileTableInCols, names(inputDF))
+  setnames(inputDF, old = colnames(inputDF)[na.omit(columns)],
+           new = .fileTableInCols[!is.na(columns)])
+  columns2 <- pmatch(names(inputDF), .fileTableInCols)
+  if(any(is.na(columns))) {
+    inputDF[,.fileTableInCols[is.na(columns)]] <- NA
+  }
+
+
   if(any(is.na(inputDF[, "loadTime"]))) {
     inputDF[is.na(inputDF$loadTime),"loadTime"] <- startTime
   }
@@ -2761,18 +2805,89 @@ setMethod(
     inputDF$fun[usesSemiColon] <- sapply(splitPackFun, function(x) x[2])
   }
 
-  if(any(is.na(inputDF[, "fun"]))) {
-    .fileExts <- .fileExtensions()
-    fl <- inputDF$file
-    exts <- match(fileExt(fl), .fileExts[, "exts"])
-    inputDF$fun[is.na(inputDF$fun)] <- .fileExts[exts, "fun"]
-  }
+  objectsOnly <- is.na(inputDF[, "file"])
+  if(!all(objectsOnly)) {
+    inputDF2 <- inputDF[!objectsOnly,]
+    if(any(is.na(inputDF2[, "fun"]))) {
+      .fileExts <- .fileExtensions()
+      fl <- inputDF2$file
+      exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
+      inputDF2$fun[is.na(inputDF2$fun)] <- .fileExts[exts, "fun"]
+    }
 
-  if(any(is.na(inputDF[, "package"]))) {
-    .fileExts <- .fileExtensions()
-    fl <- inputDF$file
-    exts <- match(fileExt(fl), .fileExts[, "exts"])
-    inputDF$package[is.na(inputDF$package)]  <- .fileExts[exts, "package"]
+    if(any(is.na(inputDF2[, "package"]))) {
+      .fileExts <- .fileExtensions()
+      fl <- inputDF2$file
+      exts <- match(fileExt(fl), .fileExts[, "exts"])
+      inputDF2$package[is.na(inputDF2$package)]  <- .fileExts[exts, "package"]
+    }
+    inputDF[!objectsOnly,] <- inputDF2
   }
   inputDF
+}
+
+#' An internal function for coercing a data.frame to inputs()
+#' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param endTime Numeric time. The end(sim).
+#' @name .fillOutputRows
+#' @details \code{.fillOutputRows} is internal
+.fillOutputRows <- function(outputDF, endTime) {
+
+  needRenameArgs <- grepl(names(outputDF), pattern="arg[s]?$")
+  if(any(needRenameArgs)) {
+    colnames(outputDF)[needRenameArgs] <-
+      .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
+  }
+  columns <- pmatch(.fileTableOutCols, names(outputDF))
+  setnames(outputDF, old = colnames(outputDF)[na.omit(columns)],
+           new = .fileTableOutCols[!is.na(columns)])
+  columns2 <- pmatch(names(outputDF), .fileTableOutCols)
+  #object@outputs <- rbind(outputDF[,na.omit(columns), drop = FALSE], .fileTableOut()[,columns2])
+
+  if(any(is.na(columns))) {
+    outputDF[,.fileTableOutCols[is.na(columns)]] <- NA
+  }
+
+
+
+  if(any(is.na(outputDF[, "saveTime"]))) {
+    outputDF[is.na(outputDF$saveTime),"saveTime"] <- endTime
+  }
+
+  # correct those for which a specific function is supplied in filelistDT$fun
+  usesSemiColon <- grep(outputDF[, "fun"], pattern = "::")
+
+  if(length(usesSemiColon)>0) {
+    loadFun <- outputDF$fun[usesSemiColon]
+    splitPackFun <- strsplit(split = "::", loadFun)
+    outputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
+    outputDF$fun[usesSemiColon] <- sapply(splitPackFun, function(x) x[2])
+  }
+
+  if(any(is.na(outputDF[, "fun"]))) {
+    .fileExts <- .saveFileExtensions()
+    fl <- outputDF$file
+    exts <- fileExt(fl)
+    if(any(is.na(fl)) | any(nchar(exts)==0)) {
+      outputDF$fun[is.na(fl) | nchar(exts)==0] <- .fileExts$fun[1]
+    }
+    if(any(is.na(outputDF[, "fun"]))) {
+      exts <- na.omit(match(exts, .fileExts[, "exts"]) )
+      outputDF$fun[is.na(outputDF$fun)] <- .fileExts[exts, "fun"]
+    }
+  }
+
+  if(any(is.na(outputDF[, "package"]))) {
+    .fileExts <- .saveFileExtensions()
+    fl <- outputDF$file
+    exts <- fileExt(fl)
+    if(any(is.na(fl)) | any(nchar(exts)==0)) {
+      outputDF$package[is.na(fl) | nchar(exts)==0] <- .fileExts$package[1]
+    }
+    if(any(is.na(outputDF[, "package"]))) {
+      exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
+      outputDF$package[is.na(outputDF$package)] <- .fileExts[exts, "package"]
+    }
+  }
+  outputDF
 }

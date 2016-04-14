@@ -1,4 +1,58 @@
 ################################################################################
+#' Create empty fileTable for inputs and outputs
+#'
+#' Internal functions.
+#' Returns an empty fileTable to be used with inputs and outputs.
+#'
+#' @param x  Not used (should be missing)
+#'
+#' @return An empty data.frame with structure needed for input/output fileTable.
+#'
+#' @docType methods
+#' @rdname fileTable
+#'
+setGeneric(".fileTableIn", function(x) {
+  standardGeneric(".fileTableIn")
+})
+
+#' @rdname fileTable
+setMethod(
+  ".fileTableIn",
+  signature = "missing",
+  definition = function() {
+    ft <- data.frame(
+      file = character(0), fun = character(0), package = character(0),
+      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
+      arguments = I(list()), intervals = numeric(0), stringsAsFactors = FALSE
+    )
+    return(ft)
+  })
+
+#' @rdname fileTable
+.fileTableInCols <- colnames(.fileTableIn())
+
+#' @rdname fileTable
+setGeneric(".fileTableOut", function(x) {
+  standardGeneric(".fileTableOut")
+})
+
+#' @rdname fileTable
+setMethod(
+  ".fileTableOut",
+  signature = "missing",
+  definition = function() {
+    ft <- data.frame(
+      file = character(0), fun = character(0), package = character(0),
+      objectName = character(0), saveTime = numeric(0), saved = logical(0),
+      arguments = I(list()), stringsAsFactors = FALSE
+    )
+    return(ft)
+  })
+
+#' @rdname fileTable
+.fileTableOutCols <- colnames(.fileTableOut())
+
+################################################################################
 #' The \code{simList} class
 #'
 #' Contains the minimum components of a \code{SpaDES} simulation.
@@ -109,12 +163,8 @@ setClass(
     simtimes = list(
       current = 0.00, start = 0.00, end = 1.00, timeunit = NA_character_
     ),
-    inputs = data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
-      arg = list(NULL)
-    ),
-    outputs = as.data.frame(NULL),
+    inputs = .fileTableIn(),
+    outputs = .fileTableOut(),
     paths = list(modulePath = "./", inputPath = "./", outputPath = "./")
   ),
   validity = function(object) {

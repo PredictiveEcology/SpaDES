@@ -111,7 +111,7 @@ setReplaceMethod(
   function(object, ..., n, value) {
     if (raster::is.factor(object)) {
       if (n != NROW(object@data@attributes[[1]])) {
-        warning("Number of colors not equal number of values: interpolating")
+        message("Number of colors not equal number of values: interpolating")
         pal <- colorRampPalette(value, alpha = TRUE, ...)
         n <- NROW(object@data@attributes[[1]])
         object@legend@colortable <- pal(n)

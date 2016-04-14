@@ -1,6 +1,6 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("fun", "intervals", "keepOnFileList", "inMemory",
-                           "loaded", "loadTime", "objectName", "package"))
+  #utils::globalVariables(c("fun", "intervals", "keepOnFileList",
+  #                         "loaded", "loadTime", "objectName", "package"))
 }
 
 #' File extensions map
@@ -40,8 +40,20 @@ fileName = function (x) {
 #
 # igraph exports %>% from magrittr
 fileExt = function (x) {
-  strsplit(basename(unlist(x)), "^.*\\.") %>%
-    sapply(., function(y) { y[[length(y)]] })
+  NAs <- is.na(x)
+  out <- rep(NA, length(x))
+  if(!any(NAs)) {
+    filenames <- basename(unlist(x[!NAs]))
+
+    out[!NAs] <- strsplit(filenames, "^.*\\.") %>%
+      sapply(., function(y) {
+        if(length(y)>1){
+          y[[length(y)]]
+        } else {
+          ""
+        }})
+  }
+  out
 }
 
 # The load doEvent
@@ -75,6 +87,7 @@ doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
 #' @include simulation.R
 #' @importFrom data.table data.table rbindlist ':='
 #' @importFrom stringi stri_detect_fixed
+#' @importFrom raster inMemory
 # @importFrom utils getFromNamespace
 #' @export
 #' @docType methods
@@ -130,7 +143,7 @@ setMethod(
     # Pull .fileExtensions() into function so that scoping is faster
     .fileExts = .fileExtensions()
     #usedIntervals <- FALSE # This is for a speed reason later on.
-                           #Whether or not intervals for loading files are defined
+    #Whether or not intervals for loading files are defined
 
     if (NROW(inputs(sim)) != 0) {
       inputs(sim) <- .fillInputRows(inputs(sim))
@@ -180,7 +193,7 @@ setMethod(
 
           } else {
             sim[[filelist[y, "objectName"]]] <- do.call(getFromNamespace(loadFun[y], loadPackage[y]),
-                                            args = argument)
+                                                        args = argument)
           }
           filelist[y, "loaded"] <- TRUE
 
@@ -219,7 +232,7 @@ setMethod(
       }
     }
     return(invisible(sim))
-})
+  })
 
 #' @rdname loadFiles
 setMethod("loadFiles",
@@ -230,14 +243,14 @@ setMethod("loadFiles",
                            inputs = filelist,
                            modules = list(), ...)
             return(invisible(sim))
-})
+          })
 
 #' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim = "missing", filelist = "missing"),
           definition = function(...) {
             message("no files loaded because sim and filelist are empty")
-})
+          })
 
 #######################################################
 #' Read raster to memory
@@ -272,4 +285,4 @@ setMethod("rasterToMemory",
             r <- raster(x, ...)
             r <- setValues(r, getValues(r))
             return(r)
-})
+          })

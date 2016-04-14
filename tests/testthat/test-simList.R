@@ -83,10 +83,7 @@ test_that("simList object initializes correctly", {
   # load
   expect_equal(
     inputs(mySim),
-    data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), loadTime = numeric(0), loaded = logical(0)
-    )
+    .fileTableIn()
   )
   expect_error(inputs(mySim) <- "something", "inputs must be a list")
 
