@@ -924,20 +924,25 @@ setMethod(
 #' saveRDS(test, file=tmpFile)
 #' inputs(sim) <- data.frame(file = tmpFile)
 #' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
-#' sim <- spades(sim)
-#' inputs(sim) # confirm it was loaded
+#' simOut <- spades(sim)
+#' inputs(simOut) # confirm it was loaded
+#' simOut$test
 #'
 #' # can put data.frame for inputs directly inside simInit call
+#' allTifs <- dir(system.file("maps", package = "SpaDES"),
+#'                full.names = TRUE, pattern = "tif")
+#'
+#' # next: objectNames are taken from the filenames (without the extension)
+#' # This will load all 5 tifs in the SpaDES sample directory, using
+#' #   the raster fuction in the raster package, all at time = 0
 #' sim <- simInit(
 #'    inputs = data.frame(
-#'      files = dir(file.path(tmpFile), full.names = TRUE, pattern = "tif")[1:2],
+#'      files = allTifs,
 #'      functions = "raster",
 #'      package = "raster",
-#'      loadTime = 3,
+#'      loadTime = 0,
 #'      stringsAsFactors = FALSE)
 #'    )
-
-#' sim$test
 #' # Clean up after
 #' file.remove(tmpFile)
 setGeneric("inputs", function(object) {
@@ -1005,6 +1010,7 @@ setReplaceMethod(
                      new = colnames(fileTable)[!is.na(columns)])
      object@inputs <- bind_rows(list(value, fileTable)) %>%
        as.data.frame(stringsAsFactors = FALSE)
+     object@inputs <- .fillInputRows(object@inputs, start(object))
    } else {
      object@inputs <- value
    }
@@ -2069,8 +2075,12 @@ setMethod(
   "timeunits",
   signature = ".simList",
   definition = function(x) {
-    isNonParent <- !sapply(depends(x)@dependencies, function(x) {
-      length(x@childModules) > 0
+    isNonParent <- !sapply(depends(x)@dependencies, function(y) {
+      if(!is.null(y)) {
+        length(y@childModules) > 0
+      } else {
+        FALSE
+      }
     })
     if (all(sapply(depends(x)@dependencies[isNonParent], is.null))) {
       timestepUnits <- NULL
@@ -2704,3 +2714,43 @@ setMethod(
     return(df)
 })
 
+
+#' .fillInputRows is internal
+#' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param startTime Numeric time. The start(sim).
+#' @rdname inputs
+.fillInputRows <- function(inputDF, startTime) {
+
+  if(any(is.na(inputDF[, "loadTime"]))) {
+    inputDF[is.na(inputDF$loadTime),"loadTime"] <- startTime
+  }
+
+  if(any(is.na(inputDF[, "objectName"]))) {
+    inputDF[is.na(inputDF$objectName),"objectName"] <- fileName(inputDF[is.na(inputDF$objectName),"file"])
+  }
+
+  # correct those for which a specific function is supplied in filelistDT$fun
+  usesSemiColon <- grep(inputDF[, "fun"], pattern = "::")
+
+  if(length(usesSemiColon)>0) {
+    loadFun <- inputDF$fun[usesSemiColon]
+    splitPackFun <- strsplit(split = "::", loadFun)
+    inputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
+    inputDF$fun[usesSemiColon] <- sapply(splitPackFun, function(x) x[2])
+  }
+
+  if(any(is.na(inputDF[, "fun"]))) {
+    .fileExts <- .fileExtensions()
+    fl <- inputDF$file
+    exts <- match(fileExt(fl), .fileExts[, "exts"])
+    inputDF$fun[is.na(inputDF$fun)] <- .fileExts[exts, "fun"]
+  }
+
+  if(any(is.na(inputDF[, "package"]))) {
+    .fileExts <- .fileExtensions()
+    fl <- inputDF$file
+    exts <- match(fileExt(fl), .fileExts[, "exts"])
+    inputDF$package[is.na(inputDF$package)]  <- .fileExts[exts, "package"]
+  }
+  inputDF
+}

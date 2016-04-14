@@ -94,8 +94,8 @@ Plot(sim1$DEM)
 #  at time = 10 and 20 (via "intervals").
 # Also, pass the single argument as a list to all functions...
 #  specifically, when add "native = TRUE" as an argument to the raster function
-files = dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
-        full.names = TRUE, pattern = "tif")
+files = dir(system.file("maps", package = "SpaDES"),
+            full.names = TRUE, pattern = "tif")
 arguments = I(rep(list(native = TRUE), length(files)))
 filelist = data.frame(
    files = files,

@@ -116,19 +116,24 @@ tmpFile <- file.path(tempdir(), "test.rds")
 saveRDS(test, file=tmpFile)
 inputs(sim) <- data.frame(file = tmpFile)
 inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
-sim <- spades(sim)
+simOut <- spades(sim)
 inputs(sim) # confirm it was loaded
 
 # can put data.frame for inputs directly inside simInit call
+allTifs <- dir(system.file("maps", package = "SpaDES"),
+               full.names = TRUE, pattern = "tif")
+
+# next: objectNames are taken from the filenames (without the extension)
+# This will load all 5 tifs in the SpaDES sample directory, using
+#   the raster fuction in the raster package, all at time = 0
 sim <- simInit(
    inputs = data.frame(
-     files = dir(file.path(tmpFile), full.names = TRUE, pattern = "tif")[1:2],
+     files = allTifs,
      functions = "raster",
      package = "raster",
-     loadTime = 3,
+     loadTime = 0,
      stringsAsFactors = FALSE)
    )
-sim$test
 # Clean up after
 file.remove(tmpFile)
 # outputs
