@@ -1,8 +1,8 @@
-test_that("Plot is not error-free", {
+test_that("Plot 1 is not error-free", {
   library(sp)
   library(raster)
 
-  tmpdir <- file.path(tempdir(), "test_Plot")
+  tmpdir <- file.path(tempdir(), "test_Plot1")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -445,9 +445,9 @@ test_that("Unit tests for internal functions in Plot", {
   unlink("test.png")
 })
 
-test_that("Plot is not error-free", {
+test_that("Plot 2 is not error-free", {
   skip("This is a visual only test - see verbal expectations")
-  tmpdir <- file.path(tempdir(), "test_Plot")
+  tmpdir <- file.path(tempdir(), "test_Plot2")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -568,8 +568,9 @@ test_that("Plot is not error-free", {
   dev.off()
 })
 
-test_that("Plot is not error-free", {
-  tmpdir <- file.path(tempdir(), "test_Plot")
+test_that("setColors is not error-free", {
+  skip("Apparently color palettes are not universal")
+  tmpdir <- file.path(tempdir(), "test_setColors")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
