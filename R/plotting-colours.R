@@ -109,6 +109,10 @@ setReplaceMethod(
   "setColors",
   signature("RasterLayer", "numeric", "character"),
   function(object, ..., n, value) {
+    if(is.na(n)) {
+      object <- setColors(object=object, value=value)
+      return(object)
+    }
     if (raster::is.factor(object)) {
       if (n != NROW(object@data@attributes[[1]])) {
         message("Number of colors not equal number of values: interpolating")
