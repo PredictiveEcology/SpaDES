@@ -570,7 +570,6 @@ test_that("Plot is not error-free", {
 })
 
 test_that("Plot is not error-free", {
-  skip("This is a visual only test - see verbal expectations")
   tmpdir <- file.path(tempdir(), "test_Plot")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
