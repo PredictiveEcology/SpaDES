@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("saved", "saveTime"))
+  utils::globalVariables(c("saved", "saveTime", "fun", "package"))
 }
 
 # Just checks for paths, creates them if they do not exist
@@ -92,12 +92,11 @@ saveFiles = function(sim) {
   if (moduleName != "save") { # i.e., .a module driven save event
     toSave <- lapply(params(sim), function(y) return(y$.saveObjects))[[moduleName]] %>%
       data.frame(objectName = ., saveTime = curTime, file = ., stringsAsFactors = FALSE)
-    outputs(sim) <- bind_rows(list(outputs(sim), toSave))
+    toSave <- .fillOutputRows(toSave)
+    outputs(sim) <- rbind(outputs(sim), toSave)
 
     # don't need to save exactly same thing more than once
-
     outputs(sim) <- distinct(outputs(sim), objectName, saveTime, file, fun, package)
-
   }
 
   if (NROW(outputs(sim)[outputs(sim)$saveTime == curTime & is.na(outputs(sim)$saved), "saved"]) > 0) {
@@ -141,13 +140,13 @@ saveFiles = function(sim) {
 #' @export
 #' @rdname loadFiles
 .saveFileExtensions = function() {
-  .sFE <- data.table(matrix(ncol = 3, byrow = TRUE, c(
+  .sFE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
     "rds", "saveRDS", "base" ,
     "txt", "write.table", "utils" ,
     "csv", "write.csv", "utils" ,
     "grd", "writeRaster", "raster"
-  )))
-  setnames(.sFE, new = c("exts", "fun", "package"), old = paste0("V", 1:3))
-  setkey(.sFE, package, fun)
+  )), stringsAsFactors = FALSE)
+  setnames(.sFE, new = c("exts", "fun", "package"), old = paste0("X", 1:3))
+  .sFE <- .sFE[order(.sFE$package, .sFE$fun),]
   return(.sFE)
 }

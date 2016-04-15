@@ -47,7 +47,8 @@
 #'                    is emptied. This is to reduce RAM load of large return object.
 #'                    Default FALSE.
 #'
-#' @param ... Passed to \code{spades}. This would only be useful for \code{debug = TRUE}.
+#' @param ... Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime}, or
+#'            \code{.saveInitialTime}.
 #'
 #' @details
 #' This function requires a complete simList: this simList will form the basis of the
@@ -584,7 +585,7 @@ setMethod(
         gsub(pattern = "/$", replacement = "") %>% gsub(pattern = "//", replacement = "/")
       if (!dir.exists(newOutputPath)) dir.create(newOutputPath, recursive = TRUE)
       paths(sim_)$outputPath <- newOutputPath
-      outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
+      if(NROW(outputs(sim_))) outputs(sim_)$file <- file.path(newOutputPath, basename(outputs(sim_)$file))
       # Actually put inputs into simList
       if (length(inputs) > 0) {
         SpaDES::inputs(sim_) <- inputs[[factorialExp[ind, "input"]]]
@@ -600,7 +601,7 @@ setMethod(
     }
 
     if (!is.null(cl)) {
-      parFun <- "parallel::clusterApplyLB"
+      parFun <- "clusterApplyLB"
       args <- list(x = 1:NROW(factorialExp), fun = FunDef)
       args <- append(list(cl = cl), args)
       if (!is.na(pmatch("Windows", Sys.getenv("OS")))) {

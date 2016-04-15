@@ -51,7 +51,8 @@ called \code{experiment}. Default TRUE.}
 is emptied. This is to reduce RAM load of large return object.
 Default FALSE.}
 
-\item{...}{Passed to \code{spades}. This would only be useful for \code{debug = TRUE}.}
+\item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime}, or
+\code{.saveInitialTime}.}
 }
 \value{
 Invisibly returns a list of the resulting \code{simList} objects from the fully
