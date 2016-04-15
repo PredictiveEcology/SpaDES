@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("saved", "saveTime"))
+  utils::globalVariables(c("saved", "saveTime", "fun", "package"))
 }
 
 # Just checks for paths, creates them if they do not exist
