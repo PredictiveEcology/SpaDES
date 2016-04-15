@@ -178,7 +178,7 @@ setMethod(
       if (any(cur)) {
         # load files
         loadPackage <- filelist$package
-        loadFun <- filelist$funinstall.packages('gtools', .Library.site[1])
+        loadFun <- filelist$fun
         for (y in which(cur)) {
           #y <- which(cur)[x]
           nam = names(arguments[y])
