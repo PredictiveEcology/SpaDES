@@ -1,5 +1,5 @@
 usesSpaDESVersion <- "1.1.0"
-if(packageVersion("SpaDES") < usesSpaDESVersion) {
+if (packageVersion("SpaDES") < usesSpaDESVersion) {
   stop("This caribouMovement module was built with SpaDES version", usesSpaDESVersion,
        "Please update SpaDES to use this module")
 }
@@ -134,7 +134,7 @@ caribouMovementInit <- function(sim) {
 caribouMovementMove <- function(sim) {
   # crop any caribou that went off maps
   sim$caribou <- crop(sim$caribou, sim[[globals(sim)$stackName]])
-  if(length(sim$caribou) == 0) stop("All agents are off map")
+  if (length(sim$caribou) == 0) stop("All agents are off map")
 
   # find out what pixels the individuals are on now
   ex <- sim[[globals(sim)$stackName]][["habitatQuality"]][sim$caribou]

@@ -122,7 +122,7 @@ setReplaceMethod(
       pal <- colorRampPalette(value, alpha = TRUE, ...)
       object@legend@colortable <- pal(n)
     }
-    if(!is.character(object@legend@colortable)) stop("setColors needs color character values")
+    if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
 })
 
@@ -132,13 +132,13 @@ setReplaceMethod(
   "setColors",
   signature("RasterLayer", "missing", "character"),
   function(object, ..., value) {
-    if(!raster::is.factor(object)) {
+    if (!raster::is.factor(object)) {
       n <- round((maxValue(object) - minValue(object))) + 1
     } else {
       n <- length(value)
     }
     setColors(object, n=n) <- value
-    if(!is.character(object@legend@colortable)) stop("setColors needs color character values")
+    if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
 })
 
@@ -152,8 +152,8 @@ setReplaceMethod(
      whValNamed <- names(value)[i] %in% names(n)
      whNNamed <- names(n) %in% names(value)[i]
      nFull <- n
-     if(length(n)!=length(i)) { # not enough n values}
-       if(sum(nchar(names(n))==0) > 0) { # are there unnamed ones
+     if (length(n) != length(i)) { # not enough n values}
+       if (sum(nchar(names(n)) == 0) > 0) { # are there unnamed ones
          nFull <- rep(n[!whNNamed], length.out = length(i))
          nFull[whValNamed] <- n[whNNamed]
          names(nFull)[whValNamed] <- names(n)[whNNamed]
@@ -163,7 +163,7 @@ setReplaceMethod(
      }
 
      for(x in i) {
-       if((x %in% i[whValNamed])) {
+       if ((x %in% i[whValNamed])) {
          setColors(object[[names(value)[x]]], ..., n = nFull[[names(value)[x]]]) <- value[[names(value)[x]]]
        } else {
          setColors(object[[names(value)[x]]], ..., n = nFull[x]) <- value[[names(value)[x]]]
@@ -291,19 +291,19 @@ setMethod(
     #  so, use the metadata version of minValue, but use the max(z) to
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
-    if(any(is.na(legendRange))) {
+    if (any(is.na(legendRange))) {
       if (!exists("minz")) {
         minz <- suppressWarnings(min(z, na.rm = TRUE))
       }
       if (is.na(minz)) {
         minz <- suppressWarnings(min(z, na.rm = TRUE))
       }
-      if(is.infinite(minz)) {
+      if (is.infinite(minz)) {
         minz <- 0
       }
       #
       maxz <- suppressWarnings(max(z, na.rm = TRUE))
-      if(is.infinite(maxz)) {
+      if (is.infinite(maxz)) {
         maxz <- 0
       }
     } else {
@@ -339,10 +339,10 @@ setMethod(
         } else if ((nValues <= (lenColTable)) | raster::is.factor(grobToPlot)) {
           # one more color than needed:
           #   assume bottom is NA
-          if(raster::is.factor(grobToPlot)) {
+          if (raster::is.factor(grobToPlot)) {
             factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
               unique %>% na.omit %>% sort
-            if(length(factorValues)==length(colTable)) {
+            if (length(factorValues)==length(colTable)) {
               colTable[seq.int(length(factorValues))]
             } else {
               colTable[c(1,1+factorValues)] # CHANGE HERE
@@ -369,8 +369,8 @@ setMethod(
         cols <- rev(terrain.colors(nValues))
       }
     } else {
-      if(is.character(cols) & (length(cols)==1)) {
-        if(cols %in% rownames(brewer.pal.info)) {
+      if (is.character(cols) & (length(cols)==1)) {
+        if (cols %in% rownames(brewer.pal.info)) {
           suppressWarnings(cols <- brewer.pal(nValues, cols))
         } else {
           warning("Color not recognized. Try RColorBrewer or default R colors")
@@ -406,7 +406,7 @@ setMethod(
     maxzOrig <- maxz
     whichZero <- numeric()
     whichZeroLegend <- numeric()
-    if(!is.null(zero.color)){
+    if (!is.null(zero.color)){
       whichZero <- which(z==0)
       whichZeroLegend <- which(seq(minz, maxz, length.out=nValues)==0)
     }
@@ -414,7 +414,7 @@ setMethod(
     # Here, rescale so it is between 0 and maxNumCols or nValues
     if (real ){#& (maxz <= maxNumCols) ) {
       z <- maxNumCols / (maxz - minz) * (z - minz)
-      if(length(whichZero)) {
+      if (length(whichZero)) {
         zeroValue <- maxNumCols / (maxz - minz) * (0 - minz)
       }
       # rescale so the minimum is 1, not <1:
@@ -423,16 +423,16 @@ setMethod(
     } else {
       # rescale so that the minimum is 1, not <1:
       z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
-      if(length(whichZero)) {
+      if (length(whichZero)) {
         zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
       }
     }
     minz <- suppressWarnings(min(z, na.rm=TRUE))
     maxz <- suppressWarnings(max(z, na.rm=TRUE))
-    if(is.infinite(minz)) {
+    if (is.infinite(minz)) {
       maxz <- 0
     }
-    if(is.infinite(minz)) {
+    if (is.infinite(minz)) {
       minz <- 0
     }
 
@@ -460,21 +460,21 @@ setMethod(
     # if it is the minimum value, can be overridden.
 
     # if range of values is not within the legend range, then give them NA
-    if(minz<0) z[z<0] <- 0
-    if(real) {
-      if(maxz>maxNumCols) z[z>maxNumCols] <- 0
+    if (minz<0) z[z<0] <- 0
+    if (real) {
+      if (maxz>maxNumCols) z[z>maxNumCols] <- 0
     } else {
-      if(maxz>nValues) z[z>nValues] <- 0
+      if (maxz>nValues) z[z>nValues] <- 0
     }
 
     z <- z + 1 # for the NAs
     z[is.na(z)] <- 1 # max(1, minz)
 
-    if(raster::is.factor(grobToPlot) & !is.null(colTable)){
+    if (raster::is.factor(grobToPlot) & !is.null(colTable)){
       cols <- rep(na.color,max(factorValues))
       cols[factorValues] <- colTable
     }
-    if(length(whichZeroLegend)) {
+    if (length(whichZeroLegend)) {
       cols[whichZeroLegend] <- zero.color
     }
     cols <- c(na.color, cols) # make first index of colors be transparent

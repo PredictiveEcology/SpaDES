@@ -8,7 +8,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @export
 #' @rdname loadFiles
-.fileExtensions = function() {
+.fileExtensions <- function() {
   .fE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
     "Rdata", "load", "base",
     "rdata", "load", "base",
@@ -26,27 +26,33 @@ if (getRversion() >= "3.1.0") {
   return(.fE)
 }
 
-# extract filename (without extension) of a file
-# - will accept list or charcter vector
-# - outputs character vector
-fileName = function (x) {
+#' Extract filename (without extension) of a file
+#'
+#' @param x  List or charcter vector
+#'
+#' @return A character vector.
+#'
+#' @author Eliot McIntire
+fileName <- function(x) {
   return(unlist(strsplit(basename(unlist(x)), "\\..*$")))
 }
 
-# extract the file extension of a file
-# - will accept list or charcter vector
-# - outputs character vector
-#
-# igraph exports %>% from magrittr
-fileExt = function (x) {
+#' Extract the file extension of a file
+#'
+#' @param x  List or charcter vector of file names.
+#'
+#' @return A character vector of file extensions.
+#'
+#' @author Eliot McIntire and Alex Chubaty
+fileExt <- function(x) {
   NAs <- is.na(x)
   out <- rep(NA, length(x))
-  if(!any(NAs)) {
+  if (!any(NAs)) {
     filenames <- basename(unlist(x[!NAs]))
 
     out[!NAs] <- strsplit(filenames, "^.*\\.") %>%
       sapply(., function(y) {
-        if(length(y)>1){
+        if (length(y) > 1) {
           y[[length(y)]]
         } else {
           ""
@@ -56,7 +62,7 @@ fileExt = function (x) {
 }
 
 # The load doEvent
-doEvent.load = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.load <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "inputs") {
     sim <- loadFiles(sim)
   }
@@ -152,7 +158,7 @@ setMethod(
       arguments <- inputArgs(sim)
       # Check if arguments is a named list; the name may be concatenated
       # with the "arguments", separated by a ".". This will extract that.
-      if ((length(arguments)>0) & (!is.null(names(arguments)))) {
+      if ((length(arguments) > 0) & (!is.null(names(arguments)))) {
         names(arguments) <- sapply(strsplit(
           names(filelist)[pmatch("arguments", names(filelist))], ".", fixed = TRUE),
           function(x) { x[-1] }
@@ -172,12 +178,12 @@ setMethod(
       if (any(cur)) {
         # load files
         loadPackage <- filelist$package
-        loadFun <- filelist$fun
+        loadFun <- filelist$funinstall.packages('gtools', .Library.site[1])
         for (y in which(cur)) {
           #y <- which(cur)[x]
           nam = names(arguments[y])
 
-          if(!is.null(nam)) {
+          if (!is.null(nam)) {
             argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
             names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
           } else {
@@ -216,7 +222,8 @@ setMethod(
           if (any(!is.na(filelist[filelist$loaded, "intervals"]))) {
 
             newFilelist <- filelist[(filelist$loaded & !is.na(filelist$intervals)),]
-            newFilelist[,c("loadTime", "loaded", "intervals")] = data.frame(curTime+newFilelist$intervals, NA, NA_real_)
+            newFilelist[, c("loadTime", "loaded", "intervals")] <-
+              data.frame(curTime + newFilelist$intervals, NA, NA_real_)
             filelist <- rbind(filelist, newFilelist)
           }
         }
@@ -284,4 +291,4 @@ setMethod("rasterToMemory",
             r <- raster(x, ...)
             r <- setValues(r, getValues(r))
             return(r)
-          })
+})

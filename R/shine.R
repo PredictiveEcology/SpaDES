@@ -173,8 +173,8 @@ setMethod(
         }
       }
       end(sim) <- pmin(endTime, time(sim) + 1)
-      if(is.null(v$stop)) {v$stop = "go"}
-      if((time(sim) < endTime) & (v$stop != "stop")) invalidateLater(0)
+      if (is.null(v$stop)) {v$stop = "go"}
+      if ((time(sim) < endTime) & (v$stop != "stop")) invalidateLater(0)
       sim <<- spades(sim, debug = debug) # Run spades
     }
 
@@ -182,10 +182,10 @@ setMethod(
     spadesCall <- eventReactive(input$oneTimestepSpaDESButton, {
       # Update simInit with values obtained from UI
       mods <- unlist(modules(sim))[-(1:4)]
-      for(m in mods) {
-        for(i in names(params(sim)[[m]])) {
-          if(!is.null(input[[paste0(m,"$",i)]])) {# only if it is not null
-            params(sim)[[m]][[i]] <- input[[paste0(m,"$",i)]]
+      for (m in mods) {
+        for (i in names(params(sim)[[m]])) {
+          if (!is.null(input[[paste0(m, "$", i)]])) {# only if it is not null
+            params(sim)[[m]][[i]] <- input[[paste0(m, "$", i)]]
           }
         }
       }
@@ -196,9 +196,9 @@ setMethod(
     simReset <- eventReactive(input$resetSimInit, {
       # Update simInit with values obtained from UI
       clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
-      rm(list=ls(sim), envir=envir(sim))
+      rm(list = ls(sim), envir = envir(sim))
       sim <<- simOrig
-      for(i in names(simOrig_@.list)) {
+      for (i in names(simOrig_@.list)) {
         sim[[i]]  <<- simOrig_@.list[[i]]
       }
     })
@@ -232,24 +232,24 @@ setMethod(
     output$spadesPlot <- renderPlot({
       curDev <- dev.cur()
       alreadyPlotted <- grepl(ls(.spadesEnv), pattern = paste0("spadesPlot", curDev))
-      if(any(alreadyPlotted)) {
+      if (any(alreadyPlotted)) {
         rePlot()
       } else {
         clearPlot() # Don't want to use this, but it seems that renderPlot will not allow overplotting
       }
       if (is.null(v$data)) return() # catch if no data yet
-      if(v$data=="oneTime") {
+      if (v$data == "oneTime") {
         spadesCall()
-      } else if (v$data=="full") {
+      } else if (v$data == "full") {
         spadesCallFull()
-      } else if (v$data=="reset") {
+      } else if (v$data == "reset") {
         simReset()
       }
       v$time <- time(sim)
-      if(time(sim)>=endTime) {
+      if (time(sim) >= endTime) {
         v$end <- end(sim)
       }
-      v$sliderUsed=FALSE
+      v$sliderUsed <- FALSE
     })
 
     output$moduleDiagram <- renderPlot({
@@ -258,11 +258,11 @@ setMethod(
 
     output$moduleDiagramUI <- renderUI({
       plotOutput("moduleDiagram",
-                 height = max(600, (length(modules(sim))-4)*100))
+                 height = max(600, (length(modules(sim)) - 4)*100))
     })
 
     output$objectDiagram <- renderDiagrammeR({
-          if (v$time<=start(sim)) {
+          if (v$time <= start(sim)) {
             return()
           } else {
             objectDiagram(sim)
@@ -270,7 +270,7 @@ setMethod(
       })
 
     output$objectDiagramUI <- renderUI({
-      if (v$time<=start(sim)) {
+      if (v$time <= start(sim)) {
         return()
       } else {
         DiagrammeROutput("objectDiagram",
@@ -279,15 +279,15 @@ setMethod(
     })
 
     output$eventDiagram <- renderDiagrammeR({
-      if (v$time<=start(sim)) {
+      if (v$time <= start(sim)) {
         return()
       } else {
-        eventDiagram(sim, startDate="0000-01-01")
+        eventDiagram(sim, startDate = "0000-01-01")
       }
     })
 
     output$eventDiagramUI <- renderUI({
-      if (v$time<=start(sim)) {
+      if (v$time <= start(sim)) {
         return()
       } else {
         DiagrammeROutput("eventDiagram",
@@ -324,10 +324,9 @@ setMethod(
       updateSliderInput(session, "simTimes", value = v$time, max = v$end)
     })
 
-
     output$StepActionButton <- renderPrint({
-#      if(v$sliderUsed=="Yes") {
-#        cat("Step to time ", input$simTimes, sep="")
+#      if (v$sliderUsed == "Yes") {
+#        cat("Step to time ", input$simTimes, sep = "")
 #      } else {
         cat("Step ", input$Steps, " timestep", "s"[input$Steps != 1], sep = "")
 #      }

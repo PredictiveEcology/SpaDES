@@ -21,7 +21,7 @@ setMethod("copy",
           signature(sim = "simList", objects = "logical"),
           definition = function(sim, objects) {
             sim_ <- sim
-            if(objects) {
+            if (objects) {
               sim_@.envir <- new.env(parent = parent.env(envir(sim)))
               sim_@.envir <- list2env(mget(ls(sim@.envir, all.names = TRUE),
                                            envir = sim@.envir),
@@ -36,4 +36,4 @@ setMethod("copy",
           definition = function(sim) {
             sim_ <- copy(sim, objects = TRUE)
             return(sim_)
-          })
+})

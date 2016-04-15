@@ -222,7 +222,7 @@ setGeneric("envir<-",
 setReplaceMethod("envir",
                  signature = "simList",
                  function(object, value) {
-                   if(!is.environment(value)) stop("Must be an environment")
+                   if (!is.environment(value)) stop("Must be an environment")
                    object@.envir <- value
                    return(object)
 })
@@ -958,11 +958,11 @@ setMethod("inputs",
 
             simUnit <- timeunit(object)
             loadTimeUnit <- attr(object@inputs$loadTime, "unit")
-            if(is.null(loadTimeUnit)) loadTimeUnit <- simUnit
-            out <- if(is.na(pmatch(loadTimeUnit, simUnit)) & (length(object@inputs$loadTime)>0)) {
+            if (is.null(loadTimeUnit)) loadTimeUnit <- simUnit
+            out <- if (is.na(pmatch(loadTimeUnit, simUnit)) & (length(object@inputs$loadTime)>0)) {
               #note the above line captures empty loadTime,
               # whereas is.na does not
-              if(any(!is.na(object@inputs$loadTime))) {
+              if (any(!is.na(object@inputs$loadTime))) {
                 if (!is.null(object@inputs$loadTime)) {
                   obj <- data.table::copy(object@inputs) # don't change original object
                   obj[,loadTime:=convertTimeunit(loadTime, unit, envir(object))]
@@ -995,7 +995,7 @@ setReplaceMethod(
   function(object, value) {
    if (length(value)>0) {
      whFactors <- sapply(value, function(x) is.factor(x))
-     if(any(whFactors)) {
+     if (any(whFactors)) {
        value[,whFactors] <- sapply(value[,whFactors], as.character)
      }
 
@@ -1007,7 +1007,7 @@ setReplaceMethod(
      }
 #      fileTable <- .fileTableIn()
 #      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
-#      if(any(needRenameArgs)) {
+#      if (any(needRenameArgs)) {
 #        colnames(value)[needRenameArgs] <-
 #          .fileTableInCols[pmatch("arg", .fileTableInCols)]
 #      }
@@ -1016,7 +1016,7 @@ setReplaceMethod(
 #                      new = colnames(fileTable)[!is.na(columns)])
 #      columns2 <- pmatch(names(value), names(fileTable))
 #      object@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
-#      if(any(is.na(columns))) {
+#      if (any(is.na(columns))) {
 #        object@inputs[,names(fileTable[,is.na(columns)])] <- NA
 #      }
      object@inputs <- .fillInputRows(value, start(object))
@@ -1027,7 +1027,7 @@ setReplaceMethod(
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
-   if(NROW(value)>0) {
+   if (NROW(value)>0) {
      object@inputs[is.na(object@inputs$file), "file"] <- NA
 
      # If a filename is provided, determine if it is absolute path, if so,
@@ -1036,7 +1036,7 @@ setReplaceMethod(
        file.path(inputPath(object),
                  object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
-     if(!all(names(object@inputs) %in% .fileTableInCols)) {
+     if (!all(names(object@inputs) %in% .fileTableInCols)) {
        stop(paste("input table can only have columns named",
                   paste(.fileTableInCols, collapse=", ")))
      }
@@ -1194,12 +1194,12 @@ setMethod("outputs",
           definition = function(object) {
             simUnit <- timeunit(object)
             saveTimeUnit <- attr(object@outputs$saveTime, "unit")
-            if(is.null(saveTimeUnit)) saveTimeUnit <- simUnit
+            if (is.null(saveTimeUnit)) saveTimeUnit <- simUnit
 
-            out <- if(is.na(pmatch(saveTimeUnit, simUnit)) & (length(object@outputs$saveTime)>0)) {
+            out <- if (is.na(pmatch(saveTimeUnit, simUnit)) & (length(object@outputs$saveTime)>0)) {
               #note the above line captures empty saveTime,
               # whereas is.na does not
-              if(any(!is.na(object@outputs$saveTime))) {
+              if (any(!is.na(object@outputs$saveTime))) {
                 if (!is.null(object@outputs$saveTime)) {
                   obj <- data.table::copy(object@outputs) # don't change original object
                   obj[,saveTime:=convertTimeunit(saveTime, unit, envir(object))]
@@ -1248,7 +1248,7 @@ setReplaceMethod(
      #         new = colnames(fileTable)[!is.na(columns)])
      # Merge
 #      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
-#      if(any(needRenameArgs)) {
+#      if (any(needRenameArgs)) {
 #        colnames(value)[needRenameArgs] <-
 #          .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
 #      }
@@ -1259,7 +1259,7 @@ setReplaceMethod(
 #      browser()
 #      object@outputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
 #
-#      if(any(is.na(columns))) {
+#      if (any(is.na(columns))) {
 #        object@outputs[,names(fileTable[,is.na(columns)])] <- NA
 #      }
      object@outputs <- .fillOutputRows(value, end(object))
@@ -1322,7 +1322,7 @@ setReplaceMethod(
      object@outputs <- value
    }
 
-   if(!all(.fileTableOutCols %in% names(object@outputs))) stop(paste("output table must have columns named",
+   if (!all(.fileTableOutCols %in% names(object@outputs))) stop(paste("output table must have columns named",
                                                                      paste(.fileTableOutCols, collapse=", ")))
 
    return(object)
@@ -1628,8 +1628,8 @@ setReplaceMethod("outputPath",
                  function(object, value) {
                    object@paths$outputPath <- unname(unlist(value))
                    checkPath(object@paths$outputPath, create=TRUE)
-                   if(NROW(outputs(object))>0) {
-                     if("saved" %in% colnames(outputs(object))) {
+                   if (NROW(outputs(object))>0) {
+                     if ("saved" %in% colnames(outputs(object))) {
                        notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
                        outputs(object)$file[notYetSaved] <-
                          file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
@@ -1826,7 +1826,7 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
-      if(is.na(pmatch("second", unit))) {
+      if (is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$current, unit, envir(x))
         return(t)
@@ -1855,8 +1855,8 @@ setReplaceMethod(
      }
      x@simtimes$current <- convertTimeunit(value, "second", envir(x))
 
-     if(!is.numeric(x@simtimes$current)) stop("time must be a numeric")
-     if(!any(pmatch(.spadesTimes,attr(x@simtimes$current, "unit")))) stop("time must be one of",
+     if (!is.numeric(x@simtimes$current)) stop("time must be a numeric")
+     if (!any(pmatch(.spadesTimes,attr(x@simtimes$current, "unit")))) stop("time must be one of",
                                                                    paste(.spadesTimes, collapse=", "))
      return(x)
 })
@@ -1896,7 +1896,7 @@ setMethod(
   definition = function(x, unit) {
 
     if (!is.na(unit)) {
-      if(is.na(pmatch("second", unit))) {
+      if (is.na(pmatch("second", unit))) {
 
         #if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
@@ -1964,7 +1964,7 @@ setMethod(
   signature = c(".simList","character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
-      if(is.na(pmatch("second", unit))) {
+      if (is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$start, unit, envir(x))
         return(t)
@@ -2128,7 +2128,7 @@ setMethod(
   signature = ".simList",
   definition = function(x) {
     isNonParent <- !sapply(depends(x)@dependencies, function(y) {
-      if(!is.null(y)) {
+      if (!is.null(y)) {
         length(y@childModules) > 0
       } else {
         FALSE
@@ -2205,10 +2205,10 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(object, unit) {
 
-    out <- if(is.na(pmatch("second", unit)) & (length(object@events$eventTime)>0)) {
+    out <- if (is.na(pmatch("second", unit)) & (length(object@events$eventTime)>0)) {
       #note the above line captures empty eventTime,
       # whereas is.na does not
-      if(any(!is.na(object@events$eventTime))) {
+      if (any(!is.na(object@events$eventTime))) {
         if (!is.null(object@events$eventTime)) {
           obj <- data.table::copy(object@events) # don't change original object
           obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
@@ -2767,15 +2767,16 @@ setMethod(
 })
 
 #' An internal function for coercing a data.frame to inputs()
+#'
 #' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
 #' @param startTime Numeric time. The start(sim).
-#' @name .fillInputRows
-#' @details \code{.fillInputRows} is internal
+#'
+#' @rdname fillInputRows
 .fillInputRows <- function(inputDF, startTime) {
 
   fileTable <- .fileTableInCols
   needRenameArgs <- grepl(names(inputDF), pattern="arg[s]?$")
-  if(any(needRenameArgs)) {
+  if (any(needRenameArgs)) {
     colnames(inputDF)[needRenameArgs] <-
       .fileTableInCols[pmatch("arg", .fileTableInCols)]
   }
@@ -2783,23 +2784,22 @@ setMethod(
   setnames(inputDF, old = colnames(inputDF)[na.omit(columns)],
            new = .fileTableInCols[!is.na(columns)])
   columns2 <- pmatch(names(inputDF), .fileTableInCols)
-  if(any(is.na(columns))) {
+  if (any(is.na(columns))) {
     inputDF[,.fileTableInCols[is.na(columns)]] <- NA
   }
 
-
-  if(any(is.na(inputDF[, "loadTime"]))) {
+  if (any(is.na(inputDF[, "loadTime"]))) {
     inputDF[is.na(inputDF$loadTime),"loadTime"] <- startTime
   }
 
-  if(any(is.na(inputDF[, "objectName"]))) {
+  if (any(is.na(inputDF[, "objectName"]))) {
     inputDF[is.na(inputDF$objectName),"objectName"] <- fileName(inputDF[is.na(inputDF$objectName),"file"])
   }
 
   # correct those for which a specific function is supplied in filelistDT$fun
   usesSemiColon <- grep(inputDF[, "fun"], pattern = "::")
 
-  if(length(usesSemiColon)>0) {
+  if (length(usesSemiColon)>0) {
     loadFun <- inputDF$fun[usesSemiColon]
     splitPackFun <- strsplit(split = "::", loadFun)
     inputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
@@ -2807,16 +2807,16 @@ setMethod(
   }
 
   objectsOnly <- is.na(inputDF[, "file"])
-  if(!all(objectsOnly)) {
+  if (!all(objectsOnly)) {
     inputDF2 <- inputDF[!objectsOnly,]
-    if(any(is.na(inputDF2[, "fun"]))) {
+    if (any(is.na(inputDF2[, "fun"]))) {
       .fileExts <- .fileExtensions()
       fl <- inputDF2$file
       exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
       inputDF2$fun[is.na(inputDF2$fun)] <- .fileExts[exts, "fun"]
     }
 
-    if(any(is.na(inputDF2[, "package"]))) {
+    if (any(is.na(inputDF2[, "package"]))) {
       .fileExts <- .fileExtensions()
       fl <- inputDF2$file
       exts <- match(fileExt(fl), .fileExts[, "exts"])
@@ -2828,14 +2828,14 @@ setMethod(
 }
 
 #' An internal function for coercing a data.frame to inputs()
+#'
 #' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
 #' @param endTime Numeric time. The end(sim).
-#' @name .fillOutputRows
-#' @details \code{.fillOutputRows} is internal
+#'
+#' @rdname fillOutputRows
 .fillOutputRows <- function(outputDF, endTime) {
-
   needRenameArgs <- grepl(names(outputDF), pattern="arg[s]?$")
-  if(any(needRenameArgs)) {
+  if (any(needRenameArgs)) {
     colnames(outputDF)[needRenameArgs] <-
       .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
   }
@@ -2845,47 +2845,44 @@ setMethod(
   columns2 <- pmatch(names(outputDF), .fileTableOutCols)
   #object@outputs <- rbind(outputDF[,na.omit(columns), drop = FALSE], .fileTableOut()[,columns2])
 
-  if(any(is.na(columns))) {
+  if (any(is.na(columns))) {
     outputDF[,.fileTableOutCols[is.na(columns)]] <- NA
   }
-
-
-
-  if(any(is.na(outputDF[, "saveTime"]))) {
+  if (any(is.na(outputDF[, "saveTime"]))) {
     outputDF[is.na(outputDF$saveTime),"saveTime"] <- endTime
   }
 
   # correct those for which a specific function is supplied in filelistDT$fun
   usesSemiColon <- grep(outputDF[, "fun"], pattern = "::")
 
-  if(length(usesSemiColon)>0) {
+  if (length(usesSemiColon)>0) {
     loadFun <- outputDF$fun[usesSemiColon]
     splitPackFun <- strsplit(split = "::", loadFun)
     outputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
     outputDF$fun[usesSemiColon] <- sapply(splitPackFun, function(x) x[2])
   }
 
-  if(any(is.na(outputDF[, "fun"]))) {
+  if (any(is.na(outputDF[, "fun"]))) {
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if(any(is.na(fl)) | any(nchar(exts)==0)) {
+    if (any(is.na(fl)) | any(nchar(exts)==0)) {
       outputDF$fun[is.na(fl) | nchar(exts)==0] <- .fileExts$fun[1]
     }
-    if(any(is.na(outputDF[, "fun"]))) {
+    if (any(is.na(outputDF[, "fun"]))) {
       exts <- na.omit(match(exts, .fileExts[, "exts"]) )
       outputDF$fun[is.na(outputDF$fun)] <- .fileExts[exts, "fun"]
     }
   }
 
-  if(any(is.na(outputDF[, "package"]))) {
+  if (any(is.na(outputDF[, "package"]))) {
     .fileExts <- .saveFileExtensions()
     fl <- outputDF$file
     exts <- fileExt(fl)
-    if(any(is.na(fl)) | any(nchar(exts)==0)) {
+    if (any(is.na(fl)) | any(nchar(exts)==0)) {
       outputDF$package[is.na(fl) | nchar(exts)==0] <- .fileExts$package[1]
     }
-    if(any(is.na(outputDF[, "package"]))) {
+    if (any(is.na(outputDF[, "package"]))) {
       exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
       outputDF$package[is.na(outputDF$package)] <- .fileExts[exts, "package"]
     }

@@ -405,7 +405,7 @@ setMethod(
 
       ### add NAs to any of the dotParams that are not specified by user
       # ensure the modules sublist exists by creating a tmp value in it
-      if(is.null(params(sim)[[m]])) {
+      if (is.null(params(sim)[[m]])) {
         params(sim)[[m]] <- list(.tmp = NA_real_)
       }
 
@@ -464,7 +464,7 @@ setMethod(
         loadTime = as.numeric(time(sim, "seconds")),
         loaded = TRUE,
         stringsAsFactors = FALSE)
-      if(NROW(inputs)>0) {
+      if (NROW(inputs)) {
         inputs(sim) <- smartbind(inputs(sim), newInputs)
       } else {
         inputs(sim) <- newInputs
@@ -607,7 +607,7 @@ setMethod(
   "doEvent",
   signature(sim = "simList", debug = "logical"),
   definition = function(sim, debug) {
-    if(class(sim)!="simList") {
+    if (class(sim) != "simList") { # use inherits()?
       stop("doEvent can only accept a simList object")
     }
 
@@ -903,20 +903,20 @@ setMethod(
             .saveInitialTime = "ANY"),
   definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
 
-    if(!is.null(.plotInitialTime)) {
-      if(!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
+    if (!is.null(.plotInitialTime)) {
+      if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
       paramsLocal <- params(sim)
-      whNonHiddenModules <- !grepl(names(paramsLocal), pattern="\\.")
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern = "\\.")
       paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
         x$.plotInitialTime <- .plotInitialTime
         x
       })
       params(sim) <- paramsLocal
     }
-    if(!is.null(.saveInitialTime)) {
-      if(!is.numeric(.saveInitialTime)) .saveInitialTime <- as.numeric(.saveInitialTime)
+    if (!is.null(.saveInitialTime)) {
+      if (!is.numeric(.saveInitialTime)) .saveInitialTime <- as.numeric(.saveInitialTime)
       paramsLocal <- params(sim)
-      whNonHiddenModules <- !grepl(names(paramsLocal), pattern="\\.")
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern = "\\.")
       paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
         x$.saveInitialTime <- NA_real_
         x
@@ -924,7 +924,7 @@ setMethod(
       params(sim) <- paramsLocal
     }
 
-    while(time(sim, "second") <= end(sim, "second")) {
+    while (time(sim, "second") <= end(sim, "second")) {
 
       sim <- doEvent(sim, debug)  # process the next event
 
@@ -944,9 +944,8 @@ setMethod("spades",
                     .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
           definition = function(sim, .plotInitialTime, .saveInitialTime) {
             stopifnot(class(sim) == "simList")
-
-                        if(missing(.plotInitialTime)) .plotInitialTime = NULL
-            if(missing(.saveInitialTime)) .saveInitialTime = NULL
+            if (missing(.plotInitialTime)) .plotInitialTime = NULL
+            if (missing(.saveInitialTime)) .saveInitialTime = NULL
             return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime,
                           .saveInitialTime = .saveInitialTime))
 })

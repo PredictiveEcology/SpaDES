@@ -69,7 +69,7 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
   }
   map <- map - cellStats(map, "min")
   extent(map) <- ext
-  if(speedup>1)
+  if (speedup > 1)
     return(disaggregate(map, c(speedupEffectiveCol, speedupEffectiveRow)))
   else
     return(invisible(map))
@@ -173,25 +173,25 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), p = 0.1,
 
   r <- raster(ext = extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
               res = res(ras)*c(speedupEffectiveCol, speedupEffectiveRow))
-  if( (numTypes < length(p)) |
+  if ((numTypes < length(p)) |
       (numTypes < length(A)) |
       (numTypes < length(minpatch))) {
-    numTypes = max(length(p), length(A), length(minpatch))
+    numTypes <- max(length(p), length(A), length(minpatch))
   }
   r[] <- 0
 
   for (i in 1:numTypes) {
     a <- randomHabitat(tempmask,
-                       p = p[(i-1)%%length(p)+1],
-                       A = A[(i-1)%%length(A)+1],
-                       minpatch = minpatch[(i-1) %% length(minpatch) + 1])
+                       p = p[(i - 1) %% length(p) + 1],
+                       A = A[(i - 1) %% length(A) + 1],
+                       minpatch = minpatch[(i - 1) %% length(minpatch) + 1])
     if (nrow(a) == 0) {
       stop("A NULL map was created. ",
            "Please try again, perhaps with different parameters.")
     }
     r[as.integer(rownames(a))] <- i
   }
-  if(speedup>1) {
+  if (speedup > 1) {
     return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
   } else {
     return(invisible(r))

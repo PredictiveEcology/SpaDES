@@ -3,13 +3,10 @@ if (getRversion() >= "3.1.0") {
 }
 
 # Just checks for paths, creates them if they do not exist
-doEvent.save = function(sim, eventTime, eventType, debug = FALSE) {
+doEvent.save <- function(sim, eventTime, eventType, debug = FALSE) {
   if (eventType == "init") {
     # check that output directory exists, make it if not
-
     #pathsToCheck <- checkPath(outputPath(sim), create = TRUE)
-
-    # The load doEvent
 
     if (NROW(outputs(sim)) > 0) {
       firstSave <- min(outputs(sim)[, "saveTime"], na.rm = TRUE)
@@ -103,7 +100,7 @@ saveFiles = function(sim) {
 
     wh <- which(outputs(sim)$saveTime == curTime & is.na(outputs(sim)$saved))
     for (i in wh) {
-      if(exists(outputs(sim)[i,"objectName"], envir = envir(sim))) {
+      if (exists(outputs(sim)[i,"objectName"], envir = envir(sim))) {
         args <- append(list(get(outputs(sim)[i, "objectName"], envir = envir(sim)),
                      file = outputs(sim)[i, "file"]),
                      outputArgs(sim)[[i]])
@@ -117,20 +114,18 @@ saveFiles = function(sim) {
       } else {
         warning(paste(outputs(sim)$obj[i],
                       "is not an object in the simList. Cannot save."))
-        outputs(sim)[i,"saved"] <- FALSE
+        outputs(sim)[i, "saved"] <- FALSE
       }
     }
   }
 
   # Schedule an event for the next time in the saveTime column
-  if(any(is.na(outputs(sim)[outputs(sim)$saveTime>curTime,"saved"]))) {
+  if (any(is.na(outputs(sim)[outputs(sim)$saveTime > curTime,"saved"]))) {
     nextTime <- min(outputs(sim)[is.na(outputs(sim)$saved),"saveTime"], na.rm = TRUE)
     attributes(nextTime)$unit <- timeunit(sim)
     sim <- scheduleEvent(sim, nextTime, "save", "later", .last())
   }
-
   return(invisible(sim))
-
 }
 
 #' File extensions map
@@ -139,7 +134,7 @@ saveFiles = function(sim) {
 #'
 #' @export
 #' @rdname loadFiles
-.saveFileExtensions = function() {
+.saveFileExtensions <- function() {
   .sFE <- data.frame(matrix(ncol = 3, byrow = TRUE, c(
     "rds", "saveRDS", "base" ,
     "txt", "write.table", "utils" ,

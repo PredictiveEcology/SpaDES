@@ -418,10 +418,10 @@ cir <- function(spatialPoints, radii, raster, simplify = TRUE) {
   #coords.all.ind <- DT[, list(x, y, ids)]
 
   # extract the pixel IDs under the points
-  DT[, pixIDs:=cellFromXY(raster, DT[, list(x, y)])]
-  DT[, rasterVal:=extract(raster, pixIDs)]
+  DT[, pixIDs := cellFromXY(raster, DT[, list(x, y)])]
+  DT[, rasterVal := extract(raster, pixIDs)]
 
-  if(simplify){
+  if (simplify) {
     setkey(DT, "pixIDs")
     DT <- unique(DT) %>% na.omit
   }
@@ -493,10 +493,10 @@ setMethod(
   "wrap",
   signature(X = "matrix", bounds = "Extent", withHeading = "missing"),
   definition = function(X, bounds) {
-    if(identical(colnames(X), c("x", "y"))) {
+    if (identical(colnames(X), c("x", "y"))) {
       return(cbind(
-        x = (X[, "x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) + bounds@xmin,
-        y = (X[, "y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) + bounds@ymin
+        x = (X[, "x"] - bounds@xmin) %% (bounds@xmax - bounds@xmin) + bounds@xmin,
+        y = (X[, "y"] - bounds@ymin) %% (bounds@ymax - bounds@ymin) + bounds@ymin
       ))
     } else {
       stop("When X is a matrix, it must have 2 columns, x and y,",
@@ -540,7 +540,7 @@ setMethod(
   "wrap",
   signature(X = "matrix", bounds = "matrix", withHeading = "missing"),
   definition = function(X, bounds) {
-    if(identical(colnames(bounds), c("min", "max")) &
+    if (identical(colnames(bounds), c("min", "max")) &
          (identical(rownames(bounds), c("s1", "s2")))) {
       X <- wrap(X, bounds = extent(bounds))
       return(X)
