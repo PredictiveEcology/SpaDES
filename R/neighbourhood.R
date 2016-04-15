@@ -53,6 +53,8 @@ if (getRversion() >= "3.1.0") {
 #' @param torus Logical. Should the spread event wrap around to the other side of the raster.
 #' Default is FALSE.
 #'
+#' @param id numeric If not NULL, then function will return "id" column. Default NULL.
+#'
 #' @return a matrix of one or two columns, from and to.
 #'
 #' @seealso \code{\link[raster]{adjacent}}
@@ -80,7 +82,7 @@ if (getRversion() >= "3.1.0") {
 adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
                     match.adjacent = FALSE, cutoff.for.data.table = 1e4,
-                    torus = FALSE) {
+                    torus = FALSE, id = NULL) {
   to = NULL
   J = NULL
   if ((length(cells)<cutoff.for.data.table)) {
