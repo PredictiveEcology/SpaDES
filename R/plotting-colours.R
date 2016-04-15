@@ -148,7 +148,7 @@ setReplaceMethod(
    signature("RasterStack", "numeric", "list"),
    function(object, ..., n, value) {
      i <- which(names(object) %in% names(value))
-     if(length(i)==0) stop("Layer names do not match stack layer names")
+     if (length(i) == 0) stop("Layer names do not match stack layer names")
      whValNamed <- names(value)[i] %in% names(n)
      whNNamed <- names(n) %in% names(value)[i]
      nFull <- n
@@ -162,7 +162,7 @@ setReplaceMethod(
        }
      }
 
-     for(x in i) {
+     for (x in i) {
        if ((x %in% i[whValNamed])) {
          setColors(object[[names(value)[x]]], ..., n = nFull[[names(value)[x]]]) <- value[[names(value)[x]]]
        } else {
@@ -178,7 +178,7 @@ setReplaceMethod(
    signature("Raster", "missing", "list"),
    function(object, ..., value) {
      i <- which(names(object) %in% names(value))
-     for(x in names(object)[i]) {
+     for (x in names(object)[i]) {
        setColors(object[[x]], ...) <- value[[x]]
      }
      return(object)
@@ -324,8 +324,7 @@ setMethod(
       #realRange <- any(legendRange %% 1 != 0) # Test for real values or not
       nValues <- ifelse(real, maxNumCols + 1, length(seq(legendRange[1], legendRange[length(legendRange)])))
     }
-      #nValues <- maxz - minz + 1
-#    }
+
     colTable <- NULL
     if (is.null(cols)) {
       # i.e., contained within raster or nothing
@@ -336,16 +335,16 @@ setMethod(
         cols <- if ((nValues > lenColTable) & !raster::is.factor(grobToPlot)) {
           # not enough colors, use colorRamp
           colorRampPalette(colTable)(nValues)
-        } else if ((nValues <= (lenColTable)) | raster::is.factor(grobToPlot)) {
+        } else if ( (nValues <= lenColTable) | raster::is.factor(grobToPlot) ) {
           # one more color than needed:
           #   assume bottom is NA
           if (raster::is.factor(grobToPlot)) {
             factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
-              unique %>% na.omit %>% sort
-            if (length(factorValues)==length(colTable)) {
+              unique() %>% na.omit() %>% sort()
+            if (length(factorValues) == length(colTable)) {
               colTable[seq.int(length(factorValues))]
             } else {
-              colTable[c(1,1+factorValues)] # CHANGE HERE
+              colTable[c(1, 1 + factorValues)] # CHANGE HERE
             }
           } else {
             colTable
@@ -369,7 +368,7 @@ setMethod(
         cols <- rev(terrain.colors(nValues))
       }
     } else {
-      if (is.character(cols) & (length(cols)==1)) {
+      if (is.character(cols) & (length(cols) == 1)) {
         if (cols %in% rownames(brewer.pal.info)) {
           suppressWarnings(cols <- brewer.pal(nValues, cols))
         } else {
@@ -412,7 +411,7 @@ setMethod(
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues
-    if (real ){#& (maxz <= maxNumCols) ) {
+    if (real) {#& (maxz <= maxNumCols) ) {
       z <- maxNumCols / (maxz - minz) * (z - minz)
       if (length(whichZero)) {
         zeroValue <- maxNumCols / (maxz - minz) * (0 - minz)
@@ -427,8 +426,8 @@ setMethod(
         zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
       }
     }
-    minz <- suppressWarnings(min(z, na.rm=TRUE))
-    maxz <- suppressWarnings(max(z, na.rm=TRUE))
+    minz <- suppressWarnings(min(z, na.rm = TRUE))
+    maxz <- suppressWarnings(max(z, na.rm = TRUE))
     if (is.infinite(minz)) {
       maxz <- 0
     }
@@ -444,7 +443,7 @@ setMethod(
         #minzOrig <- minz
         #maxzOrig <- maxz
         if (is.null(colTable)) {
-#          cols <- colorRampPalette(cols)(maxz - minz + 1)
+          #cols <- colorRampPalette(cols)(maxz - minz + 1)
         } else {
           if (length(getColors(grobToPlot)[[1]]) > 0) {
             cols <- colorRampPalette(colTable)(maxzOrig - minzOrig + 1)
@@ -460,17 +459,17 @@ setMethod(
     # if it is the minimum value, can be overridden.
 
     # if range of values is not within the legend range, then give them NA
-    if (minz<0) z[z<0] <- 0
+    if (minz < 0) z[z < 0] <- 0
     if (real) {
-      if (maxz>maxNumCols) z[z>maxNumCols] <- 0
+      if (maxz > maxNumCols) z[z > maxNumCols] <- 0
     } else {
-      if (maxz>nValues) z[z>nValues] <- 0
+      if (maxz > nValues) z[z > nValues] <- 0
     }
 
     z <- z + 1 # for the NAs
     z[is.na(z)] <- 1 # max(1, minz)
 
-    if (raster::is.factor(grobToPlot) & !is.null(colTable)){
+    if (raster::is.factor(grobToPlot) & !is.null(colTable)) {
       cols <- rep(na.color,max(factorValues))
       cols[factorValues] <- colTable
     }
