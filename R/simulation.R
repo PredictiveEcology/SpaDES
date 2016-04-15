@@ -903,6 +903,9 @@ setMethod(
             .saveInitialTime = "ANY"),
   definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
 
+    if (missing(.plotInitialTime)) .plotInitialTime = NULL
+    if (missing(.saveInitialTime)) .saveInitialTime = NULL
+
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
       paramsLocal <- params(sim)
@@ -944,8 +947,11 @@ setMethod("spades",
                     .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
           definition = function(sim, .plotInitialTime, .saveInitialTime) {
             stopifnot(class(sim) == "simList")
+
             if (missing(.plotInitialTime)) .plotInitialTime = NULL
             if (missing(.saveInitialTime)) .saveInitialTime = NULL
-            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime,
+
+            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime ,
                           .saveInitialTime = .saveInitialTime))
 })
+
