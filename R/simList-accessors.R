@@ -2829,7 +2829,7 @@ setMethod(
 
 #' An internal function for coercing a data.frame to inputs()
 #'
-#' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param outputDF A data.frame with partial columns to pass to inputs( ) <-
 #' @param endTime Numeric time. The end(sim).
 #'
 #' @rdname fillOutputRows

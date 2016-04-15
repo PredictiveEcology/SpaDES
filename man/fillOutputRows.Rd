@@ -7,9 +7,9 @@
 .fillOutputRows(outputDF, endTime)
 }
 \arguments{
-\item{endTime}{Numeric time. The end(sim).}
+\item{outputDF}{A data.frame with partial columns to pass to inputs( ) <-}
 
-\item{inputDF}{A data.frame with partial columns to pass to inputs( ) <-}
+\item{endTime}{Numeric time. The end(sim).}
 }
 \description{
 An internal function for coercing a data.frame to inputs()
