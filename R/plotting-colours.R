@@ -148,8 +148,9 @@ setReplaceMethod(
    signature("RasterStack", "numeric", "list"),
    function(object, ..., n, value) {
      i <- which(names(object) %in% names(value))
-     whValNamed <- names(value) %in% names(n)
-     whNNamed <- names(n) %in% names(value)
+     if(length(i)==0) stop("Layer names do not match stack layer names")
+     whValNamed <- names(value)[i] %in% names(n)
+     whNNamed <- names(n) %in% names(value)[i]
      nFull <- n
      if(length(n)!=length(i)) { # not enough n values}
        if(sum(nchar(names(n))==0) > 0) { # are there unnamed ones
@@ -165,7 +166,7 @@ setReplaceMethod(
        if((x %in% i[whValNamed])) {
          setColors(object[[names(value)[x]]], ..., n = nFull[[names(value)[x]]]) <- value[[names(value)[x]]]
        } else {
-         setColors(object[[names(value)[x]]], ...) <- value[[names(value)[x]]]
+         setColors(object[[names(value)[x]]], ..., n = nFull[x]) <- value[[names(value)[x]]]
        }
      }
      return(object)
