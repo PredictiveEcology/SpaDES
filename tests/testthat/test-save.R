@@ -62,6 +62,7 @@ test_that("saving csv files does not work correctly", {
    savePath <- file.path(tempdir(), "test_save")
    on.exit(unlink(savePath, recursive = TRUE))
 
+   tempObj <- 1:10
    tempObj2 <- paste("val",1:10)
    df1 <- data.frame(col1 = tempObj, col2 = tempObj2)
    sim <- simInit(objects=c("tempObj", "tempObj2", "df1"),
