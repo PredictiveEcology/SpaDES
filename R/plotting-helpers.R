@@ -707,7 +707,13 @@ setMethod(
     }
 
     if (is(get(deparse(rev(elems)[[1]]), envir = envs), "simList")) { # If it is a simList
-      changeObjEnv(deparse(elems[[1]]),
+      useElem <- 1
+      if (length(rev(elems)[-1]) > 1) { # If the user is passing a sub-element to say a Raster Stack
+        if (is(get(deparse(rev(elems)[[2]]), envir = envs), "RasterStack")) { # Only Raster Stack implemented yet
+          useElem <- 2
+        }
+      }
+      changeObjEnv(deparse(elems[[useElem]]),
                    fromEnv = envir(get(deparse(rev(elems)[[1]]), envir = envs)),
                    toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     } else { # If it is NOT a simList.

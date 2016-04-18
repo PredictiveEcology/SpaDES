@@ -174,7 +174,7 @@ A module's metadata defines default values for module-specific parameters, and t
 Default parameter values can overridden by passing values in the parameter list to `simInit`.
 
 ```{r passing-params, eval=FALSE, echo=TRUE}
-require(SpaDES)
+library(SpaDES)
 
 outputDir <- file.path(tempdir(), "simOutputs")
 times <- list(start = 0.0, end = 20.0)
@@ -263,7 +263,7 @@ Modules may also include `"save"` and `"plot"` events, though these are optional
 
 ```{r event-functions, echo=TRUE, eval=FALSE}
 ## sample event functions from the default `randomLandscapes` module
-require(raster)
+library(raster)
 randomLandscapesInit <- function(sim) {
   if (is.null(params(sim)$randomLandscapes$inRAM)) {
     inMemory <- FALSE
@@ -316,10 +316,10 @@ Each module appears in a color-coded row, within which each event for that modul
 Note that only the start time of the event is meaningful is these figures: the width of the bar associated with a particular module's event corresponds to the module's timestep unit, not the event's "duration".
 
 ```{r sim-eventDiagram, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-require(igraph) # for %>%
-require(SpaDES)
+library(igraph) # for %>%
+library(SpaDES)
 parameters <- list(
-  .globals = list(stackName="landscape", burnStats="nPixelsBurned"),
+  .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
   .progress = list(NA),
   randomLandscapes = list(nx = 100L, ny = 100L, inRAM = TRUE),
   fireSpread = list(nFires = 10L, spreadprob = 0.225, its = 1e6,
@@ -420,9 +420,9 @@ Note that modules need not be inter-dependent on one another: module B may depen
 To view the dependencies for a simulation:
 
 ```{r module-object-diagrams, eval=TRUE, echo=TRUE, message=FALSE, fig.width=7}
-require(SpaDES)
+library(SpaDES)
 
-times <- list(start=0.0, end=20)
+times <- list(start = 0.0, end = 20)
 parameters <- list(
   .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 )
@@ -579,7 +579,7 @@ There is partial string matching of these names, so if the `fun` requires argume
 
 ```{r load-save, echo=TRUE, eval=TRUE, message=FALSE}
 # initialize a new simulation, setting the load and save parameters
-require(data.table)
+library(data.table)
 
 outputDir <- file.path(tempdir(), "simOutputs")
 mySim <- simInit(times = list(start = 0.0, end = 10),
@@ -593,8 +593,7 @@ mySim <- simInit(times = list(start = 0.0, end = 10),
                  modules = list("randomLandscapes"),
                  paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
                               outputPath = outputDir),
-                 #inputs = data.table(file = filelist),
-                 outputs = data.table(objectName = "landscape")
+                 outputs = data.frame(objectName = "landscape")
 )
 
 # retrieve the load and save params from the simulation object
@@ -611,11 +610,11 @@ clearPlot()
 mySim2 <- spades(mySim)
 
 # More sophisticated, passing arguments to outputs()
-outputs(mySim) <- data.table(
+outputs(mySim) <- data.frame(
   objectName = "landscape", fun = "writeRaster", package = "raster",
-  saveTime = c(3,6), args = lapply(c(3,6), function(x) {
+  saveTime = c(3,6), arguments = I(lapply(c(3,6), function(x) {
     list(dataType = "FLT4S", format = "raster", overwrite = TRUE)
-  }))
+  })))
 mySim2 <- spades(mySim)
 dev.off()
 unlink(ftmp)

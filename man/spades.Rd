@@ -7,17 +7,24 @@
 \alias{spades,simList,missing-method}
 \title{Run a spatial discrete event simulation}
 \usage{
-spades(sim, debug)
+spades(sim, debug, .plotInitialTime, .saveInitialTime)
 
-\S4method{spades}{simList,logical}(sim, debug)
+\S4method{spades}{simList,logical}(sim, debug, .plotInitialTime,
+  .saveInitialTime)
 
-\S4method{spades}{simList,missing}(sim)
+\S4method{spades}{simList,missing}(sim, .plotInitialTime, .saveInitialTime)
 }
 \arguments{
-\item{sim}{Character string for the \code{simList} simulation object.}
+\item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
 will be printed (default is \code{debug=FALSE}).}
+
+\item{.plotInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
+parameter for all modules. See Details.}
+
+\item{.saveInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
+parameter for all modules. See Details.}
 }
 \value{
 Invisibly returns the modified \code{simList} object.
@@ -27,6 +34,19 @@ Based on code from chapter 7.8.3 of Matloff (2011): "Discrete event simulation".
 Here, we implement a simulation in a more modular fashion so it's easier to add
 submodules to the simulation. We use S4 classes and methods, and use `data.table`
 instead of `data.frame` to implement the event queue (because it is much faster).
+}
+\details{
+The is the workhorse function in the SpaDES package. It runs simulations by
+implementing the rules outlined in the \code{simList}.
+
+This function gives simple access to two sets of module parameters:
+\code{.plotInitialTime} and with \code{.plotInitialTime}. The primary use of
+these arguments is to temporarily turn off plotting and saving. "Temporary"
+means that the \code{simList} is not changed, so it can be used again with
+the simList values reinstated. To turn off plotting and saving, use
+\code{.plotInitialTime = NA} or \code{.saveInitialTime = NA}. NOTE: if a
+module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
+these arguments will not do anything.
 }
 \note{
 The debug option is primarily intended to facilitate building simulation
@@ -44,6 +64,10 @@ to the values of various simList slot components.
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
  spades(mySim)
+
+ # Can turn off plotting, and inspect the output simList instead
+ out <- spades(mySim, .plotInitialTime = NA) # much faster
+ completed(out) # shows completed events
 }
 
 }
@@ -51,7 +75,7 @@ to the values of various simList slot components.
 Alex Chubaty
 }
 \references{
-Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
 \seealso{
 \code{\link{simInit}}, \code{\link{SpaDES}}

@@ -28,7 +28,8 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 \item{times}{A named list of numeric simulation start and end times
 (e.g., \code{times = list(start = 0.0, end = 10.0)}).}
 
-\item{params}{A named list of simulation parameters and their values.}
+\item{params}{A list of lists of the form list(moduleName=list(param1=value, param2=value)).
+See details.}
 
 \item{modules}{A named list of character strings specfying the names
 of modules to be loaded for the simulation. Note: the module name
@@ -36,7 +37,7 @@ should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
 \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
-\item{objects}{An optional list of data objects to be used in the simulation.}
+\item{objects}{An optional list of data objects to be passed into the simList.}
 
 \item{paths}{An optional named list with up to 4 named elements,
 \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
@@ -79,6 +80,16 @@ Calling this simInit function does several things including the following:
 - assesses module dependencies via the inputs and outputs identified in their metadata
 - determines time units of modules and how they fit together
 
+\code{params} can only contain updates to any parameters that are defined in
+the metadata of modules. Take the example of a module named, \code{Fire}, which
+has a parameter named \code{.plotInitialTime}. In the metadata of that moduel,
+it says TRUE. Here we can override that default with:
+\code{list(Fire=list(.plotInitialTime=NA))}, effectively turning off plotting. Since
+this is a list of lists, one can override the module defaults for multiple parameters
+from multiple modules all at once, with say:
+\code{list(Fire=list(.plotInitialTime=NA, .plotInterval=2),
+           caribouModule=list(N=1000))}.
+
 We implement a discrete event simulation in a more modular fashion so it is
 easier to add modules to the simulation. We use S4 classes and methods,
 and use \code{data.table} instead of \code{data.frame} to implement the event
@@ -105,6 +116,21 @@ are all needed for initialization.
    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
  spades(mySim)
+
+ # Change more parameters, removing plotting
+ wantPlotting <- FALSE
+ mySim <- simInit(
+   times = list(start = 0.0, end = 2.0, timeunit = "year"),
+   params = list(
+     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+     fireSpread = list(.plotInitialTime=wantPlotting),
+     #caribouMovement = list(.plotInitialTime=wantPlotting),
+     #randomLandscapes = list(.plotInitialTime=wantPlotting)
+   ),
+   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+ )
+ outSim <- spades(mySim)
 
 # A little more complicated with inputs and outputs
  mapPath <- system.file("maps", package = "SpaDES")
@@ -156,7 +182,7 @@ are all needed for initialization.
 Alex Chubaty and Eliot McIntire
 }
 \references{
-Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
 \seealso{
 \code{\link{spades}},

@@ -138,6 +138,16 @@ setMethod(
 #' - assesses module dependencies via the inputs and outputs identified in their metadata
 #' - determines time units of modules and how they fit together
 #'
+#' \code{params} can only contain updates to any parameters that are defined in
+#' the metadata of modules. Take the example of a module named, \code{Fire}, which
+#' has a parameter named \code{.plotInitialTime}. In the metadata of that moduel,
+#' it says TRUE. Here we can override that default with:
+#' \code{list(Fire=list(.plotInitialTime=NA))}, effectively turning off plotting. Since
+#' this is a list of lists, one can override the module defaults for multiple parameters
+#' from multiple modules all at once, with say:
+#' \code{list(Fire=list(.plotInitialTime=NA, .plotInterval=2),
+#'            caribouModule=list(N=1000))}.
+#'
 #' We implement a discrete event simulation in a more modular fashion so it is
 #' easier to add modules to the simulation. We use S4 classes and methods,
 #' and use \code{data.table} instead of \code{data.frame} to implement the event
@@ -156,7 +166,8 @@ setMethod(
 #' @param times A named list of numeric simulation start and end times
 #'        (e.g., \code{times = list(start = 0.0, end = 10.0)}).
 #'
-#' @param params A named list of simulation parameters and their values.
+#' @param params A list of lists of the form list(moduleName=list(param1=value, param2=value)).
+#' See details.
 #'
 #' @param modules A named list of character strings specfying the names
 #' of modules to be loaded for the simulation. Note: the module name
@@ -164,7 +175,7 @@ setMethod(
 #' Example: a module named "caribou" will be sourced form the file
 #' \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
-#' @param objects An optional list of data objects to be used in the simulation.
+#' @param objects An optional list of data objects to be passed into the simList.
 #'
 #' @param paths  An optional named list with up to 4 named elements,
 #' \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
@@ -197,14 +208,14 @@ setMethod(
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
-# @importFrom utils sessionInfo
+#' @importFrom gtools smartbind
 #' @export
 #' @docType methods
 #' @rdname simInit
 #'
 #' @author Alex Chubaty and Eliot McIntire
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{
@@ -217,6 +228,21 @@ setMethod(
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'  spades(mySim)
+#'
+#'  # Change more parameters, removing plotting
+#'  wantPlotting <- FALSE
+#'  mySim <- simInit(
+#'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
+#'    params = list(
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+#'      fireSpread = list(.plotInitialTime=wantPlotting),
+#'      #caribouMovement = list(.plotInitialTime=wantPlotting),
+#'      #randomLandscapes = list(.plotInitialTime=wantPlotting)
+#'    ),
+#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#'  )
+#'  outSim <- spades(mySim)
 #'
 #' # A little more complicated with inputs and outputs
 #'  mapPath <- system.file("maps", package = "SpaDES")
@@ -343,7 +369,8 @@ setMethod(
     # load core modules
     for (c in core) {
       # schedule each module's init event:
-      sim <- scheduleEvent(sim, start(sim), c, "init", .normal())
+      sim <- scheduleEvent(sim, start(sim, unit=timeunit(sim)),
+                           c, "init", .normal())
     }
 
     # assign user-specified non-global params, while
@@ -378,7 +405,7 @@ setMethod(
 
       ### add NAs to any of the dotParams that are not specified by user
       # ensure the modules sublist exists by creating a tmp value in it
-      if(is.null(params(sim)[[m]])) {
+      if (is.null(params(sim)[[m]])) {
         params(sim)[[m]] <- list(.tmp = NA_real_)
       }
 
@@ -429,17 +456,19 @@ setMethod(
 
     if (length(objects)) {
       list2env(objects, envir = envir(sim))
-      inputs(sim) <- bind_rows(list(
-        inputs(sim),
-        data.frame(
-          file = NA_character_,
-          fun = NA_character_,
-          package = NA_character_,
-          objectName = names(objects),
-          loadTime = as.numeric(time(sim, "seconds")),
-          loaded = TRUE,
-          stringsAsFactors = FALSE)
-      ))
+      newInputs <- data.frame(
+        file = NA_character_,
+        fun = NA_character_,
+        package = NA_character_,
+        objectName = names(objects),
+        loadTime = as.numeric(time(sim, "seconds")),
+        loaded = TRUE,
+        stringsAsFactors = FALSE)
+      if (NROW(inputs)) {
+        inputs(sim) <- smartbind(inputs(sim), newInputs)
+      } else {
+        inputs(sim) <- newInputs
+      }
     }
 
     # keep session info for debugging & checkpointing
@@ -566,7 +595,7 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 # igraph exports %>% from magrittr
 setGeneric("doEvent", function(sim, debug) {
@@ -578,64 +607,68 @@ setMethod(
   "doEvent",
   signature(sim = "simList", debug = "logical"),
   definition = function(sim, debug) {
-    if(class(sim)!="simList") {
+    if (class(sim) != "simList") { # use inherits()?
       stop("doEvent can only accept a simList object")
     }
 
     # core modules
     core <- list("checkpoint", "save", "progress", "load")
 
-    if ( NROW(current(sim)) == 0 || any(is.na(current(sim))) ) {
+    cur <- current(sim)
+    if ( NROW(cur) == 0 || any(is.na(cur)) ) {
+      evnts <- events(sim, "second")
       # get next event from the queue and remove it from the queue
-      if (NROW(events(sim))) {
-        current(sim) <- events(sim, "second")[1L,]
-        events(sim) <- events(sim, "second")[-1L,]
+      if (NROW(evnts)) {
+        current(sim) <- evnts[1L,]
+        events(sim) <- evnts[-1L,]
       } else {
         # no more events, return event list of NAs
-        current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+        current(sim) <- .emptyEventListNA
       }
     }
 
     # catches the situation where no future event is scheduled,
     #  but stop time is not reached
-    if (any(is.na(current(sim)))) {
+    cur <- current(sim, "second")
+    if (any(is.na(cur))) {
       time(sim) <- end(sim, "second") + 1
     } else {
-      if (current(sim, "second")$eventTime <= end(sim, "second")) {
+      if (cur$eventTime <= end(sim, "second")) {
         # update current simulated time
-        time(sim) <- current(sim, "second")$eventTime
+        time(sim) <- cur$eventTime
 
         # call the module responsible for processing this event
-        moduleCall <- paste("doEvent", current(sim)$moduleName, sep = ".")
+        moduleCall <- paste("doEvent", cur$moduleName, sep = ".")
 
         # check the module call for validity
-        if (current(sim)$moduleName %in% modules(sim)) {
-          if (current(sim)$moduleName %in% core) {
-              sim <- get(moduleCall)(sim, current(sim)$eventTime,
-                                     current(sim)$eventType, debug)
+        if (cur$moduleName %in% modules(sim)) {
+          if (cur$moduleName %in% core) {
+              sim <- get(moduleCall)(sim, cur$eventTime,
+                                     cur$eventType, debug)
            } else {
               sim <- get(moduleCall,
-                         envir = envir(sim))(sim, current(sim)$eventTime,
-                                             current(sim)$eventType, debug)
+                         envir = envir(sim))(sim, cur$eventTime,
+                                             cur$eventType, debug)
            }
         } else {
           stop(paste("Invalid module call. The module `",
-                     current(sim)$moduleName,
+                     cur$moduleName,
                      "` wasn't specified to be loaded."))
         }
 
         # add to list of completed events
-        if (NROW(completed(sim, "second"))) {
-          completed <- list(completed(sim, "second"), current(sim, "second")) %>%
+        compl <- completed(sim, "second")
+        if (NROW(compl)) {
+          completed <- list(compl, cur) %>%
             rbindlist()
           if (NROW(completed) > getOption("spades.nCompleted")) {
             completed <- tail(completed, n = getOption("spades.nCompleted"))
           }
         } else {
-          completed <- current(sim, "second")
+          completed <- cur
         }
         completed(sim) <- completed
-        current(sim) <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+        current(sim) <- .emptyEventListNA
       } else {
         # update current simulated time and event
         time(sim) <- end(sim) + 1
@@ -685,7 +718,7 @@ setMethod("doEvent",
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{
@@ -710,6 +743,7 @@ setMethod(
   signature(sim = "simList", eventTime = "numeric", moduleName = "character",
             eventType = "character", eventPriority = "numeric"),
   definition = function(sim, eventTime, moduleName, eventType, eventPriority) {
+
     if (length(eventTime)) {
       if (!is.na(eventTime)) {
         # if there is no metadata, meaning for the first
@@ -753,10 +787,11 @@ setMethod(
 
         # if the event list is empty, set it to consist of newEvent and return;
         # otherwise, add newEvent and re-sort (rekey).
-        if (length(events(sim, "second")) == 0L) {
+        evnts <- events(sim, "second")
+        if (NROW(evnts) == 0L) {
           events(sim) <- setkey(newEvent, "eventTime", "eventPriority")
         } else {
-          events(sim) <- rbindlist(list(events(sim, "second"), newEvent)) %>%
+          events(sim) <- rbindlist(list(evnts, newEvent)) %>%
             setkey("eventTime", "eventPriority")
         }
       }
@@ -799,14 +834,34 @@ setMethod(
 #' submodules to the simulation. We use S4 classes and methods, and use `data.table`
 #' instead of `data.frame` to implement the event queue (because it is much faster).
 #'
-#' @param sim Character string for the \code{simList} simulation object.
+#' @param sim A \code{simList} simulation object, generally produced by \code{simInit}.
 #'
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
+#' @param .plotInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
+#'                                  parameter for all modules. See Details.
+#'
+#' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
+#'                                  parameter for all modules. See Details.
+#'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
+#'
+#' @details
+#' The is the workhorse function in the SpaDES package. It runs simulations by
+#' implementing the rules outlined in the \code{simList}.
+#'
+#' This function gives simple access to two sets of module parameters:
+#' \code{.plotInitialTime} and with \code{.plotInitialTime}. The primary use of
+#' these arguments is to temporarily turn off plotting and saving. "Temporary"
+#' means that the \code{simList} is not changed, so it can be used again with
+#' the simList values reinstated. To turn off plotting and saving, use
+#' \code{.plotInitialTime = NA} or \code{.saveInitialTime = NA}. NOTE: if a
+#' module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
+#' these arguments will not do anything.
+#'
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates
@@ -818,7 +873,7 @@ setMethod(
 #'
 #' @author Alex Chubaty
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 #' @examples
 #' \dontrun{
@@ -831,20 +886,48 @@ setMethod(
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'  spades(mySim)
+#'
+#'  # Can turn off plotting, and inspect the output simList instead
+#'  out <- spades(mySim, .plotInitialTime = NA) # much faster
+#'  completed(out) # shows completed events
 #' }
 #'
-setGeneric("spades", function(sim, debug) {
+setGeneric("spades", function(sim, debug, .plotInitialTime, .saveInitialTime) {
     standardGeneric("spades")
 })
 
 #' @rdname spades
 setMethod(
   "spades",
-  signature(sim = "simList", debug = "logical"),
-  definition = function(sim, debug) {
-    envName <- paste("SpaDES", deparse(substitute(sim)), sep = "_")
+  signature(sim = "simList", debug = "logical", .plotInitialTime = "ANY",
+            .saveInitialTime = "ANY"),
+  definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
 
-    while(time(sim, "second") <= end(sim, "second")) {
+    if (missing(.plotInitialTime)) .plotInitialTime = NULL
+    if (missing(.saveInitialTime)) .saveInitialTime = NULL
+
+    if (!is.null(.plotInitialTime)) {
+      if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
+      paramsLocal <- params(sim)
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern = "\\.")
+      paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
+        x$.plotInitialTime <- .plotInitialTime
+        x
+      })
+      params(sim) <- paramsLocal
+    }
+    if (!is.null(.saveInitialTime)) {
+      if (!is.numeric(.saveInitialTime)) .saveInitialTime <- as.numeric(.saveInitialTime)
+      paramsLocal <- params(sim)
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern = "\\.")
+      paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
+        x$.saveInitialTime <- NA_real_
+        x
+      })
+      params(sim) <- paramsLocal
+    }
+
+    while (time(sim, "second") <= end(sim, "second")) {
 
       sim <- doEvent(sim, debug)  # process the next event
 
@@ -860,8 +943,15 @@ setMethod(
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim = "simList", debug = "missing"),
-          definition = function(sim) {
+          signature(sim = "simList", debug = "missing",
+                    .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
+          definition = function(sim, .plotInitialTime, .saveInitialTime) {
             stopifnot(class(sim) == "simList")
-            return(spades(sim, debug = FALSE))
+
+            if (missing(.plotInitialTime)) .plotInitialTime = NULL
+            if (missing(.saveInitialTime)) .saveInitialTime = NULL
+
+            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime ,
+                          .saveInitialTime = .saveInitialTime))
 })
+

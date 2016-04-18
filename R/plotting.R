@@ -46,7 +46,7 @@ setMethod(
 
     env <- list(...)$env
     suppliedNames <- names(plotObjects)
-    if(any(nchar(suppliedNames)==0)) {
+    if (any(nchar(suppliedNames)==0)) {
       suppliedNames <- NULL
     }
     if (is.null(suppliedNames)) {
@@ -221,7 +221,7 @@ setMethod(
 
     whichParamsChanged <- lapply(newNames[overplots], function(x) {
       sapply(names(newSP@spadesGrobList[[x]][[1]]@plotArgs), function(y) {
-        if(!is.null(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]])) {
+        if (!is.null(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]])) {
           !identical(newSP@spadesGrobList[[x]][[1]]@plotArgs[[y]],
                    curr@spadesGrobList[[x]][[1]]@plotArgs[[y]])
         } else {
@@ -513,15 +513,15 @@ setMethod(
       pretty(range(minv, maxv))
     } else {
       if (!is.null(legendText)) {
-        if(NCOL(legendText)>1){ # means it was a factor
-          if(identical(legendText$ID,1:NROW(legendText))) {
-            unique(round(pretty(range(minv, maxv), n=length(levels(legendText[,2])))))
+        if (NCOL(legendText) > 1) { # means it was a factor
+          if (identical(legendText$ID, 1:NROW(legendText))) {
+            unique(round(pretty(range(minv, maxv), n = length(levels(legendText[, 2])))))
           } else {
             legendText$contigValue <- 1:NROW(legendText)
             legendText$contigValue
           }
         } else {
-          unique(round(pretty(range(minv, maxv), n=length(legendText))))
+          unique(round(pretty(range(minv, maxv), n = length(legendText))))
         }
       } else {
         unique(round(pretty(range(minv, maxv))))
@@ -529,7 +529,7 @@ setMethod(
     }
 
     pr <- pr[pr <= maxv & pr >= minv]
-    if(length(pr)==0) pr <- seq(minv, maxv, by=2)
+    if (length(pr) == 0) pr <- seq(minv, maxv, by = 2)
     #maxNumCols = 100
     maxcol <- length(col)
     mincol <- 2
@@ -547,10 +547,9 @@ setMethod(
           name = "raster"
         ),
         if (legend) {
-
-          if(NCOL(legendText)>1) {
+          if (NCOL(legendText) > 1) {
             # for factors
-            colForLegend <- col[rev(legendText$ID+1)]
+            colForLegend <- col[rev(legendText$ID + 1)]
           } else {
             colForLegend <- col[(maxcol):mincol]
           }
@@ -561,15 +560,14 @@ setMethod(
             interpolate = FALSE,
             name = "legend"
           )
-
         },
         if (legend) {
           txt <- if (is.null(legendText)) {
             pr
           } else {
             legendIndex <- pr - min(pr) + 1
-            if(NCOL(legendText)>1){ # for factor legends
-              legendText[legendIndex,2]
+            if (NCOL(legendText) > 1){ # for factor legends
+              legendText[legendIndex, 2]
             } else {
               legendText[legendIndex]
             }
@@ -577,8 +575,8 @@ setMethod(
           textGrob(
             txt,
             x = 1.08,
-            y = if (!real){#(maxv >= 3) { #
-              if(NCOL(legendText)>1){ # factors
+            y = if (!real) {
+              if (NCOL(legendText) > 1) { # factors
                 maxv <- NROW(legendText)
               }
               ((pr - minv) / ((maxv + 1) - minv)) / 2 + 0.25 + 1 /
@@ -644,8 +642,8 @@ setMethod(
     }
     xyOrd <- coordinates(grobToPlot)
 
-    if(!is.null(col)) {
-      if(!is.null(gp)) {
+    if (!is.null(col)) {
+      if (!is.null(gp)) {
         gp$col <- col # Accept col argument
       } else {
         gp <- gpar(col) #
@@ -654,7 +652,7 @@ setMethod(
 
     if (NROW(xyOrd) > 1e3) {
       # thin if greater than 1000 pts
-      if (speedup>0.1) {
+      if (speedup > 0.1) {
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- data.table(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
@@ -695,13 +693,10 @@ setMethod(
     )
     grid.draw(pntGrob)
     return(invisible(pntGrob))
-
   }
 )
 
-##########################################
-
-
+################################################################################
 #' @rdname plotGrob
 #' @importFrom grid polygonGrob
 setMethod(
@@ -751,8 +746,8 @@ setMethod(
 
     xyOrd <- do.call(rbind, lapply(xyOrd.l, function(i) { do.call(rbind, i) }))
 
-    if(!is.null(col)) {
-      if(!is.null(gp)) {
+    if (!is.null(col)) {
+      if (!is.null(gp)) {
         gp$col <- col # Accept col argument
       } else {
         gp <- gpar(col) #
@@ -761,14 +756,14 @@ setMethod(
 
     if (NROW(xyOrd) > 1e3) {
       # thin if fewer than 1000 pts
-      if (speedup>0.1) {
+      if (speedup > 0.1) {
 
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- data.table(
             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
                                  tolerance = speedupScale * speedup)
           )
-          thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
+          thinned[, groups := rep(1:NROW(idLength), idLength$V1)]
           idLength <- thinned[, sum(thin),by = groups]
           xyOrd <- xyOrd[thinned$thin, ]
         } else {
@@ -1396,7 +1391,7 @@ setMethod(
 
     # this covers the case where R thinks that there is nothing, but
     #  there may in fact be something.
-    if (length(ls(.spadesEnv))==0) clearPlot(dev.cur())
+    if (length(ls(.spadesEnv)) == 0) clearPlot(dev.cur())
 
     scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
@@ -1408,8 +1403,8 @@ setMethod(
 #    }
     if (any(isDoCall)) {
       whFrame <- grep(scalls, pattern = "^do.call")
-      plotFrame <- sys.frame(whFrame-1)
-      argsFrame <- sys.frame(whFrame-2)
+      plotFrame <- sys.frame(whFrame - 1)
+      argsFrame <- sys.frame(whFrame - 2)
       dotObjs <- get(as.character(match.call(do.call, call = sys.call(whFrame))$args),
                      envir = plotFrame)
       plotArgs <- mget(names(formals("Plot")[-1]), argsFrame)
@@ -1420,7 +1415,7 @@ setMethod(
       plotArgs <- mget(names(formals("Plot")), plotFrame)[-1]
     }
 
-    if(any(grepl(pattern="col", names(dots)))) {
+    if (any(grepl(pattern = "col", names(dots)))) {
       cols <- dots$col
       plotArgs$cols <- cols
     }
@@ -1447,7 +1442,8 @@ setMethod(
     }
 
     if (!all(canPlot)) {
-      if((sum(canPlot) - length(grep(pattern="col", names(canPlot))))>0) { # don't message if col is passed
+      if ((sum(canPlot) - length(grep(pattern = "col", names(canPlot)))) > 0) {
+        # don't message if col is passed
         message(paste(
           "Plot can only plot objects of class .spadesPlottables.",
           "Use 'showClass(\".spadesPlottables\")' to see current available",
@@ -1462,7 +1458,7 @@ setMethod(
       stop("Not a plottable object")
     }
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
-    if(any(grepl(pattern="col", names(nonPlotArgs)))){
+    if (any(grepl(pattern = "col", names(nonPlotArgs)))){
       nonPlotArgs$col <- NULL
     }
 
@@ -1488,7 +1484,6 @@ setMethod(
     newSpadesPlots <- .makeSpadesPlot(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame
     )
-
 
     if (exists(paste0("spadesPlot", dev.cur()), envir = .spadesEnv)) {
       currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
@@ -1672,7 +1667,7 @@ setMethod(
               # Rasters may be zoomed into and subsampled and have unique legend
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,
-                                   arr, sGrob@plotArgs$speedup, newArr=newArr)
+                                   arr, sGrob@plotArgs$speedup, newArr = newArr)
               zMat <- .makeColorMatrix(grobToPlot, pR$zoom, pR$maxpixels,
                                        pR$legendRange,
                                        na.color = sGrob@plotArgs$na.color,
@@ -1680,7 +1675,7 @@ setMethod(
                                        cols = sGrob@plotArgs$cols,
                                        skipSample = pR$skipSample)
               # Add legendRange if not provided
-              if(is.null(sGrob@plotArgs$legendRange)) {
+              if (is.null(sGrob@plotArgs$legendRange)) {
                 updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs$legendRange <-
                   c(zMat$minz, zMat$maxz)
               }
@@ -1690,24 +1685,26 @@ setMethod(
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               # This handles SpatialPointsDataFrames with column "color"
-              if(any(grepl(pattern="color", names(grobToPlot))) & is.null(cols))
+              if (any(grepl(pattern = "color", names(grobToPlot))) & is.null(cols))
                 sGrob@plotArgs$cols <- grobToPlot@data$color
 
-              zMat <- list(z=grobToPlot, minz=0, maxz=0, cols=sGrob@plotArgs$cols,
-                           real = FALSE)
+              zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
+                           cols = sGrob@plotArgs$cols, real = FALSE)
             } else if (is(grobToPlot, "SpatialPolygons")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <- list(z=z, minz=0, maxz=0, cols=sGrob@plotArgs$cols, real = FALSE)
+              zMat <- list(z = z, minz = 0, maxz = 0,
+                           cols = sGrob@plotArgs$cols, real = FALSE)
 
             } else if (is(grobToPlot, "SpatialLines")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               z <- grobToPlot
-              zMat <- list(z=z, minz=0, maxz=0, cols=sGrob@plotArgs$cols, real = FALSE)
+              zMat <- list(z = z, minz = 0, maxz = 0,
+                           cols = sGrob@plotArgs$cols, real = FALSE)
             }
 
             if (is(grobToPlot, "gg")) {
@@ -1767,8 +1764,8 @@ setMethod(
               }
             } else {
               # Extract legend text if the raster is a factored raster
-              if(is.null(legendText)) {
-                if(is.null(sGrob@plotArgs$legendTxt)) {
+              if (is.null(legendText)) {
+                if (is.null(sGrob@plotArgs$legendTxt)) {
                   if (raster::is.factor(grobToPlot)) {
                     sGrob@plotArgs$legendTxt <- grobToPlot@data@attributes[[1]]#[,2]
                   }
@@ -1777,7 +1774,6 @@ setMethod(
                 sGrob@plotArgs$legendTxt <- legendText
                 updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs$legendTxt <-
                   legendText
-
               }
 
               if (!isBaseSubPlot ) {#| isReplot) {
@@ -1960,7 +1956,7 @@ setMethod(
     zoom <- zoomExtent
     npixels <- ncell(crop(grobToPlot,zoom))
   }
-  if(is.null(legendRange)) {
+  if (is.null(legendRange)) {
 #    if (is.null(legendRange) | ((takeFromPlotObj == FALSE) * !newArr)) {
       legendRange <- NA
 #    }

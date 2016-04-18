@@ -76,7 +76,7 @@ if (getRversion() >= "3.1.0") {
 #' the landscape or a \code{data.table}. If a \code{RasterLayer}, then it represents
 #' every pixel in which a successful spread event occurred. For the case of, say, a fire
 #' this would represent every pixel that burned. If \code{returnIndices} is \code{TRUE},
-#' then this function returns a \code{data.table} with 4 columns:
+#' then this function returns a \code{data.table} with columns:
 #'
 #' \code{indices} is the pixel indices of pixels that have been touched by the spread
 #' algorithm.
@@ -197,7 +197,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'                 0.235, 0, NULL, 1e8, 8, iterations = 2, mapID = TRUE)
 #' fullRas <- raster(hab)
 #' fullRas[] <- 1:ncell(hab)
-#' burned <- fires[active==FALSE]
+#' burned <- fires[active == FALSE]
 #' burnedMap <- rasterizeReduced(burned, fullRas, "eventID", "indices")
 #' Plot(burnedMap, new=TRUE)
 setMethod(
@@ -211,26 +211,26 @@ setMethod(
                         ...) {
 
     spreadStateExists <- is(spreadState, "data.table")
-    if(!is(spreadProbLater, "Raster")) {
-      if(is.na(spreadProbLater)) {
+    if (!is(spreadProbLater, "Raster")) {
+      if (is.na(spreadProbLater)) {
         spreadProbLater <- spreadProb
       }
     }
     ### should sanity check map extents
     if (any(is.na(loci)))  {
       # start it in the centre cell, if there is no spreadState
-      if(!spreadStateExists)
+      if (!spreadStateExists)
         loci <- (nrow(landscape)/2L + 0.5) * ncol(landscape)
     }
 
-    if(spreadStateExists) {
+    if (spreadStateExists) {
       loci <- loci[!(loci %in% spreadState[,indices])] # keep these for later
       initialLoci <- loci
     } else {
       initialLoci <- loci
     }
 
-    if(is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
+    if (is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
       if ( (minValue(spreadProb)>1L) || (maxValue(spreadProb)<0L) ) {
         stop("spreadProb is not a probability")
       }
@@ -242,7 +242,7 @@ setMethod(
       if (!inRange(spreadProbLater)) stop("spreadProbLater is not a probability")
     }
 
-    if(lowMemory) {
+    if (lowMemory) {
       spreads <- ff(vmode = "short", 0, length = ncell(landscape))
     } else {
       spreads <- vector("integer", ncell(landscape))
@@ -261,7 +261,7 @@ setMethod(
       spreadProbLater[is.na(spreadProbLater)] <- 0L
     } else if (is.numeric(spreadProbLater)) {
       # Translate numeric spreadProbLater into a Raster, if there is a mask
-      if(is(mask, "Raster")) {
+      if (is(mask, "Raster")) {
         spreadProbLater <- raster(extent(landscape), res = res(landscape), vals = spreadProbLater)
       }
     }
@@ -272,36 +272,36 @@ setMethod(
       spreadProb[is.na(spreadProb)] <- 0L
     } else if (is.numeric(spreadProb)) {
       # Translate numeric spreadProb into a Raster, if there is a mask
-      if(is(mask, "Raster")) {
+      if (is(mask, "Raster")) {
         spreadProb <- raster(extent(landscape), res = res(landscape), vals = spreadProb)
       }
     }
 
     # Mask spreadProbLater and spreadProb
-    if(is(mask, "Raster")) {
+    if (is(mask, "Raster")) {
       spreadProbLater[mask == 1L] <- 0L
     }
-    if(is(mask, "Raster")) {
+    if (is(mask, "Raster")) {
       spreadProb[mask == 1L] <- 0L
     }
 
-    if(spreadStateExists) {
-      if(sum(colnames(spreadState) %in%
-               c("indices", "eventID", "active", "initialLocus"))==4) {
-        spreads[loci] <- spreads[loci]+spreadState[,max(eventID)] # reassign old ones
-        spreads[spreadState[,indices]] <- spreadState[,eventID]
-        loci <- c(spreadState[active==TRUE, indices], loci) %>% na.omit
+    if (spreadStateExists) {
+      if (sum(colnames(spreadState) %in% c("indices", "eventID", "active", "initialLocus")) == 4) {
+        spreads[loci] <- spreads[loci] + spreadState[, max(eventID)] # reassign old ones
+        spreads[spreadState[,indices]] <- spreadState[, eventID]
+        loci <- c(spreadState[active == TRUE, indices], loci) %>% na.omit()
       } else {
-        stop("spreadState must have at least 4 columns: indices, eventID, active, and initialLocus")
+        stop("spreadState must have at least columns: ",
+             "indices, eventID, active, and initialLocus.")
       }
     }
 
     ## Recycling maxSize as needed
-    if(any(!is.na(maxSize))) {
-      if(spreadStateExists) {
-        sizeAll <- spreadState[,list(len=length(initialLocus)), by=eventID]
-        maxSize <- rep_len(maxSize, length(initialLoci)+NROW(sizeAll))
-        size <- c(sizeAll[,len],rep_len(1L, length(initialLoci)))
+    if (any(!is.na(maxSize))) {
+      if (spreadStateExists) {
+        sizeAll <- spreadState[, list(len = length(initialLocus)), by = eventID]
+        maxSize <- rep_len(maxSize, length(initialLoci) + NROW(sizeAll))
+        size <- c(sizeAll[, len], rep_len(1L, length(initialLoci)))
       } else {
         maxSize <- rep_len(maxSize, length(loci))
         size <- rep_len(1L, length(loci))
@@ -325,41 +325,41 @@ setMethod(
       # keep only neighbours that have not been spread to yet
       potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
 
-      if (n==2) {
+      if (n == 2) {
         spreadProb <- spreadProbLater
       }
 
       if (is.numeric(spreadProb)) {
-        if(n==1 & spreadStateExists){ # need cell specific values
+        if (n == 1 & spreadStateExists) { # need cell specific values
           spreadProbs <- rep(spreadProb, NROW(potentials))
-          prevIndices <- potentials[,1L] %in% spreadState[active==TRUE,indices]
+          prevIndices <- potentials[, 1L] %in% spreadState[active == TRUE, indices]
           spreadProbs[prevIndices] <- spreadProbLater
         } else {
           spreadProbs <- spreadProb
         }
       } else {
-        if(n==1 & spreadStateExists){ # need cell specific values
+        if (n == 1 & spreadStateExists) { # need cell specific values
           spreadProbs <- spreadProb[potentials[, 2L]]
-          prevIndices <- potentials[,1L] %in% spreadState[active==TRUE,indices]
+          prevIndices <- potentials[, 1L] %in% spreadState[active == TRUE, indices]
           spreadProbs[prevIndices] <- spreadProbLater
         } else {
           spreadProbs <- spreadProb[potentials[, 2L]]
         }
       }
 
-      potentials <- potentials[runif(NROW(potentials)) <= spreadProbs,, drop = FALSE]
-      potentials <- potentials[sample.int(NROW(potentials)),, drop = FALSE]
-      potentials <- potentials[!duplicated(potentials[, 2L]),, drop = FALSE]
+      potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
+      potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE]
+      potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
       events <- potentials[, 2L]
 
       # Implement maxSize
 
-      if(length(maxSize) == 1L) {
+      if (length(maxSize) == 1L) {
 
         len <- length(events)
-        if((size+len) > maxSize) {
-          keep <- len - ((size+len) - maxSize)
-          samples <- sample(len,keep)
+        if ((size + len) > maxSize) {
+          keep <- len - ((size + len) - maxSize)
+          samples <- sample(len, keep)
           events <- events[samples]
           potentials <- potentials[samples, , drop = FALSE]
         }
@@ -370,14 +370,13 @@ setMethod(
           whichID <- which(size + len > maxSize)
           toRm <- (size + len)[whichID] - maxSize[whichID]
 
-          for(i in 1:length(whichID)){
+          for (i in 1:length(whichID)) {
             thisID <- which(spreads[potentials[, 1L]] == whichID[i])
             potentials <- potentials[-sample(thisID, toRm[i]), , drop = FALSE]
           }
           events <- potentials[, 2L]
         }
-        size <- pmin(size + len, maxSize) ## Quick? and dirty,
-                                          ## fast but loose (too flexible)
+        size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
       }
 
       # increment iteration
@@ -391,14 +390,14 @@ setMethod(
         }
       }
 
-      if(length(maxSize) > 1L){
-        if(exists("whichID")){
+      if (length(maxSize) > 1L) {
+        if (exists("whichID")) {
           events <- events[!spreads[events] %in% whichID]
           rm(whichID)
         }
 
       } else {
-        if(size >= maxSize) {
+        if (size >= maxSize) {
           events <- NULL
         }
       }
@@ -417,49 +416,55 @@ setMethod(
 
       loci <- c(loci, events)
 
-      if (plot.it){
+      if (plot.it) {
         plotCur <- raster(landscape)
-        plotCur <- setValues(plotCur,spreads)
+        plotCur <- setValues(plotCur, spreads)
         Plot(plotCur, ...)
       }
     }
 
     # Convert the data back to raster
-    if(lowMemory){
-      wh <- ffwhich(spreads, spreads>0) %>% as.ram
-      if(returnIndices) {
-        completed <-
-          data.table(indices = wh, eventID = spreads[wh], active = FALSE)
-        if(NROW(potentials)>0)
-          active <-
-            data.table(indices=potentials[,2L],eventID=spreads[potentials[,1L]], active=TRUE)
-        else
-          active <- data.table(indices=numeric(0), eventID=numeric(0), active=logical(0))
+    if (lowMemory){
+      wh <- ffwhich(spreads, spreads > 0) %>% as.ram
+      if (returnIndices) {
+        completed <- data.table(indices = wh, eventID = spreads[wh], active = FALSE)
+        if (NROW(potentials) > 0) {
+          active <- data.table(indices = potentials[, 2L],
+                               eventID = spreads[potentials[, 1L]],
+                               active = TRUE)
+        } else {
+          active <- data.table(indices = numeric(0), eventID = numeric(0),
+                               active = logical(0))
+        }
       }
     } else {
-      wh <- spreads>0
-      if(returnIndices) {
+      wh <- spreads > 0
+      if (returnIndices) {
         completed <- which(wh) %>%
           data.table(indices = ., eventID = spreads[.], active = FALSE)
-        if(NROW(potentials)>0)
-          active <-
-            data.table(indices=potentials[,2L],eventID=spreads[potentials[,1L]], active=TRUE)
-        else
-          active <- data.table(indices=numeric(0), eventID=numeric(0), active=logical(0))
+        if (NROW(potentials) > 0) {
+          active <- data.table(indices = potentials[, 2L],
+                               eventID = spreads[potentials[, 1L]],
+                               active = TRUE)
+        } else {
+          active <- data.table(indices = numeric(0), eventID = numeric(0),
+                               active = logical(0))
+        }
       }
     }
 
-    if(returnIndices) {
+    if (returnIndices) {
       allCells <- rbindlist(list(completed, active))
       initEventID <- allCells[indices %in% initialLoci, eventID]
-      if(!all(is.na(initialLoci))) {
-        dtToJoin <- data.table(eventID=sort(initEventID), initialLocus=initialLoci)
+      if (!all(is.na(initialLoci))) {
+        dtToJoin <- data.table(eventID = sort(initEventID), initialLocus = initialLoci)
       } else {
-        dtToJoin <- data.table(eventID=numeric(0), initialLocus=numeric(0))
+        dtToJoin <- data.table(eventID = numeric(0), initialLocus = numeric(0))
       }
-      if(spreadStateExists) {
-        spreadStateInitialLoci <- spreadState[,list(eventID=unique(eventID), initialLocus=unique(initialLocus))]
-        dtToJoin <- rbindlist(list(spreadStateInitialLoci,dtToJoin))
+      if (spreadStateExists) {
+        spreadStateInitialLoci <- spreadState[, list(eventID = unique(eventID),
+                                                     initialLocus = unique(initialLocus))]
+        dtToJoin <- rbindlist(list(spreadStateInitialLoci, dtToJoin))
       }
       setkey(dtToJoin, eventID)
       setkey(allCells, eventID)
@@ -471,9 +476,9 @@ setMethod(
     spre <- raster(landscape)
     spre[] <- 0
     spre[wh] <- spreads[wh]
-    if(exists("potentials"))
-      if(NROW(potentials)>0)
-        spre[potentials[,1L]] <- spreads[potentials[,2L]]
+    if (exists("potentials"))
+      if (NROW(potentials) > 0)
+        spre[potentials[, 1L]] <- spreads[potentials[, 2L]]
     return(spre)
   }
 )

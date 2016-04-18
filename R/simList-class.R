@@ -1,4 +1,58 @@
 ################################################################################
+#' Create empty fileTable for inputs and outputs
+#'
+#' Internal functions.
+#' Returns an empty fileTable to be used with inputs and outputs.
+#'
+#' @param x  Not used (should be missing)
+#'
+#' @return An empty data.frame with structure needed for input/output fileTable.
+#'
+#' @docType methods
+#' @rdname fileTable
+#'
+setGeneric(".fileTableIn", function(x) {
+  standardGeneric(".fileTableIn")
+})
+
+#' @rdname fileTable
+setMethod(
+  ".fileTableIn",
+  signature = "missing",
+  definition = function() {
+    ft <- data.frame(
+      file = character(0), fun = character(0), package = character(0),
+      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
+      arguments = I(list()), intervals = numeric(0), stringsAsFactors = FALSE
+    )
+    return(ft)
+  })
+
+#' @rdname fileTable
+.fileTableInCols <- colnames(.fileTableIn())
+
+#' @rdname fileTable
+setGeneric(".fileTableOut", function(x) {
+  standardGeneric(".fileTableOut")
+})
+
+#' @rdname fileTable
+setMethod(
+  ".fileTableOut",
+  signature = "missing",
+  definition = function() {
+    ft <- data.frame(
+      file = character(0), fun = character(0), package = character(0),
+      objectName = character(0), saveTime = numeric(0), saved = logical(0),
+      arguments = I(list()), stringsAsFactors = FALSE
+    )
+    return(ft)
+  })
+
+#' @rdname fileTable
+.fileTableOutCols <- colnames(.fileTableOut())
+
+################################################################################
 #' The \code{simList} class
 #'
 #' Contains the minimum components of a \code{SpaDES} simulation.
@@ -85,7 +139,7 @@
 #' @rdname simList-class
 #' @importFrom data.table as.data.table data.table
 #'
-#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+#' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
 #' @author Alex Chubaty and Eliot McIntire
 #'
@@ -102,31 +156,27 @@ setClass(
       .checkpoint = list(interval = NA_real_, file = NULL),
       .progress = list(type = NULL, interval = NULL)
     ),
-    events = .emptyEventList(),
-    current = .emptyEventList(),
-    completed = .emptyEventList(),
+    events = .emptyEventListObj,
+    current = .emptyEventListObj,
+    completed = .emptyEventListObj,
     depends = new(".simDeps", dependencies = list(NULL)),
     simtimes = list(
       current = 0.00, start = 0.00, end = 1.00, timeunit = NA_character_
     ),
-    inputs = data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
-      arg = list(NULL)
-    ),
-    outputs = as.data.frame(NULL),
+    inputs = .fileTableIn(),
+    outputs = .fileTableOut(),
     paths = list(modulePath = "./", inputPath = "./", outputPath = "./")
   ),
   validity = function(object) {
     # check for valid sim times
     if (is.na(object@simtimes$end)) {
-     stop("simulation end time must be specified.")
+      stop("simulation end time must be specified.")
     } else {
-     if (object@simtimes$start >= object@simtimes$end) {
-       stop("simulation start time should occur before end time.")
-     }
+      if (object@simtimes$start > object@simtimes$end) {
+        stop("simulation end time cannot be before start time.")
+      }
     }
-})
+  })
 
 ################################################################################
 #' @inheritParams .simList
@@ -175,7 +225,9 @@ setClass("simList_",
 
 setAs(from = "simList_", to = "simList", def = function(from) {
   x <- as(as(from, ".simList"), "simList")
-  x@.envir <- as.environment(from@.list)
+  #x@.envir <- as.environment(from@.list)
+  x@.envir <- new.env(new.env(parent = emptyenv()))
+  list2env(from@.list, envir=x@.envir)
   return(x)
 })
 
@@ -201,4 +253,4 @@ setMethod("initialize",
           definition=function(.Object) {
             .Object@.envir <- new.env(parent = .GlobalEnv)
             return(.Object)
-})
+          })

@@ -53,6 +53,8 @@ if (getRversion() >= "3.1.0") {
 #' @param torus Logical. Should the spread event wrap around to the other side of the raster.
 #' Default is FALSE.
 #'
+#' @param id numeric If not NULL, then function will return "id" column. Default NULL.
+#'
 #' @return a matrix of one or two columns, from and to.
 #'
 #' @seealso \code{\link[raster]{adjacent}}
@@ -80,7 +82,7 @@ if (getRversion() >= "3.1.0") {
 adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     include = FALSE, target = NULL, numCol = NULL, numCell = NULL,
                     match.adjacent = FALSE, cutoff.for.data.table = 1e4,
-                    torus = FALSE) {
+                    torus = FALSE, id = NULL) {
   to = NULL
   J = NULL
   if ((length(cells)<cutoff.for.data.table)) {
@@ -106,17 +108,21 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
           adj <- cbind(from = rep.int(cells,times = 9),
                        to = c(as.integer(cells), topl, lef, botl,
                               topr, rig, botr, top, bot))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 9))
         } else {
           adj = cbind(from = rep.int(cells, times = 8),
                     to = c(topl, lef, botl, topr, rig, botr, top, bot))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 8))
         }
       } else {
         if (include){
           adj = cbind(from = rep.int(cells, times = 9),
                     to = c(topl, top, topr, lef, as.integer(cells), rig, botl, bot, botr))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 9))
         }else{
           adj = cbind(from = rep.int(cells, times = 8),
                     to = c(topl, top, topr, lef, rig, botl, bot, botr))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 8))
         }
       }
     } else if (directions == 4) {
@@ -129,17 +135,21 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(as.integer(cells), lef, rig, top, bot))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
         } else {
           adj <- cbind(from = rep.int(cells, times = 4),
                        to = c(lef, rig, top, bot))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
         }
       } else {
         if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(top, lef, as.integer(cells), rig, bot))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
         } else {
           adj <- cbind(from = rep.int(cells, times = 4),
                        to = c(top, lef, rig, bot))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
         }
       }
     } else if (directions == "bishop") {
@@ -148,19 +158,25 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       botl <- as.integer(cells+numCol-1)
       botr <- as.integer(cells+numCol+1)
       if (match.adjacent) {
-        if (include)
+        if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(as.integer(cells), topl, botl, topr, botr))
-        else
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
+        } else {
           adj <- cbind(from = rep.int(cells, times = 4),
                        to = c(topl, botl, topr, botr))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
+        }
       } else {
-        if (include)
+        if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(topl, topr, as.integer(cells), botl, botr))
-        else
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
+        } else {
           adj  <- cbind(from = rep.int(cells, times = 4),
                         to = c(topl, topr, botl, botr))
+          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
+        }
       }
     } else {
       stop("directions must be 4 or 8 or \'bishop\'")
@@ -224,23 +240,29 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       bot <- as.integer(cells+numCol)
       botr <- as.integer(cells+numCol+1)
       if (match.adjacent) {
-        if (include)
+        if (include) {
           adj <- data.table(from = rep.int(cells, times = 9),
                             to = c(as.integer(cells), topl, lef, botl,
                                    topr, rig, botr, top, bot))
-        else
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 9)]
+        } else {
           adj <- data.table(from = rep.int(cells, times = 8),
                             to = c(topl, lef, botl, topr, rig, botr, top, bot))
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 8)]
+        }
       } else {
-        if (include)
+        if (include) {
           adj <- data.table(from = rep.int(cells, times = 9),
                             to = c(topl, top, topr, lef, as.integer(cells),
                                    rig, botl, bot, botr),
                             key = "from")
-        else
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 9)]
+        } else {
           adj <- data.table(from = rep.int(cells, times = 8),
                             to = c(topl, top, topr, lef, rig, botl, bot, botr),
                             key = "from")
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 8)]
+        }
       }
     } else if (directions == 4) {
       # determine the indices of the 4 surrounding cells of the cells cells
@@ -249,21 +271,27 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       rig <- as.integer(cells+1)
       bot <- as.integer(cells+numCol)
       if (match.adjacent) {
-        if (include)
+        if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(as.integer(cells), lef, rig, top, bot))
-        else
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+        } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(lef, rig, top, bot))
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+        }
       } else {
-        if (include)
+        if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(top, lef, as.integer(cells), rig, bot),
                             key = "from")
-        else
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+        } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(top, lef, rig, bot),
                             key = "from")
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+        }
       }
     } else if (directions == "bishop") {
       topl <- as.integer(cells-numCol-1)
@@ -271,21 +299,27 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       botl <- as.integer(cells+numCol-1)
       botr <- as.integer(cells+numCol+1)
       if (match.adjacent) {
-        if (include)
+        if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(as.integer(cells), topl, botl, topr, botr))
-        else
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+        } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(topl, botl, topr, botr))
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+        }
       } else {
-        if (include)
+        if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(topl, topr, as.integer(cells), botl, botr),
                             key = "from")
-        else
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+        } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(topl, topr, botl, botr),
                             key = "from")
+          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+        }
       }
     } else {
       stop("directions must be 4 or 8 or \'bishop\'")
@@ -418,10 +452,10 @@ cir <- function(spatialPoints, radii, raster, simplify = TRUE) {
   #coords.all.ind <- DT[, list(x, y, ids)]
 
   # extract the pixel IDs under the points
-  DT[, pixIDs:=cellFromXY(raster, DT[, list(x, y)])]
-  DT[, rasterVal:=extract(raster, pixIDs)]
+  DT[, pixIDs := cellFromXY(raster, DT[, list(x, y)])]
+  DT[, rasterVal := extract(raster, pixIDs)]
 
-  if(simplify){
+  if (simplify) {
     setkey(DT, "pixIDs")
     DT <- unique(DT) %>% na.omit
   }
@@ -493,10 +527,10 @@ setMethod(
   "wrap",
   signature(X = "matrix", bounds = "Extent", withHeading = "missing"),
   definition = function(X, bounds) {
-    if(identical(colnames(X), c("x", "y"))) {
+    if (identical(colnames(X), c("x", "y"))) {
       return(cbind(
-        x = (X[, "x"]-bounds@xmin) %% (bounds@xmax-bounds@xmin) + bounds@xmin,
-        y = (X[, "y"]-bounds@ymin) %% (bounds@ymax-bounds@ymin) + bounds@ymin
+        x = (X[, "x"] - bounds@xmin) %% (bounds@xmax - bounds@xmin) + bounds@xmin,
+        y = (X[, "y"] - bounds@ymin) %% (bounds@ymax - bounds@ymin) + bounds@ymin
       ))
     } else {
       stop("When X is a matrix, it must have 2 columns, x and y,",
@@ -540,7 +574,7 @@ setMethod(
   "wrap",
   signature(X = "matrix", bounds = "matrix", withHeading = "missing"),
   definition = function(X, bounds) {
-    if(identical(colnames(bounds), c("min", "max")) &
+    if (identical(colnames(bounds), c("min", "max")) &
          (identical(rownames(bounds), c("s1", "s2")))) {
       X <- wrap(X, bounds = extent(bounds))
       return(X)

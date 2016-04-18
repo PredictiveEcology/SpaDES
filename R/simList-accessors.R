@@ -36,9 +36,10 @@ setMethod(
 
     ### modules loaded
     out[[8]] <- capture.output(cat(">> Modules:\n"))
+    ord <- match(unlist(modules(object)), names(timeunits(object))) %>% na.omit
     out[[9]] <- capture.output(print(
       cbind(Name = modules(object),
-            Timeunit = c(rep(NA_character_, 4), unname(timeunits(object)))),
+            Timeunit = c(rep(NA_character_, 4), unname(timeunits(object))[ord])),
       quote = FALSE, row.names = FALSE))
     out[[10]] <- capture.output(cat("\n"))
 
@@ -221,8 +222,8 @@ setGeneric("envir<-",
 setReplaceMethod("envir",
                  signature = "simList",
                  function(object, value) {
+                   if (!is.environment(value)) stop("Must be an environment")
                    object@.envir <- value
-                   validObject(object)
                    return(object)
 })
 
@@ -328,7 +329,6 @@ setMethod("[[", signature(x = "simList", i = "ANY", j = "ANY"),
 setReplaceMethod("[[", signature(x = "simList", value = "ANY"),
                  definition = function(x, i, value) {
                    assign(i, value, envir = x@.envir, inherits = FALSE)
-                   validObject(x)
                    return(x)
 })
 
@@ -348,7 +348,6 @@ setMethod("$", signature(x = "simList"),
 setReplaceMethod("$", signature(x = "simList", value = "ANY"),
                  definition = function(x, name, value) {
                    x@.envir[[name]] <- value
-                   validObject(x)
                    return(x)
 })
 
@@ -416,7 +415,7 @@ setReplaceMethod("modules",
                    object@modules <- value
                    validObject(object)
                    return(object)
- })
+})
 
 ################################################################################
 #' @inheritParams modules
@@ -461,6 +460,9 @@ setReplaceMethod("depends",
 #' the active module calling functions like \code{scheduleEvent}.
 #' This will only return the module name if it is inside a \code{spades}
 #' function call, i.e., it will return \code{NULL} if used in interactive mode.
+#' The related function \code{currentModule} is simply a rapid accessor for the
+#' current module name. This latter will return the module that is in the current
+#' event queue, which will never be \code{NULL}
 #'
 #' @inheritParams modules
 #' @include simList-class.R
@@ -497,6 +499,27 @@ setMethod(
     #}
     return(mod)
 })
+
+
+#' @inheritParams modules
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-modules
+#' @author Eliot McIntire
+setGeneric("currentModule", function(object) {
+  standardGeneric("currentModule")
+})
+
+#' @rdname simList-accessors-events
+#' @export
+setMethod(
+  "currentModule",
+  signature = c(".simList"),
+  definition = function(object) {
+    object@current$module
+})
+
 
 ################################################################################
 #' Get and set simulation parameters.
@@ -790,82 +813,70 @@ setReplaceMethod("progressType",
                    return(object)
 })
 
-################################################################################
-#' Create empty fileTable for inputs and outputs
-#'
-#' Internal functions.
-#' Returns an empty fileTable to be used with inputs and outputs.
-#'
-#' @param x  Not used (should be missing)
-#'
-#' @return An empty data.frame with structure needed for input/output fileTable.
-#'
-#' @docType methods
-#' @rdname fileTable
-#'
-setGeneric(".fileTableIn", function(x) {
-  standardGeneric(".fileTableIn")
-})
-
-#' @rdname fileTable
-setMethod(
-  ".fileTableIn",
-  signature = "missing",
-  definition = function() {
-    ft <- data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), loadTime = numeric(0), loaded = logical(0),
-      stringsAsFactors = FALSE
-    )
-    return(ft)
-})
-
-#' @rdname fileTable
-setGeneric(".fileTableOut", function(x) {
-  standardGeneric(".fileTableOut")
-})
-
-#' @rdname fileTable
-setMethod(
-  ".fileTableOut",
-  signature = "missing",
-  definition = function() {
-    ft <- data.frame(
-      file = character(0), fun = character(0), package = character(0),
-      objectName = character(0), saveTime = numeric(0), saved = logical(0),
-      stringsAsFactors = FALSE
-    )
-    return(ft)
-})
 
 ################################################################################
 #' Inputs and outputs
-#'
-#' Accessor functions for the \code{inputs} and \code{outputs} slots in a
-#' \code{simList} object.
 #'
 #' These functions are one of two mechanisms to add the information about which
 #' input files to load in a \code{spades} call and the information about which
 #' output files to save.
 #' The other way is to pass them as arguments to a \code{simInit} call.
 #'
-#' Currently, only get and set methods are defined. Subset methods are not.
+#' Accessor functions for the \code{inputs} and \code{outputs} slots in a
+#' \code{simList} object.
 #'
-#' @details \code{inputs} accepts a data.frame, with 6 columns.
-#' Currently, only one is required.
+#' @section inputs:
+#'
+#' \code{inputs} accepts a data.frame, with up to 7 columns.
+#' Columns are:
+#'
+#' \tabular{ll}{
+#' \code{file} \tab required, a character string indicating the file path. There is no
+#' default.\cr
+#'
+#' \code{objectName} \tab optional, character string indicating the name of the object
+#' that the loaded file will be assigned to in the \code{simList}. This object
+#' can therefore be accessed with \code{sim$xxx} in any module, where
+#' \code{objectName = "xxx"}. Defaults to the filename without file extension or
+#' directory information.\cr
+#'
+#' \code{fun} \tab optional, a character string indicating the function to use to
+#' load that file. Defaults to the known extentions in \code{SpaDES} (found by
+#' examining \code{.fileExtensions()}). The \code{package} and \code{fun} can be
+#' jointly specified here as \code{"packageName::functionName"}, e.g.,
+#' \code{"raster::raster"}.\cr
+#'
+#' \code{package} \tab optional character string indicating the package in
+#' which to find the \code{fun});\cr
+#'
+#' \code{loadTime} \tab optional numeric, indicating when in simulation time the file
+#' should be loaded. The default is the highest priority at \code{start(sim)},
+#' i.e., at the very start. \cr
+#'
+#' \code{interval} \tab optional numeric, indicating at what interval should this same
+#' exact file  be reloaded from disk, e.g,. 10 would mean every 10 time units. The
+#' default is NA or no interval, i.e, load the file only once as described in
+#' \code{loadTime} \cr
+#'
+#' \code{arguments} \tab is a list of lists of named arguments, one list for each
+#' \code{fun}. For example, if \code{fun="raster"}, \code{arguments = list(native = TRUE)}
+#' will pass the argument "native = TRUE" to raster.  If there is only one list,
+#' then it is assumed to apply to all files and will be recycled as per normal R
+#' rules of recycling for each \code{fun}.\cr
+#'
+#' }
+#'
+#' Currently, only \code{file} is required. All others will be filled with defaults
+#' if not specified.
+#'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
-#' Columns are \code{objectName} (required, character),
-#' \code{file} (character),
-#' \code{fun} (character),
-#' \code{package} (character),
-#' \code{interval} (numeric),
-#' and \code{loadTime} (numeric).
 #'
 #' @param object A \code{simList} simulation object.
 #'
 #' @param value The object to be stored at the slot.
 #'
-#' @return Returns or sets the value of the slot from the \code{simList} object.
+#' @return Returns or sets the value(s) of the \code{input} or \code{output} slots
+#' in the \code{simList} object.
 #'
 #' @seealso \code{\link{simList-class}},
 #'          \code{\link{simList-accessors-modules}},
@@ -878,7 +889,6 @@ setMethod(
 #'
 #' @include simList-class.R
 #' @importFrom data.table is.data.table
-#' @importFrom dplyr bind_rows
 #' @importFrom stats na.omit
 #' @export
 #' @docType methods
@@ -893,22 +903,47 @@ setMethod(
 #' test <- 1:10
 #' tmpFile <- file.path(tempdir(), "test.rds")
 #' saveRDS(test, file=tmpFile)
-#' inputs(sim) <- data.frame(file = tmpFile)
+#' inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 #' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
-#' sim <- spades(sim)
-#' inputs(sim) # confirm it was loaded
+#' simOut <- spades(sim)
+#' inputs(simOut) # confirm it was loaded
+#' simOut$test
 #'
 #' # can put data.frame for inputs directly inside simInit call
+#' allTifs <- dir(system.file("maps", package = "SpaDES"),
+#'                full.names = TRUE, pattern = "tif")
+#'
+#' # next: objectNames are taken from the filenames (without the extension)
+#' # This will load all 5 tifs in the SpaDES sample directory, using
+#' #   the raster fuction in the raster package, all at time = 0
 #' sim <- simInit(
 #'    inputs = data.frame(
-#'      files = dir(file.path(tmpFile), full.names = TRUE, pattern = "tif")[1:2],
+#'      files = allTifs,
 #'      functions = "raster",
 #'      package = "raster",
-#'      loadTime = 3,
+#'      loadTime = 0,
 #'      stringsAsFactors = FALSE)
 #'    )
-
-#' sim$test
+#'
+#' ##############################
+#' #A fully described inputs object, including arguments:
+#' files = dir(system.file("maps", package = "SpaDES"),
+#'             full.names = TRUE, pattern = "tif")
+#' # arguments must be a list of lists. This may require I() to keep it as a list
+#' #   once it gets coerced into the data.frame.
+#' arguments = I(rep(list(native = TRUE), length(files)))
+#' filelist = data.frame(
+#'    objectName = paste0("Maps",1:5),
+#'    files = files,
+#'    functions = "raster::raster",
+#'    arguments = arguments,
+#'    loadTime = 0,
+#'    intervals = c(rep(NA, length(files)-1), 10)
+#' )
+#' inputs(sim) <- filelist
+#' spades(sim)
+#'
+#'
 #' # Clean up after
 #' file.remove(tmpFile)
 setGeneric("inputs", function(object) {
@@ -920,7 +955,27 @@ setGeneric("inputs", function(object) {
 setMethod("inputs",
           signature = ".simList",
           definition = function(object) {
-            return(object@inputs)
+
+            simUnit <- timeunit(object)
+            loadTimeUnit <- attr(object@inputs$loadTime, "unit")
+            if (is.null(loadTimeUnit)) loadTimeUnit <- simUnit
+            out <- if (is.na(pmatch(loadTimeUnit, simUnit)) & (length(object@inputs$loadTime)>0)) {
+              #note the above line captures empty loadTime,
+              # whereas is.na does not
+              if (any(!is.na(object@inputs$loadTime))) {
+                if (!is.null(object@inputs$loadTime)) {
+                  obj <- data.table::copy(object@inputs) # don't change original object
+                  obj[,loadTime:=convertTimeunit(loadTime, unit, envir(object))]
+                  obj[]
+                }
+              } else {
+                object@inputs
+              }
+            } else {
+              object@inputs
+            }
+
+            return(out)
 })
 
 #' @export
@@ -939,35 +994,41 @@ setReplaceMethod(
   signature = ".simList",
   function(object, value) {
    if (length(value)>0) {
+     whFactors <- sapply(value, function(x) is.factor(x))
+     if (any(whFactors)) {
+       value[,whFactors] <- sapply(value[,whFactors], as.character)
+     }
+
      if (!is.data.frame(value)) {
        if (!is.list(value)) {
          stop("inputs must be a list, data.frame")
        }
-       # pull out any "arguments" that will be passed to input functions
-#       if (any(stri_detect_fixed(pattern = "arg", names(value)))) {
-#         inputArgs(object) <- rep(value$arg, length.out=length(value$files))
-#         value <- value[-pmatch("arg", names(value))]
-#       }
         value <- data.frame(value, stringsAsFactors = FALSE)
      }
-     fileTable <- .fileTableIn()
-     columns <- pmatch(names(fileTable), names(value))
-     setnames(value, old = colnames(value)[na.omit(columns)],
-                     new = colnames(fileTable)[!is.na(columns)])
-     object@inputs <- bind_rows(list(value, fileTable)) %>%
-       as.data.frame(stringsAsFactors = FALSE)
-     #object@inputs$file <- file.path(inputPath(object),object@inputs$file)
+#      fileTable <- .fileTableIn()
+#      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
+#      if (any(needRenameArgs)) {
+#        colnames(value)[needRenameArgs] <-
+#          .fileTableInCols[pmatch("arg", .fileTableInCols)]
+#      }
+#      columns <- pmatch(names(fileTable), names(value))
+#      setnames(value, old = colnames(value)[na.omit(columns)],
+#                      new = colnames(fileTable)[!is.na(columns)])
+#      columns2 <- pmatch(names(value), names(fileTable))
+#      object@inputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
+#      if (any(is.na(columns))) {
+#        object@inputs[,names(fileTable[,is.na(columns)])] <- NA
+#      }
+     object@inputs <- .fillInputRows(value, start(object))
    } else {
      object@inputs <- value
    }
-
    # Deal with objects and files differently... if files (via inputs arg in simInit)...
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
-   if(NROW(value)>0) {
+   if (NROW(value)>0) {
      object@inputs[is.na(object@inputs$file), "file"] <- NA
-     #  paste0(object@inputs$objectName[is.na(object@inputs$file)])
 
      # If a filename is provided, determine if it is absolute path, if so,
      # use that, if not, then append it to inputPath(object)
@@ -975,6 +1036,10 @@ setReplaceMethod(
        file.path(inputPath(object),
                  object@inputs$file[!isAbsolutePath(object@inputs$file) & !is.na(object@inputs$file)])
 
+     if (!all(names(object@inputs) %in% .fileTableInCols)) {
+       stop(paste("input table can only have columns named",
+                  paste(.fileTableInCols, collapse=", ")))
+     }
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
@@ -992,23 +1057,43 @@ setReplaceMethod(
      }
    }
 
-   validObject(object)
    return(object)
 })
 
 ################################################################################
-#' @details \code{outputs} accepts a data.frame, with 5 columns.
-#' Currently, only \code{objectName} is required. #' Columns are:
-#' \code{objectName} (character, required),
-#' \code{file} (character),
-#' \code{fun} (character),
-#' \code{package} (character),
-#' and \code{saveTime} (numeric).
-#' Defaults:
-#' \code{file} is derived from \code{objectName}, but appending the model timeunit and
-#' \code{saveTime} to the file name (separated by underscore, "_"); \code{fun} is
-#' \code{saveRDS}; \code{package} is \code{base}; \code{interval} is NA (i.e., just once);
-#' \code{saveTime} is \code{end(sim)} time, i.e,. once at the end.
+#' @section outputs:
+#'
+#' \code{outputs} accepts a data.frame similar to the \code{inputs} data.frame, but
+#' with up to 6 columns.
+#'
+#' \tabular{ll}{
+#' \code{objectName} \tab required, character string indicating the name of the object
+#' in the \code{simList} that will be saved to disk (without the \code{sim$} prefix).\cr
+#'
+#' \code{file} \tab optional, a character string indicating the file path to save to.
+#' The default is to concatenate \code{objectName} with the model timeunit and
+#' \code{saveTime}, separated by underscore, "_". So a default filename would be
+#' "Fires_year1.rds"\cr
+#'
+#' \code{fun} \tab optional, a character string indicating the function to use to
+#' save that file. The default is \code{\link{saveRDS}} \cr
+#'
+#' \code{package} \tab optional character string indicating the package in
+#' which to find the \code{fun});\cr
+#'
+#' \code{saveTime} \tab optional numeric, indicating when in simulation time the file
+#' should be saved. The default is the lowest priority at \code{end(sim)},
+#' i.e., at the very end. \cr
+#'
+#' \code{arguments} \tab is a list of lists of named arguments, one list for each
+#' \code{fun}. For example, if \code{fun="write.csv"},
+#' \code{arguments = list(row.names = TRUE)}
+#' will pass the argument "row.names = TRUE" to write.csv  If there is only one list,
+#' then it is assumed to apply to all files and will be recycled as per normal R
+#' rules of recycling for each \code{fun}.\cr
+#'
+#' }
+#'
 #' See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 #'
 #' @note The automatic file type handling only adds the correct extension from a given
@@ -1028,6 +1113,7 @@ setReplaceMethod(
 #' @name outputs
 #' @rdname simList-accessors-inout
 #' @examples
+#' #######################
 #' # outputs
 #' startFiles <- dir(tempdir(), full.names=TRUE)
 #' tmpFile <- file.path(tempdir(), "temp.rds")
@@ -1066,7 +1152,7 @@ setReplaceMethod(
 #' outputs(sim)
 #'
 #' # read one back in just to test it all worked as planned
-#' newObj <- read.csv(dir(tempdir(), pattern=".csv", full.name=TRUE))
+#' newObj <- read.csv(dir(tempdir(), pattern="second10.csv", full.name=TRUE))
 #' newObj
 #'
 #' # using saving with SpaDES-aware methods
@@ -1106,7 +1192,29 @@ setGeneric("outputs", function(object) {
 setMethod("outputs",
           signature = ".simList",
           definition = function(object) {
-            return(object@outputs)
+            simUnit <- timeunit(object)
+            saveTimeUnit <- attr(object@outputs$saveTime, "unit")
+            if (is.null(saveTimeUnit)) saveTimeUnit <- simUnit
+
+            out <- if (is.na(pmatch(saveTimeUnit, simUnit)) & (length(object@outputs$saveTime)>0)) {
+              #note the above line captures empty saveTime,
+              # whereas is.na does not
+              if (any(!is.na(object@outputs$saveTime))) {
+                if (!is.null(object@outputs$saveTime)) {
+                  obj <- data.table::copy(object@outputs) # don't change original object
+                  obj[,saveTime:=convertTimeunit(saveTime, unit, envir(object))]
+                  obj[]
+                  obj
+                }
+              } else {
+                object@outputs
+              }
+            } else {
+              object@outputs
+            }
+
+            return(out)
+
 })
 
 #' @export
@@ -1134,17 +1242,33 @@ setReplaceMethod(
      }
 
      # create a dummy data.frame with correct columns and
-     fileTable <- .fileTableOut()
-     columns <- pmatch(names(fileTable), names(value))
-     setnames(value, old = colnames(value)[na.omit(columns)],
-              new = colnames(fileTable)[!is.na(columns)])
+     #fileTable <- .fileTableOut()
+     #columns <- pmatch(names(fileTable), names(value))
+     #setnames(value, old = colnames(value)[na.omit(columns)],
+     #         new = colnames(fileTable)[!is.na(columns)])
      # Merge
-     object@outputs <- as.data.frame(bind_rows(list(value, fileTable)))
+#      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
+#      if (any(needRenameArgs)) {
+#        colnames(value)[needRenameArgs] <-
+#          .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
+#      }
+#      columns <- pmatch(names(fileTable), names(value))
+#      setnames(value, old = colnames(value)[na.omit(columns)],
+#               new = colnames(fileTable)[!is.na(columns)])
+#      columns2 <- pmatch(names(value), names(fileTable))
+#      browser()
+#      object@outputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
+#
+#      if (any(is.na(columns))) {
+#        object@outputs[,names(fileTable[,is.na(columns)])] <- NA
+#      }
+     object@outputs <- .fillOutputRows(value, end(object))
+
      #object@outputs$file <- file.path(outputPath(object),object@outputs$file)
 
      # coerce any factors to the correct class
      for (col in which(sapply(object@outputs, is.factor))) {
-       object@outputs[,col] <- as(object@outputs[[col]], class(fileTable[[col]]))
+       object@outputs[,col] <- as(object@outputs[[col]], class(.fileTableOut()[[col]]))
      }
 
      # if saveTime not provided, give it end(object)
@@ -1198,7 +1322,9 @@ setReplaceMethod(
      object@outputs <- value
    }
 
-   validObject(object)
+   if (!all(.fileTableOutCols %in% names(object@outputs))) stop(paste("output table must have columns named",
+                                                                     paste(.fileTableOutCols, collapse=", ")))
+
    return(object)
 })
 
@@ -1285,10 +1411,11 @@ setReplaceMethod(
   "outputArgs",
   signature = ".simList",
   function(object, value) {
+    argName <- .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
    if (is.list(value) & !is.data.frame(value)) {
-     object@outputs$arg = value
+     object@outputs[[argName]] = value
    } else if (is.null(value)) {
-     object@outputs$arg = rep(list(NULL), NROW(outputs(object)))
+     object@outputs[[argName]] = rep(list(NULL), NROW(outputs(object)))
    } else {
      stop("value passed to outputArgs() must be a list of named elements")
    }
@@ -1500,10 +1627,13 @@ setReplaceMethod("outputPath",
                  signature = ".simList",
                  function(object, value) {
                    object@paths$outputPath <- unname(unlist(value))
-                   if("saved" %in% colnames(outputs(object))) {
-                     notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
-                     outputs(object)$file[notYetSaved] <-
-                       file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
+                   checkPath(object@paths$outputPath, create=TRUE)
+                   if (NROW(outputs(object))>0) {
+                     if ("saved" %in% colnames(outputs(object))) {
+                       notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
+                       outputs(object)$file[notYetSaved] <-
+                         file.path(object@paths$outputPath, basename(outputs(object)$file[notYetSaved]))
+                     }
                    }
                    validObject(object)
                    return(object)
@@ -1597,6 +1727,7 @@ setReplaceMethod(
 #' @export
 #' @include simList-class.R
 #' @include times.R
+#' @importFrom chron times
 #' @docType methods
 #' @aliases simList-accessors-times
 #' @rdname simList-accessors-times
@@ -1695,7 +1826,7 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
-      if (!str_detect("^seconds?$", pattern = unit)) {
+      if (is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$current, unit, envir(x))
         return(t)
@@ -1723,7 +1854,10 @@ setReplaceMethod(
        attributes(value)$unit <- timeunit(x)
      }
      x@simtimes$current <- convertTimeunit(value, "second", envir(x))
-     validObject(x)
+
+     if (!is.numeric(x@simtimes$current)) stop("time must be a numeric")
+     if (!any(pmatch(.spadesTimes,attr(x@simtimes$current, "unit")))) stop("time must be one of",
+                                                                   paste(.spadesTimes, collapse=", "))
      return(x)
 })
 
@@ -1760,8 +1894,11 @@ setMethod(
   "end",
   signature=c(".simList", "character"),
   definition = function(x, unit) {
+
     if (!is.na(unit)) {
-      if (!str_detect("^seconds?$", pattern = unit)) {
+      if (is.na(pmatch("second", unit))) {
+
+        #if (!str_detect("^seconds?$", pattern = unit)) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$end, unit, envir(x))
         return(t)
@@ -1827,7 +1964,7 @@ setMethod(
   signature = c(".simList","character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
-      if (!str_detect("^seconds?$", pattern = unit)) {
+      if (is.na(pmatch("second", unit))) {
         # i.e., if not in same units as simulation
         t <- convertTimeunit(x@simtimes$start, unit, envir(x))
         return(t)
@@ -1990,13 +2127,20 @@ setMethod(
   "timeunits",
   signature = ".simList",
   definition = function(x) {
-    if(all(sapply(depends(x)@dependencies, is.null))) {
+    isNonParent <- !sapply(depends(x)@dependencies, function(y) {
+      if (!is.null(y)) {
+        length(y@childModules) > 0
+      } else {
+        FALSE
+      }
+    })
+    if (all(sapply(depends(x)@dependencies[isNonParent], is.null))) {
       timestepUnits <- NULL
     } else {
-      timestepUnits <- lapply(depends(x)@dependencies, function(y) {
+      timestepUnits <- lapply(depends(x)@dependencies[isNonParent], function(y) {
         y@timeunit
       })
-      names(timestepUnits) <- sapply(depends(x)@dependencies, function(y) {
+      names(timestepUnits) <- sapply(depends(x)@dependencies[isNonParent], function(y) {
         y@name
       })
     }
@@ -2043,7 +2187,7 @@ setMethod(
 #'
 #' @export
 #' @include simList-class.R
-#' @importFrom data.table ':=' data.table
+#' @importFrom data.table ':=' data.table copy
 #' @importFrom lazyeval interp
 #' @importFrom stats setNames
 #' @docType methods
@@ -2060,17 +2204,25 @@ setMethod(
   "events",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    if (!is.null(object@events$eventTime)) {
-      res <- object@events %>%
-        dplyr::mutate_(.dots = setNames(list(
-          interp(~convertTimeunit(eventTime, unit, envir(object)))
-        ), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when
-                     # events(sim) is invoked. This line brings it back.
+
+    out <- if (is.na(pmatch("second", unit)) & (length(object@events$eventTime)>0)) {
+      #note the above line captures empty eventTime,
+      # whereas is.na does not
+      if (any(!is.na(object@events$eventTime))) {
+        if (!is.null(object@events$eventTime)) {
+          obj <- data.table::copy(object@events) # don't change original object
+          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
+          obj[]
+          obj
+        }
+      } else {
+        object@events
+      }
     } else {
-      res <- object@events
+      object@events
     }
-    return(res)
+
+    return(out)
 })
 
 #' @export
@@ -2097,13 +2249,18 @@ setReplaceMethod(
   "events",
    signature = ".simList",
    function(object, value) {
+     if (!is(value, "data.table")) stop("Event queue must be a data.table")
+     if (!identical(names(value), .emptyEventListCols))
+       stop("Event queue must be a data.table with columns: ",
+            paste(.emptyEventListCols, collapse = ", "), ".")
      if (is.null(attributes(value$eventTime)$unit)) {
        attributes(value$eventTime)$unit <- timeunit(object)
-     } else {
+     }
+     if (is.na(pmatch("second", attributes(value$eventTime)$unit))) {
        value[, eventTime := convertTimeunit(eventTime, "second", envir(object))]
      }
+
      object@events <- value
-     validObject(object)
      return(object)
 })
 
@@ -2127,13 +2284,18 @@ setMethod(
   "current",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@current$eventTime)) {
-      object@current %>%
-        dplyr::mutate_(.dots = setNames(list(
-          interp(~convertTimeunit(eventTime, unit, envir(object)))
-        ), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when
-                     # current(sim) is invoked. This line brings it back.
+    out <- if (is.na(pmatch("second", unit)) & (length(object@current$eventTime))) {
+      # note the above line captures empty eventTime, whereas `is.na` does not
+      if (any(!is.na(object@current$eventTime))) {
+        if (!is.null(object@current$eventTime)) {
+          obj <- data.table::copy(object@current) # don't change original object
+          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
+          obj[]
+          obj
+        }
+      } else {
+        object@current
+      }
     } else {
       object@current
     }
@@ -2163,8 +2325,12 @@ setGeneric("current<-",
 setReplaceMethod("current",
                  signature = ".simList",
                  function(object, value) {
+                   if (!is(value, "data.table")) stop("Event queue must be a data.table")
+                   if (!identical(names(value), .emptyEventListCols)) {
+                     stop("Event queue must be a data.table with columns: ",
+                          paste(.emptyEventListCols, collapse = ", "), ".")
+                   }
                    object@current <- value
-                   validObject(object)
                    return(object)
 })
 
@@ -2188,13 +2354,18 @@ setMethod(
   "completed",
   signature = c(".simList", "character"),
   definition = function(object, unit) {
-    out <- if (!is.null(object@completed$eventTime)) {
-      object@completed %>%
-        dplyr::mutate_(.dots = setNames(list(
-          interp(~convertTimeunit(eventTime, unit, envir(object)))
-        ), "eventTime")) %>%
-        data.table() # dplyr removes something that makes this not print when
-                     # completed(sim) is invoked. This line brings it back.
+    out <- if (is.na(pmatch("second", unit)) & (length(object@completed$eventTime))) {
+      # note the above line captures empty eventTime, whereas `is.na` does not
+      if (any(!is.na(object@completed$eventTime))) {
+        if (!is.null(object@completed$eventTime)) {
+          obj <- data.table::copy(object@completed) # don't change original object
+          obj[, eventTime := convertTimeunit(eventTime, unit, envir(object))]
+          obj[]
+          obj
+        }
+      } else {
+        object@completed
+      }
     } else {
       object@completed
     }
@@ -2224,8 +2395,12 @@ setGeneric("completed<-",
 setReplaceMethod("completed",
                  signature = ".simList",
                  function(object, value) {
+                   if (!is(value, "data.table")) stop("Completed queue must be a data.table")
+                   if (!identical(names(value), .emptyEventListCols)) {
+                     stop("Event queue must be a data.table with columns, ",
+                          paste(.emptyEventListCols, collapse = ", "), ".")
+                   }
                    object@completed <- value
-                   validObject(object)
                    return(object)
 })
 
@@ -2259,10 +2434,10 @@ setMethod(
   definition = function(sim, x) {
     deps <- depends(sim)
     n <- length(deps@dependencies)
-    if (n==1L) {
+    if (n == 1L) {
       if (is.null(deps@dependencies[[1L]])) n <- 0L
     }
-    deps@dependencies[[n+1L]] <- x
+    deps@dependencies[[n + 1L]] <- x
     dupes <- which(duplicated(deps@dependencies))
     if (length(dupes)) deps@dependencies <- deps@dependencies[-dupes]
     depends(sim) <- deps
@@ -2296,11 +2471,7 @@ setMethod(
   definition = function(sim) {
     pkgs <- lapply(depends(sim)@dependencies, function(x) {
         x@reqdPkgs
-      }) %>%
-      unlist %>%
-      append("SpaDES") %>%
-      unique %>%
-      sort
+      }) %>% unlist() %>% append("SpaDES") %>% unique() %>% sort()
     return(pkgs)
 })
 
@@ -2380,7 +2551,7 @@ setMethod(
 
     ## enforce/coerce types for the user-supplied param list
     lapply(c("name", "description", "keywords"), function(z) {
-      x[[z]] <<- if ( is.null(x[[z]]) || (length(x[[z]])==0) ) {
+      x[[z]] <<- if ( is.null(x[[z]]) || (length(x[[z]]) == 0) ) {
         NA_character_
       } else {
         as.character(x[[z]])
@@ -2594,3 +2765,127 @@ setMethod(
       paramDesc = character(0), stringsAsFactors = FALSE)
     return(df)
 })
+
+#' An internal function for coercing a data.frame to inputs()
+#'
+#' @param inputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param startTime Numeric time. The start(sim).
+#'
+#' @rdname fillInputRows
+.fillInputRows <- function(inputDF, startTime) {
+
+  fileTable <- .fileTableInCols
+  needRenameArgs <- grepl(names(inputDF), pattern="arg[s]?$")
+  if (any(needRenameArgs)) {
+    colnames(inputDF)[needRenameArgs] <-
+      .fileTableInCols[pmatch("arg", .fileTableInCols)]
+  }
+  columns <- pmatch(.fileTableInCols, names(inputDF))
+  setnames(inputDF, old = colnames(inputDF)[na.omit(columns)],
+           new = .fileTableInCols[!is.na(columns)])
+  columns2 <- pmatch(names(inputDF), .fileTableInCols)
+  if (any(is.na(columns))) {
+    inputDF[,.fileTableInCols[is.na(columns)]] <- NA
+  }
+
+  if (any(is.na(inputDF[, "loadTime"]))) {
+    inputDF[is.na(inputDF$loadTime),"loadTime"] <- startTime
+  }
+
+  if (any(is.na(inputDF[, "objectName"]))) {
+    inputDF[is.na(inputDF$objectName),"objectName"] <- fileName(inputDF[is.na(inputDF$objectName),"file"])
+  }
+
+  # correct those for which a specific function is supplied in filelistDT$fun
+  usesSemiColon <- grep(inputDF[, "fun"], pattern = "::")
+
+  if (length(usesSemiColon)>0) {
+    loadFun <- inputDF$fun[usesSemiColon]
+    splitPackFun <- strsplit(split = "::", loadFun)
+    inputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
+    inputDF$fun[usesSemiColon] <- sapply(splitPackFun, function(x) x[2])
+  }
+
+  objectsOnly <- is.na(inputDF[, "file"])
+  if (!all(objectsOnly)) {
+    inputDF2 <- inputDF[!objectsOnly,]
+    if (any(is.na(inputDF2[, "fun"]))) {
+      .fileExts <- .fileExtensions()
+      fl <- inputDF2$file
+      exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
+      inputDF2$fun[is.na(inputDF2$fun)] <- .fileExts[exts, "fun"]
+    }
+
+    if (any(is.na(inputDF2[, "package"]))) {
+      .fileExts <- .fileExtensions()
+      fl <- inputDF2$file
+      exts <- match(fileExt(fl), .fileExts[, "exts"])
+      inputDF2$package[is.na(inputDF2$package)]  <- .fileExts[exts, "package"]
+    }
+    inputDF[!objectsOnly,] <- inputDF2
+  }
+  inputDF
+}
+
+#' An internal function for coercing a data.frame to inputs()
+#'
+#' @param outputDF A data.frame with partial columns to pass to inputs( ) <-
+#' @param endTime Numeric time. The end(sim).
+#'
+#' @rdname fillOutputRows
+.fillOutputRows <- function(outputDF, endTime) {
+  needRenameArgs <- grepl(names(outputDF), pattern="arg[s]?$")
+  if (any(needRenameArgs)) {
+    colnames(outputDF)[needRenameArgs] <-
+      .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
+  }
+  columns <- pmatch(.fileTableOutCols, names(outputDF))
+  setnames(outputDF, old = colnames(outputDF)[na.omit(columns)],
+           new = .fileTableOutCols[!is.na(columns)])
+  columns2 <- pmatch(names(outputDF), .fileTableOutCols)
+  #object@outputs <- rbind(outputDF[,na.omit(columns), drop = FALSE], .fileTableOut()[,columns2])
+
+  if (any(is.na(columns))) {
+    outputDF[,.fileTableOutCols[is.na(columns)]] <- NA
+  }
+  if (any(is.na(outputDF[, "saveTime"]))) {
+    outputDF[is.na(outputDF$saveTime),"saveTime"] <- endTime
+  }
+
+  # correct those for which a specific function is supplied in filelistDT$fun
+  usesSemiColon <- grep(outputDF[, "fun"], pattern = "::")
+
+  if (length(usesSemiColon)>0) {
+    loadFun <- outputDF$fun[usesSemiColon]
+    splitPackFun <- strsplit(split = "::", loadFun)
+    outputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
+    outputDF$fun[usesSemiColon] <- sapply(splitPackFun, function(x) x[2])
+  }
+
+  if (any(is.na(outputDF[, "fun"]))) {
+    .fileExts <- .saveFileExtensions()
+    fl <- outputDF$file
+    exts <- fileExt(fl)
+    if (any(is.na(fl)) | any(nchar(exts)==0)) {
+      outputDF$fun[is.na(fl) | nchar(exts)==0] <- .fileExts$fun[1]
+    }
+    if (any(is.na(outputDF[, "fun"]))) {
+      exts <- na.omit(match(exts, .fileExts[, "exts"]) )
+      outputDF$fun[is.na(outputDF$fun)] <- .fileExts[exts, "fun"]
+    }
+  }
+
+  if (any(is.na(outputDF[, "package"]))) {
+    .fileExts <- .saveFileExtensions()
+    fl <- outputDF$file
+    exts <- fileExt(fl)
+    if (any(is.na(fl)) | any(nchar(exts)==0)) {
+      outputDF$package[is.na(fl) | nchar(exts)==0] <- .fileExts$package[1]
+    }
+    if (any(is.na(outputDF[, "package"]))) {
+      exts <- na.omit(match(fileExt(fl), .fileExts[, "exts"]) )
+      outputDF$package[is.na(outputDF$package)] <- .fileExts[exts, "package"]
+    }
+  }
+  outputDF
+}

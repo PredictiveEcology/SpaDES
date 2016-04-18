@@ -3,17 +3,23 @@
 \docType{methods}
 \name{downloadData}
 \alias{downloadData}
-\alias{downloadData,character,character-method}
+\alias{downloadData,character,character,logical-method}
+\alias{downloadData,character,character,missing-method}
 \title{Download module data}
 \usage{
-downloadData(module, path)
+downloadData(module, path, quiet = FALSE)
 
-\S4method{downloadData}{character,character}(module, path)
+\S4method{downloadData}{character,character,logical}(module, path,
+  quiet = FALSE)
+
+\S4method{downloadData}{character,character,missing}(module, path)
 }
 \arguments{
 \item{module}{Character string giving the name of the module.}
 
 \item{path}{Character string giving the path to the module directory.}
+
+\item{quiet}{Logical. This is passed to \code{download.file}. Default is FALSE.}
 }
 \value{
 Invisibly, a list of downloaded files.

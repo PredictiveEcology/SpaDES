@@ -90,8 +90,8 @@ setMethod(
   signature(sim = "simList", name = "character", object = "missing", layer = "character"),
   definition = function(sim, name, layer, ...) {
     if (exists(name, envir = envir(sim))) {
-      if(is(sim[[name]],"Raster")) {
-        if(!is(sim[[name]][[layer]], "Raster")) {
+      if (is(sim[[name]],"Raster")) {
+        if (!is(sim[[name]][[layer]], "Raster")) {
           message(paste("The object \"", name, "\" exists, but is not
                         a Raster, so layer is ignored", sep = ""))
           return(invisible(TRUE))
@@ -99,7 +99,7 @@ setMethod(
       }
     } else {
       message(
-        paste(name, "does not exist in", deparse(substitute(mySim)))
+        paste(name, "does not exist in", deparse(substitute(sim)))
       )
       return(FALSE)
     }
@@ -237,6 +237,7 @@ setMethod(
           gsub(paste0("^.*params\\(sim\\)\\$", uM, "\\$"), "", .) %>%
           gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
           gsub("]*", "", .) %>%
+          gsub(" *", "", .) %>%
           unique(.) %>%
           sort(.)
 

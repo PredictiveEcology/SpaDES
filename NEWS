@@ -1,11 +1,26 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
-version 1.1.1.9xxx
-==================
+version 1.1.3
+=============
+* add `gtools` to Imports
+* bug fix in `experiment` that did not allow parallel spawning on some systems and crashed with empty `outputs` argument
+* fix minor bugs in `sampleModules`
+* lots of documentation enhancements, esp. `?inputs` and `?outputs`
+* add `.plotInitialTime` and `.saveInitialTime` arguments to `spades()` to easily allow turning off plotting and saving
+* more robust `inputs` and `outputs`, including extension-based automated outputs, using `data.frame` instead of `data.table` allowing lists to be passed for "arguments"
+* allow vectorized `n` in `setColors` (#70), and partial n if named
+* many more unit tests (#139)
+* othr bug fixes
+
+version 1.1.2
+=============
 * fix issues associated with upcoming `dplyr` updates
+* performance enhancements: much faster simulation execution
 * Plot accepts color column in SpatialPointDataFrame objects
 * add `col` arg to `Plot` (mimicks `cols`)
-* add shine function, with simList signature
+* add `experiment` function, a wrapper around `spades` for running multiple simulations (#265)
+* add `shine` function, with `simList` signature (#261)
+* add `copy` function, which does a deep copy of a `simList` object
 * add `RColorBrewer` to Imports
 * allow Plot colours to be set in the `Plot` call using `cols` argument
 * allow Plot colours to be set in the `Plot` call using `RColorBrewer` palettes
@@ -19,6 +34,7 @@ version 1.1.1.9xxx
 * `defineParameter` now coerces the `default` value to match the type `class`
 * export `objectNames()` for external use
 * `outputPath` updates `output(sim)$file` file paths, in addition to just `paths(sim)$outputPath`
+* other bug fixes
 
 version 1.1.1
 =============

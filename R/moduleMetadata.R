@@ -33,11 +33,11 @@ setMethod(
   signature = c(module = "character", path = "character"),
   definition = function(module, path) {
     filename <- paste(path, "/", module, "/", module, ".R", sep = "")
-    if(!file.exists(filename)) {
+    if (!file.exists(filename)) {
       stop(paste(filename, "does not exist. This was created by putting",
-                  "modulePath with the module name as a folder and filename. ",
-                  "Please correct the modulePath or module name in",
-                  "the simInit call."))
+                 "modulePath with the module name as a folder and filename. ",
+                 "Please correct the modulePath or module name in",
+                 "the simInit call."))
     }
 
     parsedFile <- parse(filename)
