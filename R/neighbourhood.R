@@ -108,21 +108,21 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
           adj <- cbind(from = rep.int(cells,times = 9),
                        to = c(as.integer(cells), topl, lef, botl,
                               topr, rig, botr, top, bot))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 9))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 9))
         } else {
           adj = cbind(from = rep.int(cells, times = 8),
                     to = c(topl, lef, botl, topr, rig, botr, top, bot))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 8))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 8))
         }
       } else {
         if (include){
           adj = cbind(from = rep.int(cells, times = 9),
                     to = c(topl, top, topr, lef, as.integer(cells), rig, botl, bot, botr))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 9))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 9))
         }else{
           adj = cbind(from = rep.int(cells, times = 8),
                     to = c(topl, top, topr, lef, rig, botl, bot, botr))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 8))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 8))
         }
       }
     } else if (directions == 4) {
@@ -135,21 +135,21 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(as.integer(cells), lef, rig, top, bot))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
         } else {
           adj <- cbind(from = rep.int(cells, times = 4),
                        to = c(lef, rig, top, bot))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
         }
       } else {
         if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(top, lef, as.integer(cells), rig, bot))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
         } else {
           adj <- cbind(from = rep.int(cells, times = 4),
                        to = c(top, lef, rig, bot))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
         }
       }
     } else if (directions == "bishop") {
@@ -161,21 +161,21 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(as.integer(cells), topl, botl, topr, botr))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
         } else {
           adj <- cbind(from = rep.int(cells, times = 4),
                        to = c(topl, botl, topr, botr))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
         }
       } else {
         if (include) {
           adj <- cbind(from = rep.int(cells, times = 5),
                        to = c(topl, topr, as.integer(cells), botl, botr))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 5))
         } else {
           adj  <- cbind(from = rep.int(cells, times = 4),
                         to = c(topl, topr, botl, botr))
-          if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
+          if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = 4))
         }
       }
     } else {
@@ -244,11 +244,11 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
           adj <- data.table(from = rep.int(cells, times = 9),
                             to = c(as.integer(cells), topl, lef, botl,
                                    topr, rig, botr, top, bot))
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 9)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 9)]
         } else {
           adj <- data.table(from = rep.int(cells, times = 8),
                             to = c(topl, lef, botl, topr, rig, botr, top, bot))
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 8)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 8)]
         }
       } else {
         if (include) {
@@ -256,12 +256,12 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                             to = c(topl, top, topr, lef, as.integer(cells),
                                    rig, botl, bot, botr),
                             key = "from")
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 9)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 9)]
         } else {
           adj <- data.table(from = rep.int(cells, times = 8),
                             to = c(topl, top, topr, lef, rig, botl, bot, botr),
                             key = "from")
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 8)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 8)]
         }
       }
     } else if (directions == 4) {
@@ -274,23 +274,23 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(as.integer(cells), lef, rig, top, bot))
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 5)]
         } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(lef, rig, top, bot))
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 4)]
         }
       } else {
         if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(top, lef, as.integer(cells), rig, bot),
                             key = "from")
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 5)]
         } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(top, lef, rig, bot),
                             key = "from")
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 4)]
         }
       }
     } else if (directions == "bishop") {
@@ -302,23 +302,23 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(as.integer(cells), topl, botl, topr, botr))
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 5)]
         } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(topl, botl, topr, botr))
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 4)]
         }
       } else {
         if (include) {
           adj <- data.table(from = rep.int(cells, times = 5),
                             to = c(topl, topr, as.integer(cells), botl, botr),
                             key = "from")
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 5)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 5)]
         } else {
           adj <- data.table(from = rep.int(cells, times = 4),
                             to = c(topl, topr, botl, botr),
                             key = "from")
-          if(!is.null(id)) adj[,id:=rep.int(id, times = 4)]
+          if (!is.null(id)) adj[,id:=rep.int(id, times = 4)]
         }
       }
     } else {
@@ -439,9 +439,9 @@ cir <- function(spatialPoints, radii, raster, simplify = TRUE) {
   angs <- rep.int(angle.inc, times = n.angles)
 
   DT <- data.table(ids, angs, xs, ys, rads)
-  DT[, "angles":=cumsum(angs), by = "ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
-  DT[, "x":=cos(angles)*rads+xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
-  DT[, "y":=sin(angles)*rads+ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
+  DT[, "angles" := cumsum(angs), by = "ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
+  DT[, "x" := cos(angles)*rads + xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
+  DT[, "y" := sin(angles)*rads + ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
 
   set(DT, , j = "rads", NULL)
   set(DT, , j = "angles", NULL)
@@ -594,16 +594,16 @@ setMethod(
       #  off the bounds, so that the heading is correct
       X@data[coordinates(X)[, "x"] < bounds@xmin, "x1"] <-
         (X@data[coordinates(X)[, "x"] < bounds@xmin, "x1"] - bounds@xmin) %%
-        (bounds@xmax-bounds@xmin) + bounds@xmax
+        (bounds@xmax - bounds@xmin) + bounds@xmax
       X@data[coordinates(X)[, "x"] > bounds@xmax, "x1"] <-
         (X@data[coordinates(X)[, "x"] > bounds@xmax, "x1"] - bounds@xmax) %%
-        (bounds@xmin-bounds@xmax) + bounds@xmin
+        (bounds@xmin - bounds@xmax) + bounds@xmin
       X@data[coordinates(X)[, "y"] < bounds@ymin, "y1"] <-
         (X@data[coordinates(X)[, "y"] < bounds@ymin, "y1"] - bounds@ymin) %%
-        (bounds@ymax-bounds@ymin) + bounds@ymax
+        (bounds@ymax - bounds@ymin) + bounds@ymax
       X@data[coordinates(X)[, "y"] > bounds@ymax, "y1"] <-
         (X@data[coordinates(X)[, "y"] > bounds@ymax, "y1"] - bounds@ymax) %%
-        (bounds@ymin-bounds@ymax) + bounds@ymin
+        (bounds@ymin - bounds@ymax) + bounds@ymin
     }
     return(wrap(X, bounds = bounds))
 })
