@@ -1196,13 +1196,14 @@ setMethod("outputs",
             saveTimeUnit <- attr(object@outputs$saveTime, "unit")
             if (is.null(saveTimeUnit)) saveTimeUnit <- simUnit
 
-            out <- if (is.na(pmatch(saveTimeUnit, simUnit)) & (length(object@outputs$saveTime)>0)) {
+            out <- if (is.na(pmatch(saveTimeUnit, simUnit)) &
+                       length(object@outputs$saveTime) > 0) {
               #note the above line captures empty saveTime,
               # whereas is.na does not
               if (any(!is.na(object@outputs$saveTime))) {
                 if (!is.null(object@outputs$saveTime)) {
                   obj <- data.table::copy(object@outputs) # don't change original object
-                  obj[,saveTime:=convertTimeunit(saveTime, unit, envir(object))]
+                  obj[,saveTime := convertTimeunit(saveTime, unit, envir(object))]
                   obj[]
                   obj
                 }
@@ -1212,9 +1213,7 @@ setMethod("outputs",
             } else {
               object@outputs
             }
-
             return(out)
-
 })
 
 #' @export
@@ -1230,102 +1229,80 @@ setGeneric("outputs<-",
 #' @export
 setReplaceMethod(
   "outputs",
-   signature = ".simList",
-   function(object, value) {
-
-   if (length(value)>0) {
-     if (!is.data.frame(value)) {
-       if (!is.list(value)) {
-         stop("outputs must be a list or data.frame")
+  signature = ".simList",
+  function(object, value) {
+    if (length(value)) {
+       if (!is.data.frame(value)) {
+         if (!is.list(value)) {
+           stop("outputs must be a list or data.frame")
+         }
+         value <- data.frame(value, stringsAsFactors = FALSE)
        }
-       value <- data.frame(value, stringsAsFactors = FALSE)
+
+       object@outputs <- .fillOutputRows(value, end(object))
+
+       # coerce any factors to the correct class
+       for (col in which(sapply(object@outputs, is.factor))) {
+         object@outputs[,col] <- as(object@outputs[[col]], class(.fileTableOut()[[col]]))
+       }
+
+       # if saveTime not provided, give it end(object)
+       object@outputs[is.na(object@outputs$saveTime), "saveTime"] <-
+         end(object, timeunit(object))
+       attributes(object@outputs$saveTime)$unit <- timeunit(object)
+
+       # Deal with file names
+       # 3 things: 1. if relative, concatenate outputPath
+       #           2. if absolute, don't use outputPath
+       #           3. concatenate time to file name in all cases
+       # If no filename provided, use the object name
+       object@outputs[is.na(object@outputs$file), "file"] <-
+         paste0(object@outputs$objectName[is.na(object@outputs$file)])
+       # If a filename is provided, determine if it is absolute path, if so,
+       # use that, if not, then append it to outputPath(object)
+       object@outputs[!isAbsolutePath(object@outputs$file), "file"] <-
+         file.path(outputPath(object),
+                   object@outputs$file[!isAbsolutePath(object@outputs$file)])
+
+       # If there is no function provided, then use saveRDS, from package base
+       object@outputs[is.na(object@outputs$fun),"fun"] <- "saveRDS"
+       object@outputs[is.na(object@outputs$package),"package"] <- "base"
+
+       # file extension stuff
+       fileExts <- .saveFileExtensions()
+       fe <- suppressMessages(inner_join(object@outputs, fileExts)$exts)
+       wh <- !stri_detect_fixed(str = object@outputs$file, pattern = ".") &
+         (nchar(fe) > 0)
+       object@outputs[wh, "file"] <- paste0(object@outputs[wh, "file"], ".", fe[wh])
+
+       # If the file name already has a time unit on it,
+       # i.e., passed explicitly by user,
+       # then don't postpend again
+       txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
+       txtTimeB <- paddedFloatToChar(
+         object@outputs[,"saveTime"],
+         ceiling(log10(end(object, timeunit(object)) + 1))
+       )
+       # Add time unit and saveTime to filename, without stripping extension
+       wh <- !stri_detect_fixed(str = object@outputs$file,pattern = txtTimeA)
+       object@outputs[wh, "file"] <- paste0(
+         file_path_sans_ext(object@outputs[wh, "file"]),
+         "_", txtTimeA, txtTimeB[wh],
+         ifelse(nchar(file_ext(object@outputs[wh, "file"])) > 0, ".", ""),
+         ifelse(nchar(file_ext(object@outputs[wh, "file"])) > 0,
+                file_ext(object@outputs[wh, "file"]),
+                "")
+       )
+     } else {
+       object@outputs <- value
      }
 
-     # create a dummy data.frame with correct columns and
-     #fileTable <- .fileTableOut()
-     #columns <- pmatch(names(fileTable), names(value))
-     #setnames(value, old = colnames(value)[na.omit(columns)],
-     #         new = colnames(fileTable)[!is.na(columns)])
-     # Merge
-#      needRenameArgs <- grepl(names(value), pattern="arg[s]?$")
-#      if (any(needRenameArgs)) {
-#        colnames(value)[needRenameArgs] <-
-#          .fileTableOutCols[pmatch("arg", .fileTableOutCols)]
-#      }
-#      columns <- pmatch(names(fileTable), names(value))
-#      setnames(value, old = colnames(value)[na.omit(columns)],
-#               new = colnames(fileTable)[!is.na(columns)])
-#      columns2 <- pmatch(names(value), names(fileTable))
-#      browser()
-#      object@outputs <- rbind(value[,na.omit(columns), drop = FALSE], fileTable[,columns2])
-#
-#      if (any(is.na(columns))) {
-#        object@outputs[,names(fileTable[,is.na(columns)])] <- NA
-#      }
-     object@outputs <- .fillOutputRows(value, end(object))
-
-     #object@outputs$file <- file.path(outputPath(object),object@outputs$file)
-
-     # coerce any factors to the correct class
-     for (col in which(sapply(object@outputs, is.factor))) {
-       object@outputs[,col] <- as(object@outputs[[col]], class(.fileTableOut()[[col]]))
+     if (!all(.fileTableOutCols %in% names(object@outputs))) {
+       stop(paste("output table must have columns named",
+                  paste(.fileTableOutCols, collapse = ", ")))
      }
 
-     # if saveTime not provided, give it end(object)
-     object@outputs[is.na(object@outputs$saveTime), "saveTime"] <-
-       end(object, timeunit(object))
-     attributes(object@outputs$saveTime)$unit <- timeunit(object)
-
-     # Deal with file names
-     # 3 things: 1. if relative, concatenate outputPath
-     #           2. if absolute, don't use outputPath
-     #           3. concatenate time to file name in all cases
-     # If no filename provided, use the object name
-     object@outputs[is.na(object@outputs$file),"file"] <-
-       paste0(object@outputs$objectName[is.na(object@outputs$file)])
-     # If a filename is provided, determine if it is absolute path, if so,
-     # use that, if not, then append it to outputPath(object)
-     object@outputs[!isAbsolutePath(object@outputs$file), "file"] <-
-       file.path(outputPath(object),
-                 object@outputs$file[!isAbsolutePath(object@outputs$file)])
-
-     # If there is no function provided, then use saveRDS, from package base
-     object@outputs[is.na(object@outputs$fun),"fun"] <- "saveRDS"
-     object@outputs[is.na(object@outputs$package),"package"] <- "base"
-
-     # file extension stuff
-     fileExts <- .saveFileExtensions()
-     fe <- suppressMessages(inner_join(object@outputs, fileExts)$exts)
-     wh <- !stri_detect_fixed(str = object@outputs$file, pattern = ".") &
-       (nchar(fe) > 0)
-     object@outputs[wh, "file"] <- paste0(object@outputs[wh, "file"], ".", fe[wh])
-
-     # If the file name already has a time unit on it,
-     # i.e., passed explicitly by user,
-     # then don't postpend again
-     txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
-     txtTimeB <- paddedFloatToChar(
-       object@outputs[,"saveTime"],
-       ceiling(log10(end(object, timeunit(object))+1))
-     )
-     # Add time unit and saveTime to filename, without stripping extension
-     wh <- !stri_detect_fixed(str = object@outputs$file,pattern = txtTimeA)
-     object@outputs[wh, "file"] <- paste0(
-       file_path_sans_ext(object@outputs[wh, "file"]),
-       "_", txtTimeA, txtTimeB[wh],
-       ifelse(nchar(file_ext(object@outputs[wh, "file"]))>0,".",""),
-       ifelse(nchar(file_ext(object@outputs[wh, "file"]))>0,
-              file_ext(object@outputs[wh, "file"]),
-              "")
-     )
-   } else {
-     object@outputs <- value
-   }
-
-   if (!all(.fileTableOutCols %in% names(object@outputs))) stop(paste("output table must have columns named",
-                                                                     paste(.fileTableOutCols, collapse=", ")))
-
-   return(object)
+    return(object)
 })
 
 ################################################################################
@@ -1502,8 +1479,8 @@ setReplaceMethod(
     if (length(na.omit(wh)) < length(value)) {
       wh1 <- !(wh[1:length(value)] %in% (1:N)[1:length(value)])
       wh2 <- !((1:N)[1:length(value)] %in% wh[1:length(value)])
-      if (length(wh1)<N) wh1 <- c(wh1, rep(FALSE, N-length(wh1)))
-      if (length(wh2)<N) wh2 <- c(wh2, rep(FALSE, N-length(wh2)))
+      if (length(wh1) < N) wh1 <- c(wh1, rep(FALSE, N - length(wh1)))
+      if (length(wh2) < N) wh2 <- c(wh2, rep(FALSE, N - length(wh2)))
       wh[wh1] <- (1:N)[wh2]
     }
 
