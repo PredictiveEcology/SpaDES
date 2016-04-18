@@ -10,7 +10,7 @@ version 1.1.3
 * more robust `inputs` and `outputs`, including extension-based automated outputs, using `data.frame` instead of `data.table` allowing lists to be passed for "arguments"
 * allow vectorized `n` in `setColors` (#70), and partial n if named
 * many more unit tests (#139)
-* othr bug fixes
+* other bug fixes
 
 version 1.1.2
 =============
