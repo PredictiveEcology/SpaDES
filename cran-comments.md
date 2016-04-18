@@ -1,27 +1,27 @@
 ## Updated release
 
-This is a maintenance release to address forthcoming changes to the `dplyr` package.
-We also include a number of bug fixes and performance enhancements.
+This is a maintenance release to fix several bugs related to our new release last week.
 
 ## Test environments
 
 ### Previous R versions
 * Windows 7               (local), R 3.2.2
 * Windows 7               (local), R 3.2.3
-* Windows 7               (local), R 3.2.4
 * OS X El Capitan         (local), R 3.2.4
+* Windows 7               (local), R 3.2.4
+* Windows 7               (local), R 3.2.4 Revised (2016-03-16 r70336)
 
 ### Current R versions
-* Debian Jessie           (local), R 3.2.4 Revised (2016-03-16 r70336)
+* Debian Jessie           (local), R 3.2.5
 * Ubuntu 12.04        (travis-ci), R 3.2.4 Revised (2016-03-16 r70338)
-* Ubuntu 14.04            (local), R 3.2.4 Revised (2016-03-16 r70336)
-* Windows 7               (local), R 3.2.4 Revised (2016-03-16 r70336)
-* Windows           (win-builder), R 3.2.4 Revised (2016-03-16 r70336)
+* Ubuntu 14.04            (local), R 3.2.5
+* Windows 7               (local), R 3.2.5
+* Windows           (win-builder), R 3.2.5
 
 ### Development R version
 * Debian:testing (rocker/r-base),  R 3.3.0 beta (2016-04-05 r70427)
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-04-04 r70420)
-* Windows           (win-builder), R 3.3.0 beta (2016-04-10 r70465)
+* Windows           (win-builder), R 3.3.0 beta (2016-04-14 r70486)
 
 ## R CMD check results
 
@@ -30,6 +30,10 @@ There were no ERRORs or WARNINGs
 There were 2 NOTEs:
 
 1. There are three parts to this note:
+
+    a. We apologize for having missed these bugs when previously submitting to CRAN 5 days ago.
+    
+            Days since last update: 5
 
     a. Several words were flagged as possibly mispelled, but they are not.
     
@@ -45,10 +49,6 @@ There were 2 NOTEs:
           
             Availability using Additional_repositories specification:
               fastshp   yes   http://rforge.net
-
-    c. We rely on the `snow` package to allow parallel computation on Windows, since the `parallel` package doesn't work there.
-    
-            Uses the superseded package: 'snow'
 
 2. As noted above, we provide instructions for the user to install the suggested `fastshp` package.
 

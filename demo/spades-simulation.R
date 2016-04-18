@@ -9,12 +9,8 @@ library(SpaDES)
 library(igraph)
 
 filelist = data.frame(
-  files = dir(
-    file.path(
-      find.package("SpaDES", lib.loc = .libPaths(), quiet = FALSE),
-      "maps"
-    ),
-    full.names = TRUE, pattern = "tif"),
+  files = dir(system.file("maps", package = "SpaDES"),
+                           full.names = TRUE, pattern = "tif"),
   functions = "rasterToMemory",
   packages = "SpaDES",
   stringsAsFactors = FALSE

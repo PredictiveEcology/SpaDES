@@ -1,8 +1,8 @@
-test_that("Plot is not error-free", {
+test_that("Plot 1 is not error-free", {
   library(sp)
   library(raster)
 
-  tmpdir <- file.path(tempdir(), "test_Plot")
+  tmpdir <- file.path(tempdir(), "test_Plot1")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -181,10 +181,9 @@ test_that("Plot is not error-free", {
 })
 
 test_that("Unit tests for image content is not error-free", {
-  if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
+  if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
   skip("Not reliable yet")
-
 
   library(raster)
   library(visualTest)
@@ -267,7 +266,7 @@ test_that("Unit tests for image content is not error-free", {
 })
 
 test_that("Unit tests for plotting colors", {
-  if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
+  if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
   skip("Not reliable yet")
 
@@ -354,7 +353,7 @@ test_that("Unit tests for plotting colors", {
 })
 
 test_that("Unit tests for internal functions in Plot", {
-  if(Sys.info()["sysname"]=="Windows") skip("Not working on Windows yet")
+  if (Sys.info()["sysname"] == "Windows") skip("Not working on Windows yet")
   skip_if_not_installed("visualTest")
   skip("Not reliable yet")
 
@@ -446,9 +445,9 @@ test_that("Unit tests for internal functions in Plot", {
   unlink("test.png")
 })
 
-test_that("Plot is not error-free", {
+test_that("Plot 2 is not error-free", {
   skip("This is a visual only test - see verbal expectations")
-  tmpdir <- file.path(tempdir(), "test_Plot")
+  tmpdir <- file.path(tempdir(), "test_Plot2")
   dir.create(tmpdir, recursive = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
@@ -567,4 +566,62 @@ test_that("Plot is not error-free", {
   Plot(pixelGroupMap, na.color = "white") # Should keep one dark Blue, rest white
 
   dev.off()
+})
+
+test_that("setColors is not error-free", {
+  skip("Apparently color palettes are not universal")
+  tmpdir <- file.path(tempdir(), "test_setColors")
+  dir.create(tmpdir, recursive = TRUE)
+  cwd <- getwd()
+  setwd(tmpdir)
+  library(raster)
+  library(SpaDES)
+
+  on.exit({
+    setwd(cwd)
+    unlink(tmpdir, recursive = TRUE)
+  })
+  set.seed(1234)
+
+  ras1 <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+  ras2 <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+  rasStack <- stack(ras1, ras2)
+  expect_error({
+    setColors(rasStack, n = c(ras1 = 3, ras2 = 5)) <-
+      list(ras1 = c("red", "blue", "green"), ras2 = c("purple", "yellow"))
+  })
+  names(rasStack) <- c("ras1", "ras2")
+  expect_silent({
+    setColors(rasStack, n = c(ras1 = 3, ras2 = 5)) <-
+      list(ras1 = c("red", "blue", "green"), ras2 = c("purple", "yellow"))
+  })
+
+  expect_true(identical(
+    getColors(rasStack),
+    structure(list(ras1 = c("#FF0000FF", "#0000FFFF", "#00FF00FF"),
+                   ras2 = c("#A020F0FF", "#B757B3FF", "#CF8F78FF", "#E7C73CFF",
+                            "#FFFF00FF")),
+              .Names = c("ras1", "ras2"))
+  ))
+
+  ras3 <- raster(matrix(sample(1:3, size = 100, replace = TRUE), ncol = 10))
+  rasStack <- stack(rasStack, ras3)
+  names(rasStack)[3] <- "ras3"
+
+  expect_silent({
+    setColors(rasStack, n = c(ras1 = 3, 5)) <- list(
+      ras1 = c("red", "blue", "green"),
+      ras2 = c("purple", "yellow"),
+      ras3 = c("orange", "yellow")
+    )
+  })
+  expect_true(identical(
+    getColors(rasStack),
+    structure(list(ras1 = c("#FF0000FF", "#0000FFFF", "#00FF00FF"),
+                   ras2 = c("#A020F0FF", "#B757B3FF", "#CF8F78FF", "#E7C73CFF",
+                            "#FFFF00FF"),
+                   ras3 = c("#FFA500FF", "#FFBB00FF", "#FFD200FF", "#FFE800FF",
+                            "#FFFF00FF")),
+              .Names = c("ras1", "ras2", "ras3"))
+  ))
 })

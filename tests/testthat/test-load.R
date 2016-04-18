@@ -27,13 +27,42 @@ test_that("test-load.R: loading inputs does not work correctly", {
   mySim <- simInit(times = times, params = parameters, modules = modules, paths = paths)
   mySim <- spades(mySim)
   expect_true(all(c("DEM", "forestAge") %in% names(mySim$landscape)))
-  inputs(mySim) <- data.frame(
+
+  # test overall inputs setReplaceMethod
+  inputs  <- data.frame(
     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
     functions = "raster",
     package = "raster",
     loadTime = c(0, 3),
     stringsAsFactors=FALSE
   )
+  inputs(mySim) <- inputs
+  expect_equal(inputs(mySim)[,c("file", "fun", "package", "loadTime")], inputs)
+  expect_equal(fileName(inputs(mySim)$file), inputs(mySim)$objectName)
+  expect_equal(inputs(mySim)$loaded, rep(NA, NROW(inputs(mySim))))
+
+  # test fill in objectName and function and package
+  inputs  <- data.frame(
+    files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+    loadTime = c(0, 3),
+    stringsAsFactors=FALSE
+  )
+  inputs(mySim) <- inputs
+  expect_equal(inputs(mySim)[,c("file", "loadTime")], inputs)
+  expect_equal(fileName(inputs(mySim)$file), inputs(mySim)$objectName)
+  expect_equal(inputs(mySim)$loaded, rep(NA, NROW(inputs(mySim))))
+
+  # test override default object name
+  inputs  <- data.frame(
+    files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+    objectName = c("rasDEM", "rasForestAge"),
+    stringsAsFactors=FALSE
+  )
+  inputs(mySim) <- inputs
+  expect_equal(inputs(mySim)[,c("file", "objectName")], inputs)
+  expect_equal(inputs(mySim)$objectName, inputs$objectName)
+  expect_equal(inputs(mySim)$loaded, rep(NA, NROW(inputs(mySim))))
+
   rm(mySim)
 
   # use loadFiles directly
@@ -42,10 +71,9 @@ test_that("test-load.R: loading inputs does not work correctly", {
     paths = list(
       modulePath = system.file("sampleModules", package = "SpaDES"),
       inputPath = mapPath,
-      outputPath = file.path(tempdir(), "test_load", rndstr()))
+      outputPath = file.path(tmpdir, rndstr()))
   )
   expect_true(all(c("DEM", "forestAge") %in% ls(sim1)))
-  file.remove(paths(sim1)$outputPath, recursive = TRUE)
   rm(sim1)
 
   # load at future time, i.e., nothing gets loaded
@@ -114,6 +142,9 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   sim2 <- simInit(times = times, params = parameters, modules = modules,
                   paths = paths, inputs = inputs)
   expect_true(c("DEM") %in% ls(sim2))
+
+  # Test that arguments got passed in correctly
+  expect_equal(inputs(sim2)$arguments, I(rep(list(native=TRUE),4)))
   expect_true(!any(c("forestCover", "forestAge", "habitatQuality") %in% ls(sim2)))
 
   sim2 <- spades(sim2)
@@ -200,4 +231,37 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
 
   expect_true(all(c("DEM", "forestAge") %in% ls(sim3)))
   rm(sim3)
+})
+
+test_that("test-load.R: more tests", {
+  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  dir.create(tmpdir, recursive = TRUE)
+  on.exit(unlink(tmpdir, recursive = TRUE))
+
+  sim <- simInit()
+  test <- 1:10
+  tmpFile <- file.path(tmpdir, "test.rds")
+  saveRDS(test, file=tmpFile)
+
+  # Test for data.frame being kept as data.frame even with only one column
+  expect_silent(inputs(sim) <- data.frame(file = tmpFile))
+
+
+  # Test for incremental loading via intervals
+  files = dir(system.file("maps", package = "SpaDES"),
+              full.names = TRUE, pattern = "tif")
+  arguments = I(rep(list(native = TRUE), length(files)))
+  filelist = data.frame(
+     files = files,
+     functions = "raster::raster",
+     objectName = NA,
+     arguments = arguments,
+     loadTime = 0,
+     intervals = c(rep(NA, length(files)-1), 10)
+  )
+  expect_message(sim2 <- loadFiles(filelist = filelist), "DEM read from")
+  expect_message(sim2 <- loadFiles(filelist = filelist), "forestAge read from")
+  end(sim2) <- 20
+  expect_message(sim3 <- spades(sim2), "time 10")
+  expect_message(sim3 <- spades(sim2), "time 20")
 })

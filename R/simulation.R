@@ -208,7 +208,7 @@ setMethod(
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
-# @importFrom utils sessionInfo
+#' @importFrom gtools smartbind
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -405,7 +405,7 @@ setMethod(
 
       ### add NAs to any of the dotParams that are not specified by user
       # ensure the modules sublist exists by creating a tmp value in it
-      if(is.null(params(sim)[[m]])) {
+      if (is.null(params(sim)[[m]])) {
         params(sim)[[m]] <- list(.tmp = NA_real_)
       }
 
@@ -456,17 +456,19 @@ setMethod(
 
     if (length(objects)) {
       list2env(objects, envir = envir(sim))
-      inputs(sim) <- bind_rows(list(
-        inputs(sim),
-        data.frame(
-          file = NA_character_,
-          fun = NA_character_,
-          package = NA_character_,
-          objectName = names(objects),
-          loadTime = as.numeric(time(sim, "seconds")),
-          loaded = TRUE,
-          stringsAsFactors = FALSE)
-      ))
+      newInputs <- data.frame(
+        file = NA_character_,
+        fun = NA_character_,
+        package = NA_character_,
+        objectName = names(objects),
+        loadTime = as.numeric(time(sim, "seconds")),
+        loaded = TRUE,
+        stringsAsFactors = FALSE)
+      if (NROW(inputs)) {
+        inputs(sim) <- smartbind(inputs(sim), newInputs)
+      } else {
+        inputs(sim) <- newInputs
+      }
     }
 
     # keep session info for debugging & checkpointing
@@ -605,7 +607,7 @@ setMethod(
   "doEvent",
   signature(sim = "simList", debug = "logical"),
   definition = function(sim, debug) {
-    if(class(sim)!="simList") {
+    if (class(sim) != "simList") { # use inherits()?
       stop("doEvent can only accept a simList object")
     }
 
@@ -837,9 +839,29 @@ setMethod(
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
+#' @param .plotInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
+#'                                  parameter for all modules. See Details.
+#'
+#' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
+#'                                  parameter for all modules. See Details.
+#'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
 #' @seealso \code{\link{simInit}}, \code{\link{SpaDES}}
+#'
+#' @details
+#' The is the workhorse function in the SpaDES package. It runs simulations by
+#' implementing the rules outlined in the \code{simList}.
+#'
+#' This function gives simple access to two sets of module parameters:
+#' \code{.plotInitialTime} and with \code{.plotInitialTime}. The primary use of
+#' these arguments is to temporarily turn off plotting and saving. "Temporary"
+#' means that the \code{simList} is not changed, so it can be used again with
+#' the simList values reinstated. To turn off plotting and saving, use
+#' \code{.plotInitialTime = NA} or \code{.saveInitialTime = NA}. NOTE: if a
+#' module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
+#' these arguments will not do anything.
+#'
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates
@@ -858,29 +880,54 @@ setMethod(
 #'  mySim <- simInit(
 #'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'    params = list(
-#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-#'      fireSpread = list(.plotInitialTime=NA),
-#'      randomLandscapes = list(.plotInitialTime=NA),
-#'      caribouMovement = list(.plotInitialTime=NA)
+#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
 #'    ),
 #'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
 #'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
 #'  )
 #'  spades(mySim)
+#'
+#'  # Can turn off plotting, and inspect the output simList instead
+#'  out <- spades(mySim, .plotInitialTime = NA) # much faster
+#'  completed(out) # shows completed events
 #' }
 #'
-setGeneric("spades", function(sim, debug) {
+setGeneric("spades", function(sim, debug, .plotInitialTime, .saveInitialTime) {
     standardGeneric("spades")
 })
 
 #' @rdname spades
 setMethod(
   "spades",
-  signature(sim = "simList", debug = "logical"),
-  definition = function(sim, debug) {
-    envName <- paste("SpaDES", deparse(substitute(sim)), sep = "_")
+  signature(sim = "simList", debug = "logical", .plotInitialTime = "ANY",
+            .saveInitialTime = "ANY"),
+  definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
 
-    while(time(sim, "second") <= end(sim, "second")) {
+    if (missing(.plotInitialTime)) .plotInitialTime = NULL
+    if (missing(.saveInitialTime)) .saveInitialTime = NULL
+
+    if (!is.null(.plotInitialTime)) {
+      if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
+      paramsLocal <- params(sim)
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern = "\\.")
+      paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
+        x$.plotInitialTime <- .plotInitialTime
+        x
+      })
+      params(sim) <- paramsLocal
+    }
+    if (!is.null(.saveInitialTime)) {
+      if (!is.numeric(.saveInitialTime)) .saveInitialTime <- as.numeric(.saveInitialTime)
+      paramsLocal <- params(sim)
+      whNonHiddenModules <- !grepl(names(paramsLocal), pattern = "\\.")
+      paramsLocal[whNonHiddenModules] <- lapply(paramsLocal[whNonHiddenModules], function(x) {
+        x$.saveInitialTime <- NA_real_
+        x
+      })
+      params(sim) <- paramsLocal
+    }
+
+    while (time(sim, "second") <= end(sim, "second")) {
 
       sim <- doEvent(sim, debug)  # process the next event
 
@@ -896,8 +943,15 @@ setMethod(
 
 #' @rdname spades
 setMethod("spades",
-          signature(sim = "simList", debug = "missing"),
-          definition = function(sim) {
+          signature(sim = "simList", debug = "missing",
+                    .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
+          definition = function(sim, .plotInitialTime, .saveInitialTime) {
             stopifnot(class(sim) == "simList")
-            return(spades(sim, debug = FALSE))
+
+            if (missing(.plotInitialTime)) .plotInitialTime = NULL
+            if (missing(.saveInitialTime)) .saveInitialTime = NULL
+
+            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime ,
+                          .saveInitialTime = .saveInitialTime))
 })
+

@@ -79,8 +79,8 @@ setMethod("updateList",
           definition = function(x, y) {
             if (any(is.null(names(x)), is.null(names(y)))) {
               # If one of the lists is empty, then just return the other, unchanged
-              if(length(y)==0) return(x)
-              if(length(x)==0) return(y)
+              if (length(y)==0) return(x)
+              if (length(x)==0) return(y)
               stop("All elements in lists x,y must be named.")
             } else {
               i <- which(names(x) %in% names(y))
@@ -94,7 +94,7 @@ setMethod("updateList",
           signature = c("NULL", "list"),
           definition = function(x, y) {
             if (is.null(names(y))) {
-              if(length(y)==0) return(x)
+              if (length(y) == 0) return(x)
               stop("All elements in list y must be named.")
             }
             return(y[order(names(y))])
@@ -105,7 +105,7 @@ setMethod("updateList",
           signature = c("list", "NULL"),
           definition = function(x, y) {
             if (is.null(names(x))) {
-              if(length(x)==0) return(x)
+              if (length(x) == 0) return(x)
               stop("All elements in list x must be named.")
             }
             return(x[order(names(x))])
@@ -468,7 +468,7 @@ setMethod(
   "rndstr",
   signature(n = "numeric", len = "numeric", characterFirst = "logical"),
   definition = function(n, len, characterFirst) {
-    if(!((n > 0) & (len > 0))) {
+    if (!((n > 0) & (len > 0))) {
       stop("rndstr requires n > 0 and len > 0")
     }
 

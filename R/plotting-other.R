@@ -134,7 +134,7 @@ clickValues <- function(n = 1) {
   objNames <- sapply(objLay, function(x) { x[1] })
   layNames <- sapply(objLay, function(x) { x[2] })
   for (i in 1:n) {
-    if(!is.na(layNames[i])) {
+    if (!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
         eval(parse(text = objNames[i]),
              envir = coords$envir[[i]])[[layNames[i]]][cellFromXY(
@@ -171,9 +171,9 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners[[3]]$x), sort(corners[[3]]$y)))
 
-  if(plot.it) {
+  if (plot.it) {
     devActive <- dev.cur()
-    if(is.null(devNum)) {
+    if (is.null(devNum)) {
       newPlot()
     } else {
       dev(devNum)
@@ -182,7 +182,7 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
     objLay <- strsplit(corners$map, "\\$")
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
-    if(!is.na(layNames)) {
+    if (!is.na(layNames)) {
       Plot(eval(parse(text = objNames), envir = corners$envir[[1]])[[layNames]],
            zoomExtent = zoom, new = TRUE)
     } else {

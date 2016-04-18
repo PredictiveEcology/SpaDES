@@ -34,7 +34,13 @@ test_that("checkPath: checkPath consistency", {
   tmpdir <- normalizePath(file.path(tempdir(), "test_checkPath"),
                           winslash = "/", mustWork = FALSE)
   dir.create(tmpdir, recursive = TRUE)
-  setwd(tmpdir); on.exit(setwd(currdir))
+
+  on.exit({
+    setwd(currdir)
+    unlink(tmpdir, recursive = TRUE)
+  })
+  setwd(tmpdir)
+
 
   dir.create("aaa/zzz", recursive = TRUE, showWarnings = FALSE)
   paths <- list("./aaa/zzz",

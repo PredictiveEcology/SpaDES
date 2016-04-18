@@ -265,7 +265,7 @@ setMethod(
     if (!is.character(timeUnit)) {
       attr(time, "unit") <- timeUnit <- "second"
     }
-    if(is.na(pmatch("second", unit)) | is.na(pmatch("second", timeUnit))) {
+    if (is.na(pmatch("second", unit)) | is.na(pmatch("second", timeUnit))) {
       if (!is.na(timeUnit) & !is.na(unit)) {
         # confirm that units are useable by SpaDES
         checkTimeunit(c(timeUnit, unit), envir)
