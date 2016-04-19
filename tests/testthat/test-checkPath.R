@@ -32,6 +32,8 @@ test_that("checkPath: normPath consistency", {
 })
 
 test_that("checkPath: normPath consistency - extra tests", {
+  skip_on_os("windows")
+
   in_paths <- c(
     "/private/tmp/RtmpsR4IPm/testParallel/rep1/landscape_year2.rds",
     "/private/tmp/RtmpsR4IPm/testParallel/rep1/caribou_year2.rds"
