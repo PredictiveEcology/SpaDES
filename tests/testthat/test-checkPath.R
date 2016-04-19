@@ -1,5 +1,7 @@
 test_that("checkPath: normPath consistency", {
   cwd <- getwd()
+
+  # don't use checkPath here because we are testing normPath!
   tmpdir <- normalizePath(file.path(tempdir(), "test_normPath"),
                           winslash = "/", mustWork = FALSE)
   dir.create(tmpdir, recursive = TRUE)
@@ -29,8 +31,25 @@ test_that("checkPath: normPath consistency", {
   expect_equal(normPath(NULL), character())
 })
 
+test_that("checkPath: normPath consistency - extra tests", {
+  in_paths <- c(
+    "/private/tmp/RtmpsR4IPm/testParallel/rep1/landscape_year2.rds",
+    "/private/tmp/RtmpsR4IPm/testParallel/rep1/caribou_year2.rds"
+  )
+  exp_outs <- c(
+    "/tmp/RtmpsR4IPm/testParallel/rep1/landscape_year2.rds",
+    "/tmp/RtmpsR4IPm/testParallel/rep1/caribou_year2.rds"
+  )
+
+  out_paths <- normPath(in_paths)
+
+  expect_equal(out_paths, exp_outs)
+})
+
 test_that("checkPath: checkPath consistency", {
   currdir <- getwd()
+
+  # don't use checkPath here because we are testing checkPath
   tmpdir <- normalizePath(file.path(tempdir(), "test_checkPath"),
                           winslash = "/", mustWork = FALSE)
   dir.create(tmpdir, recursive = TRUE)

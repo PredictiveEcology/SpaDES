@@ -1,6 +1,6 @@
 ## Updated release
 
-This is a maintenance release to fix several bugs related to our new release last week.
+This is a maintenance release to fix CRAN check errors on OSX.
 
 ## Test environments
 
@@ -31,9 +31,9 @@ There were 2 NOTEs:
 
 1. There are three parts to this note:
 
-    a. We apologize for having missed these bugs when previously submitting to CRAN 5 days ago.
+    a. We apologize for having missed these bugs when previously submitting to CRAN.
     
-            Days since last update: 5
+            Days since last update: 1
 
     a. Several words were flagged as possibly mispelled, but they are not.
     
