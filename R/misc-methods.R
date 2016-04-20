@@ -282,7 +282,6 @@ setMethod("normPath",
               gsub("^[.]", paste0(getwd()), .) %>%
               gsub("\\\\", "//", .) %>%
               gsub("//", "/", .) %>%
-              gsub("^/private/", "/", .) %>%
               gsub("/$", "", .)
 })
 
