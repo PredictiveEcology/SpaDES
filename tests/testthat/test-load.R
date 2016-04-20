@@ -1,5 +1,5 @@
 test_that("test-load.R: loading inputs does not work correctly", {
-  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   mapPath <- system.file("maps", package = "SpaDES")
@@ -107,7 +107,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
 })
 
 test_that("test-load.R: passing arguments to filelist in simInit does not work correctly", {
-  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
@@ -167,7 +167,7 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
 })
 
 test_that("test-load.R: passing objects to simInit does not work correctly", {
-  tmpdir <- file.path(tempdir(), "test_load", rndstr())
+  tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   mapPath <- mapPath <- system.file("maps", package = "SpaDES")
@@ -234,14 +234,13 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
 })
 
 test_that("test-load.R: more tests", {
-  tmpdir <- file.path(tempdir(), "test_load", rndstr())
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_load", rndstr()) %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   sim <- simInit()
   test <- 1:10
   tmpFile <- file.path(tmpdir, "test.rds")
-  saveRDS(test, file=tmpFile)
+  saveRDS(test, file = tmpFile)
 
   # Test for data.frame being kept as data.frame even with only one column
   expect_silent(inputs(sim) <- data.frame(file = tmpFile))

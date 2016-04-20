@@ -2,8 +2,7 @@ test_that("Plot 1 is not error-free", {
   library(sp)
   library(raster)
 
-  tmpdir <- file.path(tempdir(), "test_Plot1")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
@@ -188,8 +187,7 @@ test_that("Unit tests for image content is not error-free", {
   library(raster)
   library(visualTest)
 
-  tmpdir <- file.path(tempdir(), "test_Plot_imageContent")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_Plot_imageContent") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
@@ -273,8 +271,7 @@ test_that("Unit tests for plotting colors", {
   library(raster)
   library(visualTest)
 
-  tmpdir <- file.path(tempdir(), "test_Plot_colors")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_Plot_colors") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
@@ -360,8 +357,7 @@ test_that("Unit tests for internal functions in Plot", {
   library(raster)
   library(visualTest)
 
-  tmpdir <- file.path(tempdir(), "test_Plot_internal")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_Plot_internal") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
 
@@ -447,8 +443,7 @@ test_that("Unit tests for internal functions in Plot", {
 
 test_that("Plot 2 is not error-free", {
   skip("This is a visual only test - see verbal expectations")
-  tmpdir <- file.path(tempdir(), "test_Plot2")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_Plot2") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
   library(raster)
@@ -570,8 +565,7 @@ test_that("Plot 2 is not error-free", {
 
 test_that("setColors is not error-free", {
   skip("Apparently color palettes are not universal")
-  tmpdir <- file.path(tempdir(), "test_setColors")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "test_setColors") %>% checkPath(create = TRUE)
   cwd <- getwd()
   setwd(tmpdir)
   library(raster)

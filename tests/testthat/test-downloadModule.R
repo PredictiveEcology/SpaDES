@@ -10,8 +10,7 @@ test_that("downloadModule downloads and unzips a single module", {
   library(igraph); on.exit(detach("package:igraph"))
 
   m <- "test"
-  tmpdir <- file.path(tempdir(), "modules")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% basename()
@@ -37,8 +36,7 @@ test_that("downloadModule downloads and unzips a parent module", {
   library(igraph); on.exit(detach("package:igraph"))
 
   m <- "LCC2005"
-  tmpdir <- file.path(tempdir(), "modules")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% as.character()
@@ -62,8 +60,7 @@ test_that("downloadData downloads and unzips module data", {
 
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
-  datadir <- file.path(tmpdir, m, "data")
-  dir.create(datadir, recursive = TRUE)
+  datadir <- file.path(tmpdir, m, "data") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   filenames <- c("DEM.tif", "habitatQuality.tif")

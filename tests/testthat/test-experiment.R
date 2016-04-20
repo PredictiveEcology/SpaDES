@@ -67,9 +67,11 @@ test_that("experiment does not work correctly", {
   exptVals <- expt$expVals
   out <- lapply(seq_along(sims), function(x) {
     expect_equal(outputs(sims[[x]])$saved, c(TRUE, TRUE))
-    expect_equal(outputs(sims[[x]])$file,
-                 file.path(tmpdir, paste0("rep", x),
-                           paste0(c("landscape", "caribou"), "_year2.rds"))
+    expect_equal(
+      outputs(sims[[x]])$file,
+      file.path(tmpdir, paste0("rep", x),
+                paste0(c("landscape", "caribou"), "_year2.rds")) %>%
+        normPath()
     )
   })
 
