@@ -1027,7 +1027,7 @@ setReplaceMethod(
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
-   if (NROW(value)>0) {
+   if (NROW(value) > 0) {
      object@inputs[is.na(object@inputs$file), "file"] <- NA
 
      # If a filename is provided, determine if it is absolute path, if so,
@@ -1038,7 +1038,7 @@ setReplaceMethod(
 
      if (!all(names(object@inputs) %in% .fileTableInCols)) {
        stop(paste("input table can only have columns named",
-                  paste(.fileTableInCols, collapse=", ")))
+                  paste(.fileTableInCols, collapse = ", ")))
      }
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
