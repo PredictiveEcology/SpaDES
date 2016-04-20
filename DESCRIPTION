@@ -74,8 +74,6 @@ Imports:
     stringi,
     stringr,
     utils
-Remotes: s-u/fastshp,
-    MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
