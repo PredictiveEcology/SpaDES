@@ -179,7 +179,6 @@ setMethod(
         # load files
         loadPackage <- filelist$package
         loadFun <- filelist$fun
-        browser()
         for (y in which(cur)) {
           #y <- which(cur)[x]
           nam = names(arguments[y])
