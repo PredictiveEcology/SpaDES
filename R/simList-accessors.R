@@ -1040,13 +1040,19 @@ setReplaceMethod(
        stop(paste("input table can only have columns named",
                   paste(.fileTableInCols, collapse = ", ")))
      }
-     browser()
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
            min(., na.rm = TRUE)
          attributes(newTime)$unit <- timeunit(object)
          object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+         toRemove <- duplicated(rbindlist(list(current(object), events(object))))
+         if(any(toRemove)) {
+           if(NROW(current(object))>0)
+             toRemove <- toRemove[-seq_len(NROW(current(object)))]
+           events(object) <- events(object)[!toRemove]
+         }
+
        } else {
          object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
            time(object, "seconds")
