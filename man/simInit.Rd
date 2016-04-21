@@ -146,7 +146,7 @@ are all needed for initialization.
      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
      functions = "raster",
      package = "raster",
-     loadTime = 3,
+     loadTime = 0,
      stringsAsFactors = FALSE),
    outputs = data.frame(
      expand.grid(objectName = c("caribou","landscape"),

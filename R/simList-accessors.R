@@ -1046,6 +1046,13 @@ setReplaceMethod(
            min(., na.rm = TRUE)
          attributes(newTime)$unit <- timeunit(object)
          object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+         toRemove <- duplicated(rbindlist(list(current(object), events(object))))
+         if(any(toRemove)) {
+           if(NROW(current(object))>0)
+             toRemove <- toRemove[-seq_len(NROW(current(object)))]
+           events(object) <- events(object)[!toRemove]
+         }
+
        } else {
          object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
            time(object, "seconds")

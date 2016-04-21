@@ -154,7 +154,7 @@ setMethod(
       inputs(sim) <- .fillInputRows(inputs(sim))
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
 
-      curTime <- time(sim, "seconds")
+      curTime <- time(sim, timeunit(sim))
       arguments <- inputArgs(sim)
       # Check if arguments is a named list; the name may be concatenated
       # with the "arguments", separated by a ".". This will extract that.

@@ -209,6 +209,32 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
                   paths = paths, objects = objects)
   expect_true(all(c("DEM", "forestAge") %in% ls(sim4)))
   rm(sim4)
+
+  # pass both inputs and objects
+  objects <- c("DEM")
+  sim5 <- simInit(times = times, params = parameters, modules = modules,
+                  paths = paths, objects = objects, inputs = filelist[-1,])
+  expect_true(all(c("DEM", "forestAge") %in% ls(sim5)))
+  rm(sim5)
+
+  # pass both inputs (at non-start time) and objects
+  # test object passing directly
+  filelist = data.frame(
+    files = dir(file.path(mapPath),full.names = TRUE, pattern = "tif")[2],
+    functions = "raster",
+    package = "raster",
+    loadTime = 1,
+    stringsAsFactors=FALSE
+  )
+  objects <- c("DEM")
+  sim6 <- simInit(times = times, params = parameters, modules = modules,
+                  paths = paths, objects = objects, inputs = filelist)
+  expect_true(all(c("DEM") %in% ls(sim6)))
+  expect_false(all(c("forestAge") %in% ls(sim6)))
+  sim6End <- spades(sim6) # run for 1 time, loading the file
+  expect_true(all(c("forestAge") %in% ls(sim6End)))
+  rm(sim6)
+
 })
 
 test_that("test-load.R: passing nearly empty file to simInit does not work correctly", {
