@@ -189,15 +189,16 @@ setMethod(
               objList <- list(get(filelist$objectName[y]))
               names(objList) <- filelist$objectName[y]
             } else {
-              scalls <- sys.calls()
-              grep1 <- grep(as.character(scalls), pattern = "simInit")
-              grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-                tryCatch(
-                  is(parse(text = x), "expression"),
-                  error = function(y) { NA })
-              })], na.rm = TRUE)-1, 1)
-              # Convert character strings to their objects
-              objList <- lapply(filelist$objectName[y], function(x) get(x, envir = sys.frames()[[grep1]]))
+              objList <- .findObjects(filelist$objectName[y])
+              # scalls <- sys.calls()
+              # grep1 <- grep(as.character(scalls), pattern = "simInit")
+              # grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+              #   tryCatch(
+              #     is(parse(text = x), "expression"),
+              #     error = function(y) { NA })
+              # })], na.rm = TRUE)-1, 1)
+              # # Convert character strings to their objects
+              # objList <- lapply(filelist$objectName[y], function(x) get(x, envir = sys.frames()[[grep1]]))
               names(objList) <- filelist$objectName[y]
             }
             if(length(objList)>0) {

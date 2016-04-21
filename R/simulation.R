@@ -491,15 +491,16 @@ setMethod(
     # find the simInit call that was responsible for this, get the objects
     #   in the environment of the parents of that call, and pass them to new
     #   environment.
-    scalls <- sys.calls()
-    grep1 <- grep(as.character(scalls), pattern = "simInit")
-    grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-      tryCatch(
-        is(parse(text = x), "expression"),
-        error = function(y) { NA })
-    })], na.rm = TRUE)-1, 1)
-    # Convert character strings to their objects
-    li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+    # scalls <- sys.calls()
+    # grep1 <- grep(as.character(scalls), pattern = "simInit")
+    # grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+    #   tryCatch(
+    #     is(parse(text = x), "expression"),
+    #     error = function(y) { NA })
+    # })], na.rm = TRUE)-1, 1)
+    # # Convert character strings to their objects
+    # li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+    li$objects <- .findObjects(objects)
     names(li$objects) <- objects
     sim <- do.call("simInit", args = li)
 
