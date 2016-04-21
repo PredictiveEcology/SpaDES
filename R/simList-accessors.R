@@ -1040,6 +1040,7 @@ setReplaceMethod(
        stop(paste("input table can only have columns named",
                   paste(.fileTableInCols, collapse = ", ")))
      }
+     browser()
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%

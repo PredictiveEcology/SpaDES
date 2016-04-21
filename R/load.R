@@ -201,6 +201,7 @@ setMethod(
                                                         args = argument)
           }
           filelist[y, "loaded"] <- TRUE
+          browser()
 
           if (loadFun[y] == "raster") {
             message(paste0(
