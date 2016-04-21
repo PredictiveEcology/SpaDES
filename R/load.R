@@ -151,7 +151,7 @@ setMethod(
     #Whether or not intervals for loading files are defined
 
     if (NROW(inputs(sim)) != 0) {
-      inputs(sim) <- .fillInputRows(inputs(sim))
+      inputs(sim) <- .fillInputRows(inputs(sim), start(sim))
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
 
       curTime <- time(sim, timeunit(sim))
