@@ -462,9 +462,10 @@ setMethod(
         objectName = names(objects),
         loadTime = as.numeric(time(sim, "seconds")),
         loaded = TRUE,
-        stringsAsFactors = FALSE)
+        stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(sim))
+
       if (NROW(inputs)) {
-        inputs(sim) <- rbind(inputs(sim), .fillInputRows(newInputs))
+        inputs(sim) <- rbind(inputs(sim), newInputs)
       } else {
         inputs(sim) <- newInputs
       }

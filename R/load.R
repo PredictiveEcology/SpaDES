@@ -151,7 +151,7 @@ setMethod(
     #Whether or not intervals for loading files are defined
 
     if (NROW(inputs(sim)) != 0) {
-      inputs(sim) <- .fillInputRows(inputs(sim))
+      inputs(sim) <- .fillInputRows(inputs(sim), start(sim))
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
 
       curTime <- time(sim, timeunit(sim))
@@ -179,42 +179,50 @@ setMethod(
         # load files
         loadPackage <- filelist$package
         loadFun <- filelist$fun
+        browser()
         for (y in which(cur)) {
           #y <- which(cur)[x]
           nam = names(arguments[y])
 
-          if (!is.null(nam)) {
-            argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
-            names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
+          if(is.na(filelist$file[y])) {
+            objList <- list(get(filelist$objectName[y]))
+            names(filelist$objectName[y])
+            list2env(list(filelist$objectName[y]), envir = envir(sim))
           } else {
-            argument <- list(filelist[y,"file"])
-            names(argument) <- names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1]
-          }
 
-          # The actual load call
-          if (identical(loadFun[y], "load")) {
-            do.call(getFromNamespace(loadFun[y], loadPackage[y]),
-                    args = argument, envir = envir(sim))
+            if (!is.null(nam)) {
+              argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
+              names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
+            } else {
+              argument <- list(filelist[y,"file"])
+              names(argument) <- names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1]
+            }
 
-          } else {
-            sim[[filelist[y, "objectName"]]] <- do.call(getFromNamespace(loadFun[y], loadPackage[y]),
-                                                        args = argument)
-          }
-          filelist[y, "loaded"] <- TRUE
+            # The actual load call
+            if (identical(loadFun[y], "load")) {
+              do.call(getFromNamespace(loadFun[y], loadPackage[y]),
+                      args = argument, envir = envir(sim))
 
-          if (loadFun[y] == "raster") {
-            message(paste0(
-              filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
-              "(inMemory=", inMemory(sim[[filelist[y, "objectName"]]]), ")",
-              ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
-                     paste("\n  at time", filelist[y, "loadTime"]),"")
-            ))
-          } else {
-            message(paste0(
-              filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
-              ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
-                     paste("\n   at time", filelist[y, "loadTime"]), "")
-            ))
+            } else {
+              sim[[filelist[y, "objectName"]]] <- do.call(getFromNamespace(loadFun[y], loadPackage[y]),
+                                                          args = argument)
+            }
+            filelist[y, "loaded"] <- TRUE
+
+            if (loadFun[y] == "raster") {
+              message(paste0(
+                filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
+                "(inMemory=", inMemory(sim[[filelist[y, "objectName"]]]), ")",
+                ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
+                       paste("\n  at time", filelist[y, "loadTime"]),"")
+              ))
+            } else {
+              message(paste0(
+                filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
+                ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
+                       paste("\n   at time", filelist[y, "loadTime"]), "")
+              ))
+            }
           }
         } # end y
         # add new rows of files to load based on filelistDT$Interval
