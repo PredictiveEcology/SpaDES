@@ -208,7 +208,6 @@ setMethod(
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
-#' @importFrom gtools smartbind
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -465,7 +464,7 @@ setMethod(
         loaded = TRUE,
         stringsAsFactors = FALSE)
       if (NROW(inputs)) {
-        inputs(sim) <- smartbind(inputs(sim), newInputs)
+        inputs(sim) <- rbind(inputs(sim), .fillInputRows(newInputs))
       } else {
         inputs(sim) <- newInputs
       }
