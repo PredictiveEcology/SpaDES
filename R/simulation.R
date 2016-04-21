@@ -431,8 +431,25 @@ setMethod(
       stop("There was a problem loading some modules.")
     }
 
+    if (NROW(inputs)) {
+      inputs <- .fillInputRows(inputs, startTime = start(sim))
+    }
+
+    if (length(objects)) {
+      newInputs <- data.frame(
+        objectName = names(objects),
+        loadTime = as.numeric(time(sim, "seconds")),
+        stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(sim))
+
+      if (NROW(inputs)) {
+        inputs <- rbind(inputs, newInputs)
+      } else {
+        inputs <- newInputs
+      }
+    }
+
     # load files in the filelist
-    if (length(inputs)) {
+    if (NROW(inputs)) {
       inputs(sim) <- inputs
       if (NROW(
         events(sim)[moduleName == "load" & eventType == "inputs" &
@@ -453,23 +470,6 @@ setMethod(
     # check the parameters supplied by the user
     checkParams(sim, core, dotParams, modulePath(sim))
 
-    if (length(objects)) {
-      list2env(objects, envir = envir(sim))
-      newInputs <- data.frame(
-        file = NA_character_,
-        fun = NA_character_,
-        package = NA_character_,
-        objectName = names(objects),
-        loadTime = as.numeric(time(sim, "seconds")),
-        loaded = TRUE,
-        stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(sim))
-
-      if (NROW(inputs)) {
-        inputs(sim) <- rbind(inputs(sim), newInputs)
-      } else {
-        inputs(sim) <- newInputs
-      }
-    }
 
     # keep session info for debugging & checkpointing
     sim$.sessionInfo <- sessionInfo()

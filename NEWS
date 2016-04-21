@@ -1,5 +1,9 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
+version 1.1.4.xxxx
+=============
+* remove `gtools` to Imports
+
 version 1.1.4
 =============
 * fix OSX CRAN check errors caused by inconsistent use of `normalizePath`

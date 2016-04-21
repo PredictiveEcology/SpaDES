@@ -56,7 +56,6 @@ Imports:
     grDevices,
     grid,
     gridBase,
-    gtools,
     httr,
     igraph,
     lazyeval,

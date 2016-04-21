@@ -197,7 +197,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
   )
 
   # Pass as a named list
-  objects <- list(DEM = "DEM", forestAge = "forestAge")
+  objects <- list(DEM = DEM, forestAge = forestAge)
   sim3 <- simInit(times = times, params = parameters, modules = modules,
                   paths = paths, objects  =  objects)
   expect_true(all(c("DEM", "forestAge") %in% ls(sim3)))

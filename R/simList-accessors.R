@@ -873,7 +873,7 @@ setReplaceMethod("progressType",
 #'
 #' @param object A \code{simList} simulation object.
 #'
-#' @param value The object to be stored at the slot.
+#' @param value The object to be stored at the slot. See Details.
 #'
 #' @return Returns or sets the value(s) of the \code{input} or \code{output} slots
 #' in the \code{simList} object.
@@ -896,12 +896,17 @@ setReplaceMethod("progressType",
 #' @aliases simList-accessors-inout
 #' @rdname simList-accessors-inout
 #' @examples
+#' #######################
+#' # inputs
+#' #######################
+#'
+#' # Start with a basic empty simList
 #' sim <- simInit()
 #'
-#' # inputs
-#'
 #' test <- 1:10
-#' tmpFile <- file.path(tempdir(), "test.rds")
+#' library(igraph) # for %>%
+#' tmpdir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+#' tmpFile <- file.path(tmpdir, "test.rds")
 #' saveRDS(test, file=tmpFile)
 #' inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 #' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
@@ -945,7 +950,7 @@ setReplaceMethod("progressType",
 #'
 #'
 #' # Clean up after
-#' file.remove(tmpFile)
+#' unlink(tmpdir, recursive = TRUE)
 setGeneric("inputs", function(object) {
   standardGeneric("inputs")
 })
@@ -1042,11 +1047,14 @@ setReplaceMethod(
      }
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
-         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-           min(., na.rm = TRUE)
+         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"]
          attributes(newTime)$unit <- timeunit(object)
-         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
-         toRemove <- duplicated(rbindlist(list(current(object), events(object))))
+         for(nT in newTime){
+           attributes(nT)$unit <- timeunit(object)
+           object <- scheduleEvent(object, nT, "load", "inputs", .first())
+         }
+         toRemove <- duplicated(rbindlist(list(current(object), events(object))),
+                                by = c("eventTime", "moduleName", "eventType"))
          if(any(toRemove)) {
            if(NROW(current(object))>0)
              toRemove <- toRemove[-seq_len(NROW(current(object)))]
@@ -1120,10 +1128,13 @@ setReplaceMethod(
 #' @name outputs
 #' @rdname simList-accessors-inout
 #' @examples
+#'
 #' #######################
 #' # outputs
-#' tmpdir <- file.path(tempdir(), "")
-#' startFiles <- dir(tmpdir, full.names=TRUE)
+#' #######################
+#'
+#' library(igraph) # for %>%
+#' tmpdir <- file.path(tempdir(), "outputs") %>% checkPath(create = TRUE)
 #' tmpFile <- file.path(tmpdir, "temp.rds")
 #' tempObj <- 1:10
 #'
@@ -1186,11 +1197,8 @@ setReplaceMethod(
 #' newRas <- raster(dir(tmpdir, full.name=TRUE, pattern=".tif"))
 #' all.equal(newRas, ras) # Should be TRUE
 #'
-#' # since write.csv has a default of adding a column, x, with rownames, must add additional
-#' #   argument for 6th row in data.frame (corresponding to the write.csv function)
 #' # Clean up after
-#' endFiles <- dir(tmpdir, full.names=TRUE)
-#' file.remove(endFiles[!(endFiles %in% startFiles)])
+#' unlink(tmpdir, recursive = TRUE)
 setGeneric("outputs", function(object) {
   standardGeneric("outputs")
 })
@@ -2759,6 +2767,10 @@ setMethod(
 #' @rdname fillInputRows
 .fillInputRows <- function(inputDF, startTime) {
 
+  factorCols <- sapply(inputDF, is.factor)
+  if(any(factorCols)) {
+    inputDF[,factorCols] <- sapply(inputDF[,factorCols], as.character)
+  }
   fileTable <- .fileTableInCols
   needRenameArgs <- grepl(names(inputDF), pattern="arg[s]?$")
   if (any(needRenameArgs)) {
