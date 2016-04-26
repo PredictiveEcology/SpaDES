@@ -171,7 +171,7 @@ setMethod(
         for (col in (row+1L):ncol(M)) {
           current <- M[row,col]
           partner <- M[col,row]
-          if (all((current>0), !is.infinite(current), (partner>0),
+          if (all((current > 0), !is.infinite(current), (partner > 0),
                   !is.infinite(partner))) {
             pth1 <- shortest_paths(simGraph,
                                    from = rownames(M)[row],

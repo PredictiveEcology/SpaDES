@@ -964,13 +964,14 @@ setMethod("inputs",
             simUnit <- timeunit(object)
             loadTimeUnit <- attr(object@inputs$loadTime, "unit")
             if (is.null(loadTimeUnit)) loadTimeUnit <- simUnit
-            out <- if (is.na(pmatch(loadTimeUnit, simUnit)) & (length(object@inputs$loadTime)>0)) {
-              #note the above line captures empty loadTime,
+            out <- if (is.na(pmatch(loadTimeUnit, simUnit)) &
+                       (length(object@inputs$loadTime) > 0)) {
+              # note the above line captures empty loadTime,
               # whereas is.na does not
               if (any(!is.na(object@inputs$loadTime))) {
                 if (!is.null(object@inputs$loadTime)) {
                   obj <- data.table::copy(object@inputs) # don't change original object
-                  obj[,loadTime:=convertTimeunit(loadTime, unit, envir(object))]
+                  obj[, loadTime := convertTimeunit(loadTime, unit, envir(object))]
                   obj[]
                 }
               } else {
@@ -998,7 +999,7 @@ setReplaceMethod(
   "inputs",
   signature = ".simList",
   function(object, value) {
-   if (length(value)>0) {
+   if (length(value) > 0) {
      whFactors <- sapply(value, function(x) is.factor(x))
      if (any(whFactors)) {
        value[,whFactors] <- sapply(value[,whFactors], as.character)
@@ -1049,14 +1050,14 @@ setReplaceMethod(
        if (!all(is.na(object@inputs[, "loadTime"]))) {
          newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"]
          attributes(newTime)$unit <- timeunit(object)
-         for(nT in newTime){
+         for (nT in newTime){
            attributes(nT)$unit <- timeunit(object)
            object <- scheduleEvent(object, nT, "load", "inputs", .first())
          }
          toRemove <- duplicated(rbindlist(list(current(object), events(object))),
                                 by = c("eventTime", "moduleName", "eventType"))
-         if(any(toRemove)) {
-           if(NROW(current(object))>0)
+         if (any(toRemove)) {
+           if (NROW(current(object)) > 0)
              toRemove <- toRemove[-seq_len(NROW(current(object)))]
            events(object) <- events(object)[!toRemove]
          }
@@ -1620,8 +1621,8 @@ setReplaceMethod("outputPath",
                  signature = ".simList",
                  function(object, value) {
                    object@paths$outputPath <- unname(unlist(value))
-                   checkPath(object@paths$outputPath, create=TRUE)
-                   if (NROW(outputs(object))>0) {
+                   checkPath(object@paths$outputPath, create = TRUE)
+                   if (NROW(outputs(object)) > 0) {
                      if ("saved" %in% colnames(outputs(object))) {
                        notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
                        outputs(object)$file[notYetSaved] <-
@@ -2198,7 +2199,8 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(object, unit) {
 
-    out <- if (is.na(pmatch("second", unit)) & (length(object@events$eventTime)>0)) {
+    out <- if (is.na(pmatch("second", unit)) &
+               (length(object@events$eventTime) > 0)) {
       #note the above line captures empty eventTime,
       # whereas is.na does not
       if (any(!is.na(object@events$eventTime))) {
@@ -2796,7 +2798,7 @@ setMethod(
   # correct those for which a specific function is supplied in filelistDT$fun
   usesSemiColon <- grep(inputDF[, "fun"], pattern = "::")
 
-  if (length(usesSemiColon)>0) {
+  if (length(usesSemiColon) > 0) {
     loadFun <- inputDF$fun[usesSemiColon]
     splitPackFun <- strsplit(split = "::", loadFun)
     inputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
@@ -2852,7 +2854,7 @@ setMethod(
   # correct those for which a specific function is supplied in filelistDT$fun
   usesSemiColon <- grep(outputDF[, "fun"], pattern = "::")
 
-  if (length(usesSemiColon)>0) {
+  if (length(usesSemiColon) > 0) {
     loadFun <- outputDF$fun[usesSemiColon]
     splitPackFun <- strsplit(split = "::", loadFun)
     outputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])

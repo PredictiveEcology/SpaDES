@@ -178,7 +178,7 @@ fireSpreadStats <- function(sim) {
 
   landscapes <- sim[[globals(sim)$stackName]]
 
-  sim[[globals(sim)$burnStats]] <- c(npix, length(which(values(landscapes$Fires)>0)))
+  sim[[globals(sim)$burnStats]] <- c(npix, length(which(values(landscapes$Fires) > 0)))
 
   return(invisible(sim))
 }

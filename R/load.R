@@ -201,7 +201,7 @@ setMethod(
               # objList <- lapply(filelist$objectName[y], function(x) get(x, envir = sys.frames()[[grep1]]))
               names(objList) <- filelist$objectName[y]
             }
-            if(length(objList)>0) {
+            if (length(objList) > 0) {
               list2env(objList, envir = envir(sim))
               filelist[y, "loaded"] <- TRUE
               message(filelist[y, "objectName"], " loaded into simList")
