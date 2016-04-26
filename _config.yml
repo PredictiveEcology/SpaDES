@@ -1,6 +1,6 @@
 name: Eliot McIntire
 markdown: kramdown
-pygments: true
+highlighter: rouge
 
 domain: predictiveecology.org
 author: Eliot McIntire
