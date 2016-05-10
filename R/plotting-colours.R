@@ -14,6 +14,7 @@
 #'          \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
+#' @importClassesFrom NetLogoRClasses agentMatrix
 #'
 setGeneric("getColors", function(object) {
   standardGeneric("getColors")
@@ -40,7 +41,7 @@ setMethod("getColors",
 
 #' @rdname getColors
 setMethod("getColors",
-          signature = "NLworldMatrix",
+          signature = "ANY",
           definition = function(object) {
             return(NULL)
           })
@@ -50,7 +51,6 @@ setMethod("getColors",
           signature = "SpatialPoints",
           definition = function(object) {
             cols <- list(object@data$color)
-            #names(cols) <- names(object)
             return(cols)
           })
 ################################################################################

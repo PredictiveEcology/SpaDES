@@ -3,7 +3,7 @@
 \docType{methods}
 \name{getColors}
 \alias{getColors}
-\alias{getColors,NLworldMatrix-method}
+\alias{getColors,ANY-method}
 \alias{getColors,Raster-method}
 \alias{getColors,SpatialPoints-method}
 \alias{getColors,agentMatrix-method}
@@ -16,7 +16,7 @@ getColors(object)
 
 \S4method{getColors}{agentMatrix}(object)
 
-\S4method{getColors}{NLworldMatrix}(object)
+\S4method{getColors}{ANY}(object)
 
 \S4method{getColors}{SpatialPoints}(object)
 }

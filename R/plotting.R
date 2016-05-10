@@ -489,6 +489,7 @@ setMethod(
 #'
 #' @docType methods
 #' @rdname plotGrob
+#' @importClassesFrom NetLogoRClasses agentMatrix
 #' @importFrom data.table data.table ':='
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
 #' @importFrom NetLogoRClasses extent
@@ -699,7 +700,7 @@ setMethod(
 #' @importFrom grid pointsGrob
 setMethod(
   ".plotGrob",
-  signature = c("agentMatrix"),
+  signature = "agentMatrix",
   definition = function(grobToPlot, col, size,
                         legend, gp = gpar(), pch, speedup, name, vp, ...) {
     speedupScale <- 40
