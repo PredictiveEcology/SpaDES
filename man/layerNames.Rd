@@ -4,10 +4,11 @@
 \name{layerNames}
 \alias{layerNames}
 \alias{layerNames,.spadesPlot-method}
+\alias{layerNames,NLworldMatrix-method}
 \alias{layerNames,Raster-method}
 \alias{layerNames,SpatialLines-method}
-\alias{layerNames,SpatialPoints-method}
 \alias{layerNames,SpatialPolygons-method}
+\alias{layerNames,agentClasses-method}
 \alias{layerNames,gg-method}
 \alias{layerNames,histogram-method}
 \alias{layerNames,igraph-method}
@@ -18,7 +19,9 @@ layerNames(object)
 
 \S4method{layerNames}{list}(object)
 
-\S4method{layerNames}{SpatialPoints}(object)
+\S4method{layerNames}{agentClasses}(object)
+
+\S4method{layerNames}{NLworldMatrix}(object)
 
 \S4method{layerNames}{SpatialPolygons}(object)
 

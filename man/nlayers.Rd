@@ -3,9 +3,10 @@
 \docType{methods}
 \name{nlayers,list-method}
 \alias{nlayers,.spadesPlot-method}
+\alias{nlayers,NLworldMatrix-method}
 \alias{nlayers,SpatialLines-method}
-\alias{nlayers,SpatialPoints-method}
 \alias{nlayers,SpatialPolygons-method}
+\alias{nlayers,agentClasses-method}
 \alias{nlayers,gg-method}
 \alias{nlayers,histogram-method}
 \alias{nlayers,igraph-method}
@@ -18,7 +19,9 @@
 
 \S4method{nlayers}{SpatialLines}(x)
 
-\S4method{nlayers}{SpatialPoints}(x)
+\S4method{nlayers}{agentClasses}(x)
+
+\S4method{nlayers}{NLworldMatrix}(x)
 
 \S4method{nlayers}{gg}(x)
 

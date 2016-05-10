@@ -12,6 +12,7 @@
 #'
 #' @export
 #' @importFrom raster nlayers
+#' @importClassesFrom NetLogoRClasses agentClasses
 #' @include plotting-classes.R
 #' @author Eliot McIntire
 #' @rdname nlayers
@@ -52,11 +53,21 @@ setMethod(
 #' @rdname nlayers
 setMethod(
   "nlayers",
-  signature = "SpatialPoints",
+  signature = "agentClasses",
   definition = function(x) {
     return(1L)
   }
 )
+
+#' @rdname nlayers
+setMethod(
+  "nlayers",
+  signature = "NLworldMatrix",
+  definition = function(x) {
+    return(1L)
+  }
+)
+
 
 #' @rdname nlayers
 setMethod(
@@ -108,6 +119,7 @@ setMethod(
 #'
 #' @rdname layerNames
 #' @include plotting-classes.R
+#' @importClassesFrom NetLogoRClasses agentClasses
 #' @author Eliot McIntire
 #' @export
 setGeneric("layerNames", function(object) {
@@ -128,7 +140,17 @@ setMethod(
 #' @rdname layerNames
 setMethod(
   "layerNames",
-  signature = "SpatialPoints",
+  signature = "agentClasses",
+  definition = function(object) {
+    return("")
+  }
+)
+
+#' @export
+#' @rdname layerNames
+setMethod(
+  "layerNames",
+  signature = "NLworldMatrix",
   definition = function(object) {
     return("")
   }

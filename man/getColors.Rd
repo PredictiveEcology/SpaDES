@@ -3,13 +3,22 @@
 \docType{methods}
 \name{getColors}
 \alias{getColors}
+\alias{getColors,NLworldMatrix-method}
 \alias{getColors,Raster-method}
+\alias{getColors,SpatialPoints-method}
+\alias{getColors,agentMatrix-method}
 \alias{getColours}
 \title{Get colours for plotting Raster* objects.}
 \usage{
 getColors(object)
 
 \S4method{getColors}{Raster}(object)
+
+\S4method{getColors}{agentMatrix}(object)
+
+\S4method{getColors}{NLworldMatrix}(object)
+
+\S4method{getColors}{SpatialPoints}(object)
 }
 \arguments{
 \item{object}{A \code{Raster*} object.}

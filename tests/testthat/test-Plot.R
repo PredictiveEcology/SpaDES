@@ -1,6 +1,7 @@
 test_that("Plot 1 is not error-free", {
   library(sp)
   library(raster)
+  library(igraph)
 
   tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
   cwd <- getwd()
