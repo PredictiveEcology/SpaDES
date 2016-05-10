@@ -590,7 +590,6 @@ setMethod(
   signature = c("matrix"),
   definition = function(grobToPlot, col, real, size, minv, maxv,
                         legend, legendText, gp, gpText, pch, name, vp, ...) {
-    browser()
     pr <- if (real) {
       pretty(range(minv, maxv))
     } else {
@@ -621,6 +620,18 @@ setMethod(
       gpText <- gpar(col = "black", cex = 0.6)
 
     rastGrob <- gTree(
+      grobToPlot = grobToPlot, pr = pr, col = col,
+      children = gList(
+        rasterGrob(
+          as.raster(grobToPlot),
+          interpolate = FALSE,
+          name = "raster"
+        )),
+      gp = gp, cl = "plotRast")
+    grid.draw(rastGrob)
+
+    #seekViewport(paste0("outer",name))
+    rastGrob2 <- gTree(
       grobToPlot = grobToPlot, pr = pr, col = col,
       children = gList(
         rasterGrob(
@@ -673,9 +684,12 @@ setMethod(
           )
         }
       ),
-      gp = gp, cl = "plotRast"
+      gp = gp, cl = "plotRast2"
     )
-    grid.draw(rastGrob)
+
+    seekViewport(paste0("outer", name))
+    grid.draw(rastGrob2)
+
     return(invisible(rastGrob))
   }
 )
@@ -1871,7 +1885,6 @@ setMethod(
                 sGrob@plotArgs$legendTxt <- NULL
               }
 
-              browser()
               plotGrobCall <- list(
                 zMat$z, col = zMat$cols,
                 size = unit(sGrob@plotArgs$size, "points"),
@@ -1903,7 +1916,6 @@ setMethod(
 
               if(isBaseSubPlot * isReplot |
                   isBaseSubPlot * isNewPlot) {
-                browser()
                 if (xaxis * isBaseSubPlot * isReplot |
                     xaxis * isBaseSubPlot * isNewPlot) {
                   b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
