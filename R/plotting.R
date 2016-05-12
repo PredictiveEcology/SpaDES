@@ -39,7 +39,7 @@ setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, whichSpadesPlottab
 setMethod(
   ".makeSpadesPlot",
   signature = c(plotObjects = "list", plotArgs = "list"),
-  definition = function(plotObjects, plotArgs, ...) {
+  definition = function(plotObjects, plotArgs, whichSpadesPlottables, ...) {
     isSpatialObjects <- sapply(plotObjects, function(x) {
       is(x, "spatialObjects")
     })
