@@ -366,7 +366,7 @@ setMethod(
         size <- size + length(events)
       } else {
         len <- tabulate(spreads[potentials[, 1L]], length(maxSize))
-        if ( any( (size + len) > maxSize & size < maxSize) ) {
+        if ( any( (size + len) > maxSize & size <= maxSize) ) {
           whichID <- which(size + len > maxSize)
           toRm <- (size + len)[whichID] - maxSize[whichID]
 
