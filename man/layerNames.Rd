@@ -4,12 +4,8 @@
 \name{layerNames}
 \alias{layerNames}
 \alias{layerNames,.spadesPlot-method}
+\alias{layerNames,ANY-method}
 \alias{layerNames,Raster-method}
-\alias{layerNames,SpatialLines-method}
-\alias{layerNames,SpatialPoints-method}
-\alias{layerNames,SpatialPolygons-method}
-\alias{layerNames,gg-method}
-\alias{layerNames,histogram-method}
 \alias{layerNames,igraph-method}
 \alias{layerNames,list-method}
 \title{Extract the layer names of Spatial Objects}
@@ -18,17 +14,9 @@ layerNames(object)
 
 \S4method{layerNames}{list}(object)
 
-\S4method{layerNames}{SpatialPoints}(object)
-
-\S4method{layerNames}{SpatialPolygons}(object)
-
-\S4method{layerNames}{SpatialLines}(object)
+\S4method{layerNames}{ANY}(object)
 
 \S4method{layerNames}{Raster}(object)
-
-\S4method{layerNames}{gg}(object)
-
-\S4method{layerNames}{histogram}(object)
 
 \S4method{layerNames}{.spadesPlot}(object)
 

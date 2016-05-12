@@ -44,19 +44,29 @@ setAs(from = "list", to = "gpar", function(from) {
 #'                RasterLayer, RasterStack
 #'
 #' @aliases spatialObjects
-#' @importClassesFrom raster RasterLayer RasterLayerSparse RasterStack
-#' @importClassesFrom sp SpatialLines SpatialLinesDataFrame
-#' @importClassesFrom sp SpatialPixels SpatialPixelsDataFrame
-#' @importClassesFrom sp SpatialPoints SpatialPointsDataFrame
-#' @importClassesFrom sp SpatialPolygons SpatialPolygonsDataFrame
+#' @importClassesFrom raster RasterLayer
+#' @importClassesFrom raster RasterLayerSparse
+#' @importClassesFrom raster RasterStack
+#' @importClassesFrom sp SpatialLines
+#' @importClassesFrom sp SpatialLinesDataFrame
+#' @importClassesFrom sp SpatialPixels
+#' @importClassesFrom sp SpatialPixelsDataFrame
+#' @importClassesFrom sp SpatialPoints
+#' @importClassesFrom sp SpatialPointsDataFrame
+#' @importClassesFrom sp SpatialPolygons
+#' @importClassesFrom sp SpatialPolygonsDataFrame
+#' @importClassesFrom NetLogoRClasses agentMatrix
+#' @importClassesFrom NetLogoRClasses NLworldMatrix
 #' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects",
               members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
-                        "RasterLayer", "RasterStack")
+                        "RasterLayer", "RasterStack",
+                        "agentMatrix", "NLworldMatrix")
 )
+
 
 ################################################################################
 #' The \code{.spadesPlotObjects} class

@@ -154,8 +154,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)),
 #'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
 #' #set colors of raster, including a transparent layer for zeros
-#' setColors(fires, 10) <- c("#00000000", brewer.pal(8,"Reds")[5:8])
-#' Plot(fires)
+#' setColors(fires, 10) <- c("transparent", brewer.pal(8,"Reds")[5:8])
+#' Plot(fires, new = TRUE)
 #' Plot(fires,addTo = "hab")
 #'
 #' #alternatively, set colors using cols= in the Plot function
@@ -366,7 +366,7 @@ setMethod(
         size <- size + length(events)
       } else {
         len <- tabulate(spreads[potentials[, 1L]], length(maxSize))
-        if ( any( (size + len) > maxSize & size < maxSize) ) {
+        if ( any( (size + len) > maxSize & size <= maxSize) ) {
           whichID <- which(size + len > maxSize)
           toRm <- (size + len)[whichID] - maxSize[whichID]
 

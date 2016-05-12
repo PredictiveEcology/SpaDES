@@ -61,6 +61,7 @@ Imports:
     lazyeval,
     lubridate (>= 1.3.3),
     methods,
+    NetLogoRClasses,
     parallel,
     R.utils,
     RandomFields,
@@ -74,6 +75,7 @@ Imports:
     stringr,
     utils
 Remotes: s-u/fastshp,
+    PredictiveEcology/NetLogoRClasses,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
