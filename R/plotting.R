@@ -826,7 +826,7 @@ setMethod(
 
     if (NROW(xy) > 1e3) {
       # thin if fewer than 1000 pts
-      if (speedup>0.1) {
+      if (speedup > 0.1) {
 
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- fastshp::thin(xy[, 1], xy[, 2],

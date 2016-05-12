@@ -216,7 +216,7 @@ setClass(
   prototype = list(dependencies = list(NULL)),
   validity = function(object) {
     # remove empty (NULL) elements
-    object@dependencies <- object@dependencies[lapply(object@dependencies, length)>0]
+    object@dependencies <- object@dependencies[lapply(object@dependencies, length) > 0]
 
     # ensure list contains only .moduleDeps objects
     if (!all(unlist(lapply(object@dependencies, is, class2 = ".moduleDeps")))) {
