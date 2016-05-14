@@ -14,6 +14,7 @@
 #'          \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
+#' @importClassesFrom NetLogoRClasses agentMatrix
 #'
 setGeneric("getColors", function(object) {
   standardGeneric("getColors")
@@ -30,6 +31,28 @@ setMethod("getColors",
             return(cols)
 })
 
+#' @rdname getColors
+setMethod("getColors",
+          signature = "agentMatrix",
+          definition = function(object) {
+            cols <- as(object[,"color"], "data.frame")$color
+            return(cols)
+          })
+
+#' @rdname getColors
+setMethod("getColors",
+          signature = "ANY",
+          definition = function(object) {
+            return(NULL)
+          })
+
+#' @rdname getColors
+setMethod("getColors",
+          signature = "SpatialPoints",
+          definition = function(object) {
+            cols <- list(object@data$color)
+            return(cols)
+          })
 ################################################################################
 #' Set colours for plotting Raster* objects.
 #'
@@ -253,6 +276,7 @@ setMethod(
 #' @importFrom raster minValue getValues sampleRegular is.factor
 #' @importFrom stats na.omit
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
+#' @importClassesFrom NetLogoRClasses griddedClasses
 #' @docType methods
 #' @author Eliot McIntire
 #'
@@ -266,7 +290,7 @@ setGeneric(".makeColorMatrix",
 #' @rdname makeColorMatrix
 setMethod(
   ".makeColorMatrix",
-  signature = c("Raster", "Extent", "numeric", "ANY"),
+  signature = c("griddedClasses", "Extent", "numeric", "ANY"),
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent

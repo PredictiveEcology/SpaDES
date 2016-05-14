@@ -31,50 +31,6 @@ setMethod(
   }
 )
 
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialPolygons",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialLines",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialPoints",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "gg",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "histogram",
-  definition = function(x) {
-    return(1L)
-  }
-)
 
 #' @rdname nlayers
 setMethod(
@@ -88,7 +44,7 @@ setMethod(
 #' @rdname nlayers
 setMethod(
   "nlayers",
-  signature = "igraph",
+  signature = "ANY",
   definition = function(x) {
     return(1L)
   }
@@ -128,27 +84,7 @@ setMethod(
 #' @rdname layerNames
 setMethod(
   "layerNames",
-  signature = "SpatialPoints",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "SpatialPolygons",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "SpatialLines",
+  signature = "ANY",
   definition = function(object) {
     return("")
   }
@@ -161,26 +97,6 @@ setMethod(
   signature = "Raster",
   definition = function(object) {
     names(object)
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "gg",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "histogram",
-  definition = function(object) {
-    return("")
   }
 )
 
