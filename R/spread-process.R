@@ -70,6 +70,24 @@ if (getRversion() >= "3.1.0") {
 #' @param spreadState   Data.table. This should be the output of a previous call to
 #'                      \code{spread}. See Details.
 #'
+#' @param circle        Logical. If TRUE, then outward spread will be by equidistant rings,
+#'                      rather than solely by adjacent cells (via \code{direction} arg.). Default
+#'                      is FALSE. Using \code{circle=TRUE} can be dramatically slower for large
+#'                      problems. Note, this should usually be used with spreadProb = 1.
+#'
+#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If \code{circle}
+#'                      is \code{TRUE}, then it will grow to this maximum radius. Default to NA.
+#'
+#' @param stopRule      A function which must include a named argument, \code{landscape}.
+#'                      The result of this function must be a logical and will determine independently
+#'                      for each spread event whether it should stop spreading. Default NA meaning,
+#'                      spreading will not stop as a function of the landscape. See Details and examples.
+#'
+#' @param stopRuleExact Logical. If \code{stopRule} contains a function, this argument is used ensure that
+#'                      each spread event strictly follows the stopRule. If not, then each spread event will
+#'                      "go to far" because the internal algorithm adds all cells in each iteration all at once,
+#'                      then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.
+#'
 #' @param ...           Additional parameters.
 #'
 #' @return Either a \code{RasterLayer} indicating the spread of the process in
@@ -97,6 +115,7 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom ff ff as.ram
 #' @importFrom ffbase ffwhich
 #' @importFrom stats runif
+#' @importFrom fpCompare %<=%
 #' @docType methods
 #'
 #' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
@@ -113,6 +132,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               lowMemory = getOption("spades.lowMemory"),
                               returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
                               spreadProbLater = NA_real_, spreadState = NA,
+                              circle, circleMaxRadius = NA_real_,
+                              stopRule = NA, stopRuleExact = FALSE,
                               ...) {
   standardGeneric("spread")
 })
@@ -132,26 +153,27 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' library(RColorBrewer)
 #'
 #' # Make random forest cover map
-#' a <- raster(extent(0,1e2,0,1e2), res = 1)
-#' hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+#' emptyRas <- raster(extent(0,1e2,0,1e2), res = 1)
+#' hab <- gaussMap(emptyRas,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 #' names(hab) = "hab"
-#' cells <- loci <- b <- as.integer(sample(1:ncell(a),1e1))
-#' mask <- raster(a)
+#' mask <- raster(emptyRas)
 #' mask <- setValues(mask, 0)
 #' mask[1:5000] <- 1
-#' numCol <- ncol(a)
-#' numCell <- ncell(a)
+#' numCol <- ncol(emptyRas)
+#' numCell <- ncell(emptyRas)
 #' directions <- 8
 #'
 #' # Transparency involves putting two more hex digits on the color code: 00 is fully transparent.
 #' setColors(hab) <- paste(c("#FFFFFF", brewer.pal(8, "Greys")), c("00", rep("FF", 8)), sep = "")
 #'
 #' #dev(4)
+#'
 #' Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
 #'                              # so, some details are lost
 #'
-#' # initiate 10 fires at to loci
-#' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)),
+#' # initiate 10 fires
+#' startCells <- as.integer(sample(1:ncell(emptyRas),10))
+#' fires <- spread(hab, loci = startCells,
 #'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
 #' #set colors of raster, including a transparent layer for zeros
 #' setColors(fires, 10) <- c("transparent", brewer.pal(8,"Reds")[5:8])
@@ -200,6 +222,78 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' burned <- fires[active == FALSE]
 #' burnedMap <- rasterizeReduced(burned, fullRas, "eventID", "indices")
 #' Plot(burnedMap, new=TRUE)
+#'
+#'
+#'
+#' ## stopRule examples
+#' # examples with stopRule, which means that the eventual size is driven by the values on the raster
+#' #  passed in to the landscape argument
+#' set.seed(1234)
+#' stopRule1 <- function(x) sum(x)>50
+#' stopRuleA <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
+#'                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1)
+#'
+#' set.seed(1234)
+#' stopRule2 <- function(x) sum(x)>100
+#' # using stopRuleExact = TRUE
+#' stopRuleB <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
+#'                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule2,
+#'                 stopRuleExact = TRUE)
+#'
+#' # using stopRuleExact = FALSE, means that end result is slightly larger patches, as a
+#' #  complete "iteration" of the spread algorithm is used.
+#' set.seed(1234)
+#' stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
+#'                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule2)
+#' Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new=TRUE)
+#'
+#' # Test that the stopRules work
+#' # stopRuleA was not exact, so each value will "overshoot" the stopRule, here it was hab>50
+#' foo <- cbind(vals=hab[stopRuleA], id = stopRuleA[stopRuleA>0]);
+#' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
+#'
+#' # stopRuleB was exact, so each value will be as close as possible while rule still is TRUE
+#' #  Because we have discrete cells, these numbers will always slightly under the rule
+#' foo <- cbind(vals=hab[stopRuleB], id = stopRuleB[stopRuleB>0]);
+#' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
+#'
+#' # stopRuleB_notExact will overshoot
+#' foo <- cbind(vals=hab[stopRuleB_NotExact], id = stopRuleB_NotExact[stopRuleB_NotExact>0]);
+#' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
+#'
+#'
+#' # Cellular automata shapes
+#' # Diamonds - can make them with: a boolean raster, directions = 4,
+#' #    stopRule in place, spreadProb = 1
+#' diamonds <- spread(hab>0, spreadProb = 1, directions = 4,
+#'    mapID = TRUE, stopRule = stopRule2)
+#' Plot(diamonds, new=TRUE)
+#'
+#' # Squares - can make them with: a boolean raster, directions = 8,
+#' #    stopRule in place, spreadProb = 1
+#' squares <- spread(hab>0, spreadProb = 1, directions = 8,
+#'    mapID = TRUE, stopRule = stopRule2)
+#' Plot(squares)
+#'
+#' # Interference shapes - can make them with: a boolean raster, directions = 8,
+#' #    stopRule in place, spreadProb = 1
+#' stopRule2 <- function(x) sum(x)>200
+#' squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
+#'    directions = 4, mapID = TRUE, stopRule = stopRule2)
+#' Plot(squashedDiamonds, new=TRUE)
+#'
+#' # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
+#' stopRule2 <- function(x) sum(x)>200
+#' seed <- sample(1e4,1)
+#' set.seed(seed)
+#' circlish <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
+#'    directions = 8, mapID = TRUE, circle = TRUE)#, stopRule = stopRule2)
+#' set.seed(seed)
+#' regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
+#'    directions = 8, mapID = TRUE)#, stopRule = stopRule2)
+#'    print(seed)
+#' Plot(circlish, regularCA, new=TRUE)
+#'
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
@@ -208,6 +302,7 @@ setMethod(
                         maxSize, directions, iterations,
                         lowMemory, returnIndices, mapID,
                         plot.it, spreadProbLater, spreadState,
+                        circle, circleMaxRadius, stopRule, stopRuleExact,
                         ...) {
 
     spreadStateExists <- is(spreadState, "data.table")
@@ -298,6 +393,7 @@ setMethod(
 
     ## Recycling maxSize as needed
     if (any(!is.na(maxSize))) {
+      if(!is.integer(maxSize)) maxSize <- floor(maxSize)
       if (spreadStateExists) {
         sizeAll <- spreadState[, list(len = length(initialLocus)), by = eventID]
         maxSize <- rep_len(maxSize, length(initialLoci) + NROW(sizeAll))
@@ -309,6 +405,14 @@ setMethod(
     } else {
       maxSize <- ncell(landscape)
       size <- length(loci)
+    }
+
+    # circle needs directions to be 8
+    if(!missing(circle)) {
+      if(circle) {
+        directions = 8L
+        initialLociXY <- cbind(id = seq_along(initialLoci), xyFromCell(landscape, initialLoci))
+      }
     }
 
     # while there are active cells
@@ -350,10 +454,26 @@ setMethod(
       potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
       potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE]
       potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
+
+      # implement circle
+      if(!missing(circle)) {
+        if(circle) {
+          a <- cbind(id=spreads[potentials[, 1L]], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
+          d <- .matchedPointDistance(a, initialLociXY)
+          potentials <- potentials[(d[,"dists"] %<=% n),, drop = FALSE]
+          if(!is.na(circleMaxRadius)){
+            if(any(circleMaxRadius<=n)){
+              d <- d[(d[,"dists"] %<=% n),, drop = FALSE]
+              potentials <- potentials[(d[,"dists"] %<=% circleMaxRadius),, drop = FALSE]
+            }
+          }
+        }
+      }
+
+
       events <- potentials[, 2L]
 
       # Implement maxSize
-
       if (length(maxSize) == 1L) {
 
         len <- length(events)
@@ -369,7 +489,6 @@ setMethod(
         if ( any( (size + len) > maxSize & size <= maxSize) ) {
           whichID <- which(size + len > maxSize)
           toRm <- (size + len)[whichID] - maxSize[whichID]
-
           for (i in 1:length(whichID)) {
             thisID <- which(spreads[potentials[, 1L]] == whichID[i])
             potentials <- potentials[-sample(thisID, toRm[i]), , drop = FALSE]
@@ -377,6 +496,51 @@ setMethod(
           events <- potentials[, 2L]
         }
         size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
+      }
+
+      # Implement stopRule section
+      if(is.function(stopRule) & length(events)>0){
+
+        prevCells <- cbind(id=spreads[spreads>0],
+                           val = landscape[spreads>0], cells = which(spreads>0), prev=1)
+        eventCells <- cbind(id = spreads[potentials[, 1L]],
+                            val = landscape[events], cells = events, prev=0)
+        tmp <- rbind(prevCells, eventCells)
+        shouldStop <- tapply(tmp[,"val"],tmp[,"id"], stopRule)
+        if(any(shouldStop)) {
+          if(stopRuleExact) {
+
+            whStop <- as.numeric(names(shouldStop)[shouldStop])
+            whStopAll <- tmp[,"id"] %in% whStop
+            tmp2 <- tmp[whStopAll,]
+
+            whStopEvents <- eventCells[,"id"] %in% whStop
+
+            out <- lapply(whStop, function(y) {
+
+              tmp3 <- tmp2[tmp2[,"id"]==y,]
+              newOnes <- tmp3[,"prev"]==0
+              ord <- seq_along(newOnes)
+              ord[newOnes] <- sample(ord[newOnes])
+
+              startLen <- sum(!newOnes)
+              addIncr <- 1
+              while(!stopRule(tmp3[1:(startLen+addIncr),"val"]))
+                addIncr <- addIncr+1
+              addIncr <- addIncr - 1
+                     tmp3[(startLen+addIncr+1):NROW(tmp3),,drop=FALSE]#)
+            })
+
+            eventRm <- do.call(rbind, out)[,"cells"]
+            cellsKeep <- !(potentials[,2L] %in% eventRm)
+            potentials <- potentials[cellsKeep,,drop=FALSE]
+            events <- potentials[,2L]
+            eventCells <- eventCells[cellsKeep,,drop=FALSE]
+
+          }
+          toKeep <- !(eventCells[,"id"] %in% as.numeric(names(which((shouldStop)))))
+        }
+
       }
 
       # increment iteration
@@ -390,15 +554,28 @@ setMethod(
         }
       }
 
+      # remove the cells from "events" that push it over maxSize
       if (length(maxSize) > 1L) {
-        if (exists("whichID")) {
-          events <- events[!spreads[events] %in% whichID]
+        if (exists("whichID", inherit = FALSE)) {
+          maxSizeKeep <- !spreads[events] %in% whichID
+          events <- events[maxSizeKeep]
+          if(exists("toKeep",inherits = FALSE)) {
+            toKeep <- toKeep[maxSizeKeep]
+          }
           rm(whichID)
         }
 
       } else {
         if (size >= maxSize) {
           events <- NULL
+        }
+      }
+
+      # Remove cells that were stopped by stopRule
+      if (is.function(stopRule)) {
+        if (exists("toKeep", inherit = FALSE)) {
+          events <- events[toKeep]
+          rm(toKeep)
         }
       }
 
@@ -413,6 +590,8 @@ setMethod(
           stop("Unsupported type: persistence")
         }
       }
+
+
 
       loci <- c(loci, events)
 
@@ -483,3 +662,17 @@ setMethod(
   }
 )
 
+
+.matchedPointDistance <- function(a, b) {
+    ids <- unique(b[,"id"])
+    orig <- order(a[,"id",drop=FALSE],a[,"to",drop=FALSE])
+    a <- a[orig,,drop=FALSE]
+    dists <- cbind(dists=lapply(ids, function(i){
+      m1 <- a[a[,"id"]==i,c("x","y"), drop = FALSE]
+      m2 <- b[b[,"id"]==i,c("x","y"), drop = FALSE]
+      sqrt((m1[,"x"] - m2[,"x"])^2 + (m1[,"y"] - m2[,"y"])^2)
+    }) %>% unlist(), a)
+    return(dists[order(orig),,drop=FALSE])
+
+
+    }
