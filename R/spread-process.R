@@ -556,7 +556,7 @@ setMethod(
 
       # remove the cells from "events" that push it over maxSize
       if (length(maxSize) > 1L) {
-        if (exists("whichID", inherit = FALSE)) {
+        if (exists("whichID", inherits = FALSE)) {
           maxSizeKeep <- !spreads[events] %in% whichID
           events <- events[maxSizeKeep]
           if(exists("toKeep",inherits = FALSE)) {
@@ -573,7 +573,7 @@ setMethod(
 
       # Remove cells that were stopped by stopRule
       if (is.function(stopRule)) {
-        if (exists("toKeep", inherit = FALSE)) {
+        if (exists("toKeep", inherits = FALSE)) {
           events <- events[toKeep]
           rm(toKeep)
         }

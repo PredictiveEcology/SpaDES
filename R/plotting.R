@@ -487,12 +487,12 @@ setMethod(
 #'
 #' @param ...     Additional arguments. None currently implemented.
 #'
-#' @docType methods
-#' @rdname plotGrob
-#'
 #' # @importClassesFrom NetLogoRClasses agentMatrix
 #' # @importFrom NetLogoRClasses extent
 #'
+#'
+#' @docType methods
+#' @rdname plotGrob
 #'
 #' @importFrom data.table data.table ':='
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
@@ -502,8 +502,6 @@ setMethod(
 #' @importFrom grDevices as.raster
 #'
 #' @author Eliot McIntire
-# package grid is imported in spade-package.R
-# igraph exports %>% from magrittr
 setGeneric(".plotGrob", function(grobToPlot, col = NULL, real = FALSE,
                                  size = unit(5, "points"), minv, maxv,
                                  legend = TRUE, legendText = NULL,
@@ -766,7 +764,6 @@ setMethod(
 #     return(invisible(pntGrob))
 #   }
 # )
-
 # @rdname plotGrob
 # setMethod(
 #   ".plotGrob",
@@ -1794,7 +1791,8 @@ setMethod(
                   c(zMat$minz, zMat$maxz)
               }
 
-            } else if (is(grobToPlot, "agentClasses")) {
+            #} else if (is(grobToPlot, "agentClasses")) {
+            } else if (is(grobToPlot, "SpatialPoints")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
