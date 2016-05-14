@@ -43,6 +43,9 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
 #'
+#' #@importClassesFrom NetLogoRClasses agentMatrix
+#' #@importClassesFrom NetLogoRClasses NLworldMatrix
+#'
 #' @aliases spatialObjects
 #' @importClassesFrom raster RasterLayer
 #' @importClassesFrom raster RasterLayerSparse
@@ -55,16 +58,14 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @importClassesFrom sp SpatialPointsDataFrame
 #' @importClassesFrom sp SpatialPolygons
 #' @importClassesFrom sp SpatialPolygonsDataFrame
-#' @importClassesFrom NetLogoRClasses agentMatrix
-#' @importClassesFrom NetLogoRClasses NLworldMatrix
 #' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects",
               members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
-                        "RasterLayer", "RasterStack",
-                        "agentMatrix", "NLworldMatrix")
+                        "RasterLayer", "RasterStack")#,
+                        #"agentMatrix", "NLworldMatrix")
 )
 
 

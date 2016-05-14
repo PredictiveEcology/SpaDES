@@ -489,10 +489,14 @@ setMethod(
 #'
 #' @docType methods
 #' @rdname plotGrob
-#' @importClassesFrom NetLogoRClasses agentMatrix
+#'
+#' # @importClassesFrom NetLogoRClasses agentMatrix
+#' # @importFrom NetLogoRClasses extent
+#'
+#'
 #' @importFrom data.table data.table ':='
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
-#' @importFrom NetLogoRClasses extent
+#'
 #' @importFrom sp proj4string
 #' @importFrom grid gpar gTree gList rasterGrob textGrob grid.draw
 #' @importFrom grDevices as.raster
@@ -696,72 +700,72 @@ setMethod(
 )
 
 ############## SpatialPoints - thin
-#' @rdname plotGrob
-#' @importFrom grid pointsGrob
-setMethod(
-  ".plotGrob",
-  signature = "agentMatrix",
-  definition = function(grobToPlot, col, size,
-                        legend, gp = gpar(), pch, speedup, name, vp, ...) {
-    speedupScale <- 40
-    speedupScale <- max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
-          xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
-        speedupScale
-    xyOrd <- coordinates(grobToPlot)
-
-    if (!is.null(col)) {
-      if (!is.null(gp)) {
-        gp$col <- col # Accept col argument
-      } else {
-        gp <- gpar(col) #
-      }
-    }
-
-    if (NROW(xyOrd) > 1e3) {
-      # thin if greater than 1000 pts
-      if (speedup > 0.1) {
-        if (requireNamespace("fastshp", quietly = TRUE)) {
-          thinned <- data.table(
-            thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
-                                 tolerance = speedupScale * speedup)
-          )
-          #thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
-          #idLength <- thinned[, sum(thin),by = groups]
-          xyOrd <- xyOrd[thinned$thin, ]
-        } else {
-          message(
-            paste(
-              "To speed up Polygons plotting using Plot install the fastshp package:\n",
-              "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
-            )
-          )
-          if (Sys.info()[["sysname"]] == "Windows") {
-            message(
-              paste(
-                "You may also need to download and install Rtools from:\n",
-                " https://cran.r-project.org/bin/windows/Rtools/"
-              )
-            )
-          }
-        }
-      }
-    }
-
-    pntGrob <- gTree(
-      grobToPlot = grobToPlot,
-      children = gList(
-        pointsGrob(
-          x = xyOrd[,1], y = xyOrd[,2],
-          pch = pch, size = size
-        )
-      ),
-      gp = gp,
-      cl = "plotPoint"
-    )
-    grid.draw(pntGrob)
-    return(invisible(pntGrob))
-  }
-)
+# @rdname plotGrob
+# @importFrom grid pointsGrob
+# setMethod(
+#   ".plotGrob",
+#   signature = "agentMatrix",
+#   definition = function(grobToPlot, col, size,
+#                         legend, gp = gpar(), pch, speedup, name, vp, ...) {
+#     speedupScale <- 40
+#     speedupScale <- max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
+#           xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
+#         speedupScale
+#     xyOrd <- coordinates(grobToPlot)
+#
+#     if (!is.null(col)) {
+#       if (!is.null(gp)) {
+#         gp$col <- col # Accept col argument
+#       } else {
+#         gp <- gpar(col) #
+#       }
+#     }
+#
+#     if (NROW(xyOrd) > 1e3) {
+#       # thin if greater than 1000 pts
+#       if (speedup > 0.1) {
+#         if (requireNamespace("fastshp", quietly = TRUE)) {
+#           thinned <- data.table(
+#             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
+#                                  tolerance = speedupScale * speedup)
+#           )
+#           #thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
+#           #idLength <- thinned[, sum(thin),by = groups]
+#           xyOrd <- xyOrd[thinned$thin, ]
+#         } else {
+#           message(
+#             paste(
+#               "To speed up Polygons plotting using Plot install the fastshp package:\n",
+#               "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
+#             )
+#           )
+#           if (Sys.info()[["sysname"]] == "Windows") {
+#             message(
+#               paste(
+#                 "You may also need to download and install Rtools from:\n",
+#                 " https://cran.r-project.org/bin/windows/Rtools/"
+#               )
+#             )
+#           }
+#         }
+#       }
+#     }
+#
+#     pntGrob <- gTree(
+#       grobToPlot = grobToPlot,
+#       children = gList(
+#         pointsGrob(
+#           x = xyOrd[,1], y = xyOrd[,2],
+#           pch = pch, size = size
+#         )
+#       ),
+#       gp = gp,
+#       cl = "plotPoint"
+#     )
+#     grid.draw(pntGrob)
+#     return(invisible(pntGrob))
+#   }
+# )
 
 # @rdname plotGrob
 # setMethod(
@@ -1059,11 +1063,12 @@ setMethod(
 #' @param newArr  Logical indicating whether this function will create a
 #'                completely new viewport. Default \code{FALSE}.
 #'
+#' # @importFrom NetLogoRClasses extent
+#'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
 #' @importFrom grid viewport vpTree vpList
 #' @importFrom raster xmin xmax ymin ymax extent
-#' @importFrom NetLogoRClasses extent
 #' @rdname makeViewports
 #'
 .makeViewports <- function(sPlot, newArr = FALSE) {
@@ -1367,15 +1372,17 @@ setMethod(
 #' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 #' \code{\link{ggplot}}, \code{\link{dev}}
 #'
+#' # @importClassesFrom NetLogoRClasses griddedClasses
+#'
 #' @rdname Plot
 #' @export
+#'
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop is.factor
 #' @importFrom grid upViewport pushViewport seekViewport grid.text
 #' @importFrom grid grid.rect grid.xaxis grid.yaxis current.parent gpar
 #' @importFrom grDevices dev.cur dev.size
-#' @importClassesFrom NetLogoRClasses griddedClasses
 #'
 #' @include environment.R
 #' @include plotting-classes.R
@@ -1769,7 +1776,8 @@ setMethod(
             }
 
 
-            if (is(grobToPlot, "griddedClasses")) {
+            if (is(grobToPlot, "Raster")) {
+            #if (is(grobToPlot, "griddedClasses")) {
               # Rasters may be zoomed into and subsampled and have unique legend
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,

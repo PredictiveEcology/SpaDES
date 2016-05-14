@@ -303,5 +303,7 @@ Eliot McIntire
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 \code{\link{ggplot}}, \code{\link{dev}}
+
+# @importClassesFrom NetLogoRClasses griddedClasses
 }
 

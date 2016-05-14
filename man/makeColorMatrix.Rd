@@ -2,16 +2,20 @@
 % Please edit documentation in R/plotting-colours.R
 \docType{methods}
 \name{.makeColorMatrix}
+\alias{#}
 \alias{.makeColorMatrix}
-\alias{.makeColorMatrix,griddedClasses,Extent,numeric-method}
+\alias{.makeColorMatrix,Raster,Extent,numeric-method}
+\alias{@importClassesFrom}
+\alias{NetLogoRClasses}
+\alias{griddedClasses}
 \alias{makeColourMatrix}
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{
 .makeColorMatrix(grobToPlot, zoomExtent, maxpixels, legendRange, cols = NULL,
   na.color = "#FFFFFF00", zero.color = NULL, skipSample = TRUE)
 
-\S4method{.makeColorMatrix}{griddedClasses,Extent,numeric}(grobToPlot,
-  zoomExtent, maxpixels, legendRange, cols = NULL, na.color = "#FFFFFF00",
+\S4method{.makeColorMatrix}{Raster,Extent,numeric}(grobToPlot, zoomExtent,
+  maxpixels, legendRange, cols = NULL, na.color = "#FFFFFF00",
   zero.color = NULL, skipSample = TRUE)
 }
 \arguments{

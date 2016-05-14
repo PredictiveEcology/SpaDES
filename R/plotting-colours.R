@@ -14,7 +14,8 @@
 #'          \code{\link[RColorBrewer]{brewer.pal}}
 #'
 #' @author Alex Chubaty
-#' @importClassesFrom NetLogoRClasses agentMatrix
+#'
+#' #@importClassesFrom NetLogoRClasses agentMatrix
 #'
 setGeneric("getColors", function(object) {
   standardGeneric("getColors")
@@ -31,13 +32,13 @@ setMethod("getColors",
             return(cols)
 })
 
-#' @rdname getColors
-setMethod("getColors",
-          signature = "agentMatrix",
-          definition = function(object) {
-            cols <- as(object[,"color"], "data.frame")$color
-            return(cols)
-          })
+# @rdname getColors
+# setMethod("getColors",
+#           signature = "agentMatrix",
+#           definition = function(object) {
+#             cols <- as(object[,"color"], "data.frame")$color
+#             return(cols)
+#           })
 
 #' @rdname getColors
 setMethod("getColors",
@@ -271,12 +272,15 @@ setMethod(
 #'
 #' @rdname makeColorMatrix
 #' @aliases makeColourMatrix
+#'
+#' # @importClassesFrom NetLogoRClasses griddedClasses
+#'
 #' @include plotting-classes.R
 #' @importFrom grDevices colorRampPalette terrain.colors
 #' @importFrom raster minValue getValues sampleRegular is.factor
 #' @importFrom stats na.omit
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
-#' @importClassesFrom NetLogoRClasses griddedClasses
+#'
 #' @docType methods
 #' @author Eliot McIntire
 #'
@@ -290,7 +294,8 @@ setGeneric(".makeColorMatrix",
 #' @rdname makeColorMatrix
 setMethod(
   ".makeColorMatrix",
-  signature = c("griddedClasses", "Extent", "numeric", "ANY"),
+  #signature = c("griddedClasses", "Extent", "numeric", "ANY"),
+  signature = c("Raster", "Extent", "numeric", "ANY"),
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
