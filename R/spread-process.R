@@ -406,6 +406,19 @@ setMethod(
     }
 
     n <- 1L
+
+    # circle needs directions to be 8
+    if(!missing(circle)) {
+      if(circle) {
+        directions = 8L
+        initialLociXY <- cbind(mapID = seq_along(initialLoci), xyFromCell(landscape, initialLoci))
+        mapID <- TRUE
+      }
+    }
+    if(is.function(stopRule)){
+      mapID <- TRUE
+    }
+
     if (mapID | returnIndices) {
       spreads[loci] <- 1L:length(loci)
     } else {
@@ -469,13 +482,6 @@ setMethod(
       size <- length(loci)
     }
 
-    # circle needs directions to be 8
-    if(!missing(circle)) {
-      if(circle) {
-        directions = 8L
-        initialLociXY <- cbind(mapID = seq_along(initialLoci), xyFromCell(landscape, initialLoci))
-      }
-    }
 
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
@@ -581,7 +587,6 @@ setMethod(
         names(shouldStop) <- ids
         #print(tapply(tmp[,"landscape"],tmp[,"mapID"], sum))
         #print(shouldStop)
-
         if(any(shouldStop)) {
           if(stopRuleExact) {
             whStop <- as.numeric(names(shouldStop)[shouldStop])
