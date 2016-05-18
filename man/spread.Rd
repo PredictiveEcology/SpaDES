@@ -90,7 +90,8 @@ each spread event strictly follows the stopRule. If not, then each spread event 
 "go to far" because the internal algorithm adds all cells in each iteration all at once,
 then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.}
 
-\item{...}{Additional named vectors required for \code{stopRule}. These
+\item{...}{Additional named vectors or named list of named vectors
+required for \code{stopRule}. These
 vectors should be as long as required e.g., length
 \code{loci} if there is one value per event.}
 }
@@ -235,7 +236,10 @@ fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=
                 0.235, 0, NULL, 1e8, 8, iterations = 3, mapID = TRUE)
 fires[,list(size=length(initialLocus)), by=eventID]  # See sizes of fires
 
+####################
 ## Continue event by passing interrupted object into spreadState
+####################
+
 fires2 <- spread(hab, loci=NA_real_, returnIndices=TRUE, 0.235,
                  0, NULL, 1e8, 8, iterations = 2, mapID = TRUE,
                  spreadState=fires)
@@ -258,9 +262,10 @@ burned <- fires[active == FALSE]
 burnedMap <- rasterizeReduced(burned, fullRas, "eventID", "indices")
 Plot(burnedMap, new=TRUE)
 
-
-
+####################
 ## stopRule examples
+####################
+
 # examples with stopRule, which means that the eventual size is driven by the values on the raster
 #  passed in to the landscape argument
 set.seed(1234)
@@ -330,9 +335,9 @@ regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + 
 Plot(circlish, regularCA, new=TRUE)
 
 
-#############
+####################
 # complex stopRule
-#############
+####################
 
 initialLoci <- sample(seq_len(ncell(hab)), 2)#(ncell(hab)-ncol(hab))/2 + c(4, -4)
 endSizes <- seq_along(initialLoci)*200
@@ -344,6 +349,11 @@ stopRule3 <- function(landscape, mapID, endSizes) sum(landscape)>endSizes[mapID]
 
 TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
    directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes, stopRuleExact = TRUE)
+# or using named list of named elements:
+#TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+#    directions = 8, mapID = TRUE, stopRule = stopRule3,
+#    vars = list(endSizes = endSizes), stopRuleExact = TRUE)
+
 Plot(TwoCirclesDiffSize, new=TRUE)
 cirs <- getValues(TwoCirclesDiffSize)
 vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
