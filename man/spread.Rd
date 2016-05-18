@@ -90,7 +90,9 @@ each spread event strictly follows the stopRule. If not, then each spread event 
 "go to far" because the internal algorithm adds all cells in each iteration all at once,
 then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.}
 
-\item{...}{Additional parameters.}
+\item{...}{Additional named vectors required for \code{stopRule}. These
+vectors should be as long as required e.g., length
+\code{loci} if there is one value per event.}
 }
 \value{
 Either a \code{RasterLayer} indicating the spread of the process in

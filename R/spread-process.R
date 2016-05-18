@@ -132,7 +132,9 @@ if (getRversion() >= "3.1.0") {
 #'                      "go to far" because the internal algorithm adds all cells in each iteration all at once,
 #'                      then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.
 #'
-#' @param ...           Additional parameters.
+#' @param ...           Additional named vectors required for \code{stopRule}. These
+#'                      vectors should be as long as required e.g., length
+#'                      \code{loci} if there is one value per event.
 #'
 #' @return Either a \code{RasterLayer} indicating the spread of the process in
 #' the landscape or a \code{data.table}. If a \code{RasterLayer}, then it represents
