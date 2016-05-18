@@ -5,7 +5,8 @@ if (getRversion() >= "3.1.0") {
 ###############################################################################
 #' Simulate a spread process on a landscape.
 #'
-#' This can be used to simulated fires or other things.
+#' This can be used to simulate fires, seed dispersal, calculation of iterative,
+#' concentric landscape values (symmetric or asymmetric) and many other things.
 #' Essentially, it starts from a collection of cells (\code{loci}) and spreads
 #' to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
 #' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
@@ -27,6 +28,49 @@ if (getRversion() >= "3.1.0") {
 #' desired that the \code{spreadProb} change before a spread event is completed because,
 #' for example, a fire is spreading, and a new set of conditions arise due to
 #' a change in weather.
+#'
+#' @section Breaking out of spread events:
+#'
+#' There are 4 ways for the spread to "stop" spreading. Here, each "event" is defined as
+#' all cells that are spawned from a single starting loci. So, one spread call can have
+#' multiple spreading "events". The ways outlines below are all acting at all times,
+#' i.e., they are not mutually exclusive. Therefore, it is the user's
+#' responsibility to make sure the different rules are interacting with
+#' each other correctly:
+#'
+#' \tabular{ll}{
+#'   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
+#'                          active spreading events will stop. In practice,
+#'                          active spreading events will stop. In practice,
+#'                          this number generally should be below 0.3 to actually
+#'                          see an event stop\cr
+#'   \code{maxSize} \tab This is the number of pixels that are "successfully" turned
+#'                       on during a spreading event. This can be vectorized, one value
+#'                       for each event   \cr
+#'   \code{circleMaxRadius} \tab If \code{circle} is TRUE, then this will be the maximum
+#'                       radius reached, and then the event will stop. Currently this is
+#'                       not vectorized, i.e,. it will only work with a single value.\cr
+#'   \code{stopRule} \tab This is a function that can use "landscape", "mapID", or any
+#'                       named vector passed into \code{spread} in the \code{...}. This
+#'                       can take on relatively complex functions. See examples.
+#'                       To confirm the cause of stopping, the user can assess the values
+#'                       after the function has finished.\cr
+#' }
+#'
+#' The spread function does not return the result of this stopRule. If,
+#' say, an event has both \code{circleMaxRadius} and \code{stopRule},
+#' and it is
+#' the \code{circleMaxRadius} that caused the event spreading to stop,
+#' there will be no indicator returned from this function that indicates
+#' which rule caused the stop.
+#'
+#' \code{stopRule} has many use cases. One common use case is evaluating
+#' a neighbourhood around a focal set of points. This provides,
+#' therefore, an alternative to the \code{\link[raster]{buffer}} function or \code{\link[raster]{focal}}
+#' function.
+#' In both of those cases, the window/buffer size must be an input to the function. Here,
+#' the resulting size can be emergent based on the incremental growing and calculating
+#' of the \code{landscape} values underlying the spreading event.
 #'
 #' @param landscape     A \code{RasterLayer} object.
 #'
@@ -78,9 +122,9 @@ if (getRversion() >= "3.1.0") {
 #' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If \code{circle}
 #'                      is \code{TRUE}, then it will grow to this maximum radius. Default to NA.
 #'
-#' @param stopRule      A function which must include a named argument, \code{landscape}.
-#'                      The result of this function must be a logical and will determine independently
-#'                      for each spread event whether it should stop spreading. Default NA meaning,
+#' @param stopRule      A function which will be used to assess whether each individual cluster
+#'                      should stop growing. This function can be an argument of "landscape", "mapID", and
+#'                      any other vectors passed to spread in the ... Default NA meaning,
 #'                      spreading will not stop as a function of the landscape. See Details and examples.
 #'
 #' @param stopRuleExact Logical. If \code{stopRule} contains a function, this argument is used ensure that
@@ -132,7 +176,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               lowMemory = getOption("spades.lowMemory"),
                               returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
                               spreadProbLater = NA_real_, spreadState = NA,
-                              circle, circleMaxRadius = NA_real_,
+                              circle = FALSE, circleMaxRadius = NA_real_,
                               stopRule = NA, stopRuleExact = FALSE,
                               ...) {
   standardGeneric("spread")
@@ -229,12 +273,12 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' # examples with stopRule, which means that the eventual size is driven by the values on the raster
 #' #  passed in to the landscape argument
 #' set.seed(1234)
-#' stopRule1 <- function(x) sum(x)>50
+#' stopRule1 <- function(landscape) sum(landscape)>50
 #' stopRuleA <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 #'                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1)
 #'
 #' set.seed(1234)
-#' stopRule2 <- function(x) sum(x)>100
+#' stopRule2 <- function(landscape) sum(landscape)>100
 #' # using stopRuleExact = TRUE
 #' stopRuleB <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 #'                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule2,
@@ -249,17 +293,17 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'
 #' # Test that the stopRules work
 #' # stopRuleA was not exact, so each value will "overshoot" the stopRule, here it was hab>50
-#' foo <- cbind(vals=hab[stopRuleA], id = stopRuleA[stopRuleA>0]);
-#' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
+#' foo <- cbind(vals=hab[stopRuleA], mapID = stopRuleA[stopRuleA>0]);
+#' tapply(foo[,"vals"], foo[,"mapID"], sum) # Correct ... all are above 50
 #'
 #' # stopRuleB was exact, so each value will be as close as possible while rule still is TRUE
 #' #  Because we have discrete cells, these numbers will always slightly under the rule
-#' foo <- cbind(vals=hab[stopRuleB], id = stopRuleB[stopRuleB>0]);
-#' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
+#' foo <- cbind(vals=hab[stopRuleB], mapID = stopRuleB[stopRuleB>0]);
+#' tapply(foo[,"vals"], foo[,"mapID"], sum) # Correct ... all are above 50
 #'
 #' # stopRuleB_notExact will overshoot
-#' foo <- cbind(vals=hab[stopRuleB_NotExact], id = stopRuleB_NotExact[stopRuleB_NotExact>0]);
-#' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
+#' foo <- cbind(vals=hab[stopRuleB_NotExact], mapID = stopRuleB_NotExact[stopRuleB_NotExact>0]);
+#' tapply(foo[,"vals"], foo[,"mapID"], sum) # Correct ... all are above 50
 #'
 #'
 #' # Cellular automata shapes
@@ -277,13 +321,13 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'
 #' # Interference shapes - can make them with: a boolean raster, directions = 8,
 #' #    stopRule in place, spreadProb = 1
-#' stopRule2 <- function(x) sum(x)>200
+#' stopRule2 <- function(landscape) sum(landscape)>200
 #' squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 4, mapID = TRUE, stopRule = stopRule2)
 #' Plot(squashedDiamonds, new=TRUE)
 #'
 #' # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
-#' stopRule2 <- function(x) sum(x)>200
+#' stopRule2 <- function(landscape) sum(landscape)>200
 #' seed <- sample(1e4,1)
 #' set.seed(seed)
 #' circlish <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
@@ -294,6 +338,24 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'    print(seed)
 #' Plot(circlish, regularCA, new=TRUE)
 #'
+#'
+#' #############
+#' # complex stopRule
+#' #############
+#'
+#' initialLoci <- sample(seq_len(ncell(hab)), 2)#(ncell(hab)-ncol(hab))/2 + c(4, -4)
+#' endSizes <- seq_along(initialLoci)*200
+#'
+#' # Can be a function of landscape, mapID, and/or any other named
+#' #   variable passed into spread
+#'
+#' stopRule3 <- function(landscape, mapID, endSizes) sum(landscape)>endSizes[mapID]
+#'
+#' TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+#'    directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes, stopRuleExact = TRUE)
+#' Plot(TwoCirclesDiffSize, new=TRUE)
+#' cirs <- getValues(TwoCirclesDiffSize)
+#' vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
@@ -411,7 +473,7 @@ setMethod(
     if(!missing(circle)) {
       if(circle) {
         directions = 8L
-        initialLociXY <- cbind(id = seq_along(initialLoci), xyFromCell(landscape, initialLoci))
+        initialLociXY <- cbind(mapID = seq_along(initialLoci), xyFromCell(landscape, initialLoci))
       }
     }
 
@@ -419,7 +481,7 @@ setMethod(
     while (length(loci) & (n <= iterations) ) {
 
       # identify neighbours
-      if (mapID | returnIndices) {
+      if (mapID | returnIndices | circle) {
         potentials <- adj(landscape, loci, directions, pairs = TRUE)
       } else {
         # must pad the first column of potentials
@@ -458,7 +520,7 @@ setMethod(
       # implement circle
       if(!missing(circle)) {
         if(circle) {
-          a <- cbind(id=spreads[potentials[, 1L]], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
+          a <- cbind(mapID=spreads[potentials[, 1L]], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
           d <- .matchedPointDistance(a, initialLociXY)
           potentials <- potentials[(d[,"dists"] %<=% n),, drop = FALSE]
           if(!is.na(circleMaxRadius)){
@@ -501,34 +563,55 @@ setMethod(
       # Implement stopRule section
       if(is.function(stopRule) & length(events)>0){
 
-        prevCells <- cbind(id=spreads[spreads>0],
-                           val = landscape[spreads>0], cells = which(spreads>0), prev=1)
-        eventCells <- cbind(id = spreads[potentials[, 1L]],
-                            val = landscape[events], cells = events, prev=0)
-        tmp <- rbind(prevCells, eventCells)
-        shouldStop <- tapply(tmp[,"val"],tmp[,"id"], stopRule)
+        prevCells <- cbind(mapID=spreads[spreads>0],
+                           landscape = landscape[spreads>0], cells = which(spreads>0), prev=1)
+        eventCells <- cbind(mapID = spreads[potentials[, 1L]],
+                            landscape = landscape[events], cells = events, prev=0)
+        tmp <- rbind(prevCells[prevCells[,"mapID"] %in% unique(eventCells[,"mapID"]),], eventCells) # don't need to continue doing ids that are not active
+        otherVars <- list(...)
+
+        ids <- unique(tmp[,"mapID"])
+        shouldStop <- lapply(ids, function(mapID) {
+          args=append(as.data.frame(tmp[tmp[,"mapID"]==mapID,]), otherVars)
+          args <- args[-(names(args)=="mapID")]
+          args <- append(args, list(mapID=mapID))
+          wh <- match(names(formals(stopRule)),names(args))
+          do.call(stopRule, args[wh])
+        }) %>% unlist()
+        names(shouldStop) <- ids
+        #print(tapply(tmp[,"landscape"],tmp[,"mapID"], sum))
+        #print(shouldStop)
+
         if(any(shouldStop)) {
           if(stopRuleExact) {
-
             whStop <- as.numeric(names(shouldStop)[shouldStop])
-            whStopAll <- tmp[,"id"] %in% whStop
+            whStopAll <- tmp[,"mapID"] %in% whStop
             tmp2 <- tmp[whStopAll,]
 
-            whStopEvents <- eventCells[,"id"] %in% whStop
+            whStopEvents <- eventCells[,"mapID"] %in% whStop
 
-            out <- lapply(whStop, function(y) {
+            out <- lapply(whStop, function(mapID) {
 
-              tmp3 <- tmp2[tmp2[,"id"]==y,]
+              tmp3 <- tmp2[tmp2[,"mapID"]==mapID,]
               newOnes <- tmp3[,"prev"]==0
               ord <- seq_along(newOnes)
               ord[newOnes] <- sample(ord[newOnes])
 
               startLen <- sum(!newOnes)
               addIncr <- 1
-              while(!stopRule(tmp3[1:(startLen+addIncr),"val"]))
+
+              done <- FALSE
+              while(!done) {
+                args <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
+                args <- args[-(names(args)=="mapID")]
+                args <- append(args, list(mapID=mapID))
+                wh <- match(names(formals(stopRule)),names(args))
+                done <- do.call(stopRule, args[wh])
                 addIncr <- addIncr+1
+              }
+              #while(!stopRule(tmp3[1:(startLen+addIncr),"landscape"]))
               addIncr <- addIncr - 1
-                     tmp3[(startLen+addIncr+1):NROW(tmp3),,drop=FALSE]#)
+              tmp3[(startLen+addIncr):NROW(tmp3),,drop=FALSE]#)
             })
 
             eventRm <- do.call(rbind, out)[,"cells"]
@@ -538,7 +621,7 @@ setMethod(
             eventCells <- eventCells[cellsKeep,,drop=FALSE]
 
           }
-          toKeep <- !(eventCells[,"id"] %in% as.numeric(names(which((shouldStop)))))
+          toKeep <- !(eventCells[,"mapID"] %in% as.numeric(names(which((shouldStop)))))
         }
 
       }
@@ -664,12 +747,12 @@ setMethod(
 
 
 .matchedPointDistance <- function(a, b) {
-    ids <- unique(b[,"id"])
-    orig <- order(a[,"id",drop=FALSE],a[,"to",drop=FALSE])
+    ids <- unique(b[,"mapID"])
+    orig <- order(a[,"mapID",drop=FALSE],a[,"to",drop=FALSE])
     a <- a[orig,,drop=FALSE]
     dists <- cbind(dists=lapply(ids, function(i){
-      m1 <- a[a[,"id"]==i,c("x","y"), drop = FALSE]
-      m2 <- b[b[,"id"]==i,c("x","y"), drop = FALSE]
+      m1 <- a[a[,"mapID"]==i,c("x","y"), drop = FALSE]
+      m2 <- b[b[,"mapID"]==i,c("x","y"), drop = FALSE]
       sqrt((m1[,"x"] - m2[,"x"])^2 + (m1[,"y"] - m2[,"y"])^2)
     }) %>% unlist(), a)
     return(dists[order(orig),,drop=FALSE])

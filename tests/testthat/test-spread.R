@@ -1,6 +1,7 @@
 test_that("spread produces legal RasterLayer", {
   set.seed(123)
 
+  library(raster)
   # inputs for x
   a = raster(extent(0,100,0,100), res=1)
   b = raster(extent(a), res=1, vals=stats::runif(ncell(a),0,1))
@@ -80,7 +81,7 @@ test_that("spread stopRule does not work correctly", {
   set.seed(1234)
   maxVal <- 50
   startCells <- as.integer(sample(1:ncell(hab), 10))
-  stopRule1 <- function(x) sum(x)>maxVal
+  stopRule1 <- function(landscape) sum(landscape)>maxVal
   stopRuleA <- spread(hab, loci = startCells, 1, 0,
                   NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE,
                   circle = TRUE, stopRule = stopRule1)
@@ -109,7 +110,7 @@ test_that("spread stopRule does not work correctly", {
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = maxSizes, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleExact = TRUE)
-  Plot(stopRuleB, new=TRUE)
+  #Plot(stopRuleB, new=TRUE)
   foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB>0]);
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) == pmin(maxSizes, maxVal)))
 
@@ -119,14 +120,14 @@ test_that("spread stopRule does not work correctly", {
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = maxSizes, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleExact = TRUE)
-  Plot(stopRuleB, new=TRUE)
+  #Plot(stopRuleB, new=TRUE)
   foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB>0]);
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) == pmin(floor(maxSizes), maxVal)))
 
   # Test for circles
   maxVal <- 200
   set.seed(53432)
-  stopRule2 <- function(x) sum(x)>maxVal
+  stopRule2 <- function(landscape) sum(landscape)>maxVal
   startCells <- as.integer(sample(1:ncell(hab), 1))
 
   circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
@@ -154,7 +155,7 @@ test_that("spread stopRule does not work correctly", {
   hab3 <- hab2
   hab3[] <- 0
   hab3[cells[which(pd>r)]] <- 1
-  Plot(hab3, new=T)
+  #Plot(hab3, new=T)
 
   expect_true((r+1)>=max(pd))
   expect_true((r)<max(pd))
@@ -164,7 +165,7 @@ test_that("spread stopRule does not work correctly", {
   # Test for circles using maxDist
   maxRadius <- 25
   set.seed(53432)
-  stopRule2 <- function(x) sum(x)>maxVal
+  stopRule2 <- function(landscape) sum(landscape)>maxVal
   startCells <- as.integer(sample(1:ncell(hab), 1))
 
   circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
@@ -173,11 +174,11 @@ test_that("spread stopRule does not work correctly", {
   centre <- xyFromCell(hab2,startCells)
   allCells <- xyFromCell(hab2, cells)
   pd <- pointDistance(centre, allCells, lonlat = FALSE)
-  Plot(circs,new=TRUE)
+  #Plot(circs,new=TRUE)
   circEdge <- circs
   circEdge[] <- 0
   circEdge[cells[pd==maxRadius]] <- 1
-  Plot(circEdge, addTo="circs", cols = c("transparent", "red"))
+  #Plot(circEdge, addTo="circs", cols = c("transparent", "red"))
   expect_true(maxRadius==max(pd))
 
   # Test for circles using maxDist
@@ -185,12 +186,12 @@ test_that("spread stopRule does not work correctly", {
   set.seed(543345)
   numCircs <- 4
 #  set.seed(53432)
-  stopRule2 <- function(x) sum(x)>maxVal
+  stopRule2 <- function(landscape) sum(landscape)>maxVal
   startCells <- as.integer(sample(1:ncell(hab), numCircs))
 
   circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
                   mapID = TRUE, circleMaxRadius = maxRadius)
-  Plot(circs,new=TRUE)
+  #Plot(circs,new=TRUE)
 
   for(whCirc in 1:numCircs) {
     cells <- which(getValues(circs)==whCirc)
@@ -205,9 +206,22 @@ test_that("spread stopRule does not work correctly", {
       # Test that there are both 0 and whCirc values, i.e,. it is on an edge
       expect_true(all(c(0,whCirc) %in% circs[as.vector(adj(hab2, cells[pd==maxRadius], pairs = FALSE))]))
     }
-    Plot(circEdge, addTo="circs", cols = c("transparent", rainbow(numCircs)[whCirc]))
+    #Plot(circEdge, addTo="circs", cols = c("transparent", rainbow(numCircs)[whCirc]))
   }
 
+
+  # Test complex functions
+  initialLoci <- (ncell(hab)-ncol(hab))/2 + c(4, -4)
+  endSizes <- seq_along(initialLoci)*200
+  stopRule3 <- function(landscape, mapID, endSizes) sum(landscape)>endSizes[mapID]
+
+  TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+     directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes,
+     stopRuleExact = TRUE)
+  #Plot(TwoCirclesDiffSize, new=TRUE)
+  cirs <- getValues(TwoCirclesDiffSize)
+  vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
+  expect_true(all(vals<endSizes))
 
 
   # Test that maxSize can be a non integer value (i.e, Real)
