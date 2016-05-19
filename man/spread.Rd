@@ -402,8 +402,8 @@ vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 
 }
 \author{
-Steve Cumming \email{Steve.Cumming@sbf.ulaval.ca}
-
 Eliot McIntire
+
+Steve Cumming
 }
 
