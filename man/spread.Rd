@@ -253,8 +253,6 @@ directions <- 8
 # Can use transparent as a color
 setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 
-#dev(4)
-
 Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
                              # so, some details are lost
 
