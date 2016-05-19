@@ -66,6 +66,9 @@ test_that("spread stopRule does not work correctly", {
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
+  hab2 <- hab>0
+  maxRadius <- 25
+  maxVal <- 200
 
   #set.seed(seed);
   #print(seed);
@@ -97,7 +100,6 @@ test_that("spread stopRule does not work correctly", {
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) <= maxVal))
 
   # If boolean, then it is exact
-  hab2 <- hab>0
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
                       stopRuleExact = TRUE)
@@ -125,7 +127,6 @@ test_that("spread stopRule does not work correctly", {
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) == pmin(floor(maxSizes), maxVal)))
 
   # Test for circles
-  maxVal <- 200
   set.seed(53432)
   stopRule2 <- function(landscape) sum(landscape)>maxVal
   startCells <- as.integer(sample(1:ncell(hab), 1))
@@ -142,28 +143,8 @@ test_that("spread stopRule does not work correctly", {
   expect_true((r+1)<=max(pd))
 
 
-  set.seed(53432)
-  circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
-                  mapID = TRUE, stopRule = stopRule2, stopRuleExact=TRUE)
-  cells <- which(getValues(circs)==1)
-  centre <- xyFromCell(hab2,startCells)
-  allCells <- xyFromCell(hab2, cells)
-  pd <- pointDistance(centre, allCells, lonlat = FALSE)
-  #pi*r^2 = maxVal
-  r = sqrt(maxVal/pi)
-
-  hab3 <- hab2
-  hab3[] <- 0
-  hab3[cells[which(pd>r)]] <- 1
-  #Plot(hab3, new=T)
-
-  expect_true((r+1)>=max(pd))
-  expect_true((r)<max(pd))
-
-
 
   # Test for circles using maxDist
-  maxRadius <- 25
   set.seed(53432)
   stopRule2 <- function(landscape) sum(landscape)>maxVal
   startCells <- as.integer(sample(1:ncell(hab), 1))
@@ -174,15 +155,9 @@ test_that("spread stopRule does not work correctly", {
   centre <- xyFromCell(hab2,startCells)
   allCells <- xyFromCell(hab2, cells)
   pd <- pointDistance(centre, allCells, lonlat = FALSE)
-  #Plot(circs,new=TRUE)
-  circEdge <- circs
-  circEdge[] <- 0
-  circEdge[cells[pd==maxRadius]] <- 1
-  #Plot(circEdge, addTo="circs", cols = c("transparent", "red"))
   expect_true(maxRadius==max(pd))
 
   # Test for circles using maxDist
-  maxRadius <- 25
   set.seed(543345)
   numCircs <- 4
 #  set.seed(53432)
@@ -191,7 +166,7 @@ test_that("spread stopRule does not work correctly", {
 
   circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
                   mapID = TRUE, circleMaxRadius = maxRadius)
-  #Plot(circs,new=TRUE)
+  Plot(circs,new=TRUE)
 
   for(whCirc in 1:numCircs) {
     cells <- which(getValues(circs)==whCirc)
@@ -206,7 +181,7 @@ test_that("spread stopRule does not work correctly", {
       # Test that there are both 0 and whCirc values, i.e,. it is on an edge
       expect_true(all(c(0,whCirc) %in% circs[as.vector(adj(hab2, cells[pd==maxRadius], pairs = FALSE))]))
     }
-    #Plot(circEdge, addTo="circs", cols = c("transparent", rainbow(numCircs)[whCirc]))
+    Plot(circEdge, addTo="circs", cols = c("transparent", rainbow(numCircs)[whCirc]))
   }
 
 
@@ -224,5 +199,55 @@ test_that("spread stopRule does not work correctly", {
   expect_true(all(vals<endSizes))
 
 
-  # Test that maxSize can be a non integer value (i.e, Real)
-})
+  # Testing allowOverlap
+
+  #initialLoci <- (ncell(hab)-ncol(hab))/2 + c(0, -1)
+  initialLoci <- as.integer(sample(1:ncell(hab), 10))
+  expect_silent(circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = initialLoci,
+                  mapID = TRUE, circleMaxRadius = maxRadius, allowOverlap=TRUE))
+
+  expect_silent(circs <- spread(hab2, spreadProb = 1, loci = initialLoci,
+                                maxSize = 10, allowOverlap=TRUE))
+
+  expect_silent(circs <- spread(hab2, spreadProb = 1, loci = initialLoci,
+                                maxSize = seq_along(initialLoci)*3, allowOverlap=TRUE))
+
+
+  # Test allowOverlap and stopRule
+  for(i in 1:6) {
+     maxVal <- sample(10:300,1)
+     stopRule2 <- function(landscape,maxVal) sum(landscape)>maxVal
+     expect_silent(
+     circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
+                     stopRule = stopRule2, maxVal=maxVal, returnIndices = TRUE,
+                     mapID = TRUE, allowOverlap=TRUE, stopRuleExact=FALSE)
+     )
+
+     vals <- tapply(hab[circs$indices], circs$eventID, sum)
+     expect_true(all(vals>maxVal))
+  }
+
+ #stopRuleExact the allowOverlap
+ maxVal <- 20
+ stopRule2 <- function(landscape,maxVal) sum(landscape)>maxVal
+ #expect_silent(
+ circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
+                 stopRule = stopRule2, maxVal=maxVal, returnIndices = TRUE,
+                 mapID = TRUE, allowOverlap=TRUE, stopRuleExact=TRUE)
+ #)
+ vals <- tapply(hab[circs$indices], circs$eventID, sum)
+ expect_true(all(vals<=maxVal))
+
+
+ maxVal <- sample(10:100, 10)
+ stopRule2 <- function(landscape,mapID,maxVal) sum(landscape)>maxVal[mapID]
+ expect_silent(
+ circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                 mapID = TRUE, allowOverlap=TRUE, stopRuleExact=TRUE,
+                 maxVal = maxVal, returnIndices = TRUE)
+ )
+ vals <- tapply(hab[circs$indices], circs$eventID, sum)
+ expect_true(all(vals<=maxVal))
+ # Test that maxSize can be a non integer value (i.e, Real)
+
+ })

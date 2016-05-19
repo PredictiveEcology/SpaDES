@@ -11,7 +11,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   iterations = 1000000L, lowMemory = getOption("spades.lowMemory"),
   returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
   spreadProbLater = NA_real_, spreadState = NA, circle = FALSE,
-  circleMaxRadius = NA_real_, stopRule = NA, stopRuleExact = FALSE, ...)
+  circleMaxRadius = NA_real_, stopRule = NA, stopRuleExact = FALSE,
+  allowOverlap = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -19,7 +20,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
   mapID = FALSE, plot.it = FALSE, spreadProbLater = NA_real_,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
-  stopRule = NA, stopRuleExact = FALSE, ...)
+  stopRule = NA, stopRuleExact = FALSE, allowOverlap = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -30,7 +31,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
 spreading, or probability raster driven. Default is 0.23.
 If a \code{spreadProbLater} is provided, then this is
 only used for the first iteration. Also called Escape
-probability.}
+probability. See section on \code{Breaking out of spread events}.}
 
 \item{persistence}{A probability that an active cell will continue to burn,
 per time step.}
@@ -41,8 +42,8 @@ where 1 indicates "cannot spread to".
 Currently not implemented.}
 
 \item{maxSize}{Vector of the maximum number of pixels for a single or
-all events to be spread.
-Recycled to match \code{loci} length.}
+all events to be spread. Recycled to match \code{loci} length.
+See section on \code{Breaking out of spread events}.}
 
 \item{directions}{The number adjacent cells in which to look;
 default is 8 (Queen case).}
@@ -78,17 +79,25 @@ is FALSE. Using \code{circle=TRUE} can be dramatically slower for large
 problems. Note, this should usually be used with spreadProb = 1.}
 
 \item{circleMaxRadius}{Numeric. A further way to stop the outward spread of events. If \code{circle}
-is \code{TRUE}, then it will grow to this maximum radius. Default to NA.}
+is \code{TRUE}, then it will grow to this maximum radius. See section on
+\code{Breaking out of spread events}. Default to NA.}
 
 \item{stopRule}{A function which will be used to assess whether each individual cluster
 should stop growing. This function can be an argument of "landscape", "mapID", and
-any other vectors passed to spread in the ... Default NA meaning,
-spreading will not stop as a function of the landscape. See Details and examples.}
+any other named vectors, a named list of named vectors,
+or a named data.frame of with column names passed to spread in
+the ... . Default NA meaning,
+spreading will not stop as a function of the landscape. See section on
+\code{Breaking out of spread events} and examples.}
 
 \item{stopRuleExact}{Logical. If \code{stopRule} contains a function, this argument is used ensure that
 each spread event strictly follows the stopRule. If not, then each spread event will
 "go to far" because the internal algorithm adds all cells in each iteration all at once,
 then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.}
+
+\item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one another, i.e.,
+they do not interact. Currently, this is slower than if \code{allowOverlap} is
+\code{FALSE}. Default is FALSE.}
 
 \item{...}{Additional named vectors or named list of named vectors
 required for \code{stopRule}. These
@@ -97,22 +106,33 @@ vectors should be as long as required e.g., length
 }
 \value{
 Either a \code{RasterLayer} indicating the spread of the process in
-the landscape or a \code{data.table}. If a \code{RasterLayer}, then it represents
+the landscape or a \code{data.table} if \code{returnIndices} is \code{TRUE}.
+If a \code{RasterLayer}, then it represents
 every pixel in which a successful spread event occurred. For the case of, say, a fire
-this would represent every pixel that burned. If \code{returnIndices} is \code{TRUE},
+this would represent every pixel that burned. If \code{allowOverlap} is \code{TRUE},
+This Raster layer will represent the sum of the individual event ids (which
+are numerics \code{seq_along(loci)}. This will
+generally be of minimal use because it won't be possible to distinguish if
+event 2 overlapped with event 5 or if it was just event 7.
+
+If \code{returnIndices} is \code{TRUE},
 then this function returns a \code{data.table} with columns:
 
-\code{indices} is the pixel indices of pixels that have been touched by the spread
-algorithm.
+\tabular{ll}{
+  \code{eventID} \tab an arbitrary ID \code{1:length(loci)} identifying
+                     unique clusters of spread events, i.e., all pixels
+                     that have been spread into that have a
+                     common initial pixel.\cr
+  \code{initialLocus} \tab the initial pixel number of that particular
+                           spread event.\cr
+  \code{indices} \tab The pixel indices of pixels that have
+                       been touched by the spread algorithm.\cr
+  \code{active} \tab a logical indicating whether the pixel is active (i.e.,
+                       could still be a source for spreading) or not (no
+                       spreading will occur from these pixels).\cr
+}
 
-\code{eventID} is an arbitrary ID \code{1:length(loci)} identifying unique clusters
-of spread events, i.e., all pixels that have been spread into that have a common
-initial pixel.
-
-\code{active} is a logical indicating whether the pixel is active (i.e., could still
-be a source for spreading) or not (no spreading will occur from these pixels).
-
-\code{initialIndex}, the initial pixel number of that particular spread event.
+This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
 }
 \description{
 This can be used to simulate fires, seed dispersal, calculation of iterative,
@@ -160,8 +180,9 @@ each other correctly:
                       on during a spreading event. This can be vectorized, one value
                       for each event   \cr
   \code{circleMaxRadius} \tab If \code{circle} is TRUE, then this will be the maximum
-                      radius reached, and then the event will stop. Currently this is
-                      not vectorized, i.e,. it will only work with a single value.\cr
+                      radius reached, and then the event will stop. This is
+                      vectorized, and if length is >1, it will be matched
+                      in the order of \code{loci}\cr
   \code{stopRule} \tab This is a function that can use "landscape", "mapID", or any
                       named vector passed into \code{spread} in the \code{...}. This
                       can take on relatively complex functions. See examples.
@@ -178,8 +199,8 @@ which rule caused the stop.
 
 \code{stopRule} has many use cases. One common use case is evaluating
 a neighbourhood around a focal set of points. This provides,
-therefore, an alternative to the \code{\link[raster]{buffer}} function or \code{\link[raster]{focal}}
-function.
+therefore, an alternative to the \code{\link[raster]{buffer}} function or
+\code{\link[raster]{focal}} function.
 In both of those cases, the window/buffer size must be an input to the function. Here,
 the resulting size can be emergent based on the incremental growing and calculating
 of the \code{landscape} values underlying the spreading event.
@@ -230,15 +251,15 @@ Plot(fires, addTo = "hab2", zero.color = "white",
 Plot(fires,
      cols = topo.colors(10))
 
-## Use interrupt a spread event using iterations - need returnIndices=TRUE to use outputs
+####################
+## Continue event by passing interrupted object into spreadState
+####################
+
+## Interrupt a spread event using iterations - need returnIndices=TRUE to use outputs
 ##   as new inputs in next iteration
 fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
                 0.235, 0, NULL, 1e8, 8, iterations = 3, mapID = TRUE)
 fires[,list(size=length(initialLocus)), by=eventID]  # See sizes of fires
-
-####################
-## Continue event by passing interrupted object into spreadState
-####################
 
 fires2 <- spread(hab, loci=NA_real_, returnIndices=TRUE, 0.235,
                  0, NULL, 1e8, 8, iterations = 2, mapID = TRUE,
@@ -357,6 +378,28 @@ TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = T
 Plot(TwoCirclesDiffSize, new=TRUE)
 cirs <- getValues(TwoCirclesDiffSize)
 vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
+
+##############
+# allowOverlap
+##############
+ set.seed(3113)
+ initialLoci <- as.integer(sample(1:ncell(hab), 10))
+ # using "landscape", "mapID", and a variable passed in
+ maxVal <- rep(500,length(initialLoci))
+ # define stopRule
+ stopRule2 <- function(landscape,mapID,maxVal) sum(landscape)>maxVal[mapID]
+ circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                   mapID = TRUE, allowOverlap=TRUE, stopRuleExact=FALSE,
+                                     maxVal = maxVal, returnIndices = TRUE)
+ (vals <- tapply(hab[circs$indices], circs$eventID, sum))
+ vals<=maxVal # All TRUE
+ overlapEvents <- raster(hab)
+ overlapEvents[] <- 0
+ toMap <- circs[,sum(eventID),by=indices]
+ overlapEvents[toMap$indices] <- toMap$V1
+ Plot(overlapEvents, new=TRUE)
+
+
 }
 \author{
 Steve Cumming \email{Steve.Cumming@sbf.ulaval.ca}

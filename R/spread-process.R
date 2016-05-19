@@ -48,8 +48,9 @@ if (getRversion() >= "3.1.0") {
 #'                       on during a spreading event. This can be vectorized, one value
 #'                       for each event   \cr
 #'   \code{circleMaxRadius} \tab If \code{circle} is TRUE, then this will be the maximum
-#'                       radius reached, and then the event will stop. Currently this is
-#'                       not vectorized, i.e,. it will only work with a single value.\cr
+#'                       radius reached, and then the event will stop. This is
+#'                       vectorized, and if length is >1, it will be matched
+#'                       in the order of \code{loci}\cr
 #'   \code{stopRule} \tab This is a function that can use "landscape", "mapID", or any
 #'                       named vector passed into \code{spread} in the \code{...}. This
 #'                       can take on relatively complex functions. See examples.
@@ -66,8 +67,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' \code{stopRule} has many use cases. One common use case is evaluating
 #' a neighbourhood around a focal set of points. This provides,
-#' therefore, an alternative to the \code{\link[raster]{buffer}} function or \code{\link[raster]{focal}}
-#' function.
+#' therefore, an alternative to the \code{\link[raster]{buffer}} function or
+#' \code{\link[raster]{focal}} function.
 #' In both of those cases, the window/buffer size must be an input to the function. Here,
 #' the resulting size can be emergent based on the incremental growing and calculating
 #' of the \code{landscape} values underlying the spreading event.
@@ -80,7 +81,7 @@ if (getRversion() >= "3.1.0") {
 #'                      spreading, or probability raster driven. Default is 0.23.
 #'                      If a \code{spreadProbLater} is provided, then this is
 #'                      only used for the first iteration. Also called Escape
-#'                      probability.
+#'                      probability. See section on \code{Breaking out of spread events}.
 #'
 #' @param persistence   A probability that an active cell will continue to burn,
 #'                      per time step.
@@ -91,8 +92,8 @@ if (getRversion() >= "3.1.0") {
 #'                      Currently not implemented.
 #'
 #' @param maxSize       Vector of the maximum number of pixels for a single or
-#'                      all events to be spread.
-#'                      Recycled to match \code{loci} length.
+#'                      all events to be spread. Recycled to match \code{loci} length.
+#'                      See section on \code{Breaking out of spread events}.
 #'
 #' @param directions    The number adjacent cells in which to look;
 #'                      default is 8 (Queen case).
@@ -120,17 +121,25 @@ if (getRversion() >= "3.1.0") {
 #'                      problems. Note, this should usually be used with spreadProb = 1.
 #'
 #' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If \code{circle}
-#'                      is \code{TRUE}, then it will grow to this maximum radius. Default to NA.
+#'                      is \code{TRUE}, then it will grow to this maximum radius. See section on
+#'                      \code{Breaking out of spread events}. Default to NA.
 #'
 #' @param stopRule      A function which will be used to assess whether each individual cluster
 #'                      should stop growing. This function can be an argument of "landscape", "mapID", and
-#'                      any other vectors passed to spread in the ... Default NA meaning,
-#'                      spreading will not stop as a function of the landscape. See Details and examples.
+#'                      any other named vectors, a named list of named vectors,
+#'                      or a named data.frame of with column names passed to spread in
+#'                      the ... . Default NA meaning,
+#'                      spreading will not stop as a function of the landscape. See section on
+#'                      \code{Breaking out of spread events} and examples.
 #'
 #' @param stopRuleExact Logical. If \code{stopRule} contains a function, this argument is used ensure that
 #'                      each spread event strictly follows the stopRule. If not, then each spread event will
 #'                      "go to far" because the internal algorithm adds all cells in each iteration all at once,
 #'                      then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.
+#'
+#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one another, i.e.,
+#'                      they do not interact. Currently, this is slower than if \code{allowOverlap} is
+#'                      \code{FALSE}. Default is FALSE.
 #'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
@@ -138,25 +147,33 @@ if (getRversion() >= "3.1.0") {
 #'                      \code{loci} if there is one value per event.
 #'
 #' @return Either a \code{RasterLayer} indicating the spread of the process in
-#' the landscape or a \code{data.table}. If a \code{RasterLayer}, then it represents
+#' the landscape or a \code{data.table} if \code{returnIndices} is \code{TRUE}.
+#' If a \code{RasterLayer}, then it represents
 #' every pixel in which a successful spread event occurred. For the case of, say, a fire
-#' this would represent every pixel that burned. If \code{returnIndices} is \code{TRUE},
+#' this would represent every pixel that burned. If \code{allowOverlap} is \code{TRUE},
+#' This Raster layer will represent the sum of the individual event ids (which
+#' are numerics \code{seq_along(loci)}. This will
+#' generally be of minimal use because it won't be possible to distinguish if
+#' event 2 overlapped with event 5 or if it was just event 7.
+#'
+#' If \code{returnIndices} is \code{TRUE},
 #' then this function returns a \code{data.table} with columns:
 #'
-#' \code{indices} is the pixel indices of pixels that have been touched by the spread
-#' algorithm.
+#' \tabular{ll}{
+#'   \code{eventID} \tab an arbitrary ID \code{1:length(loci)} identifying
+#'                      unique clusters of spread events, i.e., all pixels
+#'                      that have been spread into that have a
+#'                      common initial pixel.\cr
+#'   \code{initialLocus} \tab the initial pixel number of that particular
+#'                            spread event.\cr
+#'   \code{indices} \tab The pixel indices of pixels that have
+#'                        been touched by the spread algorithm.\cr
+#'   \code{active} \tab a logical indicating whether the pixel is active (i.e.,
+#'                        could still be a source for spreading) or not (no
+#'                        spreading will occur from these pixels).\cr
+#' }
 #'
-#' \code{eventID} is an arbitrary ID \code{1:length(loci)} identifying unique clusters
-#' of spread events, i.e., all pixels that have been spread into that have a common
-#' initial pixel.
-#'
-#' \code{active} is a logical indicating whether the pixel is active (i.e., could still
-#' be a source for spreading) or not (no spreading will occur from these pixels).
-#'
-#' \code{initialIndex}, the initial pixel number of that particular spread event.
-#'
-#'
-#'
+#' This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
 #' @export
 #' @importFrom raster extent maxValue minValue ncell ncol nrow raster res setValues
 #' @importFrom ff ff as.ram
@@ -165,8 +182,8 @@ if (getRversion() >= "3.1.0") {
 #' @importFrom fpCompare %<=%
 #' @docType methods
 #'
-#' @author Steve Cumming \email{Steve.Cumming@@sbf.ulaval.ca}
 #' @author Eliot McIntire
+#' @author Steve Cumming
 #'
 #' @name spread
 #' @aliases spread
@@ -181,6 +198,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               spreadProbLater = NA_real_, spreadState = NA,
                               circle = FALSE, circleMaxRadius = NA_real_,
                               stopRule = NA, stopRuleExact = FALSE,
+                              allowOverlap = FALSE,
                               ...) {
   standardGeneric("spread")
 })
@@ -241,15 +259,15 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' Plot(fires,
 #'      cols = topo.colors(10))
 #'
-#' ## Use interrupt a spread event using iterations - need returnIndices=TRUE to use outputs
+#' ####################
+#' ## Continue event by passing interrupted object into spreadState
+#' ####################
+#'
+#' ## Interrupt a spread event using iterations - need returnIndices=TRUE to use outputs
 #' ##   as new inputs in next iteration
 #' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
 #'                 0.235, 0, NULL, 1e8, 8, iterations = 3, mapID = TRUE)
 #' fires[,list(size=length(initialLocus)), by=eventID]  # See sizes of fires
-#'
-#' ####################
-#' ## Continue event by passing interrupted object into spreadState
-#' ####################
 #'
 #' fires2 <- spread(hab, loci=NA_real_, returnIndices=TRUE, 0.235,
 #'                  0, NULL, 1e8, 8, iterations = 2, mapID = TRUE,
@@ -368,6 +386,28 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' Plot(TwoCirclesDiffSize, new=TRUE)
 #' cirs <- getValues(TwoCirclesDiffSize)
 #' vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
+#'
+#' ##############
+#' # allowOverlap
+#' ##############
+#'  set.seed(3113)
+#'  initialLoci <- as.integer(sample(1:ncell(hab), 10))
+#'  # using "landscape", "mapID", and a variable passed in
+#'  maxVal <- rep(500,length(initialLoci))
+#'  # define stopRule
+#'  stopRule2 <- function(landscape,mapID,maxVal) sum(landscape)>maxVal[mapID]
+#'  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+#'                    mapID = TRUE, allowOverlap=TRUE, stopRuleExact=FALSE,
+#'                                      maxVal = maxVal, returnIndices = TRUE)
+#'  (vals <- tapply(hab[circs$indices], circs$eventID, sum))
+#'  vals<=maxVal # All TRUE
+#'  overlapEvents <- raster(hab)
+#'  overlapEvents[] <- 0
+#'  toMap <- circs[,sum(eventID),by=indices]
+#'  overlapEvents[toMap$indices] <- toMap$V1
+#'  Plot(overlapEvents, new=TRUE)
+#'
+#'
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
@@ -377,6 +417,7 @@ setMethod(
                         lowMemory, returnIndices, mapID,
                         plot.it, spreadProbLater, spreadState,
                         circle, circleMaxRadius, stopRule, stopRuleExact,
+                        allowOverlap,
                         ...) {
 
     spreadStateExists <- is(spreadState, "data.table")
@@ -411,10 +452,15 @@ setMethod(
       if (!inRange(spreadProbLater)) stop("spreadProbLater is not a probability")
     }
 
-    if (lowMemory) {
-      spreads <- ff(vmode = "short", 0, length = ncell(landscape))
+    if(!allowOverlap) {
+      if (lowMemory) { # create vector of 0s called spreads, which corresponds to the
+                       #   indices of the landscape raster
+        spreads <- ff(vmode = "short", 0, length = ncell(landscape))
+      } else {
+        spreads <- vector("integer", ncell(landscape))
+      }
     } else {
-      spreads <- vector("integer", ncell(landscape))
+      spreads <- cbind(initialLocus=initialLoci, indices=initialLoci, eventID=1:length(loci), active=1)
     }
 
     n <- 1L
@@ -427,14 +473,37 @@ setMethod(
         mapID <- TRUE
       }
     }
-    if(is.function(stopRule)){
-      mapID <- TRUE
+
+    # determine ... variables
+    otherVars <- list(...)
+    anyList <- unlist(lapply(otherVars,is.list) )
+
+    if(any(anyList)) {
+      otherVarsLists <- unlist(unname(otherVars), recursive = FALSE)
+      otherVars[anyList] <- NULL
+      otherVars <- append(otherVars, otherVarsLists)
     }
 
-    if (mapID | returnIndices) {
-      spreads[loci] <- 1L:length(loci)
-    } else {
-      spreads[loci] <- n
+    # check validity of stopRule
+    if(is.function(stopRule)){
+      mapID <- TRUE
+      if(any(is.na(match(names(formals(stopRule)),
+                         c("mapID", "landscape", "cells", names(otherVars)))))){
+        stop(paste("Arguments in stopRule not valid. The function definition",
+             "must be a function of built-in options, ",
+             "(mapID, landscape, or cells) or user supplied variables.",
+             "If user supplied the variables",
+             "must be passed as named vectors, or lists or data.frames.",
+             " See examples."))
+      }
+    }
+
+    if(!allowOverlap) {
+      if (mapID | returnIndices) { # give values to spreads vector at initialLoci
+        spreads[loci] <- 1L:length(loci)
+      } else {
+        spreads[loci] <- n
+      }
     }
 
     # Convert mask and NAs to 0 on the spreadProbLater Raster
@@ -468,13 +537,17 @@ setMethod(
     }
 
     if (spreadStateExists) {
-      if (sum(colnames(spreadState) %in% c("indices", "eventID", "active", "initialLocus")) == 4) {
-        spreads[loci] <- spreads[loci] + spreadState[, max(eventID)] # reassign old ones
-        spreads[spreadState[,indices]] <- spreadState[, eventID]
-        loci <- c(spreadState[active == TRUE, indices], loci) %>% na.omit()
+      if(!allowOverlap) {
+        if (sum(colnames(spreadState) %in% c("indices", "eventID", "active", "initialLocus")) == 4) {
+          spreads[loci] <- spreads[loci] + spreadState[, max(eventID)] # reassign old ones
+          spreads[spreadState[,indices]] <- spreadState[, eventID]
+          loci <- c(spreadState[active == TRUE, indices], loci) %>% na.omit()
+        } else {
+          stop("spreadState must have at least columns: ",
+               "indices, eventID, active, and initialLocus.")
+        }
       } else {
-        stop("spreadState must have at least columns: ",
-             "indices, eventID, active, and initialLocus.")
+        stop("Using spreadState and allowOverlap = TRUE is not implemented")
       }
     }
 
@@ -494,29 +567,36 @@ setMethod(
       size <- length(loci)
     }
 
-    otherVars <- list(...)
-    anyList <- unlist(lapply(otherVars,is.list) )
-
-    if(any(anyList)) {
-      otherVarsLists <- unlist(unname(otherVars), recursive = F)
-      otherVars[anyList] <- NULL
-      otherVars <- append(otherVars, otherVarsLists)
-    }
-
-
     # while there are active cells
     while (length(loci) & (n <= iterations) ) {
 
       # identify neighbours
-      if (mapID | returnIndices | circle) {
-        potentials <- adj(landscape, loci, directions, pairs = TRUE)
+      if(!allowOverlap) {
+        if (mapID | returnIndices | circle) {
+          potentials <- adj(landscape, loci, directions, pairs = TRUE)
+        } else {
+          # must pad the first column of potentials
+          potentials <- cbind(NA, adj(landscape, loci, directions, pairs = FALSE))
+        }
       } else {
-        # must pad the first column of potentials
-        potentials <- cbind(NA, adj(landscape, loci, directions, pairs = FALSE))
+        whActive <- spreads[,"active"]==1 # spreads carries over
+        potentials <- adj(landscape, loci, directions, pairs = TRUE, id = spreads[whActive,"eventID"])
+        spreads[whActive,"active"] <- 0
       }
 
       # keep only neighbours that have not been spread to yet
-      potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
+      if(!allowOverlap) {
+        potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
+      } else {
+        # THis section requires data.table by functionality, but this converting
+        #   is slow. No good solution at this point.
+        potentials2 <- data.table(potentials,active=1)
+        setnames(potentials2, colnames(potentials2), colnames(spreads))
+        potentials2[,initialLocus:=initialLoci[eventID]] # maybe can delete the "initialLocus" because we can get it with initialLoci[eventID]
+        potentials3 <- rbindlist(list(data.table(spreads), potentials2)) %>% setkey(eventID, indices)
+        keeps <- potentials3[,list(keeps=!duplicated(indices)),by=eventID]
+        potentials <- as.matrix(potentials3[keeps$keeps & active ==1,])
+      }
 
       if (n == 2) {
         spreadProb <- spreadProbLater
@@ -539,154 +619,196 @@ setMethod(
           spreadProbs <- spreadProb[potentials[, 2L]]
         }
       }
+      if(all(spreadProbs<1)) {
+        potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
+      }
+      potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE] # random ordering so not always same
+      if(!allowOverlap) {
+        potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
+      }
 
-      potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
-      potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE]
-      potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
-
-      # implement circle
-      if(!missing(circle)) {
-        if(circle) {
-          a <- cbind(mapID=spreads[potentials[, 1L]], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
-          d <- .matchedPointDistance(a, initialLociXY)
-          potentials <- potentials[(d[,"dists"] %<=% n),, drop = FALSE]
-          if(!is.na(circleMaxRadius)){
-            if(any(circleMaxRadius<=n)){
-              d <- d[(d[,"dists"] %<=% n),, drop = FALSE]
-              potentials <- potentials[(d[,"dists"] %<=% circleMaxRadius),, drop = FALSE]
+      if(length(potentials)>0) {# potentials can become zero because all active cells are edge cells
+        # implement circle
+        if(!missing(circle)) {
+          if(circle) {
+            if(!allowOverlap){
+              a <- cbind(mapID=spreads[potentials[, 1L]], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
+            } else {
+              a <- cbind(mapID=potentials[, 3L], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
             }
-          }
-        }
-      }
-
-
-      events <- potentials[, 2L]
-
-      # Implement maxSize
-      if (length(maxSize) == 1L) {
-
-        len <- length(events)
-        if ((size + len) > maxSize) {
-          keep <- len - ((size + len) - maxSize)
-          samples <- sample(len, keep)
-          events <- events[samples]
-          potentials <- potentials[samples, , drop = FALSE]
-        }
-        size <- size + length(events)
-      } else {
-        len <- tabulate(spreads[potentials[, 1L]], length(maxSize))
-        if ( any( (size + len) > maxSize & size <= maxSize) ) {
-          whichID <- which(size + len > maxSize)
-          toRm <- (size + len)[whichID] - maxSize[whichID]
-          for (i in 1:length(whichID)) {
-            thisID <- which(spreads[potentials[, 1L]] == whichID[i])
-            potentials <- potentials[-sample(thisID, toRm[i]), , drop = FALSE]
-          }
-          events <- potentials[, 2L]
-        }
-        size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
-      }
-
-      # Implement stopRule section
-      if(is.function(stopRule) & length(events)>0){
-
-        prevCells <- cbind(mapID=spreads[spreads>0],
-                           landscape = landscape[spreads>0], cells = which(spreads>0), prev=1)
-        eventCells <- cbind(mapID = spreads[potentials[, 1L]],
-                            landscape = landscape[events], cells = events, prev=0)
-        tmp <- rbind(prevCells[prevCells[,"mapID"] %in% unique(eventCells[,"mapID"]),], eventCells) # don't need to continue doing ids that are not active
-
-        ids <- unique(tmp[,"mapID"])
-        shouldStop <- unlist(lapply(ids, function(mapID) {
-          args <- append(as.data.frame(tmp[tmp[,"mapID"]==mapID,]), otherVars)
-          args <- args[-(names(args)=="mapID")]
-          args <- append(args, list(mapID=mapID))
-          wh <- match(names(formals(stopRule)),names(args))
-          do.call(stopRule, args[wh])
-        }))
-
-        names(shouldStop) <- ids
-        #print(tapply(tmp[,"landscape"],tmp[,"mapID"], sum))
-        #print(shouldStop)
-
-        if(any(shouldStop)) {
-          if(stopRuleExact) {
-            whStop <- as.numeric(names(shouldStop)[shouldStop])
-            whStopAll <- tmp[,"mapID"] %in% whStop
-            tmp2 <- tmp[whStopAll,]
-
-            whStopEvents <- eventCells[,"mapID"] %in% whStop
-
-            out <- lapply(whStop, function(mapID) {
-
-              tmp3 <- tmp2[tmp2[,"mapID"]==mapID,]
-              newOnes <- tmp3[,"prev"]==0
-              ord <- seq_along(newOnes)
-              ord[newOnes] <- sample(ord[newOnes])
-
-              startLen <- sum(!newOnes)
-              addIncr <- 1
-
-              done <- FALSE
-              while(!done) {
-                args <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
-                args <- args[-(names(args)=="mapID")]
-                args <- append(args, list(mapID=mapID))
-                wh <- match(names(formals(stopRule)),names(args))
-                done <- do.call(stopRule, args[wh])
-                addIncr <- addIncr+1
+            d <- .matchedPointDistance(a, initialLociXY)
+            cMR <- n
+            if(!any(is.na(circleMaxRadius))){
+              if(any(circleMaxRadius<=n)){ # don't bother proceeding if circleMaxRadius is larger than current iteration
+                if(length(circleMaxRadius)>1) { # if it is a vector of values
+                  cMR <- circleMaxRadius[d[,"mapID"]]
+                } else {
+                  cMR <- circleMaxRadius
+                }
               }
-              #while(!stopRule(tmp3[1:(startLen+addIncr),"landscape"]))
-              addIncr <- addIncr - 1
-              tmp3[(startLen+addIncr):NROW(tmp3),,drop=FALSE]#)
-            })
-
-            eventRm <- do.call(rbind, out)[,"cells"]
-            cellsKeep <- !(potentials[,2L] %in% eventRm)
-            potentials <- potentials[cellsKeep,,drop=FALSE]
-            events <- potentials[,2L]
-            eventCells <- eventCells[cellsKeep,,drop=FALSE]
-
+            }
+            potentials <- potentials[(d[,"dists"] %<=% cMR),, drop = FALSE]
           }
-          toKeep <- !(eventCells[,"mapID"] %in% as.numeric(names(which((shouldStop)))))
         }
 
-      }
 
-      # increment iteration
-      n <- n + 1L
+        events <- potentials[, 2L]
 
-      if (length(events) > 0){
-        if (mapID | returnIndices) {
-          spreads[events] <- spreads[potentials[, 1L]]
+        # Implement maxSize
+        if (length(maxSize) == 1L) {
+
+          len <- length(events)
+          if ((size + len) > maxSize) {
+            keep <- len - ((size + len) - maxSize)
+            samples <- sample(len, keep)
+            events <- events[samples]
+            potentials <- potentials[samples, , drop = FALSE]
+          }
+          size <- size + length(events)
         } else {
-          spreads[events] <- n
-        }
-      }
-
-      # remove the cells from "events" that push it over maxSize
-      if (length(maxSize) > 1L) {
-        if (exists("whichID", inherits = FALSE)) {
-          maxSizeKeep <- !spreads[events] %in% whichID
-          events <- events[maxSizeKeep]
-          if(exists("toKeep",inherits = FALSE)) {
-            toKeep <- toKeep[maxSizeKeep]
+          if(!allowOverlap){
+            len <- tabulate(spreads[potentials[, 1L]], length(maxSize))
+          } else {
+            len <- tabulate(potentials[, 3L], length(maxSize))
           }
-          rm(whichID)
+          if ( any( (size + len) > maxSize & size <= maxSize) ) {
+            whichID <- which(size + len > maxSize)
+            toRm <- (size + len)[whichID] - maxSize[whichID]
+            for (i in 1:length(whichID)) {
+              if(!allowOverlap) {
+                thisID <- which(spreads[potentials[, 1L]] == whichID[i])
+              } else {
+                thisID <- which(potentials[, 3L] == whichID[i])
+              }
+
+              potentials <- potentials[-sample(thisID, toRm[i]), , drop = FALSE]
+            }
+            events <- potentials[, 2L]
+          }
+          size <- pmin(size + len, maxSize) ## Quick? and dirty. fast but loose (too flexible)
+        }
+
+        # Implement stopRule section
+        if(is.function(stopRule) & length(events)>0){
+
+          if(!allowOverlap) {
+            prevCells <- cbind(mapID=spreads[spreads>0],
+                               landscape = landscape[spreads>0], cells = which(spreads>0), prev=1)
+            eventCells <- cbind(mapID = spreads[potentials[, 1L]],
+                                landscape = landscape[events], cells = events, prev=0)
+          } else {
+            prevCells <- cbind(mapID=spreads[,"eventID"],
+                               landscape = landscape[spreads[,"indices"]],
+                               cells = spreads[,"indices"], prev=1)
+            eventCells <- cbind(mapID = potentials[, "eventID"],
+                                landscape = landscape[events],
+                                cells = events, prev=0)
+          }
+          tmp <- rbind(prevCells[prevCells[,"mapID"] %in%
+                                   unique(eventCells[,"mapID"]),], eventCells) # don't need to continue doing ids that are not active
+
+          ids <- unique(tmp[,"mapID"])
+
+          shouldStop <- unlist(lapply(ids, function(mapID) {
+            args <- append(as.data.frame(tmp[tmp[,"mapID"]==mapID,]), otherVars)
+            args <- args[-(names(args)=="mapID")]
+            args <- append(args, list(mapID=mapID))
+            wh <- match(names(formals(stopRule)),names(args))
+            do.call(stopRule, args[wh])
+          }))
+
+          names(shouldStop) <- ids
+
+          if(any(shouldStop)) {
+            if(stopRuleExact) {
+              whStop <- as.numeric(names(shouldStop)[shouldStop])
+              whStopAll <- tmp[,"mapID"] %in% whStop
+              tmp2 <- tmp[whStopAll,]
+
+              whStopEvents <- eventCells[,"mapID"] %in% whStop
+
+              out <- lapply(whStop, function(mapID) {
+                tmp3 <- tmp2[tmp2[,"mapID"]==mapID,]
+                newOnes <- tmp3[,"prev"]==0
+                ord <- seq_along(newOnes)
+                ord[newOnes] <- sample(ord[newOnes])
+                startLen <- sum(!newOnes)
+                addIncr <- 1
+                done <- FALSE
+                while(!done) {
+                  args <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
+                  args <- args[-(names(args)=="mapID")]
+                  args <- append(args, list(mapID=mapID))
+                  wh <- match(names(formals(stopRule)),names(args))
+                  done <- do.call(stopRule, args[wh])
+                  addIncr <- addIncr+1
+                }
+                addIncr <- addIncr - 1
+                tmp3[(startLen+addIncr):NROW(tmp3),,drop=FALSE]#)
+              })
+
+              eventRm <- do.call(rbind, out)[,"cells"]
+              cellsKeep <- !(potentials[,2L] %in% eventRm)
+              potentials <- potentials[cellsKeep,,drop=FALSE]
+              events <- potentials[,2L]
+              eventCells <- eventCells[cellsKeep,,drop=FALSE]
+
+            }
+            toKeepSR <- !(eventCells[,"mapID"] %in% as.numeric(names(which((shouldStop)))))
+          }
+
+        }
+
+        # increment iteration
+        n <- n + 1L
+
+        if (length(events) > 0){ # place new value at new cells that became active
+          if(!allowOverlap) {
+            if (mapID | returnIndices) {
+              spreads[events] <- spreads[potentials[, 1L]]
+            } else {
+              spreads[events] <- n
+            }
+          } else {
+            spreads <- rbind(spreads, potentials)
+          }
+        }
+
+        # remove the cells from "events" that push it over maxSize
+        if (length(maxSize) > 1L) {
+          if (exists("whichID", inherits = FALSE)) {
+            if(!allowOverlap) {
+              maxSizeKeep <- !spreads[events] %in% whichID
+            } else {
+              maxSizeKeep <- !(spreads[spreads[,"active"]==1,"eventID"] %in% whichID)
+              spreads <- spreads[c(rep(TRUE, sum(spreads[,"active"]==0)),maxSizeKeep),]
+            }
+            events <- events[maxSizeKeep]
+            if(exists("toKeepSR",inherits = FALSE)) { # must update toKeepSR in case that is a second reason to stop event
+              toKeepSR <- toKeepSR[maxSizeKeep]
+            }
+            rm(whichID)
+          }
+
+        } else {
+          if (size >= maxSize) {
+            events <- NULL
+          }
+        }
+
+        # Remove cells that were stopped by stopRule
+        if (is.function(stopRule)) {
+          if (exists("toKeepSR", inherits = FALSE)) {
+            events <- events[toKeepSR]
+            if(allowOverlap) {
+              spreads[c(rep(TRUE, sum(spreads[,"active"]==0)),!toKeepSR),"active"] <- 0
+            }
+            rm(toKeepSR)
+          }
         }
 
       } else {
-        if (size >= maxSize) {
-          events <- NULL
-        }
-      }
-
-      # Remove cells that were stopped by stopRule
-      if (is.function(stopRule)) {
-        if (exists("toKeep", inherits = FALSE)) {
-          events <- events[toKeep]
-          rm(toKeep)
-        }
+        events <- NULL
       }
 
       # drop or keep loci
@@ -701,73 +823,96 @@ setMethod(
         }
       }
 
-
-
-      loci <- c(loci, events)
-
       if (plot.it) {
-        plotCur <- raster(landscape)
-        plotCur <- setValues(plotCur, spreads)
-        Plot(plotCur, ...)
+        if(n==2) clearPlot()
+        if(!allowOverlap) {
+          plotCur <- raster(landscape)
+          plotCur <- setValues(plotCur, spreads)
+          Plot(plotCur)
+        } else {
+          spreadsDT <- data.table(spreads);
+          hab2 <- landscape;
+          hab2[] <- 0;
+          pixVal <- spreadsDT[,sum(eventID),by=indices]
+          hab2[pixVal$indices] <- pixVal$V1;
+          Plot(hab2, legendRange = c(0,sum(seq_along(initialLoci))))
+        }
+
       }
+      loci <- c(loci, events)
     }
 
     # Convert the data back to raster
-    if (lowMemory){
-      wh <- ffwhich(spreads, spreads > 0) %>% as.ram
-      if (returnIndices) {
-        completed <- data.table(indices = wh, eventID = spreads[wh], active = FALSE)
-        if (NROW(potentials) > 0) {
-          active <- data.table(indices = potentials[, 2L],
-                               eventID = spreads[potentials[, 1L]],
-                               active = TRUE)
-        } else {
-          active <- data.table(indices = numeric(0), eventID = numeric(0),
-                               active = logical(0))
+    if(!allowOverlap) {
+      if (lowMemory){
+        wh <- ffwhich(spreads, spreads > 0) %>% as.ram
+        if (returnIndices) {
+          completed <- data.table(indices = wh, eventID = spreads[wh], active = FALSE)
+          if (NROW(potentials) > 0) {
+            active <- data.table(indices = potentials[, 2L],
+                                 eventID = spreads[potentials[, 1L]],
+                                 active = TRUE)
+          } else {
+            active <- data.table(indices = numeric(0), eventID = numeric(0),
+                                 active = logical(0))
+          }
         }
-      }
-    } else {
-      wh <- spreads > 0
-      if (returnIndices) {
-        completed <- which(wh) %>%
-          data.table(indices = ., eventID = spreads[.], active = FALSE)
-        if (NROW(potentials) > 0) {
-          active <- data.table(indices = potentials[, 2L],
-                               eventID = spreads[potentials[, 1L]],
-                               active = TRUE)
-        } else {
-          active <- data.table(indices = numeric(0), eventID = numeric(0),
-                               active = logical(0))
+      } else {
+
+        wh <- spreads > 0
+        if (returnIndices) {
+          completed <- which(wh) %>%
+            data.table(indices = ., eventID = spreads[.], active = FALSE)
+          if (NROW(potentials) > 0) {
+            active <- data.table(indices = potentials[, 2L],
+                                 eventID = spreads[potentials[, 1L]],
+                                 active = TRUE)
+          } else {
+            active <- data.table(indices = numeric(0), eventID = numeric(0),
+                                 active = logical(0))
+          }
         }
       }
     }
 
     if (returnIndices) {
-      allCells <- rbindlist(list(completed, active))
-      initEventID <- allCells[indices %in% initialLoci, eventID]
-      if (!all(is.na(initialLoci))) {
-        dtToJoin <- data.table(eventID = sort(initEventID), initialLocus = initialLoci)
-      } else {
-        dtToJoin <- data.table(eventID = numeric(0), initialLocus = numeric(0))
-      }
-      if (spreadStateExists) {
-        spreadStateInitialLoci <- spreadState[, list(eventID = unique(eventID),
-                                                     initialLocus = unique(initialLocus))]
-        dtToJoin <- rbindlist(list(spreadStateInitialLoci, dtToJoin))
-      }
-      setkey(dtToJoin, eventID)
-      setkey(allCells, eventID)
+      if(!allowOverlap) {
+        allCells <- rbindlist(list(completed, active))
+        initEventID <- allCells[indices %in% initialLoci, eventID]
+        if (!all(is.na(initialLoci))) {
+          dtToJoin <- data.table(eventID = sort(initEventID), initialLocus = initialLoci)
+        } else {
+          dtToJoin <- data.table(eventID = numeric(0), initialLocus = numeric(0))
+        }
+        if (spreadStateExists) {
+          spreadStateInitialLoci <- spreadState[, list(eventID = unique(eventID),
+                                                       initialLocus = unique(initialLocus))]
+          dtToJoin <- rbindlist(list(spreadStateInitialLoci, dtToJoin))
+        }
+        setkey(dtToJoin, eventID)
+        setkey(allCells, eventID)
 
-      allCells <- dtToJoin[allCells]
+        allCells <- dtToJoin[allCells]
+      } else {
+        allCells <- data.table(spreads[,c(3,1,2,4)]) # change column order to match non allowOverlap
+        allCells[,active:=as.logical(active)]
+      }
+      allCells[]
       return(allCells)
     }
 
     spre <- raster(landscape)
     spre[] <- 0
-    spre[wh] <- spreads[wh]
-    if (exists("potentials"))
-      if (NROW(potentials) > 0)
-        spre[potentials[, 1L]] <- spreads[potentials[, 2L]]
+    if(!allowOverlap) {
+      spre[wh] <- spreads[wh]
+      if (exists("potentials"))
+        if (NROW(potentials) > 0)
+          spre[potentials[, 1L]] <- spreads[potentials[, 2L]]
+    } else {
+      spreadsDT <- data.table(spreads);
+      pixVal <- spreadsDT[,sum(eventID),by=indices]
+      spre[pixVal$indices] <- pixVal$V1;
+    }
     return(spre)
   }
 )
