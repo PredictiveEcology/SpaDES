@@ -2,9 +2,10 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.1.4.xxxx
 =============
-* spread enhancements: circulular spreading, landscape-based functions, allow overlapping events
-* Plot now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
+* move `rgdal` from Suggests to Imports
 * remove `gtools` from Imports
+* spread enhancements: circular spreading, landscape-based functions, allow overlapping events
+* Plot now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
 * `dev()` returns `dev.cur` invisibly, allowing for finer control of plotting devices
 
 version 1.1.4
