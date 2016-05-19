@@ -11,8 +11,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   iterations = 1000000L, lowMemory = getOption("spades.lowMemory"),
   returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
   spreadProbLater = NA_real_, spreadState = NA, circle = FALSE,
-  circleMaxRadius = NA_real_, stopRule = NA, stopRuleExact = FALSE,
-  allowOverlap = FALSE, ...)
+  circleMaxRadius = NA_real_, stopRule = NA,
+  stopRuleBehavior = "includeRing", allowOverlap = FALSE, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -20,7 +20,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   lowMemory = getOption("spades.lowMemory"), returnIndices = FALSE,
   mapID = FALSE, plot.it = FALSE, spreadProbLater = NA_real_,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
-  stopRule = NA, stopRuleExact = FALSE, allowOverlap = FALSE, ...)
+  stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
+  ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object.}
@@ -90,10 +91,11 @@ the ... . Default NA meaning,
 spreading will not stop as a function of the landscape. See section on
 \code{Breaking out of spread events} and examples.}
 
-\item{stopRuleExact}{Logical. If \code{stopRule} contains a function, this argument is used ensure that
-each spread event strictly follows the stopRule. If not, then each spread event will
-"go to far" because the internal algorithm adds all cells in each iteration all at once,
-then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.}
+\item{stopRuleBehavior}{Character. Can be one of "includePixel", "excludePixel", "includeRing", "excludeRing".
+If \code{stopRule} contains a function, this argument is used determine what to do
+with the pixel(s) that caused the rule to be \code{TRUE}. See details. Default is
+"includeRing" which means to accept the entire ring of pixels that caused the rule to
+be \code{TRUE}.}
 
 \item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one another, i.e.,
 they do not interact. Currently, this is slower than if \code{allowOverlap} is
@@ -183,9 +185,11 @@ each other correctly:
                       radius reached, and then the event will stop. This is
                       vectorized, and if length is >1, it will be matched
                       in the order of \code{loci}\cr
-  \code{stopRule} \tab This is a function that can use "landscape", "mapID", or any
+  \code{stopRule} \tab This is a function that can use "landscape", "mapID", "cells", or any
                       named vector passed into \code{spread} in the \code{...}. This
-                      can take on relatively complex functions. See examples.
+                      can take on relatively complex functions. Passing in, say, a Raster
+                      Layer to \code{spread} can access the individual values on that
+                      arbitrary Raste Layer using "cells". See examples.
                       To confirm the cause of stopping, the user can assess the values
                       after the function has finished.\cr
 }
@@ -296,12 +300,12 @@ stopRuleA <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 
 set.seed(1234)
 stopRule2 <- function(landscape) sum(landscape)>100
-# using stopRuleExact = TRUE
+# using stopRuleBehavior = "excludePixel"
 stopRuleB <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule2,
-                stopRuleExact = TRUE)
+                stopRuleBehavior = "excludePixel")
 
-# using stopRuleExact = FALSE, means that end result is slightly larger patches, as a
+# using stopRuleBehavior = "includeRing", means that end result is slightly larger patches, as a
 #  complete "iteration" of the spread algorithm is used.
 set.seed(1234)
 stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
@@ -369,15 +373,25 @@ endSizes <- seq_along(initialLoci)*200
 stopRule3 <- function(landscape, mapID, endSizes) sum(landscape)>endSizes[mapID]
 
 TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
-   directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes, stopRuleExact = TRUE)
+   directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes,
+   stopRuleBehavior = "excludePixel")
 # or using named list of named elements:
 #TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
 #    directions = 8, mapID = TRUE, stopRule = stopRule3,
-#    vars = list(endSizes = endSizes), stopRuleExact = TRUE)
+#    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 
 Plot(TwoCirclesDiffSize, new=TRUE)
 cirs <- getValues(TwoCirclesDiffSize)
 vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
+
+# Stop if sum of landscape is big or mean of quality is too small
+quality <- raster(hab)
+quality[] <- runif(ncell(quality), 0, 1)
+stopRule4 <- function(landscape, quality, cells) (sum(landscape)>20) | (mean(quality[cells])<0.3)
+
+TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+   directions = 8, mapID = TRUE, stopRule = stopRule4, quality = quality,
+   stopRuleBehavior = "excludePixel")
 
 ##############
 # allowOverlap
@@ -389,7 +403,7 @@ vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
  # define stopRule
  stopRule2 <- function(landscape,mapID,maxVal) sum(landscape)>maxVal[mapID]
  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                   mapID = TRUE, allowOverlap=TRUE, stopRuleExact=FALSE,
+                   mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior="includeRing",
                                      maxVal = maxVal, returnIndices = TRUE)
  (vals <- tapply(hab[circs$indices], circs$eventID, sum))
  vals<=maxVal # All TRUE

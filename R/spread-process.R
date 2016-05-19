@@ -51,9 +51,11 @@ if (getRversion() >= "3.1.0") {
 #'                       radius reached, and then the event will stop. This is
 #'                       vectorized, and if length is >1, it will be matched
 #'                       in the order of \code{loci}\cr
-#'   \code{stopRule} \tab This is a function that can use "landscape", "mapID", or any
+#'   \code{stopRule} \tab This is a function that can use "landscape", "mapID", "cells", or any
 #'                       named vector passed into \code{spread} in the \code{...}. This
-#'                       can take on relatively complex functions. See examples.
+#'                       can take on relatively complex functions. Passing in, say, a Raster
+#'                       Layer to \code{spread} can access the individual values on that
+#'                       arbitrary Raste Layer using "cells". See examples.
 #'                       To confirm the cause of stopping, the user can assess the values
 #'                       after the function has finished.\cr
 #' }
@@ -132,10 +134,11 @@ if (getRversion() >= "3.1.0") {
 #'                      spreading will not stop as a function of the landscape. See section on
 #'                      \code{Breaking out of spread events} and examples.
 #'
-#' @param stopRuleExact Logical. If \code{stopRule} contains a function, this argument is used ensure that
-#'                      each spread event strictly follows the stopRule. If not, then each spread event will
-#'                      "go to far" because the internal algorithm adds all cells in each iteration all at once,
-#'                      then removes them if \code{stopRuleExact} is TRUE. Default is FALSE.
+#' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing", "excludeRing".
+#'                      If \code{stopRule} contains a function, this argument is used determine what to do
+#'                      with the pixel(s) that caused the rule to be \code{TRUE}. See details. Default is
+#'                      "includeRing" which means to accept the entire ring of pixels that caused the rule to
+#'                      be \code{TRUE}.
 #'
 #' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one another, i.e.,
 #'                      they do not interact. Currently, this is slower than if \code{allowOverlap} is
@@ -197,7 +200,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
                               returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
                               spreadProbLater = NA_real_, spreadState = NA,
                               circle = FALSE, circleMaxRadius = NA_real_,
-                              stopRule = NA, stopRuleExact = FALSE,
+                              stopRule = NA, stopRuleBehavior = "includeRing",
                               allowOverlap = FALSE,
                               ...) {
   standardGeneric("spread")
@@ -304,12 +307,12 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'
 #' set.seed(1234)
 #' stopRule2 <- function(landscape) sum(landscape)>100
-#' # using stopRuleExact = TRUE
+#' # using stopRuleBehavior = "excludePixel"
 #' stopRuleB <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 #'                 NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule2,
-#'                 stopRuleExact = TRUE)
+#'                 stopRuleBehavior = "excludePixel")
 #'
-#' # using stopRuleExact = FALSE, means that end result is slightly larger patches, as a
+#' # using stopRuleBehavior = "includeRing", means that end result is slightly larger patches, as a
 #' #  complete "iteration" of the spread algorithm is used.
 #' set.seed(1234)
 #' stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
@@ -377,15 +380,25 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' stopRule3 <- function(landscape, mapID, endSizes) sum(landscape)>endSizes[mapID]
 #'
 #' TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
-#'    directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes, stopRuleExact = TRUE)
+#'    directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes,
+#'    stopRuleBehavior = "excludePixel")
 #' # or using named list of named elements:
 #' #TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
 #' #    directions = 8, mapID = TRUE, stopRule = stopRule3,
-#' #    vars = list(endSizes = endSizes), stopRuleExact = TRUE)
+#' #    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 #'
 #' Plot(TwoCirclesDiffSize, new=TRUE)
 #' cirs <- getValues(TwoCirclesDiffSize)
 #' vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
+#'
+#' # Stop if sum of landscape is big or mean of quality is too small
+#' quality <- raster(hab)
+#' quality[] <- runif(ncell(quality), 0, 1)
+#' stopRule4 <- function(landscape, quality, cells) (sum(landscape)>20) | (mean(quality[cells])<0.3)
+#'
+#' TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+#'    directions = 8, mapID = TRUE, stopRule = stopRule4, quality = quality,
+#'    stopRuleBehavior = "excludePixel")
 #'
 #' ##############
 #' # allowOverlap
@@ -397,7 +410,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'  # define stopRule
 #'  stopRule2 <- function(landscape,mapID,maxVal) sum(landscape)>maxVal[mapID]
 #'  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-#'                    mapID = TRUE, allowOverlap=TRUE, stopRuleExact=FALSE,
+#'                    mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior="includeRing",
 #'                                      maxVal = maxVal, returnIndices = TRUE)
 #'  (vals <- tapply(hab[circs$indices], circs$eventID, sum))
 #'  vals<=maxVal # All TRUE
@@ -416,10 +429,12 @@ setMethod(
                         maxSize, directions, iterations,
                         lowMemory, returnIndices, mapID,
                         plot.it, spreadProbLater, spreadState,
-                        circle, circleMaxRadius, stopRule, stopRuleExact,
+                        circle, circleMaxRadius, stopRule, stopRuleBehavior,
                         allowOverlap,
                         ...) {
 
+    if(!any(stopRuleBehavior %in% c("includePixel","excludePixel","includeRing","excludeRing")))
+      stop("stopRuleBehaviour must be one of \"includePixel\", \"excludePixel\", \"includeRing\", or \"excludeRing\"")
     spreadStateExists <- is(spreadState, "data.table")
     if (!is(spreadProbLater, "Raster")) {
       if (is.na(spreadProbLater)) {
@@ -720,35 +735,40 @@ setMethod(
           names(shouldStop) <- ids
 
           if(any(shouldStop)) {
-            if(stopRuleExact) {
-              whStop <- as.numeric(names(shouldStop)[shouldStop])
-              whStopAll <- tmp[,"mapID"] %in% whStop
-              tmp2 <- tmp[whStopAll,]
+            if(stopRuleBehavior!="includeRing") {
+              if(stopRuleBehavior!="excludeRing") {
+                whStop <- as.numeric(names(shouldStop)[shouldStop])
+                whStopAll <- tmp[,"mapID"] %in% whStop
+                tmp2 <- tmp[whStopAll,]
 
-              whStopEvents <- eventCells[,"mapID"] %in% whStop
+                whStopEvents <- eventCells[,"mapID"] %in% whStop
 
-              out <- lapply(whStop, function(mapID) {
-                tmp3 <- tmp2[tmp2[,"mapID"]==mapID,]
-                newOnes <- tmp3[,"prev"]==0
-                ord <- seq_along(newOnes)
-                ord[newOnes] <- sample(ord[newOnes])
-                startLen <- sum(!newOnes)
-                addIncr <- 1
-                done <- FALSE
-                while(!done) {
-                  args <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
-                  args <- args[-(names(args)=="mapID")]
-                  args <- append(args, list(mapID=mapID))
-                  wh <- match(names(formals(stopRule)),names(args))
-                  done <- do.call(stopRule, args[wh])
-                  addIncr <- addIncr+1
-                }
-                addIncr <- addIncr - 1
-                tmp3[(startLen+addIncr):NROW(tmp3),,drop=FALSE]#)
-              })
+                out <- lapply(whStop, function(mapID) {
+                  tmp3 <- tmp2[tmp2[,"mapID"]==mapID,]
+                  newOnes <- tmp3[,"prev"]==0
+                  ord <- seq_along(newOnes)
+                  ord[newOnes] <- sample(ord[newOnes])
+                  tmp3 <- tmp3[ord,]
+                  startLen <- sum(!newOnes)
+                  addIncr <- 1
+                  done <- FALSE
+                  while(!done) {
+                    args <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
+                    args <- args[-(names(args)=="mapID")]
+                    args <- append(args, list(mapID=mapID))
+                    wh <- match(names(formals(stopRule)),names(args))
+                    done <- do.call(stopRule, args[wh])
+                    addIncr <- addIncr+1
+                  }
+                  if(stopRuleBehavior=="excludePixel") addIncr <- addIncr - 1
+                  tmp3[(startLen+addIncr):NROW(tmp3),,drop=FALSE]#)
+                })
 
-              eventRm <- do.call(rbind, out)[,"cells"]
-              cellsKeep <- !(potentials[,2L] %in% eventRm)
+                eventRm <- do.call(rbind, out)[,"cells"]
+                cellsKeep <- !(potentials[,2L] %in% eventRm)
+              } else {
+                cellsKeep <- rep(FALSE, NROW(potentials))
+              }
               potentials <- potentials[cellsKeep,,drop=FALSE]
               events <- potentials[,2L]
               eventCells <- eventCells[cellsKeep,,drop=FALSE]

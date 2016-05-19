@@ -68,7 +68,7 @@ test_that("spread stopRule does not work correctly", {
   names(hab) = "hab"
   hab2 <- hab>0
   maxRadius <- 25
-  maxVal <- 200
+  maxVal <- 50
 
   #set.seed(seed);
   #print(seed);
@@ -82,7 +82,6 @@ test_that("spread stopRule does not work correctly", {
   # examples with stopRule, which means that the eventual size is driven by the values on the raster
   #  passed in to the landscape argument
   set.seed(1234)
-  maxVal <- 50
   startCells <- as.integer(sample(1:ncell(hab), 10))
   stopRule1 <- function(landscape) sum(landscape)>maxVal
   stopRuleA <- spread(hab, loci = startCells, 1, 0,
@@ -92,17 +91,18 @@ test_that("spread stopRule does not work correctly", {
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) > maxVal))
 
 
-  # using stopRuleExact = TRUE
+  # using stopRuleBehavior = "excludePixel"
+  set.seed(1234)
   stopRuleB <- spread(hab, loci = startCells, 1, 0,
                   NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
-                  stopRuleExact = TRUE)
+                  stopRuleBehavior = "excludePixel")
   foo <- cbind(vals=hab[stopRuleB], id = stopRuleB[stopRuleB>0]);
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) <= maxVal))
 
   # If boolean, then it is exact
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
-                      stopRuleExact = TRUE)
+                      stopRuleBehavior = "excludePixel")
   foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB>0]);
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) == maxVal))
 
@@ -111,7 +111,7 @@ test_that("spread stopRule does not work correctly", {
   maxSizes <- sample(maxVal*2, length(startCells))
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = maxSizes, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
-                      stopRuleExact = TRUE)
+                      stopRuleBehavior = "excludePixel")
   #Plot(stopRuleB, new=TRUE)
   foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB>0]);
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) == pmin(maxSizes, maxVal)))
@@ -121,30 +121,58 @@ test_that("spread stopRule does not work correctly", {
   maxSizes <- runif(length(startCells), 1, maxVal*2)
   stopRuleB <- spread(hab2, loci = startCells, 1, 0,
                       NULL, maxSize = maxSizes, 8, 1e6, mapID = TRUE, circle = TRUE, stopRule = stopRule1,
-                      stopRuleExact = TRUE)
+                      stopRuleBehavior = "excludePixel")
   #Plot(stopRuleB, new=TRUE)
   foo <- cbind(vals=hab2[stopRuleB], id = stopRuleB[stopRuleB>0]);
   expect_true(all( tapply(foo[,"vals"], foo[,"id"], sum) == pmin(floor(maxSizes), maxVal)))
 
-  # Test for circles
+  ####################################
+  # Test for stopRuleBehavior
+  ####################################
   set.seed(53432)
   stopRule2 <- function(landscape) sum(landscape)>maxVal
-  startCells <- as.integer(sample(1:ncell(hab), 1))
-
-  circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
-                  mapID = TRUE, stopRule = stopRule2, stopRuleExact=FALSE)
-  cells <- which(getValues(circs)==1)
-  centre <- xyFromCell(hab2,startCells)
-  allCells <- xyFromCell(hab2, cells)
-  pd <- pointDistance(centre, allCells, lonlat = FALSE)
-  #pi*r^2 = maxVal
-  r = sqrt(maxVal/pi)
-  expect_true(ceiling(r)+1==max(pd))
-  expect_true((r+1)<=max(pd))
+  startCells <- as.integer(sample(1:ncell(hab), 2))
+  set.seed(53432)
+  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = startCells,
+                  mapID = TRUE, stopRule = stopRule2, stopRuleBehavior = "includeRing")
+  cirs <- getValues(circs)
+  vals <- tapply(hab[circs], cirs[cirs>0], sum)
+  expect_true(all(vals>=maxVal))
 
 
+  set.seed(53432)
+  circs2 <- spread(hab, spreadProb = 1, circle = TRUE, loci = startCells,
+                  mapID = TRUE, stopRule = stopRule2, stopRuleBehavior = "excludeRing")
+  cirs <- getValues(circs2)
+  vals <- tapply(hab[circs2], cirs[cirs>0], sum)
+  expect_true(all(vals<=maxVal))
 
+  set.seed(53432)
+  circs3 <- spread(hab, spreadProb = 1, circle = TRUE, loci = startCells,
+                   mapID = TRUE, stopRule = stopRule2, stopRuleBehavior = "includePixel")
+  cirs <- getValues(circs3)
+  vals <- tapply(hab[circs3], cirs[cirs>0], sum)
+  expect_true(all(vals<=(maxVal+maxValue(hab))))
+
+  set.seed(53432)
+  circs4 <- spread(hab, spreadProb = 1, circle = TRUE, loci = startCells,
+                   mapID = TRUE, stopRule = stopRule2, stopRuleBehavior = "excludePixel")
+  cirs <- getValues(circs4)
+  vals <- tapply(hab[circs4], cirs[cirs>0], sum)
+  expect_true(all(vals>=(maxVal-maxValue(hab))))
+
+  # There should be 1 extra cell
+  expect_true(sum(getValues(circs4)>0)+length(startCells) == sum(getValues(circs3)>0))
+  # Order should be includeRing, includePixel, excludePixel, excludeRing
+  expect_true(sum(getValues(circs)>0) > sum(getValues(circs3)>0))
+  expect_true(sum(getValues(circs3)>0) > sum(getValues(circs4)>0))
+  expect_true(sum(getValues(circs4)>0) > sum(getValues(circs2)>0))
+
+
+  ####################################
   # Test for circles using maxDist
+  ####################################
+
   set.seed(53432)
   stopRule2 <- function(landscape) sum(landscape)>maxVal
   startCells <- as.integer(sample(1:ncell(hab), 1))
@@ -192,7 +220,7 @@ test_that("spread stopRule does not work correctly", {
 
   TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
      directions = 8, mapID = TRUE, stopRule = stopRule3, endSizes = endSizes,
-     stopRuleExact = TRUE)
+     stopRuleBehavior = "excludePixel")
   #Plot(TwoCirclesDiffSize, new=TRUE)
   cirs <- getValues(TwoCirclesDiffSize)
   vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
@@ -220,20 +248,20 @@ test_that("spread stopRule does not work correctly", {
      expect_silent(
      circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
                      stopRule = stopRule2, maxVal=maxVal, returnIndices = TRUE,
-                     mapID = TRUE, allowOverlap=TRUE, stopRuleExact=FALSE)
+                     mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includeRing")
      )
 
      vals <- tapply(hab[circs$indices], circs$eventID, sum)
      expect_true(all(vals>maxVal))
   }
 
- #stopRuleExact the allowOverlap
+ #stopRuleBehavior the allowOverlap
  maxVal <- 20
  stopRule2 <- function(landscape,maxVal) sum(landscape)>maxVal
  #expect_silent(
  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
                  stopRule = stopRule2, maxVal=maxVal, returnIndices = TRUE,
-                 mapID = TRUE, allowOverlap=TRUE, stopRuleExact=TRUE)
+                 mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel")
  #)
  vals <- tapply(hab[circs$indices], circs$eventID, sum)
  expect_true(all(vals<=maxVal))
@@ -243,7 +271,7 @@ test_that("spread stopRule does not work correctly", {
  stopRule2 <- function(landscape,mapID,maxVal) sum(landscape)>maxVal[mapID]
  expect_silent(
  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                 mapID = TRUE, allowOverlap=TRUE, stopRuleExact=TRUE,
+                 mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel",
                  maxVal = maxVal, returnIndices = TRUE)
  )
  vals <- tapply(hab[circs$indices], circs$eventID, sum)
