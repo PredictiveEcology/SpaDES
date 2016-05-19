@@ -634,7 +634,7 @@ setMethod(
           spreadProbs <- spreadProb[potentials[, 2L]]
         }
       }
-      if(all(spreadProbs<1)) {
+      if(any(spreadProbs<1)) {
         potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
       }
       potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE] # random ordering so not always same
