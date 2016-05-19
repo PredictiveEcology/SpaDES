@@ -10,7 +10,7 @@ if (getRversion() >= "3.1.0") {
 #' Essentially, it starts from a collection of cells (\code{loci}) and spreads
 #' to neighbours, according to the \code{directions} and \code{spreadProbLater} arguments.
 #' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
-#' from every loci until all pixels in the landscape have been covered.
+#' from every loci until all cells in the landscape have been covered.
 #' With \code{mapID} set to \code{TRUE}, the resulting map will be classified
 #' by the index of the pixel where that event propagated from.
 #' This can be used to examine things like fire size distributions.
@@ -44,7 +44,7 @@ if (getRversion() >= "3.1.0") {
 #'                          active spreading events will stop. In practice,
 #'                          this number generally should be below 0.3 to actually
 #'                          see an event stop\cr
-#'   \code{maxSize} \tab This is the number of pixels that are "successfully" turned
+#'   \code{maxSize} \tab This is the number of cells that are "successfully" turned
 #'                       on during a spreading event. This can be vectorized, one value
 #'                       for each event   \cr
 #'   \code{circleMaxRadius} \tab If \code{circle} is TRUE, then this will be the maximum
@@ -75,6 +75,29 @@ if (getRversion() >= "3.1.0") {
 #' the resulting size can be emergent based on the incremental growing and calculating
 #' of the \code{landscape} values underlying the spreading event.
 #'
+#' @section \code{stopRuleBehavior}:
+#' This determines how the \code{stopRule} should be implemented. Because
+#' spreading occurs outwards in concentric circles or shapes, one pixel unit at a time, there
+#' are 4 possible ways to interpret the logical inequality defined in \code{stopRule}.
+#' In order of number of cells included in resulting events, from most cells to fewest cells:
+#'
+#' \tabular{ll}{
+#'   \code{"includeRing"} \tab Will include the entire ring of cells that, as a group,
+#'                             caused \code{stopRule} to be \code{TRUE}.\cr
+#'   \code{"includePixel"} \tab Working backwards from the entire ring that caused the
+#'                              \code{stopRule} to be \code{TRUE}, this will iteratively
+#'                              random cells in the final ring
+#'                              until the \code{stopRule} is \code{FALSE}. This will add back
+#'                              the last removed pixel and include it in the return result
+#'                              for that event.\cr
+#'   \code{"excludePixel"} \tab Like \code{"includePixel"}, but it will not add back the pixel
+#'                        that causes \code{stopRule} to be \code{TRUE}\cr
+#'   \code{"excludeRing"} \tab Analogous to \code{"excludePixel"}, but for the entire final
+#'                             ring of cells added. This will exclude the entire ring of cells
+#'                             that caused the \code{stopRule} to be \code{TRUE}\cr
+#' }
+#'
+#'
 #' @param landscape     A \code{RasterLayer} object.
 #'
 #' @param loci          A vector of locations in \code{landscape}
@@ -93,7 +116,7 @@ if (getRversion() >= "3.1.0") {
 #'                      where 1 indicates "cannot spread to".
 #'                      Currently not implemented.
 #'
-#' @param maxSize       Vector of the maximum number of pixels for a single or
+#' @param maxSize       Vector of the maximum number of cells for a single or
 #'                      all events to be spread. Recycled to match \code{loci} length.
 #'                      See section on \code{Breaking out of spread events}.
 #'
@@ -122,27 +145,29 @@ if (getRversion() >= "3.1.0") {
 #'                      is FALSE. Using \code{circle=TRUE} can be dramatically slower for large
 #'                      problems. Note, this should usually be used with spreadProb = 1.
 #'
-#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If \code{circle}
-#'                      is \code{TRUE}, then it will grow to this maximum radius. See section on
+#' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If
+#'                      \code{circle} is \code{TRUE}, then it will grow to this maximum radius.
+#'                      See section on
 #'                      \code{Breaking out of spread events}. Default to NA.
 #'
 #' @param stopRule      A function which will be used to assess whether each individual cluster
-#'                      should stop growing. This function can be an argument of "landscape", "mapID", and
+#'                      should stop growing. This function can be an argument of "landscape",
+#'                      "mapID", "cells", and
 #'                      any other named vectors, a named list of named vectors,
 #'                      or a named data.frame of with column names passed to spread in
 #'                      the ... . Default NA meaning,
 #'                      spreading will not stop as a function of the landscape. See section on
 #'                      \code{Breaking out of spread events} and examples.
 #'
-#' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing", "excludeRing".
-#'                      If \code{stopRule} contains a function, this argument is used determine what to do
-#'                      with the pixel(s) that caused the rule to be \code{TRUE}. See details. Default is
-#'                      "includeRing" which means to accept the entire ring of pixels that caused the rule to
-#'                      be \code{TRUE}.
+#' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing",
+#'                      "excludeRing". If \code{stopRule} contains a function, this argument is
+#'                      used determine what to do with the pixel(s) that caused the rule to be
+#'                      \code{TRUE}. See details. Default is "includeRing" which means to
+#'                      accept the entire ring of cells that caused the rule to be \code{TRUE}.
 #'
-#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one another, i.e.,
-#'                      they do not interact. Currently, this is slower than if \code{allowOverlap} is
-#'                      \code{FALSE}. Default is FALSE.
+#' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
+#'                      another, i.e., they do not interact. Currently, this is slower than
+#'                      if \code{allowOverlap} is \code{FALSE}. Default is FALSE.
 #'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
@@ -164,16 +189,16 @@ if (getRversion() >= "3.1.0") {
 #'
 #' \tabular{ll}{
 #'   \code{eventID} \tab an arbitrary ID \code{1:length(loci)} identifying
-#'                      unique clusters of spread events, i.e., all pixels
+#'                      unique clusters of spread events, i.e., all cells
 #'                      that have been spread into that have a
 #'                      common initial pixel.\cr
 #'   \code{initialLocus} \tab the initial pixel number of that particular
 #'                            spread event.\cr
-#'   \code{indices} \tab The pixel indices of pixels that have
+#'   \code{indices} \tab The pixel indices of cells that have
 #'                        been touched by the spread algorithm.\cr
 #'   \code{active} \tab a logical indicating whether the pixel is active (i.e.,
 #'                        could still be a source for spreading) or not (no
-#'                        spreading will occur from these pixels).\cr
+#'                        spreading will occur from these cells).\cr
 #' }
 #'
 #' This will generally be more useful when \code{allowOverlap} is \code{TRUE}.
@@ -222,7 +247,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'
 #' # Make random forest cover map
 #' emptyRas <- raster(extent(0,1e2,0,1e2), res = 1)
-#' hab <- gaussMap(emptyRas,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+#' hab <- gaussMap(emptyRas,speedup = 1) # if raster is large (>1e6 cells), use speedup>1
 #' names(hab) = "hab"
 #' mask <- raster(emptyRas)
 #' mask <- setValues(mask, 0)
@@ -231,10 +256,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' numCell <- ncell(emptyRas)
 #' directions <- 8
 #'
-#' # Transparency involves putting two more hex digits on the color code: 00 is fully transparent.
-#' setColors(hab) <- paste(c("#FFFFFF", brewer.pal(8, "Greys")), c("00", rep("FF", 8)), sep = "")
-#'
-#' #dev(4)
+#' # Can use transparent as a color
+#' setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 #'
 #' Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
 #'                              # so, some details are lost
