@@ -55,7 +55,12 @@ if (getRversion() >= "3.1.0") {
 #'                       named vector passed into \code{spread} in the \code{...}. This
 #'                       can take on relatively complex functions. Passing in, say, a Raster
 #'                       Layer to \code{spread} can access the individual values on that
-#'                       arbitrary Raste Layer using "cells". See examples.
+#'                       arbitrary Raster Layer using "cells". These will be calculated
+#'                       within all the cells of the individual event (equivalent to a
+#'                       "group_by(event)" in dplyr. So, \code{sum(arbitraryRaster[cells])}
+#'                       would sum up all the raster values on the arbitraryRaster Raster
+#'                       that are overlaid by the individual event. This can then be used in
+#'                       a logical statement.  See examples.
 #'                       To confirm the cause of stopping, the user can assess the values
 #'                       after the function has finished.\cr
 #' }
@@ -163,7 +168,7 @@ if (getRversion() >= "3.1.0") {
 #'                      "mapID", "cells", and
 #'                      any other named vectors, a named list of named vectors,
 #'                      or a named data.frame of with column names passed to spread in
-#'                      the ... . Default NA meaning,
+#'                      the ... . Default NA meaning that
 #'                      spreading will not stop as a function of the landscape. See section on
 #'                      \code{Breaking out of spread events} and examples.
 #'
@@ -506,7 +511,8 @@ setMethod(
         spreads <- vector("integer", ncell(landscape))
       }
     } else {
-      spreads <- cbind(initialLocus=initialLoci, indices=initialLoci, eventID=1:length(loci), active=1)
+      spreads <- cbind(initialLocus=initialLoci, indices=initialLoci,
+                       eventID=1:length(loci), active=1)
     }
 
     n <- 1L
@@ -517,6 +523,9 @@ setMethod(
         directions = 8L
         initialLociXY <- cbind(mapID = seq_along(initialLoci), xyFromCell(landscape, initialLoci))
         mapID <- TRUE
+        if(allowOverlap) {
+          spreads <- cbind(spreads, dists = NA_real_)
+        }
       }
     }
 
@@ -637,14 +646,16 @@ setMethod(
         whActive <- spreads[,"active"]==1 # spreads carries over
         potentials <- adj(landscape, loci, directions, pairs = TRUE, id = spreads[whActive,"eventID"])
         spreads[whActive,"active"] <- 0
+        potentials <- cbind(potentials, active=1)
       }
+
+      if(circle)
+        potentials <- cbind(potentials, dists = NA_real_)
 
       # keep only neighbours that have not been spread to yet
       if(!allowOverlap) {
         potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
       } else {
-
-        potentials <- cbind(potentials, active=1)
         colnames(potentials) <- colnames(spreads)
         potentials[,"initialLocus"] <- initialLoci[potentials[,"eventID"]]
         d <- rbind(spreads, potentials)
@@ -704,6 +715,9 @@ setMethod(
                 }
               }
             }
+            if(circle)
+              potentials[,"dists"] <- d[,"dists"]
+            #spreads <- cbind(spreads, dists = NA_real_)
             potentials <- potentials[(d[,"dists"] %<=% cMR),, drop = FALSE]
           }
         }
@@ -752,7 +766,7 @@ setMethod(
             prevCells <- cbind(mapID=spreads[spreads>0],
                                landscape = landscape[spreads>0], cells = which(spreads>0), prev=1)
             eventCells <- cbind(mapID = spreads[potentials[, 1L]],
-                                landscape = landscape[events], cells = events, prev=0)
+                                landscape = landscape[potentials[,2L]], cells = potentials[,2L], prev=0)
           } else {
             prevCells <- cbind(mapID=spreads[,"eventID"],
                                landscape = landscape[spreads[,"indices"]],
@@ -760,6 +774,10 @@ setMethod(
             eventCells <- cbind(mapID = potentials[, "eventID"],
                                 landscape = landscape[events],
                                 cells = events, prev=0)
+          }
+          if(circle) {
+            prevCells <- cbind(prevCells, dist = NA)
+            eventCells <- cbind(eventCells, dist = potentials[,"dists"])
           }
           tmp <- rbind(prevCells[prevCells[,"mapID"] %in%
                                    unique(eventCells[,"mapID"]),], eventCells) # don't need to continue doing ids that are not active
@@ -790,6 +808,7 @@ setMethod(
                   newOnes <- tmp3[,"prev"]==0
                   ord <- seq_along(newOnes)
                   ord[newOnes] <- sample(ord[newOnes])
+                  if(circle) ord[newOnes] <- ord[newOnes][order(tmp3[ord[newOnes],"dist"])]
                   tmp3 <- tmp3[ord,]
                   startLen <- sum(!newOnes)
                   addIncr <- 1
