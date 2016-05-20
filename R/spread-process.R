@@ -98,30 +98,37 @@ if (getRversion() >= "3.1.0") {
 #' }
 #'
 #'
-#' @param landscape     A \code{RasterLayer} object.
+#' @param landscape     A \code{RasterLayer} object. This defines the possible locations
+#'                      for spreading events to start and spread into. This can also
+#'                      be used as part of \code{stopRule}. Require input.
 #'
-#' @param loci          A vector of locations in \code{landscape}
+#' @param loci          A vector of locations in \code{landscape}. These should be cell indexes.
+#'                      If user has x and y coordinates, these can be converted with
+#'                      \code{\link[raster]{cellFromXY}}.
 #'
 #' @param spreadProb    Numeric or rasterLayer.  The overall probability of
-#'                      spreading, or probability raster driven. Default is 0.23.
+#'                      spreading, or probability raster driven. Default is \code{0.23}.
 #'                      If a \code{spreadProbLater} is provided, then this is
 #'                      only used for the first iteration. Also called Escape
 #'                      probability. See section on \code{Breaking out of spread events}.
 #'
-#' @param persistence   A probability that an active cell will continue to burn,
+#' @param persistence   A length 1 probability that an active cell will continue to burn,
 #'                      per time step.
 #'
 #' @param mask          non-NULL, a \code{RasterLayer} object congruent with
 #'                      \code{landscape} whose elements are \code{0,1},
 #'                      where 1 indicates "cannot spread to".
-#'                      Currently not implemented.
+#'                      Currently not implemented, but identical behavior can be
+#'                      achieved if \code{spreadProb} has zeros in all unspreadable
+#'                      locations.
 #'
-#' @param maxSize       Vector of the maximum number of cells for a single or
-#'                      all events to be spread. Recycled to match \code{loci} length.
+#' @param maxSize       Numeric. Maximum number of cells for a single or
+#'                      all events to be spread. Recycled to match \code{loci} length,
+#'                      if it is not as long as \code{loci}.
 #'                      See section on \code{Breaking out of spread events}.
 #'
 #' @param directions    The number adjacent cells in which to look;
-#'                      default is 8 (Queen case).
+#'                      default is 8 (Queen case). Can only be 4 or 8.
 #'
 #' @param iterations    Number of iterations to spread.
 #'                      Leaving this \code{NULL} allows the spread to continue
@@ -138,7 +145,8 @@ if (getRversion() >= "3.1.0") {
 #'                      will become the spreadProb after the first iteration. See details.
 #'
 #' @param spreadState   Data.table. This should be the output of a previous call to
-#'                      \code{spread}. See Details.
+#'                      \code{spread}, where \code{returnIndices} was \code{TRUE}. Default NA,
+#'                      meaning the spread is starting from \code{loci}. See Details.
 #'
 #' @param circle        Logical. If TRUE, then outward spread will be by equidistant rings,
 #'                      rather than solely by adjacent cells (via \code{direction} arg.). Default
@@ -167,7 +175,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
 #'                      another, i.e., they do not interact. Currently, this is slower than
-#'                      if \code{allowOverlap} is \code{FALSE}. Default is FALSE.
+#'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
 #'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
@@ -626,14 +634,16 @@ setMethod(
       if(!allowOverlap) {
         potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
       } else {
-        # THis section requires data.table by functionality, but this converting
-        #   is slow. No good solution at this point.
-        potentials2 <- data.table(potentials,active=1)
-        setnames(potentials2, colnames(potentials2), colnames(spreads))
-        potentials2[,initialLocus:=initialLoci[eventID]] # maybe can delete the "initialLocus" because we can get it with initialLoci[eventID]
-        potentials3 <- rbindlist(list(data.table(spreads), potentials2)) %>% setkey(eventID, indices)
-        keeps <- potentials3[,list(keeps=!duplicated(indices)),by=eventID]
-        potentials <- as.matrix(potentials3[keeps$keeps & active ==1,])
+
+        potentials <- cbind(potentials, active=1)
+        colnames(potentials) <- colnames(spreads)
+        potentials[,"initialLocus"] <- initialLoci[potentials[,"eventID"]]
+        d <- rbind(spreads, potentials)
+        d <- d[order(d[,"eventID"],d[,"indices"]),]
+        keepsMat <- unlist(tapply(d[,"indices"], d[,"eventID"],function(x) !duplicated(x)))
+        indices <- unlist(tapply(d[,"indices"], d[,"eventID"],function(x) x))
+        potentials <- d[keepsMat & d[,"active"]==1,]
+
       }
 
       if (n == 2) {
@@ -784,9 +794,11 @@ setMethod(
                     addIncr <- addIncr+1
                   }
                   if(stopRuleBehavior=="excludePixel") addIncr <- addIncr - 1
-                  tmp3[(startLen+addIncr):NROW(tmp3),,drop=FALSE]#)
+                  firstInd <- startLen+addIncr
+                  lastInd <- NROW(tmp3)
+                  sequ <- if(firstInd>lastInd) 0 else firstInd:lastInd
+                  tmp3[sequ,,drop=FALSE]#)
                 })
-
                 eventRm <- do.call(rbind, out)[,"cells"]
                 cellsKeep <- !(potentials[,2L] %in% eventRm)
               } else {

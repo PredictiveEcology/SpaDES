@@ -194,7 +194,7 @@ test_that("spread stopRule does not work correctly", {
 
   circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = startCells,
                   mapID = TRUE, circleMaxRadius = maxRadius)
-  Plot(circs,new=TRUE)
+  #Plot(circs,new=TRUE)
 
   for(whCirc in 1:numCircs) {
     cells <- which(getValues(circs)==whCirc)
@@ -209,7 +209,7 @@ test_that("spread stopRule does not work correctly", {
       # Test that there are both 0 and whCirc values, i.e,. it is on an edge
       expect_true(all(c(0,whCirc) %in% circs[as.vector(adj(hab2, cells[pd==maxRadius], pairs = FALSE))]))
     }
-    Plot(circEdge, addTo="circs", cols = c("transparent", rainbow(numCircs)[whCirc]))
+    #Plot(circEdge, addTo="circs", cols = c("transparent", rainbow(numCircs)[whCirc]))
   }
 
 
@@ -229,7 +229,6 @@ test_that("spread stopRule does not work correctly", {
 
   # Testing allowOverlap
 
-  #initialLoci <- (ncell(hab)-ncol(hab))/2 + c(0, -1)
   initialLoci <- as.integer(sample(1:ncell(hab), 10))
   expect_silent(circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = initialLoci,
                   mapID = TRUE, circleMaxRadius = maxRadius, allowOverlap=TRUE))
@@ -277,5 +276,66 @@ test_that("spread stopRule does not work correctly", {
  vals <- tapply(hab[circs$indices], circs$eventID, sum)
  expect_true(all(vals<=maxVal))
  # Test that maxSize can be a non integer value (i.e, Real)
+
+
+
+
+ skip("This is just benchmarking, not testing")
+ library(microbenchmark)
+ microbenchmark(times = 200,
+                excludePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                                mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel",
+                                maxVal = maxVal, returnIndices = TRUE),
+                excludeRing = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                               mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludeRing",
+                               maxVal = maxVal, returnIndices = TRUE),
+                includePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                               mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includePixel",
+                               maxVal = maxVal, returnIndices = TRUE),
+                includeRing = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                                      mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includeRing",
+                                      maxVal = maxVal, returnIndices = TRUE)
+ )
+ #Unit: milliseconds # with data.table
+ #expr              min       lq     mean   median       uq       max neval
+ #excludePixel 38.90842 41.71832 45.00469 44.33181 47.14418  62.58632   100
+ #excludeRing  22.63004 23.80755 26.63432 25.76519 27.95789  41.47834   100
+ #includePixel 38.46955 42.51963 48.04159 44.32482 47.41415 333.52346   100
+ #includeRing  33.72337 36.62840 39.55411 38.71796 41.31295  63.29517   100
+
+ # Remove data.table
+ # Unit: milliseconds
+ # expr              min       lq     mean   median       uq      max neval
+ # excludePixel 27.31582 29.57508 33.80717 32.51402 35.86901 85.20527   200
+ # excludeRing  15.59501 16.21633 19.32698 17.73696 20.59371 60.33322   200
+ # includePixel 27.43088 29.19868 33.27228 31.67183 34.27935 94.79831   200
+ # includeRing  22.76565 24.52749 27.56035 26.56609 29.32072 49.58507   200
+
+ includePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
+                       mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includePixel",
+                       maxVal = maxVal, returnIndices = TRUE)
+
+ ## Make distance surface
+ maxRadius = 10
+ circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = initialLoci,
+                 mapID = TRUE, circleMaxRadius = maxRadius, allowOverlap=TRUE)
+ clumps <- raster::clump(circs)
+ bounds <- raster::boundaries(clumps, classes=TRUE, type = "outer")
+ spreadProb <- raster(clumps)
+ spreadProb[] <- 1
+ spreadProb[clumps==1 & bounds==0] <- 0
+
+ clumps[is.na(clumps)] <- 0
+ Plot(clumps,new=T,zero.color="white", cols = "Reds")
+
+ whCells <- which(bounds[]>0)
+ xy <- xyFromCell(circs, whCells)
+ microbenchmark(times = 2,
+
+                dists = spread(circs, loci = whCells, spreadProb = spreadProb, mapID = FALSE, circle=TRUE, allowOverlap=TRUE,
+                               iterations = 20, directions = 8, returnIndices = FALSE)
+                ,
+                dists2 = distanceFromPoints(circs, xy = xy))
+ Plot(dists,dists2,new=TRUE)
 
  })
