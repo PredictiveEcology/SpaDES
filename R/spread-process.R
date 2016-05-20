@@ -36,7 +36,8 @@ if (getRversion() >= "3.1.0") {
 #' multiple spreading "events". The ways outlines below are all acting at all times,
 #' i.e., they are not mutually exclusive. Therefore, it is the user's
 #' responsibility to make sure the different rules are interacting with
-#' each other correctly:
+#' each other correctly. Using \code{spreadProb} or \code{maxSize} are computationally
+#' fastest, sometimes dramatically so.
 #'
 #' \tabular{ll}{
 #'   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,
@@ -542,7 +543,8 @@ setMethod(
     # check validity of stopRule
     if(is.function(stopRule)){
       mapID <- TRUE
-      if(any(is.na(match(names(formals(stopRule)),
+      stopRuleObjs <- names(formals(stopRule))
+      if(any(is.na(match(stopRuleObjs,
                          c("mapID", "landscape", "cells", names(otherVars)))))){
         stop(paste("Arguments in stopRule not valid. The function definition",
              "must be a function of built-in options, ",
@@ -551,6 +553,11 @@ setMethod(
              "must be passed as named vectors, or lists or data.frames.",
              " See examples."))
       }
+      LandRasNeeded <- any(stopRuleObjs=="landscape")
+      colNamesPotentials <- c("mapID", "landscape"[LandRasNeeded], "cells", "prev")
+      argNames <- c(colNamesPotentials, names(otherVars))
+      whArgs <- match(names(formals(stopRule)),argNames)
+
       # Raster indexing is slow. If there is are Rasters submitted with the stopRule
       #  then this will convert them to vectors first. Clearly, this will have
       #  memory consequences if the Rasters are on disk, but spread is optimized for speed
@@ -560,6 +567,7 @@ setMethod(
           otherVars[[names(rasters[i])]] <- otherVars[[names(rasters[i])]][]
         }
       }
+      landRas <- landscape[] # For speed
     }
 
     if(!allowOverlap) {
@@ -615,6 +623,10 @@ setMethod(
       }
     }
 
+
+    if(any(loci>ncell(landscape)))
+      stop("loci indices are not on landscape")
+
     ## Recycling maxSize as needed
     if (any(!is.na(maxSize))) {
       if(!is.integer(maxSize)) maxSize <- floor(maxSize)
@@ -660,8 +672,18 @@ setMethod(
         potentials[,"initialLocus"] <- initialLoci[potentials[,"eventID"]]
         d <- rbind(spreads, potentials)
         d <- d[order(d[,"eventID"],d[,"indices"]),]
-        keepsMat <- unlist(tapply(d[,"indices"], d[,"eventID"],function(x) !duplicated(x)))
-        indices <- unlist(tapply(d[,"indices"], d[,"eventID"],function(x) x))
+        #browser()
+
+        #faster alternative to tapply, but cumbersome
+        #ord <- order(foo[,"eventID"])
+        #foo1 <- foo[ord,]
+        ids <- unique(d[,"eventID"])
+        keepsMat <- !unlist(lapply(ids, function(id){
+          duplicated(
+            d[d[,"eventID"]==id,"indices"]
+          )
+        }))
+
         potentials <- d[keepsMat & d[,"active"]==1,]
 
       }
@@ -717,7 +739,6 @@ setMethod(
             }
             if(circle)
               potentials[,"dists"] <- d[,"dists"]
-            #spreads <- cbind(spreads, dists = NA_real_)
             potentials <- potentials[(d[,"dists"] %<=% cMR),, drop = FALSE]
           }
         }
@@ -763,16 +784,19 @@ setMethod(
         if(is.function(stopRule) & length(events)>0){
 
           if(!allowOverlap) {
-            prevCells <- cbind(mapID=spreads[spreads>0],
-                               landscape = landscape[spreads>0], cells = which(spreads>0), prev=1)
+            zeroSp <- spreads>0
+            prevCells <- cbind(mapID=spreads[zeroSp],
+                               landscape = if(LandRasNeeded) landRas[zeroSp] else NULL,
+                               cells = which(spreads>0), prev=1)
             eventCells <- cbind(mapID = spreads[potentials[, 1L]],
-                                landscape = landscape[potentials[,2L]], cells = potentials[,2L], prev=0)
+                                landscape = if(LandRasNeeded) landRas[potentials[,2L]] else NULL,
+                                cells = potentials[,2L], prev=0)
           } else {
             prevCells <- cbind(mapID=spreads[,"eventID"],
-                               landscape = landscape[spreads[,"indices"]],
+                               landscape = if(LandRasNeeded) landRas[spreads[,"indices"]] else NULL,
                                cells = spreads[,"indices"], prev=1)
             eventCells <- cbind(mapID = potentials[, "eventID"],
-                                landscape = landscape[events],
+                                landscape = if(LandRasNeeded) landRas[events] else NULL,
                                 cells = events, prev=0)
           }
           if(circle) {
@@ -784,13 +808,18 @@ setMethod(
 
           ids <- unique(tmp[,"mapID"])
 
-          shouldStop <- unlist(lapply(ids, function(mapID) {
-            args <- append(as.data.frame(tmp[tmp[,"mapID"]==mapID,]), otherVars)
-            args <- args[-(names(args)=="mapID")]
-            args <- append(args, list(mapID=mapID))
-            wh <- match(names(formals(stopRule)),names(args))
-            do.call(stopRule, args[wh])
-          }))
+          shouldStopList <- lapply(ids, function(mapID) {
+            shortTmp <- tmp[tmp[,"mapID"]==mapID,]
+            args <- append(list(mapID=mapID), lapply(colNamesPotentials[-1], function(j) shortTmp[,j])) # instead of as.data.frame
+            names(args) <- colNamesPotentials
+            args <- append(args, otherVars)
+            do.call(stopRule, args[whArgs])
+          })
+          if(any(lapply(shouldStopList, length)>1))
+            stop("stopRule does not return a length-one logical. Perhaps stopRule need indexing ",
+                 "by cells or mapID?")
+
+          shouldStop <- unlist(shouldStopList)
 
           names(shouldStop) <- ids
 
@@ -803,6 +832,7 @@ setMethod(
 
                 whStopEvents <- eventCells[,"mapID"] %in% whStop
 
+                # If an event needs to stop, then must identify which cells are included
                 out <- lapply(whStop, function(mapID) {
                   tmp3 <- tmp2[tmp2[,"mapID"]==mapID,]
                   newOnes <- tmp3[,"prev"]==0
@@ -813,12 +843,26 @@ setMethod(
                   startLen <- sum(!newOnes)
                   addIncr <- 1
                   done <- FALSE
+                  #browser()
+                  args <- append(list(mapID=mapID),
+                                 lapply(colNamesPotentials[-1], function(j) tmp3[1:startLen,j])) # instead of as.data.frame
+                  names(args) <- colNamesPotentials
+                  args <- append(args, otherVars)
+                  argsSeq <- seq_along(colNamesPotentials[-1])+1
+
                   while(!done) {
-                    args <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
-                    args <- args[-(names(args)=="mapID")]
-                    args <- append(args, list(mapID=mapID))
-                    wh <- match(names(formals(stopRule)),names(args))
-                    done <- do.call(stopRule, args[wh])
+                    #browser()
+                    args[argsSeq] <- lapply(colNamesPotentials[-1], function(j) unname(c(args[[j]],tmp3[(startLen+addIncr),j]))) # instead of as.data.frame
+                    #names(args) <- colNamesPotentials[-1]
+                    #names(args) <- colNamesPotentials[-1]
+                    #args <- append(args, otherVars)
+
+                    #args1 <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
+                    #args <- args[-(names(args)=="mapID")]
+                    #args <- append(args, list(mapID=mapID))
+                    #browser()
+                    #wh <- match(names(formals(stopRule)),names(args))
+                    done <- do.call(stopRule, args[whArgs])
                     addIncr <- addIncr+1
                   }
                   if(stopRuleBehavior=="excludePixel") addIncr <- addIncr - 1

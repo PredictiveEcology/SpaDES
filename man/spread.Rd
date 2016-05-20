@@ -180,7 +180,8 @@ all cells that are spawned from a single starting loci. So, one spread call can 
 multiple spreading "events". The ways outlines below are all acting at all times,
 i.e., they are not mutually exclusive. Therefore, it is the user's
 responsibility to make sure the different rules are interacting with
-each other correctly:
+each other correctly. Using \code{spreadProb} or \code{maxSize} are computationally
+fastest, sometimes dramatically so.
 
 \tabular{ll}{
   \code{spreadProb} \tab Probabilistically, if spreadProb is low enough,

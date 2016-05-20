@@ -23,9 +23,10 @@ test_that("spread produces legal RasterLayer", {
   expect_equal(ncell(a), tabulate(spread(a, spreadProb=1, mapID=TRUE)[]))
 
   # several processes spreading
-  expect_equal(rep_len(3300,3),
+  sizes = rep_len(330,3)
+  expect_equal(sizes,
                tabulate(spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
-                               mapID = TRUE, maxSize = rep_len(3300,3))[]))
+                               mapID = TRUE, maxSize = sizes)[]))
 
   # Test that spreadState with a data.table works
   fires <- list()
@@ -401,5 +402,66 @@ test_that("spread benchmarking", {
  # Keep as raster
  #     min       lq     mean   median       uq      max neval
  #97.65601 102.6857 118.7154 115.3167 126.9112 173.6077    50
+
+ # ARbitrary stopRule is much slower than sizes -- 5x for this example
+ a = raster(extent(0,100,0,100), res=1)
+ a[] <- 1
+ sizes = rep(3300,3)
+ set.seed(343)
+ microbenchmark(times = 20, maxSize=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+        mapID = TRUE, maxSize = sizes))
+ set.seed(343)
+ microbenchmark(times = 20,
+                stopRule=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+               stopRuleBehavior = "excludePixel",
+               mapID = TRUE,
+               stopRule = function(cells,mapID) length(cells)>sizes[mapID]))
+ # Unit: milliseconds
+ #    expr      min       lq     mean   median       uq      max neval
+ # maxSize 36.84573 39.46026 52.00803 44.74344 63.14137 83.14923    20
+ # stopRule 193.414 210.9853 240.6881 232.1871 251.5688 393.1453    20
+
+
+ # ARbitrary stopRule is much slower than sizes -- 5x for this example
+ a = raster(extent(0,300,0,300), res=1)
+ a[] <- 1
+ sizes = rep(6600,3)
+ set.seed(343)
+ microbenchmark(times = 20, maxSize=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+                                           mapID = TRUE, maxSize = sizes))
+ set.seed(343)
+ microbenchmark(times = 20,
+                stopRule=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+                                stopRuleBehavior = "excludePixel",
+                                mapID = TRUE,
+                                stopRule = function(cells,mapID) length(cells)>sizes[mapID]))
+ # With 300x300 raster and 6600 sizes
+ # maxSizes
+ # Unit: milliseconds
+ #     expr      min       lq     mean   median       uq      max neval
+ # maxSize  50.39086 54.11104 74.02115  57.60774 101.3887 129.1427    20
+ # stopRule  423.923  470.764 552.4836  521.938  594.7501 886.5732    20
+ library(profvis)
+  pv = profvis(spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+        stopRuleBehavior = "excludePixel",
+        mapID = TRUE,
+        stopRule = function(cells,mapID) length(cells)>sizes[mapID]))
+  pv
+
+  ##foo <- fooOrig
+  microbenchmark(times = 10, long = {
+    ord <- order(foo[,"eventID"])
+    foo1 <- foo[ord,]
+    ids <- unique(foo1[,"eventID"])
+    fooB <- unlist(lapply(ids, function(id){
+      duplicated(
+        foo1[foo1[,"eventID"]==id,"indices"]
+        )
+    }))
+  },short = {
+
+    fooA <- unlist(tapply(foo1[,"indices"], foo1[,"eventID"],duplicated))
+  }
+  )
 
  })
