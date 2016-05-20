@@ -97,7 +97,7 @@ should stop growing. This function can be an argument of "landscape",
 "mapID", "cells", and
 any other named vectors, a named list of named vectors,
 or a named data.frame of with column names passed to spread in
-the ... . Default NA meaning,
+the ... . Default NA meaning that
 spreading will not stop as a function of the landscape. See section on
 \code{Breaking out of spread events} and examples.}
 
@@ -199,7 +199,12 @@ each other correctly:
                       named vector passed into \code{spread} in the \code{...}. This
                       can take on relatively complex functions. Passing in, say, a Raster
                       Layer to \code{spread} can access the individual values on that
-                      arbitrary Raste Layer using "cells". See examples.
+                      arbitrary Raster Layer using "cells". These will be calculated
+                      within all the cells of the individual event (equivalent to a
+                      "group_by(event)" in dplyr. So, \code{sum(arbitraryRaster[cells])}
+                      would sum up all the raster values on the arbitraryRaster Raster
+                      that are overlaid by the individual event. This can then be used in
+                      a logical statement.  See examples.
                       To confirm the cause of stopping, the user can assess the values
                       after the function has finished.\cr
 }

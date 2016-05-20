@@ -542,6 +542,15 @@ setMethod(
              "must be passed as named vectors, or lists or data.frames.",
              " See examples."))
       }
+      # Raster indexing is slow. If there is are Rasters submitted with the stopRule
+      #  then this will convert them to vectors first. Clearly, this will have
+      #  memory consequences if the Rasters are on disk, but spread is optimized for speed
+      rasters <- unlist(lapply(otherVars[names(otherVars)], function(x) is(x,"Raster")))
+      if(any(rasters)) {
+        for(i in 1:which(rasters)) {
+          otherVars[[names(rasters[i])]] <- otherVars[[names(rasters[i])]][]
+        }
+      }
     }
 
     if(!allowOverlap) {

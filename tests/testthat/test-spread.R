@@ -278,9 +278,50 @@ test_that("spread stopRule does not work correctly", {
  # Test that maxSize can be a non integer value (i.e, Real)
 
 
+ # Test arbitrary raster as part of stopRule
+  # Stop if sum of landscape is big or mean of quality is too small
+   for(i in 1:6) {
+     initialLoci <- as.integer(sample(1:ncell(hab), 10))
+     quality <- raster(hab)
+     quality[] <- runif(ncell(quality), 0, 1)
+     sumLandscapeRule <- 100
+     meanHabitatRule <- 0.4
+     stopRule4 <- function(landscape, quality, cells) (sum(landscape)>sumLandscapeRule) |
+       (mean(quality[cells])<meanHabitatRule)
+
+     circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+          directions = 8, mapID = TRUE, stopRule = stopRule4, quality = quality,
+          stopRuleBehavior = "includePixel", returnIndices = TRUE)
+
+     ras <- raster(quality)
+     ras[] <- 0
+     circsVals <- circs[,numEvents:=sum(unique(eventID)),by=indices]
+     ras[circsVals$indices] <- circsVals$numEvents
+     a1 <- cbind(quality = quality[ras], hab = hab[ras], id = ras[ras])
+     a2 <- tapply(a1[,"hab"], a1[,"id"], sum)
+     a3 <- tapply(a1[,"quality"], a1[,"id"], mean)
+     wh <- which(a3<meanHabitatRule)
+     a4 <- tapply(a1[,"quality"], a1[,"id"], length)
+     expect_true(all(a2[wh]<sumLandscapeRule))
+     expect_true(all(a2[-wh]>=sumLandscapeRule))
+     expect_true(all(a3[-wh]>=meanHabitatRule))
+     expect_true(all(a3[wh]<meanHabitatRule))
+     #Plot(ras)
+   }
+})
 
 
- skip("This is just benchmarking, not testing")
+test_that("spread benchmarking", {
+
+  skip("This is just benchmarking, not testing")
+  require(raster)
+  a <- raster(extent(0,1e2,0,1e2), res = 1)
+  hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) = "hab"
+  hab2 <- hab>0
+  maxRadius <- 25
+  maxVal <- 50
+
  library(microbenchmark)
  microbenchmark(times = 200,
                 excludePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
@@ -337,5 +378,28 @@ test_that("spread stopRule does not work correctly", {
                 ,
                 dists2 = distanceFromPoints(circs, xy = xy))
  Plot(dists,dists2,new=TRUE)
+
+
+
+ # Checking for speed when converting an inputed raster to vector
+ set.seed(2332)
+ initialLoci <- as.integer(sample(1:ncell(hab), 10))
+ quality <- raster(hab)
+ quality[] <- runif(ncell(quality), 0, 1)
+ stopRule4 <- function(landscape, quality, cells) (sum(landscape)>200) | (mean(quality[cells])<0.5)
+ set.seed(23432)
+ microbenchmark(circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+                              directions = 8, mapID = TRUE, stopRule = stopRule4, quality = quality,
+                              stopRuleBehavior = "includeRing"), times = 50)
+
+ Plot(circs,new=T)
+
+ # Internal conversion to vector -- almost 3x faster
+ #     min       lq     mean   median       uq      max neval
+ #34.91276 35.26146 37.86623 35.81296 40.09197 61.20151    50
+
+ # Keep as raster
+ #     min       lq     mean   median       uq      max neval
+ #97.65601 102.6857 118.7154 115.3167 126.9112 173.6077    50
 
  })
