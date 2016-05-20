@@ -382,18 +382,18 @@ test_that("spread benchmarking", {
 
 
 
- # Checking for speed when converting an inputed raster to vector
- set.seed(2332)
- initialLoci <- as.integer(sample(1:ncell(hab), 10))
- quality <- raster(hab)
- quality[] <- runif(ncell(quality), 0, 1)
- stopRule4 <- function(landscape, quality, cells) (sum(landscape)>200) | (mean(quality[cells])<0.5)
- set.seed(23432)
- microbenchmark(circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
-                              directions = 8, mapID = TRUE, stopRule = stopRule4, quality = quality,
-                              stopRuleBehavior = "includeRing"), times = 50)
-
- Plot(circs,new=T)
+ require(raster)
+ a <- raster(extent(0,436,0,296), res = 1)
+ hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+ names(hab) = "hab"
+ hab2 <- hab>0
+ maxVal = 250
+ startCells <- as.integer(sample(1:ncell(hab), 10))
+ stopRule1 <- function(landscape) sum(landscape)>maxVal
+ microbenchmark(stopRuleA <- spread(hab, loci = startCells, 1, 0,
+                     NULL, maxSize = 1e6, 8, 1e6, mapID = TRUE,
+                     circle = TRUE, stopRule = stopRule1))
+ Plot(stopRuleA, new=T)
 
  # Internal conversion to vector -- almost 3x faster
  #     min       lq     mean   median       uq      max neval
@@ -421,6 +421,12 @@ test_that("spread benchmarking", {
  # maxSize 36.84573 39.46026 52.00803 44.74344 63.14137 83.14923    20
  # stopRule 193.414 210.9853 240.6881 232.1871 251.5688 393.1453    20
 
+
+ stopRule4 <- function(landscape, quality, cells) (sum(landscape)>200) | (mean(quality[cells])<0.5)
+ set.seed(23432)
+ microbenchmark(circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
+                                directions = 8, mapID = TRUE, stopRule = stopRule4, quality = quality,
+                                stopRuleBehavior = "includeRing"), times = 50)
 
  # ARbitrary stopRule is much slower than sizes -- 5x for this example
  a = raster(extent(0,300,0,300), res=1)
