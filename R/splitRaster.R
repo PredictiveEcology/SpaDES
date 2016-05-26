@@ -10,6 +10,9 @@
 #'
 #' @param ny  The number of tiles to make along the y-axis.
 #'
+#' @param nBuffer The number of pixels around the splitted files.
+#'                Default is 0, which means no buffer.
+#'
 #' @return A list of cropped raster tiles.
 #'
 #' @seealso \code{\link{do.call}}, \code{\link{merge}}.
@@ -47,7 +50,7 @@
 #' all.equal(m, r)
 #'
 # igraph exports %>% from magrittr
-setGeneric("splitRaster", function(x, nx, ny) {
+setGeneric("splitRaster", function(x, nx, ny, nBuffer) {
   standardGeneric("splitRaster")
 })
 
@@ -55,18 +58,18 @@ setGeneric("splitRaster", function(x, nx, ny) {
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "integer", ny = "integer"),
-  definition = function(x, nx, ny) {
+  signature = signature(x = "RasterLayer", nx = "integer",
+                        ny = "integer", nBuffer = "integer"),
+  definition = function(x, nx, ny, nBuffer) {
     ext <- extent(x)
     tiles <- vector("list", length = nx*ny)
-
     n <- 1L
     for (i in seq_len(nx)-1L) {
       for (j in seq_len(ny)-1L) {
-            x0 <- ext@xmin + i*(ext@xmax / nx)
-            x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
-            y0 <- ext@ymin + j*(ext@ymax / ny)
-            y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
+            x0 <- ext@xmin + i*(ext@xmax / nx)-res(x)[1]*nBuffer
+            x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)+res(x)[1]*nBuffer
+            y0 <- ext@ymin + j*(ext@ymax / ny)-res(x)[1]*nBuffer
+            y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)+res(x)[1]*nBuffer
 
             x.coords <- c(x0, x1, x1, x0, x0)
             y.coords <- c(y0, y0, y1, y1, y0)
@@ -77,8 +80,9 @@ setMethod(
                    list %>%
                    SpatialPolygons
 
-            tiles[[n]] <- rasterize(box, x, mask = TRUE, silent = TRUE) %>%
-                          crop(box)
+            # system.time(a <- rasterize(box, x, mask = TRUE, silent = TRUE) %>%
+            #               crop(box))
+            tiles[[n]] <- crop(x, box)
             n <- n + 1L
         }
     }
@@ -89,7 +93,39 @@ setMethod(
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric"),
+  signature = signature(x = "RasterLayer", nx = "numeric",
+                        ny = "numeric", nBuffer = "integer"),
+  definition = function(x, nx, ny, nBuffer) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny), nBuffer))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric",
+                        ny = "numeric", nBuffer = "numeric"),
+  definition = function(x, nx, ny, nBuffer) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny),
+                       as.integer(nBuffer)))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric",
+                        ny = "numeric", nBuffer = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny)))
-})
+    return(splitRaster(x, as.integer(nx), as.integer(ny), nBuffer = 0))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "integer",
+                        ny = "integer", nBuffer = "missing"),
+  definition = function(x, nx, ny) {
+    return(splitRaster(x, nx, ny, nBuffer = 0))
+  })
