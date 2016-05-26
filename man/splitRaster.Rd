@@ -3,15 +3,24 @@
 \docType{methods}
 \name{splitRaster}
 \alias{splitRaster}
-\alias{splitRaster,RasterLayer,integer,integer-method}
-\alias{splitRaster,RasterLayer,numeric,numeric-method}
+\alias{splitRaster,RasterLayer,integer,integer,integer-method}
+\alias{splitRaster,RasterLayer,integer,integer,missing-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,integer-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,missing-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,numeric-method}
 \title{Split a raster into multiple tiles.}
 \usage{
-splitRaster(x, nx, ny)
+splitRaster(x, nx, ny, nBuffer)
 
-\S4method{splitRaster}{RasterLayer,integer,integer}(x, nx, ny)
+\S4method{splitRaster}{RasterLayer,integer,integer,integer}(x, nx, ny, nBuffer)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric}(x, nx, ny)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,integer}(x, nx, ny, nBuffer)
+
+\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric}(x, nx, ny, nBuffer)
+
+\S4method{splitRaster}{RasterLayer,numeric,numeric,missing}(x, nx, ny)
+
+\S4method{splitRaster}{RasterLayer,integer,integer,missing}(x, nx, ny)
 }
 \arguments{
 \item{x}{The raster to be split.}
@@ -19,6 +28,9 @@ splitRaster(x, nx, ny)
 \item{nx}{The number of tiles to make along the x-axis.}
 
 \item{ny}{The number of tiles to make along the y-axis.}
+
+\item{nBuffer}{The number of pixels around the splitted files.
+Default is 0, which means no buffer.}
 }
 \value{
 A list of cropped raster tiles.
