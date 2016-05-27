@@ -138,7 +138,7 @@ setMethod(
   signature = signature(x = "RasterLayer", nx = "numeric",
                         ny = "numeric", bufferLength = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), bufferLength = 0))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), bufferLength = c(0, 0)))
   })
 
 #' @export
@@ -148,5 +148,5 @@ setMethod(
   signature = signature(x = "RasterLayer", nx = "integer",
                         ny = "integer", bufferLength = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, nx, ny, bufferLength = 0))
+    return(splitRaster(x, nx, ny, bufferLength = c(0, 0)))
   })
