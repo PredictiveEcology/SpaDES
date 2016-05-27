@@ -76,32 +76,22 @@ setMethod(
     } else if(length(bufferLength) == 1){
       bufferLength <- c(bufferLength, bufferLength)
     }
+
+    if(bufferLength[1] < 1){
+      bufferLength[1] <- round((bufferLength[1]*(xmax(x) - xmin(x))/nx)/xres(x))
+    }
+    if(bufferLength[2] < 1){
+      bufferLength[2] <- round((bufferLength[2]*(ymax(x) - ymin(x))/ny)/yres(x))
+    }
     ext <- extent(x)
     tiles <- vector("list", length = nx*ny)
     n <- 1L
     for (i in seq_len(nx)-1L) {
       for (j in seq_len(ny)-1L) {
-        x0 <- ext@xmin + i*((ext@xmax-ext@xmin) / nx)
-        x1 <- ext@xmin + (i+1L)*((ext@xmax-ext@xmin) / nx)
-        y0 <- ext@ymin + j*((ext@ymax-ext@ymin) / ny)
-        y1 <- ext@ymin + (j+1L)*((ext@ymax-ext@ymin) / ny)
-        bufferLengthAjusted <- c()
-        if(bufferLength[1] < 1){
-          bufferLengthAjusted[1] <- bufferLength[1]*(x1-x0)
-        } else {
-          bufferLengthAjusted[1] <- bufferLength[1]*xres(x)
-        }
-        if(bufferLength[2] < 1){
-          bufferLengthAjusted[2] <- bufferLength[2]*(y1-y0)
-        } else {
-          bufferLengthAjusted[2] <- bufferLength[2]*yres(x)
-        }
-
-        x0 <- x0 - bufferLengthAjusted[1]
-        x1 <- x1 + bufferLengthAjusted[1]
-        y0 <- y0 - bufferLengthAjusted[2]
-        y1 <- y1 + bufferLengthAjusted[2]
-
+        x0 <- ext@xmin + i*((ext@xmax-ext@xmin) / nx) - bufferLength[1]*xres(x)
+        x1 <- ext@xmin + (i+1L)*((ext@xmax-ext@xmin) / nx) + bufferLength[1]*xres(x)
+        y0 <- ext@ymin + j*((ext@ymax-ext@ymin) / ny) - bufferLength[2]*yres(x)
+        y1 <- ext@ymin + (j+1L)*((ext@ymax-ext@ymin) / ny) + bufferLength[2]*yres(x)
         tiles[[n]] <- crop(x, extent(x0, x1, y0, y1))
         n <- n + 1L
       }
