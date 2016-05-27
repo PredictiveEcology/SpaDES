@@ -46,5 +46,38 @@ Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
 Plot(caribou, addTo = "Ras")
 Plot(cirsSP, addTo = "Ras")
 
+# Example comparing rings and cir
+a <- raster(extent(0,30,0,30), res = 1)
+hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+radius <- 4
+
+caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                                        y = stats::runif(N, xmin(hab), xmax(hab))))
+
+# cirs
+cirs <- cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE)
+
+# rings
+loci <- cellFromXY(hab, coordinates(caribou))
+cirs2 <- rings(hab, loci, maxD = radius, minD=radius-1)
+
+# Plot both
+ras1 <- raster(hab)
+ras1[] <- 0
+ras1[cirs$pixIDs] <- cirs$ids
+Plot(ras1)
+
+ras2 <- raster(hab)
+ras2[] <- 0
+ras2[cirs2$indices] <- cirs2$eventID
+Plot(ras2)
+
+}
+\seealso{
+\code{\link{rings}} which is more flexible, allowing for different
+widths of rings, for example, but it is generally slower. One difference
+between the two functions is that \code{rings} takes the centre of the pixel
+as the centre of the circle, whereas \code{cir} takes the exact coordinates.
+See example.
 }
 

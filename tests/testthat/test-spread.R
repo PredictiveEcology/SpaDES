@@ -312,6 +312,62 @@ test_that("spread stopRule does not work correctly", {
 })
 
 
+test_that("asymmetry doesn't work properly", {
+
+  require(CircStats)
+  require(raster)
+  a <- raster(extent(0,1e2,0,1e2), res = 1)
+  hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) = "hab"
+  hab2 <- hab>0
+  maxRadius <- 25
+  maxVal <- 50
+  set.seed(53432)
+
+  stopRule2 <- function(landscape) sum(landscape)>maxVal
+  startCells <- as.integer(sample(1:ncell(hab), 1))
+
+  N <- 16
+  avgAngles <- numeric(N)
+  lenAngles <- numeric(N)
+
+  # function to calculate mean angle -- returns in degrees
+  meanAngle <- function(angles)
+    deg(atan2(mean(sin(rad(angles))),mean(cos(rad(angles)))))
+
+
+
+  for(asymAng in (2:N)) {
+    circs <- spread(hab, spreadProb = 0.25, loci = ncell(hab)/2-ncol(hab)/2,
+                    mapID = TRUE, returnIndices = TRUE,
+                    asymmetry = 40, asymmetryAngle = asymAng*20)
+    ci <- raster(hab)
+    ci[] <- 0
+    ci[circs$indices] <- circs$eventID
+    ciCentre <- raster(ci)
+    ciCentre[] <- 0
+    ciCentre[unique(circs$initialLocus)] <- 1
+    newName <- paste0("ci",asymAng*20)
+    assign(newName, ci)
+    # Plot(get(newName, envir=parent.frame()), new=T)
+    # Plot(ciCentre, cols = c("transparent", "black"), addTo = newName)
+    # Sys.sleep(1)
+    a <- cbind(mapID=circs$eventID, to=circs$indices, xyFromCell(hab, circs$indices))
+    initialLociXY <- cbind(mapID = unique(circs$eventID), xyFromCell(hab, unique(circs$initialLocus)))
+    dirs <- .matchedPointDirection(a, initialLociXY)
+    dirs[,"angles"] <- CircStats::deg(dirs[,"angles"])
+    avgAngles[asymAng] <- tapply(dirs[,"angles"], dirs[, "mapID"], meanAngle) %% 360
+    lenAngles[asymAng] <- tapply(dirs[,"angles"], dirs[, "mapID"], length)
+
+  }
+
+  whBig <- which(lenAngles>50)
+  pred <- (1:N)[whBig]*20
+  expect_true(abs(coef(lm(avgAngles[whBig]~pred))[[2]] - 1) < 0.1)
+
+})
+
+
 test_that("spread benchmarking", {
 
   skip("This is just benchmarking, not testing")
@@ -471,3 +527,42 @@ test_that("spread benchmarking", {
   )
 
  })
+
+
+test_that("rings and cirs", {
+
+  skip("This is just benchmarking, not testing")
+  require(raster)
+  a <- raster(extent(0,1e2,0,1e2), res = 1)
+  hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) = "hab"
+  hab2 <- hab>0
+
+  caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                                        y = stats::runif(N, xmin(hab), xmax(hab))))
+
+  radius <- 15
+  cirs <- cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE)
+
+  ras1 <- raster(hab)
+  ras1[] <- 0
+  ras1[cirs$pixIDs] <- cirs$ids
+  Plot(ras1)
+  car <- SpatialPoints(cirs[,list(x,y)])
+  Plot(car)
+
+  loci <- cellFromXY(hab, coordinates(caribou))
+  cirs2 <- rings(hab, loci, maxD = radius, minD=radius-1)
+  ras2 <- raster(hab)
+  ras2[] <- 0
+  ras2[cirs2$indices] <- cirs2$eventID
+  Plot(ras2)
+
+  library(microbenchmark)
+  microbenchmark(times = 100,
+                 cirs = cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE),
+                 cirs2 = {loci <- cellFromXY(hab, coordinates(caribou))
+                          cirs2 <- rings(hab, loci, minD = radius-1, maxD = radius)})
+
+
+})
