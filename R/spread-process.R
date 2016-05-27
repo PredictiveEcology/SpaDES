@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("indices", "eventID", "initialLocus"))
+  utils::globalVariables(c("indices", "eventID", "initialLocus", "dists", "dup"))
 }
 
 ###############################################################################
@@ -12,7 +12,7 @@ if (getRversion() >= "3.1.0") {
 #' This can become quite general, if \code{spreadProbLater} is 1 as it will expand
 #' from every loci until all cells in the landscape have been covered.
 #' With \code{mapID} set to \code{TRUE}, the resulting map will be classified
-#' by the index of the pixel where that event propagated from.
+#' by the index of the cell where that event propagated from.
 #' This can be used to examine things like fire size distributions.
 #'
 #' For large rasters, a combination of \code{lowMemory = TRUE} and
@@ -28,6 +28,23 @@ if (getRversion() >= "3.1.0") {
 #' desired that the \code{spreadProb} change before a spread event is completed because,
 #' for example, a fire is spreading, and a new set of conditions arise due to
 #' a change in weather.
+#'
+#' \code{asymmetry} is currently used to modify the \code{spreadProb} in the following way.
+#' First for each active cell, spreadProb is converted into a length 2 numeric of Low and High
+#' spread probabilities for that cell:
+#' \code{spreadProbsLH <- (spreadProb*2)/(asymmetry+1)*c(1,asymmetry)}, whose ratio is equal to
+#' \code{asymmetry}. Then, using \code{asymmetryAngle}, the angle between the
+#' initial starting point of the event and all potential
+#' cells is found. These are converted into a proportion of the angle from
+#' \code{-asymmetryAngle} to \code{asymmetryAngle} using:
+#' \code{angleQuality <- (cos(angles - rad(asymmetryAngle))+1)/2}
+#'
+#' These are then converted to multiple spreadProbs by
+#' \code{spreadProbs <- lowSpreadProb+(angleQuality * diff(spreadProbsLH))}
+#' To maintain an expected \code{spreadProb} that is the same as the asymmetric
+#' \code{spreadProbs}, these are then rescaled so that the mean of the
+#' asymmetric spreadProbs is always equal to spreadProb at every iteration:
+#' \code{spreadProbs <- spreadProbs - diff(c(spreadProb,mean(spreadProbs)))}
 #'
 #' @section Breaking out of spread events:
 #'
@@ -83,7 +100,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @section \code{stopRuleBehavior}:
 #' This determines how the \code{stopRule} should be implemented. Because
-#' spreading occurs outwards in concentric circles or shapes, one pixel unit at a time, there
+#' spreading occurs outwards in concentric circles or shapes, one cell width at a time, there
 #' are 4 possible ways to interpret the logical inequality defined in \code{stopRule}.
 #' In order of number of cells included in resulting events, from most cells to fewest cells:
 #'
@@ -94,9 +111,9 @@ if (getRversion() >= "3.1.0") {
 #'                              \code{stopRule} to be \code{TRUE}, this will iteratively
 #'                              random cells in the final ring
 #'                              until the \code{stopRule} is \code{FALSE}. This will add back
-#'                              the last removed pixel and include it in the return result
+#'                              the last removed cell and include it in the return result
 #'                              for that event.\cr
-#'   \code{"excludePixel"} \tab Like \code{"includePixel"}, but it will not add back the pixel
+#'   \code{"excludePixel"} \tab Like \code{"includePixel"}, but it will not add back the cell
 #'                        that causes \code{stopRule} to be \code{TRUE}\cr
 #'   \code{"excludeRing"} \tab Analogous to \code{"excludePixel"}, but for the entire final
 #'                             ring of cells added. This will exclude the entire ring of cells
@@ -175,13 +192,20 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param stopRuleBehavior Character. Can be one of "includePixel", "excludePixel", "includeRing",
 #'                      "excludeRing". If \code{stopRule} contains a function, this argument is
-#'                      used determine what to do with the pixel(s) that caused the rule to be
+#'                      used determine what to do with the cell(s) that caused the rule to be
 #'                      \code{TRUE}. See details. Default is "includeRing" which means to
 #'                      accept the entire ring of cells that caused the rule to be \code{TRUE}.
 #'
 #' @param allowOverlap  Logical. If \code{TRUE}, then individual events can overlap with one
 #'                      another, i.e., they do not interact. Currently, this is slower than
 #'                      if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.
+#'
+#' @param asymmetry     A numeric indicating the ratio of the asymmetry to be used. Default is
+#'                      NA, indicating no asymmetry. See details. This is still experimental.
+#'                      Use with caution.
+#'
+#' @param asymmetryAngle A numeric indicating the angle in degrees (0 is "up", as in North on a map),
+#'                      that describes which way the \code{asymmetry} is.
 #'
 #' @param ...           Additional named vectors or named list of named vectors
 #'                      required for \code{stopRule}. These
@@ -191,8 +215,8 @@ if (getRversion() >= "3.1.0") {
 #' @return Either a \code{RasterLayer} indicating the spread of the process in
 #' the landscape or a \code{data.table} if \code{returnIndices} is \code{TRUE}.
 #' If a \code{RasterLayer}, then it represents
-#' every pixel in which a successful spread event occurred. For the case of, say, a fire
-#' this would represent every pixel that burned. If \code{allowOverlap} is \code{TRUE},
+#' every cell in which a successful spread event occurred. For the case of, say, a fire
+#' this would represent every cell that burned. If \code{allowOverlap} is \code{TRUE},
 #' This Raster layer will represent the sum of the individual event ids (which
 #' are numerics \code{seq_along(loci)}. This will
 #' generally be of minimal use because it won't be possible to distinguish if
@@ -205,12 +229,12 @@ if (getRversion() >= "3.1.0") {
 #'   \code{eventID} \tab an arbitrary ID \code{1:length(loci)} identifying
 #'                      unique clusters of spread events, i.e., all cells
 #'                      that have been spread into that have a
-#'                      common initial pixel.\cr
-#'   \code{initialLocus} \tab the initial pixel number of that particular
+#'                      common initial cell.\cr
+#'   \code{initialLocus} \tab the initial cell number of that particular
 #'                            spread event.\cr
-#'   \code{indices} \tab The pixel indices of cells that have
+#'   \code{indices} \tab The cell indices of cells that have
 #'                        been touched by the spread algorithm.\cr
-#'   \code{active} \tab a logical indicating whether the pixel is active (i.e.,
+#'   \code{active} \tab a logical indicating whether the cell is active (i.e.,
 #'                        could still be a source for spreading) or not (no
 #'                        spreading will occur from these cells).\cr
 #' }
@@ -226,6 +250,8 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @author Eliot McIntire
 #' @author Steve Cumming
+#' @seealso \code{\link{rings}} which uses \code{spread} but with specific argument
+#' values selected for a specific purpose.
 #'
 #' @name spread
 #' @aliases spread
@@ -713,10 +739,8 @@ setMethod(
           a <- cbind(mapID=potentials[, 3L], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
         }
         d <- .matchedPointDirection(a, initialLociXY)
-        #d[,"angles"] <- deg(d[,"angles"])
         newSpreadProbExtremes <- (spreadProb*2)/(asymmetry+1)*c(1,asymmetry)
         angleQuality <- ((cos(d[,"angles"] - rad(asymmetryAngle))+1)/2)
-        #angleQuality <- ((cos(rad(d[,"angles"] - asymmetryAngle))+1)/2)
         spreadProbs <- newSpreadProbExtremes[1]+(angleQuality *
                                                    diff(newSpreadProbExtremes))
         spreadProbs <- spreadProbs - diff(c(spreadProb,mean(spreadProbs)))
@@ -1086,8 +1110,7 @@ setMethod(
 #' @name rings
 #' @aliases rings
 #' @rdname rings
-#' @seealso \code{\link{cir}} which identifies the individual pixels that are exactly
-#' radii away from a set of points.
+#' @seealso \code{\link{cir}} which does similar things, but much faster.
 #' @examples
 #' library(raster)
 #'
@@ -1100,10 +1123,10 @@ setMethod(
 #' # Allow overlap
 #' emptyRas[] <- 0
 #' Rings <- rings(emptyRas, loci = loci, allowOverlap = TRUE)
-#' # Make a raster that adds together all eventID in a pixel
+#' # Make a raster that adds together all eventID in a cell
 #' wOverlap <- Rings[,list(sumEventID=sum(eventID)),by="indices"]
 #' emptyRas[wOverlap$indices] <- wOverlap$sumEventID
-#' Plot(emptyRas)
+#' Plot(emptyRas, new = TRUE)
 #'
 #' # No overlap is default, occurs randomly
 #' emptyRas[] <- 0
@@ -1111,12 +1134,11 @@ setMethod(
 #' emptyRas[Rings$indices] <- Rings$eventID
 #' Plot(emptyRas, new=TRUE)
 #'
-#' # Variable ring widths, including centre pixel for smaller one
+#' # Variable ring widths, including centre cell for smaller one
 #' emptyRas[] <- 0
 #' Rings <- rings(emptyRas, loci = loci, minD = c(0,7), maxD = c(8, 18))
 #' emptyRas[Rings$indices] <- Rings$eventID
 #' Plot(emptyRas, new=TRUE)
-#'
 setGeneric("rings", function(landscape, loci = NA_real_,
                               mapID = FALSE,
                               minD = 2, maxD = 5,
@@ -1126,6 +1148,7 @@ setGeneric("rings", function(landscape, loci = NA_real_,
 })
 
 #' @importFrom fpCompare %<=% %>=%
+#' @rdname rings
 setMethod(
      "rings",
      signature(landscape = "RasterLayer"),

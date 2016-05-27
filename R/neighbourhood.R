@@ -1,5 +1,5 @@
 if (getRversion() >= "3.1.0") {
-  utils::globalVariables(c("angles", "pixIDs", "x", "y", "rasterVal"))
+  utils::globalVariables(c("angles", "indices", "x", "y", "rasterVal"))
 }
 
 ##############################################################
@@ -361,22 +361,33 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
 adj <- compiler::cmpfun(adj.raw)
 
 ##############################################################
-#' Identify pixels in a circle around a SpatialPoints* object.
+#' Identify pixels in a circle or ring (donut) around an object.
 #'
-#' identify the pixels and coordinates that are at
-#'  a (set of) buffer distance(s) of the SpatialPoints* objects. This can be used
-#'  for agents.
+#' Identify the pixels and coordinates that are at
+#'  a (set of) buffer distance(s) of the objects passed into \code{coords}.
 #'
-#' @param spatialPoints SpatialPoints* object around which to make circles .
+#' @param coords Either a matrix with 2 columns, x and y, representing the coordinates
+#'               or a SpatialPoints* object around which to make circles. Must be same
+#'               coordinate system as the \code{raster} argument.
 #'
-#' @param radii  vector of radii that has same length as spatialPoints
+#' @param maxRadius  Numeric vector of length 1 or same length as coords
+#'
+#' @param minRadius  Numeric vector of length 1 or same length as \code{coords}. Default is
+#'                   \code{maxRadius}, meaning return all cells that are touched
+#'                   by the narrow ring at that exact radius. If smaller than \code{maxRadius},
+#'                   then this will create a buffer or donut or ring.
 #'
 #' @param raster    Raster on which the circles are built.
+#'
+#' @param allowOverlap Logical. Should duplicates across eventID be removed or kept. Default TRUE.
+#'
+#' @param includeBehavior Character string. Currently accepts only "includePixels", the default,
+#'                        and "excludePixels"
 #'
 #' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
 #' that some x, y combinations will disappear
 #'
-#' @return A \code{data.table} with 5 columns, \code{ids}, \code{pixelIDs},
+#' @return A \code{data.table} with 5 columns, \code{eventID}, \code{pixelIDs},
 #' \code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
 #' coordinates of each
 #' unique pixel of the circle around each individual.
@@ -402,11 +413,11 @@ adj <- compiler::cmpfun(adj.raw)
 #' N <- 2
 #' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-#' cirs <- cir(caribou, rep(3, length(caribou)), Ras, simplify = TRUE)
+#' cirs <- cir(caribou, 3, Ras, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, list(x, y)])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
-#' cirsRas[cirs[, pixIDs]] <- 1
+#' cirsRas[cirs[, indices]] <- 1
 #' Plot(Ras, new = TRUE)
 #' Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
 #' Plot(caribou, addTo = "Ras")
@@ -416,6 +427,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' a <- raster(extent(0,30,0,30), res = 1)
 #' hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 #' radius <- 4
+#' N = 2
 #'
 #' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
 #'                                         y = stats::runif(N, xmin(hab), xmax(hab))))
@@ -430,7 +442,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' # Plot both
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' ras1[cirs$pixIDs] <- cirs$ids
+#' ras1[cirs$indices] <- cirs$eventID
 #' Plot(ras1)
 #'
 #' ras2 <- raster(hab)
@@ -438,62 +450,146 @@ adj <- compiler::cmpfun(adj.raw)
 #' ras2[cirs2$indices] <- cirs2$eventID
 #' Plot(ras2)
 #'
-cir <- function(spatialPoints, radii, raster, simplify = TRUE) {
+#' a <- raster(extent(0,100,0,100), res = 1)
+#' hab <- gaussMap(a,speedup = 1)
+#' cirs <- cir(caribou, maxRadius = 44, hab, minRadius = 0)
+#' ras1 <- raster(hab)
+#' ras1[] <- 0
+#' cirsOverlap <- cirs[,list(sumIDs = sum(eventID)),by=indices]
+#' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
+#' Plot(ras1, new=TRUE)
+setGeneric("cir", function(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
+                           includeBehavior = "includePixels",
+                           simplify = TRUE) {
+  standardGeneric("cir")
+})
+
+#' @export
+#' @rdname cir
+setMethod(
+  "cir",
+  signature(coords = "SpatialPoints"),
+  definition = function(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
+                        includeBehavior, simplify = TRUE) {
+    coords <- coordinates(coords)
+    cir(coords=coords, maxRadius, raster, minRadius, allowOverlap, includeBehavior, simplify)
+    })
+
+#' @export
+#' @rdname cir
+setMethod(
+  "cir",
+  signature(coords = "matrix"),
+  definition = function(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
+                        includeBehavior, simplify = TRUE) {
   scaleRaster <- res(raster)
+  if(scaleRaster[1] != scaleRaster[2]) stop("cir function only accepts rasters with identical ",
+                                            "resolution in x and y dimensions")
+
+  if(!any(includeBehavior == c("includePixels", "excludePixels")))
+    stop("includeBehavior can only be \"includePixels\" or \"excludePixels\"")
+
+  scaleRaster <- scaleRaster[1]
+
 
   # create an index sequence for the number of individuals
-  seqNumInd <- seq_len(length(spatialPoints))
+  seqNumInd <- seq_len(NROW(coords))
 
   # n = optimum number of points to create the circle for a given individual;
   #       gross estimation (checked that it seems to be enough so that pixels
   #       extracted are almost always duplicated, which means there is small
   #       chance that we missed some on the circle).
-  n.angles <- ( ceiling((radii/scaleRaster)*2*pi) + 1 )
+  if(length(maxRadius)==1) maxRadius <- rep(maxRadius, NROW(coords))
+  if(length(minRadius)==1) minRadius <- rep(minRadius, NROW(coords))
+
+  if(any((minRadius != maxRadius))) {
+    if(any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
+    maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
+      a <- seq(minRadius[x], maxRadius[x], by = 0.6)
+      if(a[length(a)]!=maxRadius[x]) a <- c(a, maxRadius[x])
+      a
+    }))
+  }
+
+  numAngles <- ( ceiling((maxRadius/scaleRaster)*2.6*pi) + 1 )
+  #browser()
+  if(is.matrix(numAngles)) {
+    n.angles <- apply(numAngles, 2, sum)
+  } else {
+    n.angles <- numAngles
+  }
 
   ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
-  positions <- coordinates(spatialPoints)
+  #coords <- coordinates(spatialPoints)
 
   # create individual IDs for the number of points that will be done for their circle
-  ids <- rep.int(seqNumInd, times = n.angles)
+  eventID <- rep.int(seqNumInd, times = n.angles)
 
   # create vector of radius for the number of points that will be done for each individual circle
-  rads <- rep.int(radii, times = n.angles)
+  rads <- rep.int(maxRadius, times = numAngles)
 
-  # extract the individuals' current positions
-  xs <- rep.int(positions[, 1], times = n.angles)
-  ys <- rep.int(positions[, 2], times = n.angles)
+  # extract the individuals' current coords
+  xs <- rep.int(coords[, 1], times = n.angles)
+  ys <- rep.int(coords[, 2], times = n.angles)
 
   # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
-  angle.inc <- rep.int(2*pi, length(n.angles)) / n.angles
+  angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
 
   # repeat this angle increment the number of times it needs to be done to complete the circles
-  angs <- rep.int(angle.inc, times = n.angles)
+  angs <- rep.int(angle.inc, times = numAngles)
 
-  DT <- data.table(ids, angs, xs, ys, rads)
-  DT[, "angles" := cumsum(angs), by = "ids"] # adds new column `angles` to DT that is the cumsum of angs for each id
+  DT <- data.table(eventID, angs, xs, ys, rads)
+  DT[, "angles" := cumsum(angs), by = c("eventID","rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
   DT[, "x" := cos(angles)*rads + xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
   DT[, "y" := sin(angles)*rads + ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
 
-  set(DT, , j = "rads", NULL)
   set(DT, , j = "angles", NULL)
   set(DT, , j = "angs", NULL)
   set(DT, , j = "xs", NULL)
   set(DT, , j = "ys", NULL)
   # put the coordinates of the points on the circles from all individuals in the same matrix
-  #coords.all.ind <- DT[, list(x, y, ids)]
+  #coords.all.ind <- DT[, list(x, y, eventID)]
 
   # extract the pixel IDs under the points
-  DT[, pixIDs := cellFromXY(raster, DT[, list(x, y)])]
-  #DT[, rasterVal := extract(raster, pixIDs)]
+  DT[, indices := cellFromXY(raster, DT[, list(x, y)])]
+  #DT[, rasterVal := extract(raster, indices)]
 
   if (simplify) {
-    setkey(DT, "pixIDs")
+    if(allowOverlap)
+      setkey(DT, "eventID", "indices")
+    else
+      setkey(DT, "indices")
     DT <- unique(DT) %>% na.omit
+
+    if(includeBehavior=="excludePixels") {
+      maxRad <- maxRadius[NROW(maxRadius)]
+      minRad <- maxRadius[1]
+      DT2 <- DT[rads>=(maxRad-0.71) | rads<=(minRad+0.71)]
+      xyC <- xyFromCell(raster, DT2$indices);
+      DT2[,`:=`(x=xyC[,"x"],y=xyC[,"y"])]
+      setnames(DT2, "eventID", "mapID")
+      setnames(DT2, "indices", "to")
+      a = as.matrix(DT2)
+      b = cbind(coords, mapID=seq_len(NROW(coords)))
+      colnames(b)[1:2] <- c("x","y")
+      DT3 <- .matchedPointDistance(a,b)
+      DT4 <- DT3[DT3[, "dists"]<=maxRad & DT3[, "dists"]>=minRad,]
+      DT4 <- DT4[,-match("dists",colnames(DT4))]
+      DT4 <- data.table(DT4)
+      setnames(DT4, "mapID", "eventID")
+      setnames(DT4, "to", "indices")
+
+      DTinterior <- DT[rads<(maxRad-0.71) & rads>(minRad+0.71)]
+      DT <- rbindlist(list(data.table(DT4), DTinterior))
+    }
+    set(DT, , j = "rads", NULL)
+
   }
 
   # list of df with x and y coordinates of each unique pixel of the circle of each individual
   return(DT)
 }
+)
 
 ###############################################################################
 #' Wrap coordinates or pixels in a torus-like fashion

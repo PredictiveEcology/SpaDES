@@ -189,6 +189,7 @@
 #'
 #' \tabular{ll}{
 #'   \code{\link{spread}} \tab Contagious cellular automata\cr
+#'   \code{\link{rings}} \tab Identify rings around focal cells (e.g., buffers and donuts)\cr
 #'   \code{\link{adj}} \tab An optimized (i.e., faster) version of \code{\link[raster]{adjacent}}\cr
 #'   \code{\link{cir}} \tab Identify pixels in a circle around a \code{\link[sp:SpatialPoints-class]{SpatialPoints*}} object\cr
 #' }

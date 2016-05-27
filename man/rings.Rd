@@ -3,10 +3,14 @@
 \docType{methods}
 \name{rings}
 \alias{rings}
+\alias{rings,RasterLayer-method}
 \title{Identifies all cells within a ring around the focal cells}
 \usage{
 rings(landscape, loci = NA_real_, mapID = FALSE, minD = 2, maxD = 5,
   allowOverlap = FALSE, ...)
+
+\S4method{rings}{RasterLayer}(landscape, loci = NA_real_, mapID = FALSE,
+  minD = 2, maxD = 5, allowOverlap = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -58,10 +62,10 @@ loci <- (ncell(emptyRas)/2 - ncol(emptyRas))/2 + c(-3, 3)
 # Allow overlap
 emptyRas[] <- 0
 Rings <- rings(emptyRas, loci = loci, allowOverlap = TRUE)
-# Make a raster that adds together all eventID in a pixel
+# Make a raster that adds together all eventID in a cell
 wOverlap <- Rings[,list(sumEventID=sum(eventID)),by="indices"]
 emptyRas[wOverlap$indices] <- wOverlap$sumEventID
-Plot(emptyRas)
+Plot(emptyRas, new = TRUE)
 
 # No overlap is default, occurs randomly
 emptyRas[] <- 0
@@ -69,18 +73,16 @@ Rings <- rings(emptyRas, loci = loci, minD = 7, maxD = 9)
 emptyRas[Rings$indices] <- Rings$eventID
 Plot(emptyRas, new=TRUE)
 
-# Variable ring widths, including centre pixel for smaller one
+# Variable ring widths, including centre cell for smaller one
 emptyRas[] <- 0
 Rings <- rings(emptyRas, loci = loci, minD = c(0,7), maxD = c(8, 18))
 emptyRas[Rings$indices] <- Rings$eventID
 Plot(emptyRas, new=TRUE)
-
 }
 \author{
 Eliot McIntire
 }
 \seealso{
-\code{\link{cir}} which identifies the individual pixels that are exactly
-radii away from a set of points.
+\code{\link{cir}} which does similar things, but much faster.
 }
 

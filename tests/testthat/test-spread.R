@@ -531,38 +531,84 @@ test_that("spread benchmarking", {
 
 test_that("rings and cirs", {
 
-  skip("This is just benchmarking, not testing")
   require(raster)
+  library(data.table)
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
   hab2 <- hab>0
+  N <- 2
 
   caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 
   radius <- 15
-  cirs <- cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE)
+  cirsEx <- cir(caribou, maxRadius = radius*1.5, minRadius = radius, hab, simplify = TRUE,
+              includeBehavior="excludePixels")
+  cirsIncl <- cir(caribou, maxRadius = radius*1.5, minRadius = radius, hab, simplify = TRUE,
+                includeBehavior="includePixels")
+
+  expect_true(NROW(cirsEx)<NROW(cirsIncl))
+
+  # With including pixels, then distances are not strictly within the bounds of minRadius
+  #   and maxRadius, because every cell is included if it has a point anywhere within
+  #   the cell, causing cells whose centres are beyond maxRadius or shorter than minRadius
+  #   to be accepted
+  b <- cbind(coordinates(caribou), mapID = seq_along(caribou))
+  a <- as.matrix(cirsIncl)
+  colnames(a)[c(1,4)] <- c("mapID","to")
+  dists <- .matchedPointDistance(a,b)
+  expect_true(radius*1.5 < max(dists[,"dists"]))
+  expect_true(radius > min(dists[,"dists"]))
+
+  # With excluding pixels, then distances are strictly within the bounds
+  b <- cbind(coordinates(caribou), mapID = seq_along(caribou))
+  a <- as.matrix(cirsEx)
+  colnames(a)[c(1,4)] <- c("mapID","to")
+  dists <- .matchedPointDistance(a,b)
+  expect_true(radius*1.5 >= max(dists[,"dists"]))
+  expect_true(radius <= min(dists[,"dists"]))
+
+
 
   ras1 <- raster(hab)
   ras1[] <- 0
-  ras1[cirs$pixIDs] <- cirs$ids
-  Plot(ras1)
-  car <- SpatialPoints(cirs[,list(x,y)])
-  Plot(car)
+  cirsOverlap <- cirsEx[,list(sumIDs = sum(eventID)),by=indices]
+  ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
+  #Plot(ras1, new=TRUE)
 
-  loci <- cellFromXY(hab, coordinates(caribou))
-  cirs2 <- rings(hab, loci, maxD = radius, minD=radius-1)
-  ras2 <- raster(hab)
-  ras2[] <- 0
-  ras2[cirs2$indices] <- cirs2$eventID
-  Plot(ras2)
+  ras3 <- raster(hab)
+  ras3[] <- 0
+  cirsOverlap <- cirsIncl[,list(sumIDs = sum(eventID)),by=indices]
+  ras3[cirsOverlap$indices] <- cirsOverlap$sumIDs
+  ras3 <- ras1*10 + ras3
+  #Plot(ras3)
+  expect_true(all(getValues(ras3) != 10)) # None should have only ras1, i.e., only circEx cells
+  expect_true(all(getValues(ras3) != 20)) # None should have only ras1, i.e., only circEx cells
+
+
+  cirsExSkinny <- cir(caribou, maxRadius = radius, hab, simplify = TRUE,
+                includeBehavior="excludePixels")
+  expect_true(NROW(cirsExSkinny)==0)
+
+  # loci <- cellFromXY(hab, coordinates(caribou))
+  # cirs2 <- rings(hab, loci, maxD = radius*1.5, minD=radius, allowOverlap = TRUE)
+  # ras2 <- raster(hab)
+  # ras2[] <- 0
+  # cirsOverlap2 <- cirs2[,list(sumIDs = sum(eventID)),by=indices]
+  # ras2[cirsOverlap2$indices] <- cirsOverlap2$sumIDs
+  # ras2 <- ras1*10 + ras2
+  # Plot(ras2)
+  # expect_true(all(getValues(ras2) != 10)) # None should have only ras1, i.e., only circEx cells
+
+  skip("Below here is just benchmarking, not testing")
 
   library(microbenchmark)
-  microbenchmark(times = 100,
-                 cirs = cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE),
+  microbenchmark(times = 10,
+                 cirs = cir(caribou, maxRadius = radius*1.5, minRadius = radius, hab, simplify = TRUE,
+                            includeBehavior = "excludePixels"),
                  cirs2 = {loci <- cellFromXY(hab, coordinates(caribou))
-                          cirs2 <- rings(hab, loci, minD = radius-1, maxD = radius)})
+                          cirs2 <- rings(hab, loci, minD = radius, maxD = radius*1.5)})
 
 
 })
