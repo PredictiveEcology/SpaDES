@@ -68,28 +68,28 @@ setMethod(
     xmaxExtent <- sort(unique(xmaxExtent))
     yminExtent <- sort(unique(yminExtent))
     ymaxExtent <- sort(unique(ymaxExtent))
-    nxBuffer <- unique((xmaxExtent[-length(xmaxExtent)]-xminExtent[-1])/2)
-    nyBuffer <- unique((ymaxExtent[-length(ymaxExtent)]-yminExtent[-1])/2)
+    xBuffer <- unique((xmaxExtent[-length(xmaxExtent)]-xminExtent[-1])/2)
+    yBuffer <- unique((ymaxExtent[-length(ymaxExtent)]-yminExtent[-1])/2)
     rm(i)
     for(i in 1:length(x)){
       indiRaster <- x[[i]]
       if(xmin(indiRaster) != min(xminExtent)){
-        xminCut <- xmin(indiRaster) + xres(indiRaster)*nxBuffer
+        xminCut <- xmin(indiRaster) + xBuffer
       } else {
         xminCut <- xmin(indiRaster)
       }
       if(xmax(indiRaster) != max(xmaxExtent)){
-        xmaxCut <- xmax(indiRaster) - xres(indiRaster)*nxBuffer
+        xmaxCut <- xmax(indiRaster) - xBuffer
       } else {
         xmaxCut <- xmax(indiRaster)
       }
       if(ymin(indiRaster) != min(yminExtent)){
-        yminCut <- ymin(indiRaster) + yres(indiRaster)*nyBuffer
+        yminCut <- ymin(indiRaster) + yBuffer
       } else {
         yminCut <- ymin(indiRaster)
       }
       if(ymax(indiRaster) != max(ymaxExtent)){
-        ymaxCut <- ymax(indiRaster) - yres(indiRaster)*nyBuffer
+        ymaxCut <- ymax(indiRaster) - yBuffer
       } else {
         ymaxCut <- ymax(indiRaster)
       }
