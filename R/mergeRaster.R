@@ -1,13 +1,13 @@
 ##############################################################
 #' Merge the splitted tiles to one raster layer.
 #'
-#' Recombine the splitted tiles from \code{splitRaster(x, nBuffer)} to
-#' the original unsplitted rasterLayer.
+#' Recombine the splitted tiles from \code{splitRaster} to
+#' the original raster layer.
 #'
 #' @param x A list of splitted raster tiles with or without buffer.
 #'
 #'
-#' @return A original rasterLayer before it is splitted with or without buffer.
+#' @return A original raster layer before it is splitted.
 #'
 #' @seealso \code{\link{merge}}, \code{\link{splitRaster}}.
 #'
