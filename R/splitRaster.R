@@ -10,6 +10,14 @@
 #'
 #' @param ny  The number of tiles to make along the y-axis.
 #'
+#' @param bufferLength Two numeric vector, defines bufferring scale at x axis and y axis,
+#'                     respectively. If these values bigger than or equal to 1,
+#'                     the function will take absolute bufferLength as number
+#'                     of pixels to define the buffer around the splitted tiles. If
+#'                     these values are between 0 and 1, the function will use the relative
+#'                     scale of the splitted tiles to define buffer.
+#'                     Default is 0, which means no buffer.
+#'
 #' @return A list of cropped raster tiles.
 #'
 #' @seealso \code{\link{do.call}}, \code{\link{merge}}.
@@ -32,7 +40,12 @@
 #' r <- b[[1]] # use first layer only
 #' nx <- 3
 #' ny <- 4
-#' y <- splitRaster(r, nx, ny)
+#' y0 <- splitRaster(r, nx, ny) # no buffer
+#' y1 <- splitRaster(r, nx, ny, c(10, 10)) # with 10 pixels for x axis and
+#'                                         # 10 pixels for y axis
+#'                                         # this equals to splitRaster(r, nx, ny, 10)
+#' y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # with half of width and length of
+#'                                           # each splitted tile
 #'
 #' # the original raster:
 #' plot(r) # may require a call to `dev()` if using RStudio
@@ -40,14 +53,14 @@
 #' # the split raster:
 #' layout(mat = matrix(seq_len(nx*ny), ncol = nx, nrow = ny))
 #' plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
-#' invisible(lapply(y[plotOrder], plot))
+#' invisible(lapply(y0[plotOrder], plot))
 #'
 #' # can be recombined using `raster::merge`
-#' m <- do.call(merge, y)
+#' m <- do.call(merge, y0)
 #' all.equal(m, r)
 #'
 # igraph exports %>% from magrittr
-setGeneric("splitRaster", function(x, nx, ny) {
+setGeneric("splitRaster", function(x, nx, ny, bufferLength) {
   standardGeneric("splitRaster")
 })
 
@@ -55,41 +68,85 @@ setGeneric("splitRaster", function(x, nx, ny) {
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "integer", ny = "integer"),
-  definition = function(x, nx, ny) {
+  signature = signature(x = "RasterLayer", nx = "integer",
+                        ny = "integer", bufferLength = "numeric"),
+  definition = function(x, nx, ny, bufferLength) {
+    if(length(bufferLength) > 2){
+      stop("The length of bufferLength must be a less than three.")
+    } else if(length(bufferLength) == 1){
+      bufferLength <- c(bufferLength, bufferLength)
+    }
     ext <- extent(x)
     tiles <- vector("list", length = nx*ny)
-
     n <- 1L
     for (i in seq_len(nx)-1L) {
       for (j in seq_len(ny)-1L) {
-            x0 <- ext@xmin + i*(ext@xmax / nx)
-            x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
-            y0 <- ext@ymin + j*(ext@ymax / ny)
-            y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
-
-            x.coords <- c(x0, x1, x1, x0, x0)
-            y.coords <- c(y0, y0, y1, y1, y0)
-
-            box <- Polygon(cbind(x.coords, y.coords)) %>%
-                   list %>%
-                   Polygons("box") %>%
-                   list %>%
-                   SpatialPolygons
-
-            tiles[[n]] <- rasterize(box, x, mask = TRUE, silent = TRUE) %>%
-                          crop(box)
-            n <- n + 1L
+        x0 <- ext@xmin + i*(ext@xmax / nx)
+        x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
+        y0 <- ext@ymin + j*(ext@ymax / ny)
+        y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
+        bufferLengthAjusted <- c()
+        if(bufferLength[1] < 1){
+          bufferLengthAjusted[1] <- bufferLength[1]*(x1-x0)
+        } else {
+          bufferLengthAjusted[1] <- bufferLength[1]*xres(x)
         }
+        if(bufferLength[2] < 1){
+          bufferLengthAjusted[2] <- bufferLength[2]*(y1-y0)
+        } else {
+          bufferLengthAjusted[2] <- bufferLength[2]*yres(x)
+        }
+
+        x0 <- x0 - bufferLengthAjusted[1]
+        x1 <- x1 + bufferLengthAjusted[1]
+        y0 <- y0 - bufferLengthAjusted[2]
+        y1 <- y1 + bufferLengthAjusted[2]
+
+        tiles[[n]] <- crop(x, extent(x0, x1, y0, y1))
+        n <- n + 1L
+      }
     }
     return(tiles)
-})
+  })
 
 #' @export
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric"),
+  signature = signature(x = "RasterLayer", nx = "numeric",
+                        ny = "numeric", bufferLength = "integer"),
+  definition = function(x, nx, ny, bufferLength) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny),
+                       as.numeric(bufferLength)))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric",
+                        ny = "numeric", bufferLength = "numeric"),
+  definition = function(x, nx, ny, bufferLength) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny),
+                       bufferLength))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric",
+                        ny = "numeric", bufferLength = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny)))
-})
+    return(splitRaster(x, as.integer(nx), as.integer(ny), bufferLength = 0))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "integer",
+                        ny = "integer", bufferLength = "missing"),
+  definition = function(x, nx, ny) {
+    return(splitRaster(x, nx, ny, bufferLength = 0))
+  })

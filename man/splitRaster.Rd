@@ -3,15 +3,27 @@
 \docType{methods}
 \name{splitRaster}
 \alias{splitRaster}
-\alias{splitRaster,RasterLayer,integer,integer-method}
-\alias{splitRaster,RasterLayer,numeric,numeric-method}
+\alias{splitRaster,RasterLayer,integer,integer,missing-method}
+\alias{splitRaster,RasterLayer,integer,integer,numeric-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,integer-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,missing-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,numeric-method}
 \title{Split a raster into multiple tiles.}
 \usage{
-splitRaster(x, nx, ny)
+splitRaster(x, nx, ny, bufferLength)
 
-\S4method{splitRaster}{RasterLayer,integer,integer}(x, nx, ny)
+\S4method{splitRaster}{RasterLayer,integer,integer,numeric}(x, nx, ny,
+  bufferLength)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric}(x, nx, ny)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,integer}(x, nx, ny,
+  bufferLength)
+
+\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric}(x, nx, ny,
+  bufferLength)
+
+\S4method{splitRaster}{RasterLayer,numeric,numeric,missing}(x, nx, ny)
+
+\S4method{splitRaster}{RasterLayer,integer,integer,missing}(x, nx, ny)
 }
 \arguments{
 \item{x}{The raster to be split.}
@@ -19,6 +31,14 @@ splitRaster(x, nx, ny)
 \item{nx}{The number of tiles to make along the x-axis.}
 
 \item{ny}{The number of tiles to make along the y-axis.}
+
+\item{bufferLength}{Two numeric vector, defines bufferring scale at x axis and y axis,
+respectively. If these values bigger than or equal to 1,
+the function will take absolute bufferLength as number
+of pixels to define the buffer around the splitted tiles. If
+these values are between 0 and 1, the function will use the relative
+scale of the splitted tiles to define buffer.
+Default is 0, which means no buffer.}
 }
 \value{
 A list of cropped raster tiles.
@@ -37,7 +57,12 @@ b <- brick(system.file("external/rlogo.grd", package = "raster"))
 r <- b[[1]] # use first layer only
 nx <- 3
 ny <- 4
-y <- splitRaster(r, nx, ny)
+y0 <- splitRaster(r, nx, ny) # no buffer
+y1 <- splitRaster(r, nx, ny, c(10, 10)) # with 10 pixels for x axis and
+                                        # 10 pixels for y axis
+                                        # this equals to splitRaster(r, nx, ny, 10)
+y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # with half of width and length of
+                                          # each splitted tile
 
 # the original raster:
 plot(r) # may require a call to `dev()` if using RStudio
@@ -45,10 +70,10 @@ plot(r) # may require a call to `dev()` if using RStudio
 # the split raster:
 layout(mat = matrix(seq_len(nx*ny), ncol = nx, nrow = ny))
 plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
-invisible(lapply(y[plotOrder], plot))
+invisible(lapply(y0[plotOrder], plot))
 
 # can be recombined using `raster::merge`
-m <- do.call(merge, y)
+m <- do.call(merge, y0)
 all.equal(m, r)
 
 }
