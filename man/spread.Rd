@@ -12,7 +12,8 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   returnIndices = FALSE, mapID = FALSE, plot.it = FALSE,
   spreadProbLater = NA_real_, spreadState = NA, circle = FALSE,
   circleMaxRadius = NA_real_, stopRule = NA,
-  stopRuleBehavior = "includeRing", allowOverlap = FALSE, ...)
+  stopRuleBehavior = "includeRing", allowOverlap = FALSE,
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, ...)
 
 \S4method{spread}{RasterLayer}(landscape, loci = NA_real_,
   spreadProb = 0.23, persistence = 0, mask = NA, maxSize = 100000000L,
@@ -21,7 +22,7 @@ spread(landscape, loci = NA_real_, spreadProb = 0.23, persistence = 0,
   mapID = FALSE, plot.it = FALSE, spreadProbLater = NA_real_,
   spreadState = NA, circle = FALSE, circleMaxRadius = NA_real_,
   stopRule = NA, stopRuleBehavior = "includeRing", allowOverlap = FALSE,
-  ...)
+  asymmetry = NA_real_, asymmetryAngle = NA_real_, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -83,7 +84,7 @@ will become the spreadProb after the first iteration. See details.}
 meaning the spread is starting from \code{loci}. See Details.}
 
 \item{circle}{Logical. If TRUE, then outward spread will be by equidistant rings,
-rather than solely by adjacent cells (via \code{direction} arg.). Default
+rather than solely by adjacent cells (via \code{directions} arg.). Default
 is FALSE. Using \code{circle=TRUE} can be dramatically slower for large
 problems. Note, this should usually be used with spreadProb = 1.}
 
