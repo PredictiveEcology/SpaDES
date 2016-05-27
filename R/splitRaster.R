@@ -81,10 +81,10 @@ setMethod(
     n <- 1L
     for (i in seq_len(nx)-1L) {
       for (j in seq_len(ny)-1L) {
-        x0 <- ext@xmin + i*(ext@xmax / nx)
-        x1 <- ext@xmin + (i+1L)*(ext@xmax / nx)
-        y0 <- ext@ymin + j*(ext@ymax / ny)
-        y1 <- ext@ymin + (j+1L)*(ext@ymax / ny)
+        x0 <- ext@xmin + i*((ext@xmax-ext@xmin) / nx)
+        x1 <- ext@xmin + (i+1L)*((ext@xmax-ext@xmin) / nx)
+        y0 <- ext@ymin + j*((ext@ymax-ext@ymin) / ny)
+        y1 <- ext@ymin + (j+1L)*((ext@ymax-ext@ymin) / ny)
         bufferLengthAjusted <- c()
         if(bufferLength[1] < 1){
           bufferLengthAjusted[1] <- bufferLength[1]*(x1-x0)
