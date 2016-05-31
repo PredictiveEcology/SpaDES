@@ -6,6 +6,8 @@ version 1.1.4.xxxx
 * spread enhancements: circular spreading, landscape-based functions, allow overlapping events
 * Plot now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
 * `dev()` returns `dev.cur` invisibly, allowing for finer control of plotting devices
+* improve `splitRaster` (#276)
+* new function `mergeRaster` (#282)
 
 version 1.1.4
 =============

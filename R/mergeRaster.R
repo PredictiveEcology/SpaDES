@@ -1,22 +1,30 @@
-##############################################################
-#' Merge the splitted tiles to one raster layer.
+#' Merge split raster tiles into a single raster layer.
 #'
-#' Recombine the splitted tiles from \code{splitRaster} to
-#' the original raster layer.
+#' Recombine the split tiles from \code{splitRaster} into a single RasterLayer.
 #'
-#' @param x A list of splitted raster tiles with or without buffer.
+#' @details \code{mergeRaster} differs from \code{merge} in how overlapping tile
+#' regions are handled: \code{merge} retains the values of the first raster in
+#' the list. This has the consequence of retaining the values from the buffered
+#' region in the first tile in place of the values from the neighbouring tile.
+#' On the otherhand, \code{mergeRaster} retains the values of the tile region,
+#' over the values in any buffered regions. This is useful for reducing edge
+#' effects when performing raster operations involving contagious processes.
+#' To use the average of cell values, or do another computation, use
+#' \code{\link[raster]{mosaic}}.
 #'
+#' @param x    A list of split raster tiles (i.e., from \code{splitRaster}).
 #'
-#' @return A original raster layer before it is splitted.
+#' @return A \code{RasterLayer} object.
 #'
-#' @seealso \code{\link{merge}}, \code{\link{splitRaster}}.
+#' @seealso \code{\link[raster]{merge}}, \code{\link[raster]{mosaic}}
 #'
-#' @importFrom raster crop extent
+# igraph exports %>% from magrittr
+#' @importFrom raster crop extent merge
 #' @export
 #' @docType methods
 #' @rdname mergeRaster
 #'
-#' @author Yong Luo
+#' @author Yong Luo and Alex Chubaty
 #'
 #' @examples
 #' require(raster)
@@ -28,22 +36,38 @@
 #' r <- b[[1]] # use first layer only
 #' nx <- 3
 #' ny <- 4
-#' y0 <- splitRaster(r, nx, ny) # without buffer
-#' y1 <- splitRaster(r, nx, ny, c(3, 4)) # with 3 pixels buffer at horizontal scale
-#'                                       # and 4 pixels buffer at vertical scale
+#' y0 <- splitRaster(r, nx, ny) # no buffer
+#' y1 <- splitRaster(r, nx, ny, c(10, 10)) # buffer: 10 pixels along both axes
+#' y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # buffer: half the width and length of each tile
 #'
+#' # the original raster:
+#' plot(r) # may require a call to `dev()` if using RStudio
+#'
+#' # the split raster:
+#' layout(mat = matrix(seq_len(nx*ny), ncol = nx, nrow = ny))
+#' plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
+#' invisible(lapply(y0[plotOrder], plot))
 #'
 #' # can be recombined using `raster::merge`
-#' r0 <- do.call(merge, y0) # regular merge call from raster package
-#' all.equal(r0, r) # TRUE
+#' m0 <- do.call(merge, y0)
+#' all.equal(m0, r) ## TRUE
 #'
-#' r1 <- mergeRaster(y0) # mergeRaster function for splitted tiles without buffer
-#' all.equal(r1, r) # TRUE
+#' m1 <- do.call(merge, y1)
+#' all.equal(m1, r) ## TRUE
 #'
-#' r2 <- mergeRaster(y1) # mergeRaster function for splitted tiles with buffer
-#' all.equal(r2, r) # TRUE
+#' m2 <- do.call(merge, y2)
+#' all.equal(m2, r) ## TRUE
 #'
-# igraph exports %>% from magrittr
+#' # or recombine using SpaDES::mergeRaster
+#' n0 <- mergeRaster(y0)
+#' all.equal(n0, r) ## TRUE
+#'
+#' n1 <- mergeRaster(y1)
+#' all.equal(n1, r) ## TRUE
+#'
+#' n2 <- mergeRaster(y2)
+#' all.equal(n2, r) ## TRUE
+#'
 setGeneric("mergeRaster", function(x) {
   standardGeneric("mergeRaster")
 })
@@ -54,48 +78,36 @@ setMethod(
   "mergeRaster",
   signature = signature(x = "list"),
   definition = function(x) {
-    xminExtent <- c()
-    xmaxExtent <- c()
-    yminExtent <- c()
-    ymaxExtent <- c()
-    for(i in 1:length(x)){
-      xminExtent <- c(xminExtent, xmin(x[[i]]))
-      xmaxExtent <- c(xmaxExtent, xmax(x[[i]]))
-      yminExtent <- c(yminExtent, ymin(x[[i]]))
-      ymaxExtent <- c(ymaxExtent, ymax(x[[i]]))
+    xminExtent <- sapply(x, xmin) %>% unique() %>% sort()
+    xmaxExtent <- sapply(x, xmax) %>% unique() %>% sort()
+    yminExtent <- sapply(x, ymin) %>% unique() %>% sort()
+    ymaxExtent <- sapply(x, ymax) %>% unique() %>% sort()
+    xBuffer <- unique((xmaxExtent[-length(xmaxExtent)] - xminExtent[-1])/2)
+    yBuffer <- unique((ymaxExtent[-length(ymaxExtent)] - yminExtent[-1])/2)
+
+    for (i in seq_along(x)) {
+      r <- x[[i]]
+      if (xmin(r) != min(xminExtent)) {
+        xminCut <- xmin(r) + xBuffer
+      } else {
+        xminCut <- xmin(r)
+      }
+      if (xmax(r) != max(xmaxExtent)) {
+        xmaxCut <- xmax(r) - xBuffer
+      } else {
+        xmaxCut <- xmax(r)
+      }
+      if (ymin(r) != min(yminExtent)) {
+        yminCut <- ymin(r) + yBuffer
+      } else {
+        yminCut <- ymin(r)
+      }
+      if (ymax(r) != max(ymaxExtent)) {
+        ymaxCut <- ymax(r) - yBuffer
+      } else {
+        ymaxCut <- ymax(r)
+      }
+      x[[i]] <- crop(r, extent(xminCut, xmaxCut, yminCut, ymaxCut))
     }
-    xminExtent <- sort(unique(xminExtent))
-    xmaxExtent <- sort(unique(xmaxExtent))
-    yminExtent <- sort(unique(yminExtent))
-    ymaxExtent <- sort(unique(ymaxExtent))
-    xBuffer <- unique((xmaxExtent[-length(xmaxExtent)]-xminExtent[-1])/2)
-    yBuffer <- unique((ymaxExtent[-length(ymaxExtent)]-yminExtent[-1])/2)
-    rm(i)
-    for(i in 1:length(x)){
-      indiRaster <- x[[i]]
-      if(xmin(indiRaster) != min(xminExtent)){
-        xminCut <- xmin(indiRaster) + xBuffer
-      } else {
-        xminCut <- xmin(indiRaster)
-      }
-      if(xmax(indiRaster) != max(xmaxExtent)){
-        xmaxCut <- xmax(indiRaster) - xBuffer
-      } else {
-        xmaxCut <- xmax(indiRaster)
-      }
-      if(ymin(indiRaster) != min(yminExtent)){
-        yminCut <- ymin(indiRaster) + yBuffer
-      } else {
-        yminCut <- ymin(indiRaster)
-      }
-      if(ymax(indiRaster) != max(ymaxExtent)){
-        ymaxCut <- ymax(indiRaster) - yBuffer
-      } else {
-        ymaxCut <- ymax(indiRaster)
-      }
-      indiRaster <- crop(indiRaster, extent(xminCut, xmaxCut, yminCut, ymaxCut))
-      x[[i]] <- indiRaster
-    }
-    allRaster <- do.call(merge, x)
-    return(allRaster)
-  })
+    return(do.call(raster::merge, x))
+})

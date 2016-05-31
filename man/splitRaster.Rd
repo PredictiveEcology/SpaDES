@@ -8,18 +8,15 @@
 \alias{splitRaster,RasterLayer,numeric,numeric,integer-method}
 \alias{splitRaster,RasterLayer,numeric,numeric,missing-method}
 \alias{splitRaster,RasterLayer,numeric,numeric,numeric-method}
-\title{Split a raster into multiple tiles.}
+\title{Split a RasterLayer into multiple tiles}
 \usage{
-splitRaster(x, nx, ny, bufferLength)
+splitRaster(x, nx, ny, buffer)
 
-\S4method{splitRaster}{RasterLayer,integer,integer,numeric}(x, nx, ny,
-  bufferLength)
+\S4method{splitRaster}{RasterLayer,integer,integer,numeric}(x, nx, ny, buffer)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric,integer}(x, nx, ny,
-  bufferLength)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,integer}(x, nx, ny, buffer)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric}(x, nx, ny,
-  bufferLength)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric}(x, nx, ny, buffer)
 
 \S4method{splitRaster}{RasterLayer,numeric,numeric,missing}(x, nx, ny)
 
@@ -32,20 +29,20 @@ splitRaster(x, nx, ny, bufferLength)
 
 \item{ny}{The number of tiles to make along the y-axis.}
 
-\item{bufferLength}{Two numeric vector, defines bufferring scale at x axis and y axis,
-respectively. If these values bigger than or equal to 1,
-the function will take absolute bufferLength as number
-of pixels to define the buffer around the splitted tiles. If
-these values are between 0 and 1, the function will use the relative
-scale of the splitted tiles to define buffer.
-Default is 0, which means no buffer.}
+\item{buffer}{Numeric vector of length 2 giving the size of the buffer along the x and y axes.
+If these values less than or equal to \code{1} are used, this
+is interpreted as the number of pixels (cells) to use as a buffer.
+Values between \code{0} and \code{1} are interpreted as proportions
+of the number of pixels in each tile (rounded up to an integer value).
+Default is \code{c(0, 0)}, which means no buffer.}
 }
 \value{
-A list of cropped raster tiles.
+A list (length \code{nx*ny}) of cropped raster tiles.
 }
 \description{
-Divides up a raster into an arbitrary number of pieces.
-Split rasters can be recombined using \code{do.call(merge, x)}.
+Divides up a raster into an arbitrary number of pieces (tiles).
+Split rasters can be recombined using \code{do.call(merge, y)} or \code{mergeRaster(y)},
+where \code{y <- splitRaster(x)}.
 }
 \examples{
 library(raster)
@@ -58,11 +55,8 @@ r <- b[[1]] # use first layer only
 nx <- 3
 ny <- 4
 y0 <- splitRaster(r, nx, ny) # no buffer
-y1 <- splitRaster(r, nx, ny, c(10, 10)) # with 10 pixels for x axis and
-                                        # 10 pixels for y axis
-                                        # this equals to splitRaster(r, nx, ny, 10)
-y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # with half of width and length of
-                                          # each splitted tile
+y1 <- splitRaster(r, nx, ny, c(10, 10)) # buffer: 10 pixels along both axes
+y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # buffer: half the width and length of each tile
 
 # the original raster:
 plot(r) # may require a call to `dev()` if using RStudio
@@ -73,14 +67,30 @@ plotOrder <- c(4,8,12,3,7,11,2,6,10,1,5,9)
 invisible(lapply(y0[plotOrder], plot))
 
 # can be recombined using `raster::merge`
-m <- do.call(merge, y0)
-all.equal(m, r)
+m0 <- do.call(merge, y0)
+all.equal(m0, r) ## TRUE
+
+m1 <- do.call(merge, y1)
+all.equal(m1, r) ## TRUE
+
+m2 <- do.call(merge, y2)
+all.equal(m2, r) ## TRUE
+
+# or recombine using SpaDES::mergeRaster
+n0 <- mergeRaster(y0)
+all.equal(n0, r) ## TRUE
+
+n1 <- mergeRaster(y1)
+all.equal(n1, r) ## TRUE
+
+n2 <- mergeRaster(y2)
+all.equal(n2, r) ## TRUE
 
 }
 \author{
-Alex Chubaty
+Alex Chubaty and Yong Luo
 }
 \seealso{
-\code{\link{do.call}}, \code{\link{merge}}.
+\code{\link{do.call}}, \code{\link[raster]{merge}}, \code{\link{mergeRaster}}.
 }
 
