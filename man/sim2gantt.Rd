@@ -3,12 +3,13 @@
 \docType{methods}
 \name{.sim2gantt}
 \alias{.sim2gantt}
-\alias{.sim2gantt,simList,numeric,character-method}
+\alias{.sim2gantt,simList,numeric,character,numeric-method}
 \title{sim2gantt}
 \usage{
 .sim2gantt(sim, n, startDate, width)
 
-\S4method{.sim2gantt}{simList,numeric,character}(sim, n, startDate, width)
+\S4method{.sim2gantt}{simList,numeric,character,numeric}(sim, n, startDate,
+  width)
 }
 \arguments{
 \item{sim}{A \code{simList} object (typically corresponding to a

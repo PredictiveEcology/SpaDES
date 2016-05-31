@@ -4,7 +4,6 @@ test_that("adj.R results not identical to adjacent", {
 
   on.exit({
     detach("package:raster")
-    detach("package:sp")
   })
 
   a <- raster::raster(raster::extent(0, 1e3, 0, 1e3), res = 1)
@@ -39,7 +38,7 @@ test_that("adj.R results not identical to adjacent", {
                      adjacent(a, s, directions = 4, sorted = FALSE)), 0)
 
   # but not in the same order
-  expect_more_than(sum(
+  expect_gt(sum(
     (adj(a, s, directions = 4, sort = FALSE, match.adjacent = FALSE) -
        adjacent(a, s, directions = 4, sorted = FALSE))^2
   ), 0)
@@ -52,7 +51,7 @@ test_that("adj.R results not identical to adjacent", {
   ), 0)
 
   # but not in the same order
-  expect_more_than(
+  expect_gt(
     sum((adj(a, s, directions = "bishop", sort = FALSE, match.adjacent = FALSE) -
            adjacent(a, s, directions = "bishop", sorted = FALSE))^2),
     0)
@@ -63,7 +62,7 @@ test_that("adj.R results not identical to adjacent", {
           adjacent(a, s, directions = 8, sorted = FALSE)),
     0)
   # but not in the same order
-  expect_more_than(
+  expect_gt(
     sum((adj(a, s, directions = 8, sort = FALSE, match.adjacent = FALSE) -
            adjacent(a, s, directions = 8, sorted = FALSE))^2),
     0)
@@ -137,7 +136,7 @@ test_that("adj.R results not identical to adjacent", {
     0)
 
   # but not in the same order
-  expect_more_than(
+  expect_gt(
     sum((adj(a, s, directions = 4, sort = FALSE, match.adjacent = FALSE,
              cutoff.for.data.table = 2) -
            adjacent(a, s, directions = 4, sorted = FALSE))^2),
@@ -152,7 +151,7 @@ test_that("adj.R results not identical to adjacent", {
     0)
 
   # but not in the same order
-  expect_more_than(
+  expect_gt(
     sum((adj(a, s, directions = "bishop", sort = FALSE, match.adjacent = FALSE,
              cutoff.for.data.table = 2) -
            adjacent(a, s, directions = "bishop", sorted = FALSE))^2),
@@ -166,7 +165,7 @@ test_that("adj.R results not identical to adjacent", {
     0)
 
   # but not in the same order
-  expect_more_than(
+  expect_gt(
     sum((adj(a, s, directions = 8, sort = FALSE, match.adjacent = FALSE,
              cutoff.for.data.table = 2) -
            adjacent(a, s, directions = 8, sorted = FALSE))^2),

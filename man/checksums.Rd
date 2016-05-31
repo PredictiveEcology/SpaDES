@@ -24,7 +24,7 @@ Module developers should write this file prior to distributing
 their module code, and update accordingly when the data change.}
 }
 \value{
-A data.frame with 4 columns: result, expectedFile, actualFile, and checksum.
+A data.frame with columns: result, expectedFile, actualFile, and checksum.
 }
 \description{
 Verify (and optionally write) checksums for data files in a module's

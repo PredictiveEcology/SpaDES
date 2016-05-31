@@ -10,8 +10,7 @@ test_that("downloadModule downloads and unzips a single module", {
   library(igraph); on.exit(detach("package:igraph"))
 
   m <- "test"
-  tmpdir <- file.path(tempdir(), "modules")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% basename()
@@ -37,8 +36,7 @@ test_that("downloadModule downloads and unzips a parent module", {
   library(igraph); on.exit(detach("package:igraph"))
 
   m <- "LCC2005"
-  tmpdir <- file.path(tempdir(), "modules")
-  dir.create(tmpdir, recursive = TRUE)
+  tmpdir <- file.path(tempdir(), "modules") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   f <- downloadModule(m, tmpdir)[[1]] %>% unlist() %>% as.character()
@@ -62,8 +60,7 @@ test_that("downloadData downloads and unzips module data", {
 
   m <- "test"
   tmpdir <- file.path(tempdir(), "modules")
-  datadir <- file.path(tmpdir, m, "data")
-  dir.create(datadir, recursive = TRUE)
+  datadir <- file.path(tmpdir, m, "data") %>% checkPath(create = TRUE)
   on.exit(unlink(tmpdir, recursive = TRUE))
 
   filenames <- c("DEM.tif", "habitatQuality.tif")
@@ -79,20 +76,23 @@ test_that("downloadData downloads and unzips module data", {
 
   # if one file is missing, will fill in correctly
   unlink(file.path(datadir, filenames)[1])
-  downloadData(m, tmpdir)
+  downloadData(m, tmpdir, quiet = TRUE)
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there, but one is incorrectly named
   file.rename(from = file.path(datadir, filenames[1]),
               to = file.path(datadir, "test.tif"))
-  downloadData(m, tmpdir) # renames the file back to expected
+  downloadData(m, tmpdir, quiet = TRUE) # renames the file back to expected
   expect_true(all(file.exists(file.path(datadir, filenames))))
 
   # if files are there with correct names, but wrong content
   library(raster); on.exit(detach("package:raster"), add = TRUE)
-  ras <- raster(file.path(datadir, filenames[2]))
-  ras[4] <- maxValue(ras) + 1
-  writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
-  downloadData(m, tmpdir)
-  expect_true(all(file.exists(file.path(datadir, filenames))))
+  if(require(rgdal)) {
+    on.exit(detach("package:rgdal"), add = TRUE)
+    ras <- raster(file.path(datadir, filenames[2]))
+    ras[4] <- maxValue(ras) + 1
+    writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
+    downloadData(m, tmpdir, quiet = TRUE)
+    expect_true(all(file.exists(file.path(datadir, filenames))))
+  }
 })

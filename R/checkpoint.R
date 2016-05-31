@@ -74,8 +74,8 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
     }
   } else {
     warning(paste(
-      "Undefined event type: \'", events(sim)[1, "eventType", with = FALSE],
-      "\' in module \'", events(sim)[1, "moduleName", with = FALSE], "\'",
+      "Undefined event type: \'", current(sim)[1, "eventType", with = FALSE],
+      "\' in module \'", current(sim)[1, "moduleName", with = FALSE], "\'",
       sep = ""
     ))
   }
@@ -114,7 +114,7 @@ checkpointLoad <- function(file) {
   fobj <- paste0(f, "_objs", ".RData")
 
   tmpEnv <- new.env()
-  assign(.objectNames("spades","simList","sim")[[1]]$objs, sim, envir = tmpEnv)
+  assign(objectNames("spades", "simList", "sim")[[1]]$objs, sim, envir = tmpEnv)
 
   save(list = ls(tmpEnv, all.names = TRUE), file = file, envir = tmpEnv)
   save(list = ls(envir(sim), all.names = TRUE), file = fobj, envir = envir(sim))
@@ -161,9 +161,9 @@ setMethod(
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
-    if(length(wh)>0)
+    if (length(wh) > 0)
       tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
-    if(length(whFun)>0)
+    if (length(whFun) > 0)
       tmpl[whFun] <- lapply(tmpl[whFun], format)
 
     outputHash <- digest::digest(tmpl)
@@ -291,24 +291,24 @@ setMethod(
 #' will use the repoDir specified in \code{archivist::setLocalRepo}.
 #'
 #' @export
-#' @importFrom archivist showLocalRepo rmFromRepo
+#' @importFrom archivist showLocalRepo rmFromLocalRepo
 #' @docType methods
 #' @rdname clearStubArtifacts
 #' @author Eliot McIntire
 setGeneric("clearStubArtifacts", function(repoDir = NULL) {
-             standardGeneric("clearStubArtifacts")
-           })
+  standardGeneric("clearStubArtifacts")
+})
 
 #' @export
 #' @rdname clearStubArtifacts
 setMethod(
   "clearStubArtifacts",
   definition = function(repoDir) {
-    md5hashInBackpack = showLocalRepo(repoDir=repoDir)$md5hash
+    md5hashInBackpack = showLocalRepo(repoDir = repoDir)$md5hash
     listFiles <- dir(file.path(repoDir, "gallery")) %>% strsplit(".rda") %>% unlist()
     toRemove <- !(md5hashInBackpack %in% listFiles)
     md5hashInBackpack[toRemove] %>%
-      sapply(., rmFromRepo, repoDir=repoDir)
+      sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
   }
 )

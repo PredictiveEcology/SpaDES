@@ -28,7 +28,8 @@ simInit(times, params, modules, objects, paths, inputs, outputs, loadOrder)
 \item{times}{A named list of numeric simulation start and end times
 (e.g., \code{times = list(start = 0.0, end = 10.0)}).}
 
-\item{params}{A named list of simulation parameters and their values.}
+\item{params}{A list of lists of the form list(moduleName=list(param1=value, param2=value)).
+See details.}
 
 \item{modules}{A named list of character strings specfying the names
 of modules to be loaded for the simulation. Note: the module name
@@ -36,7 +37,7 @@ should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
 \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
-\item{objects}{An optional list of data objects to be used in the simulation.}
+\item{objects}{An optional list of data objects to be passed into the simList.}
 
 \item{paths}{An optional named list with up to 4 named elements,
 \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
@@ -45,13 +46,13 @@ See details.}
 \item{inputs}{A \code{data.frame}. Can specify from 1 to 6
 columns with following column names: \code{objectName} (character, required),
 \code{file} (character), \code{fun} (character), \code{package} (character),
-\code{interval} (numeric), \code{loadTime} (numeric). See \code{?simInit}.
+\code{interval} (numeric), \code{loadTime} (numeric).
 See \code{\link{inputs}} and vignette("ii-modules") section about inputs.}
 
 \item{outputs}{A \code{data.frame}. Can specify from 1 to 5
 columns with following column names: \code{objectName} (character, required),
 \code{file} (character), \code{fun} (character), \code{package} (character),
-\code{saveTime} (numeric). See \code{?simInit}. See \code{\link{outputs}} and
+\code{saveTime} (numeric). See \code{\link{outputs}} and
 \code{vignette("ii-modules")} section about outputs.}
 
 \item{loadOrder}{An optional list of module names specfiying the order in
@@ -79,6 +80,16 @@ Calling this simInit function does several things including the following:
 - assesses module dependencies via the inputs and outputs identified in their metadata
 - determines time units of modules and how they fit together
 
+\code{params} can only contain updates to any parameters that are defined in
+the metadata of modules. Take the example of a module named, \code{Fire}, which
+has a parameter named \code{.plotInitialTime}. In the metadata of that moduel,
+it says TRUE. Here we can override that default with:
+\code{list(Fire=list(.plotInitialTime=NA))}, effectively turning off plotting. Since
+this is a list of lists, one can override the module defaults for multiple parameters
+from multiple modules all at once, with say:
+\code{list(Fire=list(.plotInitialTime=NA, .plotInterval=2),
+           caribouModule=list(N=1000))}.
+
 We implement a discrete event simulation in a more modular fashion so it is
 easier to add modules to the simulation. We use S4 classes and methods,
 and use \code{data.table} instead of \code{data.frame} to implement the event
@@ -87,6 +98,12 @@ queue (because it is much faster).
 \code{paths} specifies the location of the module source files,
 the data input files, and the saving output files. If no paths are specified,
 default is current working directory.
+}
+\note{
+The user can opt to run a simpler simInit call without inputs, outputs, and times.
+These can be added later with the accessor methods (See last example). These are not required for initializing the
+simulation via simInit. \code{modules}, \code{paths}, \code{params}, and \code{objects}
+are all needed for initialization.
 }
 \examples{
 \dontrun{
@@ -100,28 +117,66 @@ default is current working directory.
  )
  spades(mySim)
 
-# A little more complicated with inputs and outputs
- mapPath <- system.file("maps", package = "SpaDES")
+ # Change more parameters, removing plotting
+ wantPlotting <- FALSE
  mySim <- simInit(
    times = list(start = 0.0, end = 2.0, timeunit = "year"),
    params = list(
-     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+     fireSpread = list(.plotInitialTime=wantPlotting),
+     #caribouMovement = list(.plotInitialTime=wantPlotting),
+     #randomLandscapes = list(.plotInitialTime=wantPlotting)
    ),
    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
-   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                outputPath = tempdir()),
-   inputs = data.frame(
-     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
-     functions = "raster",
-     package = "raster",
-     loadTime = 3,
-     stringsAsFactors = FALSE),
-   outputs = data.frame(
-     expand.grid(objectName = c("caribou","landscape"),
-     saveTime = 1:2,
-     stringsAsFactors = FALSE))
+   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
  )
- spades(mySim)
+ outSim <- spades(mySim)
+
+# A little more complicated with inputs and outputs
+if(require(rgdal)) {
+   mapPath <- system.file("maps", package = "SpaDES")
+   mySim <- simInit(
+     times = list(start = 0.0, end = 2.0, timeunit = "year"),
+     params = list(
+       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+     ),
+     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                  outputPath = tempdir()),
+     inputs = data.frame(
+       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+       functions = "raster",
+       package = "raster",
+       loadTime = 0,
+       stringsAsFactors = FALSE),
+     outputs = data.frame(
+       expand.grid(objectName = c("caribou","landscape"),
+       saveTime = 1:2,
+       stringsAsFactors = FALSE))
+   )
+
+   # Use accessors for inputs, outputs, times
+   mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread",
+                                    "caribouMovement"),
+                     params = list(.globals = list(stackName = "landscape",
+                                                   burnStats = "nPixelsBurned")),
+                     paths = list(modulePath = system.file("sampleModules",
+                                                           package = "SpaDES"),
+                                  outputPath = tempdir()))
+   # add by accessor: note need current in times() accessor
+   times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
+   inputs(mySim2) <- data.frame(
+       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+       functions = "raster",
+       package = "raster",
+       loadTime = 3,
+       stringsAsFactors = FALSE)
+   outputs(mySim2) <- data.frame(
+       expand.grid(objectName = c("caribou","landscape"),
+       saveTime = 1:2,
+       stringsAsFactors = FALSE))
+   all.equal(mySim, mySim2) # TRUE
+  }
 }
 
 }
@@ -129,9 +184,11 @@ default is current working directory.
 Alex Chubaty and Eliot McIntire
 }
 \references{
-Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{http://www.nostarch.com/artofr.htm}
+Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 }
 \seealso{
-\code{\link{spades}}.
+\code{\link{spades}},
+\code{\link{times}}, \code{\link{params}}, \code{\link{objs}}, \code{\link{paths}},
+\code{\link{modules}}, \code{\link{inputs}}, \code{\link{outputs}}
 }
 

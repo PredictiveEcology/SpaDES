@@ -68,9 +68,9 @@ Plot(agentsRas)
 
 # Check that the agents are more often at the higher probability areas based on pr
 out <- data.frame(stats::na.omit(crosstab(agentsRas, map)), table(round(map[]))) \%>\%
-   dplyr::mutate(selectionRatio=Freq/Freq.1) \%>\%
+   dplyr::mutate(selectionRatio = Freq/Freq.1) \%>\%
    dplyr::select(-Var1, -Var1.1) \%>\%
-   dplyr::rename(Present=Freq, Avail=Freq.1, Type=Var2)
+   dplyr::rename(Present = Freq, Avail = Freq.1, Type = Var2)
 
 }
 \author{

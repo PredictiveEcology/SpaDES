@@ -35,6 +35,7 @@ There are two workhorse functions that initialize and run a simulation:
 \tabular{ll}{
   \code{\link{simInit}} \tab Initialize a new simulation\cr
   \code{\link{spades}} \tab Run a discrete event simulation\cr
+  \code{\link{experiment}} \tab Run multiple \code{\link{spades}} calls\cr
 }
 }
 
@@ -49,10 +50,10 @@ Within a module, important simulation functions include:
 }
 }
 
-\section{1.2 \code{simList} accessor methods}{
+\section{1.2 \code{simList} methods}{
 
 
-Collections of commonly used accessor functions for the slots (and their elements)
+Collections of commonly used functions to retrieve or set slots (and their elements)
 of a \code{\link{simList}} object are summarized further below.
 }
 
@@ -104,6 +105,7 @@ thus most users will not require direct use of these methods.
 
 \tabular{ll}{
    \code{\link{events}} \tab Scheduled simulation events (the event queue). (advanced)\cr
+   \code{\link{current}} \tab Currently executing event. (advanced)\cr
    \code{\link{completed}} \tab Completed simulation events. (advanced)\cr
 }
 }
@@ -123,6 +125,21 @@ These are included for advanced users.
 }
 }
 
+\section{1.2.5 Copy simList}{
+
+
+The \code{\link{simList}} has a slot with all objects, called ".envir". This is an
+environment. In R, environments use pass-by-reference semantics, which means that
+copying an simList object using normal R assignment operation, e.g., sim2 <- sim1,
+will not copy the objects contained within the .envir slot. The two objects sim1 and
+sim2 will shared identical objects within that slot. Sometimes, this not desired, and
+a true copy is required.
+
+\tabular{ll}{
+   \code{\link{copy}} \tab Deep copy of a simList. (advanced)\cr
+}
+}
+
 \section{1.3 Module operations}{
 
 
@@ -137,6 +154,7 @@ including our
   \code{\link{newModule}} \tab Create new module from template\cr
   \code{\link{newModuleDocumentation}} \tab Create empty documentation for a new module\cr
   \code{\link{openModules}} \tab Open all modules nested within a base directory\cr
+  \code{\link{moduleMetadata}} \tab Shows the default values for a module\cr
   \code{\link{zipModule}} \tab Zip a module and its associated files\cr
 }
 }
@@ -192,6 +210,7 @@ with these:
 
 \tabular{ll}{
   \code{\link{spread}} \tab Contagious cellular automata\cr
+  \code{\link{rings}} \tab Identify rings around focal cells (e.g., buffers and donuts)\cr
   \code{\link{adj}} \tab An optimized (i.e., faster) version of \code{\link[raster]{adjacent}}\cr
   \code{\link{cir}} \tab Identify pixels in a circle around a \code{\link[sp:SpatialPoints-class]{SpatialPoints*}} object\cr
 }

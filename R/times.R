@@ -45,6 +45,9 @@ setMethod("dyears",
             duration(x * 60 * 60 * 24 * 365.25)
 })
 
+yearsInSeconds <- as.numeric(dyears(1)) # 31557600L
+
+
 #' @inheritParams dyears
 #' @export
 #' @docType methods
@@ -58,7 +61,7 @@ setGeneric("dmonths", function(x) {
 setMethod("dmonths",
           signature(x = "numeric"),
           definition = function(x) {
-            duration(x * as.numeric(SpaDES::dyears(1))/12)
+            duration(x * as.numeric(yearsInSeconds) / 12)
 })
 
 #' @export
@@ -73,7 +76,7 @@ setGeneric("dweeks", function(x) {
 setMethod("dweeks",
           signature(x = "numeric"),
           definition = function(x) {
-            duration(x * as.numeric(SpaDES::dyears(1))/52)
+            duration(x * as.numeric(yearsInSeconds) / 52)
 })
 
 #' @export
@@ -130,15 +133,34 @@ setMethod("dNA",
             duration(0)
 })
 
+hoursInSeconds <- as.numeric(dhour(1))    # 3600L
+daysInSeconds <- as.numeric(dday(1))      # 86400L
+weeksInSeconds <- as.numeric(dweek(1))    # 606876.92307692
+monthsInSeconds <- as.numeric(dmonth(1))  # 2629800L
+
 ################################################################################
 #' Convert time units
 #'
 #' In addition to using the \code{lubridate} package, some additional functions
 #' to work with times are provided.
 #'
-#' Currently available units are found within the \code{spadesTimes()} function.
+#' Current pre-defined units are found within the \code{spadesTimes()} function.
+#' The user can define a new unit. The unit name can be anything, but the function
+#' definition must be of the form, "dunitName", e.g., dyear or dfortNight. The unit
+#' name is the part without the d and the function name definition includes the "d".
+#' This new function, e.g., #' \code{dfortNight <- function(x) lubridate::duration(dday(14))}
+#' can be placed anywhere in the search path or in a module.
 #'
-#' @param unit   Character. One of the time units used in \code{SpaDES}.
+#' @param unit   Character. One of the time units used in \code{SpaDES} or user
+#'               defined time unit, given as the unit name only. See details.
+#' @param envir   An environment. This is where to look up the function definition for
+#'                the time unit. See details.
+#'
+#' @details Because of R scoping, if \code{envir} is a simList environment, then this function
+#' will search there first, then up the current search() path. Thus, it will find a
+#' user defined or module defined unit before a SpaDEs unit. This means that a user can
+#' override the dyear given in SpaDES, for example, which is 365.25 days, with
+#' \code{dyear <- function(x) lubridate::duration(dday(365))}
 #'
 #' @return A numeric vector of length 1, with \code{unit} attribute set to
 #' "seconds".
@@ -147,7 +169,7 @@ setMethod("dNA",
 #' @author Alex Chubaty & Eliot McIntire
 #' @docType methods
 #' @rdname timeConversion
-setGeneric("inSeconds", function(unit) {
+setGeneric("inSeconds", function(unit, envir) {
   standardGeneric("inSeconds")
 })
 
@@ -156,24 +178,34 @@ setGeneric("inSeconds", function(unit) {
 #' @rdname timeConversion
 setMethod(
   "inSeconds",
-  signature = c("character"),
-  definition <- function(unit) {
-    if(!is.na(unit)) {
+  signature = c("character", "environment"),
+  definition <- function(unit, envir) {
+
+    if (!is.na(unit)) {
       out <- switch(unit,
-                    second = as.numeric(dsecond(1)),
-                    seconds = as.numeric(dsecond(1)),
-                    hour = as.numeric(dhour(1)),
-                    hours = as.numeric(dhour(1)),
-                    day = as.numeric(dday(1)),
-                    days = as.numeric(dday(1)),
-                    week = as.numeric(dweek(1)),
-                    weeks = as.numeric(dweek(1)),
-                    month = as.numeric(dmonth(1)),
-                    months = as.numeric(dmonth(1)),
-                    year = as.numeric(dyear(1)),
-                    years = as.numeric(dyear(1)))
+                    second = 1,
+                    seconds = 1,
+                    hour = hoursInSeconds,
+                    hours = hoursInSeconds,
+                    day = daysInSeconds,
+                    days = daysInSeconds,
+                    week = weeksInSeconds,
+                    weeks = weeksInSeconds,
+                    month = monthsInSeconds,
+                    months = monthsInSeconds,
+                    year = yearsInSeconds,
+                    years = yearsInSeconds)
     } else {
       out <- 0
+    }
+
+    # Allow for user defined time units in metadata - null is result
+    #  from switch fn above if it does not appear. So search through SpaDES
+    # functions first above, then check user defined units
+    if (is.null(out)) {
+      if (checkTimeunit(unit, envir)) {
+        out <- as.numeric(get(paste0("d", unit), envir = envir)(1))
+      }
     }
     attributes(out)$unit = "second"
     return(out)
@@ -183,10 +215,19 @@ setMethod(
 #' @docType methods
 #' @rdname timeConversion
 setMethod("inSeconds",
-          signature = c("NULL"),
+          signature = c("NULL", "missing"),
           definition <- function(unit) {
             out <- NA_character_
-            return(inSeconds(out))
+            return(inSeconds(out, .GlobalEnv))
+})
+
+#' @export
+#' @docType methods
+#' @rdname timeConversion
+setMethod("inSeconds",
+          signature = c("character", "missing"),
+          definition <- function(unit) {
+            return(inSeconds(unit, .GlobalEnv))
 })
 
 ################################################################################
@@ -208,7 +249,7 @@ setMethod("inSeconds",
 #' @docType methods
 #' @rdname timeConversion
 #' @author Eliot McIntire
-setGeneric("convertTimeunit", function(time, unit) {
+setGeneric("convertTimeunit", function(time, unit, envir) {
   standardGeneric("convertTimeunit")
 })
 
@@ -216,29 +257,28 @@ setGeneric("convertTimeunit", function(time, unit) {
 #' @rdname timeConversion
 setMethod(
   "convertTimeunit",
-  signature = c("numeric", "character"),
-  definition = function(time, unit) {
+  signature = c("numeric", "character", "environment"),
+  definition = function(time, unit, envir) {
     timeUnit <- attr(time, "unit")
 
     # Assume default of seconds if time has no units
     if (!is.character(timeUnit)) {
-      timeUnit <- "second"
+      attr(time, "unit") <- timeUnit <- "second"
     }
+    if (is.na(pmatch("second", unit)) | is.na(pmatch("second", timeUnit))) {
+      if (!is.na(timeUnit) & !is.na(unit)) {
+        # confirm that units are useable by SpaDES
+        checkTimeunit(c(timeUnit, unit), envir)
 
-    if (!is.na(timeUnit)) {
-      # confirm that units are useable by SpaDES
-      stopifnot(
-        any(stri_detect_fixed(.spadesTimes, pattern = timeUnit), na.rm = FALSE)
-      )
-
-      # if time units are same as unit, skip calculations
-      if(!stri_detect_fixed(unit, pattern = timeUnit)) {
-        time <- time * inSeconds(timeUnit) / inSeconds(unit)
+        # if timeUnit is same as unit, skip calculations
+        if (!stri_detect_fixed(unit, pattern = timeUnit)) {
+          time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
+          attr(time, "unit") <- unit
+        }
+      } else { # if timeunit is NA
+        time <- 0
         attr(time, "unit") <- unit
       }
-    } else { # if timeunit is NA
-      time <- 0
-      attr(time, "unit") <- unit
     }
     return(time)
 })
@@ -246,9 +286,17 @@ setMethod(
 #' @export
 #' @rdname timeConversion
 setMethod("convertTimeunit",
-          signature = c("numeric", "missing"),
+          signature = c("numeric", "missing", "missing"),
           definition = function(time) {
-            return(convertTimeunit(time, "second"))
+            return(convertTimeunit(time, "second", .GlobalEnv))
+})
+
+#' @export
+#' @rdname timeConversion
+setMethod("convertTimeunit",
+          signature = c("numeric", "character", "missing"),
+          definition = function(time, unit) {
+            return(convertTimeunit(time, unit, .GlobalEnv))
 })
 
 ################################################################################
@@ -284,7 +332,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.max(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)"))) }
+              eval(parse(text = paste0("d", ts, "(1)")), envir = envir(sim)) }
           ))]])
         }
       }
@@ -328,7 +376,7 @@ setMethod(
         if (!all(sapply(timesteps, is.na))) {
           return(timesteps[!is.na(timesteps)][[which.min(sapply(
             timesteps[!sapply(timesteps, is.na)], function(ts) {
-              eval(parse(text = paste0("d", ts, "(1)"))) }
+              eval(parse(text = paste0("d", ts, "(1)")), envir = envir(sim)) }
           ))]])
         }
       }
@@ -337,11 +385,62 @@ setMethod(
 })
 
 #' @rdname timeConversion
-.spadesTimes <- c("^years?$", "^months?$", "^weeks?$", "^days?$", "^hours?$",
-                  "^seconds?$")
+.spadesTimes <- c("year", "month", "week", "day", "hour", "second")
 
 #' @export
 #' @rdname timeConversion
 spadesTimes <- function() {
   gsub(.spadesTimes, pattern = "[[:punct:]]", replacement = "")
 }
+
+#' @export
+#' @rdname timeConversion
+setGeneric("checkTimeunit", function(unit, envir) {
+  standardGeneric("checkTimeunit")
+})
+
+#' @export
+#' @docType methods
+#' @rdname timeConversion
+setMethod("checkTimeunit",
+          signature(unit = "character", "missing"),
+          definition = function(unit, envir) {
+            checkTimeunit(unit, envir = .GlobalEnv)
+})
+
+#' @export
+#' @docType methods
+#' @rdname timeConversion
+setMethod("checkTimeunit",
+          signature(unit = "character", "environment"),
+          definition = function(unit, envir) {
+            out <- FALSE
+
+            # check for .spadesTimes first, then user defined ones
+            #   d*unit*, then d*units* then "d*unit omit s"
+            if (all(!is.na(pmatch(unit, .spadesTimes)))) {
+            #if (sum(str_detect(.spadesTimes, pattern = unit), na.rm = TRUE)==
+            #   length(unit)) {
+              out <- TRUE
+            } else {
+              out <- sapply(unit, function(unit) {
+                if (exists(paste0("d", unit), envir = envir )) {
+                  if (is.function(get(paste0("d", unit), envir = envir)))
+                    out <- TRUE
+                } else if (exists(paste0("d", unit, "s"), envir = envir) ) {
+                  if (is.function(get(paste0("d", unit, "s"), envir = envir)))
+                    out <- TRUE
+                } else if (exists(gsub(x = paste0("d", unit),
+                                       pattern = "s$", replacement = ""), envir = envir) ) {
+                  if (is.function(get(gsub(x = paste0("d", unit),
+                                          pattern = "s$", replacement = ""), envir = envir)))
+                    out <- TRUE
+                } else {
+                  out <- FALSE
+                }
+              })
+            }
+
+            if (!all(out)) message("unknown timeunit provided: ", unit[!out])
+            return(invisible(out))
+})

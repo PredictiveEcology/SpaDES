@@ -134,7 +134,7 @@ clickValues <- function(n = 1) {
   objNames <- sapply(objLay, function(x) { x[1] })
   layNames <- sapply(objLay, function(x) { x[2] })
   for (i in 1:n) {
-    if(!is.na(layNames[i])) {
+    if (!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
         eval(parse(text = objNames[i]),
              envir = coords$envir[[i]])[[layNames[i]]][cellFromXY(
@@ -171,9 +171,9 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
   corners <- clickCoordinates(2)
   zoom <- extent(c(sort(corners[[3]]$x), sort(corners[[3]]$y)))
 
-  if(plot.it) {
+  if (plot.it) {
     devActive <- dev.cur()
-    if(is.null(devNum)) {
+    if (is.null(devNum)) {
       newPlot()
     } else {
       dev(devNum)
@@ -182,7 +182,7 @@ clickExtent <- function(devNum = NULL, plot.it = TRUE) {
     objLay <- strsplit(corners$map, "\\$")
     objNames <- unique(sapply(objLay, function(x) x[1]))
     layNames <- unique(sapply(objLay, function(x) x[2]))
-    if(!is.na(layNames)) {
+    if (!is.na(layNames)) {
       Plot(eval(parse(text = objNames), envir = corners$envir[[1]])[[layNames]],
            zoomExtent = zoom, new = TRUE)
     } else {
@@ -245,10 +245,10 @@ clickCoordinates <- function(n = 1) {
   #npcs <- as.numeric(unlist(strsplit(as.character(gl$heights)[grepNpcsH], "npc") ))
   npcs <- as.character(gl$heights)[grepNpcsH] %>%
     strsplit(., "npc") %>%
-    unlist %>%
-    as.numeric
+    unlist() %>%
+    as.numeric()
   remaining <- 1 - sum(npcs)
-  npcForNulls <- nulls*remaining/sum(nulls)
+  npcForNulls <- nulls * remaining / sum(nulls)
   heightNpcs <- c(npcs, npcForNulls)[order(c(grepNpcsH, grepNullsH))]
 
   clickCoords <- data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
@@ -257,7 +257,7 @@ clickCoordinates <- function(n = 1) {
 
   grobLoc <- list()
 
-  for(i in 1:n) {
+  for (i in 1:n) {
     seekViewport("top")
     gloc <- grid.locator(unit = "npc")
     xInt <- findInterval(as.numeric(strsplit(as.character(gloc$x), "npc")[[1]]),
@@ -266,21 +266,21 @@ clickCoordinates <- function(n = 1) {
     #  as origin... so, require 1-
     yInt <- findInterval(as.numeric(strsplit(as.character(gloc$y), "npc")[[1]]),
                          c(0, cumsum(heightNpcs)))
-    if(!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
+    if (!(xInt %in% grepNpcsW) & !(yInt %in% grepNpcsH)) {
       stop("No plot at those coordinates")
     }
     column <-  which(xInt == grepNpcsW)
     row <- which((yInt == grepNpcsH)[length(grepNpcsH):1])
-    map <- column + (row-1)*arr@arr@columns
+    map <- column + (row - 1) * arr@arr@columns
 
     maxLayX <- cumsum(widthNpcs)[xInt]
-    minLayX <- cumsum(widthNpcs)[xInt-1]
+    minLayX <- cumsum(widthNpcs)[xInt - 1]
     grobLoc$x <- unit((as.numeric(strsplit(
       as.character(gloc$x), "npc"
       )[[1]]) - minLayX) / (maxLayX - minLayX), "npc")
 
     maxLayY <- cumsum(heightNpcs)[yInt]
-    minLayY <- cumsum(heightNpcs)[yInt-1]
+    minLayY <- cumsum(heightNpcs)[yInt - 1]
     grobLoc$y <- unit((as.numeric(strsplit(
       as.character(gloc$y), "npc"
       )[[1]]) - minLayY) / (maxLayY - minLayY), "npc")
@@ -304,10 +304,10 @@ clickCoordinates <- function(n = 1) {
 #' @rdname spadesMouseClicks
 #' @importFrom grid seekViewport grid.locator convertX convertY
 .clickCoord <- function(X, n = 1, gl = NULL) {
-  pts<-data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
+  pts <- data.frame(x = NA_real_, y = NA_real_, stringsAsFactors = FALSE)
   seekViewport(X)
-  for(i in 1:n) {
-    if(is.null(gl)) {
+  for (i in 1:n) {
+    if (is.null(gl)) {
       gl <- grid.locator()
       pts[i, ] <- .unittrim(gl)
     } else {
@@ -316,7 +316,6 @@ clickCoordinates <- function(n = 1) {
   }
   return(pts)
 }
-
 
 ################################################################################
 #' Specify where to plot
@@ -333,7 +332,8 @@ clickCoordinates <- function(n = 1) {
 #'
 #' @param ... Additional arguments passed to \code{\link{newPlot}}.
 #'
-#' @return Opens a new plot device on the screen.
+#' @return Opens a new plot device on the screen. Invisibly returns the
+#' device number selected.
 #'
 #' @export
 #' @include plotting-classes.R
@@ -344,12 +344,12 @@ clickCoordinates <- function(n = 1) {
 #'
 dev <- function(x, ...) {
   if (missing(x)) {
-    if(is.null(dev.list())) {
+    if (is.null(dev.list())) {
       x <- 2L
     } else {
-      if(any(names(dev.list()) == "RStudioGD")) {
-        x <- min(max(dev.list())+1,
-                 which(names(dev.list()) == "RStudioGD")+3L)
+      if (any(names(dev.list()) == "RStudioGD")) {
+        x <- min(max(dev.list()) + 1,
+                 which(names(dev.list()) == "RStudioGD") + 3L)
         dev(x)
       } else {
         x <- max(dev.list())
@@ -357,8 +357,9 @@ dev <- function(x, ...) {
       }
     }
   }
-  if(is.null(dev.list())) newPlot(...)
-  while (dev.set(x)<x) newPlot(...)
+  if (is.null(dev.list())) newPlot(...)
+  while (dev.set(x) < x) newPlot(...)
+  return(invisible(dev.cur()))
 }
 
 ################################################################################

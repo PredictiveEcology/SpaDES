@@ -62,8 +62,7 @@ by to plot rasters. See Details.}
 \item{size}{Numeric. The size, in points, for \code{SpatialPoints} symbols,
 if using a scalable symbol.}
 
-\item{cols}{Character vector or list of character vectors of colours.
-Default \code{terrain.color()}. See Details.}
+\item{cols}{(also \code{col}) Character vector or list of character vectors of colours. See details.}
 
 \item{zoomExtent}{An \code{Extent} object. Supplying a single extent that is
 smaller than the rasters will call a crop statement before
@@ -167,6 +166,15 @@ It will be recycled if it is shorter than the objects to be plotted.
 Note that when this approach to setting colours is used, any overplotting
 will revert to the \code{colortable} slot of the object, or the default
 for rasters, which is \code{terrain.color()}
+
+\code{cols} can also accept \code{RColorBrewer} colors by keyword if it is
+character vector of length 1. i.e., this cannot be used to set many objects by keyword in
+the same Plot call. Default \code{terrain.color()}. See Details.
+
+Some coloring will be automatic. If the object being plotted is a Raster, then
+this will take the colorTable slot (can be changed via setColors() or other ways).
+If this is a SpatialPointsDataFrame, this function will use a column called \code{colors}
+and apply these to the symbols.
 
 Silently, one hidden object is made, \code{.spadesPlot} in the
 \code{.spadesEnv} environment, which is used for arranging plots in the
@@ -295,5 +303,7 @@ Eliot McIntire
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 \code{\link{ggplot}}, \code{\link{dev}}
+
+# @importClassesFrom NetLogoRClasses griddedClasses
 }
 
