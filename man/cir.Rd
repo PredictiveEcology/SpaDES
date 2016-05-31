@@ -3,28 +3,32 @@
 \docType{methods}
 \name{cir}
 \alias{cir}
-\alias{cir,SpatialPoints-method}
-\alias{cir,matrix-method}
+\alias{cir,RasterLayer,SpatialPoints-method}
+\alias{cir,RasterLayer,matrix-method}
 \title{Identify pixels in a circle or ring (donut) around an object.}
 \usage{
-cir(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
-  includeBehavior = "includePixels", simplify = TRUE)
+cir(landscape, coords, maxRadius, minRadius = maxRadius,
+  allowOverlap = TRUE, includeBehavior = "includePixels",
+  returnDistances = FALSE, returnAngles = FALSE, simplify = TRUE)
 
-\S4method{cir}{SpatialPoints}(coords, maxRadius, raster,
+\S4method{cir}{RasterLayer,SpatialPoints}(landscape, coords, maxRadius,
   minRadius = maxRadius, allowOverlap = TRUE,
-  includeBehavior = "includePixels", simplify = TRUE)
+  includeBehavior = "includePixels", returnDistances = FALSE,
+  returnAngles = FALSE, simplify = TRUE)
 
-\S4method{cir}{matrix}(coords, maxRadius, raster, minRadius = maxRadius,
-  allowOverlap = TRUE, includeBehavior = "includePixels", simplify = TRUE)
+\S4method{cir}{RasterLayer,matrix}(landscape, coords, maxRadius,
+  minRadius = maxRadius, allowOverlap = TRUE,
+  includeBehavior = "includePixels", returnDistances = FALSE,
+  returnAngles = FALSE, simplify = TRUE)
 }
 \arguments{
+\item{landscape}{Raster on which the circles are built.}
+
 \item{coords}{Either a matrix with 2 columns, x and y, representing the coordinates
 or a SpatialPoints* object around which to make circles. Must be same
-coordinate system as the \code{raster} argument.}
+coordinate system as the \code{landscape} argument.}
 
 \item{maxRadius}{Numeric vector of length 1 or same length as coords}
-
-\item{raster}{Raster on which the circles are built.}
 
 \item{minRadius}{Numeric vector of length 1 or same length as \code{coords}. Default is
 \code{maxRadius}, meaning return all cells that are touched
@@ -35,6 +39,16 @@ then this will create a buffer or donut or ring.}
 
 \item{includeBehavior}{Character string. Currently accepts only "includePixels", the default,
 and "excludePixels"}
+
+\item{returnDistances}{Logical. If TRUE, then a column will be added to the returned
+data.table that reports the distance from \code{coords} to every
+point that was in the circle/donut surrounding \code{coords}. Default
+FALSE, which is faster.}
+
+\item{returnAngles}{Logical. If TRUE, then a column will be added to the returned
+data.table that reports the angle from \code{coords} to every
+point that was in the circle/donut surrounding \code{coords}. Default
+FALSE.}
 
 \item{simplify}{logical. If TRUE, then all duplicate pixels are removed. This means
 that some x, y combinations will disappear}
@@ -54,11 +68,11 @@ library(raster)
 library(sp)
 
 Ras <- raster(extent(0, 15, 0, 15), res = 1)
-Ras <- randomPolygons(Ras, numTypes = 4, speedup = 1, p = 0.3)
+Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(caribou, 3, Ras, simplify = TRUE)
+cirs <- cir(Ras, caribou, 3, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, list(x, y)])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0
@@ -78,11 +92,11 @@ caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)
                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 
 # cirs
-cirs <- cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE)
+cirs <- cir(hab, caribou, rep(radius, length(caribou)), simplify = TRUE)
 
 # rings
 loci <- cellFromXY(hab, coordinates(caribou))
-cirs2 <- rings(hab, loci, maxD = radius, minD=radius-1)
+cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1)
 
 # Plot both
 ras1 <- raster(hab)
@@ -97,7 +111,7 @@ Plot(ras2)
 
 a <- raster(extent(0,100,0,100), res = 1)
 hab <- gaussMap(a,speedup = 1)
-cirs <- cir(caribou, maxRadius = 44, hab, minRadius = 0)
+cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
 ras1 <- raster(hab)
 ras1[] <- 0
 cirsOverlap <- cirs[,list(sumIDs = sum(eventID)),by=indices]
@@ -105,10 +119,10 @@ ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 Plot(ras1, new=TRUE)
 }
 \seealso{
-\code{\link{rings}} which is more flexible, allowing for different
-widths of rings, for example, but it is generally slower. One difference
+\code{\link{rings}} which uses \code{spread} under internally, but it
+is generally slower. One difference
 between the two functions is that \code{rings} takes the centre of the pixel
-as the centre of the circle, whereas \code{cir} takes the exact coordinates.
+as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example.
 }
 

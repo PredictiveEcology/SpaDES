@@ -108,25 +108,9 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @param ras A raster that whose extent will be used for the randomPolygons
 #'
-#' @param p   Numeric vector. Parameter to control fragmentation.
-#'            If this is a vector, then there will be a polygon map produced
-#'            with length(p) unique levels.
-#'
-#' @param A   Numeric vector. Parameter for expected proportion of habitat.
-#'            If this is a vector, then there will be a polygon map produced
-#'            with \code{length(A)} unique levels.
-#'
-#' @param speedup  An index of how much faster than normal to generate maps.
-#'                 This is achieved by aggregating then disagregating, so
-#'                 that the resulting raster is the same extent as \code{ras}.
-#'
 #' @param numTypes Numeric value. The number of unique polygon types to use.
 #'                 This will be overridden by \code{p}, \code{A} or
 #'                 \code{minpatch}, if any of these are vectors.
-#'
-#' @param minpatch Numeric vector. Integer minimum size of patch.
-#'                 If this is a vector, there will be a polygon map produced
-#'                 with \code{length(A)} unique levels.
 #'
 #' @param ...      Additional arguments to \code{\link{randomHabitat}}.
 #'
@@ -146,57 +130,70 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #' @references Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.
 #'
 #' @examples
-#' r1 <- randomPolygons(p = c(0.1, 0.3, 0.5), A = 0.3)
-#' Plot(r1, cols = c("white", "dark green", "blue", "dark red"), new = TRUE)
-#'
-randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), p = 0.1,
-                           A = 0.3, speedup = 1, numTypes = 1, minpatch = 2, ...) {
-  ext <- extent(ras)
-  nc <- ncol(ras)
-  nr <- nrow(ras)
-  resol <- res(ras)
+#' Ras <- randomPolygons(numTypes = 5)
+#' Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
+                           #A = 0.3, speedup = 1,
+                           numTypes = 2, ...){#}, minpatch = 2, ...) {
 
-  wholeNumsCol <- .findFactors(nc)
-  wholeNumsRow <- .findFactors(nr)
-  ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol - nc/speedup))]
-  nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow - nr/speedup))]
-  speedupEffectiveCol <- nc/ncSpeedup
-  speedupEffectiveRow <- nr/nrSpeedup
-
-  minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
-
-  if (length(resol)>1) {
-    message(paste("assuming square pixels with resolution =", resol[1]))
-    resol <- resol[1]
+  args <- list(...)
+  if(any(c("p", "A", "speedup", "minpatch") %in% names(args))) {
+    message("Arguments p, A, speedup, and minpatch have been deprecated. See new function definition.")
   }
-  tempmask <- make.mask(nx = ncSpeedup, ny = nrSpeedup, spacing = resol)
 
-  r <- raster(ext = extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
-              res = res(ras)*c(speedupEffectiveCol, speedupEffectiveRow))
-  if ((numTypes < length(p)) |
-      (numTypes < length(A)) |
-      (numTypes < length(minpatch))) {
-    numTypes <- max(length(p), length(A), length(minpatch))
-  }
-  r[] <- 0
 
-  for (i in 1:numTypes) {
-    a <- randomHabitat(tempmask,
-                       p = p[(i - 1) %% length(p) + 1],
-                       A = A[(i - 1) %% length(A) + 1],
-                       minpatch = minpatch[(i - 1) %% length(minpatch) + 1])
-    if (nrow(a) == 0) {
-      stop("A NULL map was created. ",
-           "Please try again, perhaps with different parameters.")
-    }
-    r[as.integer(rownames(a))] <- i
-  }
-  if (speedup > 1) {
-    return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
-  } else {
-    return(invisible(r))
-  }
+  starts <- SpatialPoints(coords = cbind(x = stats::runif(numTypes, xmin(ras), xmax(ras)),
+                                          y = stats::runif(numTypes, xmin(ras), xmax(ras))))
+  loci <- raster::cellFromXY(starts, object = ras)
+  a <- spread(landscape = ras, spreadProb = 1, loci, allowOverlap = FALSE, mapID = TRUE)
+  return(a)
 }
+  # ext <- extent(ras)
+  # nc <- ncol(ras)
+  # nr <- nrow(ras)
+  # resol <- res(ras)
+  #
+  # wholeNumsCol <- .findFactors(nc)
+  # wholeNumsRow <- .findFactors(nr)
+  # ncSpeedup <- wholeNumsCol[which.min(abs(wholeNumsCol - nc/speedup))]
+  # nrSpeedup <- wholeNumsRow[which.min(abs(wholeNumsRow - nr/speedup))]
+  # speedupEffectiveCol <- nc/ncSpeedup
+  # speedupEffectiveRow <- nr/nrSpeedup
+  #
+  # minpatch <- minpatch/speedupEffectiveCol/speedupEffectiveRow
+  #
+  # if (length(resol)>1) {
+  #   message(paste("assuming square pixels with resolution =", resol[1]))
+  #   resol <- resol[1]
+  # }
+  # tempmask <- make.mask(nx = ncSpeedup, ny = nrSpeedup, spacing = resol)
+  #
+  # r <- raster(ext = extent(ext@xmin, ext@xmax, ext@ymin, ext@ymax),
+  #             res = res(ras)*c(speedupEffectiveCol, speedupEffectiveRow))
+  # if ((numTypes < length(p)) |
+  #     (numTypes < length(A)) |
+  #     (numTypes < length(minpatch))) {
+  #   numTypes <- max(length(p), length(A), length(minpatch))
+  # }
+  # r[] <- 0
+  #
+  # for (i in 1:numTypes) {
+  #   a <- randomHabitat(tempmask,
+  #                      p = p[(i - 1) %% length(p) + 1],
+  #                      A = A[(i - 1) %% length(A) + 1],
+  #                      minpatch = minpatch[(i - 1) %% length(minpatch) + 1])
+  #   if (nrow(a) == 0) {
+  #     stop("A NULL map was created. ",
+  #          "Please try again, perhaps with different parameters.")
+  #   }
+  #   r[as.integer(rownames(a))] <- i
+  # }
+  # if (speedup > 1) {
+  #   return(disaggregate(r, c(speedupEffectiveCol, speedupEffectiveRow)))
+  # } else {
+  #   return(invisible(r))
+  # }
+#}
 
 ###############################################################################
 #' specificNumPerPatch

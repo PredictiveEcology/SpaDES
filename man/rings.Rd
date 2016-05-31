@@ -6,11 +6,11 @@
 \alias{rings,RasterLayer-method}
 \title{Identifies all cells within a ring around the focal cells}
 \usage{
-rings(landscape, loci = NA_real_, mapID = FALSE, minD = 2, maxD = 5,
-  allowOverlap = FALSE, ...)
+rings(landscape, loci = NA_real_, mapID = FALSE, minRadius = 2,
+  maxRadius = 5, allowOverlap = FALSE, ...)
 
 \S4method{rings}{RasterLayer}(landscape, loci = NA_real_, mapID = FALSE,
-  minD = 2, maxD = 5, allowOverlap = FALSE, ...)
+  minRadius = 2, maxRadius = 5, allowOverlap = FALSE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -26,10 +26,10 @@ If FALSE, returns a raster of iteration numbers,
 i.e., the spread history of one or more events. NOTE:
 this is overridden if \code{returnIndices} is \code{TRUE}.}
 
-\item{minD}{Numeric. Minimum radius to be included in the ring. Note:
+\item{minRadius}{Numeric. Minimum radius to be included in the ring. Note:
 this is inclusive, i.e., >=}
 
-\item{maxD}{Numeric. Maximum radius to be included in the ring. Note:
+\item{maxRadius}{Numeric. Maximum radius to be included in the ring. Note:
 this is inclusive, i.e., <=}
 
 \item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one
@@ -69,13 +69,13 @@ Plot(emptyRas, new = TRUE)
 
 # No overlap is default, occurs randomly
 emptyRas[] <- 0
-Rings <- rings(emptyRas, loci = loci, minD = 7, maxD = 9)
+Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9)
 emptyRas[Rings$indices] <- Rings$eventID
 Plot(emptyRas, new=TRUE)
 
 # Variable ring widths, including centre cell for smaller one
 emptyRas[] <- 0
-Rings <- rings(emptyRas, loci = loci, minD = c(0,7), maxD = c(8, 18))
+Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18))
 emptyRas[Rings$indices] <- Rings$eventID
 Plot(emptyRas, new=TRUE)
 }

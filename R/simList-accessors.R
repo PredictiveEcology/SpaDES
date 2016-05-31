@@ -975,7 +975,8 @@ setMethod("inputs",
               if (any(!is.na(object@inputs$loadTime))) {
                 if (!is.null(object@inputs$loadTime)) {
                   obj <- data.table::copy(object@inputs) # don't change original object
-                  obj[, loadTime := convertTimeunit(loadTime, unit, envir(object))]
+                  set(obj, , j = "loadTime", convertTimeunit(obj$loadTime, obj$unit, envir(object)))
+                  #obj[, loadTime := convertTimeunit(loadTime, unit, envir(object))]
                   obj[]
                 }
               } else {

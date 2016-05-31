@@ -36,7 +36,7 @@ if (getRversion() >= "3.1.0") {
 #' library(data.table)
 #' library(raster)
 #' Ras <- raster(extent(0,15,0,15), res=1)
-#' fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
+#' fullRas <- randomPolygons(Ras, numTypes=2)
 #' names(fullRas) <- "mapcodeAll"
 #' uniqueComms <- unique(fullRas)
 #' reducedDT <- data.table(mapcodeAll=uniqueComms,

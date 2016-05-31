@@ -366,9 +366,11 @@ adj <- compiler::cmpfun(adj.raw)
 #' Identify the pixels and coordinates that are at
 #'  a (set of) buffer distance(s) of the objects passed into \code{coords}.
 #'
+#' @param landscape    Raster on which the circles are built.
+#'
 #' @param coords Either a matrix with 2 columns, x and y, representing the coordinates
 #'               or a SpatialPoints* object around which to make circles. Must be same
-#'               coordinate system as the \code{raster} argument.
+#'               coordinate system as the \code{landscape} argument.
 #'
 #' @param maxRadius  Numeric vector of length 1 or same length as coords
 #'
@@ -377,12 +379,20 @@ adj <- compiler::cmpfun(adj.raw)
 #'                   by the narrow ring at that exact radius. If smaller than \code{maxRadius},
 #'                   then this will create a buffer or donut or ring.
 #'
-#' @param raster    Raster on which the circles are built.
-#'
 #' @param allowOverlap Logical. Should duplicates across eventID be removed or kept. Default TRUE.
 #'
 #' @param includeBehavior Character string. Currently accepts only "includePixels", the default,
 #'                        and "excludePixels"
+#'
+#' @param returnDistances Logical. If TRUE, then a column will be added to the returned
+#'                        data.table that reports the distance from \code{coords} to every
+#'                        point that was in the circle/donut surrounding \code{coords}. Default
+#'                        FALSE, which is faster.
+#'
+#' @param returnAngles Logical. If TRUE, then a column will be added to the returned
+#'                        data.table that reports the angle from \code{coords} to every
+#'                        point that was in the circle/donut surrounding \code{coords}. Default
+#'                        FALSE.
 #'
 #' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
 #' that some x, y combinations will disappear
@@ -398,10 +408,10 @@ adj <- compiler::cmpfun(adj.raw)
 #' @importFrom raster cellFromXY extract res
 #' @export
 #' @rdname cir
-#' @seealso \code{\link{rings}} which is more flexible, allowing for different
-#' widths of rings, for example, but it is generally slower. One difference
+#' @seealso \code{\link{rings}} which uses \code{spread} under internally, but it
+#' is generally slower. One difference
 #' between the two functions is that \code{rings} takes the centre of the pixel
-#' as the centre of the circle, whereas \code{cir} takes the exact coordinates.
+#' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example.
 #'
 #'@examples
@@ -409,11 +419,11 @@ adj <- compiler::cmpfun(adj.raw)
 #' library(sp)
 #'
 #' Ras <- raster(extent(0, 15, 0, 15), res = 1)
-#' Ras <- randomPolygons(Ras, numTypes = 4, speedup = 1, p = 0.3)
+#' Ras <- randomPolygons(Ras, numTypes = 4)
 #' N <- 2
 #' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-#' cirs <- cir(caribou, 3, Ras, simplify = TRUE)
+#' cirs <- cir(Ras, caribou, 3, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, list(x, y)])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
@@ -433,11 +443,11 @@ adj <- compiler::cmpfun(adj.raw)
 #'                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 #'
 #' # cirs
-#' cirs <- cir(caribou, rep(radius, length(caribou)), hab, simplify = TRUE)
+#' cirs <- cir(hab, caribou, rep(radius, length(caribou)), simplify = TRUE)
 #'
 #' # rings
 #' loci <- cellFromXY(hab, coordinates(caribou))
-#' cirs2 <- rings(hab, loci, maxD = radius, minD=radius-1)
+#' cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1)
 #'
 #' # Plot both
 #' ras1 <- raster(hab)
@@ -452,14 +462,16 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' a <- raster(extent(0,100,0,100), res = 1)
 #' hab <- gaussMap(a,speedup = 1)
-#' cirs <- cir(caribou, maxRadius = 44, hab, minRadius = 0)
+#' cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
 #' cirsOverlap <- cirs[,list(sumIDs = sum(eventID)),by=indices]
 #' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 #' Plot(ras1, new=TRUE)
-setGeneric("cir", function(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
-                           includeBehavior = "includePixels",
+setGeneric("cir", function(landscape, coords, maxRadius, minRadius = maxRadius,
+                           allowOverlap = TRUE,
+                           includeBehavior = "includePixels", returnDistances = FALSE,
+                           returnAngles = FALSE,
                            simplify = TRUE) {
   standardGeneric("cir")
 })
@@ -468,21 +480,24 @@ setGeneric("cir", function(coords, maxRadius, raster, minRadius = maxRadius, all
 #' @rdname cir
 setMethod(
   "cir",
-  signature(coords = "SpatialPoints"),
-  definition = function(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
-                        includeBehavior, simplify = TRUE) {
+  signature(landscape = "RasterLayer", coords = "SpatialPoints"),
+  definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
+                        includeBehavior, returnDistances, returnAngles,
+                        simplify) {
     coords <- coordinates(coords)
-    cir(coords=coords, maxRadius, raster, minRadius, allowOverlap, includeBehavior, simplify)
+    cir(landscape, coords, maxRadius, minRadius, allowOverlap, includeBehavior,
+        returnDistances, returnAngles, simplify)
     })
 
 #' @export
 #' @rdname cir
 setMethod(
   "cir",
-  signature(coords = "matrix"),
-  definition = function(coords, maxRadius, raster, minRadius = maxRadius, allowOverlap = TRUE,
-                        includeBehavior, simplify = TRUE) {
-  scaleRaster <- res(raster)
+  signature(landscape = "RasterLayer", coords = "matrix"),
+  definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
+                        includeBehavior, returnDistances,
+                        returnAngles, simplify) {
+    scaleRaster <- res(landscape)
   if(scaleRaster[1] != scaleRaster[2]) stop("cir function only accepts rasters with identical ",
                                             "resolution in x and y dimensions")
 
@@ -502,17 +517,21 @@ setMethod(
   if(length(maxRadius)==1) maxRadius <- rep(maxRadius, NROW(coords))
   if(length(minRadius)==1) minRadius <- rep(minRadius, NROW(coords))
 
+  # The goal of maxRadius and numAngles is to identify every cell within the circle
+  #  The 0.68 and 0.75 were found by trial and error to minimize the number of
+  #  pixels selected that are duplicates of each other.
   if(any((minRadius != maxRadius))) {
     if(any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
     maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
-      a <- seq(minRadius[x], maxRadius[x], by = 0.6)
+                                                         ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
+      a <- seq(minRadius[x], maxRadius[x], by = max(0.68,0.75-maxRadius[x]/3e3)) ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
       if(a[length(a)]!=maxRadius[x]) a <- c(a, maxRadius[x])
       a
     }))
   }
 
   numAngles <- ( ceiling((maxRadius/scaleRaster)*2.6*pi) + 1 )
-  #browser()
+
   if(is.matrix(numAngles)) {
     n.angles <- apply(numAngles, 2, sum)
   } else {
@@ -538,49 +557,61 @@ setMethod(
   # repeat this angle increment the number of times it needs to be done to complete the circles
   angs <- rep.int(angle.inc, times = numAngles)
 
-  DT <- data.table(eventID, angs, xs, ys, rads)
+  DT <- data.table(eventID, angs, rads)
   DT[, "angles" := cumsum(angs), by = c("eventID","rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
-  DT[, "x" := cos(angles)*rads + xs] # adds new column `x` to DT that is the cos(angles)*rads+xs
-  DT[, "y" := sin(angles)*rads + ys] # adds new column `y` to DT that is the cos(angles)*rads+ys
+  set(DT, , "x", cos(DT$angles)*rads + xs)
+  set(DT, , "y", sin(DT$angles)*rads + ys)
 
-  set(DT, , j = "angles", NULL)
   set(DT, , j = "angs", NULL)
-  set(DT, , j = "xs", NULL)
-  set(DT, , j = "ys", NULL)
-  # put the coordinates of the points on the circles from all individuals in the same matrix
-  #coords.all.ind <- DT[, list(x, y, eventID)]
-
-  # extract the pixel IDs under the points
-  DT[, indices := cellFromXY(raster, DT[, list(x, y)])]
-  #DT[, rasterVal := extract(raster, indices)]
+  set(DT, , j = "indices", cellFromXY(landscape, cbind(x=DT$x,y=DT$y)))
 
   if (simplify) {
     if(allowOverlap)
       setkey(DT, "eventID", "indices")
     else
       setkey(DT, "indices")
-    DT <- unique(DT) %>% na.omit
+    DT <- unique(DT)
+    DT <- na.omit(DT)
 
-    if(includeBehavior=="excludePixels") {
+    if(includeBehavior=="excludePixels" | returnDistances ) {
       maxRad <- maxRadius[NROW(maxRadius)]
       minRad <- maxRadius[1]
-      DT2 <- DT[rads>=(maxRad-0.71) | rads<=(minRad+0.71)]
-      xyC <- xyFromCell(raster, DT2$indices);
-      DT2[,`:=`(x=xyC[,"x"],y=xyC[,"y"])]
-      setnames(DT2, "eventID", "mapID")
-      setnames(DT2, "indices", "to")
-      a = as.matrix(DT2)
-      b = cbind(coords, mapID=seq_len(NROW(coords)))
-      colnames(b)[1:2] <- c("x","y")
-      DT3 <- .matchedPointDistance(a,b)
-      DT4 <- DT3[DT3[, "dists"]<=maxRad & DT3[, "dists"]>=minRad,]
-      DT4 <- DT4[,-match("dists",colnames(DT4))]
-      DT4 <- data.table(DT4)
-      setnames(DT4, "mapID", "eventID")
-      setnames(DT4, "to", "indices")
+      if(returnDistances) {
+        DT2 <- DT
+      } else {
+        DT2 <- DT[rads>=(maxRad-0.71) | rads<=(minRad+0.71)] # 0.71 is the sqrt of 1, so get
+      }
+      xyC <- xyFromCell(landscape, DT2$indices);
+      set(DT2, , j = "x", xyC[,"x"])
+      set(DT2, , j = "y", xyC[,"y"])
 
-      DTinterior <- DT[rads<(maxRad-0.71) & rads>(minRad+0.71)]
-      DT <- rbindlist(list(data.table(DT4), DTinterior))
+      a <- cbind(mapID=DT2$eventID, rads=DT2$rads, angles=DT2$angles, x=DT2$x, y = DT2$y,
+                 to=DT2$indices)
+      b <- cbind(coords, mapID=seq_len(NROW(coords)))
+      colnames(b)[1:2] <- c("x","y")
+      d <- .matchedPointDistance(a,b)
+
+      if(includeBehavior=="excludePixels")
+        d <- d[d[, "dists"]<=maxRad & d[, "dists"]>=minRad,,drop=FALSE]
+
+      DT3 <- data.table(dists=d[,"dists"],eventID=d[,"mapID"], # this is faster than data.table(d)
+                        rads=d[,"rads"],angles=d[,"angles"],x=d[,"x"],y=d[,"y"],
+                        indices=d[,"to"])
+
+      if(!returnDistances)
+        set(DT3, , j = "dists", NULL)
+
+      if(!returnAngles) {
+        set(DT3, , j = "angles", NULL)
+        set(DT, , j = "angles", NULL)
+      }
+
+      if(!returnDistances) {
+        DTinterior <- DT[rads<(maxRad-0.71) & rads>(minRad+0.71)]
+        DT <- rbindlist(list(DT3, DTinterior))
+      } else {
+        DT <- DT3
+      }
     }
     set(DT, , j = "rads", NULL)
 

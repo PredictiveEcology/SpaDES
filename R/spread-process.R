@@ -707,7 +707,7 @@ setMethod(
         }))
 
         lastCol <- ncol(d)
-        potentials <- d[d[,"duplicated"]==0 & d[,"active"]==1,][,-lastCol]
+        potentials <- d[d[,"duplicated"]==0 & d[,"active"]==1,,drop=FALSE][,-lastCol,drop=FALSE]
 
       }
 
@@ -1061,7 +1061,8 @@ setMethod(
         keepCols <- c(3,1,2,4)
         if(circle) keepCols <- c(keepCols, 5)
         allCells <- data.table(spreads[,keepCols]) # change column order to match non allowOverlap
-        allCells[,active:=as.logical(active)]
+        set(allCells, , j = "active", as.logical(allCells$active))
+        #allCells[,active:=as.logical(active)]
       }
       allCells[]
       return(allCells)
@@ -1101,9 +1102,9 @@ setMethod(
 #' @author Eliot McIntire
 #' @inheritParams spread
 #'
-#' @param minD Numeric. Minimum radius to be included in the ring. Note:
+#' @param minRadius Numeric. Minimum radius to be included in the ring. Note:
 #'             this is inclusive, i.e., >=
-#' @param maxD Numeric. Maximum radius to be included in the ring. Note:
+#' @param maxRadius Numeric. Maximum radius to be included in the ring. Note:
 #'             this is inclusive, i.e., <=
 #' @param ... Any other argument passed to \code{spread}
 #'
@@ -1130,18 +1131,18 @@ setMethod(
 #'
 #' # No overlap is default, occurs randomly
 #' emptyRas[] <- 0
-#' Rings <- rings(emptyRas, loci = loci, minD = 7, maxD = 9)
+#' Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9)
 #' emptyRas[Rings$indices] <- Rings$eventID
 #' Plot(emptyRas, new=TRUE)
 #'
 #' # Variable ring widths, including centre cell for smaller one
 #' emptyRas[] <- 0
-#' Rings <- rings(emptyRas, loci = loci, minD = c(0,7), maxD = c(8, 18))
+#' Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18))
 #' emptyRas[Rings$indices] <- Rings$eventID
 #' Plot(emptyRas, new=TRUE)
 setGeneric("rings", function(landscape, loci = NA_real_,
                               mapID = FALSE,
-                              minD = 2, maxD = 5,
+                              minRadius = 2, maxRadius = 5,
                               allowOverlap = FALSE,
                               ...) {
   standardGeneric("rings")
@@ -1154,27 +1155,27 @@ setMethod(
      signature(landscape = "RasterLayer"),
      definition = function(landscape, loci,
                            mapID,
-                           minD, maxD,
+                           minRadius, maxRadius,
                            allowOverlap,
                            ...) {
        spreadEvents <- spread(landscape, loci=loci, circle = TRUE,
-              circleMaxRadius = maxD, spreadProb = 1, mapID = TRUE,
+              circleMaxRadius = maxRadius, spreadProb = 1, mapID = TRUE,
               returnIndices = TRUE, allowOverlap = TRUE,
               ...)
-       if(length(minD)>1 | length(maxD)>1) {
+       if(length(minRadius)>1 | length(maxRadius)>1) {
          len <- length(loci)
-         if(!(length(minD) == len | length(maxD) == len)){
-           warning("minD and maxD should be length 1 or same length as loci. ",
+         if(!(length(minRadius) == len | length(maxRadius) == len)){
+           warning("minRadius and maxRadius should be length 1 or same length as loci. ",
                    "Recycling values which may not produce desired effects.")
          }
-         minD <- rep(minD, length.out = len)
-         maxD <- rep(maxD, length.out = len)
+         minRadius <- rep(minRadius, length.out = len)
+         maxRadius <- rep(maxRadius, length.out = len)
          out <- rbindlist(lapply(seq_along(loci), function(j) {
-           spreadEvents[eventID==j & (dists %>=% minD[j] & dists %<=% maxD[j])]
+           spreadEvents[eventID==j & (dists %>=% minRadius[j] & dists %<=% maxRadius[j])]
          }))
 
        } else {
-         out <- spreadEvents[(dists %>=% minD & dists %<=% maxD)]
+         out <- spreadEvents[(dists %>=% minRadius & dists %<=% maxRadius)]
        }
 
        if(!allowOverlap) {

@@ -210,13 +210,13 @@ test_that("adj.R results not identical to adjacent", {
     0)
 
   Ras <- raster(extent(0,50,0,50), res = 1)
-  Ras <- randomPolygons(Ras, numTypes = 4, speedup = 1, p = 0.3)
+  Ras <- randomPolygons(Ras, numTypes = 4)
   N <- 2
   caribou <- SpatialPoints(
     coords = cbind(x = stats::runif(N,xmin(Ras),xmax(Ras)),
                    y = stats::runif(N,xmin(Ras),xmax(Ras)))
   )
-  cirs <- cir(caribou, rep(3,length(caribou)), Ras, simplify = TRUE)
+  cirs <- cir(Ras, caribou, rep(3,length(caribou)), simplify = TRUE)
   expect_is(cirs, "data.table")
 })
 

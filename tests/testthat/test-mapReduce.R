@@ -9,7 +9,7 @@ test_that("mapReduce: file does not work correctly 1", {
 
   Ras <- raster(extent(0, 15, 0, 15), res = 1)
   set.seed(123)
-  fullRas <- randomPolygons(Ras, numTypes = 2, speedup = 1, p = 0.3)
+  fullRas <- randomPolygons(Ras, numTypes = 2)
   names(fullRas) <- "mapcodeAll"
   uniqueComms <- raster::unique(fullRas)
   reducedDT <- data.table(
