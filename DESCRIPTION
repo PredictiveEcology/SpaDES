@@ -96,6 +96,7 @@ Collate:
     'simulation.R'
     'load.R'
     'mapReduce.R'
+    'mergeRaster.R'
     'module-dependencies-methods.R'
     'moduleMetadata.R'
     'module-repository.R'
