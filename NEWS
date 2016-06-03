@@ -3,12 +3,12 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 version 1.1.4.xxxx
 =============
 * remove `gtools` from Imports
-* enhancements to cir and addition of new function rings
-* changed and performance boost to randomPolygons (uses spread internally now)
+* enhancements to `cir` and addition of new function `rings`
+* changed and performance boost to `randomPolygons` (uses `spread` internally now)
 * spread enhancements: circular spreading, landscape-based functions, allow overlapping events
-* rings arg names closer match to cir
-* performance enhancements in spread, rings, cir
-* Plot now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
+* `rings` argument names closer match to `cir`
+* performance enhancements in `spread`, `rings`, `cir`
+* `Plot` now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
 * `dev()` returns `dev.cur` invisibly, allowing for finer control of plotting devices
 * improve `splitRaster` (#276)
 * new function `mergeRaster` (#282)

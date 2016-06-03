@@ -117,6 +117,7 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
 test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   skip_on_cran()
   skip_on_travis()
+  skip("This is very big")
 
   library(raster)
 
