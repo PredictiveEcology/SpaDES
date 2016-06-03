@@ -659,18 +659,19 @@ setMethod(
 
     # repeat this angle increment the number of times it needs to be done to complete the circles
     angs <- rep.int(angle.inc, times = numAngles)
+    angles <- unlist(lapply(angle.inc, function(ai) seq(ai, pi*2, by=ai)))
 
-    DT <- data.table(angs, rads)
-    DT[, "angles" := cumsum(angs), by = c("rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
-    x <- cos(DT$angles)*rads + xs
-    y <- sin(DT$angles)*rads + ys
+    #DT <- data.table(angs, rads)
+    #DT[, "angles" := cumsum(angs), by = c("rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
+    x <- cos(angles)*rads + xs
+    y <- sin(angles)*rads + ys
 
     #set(DT, , j = "angs", NULL)
     indices <- cellFromXY(landscape, cbind(x,y))
 
     if (simplify) {
       notDups <- !duplicated(indices)
-      MAT <- cbind(eventID=1, angles=DT$angles, x, y, indices, rads)
+      MAT <- cbind(eventID=1, angles, x, y, indices, rads)
       MAT <- MAT[notDups,,drop=FALSE]
       MAT <- na.omit(MAT)
       #DT <- unique(DT)
