@@ -507,116 +507,221 @@ setMethod(
   scaleRaster <- scaleRaster[1]
 
 
-  # create an index sequence for the number of individuals
-  seqNumInd <- seq_len(NROW(coords))
+  if(NROW(coords)>1) {
+    # create an index sequence for the number of individuals
+    seqNumInd <- seq_len(NROW(coords))
 
-  # n = optimum number of points to create the circle for a given individual;
-  #       gross estimation (checked that it seems to be enough so that pixels
-  #       extracted are almost always duplicated, which means there is small
-  #       chance that we missed some on the circle).
-  if(length(maxRadius)==1) maxRadius <- rep(maxRadius, NROW(coords))
-  if(length(minRadius)==1) minRadius <- rep(minRadius, NROW(coords))
+    # n = optimum number of points to create the circle for a given individual;
+    #       gross estimation (checked that it seems to be enough so that pixels
+    #       extracted are almost always duplicated, which means there is small
+    #       chance that we missed some on the circle).
+    if(length(maxRadius)==1) maxRadius <- rep(maxRadius, NROW(coords))
+    if(length(minRadius)==1) minRadius <- rep(minRadius, NROW(coords))
 
-  # The goal of maxRadius and numAngles is to identify every cell within the circle
-  #  The 0.68 and 0.75 were found by trial and error to minimize the number of
-  #  pixels selected that are duplicates of each other.
-  if(any((minRadius != maxRadius))) {
-    if(any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
-    maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
-                                                         ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
-      a <- seq(minRadius[x], maxRadius[x], by = max(0.68,0.75-maxRadius[x]/3e3)) ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-      if(a[length(a)]!=maxRadius[x]) a <- c(a, maxRadius[x])
-      a
-    }))
-  }
-
-  numAngles <- ( ceiling((maxRadius/scaleRaster)*2.6*pi) + 1 )
-
-  if(is.matrix(numAngles)) {
-    n.angles <- apply(numAngles, 2, sum)
-  } else {
-    n.angles <- numAngles
-  }
-
-  ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
-  #coords <- coordinates(spatialPoints)
-
-  # create individual IDs for the number of points that will be done for their circle
-  eventID <- rep.int(seqNumInd, times = n.angles)
-
-  # create vector of radius for the number of points that will be done for each individual circle
-  rads <- rep.int(maxRadius, times = numAngles)
-
-  # extract the individuals' current coords
-  xs <- rep.int(coords[, 1], times = n.angles)
-  ys <- rep.int(coords[, 2], times = n.angles)
-
-  # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
-  angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
-
-  # repeat this angle increment the number of times it needs to be done to complete the circles
-  angs <- rep.int(angle.inc, times = numAngles)
-
-  DT <- data.table(eventID, angs, rads)
-  DT[, "angles" := cumsum(angs), by = c("eventID","rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
-  set(DT, , "x", cos(DT$angles)*rads + xs)
-  set(DT, , "y", sin(DT$angles)*rads + ys)
-
-  set(DT, , j = "angs", NULL)
-  set(DT, , j = "indices", cellFromXY(landscape, cbind(x=DT$x,y=DT$y)))
-
-  if (simplify) {
-    if(allowOverlap)
-      setkey(DT, "eventID", "indices")
-    else
-      setkey(DT, "indices")
-    DT <- unique(DT)
-    DT <- na.omit(DT)
-
-    if(includeBehavior=="excludePixels" | returnDistances ) {
-      maxRad <- maxRadius[NROW(maxRadius)]
-      minRad <- maxRadius[1]
-      if(returnDistances) {
-        DT2 <- DT
-      } else {
-        DT2 <- DT[rads>=(maxRad-0.71) | rads<=(minRad+0.71)] # 0.71 is the sqrt of 1, so get
-      }
-      xyC <- xyFromCell(landscape, DT2$indices);
-      set(DT2, , j = "x", xyC[,"x"])
-      set(DT2, , j = "y", xyC[,"y"])
-
-      a <- cbind(mapID=DT2$eventID, rads=DT2$rads, angles=DT2$angles, x=DT2$x, y = DT2$y,
-                 to=DT2$indices)
-      b <- cbind(coords, mapID=seq_len(NROW(coords)))
-      colnames(b)[1:2] <- c("x","y")
-      d <- .matchedPointDistance(a,b)
-
-      if(includeBehavior=="excludePixels")
-        d <- d[d[, "dists"]<=maxRad & d[, "dists"]>=minRad,,drop=FALSE]
-
-      DT3 <- data.table(dists=d[,"dists"],eventID=d[,"mapID"], # this is faster than data.table(d)
-                        rads=d[,"rads"],angles=d[,"angles"],x=d[,"x"],y=d[,"y"],
-                        indices=d[,"to"])
-
-      if(!returnDistances)
-        set(DT3, , j = "dists", NULL)
-
-      if(!returnAngles) {
-        set(DT3, , j = "angles", NULL)
-        set(DT, , j = "angles", NULL)
-      }
-
-      if(!returnDistances) {
-        DTinterior <- DT[rads<(maxRad-0.71) & rads>(minRad+0.71)]
-        DT <- rbindlist(list(DT3, DTinterior))
-      } else {
-        DT <- DT3
-      }
+    # The goal of maxRadius and numAngles is to identify every cell within the circle
+    #  The 0.68 and 0.75 were found by trial and error to minimize the number of
+    #  pixels selected that are duplicates of each other.
+    if(any((minRadius != maxRadius))) {
+      if(any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
+      maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
+                                                           ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
+        a <- seq(minRadius[x], maxRadius[x], by = max(0.68,0.75-maxRadius[x]/3e3)) ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+        if(a[length(a)]!=maxRadius[x]) a <- c(a, maxRadius[x])
+        a
+      }))
     }
-    set(DT, , j = "rads", NULL)
+
+    numAngles <- ( ceiling((maxRadius/scaleRaster)*2.6*pi) + 1 )
+
+    if(is.matrix(numAngles)) {
+      n.angles <- apply(numAngles, 2, sum)
+    } else {
+      n.angles <- numAngles
+    }
+
+    ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
+    #coords <- coordinates(spatialPoints)
+
+    # create individual IDs for the number of points that will be done for their circle
+    eventID <- rep.int(seqNumInd, times = n.angles)
+
+    # create vector of radius for the number of points that will be done for each individual circle
+    rads <- rep.int(maxRadius, times = numAngles)
+
+    # extract the individuals' current coords
+    xs <- rep.int(coords[, 1], times = n.angles)
+    ys <- rep.int(coords[, 2], times = n.angles)
+
+    # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
+    angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
+
+    # repeat this angle increment the number of times it needs to be done to complete the circles
+    angs <- rep.int(angle.inc, times = numAngles)
+
+    DT <- data.table(eventID, angs, rads)
+    DT[, "angles" := cumsum(angs), by = c("eventID","rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
+    set(DT, , "x", cos(DT$angles)*rads + xs)
+    set(DT, , "y", sin(DT$angles)*rads + ys)
+
+    set(DT, , j = "angs", NULL)
+    set(DT, , j = "indices", cellFromXY(landscape, cbind(x=DT$x,y=DT$y)))
+
+    if (simplify) {
+      if(allowOverlap)
+        setkey(DT, "eventID", "indices")
+      else
+        setkey(DT, "indices")
+      DT <- unique(DT)
+      DT <- na.omit(DT)
+
+      if(includeBehavior=="excludePixels" | returnDistances ) {
+        maxRad <- maxRadius[NROW(maxRadius)]
+        minRad <- maxRadius[1]
+        if(returnDistances) {
+          DT2 <- DT
+        } else {
+          DT2 <- DT[rads>=(maxRad-0.71) | rads<=(minRad+0.71)] # 0.71 is the sqrt of 1, so get
+        }
+        xyC <- xyFromCell(landscape, DT2$indices);
+        set(DT2, , j = "x", xyC[,"x"])
+        set(DT2, , j = "y", xyC[,"y"])
+
+        a <- cbind(mapID=DT2$eventID, rads=DT2$rads, angles=DT2$angles, x=DT2$x, y = DT2$y,
+                   to=DT2$indices)
+        b <- cbind(coords, mapID=seq_len(NROW(coords)))
+        colnames(b)[1:2] <- c("x","y")
+        d <- .matchedPointDistance(a,b)
+
+        if(includeBehavior=="excludePixels")
+          d <- d[d[, "dists"]<=maxRad & d[, "dists"]>=minRad,,drop=FALSE]
+
+        DT3 <- data.table(dists=d[,"dists"],eventID=d[,"mapID"], # this is faster than data.table(d)
+                          rads=d[,"rads"],angles=d[,"angles"],x=d[,"x"],y=d[,"y"],
+                          indices=d[,"to"])
+
+        if(!returnDistances)
+          set(DT3, , j = "dists", NULL)
+
+        if(!returnAngles) {
+          set(DT3, , j = "angles", NULL)
+          set(DT, , j = "angles", NULL)
+        }
+
+        if(!returnDistances) {
+          DTinterior <- DT[rads<(maxRad-0.71) & rads>(minRad+0.71)]
+          DT <- rbindlist(list(DT3, DTinterior))
+        } else {
+          DT <- DT3
+        }
+      }
+      set(DT, , j = "rads", NULL)
+
+    }
+
+  } else {
+    # create an index sequence for the number of individuals
+    seqNumInd <- 1
+
+    # n = optimum number of points to create the circle for a given individual;
+    #       gross estimation (checked that it seems to be enough so that pixels
+    #       extracted are almost always duplicated, which means there is small
+    #       chance that we missed some on the circle).
+
+    # The goal of maxRadius and numAngles is to identify every cell within the circle
+    #  The 0.68 and 0.75 were found by trial and error to minimize the number of
+    #  pixels selected that are duplicates of each other.
+    if(any((minRadius != maxRadius))) {
+        ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
+        a <- seq(minRadius, maxRadius, by = max(0.68,0.75-maxRadius/3e3)) ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+        if(a[length(a)]!=maxRadius) a <- c(a, maxRadius)
+        maxRadius <- a
+    }
+
+    numAngles <- ( ceiling((maxRadius/scaleRaster)*2.6*pi) + 1 )
+
+    n.angles <- sum(numAngles)
+
+    ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
+    #coords <- coordinates(spatialPoints)
+
+    # create individual IDs for the number of points that will be done for their circle
+    eventID <- rep.int(seqNumInd, times = n.angles)
+
+    # create vector of radius for the number of points that will be done for each individual circle
+    rads <- rep.int(maxRadius, times = numAngles)
+
+    # extract the individuals' current coords
+    xs <- rep.int(coords[, 1], times = n.angles)
+    ys <- rep.int(coords[, 2], times = n.angles)
+
+    # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
+    angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
+
+    # repeat this angle increment the number of times it needs to be done to complete the circles
+    angs <- rep.int(angle.inc, times = numAngles)
+
+    DT <- data.table(angs, rads)
+    DT[, "angles" := cumsum(angs), by = c("rads")] # adds new column `angles` to DT that is the cumsum of angs for each id
+    x <- cos(DT$angles)*rads + xs
+    y <- sin(DT$angles)*rads + ys
+
+    #set(DT, , j = "angs", NULL)
+    indices <- cellFromXY(landscape, cbind(x,y))
+
+    if (simplify) {
+      notDups <- !duplicated(indices)
+      MAT <- cbind(eventID=1, angles=DT$angles, x, y, indices, rads)
+      MAT <- MAT[notDups,,drop=FALSE]
+      MAT <- na.omit(MAT)
+      #DT <- unique(DT)
+      #DT <- na.omit(DT)
+
+      if(includeBehavior=="excludePixels" | returnDistances ) {
+        maxRad <- maxRadius[NROW(maxRadius)]
+        minRad <- maxRadius[1]
+        if(returnDistances) {
+          MAT2 <- MAT
+        } else {
+          MAT2 <- MAT[MAT[,"rads"]>=(maxRad-0.71) | MAT[,"rads"]<=(minRad+0.71),] # 0.71 is the sqrt of 1, so get
+        }
+        xyC <- xyFromCell(landscape, MAT2[,"indices"]);
+        #set(DT2, , j = "x", xyC[,"x"])
+        #set(DT2, , j = "y", xyC[,"y"])
+
+        #a <- cbind(MAT2, xyC)
+        a <- cbind(mapID=MAT2[,"eventID"], rads=MAT2[,"rads"], angles=MAT2[,"angles"], x=MAT2[,"x"],
+                   y = MAT2[,"y"], to=MAT2[,"indices"])
+        b <- cbind(coords, mapID=1)
+        colnames(b)[1:2] <- c("x","y")
+        d <- .matchedPointDistance(a,b)
+
+        if(includeBehavior=="excludePixels")
+          d <- d[d[, "dists"]<=maxRad & d[, "dists"]>=minRad,,drop=FALSE]
+
+        DT3 <- data.table(dists=d[,"dists"],eventID=d[,"mapID"], # this is faster than data.table(d)
+                          rads=d[,"rads"],angles=d[,"angles"],x=d[,"x"],y=d[,"y"],
+                          indices=d[,"to"])
+
+        if(!returnDistances)
+          set(DT3, , j = "dists", NULL)
+
+        if(!returnAngles) {
+          set(DT3, , j = "angles", NULL)
+          MAT <- MAT[,-which(colnames(MAT)=="angles")]
+        }
+
+        if(!returnDistances) {
+          DTinterior <- data.table(MAT[MAT[,"rads"]<(maxRad-0.71) & MAT[,"rads"]>(minRad+0.71),])
+          DT <- rbindlist(list(DT3, DTinterior))
+        } else {
+          DT <- DT3
+        }
+      }
+      set(DT, , j = "rads", NULL)
+
+    }
 
   }
-
   # list of df with x and y coordinates of each unique pixel of the circle of each individual
   return(DT)
 }
