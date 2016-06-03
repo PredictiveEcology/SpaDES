@@ -3,7 +3,7 @@
 \docType{methods}
 \name{specificNumPerPatch}
 \alias{specificNumPerPatch}
-\title{specificNumPerPatch}
+\title{Initiate a specific number of agents in a map of patches}
 \usage{
 specificNumPerPatch(patches, numPerPatchTable = NULL, numPerPatchMap = NULL)
 }
@@ -11,7 +11,8 @@ specificNumPerPatch(patches, numPerPatchTable = NULL, numPerPatchMap = NULL)
 \item{patches}{\code{RasterLayer} of patches, with some sort of a patch id.}
 
 \item{numPerPatchTable}{A \code{data.frame} or \code{data.table} with a
-column named \code{pops} that matches the \code{patches} patch ids}
+column named \code{pops} that matches the \code{patches} patch ids, and a
+second column \code{num.in.pop} with population size in each patch.}
 
 \item{numPerPatchMap}{A \code{RasterLayer} exactly the same as \code{patches}
 but with agent numbers rather than ids as the cell values per patch.}
@@ -24,5 +25,30 @@ agents following the numbers above.
 Instantiate a specific number of agents per patch.
 The user can either supply a table of how many to initiate in each patch,
 linked by a column in that table called \code{pops}.
+}
+\examples{
+library(raster)
+library(data.table)
+Ntypes=4
+ras <- randomPolygons(numTypes=Ntypes)
+#Plot(ras, new=TRUE)
+
+# Use numPerPatchTable
+patchDT <- data.table(pops=1:Ntypes, num.in.pop = c(1,3,5,7))
+rasAgents <- specificNumPerPatch(ras, patchDT)
+rasAgents[is.na(rasAgents)] <- 0
+#Plot(rasAgents)
+library(testthat)
+expect_true(all(unname(table(ras[rasAgents])) == patchDT$num.in.pop))
+
+# Use numPerPatchMap
+rasPatches <- ras
+for(i in 1:Ntypes) {
+  rasPatches[rasPatches==i] <- patchDT$num.in.pop[i]
+}
+#Plot(ras, rasPatches, new=TRUE)
+rasAgents <- specificNumPerPatch(ras,  numPerPatchMap = rasPatches)
+rasAgents[is.na(rasAgents)] <- 0
+#Plot(rasAgents)
 }
 
