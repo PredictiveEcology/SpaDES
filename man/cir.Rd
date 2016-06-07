@@ -3,40 +3,45 @@
 \docType{methods}
 \name{cir}
 \alias{cir}
-\alias{cir,RasterLayer,ANY,numeric-method}
-\alias{cir,RasterLayer,SpatialPoints,ANY-method}
-\alias{cir,RasterLayer,matrix,ANY-method}
+\alias{cir,RasterLayer,SpatialPoints,missing-method}
+\alias{cir,RasterLayer,matrix,missing-method}
+\alias{cir,RasterLayer,missing,missing-method}
+\alias{cir,RasterLayer,missing,numeric-method}
 \title{Identify pixels in a circle or ring (donut) around an object.}
 \usage{
-cir(landscape, coords, loci, maxRadius, minRadius = maxRadius,
+cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
+  minRadius = maxRadius, allowOverlap = TRUE,
+  includeBehavior = "includePixels", returnDistances = FALSE,
+  returnAngles = FALSE, simplify = TRUE)
+
+\S4method{cir}{RasterLayer,SpatialPoints,missing}(landscape, coords, maxRadius,
+  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
+  returnAngles, simplify)
+
+\S4method{cir}{RasterLayer,missing,numeric}(landscape, loci, maxRadius,
+  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
+  returnAngles, simplify)
+
+\S4method{cir}{RasterLayer,missing,missing}(landscape, loci, maxRadius,
+  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
+  returnAngles, simplify)
+
+\S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
+  maxRadius = ncol(landscape)/4, minRadius = maxRadius,
   allowOverlap = TRUE, includeBehavior = "includePixels",
   returnDistances = FALSE, returnAngles = FALSE, simplify = TRUE)
-
-\S4method{cir}{RasterLayer,SpatialPoints,ANY}(landscape, coords, loci,
-  maxRadius, minRadius = maxRadius, allowOverlap = TRUE,
-  includeBehavior = "includePixels", returnDistances = FALSE,
-  returnAngles = FALSE, simplify = TRUE)
-
-\S4method{cir}{RasterLayer,ANY,numeric}(landscape, coords, loci, maxRadius,
-  minRadius = maxRadius, allowOverlap = TRUE,
-  includeBehavior = "includePixels", returnDistances = FALSE,
-  returnAngles = FALSE, simplify = TRUE)
-
-\S4method{cir}{RasterLayer,matrix,ANY}(landscape, coords, loci, maxRadius,
-  minRadius = maxRadius, allowOverlap = TRUE,
-  includeBehavior = "includePixels", returnDistances = FALSE,
-  returnAngles = FALSE, simplify = TRUE)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
 
 \item{coords}{Either a matrix with 2 columns, x and y, representing the coordinates
-or a SpatialPoints* object around which to make circles. Must be same
-coordinate system as the \code{landscape} argument.}
+or a \code{SpatialPoints*} object around which to make circles. Must be same
+coordinate system as the \code{landscape} argument. Default is missing,
+meaning it uses the default to \code{loci}}
 
 \item{loci}{Numeric. An alternative to \code{coords}. These are the indices on
-\code{landscape} to initiate this function. See \code{coords}. Default
-NA meaning "use \code{coords}".}
+\code{landscape} to initiate this function. See \code{coords}. Default is one
+point in centre of \code{landscape}..}
 
 \item{maxRadius}{Numeric vector of length 1 or same length as coords}
 
@@ -79,21 +84,31 @@ Identify the pixels and coordinates that are at
 \details{
 This function identifies all the pixels as defined by a donut
 with inner radius minRadius and outer radius of maxRadius. The includeBehavior defines
-whether the cells that intersect the radii are included or not in the returned
-pixels identified. If this is excludeBehavior, and if a minRadius and maxRadius
-are equal, this will return no pixels.
+whether the cells that intersect the radii but whose centres are not inside
+the donut are included \code{includePixels} or not \code{excludePixels} in the returned
+pixels identified. If this is \code{excludePixels}, and if a \code{minRadius} and
+\code{maxRadius} are equal, this will return no pixels.
 }
 \examples{
 library(raster)
 library(data.table)
 library(sp)
 
+# circle centred
 Ras <- raster(extent(0, 15, 0, 15), res = 1)
+Ras[] <- 0
+middleCircle <- cir(Ras)
+Ras[middleCircle[,"indices"]] <- 1
+Plot(Ras, new=TRUE)
+circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
+Plot(circlePoints, addTo = "Ras")
+
+# circles non centred
 Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(Ras, caribou, 3, simplify = TRUE)
+cirs <- cir(Ras, caribou, maxRadius = 3, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0
@@ -108,12 +123,11 @@ a <- raster(extent(0,30,0,30), res = 1)
 hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 radius <- 4
 N = 2
-
 caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 
 # cirs
-cirs <- cir(hab, caribou, rep(radius, length(caribou)), simplify = TRUE)
+cirs <- cir(hab, caribou, maxRadius = rep(radius, length(caribou)), simplify = TRUE)
 
 # rings
 loci <- cellFromXY(hab, coordinates(caribou))

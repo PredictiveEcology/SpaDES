@@ -209,16 +209,8 @@ test_that("adj.R results not identical to adjacent", {
           adjacent(a, s, directions = "bishop", sorted = TRUE, include = TRUE)),
     0)
 
-  Ras <- raster(extent(0,50,0,50), res = 1)
-  Ras <- randomPolygons(Ras, numTypes = 4)
-  N <- 2
-  caribou <- SpatialPoints(
-    coords = cbind(x = stats::runif(N,xmin(Ras),xmax(Ras)),
-                   y = stats::runif(N,xmin(Ras),xmax(Ras)))
-  )
-  cirs <- cir(Ras, caribou, rep(3,length(caribou)), simplify = TRUE)
-  expect_is(cirs, "matrix")
 })
+
 
 test_that("adj.R: torus does not work as expected", {
   # test data.table and matrix

@@ -371,12 +371,13 @@ adj <- compiler::cmpfun(adj.raw)
 #' @param landscape    Raster on which the circles are built.
 #'
 #' @param coords Either a matrix with 2 columns, x and y, representing the coordinates
-#'               or a SpatialPoints* object around which to make circles. Must be same
-#'               coordinate system as the \code{landscape} argument.
+#'               or a \code{SpatialPoints*} object around which to make circles. Must be same
+#'               coordinate system as the \code{landscape} argument. Default is missing,
+#'               meaning it uses the default to \code{loci}
 #'
 #' @param loci   Numeric. An alternative to \code{coords}. These are the indices on
-#'               \code{landscape} to initiate this function. See \code{coords}. Default
-#'               NA meaning "use \code{coords}".
+#'               \code{landscape} to initiate this function. See \code{coords}. Default is one
+#'               point in centre of \code{landscape}..
 #'
 #' @param maxRadius  Numeric vector of length 1 or same length as coords
 #'
@@ -405,9 +406,10 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @details This function identifies all the pixels as defined by a donut
 #' with inner radius minRadius and outer radius of maxRadius. The includeBehavior defines
-#' whether the cells that intersect the radii are included or not in the returned
-#' pixels identified. If this is excludeBehavior, and if a minRadius and maxRadius
-#' are equal, this will return no pixels.
+#' whether the cells that intersect the radii but whose centres are not inside
+#' the donut are included \code{includePixels} or not \code{excludePixels} in the returned
+#' pixels identified. If this is \code{excludePixels}, and if a \code{minRadius} and
+#' \code{maxRadius} are equal, this will return no pixels.
 #'
 #'
 #' @return A \code{matrix} with 4 columns, \code{eventID}, \code{indices},
@@ -419,7 +421,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' @import igraph
 #' @importFrom data.table data.table set setkey ':='
 #' @importFrom sp coordinates
-#' @importFrom raster cellFromXY extract res
+#' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
 #' @rdname cir
 #' @seealso \code{\link{rings}} which uses \code{spread} under internally, but it
@@ -434,12 +436,21 @@ adj <- compiler::cmpfun(adj.raw)
 #' library(data.table)
 #' library(sp)
 #'
+#' # circle centred
 #' Ras <- raster(extent(0, 15, 0, 15), res = 1)
+#' Ras[] <- 0
+#' middleCircle <- cir(Ras)
+#' Ras[middleCircle[,"indices"]] <- 1
+#' Plot(Ras, new=TRUE)
+#' circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
+#' Plot(circlePoints, addTo = "Ras")
+#'
+#' # circles non centred
 #' Ras <- randomPolygons(Ras, numTypes = 4)
 #' N <- 2
 #' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-#' cirs <- cir(Ras, caribou, 3, simplify = TRUE)
+#' cirs <- cir(Ras, caribou, maxRadius = 3, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
@@ -454,12 +465,11 @@ adj <- compiler::cmpfun(adj.raw)
 #' hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 #' radius <- 4
 #' N = 2
-#'
 #' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
 #'                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 #'
 #' # cirs
-#' cirs <- cir(hab, caribou, rep(radius, length(caribou)), simplify = TRUE)
+#' cirs <- cir(hab, caribou, maxRadius = rep(radius, length(caribou)), simplify = TRUE)
 #'
 #' # rings
 #' loci <- cellFromXY(hab, coordinates(caribou))
@@ -491,7 +501,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' ras1[cirs[,"indices"]] <- cirs[,"eventID"]
 #' Plot(ras1, new=TRUE)
 #'
-setGeneric("cir", function(landscape, coords, loci, maxRadius, minRadius = maxRadius,
+setGeneric("cir", function(landscape, coords, loci,
+                           maxRadius = ncol(landscape)/4, minRadius = maxRadius,
                            allowOverlap = TRUE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            returnAngles = FALSE,
@@ -503,33 +514,51 @@ setGeneric("cir", function(landscape, coords, loci, maxRadius, minRadius = maxRa
 #' @rdname cir
 setMethod(
   "cir",
-  signature(landscape = "RasterLayer", coords = "SpatialPoints"),
-  definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
+  signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
+  definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances, returnAngles,
                         simplify) {
     coords <- coordinates(coords)
-    cir(landscape, coords, loci, maxRadius, minRadius, allowOverlap, includeBehavior,
-        returnDistances, returnAngles, simplify)
+    cir(landscape, coords, maxRadius = maxRadius, minRadius = minRadius,
+        allowOverlap = allowOverlap, includeBehavior = includeBehavior,
+        returnDistances = returnDistances, returnAngles = returnAngles, simplify = simplify)
     })
 
 #' @export
 #' @rdname cir
 setMethod(
   "cir",
-  signature(landscape = "RasterLayer", coords = "ANY", loci = "numeric"),
-  definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
+  signature(landscape = "RasterLayer", coords = "missing", loci = "numeric"),
+  definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances, returnAngles,
                         simplify) {
     coords <- xyFromCell(landscape, loci)
-    cir(landscape, coords=coords, loci=NULL, maxRadius, minRadius, allowOverlap, includeBehavior,
-        returnDistances, returnAngles, simplify)
+    cir(landscape, coords=coords, maxRadius = maxRadius, minRadius = minRadius,
+        allowOverlap = allowOverlap, includeBehavior = includeBehavior,
+        returnDistances = returnDistances, returnAngles = returnAngles, simplify = simplify)
   })
 
 #' @export
 #' @rdname cir
 setMethod(
   "cir",
-  signature(landscape = "RasterLayer", coords = "matrix"),
+  signature(landscape = "RasterLayer", coords = "missing", loci = "missing"),
+  definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
+                        includeBehavior, returnDistances, returnAngles,
+                        simplify) {
+    ncells <- ncell(landscape)
+    middleCell <- if(identical(ncells/2, floor(ncells/2))) ncells/2 - ncol(landscape)/2 else round(ncells/2)
+    coords <- xyFromCell(landscape, middleCell)
+    cir(landscape, coords=coords, maxRadius = maxRadius, minRadius = minRadius,
+        allowOverlap = allowOverlap, includeBehavior = includeBehavior,
+        returnDistances = returnDistances, returnAngles = returnAngles, simplify = simplify)
+  })
+
+#' @export
+#' @rdname cir
+setMethod(
+  "cir",
+  signature(landscape = "RasterLayer", coords = "matrix", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances,
                         returnAngles, simplify) {

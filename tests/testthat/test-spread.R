@@ -380,6 +380,10 @@ test_that("spread benchmarking", {
   maxVal <- 50
 
  library(microbenchmark)
+ initialLoci <- as.integer(sample(1:ncell(hab), 3))
+ maxVal <- 20
+ stopRule2 <- function(landscape,maxVal) sum(landscape)>maxVal
+
  microbenchmark(times = 200,
                 excludePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
                                 mapID = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel",
@@ -464,7 +468,7 @@ test_that("spread benchmarking", {
  a[] <- 1
  sizes = rep(3300,3)
  set.seed(343)
- microbenchmark(times = 20, maxSize=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
+ microbenchmark(times = 100, maxSize=spread(a, loci=c(100, 3500, 8000), spreadProb = 1,
         mapID = TRUE, maxSize = sizes))
  set.seed(343)
  microbenchmark(times = 20,
@@ -473,11 +477,13 @@ test_that("spread benchmarking", {
                mapID = TRUE,
                stopRule = function(cells,mapID) length(cells)>sizes[mapID]))
  # Unit: milliseconds
- #    expr      min       lq     mean   median       uq      max neval
- # maxSize 36.84573 39.46026 52.00803 44.74344 63.14137 83.14923    20
- # stopRule 193.414 210.9853 240.6881 232.1871 251.5688 393.1453    20
+ #    expr      min       lq     mean   median       uq     max neval
+ # maxSize 35.44505 37.38652 41.36509  38.2398 47.60329 84.6241   100
+ #stopRule 102.4452 205.5738 216.8115 211.6224  214.788  451.72    20
 
 
+ quality <- raster(hab)
+ quality[] <- runif(ncell(quality), 0, 1)
  stopRule4 <- function(landscape, quality, cells) (sum(landscape)>200) | (mean(quality[cells])<0.5)
  set.seed(23432)
  microbenchmark(circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
