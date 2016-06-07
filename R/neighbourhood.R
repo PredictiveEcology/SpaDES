@@ -364,14 +364,19 @@ adj <- compiler::cmpfun(adj.raw)
 #' Identify pixels in a circle or ring (donut) around an object.
 #'
 #' Identify the pixels and coordinates that are at
-#'  a (set of) buffer distance(s) of the objects passed into \code{coords}.
-#'  a (set of) buffer distance(s) of the objects passed into \code{coords}.
+#'  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
+#'  to \code\link[rgeos]{gBuffer} but much faster and without the georeferencing information.
+#'  In other words, it can be used for similar problems, but where speed is important.
 #'
 #' @param landscape    Raster on which the circles are built.
 #'
 #' @param coords Either a matrix with 2 columns, x and y, representing the coordinates
 #'               or a SpatialPoints* object around which to make circles. Must be same
 #'               coordinate system as the \code{landscape} argument.
+#'
+#' @param loci   Numeric. An alternative to \code{coords}. These are the indices on
+#'               \code{landscape} to initiate this function. See \code{coords}. Default
+#'               NA meaning "use \code{coords}".
 #'
 #' @param maxRadius  Numeric vector of length 1 or same length as coords
 #'
@@ -407,8 +412,8 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @return A \code{matrix} with 4 columns, \code{eventID}, \code{indices},
 #' \code{x}, \code{y}. The \code{x} and \code{y} indicate the
-#' exact coordinates of pixel centres
-#' and the \code{indices} (i.e., cell number) are the unique pixels of the \code{landscape}
+#' exact coordinates of
+#' the \code{indices} (i.e., cell number) of the \code{landscape}
 #' associated with the ring or circle being identified by this function.
 #'
 #' @import igraph
@@ -422,9 +427,11 @@ adj <- compiler::cmpfun(adj.raw)
 #' between the two functions is that \code{rings} takes the centre of the pixel
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example.
+#' \code\link[rgeos]{gBuffer}
 #'
 #'@examples
 #' library(raster)
+#' library(data.table)
 #' library(sp)
 #'
 #' Ras <- raster(extent(0, 15, 0, 15), res = 1)
@@ -433,10 +440,10 @@ adj <- compiler::cmpfun(adj.raw)
 #' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
 #' cirs <- cir(Ras, caribou, 3, simplify = TRUE)
-#' cirsSP <- SpatialPoints(coords = cirs[, list(x, y)])
+#' cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
-#' cirsRas[cirs[, indices]] <- 1
+#' cirsRas[cirs[, "indices"]] <- 1
 #' Plot(Ras, new = TRUE)
 #' Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
 #' Plot(caribou, addTo = "Ras")
@@ -461,8 +468,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' # Plot both
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' ras1[cirs$indices] <- cirs$eventID
-#' Plot(ras1)
+#' ras1[cirs[,"indices"]] <- cirs[,"eventID"]
+#' Plot(ras1, new=TRUE)
 #'
 #' ras2 <- raster(hab)
 #' ras2[] <- 0
@@ -474,10 +481,17 @@ adj <- compiler::cmpfun(adj.raw)
 #' cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' cirsOverlap <- cirs[,list(sumIDs = sum(eventID)),by=indices]
+#' cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(eventID)),by=indices]
 #' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 #' Plot(ras1, new=TRUE)
-setGeneric("cir", function(landscape, coords, maxRadius, minRadius = maxRadius,
+#'
+#' # using loci instead of coords
+#' cirs <- cir(hab, loci = 4550, maxRadius = 14, minRadius = 0)
+#' ras1[] <- 0
+#' ras1[cirs[,"indices"]] <- cirs[,"eventID"]
+#' Plot(ras1, new=TRUE)
+#'
+setGeneric("cir", function(landscape, coords, loci, maxRadius, minRadius = maxRadius,
                            allowOverlap = TRUE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            returnAngles = FALSE,
@@ -490,11 +504,11 @@ setGeneric("cir", function(landscape, coords, maxRadius, minRadius = maxRadius,
 setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "SpatialPoints"),
-  definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
+  definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances, returnAngles,
                         simplify) {
     coords <- coordinates(coords)
-    cir(landscape, coords, maxRadius, minRadius, allowOverlap, includeBehavior,
+    cir(landscape, coords, loci, maxRadius, minRadius, allowOverlap, includeBehavior,
         returnDistances, returnAngles, simplify)
     })
 
@@ -502,8 +516,21 @@ setMethod(
 #' @rdname cir
 setMethod(
   "cir",
+  signature(landscape = "RasterLayer", coords = "ANY", loci = "numeric"),
+  definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
+                        includeBehavior, returnDistances, returnAngles,
+                        simplify) {
+    coords <- xyFromCell(landscape, loci)
+    cir(landscape, coords=coords, loci=NULL, maxRadius, minRadius, allowOverlap, includeBehavior,
+        returnDistances, returnAngles, simplify)
+  })
+
+#' @export
+#' @rdname cir
+setMethod(
+  "cir",
   signature(landscape = "RasterLayer", coords = "matrix"),
-  definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
+  definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances,
                         returnAngles, simplify) {
     scaleRaster <- res(landscape)

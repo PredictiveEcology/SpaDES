@@ -217,7 +217,7 @@ test_that("adj.R results not identical to adjacent", {
                    y = stats::runif(N,xmin(Ras),xmax(Ras)))
   )
   cirs <- cir(Ras, caribou, rep(3,length(caribou)), simplify = TRUE)
-  expect_is(cirs, "data.table")
+  expect_is(cirs, "matrix")
 })
 
 test_that("adj.R: torus does not work as expected", {
