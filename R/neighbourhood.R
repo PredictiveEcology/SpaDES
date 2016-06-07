@@ -365,7 +365,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' Identify the pixels and coordinates that are at
 #'  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
-#'  to \code\link[rgeos]{gBuffer} but much faster and without the georeferencing information.
+#'  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
 #'  In other words, it can be used for similar problems, but where speed is important.
 #'
 #' @param landscape    Raster on which the circles are built.
@@ -427,7 +427,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' between the two functions is that \code{rings} takes the centre of the pixel
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example.
-#' \code\link[rgeos]{gBuffer}
+#' \code{\link[rgeos]{gBuffer}}
 #'
 #'@examples
 #' library(raster)
