@@ -73,11 +73,7 @@ associated with the ring or circle being identified by this function.
 \description{
 Identify the pixels and coordinates that are at
  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
-<<<<<<< HEAD
  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
-=======
- to \code\link[rgeos]{gBuffer} but much faster and without the georeferencing information.
->>>>>>> development
  In other words, it can be used for similar problems, but where speed is important.
 }
 \details{
@@ -156,10 +152,6 @@ is generally slower. One difference
 between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example.
-<<<<<<< HEAD
 \code{\link[rgeos]{gBuffer}}
-=======
-\code\link[rgeos]{gBuffer}
->>>>>>> development
 }
 
