@@ -532,6 +532,7 @@ test_that("spread benchmarking", {
 test_that("rings and cirs", {
 
   require(raster)
+  require(fpCompare)
   library(data.table)
   a <- raster(extent(0,1e2,0,1e2), res = 1)
   hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
@@ -565,20 +566,20 @@ test_that("rings and cirs", {
   a <- as.matrix(cirsEx)
   colnames(a)[match(c("eventID", "indices"),colnames(a))] <- c("mapID","to")
   dists <- .matchedPointDistance(a,b)
-  expect_true(radius*1.5 >= max(dists[,"dists"]))
-  expect_true(radius <= min(dists[,"dists"]))
+  expect_true((radius*1.5) %>=% max(dists[,"dists"]))
+  expect_true(radius %<=% min(dists[,"dists"]))
 
 
 
   ras1 <- raster(hab)
   ras1[] <- 0
-  cirsOverlap <- cirsEx[,list(sumIDs = sum(eventID)),by=indices]
+  cirsOverlap <- data.table(cirsEx)[,list(sumIDs = sum(eventID)),by=indices]
   ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
   #Plot(ras1, new=TRUE)
 
   ras3 <- raster(hab)
   ras3[] <- 0
-  cirsOverlap <- cirsIncl[,list(sumIDs = sum(eventID)),by=indices]
+  cirsOverlap <- data.table(cirsIncl)[,list(sumIDs = sum(eventID)),by=indices]
   ras3[cirsOverlap$indices] <- cirsOverlap$sumIDs
   ras3 <- ras1*10 + ras3
   #Plot(ras3)
@@ -586,8 +587,8 @@ test_that("rings and cirs", {
   expect_true(all(getValues(ras3) != 20)) # None should have only ras1, i.e., only circEx cells
 
 
-  cirsExSkinny <- cir(hab, caribou, maxRadius = radius, simplify = TRUE,
-                includeBehavior="excludePixels")
+  cirsExSkinny <- data.table(cir(hab, caribou, maxRadius = radius, simplify = TRUE,
+                includeBehavior="excludePixels"))
   expect_true(NROW(cirsExSkinny)==0)
 
 
@@ -596,30 +597,31 @@ test_that("rings and cirs", {
   caribou <- SpatialPoints(coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
                                           y = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5))
 
-  loci <- cellFromXY(hab, coordinates(caribou))
-  cirs <- cir(hab, caribou, maxRadius = radius*1.5, minRadius = radius, simplify = TRUE,
-              includeBehavior = "excludePixels")
-  cirs2 <- rings(hab, loci, minRadius = radius, maxRadius = radius*1.5)
+  loci <- cellFromXY(hab, coordinates(caribou)[1,])
+  cirs <- data.table(cir(hab, caribou[1,], maxRadius = radius*1.5001, minRadius = radius, simplify = TRUE,
+              includeBehavior = "excludePixels", returnDistances = TRUE))
+  cirs2 <- rings(hab, loci, minRadius = radius, maxRadius = radius*1.5001,
+                 includeBehavior = "includeRing")
 
+  range(cirs$dists)
+  range(cirs2$dists)
+  setkey(cirs2, dists, indices)
+  setkey(cirs,  dists, indices)
   ras1 <- raster(hab)
   ras1[] <- 0
   cirsOverlap <- cirs[,list(sumIDs = sum(eventID)),by=indices]
   ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-  #Plot(ras1, new=TRUE)
+  Plot(ras1, new=TRUE)
 
   ras2 <- raster(hab)
   ras2[] <- 0
   cirsOverlap2 <- cirs2[,list(sumIDs = sum(eventID)),by=indices]
   ras2[cirsOverlap2$indices] <- cirsOverlap2$sumIDs
   ras3 <- ras1 - ras2
-  #Plot(ras2, ras3, zero.color = "transparent")
+  Plot(ras2, ras3, zero.color = "transparent")
   expect_equal(0,sum(abs(getValues(ras3))))
 
-
   skip("Below here is just benchmarking, not testing")
-
-
-
 
   library(microbenchmark)
   microbenchmark(times = 10,

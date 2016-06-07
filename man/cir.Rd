@@ -38,7 +38,7 @@ then this will create a buffer or donut or ring.}
 \item{allowOverlap}{Logical. Should duplicates across eventID be removed or kept. Default TRUE.}
 
 \item{includeBehavior}{Character string. Currently accepts only "includePixels", the default,
-and "excludePixels"}
+and "excludePixels". See details.}
 
 \item{returnDistances}{Logical. If TRUE, then a column will be added to the returned
 data.table that reports the distance from \code{coords} to every
@@ -51,17 +51,26 @@ point that was in the circle/donut surrounding \code{coords}. Default
 FALSE.}
 
 \item{simplify}{logical. If TRUE, then all duplicate pixels are removed. This means
-that some x, y combinations will disappear}
+that some x, y combinations will disappear.}
 }
 \value{
-A \code{data.table} with 5 columns, \code{eventID}, \code{pixelIDs},
-\code{rasterVal}, \code{x}, \code{y}. The \code{x} and \code{y} indicate the
-coordinates of each
-unique pixel of the circle around each individual.
+A \code{matrix} with 4 columns, \code{eventID}, \code{indices},
+\code{x}, \code{y}. The \code{x} and \code{y} indicate the
+exact coordinates of pixel centres
+and the \code{indices} (i.e., cell number) are the unique pixels of the \code{landscape}
+associated with the ring or circle being identified by this function.
 }
 \description{
 Identify the pixels and coordinates that are at
  a (set of) buffer distance(s) of the objects passed into \code{coords}.
+ a (set of) buffer distance(s) of the objects passed into \code{coords}.
+}
+\details{
+This function identifies all the pixels as defined by a donut
+with inner radius minRadius and outer radius of maxRadius. The includeBehavior defines
+whether the cells that intersect the radii are included or not in the returned
+pixels identified. If this is excludeBehavior, and if a minRadius and maxRadius
+are equal, this will return no pixels.
 }
 \examples{
 library(raster)
