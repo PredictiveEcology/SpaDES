@@ -639,8 +639,8 @@ test_that("rings and cirs", {
 
   loci <- cellFromXY(hab, coordinates(caribou))
   radius = 15
-  microbenchmark(times = 200,
-                 cirs2 <- rings(hab, loci, minRadius = 0, maxRadius = radius),
+  microbenchmark(times = 400,
+                 #cirs2 <- rings(hab, loci, minRadius = 0, maxRadius = radius),
   aNoDists = cir(hab, coords = coordinates(caribou), allowOverlap = FALSE, returnDistances = FALSE,
             maxRadius = radius, minRadius = 0, includeBehavior = "includePixels"),
   aDists = cir(hab, coords = coordinates(caribou),
@@ -650,17 +650,28 @@ test_that("rings and cirs", {
   )
 
   #Unit: milliseconds
-  #expr           min        lq      mean    median        uq      max neval
-  #cirs2    20.477831 21.004403 22.693073 21.185647 21.421146 45.06472   200
-  #aNoDists  2.921299  3.031130  3.468129  3.130843  3.263256 27.43223   200
-  #aDists    4.211116  4.344702  4.767318  4.461426  4.619940 12.02070   200
+  #expr           min        lq      mean    median        uq       max neval
+  #cirs2    25412.453 25755.583 33040.352 26688.340 36125.005  87270.60   200
+  #aNoDists   934.076  954.4595  1098.388   963.697  975.8685  8149.194   400
+  #aDists    1617.404 1639.2535  1855.630  1656.263 1694.3885  9116.704   400
 
+  microbenchmark(times = 200,
+  noOverlap = cir(hab, coords = coordinates(caribou),
+               allowOverlap = FALSE, returnDistances = FALSE,
+               maxRadius = radius, minRadius = 0, includeBehavior = "includePixels",
+               returnAngles = TRUE),
+
+  yesOverlap = cir(hab, coords = coordinates(caribou),
+               allowOverlap = TRUE, returnDistances = FALSE,
+               maxRadius = radius, minRadius = 0, includeBehavior = "includePixels",
+               returnAngles = TRUE)
+  )
   # for profvis
-  for(i in 1:300)
+  for(i in 1:600)
   cir(hab, coords = coordinates(caribou),
-      allowOverlap = FALSE, returnDistances = TRUE,
+      allowOverlap = FALSE, returnDistances = FALSE,
       maxRadius = radius, minRadius = 0, includeBehavior = "includePixels",
-      returnAngles = TRUE)
+      returnAngles = FALSE)
 
 
   TEST <- TRUE

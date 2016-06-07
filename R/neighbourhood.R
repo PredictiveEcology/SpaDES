@@ -624,7 +624,11 @@ setMethod(
   #coords <- coordinates(spatialPoints)
 
   # create individual IDs for the number of points that will be done for their circle
-  eventID <- rep.int(seqNumInd, times = n.angles)
+  if(moreThanOne) {
+    eventID <- rep.int(seqNumInd, times = n.angles)
+  } else {
+    eventID <- 1
+  }
 
   # create vector of radius for the number of points that will be done for each individual circle
   rads <- rep.int(maxRadius, times = numAngles)
@@ -634,30 +638,44 @@ setMethod(
   ys <- rep.int(coords[, 2], times = n.angles)
 
   # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
-  angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
+  #angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
 
   # repeat this angle increment the number of times it needs to be done to complete the circles
-  angs <- rep.int(angle.inc, times = numAngles)
-  angles <- unlist(lapply(angle.inc, function(ai) seq(ai, pi*2, by=ai)))
+  #angs <- rep.int(angle.inc, times = numAngles)
+
+  #browser()
+  angles <- if(!is.null(dim(numAngles))) {
+
+
+    rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
+    #tmp2 <- rep(unlist(lapply(numAngles[,1], function(na) seq.int(na)*(pi*2/na))), ncol(numAngles))
+    #expect_true(all.equal(tmp1, tmp2))
+    #rep(unlist(lapply(numAngles[,1], function(na) seq.int(na)*(pi*2/na))), ncol(numAngles))
+
+  } else {
+    unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
+  }
+
+
+  # if(!is.null(dim(angle.inc))) {
+  #   tmp1 <- rep(unlist(lapply(angle.inc[,1], function(ai) seq(ai, pi*2, by=ai))), ncol(angle.inc))
+  #   tmp2 <- rep(unlist(lapply(numAngles[,1], function(na) seq.int(na)*(pi*2/na))), ncol(angle.inc))
+  #   expect_true(all.equal(tmp1, tmp2))
+  # }
 
   x <- cos(angles)*rads + xs
   y <- sin(angles)*rads + ys
   indices <- cellFromXY(landscape, cbind(x,y))
 
-  if(moreThanOne) {
+  if(moreThanOne & allowOverlap) {
     DT <- data.table(eventID, indices, rads, angles, x, y)
-
-    if(allowOverlap)
-        setkey(DT, "eventID", "indices")
-      else
-        setkey(DT, "indices")
+    setkey(DT, "eventID", "indices")
     DT <- unique(DT)
     DT <- na.omit(DT)
     MAT <- as.matrix(DT)
-
   } else {
     notDups <- !duplicated(indices)
-    MAT <- cbind(eventID=1, rads, angles, x, y, indices)
+    MAT <- cbind(eventID, rads, angles, x, y, indices)
     MAT <- MAT[notDups,,drop=FALSE]
     MAT <- na.omit(MAT)
   }
