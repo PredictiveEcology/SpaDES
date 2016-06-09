@@ -366,7 +366,9 @@ adj <- compiler::cmpfun(adj.raw)
 #' Identify the pixels and coordinates that are at
 #'  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
 #'  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
-#'  In other words, it can be used for similar problems, but where speed is important.
+#'  In other words, it can be used for similar problems, but where speed is important. This
+#'  code is substantially adapted from \code{\link[PlotRegionHighlighter]{createCircle}}, in
+#'  the PlotRegionHighlighter package.
 #'
 #' @param landscape    Raster on which the circles are built.
 #'
@@ -428,8 +430,9 @@ adj <- compiler::cmpfun(adj.raw)
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
 #' @rdname cir
-#' @seealso \code{\link{rings}} which uses \code{spread} under internally, but it
-#' is generally slower. One difference
+#' @seealso \code{\link{rings}} which uses \code{spread} under internally.
+#' \code{cir} tends to be faster when there are few starting points, \code{rings}
+#' tends to be faster when there are many starting points. Another difference
 #' between the two functions is that \code{rings} takes the centre of the pixel
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example.

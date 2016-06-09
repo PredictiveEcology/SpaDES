@@ -1288,6 +1288,7 @@ setMethod(
 #'                  all cells are considered \code{to}
 #' @inheritParams spread
 #' @rdname distances
+#' @name distanceFromEachPoint
 #' @aliases distanceFromEachPoint
 #' @return A sorted matrix on \code{id} with same number of rows as \code{to},
 #'         but with one extra column, \code{"dists"}
@@ -1338,6 +1339,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, asymmetry = NA_rea
 #' @param b matrix with 1 row and 2 columns, x and y, representing x and y coordinates of "from" cell
 #' @param a matrix with 2 columns, x and y, representing x and y coordinates of "to" cells
 #' @rdname distances
+#' @name pointDistance
 #' @aliases pointDistance
 .pointDistance <- function(a, b, asymmetry = NA_real_) {
 

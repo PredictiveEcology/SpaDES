@@ -181,7 +181,7 @@
 #'   \code{\link{defineParameter}} \tab Specify a parameter's name, value and set a default\cr
 #' }
 #'
-#' @section 2.2 Spatial spreading:
+#' @section 2.2 Spatial spreading/distances methods:
 #'
 #' Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
 #' be modelled using discrete approaches or continuous approaches. Several \code{SpaDES} functions assist
@@ -192,7 +192,9 @@
 #'   \code{\link{rings}} \tab Identify rings around focal cells (e.g., buffers and donuts)\cr
 #'   \code{\link{adj}} \tab An optimized (i.e., faster) version of \code{\link[raster]{adjacent}}\cr
 #'   \code{\link{cir}} \tab Identify pixels in a circle around a \code{\link[sp:SpatialPoints-class]{SpatialPoints*}} object\cr
+#'   \code{\link{distanceFromEachPoint}} \tab Fast calculation of distance surfaces\cr
 #' }
+#'
 #'
 #' @section 2.3 Spatial agent methods:
 #'
