@@ -772,7 +772,7 @@ test_that("rings and cirs", {
         TEST <- all(table(getValues(ras1ClumpSm)) > 2)
         print(count)
   }
-  Plot(ras1, ras1Clump, new=TRUE)
+  if(interactive()) Plot(ras1, ras1Clump, new=TRUE)
 
   tmpDT <- data.table(tmp)
   setkey(tmpDT, oneClump)

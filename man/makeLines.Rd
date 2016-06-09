@@ -31,7 +31,7 @@ caribou1 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, 
 caribou2 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
 
 caribouTraj <- makeLines(caribou1, caribou2)
-Plot(caribouTraj, new=TRUE, length=0.1)
+if(interactive()) Plot(caribouTraj, new=TRUE, length=0.1)
 
 # or  to a previous Plot
 \dontrun{
@@ -46,9 +46,9 @@ filelist <- data.frame(files =
 
 # Load files to memory (using rasterToMemory)
 sim1 <- loadFiles(filelist=filelist)
+caribouTraj <- makeLines(caribou1, caribou2)
 
 Plot(sim1$DEM, new=TRUE)
-caribouTraj <- makeLines(caribou1, caribou2)
 Plot(caribouTraj, addTo="sim1$DEM", length=0.1)
 }
 

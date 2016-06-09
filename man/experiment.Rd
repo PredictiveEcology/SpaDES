@@ -212,7 +212,7 @@ only \code{dirPrefix}.
   # Read in outputs from sims object
   FireMaps <- do.call(stack, lapply(1:NROW(attr(sims, "experiment")$expDesign),
                      function(x) sims[[x]]$landscape$Fires))
-  Plot(FireMaps, new = TRUE)
+  if(interactive()) Plot(FireMaps, new = TRUE)
 
   # Or reload objects from files, useful if sim objects too large to store in RAM
   caribouMaps <- lapply(sims, function(sim) {
@@ -221,7 +221,7 @@ only \code{dirPrefix}.
   names(caribouMaps) <- paste0("caribou",1:8)
   # Plot does not plot whole lists (yet)
   for(i in 1:NROW(attr(sims,"experiment")$expDesign)){
-    Plot(caribouMaps[[i]], size = 0.1)}
+    if(interactive()) Plot(caribouMaps[[i]], size = 0.1)}
 
 # Example 2 - test alternative modules
   # Example of changing modules, i.e., caribou with and without fires
@@ -325,7 +325,7 @@ only \code{dirPrefix}.
   Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) \%>\% stack
   Fires[Fires > 0] <- 1 # convert to 1s and 0s
   fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
-  Plot(fireProb, new = TRUE)
+  if(interactive()) Plot(fireProb, new = TRUE)
 
 # Example 9 - Pass in inputs, i.e., input data objects taken from disk
   #  Here, we, again, don't provide randomLandscapes module, so we need to

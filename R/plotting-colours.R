@@ -125,7 +125,7 @@ setMethod("getColors",
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
-})
+           })
 
 #' @rdname setColors
 #' @importFrom raster is.factor
@@ -152,7 +152,7 @@ setReplaceMethod(
     }
     if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
-})
+  })
 
 #' @rdname setColors
 #' @importFrom raster is.factor
@@ -225,7 +225,7 @@ setMethod(
   function(object, value, n) {
     setColors(object = object, n = n) <- value
     return(object)
-})
+  })
 
 #' @rdname setColors
 setMethod(
@@ -234,7 +234,7 @@ setMethod(
   function(object, value) {
     setColors(object = object) <- value
     return(object)
-})
+  })
 
 ################################################################################
 #' Convert Raster to color matrix useable by raster function for plotting
@@ -288,8 +288,8 @@ setGeneric(".makeColorMatrix",
            function(grobToPlot, zoomExtent, maxpixels, legendRange,
                     cols = NULL, na.color = "#FFFFFF00", zero.color = NULL,
                     skipSample = TRUE) {
-  standardGeneric(".makeColorMatrix")
-})
+             standardGeneric(".makeColorMatrix")
+           })
 
 #' @rdname makeColorMatrix
 setMethod(

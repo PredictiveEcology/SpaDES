@@ -34,7 +34,7 @@ polygon values, using code drawn from
 }
 \examples{
 Ras <- randomPolygons(numTypes = 5)
-Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+if(interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
 }
 \references{
 Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.

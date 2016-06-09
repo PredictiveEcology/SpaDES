@@ -6,11 +6,13 @@
 \alias{rings,RasterLayer-method}
 \title{Identifies all cells within a ring around the focal cells}
 \usage{
-rings(landscape, loci = NA_real_, mapID = FALSE, minRadius = 2,
-  maxRadius = 5, allowOverlap = FALSE, ...)
+rings(landscape, loci = NA_real_, id = FALSE, minRadius = 2,
+  maxRadius = 5, allowOverlap = FALSE, returnIndices = FALSE,
+  returnDistances = TRUE, ...)
 
-\S4method{rings}{RasterLayer}(landscape, loci = NA_real_, mapID = FALSE,
-  minRadius = 2, maxRadius = 5, allowOverlap = FALSE, ...)
+\S4method{rings}{RasterLayer}(landscape, loci = NA_real_, id = FALSE,
+  minRadius = 2, maxRadius = 5, allowOverlap = FALSE,
+  returnIndices = FALSE, returnDistances = TRUE, ...)
 }
 \arguments{
 \item{landscape}{A \code{RasterLayer} object. This defines the possible locations
@@ -21,7 +23,7 @@ be used as part of \code{stopRule}. Require input.}
 If user has x and y coordinates, these can be converted with
 \code{\link[raster]{cellFromXY}}.}
 
-\item{mapID}{Logical. If TRUE, returns a raster of events ids.
+\item{id}{Logical. If TRUE, returns a raster of events ids.
 If FALSE, returns a raster of iteration numbers,
 i.e., the spread history of one or more events. NOTE:
 this is overridden if \code{returnIndices} is \code{TRUE}.}
@@ -35,6 +37,14 @@ this is inclusive, i.e., <=}
 \item{allowOverlap}{Logical. If \code{TRUE}, then individual events can overlap with one
 another, i.e., they do not interact. Currently, this is slower than
 if \code{allowOverlap} is \code{FALSE}. Default is \code{FALSE}.}
+
+\item{returnIndices}{Logical. Should the function return a data.table with
+indices and values of successful spread events, or
+return a raster with values. See Details.}
+
+\item{returnDistances}{Logical. Should the function inclue a column with the
+individual cell distances from the locus where that event
+started. Default is FALSE. See Details.}
 
 \item{...}{Any other argument passed to \code{spread}}
 }
@@ -62,27 +72,36 @@ loci <- (ncell(emptyRas)/2 - ncol(emptyRas))/2 + c(-3, 3)
 # Allow overlap
 emptyRas[] <- 0
 Rings <- rings(emptyRas, loci = loci, allowOverlap = TRUE)
-# Make a raster that adds together all eventID in a cell
-wOverlap <- Rings[,list(sumEventID=sum(eventID)),by="indices"]
+# Make a raster that adds together all id in a cell
+wOverlap <- Rings[,list(sumEventID=sum(id)),by="indices"]
 emptyRas[wOverlap$indices] <- wOverlap$sumEventID
-Plot(emptyRas, new = TRUE)
+if(interactive())
+  Plot(emptyRas, new = TRUE)
 
 # No overlap is default, occurs randomly
 emptyRas[] <- 0
 Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9)
-emptyRas[Rings$indices] <- Rings$eventID
-Plot(emptyRas, new=TRUE)
+emptyRas[Rings$indices] <- Rings$id
+if(interactive())
+  Plot(emptyRas, new=TRUE)
 
 # Variable ring widths, including centre cell for smaller one
 emptyRas[] <- 0
 Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18))
-emptyRas[Rings$indices] <- Rings$eventID
-Plot(emptyRas, new=TRUE)
+emptyRas[Rings$indices] <- Rings$id
+if(interactive())
+  Plot(emptyRas, new=TRUE)
 }
 \author{
 Eliot McIntire
 }
 \seealso{
-\code{\link{cir}} which does similar things, but much faster.
+\code{\link{cir}} which uses a different algorithm.
+\code{cir} tends to be faster when there are few starting points, \code{rings}
+tends to be faster when there are many starting points. Another difference
+between the two functions is that \code{rings} takes the centre of the pixel
+as the centre of a circle, whereas \code{cir} takes the exact coordinates.
+See example.
+\code{\link[rgeos]{gBuffer}}
 }
 

@@ -1451,8 +1451,8 @@ setMethod(
 #' if(interactive()) {
 #'
 #'   Plot(ras, new=T)
-#'   \notrun{
-#'   dev(2)
+#'   \dontrun{
+#'     dev(2)
 #'   }
 #'   Plot(landscape, new = TRUE)
 #'

@@ -417,7 +417,7 @@ setMethod(
 #' caribou2 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
 #'
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' Plot(caribouTraj, new=TRUE, length=0.1)
+#' if(interactive()) Plot(caribouTraj, new=TRUE, length=0.1)
 #'
 #' # or  to a previous Plot
 #' \dontrun{
@@ -560,11 +560,11 @@ setMethod(
 
 
       # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
-#       if (identical(
-#         tmpParseTxt3,
-#       parseTxt[[3]])) {
-#         lastOneDone = TRUE
-#       }
+      #       if (identical(
+      #         tmpParseTxt3,
+      #       parseTxt[[3]])) {
+      #         lastOneDone = TRUE
+      #       }
       lastOneDone <- TRUE
       parseTxt[[3]] <- tmpParseTxt3
     }
@@ -588,9 +588,9 @@ setMethod(
     # if evaluating the parsed text is a character,
     # then this is likely then name we want to keep:
     isChar <- tryCatch(
-        is(eval(elems[[i]], envir = eminus1), "character"),
-        error = function(x) { FALSE }
-      )
+      is(eval(elems[[i]], envir = eminus1), "character"),
+      error = function(x) { FALSE }
+    )
     if (isChar) {
       elems[[i]] <- as.name(eval(elems[[i]], envir = eminus1))
     }
@@ -598,13 +598,13 @@ setMethod(
     i = i + 1
   }
 
-#   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
-#     exists(deparse(parseTxt), envir = x, inherits = FALSE)))] %>%
-#     .[[length(.)]]
+  #   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
+  #     exists(deparse(parseTxt), envir = x, inherits = FALSE)))] %>%
+  #     .[[length(.)]]
   envs <- append(.GlobalEnv, sys.frames()) %>%
     .[c(TRUE, sapply(sys.frames(), function(x) {
       exists(deparse(parseTxt), envir = x, inherits = FALSE)
-      }))] %>%
+    }))] %>%
     .[[length(.)]]
 
   inGlobal <- identical(envs, .GlobalEnv)
@@ -634,7 +634,7 @@ setMethod(
                    toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     } else { # If it is NOT a simList.
       changeObjEnv(paste(sapply(rev(elems), deparse), collapse = "$"),
-                 fromEnv = envs, toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
+                   fromEnv = envs, toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     }
   }
 
@@ -673,8 +673,8 @@ setMethod(
 #' @author Eliot McIntire
 #'
 objectNames <- function(calledFrom = "Plot",
-                         argClass = ".spadesPlotObjects",
-                         argName = "") {
+                        argClass = ".spadesPlotObjects",
+                        argName = "") {
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -686,7 +686,7 @@ objectNames <- function(calledFrom = "Plot",
   if (nchar(argName) == 0) {
     callNamedArgs <- as.character(substitute(list(...), env = e))[-1]
   } else {
-  #  callNamedArgs <- as.character(substitute(parse(text = argName)))[-1]
+    #  callNamedArgs <- as.character(substitute(parse(text = argName)))[-1]
     callNamedArgs <- as.character(substitute(parse(text = sim), env = e))[-1]
   }
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
@@ -715,4 +715,4 @@ setGeneric("gpar", function(...) {
 setMethod("gpar",
           definition = function(...) {
             return(grid::gpar(...))
-})
+          })

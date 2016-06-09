@@ -12,24 +12,25 @@
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
   minRadius = maxRadius, allowOverlap = TRUE,
   includeBehavior = "includePixels", returnDistances = FALSE,
-  returnAngles = FALSE, simplify = TRUE)
+  returnAngles = FALSE, closest = FALSE, simplify = TRUE)
 
 \S4method{cir}{RasterLayer,SpatialPoints,missing}(landscape, coords, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, simplify)
+  returnAngles, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,numeric}(landscape, loci, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, simplify)
+  returnAngles, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,missing}(landscape, loci, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, simplify)
+  returnAngles, closest, simplify)
 
 \S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
   maxRadius = ncol(landscape)/4, minRadius = maxRadius,
   allowOverlap = TRUE, includeBehavior = "includePixels",
-  returnDistances = FALSE, returnAngles = FALSE, simplify = TRUE)
+  returnDistances = FALSE, returnAngles = FALSE, closest = FALSE,
+  simplify = TRUE)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
@@ -50,7 +51,7 @@ point in centre of \code{landscape}..}
 by the narrow ring at that exact radius. If smaller than \code{maxRadius},
 then this will create a buffer or donut or ring.}
 
-\item{allowOverlap}{Logical. Should duplicates across eventID be removed or kept. Default TRUE.}
+\item{allowOverlap}{Logical. Should duplicates across id be removed or kept. Default TRUE.}
 
 \item{includeBehavior}{Character string. Currently accepts only "includePixels", the default,
 and "excludePixels". See details.}
@@ -69,7 +70,7 @@ FALSE.}
 that some x, y combinations will disappear.}
 }
 \value{
-A \code{matrix} with 4 columns, \code{eventID}, \code{indices},
+A \code{matrix} with 4 columns, \code{id}, \code{indices},
 \code{x}, \code{y}. The \code{x} and \code{y} indicate the
 exact coordinates of
 the \code{indices} (i.e., cell number) of the \code{landscape}
@@ -79,7 +80,9 @@ associated with the ring or circle being identified by this function.
 Identify the pixels and coordinates that are at
  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
- In other words, it can be used for similar problems, but where speed is important.
+ In other words, it can be used for similar problems, but where speed is important. This
+ code is substantially adapted from \code{\link[PlotRegionHighlighter]{createCircle}}, in
+ the PlotRegionHighlighter package.
 }
 \details{
 This function identifies all the pixels as defined by a donut
@@ -99,9 +102,11 @@ Ras <- raster(extent(0, 15, 0, 15), res = 1)
 Ras[] <- 0
 middleCircle <- cir(Ras)
 Ras[middleCircle[,"indices"]] <- 1
-Plot(Ras, new=TRUE)
 circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
-Plot(circlePoints, addTo = "Ras")
+if(interactive()) {
+  Plot(Ras, new=TRUE)
+  Plot(circlePoints, addTo = "Ras")
+}
 
 # circles non centred
 Ras <- randomPolygons(Ras, numTypes = 4)
@@ -113,10 +118,13 @@ cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0
 cirsRas[cirs[, "indices"]] <- 1
-Plot(Ras, new = TRUE)
-Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-Plot(caribou, addTo = "Ras")
-Plot(cirsSP, addTo = "Ras")
+
+if(interactive()) {
+  Plot(Ras, new = TRUE)
+  Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
+  Plot(caribou, addTo = "Ras")
+  Plot(cirsSP, addTo = "Ras")
+}
 
 # Example comparing rings and cir
 a <- raster(extent(0,30,0,30), res = 1)
@@ -131,38 +139,31 @@ cirs <- cir(hab, caribou, maxRadius = rep(radius, length(caribou)), simplify = T
 
 # rings
 loci <- cellFromXY(hab, coordinates(caribou))
-cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1)
+cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1, returnIndices = TRUE)
 
 # Plot both
 ras1 <- raster(hab)
 ras1[] <- 0
-ras1[cirs[,"indices"]] <- cirs[,"eventID"]
-Plot(ras1, new=TRUE)
+ras1[cirs[,"indices"]] <- cirs[,"id"]
 
 ras2 <- raster(hab)
 ras2[] <- 0
-ras2[cirs2$indices] <- cirs2$eventID
-Plot(ras2)
+ras2[cirs2$indices] <- cirs2$id
+if(interactive()) Plot(ras1, ras2, new=TRUE)
 
 a <- raster(extent(0,100,0,100), res = 1)
 hab <- gaussMap(a,speedup = 1)
 cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
 ras1 <- raster(hab)
 ras1[] <- 0
-cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(eventID)),by=indices]
+cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-Plot(ras1, new=TRUE)
-
-# using loci instead of coords
-cirs <- cir(hab, loci = 4550, maxRadius = 14, minRadius = 0)
-ras1[] <- 0
-ras1[cirs[,"indices"]] <- cirs[,"eventID"]
-Plot(ras1, new=TRUE)
-
+if(interactive()) Plot(ras1, new=TRUE)
 }
 \seealso{
-\code{\link{rings}} which uses \code{spread} under internally, but it
-is generally slower. One difference
+\code{\link{rings}} which uses \code{spread} under internally.
+\code{cir} tends to be faster when there are few starting points, \code{rings}
+tends to be faster when there are many starting points. Another difference
 between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example.
