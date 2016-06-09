@@ -401,6 +401,10 @@ adj <- compiler::cmpfun(adj.raw)
 #'                        point that was in the circle/donut surrounding \code{coords}. Default
 #'                        FALSE.
 #'
+#' @param closest Logical. When determining non-overlapping circles, should the function
+#'                give preference to the closest \code{loci} or the first one (much faster).
+#'                Default is FALSE, meaning the faster, though maybe not desired behavior.
+#'
 #' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
 #' that some x, y combinations will disappear.
 #'
@@ -497,20 +501,13 @@ adj <- compiler::cmpfun(adj.raw)
 #' ras1[] <- 0
 #' cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 #' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-#' Plot(ras1, new=TRUE)
-#'
-#' # using loci instead of coords
-#' cirs <- cir(hab, loci = 4550, maxRadius = 14, minRadius = 0)
-#' ras1[] <- 0
-#' ras1[cirs[,"indices"]] <- cirs[,"eventID"]
-#' Plot(ras1, new=TRUE)
-#'
+#' if(interactive()) Plot(ras1, new=TRUE)
 setGeneric("cir", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
                            allowOverlap = TRUE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            returnAngles = FALSE,
-                           simplify = TRUE) {
+                           closest = FALSE, simplify = TRUE) {
   standardGeneric("cir")
 })
 
@@ -521,11 +518,12 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
   definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances, returnAngles,
-                        simplify) {
+                        closest, simplify) {
     coords <- coordinates(coords)
     cir(landscape, coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
-        returnDistances = returnDistances, returnAngles = returnAngles, simplify = simplify)
+        returnDistances = returnDistances, returnAngles = returnAngles,
+        closest = closest, simplify = simplify)
     })
 
 #' @export
@@ -535,11 +533,12 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "missing", loci = "numeric"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances, returnAngles,
-                        simplify) {
+                        closest, simplify) {
     coords <- xyFromCell(landscape, loci)
     cir(landscape, coords=coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
-        returnDistances = returnDistances, returnAngles = returnAngles, simplify = simplify)
+        returnDistances = returnDistances, returnAngles = returnAngles,
+        closest = closest, simplify = simplify)
   })
 
 #' @export
@@ -549,13 +548,14 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "missing", loci = "missing"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances, returnAngles,
-                        simplify) {
+                        closest, simplify) {
     ncells <- ncell(landscape)
     middleCell <- if(identical(ncells/2, floor(ncells/2))) ncells/2 - ncol(landscape)/2 else round(ncells/2)
     coords <- xyFromCell(landscape, middleCell)
     cir(landscape, coords=coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
-        returnDistances = returnDistances, returnAngles = returnAngles, simplify = simplify)
+        returnDistances = returnDistances, returnAngles = returnAngles,
+        closest = closest, simplify = simplify)
   })
 
 #' @export
@@ -565,8 +565,10 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "matrix", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances,
-                        returnAngles, simplify) {
-    scaleRaster <- res(landscape)
+                        returnAngles, closest, simplify) {
+  ### adapted from createCircle of the package PlotRegionHighlighter
+
+  scaleRaster <- res(landscape)
   if(scaleRaster[1] != scaleRaster[2]) stop("cir function only accepts rasters with identical ",
                                             "resolution in x and y dimensions")
 
@@ -776,12 +778,12 @@ setMethod(
 #' ln <- rlnorm(N, 1, 0.02) # log normal step length
 #' sd <- 30 # could be specified globally in params
 #'
-#' Plot(hab, zero.color = "white", new = TRUE, axes = "L")
+#' if(interactive()) Plot(hab, zero.color = "white", new = TRUE, axes = "L")
 #' for(i in 1:10) {
 #'   caribou <- SpaDES::crw(agent = caribou,
 #'                          extent = extent(hab), stepLength = ln,
 #'                          stddev = sd, lonlat = FALSE, torus = TRUE)
-#'   Plot(caribou, addTo = "hab", axes = TRUE)
+#'   if(interactive()) Plot(caribou, addTo = "hab", axes = TRUE)
 #' }
 setGeneric("wrap", function(X, bounds, withHeading) {
   standardGeneric("wrap")
