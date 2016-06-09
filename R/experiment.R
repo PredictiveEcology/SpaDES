@@ -384,8 +384,8 @@ setGeneric(
   function(sim, replicates = 1, params, modules, objects = list(), inputs,
            dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
            experimentFile = "experiment.RData", clearSimEnv = FALSE, ...) {
-  standardGeneric("experiment")
-})
+    standardGeneric("experiment")
+  })
 
 #' @rdname experiment
 setMethod(

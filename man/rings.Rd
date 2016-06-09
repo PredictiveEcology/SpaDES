@@ -71,7 +71,7 @@ loci <- (ncell(emptyRas)/2 - ncol(emptyRas))/2 + c(-3, 3)
 
 # Allow overlap
 emptyRas[] <- 0
-Rings <- rings(emptyRas, loci = loci, allowOverlap = TRUE)
+Rings <- rings(emptyRas, loci = loci, allowOverlap = TRUE, returnIndices = TRUE)
 # Make a raster that adds together all id in a cell
 wOverlap <- Rings[,list(sumEventID=sum(id)),by="indices"]
 emptyRas[wOverlap$indices] <- wOverlap$sumEventID

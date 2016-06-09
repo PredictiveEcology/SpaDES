@@ -634,9 +634,8 @@ test_that("rings and cirs", {
                                           y = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5))
 
   loci <- cellFromXY(hab, coordinates(caribou))
-  dists1 <- rings(hab, loci, minRadius = radius, maxRadius = ncol(hab), returnDistances = TRUE,
+  dists1 <- rings(hab, loci, minRadius = 0, maxRadius = ncol(hab), returnDistances = TRUE,
                  includeBehavior = "includeRing")
-  dists2 <- distanceFromPoints(hab, coordinates(caribou))
   dists2 <- distanceFromPoints(hab, coordinates(caribou))
   if(interactive()) Plot(dists1, dists2, new=TRUE)
   diffDists <- abs(dists1 - dists2)
