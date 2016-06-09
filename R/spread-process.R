@@ -164,6 +164,10 @@ if (getRversion() >= "3.1.0") {
 #'                      indices and values of successful spread events, or
 #'                      return a raster with values. See Details.
 #'
+#' @param returnDistances Logical. Should the function inclue a column with the
+#'                      individual cell distances from the locus where that event
+#'                      started. Default is FALSE. See Details.
+#'
 #' @param spreadProbLater    Numeric or rasterLayer. If provided, then this
 #'                      will become the spreadProb after the first iteration. See details.
 #'
@@ -251,7 +255,7 @@ if (getRversion() >= "3.1.0") {
 #' @author Eliot McIntire
 #' @author Steve Cumming
 #' @seealso \code{\link{rings}} which uses \code{spread} but with specific argument
-#' values selected for a specific purpose.
+#' values selected for a specific purpose. \code{\link[raster]{distanceFromPoints}}
 #'
 #' @name spread
 #' @aliases spread
