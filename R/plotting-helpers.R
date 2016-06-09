@@ -432,9 +432,9 @@ setMethod(
 #'
 #' # Load files to memory (using rasterToMemory)
 #' sim1 <- loadFiles(filelist=filelist)
+#' caribouTraj <- makeLines(caribou1, caribou2)
 #'
 #' Plot(sim1$DEM, new=TRUE)
-#' caribouTraj <- makeLines(caribou1, caribou2)
 #' Plot(caribouTraj, addTo="sim1$DEM", length=0.1)
 #' }
 #'

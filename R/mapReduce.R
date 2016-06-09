@@ -50,7 +50,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' communities <- rasterizeReduced(reducedDT, fullRas, "communities")
 #' setColors(communities) <- c("blue", "orange", "red")
-#' Plot(biomass, communities, fullRas, new=TRUE)
+#' if(interactive()) Plot(biomass, communities, fullRas, new=TRUE)
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
 
   reduced <- data.table(reduced)

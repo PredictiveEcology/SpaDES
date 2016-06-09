@@ -131,7 +131,7 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @examples
 #' Ras <- randomPolygons(numTypes = 5)
-#' Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+#' if(interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
 randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
                            numTypes = 2, ...){
 

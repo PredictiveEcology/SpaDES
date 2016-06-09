@@ -98,13 +98,16 @@ numAgents <- function(N, probInit) {
 #' map <- gaussMap(map, scale=1, var = 4, speedup=1)
 #' pr <- probInit(map, p=(map/maxValue(map))^2)
 #' agents <- initiateAgents(map, 100, pr)
-#' Plot(map, new=TRUE)
-#' Plot(agents, addTo="map")
+#' if(interactive()) {
+#'   Plot(map, new=TRUE)
+#'   Plot(agents, addTo="map")
+#' }
 #'
 #' # If producing a Raster, then the number of points produced can't be more than
 #' # the number of pixels:
 #' agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints=FALSE)
-#' Plot(agentsRas)
+#' if(interactive())
+#'   Plot(agentsRas)
 #'
 #' # Check that the agents are more often at the higher probability areas based on pr
 #' out <- data.frame(stats::na.omit(crosstab(agentsRas, map)), table(round(map[]))) %>%
@@ -115,7 +118,7 @@ numAgents <- function(N, probInit) {
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints = TRUE, indices) {
             standardGeneric("initiateAgents")
-})
+          })
 
 #' @rdname initiateAgents
 setMethod(
@@ -123,7 +126,7 @@ setMethod(
   signature = c("Raster", "missing", "missing", "ANY", "missing"),
   function(map, numAgents, probInit, asSpatialPoints) {
     initiateAgents(map, indices = 1:ncell(map), asSpatialPoints = asSpatialPoints)
-})
+  })
 
 #' @rdname initiateAgents
 setMethod(
@@ -132,7 +135,7 @@ setMethod(
   function(map, probInit, asSpatialPoints) {
     wh <- which(runif(ncell(probInit)) < getValues(probInit))
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
-})
+  })
 
 #' @rdname initiateAgents
 setMethod(
@@ -141,7 +144,7 @@ setMethod(
   function(map, numAgents, probInit, asSpatialPoints, indices) {
     wh <- sample(1:ncell(map), size = numAgents, replace = asSpatialPoints)
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
-})
+  })
 
 #' @rdname initiateAgents
 setMethod(
@@ -152,7 +155,7 @@ setMethod(
     wh <- sample(1:ncell(probInit), numAgents, replace = asSpatialPoints,
                  prob = vals/sum(vals))
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
-})
+  })
 
 #' @rdname initiateAgents
 setMethod(
@@ -168,7 +171,7 @@ setMethod(
       tmp[indices] <- 1
       return(tmp)
     }
-})
+  })
 
 ################################################################################
 #' \code{SELES} - Agent Location at initiation
@@ -193,16 +196,16 @@ setMethod(
 #' @rdname SELESagentLocation
 #' @author Eliot McIntire
 agentLocation <- function(map) {
-    if (length(grep(pattern = "Raster", class(map))) == 1) {
-        map[map == 0] <- NA
-    } else if (length(grep(pattern = "SpatialPoints", class(map))) == 1) {
-        map
-    } else if (!is.na(pmatch("SpatialPolygons", class(map)))) {
-        map
-    } else {
-        stop("only raster, Spatialpoints or SpatialPolygons implemented")
-    }
-    return(map)
+  if (length(grep(pattern = "Raster", class(map))) == 1) {
+    map[map == 0] <- NA
+  } else if (length(grep(pattern = "SpatialPoints", class(map))) == 1) {
+    map
+  } else if (!is.na(pmatch("SpatialPolygons", class(map)))) {
+    map
+  } else {
+    stop("only raster, Spatialpoints or SpatialPolygons implemented")
+  }
+  return(map)
 }
 
 ##############################################################

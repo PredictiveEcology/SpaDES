@@ -300,31 +300,33 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' # Can use transparent as a color
 #' setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 #'
-#' Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
+#' if(interactive())
+#'   Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
 #'                              # so, some details are lost
 #'
 #' # initiate 10 fires
 #' startCells <- as.integer(sample(1:ncell(emptyRas),10))
 #' fires <- spread(hab, loci = startCells,
-#'                 0.235, 0, NULL, 1e8, 8, 1e6, mapID = TRUE)
+#'                 0.235, 0, NULL, 1e8, 8, 1e6, id = TRUE)
 #' #set colors of raster, including a transparent layer for zeros
 #' setColors(fires, 10) <- c("transparent", brewer.pal(8,"Reds")[5:8])
-#' Plot(fires, new = TRUE)
-#' Plot(fires,addTo = "hab")
+#' if(interactive()) {
+#'   Plot(fires, new = TRUE)
+#'   Plot(fires,addTo = "hab")
 #'
-#' #alternatively, set colors using cols= in the Plot function
-#' Plot(hab, new = TRUE)
-#' Plot(fires) # default color range makes zero transparent.
-#' # Instead, to give a color to the zero values, use \code{zero.color=}
-#' Plot(fires, addTo = "hab",
+#'   #alternatively, set colors using cols= in the Plot function
+#'   Plot(hab, new = TRUE)
+#'   Plot(fires) # default color range makes zero transparent.
+#'   # Instead, to give a color to the zero values, use \code{zero.color=}
+#'   Plot(fires, addTo = "hab",
+#'        cols = colorRampPalette(c("orange","darkred"))(10))
+#'   hab2 <- hab
+#'   Plot(hab2)
+#'   Plot(fires, addTo = "hab2", zero.color = "white",
 #'      cols = colorRampPalette(c("orange","darkred"))(10))
-#' hab2 <- hab
-#' Plot(hab2)
-#' Plot(fires, addTo = "hab2", zero.color = "white",
-#'      cols = colorRampPalette(c("orange","darkred"))(10))
-#' # or overplot the original (NOTE: legend stays at original values)
-#' Plot(fires,
-#'      cols = topo.colors(10))
+#'   # or overplot the original (NOTE: legend stays at original values)
+#'   Plot(fires, cols = topo.colors(10))
+#' }
 #'
 #' ####################
 #' ## Continue event by passing interrupted object into spreadState
@@ -356,7 +358,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' fullRas[] <- 1:ncell(hab)
 #' burned <- fires[active == FALSE]
 #' burnedMap <- rasterizeReduced(burned, fullRas, "eventID", "indices")
-#' Plot(burnedMap, new=TRUE)
+#' if(interactive())
+#'   Plot(burnedMap, new=TRUE)
 #'
 #' ####################
 #' ## stopRule examples
@@ -403,20 +406,23 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' #    stopRule in place, spreadProb = 1
 #' diamonds <- spread(hab>0, spreadProb = 1, directions = 4,
 #'    mapID = TRUE, stopRule = stopRule2)
-#' Plot(diamonds, new=TRUE)
+#' if(interactive())
+#'   Plot(diamonds, new=TRUE)
 #'
 #' # Squares - can make them with: a boolean raster, directions = 8,
 #' #    stopRule in place, spreadProb = 1
 #' squares <- spread(hab>0, spreadProb = 1, directions = 8,
 #'    mapID = TRUE, stopRule = stopRule2)
-#' Plot(squares)
+#' if(interactive())
+#'   Plot(squares)
 #'
 #' # Interference shapes - can make them with: a boolean raster, directions = 8,
 #' #    stopRule in place, spreadProb = 1
 #' stopRule2 <- function(landscape) sum(landscape)>200
 #' squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 4, mapID = TRUE, stopRule = stopRule2)
-#' Plot(squashedDiamonds, new=TRUE)
+#' if(interactive())
+#'   Plot(squashedDiamonds, new=TRUE)
 #'
 #' # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
 #' stopRule2 <- function(landscape) sum(landscape)>200
@@ -428,7 +434,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 8, mapID = TRUE)#, stopRule = stopRule2)
 #'    print(seed)
-#' Plot(circlish, regularCA, new=TRUE)
+#' if(interactive())
+#'   Plot(circlish, regularCA, new=TRUE)
 #'
 #'
 #' ####################
@@ -451,7 +458,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' #    directions = 8, mapID = TRUE, stopRule = stopRule3,
 #' #    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 #'
-#' Plot(TwoCirclesDiffSize, new=TRUE)
+#' if(interactive())
+#'   Plot(TwoCirclesDiffSize, new=TRUE)
 #' cirs <- getValues(TwoCirclesDiffSize)
 #' vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 #'
@@ -482,7 +490,8 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'  overlapEvents[] <- 0
 #'  toMap <- circs[,sum(eventID),by=indices]
 #'  overlapEvents[toMap$indices] <- toMap$V1
-#'  Plot(overlapEvents, new=TRUE)
+#'  if(interactive())
+#'    Plot(overlapEvents, new=TRUE)
 #'
 #'
 setMethod(
@@ -880,7 +889,6 @@ setMethod(
                   startLen <- sum(!newOnes)
                   addIncr <- 1
                   done <- FALSE
-                  #browser()
                   args <- append(list(mapID=mapID),
                                  lapply(colNamesPotentials[-1], function(j) tmp3[1:startLen,j])) # instead of as.data.frame
                   names(args) <- colNamesPotentials
@@ -888,7 +896,6 @@ setMethod(
                   argsSeq <- seq_along(colNamesPotentials[-1])+1
 
                   while(!done) {
-                    #browser()
                     args[argsSeq] <- lapply(colNamesPotentials[-1], function(j) unname(c(args[[j]],tmp3[(startLen+addIncr),j]))) # instead of as.data.frame
                     #names(args) <- colNamesPotentials[-1]
                     #names(args) <- colNamesPotentials[-1]
@@ -897,7 +904,6 @@ setMethod(
                     #args1 <- append(as.data.frame(tmp3[1:(startLen+addIncr),]), otherVars)
                     #args <- args[-(names(args)=="mapID")]
                     #args <- append(args, list(mapID=mapID))
-                    #browser()
                     #wh <- match(names(formals(stopRule)),names(args))
                     done <- do.call(stopRule, args[whArgs])
                     addIncr <- addIncr+1
@@ -1062,7 +1068,6 @@ setMethod(
         if(circle) keepCols <- c(keepCols, 5)
         allCells <- data.table(spreads[,keepCols]) # change column order to match non allowOverlap
         set(allCells, , j = "active", as.logical(allCells$active))
-        #allCells[,active:=as.logical(active)]
       }
       allCells[]
       return(allCells)
@@ -1111,7 +1116,13 @@ setMethod(
 #' @name rings
 #' @aliases rings
 #' @rdname rings
-#' @seealso \code{\link{cir}} which does similar things, but much faster.
+#' @seealso \code{\link{cir}} which uses a different algorithm.
+#' \code{cir} tends to be faster when there are few starting points, \code{rings}
+#' tends to be faster when there are many starting points. Another difference
+#' between the two functions is that \code{rings} takes the centre of the pixel
+#' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
+#' See example.
+#' \code{\link[rgeos]{gBuffer}}
 #' @examples
 #' library(raster)
 #'
@@ -1127,19 +1138,22 @@ setMethod(
 #' # Make a raster that adds together all eventID in a cell
 #' wOverlap <- Rings[,list(sumEventID=sum(eventID)),by="indices"]
 #' emptyRas[wOverlap$indices] <- wOverlap$sumEventID
-#' Plot(emptyRas, new = TRUE)
+#' if(interactive())
+#'   Plot(emptyRas, new = TRUE)
 #'
 #' # No overlap is default, occurs randomly
 #' emptyRas[] <- 0
 #' Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9)
 #' emptyRas[Rings$indices] <- Rings$eventID
-#' Plot(emptyRas, new=TRUE)
+#' if(interactive())
+#'   Plot(emptyRas, new=TRUE)
 #'
 #' # Variable ring widths, including centre cell for smaller one
 #' emptyRas[] <- 0
 #' Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18))
 #' emptyRas[Rings$indices] <- Rings$eventID
-#' Plot(emptyRas, new=TRUE)
+#' if(interactive())
+#'   Plot(emptyRas, new=TRUE)
 setGeneric("rings", function(landscape, loci = NA_real_,
                               mapID = FALSE,
                               minRadius = 2, maxRadius = 5,
