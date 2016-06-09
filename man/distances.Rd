@@ -35,18 +35,23 @@ A sorted matrix on \code{id} with same number of rows as \code{to},
         indicating the distance between from and to.
 }
 \description{
-This is a modification of \code{\link[raster]{distanceFromPoint}} for the case of many points.
+This is a modification of \code{\link[raster]{distanceFromPoints}} for the case of many points.
 This is faster for a single point because it does not return a RasterLayer. This is
-different than \code{\link[raster]{distanceFromPoint}} because it does not take the minimum
+different than \code{\link[raster]{distanceFromPoints}} because it does not take the minimum
 distance from the set of points to all cells. Rather this returns the every pair-wise point distance.
-As a result, this can be used for doing Because this
+As a result, this can be used for doing inverse distance weightings, seed rain, cumulative effects
+of distance-based processes etc.
+}
+\details{
+\code{distanceFromEachPoint} calls \code{.pointDistance}, which is not intended to be called
+directly by the user.
 }
 \examples{
 library(raster)
 N <- 2
 distRas <- raster(extent(0,40,0,40), res = 1)
-coords <- cbind(x = round(stats::runif(N, xmin(distRas), xmax(distRas)))+0.5,
-                                        y = round(stats::runif(N, xmin(distRas), xmax(distRas)))+0.5)
+coords <- cbind(x = round(runif(N, xmin(distRas), xmax(distRas)))+0.5,
+                y = round(runif(N, xmin(distRas), xmax(distRas)))+0.5)
 
 # inverse distance weights
 dists1 <- distanceFromEachPoint(coords, landscape = distRas)
