@@ -617,91 +617,79 @@ setMethod(
 
   if(moreThanOne) {
     if(is.matrix(numAngles)) {
-      n.angles <- apply(numAngles, 2, sum)
+      nAngles <- apply(numAngles, 2, sum)
     } else {
-      n.angles <- numAngles
+      nAngles <- numAngles
     }
   } else {
-    n.angles <- sum(numAngles)
+    nAngles <- sum(numAngles)
   }
-
-
-  ### Eliot's code to replace the createCircle of the package PlotRegionHighlighter
-  #coords <- coordinates(spatialPoints)
 
   # create individual IDs for the number of points that will be done for their circle
   if(moreThanOne) {
-    eventID <- rep.int(seqNumInd, times = n.angles)
+    id <- rep.int(seqNumInd, times = nAngles)
   } else {
-    eventID <- 1
+    id <- 1
   }
 
   # create vector of radius for the number of points that will be done for each individual circle
   rads <- rep.int(maxRadius, times = numAngles)
 
   # extract the individuals' current coords
-  xs <- rep.int(coords[, 1], times = n.angles)
-  ys <- rep.int(coords[, 2], times = n.angles)
+  xs <- rep.int(coords[, 1], times = nAngles)
+  ys <- rep.int(coords[, 2], times = nAngles)
 
-  # calculate the angle increment that each individual needs to do to complete a circle (2 pi)
-  #angle.inc <- rep.int(2*pi, length(numAngles)) / numAngles
-
-  # repeat this angle increment the number of times it needs to be done to complete the circles
-  #angs <- rep.int(angle.inc, times = numAngles)
-
-  #browser()
   angles <- if(!is.null(dim(numAngles))) {
-
-
     rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
-    #tmp2 <- rep(unlist(lapply(numAngles[,1], function(na) seq.int(na)*(pi*2/na))), ncol(numAngles))
-    #expect_true(all.equal(tmp1, tmp2))
-    #rep(unlist(lapply(numAngles[,1], function(na) seq.int(na)*(pi*2/na))), ncol(numAngles))
-
   } else {
     unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
   }
-
-
-  # if(!is.null(dim(angle.inc))) {
-  #   tmp1 <- rep(unlist(lapply(angle.inc[,1], function(ai) seq(ai, pi*2, by=ai))), ncol(angle.inc))
-  #   tmp2 <- rep(unlist(lapply(numAngles[,1], function(na) seq.int(na)*(pi*2/na))), ncol(angle.inc))
-  #   expect_true(all.equal(tmp1, tmp2))
-  # }
 
   x <- cos(angles)*rads + xs
   y <- sin(angles)*rads + ys
   indices <- cellFromXY(landscape, cbind(x,y))
 
-  if(moreThanOne & allowOverlap) {
-    DT <- data.table(eventID, indices, rads, angles, x, y)
-    setkey(DT, "eventID", "indices")
+  if(moreThanOne & allowOverlap & !closest) {
+    DT <- data.table(id, indices, rads, angles, x, y)
+    setkey(DT, "id", "indices")
     DT <- unique(DT)
     DT <- na.omit(DT)
     MAT <- as.matrix(DT)
   } else {
-    notDups <- !duplicated(indices)
-    MAT <- cbind(eventID, rads, angles, x, y, indices)
-    MAT <- MAT[notDups,,drop=FALSE]
+    MAT <- cbind(id, rads, angles, x, y, indices)
+    if(!closest) {
+      notDups <- !duplicated(indices)
+      MAT <- MAT[notDups,,drop=FALSE]
+    }
     MAT <- na.omit(MAT)
   }
 
-  if(includeBehavior=="excludePixels" | returnDistances ) {
+  if(includeBehavior=="excludePixels" | returnDistances | closest) { # only need to calculate distances
+                                                            #   for these two cases
     maxRad <- maxRadius[NROW(maxRadius)]
     minRad <- maxRadius[1]
-    if(returnDistances) {
+    if(returnDistances | closest) { # if distances are not required, then only need the inner circle and outer circle
+                          #   distances. Don't waste resources on calculating all distances
       MAT2 <- MAT
     } else {
-      MAT2 <- MAT[MAT[,"rads"]>=(maxRad-0.71) | MAT[,"rads"]<=(minRad+0.71),] # 0.71 is the sqrt of 1, so get
-    }
+      MAT2 <- MAT[MAT[,"rads"]>=(maxRad-0.71) | MAT[,"rads"]<=(minRad+0.71),] # 0.71 is the sqrt of 1, so keep
+    }                                                                         #  only pixels that are in
+                                                                              #  inner or outer ring of pixels
     xyC <- xyFromCell(landscape, MAT2[,"indices"]);
-    a <- cbind(mapID=MAT2[,"eventID"], rads=MAT2[,"rads"], angles=MAT2[,"angles"], x=xyC[,"x"],
+    a <- cbind(id=MAT2[,"id"], rads=MAT2[,"rads"], angles=MAT2[,"angles"], x=xyC[,"x"],
                y = xyC[,"y"], to=MAT2[,"indices"])
 
-    b <- cbind(coords, mapID=1:NROW(coords))
+    b <- cbind(coords, id=1:NROW(coords))
 
     colnames(b)[1:2] <- c("x","y")
-    d <- .matchedPointDistance(a,b)
+    d <- distanceFromEachPoint(b,a)
+
+    if(closest){
+      d <- d[order(d[,"rads"]),]
+      dups <- duplicated(d[,"to"])
+      d <- d[!dups,]
+
+    }
 
     if(includeBehavior=="excludePixels")
       d <- d[d[, "dists"] %<=% maxRad & d[, "dists"] %>=% minRad,,drop=FALSE]
