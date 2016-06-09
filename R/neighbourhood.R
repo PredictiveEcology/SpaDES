@@ -441,9 +441,11 @@ adj <- compiler::cmpfun(adj.raw)
 #' Ras[] <- 0
 #' middleCircle <- cir(Ras)
 #' Ras[middleCircle[,"indices"]] <- 1
-#' Plot(Ras, new=TRUE)
 #' circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
-#' Plot(circlePoints, addTo = "Ras")
+#' if(interactive()) {
+#'   Plot(Ras, new=TRUE)
+#'   Plot(circlePoints, addTo = "Ras")
+#' }
 #'
 #' # circles non centred
 #' Ras <- randomPolygons(Ras, numTypes = 4)
@@ -455,10 +457,13 @@ adj <- compiler::cmpfun(adj.raw)
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
 #' cirsRas[cirs[, "indices"]] <- 1
-#' Plot(Ras, new = TRUE)
-#' Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-#' Plot(caribou, addTo = "Ras")
-#' Plot(cirsSP, addTo = "Ras")
+#'
+#' if(interactive()) {
+#'   Plot(Ras, new = TRUE)
+#'   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
+#'   Plot(caribou, addTo = "Ras")
+#'   Plot(cirsSP, addTo = "Ras")
+#' }
 #'
 #' # Example comparing rings and cir
 #' a <- raster(extent(0,30,0,30), res = 1)
@@ -473,18 +478,17 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' # rings
 #' loci <- cellFromXY(hab, coordinates(caribou))
-#' cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1)
+#' cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1, returnIndices = TRUE)
 #'
 #' # Plot both
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' Plot(ras1, new=TRUE)
 #' ras1[cirs[,"indices"]] <- cirs[,"id"]
 #'
 #' ras2 <- raster(hab)
 #' ras2[] <- 0
-#' Plot(ras2)
 #' ras2[cirs2$indices] <- cirs2$id
+#' if(interactive()) Plot(ras1, ras2, new=TRUE)
 #'
 #' a <- raster(extent(0,100,0,100), res = 1)
 #' hab <- gaussMap(a,speedup = 1)
