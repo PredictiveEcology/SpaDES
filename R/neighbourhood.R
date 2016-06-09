@@ -386,7 +386,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'                   by the narrow ring at that exact radius. If smaller than \code{maxRadius},
 #'                   then this will create a buffer or donut or ring.
 #'
-#' @param allowOverlap Logical. Should duplicates across eventID be removed or kept. Default TRUE.
+#' @param allowOverlap Logical. Should duplicates across id be removed or kept. Default TRUE.
 #'
 #' @param includeBehavior Character string. Currently accepts only "includePixels", the default,
 #'                        and "excludePixels". See details.
@@ -412,7 +412,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' \code{maxRadius} are equal, this will return no pixels.
 #'
 #'
-#' @return A \code{matrix} with 4 columns, \code{eventID}, \code{indices},
+#' @return A \code{matrix} with 4 columns, \code{id}, \code{indices},
 #' \code{x}, \code{y}. The \code{x} and \code{y} indicate the
 #' exact coordinates of
 #' the \code{indices} (i.e., cell number) of the \code{landscape}
@@ -478,20 +478,20 @@ adj <- compiler::cmpfun(adj.raw)
 #' # Plot both
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' ras1[cirs[,"indices"]] <- cirs[,"eventID"]
 #' Plot(ras1, new=TRUE)
+#' ras1[cirs[,"indices"]] <- cirs[,"id"]
 #'
 #' ras2 <- raster(hab)
 #' ras2[] <- 0
-#' ras2[cirs2$indices] <- cirs2$eventID
 #' Plot(ras2)
+#' ras2[cirs2$indices] <- cirs2$id
 #'
 #' a <- raster(extent(0,100,0,100), res = 1)
 #' hab <- gaussMap(a,speedup = 1)
 #' cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(eventID)),by=indices]
+#' cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 #' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 #' Plot(ras1, new=TRUE)
 #'
@@ -573,14 +573,11 @@ setMethod(
 
 
   moreThanOne <- NROW(coords)>1
+
   if(moreThanOne) {
     # create an index sequence for the number of individuals
     seqNumInd <- seq_len(NROW(coords))
 
-    # n = optimum number of points to create the circle for a given individual;
-    #       gross estimation (checked that it seems to be enough so that pixels
-    #       extracted are almost always duplicated, which means there is small
-    #       chance that we missed some on the circle).
     if(length(maxRadius)==1) maxRadius <- rep(maxRadius, NROW(coords))
     if(length(minRadius)==1) minRadius <- rep(minRadius, NROW(coords))
 
@@ -700,7 +697,7 @@ setMethod(
     if(includeBehavior=="excludePixels")
       d <- d[d[, "dists"] %<=% maxRad & d[, "dists"] %>=% minRad,,drop=FALSE]
 
-    colnames(d)[c(2,7)] <- c("eventID", "indices")
+    colnames(d)[which(colnames(d)=="to")] <- "indices"
     if(!returnDistances)
       d <- d[,-which(colnames(d)=="dists")]
 
@@ -708,12 +705,14 @@ setMethod(
       d <- d[,-which(colnames(d)=="angles")]
       MAT <- MAT[,-which(colnames(MAT)=="angles")]
     }
-    if(!returnDistances) {
+    if(returnDistances) {
+      MAT <- d[,c("id","indices","dists", "x","y"),drop=FALSE]
+    } else if (closest) {
+      MAT <- d[,c("id","indices","x","y"),drop=FALSE]
+    } else {
       MATinterior <- MAT[MAT[,"rads"]<(maxRad-0.71) & MAT[,"rads"]>(minRad+0.71),,drop=FALSE]
       MAT <- rbind(d[,colnames(MATinterior),drop=FALSE], MATinterior)
       MAT <- MAT[,-which(colnames(MAT)=="rads"),drop=FALSE]
-    } else {
-      MAT <- d[,c("eventID","indices","dists", "x","y"),drop=FALSE]
     }
 
   } else {

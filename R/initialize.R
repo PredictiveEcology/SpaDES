@@ -144,7 +144,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
   starts <- SpatialPoints(coords = cbind(x = stats::runif(numTypes, xmin(ras), xmax(ras)),
                                           y = stats::runif(numTypes, xmin(ras), xmax(ras))))
   loci <- raster::cellFromXY(starts, object = ras)
-  a <- spread(landscape = ras, spreadProb = 1, loci, allowOverlap = FALSE, mapID = TRUE)
+  a <- spread(landscape = ras, spreadProb = 1, loci, allowOverlap = FALSE, id = TRUE)
   return(a)
 }
   # ext <- extent(ras)

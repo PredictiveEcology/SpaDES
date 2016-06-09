@@ -321,4 +321,4 @@ setMethod("rasterToMemory",
             r <- raster(x, ...)
             r <- setValues(r, getValues(r))
             return(r)
-})
+          })
