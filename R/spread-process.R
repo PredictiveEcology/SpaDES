@@ -1275,24 +1275,36 @@ setMethod(
 #' Calculate distances between many points and many grid cells
 #'
 #' This is a modification of \code{\link[raster]{distanceFromPoints}} for the case of many points.
-#' This is faster for a single point because it does not return a RasterLayer. This is
+#' This version can often be faster for a single point because it does not return a RasterLayer. This is
 #' different than \code{\link[raster]{distanceFromPoints}} because it does not take the minimum
 #' distance from the set of points to all cells. Rather this returns the every pair-wise point distance.
 #' As a result, this can be used for doing inverse distance weightings, seed rain, cumulative effects
-#' of distance-based processes etc.
+#' of distance-based processes etc. If memory limitation is an issue, maxDistance will keep memory
+#' use down, but with the consequences that there will be a maximum distance returned. This function
+#' has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 #'
-#' @param from matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell, and
-#'             optional "id" which will be matched with "id" from \code{to}
+#' @param from matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell,
+#'             and optional "id" which will be matched with "id" from \code{to}
 #' @param to matrix with 2  or 3 columns (or optionally more, all of which will be returned),
 #'           x and y, representing x and y coordinates of "to" cells, and
 #'           optional "id" which will be matched with "id" from \code{from}
 #' @param landscape RasterLayer. optional. This is only used if \code{to} is NULL, in which case
 #'                  all cells are considered \code{to}
+#' @param maxDistance Numeric in units of number of cells. The algorithm will build the whole surface
+#'                    (from \code{from} to \code{to}), but will remove all distances that are above
+#'                    this distance.
 #' @inheritParams spread
 #' @rdname distances
 #' @export
+#' @seealso \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}}, which can
+#' all be made to do the same thing, under specific combinations of arguments. But each has different
+#' primary use cases.
+#'
 #' @details \code{distanceFromEachPoint} calls \code{.pointDistance}, which is not intended to be called
 #' directly by the user.
+#'
+#' This function has been tested and is fast with 100 \code{from} points and 1e6 \code{to} points.
+#'
 #' @name distanceFromEachPoint
 #' @aliases distanceFromEachPoint
 #' @return A sorted matrix on \code{id} with same number of rows as \code{to},
@@ -1312,7 +1324,7 @@ setMethod(
 
 #' distRas[] <- as.vector(invDist)
 #' if(interactive()) Plot(distRas, new=TRUE)
-distanceFromEachPoint <- function(from, to = NULL, landscape, asymmetry = NA_real_) {
+distanceFromEachPoint <- function(from, to = NULL, landscape, asymmetry = NA_real_, maxDistance = NA_real_) {
   matched <- FALSE
   if("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
@@ -1325,16 +1337,19 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, asymmetry = NA_rea
   if(!matched) {
     if(NROW(from)>1) {
       out <- lapply(seq_len(NROW(from)), function(k) {
-        .pointDistance(b = from[k,,drop=FALSE], a = to, asymmetry = asymmetry)
+        .pointDistance(b = from[k,,drop=FALSE], a = to, asymmetry = asymmetry,
+                              maxDistance = maxDistance)
       })
+
       out <- do.call(rbind, out)
     } else {
-      out <- .pointDistance(b = from, a = to, asymmetry = asymmetry)
+      out <- .pointDistance(b = from, a = to, asymmetry = asymmetry,
+                            maxDistance = maxDistance)
     }
   } else {
     out <- lapply(ids, function(k) {
       .pointDistance(b = from[from[,"id"]==k,,drop=FALSE], a = to[to[,"id"]==k,,drop=FALSE],
-                     asymmetry = asymmetry)
+                     asymmetry = asymmetry, maxDistance = maxDistance)
     })
     out <- do.call(rbind, out)
   }
@@ -1346,34 +1361,36 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, asymmetry = NA_rea
 #' @rdname distances
 #' @name pointDistance
 #' @aliases pointDistance
-.pointDistance <- function(a, b, asymmetry = NA_real_) {
+.pointDistance <- function(a, b, asymmetry = NA_real_, maxDistance=NA_real_) {
 
-    # It is about 2x faster to use the compiled C routine from raster package
-   # microbenchmark(times = 100,
-   #dists <- lapply(ids, function(i){
-      m1 <- a[,c("x","y"), drop = FALSE]
-      m2 <- b[,c("x","y"), drop = FALSE]
-      dists <- sqrt((m1[,"x"] - m2[,"x"])^2 + (m1[,"y"] - m2[,"y"])^2)
-      if(!is.na(asymmetry)) {
-        rise <- m1[,"y"]-m2[,"y"]
-        run <- m1[,"x"]-m2[,"x"]
-        angles <- atan2(rise,run)
-        dists <- cbind(dists = dists, angles = angles)
-      }
+  # It is about 2x faster to use the compiled C routine from raster package
+    m1 <- a[,c("x","y"), drop = FALSE]
+    m2 <- b[,c("x","y"), drop = FALSE]
+    dists <- sqrt((m1[,"x"] - m2[,"x"])^2 + (m1[,"y"] - m2[,"y"])^2)
+    if(!is.na(asymmetry)) {
+      rise <- m1[,"y"]-m2[,"y"]
+      run <- m1[,"x"]-m2[,"x"]
+      angles <- atan2(rise,run)
+      dists <- cbind(dists = dists, angles = angles)
+    }
 
   # C call from raster
-  #  xy <- a[,c("x","y"),drop=FALSE]
-  #  pts <- b[,c("x","y"),drop=FALSE]
-  #  dists <- .Call("distanceToNearestPoint",
-  #        xy, pts, as.integer(0), PACKAGE = "raster")
-  #  if(!is.na(asymmetry)) {
-  #    rise <- m1[,"y"]-m2[,"y"]
-  #    run <- m1[,"x"]-m2[,"x"]
-  #    angles <- atan2(rise,run)
-  #    dists <- cbind(dists = dists, angles = angles)
-  #  }
+   # xy <- a[,c("x","y"),drop=FALSE]
+   # pts <- b[,c("x","y"),drop=FALSE]
+   # dists <- .Call("distanceToNearestPoint",
+   #       xy, pts, as.integer(0), PACKAGE = "raster")
+   # if(!is.na(asymmetry)) {
+   #   rise <- m1[,"y"]-m2[,"y"]
+   #   run <- m1[,"x"]-m2[,"x"]
+   #   angles <- atan2(rise,run)
+   #   dists <- cbind(dists = dists, angles = angles)
+   # }
 
-    cbind(a, dists = dists)
+    out <- cbind(a, dists = dists)
+    if(!is.na(maxDistance)) {
+      out <- out[out[,"dists"]<=maxDistance,]
+    }
+    return(out)
 
 }
 
