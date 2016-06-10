@@ -432,13 +432,14 @@ adj <- compiler::cmpfun(adj.raw)
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
 #' @rdname cir
-#' @seealso \code{\link{rings}} which uses \code{spread} under internally.
+#' @seealso \code{\link{rings}} which uses \code{spread} internally.
 #' \code{cir} tends to be faster when there are few starting points, \code{rings}
 #' tends to be faster when there are many starting points. Another difference
 #' between the two functions is that \code{rings} takes the centre of the pixel
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
-#' See example.
-#' \code{\link[rgeos]{gBuffer}}
+#' See example. For the specific case of creating distance surfaces from specific
+#' points, see \code{\link{distanceFromEachPoint}}, which is often faster.
+#' For the more general GIS buffering, see \code{\link[rgeos]{gBuffer}}.
 #'
 #'@examples
 #' library(raster)

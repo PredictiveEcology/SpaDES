@@ -6,13 +6,14 @@
 \alias{pointDistance}
 \title{Calculate distances between many points and many grid cells}
 \usage{
-distanceFromEachPoint(from, to = NULL, landscape, asymmetry = NA_real_)
+distanceFromEachPoint(from, to = NULL, landscape, asymmetry = NA_real_,
+  maxDistance = NA_real_)
 
-.pointDistance(a, b, asymmetry = NA_real_)
+.pointDistance(a, b, asymmetry = NA_real_, maxDistance = NA_real_)
 }
 \arguments{
-\item{from}{matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell, and
-optional "id" which will be matched with "id" from \code{to}}
+\item{from}{matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell,
+and optional "id" which will be matched with "id" from \code{to}}
 
 \item{to}{matrix with 2  or 3 columns (or optionally more, all of which will be returned),
 x and y, representing x and y coordinates of "to" cells, and
@@ -25,6 +26,10 @@ all cells are considered \code{to}}
 NA, indicating no asymmetry. See details. This is still experimental.
 Use with caution.}
 
+\item{maxDistance}{Numeric in units of number of cells. The algorithm will build the whole surface
+(from \code{from} to \code{to}), but will remove all distances that are above
+this distance.}
+
 \item{a}{matrix with 2 columns, x and y, representing x and y coordinates of "to" cells}
 
 \item{b}{matrix with 1 row and 2 columns, x and y, representing x and y coordinates of "from" cell}
@@ -36,15 +41,19 @@ A sorted matrix on \code{id} with same number of rows as \code{to},
 }
 \description{
 This is a modification of \code{\link[raster]{distanceFromPoints}} for the case of many points.
-This is faster for a single point because it does not return a RasterLayer. This is
+This version can often be faster for a single point because it does not return a RasterLayer. This is
 different than \code{\link[raster]{distanceFromPoints}} because it does not take the minimum
 distance from the set of points to all cells. Rather this returns the every pair-wise point distance.
 As a result, this can be used for doing inverse distance weightings, seed rain, cumulative effects
-of distance-based processes etc.
+of distance-based processes etc. If memory limitation is an issue, maxDistance will keep memory
+use down, but with the consequences that there will be a maximum distance returned. This function
+has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 }
 \details{
 \code{distanceFromEachPoint} calls \code{.pointDistance}, which is not intended to be called
 directly by the user.
+
+This function has been tested and is fast with 100 \code{from} points and 1e6 \code{to} points.
 }
 \examples{
 library(raster)
@@ -59,5 +68,10 @@ indices <- cellFromXY(distRas,dists1[,c("x","y")])
 invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 distRas[] <- as.vector(invDist)
 if(interactive()) Plot(distRas, new=TRUE)
+}
+\seealso{
+\code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}}, which can
+all be made to do the same thing, under specific combinations of arguments. But each has different
+primary use cases.
 }
 

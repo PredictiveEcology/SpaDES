@@ -12,25 +12,26 @@
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
   minRadius = maxRadius, allowOverlap = TRUE,
   includeBehavior = "includePixels", returnDistances = FALSE,
-  returnAngles = FALSE, closest = FALSE, simplify = TRUE)
+  returnAngles = FALSE, returnIndices = TRUE, closest = FALSE,
+  simplify = TRUE)
 
 \S4method{cir}{RasterLayer,SpatialPoints,missing}(landscape, coords, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, closest, simplify)
+  returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,numeric}(landscape, loci, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, closest, simplify)
+  returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,missing}(landscape, loci, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, closest, simplify)
+  returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
   maxRadius = ncol(landscape)/4, minRadius = maxRadius,
   allowOverlap = TRUE, includeBehavior = "includePixels",
-  returnDistances = FALSE, returnAngles = FALSE, closest = FALSE,
-  simplify = TRUE)
+  returnDistances = FALSE, returnAngles = FALSE, returnIndices = TRUE,
+  closest = FALSE, simplify = TRUE)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
@@ -66,6 +67,10 @@ data.table that reports the angle from \code{coords} to every
 point that was in the circle/donut surrounding \code{coords}. Default
 FALSE.}
 
+\item{returnIndices}{Logical. Should the function return a data.table with
+indices and values of successful spread events, or
+return a raster with values. See Details.}
+
 \item{closest}{Logical. When determining non-overlapping circles, should the function
 give preference to the closest \code{loci} or the first one (much faster).
 Default is FALSE, meaning the faster, though maybe not desired behavior.}
@@ -85,7 +90,7 @@ Identify the pixels and coordinates that are at
  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
  In other words, it can be used for similar problems, but where speed is important. This
- code is substantially adapted from \code{\link[PlotRegionHighlighter]{createCircle}}, in
+ code is substantially adapted from \code{createCircle}, in
  the PlotRegionHighlighter package.
 }
 \details{
@@ -165,12 +170,13 @@ ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 if(interactive()) Plot(ras1, new=TRUE)
 }
 \seealso{
-\code{\link{rings}} which uses \code{spread} under internally.
+\code{\link{rings}} which uses \code{spread} internally.
 \code{cir} tends to be faster when there are few starting points, \code{rings}
 tends to be faster when there are many starting points. Another difference
 between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
-See example.
-\code{\link[rgeos]{gBuffer}}
+See example. For the specific case of creating distance surfaces from specific
+points, see \code{\link{distanceFromEachPoint}}, which is often faster.
+For the more general GIS buffering, see \code{\link[rgeos]{gBuffer}}.
 }
 
