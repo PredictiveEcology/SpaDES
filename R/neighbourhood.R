@@ -367,7 +367,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
 #'  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
 #'  In other words, it can be used for similar problems, but where speed is important. This
-#'  code is substantially adapted from \code{\link[PlotRegionHighlighter]{createCircle}}, in
+#'  code is substantially adapted from \code{createCircle}, in
 #'  the PlotRegionHighlighter package.
 #'
 #' @param landscape    Raster on which the circles are built.

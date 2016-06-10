@@ -1169,14 +1169,15 @@ setMethod(
 #'
 #' # No overlap is default, occurs randomly
 #' emptyRas[] <- 0
-#' Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9)
+#' Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9, returnIndices = TRUE)
 #' emptyRas[Rings$indices] <- Rings$id
 #' if(interactive())
 #'   Plot(emptyRas, new=TRUE)
 #'
 #' # Variable ring widths, including centre cell for smaller one
 #' emptyRas[] <- 0
-#' Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18))
+#' Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18),
+#'                returnIndices = TRUE)
 #' emptyRas[Rings$indices] <- Rings$id
 #' if(interactive())
 #'   Plot(emptyRas, new=TRUE)
