@@ -690,6 +690,7 @@ test_that("distanceFromPoints", {
   skip("this is currently only benchmarking")
 
 
+  loci <- cellFromXY(hab, xy = coords)
   distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE)
   distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
                                 allowOverlap = TRUE, returnIndices = TRUE)
@@ -703,11 +704,7 @@ test_that("distanceFromPoints", {
   coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                                           y = stats::runif(N, xmin(hab), xmax(hab)))
   indices = 1:ncell(hab)
-  #b = cbind(id=1:NROW(coords), coords)
-  #xy <- xyFromCell(hab, rep(1:ncell(hab), times=NROW(b)))
-  #a = cbind(id=rep(b[,"id"], each = ncell(hab)), xy)
 
-  loci <- cellFromXY(hab, xy = coords)
   microbenchmark(times = 3,
     distsDFP10Pts = dists2 <- distanceFromPoints(hab, coords),
     distsDFP1Pt = dists3 <- distanceFromPoints(hab, coords[1,,drop=FALSE]),
