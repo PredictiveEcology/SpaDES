@@ -637,48 +637,132 @@ test_that("rings and cirs", {
   dists1 <- rings(hab, loci, minRadius = 0, maxRadius = ncol(hab), returnDistances = TRUE,
                  includeBehavior = "includeRing")
   dists2 <- distanceFromPoints(hab, coordinates(caribou))
-  if(interactive()) Plot(dists1, dists2, new=TRUE)
-  diffDists <- abs(dists1 - dists2)
-  tabs <- table(round(getValues(diffDists)))
-  expect_true(tabs[names(tabs)==0]/ncell(diffDists) > 0.99) # This  tests that the two approaches are 99% similar
-  if(interactive()) Plot(diffDists, new=TRUE)
+  dists3 <- cir(landscape = hab, loci = loci, minRadius = 0, maxRadius = ncol(hab),
+                  includeBehavior = "includePixels", allowOverlap = FALSE, returnIndices = FALSE,
+                closest = TRUE, returnDistances = TRUE)
+  if(interactive()) Plot(dists1, dists2, dists3, new=TRUE)
+  diffDists12 <- abs(dists1 - dists2)
+  diffDists23 <- abs(dists2 - dists3)
+  tabs12 <- table(round(getValues(diffDists12)))
+  tabs23 <- table(round(getValues(diffDists23)))
+  expect_true(tabs12[names(tabs12)==0]/ncell(diffDists12) > 0.99) # This  tests that the two approaches are 99% similar
+  expect_true(tabs23[names(tabs23)==0]/ncell(diffDists23) > 0.99) # This  tests that the two approaches are 99% similar
+  if(interactive()) Plot(diffDists12, diffDists23, new=TRUE)
 
   skip("Below here is just benchmarking, not testing")
 
   library(microbenchmark)
-  loci <- cellFromXY(hab, coordinates(caribou))
+  #loci <- cellFromXY(hab, coordinates(caribou))
   microbenchmark(
     times = 10,
-    dists1 <- cir(hab, coordinates(caribou), minRadius = 0, maxRadius = 50, allowOverlap = FALSE,
-                    includeBehavior = "includePixels", returnDistances = TRUE, closest = TRUE),
-    dists2 <- rings(hab, loci, minRadius = 0, maxRadius = 50, returnDistances = TRUE,
-                  includeBehavior = "includeRing"),
-    dists3 <- distanceFromPoints(hab, coordinates(caribou))
+    dists1 <- rings(hab, loci, minRadius = 0, maxRadius = ncol(hab), returnDistances = TRUE,
+                    includeBehavior = "includeRing"),
+    dists2 <- distanceFromPoints(hab, coordinates(caribou)),
+    dists3 <- cir(landscape = hab, loci = loci, minRadius = 0, maxRadius = ncol(hab),
+                  includeBehavior = "includePixels", allowOverlap = FALSE, returnIndices = FALSE,
+                  closest = TRUE, returnDistances = TRUE)
   )
-  disRas1 <- raster(hab)
-  disRas1[] <- 0
-  disRas1[dists1[,"indices"]] <- dists1[,"dists"]
-  if(interactive()) Plot(disRas1, new=T)
 
-  coords <- coordinates(caribou)
+})
 
+test_that("distanceFromPoints", {
+
+  require(raster)
+  require(fpCompare)
+  library(data.table)
+  hab <- raster(extent(0,1e2,0,1e2), res = 1)
+  hab <- gaussMap(hab,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) = "hab"
+  N = 1
+  coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
+                 y = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5)
+  distsDFP1Pt = distanceFromPoints(hab, coords[1,,drop=FALSE])
+  distsDFEP1Pt = distanceFromEachPoint(coords[1,,drop=FALSE], landscape = hab)
+  ras1 <- raster(hab)
+  ras1[] <- distsDFEP1Pt[,"dists"]
+  expect_identical(0, unique(round(getValues(distsDFP1Pt - ras1),7)) )
+  if(interactive()) Plot(distsDFP1Pt, ras1, new=TRUE)
+
+  maxDistance = 30
+  distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = maxDistance)
+  expect_true(round(max(distsDFEPMaxD[,"dists"]),7)==maxDistance) # test that maxDistance arg is working
+
+  skip("this is currently only benchmarking")
+
+
+  distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE)
+  distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
+                                allowOverlap = TRUE, returnIndices = TRUE)
+
+
+  hab <- raster(extent(0,1e2,0,1e2), res = 1)
+  hab <- gaussMap(hab,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  names(hab) = "hab"
+  hab2 <- hab>0
+  N <- 10
+  coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                                          y = stats::runif(N, xmin(hab), xmax(hab)))
   indices = 1:ncell(hab)
-  b = cbind(id=1:NROW(coords), coords)
-  xy <- xyFromCell(hab, rep(1:ncell(hab), times=length(loci)))
-  a = cbind(id=rep(b[,"id"], each = ncell(hab)), xy)
+  #b = cbind(id=1:NROW(coords), coords)
+  #xy <- xyFromCell(hab, rep(1:ncell(hab), times=NROW(b)))
+  #a = cbind(id=rep(b[,"id"], each = ncell(hab)), xy)
 
-  microbenchmark(times = 10,
-    dists1 <- distanceFromEachPoint(coords, landscape = hab),
-    dists5 <- distanceFromEachPoint(coords[1,,drop=FALSE], landscape = hab),
-    dists4 <- distanceFromEachPoint(b, a, landscape = hab),
-    #dists4 <- distanceFromEachPoint2(hab, coords),
-    #dists3 <- .matchedPointDistance(b = b, a = a),
-    dists2 <- distanceFromPoints(hab, coords)
+  loci <- cellFromXY(hab, xy = coords)
+  microbenchmark(times = 3,
+    distsDFP10Pts = dists2 <- distanceFromPoints(hab, coords),
+    distsDFP1Pt = dists3 <- distanceFromPoints(hab, coords[1,,drop=FALSE]),
+    distsDFEP10Pts = dists1 <- distanceFromEachPoint(coords, landscape = hab),
+    distsDFEP1Pt = dists5 <- distanceFromEachPoint(coords[1,,drop=FALSE], landscape = hab),
+    distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 30),
+    distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE),
+    distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
+                                  allowOverlap = TRUE, returnIndices = TRUE)
   )
+
+  # sum of idw
+  cells <- cellFromXY(hab, dists1[,c("x","y")])
+  dists1DT <- data.table(dists1, cells, key = "cells")
+  idw <- dists1DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
+  distsRas <- raster(hab)
+  distsRas[] <- idw$idw
+
+  # sum of idw
+  cells <- cellFromXY(hab, dists6[,c("x","y")])
+  dists6DT <- data.table(dists6, cells, key = "cells")
+  idw <- dists6DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
+  distsRas <- raster(hab)
+  distsRas[] <- 0
+  distsRas[idw$cells] <- idw$idw
+
+  cells <- cellFromXY(hab, dists7[,c("x","y")])
+  dists7DT <- data.table(dists7, cells, key = "cells")
+  idw <- dists7DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
+  distsRasCir <- raster(hab)
+  distsRasCir[] <- 0
+  distsRasCir[idw$cells] <- idw$idw
+
+  dists8DT <- data.table(dists8, key = "indices")
+  idw <- dists8DT[,list(idw=sum(1/sqrt(1+dists))),by=indices]
+  distsRasRings <- raster(hab)
+  distsRasRings[] <- 0
+  distsRasRings[idw$indices] <- idw$idw
+
+  distDiff1 <- round(distsRas - distsRasCir,2)
+  tabs <- table(getValues(distDiff1))
+  expect_true(tabs[names(tabs)==0]/ncell(distDiff1) > 0.93) # This  tests that the two approaches are 93% similar
+
+  if(interactive()) {
+    Plot(distsRasCir, distsRasRings, distsRas, dists3, new=T)
+    Plot(distDiff1, zero.color = "white", new=TRUE)
+  }
+  sum(abs(getValues(distsRasCir - distsRasRings)))
+
+
+  #
   head(dists5)
   distsRas <- raster(hab)
   distsRas[] <- dists5[,"dists"]
-  if(interactive()) Plot(distsRas, new=T)
+  if(interactive()) Plot(distsRas, dists3, new=T)
 
 
   distsRas1 <- raster(hab)
