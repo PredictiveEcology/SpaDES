@@ -410,6 +410,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' @param simplify logical. If TRUE, then all duplicate pixels are removed. This means
 #' that some x, y combinations will disappear.
 #'
+#' @inheritParams spread
+#'
 #' @details This function identifies all the pixels as defined by a donut
 #' with inner radius minRadius and outer radius of maxRadius. The includeBehavior defines
 #' whether the cells that intersect the radii but whose centres are not inside
@@ -509,7 +511,7 @@ setGeneric("cir", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
                            allowOverlap = TRUE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
-                           returnAngles = FALSE,
+                           returnAngles = FALSE, returnIndices = TRUE,
                            closest = FALSE, simplify = TRUE) {
   standardGeneric("cir")
 })
@@ -520,12 +522,13 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
   definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, returnAngles,
+                        includeBehavior, returnDistances, returnAngles, returnIndices,
                         closest, simplify) {
     coords <- coordinates(coords)
     cir(landscape, coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
         returnDistances = returnDistances, returnAngles = returnAngles,
+        returnIndices = returnIndices,
         closest = closest, simplify = simplify)
     })
 
@@ -535,13 +538,13 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "missing", loci = "numeric"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, returnAngles,
+                        includeBehavior, returnDistances, returnAngles, returnIndices,
                         closest, simplify) {
     coords <- xyFromCell(landscape, loci)
     cir(landscape, coords=coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
         returnDistances = returnDistances, returnAngles = returnAngles,
-        closest = closest, simplify = simplify)
+        returnIndices = returnIndices, closest = closest, simplify = simplify)
   })
 
 #' @export
@@ -550,7 +553,7 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "missing", loci = "missing"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, returnAngles,
+                        includeBehavior, returnDistances, returnAngles, returnIndices,
                         closest, simplify) {
     ncells <- ncell(landscape)
     middleCell <- if(identical(ncells/2, floor(ncells/2))) ncells/2 - ncol(landscape)/2 else round(ncells/2)
@@ -558,6 +561,7 @@ setMethod(
     cir(landscape, coords=coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
         returnDistances = returnDistances, returnAngles = returnAngles,
+        returnIndices = returnIndices,
         closest = closest, simplify = simplify)
   })
 
@@ -568,7 +572,7 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "matrix", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         includeBehavior, returnDistances,
-                        returnAngles, closest, simplify) {
+                        returnAngles, returnIndices, closest, simplify) {
   ### adapted from createCircle of the package PlotRegionHighlighter
 
   scaleRaster <- res(landscape)
@@ -717,6 +721,26 @@ setMethod(
       MAT <- MAT[,-which(colnames(MAT)=="angles")]
     }
     MAT <- MAT[,-which(colnames(MAT)=="rads"),drop=FALSE]
+  }
+  if(!returnIndices) {
+    ras <- raster(landscape)
+    ras[] <- 0
+    if(!allowOverlap) {
+      if(!returnDistances) {
+        ras[MAT[,"indices"]] <- MAT[,"id"]
+      } else {
+        ras[MAT[,"indices"]] <- MAT[,"dists"]
+      }
+    } else {
+      DT <- data.table(MAT, key = "indices")
+      if(!returnDistances) {
+        DT <- DT[,sum(id),by=indices]
+      } else {
+        DT <- DT[,sum(1/dists),by=indices]
+      }
+      ras[DT$indices] <- DT$V1
+    }
+    return(ras)
   }
 
   return(MAT)
