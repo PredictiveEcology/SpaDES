@@ -1511,7 +1511,9 @@ setMethod(
 
     scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
-    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls)
+    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) & !grepl("test_that", scalls) # This testthat is a work around
+                        # A test_that call can be very long, with many function calls, including Plot and do.call, even if
+                        #  they don't have anything to do with each other
     dots <- list(...)
 #    if(any(grepl(pattern="col", names(dots)))) {
 #      usedCol <- dots$col
