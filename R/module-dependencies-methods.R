@@ -27,7 +27,7 @@ selectMethod("show", "igraph")
 #' @include simList-class.R
 #'
 #' @export
-#' @importFrom data.table data.table rbindlist setkey setorder ':='
+#' @importFrom data.table ':=' data.table rbindlist setkey setorder
 #' @docType methods
 #' @rdname depsEdgeList
 #'
@@ -53,10 +53,10 @@ setMethod(
         z.in <- as.data.table(x@inputObjects)[, sourceURL:=NULL][, other:=NULL]
         z.out <- as.data.table(x@outputObjects)[, other:=NULL]
         z.in$module <- z.out$module <- x@name
-        if (!all(is.na(z.in[,objectName]), is.na(z.in[,objectClass]))) {
+        if (!all(is.na(z.in[,objectName]), is.na(z.in[, objectClass]))) {
           sim.in <<- rbindlist(list(sim.in, z.in), use.names = TRUE)
         }
-        if (!all(is.na(z.out[,1:2]), is.na(z.out[,objectClass]))) {
+        if (!all(is.na(z.out[,1:2]), is.na(z.out[, objectClass]))) {
           sim.out <<- rbindlist(list(sim.out, z.out), use.names = TRUE)
         }
       }
@@ -69,16 +69,16 @@ setMethod(
     if ((nrow(sim.in)) && (nrow(sim.out))) {
       dx <- sim.out[sim.in, nomatch = NA_character_, allow.cartesian = TRUE]
       dx[is.na(module), module:="_INPUT_"]
-      dt <- dx[,list(from = module, to = i.module,
+      DT <- dx[,list(from = module, to = i.module,
                      objName = objectName, objClass = i.objectClass)]
 
-      if (plot) dt <- dt[!duplicated(dt[, 1:2, with = FALSE]),]
+      if (plot) { DT <- DT[!duplicated(DT[, 1:2, with = FALSE]),] }
     } else {
-      dt <- data.table(from = character(0), to = character(0),
+      DT <- data.table(from = character(0), to = character(0),
                        objName = character(0), objClass = character(0))
     }
-    setorder(dt, "from", "to", "objName")
-    return(dt)
+    setorder(DT, "from", "to", "objName")
+    return(DT)
 })
 
 #' @rdname depsEdgeList
@@ -115,10 +115,10 @@ setMethod("depsGraph",
             if (plot) {
               el <- depsEdgeList(sim, plot)
             } else {
-              el <- depsEdgeList(sim, plot) %>% .depsPruneEdges
+              el <- depsEdgeList(sim, plot) %>% .depsPruneEdges()
             }
             core <- c("checkpoint", "save", "progress", "load")
-            m <- modules(sim) %>% unlist
+            m <- modules(sim) %>% unlist()
             v <- unique(c(el$to, el$from, m[-which(m %in% core)]))
             return(graph_from_data_frame(el, vertices = v, directed = TRUE))
 })
@@ -165,13 +165,13 @@ setMethod(
   definition = function(simEdgeList) {
     simGraph <- graph_from_data_frame(simEdgeList)
     M <- shortest.paths(simGraph, mode = "out")
-    if (nrow(M)>1) {
+    if (nrow(M) > 1) {
       pth <- data.table(from = character(0), to = character(0))
       for (row in 1L:(nrow(M)-1L)) {
         for (col in (row+1L):ncol(M)) {
           current <- M[row,col]
           partner <- M[col,row]
-          if (all((current>0), !is.infinite(current), (partner>0),
+          if (all((current > 0), !is.infinite(current), (partner > 0),
                   !is.infinite(partner))) {
             pth1 <- shortest_paths(simGraph,
                                    from = rownames(M)[row],
@@ -187,7 +187,7 @@ setMethod(
             pth2 <- data.frame(from = rownames(M)[pth2],
                                to = rownames(M)[lead(match(names(pth2), rownames(M)),1)],
                                stringsAsFactors = FALSE) %>%
-                    na.omit %>% as.data.table
+                    na.omit %>% as.data.table()
 
             pth <- rbindlist(list(pth, rbindlist(list(pth1, pth2))))
           }
@@ -195,22 +195,22 @@ setMethod(
       }
       pth <- pth %>% inner_join(simEdgeList, by = c("from", "to"))
 
-      # What is not provided in modules, but needed
+      # what is not provided in modules, but needed
       missingObjects <- simEdgeList %>% filter(from != to) %>%
-        anti_join(pth, ., by = c("from","to"))
+        anti_join(pth, ., by = c("from", "to"))
       if (nrow(missingObjects)) {
         warning("Problem resolving the module dependencies:\n",
                 paste(missingObjects), collapse = "\n")
       }
 
-      # What is provided in modules, and can be omitted from simEdgeList object
+      # what is provided in modules, and can be omitted from simEdgeList object
       newEdgeList <- simEdgeList %>%
         filter(from != to) %>%
-        anti_join(pth, by = c("from","to"))
+        anti_join(pth, by = c("from", "to"))
     } else {
       newEdgeList <- simEdgeList
     }
-    return(newEdgeList)
+    return(newEdgeList %>% data.table() %>% setorder("from", "to", "objName"))
 })
 
 ################################################################################

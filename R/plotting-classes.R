@@ -43,20 +43,31 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
 #'
+#' #@importClassesFrom NetLogoRClasses agentMatrix
+#' #@importClassesFrom NetLogoRClasses NLworldMatrix
+#'
 #' @aliases spatialObjects
-#' @importClassesFrom raster RasterLayer RasterLayerSparse RasterStack
-#' @importClassesFrom sp SpatialLines SpatialLinesDataFrame
-#' @importClassesFrom sp SpatialPixels SpatialPixelsDataFrame
-#' @importClassesFrom sp SpatialPoints SpatialPointsDataFrame
-#' @importClassesFrom sp SpatialPolygons SpatialPolygonsDataFrame
+#' @importClassesFrom raster RasterLayer
+#' @importClassesFrom raster RasterLayerSparse
+#' @importClassesFrom raster RasterStack
+#' @importClassesFrom sp SpatialLines
+#' @importClassesFrom sp SpatialLinesDataFrame
+#' @importClassesFrom sp SpatialPixels
+#' @importClassesFrom sp SpatialPixelsDataFrame
+#' @importClassesFrom sp SpatialPoints
+#' @importClassesFrom sp SpatialPointsDataFrame
+#' @importClassesFrom sp SpatialPolygons
+#' @importClassesFrom sp SpatialPolygonsDataFrame
 #' @name spatialObjects-class
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
 setClassUnion(name="spatialObjects",
               members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
-                        "RasterLayer", "RasterStack")
+                        "RasterLayer", "RasterStack")#,
+                        #"agentMatrix", "NLworldMatrix")
 )
+
 
 ################################################################################
 #' The \code{.spadesPlotObjects} class
@@ -120,14 +131,14 @@ setClassUnion(name=".spadesPlotObjects",
 #' @author Eliot McIntire
 #'
 setClass(".spadesGrob",
-         slots=list(plotName="character", objName="character", envir="environment",
-                    layerName="character",
-                    objClass="character", isSpatialObjects="logical",
-                    plotArgs="list"),
-         prototype=list(plotName=NA_character_, objName=NA_character_, layerName=NA_character_,
-                        objClass=NA_character_, isSpatialObjects=NA,
-                        plotArgs=as.list(NULL)),
-         validity=function(object) {
+         slots = list(plotName = "character", objName = "character",
+                      envir = "environment", layerName = "character",
+                      objClass = "character", isSpatialObjects = "logical",
+                      plotArgs = "list"),
+         prototype = list(plotName = NA_character_, objName = NA_character_,
+                          layerName = NA_character_, objClass = NA_character_,
+                          isSpatialObjects = NA, plotArgs = as.list(NULL)),
+         validity = function(object) {
            # check for valid extents
            if (any(is.character(object@objName))) {
              stop("must supply an object name")

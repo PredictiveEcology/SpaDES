@@ -83,3 +83,17 @@ test_that("simulation runs with simInit and spades", {
   expect_equivalent(mySim$caribou$x, pos_x)
   expect_equivalent(mySim$caribou$y, pos_y)
 })
+
+
+test_that("spades calls with different signatures don't work", {
+  library(igraph); on.exit(detach("package:igraph"))
+
+  a = simInit()
+  expect_silent(spades(a))
+  expect_output(spades(a, debug = TRUE), "Completed Events")
+  expect_silent(spades(a, .plotInitialTime = NA))
+  expect_silent(spades(a, .saveInitialTime = NA))
+  expect_output(spades(a, debug = TRUE, .plotInitialTime = NA), "Completed Events")
+  expect_output(spades(a, debug = TRUE, .saveInitialTime = NA), "Completed Events")
+
+})

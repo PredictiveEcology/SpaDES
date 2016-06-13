@@ -3,26 +3,26 @@
 \docType{methods}
 \name{downloadModule}
 \alias{downloadModule}
-\alias{downloadModule,character,character,character,character,logical-method}
-\alias{downloadModule,character,character,character,missing,ANY-method}
-\alias{downloadModule,character,character,missing,character,ANY-method}
-\alias{downloadModule,character,character,missing,missing,ANY-method}
+\alias{downloadModule,character,character,character,character,logical,logical-method}
+\alias{downloadModule,character,character,character,missing,ANY,ANY-method}
+\alias{downloadModule,character,character,missing,character,ANY,ANY-method}
+\alias{downloadModule,character,character,missing,missing,ANY,ANY-method}
 \title{Download a module from a SpaDES module GitHub repository}
 \usage{
-downloadModule(name, path, version, repo, data = FALSE)
+downloadModule(name, path, version, repo, data = FALSE, quiet = FALSE)
 
 
-  \S4method{downloadModule}{character,character,character,character,logical}(name,
-  path, version, repo, data = FALSE)
+  \S4method{downloadModule}{character,character,character,character,logical,logical}(name,
+  path, version, repo, data = FALSE, quiet = FALSE)
 
-\S4method{downloadModule}{character,character,character,missing,ANY}(name, path,
-  version, data)
+\S4method{downloadModule}{character,character,character,missing,ANY,ANY}(name,
+  path, version, data, quiet)
 
-\S4method{downloadModule}{character,character,missing,missing,ANY}(name, path,
-  data)
+\S4method{downloadModule}{character,character,missing,missing,ANY,ANY}(name,
+  path, data, quiet)
 
-\S4method{downloadModule}{character,character,missing,character,ANY}(name, path,
-  repo, data)
+\S4method{downloadModule}{character,character,missing,character,ANY,ANY}(name,
+  path, repo, data, quiet)
 }
 \arguments{
 \item{name}{Character string giving the module name.}
@@ -39,6 +39,8 @@ specified by the global option \code{spades.modulesRepo}.}
 
 \item{data}{Logical. If TRUE, then the data that is identified in the module
 metadata will be downloaded, if possible. Default if FALSE.}
+
+\item{quiet}{Logical. This is passed to \code{download.file}. Default is FALSE.}
 }
 \value{
 A list of length 2. The first elemet is a character vector containing

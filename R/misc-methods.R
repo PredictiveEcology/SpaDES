@@ -44,7 +44,8 @@ setMethod("getFileName",
 #' Merge two named list based on their named entries. Where
 #' any element matches in both lists, the value from the
 #' second list is used in the updated list.
-#' Subelements are not examined and are simply replaced.
+#' Subelements are not examined and are simply replaced. If one list is empty, then
+#' it returns the other one, unchanged.
 #'
 #' @param x   a named list
 #' @param y   a named list
@@ -77,6 +78,9 @@ setMethod("updateList",
           signature = c("list", "list"),
           definition = function(x, y) {
             if (any(is.null(names(x)), is.null(names(y)))) {
+              # If one of the lists is empty, then just return the other, unchanged
+              if (length(y)==0) return(x)
+              if (length(x)==0) return(y)
               stop("All elements in lists x,y must be named.")
             } else {
               i <- which(names(x) %in% names(y))
@@ -90,6 +94,7 @@ setMethod("updateList",
           signature = c("NULL", "list"),
           definition = function(x, y) {
             if (is.null(names(y))) {
+              if (length(y) == 0) return(x)
               stop("All elements in list y must be named.")
             }
             return(y[order(names(y))])
@@ -100,6 +105,7 @@ setMethod("updateList",
           signature = c("list", "NULL"),
           definition = function(x, y) {
             if (is.null(names(x))) {
+              if (length(x) == 0) return(x)
               stop("All elements in list x must be named.")
             }
             return(x[order(names(x))])
@@ -276,7 +282,6 @@ setMethod("normPath",
               gsub("^[.]", paste0(getwd()), .) %>%
               gsub("\\\\", "//", .) %>%
               gsub("//", "/", .) %>%
-              gsub("^/private/var/", "/var/", .) %>%
               gsub("/$", "", .)
 })
 
@@ -462,7 +467,10 @@ setMethod(
   "rndstr",
   signature(n = "numeric", len = "numeric", characterFirst = "logical"),
   definition = function(n, len, characterFirst) {
-    stopifnot(n > 0, len > 0)
+    if (!((n > 0) & (len > 0))) {
+      stop("rndstr requires n > 0 and len > 0")
+    }
+
     unlist(lapply(character(as.integer(n)), function(x) {
       i <- as.integer(characterFirst)
       x <- paste0(c(sample(c(letters, LETTERS), size = i),

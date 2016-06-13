@@ -11,27 +11,28 @@
 \usage{
 .plotGrob(grobToPlot, col = NULL, real = FALSE, size = unit(5, "points"),
   minv, maxv, legend = TRUE, legendText = NULL, length = NULL,
-  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1, ...)
-
-\S4method{.plotGrob}{matrix}(grobToPlot, col = NULL, real = FALSE,
-  size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
-  length = NULL, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
+  name = character(), vp = list(), ...)
 
 \S4method{.plotGrob}{SpatialPoints}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
   length = NULL, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  name = character(), vp = list(), ...)
+
+\S4method{.plotGrob}{matrix}(grobToPlot, col = NULL, real = FALSE,
+  size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
+  length = NULL, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
+  name = character(), vp = list(), ...)
 
 \S4method{.plotGrob}{SpatialPolygons}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
   length = NULL, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  name = character(), vp = list(), ...)
 
 \S4method{.plotGrob}{SpatialLines}(grobToPlot, col = NULL, real = FALSE,
   size = unit(5, "points"), minv, maxv, legend = TRUE, legendText = NULL,
   length = NULL, gp = gpar(), gpText = gpar(), pch = 19, speedup = 1,
-  ...)
+  name = character(), vp = list(), ...)
 }
 \arguments{
 \item{grobToPlot}{\code{Raster*}, \code{SpatialLines*},
@@ -73,7 +74,14 @@ by default. Currently, only a single vector is accepted.}
 subsampled. The vertices are already subsampled by default to
 make plotting faster.}
 
-\item{...}{Additional arguments. None currently implemented.}
+\item{name}{Character string of name of object being plotted.}
+
+\item{vp}{whole viewport tree of SpaDESGrob}
+
+\item{...}{Additional arguments. None currently implemented.
+
+# @importClassesFrom NetLogoRClasses agentMatrix
+# @importFrom NetLogoRClasses extent}
 }
 \description{
 Internal function. Plot a raster Grob, a points Grob, polygon Grob.

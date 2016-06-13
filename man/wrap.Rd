@@ -72,12 +72,12 @@ caribou <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
 ln <- rlnorm(N, 1, 0.02) # log normal step length
 sd <- 30 # could be specified globally in params
 
-Plot(hab, zero.color = "white", new = TRUE, axes = "L")
+if(interactive()) Plot(hab, zero.color = "white", new = TRUE, axes = "L")
 for(i in 1:10) {
   caribou <- SpaDES::crw(agent = caribou,
                          extent = extent(hab), stepLength = ln,
                          stddev = sd, lonlat = FALSE, torus = TRUE)
-  Plot(caribou, addTo = "hab", axes = TRUE)
+  if(interactive()) Plot(caribou, addTo = "hab", axes = TRUE)
 }
 }
 \author{

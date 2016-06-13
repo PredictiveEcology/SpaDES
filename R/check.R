@@ -77,7 +77,7 @@ setMethod(
     if (exists(name, envir = envir(sim))) {
       return(invisible(TRUE))
     } else {
-      simName <- .objectNames("spades", "simList", "sim")[[1]]$objs
+      simName <- objectNames("spades", "simList", "sim")[[1]]$objs
       message(paste(name, "does not exist in", simName))
       return(FALSE)
     }
@@ -90,8 +90,8 @@ setMethod(
   signature(sim = "simList", name = "character", object = "missing", layer = "character"),
   definition = function(sim, name, layer, ...) {
     if (exists(name, envir = envir(sim))) {
-      if(is(sim[[name]],"Raster")) {
-        if(!is(sim[[name]][[layer]], "Raster")) {
+      if (is(sim[[name]],"Raster")) {
+        if (!is(sim[[name]][[layer]], "Raster")) {
           message(paste("The object \"", name, "\" exists, but is not
                         a Raster, so layer is ignored", sep = ""))
           return(invisible(TRUE))
@@ -99,7 +99,7 @@ setMethod(
       }
     } else {
       message(
-        paste(name, "does not exist in", deparse(substitute(mySim)))
+        paste(name, "does not exist in", deparse(substitute(sim)))
       )
       return(FALSE)
     }
@@ -192,7 +192,7 @@ setMethod(
 
       globalsFound <- unique(globalsFound)
       notFound <- setdiff(names(globalParams), globalsFound)
-      if (length(notFound)>0) {
+      if (length(notFound) > 0) {
         allFound <- FALSE
         message("Global parameter(s) not used in any module: ",
                 paste(notFound, collapse = ", "), ".")
@@ -218,8 +218,8 @@ setMethod(
           sort(.) %>%
           gsub("\\$", "", .)
 
-        if (length(moduleParams)>0) {
-          if (length(globalParams)>0) {
+        if (length(moduleParams) > 0) {
+          if (length(globalParams) > 0) {
             for (i in 1:length(moduleParams)) {
               mP <- moduleParams[i]
               if (mP %in% names(globalParams)) {
@@ -237,13 +237,14 @@ setMethod(
           gsub(paste0("^.*params\\(sim\\)\\$", uM, "\\$"), "", .) %>%
           gsub("[!\"#$%&\'()*+,/:;<=>?@[\\^`{|}~-].*$","", .) %>%
           gsub("]*", "", .) %>%
+          gsub(" *", "", .) %>%
           unique(.) %>%
           sort(.)
 
-        if (length(moduleParams)>0) {
+        if (length(moduleParams) > 0) {
           # which params does the user supply to simInit?
           userParams <- sort(unlist(names(params[[uM]])))
-          if (length(userParams)>0) {
+          if (length(userParams) > 0) {
             for (i in 1:length(moduleParams)) {
               mP <- moduleParams[i]
               if (!(mP %in% userParams)) {
@@ -257,7 +258,7 @@ setMethod(
 
         globalsFound <- unique(globalsFound)
         notFound <- setdiff(globalsFound, names(globalParams))
-        if (length(notFound)>0) {
+        if (length(notFound) > 0) {
           allFound <- FALSE
           message(paste(
             "The following global parameters are used in module", uM,

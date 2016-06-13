@@ -32,10 +32,10 @@ A \code{RasterLayer} of with same dimensions as \code{fullRaster} representing
 Convert reduced representation to full raster
 }
 \examples{
-require(data.table)
-require(raster)
+library(data.table)
+library(raster)
 Ras <- raster(extent(0,15,0,15), res=1)
-fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
+fullRas <- randomPolygons(Ras, numTypes=2)
 names(fullRas) <- "mapcodeAll"
 uniqueComms <- unique(fullRas)
 reducedDT <- data.table(mapcodeAll=uniqueComms,
@@ -49,7 +49,7 @@ setkey(reducedDT, biomass)
 
 communities <- rasterizeReduced(reducedDT, fullRas, "communities")
 setColors(communities) <- c("blue", "orange", "red")
-Plot(biomass, communities, fullRas, new=TRUE)
+if(interactive()) Plot(biomass, communities, fullRas, new=TRUE)
 }
 \author{
 Eliot McIntire

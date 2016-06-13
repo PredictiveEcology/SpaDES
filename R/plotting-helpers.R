@@ -31,50 +31,6 @@ setMethod(
   }
 )
 
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialPolygons",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialLines",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialPoints",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "gg",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "histogram",
-  definition = function(x) {
-    return(1L)
-  }
-)
 
 #' @rdname nlayers
 setMethod(
@@ -88,7 +44,7 @@ setMethod(
 #' @rdname nlayers
 setMethod(
   "nlayers",
-  signature = "igraph",
+  signature = "ANY",
   definition = function(x) {
     return(1L)
   }
@@ -128,27 +84,7 @@ setMethod(
 #' @rdname layerNames
 setMethod(
   "layerNames",
-  signature = "SpatialPoints",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "SpatialPolygons",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "SpatialLines",
+  signature = "ANY",
   definition = function(object) {
     return("")
   }
@@ -161,26 +97,6 @@ setMethod(
   signature = "Raster",
   definition = function(object) {
     names(object)
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "gg",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "histogram",
-  definition = function(object) {
-    return("")
   }
 )
 
@@ -501,7 +417,7 @@ setMethod(
 #' caribou2 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
 #'
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' Plot(caribouTraj, new=TRUE, length=0.1)
+#' if(interactive()) Plot(caribouTraj, new=TRUE, length=0.1)
 #'
 #' # or  to a previous Plot
 #' \dontrun{
@@ -516,9 +432,9 @@ setMethod(
 #'
 #' # Load files to memory (using rasterToMemory)
 #' sim1 <- loadFiles(filelist=filelist)
+#' caribouTraj <- makeLines(caribou1, caribou2)
 #'
 #' Plot(sim1$DEM, new=TRUE)
-#' caribouTraj <- makeLines(caribou1, caribou2)
 #' Plot(caribouTraj, addTo="sim1$DEM", length=0.1)
 #' }
 #'
@@ -542,7 +458,7 @@ setMethod(
 ################################################################################
 #' Parse arguments and find environments
 #'
-#' Internal function used within .objectNames.
+#' Internal function used within objectNames.
 #'
 #' @param y  A character representation of the arguments passed to a function,
 #'           e.g., \code{Plot}.
@@ -571,8 +487,8 @@ setMethod(
   lastOneDone <- TRUE
 
   while (length(parse(text = deparse(parseTxt))[[1]]) != 1) {
-    if(length(parseTxt)==2) {
-      stop("Please pass an object directly, or use get(x, envir=envName) or eval(x, envir=envName). ",
+    if (length(parseTxt) == 2) {
+      stop("Please pass an object directly, or use get(x, envir = envName) or eval(x, envir = envName). ",
            "Plot can not yet accept functions or complex objects internally.")
     }
 
@@ -609,7 +525,7 @@ setMethod(
         }
       )
     }
-    if(as.character(parseTxt[[1]])=="[[") {
+    if (as.character(parseTxt[[1]]) == "[[") {
       parseTxt[[3]] <- tryCatch(
         eval(parseTxt[[3]], envir = e),
         error = function(x) {
@@ -644,11 +560,11 @@ setMethod(
 
 
       # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
-#       if (identical(
-#         tmpParseTxt3,
-#       parseTxt[[3]])) {
-#         lastOneDone = TRUE
-#       }
+      #       if (identical(
+      #         tmpParseTxt3,
+      #       parseTxt[[3]])) {
+      #         lastOneDone = TRUE
+      #       }
       lastOneDone <- TRUE
       parseTxt[[3]] <- tmpParseTxt3
     }
@@ -656,10 +572,10 @@ setMethod(
       parseTxt[[3]] <- as.name(parseTxt[[3]])
     }
     if (is.numeric(parseTxt[[3]])) {
-      if (!is.null(names(eval(parseTxt[[2]], envir=e)))) {
-        parseTxt[[3]] <- names(eval(parseTxt[[2]], envir=e))[parseTxt[[3]]]
-        if(is.na(parseTxt[[3]])){
-          stop("Please pass an object directly, or use get(x, envir=envName) or eval(x, envir=envName). ",
+      if (!is.null(names(eval(parseTxt[[2]], envir = e)))) {
+        parseTxt[[3]] <- names(eval(parseTxt[[2]], envir = e))[parseTxt[[3]]]
+        if (is.na(parseTxt[[3]])) {
+          stop("Please pass an object directly, or use get(x, envir = envName) or eval(x, envir = envName). ",
                "Plot can not yet accept functions or complex objects internally.")
         }
       }
@@ -672,9 +588,9 @@ setMethod(
     # if evaluating the parsed text is a character,
     # then this is likely then name we want to keep:
     isChar <- tryCatch(
-        is(eval(elems[[i]], envir = eminus1), "character"),
-        error = function(x) { FALSE }
-      )
+      is(eval(elems[[i]], envir = eminus1), "character"),
+      error = function(x) { FALSE }
+    )
     if (isChar) {
       elems[[i]] <- as.name(eval(elems[[i]], envir = eminus1))
     }
@@ -682,13 +598,13 @@ setMethod(
     i = i + 1
   }
 
-#   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
-#     exists(deparse(parseTxt), envir=x, inherits=FALSE)))] %>%
-#     .[[length(.)]]
+  #   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
+  #     exists(deparse(parseTxt), envir = x, inherits = FALSE)))] %>%
+  #     .[[length(.)]]
   envs <- append(.GlobalEnv, sys.frames()) %>%
     .[c(TRUE, sapply(sys.frames(), function(x) {
-      exists(deparse(parseTxt), envir=x, inherits=FALSE)
-      }))] %>%
+      exists(deparse(parseTxt), envir = x, inherits = FALSE)
+    }))] %>%
     .[[length(.)]]
 
   inGlobal <- identical(envs, .GlobalEnv)
@@ -706,18 +622,25 @@ setMethod(
       .spadesEnv[[paste0("dev", dev.cur())]] <- new.env(parent = emptyenv())
     }
 
-    if(is(get(deparse(rev(elems)[[1]]), envir=envs), "simList")) { # If it is a simList
-      changeObjEnv(deparse(elems[[1]]),
-                   fromEnv=envir(get(deparse(rev(elems)[[1]]), envir=envs)),
-                   toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
+    if (is(get(deparse(rev(elems)[[1]]), envir = envs), "simList")) { # If it is a simList
+      useElem <- 1
+      if (length(rev(elems)[-1]) > 1) { # If the user is passing a sub-element to say a Raster Stack
+        if (is(get(deparse(rev(elems)[[2]]), envir = envs), "RasterStack")) { # Only Raster Stack implemented yet
+          useElem <- 2
+        }
+      }
+      changeObjEnv(deparse(elems[[useElem]]),
+                   fromEnv = envir(get(deparse(rev(elems)[[1]]), envir = envs)),
+                   toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     } else { # If it is NOT a simList.
       changeObjEnv(paste(sapply(rev(elems), deparse), collapse = "$"),
-                 fromEnv=envs, toEnv=.spadesEnv[[paste0("dev", dev.cur())]])
+                   fromEnv = envs, toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     }
   }
 
-  if(sapply(elems[[1]], is.numeric)) {
-    return(list(objs = paste0(paste0(sapply(rev(elems), deparse), collapse="[["),"]]"),
+  if (sapply(elems[[1]], is.numeric)) {
+    return(list(objs = paste0(paste0(sapply(rev(elems), deparse),
+                                     collapse = "[["), "]]"),
                 envs = envs))
   }
   return(list(objs = paste(sapply(rev(elems), deparse), collapse = "$"),
@@ -746,11 +669,12 @@ setMethod(
 #' @include plotting-classes.R
 #' @docType methods
 #' @rdname objectNames
+#' @export
 #' @author Eliot McIntire
 #'
-.objectNames <- function(calledFrom = "Plot",
-                         argClass = ".spadesPlotObjects",
-                         argName = "") {
+objectNames <- function(calledFrom = "Plot",
+                        argClass = ".spadesPlotObjects",
+                        argName = "") {
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -760,10 +684,10 @@ setMethod(
   eminus1 <- sys.frame(frameCalledFrom - 1)
 
   if (nchar(argName) == 0) {
-    callNamedArgs <- as.character(substitute(list(...), env=e))[-1]
+    callNamedArgs <- as.character(substitute(list(...), env = e))[-1]
   } else {
-  #  callNamedArgs <- as.character(substitute(parse(text=argName)))[-1]
-    callNamedArgs <- as.character(substitute(parse(text=sim), env=e))[-1]
+    #  callNamedArgs <- as.character(substitute(parse(text = argName)))[-1]
+    callNamedArgs <- as.character(substitute(parse(text = sim), env = e))[-1]
   }
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
   return(objs)
@@ -791,4 +715,4 @@ setGeneric("gpar", function(...) {
 setMethod("gpar",
           definition = function(...) {
             return(grid::gpar(...))
-})
+          })

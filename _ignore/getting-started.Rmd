@@ -26,7 +26,7 @@ vignette: >
 # Sample model
 
 ```{r using-SpaDES, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE}
-require(SpaDES)
+library(SpaDES)
 
 times <- list(start = 0.0, end = 20.0)
 parameters <- list(
@@ -51,8 +51,8 @@ spades(mySim)
 
 ## fire spread
 ```{r fire, eval=TRUE, echo=TRUE, fig=TRUE, cache=TRUE, message=FALSE}
-require(ggplot2)
-require(RColorBrewer)
+library(ggplot2)
+library(RColorBrewer)
 nFires <- 10L
 landscape[["Fires"]] <- spread(landscape[["percentPine"]],
                                loci = sample(1L:ncell(landscape), nFires),
@@ -63,17 +63,17 @@ landscape[["Fires"]] <- spread(landscape[["percentPine"]],
                                mapID = TRUE)
 setColors(landscape$Fires) <- brewer.pal(8, "Reds")[5:8]
 
-Plot(landscape[["Fires"]], new=TRUE)
+Plot(landscape[["Fires"]], new = TRUE)
 fireSizes <- getValues(landscape[["Fires"]])
-ggHist <- qplot(fireSizes[fireSizes>0])
+ggHist <- qplot(fireSizes[fireSizes > 0])
 Plot(ggHist)
 ```
 
 ```{r fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE}
 # Show the burning more strongly over abundant pine
 percentPine <- landscape$percentPine
-Plot(percentPine, new=TRUE)
-Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
+Plot(percentPine, new = TRUE)
+Plot(landscape[["Fires"]], addTo = "percentPine", legend = FALSE, title = FALSE)
 ```
 
 We can see that the fires tend to be in the Pines because we made it that way, using an arbitrary weighting with pine abundance:
@@ -93,10 +93,10 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 **Impact some of the forest**
 
 ```{r fire-impacts-maps, eval=TRUE, echo=TRUE, fig=TRUE}
-landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
-landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
-landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-Plot(landscape, new=TRUE)
+landscape[["forestAge"]][landscape[["Fires"]] > 0] <- 0
+landscape[["habitatQuality"]][landscape[["Fires"]] > 0] <- 0.1
+landscape[["percentPine"]][landscape[["Fires"]] > 0] <- 0
+Plot(landscape, new = TRUE)
 ```
 
 To model point agents (mobile *e.g.*, animals, or non-mobile, *e.g.*, plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.
@@ -124,8 +124,8 @@ row.names(caribou) <- IDs
 Using a simple landscape-dependent correlated random walk, we simulate the movement of caribou across a heterogeneous landscape. Because we had just had fires, and we assume that fires have a detrimental effect on animal movement, we can see the long steps taken in the new, low quality, post-burn sections of the landscape.
 
 ```{r agent-crw-trajectory, eval=TRUE, echo=TRUE, fig=TRUE}
-require(sp)
-if(interactive()) dev()
+library(sp)
+if (interactive()) dev()
 Plot(landscape[["habitatQuality"]], new = TRUE)
 
 for (t in 1:30) {

@@ -10,7 +10,9 @@
 \item{sPlot}{An object of class \code{.spadesPlot}.}
 
 \item{newArr}{Logical indicating whether this function will create a
-completely new viewport. Default \code{FALSE}.}
+               completely new viewport. Default \code{FALSE}.
+
+# @importFrom NetLogoRClasses extent}
 }
 \description{
 Given a set of extents, and a layout for these extents, this function will

@@ -8,21 +8,27 @@
 #' @param path  Character string. The path to the module directory
 #'              (default is the current working directory).
 #'
-#' @return Return two coverage objects and two data tables. The two coverage objects are
-#' moduleCoverage and functionCoverage. The moduleCoverage contains percentage of coverage by unit tests for the module.
-#' The functioinCoverage contains percentages of coverage by unit tests for functions in the module.
-#' The returned two objects are compatible to \code{shine} function in \code{covr} package.
-#' Please use \code{shine} to view the information of coverage. Two data tables give the information
-#' of the tested and untested functions in module.
+#' @return Return a list of two coverage objects and two data.table objects.
+#' The two coverage objects are named `moduleCoverage` and `functionCoverage`.
+#' The `moduleCoverage` object contains the percent value of unit test coverage
+#' for the module.
+#' The `functionCoverage` object contains percentage values for unit test
+#' coverage for each function defined in the module.
+#' Please use \code{\link[covr]{shine}} to view the coverage information.
+#' Two data.tables give the information of all the tested and untested functions
+#' in the module.
 #'
-#' @note For running this function, the tests file must be restrictly placed in tests/testthat folder under module path.
-#'       To automatically generate this folder, please set unitTests = TRUE when develop a new module using \code{\link{newModule}}.
-#'       To accurately test your module, the test file must be named test-functionName.R
-#'
+#' @note When running this function, the test files must be strictly placed in
+#' the \file{tests/testthat/} directory under module path.
+#' To automatically generate this folder, please set \code{unitTests = TRUE}
+#' when creating a new module using \code{\link{newModule}}.
+#' To accurately test your module, the test filename must follw the format
+#' \code{test-functionName.R}.
 #'
 #' @seealso \code{\link{newModule}}.
 #'
 #' @include simList-class.R
+#' @importFrom data.table data.table
 #' @export
 #' @docType methods
 #' @rdname moduleCoverage
@@ -31,7 +37,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'  library(igraph)
+#'  library(igraph) # for %>%
 #'  library(SpaDES)
 #'  tmpdir <- file.path(tempdir(), "coverage")
 #'  modulePath <- file.path(tmpdir, "Modules") %>% checkPath(create = TRUE)
@@ -54,8 +60,7 @@ setMethod(
   definition = function(name, path) {
     tmpdir <- file.path(tempdir(), "moduleCoverage")
     dir.create(tmpdir); on.exit(unlink(tmpdir, recursive = TRUE))
-    fnDir <- file.path(tmpdir, "moduleFunctions") %>%
-      checkPath(create = TRUE)
+    fnDir <- file.path(tmpdir, "moduleFunctions") %>% checkPath(create = TRUE)
     testDir <- file.path(path, name, "tests", "testthat")
 
     if (!requireNamespace("covr", quietly = TRUE) ||
@@ -70,9 +75,9 @@ setMethod(
     untestedFunctions <- data.table(FunctionName = character())
     testedFunctions <- data.table(FunctionName = character(), Coverage = numeric())
     dummyTestFile <- file.path(tmpdir, "test-dummyTestFile.R")
-    cat("test_that(\"this is a temperal dummy test file. \", { \n",
-        "  expect_equal(1,1) \n",
-        "}) \n", file = dummyTestFile, fill = FALSE, sep = "")
+    cat("test_that(\"this is a temporary dummy test file. \", {\n",
+        "  expect_equal(1, 1) \n",
+        "})\n", file = dummyTestFile, fill = FALSE, sep = "")
     # read the module
     mySim <- simInit(times = list(start = 0, end = 1),
                      params = list(),
@@ -82,7 +87,7 @@ setMethod(
 
     objects <- mget(objects(mySim), envir(mySim))
     objects <- objects[which(lapply(objects, is.function) == TRUE)]
-    fnIndex <- which(names(objects) != paste("doEvent.", name, sep=""))
+    fnIndex <- which(names(objects) != paste("doEvent.", name, sep = ""))
 
     for (i in fnIndex) {
       fnName <- file.path(fnDir, paste0(names(objects[i]), ".R", sep = ""))
@@ -96,23 +101,32 @@ setMethod(
     for (i in fnIndex) {
       testfiles <- file.path(testDir, paste0("test-", objects(mySim)[i], ".R"))
       if (file.exists(testfiles)) {
-        mTest <- covr::function_coverage(objects(mySim)[i], env = envir(mySim),
-                                         testthat::test_file(testfiles, env = envir(mySim)))
+        mTest <- covr::function_coverage(
+          objects(mySim)[i], env = envir(mySim),
+          testthat::test_file(testfiles, env = envir(mySim))
+        )
         fnTest <- covr::function_coverage(objects(mySim)[i],
                                           testthat::test_file(testfiles))
-        testedFunctions <- rbind(testedFunctions,
-                                 data.table(FunctionName = objects(mySim)[i],
-                                            Coverage = round(covr::percent_coverage(fnTest),2)))
+        testedFunctions <- rbind(
+          testedFunctions,
+          data.table(FunctionName = objects(mySim)[i],
+                     Coverage = round(covr::percent_coverage(fnTest), 2))
+        )
         mCoverage <- append(mCoverage, mTest)
         fnCoverage <- append(fnCoverage, fnTest)
 
       } else {
-        mTest <- covr::function_coverage(objects(mySim)[i], env = envir(mySim),
-                                         testthat::test_file(dummyTestFile, env = envir(mySim)))
-        fnTest <- covr::function_coverage(objects(mySim)[i],
-                                          testthat::test_file(dummyTestFile))
-        untestedFunctions <- rbind(untestedFunctions,
-                                   data.table(FunctionName = objects(mySim)[i]))
+        mTest <- covr::function_coverage(
+          objects(mySim)[i], env = envir(mySim),
+          testthat::test_file(dummyTestFile, env = envir(mySim))
+        )
+        fnTest <- covr::function_coverage(
+          objects(mySim)[i], testthat::test_file(dummyTestFile)
+        )
+        untestedFunctions <- rbind(
+          untestedFunctions,
+          data.table(FunctionName = objects(mySim)[i])
+        )
         mCoverage <- append(mCoverage, mTest)
         fnCoverage <- append(fnCoverage, fnTest)
       }
@@ -120,7 +134,8 @@ setMethod(
     class(mCoverage) <- "coverage"
     class(fnCoverage) <- "coverage"
     unlink(tmpdir, recursive = TRUE)
-    return(list(moduleCoverage = mCoverage, functionCoverage = fnCoverage,
+    return(list(moduleCoverage = mCoverage,
+                functionCoverage = fnCoverage,
                 testedFunctions = testedFunctions,
                 untestedFunctions = untestedFunctions))
 })

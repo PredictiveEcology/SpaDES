@@ -2,8 +2,12 @@
 % Please edit documentation in R/plotting-colours.R
 \docType{methods}
 \name{.makeColorMatrix}
+\alias{#}
 \alias{.makeColorMatrix}
 \alias{.makeColorMatrix,Raster,Extent,numeric-method}
+\alias{@importClassesFrom}
+\alias{NetLogoRClasses}
+\alias{griddedClasses}
 \alias{makeColourMatrix}
 \title{Convert Raster to color matrix useable by raster function for plotting}
 \usage{

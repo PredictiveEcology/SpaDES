@@ -1,8 +1,11 @@
 test_that("checkPath: normPath consistency", {
   cwd <- getwd()
-  tmpdir <- normalizePath(file.path(tempdir(), "test_normPath"),
-                          winslash = "/", mustWork = FALSE)
-  dir.create(tmpdir, recursive = TRUE)
+
+  # don't use checkPath here because we are testing normPath!
+  tmpdir <- file.path(tempdir(), "test_normPath")
+  dir.create(tmpdir, recursive = TRUE) # create dir before normalizePath (#267)
+  tmpdir <- normalizePath(tmpdir, winslash = "/", mustWork = FALSE)
+
   setwd(tmpdir)
 
   on.exit({
@@ -31,10 +34,18 @@ test_that("checkPath: normPath consistency", {
 
 test_that("checkPath: checkPath consistency", {
   currdir <- getwd()
-  tmpdir <- normalizePath(file.path(tempdir(), "test_checkPath"),
-                          winslash = "/", mustWork = FALSE)
-  dir.create(tmpdir, recursive = TRUE)
-  setwd(tmpdir); on.exit(setwd(currdir))
+
+  # don't use checkPath here because we are testing checkPath
+  tmpdir <- file.path(tempdir(), "test_checkPath")
+  dir.create(tmpdir, recursive = TRUE) # create dir before normalizePath (#267)
+  tmpdir <- normalizePath(tmpdir, winslash = "/", mustWork = FALSE)
+
+  on.exit({
+    setwd(currdir)
+    unlink(tmpdir, recursive = TRUE)
+  })
+  setwd(tmpdir)
+
 
   dir.create("aaa/zzz", recursive = TRUE, showWarnings = FALSE)
   paths <- list("./aaa/zzz",

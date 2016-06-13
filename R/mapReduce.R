@@ -33,10 +33,10 @@ if (getRversion() >= "3.1.0") {
 #' @include environment.R
 #' @author Eliot McIntire
 #' @examples
-#' require(data.table)
-#' require(raster)
+#' library(data.table)
+#' library(raster)
 #' Ras <- raster(extent(0,15,0,15), res=1)
-#' fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
+#' fullRas <- randomPolygons(Ras, numTypes=2)
 #' names(fullRas) <- "mapcodeAll"
 #' uniqueComms <- unique(fullRas)
 #' reducedDT <- data.table(mapcodeAll=uniqueComms,
@@ -50,7 +50,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' communities <- rasterizeReduced(reducedDT, fullRas, "communities")
 #' setColors(communities) <- c("blue", "orange", "red")
-#' Plot(biomass, communities, fullRas, new=TRUE)
+#' if(interactive()) Plot(biomass, communities, fullRas, new=TRUE)
 rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
 
   reduced <- data.table(reduced)
@@ -61,21 +61,22 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
   } else {
     setkeyv(reduced, mapcode)
   }
-  fullRasterVals <- data.table(getValues(fullRaster))# %>% data.frame
-  setnames(fullRasterVals, 1, new=mapcode)
-  fullRasterVals <- fullRasterVals[, row_number:=1L:.N] # %>% mutate(row_number=1L:nrow(.)) %>% data.table
-#   if(!is.null(key(fullRasterVals))){
-#     if(key(fullRasterVals)!=mapcode) {
+  fullRasterVals <- data.table(getValues(fullRaster))# %>% data.frame()
+  setnames(fullRasterVals, 1, new = mapcode)
+  fullRasterVals <- fullRasterVals[, row_number := 1L:.N] # %>% mutate(row_number = 1L:nrow(.)) %>% data.table
+#   if (!is.null(key(fullRasterVals))){
+#     if (key(fullRasterVals) != mapcode) {
 #       setkeyv(fullRasterVals, mapcode)
 #     }
 #   } else {
-    setkeyv(fullRasterVals, mapcode)
-#  }
+  setkeyv(fullRasterVals, mapcode)
+  #  }
 
   BsumVec <- reduced[fullRasterVals]
-  BsumVec[is.na(get(plotCol)), c(plotCol):=NA]
+  BsumVec[is.na(get(plotCol)), c(plotCol) := NA]
   setkey(BsumVec, row_number)
-  ras <- as.character(match.call(expand.dots=TRUE)$reduced)
-  assign(ras, value = raster(res=res(fullRaster), ext=extent(fullRaster), vals=BsumVec[[plotCol]]))
+  ras <- as.character(match.call(expand.dots = TRUE)$reduced)
+  assign(ras, value = raster(res = res(fullRaster), ext = extent(fullRaster),
+                             vals = BsumVec[[plotCol]]))
   return(get(ras))
 }
