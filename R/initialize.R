@@ -124,6 +124,7 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #' Ras <- randomPolygons(numTypes = 5)
 #' if(interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
 #'
+#' library(raster)
 #' # more complex patterning, with a range of patch sizes
 #' a = randomPolygons(numTypes = 400, raster(extent(0,50,0,50),res=1))
 #' a[a<320] <- 0
