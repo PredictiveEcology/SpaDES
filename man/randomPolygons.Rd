@@ -15,7 +15,7 @@ randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1), numTypes = 2,
 This will be overridden by \code{p}, \code{A} or
 \code{minpatch}, if any of these are vectors.}
 
-\item{...}{Additional arguments to \code{\link{randomHabitat}}.}
+\item{...}{Other arguments passed to spread. No known uses currently.}
 }
 \value{
 A map of extent \code{ext} with random polygons.
@@ -41,6 +41,6 @@ Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
 modified random clusters method. Landscape Ecology, 15, 661--678.
 }
 \seealso{
-\code{\link{randomHabitat}} and \code{\link{raster}}
+\code{\link{spread}} and \code{\link{raster}}
 }
 

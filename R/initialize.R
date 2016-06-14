@@ -105,11 +105,11 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'                 This will be overridden by \code{p}, \code{A} or
 #'                 \code{minpatch}, if any of these are vectors.
 #'
-#' @param ...      Additional arguments to \code{\link{randomHabitat}}.
+#' @param ...      Other arguments passed to spread. No known uses currently.
 #'
 #' @return A map of extent \code{ext} with random polygons.
 #'
-#' @seealso \code{\link{randomHabitat}} and \code{\link{raster}}
+#' @seealso \code{\link{spread}} and \code{\link{raster}}
 #'
 #' @importFrom raster disaggregate extent ncol nrow raster
 #'
@@ -143,7 +143,7 @@ randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
   starts <- SpatialPoints(coords = cbind(x = stats::runif(numTypes, xmin(ras), xmax(ras)),
                                           y = stats::runif(numTypes, xmin(ras), xmax(ras))))
   loci <- raster::cellFromXY(starts, object = ras)
-  a <- spread(landscape = ras, spreadProb = 1, loci, allowOverlap = FALSE, id = TRUE)
+  a <- spread(landscape = ras, spreadProb = 1, loci, allowOverlap = FALSE, id = TRUE, ...)
   return(a)
 }
   # ext <- extent(ras)
