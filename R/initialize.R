@@ -96,15 +96,8 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 ###############################################################################
 #' randomPolygons
 #'
-#' Produces a raster of with random polygons of varying parameters, using the
-#' Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
-#'
-#' This is a wrapper for the \code{\link[secr]{randomHabitat}} function in the
-#' \code{secr} package.
-#' The two main additions are the \code{speedup} argument which allows for
-#' faster map generation for large rasters and addition of multiple unique
-#' polygon values, using code drawn from
-#' \url{http://www.guru-gis.net/generate-a-random-landscape/}.
+#' Produces a raster of with random polygons. These are built with the
+#' \code{\link{spread}} function internally.
 #'
 #' @param ras A raster that whose extent will be used for the randomPolygons
 #'
@@ -118,20 +111,25 @@ gaussMap <- function(x, scale = 10, var = 1, speedup = 10, inMemory = FALSE, ...
 #'
 #' @seealso \code{\link{randomHabitat}} and \code{\link{raster}}
 #'
-#' @importFrom secr make.mask
-#' @importFrom secr randomHabitat
-#'
 #' @importFrom raster disaggregate extent ncol nrow raster
 #'
 #' @export
 #' @docType methods
 #' @rdname randomPolygons
 #'
-#' @references Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.
+#' @references Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
+#' modified random clusters method. Landscape Ecology, 15, 661--678.
 #'
 #' @examples
 #' Ras <- randomPolygons(numTypes = 5)
 #' if(interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+#'
+#' # more complex patterning, with a range of patch sizes
+#' a = randomPolygons(numTypes = 400, raster(extent(0,50,0,50),res=1))
+#' a[a<320] <- 0
+#' a[a>=320] <- 1
+#' aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
+#' if(interactive()) Plot(a, aHist, new=TRUE)
 randomPolygons <- function(ras = raster(extent(0,15,0,15), res = 1), #p = 0.1,
                            numTypes = 2, ...){
 

@@ -21,23 +21,23 @@ This will be overridden by \code{p}, \code{A} or
 A map of extent \code{ext} with random polygons.
 }
 \description{
-Produces a raster of with random polygons of varying parameters, using the
-Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
-}
-\details{
-This is a wrapper for the \code{\link[secr]{randomHabitat}} function in the
-\code{secr} package.
-The two main additions are the \code{speedup} argument which allows for
-faster map generation for large rasters and addition of multiple unique
-polygon values, using code drawn from
-\url{http://www.guru-gis.net/generate-a-random-landscape/}.
+Produces a raster of with random polygons. These are built with the
+\code{\link{spread}} function internally.
 }
 \examples{
 Ras <- randomPolygons(numTypes = 5)
 if(interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+
+# more complex patterning, with a range of patch sizes
+a = randomPolygons(numTypes = 400, raster(extent(0,50,0,50),res=1))
+a[a<320] <- 0
+a[a>=320] <- 1
+aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
+if(interactive()) Plot(a, aHist, new=TRUE)
 }
 \references{
-Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.
+Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
+modified random clusters method. Landscape Ecology, 15, 661--678.
 }
 \seealso{
 \code{\link{randomHabitat}} and \code{\link{raster}}
