@@ -351,7 +351,7 @@ test_that("asymmetry doesn't work properly", {
     newName <- paste0("ci",asymAng*20)
     assign(newName, ci)
 
-    #if(interactive()) Plot(get(newName, envir=parent.frame()), new=T)
+    if(interactive()) Plot(get(newName, envir=parent.frame()), new=T)
     if(interactive()) Plot(ciCentre, cols = c("transparent", "black"), addTo = newName)
     # Sys.sleep(1)
     a <- cbind(id=circs$id, to=circs$indices, xyFromCell(hab, circs$indices))

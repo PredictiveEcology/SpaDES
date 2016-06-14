@@ -1290,10 +1290,11 @@ setMethod(
 #'           optional "id" which will be matched with "id" from \code{from}
 #' @param landscape RasterLayer. optional. This is only used if \code{to} is NULL, in which case
 #'                  all cells are considered \code{to}
+#' @param angles Logical. If \code{TRUE}, then the function will return angles in radians,
+#'                  as well as distances.
 #' @param maxDistance Numeric in units of number of cells. The algorithm will build the whole surface
 #'                    (from \code{from} to \code{to}), but will remove all distances that are above
 #'                    this distance.
-#' @inheritParams spread
 #' @rdname distances
 #' @export
 #' @seealso \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}}, which can
@@ -1407,4 +1408,16 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, asymmetry = NA_rea
     pi/2 - atan2(rise,run) # Convert to geographic 0 = North
   })
   cbind(angles = unlist(angles),a)[order(orig),,drop=FALSE]
+}
+
+#' Calculate the direction from a point to a set of points
+#'
+#' This is meant to be used internally.
+#'
+#' @param m1 matrix with 2 columns, x and y, representing the "from" points
+#' @param m2 matrix with 2 columns, x and y,
+.pointDirection(m1, m2) {
+  rise <- m1[,"y"]-m2[,"y"]
+  run <- m1[,"x"]-m2[,"x"]
+  pi/2 - atan2(rise,run) # Convert to geographic 0 = North
 }
