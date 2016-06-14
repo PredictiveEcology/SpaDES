@@ -4,12 +4,13 @@
 \alias{.pointDistance}
 \alias{distanceFromEachPoint}
 \alias{pointDistance}
-\title{Calculate distances between many points and many grid cells}
+\title{Calculate distances and directions between many points and many grid cells}
 \usage{
-distanceFromEachPoint(from, to = NULL, landscape, asymmetry = NA_real_,
-  maxDistance = NA_real_)
+distanceFromEachPoint(from, to = NULL, landscape, angles = NA_real_,
+  maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(x) 1/(1 +
+  x))
 
-.pointDistance(a, b, asymmetry = NA_real_, maxDistance = NA_real_)
+.pointDistance(from, to, angles = NA, maxDistance = NA_real_)
 }
 \arguments{
 \item{from}{matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell,
@@ -17,22 +18,23 @@ and optional "id" which will be matched with "id" from \code{to}}
 
 \item{to}{matrix with 2  or 3 columns (or optionally more, all of which will be returned),
 x and y, representing x and y coordinates of "to" cells, and
-optional "id" which will be matched with "id" from \code{from}}
+optional "id" which will be matched with "id" from \code{from}. Default is all cells.}
 
 \item{landscape}{RasterLayer. optional. This is only used if \code{to} is NULL, in which case
 all cells are considered \code{to}}
 
-\item{asymmetry}{A numeric indicating the ratio of the asymmetry to be used. Default is
-NA, indicating no asymmetry. See details. This is still experimental.
-Use with caution.}
+\item{angles}{Logical. If \code{TRUE}, then the function will return angles in radians,
+as well as distances.}
 
 \item{maxDistance}{Numeric in units of number of cells. The algorithm will build the whole surface
 (from \code{from} to \code{to}), but will remove all distances that are above
-this distance.}
+this distance. Using this will keep memory use down.}
 
-\item{a}{matrix with 2 columns, x and y, representing x and y coordinates of "to" cells}
+\item{cumulativeFn}{A function that can be used to incrementally accumulate values in each \code{to}
+location, as the function iterates through each \code{from}. See Details.}
 
-\item{b}{matrix with 1 row and 2 columns, x and y, representing x and y coordinates of "from" cell}
+\item{distFn}{A function, of "x", to convert the distance in cells to some other set of units
+that will be accumulated by the \code{cumulativeFn}. See Details.}
 }
 \value{
 A sorted matrix on \code{id} with same number of rows as \code{to},
@@ -50,10 +52,22 @@ use down, but with the consequences that there will be a maximum distance return
 has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 }
 \details{
+If the user requires an id (indicating the from cell for each to cell) to be returned with
+the fuction, the user must add an identifier to the \code{from} matrix, such as "id".
+Otherwise, the function will only return the coordinates and distances.
+
 \code{distanceFromEachPoint} calls \code{.pointDistance}, which is not intended to be called
 directly by the user.
 
-This function has been tested and is fast with 100 \code{from} points and 1e6 \code{to} points.
+This function has the potential to return a very large object, as it is doing pairwise
+distances (and optionally directions) between from and to. If there are memory
+limitations because there are many
+\code{from} and many \code{to} points, then \code{cumulativeFn} and \code{distFn} can be used.
+These two functions together will be used iteratively through the \code{from} points. The
+\code{distFn} should be a transformation of distances to be used by the
+\code{cumulativeFn} function. For example, if \code{distFn} is 1/(1+x), the default,
+and \code{cumulativeFn} is \code{`+`}, then it will do a sum of inverse distance weights.
+See examples.
 }
 \examples{
 library(raster)
@@ -68,10 +82,25 @@ indices <- cellFromXY(distRas,dists1[,c("x","y")])
 invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 distRas[] <- as.vector(invDist)
 if(interactive()) Plot(distRas, new=TRUE)
+
+# With iterative summing via cumulativeFn to keep memory use low, with same result
+dists1 <- distanceFromEachPoint(coords[,c("x","y"),drop=FALSE],
+                                landscape = distRas, cumulativeFn = `+`)
+idwRaster <- raster(distRas)
+idwRaster[] <- dists1[,"val"]
+if(interactive()) Plot(idwRaster)
+
+all(idwRaster[]==distRas[]) # TRUE
+
 }
 \seealso{
-\code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}}, which can
-all be made to do the same thing, under specific combinations of arguments. But each has different
-primary use cases.
+\code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
+which can all be made to do the same thing, under specific combinations of arguments.
+But each has different primary use cases. Each is also faster under different conditions.
+For instance, if \code{maxDistance} is relatively small compared to the number of cells
+in the \code{landscape}, then \code{\link{cir}} will likely be faster. If a minimum
+distance from all cells in the \code{landscape} to any cell in \code{from}, then
+\code{distanceFromPoints} will be fastest. This function scales best when all \code{to}
+is many or all cells (which is default).
 }
 

@@ -36,7 +36,8 @@ cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
 
-\item{coords}{Either a matrix with 2 columns, x and y, representing the coordinates
+\item{coords}{Either a matrix with 2 (or 3) columns, x and y (and id), representing the
+coordinates (and an associated id, like cell index),
 or a \code{SpatialPoints*} object around which to make circles. Must be same
 coordinate system as the \code{landscape} argument. Default is missing,
 meaning it uses the default to \code{loci}}
@@ -172,7 +173,8 @@ if(interactive()) Plot(ras1, new=TRUE)
 \seealso{
 \code{\link{rings}} which uses \code{spread} internally.
 \code{cir} tends to be faster when there are few starting points, \code{rings}
-tends to be faster when there are many starting points. Another difference
+tends to be faster when there are many starting points. \code{cir} scales with
+\code{maxRadius} ^ 2 and \code{coords}. Another difference
 between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example. For the specific case of creating distance surfaces from specific

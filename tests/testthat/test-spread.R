@@ -338,6 +338,10 @@ test_that("asymmetry doesn't work properly", {
 
 
 
+  if(interactive()) clearPlot()
+  seed <- sample(1e6,1)
+  seed
+  set.seed(seed)
   for(asymAng in (2:N)) {
     circs <- spread(hab, spreadProb = 0.25, loci = ncell(hab)/2-ncol(hab)/2,
                     id = TRUE, returnIndices = TRUE,
@@ -351,13 +355,15 @@ test_that("asymmetry doesn't work properly", {
     newName <- paste0("ci",asymAng*20)
     assign(newName, ci)
 
-    if(interactive()) Plot(get(newName, envir=parent.frame()), new=T)
+    if(interactive()) Plot(get(newName, envir=parent.frame()))
     if(interactive()) Plot(ciCentre, cols = c("transparent", "black"), addTo = newName)
     # Sys.sleep(1)
     a <- cbind(id=circs$id, to=circs$indices, xyFromCell(hab, circs$indices))
     initialLociXY <- cbind(id = unique(circs$id), xyFromCell(hab, unique(circs$initialLocus)))
-    dirs <- .matchedPointDirection(a, initialLociXY)
+    #dirs <- .matchedPointDirection(a, initialLociXY)
+    dirs <- directionFromEachPoint(from=initialLociXY, to = a)
     dirs[,"angles"] <- CircStats::deg(dirs[,"angles"])
+    #browser()
     avgAngles[asymAng] <- tapply(dirs[,"angles"], dirs[, "id"], meanAngle) %% 360
     lenAngles[asymAng] <- tapply(dirs[,"angles"], dirs[, "id"], length)
 
@@ -687,8 +693,21 @@ test_that("distanceFromPoints", {
   distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = maxDistance)
   expect_true(round(max(distsDFEPMaxD[,"dists"]),7)==maxDistance) # test that maxDistance arg is working
 
+
+  # evaluate cumulativeFn
+  N = 5
+  hab <- raster(extent(0,10,0,10), res = 1)
+  coords = cbind(x = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
+                 y = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5)
+  dfep20 = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab)
+  idw <- tapply(dfep20[,c("dists")],cellFromXY(hab,dfep20[,c("x","y")]), function(x) sum(1/(1+x)))
+  dfep <- distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab, cumulativeFn = `+`)
+  expect_true(sum(idw-dfep[,"val"]) %==% 0)
+
+
   skip("this is currently only benchmarking")
 
+  library(microbenchmark)
 
   loci <- cellFromXY(hab, xy = coords)
   distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE)
@@ -706,22 +725,90 @@ test_that("distanceFromPoints", {
   indices = 1:ncell(hab)
 
   microbenchmark(times = 3,
-    distsDFP10Pts = dists2 <- distanceFromPoints(hab, coords),
-    distsDFP1Pt = dists3 <- distanceFromPoints(hab, coords[1,,drop=FALSE]),
+    distsDFP10Pts = dists2 <- distanceFromPoints(hab, coords[,c("x","y")]),
+    distsDFP1Pt = dists3 <- distanceFromPoints(hab, coords[1,c("x","y"),drop=FALSE]),
     distsDFEP10Pts = dists1 <- distanceFromEachPoint(coords, landscape = hab),
     distsDFEP1Pt = dists5 <- distanceFromEachPoint(coords[1,,drop=FALSE], landscape = hab),
     distsDFEPMaxD =  dists6 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 30),
-    distsCir =  dists7 <- cir(coords, landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE),
+    distsCir =  dists7 <- cir(coords[,c("x","y")], landscape = hab, maxRadius = 30, minRadius = 0, returnDistances = TRUE,
+                              returnIndices = TRUE, allowOverlap = TRUE),
     distsRings =  dists8 <- rings(loci = loci, landscape = hab, maxRadius = 30, minRadius = 0,
                                   allowOverlap = TRUE, returnIndices = TRUE)
   )
 
-  # sum of idw
-  cells <- cellFromXY(hab, dists1[,c("x","y")])
-  dists1DT <- data.table(dists1, cells, key = "cells")
-  idw <- dists1DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
+#  for(i in 1:10) {
+  nPix <- seq(100, 500, length.out = 5)
+  nLoci <- seq(1, log(1000), length.out = 5)
+  results <- list()
+
+  for(numPix in nPix) {
+    a = as.character(numPix)
+    results[[a]] <- list()
+    for(numLoci in round(exp(nLoci))) {
+      b = as.character(numLoci)
+      results[[a]][[b]] <- list()
+      hab <- raster(extent(0,numPix,0,numPix), res = 1)
+      N <- numLoci
+      coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                     y = stats::runif(N, xmin(hab), xmax(hab)))
+      results[[a]][[b]] <- summary(microbenchmark(times = 1,
+                    #dfep = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab),
+                    #cir = cir(coords=coords[,c("x","y")], landscape = hab,
+                    #               minRadius = 0, returnDistances = TRUE, allowOverlap=TRUE),
+                    dfp  = distanceFromPoints(hab, coords[,c("x","y"),drop=FALSE]),
+                    dfep20 = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab),
+                    dfep20Cum = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab, cumulativeFn = `+`),
+                    cir20 = cir(coords=coords[,c("x","y")], landscape = hab, maxRadius = 20,
+                       minRadius = 0, returnDistances = TRUE, allowOverlap=TRUE)
+      )
+      )
+
+
+
+      print(paste("numLoci =",numLoci,"numPix =", numPix))
+    }
+  }
+
+  numPix <- 3300
+  hab <- raster(extent(0,numPix,0,numPix), res = 1)
+  N <- 200#numLoci
+  coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                 y = stats::runif(N, xmin(hab), xmax(hab)))
+  a <- Sys.time()
+  dfep20Cum = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab,
+                                    cumulativeFn = `+`, maxDistance = 50)
+  b <- Sys.time()
+  cir20 = cir(coords=coords[,c("x","y")], landscape = hab, maxRadius = 50,
+              minRadius = 0, returnDistances = TRUE, allowOverlap=TRUE)
+  d <- Sys.time()
+
+  idwRaster <- raster(hab)
+  idwRaster[] <- dfep20Cum[,"val"]
+  if(interactive()) Plot(idwRaster)
+
+  cells <- cellFromXY(hab, cir20[,c("x","y")])
+  cir20DT <- data.table(cir20, cells, key = "cells")
+  idw <- cir20DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
   distsRas <- raster(hab)
-  distsRas[] <- idw$idw
+  distsRas[] <- 0
+  distsRas[idw$cells] <- idw$idw
+  if(interactive()) Plot(distsRas, new=TRUE)
+
+
+    # min        lq      mean    median        uq       max neval
+    # 376.16213 407.44622 437.55936 437.79256 482.09462 484.06806     6
+    # 476.83388 553.83873 571.78810 562.29938 585.29849 690.15876     6
+    # 26.33451  26.34125  30.87619  32.25658  33.34990  34.71832     6
+    # 70.91884  70.97720  71.32302  71.19613  71.76523  71.88459     6
+    #}
+  # sum of idw
+  cells <- cellFromXY(hab, dists7[,c("x","y")])
+  dists7DT <- data.table(dists7, cells, key = "cells")
+  idw <- dists7DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
+  distsRas <- raster(hab)
+  distsRas[] <- 0
+  distsRas[idw$cells] <- idw$idw
+  if(interactive()) Plot(distsRas, new=TRUE)
 
   # sum of idw
   cells <- cellFromXY(hab, dists6[,c("x","y")])
@@ -753,6 +840,37 @@ test_that("distanceFromPoints", {
     Plot(distDiff1, zero.color = "white", new=TRUE)
   }
   sum(abs(getValues(distsRasCir - distsRasRings)))
+
+
+  hab <- raster(extent(0,1e3,0,1e3), res = 1, val=0)
+  N <- 10
+  coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+                 y = stats::runif(N, xmin(hab), xmax(hab)))
+  coords <- cbind(coords, id = cellFromXY(hab,coords))
+
+  microbenchmark(times = 2,
+                 d1 = dists10 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 10),
+                 d2 = dists30 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 30),
+                 d3 =  dists7 <- cir(landscape = hab, coords=coords[,c("x","y")], maxRadius = 30, minRadius = 0, returnDistances = TRUE,
+                                           allowOverlap = TRUE),
+                 d4 = dists50 <- distanceFromEachPoint(coords, landscape = hab, maxDistance = 300),
+                 d5 = distsDFP <- distanceFromPoints(xy=coords[,c("x","y")], object = hab)
+  )
+
+  # sum of idw
+  cells <- cellFromXY(hab, dists50[,c("x","y")])
+  dists50DT <- data.table(dists50, cells, key = "cells")
+  idw <- dists50DT[,list(idw=sum(1/sqrt(1+dists))),by=cells]
+
+  #idw <- dists1DT[,list(sumID=sum(id)),by=cells]
+  distsRas <- raster(hab)
+  distsRas[] <- 0
+  distsRas[idw$cells] <- idw$idw
+  if(interactive()) Plot(distsRas, new=TRUE)
+
+  #Unit: milliseconds
+  #          expr      min       lq     mean   median       uq      max neval
+  #distsDFEP10Pts 856.8681 1058.968 1131.578 1165.994 1225.173 1246.662    10
 
 
   #

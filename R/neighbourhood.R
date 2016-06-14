@@ -372,7 +372,8 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @param landscape    Raster on which the circles are built.
 #'
-#' @param coords Either a matrix with 2 columns, x and y, representing the coordinates
+#' @param coords Either a matrix with 2 (or 3) columns, x and y (and id), representing the
+#'               coordinates (and an associated id, like cell index),
 #'               or a \code{SpatialPoints*} object around which to make circles. Must be same
 #'               coordinate system as the \code{landscape} argument. Default is missing,
 #'               meaning it uses the default to \code{loci}
@@ -434,7 +435,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' @rdname cir
 #' @seealso \code{\link{rings}} which uses \code{spread} internally.
 #' \code{cir} tends to be faster when there are few starting points, \code{rings}
-#' tends to be faster when there are many starting points. Another difference
+#' tends to be faster when there are many starting points. \code{cir} scales with
+#' \code{maxRadius} ^ 2 and \code{coords}. Another difference
 #' between the two functions is that \code{rings} takes the centre of the pixel
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example. For the specific case of creating distance surfaces from specific
@@ -576,6 +578,10 @@ setMethod(
                         returnAngles, returnIndices, closest, simplify) {
   ### adapted from createCircle of the package PlotRegionHighlighter
 
+  if(!all(c("x","y") %in% colnames(coords) )) {
+    stop("coords must have columns named x and y")
+  }
+
   scaleRaster <- res(landscape)
   if(scaleRaster[1] != scaleRaster[2]) stop("cir function only accepts rasters with identical ",
                                             "resolution in x and y dimensions")
@@ -631,18 +637,22 @@ setMethod(
   }
 
   # create individual IDs for the number of points that will be done for their circle
-  if(moreThanOne) {
-    id <- rep.int(seqNumInd, times = nAngles)
+  if(!c("id") %in% colnames(coords) ) {
+    if(moreThanOne) {
+      id <- rep.int(seqNumInd, times = nAngles)
+    } else {
+      id <- 1
+    }
   } else {
-    id <- 1
+    id <- coords[,"id"]
   }
 
   # create vector of radius for the number of points that will be done for each individual circle
   rads <- rep.int(maxRadius, times = numAngles)
 
   # extract the individuals' current coords
-  xs <- rep.int(coords[, 1], times = nAngles)
-  ys <- rep.int(coords[, 2], times = nAngles)
+  xs <- rep.int(coords[, "x"], times = nAngles)
+  ys <- rep.int(coords[, "y"], times = nAngles)
 
   angles <- if(!is.null(dim(numAngles))) {
     rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
