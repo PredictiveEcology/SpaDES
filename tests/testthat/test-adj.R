@@ -232,7 +232,7 @@ test_that("adj.R results not identical to adjacent", {
                 adjMat <- adj.raw(a, sam, directions = dirs, sort = sortTF, match.adjacent = ma,
                                  include = incl,
                               id = ids, pairs = prs, torus = tor)
-                browser(expr=!isTRUE(all.equal(adjMat, adjDT)))
+                #browser(expr=!isTRUE(all.equal(adjMat, adjDT)))
                 expect_true(isTRUE(all.equal(adjMat, adjDT)))
                 #numTests <<- numTests+1
                 if(!tor) {
@@ -240,7 +240,7 @@ test_that("adj.R results not identical to adjacent", {
                                            id = !is.null(ids), pairs = prs)
                   if(!prs) {
                     if(ma) {
-                      browser(expr=!isTRUE(all.equal(adjDT, adj2)))
+                      #browser(expr=!isTRUE(all.equal(adjDT, adj2)))
 
                       expect_equal(adjDT, adj2, info = paste0("ma=",ma, ", dirs=",dirs, ", sortTF=",sortTF,
                                                               ", incl=",incl,", is.null(ids)=",is.null(ids),
@@ -287,8 +287,15 @@ test_that("adj.R results not identical to adjacent", {
   microbenchmark(adjDT <- adj.raw(a, sam, directions = dirs, sort = sortTF, match.adjacent = ma,
                    include = incl,
                    cutoff.for.data.table = 2, id = ids, pairs = prs, torus = tor), times = 1e3)
-  #     min      lq     mean median       uq      max neval
-  #1.922093 1.98368 2.593587  2.046 2.258475 6.054565  1000
+  #Unit: milliseconds
+  #    min       lq     mean   median       uq      max neval
+  #1.31649 1.399192 1.895637 1.455207 1.705074 6.158969  1000
+  microbenchmark(adjDT <- adj.raw(a, sam, directions = dirs, sort = sortTF, match.adjacent = ma,
+                                  include = incl,
+                                  cutoff.for.data.table = 5, id = ids, pairs = prs, torus = tor), times = 1e3)
+  # Unit: microseconds
+  #     min     lq     mean  median     uq      max neval
+  #  65.986 69.212 111.4826 73.7575 87.981 15844.22  1000
 
 })
 

@@ -97,8 +97,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
                     torus = FALSE, id = NULL) {
   to = NULL
   J = NULL
-  if(include)
-    cells <- as.integer(cells)
+  cells <- as.integer(cells)
 
   if (is.null(numCol) | is.null(numCell)) {
     if (is.null(x)) stop("must provide either numCol & numCell or a x")
@@ -114,20 +113,20 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     dirs <- directions
   }
 
-  numNeigh <- dirs + include
-  fromCells <- rep.int(cells, times = numNeigh)
+  numToCells <- dirs + include
+  fromCells <- rep.int(cells, times = numToCells)
 
   if(is.numeric(directions)) {
-    top <- as.integer(cells-numCol)
-    lef <- as.integer(cells-1)
-    rig <- as.integer(cells+1)
-    bot <- as.integer(cells+numCol)
+    top <- cells-numCol
+    lef <- cells-1
+    rig <- cells+1
+    bot <- cells+numCol
   }
   if(needCorners) {
-    topl <- as.integer(cells-numCol-1)
-    topr <- as.integer(cells-numCol+1)
-    botl <- as.integer(cells+numCol-1)
-    botr <- as.integer(cells+numCol+1)
+    topl <- cells-numCol-1L
+    topr <- cells-numCol+1L
+    botl <- cells+numCol-1L
+    botr <- cells+numCol+1L
   }
 
   toCells <-
@@ -144,16 +143,15 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
           c(topl, top, topr, lef, rig, botl, bot, botr)
     } else if (directions == 4) {
       if (match.adjacent)
-        if (include) {
-               c(cells, lef, rig, top, bot)
-        } else
-               c(lef, rig, top, bot)
+        if (include)
+          c(cells, lef, rig, top, bot)
+        else
+          c(lef, rig, top, bot)
       else
         if (include)
-               c(top, lef, cells, rig, bot)
+          c(top, lef, cells, rig, bot)
         else
-               c(top, lef, rig, bot)
-
+          c(top, lef, rig, bot)
     } else if (directions == "bishop") {
       if (match.adjacent)
         if (include)
@@ -169,18 +167,16 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
       stop("directions must be 4 or 8 or \'bishop\'")
     }
 
-  if ((length(cells)<cutoff.for.data.table)) {
+  useMatrix <- (length(cells)<cutoff.for.data.table)
+  if (useMatrix) {
     adj <- cbind(from = fromCells, to = toCells)
-    if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = numNeigh))
+    if(!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = numToCells))
   } else {
-    adj <- data.table(from = fromCells,
-                      to = toCells)
-    if (!is.null(id)) set(adj, , "id", rep.int(id, times = numNeigh)) #adj[,id:=rep.int(id, times = 4)]
+    adj <- data.table(from = fromCells, to = toCells)
+    if (!is.null(id)) set(adj, , "id", rep.int(id, times = numToCells)) #adj[,id:=rep.int(id, times = 4)]
   }
 
-
-
-  if ((length(cells)<cutoff.for.data.table)) {
+  if (useMatrix) {
 
     ################################################
     # Remove all cells that are not target cells, if target is a vector of cells
@@ -264,7 +260,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     # Remove the "from" column if pairs is FALSE
     if (!pairs) {
       from <- as.integer(adj$from)
-      adj[, from:=NULL]
+      set(adj, , "from", NULL)
     }
 
     if (!torus) {
@@ -286,18 +282,24 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     } else {
       if(!pairs) {
         whLefRig <- (from%%numCol + adj$to%%numCol) == 1
-        adj[whLefRig, to:=to+numCol*(from[whLefRig]-to)]
+        toWhLefRig <- adj$to[whLefRig]
+        set(adj, which(whLefRig), "to", toWhLefRig+numCol*(from[whLefRig]-toWhLefRig))
         whBotTop <- ((adj$to-1)%%numCell+1) != adj$to
-        adj[whBotTop, to:=to+as.integer(sign(from[whBotTop]-to)*numCell)]
+        toWhBotTop <- adj$to[whBotTop]
+        set(adj, which(whBotTop), "to", toWhBotTop+as.integer(sign(from[whBotTop]-toWhBotTop)*numCell))
+
         if(match.adjacent) {
           adj <- unique(adj$to)
           return(adj)
         }
       } else {
         whLefRig <- (adj$from%%numCol + adj$to%%numCol) == 1
-        adj[whLefRig, to:=to+numCol*(from-to)]
+        toWhLefRig <- adj$to[whLefRig]
+        set(adj, which(whLefRig), "to", toWhLefRig+numCol*(adj$from[whLefRig]-toWhLefRig))
         whBotTop <- ((adj$to-1)%%numCell+1) != adj$to
-        adj[whBotTop, to:=to+as.integer(sign(from-to)*numCell)]
+        toWhBotTop <- adj$to[whBotTop]
+        set(adj, which(whBotTop), "to", toWhBotTop+as.integer(sign(adj$from[whBotTop]-toWhBotTop)*numCell))
+
       }
       return(as.matrix(adj))
     }
@@ -378,7 +380,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' associated with the ring or circle being identified by this function.
 #'
 #' @import igraph
-#' @importFrom data.table data.table set setkey ':='
+#' @importFrom data.table data.table set setkey
 #' @importFrom sp coordinates
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
