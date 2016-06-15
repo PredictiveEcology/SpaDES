@@ -109,5 +109,9 @@ setMethod(
       }
       x[[i]] <- crop(r, extent(xminCut, xmaxCut, yminCut, ymaxCut))
     }
-    return(do.call(raster::merge, x))
+    y <- do.call(raster::merge, x)
+    yname <- gsub("_tile", "", names(x[[1]])) %>%
+      gsub("\\d", "", .)
+    names(y) <- yname
+    return(y)
 })
