@@ -514,7 +514,7 @@ setMethod(
                   object = if ((mod[x] %in% c("object"))) names(objects)[[factorialExp[ind, "object"]]] else NA,
                   expLevel = factorialExp[ind, "expLevel"],
                   stringsAsFactors = FALSE
-              )),
+                )),
               use.names = TRUE,
               fill = TRUE)
           }
@@ -525,7 +525,7 @@ setMethod(
               data.frame(modules = paste0(unlist(modules[factorialExp[ind, "modules"]]), collapse = ","),
                          expLevel = factorialExp[ind,"expLevel"],
                          stringsAsFactors = FALSE
-            )),
+              )),
             use.names = TRUE,
             fill = TRUE)
         }
