@@ -17,12 +17,17 @@
 #'                of the number of pixels in each tile (rounded up to an integer value).
 #'                Default is \code{c(0, 0)}, which means no buffer.
 #'
+#' @param savePath character specify the directory that the split tiles will be saved,
+#'                and the split tiles will be linked function's output. If missing, the function
+#'                creates a folder with the x raster's name in the working directory
+#'
 #' @return A list (length \code{nx*ny}) of cropped raster tiles.
 #'
 #' @seealso \code{\link{do.call}}, \code{\link[raster]{merge}}, \code{\link{mergeRaster}}.
 #'
 # igraph exports %>% from magrittr
-#' @importFrom raster crop extent rasterize xmax xmin xres ymax ymin yres
+#' @importFrom raster crop extent xmax xmin xres ymax ymin yres getCluster returnCluster writeRaster
+#' @importFrom parallel clusterApply
 #' @export
 #' @docType methods
 #' @rdname splitRaster
@@ -71,7 +76,7 @@
 #' n2 <- mergeRaster(y2)
 #' all.equal(n2, r) ## TRUE
 #'
-setGeneric("splitRaster", function(x, nx, ny, buffer) {
+setGeneric("splitRaster", function(x, nx, ny, buffer, savePath) {
   standardGeneric("splitRaster")
 })
 
@@ -80,15 +85,15 @@ setGeneric("splitRaster", function(x, nx, ny, buffer) {
 setMethod(
   "splitRaster",
   signature = signature(x = "RasterLayer", nx = "integer",
-                        ny = "integer", buffer = "numeric"),
-  definition = function(x, nx, ny, buffer) {
+                        ny = "integer", buffer = "numeric",
+                        savePath = "character"),
+  definition = function(x, nx, ny, buffer, savePath) {
     if (length(buffer) > 2) {
       warning("buffer contains more than 2 elements - only the first two will be used.")
       buffer <- buffer[1:2]
     } else if (length(buffer) == 1) {
       buffer <- c(buffer, buffer)
     }
-
     if (buffer[1] < 1) {
       buffer[1] <- ceiling((buffer[1]*(xmax(x) - xmin(x))/nx)/xres(x))
     }
@@ -96,7 +101,8 @@ setMethod(
       buffer[2] <- ceiling((buffer[2]*(ymax(x) - ymin(x))/ny)/yres(x))
     }
     ext <- extent(x)
-    tiles <- vector("list", length = nx*ny)
+    extents <- vector("list", length = nx*ny)
+    if(!dir.exists(savePath)) {dir.create(savePath)}
     n <- 1L
     for (i in seq_len(nx) - 1L) {
       for (j in seq_len(ny) - 1L) {
@@ -104,9 +110,32 @@ setMethod(
         x1 <- ext@xmin + (i + 1L)*((ext@xmax - ext@xmin) / nx) + buffer[1]*xres(x)
         y0 <- ext@ymin + j*((ext@ymax - ext@ymin) / ny) - buffer[2]*yres(x)
         y1 <- ext@ymin + (j + 1L)*((ext@ymax - ext@ymin) / ny) + buffer[2]*yres(x)
-        tiles[[n]] <- crop(x, extent(x0, x1, y0, y1))
+        extents[[n]] <- extent(x0, x1, y0, y1)
         n <- n + 1L
       }
+    }
+    cl <- tryCatch(getCluster(), error = function(x) NULL)
+    on.exit(if (!is.null(cl)) returnCluster())
+    if (!is.null(cl)) {
+      parFun <- "clusterApply"
+      cropNew <- function(ras, x0 = x, ...) {
+        crop(x = ras,y = x0)
+      }
+      args <- list(cl = cl, x = extents,
+                   fun = cropNew, ras = x)
+
+      # args <- list(seq = extents, fun = crop, r)
+      # args1 <- list(cl = cl, y = extents, fun = crop, x = r)
+      # args <- append(list(cl = cl), args)
+    } else {
+      parFun <- "lapply"
+      args <- list(extents, FUN = crop, x = r)
+    }
+    tiles <- do.call(get(parFun), args)
+    for(i in 1:length(tiles)){
+      writeRaster(tiles[[i]], file.path(savePath, paste(names(x), "_tile", i, ".tif", sep = "")),
+                  overwrite = TRUE)
+      tiles[[i]] <- raster(file.path(savePath, paste(names(x), "_tile", i, ".tif", sep = "")))
     }
     return(tiles)
 })
@@ -115,34 +144,80 @@ setMethod(
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "integer"),
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "integer",
+                        savePath = "character"),
+  definition = function(x, nx, ny, buffer, savePath) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny), as.numeric(buffer), savePath))
+})
+
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "integer",
+                        savePath = "missing"),
   definition = function(x, nx, ny, buffer) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), as.numeric(buffer)))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), as.numeric(buffer),
+                       savePath = file.path(getwd, names(x))))
+  })
+
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "numeric",
+                        savePath = "character"),
+  definition = function(x, nx, ny, buffer, savePath) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer, savePath))
 })
 
 #' @export
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "numeric"),
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "numeric",
+                        savePath = "missing"),
   definition = function(x, nx, ny, buffer) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer,
+                       savePath = file.path(getwd, names(x))))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "missing",
+                        savePath = "character"),
+  definition = function(x, nx, ny, savePath) {
+    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer = c(0, 0), savePath))
 })
 
 #' @export
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "missing"),
+  signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "missing",
+                        savePath = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer = c(0, 0)))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer = c(0, 0),
+                       savePath = file.path(getwd(), names(x))))
+  })
+
+#' @export
+#' @rdname splitRaster
+setMethod(
+  "splitRaster",
+  signature = signature(x = "RasterLayer", nx = "integer", ny = "integer", buffer = "missing",
+                        savePath = "character"),
+  definition = function(x, nx, ny, savePath) {
+    return(splitRaster(x, nx, ny, buffer = c(0, 0), savePath))
 })
 
 #' @export
 #' @rdname splitRaster
 setMethod(
   "splitRaster",
-  signature = signature(x = "RasterLayer", nx = "integer", ny = "integer", buffer = "missing"),
+  signature = signature(x = "RasterLayer", nx = "integer", ny = "integer", buffer = "missing",
+                        savePath = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, nx, ny, buffer = c(0, 0)))
-})
+    return(splitRaster(x, nx, ny, buffer = c(0, 0), savePath = file.path(getwd(), names(x))))
+  })
