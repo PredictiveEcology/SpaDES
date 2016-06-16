@@ -181,18 +181,18 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     ################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
-      adj <- adj[na.omit(adj[, "to"] %in% target),]
+      adj <- adj[na.omit(adj[, "to"] %in% target),,drop=FALSE]
     }
 
     if (sort){
       if(pairs) {
         if (match.adjacent) {
-          adj <- adj[order(adj[, "from"], adj[, "to"]), ]
+          adj <- adj[order(adj[, "from"], adj[, "to"]), ,drop=FALSE]
         } else {
-          adj <- adj[order(adj[, "from"]),]
+          adj <- adj[order(adj[, "from"]),,drop=FALSE]
         }
       } else {
-        adj <- adj[order(adj[, "to"]),]
+        adj <- adj[order(adj[, "to"]),,drop=FALSE]
       }
     }
 
@@ -239,10 +239,18 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     #################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
+
+      #browser()
+      set(adj, , "ord", seq_len(NROW(adj)))
       setkey(adj, to)
       adj <- adj[J(target)]
-      setkey(adj, from)
-      setcolorder(adj, c("from", "to"))
+      adj <- na.omit(adj)
+      setkey(adj, ord)
+      set(adj, , "ord", NULL)
+
+      #browser()
+      #setkey(adj, from)
+      #setcolorder(adj, c("from", "to"))
     }
 
     if (sort){
