@@ -93,7 +93,6 @@ numCell <- ncell(a)
 adj.new <- adj(numCol = numCol, numCell = numCell, cells = sam, directions = 8)
 adj.new <- adj(numCol = numCol, numCell = numCell, cells = sam, directions = 8,
   include = TRUE)
-if (interactive()) print(head(adj.new))
 
 }
 \author{

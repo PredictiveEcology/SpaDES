@@ -159,7 +159,7 @@ setMethod(
 #'
 #' @note
 #' The user can opt to run a simpler simInit call without inputs, outputs, and times.
-#' These can be added later with the accessor methods (See last example). These are not required for initializing the
+#' These can be added later with the accessor methods (See example). These are not required for initializing the
 #' simulation via simInit. \code{modules}, \code{paths}, \code{params}, and \code{objects}
 #' are all needed for initialization.
 #'
@@ -175,7 +175,11 @@ setMethod(
 #' Example: a module named "caribou" will be sourced form the file
 #' \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
-#' @param objects An optional list of data objects to be passed into the simList.
+#' @param objects (optional) A vector of object names (naming objects
+#'                that are in the \code{.GlobalEnv}), or
+#'                a named list of data objects to be
+#'                passed into the simList. These objects will be accessible
+#'                from the simList as a normal list, e.g,. \code{mySim$obj}.
 #'
 #' @param paths  An optional named list with up to 4 named elements,
 #' \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
@@ -438,21 +442,29 @@ setMethod(
     }
 
     if (length(objects)) {
-      newInputs <- data.frame(
-        objectName = names(objects),
-        loadTime = as.numeric(time(sim, "seconds")),
-        stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(sim))
-
-      if (NROW(inputs)) {
-        inputs <- rbind(inputs, newInputs)
+      if(is.list(objects)) {
+        if(length(names(objects))==length(objects)) {
+          objs(sim) <- objects
+        } else {
+          stop(paste("objects must be a character vector of object names",
+               "to retrieve from the .GlobalEnv, or a named list of",
+               "objects"))
+        }
       } else {
-        inputs <- newInputs
+        newInputs <- data.frame(
+          objectName = names(objects),
+          loadTime = as.numeric(time(sim, "seconds")),
+          stringsAsFactors = FALSE) %>%
+          .fillInputRows(startTime = start(sim))
+        inputs(sim) <- newInputs
       }
+
     }
+
 
     # load files in the filelist
     if (NROW(inputs)) {
-      inputs(sim) <- inputs
+      inputs(sim) <- rbind(inputs(sim), inputs)
       if (NROW(
         events(sim)[moduleName == "load" & eventType == "inputs" &
                     eventTime == start(sim)]
@@ -503,6 +515,7 @@ setMethod(
     # # Convert character strings to their objects
     # li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
     li$objects <- .findObjects(objects)
+    #li$objects <- lapply(objects, dynGet)
     names(li$objects) <- objects
     sim <- do.call("simInit", args = li)
 

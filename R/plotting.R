@@ -1500,10 +1500,10 @@ setMethod(
                         # A test_that call can be very long, with many function calls, including Plot and do.call, even if
                         #  they don't have anything to do with each other
     dots <- list(...)
-#    if(any(grepl(pattern="col", names(dots)))) {
-#      usedCol <- dots$col
-      #cols <- dots$col
-#    }
+
+    # Determine where the objects are located; they could be .GlobalEnv, simList, or any other place.
+    #  We need to know exactly where they are, so that they can be replotted later, if needed for
+    #  rearranging
     if (any(isDoCall)) {
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame - 1)

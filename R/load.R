@@ -183,22 +183,15 @@ setMethod(
           #y <- which(cur)[x]
           nam = names(arguments[y])
 
-          if(is.na(filelist$file[y])) {
+          if(is.na(filelist$file[y])) { # i.e., only for objects
             objList <- list()
             if(exists(filelist$objectName[y])) {
               objList <- list(get(filelist$objectName[y]))
               names(objList) <- filelist$objectName[y]
             } else {
-              objList <- .findObjects(filelist$objectName[y])
-              # scalls <- sys.calls()
-              # grep1 <- grep(as.character(scalls), pattern = "simInit")
-              # grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-              #   tryCatch(
-              #     is(parse(text = x), "expression"),
-              #     error = function(y) { NA })
-              # })], na.rm = TRUE)-1, 1)
-              # # Convert character strings to their objects
-              # objList <- lapply(filelist$objectName[y], function(x) get(x, envir = sys.frames()[[grep1]]))
+              objList2 <- .findObjects(filelist$objectName[y])
+              #objList <- lapply(filelist$objectName[y], dynGet)
+              #browser(expr=!isTRUE(all.equal(objList, objList2)))
               names(objList) <- filelist$objectName[y]
             }
             if (length(objList) > 0) {
@@ -210,7 +203,7 @@ setMethod(
                       "To correctly transfer it to the simList, it should be ",
                       "in the search path.")
             }
-          } else {
+          } else { # for files
 
             if (!is.null(nam)) {
               argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])

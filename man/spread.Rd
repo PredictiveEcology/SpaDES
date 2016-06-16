@@ -310,7 +310,7 @@ fires <- spread(hab, loci = startCells,
 #set colors of raster, including a transparent layer for zeros
 setColors(fires, 10) <- c("transparent", brewer.pal(8,"Reds")[5:8])
 if (interactive()) {
-  Plot(fires, new = TRUE)
+  Plot(fires)
   Plot(fires,addTo = "hab")
 
   #alternatively, set colors using cols= in the Plot function
@@ -433,7 +433,6 @@ circlish <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c
 set.seed(seed)
 regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
    directions = 8, id = TRUE)#, stopRule = stopRule2)
-   print(seed)
 if (interactive())
   Plot(circlish, regularCA, new=TRUE)
 

@@ -31,6 +31,13 @@ test_that("simList object initializes correctly", {
 
   mySim$test1 <- TRUE
   mySim[["test2"]] <- TRUE
+
+  # load
+  expect_equal(
+    inputs(mySim),
+    .fileTableIn()
+  )
+
   objs(mySim) <- list(test3 = TRUE)
 
   expect_true(mySim$test1)
@@ -81,10 +88,6 @@ test_that("simList object initializes correctly", {
   expect_identical(progressInterval(mySim), 10)
 
   # load
-  expect_equal(
-    inputs(mySim),
-    .fileTableIn()
-  )
   expect_error(inputs(mySim) <- "something", "inputs must be a list")
 
   # need tests for inputs
