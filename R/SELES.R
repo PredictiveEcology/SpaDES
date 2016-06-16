@@ -118,7 +118,7 @@ numAgents <- function(N, probInit) {
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints = TRUE, indices) {
             standardGeneric("initiateAgents")
-          })
+})
 
 #' @rdname initiateAgents
 setMethod(
@@ -126,7 +126,7 @@ setMethod(
   signature = c("Raster", "missing", "missing", "ANY", "missing"),
   function(map, numAgents, probInit, asSpatialPoints) {
     initiateAgents(map, indices = 1:ncell(map), asSpatialPoints = asSpatialPoints)
-  })
+})
 
 #' @rdname initiateAgents
 setMethod(
@@ -135,7 +135,7 @@ setMethod(
   function(map, probInit, asSpatialPoints) {
     wh <- which(runif(ncell(probInit)) < getValues(probInit))
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
-  })
+})
 
 #' @rdname initiateAgents
 setMethod(
@@ -144,7 +144,7 @@ setMethod(
   function(map, numAgents, probInit, asSpatialPoints, indices) {
     wh <- sample(1:ncell(map), size = numAgents, replace = asSpatialPoints)
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
-  })
+})
 
 #' @rdname initiateAgents
 setMethod(
@@ -155,7 +155,7 @@ setMethod(
     wh <- sample(1:ncell(probInit), numAgents, replace = asSpatialPoints,
                  prob = vals/sum(vals))
     initiateAgents(map, indices = wh, asSpatialPoints = asSpatialPoints)
-  })
+})
 
 #' @rdname initiateAgents
 setMethod(
@@ -171,7 +171,7 @@ setMethod(
       tmp[indices] <- 1
       return(tmp)
     }
-  })
+})
 
 ################################################################################
 #' \code{SELES} - Agent Location at initiation

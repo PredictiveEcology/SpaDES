@@ -38,14 +38,14 @@ setMethod("getColors",
 #           definition = function(object) {
 #             cols <- as(object[,"color"], "data.frame")$color
 #             return(cols)
-#           })
+# })
 
 #' @rdname getColors
 setMethod("getColors",
           signature = "ANY",
           definition = function(object) {
             return(NULL)
-          })
+})
 
 #' @rdname getColors
 setMethod("getColors",
@@ -53,7 +53,8 @@ setMethod("getColors",
           definition = function(object) {
             cols <- list(object@data$color)
             return(cols)
-          })
+})
+
 ################################################################################
 #' Set colours for plotting Raster* objects.
 #'
@@ -125,7 +126,7 @@ setMethod("getColors",
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
-           })
+})
 
 #' @rdname setColors
 #' @importFrom raster is.factor
@@ -133,8 +134,8 @@ setReplaceMethod(
   "setColors",
   signature("RasterLayer", "numeric", "character"),
   function(object, ..., n, value) {
-    if(is.na(n)) {
-      object <- setColors(object=object, value=value)
+    if (is.na(n)) {
+      object <- setColors(object = object, value = value)
       return(object)
     }
     if (raster::is.factor(object)) {
@@ -152,7 +153,7 @@ setReplaceMethod(
     }
     if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
-  })
+})
 
 #' @rdname setColors
 #' @importFrom raster is.factor
@@ -165,7 +166,7 @@ setReplaceMethod(
     } else {
       n <- length(value)
     }
-    setColors(object, n=n) <- value
+    setColors(object, n = n) <- value
     if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
 })
@@ -225,7 +226,7 @@ setMethod(
   function(object, value, n) {
     setColors(object = object, n = n) <- value
     return(object)
-  })
+})
 
 #' @rdname setColors
 setMethod(
@@ -234,7 +235,7 @@ setMethod(
   function(object, value) {
     setColors(object = object) <- value
     return(object)
-  })
+})
 
 ################################################################################
 #' Convert Raster to color matrix useable by raster function for plotting
@@ -438,9 +439,9 @@ setMethod(
     maxzOrig <- maxz
     whichZero <- numeric()
     whichZeroLegend <- numeric()
-    if (!is.null(zero.color)){
-      whichZero <- which(z==0)
-      whichZeroLegend <- which(seq(minz, maxz, length.out=nValues)==0)
+    if (!is.null(zero.color)) {
+      whichZero <- which(z == 0)
+      whichZeroLegend <- which(seq(minz, maxz, length.out = nValues) == 0)
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues

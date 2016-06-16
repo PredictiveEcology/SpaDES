@@ -113,7 +113,7 @@ Ras[] <- 0
 middleCircle <- cir(Ras)
 Ras[middleCircle[,"indices"]] <- 1
 circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
-if(interactive()) {
+if (interactive()) {
   Plot(Ras, new=TRUE)
   Plot(circlePoints, addTo = "Ras")
 }
@@ -129,7 +129,7 @@ cirsRas <- raster(Ras)
 cirsRas[] <- 0
 cirsRas[cirs[, "indices"]] <- 1
 
-if(interactive()) {
+if (interactive()) {
   Plot(Ras, new = TRUE)
   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
   Plot(caribou, addTo = "Ras")
@@ -159,7 +159,7 @@ ras1[cirs[,"indices"]] <- cirs[,"id"]
 ras2 <- raster(hab)
 ras2[] <- 0
 ras2[cirs2$indices] <- cirs2$id
-if(interactive()) Plot(ras1, ras2, new=TRUE)
+if (interactive()) Plot(ras1, ras2, new=TRUE)
 
 a <- raster(extent(0,100,0,100), res = 1)
 hab <- gaussMap(a,speedup = 1)
@@ -168,7 +168,7 @@ ras1 <- raster(hab)
 ras1[] <- 0
 cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
-if(interactive()) Plot(ras1, new=TRUE)
+if (interactive()) Plot(ras1, new=TRUE)
 }
 \seealso{
 \code{\link{rings}} which uses \code{spread} internally.

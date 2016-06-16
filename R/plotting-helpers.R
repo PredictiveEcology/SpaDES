@@ -693,7 +693,6 @@ objectNames <- function(calledFrom = "Plot",
   return(objs)
 }
 
-
 #' Importing some grid functions
 #'
 #' Currently only the gpar function is imported. This is a convenience so that users
@@ -715,4 +714,4 @@ setGeneric("gpar", function(...) {
 setMethod("gpar",
           definition = function(...) {
             return(grid::gpar(...))
-          })
+})

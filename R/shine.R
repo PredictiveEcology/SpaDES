@@ -159,7 +159,6 @@ setMethod(
             # To do make ones for logical, character, functions, text etc.
           })
         })
-
       })
     }
 

@@ -268,7 +268,7 @@ setMethod(
       }
     }
     return(invisible(sim))
-  })
+})
 
 #' @rdname loadFiles
 setMethod("loadFiles",
@@ -279,14 +279,14 @@ setMethod("loadFiles",
                            inputs = filelist,
                            modules = list(), ...)
             return(invisible(sim))
-          })
+})
 
 #' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim = "missing", filelist = "missing"),
           definition = function(...) {
             message("no files loaded because sim and filelist are empty")
-          })
+})
 
 #######################################################
 #' Read raster to memory
@@ -321,4 +321,4 @@ setMethod("rasterToMemory",
             r <- raster(x, ...)
             r <- setValues(r, getValues(r))
             return(r)
-          })
+})

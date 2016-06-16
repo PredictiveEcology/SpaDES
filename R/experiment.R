@@ -205,7 +205,7 @@
 #'   # Or reload objects from files, useful if sim objects too large to store in RAM
 #'   caribouMaps <- lapply(sims, function(sim) {
 #'     caribou <- readRDS(outputs(sim)$file[outputs(sim)$objectName == "caribou"])
-#'     })
+#'   })
 #'   names(caribouMaps) <- paste0("caribou",1:8)
 #'   # Plot does not plot whole lists (yet)
 #'   for(i in 1:NROW(attr(sims,"experiment")$expDesign)){
@@ -385,7 +385,7 @@ setGeneric(
            dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
            experimentFile = "experiment.RData", clearSimEnv = FALSE, ...) {
     standardGeneric("experiment")
-  })
+})
 
 #' @rdname experiment
 setMethod(
@@ -642,4 +642,4 @@ setMethod(
     })
     }
     return(invisible(sims))
-  })
+})
