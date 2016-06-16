@@ -142,7 +142,10 @@ setMethod(
     for(i in 1:length(tiles)){
       writeRaster(tiles[[i]], file.path(savePath, paste(names(x), "_tile", i, ".tif", sep = "")),
                   overwrite = TRUE)
-      tiles[[i]] <- raster(file.path(savePath, paste(names(x), "_tile", i, ".tif", sep = "")))
+
+      singleRaster <- raster(file.path(savePath, paste(names(x), "_tile", i, ".tif", sep = "")))
+      crs(singleRaster) <- crs(x)
+      tiles[[i]] <- singleRaster
     }
     return(tiles)
 })
