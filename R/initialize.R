@@ -247,11 +247,11 @@ specificNumPerPatch <- function(patches, numPerPatchTable = NULL, numPerPatchMap
   wh <- Which(patches, cells = TRUE)
   if (!is.null(numPerPatchTable)) {
     dt1 <- data.table(wh, pops = patchids)
-    setkey(dt1, "pops")
+    setkeyv(dt1, "pops")
     if (is(numPerPatchTable, "data.table")) {
       numPerPatchTable <- data.table(numPerPatchTable)
     }
-    setkey(numPerPatchTable, "pops")
+    setkeyv(numPerPatchTable, "pops")
     dt2 <- dt1[numPerPatchTable]
   } else if (!is.null(numPerPatchMap)) {
     numPerPatchTable <- as.numeric(na.omit(getValues(numPerPatchMap)))

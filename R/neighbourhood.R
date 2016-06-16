@@ -71,7 +71,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link[raster]{adjacent}}
 #'
-#' @importFrom data.table data.table key setcolorder setkey ':='
+#' @importFrom data.table data.table key setcolorder setkeyv ':='
 #' @importFrom raster ncell ncol nrow
 #' @importFrom stats na.omit
 #' @export
@@ -240,28 +240,24 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
 
-      #browser()
       set(adj, , "ord", seq_len(NROW(adj)))
-      setkey(adj, to)
+      setkeyv(adj, "to")
       adj <- adj[J(target)]
       adj <- na.omit(adj)
-      setkey(adj, ord)
+      setkeyv(adj, "ord")
       set(adj, , "ord", NULL)
 
-      #browser()
-      #setkey(adj, from)
-      #setcolorder(adj, c("from", "to"))
     }
 
     if (sort){
       if(pairs) {
         if (match.adjacent) {
-          setkey(adj, from, to)
+          setkeyv(adj, c("from", "to"))
         } else {
-          setkey(adj, from)
+          setkeyv(adj, "from")
         }
       } else {
-        setkey(adj, to)
+        setkeyv(adj, "to")
       }
     }
 
@@ -388,7 +384,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' associated with the ring or circle being identified by this function.
 #'
 #' @import igraph
-#' @importFrom data.table data.table set setkey
+#' @importFrom data.table data.table set setkeyv
 #' @importFrom sp coordinates
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
@@ -626,7 +622,7 @@ setMethod(
 
   if(moreThanOne & allowOverlap & !closest) {
     DT <- data.table(id, indices, rads, angles, x, y)
-    setkey(DT, "id", "indices")
+    setkeyv(DT, c("id", "indices"))
     DT <- unique(DT)
     DT <- na.omit(DT)
     MAT <- as.matrix(DT)

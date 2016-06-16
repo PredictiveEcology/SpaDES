@@ -1083,8 +1083,8 @@ setMethod(
                                                        initialLocus = unique(initialLocus))]
           dtToJoin <- rbindlist(list(spreadStateInitialLoci, dtToJoin))
         }
-        setkey(dtToJoin, id)
-        setkey(allCells, id)
+        setkeyv(dtToJoin, "id")
+        setkeyv(allCells, "id")
 
         allCells <- dtToJoin[allCells]
       }
