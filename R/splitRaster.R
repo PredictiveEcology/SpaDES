@@ -3,6 +3,10 @@
 #' Divides up a raster into an arbitrary number of pieces (tiles).
 #' Split rasters can be recombined using \code{do.call(merge, y)} or \code{mergeRaster(y)},
 #' where \code{y <- splitRaster(x)}.
+#' This function is parallel aware, using the same mechanism as used in the \code{raster}
+#' package. Specifically, if you start a cluster using \code{\link{beginCluster}}, then
+#' this function will automatically use that cluster. It is always a good
+#' idea to stop the cluster when finished, using \code{\link{endCluster}}.
 #'
 #' @param x   The raster to be split.
 #'
@@ -44,10 +48,13 @@
 #' r <- b[[1]] # use first layer only
 #' nx <- 3
 #' ny <- 4
-#' y0 <- splitRaster(r, nx, ny) # no buffer
-#' y1 <- splitRaster(r, nx, ny, c(10, 10)) # buffer: 10 pixels along both axes
-#' y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # buffer: half the width and length of each tile
-#'
+#' y0 <- splitRaster(r, nx, ny, savePath = file.path(tempdir(), "y0")) # no buffer
+#' y1 <- splitRaster(r, nx, ny, c(10, 10), savePath = file.path(tempdir(), "y1")) # buffer: 10 pixels along both axes
+#' y2 <- splitRaster(r, nx, ny, c(0.5, 0.5), savePath = file.path(tempdir(), "y2")) # buffer: half the width and length of each tile
+#' # parallel cropping
+#' beginCluster(2)
+#' y3 <- splitRaster(r, nx, ny, c(0.7, 0.7), savePath = file.path(tempdir(), "y3"))
+#' endCluster()
 #' # the original raster:
 #' plot(r) # may require a call to `dev()` if using RStudio
 #'
@@ -155,8 +162,7 @@ setMethod(
   signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "integer",
                         savePath = "missing"),
   definition = function(x, nx, ny, buffer) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), as.numeric(buffer),
-                       savePath = file.path(getwd, names(x))))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), as.numeric(buffer), savePath = file.path(getwd, names(x))))
   })
 
 
@@ -177,8 +183,7 @@ setMethod(
   signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "numeric",
                         savePath = "missing"),
   definition = function(x, nx, ny, buffer) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer,
-                       savePath = file.path(getwd, names(x))))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer, savePath = file.path(getwd, names(x))))
   })
 
 #' @export
@@ -198,8 +203,7 @@ setMethod(
   signature = signature(x = "RasterLayer", nx = "numeric", ny = "numeric", buffer = "missing",
                         savePath = "missing"),
   definition = function(x, nx, ny) {
-    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer = c(0, 0),
-                       savePath = file.path(getwd(), names(x))))
+    return(splitRaster(x, as.integer(nx), as.integer(ny), buffer = c(0, 0), savePath = file.path(getwd(), names(x))))
   })
 
 #' @export

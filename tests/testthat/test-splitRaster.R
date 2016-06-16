@@ -11,10 +11,21 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
 
   # change the extent of r
   extent(r) <- extent(xmin(r) - 30, xmax(r) - 30, ymin(r) - 20, ymax(r) - 20)
-
+  orgwd <- getwd()
+  setwd(tempdir())
+  if(file.exists(file.path(tempdir(), names(r)))){
+    file.remove(file.path(tempdir(), names(r)))}
   # no buffer
   y0 <- splitRaster(r, nx, ny)
   expect_equal(class(y0), "list")
+  expect_true(unique(unlist(lapply(y0, fromDisk))))
+
+  for(i in 1:12){
+    expect_true(file.exists(file.path(getwd(), "red",
+                                      paste("red_tile", i, ".tif", sep = ""))))
+  }
+  file.remove(file.path(getwd(), "red"), recursive = TRUE)
+
   xextents <- c()
   yextents <- c()
   for (i in 1:length(y0)) {
