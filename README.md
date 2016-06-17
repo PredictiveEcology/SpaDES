@@ -17,7 +17,7 @@ Building packages from source requires the appropriate development libraries for
 The suggested package `fastshp` can be installed with:
 
 ```r
-install.packages("fastshp", repos="http://rforge.net", type="source")
+install.packages("fastshp", repos = "http://rforge.net", type = "source")
 ```
 
 ### Current stable release
@@ -54,7 +54,7 @@ install_github("PredictiveEcology/SpaDES") # stable
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+install_github("PredictiveEcology/SpaDES", ref = "development") # unstable
 ```
 
 ## Getting started
@@ -77,4 +77,4 @@ Contact us via the package GitHub site: [https://github.com/PredictiveEcology/Sp
 
 -----
 
-Copyright (C) 2015 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2016 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
