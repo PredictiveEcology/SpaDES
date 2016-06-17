@@ -12,22 +12,24 @@ install:
 
 # Adapt as necessary starting from here
 
+version: {build}-{branch}
+
 environment:
   global:
+    R_ARCH: x64
     USE_RTOOLS: true
     WARNINGS_ARE_ERRORS: 1
 
   matrix:
   - R_VERSION: devel
-    R_ARCH: x64
 
   - R_VERSION: release
-    R_ARCH: x64
 
   - R_VERSION: oldrel
-    R_ARCH: x64
     RTOOLS_VERSION: 32
-    GCC_PATH: mingw_64
+
+  - R_VERSION: 3.2.2
+    RTOOLS_VERSION: 32
 
 branches:
   only:
