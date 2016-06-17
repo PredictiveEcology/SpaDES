@@ -442,8 +442,8 @@ setMethod(
     }
 
     if (length(objects)) {
-      if(is.list(objects)) {
-        if(length(names(objects))==length(objects)) {
+      if (is.list(objects)) {
+        if (length(names(objects)) == length(objects)) {
           objs(sim) <- objects
         } else {
           stop(paste("objects must be a character vector of object names",
@@ -458,9 +458,7 @@ setMethod(
           .fillInputRows(startTime = start(sim))
         inputs(sim) <- newInputs
       }
-
     }
-
 
     # load files in the filelist
     if (NROW(inputs)) {
