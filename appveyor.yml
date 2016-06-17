@@ -12,7 +12,7 @@ install:
 
 # Adapt as necessary starting from here
 
-version: {build}-{branch}
+version: 1.0.{build}-{branch}
 
 environment:
   global:
