@@ -29,6 +29,14 @@ environment:
     RTOOLS_VERSION: 32
     CRAN: http://cran.rstudio.com
 
+branches:
+  only:
+    - master
+    - development
+
+  except:
+    - gh-pages
+
 build_script:
   - travis-tool.sh install_deps
 
