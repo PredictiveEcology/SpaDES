@@ -37,6 +37,8 @@ branches:
   except:
     - gh-pages
 
+clone_depth: 5
+
 build_script:
   - travis-tool.sh install_deps
 
