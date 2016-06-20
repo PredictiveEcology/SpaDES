@@ -233,13 +233,13 @@ test_that("spread stopRule does not work correctly", {
 
   initialLoci <- as.integer(sample(1:ncell(hab), 10))
   expect_silent(circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = initialLoci,
-                  id = TRUE, circleMaxRadius = maxRadius, allowOverlap=TRUE))
+                  id = TRUE, circleMaxRadius = maxRadius, allowOverlap = TRUE))
 
   expect_silent(circs <- spread(hab2, spreadProb = 1, loci = initialLoci,
-                                maxSize = 10, allowOverlap=TRUE))
+                                maxSize = 10, allowOverlap = TRUE))
 
   expect_silent(circs <- spread(hab2, spreadProb = 1, loci = initialLoci,
-                                maxSize = seq_along(initialLoci)*3, allowOverlap=TRUE))
+                                maxSize = seq_along(initialLoci)*3, allowOverlap = TRUE))
 
 
   # Test allowOverlap and stopRule
@@ -249,7 +249,7 @@ test_that("spread stopRule does not work correctly", {
      expect_silent(
      circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
                      stopRule = stopRule2, maxVal=maxVal, returnIndices = TRUE,
-                     id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includeRing")
+                     id = TRUE, allowOverlap = TRUE, stopRuleBehavior = "includeRing")
      )
 
      vals <- tapply(hab[circs$indices], circs$id, sum)
@@ -261,35 +261,35 @@ test_that("spread stopRule does not work correctly", {
  stopRule2 <- function(landscape,maxVal) sum(landscape)>maxVal
  #expect_silent(
  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
-                 stopRule = stopRule2, maxVal=maxVal, returnIndices = TRUE,
-                 id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel")
+                 stopRule = stopRule2, maxVal = maxVal, returnIndices = TRUE,
+                 id = TRUE, allowOverlap = TRUE, stopRuleBehavior = "excludePixel")
  #)
  vals <- tapply(hab[circs$indices], circs$id, sum)
- expect_true(all(vals<=maxVal))
-
+ expect_true(all(vals <= maxVal))
 
  maxVal <- sample(10:100, 10)
- stopRule2 <- function(landscape,id,maxVal) sum(landscape)>maxVal[id]
+ stopRule2 <- function(landscape,id,maxVal) sum(landscape) > maxVal[id]
  expect_silent(
- circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                 id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel",
-                 maxVal = maxVal, returnIndices = TRUE)
+ circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci,
+                 stopRule = stopRule2, id = TRUE, allowOverlap = TRUE,
+                 stopRuleBehavior = "excludePixel", maxVal = maxVal,
+                 returnIndices = TRUE)
  )
  vals <- tapply(hab[circs$indices], circs$id, sum)
- expect_true(all(vals<=maxVal))
+ expect_true(all(vals <= maxVal))
  # Test that maxSize can be a non integer value (i.e, Real)
-
 
  # Test arbitrary raster as part of stopRule
   # Stop if sum of landscape is big or mean of quality is too small
-   for(i in 1:6) {
+   for (i in 1:6) {
      initialLoci <- as.integer(sample(1:ncell(hab), 10))
      quality <- raster(hab)
      quality[] <- runif(ncell(quality), 0, 1)
      sumLandscapeRule <- 100
      meanHabitatRule <- 0.4
-     stopRule4 <- function(landscape, quality, cells) (sum(landscape)>sumLandscapeRule) |
-       (mean(quality[cells])<meanHabitatRule)
+     stopRule4 <- function(landscape, quality, cells) {
+       (sum(landscape) > sumLandscapeRule) | (mean(quality[cells]) < meanHabitatRule)
+     }
 
      circs <- spread(hab, spreadProb = 1, loci = initialLoci, circle = TRUE,
           directions = 8, id = TRUE, stopRule = stopRule4, quality = quality,
@@ -297,35 +297,33 @@ test_that("spread stopRule does not work correctly", {
 
      ras <- raster(quality)
      ras[] <- 0
-     circsVals <- circs[,numEvents:=sum(unique(id)),by=indices]
+     circsVals <- circs[, numEvents := sum(unique(id)), by = indices]
      ras[circsVals$indices] <- circsVals$numEvents
      a1 <- cbind(quality = quality[ras], hab = hab[ras], id = ras[ras])
      a2 <- tapply(a1[,"hab"], a1[,"id"], sum)
      a3 <- tapply(a1[,"quality"], a1[,"id"], mean)
-     wh <- which(a3<meanHabitatRule)
-     a4 <- tapply(a1[,"quality"], a1[,"id"], length)
-     expect_true(all(a2[wh]<sumLandscapeRule))
-     expect_true(all(a2[-wh]>=sumLandscapeRule))
-     expect_true(all(a3[-wh]>=meanHabitatRule))
-     expect_true(all(a3[wh]<meanHabitatRule))
-     if(interactive()) Plot(ras)
+     wh <- which(a3 < meanHabitatRule)
+     a4 <- tapply(a1[, "quality"], a1[, "id"], length)
+     expect_true(all(a2[wh] < sumLandscapeRule))
+     expect_true(all(a2[-wh] >= sumLandscapeRule))
+     expect_true(all(a3[-wh] >= meanHabitatRule))
+     expect_true(all(a3[wh] < meanHabitatRule))
+     if (interactive()) Plot(ras)
    }
 })
 
-
 test_that("asymmetry doesn't work properly", {
-
   require(CircStats)
   require(raster)
   a <- raster(extent(0,1e2,0,1e2), res = 1)
-  hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
-  hab2 <- hab>0
+  hab2 <- hab > 0
   maxRadius <- 25
   maxVal <- 50
   set.seed(53432)
 
-  stopRule2 <- function(landscape) sum(landscape)>maxVal
+  stopRule2 <- function(landscape) sum(landscape) > maxVal
   startCells <- as.integer(sample(1:ncell(hab), 1))
 
   N <- 16
@@ -338,12 +336,11 @@ test_that("asymmetry doesn't work properly", {
 
 
 
-  if(interactive()) clearPlot()
+  if (interactive()) clearPlot()
   seed <- sample(1e6,1)
-  seed
   set.seed(seed)
-  for(asymAng in (2:N)) {
-    circs <- spread(hab, spreadProb = 0.25, loci = ncell(hab)/2-ncol(hab)/2,
+  for (asymAng in (2:N)) {
+    circs <- spread(hab, spreadProb = 0.25, loci = ncell(hab)/2 - ncol(hab)/2,
                     id = TRUE, returnIndices = TRUE,
                     asymmetry = 40, asymmetryAngle = asymAng*20)
     ci <- raster(hab)
@@ -352,63 +349,69 @@ test_that("asymmetry doesn't work properly", {
     ciCentre <- raster(ci)
     ciCentre[] <- 0
     ciCentre[unique(circs$initialLocus)] <- 1
-    newName <- paste0("ci",asymAng*20)
+    newName <- paste0("ci", asymAng*20)
     assign(newName, ci)
 
-    where2 <- function (name, env = parent.frame()) { # simplified from pryr::where
-      if (exists(name, env, inherits = FALSE))  env else where2(name, parent.env(env))
+    where2 <- function(name, env = parent.frame()) { # simplified from pryr::where
+      if (exists(name, env, inherits = FALSE)) env else where2(name, parent.env(env))
     }
     env <- where2(newName)
-    if(interactive()) Plot(get(newName, envir=env))
-    if(interactive()) Plot(ciCentre, cols = c("transparent", "black"), addTo = newName)
+    if (interactive()) {
+      Plot(get(newName, envir = env))
+      Plot(ciCentre, cols = c("transparent", "black"), addTo = newName)
+    }
     # Sys.sleep(1)
-    a <- cbind(id=circs$id, to=circs$indices, xyFromCell(hab, circs$indices))
+    a <- cbind(id = circs$id, to = circs$indices, xyFromCell(hab, circs$indices))
     initialLociXY <- cbind(id = unique(circs$id), xyFromCell(hab, unique(circs$initialLocus)))
     #dirs <- .matchedPointDirection(a, initialLociXY)
-    dirs <- directionFromEachPoint(from=initialLociXY, to = a)
+    dirs <- directionFromEachPoint(from = initialLociXY, to = a)
     dirs[,"angles"] <- CircStats::deg(dirs[,"angles"])
     #browser()
     avgAngles[asymAng] <- tapply(dirs[,"angles"], dirs[, "id"], meanAngle) %% 360
     lenAngles[asymAng] <- tapply(dirs[,"angles"], dirs[, "id"], length)
-
   }
 
-  whBig <- which(lenAngles>50)
+  whBig <- which(lenAngles > 50)
   pred <- (1:N)[whBig]*20
   expect_true(abs(coef(lm(avgAngles[whBig]~pred))[[2]] - 1) < 0.1)
-
 })
 
-
 test_that("spread benchmarking", {
-
   skip("This is just benchmarking, not testing")
   require(raster)
   a <- raster(extent(0,1e2,0,1e2), res = 1)
-  hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
+  hab <- gaussMap(a, speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
   names(hab) = "hab"
-  hab2 <- hab>0
+  hab2 <- hab > 0
   maxRadius <- 25
   maxVal <- 50
 
  library(microbenchmark)
  initialLoci <- as.integer(sample(1:ncell(hab), 3))
  maxVal <- 20
- stopRule2 <- function(landscape,maxVal) sum(landscape)>maxVal
+ stopRule2 <- function(landscape,maxVal) sum(landscape) > maxVal
 
  microbenchmark(times = 200,
-                excludePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                                id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludePixel",
-                                maxVal = maxVal, returnIndices = TRUE),
-                excludeRing = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                               id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "excludeRing",
-                               maxVal = maxVal, returnIndices = TRUE),
-                includePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                               id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includePixel",
-                               maxVal = maxVal, returnIndices = TRUE),
-                includeRing = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                                      id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includeRing",
-                                      maxVal = maxVal, returnIndices = TRUE)
+                excludePixel = spread(hab, spreadProb = 1, circle = TRUE,
+                                      loci = initialLoci, stopRule = stopRule2,
+                                      id = TRUE, allowOverlap = TRUE,
+                                      stopRuleBehavior = "excludePixel",
+                                      maxVal = maxVal, returnIndices = TRUE),
+                excludeRing = spread(hab, spreadProb = 1, circle = TRUE,
+                                     loci = initialLoci, stopRule = stopRule2,
+                                     id = TRUE, allowOverlap = TRUE,
+                                     stopRuleBehavior = "excludeRing",
+                                     maxVal = maxVal, returnIndices = TRUE),
+                includePixel = spread(hab, spreadProb = 1, circle = TRUE,
+                                      loci = initialLoci, stopRule = stopRule2,
+                                      id = TRUE, allowOverlap = TRUE,
+                                      stopRuleBehavior = "includePixel",
+                                      maxVal = maxVal, returnIndices = TRUE),
+                includeRing = spread(hab, spreadProb = 1, circle = TRUE,
+                                     loci = initialLoci, stopRule = stopRule2,
+                                     id = TRUE, allowOverlap = TRUE,
+                                     stopRuleBehavior = "includeRing",
+                                     maxVal = maxVal, returnIndices = TRUE)
  )
  #Unit: milliseconds # with data.table
  #expr              min       lq     mean   median       uq       max neval
@@ -426,13 +429,13 @@ test_that("spread benchmarking", {
  # includeRing  22.76565 24.52749 27.56035 26.56609 29.32072 49.58507   200
 
  includePixel = spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                       id = TRUE, allowOverlap=TRUE, stopRuleBehavior = "includePixel",
+                       id = TRUE, allowOverlap = TRUE, stopRuleBehavior = "includePixel",
                        maxVal = maxVal, returnIndices = TRUE)
 
  ## Make distance surface
  maxRadius = 10
  circs <- spread(hab2, spreadProb = 1, circle = TRUE, loci = initialLoci,
-                 id = TRUE, circleMaxRadius = maxRadius, allowOverlap=TRUE)
+                 id = TRUE, circleMaxRadius = maxRadius, allowOverlap = TRUE)
  clumps <- raster::clump(circs)
  bounds <- raster::boundaries(clumps, classes=TRUE, type = "outer")
  spreadProb <- raster(clumps)
@@ -446,7 +449,7 @@ test_that("spread benchmarking", {
  xy <- xyFromCell(circs, whCells)
  microbenchmark(times = 2,
 
-                dists = spread(circs, loci = whCells, spreadProb = spreadProb, id = FALSE, circle=TRUE, allowOverlap=TRUE,
+                dists = spread(circs, loci = whCells, spreadProb = spreadProb, id = FALSE, circle=TRUE, allowOverlap = TRUE,
                                iterations = 20, directions = 8, returnIndices = FALSE)
                 ,
                 dists2 = distanceFromPoints(circs, xy = xy))
@@ -758,12 +761,12 @@ test_that("distanceFromPoints", {
       results[[a]][[b]] <- summary(microbenchmark(times = 1,
                     #dfep = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab),
                     #cir = cir(coords=coords[,c("x","y")], landscape = hab,
-                    #               minRadius = 0, returnDistances = TRUE, allowOverlap=TRUE),
+                    #               minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE),
                     dfp  = distanceFromPoints(hab, coords[,c("x","y"),drop=FALSE]),
                     dfep20 = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab),
                     dfep20Cum = distanceFromEachPoint(coords[,c("x","y"),drop=FALSE], landscape = hab, cumulativeFn = `+`),
                     cir20 = cir(coords=coords[,c("x","y")], landscape = hab, maxRadius = 20,
-                       minRadius = 0, returnDistances = TRUE, allowOverlap=TRUE)
+                       minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
       )
       )
 
@@ -783,7 +786,7 @@ test_that("distanceFromPoints", {
                                     cumulativeFn = `+`, maxDistance = 50)
   b <- Sys.time()
   cir20 = cir(coords=coords[,c("x","y")], landscape = hab, maxRadius = 50,
-              minRadius = 0, returnDistances = TRUE, allowOverlap=TRUE)
+              minRadius = 0, returnDistances = TRUE, allowOverlap = TRUE)
   d <- Sys.time()
 
   idwRaster <- raster(hab)

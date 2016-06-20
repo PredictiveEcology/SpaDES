@@ -183,7 +183,7 @@ setMethod(
           #y <- which(cur)[x]
           nam = names(arguments[y])
 
-          if(is.na(filelist$file[y])) { # i.e., only for objects
+          if (is.na(filelist$file[y])) { # i.e., only for objects
             objList <- list()
             if(exists(filelist$objectName[y])) {
               objList <- list(get(filelist$objectName[y]))

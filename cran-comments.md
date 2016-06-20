@@ -8,20 +8,19 @@ This is a maintenance release to fix CRAN check errors on OSX.
 * Windows 7               (local), R 3.2.2
 * Windows 7               (local), R 3.2.3
 * Windows 7               (local), R 3.2.4
-* Windows 7               (local), R 3.2.4 Revised (2016-03-16 r70336)
+* Windows 7               (local), R 3.2.5
 
 ### Current R versions
-* Debian Jessie           (local), R 3.2.5
-* OS X El Capitan         (local), R 3.2.5 Patched (2016-04-18 r70517)
-* Ubuntu 12.04        (travis-ci), R 3.2.4 Revised (2016-03-16 r70338)
-* Ubuntu 14.04            (local), R 3.2.5
-* Windows 7               (local), R 3.2.5
-* Windows           (win-builder), R 3.2.5
+* Debian Jessie           (local), R 3.3.0
+* OS X El Capitan         (local), R 3.3.0
+* Ubuntu 12.04        (travis-ci), R 3.3.0
+* Ubuntu 14.04            (local), R 3.3.0
+* Windows 7               (local), R 3.3.0
+* Windows           (win-builder), R 3.3.0
 
 ### Development R version
-* Debian:testing (rocker/r-base),  R 3.2.5
-* Debian:testing (rocker/r-devel), R 3.4.0 (2016-04-04 r70420)
-* Windows           (win-builder), R 3.3.0 beta (2016-04-14 r70486)
+* Debian:testing (rocker/r-devel), R 3.4.0 (2016-05-31 r70688)
+* Windows           (win-builder), R 3.4.0 (2016-05-31 r70688)
 
 ## R CMD check results
 

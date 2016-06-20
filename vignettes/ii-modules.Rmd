@@ -618,7 +618,6 @@ outputs(mySim) <- data.frame(
 mySim2 <- spades(mySim)
 dev.off()
 unlink(ftmp)
-
 ```
 
 Saving within a module -- scheduling save events.

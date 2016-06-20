@@ -33,10 +33,7 @@ test_that("simList object initializes correctly", {
   mySim[["test2"]] <- TRUE
 
   # load
-  expect_equal(
-    inputs(mySim),
-    .fileTableIn()
-  )
+  expect_equal(inputs(mySim), .fileTableIn())
 
   objs(mySim) <- list(test3 = TRUE)
 
@@ -46,7 +43,7 @@ test_that("simList object initializes correctly", {
   expect_error(objs(mySim) <- "test4", "must provide a named list.")
 
   oldEnv <- envir(mySim)
-  envir(mySim) <- new.env(parent=.GlobalEnv)
+  envir(mySim) <- new.env(parent = .GlobalEnv)
 
   expect_true(is.null(mySim$test1))
   expect_true(is.null(mySim[["test2"]]))

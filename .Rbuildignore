@@ -4,6 +4,7 @@
 .*\.zip$
 .*\.toc$
 \.travis\.yml
+appveyor.yml
 CONTRIBUTING\.md
 cran-comments\.md
 LICENSE
