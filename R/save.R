@@ -105,6 +105,10 @@ saveFiles = function(sim) {
                      file = outputs(sim)[i, "file"]),
                      outputArgs(sim)[[i]])
         args <- args[!sapply(args, is.null)]
+        args <- suppressWarnings(args[!unlist(lapply(args, function(ii)
+                                 isTRUE(tryCatch(is.na(args[[ii]]), error = function(x) FALSE))
+                ))])
+
 
         # The actual save line
         do.call(outputs(sim)[i,"fun"], args = args,
