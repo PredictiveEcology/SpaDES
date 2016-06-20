@@ -1,29 +1,12 @@
-# Instructions and more configuration options:
-#   https://docs.travis-ci.com/user/languages/r
+# Sample .travis.yml for R projects.
+#
+# See README.md for instructions, or for more configuration options,
+# see the wiki:
+#   https://github.com/craigcitro/r-travis/wiki
 
 language: r
-
-r:
-  - oldrel
-  - release
-  - devel
-
-cache: packages
-
-addons:
-  apt:
-    packages:
-    - gdal-bin
-    - libgdal-dev
-    - libgdal1-dev
-    - libgeos-dev
-    - libgeos++-dev
-    - libproj-dev
-    - libspatialite-dev
-    - libsqlite3-dev
-    - libv8-dev
-    - tcl8.5-dev
-    - tk8.5-dev
+sudo: required
+cran: http://cran.rstudio.com/
 
 env:
   global:
@@ -41,6 +24,41 @@ r_build_args: " "
 r_check_args: "--as-cran"
 
 warnings_are_errors: true
+
+r_binary_packages:
+  - chron
+  - circstats
+  - colorspace
+  - data.table
+  - dichromat
+  - digest
+  - dplyr
+  - ggplot2
+  - gtable
+  - httr
+  - igraph
+  - knitr
+  - labeling
+  - latticeextra
+  - lubridate
+  - magrittr
+  - munsell
+  - proto
+  - randomfields
+  - raster
+  - rcolorbrewer
+  - rcpp
+  - reshape
+  - rgdal
+  - scales
+  - secr
+  - snow
+  - sp
+  - stringr
+  - testthat
+  - tkrplot
+  - xts
+  - zoo
 
 after_success:
   - ./_push_vignettes.sh
