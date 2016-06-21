@@ -304,6 +304,13 @@ test_that("adj.R results not identical to adjacent", {
 
 })
 
+
+test_that("errors in adj are not correct", {
+  a <- raster::raster(raster::extent(0, 1e1, 0, 1e1), res = 1)
+  sam <- sample(1:length(a), 4 )
+  expect_error(adj.raw(a, sam, directions = 5), "directions must be 4 or 8 or \'bishop\'")
+})
+
 test_that("adj.R: torus does not work as expected", {
   # test data.table and matrix
   for(i in c(100,1)) {

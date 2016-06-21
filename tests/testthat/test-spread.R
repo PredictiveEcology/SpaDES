@@ -678,7 +678,7 @@ test_that("rings and cirs", {
 
 })
 
-test_that("distanceFromPoints", {
+test_that("distanceFromPoints does not work correctly", {
 
   require(raster)
   require(fpCompare)
@@ -985,5 +985,107 @@ test_that("distanceFromPoints", {
   setkey(tmpDT, oneClump, len)
   tmpDT[oneClump == 0]
 
+
+})
+
+
+test_that("simple cir does not work correctly", {
+
+  require(raster)
+  require(fpCompare)
+  hab <- raster(extent(0,1e1,0,1e1), res = 1)
+
+  circleRas <- cir(hab, maxRadius = 1, includeBehavior = "excludePixels")
+  expect_true(NROW(circleRas)==4)
+  expect_true(all(circleRas[,"indices"]==c(35,44,55,46)))
+  expect_true(all(mean(circleRas[,"x"])==(ncol(hab)/2-0.5)))
+  expect_true(all(mean(circleRas[,"y"])==(nrow(hab)/2+0.5)))
+
+  N = 1
+  coords = cbind(x1 = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5,
+                 y1 = round(stats::runif(N, xmin(hab), xmax(hab)))+0.5)
+  expect_error(cir(hab, coords=coords), "coords must have columns named x and y")
+
+  # test id column in coords
+  N <- 2
+  coords <- cbind(x = (stats::runif(N, xmin(hab)+0.5, xmax(hab)-0.5)),
+                 y = (stats::runif(N, xmin(hab)+0.5, xmax(hab)-0.5)),
+                 id = c(45, 56))
+  cirs <- cir(hab, coords=coords, maxRadius = 1, minRadius = 0, includeBehavior = "includePixels",
+              returnIndices = TRUE)
+  expect_true(all(unique(cirs[,"id"])==c(45,56)))
+  expect_true(all(distanceFromEachPoint(coords, cirs)[,"dists"] %<=% 1))
+
+  # test closest
+  N = 1
+  coords = cbind(x = c(5,6),
+                 y = c(5,5))
+  cirsClosestT <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+                      closest = TRUE, returnIndices = TRUE, allowOverlap = FALSE)
+  cirsClosestF <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+              closest = FALSE, returnIndices = TRUE, allowOverlap = FALSE)
+  expect_true(all(table(cirsClosestF[,"id"])==c(17,4)))
+  expect_true(all(table(cirsClosestT[,"id"]) - table(cirsClosestF[,"id"]) == c(-5, 5)))
+
+
+
+  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+               closest = FALSE, returnIndices = FALSE, allowOverlap = FALSE,
+               returnDistances = FALSE)
+  expect_is(cirs2, "Raster")
+  expect_true(max(getValues(cirs2))==2)
+  expect_true(min(getValues(cirs2))==0)
+
+  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+               closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = FALSE)
+  expect_is(cirs2, "Raster")
+  expect_true(max(getValues(cirs2))==3)
+  expect_true(min(getValues(cirs2))==0)
+
+  cirs2 <- cir(hab, coords=coords, maxRadius = 2, minRadius = 0, includeBehavior = "includePixels",
+               closest = FALSE, returnIndices = FALSE, allowOverlap = TRUE, returnDistances = TRUE)
+  expect_is(cirs2, "Raster")
+  expect_true(max(getValues(cirs2))<2.82843)
+  expect_true(min(getValues(cirs2))==0)
+
+})
+
+test_that("wrap does not work correctly", {
+
+ library(raster)
+ xrange <- yrange <- c(-50, 50)
+ hab <- raster(extent(c(xrange, yrange)))
+ hab[] <- 0
+
+ # initialize caribou agents
+ N <- 10
+
+ # previous points
+ x1 <- rep(0, N)
+ y1 <- rep(0, N)
+ # initial points, outside of range
+ starts <- cbind(x = stats::runif(N, xrange[1]-10, xrange[1]),
+                 y = stats::runif(N, yrange[1]-10, yrange[1]))
+
+ expect_false(all(wrap(starts, bounds = extent(hab))==starts))
+ expect_false(all(wrap(starts, bounds = hab)==starts))
+ expect_false(all(wrap(starts, bounds = bbox(hab))==starts))
+ expect_error(wrap(starts, bounds = starts),
+              "Must use either a bbox, Raster\\*, or Extent for 'bounds'")
+
+
+ # create spdf
+ spdf <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
+ expect_true(all(coordinates(wrap(spdf, bounds = hab))==wrap(starts, hab)))
+ expect_true(all(coordinates(wrap(spdf, bounds = bbox(hab)))==wrap(starts, hab)))
+ expect_error(wrap(spdf, bounds = starts),
+              "Must use either a bbox, Raster\\*, or Extent for 'bounds'")
+
+ # errrors
+ starts <- cbind(x1 = stats::runif(N, xrange[1]-10, xrange[1]),
+                 y = stats::runif(N, yrange[1]-10, yrange[1]))
+ spdf <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
+ expect_error(wrap(spdf, bounds = extent(hab)),
+              "When X is a matrix, it must have 2 columns, x and y,")
 
 })

@@ -600,7 +600,7 @@ setMethod(
       id <- 1
     }
   } else {
-    id <- coords[,"id"]
+    id <- rep(coords[,"id"], times=nAngles)
   }
 
   # create vector of radius for the number of points that will be done for each individual circle
@@ -643,7 +643,8 @@ setMethod(
                           #   distances. Don't waste resources on calculating all distances
       MAT2 <- MAT
     } else {
-      MAT2 <- MAT[MAT[,"rads"]>=(maxRad-0.71) | MAT[,"rads"]<=(minRad+0.71),] # 0.71 is the sqrt of 1, so keep
+      MAT2 <- MAT[MAT[,"rads"] %>=% (maxRad-0.71) |
+                    MAT[,"rads"] %<=% (minRad+0.71),] # 0.71 is the sqrt of 1, so keep
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
     xyC <- xyFromCell(landscape, MAT2[,"indices"]);
@@ -678,7 +679,8 @@ setMethod(
     } else if (closest) {
       MAT <- d[,c("id","indices","x","y"),drop=FALSE]
     } else {
-      MATinterior <- MAT[MAT[,"rads"]<(maxRad-0.71) & MAT[,"rads"]>(minRad+0.71),,drop=FALSE]
+      MATinterior <- MAT[MAT[,"rads"] %<<% (maxRad-0.71) &
+                           MAT[,"rads"] %>>% (minRad+0.71),,drop=FALSE]
       MAT <- rbind(d[,colnames(MATinterior),drop=FALSE], MATinterior)
       MAT <- MAT[,-which(colnames(MAT)=="rads"),drop=FALSE]
     }
