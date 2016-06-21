@@ -1049,6 +1049,14 @@ test_that("simple cir does not work correctly", {
   expect_true(max(getValues(cirs2))<2.82843)
   expect_true(min(getValues(cirs2))==0)
 
+
+  hab <- raster(extent(0,1e1,0,1e1), res = c(1, 2))
+  expect_error(cir(hab, maxRadius = 1, includeBehavior = "excludePixels"),
+               "cir function only accepts rasters with identical resolution in x and y dimensions")
+
+  hab <- raster(extent(0,1e1,0,1e1), res = 1)
+  expect_error(cir(hab, maxRadius = 1, includeBehavior = "excludeRings"),
+               "includeBehavior can only be \"includePixels\" or \"excludePixels\""  )
 })
 
 test_that("wrap does not work correctly", {
@@ -1078,8 +1086,9 @@ test_that("wrap does not work correctly", {
   # create spdf
   spdf <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
   expect_true(all(coordinates(wrap(spdf, bounds = hab))==wrap(starts, hab)))
-  expect_true(all(coordinates(wrap(spdf, bounds = bbox(hab)))==wrap(starts, hab)))
-  expect_error(wrap(spdf, bounds = starts),
+  expect_true(all(coordinates(wrap(spdf, bounds = hab, withHeading = FALSE))==wrap(starts, hab)))
+  expect_true(all(coordinates(wrap(spdf, bounds = bbox(hab), withHeading = FALSE))==wrap(starts, hab)))
+  expect_error(wrap(spdf, bounds = starts, withHeading = FALSE),
                "Must use either a bbox, Raster\\*, or Extent for 'bounds'")
 
   # errrors
