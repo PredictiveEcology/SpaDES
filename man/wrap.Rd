@@ -55,7 +55,7 @@ xrange <- yrange <- c(-50, 50)
 hab <- raster(extent(c(xrange, yrange)))
 hab[] <- 0
 
-# initialize caribou agents
+# initialize agents
 N <- 10
 
 # previous points
@@ -65,8 +65,8 @@ y1 <- rep(0, N)
 starts <- cbind(x = stats::runif(N, xrange[1], xrange[2]),
                 y = stats::runif(N, yrange[1], yrange[2]))
 
-# create the caribou agent object
-caribou <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
+# create the agent object
+agent <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
 
 
 ln <- rlnorm(N, 1, 0.02) # log normal step length
@@ -74,10 +74,10 @@ sd <- 30 # could be specified globally in params
 
 if (interactive()) Plot(hab, zero.color = "white", new = TRUE, axes = "L")
 for(i in 1:10) {
-  caribou <- SpaDES::crw(agent = caribou,
+  agent <- SpaDES::crw(agent = agent,
                          extent = extent(hab), stepLength = ln,
                          stddev = sd, lonlat = FALSE, torus = TRUE)
-  if (interactive()) Plot(caribou, addTo = "hab", axes = TRUE)
+  if (interactive()) Plot(agent, addTo = "hab", axes = TRUE)
 }
 }
 \author{

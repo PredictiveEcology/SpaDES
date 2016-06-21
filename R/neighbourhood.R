@@ -354,6 +354,10 @@ adj <- compiler::cmpfun(adj.raw)
 #'                        point that was in the circle/donut surrounding \code{coords}. Default
 #'                        FALSE, which is faster.
 #'
+#' @param angles Numeric. Optional vector of angles, in radians, to use. This will create
+#'               "spokes" outward from coords. Default is NA, meaning, use internally
+#'               derived angles that will "fill" the circle.
+#'
 #' @param returnAngles Logical. If TRUE, then a column will be added to the returned
 #'                        data.table that reports the angle from \code{coords} to every
 #'                        point that was in the circle/donut surrounding \code{coords}. Default
@@ -385,7 +389,6 @@ adj <- compiler::cmpfun(adj.raw)
 #' @import igraph
 #' @importFrom data.table data.table set setkeyv
 #' @importFrom sp coordinates
-#' @importFrom fpCompare %>>% %<<%
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
 #' @rdname cir
@@ -418,9 +421,9 @@ adj <- compiler::cmpfun(adj.raw)
 #' # circles non centred
 #' Ras <- randomPolygons(Ras, numTypes = 4)
 #' N <- 2
-#' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+#' agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-#' cirs <- cir(Ras, caribou, maxRadius = 3, simplify = TRUE)
+#' cirs <- cir(Ras, agent, maxRadius = 3, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
@@ -429,7 +432,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' if (interactive()) {
 #'   Plot(Ras, new = TRUE)
 #'   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-#'   Plot(caribou, addTo = "Ras")
+#'   Plot(agent, addTo = "Ras")
 #'   Plot(cirsSP, addTo = "Ras")
 #' }
 #'
@@ -438,14 +441,14 @@ adj <- compiler::cmpfun(adj.raw)
 #' hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 #' radius <- 4
 #' N = 2
-#' caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+#' coords <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
 #'                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 #'
 #' # cirs
-#' cirs <- cir(hab, caribou, maxRadius = rep(radius, length(caribou)), simplify = TRUE)
+#' cirs <- cir(hab, coords, maxRadius = rep(radius, length(coords)), simplify = TRUE)
 #'
 #' # rings
-#' loci <- cellFromXY(hab, coordinates(caribou))
+#' loci <- cellFromXY(hab, coordinates(coords))
 #' cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1, returnIndices = TRUE)
 #'
 #' # Plot both
@@ -460,16 +463,27 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' a <- raster(extent(0,100,0,100), res = 1)
 #' hab <- gaussMap(a,speedup = 1)
-#' cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
+#' cirs <- cir(hab, coords, maxRadius = 44, minRadius = 0)
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
 #' cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 #' ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 #' if (interactive()) Plot(ras1, new=TRUE)
+#'
+#' # Provide a specific set of angles
+#' Ras <- raster(extent(0, 330, 0, 330), res = 1)
+#' Ras[] <- 0
+#' coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+#'                 y = stats::runif(N, xmin(Ras), xmax(Ras)))
+#' circ <- cir(Ras, coords, angles = seq(0,2*pi,length.out=21),
+#'             maxRadius = 200, minRadius = 0, returnIndices = FALSE,
+#'             allowOverlap = TRUE, returnAngles = TRUE)
+#'
 setGeneric("cir", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
                            allowOverlap = TRUE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
+                           angles = NA_real_,
                            returnAngles = FALSE, returnIndices = TRUE,
                            closest = FALSE, simplify = TRUE) {
   standardGeneric("cir")
@@ -481,12 +495,12 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
   definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, returnAngles, returnIndices,
+                        includeBehavior, returnDistances, angles, returnAngles, returnIndices,
                         closest, simplify) {
     coords <- coordinates(coords)
     cir(landscape, coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
-        returnDistances = returnDistances, returnAngles = returnAngles,
+        returnDistances = returnDistances, angles = angles, returnAngles = returnAngles,
         returnIndices = returnIndices,
         closest = closest, simplify = simplify)
 })
@@ -497,12 +511,12 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "missing", loci = "numeric"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, returnAngles, returnIndices,
+                        includeBehavior, returnDistances, angles, returnAngles, returnIndices,
                         closest, simplify) {
     coords <- xyFromCell(landscape, loci)
     cir(landscape, coords = coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
-        returnDistances = returnDistances, returnAngles = returnAngles,
+        returnDistances = returnDistances, angles = angles, returnAngles = returnAngles,
         returnIndices = returnIndices, closest = closest, simplify = simplify)
 })
 
@@ -512,14 +526,14 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "missing", loci = "missing"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, returnAngles, returnIndices,
+                        includeBehavior, returnDistances, angles, returnAngles, returnIndices,
                         closest, simplify) {
     ncells <- ncell(landscape)
     middleCell <- if (identical(ncells/2, floor(ncells/2))) ncells/2 - ncol(landscape)/2 else round(ncells/2)
     coords <- xyFromCell(landscape, middleCell)
     cir(landscape, coords = coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, includeBehavior = includeBehavior,
-        returnDistances = returnDistances, returnAngles = returnAngles,
+        returnDistances = returnDistances, angles = angles, returnAngles = returnAngles,
         returnIndices = returnIndices,
         closest = closest, simplify = simplify)
 })
@@ -530,7 +544,7 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "matrix", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances,
+                        includeBehavior, returnDistances, angles,
                         returnAngles, returnIndices, closest, simplify) {
   ### adapted from createCircle of the package PlotRegionHighlighter
 
@@ -551,82 +565,100 @@ setMethod(
 
   moreThanOne <- NROW(coords) > 1
 
-  if (moreThanOne) {
-    # create an index sequence for the number of individuals
+  if(all(!is.na(angles))) { # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
+    maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
+    numAngles <- length(angles)
+    rads <- rep(rep(maxRadius, each = numAngles), NROW(coords))
+    x <- kronecker(coords[, "x"], c(cos(angles) %o% maxRadius), "+")
+    y <- kronecker(coords[, "y"], c(sin(angles) %o% maxRadius), "+")
+    id <- rep(rep(seqNumInd, each = numAngles), each=length(maxRadius))
 
-    if (length(maxRadius) == 1) maxRadius <- rep(maxRadius, NROW(coords))
-    if (length(minRadius) == 1) minRadius <- rep(minRadius, NROW(coords))
-
-    # The goal of maxRadius and numAngles is to identify every cell within the circle
-    #  The 0.68 and 0.75 were found by trial and error to minimize the number of
-    #  pixels selected that are duplicates of each other.
-    if (any((minRadius != maxRadius))) {
-      if (any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
-      maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
-        ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
-        ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-        a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x]/3e3))
-        if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
-        a
-      }))
-    }
   } else {
-    seqNumInd <- 1
-    if (any((minRadius != maxRadius))) {
-      ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-      a <- seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3))
-      if (a[length(a)] != maxRadius) a <- c(a, maxRadius)
-      maxRadius <- a
-    }
-  }
-
-  numAngles <- ceiling((maxRadius/scaleRaster)*2.6*pi) + 1
-
-  if (moreThanOne) {
-    if (is.matrix(numAngles)) {
-      nAngles <- apply(numAngles, 2, sum)
-    } else {
-      nAngles <- numAngles
-    }
-  } else {
-    nAngles <- sum(numAngles)
-  }
-
-  # create individual IDs for the number of points that will be done for their circle
-  if (!c("id") %in% colnames(coords) ) {
     if (moreThanOne) {
-      id <- rep.int(seqNumInd, times = nAngles)
+      # create an index sequence for the number of individuals
+      seqNumInd <- seq_len(NROW(coords))
+
+      if (length(maxRadius) == 1) maxRadius <- rep(maxRadius, NROW(coords))
+      if (length(minRadius) == 1) minRadius <- rep(minRadius, NROW(coords))
+
+      # The goal of maxRadius and numAngles is to identify every cell within the circle
+      #  The 0.68 and 0.75 were found by trial and error to minimize the number of
+      #  pixels selected that are duplicates of each other.
+      if (any((minRadius != maxRadius))) {
+        if (any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
+        maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
+          ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
+          ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+          a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x]/3e3))
+          if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
+          a
+        }))
+      }
     } else {
-      id <- 1
+      seqNumInd <- 1
+      if (any((minRadius != maxRadius))) {
+        ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+        a <- seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3))
+        if (a[length(a)] != maxRadius) a <- c(a, maxRadius)
+        maxRadius <- a
+      }
     }
-  } else {
-    id <- rep(coords[,"id"], times=nAngles)
+
+
+    numAngles <- ceiling((maxRadius/scaleRaster)*2.6*pi) + 1
+
+    if (moreThanOne) {
+      if (is.matrix(numAngles)) {
+        nAngles <- apply(numAngles, 2, sum)
+      } else {
+        nAngles <- numAngles
+      }
+    } else {
+      nAngles <- sum(numAngles)
+    }
+
+    # create individual IDs for the number of points that will be done for their circle
+    if (!c("id") %in% colnames(coords) ) {
+      if (moreThanOne) {
+        id <- rep.int(seqNumInd, times = nAngles)
+      } else {
+        id <- 1
+      }
+    } else {
+      id <- rep(coords[,"id"], times=nAngles)
+      #id <- coords[,"id"]
+    }
+
+    # create vector of radius for the number of points that will be done for each individual circle
+    rads <- rep.int(maxRadius, times = numAngles)
+
+    # extract the individuals' current coords
+    xs <- rep.int(coords[, "x"], times = nAngles)
+    ys <- rep.int(coords[, "y"], times = nAngles)
+
+    angles <- if(all(is.na(angles))) {
+      if (!is.null(dim(numAngles))) {
+        rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
+      } else {
+        unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
+      }
+    } else {
+      rep(angles, length(numAngles))
+    }
+    x <- cos(angles)*rads + xs
+    y <- sin(angles)*rads + ys
   }
 
-  # create vector of radius for the number of points that will be done for each individual circle
-  rads <- rep.int(maxRadius, times = numAngles)
 
-  # extract the individuals' current coords
-  xs <- rep.int(coords[, "x"], times = nAngles)
-  ys <- rep.int(coords[, "y"], times = nAngles)
-
-  angles <- if (!is.null(dim(numAngles))) {
-    rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
-  } else {
-    unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
-  }
-
-  x <- cos(angles)*rads + xs
-  y <- sin(angles)*rads + ys
-  indices <- cellFromXY(landscape, cbind(x,y))
+  indices <- as.integer(cellFromXY(landscape, cbind(x,y)))
 
   if (moreThanOne & allowOverlap & !closest) {
-    DT <- data.table(id, indices, rads, angles, x, y)
-    setkeyv(DT, c("id", "indices"))
-    DT <- unique(DT)
-    DT <- na.omit(DT)
-    MAT <- as.matrix(DT)
+    MAT <- data.table(id, indices, rads, angles, x=x, y=y)
+    setkeyv(MAT, c("id", "indices"))
+    MAT <- unique(MAT)
+    MAT <- na.omit(MAT)
+    MAT <- as.matrix(MAT)
   } else {
     MAT <- cbind(id, rads, angles, x, y, indices)
     if (!closest) {
@@ -635,6 +667,7 @@ setMethod(
     }
     MAT <- na.omit(MAT)
   }
+  rm(id, indices, rads, angles, x, y)
 
   if (includeBehavior=="excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
@@ -644,8 +677,7 @@ setMethod(
                           #   distances. Don't waste resources on calculating all distances
       MAT2 <- MAT
     } else {
-      MAT2 <- MAT[MAT[,"rads"] %>=% (maxRad-0.71) |
-                    MAT[,"rads"] %<=% (minRad+0.71),] # 0.71 is the sqrt of 1, so keep
+      MAT2 <- MAT[MAT[,"rads"]>=(maxRad-0.71) | MAT[,"rads"]<=(minRad+0.71),] # 0.71 is the sqrt of 1, so keep
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
     xyC <- xyFromCell(landscape, MAT2[,"indices"]);
@@ -680,8 +712,7 @@ setMethod(
     } else if (closest) {
       MAT <- d[,c("id","indices","x","y"),drop=FALSE]
     } else {
-      MATinterior <- MAT[MAT[,"rads"] %<<% (maxRad-0.71) &
-                           MAT[,"rads"] %>>% (minRad+0.71),,drop=FALSE]
+      MATinterior <- MAT[MAT[,"rads"]<(maxRad-0.71) & MAT[,"rads"]>(minRad+0.71),,drop=FALSE]
       MAT <- rbind(d[,colnames(MATinterior),drop=FALSE], MATinterior)
       MAT <- MAT[,-which(colnames(MAT)=="rads"),drop=FALSE]
     }
@@ -702,13 +733,13 @@ setMethod(
         ras[MAT[,"indices"]] <- MAT[,"dists"]
       }
     } else {
-      DT <- data.table(MAT, key = "indices")
+      MAT <- data.table(MAT, key = "indices")
       if (!returnDistances) {
-        DT <- DT[,sum(id),by=indices]
+        MAT <- MAT[,sum(id),by=indices]
       } else {
-        DT <- DT[,sum(1/dists),by=indices]
+        MAT <- MAT[,sum(1/dists),by=indices]
       }
-      ras[DT$indices] <- DT$V1
+      ras[MAT$indices] <- MAT$V1
     }
     return(ras)
   }
@@ -745,7 +776,7 @@ setMethod(
 #' hab <- raster(extent(c(xrange, yrange)))
 #' hab[] <- 0
 #'
-#' # initialize caribou agents
+#' # initialize agents
 #' N <- 10
 #'
 #' # previous points
@@ -755,8 +786,8 @@ setMethod(
 #' starts <- cbind(x = stats::runif(N, xrange[1], xrange[2]),
 #'                 y = stats::runif(N, yrange[1], yrange[2]))
 #'
-#' # create the caribou agent object
-#' caribou <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
+#' # create the agent object
+#' agent <- SpatialPointsDataFrame(coords = starts, data = data.frame(x1, y1))
 #'
 #'
 #' ln <- rlnorm(N, 1, 0.02) # log normal step length
@@ -764,10 +795,10 @@ setMethod(
 #'
 #' if (interactive()) Plot(hab, zero.color = "white", new = TRUE, axes = "L")
 #' for(i in 1:10) {
-#'   caribou <- SpaDES::crw(agent = caribou,
+#'   agent <- SpaDES::crw(agent = agent,
 #'                          extent = extent(hab), stepLength = ln,
 #'                          stddev = sd, lonlat = FALSE, torus = TRUE)
-#'   if (interactive()) Plot(caribou, addTo = "hab", axes = TRUE)
+#'   if (interactive()) Plot(agent, addTo = "hab", axes = TRUE)
 #' }
 setGeneric("wrap", function(X, bounds, withHeading) {
   standardGeneric("wrap")
@@ -876,7 +907,6 @@ setMethod(
   "wrap",
   signature(X = "SpatialPointsDataFrame", bounds = "matrix", withHeading = "logical"),
   definition = function(X, bounds, withHeading) {
-    browser()
     if ( identical(colnames(bounds), c("min", "max")) &
          identical(rownames(bounds), c("s1", "s2"))) {
       X <- wrap(X, bounds = extent(bounds), withHeading = withHeading)

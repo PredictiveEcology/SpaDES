@@ -12,26 +12,26 @@
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
   minRadius = maxRadius, allowOverlap = TRUE,
   includeBehavior = "includePixels", returnDistances = FALSE,
-  returnAngles = FALSE, returnIndices = TRUE, closest = FALSE,
-  simplify = TRUE)
+  angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
+  closest = FALSE, simplify = TRUE)
 
 \S4method{cir}{RasterLayer,SpatialPoints,missing}(landscape, coords, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, returnIndices, closest, simplify)
+  angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,numeric}(landscape, loci, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, returnIndices, closest, simplify)
+  angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,missing}(landscape, loci, maxRadius,
   minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  returnAngles, returnIndices, closest, simplify)
+  angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
   maxRadius = ncol(landscape)/4, minRadius = maxRadius,
   allowOverlap = TRUE, includeBehavior = "includePixels",
-  returnDistances = FALSE, returnAngles = FALSE, returnIndices = TRUE,
-  closest = FALSE, simplify = TRUE)
+  returnDistances = FALSE, angles = NA_real_, returnAngles = FALSE,
+  returnIndices = TRUE, closest = FALSE, simplify = TRUE)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
@@ -62,6 +62,10 @@ and "excludePixels". See details.}
 data.table that reports the distance from \code{coords} to every
 point that was in the circle/donut surrounding \code{coords}. Default
 FALSE, which is faster.}
+
+\item{angles}{Numeric. Optional vector of angles, in radians, to use. This will create
+"spokes" outward from coords. Default is NA, meaning, use internally
+derived angles that will "fill" the circle.}
 
 \item{returnAngles}{Logical. If TRUE, then a column will be added to the returned
 data.table that reports the angle from \code{coords} to every
@@ -121,9 +125,9 @@ if (interactive()) {
 # circles non centred
 Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
-caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(Ras, caribou, maxRadius = 3, simplify = TRUE)
+cirs <- cir(Ras, agent, maxRadius = 3, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0
@@ -132,7 +136,7 @@ cirsRas[cirs[, "indices"]] <- 1
 if (interactive()) {
   Plot(Ras, new = TRUE)
   Plot(cirsRas, addTo = "Ras", cols = c("transparent", "#00000055"))
-  Plot(caribou, addTo = "Ras")
+  Plot(agent, addTo = "Ras")
   Plot(cirsSP, addTo = "Ras")
 }
 
@@ -141,14 +145,14 @@ a <- raster(extent(0,30,0,30), res = 1)
 hab <- gaussMap(a,speedup = 1) # if raster is large (>1e6 pixels), use speedup>1
 radius <- 4
 N = 2
-caribou <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
+coords <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(hab), xmax(hab)),
                                         y = stats::runif(N, xmin(hab), xmax(hab))))
 
 # cirs
-cirs <- cir(hab, caribou, maxRadius = rep(radius, length(caribou)), simplify = TRUE)
+cirs <- cir(hab, coords, maxRadius = rep(radius, length(coords)), simplify = TRUE)
 
 # rings
-loci <- cellFromXY(hab, coordinates(caribou))
+loci <- cellFromXY(hab, coordinates(coords))
 cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1, returnIndices = TRUE)
 
 # Plot both
@@ -163,12 +167,22 @@ if (interactive()) Plot(ras1, ras2, new=TRUE)
 
 a <- raster(extent(0,100,0,100), res = 1)
 hab <- gaussMap(a,speedup = 1)
-cirs <- cir(hab, caribou, maxRadius = 44, minRadius = 0)
+cirs <- cir(hab, coords, maxRadius = 44, minRadius = 0)
 ras1 <- raster(hab)
 ras1[] <- 0
 cirsOverlap <- data.table(cirs)[,list(sumIDs = sum(id)),by=indices]
 ras1[cirsOverlap$indices] <- cirsOverlap$sumIDs
 if (interactive()) Plot(ras1, new=TRUE)
+
+# Provide a specific set of angles
+Ras <- raster(extent(0, 330, 0, 330), res = 1)
+Ras[] <- 0
+coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+                y = stats::runif(N, xmin(Ras), xmax(Ras)))
+circ <- cir(Ras, coords, angles = seq(0,2*pi,length.out=21),
+            maxRadius = 200, minRadius = 0, returnIndices = FALSE,
+            allowOverlap = TRUE, returnAngles = TRUE)
+
 }
 \seealso{
 \code{\link{rings}} which uses \code{spread} internally.
