@@ -3,24 +3,39 @@
 \docType{methods}
 \name{splitRaster}
 \alias{splitRaster}
-\alias{splitRaster,RasterLayer,integer,integer,missing-method}
-\alias{splitRaster,RasterLayer,integer,integer,numeric-method}
-\alias{splitRaster,RasterLayer,numeric,numeric,integer-method}
-\alias{splitRaster,RasterLayer,numeric,numeric,missing-method}
-\alias{splitRaster,RasterLayer,numeric,numeric,numeric-method}
+\alias{splitRaster,RasterLayer,integer,integer,missing,character-method}
+\alias{splitRaster,RasterLayer,integer,integer,missing,missing-method}
+\alias{splitRaster,RasterLayer,integer,integer,numeric,character-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,integer,character-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,missing,character-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,missing,missing-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,numeric,character-method}
+\alias{splitRaster,RasterLayer,numeric,numeric,numeric,missing-method}
 \title{Split a RasterLayer into multiple tiles}
 \usage{
-splitRaster(x, nx, ny, buffer)
+splitRaster(x, nx, ny, buffer, savePath)
 
-\S4method{splitRaster}{RasterLayer,integer,integer,numeric}(x, nx, ny, buffer)
+\S4method{splitRaster}{RasterLayer,integer,integer,numeric,character}(x, nx, ny,
+  buffer, savePath)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric,integer}(x, nx, ny, buffer)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,integer,character}(x, nx, ny,
+  buffer, savePath)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric}(x, nx, ny, buffer)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric,character}(x, nx, ny,
+  buffer, savePath)
 
-\S4method{splitRaster}{RasterLayer,numeric,numeric,missing}(x, nx, ny)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,numeric,missing}(x, nx, ny,
+  buffer)
 
-\S4method{splitRaster}{RasterLayer,integer,integer,missing}(x, nx, ny)
+\S4method{splitRaster}{RasterLayer,numeric,numeric,missing,character}(x, nx, ny,
+  savePath)
+
+\S4method{splitRaster}{RasterLayer,numeric,numeric,missing,missing}(x, nx, ny)
+
+\S4method{splitRaster}{RasterLayer,integer,integer,missing,character}(x, nx, ny,
+  savePath)
+
+\S4method{splitRaster}{RasterLayer,integer,integer,missing,missing}(x, nx, ny)
 }
 \arguments{
 \item{x}{The raster to be split.}
@@ -35,6 +50,10 @@ is interpreted as the number of pixels (cells) to use as a buffer.
 Values between \code{0} and \code{1} are interpreted as proportions
 of the number of pixels in each tile (rounded up to an integer value).
 Default is \code{c(0, 0)}, which means no buffer.}
+
+\item{savePath}{character specify the directory that the split tiles will be saved,
+and the split tiles will be linked function's output. If missing, the function
+creates a folder with the x raster's name in the working directory}
 }
 \value{
 A list (length \code{nx*ny}) of cropped raster tiles.
@@ -43,6 +62,10 @@ A list (length \code{nx*ny}) of cropped raster tiles.
 Divides up a raster into an arbitrary number of pieces (tiles).
 Split rasters can be recombined using \code{do.call(merge, y)} or \code{mergeRaster(y)},
 where \code{y <- splitRaster(x)}.
+This function is parallel aware, using the same mechanism as used in the \code{raster}
+package. Specifically, if you start a cluster using \code{\link{beginCluster}}, then
+this function will automatically use that cluster. It is always a good
+idea to stop the cluster when finished, using \code{\link{endCluster}}.
 }
 \examples{
 library(raster)
@@ -54,10 +77,13 @@ b <- brick(system.file("external/rlogo.grd", package = "raster"))
 r <- b[[1]] # use first layer only
 nx <- 3
 ny <- 4
-y0 <- splitRaster(r, nx, ny) # no buffer
-y1 <- splitRaster(r, nx, ny, c(10, 10)) # buffer: 10 pixels along both axes
-y2 <- splitRaster(r, nx, ny, c(0.5, 0.5)) # buffer: half the width and length of each tile
-
+y0 <- splitRaster(r, nx, ny, savePath = file.path(tempdir(), "y0")) # no buffer
+y1 <- splitRaster(r, nx, ny, c(10, 10), savePath = file.path(tempdir(), "y1")) # buffer: 10 pixels along both axes
+y2 <- splitRaster(r, nx, ny, c(0.5, 0.5), savePath = file.path(tempdir(), "y2")) # buffer: half the width and length of each tile
+# parallel cropping
+beginCluster(2)
+y3 <- splitRaster(r, nx, ny, c(0.7, 0.7), savePath = file.path(tempdir(), "y3"))
+endCluster()
 # the original raster:
 plot(r) # may require a call to `dev()` if using RStudio
 
