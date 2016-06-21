@@ -81,16 +81,16 @@ dists1 <- distanceFromEachPoint(coords, landscape = distRas)
 indices <- cellFromXY(distRas,dists1[,c("x","y")])
 invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 distRas[] <- as.vector(invDist)
-if (interactive()) Plot(distRas, new=TRUE)
+if (interactive()) Plot(distRas, new = TRUE)
 
 # With iterative summing via cumulativeFn to keep memory use low, with same result
-dists1 <- distanceFromEachPoint(coords[,c("x","y"),drop=FALSE],
+dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
                                 landscape = distRas, cumulativeFn = `+`)
 idwRaster <- raster(distRas)
 idwRaster[] <- dists1[,"val"]
 if (interactive()) Plot(idwRaster)
 
-all(idwRaster[]==distRas[]) # TRUE
+all(idwRaster[] == distRas[]) # TRUE
 
 }
 \seealso{

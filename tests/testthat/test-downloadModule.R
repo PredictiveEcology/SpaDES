@@ -87,7 +87,7 @@ test_that("downloadData downloads and unzips module data", {
 
   # if files are there with correct names, but wrong content
   library(raster); on.exit(detach("package:raster"), add = TRUE)
-  if(require(rgdal)) {
+  if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
     ras <- raster(file.path(datadir, filenames[2]))
     ras[4] <- maxValue(ras) + 1

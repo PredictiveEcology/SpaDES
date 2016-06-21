@@ -66,7 +66,7 @@ test_that("test-load.R: loading inputs does not work correctly", {
   rm(mySim)
 
   # use loadFiles directly
-  if(require(rgdal)) {
+  if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
     sim1 <- loadFiles(
       filelist = filelist,
@@ -141,13 +141,13 @@ test_that("test-load.R: passing arguments to filelist in simInit does not work c
   )
   times <- list(start = 0, end = 1, timeunit = "seconds")
 
-  if(require(rgdal)) {
+  if (require(rgdal, quietly = TRUE)) {
     sim2 <- simInit(times = times, params = parameters, modules = modules,
                     paths = paths, inputs = inputs)
     expect_true(c("DEM") %in% ls(sim2))
 
     # Test that arguments got passed in correctly
-    expect_equal(inputs(sim2)$arguments, I(rep(list(native=TRUE),4)))
+    expect_equal(inputs(sim2)$arguments, I(rep(list(native = TRUE), 4)))
     expect_true(!any(c("forestCover", "forestAge", "habitatQuality") %in% ls(sim2)))
 
     sim2 <- spades(sim2)
@@ -177,13 +177,13 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
   mapPath <- mapPath <- system.file("maps", package = "SpaDES")
 
   # test object passing directly
-  if(require(rgdal)) {
+  if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
     filelist = data.frame(
       files = dir(file.path(mapPath),full.names = TRUE, pattern = "tif")[1:2],
       functions = "raster",
       package = "raster",
-      stringsAsFactors=FALSE
+      stringsAsFactors = FALSE
     )
     layers <- lapply(filelist$files, raster)
     DEM <- layers[[1]]
@@ -230,7 +230,7 @@ test_that("test-load.R: passing objects to simInit does not work correctly", {
       functions = "raster",
       package = "raster",
       loadTime = 1,
-      stringsAsFactors=FALSE
+      stringsAsFactors = FALSE
     )
     objects <- c("DEM")
     sim6 <- simInit(times = times, params = parameters, modules = modules,
@@ -247,7 +247,7 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
   mapPath <- system.file("maps", package = "SpaDES")
 
   # test object passing directly
-  if(require(rgdal)) {
+  if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
       filelist = data.frame(
       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
@@ -265,7 +265,6 @@ test_that("test-load.R: passing nearly empty file to simInit does not work corre
 
     expect_true(all(c("DEM", "forestAge") %in% ls(sim3)))
     rm(sim3)
-
   }
 })
 
@@ -283,7 +282,7 @@ test_that("test-load.R: more tests", {
 
 
   # Test for incremental loading via intervals
-  if(require(rgdal)) {
+  if (require(rgdal, quietly = TRUE)) {
     on.exit(detach("package:rgdal"), add = TRUE)
 
     files = dir(system.file("maps", package = "SpaDES"),
@@ -295,7 +294,7 @@ test_that("test-load.R: more tests", {
        objectName = NA,
        arguments = arguments,
        loadTime = 0,
-       intervals = c(rep(NA, length(files)-1), 10)
+       intervals = c(rep(NA, length(files) - 1), 10)
     )
     expect_message(sim2 <- loadFiles(filelist = filelist), "DEM read from")
     expect_message(sim2 <- loadFiles(filelist = filelist), "forestAge read from")

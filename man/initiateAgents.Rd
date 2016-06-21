@@ -54,26 +54,26 @@ You must know how to use SELES for these to be useful.
 \examples{
 library(dplyr)
 library(raster)
-map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
-map <- gaussMap(map, scale=1, var = 4, speedup=1)
-pr <- probInit(map, p=(map/maxValue(map))^2)
+map <- raster(xmn = 0, xmx = 10, ymn = 0, ymx = 10, val = 0, res = 1)
+map <- gaussMap(map, scale = 1, var = 4, speedup = 1)
+pr <- probInit(map, p = (map/maxValue(map))^2)
 agents <- initiateAgents(map, 100, pr)
-if(interactive()) {
-  Plot(map, new=TRUE)
-  Plot(agents, addTo="map")
+if (interactive()) {
+  Plot(map, new = TRUE)
+  Plot(agents, addTo = "map")
 }
 
 # If producing a Raster, then the number of points produced can't be more than
 # the number of pixels:
-agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints=FALSE)
-if(interactive())
-  Plot(agentsRas)
+agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints = FALSE)
+if (interactive()) Plot(agentsRas)
 
 # Check that the agents are more often at the higher probability areas based on pr
 out <- data.frame(stats::na.omit(crosstab(agentsRas, map)), table(round(map[]))) \%>\%
    dplyr::mutate(selectionRatio = Freq/Freq.1) \%>\%
    dplyr::select(-Var1, -Var1.1) \%>\%
    dplyr::rename(Present = Freq, Avail = Freq.1, Type = Var2)
+out
 
 }
 \author{

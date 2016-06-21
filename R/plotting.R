@@ -1418,7 +1418,7 @@ setMethod(
 #'    ncol=4, nrow=3))
 #' # needs to have a data.frame with ID as first column - see ?raster::ratify
 #' levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
-#' if(interactive()) Plot(ras, new=T)
+#' if (interactive()) Plot(ras, new=TRUE)
 #'
 #' # Arbitrary values for factors
 #' levels <- c(1,2,7)
@@ -1428,17 +1428,16 @@ setMethod(
 #'
 #' # SpatialPolygons
 #' Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
-#' Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
+#' Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
 #' Srs1 = Polygons(list(Sr1), "s1")
 #' Srs2 = Polygons(list(Sr2), "s2")
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #'
 #' if(interactive()) {
+#'   Plot(ras, new = TRUE)
 #'
-#'   Plot(ras, new=T)
-#'   \dontrun{
-#'     dev(2)
-#'   }
+#'   # dev(2)
+#'
 #'   Plot(landscape, new = TRUE)
 #'
 #'   # Can overplot, using addTo

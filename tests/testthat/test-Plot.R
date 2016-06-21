@@ -28,11 +28,9 @@ test_that("Plot 1 is not error-free", {
   clearPlot()
   expect_error(Plot(asdfd))
   clearPlot()
-  #expect_that(Plot(landscape87654))
   expect_silent(Plot(landscape87654))
 
   clearPlot()
-  #expect_that(Plot(caribou87654))
   expect_silent(Plot(caribou87654))
 
   # Test speedup > 0.1 for SpatialPoints
@@ -169,6 +167,8 @@ test_that("Plot 1 is not error-free", {
                  "Plot called with 'addTo' argument specified")
   expect_error(Plot(ls()), "Not a plottable object")
   expect_silent(rePlot())
+
+  if (file.exists("Rplots.pdf")) file.remove("Rplots.pdf")
 })
 
 test_that("Unit tests for image content is not error-free", {
@@ -449,6 +449,7 @@ test_that("Plot 2 is not error-free", {
   r <- raster(system.file("external/test.grd", package = "raster"))
   message("These two plots should look similar")
   plot(r)
+
   dev()
 
   # 128 < vals < 1806
@@ -553,6 +554,8 @@ test_that("Plot 2 is not error-free", {
   Plot(pixelGroupMap, na.color = "white") # Should keep one dark Blue, rest white
 
   dev.off()
+
+  if (file.exists("Rplots.pdf")) file.remove("Rplots.pdf")
 })
 
 test_that("setColors is not error-free", {

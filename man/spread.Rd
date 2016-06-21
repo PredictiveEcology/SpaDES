@@ -92,7 +92,7 @@ meaning the spread is starting from \code{loci}. See Details.}
 
 \item{circle}{Logical. If TRUE, then outward spread will be by equidistant rings,
 rather than solely by adjacent cells (via \code{directions} arg.). Default
-is FALSE. Using \code{circle=TRUE} can be dramatically slower for large
+is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
 problems. Note, this should usually be used with spreadProb = 1.}
 
 \item{circleMaxRadius}{Numeric. A further way to stop the outward spread of events. If
@@ -299,9 +299,10 @@ directions <- 8
 # Can use transparent as a color
 setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 
-if (interactive())
+if (interactive()) {
   Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
-                             # so, some details are lost
+                                     # so, some details are lost
+}
 
 # initiate 10 fires
 startCells <- as.integer(sample(1:ncell(emptyRas),10))
@@ -331,19 +332,19 @@ if (interactive()) {
 ## Continue event by passing interrupted object into spreadState
 ####################
 
-## Interrupt a spread event using iterations - need returnIndices=TRUE to use outputs
+## Interrupt a spread event using iterations - need returnIndices = TRUE to use outputs
 ##   as new inputs in next iteration
-fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
+fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices = TRUE,
                 0.235, 0, NULL, 1e8, 8, iterations = 3, id = TRUE)
 fires[,list(size=length(initialLocus)), by=id]  # See sizes of fires
 
-fires2 <- spread(hab, loci=NA_real_, returnIndices=TRUE, 0.235,
+fires2 <- spread(hab, loci=NA_real_, returnIndices = TRUE, 0.235,
                  0, NULL, 1e8, 8, iterations = 2, id = TRUE,
                  spreadState=fires)
 # NOTE events are assigned arbitrary IDs, starting at 1
 
 ## Add new fires to the already burning fires
-fires3 <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
+fires3 <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices = TRUE,
                      0.235, 0, NULL, 1e8, 8, iterations = 1, id = TRUE,
                                           spreadState=fires)
 fires3[,list(size=length(initialLocus)), by=id]  # See sizes of fires
@@ -351,14 +352,13 @@ fires3[,list(size=length(initialLocus)), by=id]  # See sizes of fires
 # maximum (e.g., new fires 11 to 20 here)
 
 ## Use data.table and loci...
-fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
+fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices = TRUE,
                 0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE)
 fullRas <- raster(hab)
 fullRas[] <- 1:ncell(hab)
 burned <- fires[active == FALSE]
 burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
-if (interactive())
-  Plot(burnedMap, new=TRUE)
+if (interactive()) Plot(burnedMap, new = TRUE)
 
 ####################
 ## stopRule examples
@@ -383,8 +383,7 @@ stopRuleB <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 set.seed(1234)
 stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
                 NULL, maxSize = 1e6, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule2)
-if (interactive())
-  Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new=TRUE)
+if (interactive()) Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new = TRUE)
 
 # Test that the stopRules work
 # stopRuleA was not exact, so each value will "overshoot" the stopRule, here it was hab>50
@@ -397,7 +396,7 @@ foo <- cbind(vals=hab[stopRuleB], id = stopRuleB[stopRuleB>0]);
 tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
 
 # stopRuleB_notExact will overshoot
-foo <- cbind(vals=hab[stopRuleB_NotExact], id = stopRuleB_NotExact[stopRuleB_NotExact>0]);
+foo <- cbind(vals=hab[stopRuleB_NotExact], id = stopRuleB_NotExact[stopRuleB_NotExact > 0]);
 tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
 
 
@@ -406,23 +405,20 @@ tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
 #    stopRule in place, spreadProb = 1
 diamonds <- spread(hab>0, spreadProb = 1, directions = 4,
    id = TRUE, stopRule = stopRule2)
-if (interactive())
-  Plot(diamonds, new=TRUE)
+if (interactive()) Plot(diamonds, new = TRUE)
 
 # Squares - can make them with: a boolean raster, directions = 8,
 #    stopRule in place, spreadProb = 1
 squares <- spread(hab>0, spreadProb = 1, directions = 8,
    id = TRUE, stopRule = stopRule2)
-if (interactive())
-  Plot(squares)
+if (interactive()) Plot(squares)
 
 # Interference shapes - can make them with: a boolean raster, directions = 8,
 #    stopRule in place, spreadProb = 1
 stopRule2 <- function(landscape) sum(landscape)>200
 squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
    directions = 4, id = TRUE, stopRule = stopRule2)
-if (interactive())
-  Plot(squashedDiamonds, new=TRUE)
+if (interactive()) Plot(squashedDiamonds, new = TRUE)
 
 # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
 stopRule2 <- function(landscape) sum(landscape)>200
@@ -434,7 +430,7 @@ set.seed(seed)
 regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
    directions = 8, id = TRUE)#, stopRule = stopRule2)
 if (interactive())
-  Plot(circlish, regularCA, new=TRUE)
+  Plot(circlish, regularCA, new = TRUE)
 
 
 ####################
@@ -458,7 +454,7 @@ TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = T
 #    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 
 if (interactive())
-  Plot(TwoCirclesDiffSize, new=TRUE)
+  Plot(TwoCirclesDiffSize, new = TRUE)
 cirs <- getValues(TwoCirclesDiffSize)
 vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 
@@ -481,7 +477,7 @@ TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = T
  # define stopRule
  stopRule2 <- function(landscape,id,maxVal) sum(landscape)>maxVal[id]
  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-                   id = TRUE, allowOverlap=TRUE, stopRuleBehavior="includeRing",
+                   id = TRUE, allowOverlap = TRUE, stopRuleBehavior = "includeRing",
                                      maxVal = maxVal, returnIndices = TRUE)
  (vals <- tapply(hab[circs$indices], circs$id, sum))
  vals<=maxVal # All TRUE
@@ -489,8 +485,7 @@ TwoCirclesDiffSize <- spread(hab, spreadProb = 1, loci = initialLoci, circle = T
  overlapEvents[] <- 0
  toMap <- circs[,sum(id),by=indices]
  overlapEvents[toMap$indices] <- toMap$V1
- if (interactive())
-   Plot(overlapEvents, new=TRUE)
+ if (interactive()) Plot(overlapEvents, new = TRUE)
 
 
 }

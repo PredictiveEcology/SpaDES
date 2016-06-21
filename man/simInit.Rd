@@ -137,7 +137,7 @@ are all needed for initialization.
  outSim <- spades(mySim)
 
 # A little more complicated with inputs and outputs
-if(require(rgdal)) {
+if (require(rgdal)) {
    mapPath <- system.file("maps", package = "SpaDES")
    mySim <- simInit(
      times = list(start = 0.0, end = 2.0, timeunit = "year"),
