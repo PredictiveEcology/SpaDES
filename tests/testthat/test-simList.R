@@ -216,7 +216,7 @@ test_that("simList test all signatures", {
                              error = function(x) { FALSE })
       argsTested[[i]] <- names(li)
     }
-    expect_more_than(sum(errors, na.rm = TRUE), 27) # needs paths and params
+    expect_gt(sum(errors, na.rm = TRUE), 27) # needs paths and params
     setwd(origWd)
   }
 })
