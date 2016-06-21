@@ -385,6 +385,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' @import igraph
 #' @importFrom data.table data.table set setkeyv
 #' @importFrom sp coordinates
+#' @importFrom fpCompare %>>% %<<%
 #' @importFrom raster cellFromXY extract res xyFromCell ncell ncol
 #' @export
 #' @rdname cir
