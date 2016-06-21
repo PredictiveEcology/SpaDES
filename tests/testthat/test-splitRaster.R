@@ -1,6 +1,14 @@
 test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   library(raster)
-  on.exit(detach("package:raster"))
+  owd <- getwd()
+  tmpdir <- file.path(tempdir(), "splitRaster-test") %>% checkPath(create = TRUE)
+  setwd(tmpdir)
+
+  on.exit({
+    detach("package:raster")
+    setwd(owd)
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   b <- brick(system.file("external/rlogo.grd", package = "raster"))
   r <- b[[1]] # use first layer only
@@ -15,6 +23,12 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   # no buffer
   y0 <- splitRaster(r, nx, ny)
   expect_equal(class(y0), "list")
+  expect_true(unique(unlist(lapply(y0, fromDisk))))
+
+  for (i in 1:12) {
+    expect_true(file.exists(file.path(getwd(), "red", paste0("red_tile", i, ".grd"))))
+  }
+
   xextents <- c()
   yextents <- c()
   for (i in 1:length(y0)) {
@@ -31,13 +45,19 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   m0 <- mergeRaster(y0)
   expect_equal(dim(m0), dim(r))
   expect_equal(extent(m0), extent(r))
-  #expect_equal(names(m0), names(r)) # TO DO (#283)
+  expect_equal(names(m0), names(r)) # TO DO (#283)
   expect_equal(res(m0), res(r))
-  #expect_equal(max(values(m0)), max(values(r))) # TO DO (#283)
-  #expect_equal(min(values(m0)), min(values(r))) # TO DO (#283)
+  expect_equal(max(values(m0)), max(values(r))) # TO DO (#283)
+  expect_equal(min(values(m0)), min(values(r))) # TO DO (#283)
 
-  # with buffer (integer pixels)
-  y1 <- splitRaster(r, nx, ny, c(3L, 4L))
+  # with buffer (integer pixels) and with specified path
+  y1 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red1"))
+  expect_true(unique(unlist(lapply(y1, fromDisk))))
+
+  for (i in 1:12) {
+    expect_true(file.exists(file.path(tmpdir, "red1", paste0("red_tile", i, ".grd"))))
+  }
+
   xextents <- c()
   yextents <- c()
   for (i in 1:length(y0)) {
@@ -54,13 +74,49 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   m1 <- mergeRaster(y1)
   expect_equal(dim(m1), dim(r))
   expect_equal(extent(m1), extent(r))
-  #expect_equal(names(m1), names(r)) # TO DO (#283)
+  expect_equal(names(m1), names(r)) # TO DO (#283)
   expect_equal(res(m1), res(r))
-  #expect_equal(max(values(m1)), max(values(r))) # TO DO (#283)
-  #expect_equal(min(values(10)), min(values(r))) # TO DO (#283)
+  expect_equal(max(values(m1)), max(values(r))) # TO DO (#283)
+  expect_equal(min(values(m1)), min(values(r))) # TO DO (#283)
+
+  # test parallel cropping
+  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+  beginCluster(n)
+    on.exit(raster::endCluster(), add = TRUE)
+
+    cl <- getCluster()
+
+    y11 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red11"))
+    expect_true(unique(unlist(lapply(y1, fromDisk))))
+
+    for (i in 1:12) {
+      expect_true(file.exists(file.path(tmpdir, "red11", paste0("red_tile", i, ".grd"))))
+    }
+
+    xextents <- c()
+    yextents <- c()
+    for (i in 1:length(y11)) {
+      xextents <- c(xextents, xmin(y11[[i]]), xmax(y11[[i]]))
+      yextents <- c(yextents, ymin(y11[[i]]), ymax(y11[[i]]))
+    }
+    expect_equal(sort(unique(xextents)), c(-30, 1, 7, 34, 40, 71))
+    expect_equal(sort(unique(yextents)), c(-20, -5, 3, 14, 22, 34, 42, 57))
+    rm(xextents, yextents)
+
+    expect_equal(length(unique(lapply(y11, crs))), 1L)
+    expect_equal(unique(lapply(y11, crs))[[1]], crs(r))
+
+    m11 <- mergeRaster(y11)
+    expect_equal(dim(m11), dim(r))
+    expect_equal(extent(m11), extent(r))
+    expect_equal(names(m11), names(r)) # TO DO (#283)
+    expect_equal(res(m11), res(r))
+    expect_equal(max(values(m11)), max(values(r))) # TO DO (#283)
+    expect_equal(min(values(m11)), min(values(r))) # TO DO (#283)
+  endCluster()
 
   # with buffer (proportion of cells)
-  y2 <- splitRaster(r, nx, ny, c(0.5, 0.3))
+  y2 <- splitRaster(r, nx, ny, c(0.5, 0.3), path = file.path(tmpdir, "red2"))
   xextents <- c()
   yextents <- c()
   for (i in 1:length(y0)) {
@@ -77,13 +133,15 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   m2 <- mergeRaster(y2)
   expect_equal(dim(m2), dim(r))
   expect_equal(extent(m2), extent(r))
-  #expect_equal(names(m2), names(r)) # TO DO (#283)
+  expect_equal(names(m2), names(r))
   expect_equal(res(m2), res(r))
-  #expect_equal(max(values(m2)), max(values(r))) # TO DO (#283)
-  #expect_equal(min(values(m2)), min(values(r))) # TO DO (#283)
+  expect_equal(max(values(m2)), max(values(r)))
+  expect_equal(min(values(m2)), min(values(r)))
 
   # different raster resolutions
-  res(r) <- c(5, 6)
+  r1 <- r
+  res(r1) <- c(5, 6) # no values assigned
+  r1[] <- 1:ncell(r1)
   y3 <- splitRaster(r, nx, ny)
   rows <- 1:ny
   for (j in c(0, 4, 8)) {
@@ -119,13 +177,16 @@ test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   skip_on_travis()
   skip("This is very big")
 
+  tmpdir <- file.path(tempdir(), "splitRaster-test-large") %>% checkPath(create = TRUE)
+
   library(raster)
 
-  on.exit(detach("package:raster"))
+  on.exit({
+    detach("package:raster")
+    unlink(tmpdir, recursive = TRUE)
+  })
 
   ## use a large raster (1.3 GB)
-  tmpdir <- file.path(tempdir(), "splitRaster-test") %>% checkPath(create = TRUE)
-  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
   url <- "http://www.cec.org/sites/default/files/Atlas/Files/Land_Cover_2010/Land_Cover_2010_TIFF.zip"
   destfile <- file.path(tmpdir, basename(url))
 
@@ -138,7 +199,7 @@ test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   r <- raster(file.path(tmpdir, map))
 
   # without buffer
-  s <- splitRaster(r, 4, 4)
+  s <- splitRaster(r, 4, 4, path = file.path(tmpdir, "s"))
   expect_equal(length(unique(lapply(s, crs))), 1)
   expect_equal(unique(lapply(s, crs))[[1]], crs(r))
 
@@ -152,13 +213,13 @@ test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   m <- mergeRaster(s) # takes a while to run...
   expect_equal(dim(m), dim(r))
   expect_equal(extent(m), extent(r))
-  #expect_equal(names(m), names(r)) # TO DO (#283)
+  expect_equal(names(m), names(r))
   expect_equal(res(m), res(r))
-  #expect_equal(max(values(m)), max(values(r))) # TO DO (#283)
-  #expect_equal(min(values(m)), min(values(r))) # TO DO (#283)
+  #expect_equal(maxValue(m)), maxValue(r))) ## Error: cannot allocate vector of size 4.8 Gb
+  #expect_equal(min(values(m)), min(values(r))) ## Error: cannot allocate vector of size 4.8 Gb
 
   # with buffer
-  s1 <- splitRaster(r, 4, 4, c(100, 100))
+  s1 <- splitRaster(r, 4, 4, c(100, 100), path = file.path(tmpdir, "s1"))
   expect_equal(length(unique(lapply(s, crs))), 1)
   expect_equal(unique(lapply(s, crs))[[1]], crs(r))
 
@@ -172,8 +233,8 @@ test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   m1 <- mergeRaster(s1) # takes a while to run...
   expect_equal(dim(m1), dim(r))
   expect_equal(extent(m1), extent(r))
-  #expect_equal(names(m1), names(r)) # TO DO (#283)
+  expect_equal(names(m1), names(r))
   expect_equal(res(m1), res(r))
-  #expect_equal(max(values(m1)), max(values(r))) # TO DO (#283)
-  #expect_equal(min(values(m1)), min(values(r))) # TO DO (#283)
+  #expect_equal(max(values(m1)), max(values(r)))
+  #expect_equal(min(values(m1)), min(values(r)))
 })
