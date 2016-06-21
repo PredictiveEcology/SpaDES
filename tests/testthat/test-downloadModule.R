@@ -18,9 +18,9 @@ test_that("downloadModule downloads and unzips a single module", {
   f_expected <- c("citation.bib", "CHECKSUMS.txt", "LICENSE",
                   "README.txt", "test.R", "test.Rmd")
 
-  expect_more_than(length(f), 0)
-  expect_more_than(length(file.path(tmpdir)), 0)
-  expect_more_than(length(file.path(tmpdir, m)), 0)
+  expect_gt(length(f), 0)
+  expect_gt(length(file.path(tmpdir)), 0)
+  expect_gt(length(file.path(tmpdir, m)), 0)
   expect_equal(f, f_expected)
 })
 
