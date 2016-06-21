@@ -1099,3 +1099,22 @@ test_that("wrap does not work correctly", {
                "When X is a matrix, it must have 2 columns, x and y,")
 
 })
+test_that("cir angles arg doesn't work", {
+
+  require(raster)
+  require(fpCompare)
+  Ras <- raster(extent(0, 330, 0, 330), res = 1)
+  Ras[] <- 0
+  N = 2
+  coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+                  y = stats::runif(N, xmin(Ras), xmax(Ras)))
+  angles <- seq(0,2*pi,length.out=21)[-21]
+  circ <- cir(Ras, coords, angles = angles,
+              maxRadius = 3, minRadius = 0, returnIndices = TRUE,
+              allowOverlap = TRUE, returnAngles = TRUE)
+  anglesTab <- table(circ[, "angles"])
+  expect_true(all(as.numeric(names(anglesTab)) %==% angles))
+  expect_true(all(length(anglesTab)==(length(angles))))
+
+
+})
