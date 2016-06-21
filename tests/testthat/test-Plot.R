@@ -84,7 +84,9 @@ test_that("Plot 1 is not error-free", {
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
-  expect_silent(Plot(SpP87, new = TRUE))
+  if(suppressWarnings(require(fastshp))) {
+    expect_silent(Plot(SpP87, new = TRUE))
+  }
 
   # test SpatialLines
   l1 <- cbind(c(10, 2, 30), c(30, 2, 2))
@@ -96,8 +98,9 @@ test_that("Plot 1 is not error-free", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
-  expect_silent(Plot(Sl87654))
-
+  if(suppressWarnings(require(fastshp))) {
+    expect_silent(Plot(Sl87654))
+  }
   # Test polygon with > 1e3 points to test the speedup parameter
   r <- 1
   N <- 1000
@@ -115,10 +118,11 @@ test_that("Plot 1 is not error-free", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
-  expect_silent(Plot(Sl87654, new = TRUE))
-
-  # test addTo
-  expect_message(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654"))
+  if(suppressWarnings(require(fastshp))) {
+    expect_silent(Plot(Sl87654, new = TRUE))
+    # test addTo
+    expect_message(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654"))
+  }
 
   # test various arguments
   clearPlot()
@@ -136,13 +140,13 @@ test_that("Plot 1 is not error-free", {
 
   # test visualSqueeze
   expect_silent(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE))
-
   # test speedup
   caribou87 <- sp::SpatialPoints(
     coords = cbind(x = stats::runif(1.1e3, 0, 10), y = stats::runif(1e1, 0, 10))
   )
-  expect_silent(Plot(caribou87, speedup = 10, new = TRUE))
-
+  if(suppressWarnings(require(fastshp))) {
+    expect_silent(Plot(caribou87, speedup = 10, new = TRUE))
+  }
   # test ggplot2 and hist -- don't work unless invoke global environment
   clearPlot()
   hist87654 <- hist(stats::rnorm(1e3), plot = FALSE)

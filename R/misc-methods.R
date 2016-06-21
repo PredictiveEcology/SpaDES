@@ -400,7 +400,7 @@ setMethod("checkPath",
 #'
 #' @return Character string representing the filename.
 #'
-#' @importFrom fpCompare '%==%'
+#' @importFrom fpCompare %==%
 #' @importFrom stringr str_pad
 #' @export
 #' @docType methods
