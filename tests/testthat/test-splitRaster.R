@@ -31,7 +31,7 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
 
   xextents <- c()
   yextents <- c()
-  for (i in 1:length(y0)) {
+  for (i in seq_along(y0)) {
     xextents <- c(xextents, xmin(y0[[i]]), xmax(y0[[i]]))
     yextents <- c(yextents, ymin(y0[[i]]), ymax(y0[[i]]))
   }
@@ -45,10 +45,10 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   m0 <- mergeRaster(y0)
   expect_equal(dim(m0), dim(r))
   expect_equal(extent(m0), extent(r))
-  expect_equal(names(m0), names(r)) # TO DO (#283)
+  expect_equal(names(m0), names(r))
   expect_equal(res(m0), res(r))
-  expect_equal(max(values(m0)), max(values(r))) # TO DO (#283)
-  expect_equal(min(values(m0)), min(values(r))) # TO DO (#283)
+  expect_equal(max(values(m0)), max(values(r)))
+  expect_equal(min(values(m0)), min(values(r)))
 
   # with buffer (integer pixels) and with specified path
   y1 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red1"))
@@ -60,7 +60,7 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
 
   xextents <- c()
   yextents <- c()
-  for (i in 1:length(y0)) {
+  for (i in seq_along(y1)) {
     xextents <- c(xextents, xmin(y1[[i]]), xmax(y1[[i]]))
     yextents <- c(yextents, ymin(y1[[i]]), ymax(y1[[i]]))
   }
@@ -74,52 +74,16 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
   m1 <- mergeRaster(y1)
   expect_equal(dim(m1), dim(r))
   expect_equal(extent(m1), extent(r))
-  expect_equal(names(m1), names(r)) # TO DO (#283)
+  expect_equal(names(m1), names(r))
   expect_equal(res(m1), res(r))
-  expect_equal(max(values(m1)), max(values(r))) # TO DO (#283)
-  expect_equal(min(values(m1)), min(values(r))) # TO DO (#283)
-
-  # test parallel cropping
-  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
-  beginCluster(n)
-    on.exit(raster::endCluster(), add = TRUE)
-
-    cl <- getCluster()
-
-    y11 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red11"))
-    expect_true(unique(unlist(lapply(y1, fromDisk))))
-
-    for (i in 1:12) {
-      expect_true(file.exists(file.path(tmpdir, "red11", paste0("red_tile", i, ".grd"))))
-    }
-
-    xextents <- c()
-    yextents <- c()
-    for (i in 1:length(y11)) {
-      xextents <- c(xextents, xmin(y11[[i]]), xmax(y11[[i]]))
-      yextents <- c(yextents, ymin(y11[[i]]), ymax(y11[[i]]))
-    }
-    expect_equal(sort(unique(xextents)), c(-30, 1, 7, 34, 40, 71))
-    expect_equal(sort(unique(yextents)), c(-20, -5, 3, 14, 22, 34, 42, 57))
-    rm(xextents, yextents)
-
-    expect_equal(length(unique(lapply(y11, crs))), 1L)
-    expect_equal(unique(lapply(y11, crs))[[1]], crs(r))
-
-    m11 <- mergeRaster(y11)
-    expect_equal(dim(m11), dim(r))
-    expect_equal(extent(m11), extent(r))
-    expect_equal(names(m11), names(r)) # TO DO (#283)
-    expect_equal(res(m11), res(r))
-    expect_equal(max(values(m11)), max(values(r))) # TO DO (#283)
-    expect_equal(min(values(m11)), min(values(r))) # TO DO (#283)
-  endCluster()
+  expect_equal(max(values(m1)), max(values(r)))
+  expect_equal(min(values(m1)), min(values(r)))
 
   # with buffer (proportion of cells)
   y2 <- splitRaster(r, nx, ny, c(0.5, 0.3), path = file.path(tmpdir, "red2"))
   xextents <- c()
   yextents <- c()
-  for (i in 1:length(y0)) {
+  for (i in seq_along(y2)) {
     xextents <- c(xextents, xmin(y2[[i]]), xmax(y2[[i]]))
     yextents <- c(yextents, ymin(y2[[i]]), ymax(y2[[i]]))
   }
@@ -170,6 +134,66 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
     }
     rowmaxtemp <- rowmax
   }
+})
+
+test_that("splitRaster works in parallel", {
+  skip_on_cran()
+  skip_on_travis()
+  skip("parallel usage of splitRaster must be run manually")
+
+  library(raster)
+  tmpdir <- file.path(tempdir(), "splitRaster-test-parallel") %>% checkPath(create = TRUE)
+
+  on.exit({
+    detach("package:raster")
+    unlink(tmpdir, recursive = TRUE)
+  })
+
+  b <- brick(system.file("external/rlogo.grd", package = "raster"))
+  r <- b[[1]] # use first layer only
+  nx <- 3
+  ny <- 4
+  expect_equal(xres(r), 1)
+  expect_equal(yres(r), 1)
+
+  # change the extent of r
+  extent(r) <- extent(xmin(r) - 30, xmax(r) - 30, ymin(r) - 20, ymax(r) - 20)
+
+  # test parallel cropping
+  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+  beginCluster(n)
+  on.exit(raster::endCluster(), add = TRUE)
+
+  cl <- getCluster()
+
+  y11 <- splitRaster(r, nx, ny, c(3L, 4L), path = file.path(tmpdir, "red11"))
+  expect_true(unique(unlist(lapply(y11, fromDisk))))
+
+  for (i in 1:12) {
+    expect_true(file.exists(file.path(tmpdir, "red11", paste0("red_tile", i, ".grd"))))
+  }
+
+  xextents <- c()
+  yextents <- c()
+  for (i in seq_along(y11)) {
+    xextents <- c(xextents, xmin(y11[[i]]), xmax(y11[[i]]))
+    yextents <- c(yextents, ymin(y11[[i]]), ymax(y11[[i]]))
+  }
+  expect_equal(sort(unique(xextents)), c(-30, 1, 7, 34, 40, 71))
+  expect_equal(sort(unique(yextents)), c(-20, -5, 3, 14, 22, 34, 42, 57))
+  rm(xextents, yextents)
+
+  expect_equal(length(unique(lapply(y11, crs))), 1L)
+  expect_equal(unique(lapply(y11, crs))[[1]], crs(r))
+
+  m11 <- mergeRaster(y11)
+  expect_equal(dim(m11), dim(r))
+  expect_equal(extent(m11), extent(r))
+  expect_equal(names(m11), names(r))
+  expect_equal(res(m11), res(r))
+  expect_equal(max(values(m11)), max(values(r)))
+  expect_equal(min(values(m11)), min(values(r)))
+  endCluster()
 })
 
 test_that("splitRaster and mergeRaster work on large on-disk rasters", {
