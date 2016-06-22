@@ -56,7 +56,7 @@ Default FALSE.}
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 then, it will force a recache. Ignored if \code{cache} is FALSE.}
 
-\item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime}, 
+\item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime},
 \code{.saveInitialTime}, \code{cache} and/or \code{notOlderThan}. Caching
 is still experimental. It is tested to work under some conditions, but not
 all. See details.}
@@ -185,7 +185,7 @@ and replicate = 4. Thus, if a second call to experiment with the exact same simL
 and \code{replicates = 6}, the first 4 will be taken from the cached copies, and replicate 5 and
 6 will be run (and cached) as normal. If \code{notOlderThan} used with a time that is more recent
 than the cached copy, then a new spades will be done, and the cached copy will be deleted from
-the cache repository, so there will only ever be one copy of a particular replicate for a 
+the cache repository, so there will only ever be one copy of a particular replicate for a
 particular simList. NOTE: caching may not work as desired on a Windows machine because
 the sqlite database can only be written to one at a time, so there may be collisions.
 }
