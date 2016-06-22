@@ -8,8 +8,7 @@
 library(SpaDES)
 library(igraph)
 
-if(require(rgdal, quietly = TRUE)){
-
+if (require(rgdal, quietly = TRUE)) {
   filelist = data.frame(
     files = dir(system.file("maps", package = "SpaDES"),
                              full.names = TRUE, pattern = "tif"),

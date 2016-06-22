@@ -177,7 +177,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @param circle        Logical. If TRUE, then outward spread will be by equidistant rings,
 #'                      rather than solely by adjacent cells (via \code{directions} arg.). Default
-#'                      is FALSE. Using \code{circle=TRUE} can be dramatically slower for large
+#'                      is FALSE. Using \code{circle = TRUE} can be dramatically slower for large
 #'                      problems. Note, this should usually be used with spreadProb = 1.
 #'
 #' @param circleMaxRadius Numeric. A further way to stop the outward spread of events. If
@@ -307,9 +307,10 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' # Can use transparent as a color
 #' setColors(hab) <- paste(c("transparent", brewer.pal(8, "Greys")))
 #'
-#' if (interactive())
+#' if (interactive()) {
 #'   Plot(hab, new = TRUE, speedup = 3) # note speedup is equivalent to making pyramids,
-#'                              # so, some details are lost
+#'                                      # so, some details are lost
+#' }
 #'
 #' # initiate 10 fires
 #' startCells <- as.integer(sample(1:ncell(emptyRas),10))
@@ -339,19 +340,19 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' ## Continue event by passing interrupted object into spreadState
 #' ####################
 #'
-#' ## Interrupt a spread event using iterations - need returnIndices=TRUE to use outputs
+#' ## Interrupt a spread event using iterations - need returnIndices = TRUE to use outputs
 #' ##   as new inputs in next iteration
-#' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
+#' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices = TRUE,
 #'                 0.235, 0, NULL, 1e8, 8, iterations = 3, id = TRUE)
 #' fires[,list(size=length(initialLocus)), by=id]  # See sizes of fires
 #'
-#' fires2 <- spread(hab, loci=NA_real_, returnIndices=TRUE, 0.235,
+#' fires2 <- spread(hab, loci=NA_real_, returnIndices = TRUE, 0.235,
 #'                  0, NULL, 1e8, 8, iterations = 2, id = TRUE,
 #'                  spreadState=fires)
 #' # NOTE events are assigned arbitrary IDs, starting at 1
 #'
 #' ## Add new fires to the already burning fires
-#' fires3 <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
+#' fires3 <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices = TRUE,
 #'                      0.235, 0, NULL, 1e8, 8, iterations = 1, id = TRUE,
 #'                                           spreadState=fires)
 #' fires3[,list(size=length(initialLocus)), by=id]  # See sizes of fires
@@ -359,14 +360,13 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' # maximum (e.g., new fires 11 to 20 here)
 #'
 #' ## Use data.table and loci...
-#' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices=TRUE,
+#' fires <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), returnIndices = TRUE,
 #'                 0.235, 0, NULL, 1e8, 8, iterations = 2, id = TRUE)
 #' fullRas <- raster(hab)
 #' fullRas[] <- 1:ncell(hab)
 #' burned <- fires[active == FALSE]
 #' burnedMap <- rasterizeReduced(burned, fullRas, "id", "indices")
-#' if (interactive())
-#'   Plot(burnedMap, new=TRUE)
+#' if (interactive()) Plot(burnedMap, new = TRUE)
 #'
 #' ####################
 #' ## stopRule examples
@@ -391,8 +391,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' set.seed(1234)
 #' stopRuleB_NotExact <- spread(hab, loci = as.integer(sample(1:ncell(hab), 10)), 1, 0,
 #'                 NULL, maxSize = 1e6, 8, 1e6, id = TRUE, circle = TRUE, stopRule = stopRule2)
-#' if (interactive())
-#'   Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new=TRUE)
+#' if (interactive()) Plot(stopRuleA, stopRuleB, stopRuleB_NotExact, new = TRUE)
 #'
 #' # Test that the stopRules work
 #' # stopRuleA was not exact, so each value will "overshoot" the stopRule, here it was hab>50
@@ -405,7 +404,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
 #'
 #' # stopRuleB_notExact will overshoot
-#' foo <- cbind(vals=hab[stopRuleB_NotExact], id = stopRuleB_NotExact[stopRuleB_NotExact>0]);
+#' foo <- cbind(vals=hab[stopRuleB_NotExact], id = stopRuleB_NotExact[stopRuleB_NotExact > 0]);
 #' tapply(foo[,"vals"], foo[,"id"], sum) # Correct ... all are above 50
 #'
 #'
@@ -414,23 +413,20 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' #    stopRule in place, spreadProb = 1
 #' diamonds <- spread(hab>0, spreadProb = 1, directions = 4,
 #'    id = TRUE, stopRule = stopRule2)
-#' if (interactive())
-#'   Plot(diamonds, new=TRUE)
+#' if (interactive()) Plot(diamonds, new = TRUE)
 #'
 #' # Squares - can make them with: a boolean raster, directions = 8,
 #' #    stopRule in place, spreadProb = 1
 #' squares <- spread(hab>0, spreadProb = 1, directions = 8,
 #'    id = TRUE, stopRule = stopRule2)
-#' if (interactive())
-#'   Plot(squares)
+#' if (interactive()) Plot(squares)
 #'
 #' # Interference shapes - can make them with: a boolean raster, directions = 8,
 #' #    stopRule in place, spreadProb = 1
 #' stopRule2 <- function(landscape) sum(landscape)>200
 #' squashedDiamonds <- spread(hab>0, spreadProb = 1, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 4, id = TRUE, stopRule = stopRule2)
-#' if (interactive())
-#'   Plot(squashedDiamonds, new=TRUE)
+#' if (interactive()) Plot(squashedDiamonds, new = TRUE)
 #'
 #' # Circles with spreadProb < 1 will give "more" circular shapes, but definitely not circles
 #' stopRule2 <- function(landscape) sum(landscape)>200
@@ -442,7 +438,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' regularCA <- spread(hab>0, spreadProb = 0.23, loci = (ncell(hab)-ncol(hab))/2 + c(4, -4),
 #'    directions = 8, id = TRUE)#, stopRule = stopRule2)
 #' if (interactive())
-#'   Plot(circlish, regularCA, new=TRUE)
+#'   Plot(circlish, regularCA, new = TRUE)
 #'
 #'
 #' ####################
@@ -466,7 +462,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #' #    vars = list(endSizes = endSizes), stopRuleBehavior = "excludePixel")
 #'
 #' if (interactive())
-#'   Plot(TwoCirclesDiffSize, new=TRUE)
+#'   Plot(TwoCirclesDiffSize, new = TRUE)
 #' cirs <- getValues(TwoCirclesDiffSize)
 #' vals <- tapply(hab[TwoCirclesDiffSize], cirs[cirs>0], sum)
 #'
@@ -489,7 +485,7 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'  # define stopRule
 #'  stopRule2 <- function(landscape,id,maxVal) sum(landscape)>maxVal[id]
 #'  circs <- spread(hab, spreadProb = 1, circle = TRUE, loci = initialLoci, stopRule = stopRule2,
-#'                    id = TRUE, allowOverlap=TRUE, stopRuleBehavior="includeRing",
+#'                    id = TRUE, allowOverlap = TRUE, stopRuleBehavior = "includeRing",
 #'                                      maxVal = maxVal, returnIndices = TRUE)
 #'  (vals <- tapply(hab[circs$indices], circs$id, sum))
 #'  vals<=maxVal # All TRUE
@@ -497,21 +493,17 @@ setGeneric("spread", function(landscape, loci = NA_real_,
 #'  overlapEvents[] <- 0
 #'  toMap <- circs[,sum(id),by=indices]
 #'  overlapEvents[toMap$indices] <- toMap$V1
-#'  if (interactive())
-#'    Plot(overlapEvents, new=TRUE)
+#'  if (interactive()) Plot(overlapEvents, new = TRUE)
 #'
 #'
 setMethod(
   "spread",
   signature(landscape = "RasterLayer"),
-  definition = function(landscape, loci, spreadProb,
-                        persistence, mask,
-                        maxSize, directions, iterations,
-                        lowMemory, returnIndices, returnDistances, mapID, id,
-                        plot.it, spreadProbLater, spreadState,
-                        circle, circleMaxRadius, stopRule, stopRuleBehavior,
-                        allowOverlap, asymmetry,
-                        asymmetryAngle,
+  definition = function(landscape, loci, spreadProb, persistence, mask, maxSize,
+                        directions, iterations, lowMemory, returnIndices,
+                        returnDistances, mapID, id, plot.it, spreadProbLater,
+                        spreadState, circle, circleMaxRadius, stopRule,
+                        stopRuleBehavior, allowOverlap, asymmetry, asymmetryAngle,
                         ...) {
 
     if (!is.null(mapID)) {
@@ -541,10 +533,10 @@ setMethod(
     }
 
     if (is(spreadProbLater,"RasterLayer") | is(spreadProb, "Rasterlayer")) {
-      if ( (minValue(spreadProb)>1L) || (maxValue(spreadProb)<0L) ) {
+      if ( (minValue(spreadProb) > 1L) || (maxValue(spreadProb) < 0L) ) {
         stop("spreadProb is not a probability")
       }
-      if ( (minValue(spreadProbLater)>1L) || (maxValue(spreadProbLater)<0L) ) {
+      if ( (minValue(spreadProbLater) > 1L) || (maxValue(spreadProbLater) < 0L) ) {
         stop("spreadProbLater is not a probability")
       }
     } else {
@@ -553,8 +545,8 @@ setMethod(
     }
 
     if (allowOverlap | returnDistances) {
-      spreads <- cbind(initialLocus=initialLoci, indices=initialLoci,
-                       id=1:length(loci), active=1)
+      spreads <- cbind(initialLocus = initialLoci, indices = initialLoci,
+                       id = 1:length(loci), active = 1)
     } else {
       if (lowMemory) { # create vector of 0s called spreads, which corresponds to the
         #   indices of the landscape raster
@@ -587,11 +579,11 @@ setMethod(
     }
 
     # check validity of stopRule
-    if (is.function(stopRule)){
+    if (is.function(stopRule)) {
       id <- TRUE
       stopRuleObjs <- names(formals(stopRule))
       if (any(is.na(match(stopRuleObjs,
-                         c("id", "landscape", "cells", names(otherVars)))))){
+                         c("id", "landscape", "cells", names(otherVars)))))) {
         stop(paste("Arguments in stopRule not valid. The function definition",
              "must be a function of built-in options, ",
              "(id, landscape, or cells) or user supplied variables.",
@@ -599,7 +591,7 @@ setMethod(
              "must be passed as named vectors, or lists or data.frames.",
              " See examples."))
       }
-      LandRasNeeded <- any(stopRuleObjs=="landscape")
+      LandRasNeeded <- any(stopRuleObjs == "landscape")
       colNamesPotentials <- c("id", "landscape"[LandRasNeeded], "cells", "prev")
       argNames <- c(colNamesPotentials, names(otherVars))
       whArgs <- match(names(formals(stopRule)),argNames)
@@ -670,8 +662,7 @@ setMethod(
     }
 
 
-    if (any(loci>ncell(landscape)))
-      stop("loci indices are not on landscape")
+    if (any(loci > ncell(landscape))) stop("loci indices are not on landscape")
 
     ## Recycling maxSize as needed
     if (any(!is.na(maxSize))) {
@@ -694,10 +685,10 @@ setMethod(
 
       # identify neighbours
       if (allowOverlap | returnDistances) {
-        whActive <- spreads[,"active"]==1 # spreads carries over
-        potentials <- adj(landscape, loci, directions, pairs = TRUE, id = spreads[whActive,"id"])
+        whActive <- spreads[,"active"] == 1 # spreads carries over
+        potentials <- adj(landscape, loci, directions, pairs = TRUE, id = spreads[whActive, "id"])
         spreads[whActive,"active"] <- 0
-        potentials <- cbind(potentials, active=1)
+        potentials <- cbind(potentials, active = 1)
       } else {
         if (id | returnIndices | circle) {
           potentials <- adj(landscape, loci, directions, pairs = TRUE)
@@ -718,14 +709,14 @@ setMethod(
 
         #faster alternative to tapply, but cumbersome
         ids <- unique(d[,"id"])
-        d <- do.call(rbind,lapply(ids, function(id){
-          cbind(d[d[,"id"]==id,,drop=FALSE],duplicated=duplicated(
-            d[d[,"id"]==id,"indices"]
-          ))
+        d <- do.call(rbind, lapply(ids, function(id) {
+          cbind(d[d[, "id"] == id, , drop = FALSE],
+                duplicated = duplicated(d[d[, "id"] == id,"indices"]))
         }))
 
         lastCol <- ncol(d)
-        potentials <- d[d[,"duplicated"]==0 & d[,"active"]==1,,drop=FALSE][,-lastCol,drop=FALSE]
+        potentials <- d[d[, "duplicated"] == 0 &
+                          d[, "active"] == 1, , drop = FALSE][, -lastCol, drop = FALSE]
 
       } else {
         potentials <- potentials[spreads[potentials[, 2L]] == 0L, , drop = FALSE]
@@ -753,23 +744,23 @@ setMethod(
         }
       }
       if (!is.na(asymmetry)) {
-        if (allowOverlap | returnDistances){
-          a <- cbind(id=potentials[, 3L], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
+        if (allowOverlap | returnDistances) {
+          a <- cbind(id = potentials[, 3L], to = potentials[, 2L],
+                     xyFromCell(landscape, potentials[, 2L]))
         } else {
-          a <- cbind(id=spreads[potentials[, 1L]], to=potentials[, 2L], xyFromCell(landscape, potentials[, 2L]))
+          a <- cbind(id = spreads[potentials[, 1L]], to = potentials[, 2L],
+                     xyFromCell(landscape, potentials[, 2L]))
         }
         #d1 <- .matchedPointDirection(a, initialLociXY)
-        d <- directionFromEachPoint(from=initialLociXY, to=a)
+        d <- directionFromEachPoint(from = initialLociXY, to = a)
         #expect_true(all(0 %==% (d[order(d[,"x"],d[,"y"]),"angles"]-d1[order(d1[,"x"],d1[,"y"]),"angles"])))
-        newSpreadProbExtremes <- (spreadProb*2)/(asymmetry+1)*c(1,asymmetry)
-        angleQuality <- ((cos(d[,"angles"] - rad(asymmetryAngle))+1)/2)
-        spreadProbs <- newSpreadProbExtremes[1]+(angleQuality *
-                                                   diff(newSpreadProbExtremes))
-        spreadProbs <- spreadProbs - diff(c(spreadProb,mean(spreadProbs)))
-
+        newSpreadProbExtremes <- (spreadProb*2) / (asymmetry + 1)*c(1, asymmetry)
+        angleQuality <- ((cos(d[, "angles"] - rad(asymmetryAngle)) + 1)/2)
+        spreadProbs <- newSpreadProbExtremes[1] + (angleQuality * diff(newSpreadProbExtremes))
+        spreadProbs <- spreadProbs - diff(c(spreadProb, mean(spreadProbs)))
       }
 
-      if (any(spreadProbs<1)) {
+      if (any(spreadProbs < 1)) {
         potentials <- potentials[runif(NROW(potentials)) <= spreadProbs, , drop = FALSE]
       }
       potentials <- potentials[sample.int(NROW(potentials)), , drop = FALSE] # random ordering so not always same
@@ -777,40 +768,40 @@ setMethod(
         potentials <- potentials[!duplicated(potentials[, 2L]), , drop = FALSE]
       }
 
-      if (length(potentials)>0) {# potentials can become zero because all active cells are edge cells
+      if (length(potentials) > 0) {# potentials can become zero because all active cells are edge cells
         # implement circle
         if (!missing(circle)) {
           if (circle) {
-            if (allowOverlap | returnDistances){
+            if (allowOverlap | returnDistances) {
               a <- cbind(potentials, xyFromCell(landscape, potentials[, 2L]))
             } else {
-              a <- cbind(potentials, id=spreads[potentials[, "from"]],
+              a <- cbind(potentials, id = spreads[potentials[, "from"]],
                          xyFromCell(landscape, potentials[, "to"]))
             }
-            a <- a[,!(colnames(a) %in% c("dists")), drop=FALSE] # need to remove dists column because distanceFromEachPoint, adds one back
+            # need to remove dists column because distanceFromEachPoint, adds one back
+            a <- a[, !(colnames(a) %in% c("dists")), drop = FALSE]
             # need 3 columns, id, x, y in both initialLociXY and a
             d <- distanceFromEachPoint(initialLociXY, a, angles = asymmetry) # d is sorted
             cMR <- n
-            if (!any(is.na(circleMaxRadius))){
-              if (any(circleMaxRadius<=n)){ # don't bother proceeding if circleMaxRadius is larger than current iteration
-                if (length(circleMaxRadius)>1) { # if it is a vector of values
-                  cMR <- circleMaxRadius[d[,"id"]]
+            if (!any(is.na(circleMaxRadius))) {
+              # don't bother proceeding if circleMaxRadius is larger than current iteration
+              if (any(circleMaxRadius <= n)) {
+                if (length(circleMaxRadius) > 1) { # if it is a vector of values
+                  cMR <- circleMaxRadius[d[, "id"]]
                 } else {
                   cMR <- circleMaxRadius
                 }
               }
             }
-            potentials <- d[,!(colnames(d) %in% c("x", "y")),drop=FALSE]
-            potentials <- potentials[(d[,"dists"] %<=% cMR),, drop = FALSE]
+            potentials <- d[, !(colnames(d) %in% c("x", "y")), drop = FALSE]
+            potentials <- potentials[(d[, "dists"] %<=% cMR), , drop = FALSE]
           }
         }
-
 
         events <- potentials[, 2L]
 
         # Implement maxSize
         if (length(maxSize) == 1L) {
-
           len <- length(events)
           if ((size + len) > maxSize) {
             keep <- len - ((size + len) - maxSize)
@@ -820,7 +811,7 @@ setMethod(
           }
           size <- size + length(events)
         } else {
-          if (allowOverlap | returnDistances){
+          if (allowOverlap | returnDistances) {
             len <- tabulate(potentials[, 3L], length(maxSize))
           } else {
             len <- tabulate(spreads[potentials[, 1L]], length(maxSize))
@@ -843,41 +834,40 @@ setMethod(
         }
 
         # Implement stopRule section
-        if (is.function(stopRule) & length(events)>0){
-
+        if (is.function(stopRule) & length(events) > 0) {
           if (allowOverlap | returnDistances) {
-            prevCells <- cbind(id=spreads[,"id"],
-                               landscape = if (LandRasNeeded) landRas[spreads[,"indices"]] else NULL,
-                               cells = spreads[,"indices"], prev=1)
+            prevCells <- cbind(id = spreads[, "id"],
+                               landscape = if (LandRasNeeded) landRas[spreads[, "indices"]] else NULL,
+                               cells = spreads[,"indices"], prev = 1)
             eventCells <- cbind(id = potentials[, "id"],
                                 landscape = if (LandRasNeeded) landRas[events] else NULL,
-                                cells = events, prev=0)
+                                cells = events, prev = 0)
           } else {
-            whgtZero <- which(spreads>0)
-            prevCells <- cbind(id=spreads[whgtZero],
+            whgtZero <- which(spreads > 0)
+            prevCells <- cbind(id = spreads[whgtZero],
                                landscape = if (LandRasNeeded) landRas[whgtZero] else NULL,
-                               cells = whgtZero, prev=1)
+                               cells = whgtZero, prev = 1)
             eventCells <- cbind(id = spreads[potentials[, 1L]],
-                                landscape = if (LandRasNeeded) landRas[potentials[,2L]] else NULL,
-                                cells = potentials[,2L], prev=0)
+                                landscape = if (LandRasNeeded) landRas[potentials[, 2L]] else NULL,
+                                cells = potentials[,2L], prev = 0)
           }
           if (circle) {
             prevCells <- cbind(prevCells, dist = NA)
             eventCells <- cbind(eventCells, dist = potentials[,"dists"])
           }
-          tmp <- rbind(prevCells[prevCells[,"id"] %in%
-                                   unique(eventCells[,"id"]),], eventCells) # don't need to continue doing ids that are not active
+          # don't need to continue doing ids that are not active
+          tmp <- rbind(prevCells[prevCells[,"id"] %in% unique(eventCells[,"id"]),], eventCells)
 
-          ids <- unique(tmp[,"id"])
+          ids <- unique(tmp[, "id"])
 
           shouldStopList <- lapply(ids, function(id) {
-            shortTmp <- tmp[tmp[,"id"]==id,]
-            args <- append(list(id=id), lapply(colNamesPotentials[-1], function(j) shortTmp[,j])) # instead of as.data.frame
+            shortTmp <- tmp[tmp[,"id"] == id,]
+            args <- append(list(id = id), lapply(colNamesPotentials[-1], function(j) shortTmp[,j])) # instead of as.data.frame
             names(args) <- colNamesPotentials
             args <- append(args, otherVars)
             do.call(stopRule, args[whArgs])
           })
-          if (any(lapply(shouldStopList, length)>1))
+          if (any(lapply(shouldStopList, length) > 1))
             stop("stopRule does not return a length-one logical. Perhaps stopRule need indexing ",
                  "by cells or id?")
 
@@ -886,8 +876,8 @@ setMethod(
           names(shouldStop) <- ids
 
           if (any(shouldStop)) {
-            if (stopRuleBehavior!="includeRing") {
-              if (stopRuleBehavior!="excludeRing") {
+            if (stopRuleBehavior != "includeRing") {
+              if (stopRuleBehavior != "excludeRing") {
                 whStop <- as.numeric(names(shouldStop)[shouldStop])
                 whStopAll <- tmp[,"id"] %in% whStop
                 tmp2 <- tmp[whStopAll,]
@@ -896,51 +886,53 @@ setMethod(
 
                 # If an event needs to stop, then must identify which cells are included
                 out <- lapply(whStop, function(id) {
-                  tmp3 <- tmp2[tmp2[,"id"]==id,]
-                  newOnes <- tmp3[,"prev"]==0
+                  tmp3 <- tmp2[tmp2[,"id"] == id,]
+                  newOnes <- tmp3[,"prev"] == 0
                   ord <- seq_along(newOnes)
                   ord[newOnes] <- sample(ord[newOnes])
-                  if (circle) ord[newOnes] <- ord[newOnes][order(tmp3[ord[newOnes],"dist"])]
+                  if (circle) ord[newOnes] <- ord[newOnes][order(tmp3[ord[newOnes], "dist"])]
                   tmp3 <- tmp3[ord,]
                   startLen <- sum(!newOnes)
                   addIncr <- 1
                   done <- FALSE
-                  args <- append(list(id=id),
-                                 lapply(colNamesPotentials[-1], function(j) tmp3[1:startLen,j])) # instead of as.data.frame
+                  args <- append(list(id = id),
+                                 lapply(colNamesPotentials[-1], function(j) {
+                                   tmp3[1:startLen, j]
+                  })) # instead of as.data.frame
                   names(args) <- colNamesPotentials
                   args <- append(args, otherVars)
-                  argsSeq <- seq_along(colNamesPotentials[-1])+1
+                  argsSeq <- seq_along(colNamesPotentials[-1]) + 1
 
-                  while(!done) {
-                    args[argsSeq] <- lapply(colNamesPotentials[-1], function(j) unname(c(args[[j]],tmp3[(startLen+addIncr),j]))) # instead of as.data.frame
+                  while (!done) {
+                    args[argsSeq] <- lapply(colNamesPotentials[-1], function(j) {
+                      unname(c(args[[j]], tmp3[(startLen + addIncr),j]))
+                    }) # instead of as.data.frame
                     done <- do.call(stopRule, args[whArgs])
-                    addIncr <- addIncr+1
+                    addIncr <- addIncr + 1
                   }
-                  if (stopRuleBehavior=="excludePixel") addIncr <- addIncr - 1
-                  firstInd <- startLen+addIncr
+                  if (stopRuleBehavior == "excludePixel") addIncr <- addIncr - 1
+                  firstInd <- startLen + addIncr
                   lastInd <- NROW(tmp3)
-                  sequ <- if (firstInd>lastInd) 0 else firstInd:lastInd
-                  tmp3[sequ,,drop=FALSE]#)
+                  sequ <- if (firstInd > lastInd) 0 else firstInd:lastInd
+                  tmp3[sequ, , drop = FALSE]
                 })
                 eventRm <- do.call(rbind, out)[,"cells"]
                 cellsKeep <- !(potentials[,2L] %in% eventRm)
               } else {
                 cellsKeep <- rep(FALSE, NROW(potentials))
               }
-              potentials <- potentials[cellsKeep,,drop=FALSE]
+              potentials <- potentials[cellsKeep, , drop = FALSE]
               events <- potentials[,2L]
-              eventCells <- eventCells[cellsKeep,,drop=FALSE]
-
+              eventCells <- eventCells[cellsKeep, , drop = FALSE]
             }
             toKeepSR <- !(eventCells[,"id"] %in% as.numeric(names(which((shouldStop)))))
           }
-
         }
 
         # increment iteration
         n <- n + 1L
 
-        if (length(events) > 0){ # place new value at new cells that became active
+        if (length(events) > 0) { # place new value at new cells that became active
           if (allowOverlap | returnDistances) {
             spreads <- rbind(spreads, potentials)
             if (returnDistances & !allowOverlap) { # 2nd place where allowOverlap and returnDistances differ
@@ -949,7 +941,7 @@ setMethod(
               nrPotentials <- NROW(potentials)
               notDupsEvents <- notDups[-(1:(nrSpreads - nrPotentials))]
 
-              spreads <- spreads[notDups,,drop=FALSE]
+              spreads <- spreads[notDups, , drop = FALSE]
               events <- events[notDupsEvents]
             }
           } else {
@@ -965,8 +957,8 @@ setMethod(
         if (length(maxSize) > 1L) {
           if (exists("whichID", inherits = FALSE)) {
             if (allowOverlap | returnDistances) {
-              maxSizeKeep <- !(spreads[spreads[,"active"]==1,"id"] %in% whichID)
-              spreads <- spreads[c(rep(TRUE, sum(spreads[,"active"]==0)),maxSizeKeep),]
+              maxSizeKeep <- !(spreads[spreads[,"active"] == 1,"id"] %in% whichID)
+              spreads <- spreads[c(rep(TRUE, sum(spreads[,"active"] == 0)),maxSizeKeep),]
             } else {
               maxSizeKeep <- !spreads[events] %in% whichID
             }
@@ -988,7 +980,7 @@ setMethod(
           if (exists("toKeepSR", inherits = FALSE)) {
             events <- events[toKeepSR]
             if (allowOverlap | returnDistances) {
-              spreads[c(rep(TRUE, sum(spreads[,"active"]==0)),!toKeepSR),"active"] <- 0
+              spreads[c(rep(TRUE, sum(spreads[, "active"] == 0)), !toKeepSR), "active"] <- 0
             }
             rm(toKeepSR)
           }
@@ -1011,7 +1003,7 @@ setMethod(
       }
 
       if (plot.it) {
-        if (n==2) clearPlot()
+        if (n == 2) clearPlot()
         if (allowOverlap | returnDistances) {
           spreadsDT <- data.table(spreads);
           hab2 <- landscape;
@@ -1024,15 +1016,13 @@ setMethod(
           plotCur <- setValues(plotCur, spreads)
           Plot(plotCur)
         }
-
       }
       loci <- c(loci, events)
     }
 
-
     # Convert the data back to raster
     if (!allowOverlap & !returnDistances) {
-      if (lowMemory){
+      if (lowMemory) {
         wh <- ffwhich(spreads, spreads > 0) %>% as.ram
         if (returnIndices) {
           completed <- data.table(indices = wh, id = spreads[wh], active = FALSE)
@@ -1118,12 +1108,12 @@ setMethod(
 
 #' Identifies all cells within a ring around the focal cells
 #'
-#' Identifies the cell numbers of all cells within a ring defined
-#' by minimum and maximum distances from focal cells.
+#' Identifies the cell numbers of all cells within a ring defined by  minimum
+#' and maximum distances from focal cells.
 #' Uses \code{\link{spread}} under the hood, with specific values set.
-#' Under many situations, this will be faster than using
-#' \code{\link[rgeos]{gBuffer}} twice (once for smaller ring and once for
-#' larger ring, then removing the smaller ring cells).
+#' Under many situations, this will be faster than using \code{rgeos::gBuffer}
+#' twice (once for smaller ring and once for larger ring, then removing the
+#' smaller ring cells).
 #'
 #' @export
 #' @docType methods
@@ -1149,7 +1139,7 @@ setMethod(
 #' between the two functions is that \code{rings} takes the centre of the pixel
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example.
-#' \code{\link[rgeos]{gBuffer}}
+#' \code{rgeos::gBuffer}
 #' @examples
 #' library(raster)
 #'
@@ -1173,7 +1163,7 @@ setMethod(
 #' Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9, returnIndices = TRUE)
 #' emptyRas[Rings$indices] <- Rings$id
 #' if (interactive())
-#'   Plot(emptyRas, new=TRUE)
+#'   Plot(emptyRas, new = TRUE)
 #'
 #' # Variable ring widths, including centre cell for smaller one
 #' emptyRas[] <- 0
@@ -1181,7 +1171,7 @@ setMethod(
 #'                returnIndices = TRUE)
 #' emptyRas[Rings$indices] <- Rings$id
 #' if (interactive())
-#'   Plot(emptyRas, new=TRUE)
+#'   Plot(emptyRas, new = TRUE)
 setGeneric("rings", function(landscape, loci = NA_real_,
                              id = FALSE,
                              minRadius = 2, maxRadius = 5,
@@ -1216,7 +1206,7 @@ setMethod(
          minRadius <- rep(minRadius, length.out = len)
          maxRadius <- rep(maxRadius, length.out = len)
          out <- rbindlist(lapply(seq_along(loci), function(j) {
-           spreadEvents[id==j & (dists %>=% minRadius[j] & dists %<=% maxRadius[j])]
+           spreadEvents[id == j & (dists %>=% minRadius[j] & dists %<=% maxRadius[j])]
          }))
 
        } else {
@@ -1329,16 +1319,16 @@ setMethod(
 #' indices <- cellFromXY(distRas,dists1[,c("x","y")])
 #' invDist <- tapply(dists1[,"dists"], indices, function(x) sum(1/(1+x))) # idw function
 #' distRas[] <- as.vector(invDist)
-#' if (interactive()) Plot(distRas, new=TRUE)
+#' if (interactive()) Plot(distRas, new = TRUE)
 #'
 #' # With iterative summing via cumulativeFn to keep memory use low, with same result
-#' dists1 <- distanceFromEachPoint(coords[,c("x","y"),drop=FALSE],
+#' dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
 #'                                 landscape = distRas, cumulativeFn = `+`)
 #' idwRaster <- raster(distRas)
 #' idwRaster[] <- dists1[,"val"]
 #' if (interactive()) Plot(idwRaster)
 #'
-#' all(idwRaster[]==distRas[]) # TRUE
+#' all(idwRaster[] == distRas[]) # TRUE
 #'
 distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
@@ -1410,8 +1400,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     }
 
   # C call from raster
-   # m1 <- to[,c("x","y"),drop=FALSE]
-   # m2 <- from[,c("x","y"),drop=FALSE]
+   # m1 <- to[,c("x", "y"), drop = FALSE]
+   # m2 <- from[,c("x", "y"), drop = FALSE]
    #
    # dists <- .Call("distanceToNearestPoint",
    #       m1, m2, as.integer(0), PACKAGE = "raster")
@@ -1489,14 +1479,14 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 #'
 #' dirs1 <- directionFromEachPoint(from = coords, landscape = dirRas)
 #' require(CircStats)
-#' dirs1[,"angles"] <- deg(dirs1[,"angles"] %% (2*pi))
-#' indices <- cellFromXY(dirRas,dirs1[,c("x","y")])
+#' dirs1[, "angles"] <- deg(dirs1[,"angles"] %% (2*pi))
+#' indices <- cellFromXY(dirRas,dirs1[, c("x", "y")])
 #' minDir <- tapply(dirs1[,"angles"], indices, function(x) min(x)) # minimum angle
 #' dirRas[] <- as.vector(minDir)
 #' if (interactive()) {
-#'   Plot(dirRas, new=TRUE)
+#'   Plot(dirRas, new = TRUE)
 #'   library(sp)
-#'   start <- SpatialPoints(coords[,c("x","y"),drop=FALSE])
+#'   start <- SpatialPoints(coords[, c("x", "y"), drop = FALSE])
 #'   Plot(start, addTo = "dirRas")
 #' }
 directionFromEachPoint <- function(from, to = NULL, landscape) {
@@ -1516,7 +1506,7 @@ directionFromEachPoint <- function(from, to = NULL, landscape) {
   if (!matched) {
     if (NROW(from) > 1) {
       out <- lapply(seq_len(NROW(from)), function(k) {
-        out <- .pointDirection(from = from[k, ,drop = FALSE], to = to)
+        out <- .pointDirection(from = from[k, , drop = FALSE], to = to)
         cbind(out, id = ids[k])
       })
 

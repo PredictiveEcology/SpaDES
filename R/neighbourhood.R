@@ -108,7 +108,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     dirs <- 4
     needCorners <- TRUE
   } else {
-    needCorners <- if (directions==8) TRUE else FALSE
+    needCorners <- if (directions == 8) TRUE else FALSE
     dirs <- directions
   }
 
@@ -116,57 +116,56 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
   fromCells <- rep.int(cells, times = numToCells)
 
   if (is.numeric(directions)) {
-    top <- cells-numCol
-    lef <- cells-1
-    rig <- cells+1
-    bot <- cells+numCol
+    top <- cells - numCol
+    lef <- cells - 1
+    rig <- cells + 1
+    bot <- cells + numCol
   }
   if (needCorners) {
-    topl <- cells-numCol-1L
-    topr <- cells-numCol+1L
-    botl <- cells+numCol-1L
-    botr <- cells+numCol+1L
+    topl <- cells - numCol - 1L
+    topr <- cells - numCol + 1L
+    botl <- cells + numCol - 1L
+    botr <- cells + numCol + 1L
   }
 
-  toCells <-
-    if (directions == 8) {
-      if (match.adjacent)
-        if (include)
-          c(cells, topl, lef, botl, topr, rig, botr, top, bot)
-        else
-          c(topl, lef, botl, topr, rig, botr, top, bot)
+  toCells <- if (directions == 8) {
+    if (match.adjacent)
+      if (include)
+        c(cells, topl, lef, botl, topr, rig, botr, top, bot)
       else
-        if (include)
-          c(topl, top, topr, lef, cells, rig, botl, bot, botr)
-        else
-          c(topl, top, topr, lef, rig, botl, bot, botr)
-    } else if (directions == 4) {
-      if (match.adjacent)
-        if (include)
-          c(cells, lef, rig, top, bot)
-        else
-          c(lef, rig, top, bot)
+        c(topl, lef, botl, topr, rig, botr, top, bot)
+    else
+      if (include)
+        c(topl, top, topr, lef, cells, rig, botl, bot, botr)
       else
-        if (include)
-          c(top, lef, cells, rig, bot)
-        else
-          c(top, lef, rig, bot)
-    } else if (directions == "bishop") {
-      if (match.adjacent)
-        if (include)
-          c(cells, topl, botl, topr, botr)
-        else
-          c(topl, botl, topr, botr)
+        c(topl, top, topr, lef, rig, botl, bot, botr)
+  } else if (directions == 4) {
+    if (match.adjacent)
+      if (include)
+        c(cells, lef, rig, top, bot)
       else
-        if (include)
-          c(topl, topr, cells, botl, botr)
-        else
-          c(topl, topr, botl, botr)
-    } else {
-      stop("directions must be 4 or 8 or \'bishop\'")
-    }
+        c(lef, rig, top, bot)
+    else
+      if (include)
+        c(top, lef, cells, rig, bot)
+      else
+        c(top, lef, rig, bot)
+  } else if (directions == "bishop") {
+    if (match.adjacent)
+      if (include)
+        c(cells, topl, botl, topr, botr)
+      else
+        c(topl, botl, topr, botr)
+    else
+      if (include)
+        c(topl, topr, cells, botl, botr)
+      else
+        c(topl, topr, botl, botr)
+  } else {
+    stop("directions must be 4 or 8 or \'bishop\'")
+  }
 
-  useMatrix <- (length(cells)<cutoff.for.data.table)
+  useMatrix <- (length(cells) < cutoff.for.data.table)
   if (useMatrix) {
     adj <- cbind(from = fromCells, to = toCells)
     if (!is.null(id)) adj <- cbind(adj, id = rep.int(id, times = numToCells))
@@ -180,18 +179,18 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     ################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
-      adj <- adj[na.omit(adj[, "to"] %in% target),,drop=FALSE]
+      adj <- adj[na.omit(adj[, "to"] %in% target), , drop = FALSE]
     }
 
-    if (sort){
+    if (sort) {
       if (pairs) {
         if (match.adjacent) {
-          adj <- adj[order(adj[, "from"], adj[, "to"]), ,drop=FALSE]
+          adj <- adj[order(adj[, "from"], adj[, "to"]), , drop = FALSE]
         } else {
-          adj <- adj[order(adj[, "from"]),,drop=FALSE]
+          adj <- adj[order(adj[, "from"]), , drop = FALSE]
         }
       } else {
-        adj <- adj[order(adj[, "to"]),,drop=FALSE]
+        adj <- adj[order(adj[, "to"]), , drop = FALSE]
       }
     }
 
@@ -201,54 +200,48 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     if (!torus) {
       if (pairs) {
         return(adj[
-          !((((adj[, "to"]-1)%%numCell + 1) != adj[, "to"]) |  #top or bottom of raster
-              ((adj[, "from"]%%numCol + adj[, "to"]%%numCol) == 1))# | #right & left edge cells, with neighbours wrapped
-          ,, drop = FALSE])
+          !((((adj[, "to"] - 1) %% numCell + 1) != adj[, "to"]) |  #top or bottom of raster
+              ((adj[, "from"] %% numCol + adj[, "to"] %% numCol) == 1))# | #right & left edge cells, with neighbours wrapped
+          , , drop = FALSE])
       } else {
         adj <- adj[
-          !((((adj[, "to"]-1)%%numCell + 1) != adj[, "to"]) |  #top or bottom of raster
-              ((adj[, "from"]%%numCol + adj[, "to"]%%numCol) == 1))# | #right & left edge cells, with neighbours wrapped
+          !((((adj[, "to"] - 1) %% numCell + 1) != adj[, "to"]) |  #top or bottom of raster
+              ((adj[, "from"] %% numCol + adj[, "to"] %% numCol) == 1))# | #right & left edge cells, with neighbours wrapped
           , keepCols, drop = FALSE]
         if (match.adjacent) {
           adj <- unique(adj[,"to"])
         }
-
         return(adj)
       }
     } else {
-
-      whLefRig <- (adj[, "from"]%%numCol+adj[, "to"]%%numCol) == 1
-      adj[whLefRig, "to"] <- adj[whLefRig, "to"]+numCol*(adj[whLefRig, "from"]-adj[whLefRig, "to"])
-      whBotTop <- ((adj[, "to"]-1)%%numCell+1) != adj[, "to"]
-      adj[whBotTop, "to"] <- adj[whBotTop, "to"]+sign(adj[whBotTop, "from"]-adj[whBotTop, "to"])*numCell
+      whLefRig <- (adj[, "from"] %% numCol + adj[, "to"] %% numCol) == 1
+      adj[whLefRig, "to"] <- adj[whLefRig, "to"] + numCol*(adj[whLefRig, "from"] - adj[whLefRig, "to"])
+      whBotTop <- ((adj[, "to"] - 1) %% numCell + 1) != adj[, "to"]
+      adj[whBotTop, "to"] <- adj[whBotTop, "to"] + sign(adj[whBotTop, "from"] - adj[whBotTop, "to"])*numCell
       if (pairs) {
         return(adj)
       } else {
-
         if (match.adjacent) {
-          adj <- unique(adj[,"to",drop=TRUE])
+          adj <- unique(adj[, "to", drop = TRUE])
         } else {
           adj <- adj[, keepCols, drop = FALSE]
         }
         return(adj)
       }
     }
-
   } else {
     #################################################
     # Remove all cells that are not target cells, if target is a vector of cells
     if (!is.null(target)) {
-
       set(adj, , "ord", seq_len(NROW(adj)))
       setkeyv(adj, "to")
       adj <- adj[J(target)]
       adj <- na.omit(adj)
       setkeyv(adj, "ord")
       set(adj, , "ord", NULL)
-
     }
 
-    if (sort){
+    if (sort) {
       if (pairs) {
         if (match.adjacent) {
           setkeyv(adj, c("from", "to"))
@@ -269,8 +262,8 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
     if (!torus) {
       if (!pairs) {
         adj <- adj[
-          !((((to-1)%%numCell+1) != to) |  #top or bottom of raster
-              ((from%%numCol+to%%numCol) == 1))# | #right & left edge cells, with neighbours wrapped
+          !((((to - 1) %% numCell + 1) != to) |  #top or bottom of raster
+              ((from %% numCol + to %% numCol) == 1))# | #right & left edge cells, with neighbours wrapped
           ]
         if (match.adjacent) {
           return(unique(adj$to))
@@ -278,31 +271,32 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
         return(as.matrix(adj))
       } else {
         return(as.matrix(adj[
-          !((((to-1)%%numCell+1) != to) |  #top or bottom of raster
-                  ((from%%numCol+to%%numCol) == 1))# | #right & left edge cells, with neighbours wrapped
+          !((((to - 1) %% numCell + 1) != to) | #top or bottom of raster
+              ((from %% numCol + to %% numCol) == 1)) # | #right & left edge cells, with neighbours wrapped
           ]))
       }
     } else {
       if (!pairs) {
-        whLefRig <- (from%%numCol + adj$to%%numCol) == 1
+        whLefRig <- (from %% numCol + adj$to %% numCol) == 1
         toWhLefRig <- adj$to[whLefRig]
-        set(adj, which(whLefRig), "to", toWhLefRig+numCol*(from[whLefRig]-toWhLefRig))
-        whBotTop <- ((adj$to-1)%%numCell+1) != adj$to
+        set(adj, which(whLefRig), "to", toWhLefRig + numCol*(from[whLefRig] - toWhLefRig))
+        whBotTop <- ((adj$to - 1) %% numCell + 1) != adj$to
         toWhBotTop <- adj$to[whBotTop]
-        set(adj, which(whBotTop), "to", toWhBotTop+as.integer(sign(from[whBotTop]-toWhBotTop)*numCell))
+        set(adj, which(whBotTop), "to", toWhBotTop +
+              as.integer(sign(from[whBotTop] - toWhBotTop)*numCell))
 
         if (match.adjacent) {
           adj <- unique(adj$to)
           return(adj)
         }
       } else {
-        whLefRig <- (adj$from%%numCol + adj$to%%numCol) == 1
+        whLefRig <- (adj$from %% numCol + adj$to %% numCol) == 1
         toWhLefRig <- adj$to[whLefRig]
-        set(adj, which(whLefRig), "to", toWhLefRig+numCol*(adj$from[whLefRig]-toWhLefRig))
-        whBotTop <- ((adj$to-1)%%numCell+1) != adj$to
+        set(adj, which(whLefRig), "to", toWhLefRig + numCol*(adj$from[whLefRig] - toWhLefRig))
+        whBotTop <- ((adj$to - 1) %% numCell + 1) != adj$to
         toWhBotTop <- adj$to[whBotTop]
-        set(adj, which(whBotTop), "to", toWhBotTop+as.integer(sign(adj$from[whBotTop]-toWhBotTop)*numCell))
-
+        set(adj, which(whBotTop), "to", toWhBotTop +
+              as.integer(sign(adj$from[whBotTop] - toWhBotTop)*numCell))
       }
       return(as.matrix(adj))
     }
@@ -318,12 +312,12 @@ adj <- compiler::cmpfun(adj.raw)
 ##############################################################
 #' Identify pixels in a circle or ring (donut) around an object.
 #'
-#' Identify the pixels and coordinates that are at
-#'  a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
-#'  to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
-#'  In other words, it can be used for similar problems, but where speed is important. This
-#'  code is substantially adapted from \code{createCircle}, in
-#'  the PlotRegionHighlighter package.
+#' Identify the pixels and coordinates that are at a (set of) buffer distance(s)
+#' of the objects passed into \code{coords}.
+#' This is similar to \code{rgeos::gBuffer} but much faster and without
+#' the geo referencing information.
+#' In other words, it can be used for similar problems, but where speed is important.
+#' This code is substantially adapted from \code{PlotRegionHighlighter::createCircle}.
 #'
 #' @param landscape    Raster on which the circles are built.
 #'
@@ -400,7 +394,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 #' See example. For the specific case of creating distance surfaces from specific
 #' points, see \code{\link{distanceFromEachPoint}}, which is often faster.
-#' For the more general GIS buffering, see \code{\link[rgeos]{gBuffer}}.
+#' For the more general GIS buffering, see \code{rgeos::gBuffer}.
 #'
 #'@examples
 #' library(raster)

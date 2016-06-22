@@ -91,12 +91,12 @@ the \code{indices} (i.e., cell number) of the \code{landscape}
 associated with the ring or circle being identified by this function.
 }
 \description{
-Identify the pixels and coordinates that are at
- a (set of) buffer distance(s) of the objects passed into \code{coords}. This is similar
- to \code{\link[rgeos]{gBuffer}} but much faster and without the georeferencing information.
- In other words, it can be used for similar problems, but where speed is important. This
- code is substantially adapted from \code{createCircle}, in
- the PlotRegionHighlighter package.
+Identify the pixels and coordinates that are at a (set of) buffer distance(s)
+of the objects passed into \code{coords}.
+This is similar to \code{rgeos::gBuffer} but much faster and without
+the geo referencing information.
+In other words, it can be used for similar problems, but where speed is important.
+This code is substantially adapted from \code{PlotRegionHighlighter::createCircle}.
 }
 \details{
 This function identifies all the pixels as defined by a donut
@@ -193,6 +193,6 @@ between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example. For the specific case of creating distance surfaces from specific
 points, see \code{\link{distanceFromEachPoint}}, which is often faster.
-For the more general GIS buffering, see \code{\link[rgeos]{gBuffer}}.
+For the more general GIS buffering, see \code{rgeos::gBuffer}.
 }
 

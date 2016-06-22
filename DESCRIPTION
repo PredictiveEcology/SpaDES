@@ -67,6 +67,7 @@ Imports:
     raster,
     RColorBrewer,
     shiny,
+    snow,
     stats,
     sp,
     stringi,

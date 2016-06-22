@@ -53,12 +53,12 @@ This will return  a \code{data.table} with columns
 as described in \code{spread} when \code{returnIndices = TRUE}.
 }
 \description{
-Identifies the cell numbers of all cells within a ring defined
-by minimum and maximum distances from focal cells.
+Identifies the cell numbers of all cells within a ring defined by  minimum
+and maximum distances from focal cells.
 Uses \code{\link{spread}} under the hood, with specific values set.
-Under many situations, this will be faster than using
-\code{\link[rgeos]{gBuffer}} twice (once for smaller ring and once for
-larger ring, then removing the smaller ring cells).
+Under many situations, this will be faster than using \code{rgeos::gBuffer}
+twice (once for smaller ring and once for larger ring, then removing the
+smaller ring cells).
 }
 \examples{
 library(raster)
@@ -83,7 +83,7 @@ emptyRas[] <- 0
 Rings <- rings(emptyRas, loci = loci, minRadius = 7, maxRadius = 9, returnIndices = TRUE)
 emptyRas[Rings$indices] <- Rings$id
 if (interactive())
-  Plot(emptyRas, new=TRUE)
+  Plot(emptyRas, new = TRUE)
 
 # Variable ring widths, including centre cell for smaller one
 emptyRas[] <- 0
@@ -91,7 +91,7 @@ Rings <- rings(emptyRas, loci = loci, minRadius = c(0,7), maxRadius = c(8, 18),
                returnIndices = TRUE)
 emptyRas[Rings$indices] <- Rings$id
 if (interactive())
-  Plot(emptyRas, new=TRUE)
+  Plot(emptyRas, new = TRUE)
 }
 \author{
 Eliot McIntire
@@ -103,6 +103,6 @@ tends to be faster when there are many starting points. Another difference
 between the two functions is that \code{rings} takes the centre of the pixel
 as the centre of a circle, whereas \code{cir} takes the exact coordinates.
 See example.
-\code{\link[rgeos]{gBuffer}}
+\code{rgeos::gBuffer}
 }
 

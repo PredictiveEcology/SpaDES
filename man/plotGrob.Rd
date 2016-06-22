@@ -78,10 +78,7 @@ make plotting faster.}
 
 \item{vp}{whole viewport tree of SpaDESGrob}
 
-\item{...}{Additional arguments. None currently implemented.
-
-# @importClassesFrom NetLogoRClasses agentMatrix
-# @importFrom NetLogoRClasses extent}
+\item{...}{Additional arguments. None currently implemented.}
 }
 \description{
 Internal function. Plot a raster Grob, a points Grob, polygon Grob.

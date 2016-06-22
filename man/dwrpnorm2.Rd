@@ -33,7 +33,7 @@ theta <- c(1:500)*2*pi/500
 # Compute wrapped normal density function
 density <- c(1:500)
 for(i in 1:500) density[i] <- dwrpnorm2(theta[i], pi, .75)
-plot(theta, density)
+if (interactive()) plot(theta, density)
 # Approximate area under density curve
 sum(density*2*pi/500)
 

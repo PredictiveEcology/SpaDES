@@ -12,10 +12,7 @@ Notably missing is \code{RasterBrick}, for now.
 
 \describe{
 \item{\code{members}}{SpatialPoints*, SpatialPolygons*, SpatialLines*,
-               RasterLayer, RasterStack
-
-#@importClassesFrom NetLogoRClasses agentMatrix
-#@importClassesFrom NetLogoRClasses NLworldMatrix}
+RasterLayer, RasterStack}
 }}
 \author{
 Eliot McIntire
