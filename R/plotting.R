@@ -482,10 +482,6 @@ setMethod(
 #'
 #' @param ...     Additional arguments. None currently implemented.
 #'
-#' # @importClassesFrom NetLogoRClasses agentMatrix
-#' # @importFrom NetLogoRClasses extent
-#'
-#'
 #' @docType methods
 #' @rdname plotGrob
 #'
@@ -689,94 +685,6 @@ setMethod(
 
     return(invisible(rastGrob))
 })
-
-############## SpatialPoints - thin
-# @rdname plotGrob
-# @importFrom grid pointsGrob
-# setMethod(
-#   ".plotGrob",
-#   signature = "agentMatrix",
-#   definition = function(grobToPlot, col, size,
-#                         legend, gp = gpar(), pch, speedup, name, vp, ...) {
-#     speedupScale <- 40
-#     speedupScale <- max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
-#           xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) /
-#         speedupScale
-#     xyOrd <- coordinates(grobToPlot)
-#
-#     if (!is.null(col)) {
-#       if (!is.null(gp)) {
-#         gp$col <- col # Accept col argument
-#       } else {
-#         gp <- gpar(col) #
-#       }
-#     }
-#
-#     if (NROW(xyOrd) > 1e3) {
-#       # thin if greater than 1000 pts
-#       if (speedup > 0.1) {
-#         if (requireNamespace("fastshp", quietly = TRUE)) {
-#           thinned <- data.table(
-#             thin = fastshp::thin(xyOrd[, 1], xyOrd[, 2],
-#                                  tolerance = speedupScale * speedup)
-#           )
-#           #thinned[, groups:= rep(1:NROW(idLength), idLength$V1)]
-#           #idLength <- thinned[, sum(thin),by = groups]
-#           xyOrd <- xyOrd[thinned$thin, ]
-#         } else {
-#           message(
-#             paste(
-#               "To speed up Polygons plotting using Plot install the fastshp package:\n",
-#               "install.packages(\"fastshp\", repos=\"http://rforge.net\", type=\"source\")."
-#             )
-#           )
-#           if (Sys.info()[["sysname"]] == "Windows") {
-#             message(
-#               paste(
-#                 "You may also need to download and install Rtools from:\n",
-#                 " https://cran.r-project.org/bin/windows/Rtools/"
-#               )
-#             )
-#           }
-#         }
-#       }
-#     }
-#
-#     pntGrob <- gTree(
-#       grobToPlot = grobToPlot,
-#       children = gList(
-#         pointsGrob(
-#           x = xyOrd[,1], y = xyOrd[,2],
-#           pch = pch, size = size
-#         )
-#       ),
-#       gp = gp,
-#       cl = "plotPoint"
-#     )
-#     grid.draw(pntGrob)
-#     return(invisible(pntGrob))
-# })
-#
-# @rdname plotGrob
-# setMethod(
-#   ".plotGrob",
-#   signature = c("SpatialPoints"),
-#   definition = function(grobToPlot, col, size,
-#                         legend, gp = gpar(), pch, ...) {
-#     pntGrob <- gTree(
-#       grobToPlot = grobToPlot,
-#       children = gList(
-#         pointsGrob(
-#           x = coordinates(grobToPlot)[,1], y = coordinates(grobToPlot)[,2],
-#           pch = pch, size = size
-#         )
-#       ),
-#       gp = gp,
-#       cl = "plotPoint"
-#     )
-#     grid.draw(pntGrob)
-#     return(invisible(pntGrob))
-# })
 
 ################################################################################
 #' @rdname plotGrob
@@ -1781,8 +1689,6 @@ setMethod(
                 updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs$legendRange <-
                   c(zMat$minz, zMat$maxz)
               }
-
-            #} else if (is(grobToPlot, "agentClasses")) {
             } else if (is(grobToPlot, "SpatialPoints")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
