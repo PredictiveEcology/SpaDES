@@ -204,19 +204,19 @@ setClass(".spadesGrob",
 #' @author Eliot McIntire
 #'
 setClass(".arrangement",
-         slots=list(rows="numeric", columns="numeric",
-                    actual.ratio="numeric", ds.dimensionRatio="numeric",
-                    ds="numeric", objects="list", isRaster="logical", names="character",
-                    extents="list", isSpatialObjects="logical", layout="list",
-                    gp="list", gpText="list", gpAxis="list", size="list"),
-         prototype=list(rows=1, columns=1,
-                        actual.ratio=1, ds.dimensionRatio=1,
-                        ds=c(7, 7), objects=as.list(NULL), isRaster=NA,
-                        names=as.character(NULL),
-                        extents=as.list(NULL), isSpatialObjects=NA, layout=as.list(NULL),
-                        gp=as.list(NULL), gpText=as.list(NULL),
-                        gpAxis=as.list(NULL), size=as.list(NULL)),
-         validity=function(object) {
+         slots = list(rows = "numeric", columns = "numeric",
+                    actual.ratio = "numeric", ds.dimensionRatio = "numeric",
+                    ds = "numeric", objects = "list", isRaster = "logical", names = "character",
+                    extents = "list", isSpatialObjects = "logical", layout = "list",
+                    gp = "list", gpText = "list", gpAxis = "list", size = "list"),
+         prototype = list(rows = 1, columns = 1,
+                        actual.ratio = 1, ds.dimensionRatio = 1,
+                        ds = c(7, 7), objects = as.list(NULL), isRaster = NA,
+                        names = as.character(NULL),
+                        extents = as.list(NULL), isSpatialObjects = NA, layout = as.list(NULL),
+                        gp = as.list(NULL), gpText = as.list(NULL),
+                        gpAxis = as.list(NULL), size = as.list(NULL)),
+         validity = function(object) {
            # check for valid extents
            if (any(is.na(object@extents))) {
              stop("must supply a list of extents")
@@ -263,11 +263,9 @@ setClass(".arrangement",
 #' @author Eliot McIntire
 #'
 setClass(".spadesPlot",
-         slots=list(arr=".arrangement",
-                    spadesGrobList="list"),
-         prototype=list(arr=new(".arrangement"),
-                        spadesGrobList=as.list(NULL)),
-         validity=function(object) {
+         slots = list(arr = ".arrangement", spadesGrobList = "list"),
+         prototype = list(arr = new(".arrangement"), spadesGrobList = as.list(NULL)),
+         validity = function(object) {
            # check for valid extents
            if (any(is(object@arr, ".arrangement"))) {
              stop("must supply an arrangement")
@@ -290,5 +288,5 @@ setClass(".spadesPlot",
 #' @rdname spadesPlottables-class
 #' @author Eliot McIntire
 #'
-setClassUnion(name=".spadesPlottables",
-              members=c(".spadesPlotObjects", ".spadesPlot"))
+setClassUnion(name = ".spadesPlottables",
+              members = c(".spadesPlotObjects", ".spadesPlot"))
