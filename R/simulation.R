@@ -1032,9 +1032,9 @@ setMethod("spades",
 
               return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
                             debug = debug, progress = progress,
-                          .plotInitialTime = .plotInitialTime ,
+                          .plotInitialTime = .plotInitialTime,
                           .saveInitialTime = .saveInitialTime, 
-                          notOlderThan = notOlderThan))
+                          notOlderThan = notOlderThan, ...))
             } else {
               return(spades(sim, debug = debug, progress = progress,
                             .plotInitialTime = .plotInitialTime ,
