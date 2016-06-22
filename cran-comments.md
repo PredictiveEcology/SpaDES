@@ -1,25 +1,26 @@
 ## Updated release
 
-This is a maintenance release to fix CRAN check errors on OSX.
+This is a maintenance release to fix a bug associated with the forthcoming `dplyr` update.
+We have also made several other improvements and bug fixes (see NEWS).
 
 ## Test environments
 
 ### Previous R versions
-* Windows 7               (local), R 3.2.2
-* Windows 7               (local), R 3.2.3
-* Windows 7               (local), R 3.2.4
-* Windows 7               (local), R 3.2.5
-
-### Current R versions
-* Debian Jessie           (local), R 3.3.0
 * OS X El Capitan         (local), R 3.3.0
 * Ubuntu 12.04        (travis-ci), R 3.3.0
-* Ubuntu 14.04            (local), R 3.3.0
+* Ubuntu 16.04            (local), R 3.3.0
+* Windows              (appveyor), R 3.2.2, 3.2.5
+* Windows 7               (local), R 3.2.2, 3.2.3, 3.2.4, 3.2.5
 * Windows 7               (local), R 3.3.0
-* Windows           (win-builder), R 3.3.0
+
+### Current R versions
+* Windows              (appveyor), R 3.3.0
+* Windows           (win-builder), R 3.3.1
+* Windows 7               (local), R 3.3.1
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-05-31 r70688)
+* Windows              (appveyor), R 3.4.0 (2016-06-21 r70813)
 * Windows           (win-builder), R 3.4.0 (2016-05-31 r70688)
 
 ## R CMD check results
