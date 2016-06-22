@@ -559,104 +559,96 @@ setMethod(
 
   moreThanOne <- NROW(coords) > 1
 
-  if (moreThanOne) {
-    # create an index sequence for the number of individuals
+  if(all(!is.na(angles))) { # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
-    #browser()
+    maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
+    numAngles <- length(angles)
+    rads <- rep(rep(maxRadius, each = numAngles), NROW(coords))
+    x <- kronecker(coords[, "x"], c(cos(angles) %o% maxRadius), "+")
+    y <- kronecker(coords[, "y"], c(sin(angles) %o% maxRadius), "+")
+    id <- rep(rep(seqNumInd, each = numAngles), each=length(maxRadius))
 
-    #maxRadius1 <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
-    if (length(maxRadius) == 1) maxRadius <- rep(maxRadius, NROW(coords))
-    if (length(minRadius) == 1) minRadius <- rep(minRadius, NROW(coords))
-
-    # The goal of maxRadius and numAngles is to identify every cell within the circle
-    #  The 0.68 and 0.75 were found by trial and error to minimize the number of
-    #  pixels selected that are duplicates of each other.
-    if (any((minRadius != maxRadius))) {
-      if (any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
-      maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
-        ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
-        ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-        a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x]/3e3))
-        if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
-        a
-      }))
-    }
   } else {
-    seqNumInd <- 1
-    if (any((minRadius != maxRadius))) {
-      ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
-      a <- seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3))
-      if (a[length(a)] != maxRadius) a <- c(a, maxRadius)
-      maxRadius <- a
-    }
-  }
-
-  if(all(is.na(angles))) {
-    numAngles <- ceiling((maxRadius/scaleRaster)*2.6*pi) + 1
-  } else {
-    numAngles <- matrix(rep(length(angles), length(maxRadius)), ncol=NCOL(maxRadius))
-  }
-
-  #numAngles1 <- length(angles)
-  #nAngles1 <- numAngles1
-
-  if (moreThanOne) {
-    if (is.matrix(numAngles)) {
-      nAngles <- apply(numAngles, 2, sum)
-    } else {
-      nAngles <- numAngles
-    }
-  } else {
-    nAngles <- sum(numAngles)
-  }
-
-  # create individual IDs for the number of points that will be done for their circle
-  if (!c("id") %in% colnames(coords) ) {
     if (moreThanOne) {
-      id <- rep.int(seqNumInd, times = nAngles)
+      # create an index sequence for the number of individuals
+      seqNumInd <- seq_len(NROW(coords))
+
+      if (length(maxRadius) == 1) maxRadius <- rep(maxRadius, NROW(coords))
+      if (length(minRadius) == 1) minRadius <- rep(minRadius, NROW(coords))
+
+      # The goal of maxRadius and numAngles is to identify every cell within the circle
+      #  The 0.68 and 0.75 were found by trial and error to minimize the number of
+      #  pixels selected that are duplicates of each other.
+      if (any((minRadius != maxRadius))) {
+        if (any(minRadius > maxRadius)) stop("minRadius must be less than or equal to maxRadius")
+        maxRadius <- do.call(cbind, lapply(seqNumInd, function(x) {
+          ## 0.75 was the maximum that worked with 1e4 pixels, 1e2 maxRadius
+          ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+          a <- seq(minRadius[x], maxRadius[x], by = max(0.68, 0.75 - maxRadius[x]/3e3))
+          if (a[length(a)] != maxRadius[x]) a <- c(a, maxRadius[x])
+          a
+        }))
+      }
     } else {
-      id <- 1
+      seqNumInd <- 1
+      if (any((minRadius != maxRadius))) {
+        ## 0.66 was the maximum that worked with 4e6 pixels, 1.3e3 maxRadius
+        a <- seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3))
+        if (a[length(a)] != maxRadius) a <- c(a, maxRadius)
+        maxRadius <- a
+      }
     }
-  } else {
-    id <- rep(coords[,"id"], times=nAngles)
-    #id <- coords[,"id"]
+
+
+    numAngles <- ceiling((maxRadius/scaleRaster)*2.6*pi) + 1
+
+    if (moreThanOne) {
+      if (is.matrix(numAngles)) {
+        nAngles <- apply(numAngles, 2, sum)
+      } else {
+        nAngles <- numAngles
+      }
+    } else {
+      nAngles <- sum(numAngles)
+    }
+
+    # create individual IDs for the number of points that will be done for their circle
+    if (!c("id") %in% colnames(coords) ) {
+      if (moreThanOne) {
+        id <- rep.int(seqNumInd, times = nAngles)
+      } else {
+        id <- 1
+      }
+    } else {
+      id <- rep(coords[,"id"], times=nAngles)
+      #id <- coords[,"id"]
+    }
+
+    # create vector of radius for the number of points that will be done for each individual circle
+    rads <- rep.int(maxRadius, times = numAngles)
+
+    # extract the individuals' current coords
+    xs <- rep.int(coords[, "x"], times = nAngles)
+    ys <- rep.int(coords[, "y"], times = nAngles)
+
+    angles <- if(all(is.na(angles))) {
+      if (!is.null(dim(numAngles))) {
+        rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
+      } else {
+        unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
+      }
+    } else {
+      rep(angles, length(numAngles))
+    }
+    x <- cos(angles)*rads + xs
+    y <- sin(angles)*rads + ys
   }
 
-#  browser()
-  # create vector of radius for the number of points that will be done for each individual circle
-  rads <- rep.int(maxRadius, times = numAngles)
-  #rads1 <- rep(rep(maxRadius1, each = numAngles1), NROW(coords))
 
-  # extract the individuals' current coords
-  #xs1 <- coords[, "x"]
-  #ys1 <- coords[, "y"]
-  xs <- rep.int(coords[, "x"], times = nAngles)
-  ys <- rep.int(coords[, "y"], times = nAngles)
-
-  #angles1 <- angles
-  angles <- if(all(is.na(angles))) {
-    if (!is.null(dim(numAngles))) {
-      rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
-    } else {
-      unlist(lapply(numAngles, function(na) seq.int(na)*(pi*2/na)))
-    }
-  } else {
-    rep(angles, length(numAngles))
-  }
-
-  #browser()
-  #x2 <- kronecker(xs1, c(cos(angles1) %o% maxRadius1), "+")
-  #y2 <- kronecker(ys1, c(sin(angles1) %o% maxRadius1), "+")
-
-  #x1 <- as.vector(cos(angles1) %o% maxRadius + xs)
-  #y1 <- as.vector(sin(angles1) %o% maxRadius + ys)
-
-  x <- cos(angles)*rads + xs
-  y <- sin(angles)*rads + ys
   indices <- as.integer(cellFromXY(landscape, cbind(x,y)))
 
   if (moreThanOne & allowOverlap & !closest) {
-    MAT <- data.table(id, indices, rads, angles, x, y)
+    MAT <- data.table(id, indices, rads, angles, x=x, y=y)
     setkeyv(MAT, c("id", "indices"))
     MAT <- unique(MAT)
     MAT <- na.omit(MAT)

@@ -550,7 +550,7 @@ test_that("spread benchmarking", {
 })
 
 
-test_that("rings and cirs", {
+test_that("rings and cir", {
 
   require(raster)
   require(fpCompare)
@@ -1103,7 +1103,7 @@ test_that("cir angles arg doesn't work", {
 
   require(raster)
   require(fpCompare)
-  Ras <- raster(extent(0, 330, 0, 330), res = 1)
+  Ras <- raster(extent(0, 100, 0, 100), res = 1)
   Ras[] <- 0
   N = 2
   coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
@@ -1116,5 +1116,37 @@ test_that("cir angles arg doesn't work", {
   expect_true(all(as.numeric(names(anglesTab)) %==% angles))
   expect_true(all(length(anglesTab)==(length(angles))))
 
+  skip("microbenchmarking below this")
 
-})
+  library(microbenchmark)
+  Ras <- raster(extent(0, 330, 0, 330), res = 1)
+  Ras[] <- 0
+  N = 1e3
+  coords <- cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
+                  y = stats::runif(N, xmin(Ras), xmax(Ras)))
+  angles <- seq(0,2*pi,length.out=21)[-21]
+  newWay <- FALSE
+  microbenchmark(times = 100,
+  circ <- cir(Ras, coords, angles = angles,
+              maxRadius = 3, minRadius = 0, returnIndices = TRUE,
+              allowOverlap = TRUE, returnAngles = TRUE)
+  )
+  #min       lq     mean   median       uq      max neval
+  #65.16964 76.17871 100.7652 90.87756 118.5901 390.5539   100
+
+  newWay <- TRUE
+  microbenchmark(times = 100,
+                 circ <- cir(Ras, coords, angles = angles,
+                             maxRadius = 3, minRadius = 0, returnIndices = TRUE,
+                             allowOverlap = TRUE, returnAngles = TRUE)
+  )
+  #     min       lq     mean   median       uq      max neval
+  #22.44104 26.70138 32.47423 30.65686 35.89569 45.72201    10
+
+  newWay <- FALSE; circOW <- cir(Ras, coords, angles = angles,
+                                 maxRadius = 3, minRadius = 0, returnIndices = TRUE,
+                                 allowOverlap = TRUE, returnAngles = TRUE)
+  newWay <- TRUE; circNW <- cir(Ras, coords, angles = angles,
+                                maxRadius = 3, minRadius = 0, returnIndices = TRUE,
+                                allowOverlap = TRUE, returnAngles = TRUE)
+  })
