@@ -175,6 +175,7 @@ setMethod(
   "cache",
   definition = function(cacheRepo, FUN, ..., notOlderThan) {
     tmpl <- list(...)
+    if(missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
@@ -193,15 +194,26 @@ setMethod(
                             paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
       lastEntry <- max(isInRepo$createdDate)
+      lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
-        lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
-        return(loadFromLocalRepo(isInRepo$artifact[lastOne],
-                                 repoDir = cacheRepo, value = TRUE))
+        out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
+                                 repoDir = cacheRepo, value = TRUE)
+        #out <- as(out, "simList")
+        return(out)
       }
+      if((notOlderThan >= lastEntry)){ # flush it if notOlderThan is violated
+        rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
+      }
+      
     }
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
+    #if(is(output, "simList")) {
+    #  output2 <- as(output, "simList_")
+    #  attr(output2, "tags") <- paste0("cacheId:", outputHash)
+    #  attr(output2, "call") <- ""
+    #}
     saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
                archiveSessionInfo = FALSE,
                archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)

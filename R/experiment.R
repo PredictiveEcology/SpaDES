@@ -47,9 +47,12 @@
 #'                    is emptied. This is to reduce RAM load of large return object.
 #'                    Default FALSE.
 #'
-#' @param ... Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime}, or
-#'            \code{.saveInitialTime}.
+#' @param ... Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime},
+#'            \code{.saveInitialTime}, \code{cache} and/or \code{notOlderThan}. Caching
+#'            is still experimental. It is tested to work under some conditions, but not
+#'            all. See details.
 #'
+#' @inheritParams spades
 #' @details
 #' This function requires a complete simList: this simList will form the basis of the
 #' modifications as passed by params, modules, inputs, and objects.
@@ -137,6 +140,18 @@
 #'
 #' \code{substrLength}, if \code{0}, will eliminate the subfolder naming convention and use
 #' only \code{dirPrefix}.
+#'
+#' If \code{cache = TRUE} is passed, then this will pass this to \code{spades}, with the
+#' additional argument \code{replicate = x}, where x is the replicate number. That means that
+#' if a user runs \code{experiment} with \code{replicate = 4} and \code{cache = TRUE}, then spades
+#' will run 4 replicates, caching the results, including replicate = 1, replicate = 2, replicate = 3,
+#' and replicate = 4. Thus, if a second call to experiment with the exact same simList is passed,
+#' and \code{replicates = 6}, the first 4 will be taken from the cached copies, and replicate 5 and
+#' 6 will be run (and cached) as normal. If \code{notOlderThan} used with a time that is more recent
+#' than the cached copy, then a new spades will be done, and the cached copy will be deleted from
+#' the cache repository, so there will only ever be one copy of a particular replicate for a
+#' particular simList. NOTE: caching may not work as desired on a Windows machine because
+#' the sqlite database can only be written to one at a time, so there may be collisions.
 #'
 #' @return Invisibly returns a list of the resulting \code{simList} objects from the fully
 #' factorial experiment. This list has an attribute, which a list with 2 elements:
@@ -383,7 +398,8 @@ setGeneric(
   "experiment",
   function(sim, replicates = 1, params, modules, objects = list(), inputs,
            dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
-           experimentFile = "experiment.RData", clearSimEnv = FALSE, ...) {
+           experimentFile = "experiment.RData", clearSimEnv = FALSE, notOlderThan,
+           ...) {
     standardGeneric("experiment")
 })
 
@@ -393,7 +409,7 @@ setMethod(
   signature(sim = "simList"),
   definition = function(sim, replicates, params, modules, objects, inputs,
                         dirPrefix, substrLength, saveExperiment,
-                        experimentFile, clearSimEnv, ...) {
+                        experimentFile, clearSimEnv, notOlderThan, ...) {
 
     if (missing(params)) params <- list()
     if (missing(modules)) modules <- list(unlist(SpaDES::modules(sim)[-(1:4)]))
@@ -598,7 +614,18 @@ setMethod(
                                    split = "\\.")[[1]][1]
         sim_[[replaceObjName]] <- objects[[factorialExp[ind, "object"]]]
       }
-      sim3 <- spades(sim_, ...)
+
+      if(list(...)$cache) {
+
+        if(is(try(archivist::showLocalRepo(paths(sim_)$cachePath), silent = TRUE), "try-error"))
+          archivist::createLocalRepo(paths(sim_)$cachePath)
+        sim3 <- (SpaDES::cache(paths(sim_)$cachePath, spades, sim = sim_,
+                               progress = NA, debug = FALSE,
+                               notOlderThan = notOlderThan, replicate = ind, ...))
+      } else {
+        sim3 <- spades(sim_, ...)
+      }
+
       return(list(sim3, experimentDF))
     }
 
@@ -615,7 +642,10 @@ setMethod(
     }
     dots <- list(...)
     args <- append(args, dots)
-    
+    if(missing(notOlderThan)) notOlderThan <- NULL
+    li <- list(notOlderThan = notOlderThan)
+    args <- append(args, li)
+
     expOut <- do.call(get(parFun), args)
     sims <- lapply(expOut, function(x) x[[1]])
     expDFs <- lapply(expOut, function(x) x[[2]])

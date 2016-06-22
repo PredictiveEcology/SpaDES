@@ -8,13 +8,15 @@
 \title{Run a spatial discrete event simulation}
 \usage{
 spades(sim, debug = FALSE, progress = NA, cache, .plotInitialTime = NULL,
-  .saveInitialTime = NULL)
+  .saveInitialTime = NULL, notOlderThan, ...)
 
 \S4method{spades}{simList,ANY,ANY,missing}(sim, debug = FALSE,
-  progress = NA, cache, .plotInitialTime = NULL, .saveInitialTime = NULL)
+  progress = NA, cache, .plotInitialTime = NULL, .saveInitialTime = NULL,
+  notOlderThan, ...)
 
 \S4method{spades}{ANY,ANY,ANY,logical}(sim, debug = FALSE, progress = NA,
-  cache, .plotInitialTime = NULL, .saveInitialTime = NULL)
+  cache, .plotInitialTime = NULL, .saveInitialTime = NULL, notOlderThan,
+  ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -36,6 +38,15 @@ parameter for all modules. See Details.}
 
 \item{.saveInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
 parameter for all modules. See Details.}
+
+\item{notOlderThan}{Date. Passed to SpaDES::cache to update the cache. Default is
+NULL, meaning don't update the cache. If \code{Sys.time()} is provided
+then, it will force a recache. Ignored if \code{cache} is FALSE.}
+
+\item{...}{Any. Can be used to make a unique cache identity, such as "replicate = 1". This
+will be included in the SpaDES::cache call, so will be unique and thus
+spades will not use a cached copy as long
+as anything passed in ... is unique, i.e., not cached previously.}
 }
 \value{
 Invisibly returns the modified \code{simList} object.

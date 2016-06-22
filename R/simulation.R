@@ -867,6 +867,15 @@ setMethod(
 #'
 #' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
 #'                                  parameter for all modules. See Details.
+#'                                  
+#' @param notOlderThan Date. Passed to SpaDES::cache to update the cache. Default is
+#'                     NULL, meaning don't update the cache. If \code{Sys.time()} is provided
+#'                     then, it will force a recache. Ignored if \code{cache} is FALSE.
+#'                     
+#' @param ... Any. Can be used to make a unique cache identity, such as "replicate = 1". This
+#'            will be included in the SpaDES::cache call, so will be unique and thus
+#'            spades will not use a cached copy as long
+#'            as anything passed in ... is unique, i.e., not cached previously.
 #'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
@@ -941,7 +950,7 @@ setMethod(
 #'
 setGeneric("spades", function(sim, debug = FALSE, progress = NA,
                               cache, .plotInitialTime = NULL,
-                              .saveInitialTime = NULL) {
+                              .saveInitialTime = NULL, notOlderThan, ...) {
     standardGeneric("spades")
 })
 
@@ -949,7 +958,8 @@ setGeneric("spades", function(sim, debug = FALSE, progress = NA,
 setMethod(
   "spades",
   signature(sim = "simList", cache = "missing"),
-  definition = function(sim, debug, progress, cache, .plotInitialTime, .saveInitialTime) {
+  definition = function(sim, debug, progress, cache, .plotInitialTime, 
+                        .saveInitialTime, ...) {
 
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
@@ -1010,9 +1020,12 @@ setMethod(
 setMethod("spades",
           signature(cache = "logical"),
           definition = function(sim, debug, progress, cache,
-                                .plotInitialTime, .saveInitialTime) {
+                                .plotInitialTime, .saveInitialTime, 
+                                notOlderThan, ...) {
             stopifnot(class(sim) == "simList")
 
+            if(missing(notOlderThan)) notOlderThan <- Sys.time() - 1e8
+            
             if(cache) {
               if(is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
                 archivist::createLocalRepo(paths(sim)$cachePath)
@@ -1020,7 +1033,8 @@ setMethod("spades",
               return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
                             debug = debug, progress = progress,
                           .plotInitialTime = .plotInitialTime ,
-                          .saveInitialTime = .saveInitialTime))
+                          .saveInitialTime = .saveInitialTime, 
+                          notOlderThan = notOlderThan))
             } else {
               return(spades(sim, debug = debug, progress = progress,
                             .plotInitialTime = .plotInitialTime ,
