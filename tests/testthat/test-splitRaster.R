@@ -139,6 +139,7 @@ test_that("splitRaster and mergeRaster work on small in-memory rasters", {
 test_that("splitRaster works in parallel", {
   skip_on_cran()
   skip_on_travis()
+  skip_on_appveyor()
   skip("parallel usage of splitRaster must be run manually")
 
   library(raster)
@@ -199,6 +200,7 @@ test_that("splitRaster works in parallel", {
 test_that("splitRaster and mergeRaster work on large on-disk rasters", {
   skip_on_cran()
   skip_on_travis()
+  skip_on_appveyor()
   skip("This is very big")
 
   tmpdir <- file.path(tempdir(), "splitRaster-test-large") %>% checkPath(create = TRUE)
