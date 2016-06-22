@@ -166,6 +166,9 @@ setMethod(
     if (length(whFun) > 0)
       tmpl[whFun] <- lapply(tmpl[whFun], format)
 
+    if(!is.na(tmpl$progress)) {
+      tmpl$progress <- NULL
+    }
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag ==
