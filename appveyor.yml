@@ -4,7 +4,7 @@
 init:
   ps: |
         $ErrorActionPreference = "Stop"
-        Invoke-WebRequest http://raw.github.com/achubaty/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
+        Invoke-WebRequest http://raw.github.com/krlmlr/r-appveyor/master/scripts/appveyor-tool.ps1 -OutFile "..\appveyor-tool.ps1"
         Import-Module '..\appveyor-tool.ps1'
 
 install:
@@ -74,6 +74,7 @@ notifications:
  - provider: Email
    to:
      - alex.chubaty@gmail.com
+     - eliot.mcintire@canada.ca
    subject: 'r-appveyor build {{status}}'
    message: "https://ci.appveyor.com/project/achubaty/SpaDES"
    on_build_success: false
