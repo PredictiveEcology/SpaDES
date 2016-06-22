@@ -29,11 +29,7 @@ There were no ERRORs or WARNINGs
 
 There were 2 NOTEs:
 
-1. There are three parts to this note:
-
-    a. We apologize for having missed these bugs when previously submitting to CRAN.
-    
-            Days since last update: 2
+1. There are two parts to this note:
 
     a. Several words were flagged as possibly mispelled, but they are not.
     
