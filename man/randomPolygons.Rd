@@ -26,15 +26,16 @@ Produces a raster of with random polygons. These are built with the
 }
 \examples{
 Ras <- randomPolygons(numTypes = 5)
-if(interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+if (interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
 
 library(raster)
 # more complex patterning, with a range of patch sizes
-a = randomPolygons(numTypes = 400, raster(extent(0,50,0,50),res=1))
+a = randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
 a[a<320] <- 0
 a[a>=320] <- 1
 aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
-if(interactive()) Plot(a, aHist, new=TRUE)
+if (interactive()) Plot(a, aHist, new = TRUE)
+
 }
 \references{
 Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
