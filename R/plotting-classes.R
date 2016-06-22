@@ -43,9 +43,6 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @slot members  SpatialPoints*, SpatialPolygons*, SpatialLines*,
 #'                RasterLayer, RasterStack
 #'
-#' #@importClassesFrom NetLogoRClasses agentMatrix
-#' #@importClassesFrom NetLogoRClasses NLworldMatrix
-#'
 #' @aliases spatialObjects
 #' @importClassesFrom raster RasterLayer
 #' @importClassesFrom raster RasterLayerSparse
@@ -62,12 +59,10 @@ setAs(from = "list", to = "gpar", function(from) {
 #' @rdname spatialObjects-class
 #' @author Eliot McIntire
 #' @exportClass spatialObjects
-setClassUnion(name="spatialObjects",
-              members=c("SpatialPoints", "SpatialPolygons", "SpatialLines",
-                        "RasterLayer", "RasterStack")#,
-                        #"agentMatrix", "NLworldMatrix")
+setClassUnion(name = "spatialObjects",
+              members = c("SpatialPoints", "SpatialPolygons", "SpatialLines",
+                          "RasterLayer", "RasterStack")
 )
-
 
 ################################################################################
 #' The \code{.spadesPlotObjects} class
@@ -85,8 +80,8 @@ setClassUnion(name="spatialObjects",
 #' @author Eliot McIntire
 ## all of `graphics` (for histogram) is being imported in `spades-package.R`
 ## all of `igraph` (for igraph) has to be imported in `spades-package.R`
-setClassUnion(name=".spadesPlotObjects",
-              members=c("spatialObjects", "gg", "histogram", "igraph"))
+setClassUnion(name = ".spadesPlotObjects",
+              members = c("spatialObjects", "gg", "histogram", "igraph"))
 
 ################################################################################
 #' The \code{.spadesGrob} class
