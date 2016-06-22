@@ -1341,7 +1341,7 @@ setMethod(
 #' Srs2 = Polygons(list(Sr2), "s2")
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
 #'
-#' if(interactive()) {
+#' if (interactive()) {
 #'   Plot(ras, new = TRUE)
 #'
 #'   # dev(2)

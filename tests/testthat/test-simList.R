@@ -164,7 +164,7 @@ test_that("simList test all signatures", {
     loadTime = c(0, 3),
     stringsAsFactors = FALSE
   )
-  if(require(rgdal)) {
+  if (require(rgdal)) {
     on.exit(detach("package:rgdal"), add = TRUE)
 
     # objects

@@ -299,7 +299,7 @@ setReplaceMethod("objs",
                  signature = "simList",
                  function(x, value) {
                    if (is.list(value)) {
-                   
+
                      list2env(value, envir = envir(x))
                      newInputs <- data.frame(
                        objectName = names(value),
@@ -307,7 +307,7 @@ setReplaceMethod("objs",
                        loaded = TRUE,
                        stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
                      inputs(x) <- rbind(inputs(x), newInputs)
-                     
+
                     # lapply(names(value), function(z) {
                     #   x@.envir[[z]] <- value[[z]]
                     # })
@@ -930,7 +930,7 @@ setReplaceMethod("progressType",
 #' # next: objectNames are taken from the filenames (without the extension)
 #' # This will load all 5 tifs in the SpaDES sample directory, using
 #' #   the raster fuction in the raster package, all at time = 0
-#' if(require("rgdal", quietly=TRUE)) {
+#' if (require("rgdal", quietly = TRUE)) {
 #'   sim <- simInit(
 #'     inputs = data.frame(
 #'       files = allTifs,
@@ -939,8 +939,6 @@ setReplaceMethod("progressType",
 #'       loadTime = 0,
 #'       stringsAsFactors = FALSE)
 #'     )
-#'
-#'
 #'
 #'   ##############################
 #'   #A fully described inputs object, including arguments:
@@ -1194,7 +1192,7 @@ setReplaceMethod(
 #' .saveFileExtensions()
 #'
 #' library(raster)
-#' if(require(rgdal)) {
+#' if (require(rgdal)) {
 #'   ras <- raster(ncol=4, nrow=5)
 #'   ras[] <- 1:20
 #'
@@ -1297,8 +1295,8 @@ setReplaceMethod(
                    object@outputs$file[!isAbsolutePath(object@outputs$file)])
 
        # If there is no function provided, then use saveRDS, from package base
-       object@outputs[is.na(object@outputs$fun),"fun"] <- "saveRDS"
-       object@outputs[is.na(object@outputs$package),"package"] <- "base"
+       object@outputs[is.na(object@outputs$fun), "fun"] <- "saveRDS"
+       object@outputs[is.na(object@outputs$package), "package"] <- "base"
 
        # file extension stuff
        fileExts <- .saveFileExtensions()
@@ -1312,7 +1310,7 @@ setReplaceMethod(
        # then don't postpend again
        txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
        txtTimeB <- paddedFloatToChar(
-         object@outputs[,"saveTime"],
+         object@outputs[, "saveTime"],
          ceiling(log10(end(object, timeunit(object)) + 1))
        )
        # Add time unit and saveTime to filename, without stripping extension
@@ -1956,7 +1954,7 @@ setGeneric("start", function(x, unit, ...) {
 #' @rdname simList-accessors-times
 setMethod(
   "start",
-  signature = c(".simList","missing"),
+  signature = c(".simList", "missing"),
   definition = function(x) {
     mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
@@ -1970,7 +1968,7 @@ setMethod(
 #' @rdname simList-accessors-times
 setMethod(
   "start",
-  signature = c(".simList","character"),
+  signature = c(".simList", "character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
       if (is.na(pmatch("second", unit))) {
@@ -2785,11 +2783,11 @@ setMethod(
 .fillInputRows <- function(inputDF, startTime) {
 
   factorCols <- sapply(inputDF, is.factor)
-  if(any(factorCols)) {
+  if (any(factorCols)) {
     inputDF[,factorCols] <- sapply(inputDF[,factorCols], as.character)
   }
   fileTable <- .fileTableInCols
-  needRenameArgs <- grepl(names(inputDF), pattern="arg[s]?$")
+  needRenameArgs <- grepl(names(inputDF), pattern = "arg[s]?$")
   if (any(needRenameArgs)) {
     colnames(inputDF)[needRenameArgs] <-
       .fileTableInCols[pmatch("arg", .fileTableInCols)]
@@ -2803,11 +2801,11 @@ setMethod(
   }
 
   if (any(is.na(inputDF[, "loadTime"]))) {
-    inputDF[is.na(inputDF$loadTime),"loadTime"] <- startTime
+    inputDF[is.na(inputDF$loadTime), "loadTime"] <- startTime
   }
 
   if (any(is.na(inputDF[, "objectName"]))) {
-    inputDF[is.na(inputDF$objectName),"objectName"] <- fileName(inputDF[is.na(inputDF$objectName),"file"])
+    inputDF[is.na(inputDF$objectName), "objectName"] <- fileName(inputDF[is.na(inputDF$objectName), "file"])
   }
 
   # correct those for which a specific function is supplied in filelistDT$fun
@@ -2863,7 +2861,7 @@ setMethod(
     outputDF[,.fileTableOutCols[is.na(columns)]] <- NA
   }
   if (any(is.na(outputDF[, "saveTime"]))) {
-    outputDF[is.na(outputDF$saveTime),"saveTime"] <- endTime
+    outputDF[is.na(outputDF$saveTime), "saveTime"] <- endTime
   }
 
   # correct those for which a specific function is supplied in filelistDT$fun

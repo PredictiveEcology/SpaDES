@@ -19,7 +19,7 @@ test_that("Plot 1 is not error-free", {
   names(habitatQuality87654) <- "habitatQuality87654"
   landscape87654 <- raster::stack(DEM87654, habitatQuality87654)
   caribou87654 <- sp::SpatialPoints(
-    coords = cbind(x = stats::runif(1e1, 0, 10), y = stats::runif(1e1, 0, 10))
+    coords = cbind(x = stats::run if (1e1, 0, 10), y = stats::run if (1e1, 0, 10))
   )
 
   # If any rearrangements are required, Plot searches for objects in Global Env
@@ -84,7 +84,7 @@ test_that("Plot 1 is not error-free", {
   Srs1 <- sp::Polygons(list(Sr1), "s1")
   Srs2 <- sp::Polygons(list(Sr2), "s2")
   SpP87 <- sp::SpatialPolygons(list(Srs1, Srs2), 1:2)
-  if(suppressWarnings(require(fastshp))) {
+   if (suppressWarnings(require(fastshp))) {
     expect_silent(Plot(SpP87, new = TRUE))
   }
 
@@ -98,7 +98,7 @@ test_that("Plot 1 is not error-free", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
-  if(suppressWarnings(require(fastshp))) {
+   if (suppressWarnings(require(fastshp))) {
     expect_silent(Plot(Sl87654))
   }
   # Test polygon with > 1e3 points to test the speedup parameter
@@ -118,7 +118,7 @@ test_that("Plot 1 is not error-free", {
   S1 <- sp::Lines(list(Sl1, Sl1a), ID = "a")
   S2 <- sp::Lines(list(Sl2), ID = "b")
   Sl87654 <- sp::SpatialLines(list(S1, S2))
-  if(suppressWarnings(require(fastshp))) {
+   if (suppressWarnings(require(fastshp))) {
     expect_silent(Plot(Sl87654, new = TRUE))
     # test addTo
     expect_message(Plot(SpP87654, addTo = "landscape87654$habitatQuality87654"))
@@ -142,9 +142,9 @@ test_that("Plot 1 is not error-free", {
   expect_silent(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE))
   # test speedup
   caribou87 <- sp::SpatialPoints(
-    coords = cbind(x = stats::runif(1.1e3, 0, 10), y = stats::runif(1e1, 0, 10))
+    coords = cbind(x = stats::run if (1.1e3, 0, 10), y = stats::run if (1e1, 0, 10))
   )
-  if(suppressWarnings(require(fastshp))) {
+   if (suppressWarnings(require(fastshp))) {
     expect_silent(Plot(caribou87, speedup = 10, new = TRUE))
   }
   # test ggplot2 and hist -- don't work unless invoke global environment
@@ -610,11 +610,10 @@ test_that("setColors is not error-free", {
   })
   expect_true(identical(
     getColors(rasStack),
-    structure(list(ras1 = c("#FF0000FF", "#0000FFFF", "#00FF00FF"),
-                   ras2 = c("#A020F0FF", "#B757B3FF", "#CF8F78FF", "#E7C73CFF",
-                            "#FFFF00FF"),
-                   ras3 = c("#FFA500FF", "#FFBB00FF", "#FFD200FF", "#FFE800FF",
-                            "#FFFF00FF")),
-              .Names = c("ras1", "ras2", "ras3"))
+    structure(list(
+      ras1 = c("#FF0000FF", "#0000FFFF", "#00FF00FF"),
+      ras2 = c("#A020F0FF", "#B757B3FF", "#CF8F78FF", "#E7C73CFF", "#FFFF00FF"),
+      ras3 = c("#FFA500FF", "#FFBB00FF", "#FFD200FF", "#FFE800FF", "#FFFF00FF")),
+      .Names = c("ras1", "ras2", "ras3"))
   ))
 })

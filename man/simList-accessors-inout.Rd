@@ -191,7 +191,7 @@ allTifs <- dir(system.file("maps", package = "SpaDES"),
 # next: objectNames are taken from the filenames (without the extension)
 # This will load all 5 tifs in the SpaDES sample directory, using
 #   the raster fuction in the raster package, all at time = 0
-if(require("rgdal", quietly=TRUE)) {
+if (require("rgdal", quietly = TRUE)) {
   sim <- simInit(
     inputs = data.frame(
       files = allTifs,
@@ -200,8 +200,6 @@ if(require("rgdal", quietly=TRUE)) {
       loadTime = 0,
       stringsAsFactors = FALSE)
     )
-
-
 
   ##############################
   #A fully described inputs object, including arguments:
@@ -276,7 +274,7 @@ newObj
 .saveFileExtensions()
 
 library(raster)
-if(require(rgdal)) {
+if (require(rgdal)) {
   ras <- raster(ncol=4, nrow=5)
   ras[] <- 1:20
 

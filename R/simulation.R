@@ -867,11 +867,11 @@ setMethod(
 #'
 #' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
 #'                                  parameter for all modules. See Details.
-#'                                  
+#'
 #' @param notOlderThan Date. Passed to SpaDES::cache to update the cache. Default is
 #'                     NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 #'                     then, it will force a recache. Ignored if \code{cache} is FALSE.
-#'                     
+#'
 #' @param ... Any. Can be used to make a unique cache identity, such as "replicate = 1". This
 #'            will be included in the SpaDES::cache call, so will be unique and thus
 #'            spades will not use a cached copy as long
@@ -958,7 +958,7 @@ setGeneric("spades", function(sim, debug = FALSE, progress = NA,
 setMethod(
   "spades",
   signature(sim = "simList", cache = "missing"),
-  definition = function(sim, debug, progress, cache, .plotInitialTime, 
+  definition = function(sim, debug, progress, cache, .plotInitialTime,
                         .saveInitialTime, ...) {
 
     if (!is.null(.plotInitialTime)) {
@@ -982,22 +982,22 @@ setMethod(
       params(sim) <- paramsLocal
     }
 
-    if(!is.na(progress)) {
-      if(isTRUE(progress)) {
+    if (!is.na(progress)) {
+      if (isTRUE(progress)) {
         progress <- "graphical"
       }
-      if(is.numeric(progress)) {
+      if (is.numeric(progress)) {
         params(sim)$.progress$interval <- (end(sim, "second") - start(sim, "second"))/progress
         progress <- "graphical"
       }
 
-      if(!is.na(pmatch(progress, "graphical"))) {
+      if (!is.na(pmatch(progress, "graphical"))) {
         params(sim)$.progress$type <- "graphical"
-      } else if(!is.na(pmatch(progress , "text"))) {
+      } else if (!is.na(pmatch(progress , "text"))) {
         params(sim)$.progress$type <- "text"
       }
 
-      if(!is.na(params(sim)$.progress$type) && is.na(params(sim)$.progress$interval)) {
+      if (!is.na(params(sim)$.progress$type) && is.na(params(sim)$.progress$interval)) {
         params(sim)$.progress$interval <- NULL
       }
     }
@@ -1015,30 +1015,28 @@ setMethod(
     return(invisible(sim))
 })
 
-
 #' @rdname spades
 setMethod("spades",
           signature(cache = "logical"),
           definition = function(sim, debug, progress, cache,
-                                .plotInitialTime, .saveInitialTime, 
+                                .plotInitialTime, .saveInitialTime,
                                 notOlderThan, ...) {
             stopifnot(class(sim) == "simList")
 
-            if(missing(notOlderThan)) notOlderThan <- Sys.time() - 1e8
-            
-            if(cache) {
-              if(is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
+            if (missing(notOlderThan)) notOlderThan <- Sys.time() - 1e8
+
+            if (cache) {
+              if (is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
                 archivist::createLocalRepo(paths(sim)$cachePath)
 
               return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
                             debug = debug, progress = progress,
                           .plotInitialTime = .plotInitialTime ,
-                          .saveInitialTime = .saveInitialTime, 
+                          .saveInitialTime = .saveInitialTime,
                           notOlderThan = notOlderThan))
             } else {
               return(spades(sim, debug = debug, progress = progress,
                             .plotInitialTime = .plotInitialTime ,
                             .saveInitialTime = .saveInitialTime))
             }
-          })
-
+})

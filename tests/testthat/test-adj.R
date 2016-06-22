@@ -219,30 +219,30 @@ test_that("adj.R results not identical to adjacent", {
   a <- raster::raster(raster::extent(0, 1e1, 0, 1e1), res = 1)
   sam <- sample(1:length(a), 4 )
 
-  for(incl in c(TRUE, FALSE)) {
-    for(ids in list(NULL, seq_len(length(sam)))) {
-      for(targs in list(NULL, sam+1)) {
-        for(sortTF in c(TRUE, FALSE)) {
-          for(ma in c(TRUE, FALSE)) {
-            for(dirs in list(4, 8, "bishop")) {
-              for(prs in c(TRUE, FALSE)) {
-                for(tor in c(TRUE, FALSE)) {
+  for (incl in c(TRUE, FALSE)) {
+    for (ids in list(NULL, seq_len(length(sam)))) {
+      for (targs in list(NULL, sam+1)) {
+        for (sortTF in c(TRUE, FALSE)) {
+          for (ma in c(TRUE, FALSE)) {
+            for (dirs in list(4, 8, "bishop")) {
+              for (prs in c(TRUE, FALSE)) {
+                for (tor in c(TRUE, FALSE)) {
                   adjDT <- adj.raw(a, sam, directions = dirs, sort = sortTF, match.adjacent = ma,
-                                    include = incl, target = targs,
+                                   include = incl, target = targs,
                                 cutoff.for.data.table = 2, id = ids, pairs = prs, torus = tor)
                   adjMat <- adj.raw(a, sam, directions = dirs, sort = sortTF, match.adjacent = ma,
-                                   include = incl, target = targs,
-                                id = ids, pairs = prs, torus = tor)
+                                    include = incl, target = targs,
+                                    id = ids, pairs = prs, torus = tor)
                   #browser(expr=!isTRUE(all.equal(adjMat, adjDT)))
                   #expect_true(isTRUE(all.equal(adjMat, adjDT)))
                   expect_equivalent(adjMat, adjDT)
                   #numTests <<- numTests+1
-                  if(!tor) {
+                  if (!tor) {
                     adj2 <- tryCatch(raster::adjacent(a, sam, directions = dirs, sorted = sortTF, include = incl,
                                              id = !is.null(ids), pairs = prs, target = targs), error=function(x) FALSE)
-                    if(isTRUE(adj2)) {
-                      if(!prs) {
-                        if(ma) {
+                    if (isTRUE(adj2)) {
+                      if (!prs) {
+                        if (ma) {
                           #browser(expr=!isTRUE(all.equal(adjDT, adj2)))
 
                           expect_equivalent(adjDT, adj2, info = paste0("ma=",ma, ", dirs=",dirs, ", sortTF=",sortTF,
@@ -255,9 +255,9 @@ test_that("adj.R results not identical to adjacent", {
                           #numTests <<- numTests+1
                         }
                       } else {
-                        colOrd <- if(is.null(ids)) 1:2 else c(2,3,1)
-                        if(ma) {
-                          if(!sortTF) {
+                        colOrd <- if (is.null(ids)) 1:2 else c(2,3,1)
+                        if (ma) {
+                          if (!sortTF) {
                             expect_equivalent(adjDT, adj2[,colOrd])
                             #numTests <<- numTests+1
                           } else {
@@ -265,9 +265,9 @@ test_that("adj.R results not identical to adjacent", {
                             #numTests <<- numTests+1
                           }
                         } else {
-                          if(!sortTF) {# if match.adjacent is FALSE, and sort is FALSE, then they mostly don't match
+                          if (!sortTF) {# if match.adjacent is FALSE, and sort is FALSE, then they mostly don't match
                             #if(adjDT[order(adjDT[,"from"], adjDT[,"to"]),]==adjDT)
-                             if(sum((adjDT - adj2[,colOrd])^2)==0) {
+                             if (sum((adjDT - adj2[,colOrd])^2)==0) {
                                expect_equivalent(adjDT, adj2[,colOrd])
                              } else {
                                expect_gt(sum((adjDT - adj2[,colOrd])^2), 0) # sum of squared difference should be positive
@@ -313,7 +313,7 @@ test_that("errors in adj are not correct", {
 
 test_that("adj.R: torus does not work as expected", {
   # test data.table and matrix
-  for(i in c(100,1)) {
+  for (i in c(100,1)) {
     # a corner
     a <- raster::raster(raster::extent(0, 4, 0, 4), res = 1)
     s <- 4

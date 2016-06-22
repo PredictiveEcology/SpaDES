@@ -38,14 +38,14 @@ in the \code{digest} package (used internally in the \code{cache} function).
 times <- list(start=0, end=10)
 params <- list(dummy = 1)
 mySim <- simInit(times = times, params = params)
-if(require(archivist)) {
+if (require(archivist)) {
   archivist::createLocalRepo(paths(mySim)$cachePath)
-  system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim=mySim))
+  system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
 
   # will be cached now, to be sure inputs are identical,
   #   mySim should be put back to original state
   mySim <- simInit(times = times)
-  system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim=mySim))
+  system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
   # compare
   system.time(outSim2 <- spades(mySim))
 }

@@ -151,14 +151,14 @@ checkpointLoad <- function(file) {
 #' times <- list(start=0, end=10)
 #' params <- list(dummy = 1)
 #' mySim <- simInit(times = times, params = params)
-#' if(require(archivist)) {
+#' if (require(archivist)) {
 #'   archivist::createLocalRepo(paths(mySim)$cachePath)
-#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim=mySim))
+#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
 #'
 #'   # will be cached now, to be sure inputs are identical,
 #'   #   mySim should be put back to original state
 #'   mySim <- simInit(times = times)
-#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim=mySim))
+#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
 #'   # compare
 #'   system.time(outSim2 <- spades(mySim))
 #' }
@@ -175,19 +175,15 @@ setMethod(
   "cache",
   definition = function(cacheRepo, FUN, ..., notOlderThan) {
     tmpl <- list(...)
-    if(missing(notOlderThan)) notOlderThan <- NULL
+    if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
-    if (length(wh) > 0)
-      tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
-    if (length(whFun) > 0)
-      tmpl[whFun] <- lapply(tmpl[whFun], format)
+    if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
+    if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
-    if(!is.na(tmpl$progress)) {
-      tmpl$progress <- NULL
-    }
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
     isInRepo <- localTags[localTags$tag ==
@@ -201,10 +197,10 @@ setMethod(
         #out <- as(out, "simList")
         return(out)
       }
-      if((notOlderThan >= lastEntry)){ # flush it if notOlderThan is violated
+      if ((notOlderThan >= lastEntry)) { # flush it if notOlderThan is violated
         rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
       }
-      
+
     }
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
@@ -215,11 +211,10 @@ setMethod(
     #  attr(output2, "call") <- ""
     #}
     saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
-               archiveSessionInfo = FALSE,
-               archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
+               archiveSessionInfo = FALSE, archiveMiniature = FALSE,
+               rememberName = FALSE, silent = TRUE)
     output
-  }
-)
+})
 
 ################################################################################
 #' Remove any reference to environments in a \code{simList}
@@ -266,7 +261,7 @@ setMethod(
         if (!is(obj, "function")) {
           if (is(obj, "Raster")) {
             # convert Rasters in the simList to some of their metadata.
-            if(is(obj, "RasterStack") | is(obj, "RasterBrick")) {
+            if (is(obj, "RasterStack") | is(obj, "RasterBrick")) {
               dig <- list(dim(obj), res(obj), crs(obj), extent(obj),
                           lapply(obj@layers, function(yy) yy@data))
               if (nchar(obj@filename) > 0) {
@@ -317,7 +312,7 @@ setMethod(
     # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
     simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
 
-    simList
+    return(simList)
 })
 
 
@@ -355,6 +350,4 @@ setMethod(
     md5hashInBackpack[toRemove] %>%
       sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
-  }
-)
-
+})

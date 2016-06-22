@@ -50,7 +50,7 @@ filelist <- data.frame(
 )
 sim1 <- loadFiles(filelist = filelist)
 clearPlot()
-if(interactive()) Plot(sim1$DEM)
+if (interactive()) Plot(sim1$DEM)
 
 # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #  at time = 10 and 20 (via "intervals").

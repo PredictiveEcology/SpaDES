@@ -559,14 +559,14 @@ setMethod(
 
   moreThanOne <- NROW(coords) > 1
 
-  if(all(!is.na(angles))) { # if provided with angles, then problem is easier
+  if (all(!is.na(angles))) { # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
     maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
     numAngles <- length(angles)
     rads <- rep(rep(maxRadius, each = numAngles), NROW(coords))
     x <- kronecker(coords[, "x"], c(cos(angles) %o% maxRadius), "+")
     y <- kronecker(coords[, "y"], c(sin(angles) %o% maxRadius), "+")
-    id <- rep(rep(seqNumInd, each = numAngles), each=length(maxRadius))
+    id <- rep(rep(seqNumInd, each = numAngles), each = length(maxRadius))
 
   } else {
     if (moreThanOne) {
@@ -631,7 +631,7 @@ setMethod(
     xs <- rep.int(coords[, "x"], times = nAngles)
     ys <- rep.int(coords[, "y"], times = nAngles)
 
-    angles <- if(all(is.na(angles))) {
+    angles <- if (all(is.na(angles))) {
       if (!is.null(dim(numAngles))) {
         rep(unlist(lapply(numAngles[,1], function(na) seq_len(na)*(pi*2/na))), ncol(numAngles))
       } else {
@@ -648,7 +648,7 @@ setMethod(
   indices <- as.integer(cellFromXY(landscape, cbind(x,y)))
 
   if (moreThanOne & allowOverlap & !closest) {
-    MAT <- data.table(id, indices, rads, angles, x=x, y=y)
+    MAT <- data.table(id, indices, rads, angles, x = x, y = y)
     setkeyv(MAT, c("id", "indices"))
     MAT <- unique(MAT)
     MAT <- na.omit(MAT)

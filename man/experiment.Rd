@@ -56,7 +56,7 @@ Default FALSE.}
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 then, it will force a recache. Ignored if \code{cache} is FALSE.}
 
-\item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime}, 
+\item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime},
 \code{.saveInitialTime}, \code{cache} and/or \code{notOlderThan}. Caching
 is still experimental. It is tested to work under some conditions, but not
 all. See details.}
@@ -185,7 +185,7 @@ and replicate = 4. Thus, if a second call to experiment with the exact same simL
 and \code{replicates = 6}, the first 4 will be taken from the cached copies, and replicate 5 and
 6 will be run (and cached) as normal. If \code{notOlderThan} used with a time that is more recent
 than the cached copy, then a new spades will be done, and the cached copy will be deleted from
-the cache repository, so there will only ever be one copy of a particular replicate for a 
+the cache repository, so there will only ever be one copy of a particular replicate for a
 particular simList. NOTE: caching may not work as desired on a Windows machine because
 the sqlite database can only be written to one at a time, so there may be collisions.
 }
@@ -231,7 +231,7 @@ the sqlite database can only be written to one at a time, so there may be collis
   # Read in outputs from sims object
   FireMaps <- do.call(stack, lapply(1:NROW(attr(sims, "experiment")$expDesign),
                      function(x) sims[[x]]$landscape$Fires))
-  if(interactive()) Plot(FireMaps, new = TRUE)
+  if (interactive()) Plot(FireMaps, new = TRUE)
 
   # Or reload objects from files, useful if sim objects too large to store in RAM
   caribouMaps <- lapply(sims, function(sim) {
@@ -239,8 +239,8 @@ the sqlite database can only be written to one at a time, so there may be collis
   })
   names(caribouMaps) <- paste0("caribou",1:8)
   # Plot does not plot whole lists (yet)
-  for(i in 1:NROW(attr(sims,"experiment")$expDesign)){
-    if(interactive()) Plot(caribouMaps[[i]], size = 0.1)}
+  for (i in 1:NROW(attr(sims,"experiment")$expDesign)) {
+    if (interactive()) Plot(caribouMaps[[i]], size = 0.1)}
 
 # Example 2 - test alternative modules
   # Example of changing modules, i.e., caribou with and without fires
@@ -344,7 +344,7 @@ the sqlite database can only be written to one at a time, so there may be collis
   Fires <- lapply(landscapeFiles, function(x) readRDS(x)$Fires) \%>\% stack
   Fires[Fires > 0] <- 1 # convert to 1s and 0s
   fireProb <- sum(Fires)/nlayers(Fires) # sum them and convert to probability
-  if(interactive()) Plot(fireProb, new = TRUE)
+  if (interactive()) Plot(fireProb, new = TRUE)
 
 # Example 9 - Pass in inputs, i.e., input data objects taken from disk
   #  Here, we, again, don't provide randomLandscapes module, so we need to

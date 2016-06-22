@@ -49,7 +49,7 @@ setkey(reducedDT, biomass)
 
 communities <- rasterizeReduced(reducedDT, fullRas, "communities")
 setColors(communities) <- c("blue", "orange", "red")
-if(interactive()) Plot(biomass, communities, fullRas, new=TRUE)
+if (interactive()) Plot(biomass, communities, fullRas, new = TRUE)
 }
 \author{
 Eliot McIntire

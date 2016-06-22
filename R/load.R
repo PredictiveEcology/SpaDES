@@ -109,7 +109,7 @@ doEvent.load <- function(sim, eventTime, eventType, debug = FALSE) {
 #' )
 #' sim1 <- loadFiles(filelist = filelist)
 #' clearPlot()
-#' if(interactive()) Plot(sim1$DEM)
+#' if (interactive()) Plot(sim1$DEM)
 #'
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #' #  at time = 10 and 20 (via "intervals").
@@ -185,7 +185,7 @@ setMethod(
 
           if (is.na(filelist$file[y])) { # i.e., only for objects
             objList <- list()
-            if(exists(filelist$objectName[y])) {
+            if (exists(filelist$objectName[y])) {
               objList <- list(get(filelist$objectName[y]))
               names(objList) <- filelist$objectName[y]
             } else {
@@ -204,7 +204,6 @@ setMethod(
                       "in the search path.")
             }
           } else { # for files
-
             if (!is.null(nam)) {
               argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
               names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
