@@ -96,6 +96,12 @@ test_that("spades calls with different signatures don't work", {
   expect_output(spades(a, debug = TRUE, .plotInitialTime = NA), "Completed Events")
   expect_output(spades(a, debug = TRUE, .saveInitialTime = NA), "Completed Events")
 
+  expect_output(spades(a, progress = "text", debug = TRUE), "10%")
+  expect_output(spades(a, progress = "text", debug = TRUE), "20%")
+  expect_output(spades(a, progress = "text"), "..........| 100%")
+  expect_silent(spades(a, progress = FALSE))
+  expect_silent(spades(a, progress = "rr"))
+
   paths(a)$cachePath <- file.path(tempdir(), "cache")
   expect_output(spades(a, cache = TRUE), "Completed Events")
   expect_true(all(dir(paths(a)$cachePath)==c("backpack.db", "gallery")))

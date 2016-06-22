@@ -6,6 +6,7 @@ version 1.1.4.xxxx
 * `rings` argument names closer match to `cir`
 * enhancements to `cir` and addition of new function `rings`
 * performance enhancements in `spread`, `rings`, `cir`
+* add cache and progress args to spades and experiment functions
 * `Plot` now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
 * `dev()` returns `dev.cur` invisibly, allowing for finer control of plotting devices
 * add `distanceFromEachPoint`, a multipoint version of `raster::distanceFromPoints`

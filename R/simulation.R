@@ -853,6 +853,10 @@ setMethod(
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
+#' @param progress Logical (TRUE or FALSE show a graphical progress bar),
+#'                 character ("graphical", "text") or numeric indicating
+#'                 the number of update intervals to show in a graphical progress bar.
+#'
 #' @param cache Logical. If TRUE, then the spades call will be cached. This means that
 #'              if the call is made again with the same simList, then spades will return
 #'              the return value from the previous run of that exact same simList. Default
