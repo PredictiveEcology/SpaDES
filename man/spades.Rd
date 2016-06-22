@@ -3,22 +3,33 @@
 \docType{methods}
 \name{spades}
 \alias{spades}
-\alias{spades,simList,logical-method}
-\alias{spades,simList,missing-method}
+\alias{spades,ANY,ANY,ANY,logical-method}
+\alias{spades,simList,ANY,ANY,missing-method}
 \title{Run a spatial discrete event simulation}
 \usage{
-spades(sim, debug, .plotInitialTime, .saveInitialTime)
+spades(sim, debug = FALSE, progress = NA, cache, .plotInitialTime = NULL,
+  .saveInitialTime = NULL)
 
-\S4method{spades}{simList,logical}(sim, debug, .plotInitialTime,
-  .saveInitialTime)
+\S4method{spades}{simList,ANY,ANY,missing}(sim, debug = FALSE,
+  progress = NA, cache, .plotInitialTime = NULL, .saveInitialTime = NULL)
 
-\S4method{spades}{simList,missing}(sim, .plotInitialTime, .saveInitialTime)
+\S4method{spades}{ANY,ANY,ANY,logical}(sim, debug = FALSE, progress = NA,
+  cache, .plotInitialTime = NULL, .saveInitialTime = NULL)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
 
 \item{debug}{Optional logical flag determines whether sim debug info
 will be printed (default is \code{debug=FALSE}).}
+
+\item{progress}{Logical (TRUE or FALSE show a graphical progress bar),
+character ("graphical", "text") or numeric indicating
+the number of update intervals to show in a graphical progress bar.}
+
+\item{cache}{Logical. If TRUE, then the spades call will be cached. This means that
+if the call is made again with the same simList, then spades will return
+the return value from the previous run of that exact same simList. Default
+FALSE. See Details.}
 
 \item{.plotInitialTime}{Numeric. Temporarily override the \code{.plotInitialTime}
 parameter for all modules. See Details.}
@@ -47,6 +58,15 @@ the simList values reinstated. To turn off plotting and saving, use
 \code{.plotInitialTime = NA} or \code{.saveInitialTime = NA}. NOTE: if a
 module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
 these arguments will not do anything.
+
+If \code{cache} is TRUE, this allows for a seamless way to "save" results
+of a simulation. The  user does not have to intentionally do any saving manually.
+Instead, upon a call to \code{spades} in which the simList is identical,
+the function will simply return the result that would have come if it had
+been rerun. Use this with caution, as it will return exactly the result from
+a previous run, even if there is stochasticity internally. Caching is only
+based on the input simList. See also \code{experiment} for the same mechanism,
+but it can be used with replication.
 }
 \note{
 The debug option is primarily intended to facilitate building simulation
@@ -68,6 +88,21 @@ to the values of various simList slot components.
  # Can turn off plotting, and inspect the output simList instead
  out <- spades(mySim, .plotInitialTime = NA) # much faster
  completed(out) # shows completed events
+
+ # use cache -- simInit should generally be rerun each time a spades call is made
+ #   to guarantee that it is identical. Here, run spades call twice, first
+ #   time to establish cache, second time to return cached result
+ for(i in 1:2) {
+   mySim <- simInit(
+     times = list(start = 0.0, end = 2.0, timeunit = "year"),
+     params = list(
+       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+     ),
+     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+   )
+   print(system.time(out <- spades(mySim, cache = TRUE)))
+ }
 }
 
 }
@@ -79,5 +114,7 @@ Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No 
 }
 \seealso{
 \code{\link{simInit}}, \code{\link{SpaDES}}
+
+\code{\link{experiment}} for using replication with \code{spades}.
 }
 

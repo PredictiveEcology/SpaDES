@@ -853,6 +853,11 @@ setMethod(
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
+#' @param cache Logical. If TRUE, then the spades call will be cached. This means that
+#'              if the call is made again with the same simList, then spades will return
+#'              the return value from the previous run of that exact same simList. Default
+#'              FALSE. See Details.
+#'
 #' @param .plotInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
 #'                                  parameter for all modules. See Details.
 #'
@@ -876,6 +881,14 @@ setMethod(
 #' module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
 #' these arguments will not do anything.
 #'
+#' If \code{cache} is TRUE, this allows for a seamless way to "save" results
+#' of a simulation. The  user does not have to intentionally do any saving manually.
+#' Instead, upon a call to \code{spades} in which the simList is identical,
+#' the function will simply return the result that would have come if it had
+#' been rerun. Use this with caution, as it will return exactly the result from
+#' a previous run, even if there is stochasticity internally. Caching is only
+#' based on the input simList. See also \code{experiment} for the same mechanism,
+#' but it can be used with replication.
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates
@@ -884,6 +897,7 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname spades
+#' @seealso \code{\link{experiment}} for using replication with \code{spades}.
 #'
 #' @author Alex Chubaty
 #'
@@ -904,21 +918,34 @@ setMethod(
 #'  # Can turn off plotting, and inspect the output simList instead
 #'  out <- spades(mySim, .plotInitialTime = NA) # much faster
 #'  completed(out) # shows completed events
+#'
+#'  # use cache -- simInit should generally be rerun each time a spades call is made
+#'  #   to guarantee that it is identical. Here, run spades call twice, first
+#'  #   time to establish cache, second time to return cached result
+#'  for(i in 1:2) {
+#'    mySim <- simInit(
+#'      times = list(start = 0.0, end = 2.0, timeunit = "year"),
+#'      params = list(
+#'        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'      ),
+#'      modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#'    )
+#'    print(system.time(out <- spades(mySim, cache = TRUE)))
+#'  }
 #' }
 #'
-setGeneric("spades", function(sim, debug, .plotInitialTime, .saveInitialTime) {
+setGeneric("spades", function(sim, debug = FALSE, progress = NA,
+                              cache, .plotInitialTime = NULL,
+                              .saveInitialTime = NULL) {
     standardGeneric("spades")
 })
 
 #' @rdname spades
 setMethod(
   "spades",
-  signature(sim = "simList", debug = "logical", .plotInitialTime = "ANY",
-            .saveInitialTime = "ANY"),
-  definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
-
-    if (missing(.plotInitialTime)) .plotInitialTime = NULL
-    if (missing(.saveInitialTime)) .saveInitialTime = NULL
+  signature(sim = "simList", cache = "missing"),
+  definition = function(sim, debug, progress, cache, .plotInitialTime, .saveInitialTime) {
 
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
@@ -941,6 +968,25 @@ setMethod(
       params(sim) <- paramsLocal
     }
 
+    if(!is.na(progress)) {
+      if(isTRUE(progress)) {
+        progress <- "graphical"
+      }
+      if(is.numeric(progress)) {
+        params(sim)$.progress$interval <- (end(sim, "second") - start(sim, "second"))/progress
+        progress <- "graphical"
+      }
+
+      if(!is.na(pmatch(progress, "graphical"))) {
+        params(sim)$.progress$type <- "graphical"
+      } else if(!is.na(pmatch(progress , "text"))) {
+        params(sim)$.progress$type <- "text"
+      }
+
+      if(!is.na(params(sim)$.progress$type) && is.na(params(sim)$.progress$interval)) {
+        params(sim)$.progress$interval <- NULL
+      }
+    }
     while (time(sim, "second") <= end(sim, "second")) {
 
       sim <- doEvent(sim, debug)  # process the next event
@@ -955,17 +1001,26 @@ setMethod(
     return(invisible(sim))
 })
 
+
 #' @rdname spades
 setMethod("spades",
-          signature(sim = "simList", debug = "missing",
-                    .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
-          definition = function(sim, .plotInitialTime, .saveInitialTime) {
+          signature(cache = "logical"),
+          definition = function(sim, debug, progress, cache,
+                                .plotInitialTime, .saveInitialTime) {
             stopifnot(class(sim) == "simList")
 
-            if (missing(.plotInitialTime)) .plotInitialTime = NULL
-            if (missing(.saveInitialTime)) .saveInitialTime = NULL
+            if(cache) {
+              if(is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
+                archivist::createLocalRepo(paths(sim)$cachePath)
 
-            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime ,
+              return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
+                            debug = debug, progress = progress,
+                          .plotInitialTime = .plotInitialTime ,
                           .saveInitialTime = .saveInitialTime))
-})
+            } else {
+              return(spades(sim, debug = debug, progress = progress,
+                            .plotInitialTime = .plotInitialTime ,
+                            .saveInitialTime = .saveInitialTime))
+            }
+          })
 

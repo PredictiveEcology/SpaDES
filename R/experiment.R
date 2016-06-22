@@ -613,7 +613,9 @@ setMethod(
       parFun <- "lapply"
       args <- list(X = 1:NROW(factorialExp), FUN = FunDef)
     }
-
+    dots <- list(...)
+    args <- append(args, dots)
+    
     expOut <- do.call(get(parFun), args)
     sims <- lapply(expOut, function(x) x[[1]])
     expDFs <- lapply(expOut, function(x) x[[2]])

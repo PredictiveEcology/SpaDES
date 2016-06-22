@@ -96,4 +96,20 @@ test_that("spades calls with different signatures don't work", {
   expect_output(spades(a, debug = TRUE, .plotInitialTime = NA), "Completed Events")
   expect_output(spades(a, debug = TRUE, .saveInitialTime = NA), "Completed Events")
 
+  paths(a)$cachePath <- file.path(tempdir(), "cache")
+  expect_output(spades(a, cache = TRUE), "Completed Events")
+  expect_true(all(dir(paths(a)$cachePath)==c("backpack.db", "gallery")))
+  file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
+
+  # test for system time ... in this case, the first time through loop is slow
+  #   because of writing cache to disk, not because of spades being slow.
+  #   SimList is empty.
+  for(i in 1:2) {
+    a = simInit()
+    paths(a)$cachePath <- file.path(tempdir(), "cache")
+    assign(paste0("st",i),system.time(spades(a, cache = TRUE)))
+  }
+  expect_gt(st1[1],st2[1])
+  file.remove(dir(paths(a)$cachePath, full.names = TRUE, recursive = TRUE))
+
 })
