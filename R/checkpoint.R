@@ -203,6 +203,7 @@ setMethod(
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
     saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+               archiveSessionInfo = FALSE,
                archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
     output
   }
