@@ -1016,27 +1016,28 @@ setMethod(
 })
 
 #' @rdname spades
-setMethod("spades",
-          signature(cache = "logical"),
-          definition = function(sim, debug, progress, cache,
-                                .plotInitialTime, .saveInitialTime,
-                                notOlderThan, ...) {
-            stopifnot(class(sim) == "simList")
+setMethod(
+  "spades",
+  signature(cache = "logical"),
+  definition = function(sim, debug, progress, cache,
+                        .plotInitialTime, .saveInitialTime,
+                        notOlderThan, ...) {
+    stopifnot(class(sim) == "simList")
 
-            if (missing(notOlderThan)) notOlderThan <- Sys.time() - 1e8
+    if (missing(notOlderThan)) notOlderThan <- NULL
 
-            if (cache) {
-              if (is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
-                archivist::createLocalRepo(paths(sim)$cachePath)
+    if (cache) {
+      if (is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
+        archivist::createLocalRepo(paths(sim)$cachePath)
 
-              return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
-                                   debug = debug, progress = progress,
-                                   .plotInitialTime = .plotInitialTime,
-                                   .saveInitialTime = .saveInitialTime,
-                                   notOlderThan = notOlderThan, ...))
-            } else {
-              return(spades(sim, debug = debug, progress = progress,
-                            .plotInitialTime = .plotInitialTime ,
-                            .saveInitialTime = .saveInitialTime))
-            }
+      return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
+                           debug = debug, progress = progress,
+                           .plotInitialTime = .plotInitialTime,
+                           .saveInitialTime = .saveInitialTime,
+                           notOlderThan = notOlderThan, ...))
+    } else {
+      return(spades(sim, debug = debug, progress = progress,
+                    .plotInitialTime = .plotInitialTime ,
+                    .saveInitialTime = .saveInitialTime))
+    }
 })

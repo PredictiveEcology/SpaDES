@@ -192,6 +192,8 @@ setMethod(
       lastEntry <- max(isInRepo$createdDate)
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
+        #if(!is.null(tmpl$replicate))
+        #  warning(paste("replicate",tmpl$replicate,"was cached previously; returning cached value"))
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
         #out <- as(out, "simList")
@@ -205,14 +207,20 @@ setMethod(
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
-    #if(is(output, "simList")) {
-    #  output2 <- as(output, "simList_")
-    #  attr(output2, "tags") <- paste0("cacheId:", outputHash)
-    #  attr(output2, "call") <- ""
-    #}
-    saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
-               archiveSessionInfo = FALSE, archiveMiniature = FALSE,
-               rememberName = FALSE, silent = TRUE)
+
+    written <- FALSE
+    while (!written) {
+      saved <- try(saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+                 archiveSessionInfo = FALSE,
+                 archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                 silent = TRUE)
+      written <- if (is(saved, "try-error")) {
+        Sys.sleep(0.05)
+        FALSE
+      } else {
+        TRUE
+      }
+    }
     output
 })
 
