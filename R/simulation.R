@@ -1024,7 +1024,7 @@ setMethod("spades",
                                 notOlderThan, ...) {
             stopifnot(class(sim) == "simList")
 
-            if(missing(notOlderThan)) notOlderThan <- Sys.time() - 1e8
+            if(missing(notOlderThan)) notOlderThan <- NULL
             
             if(cache) {
               if(is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
