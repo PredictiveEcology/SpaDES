@@ -5,8 +5,8 @@ version 1.1.4.9000
 * fix bug associated with forthcoming `dplyr` update
 * remove `gtools` and `secr` from Imports
 * `spread` enhancements: circular spreading, landscape-based functions, allow overlapping events
-* `rings` argument names closer match to `cir`
-* enhancements to `cir` and addition of new function `rings`
+* enhancements to `cir` and bug fix (#290)
+* new function `rings` whose argument names closer match to `cir`
 * performance enhancements in `spread`, `rings`, `cir`
 * add cache and progress args to spades and experiment functions
 * `Plot` now clips symbols (generally points) to plotting area. This will allow future "wiping" of plot area.
