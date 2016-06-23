@@ -15,6 +15,8 @@
 #'
 #' @author Alex Chubaty
 #'
+#' #@importClassesFrom NetLogoRClasses agentMatrix
+#'
 setGeneric("getColors", function(object) {
   standardGeneric("getColors")
 })
@@ -27,6 +29,29 @@ setMethod("getColors",
               as.character(object[[x]]@legend@colortable)
             })
             names(cols) <- names(object)
+            return(cols)
+})
+
+# @rdname getColors
+# setMethod("getColors",
+#           signature = "agentMatrix",
+#           definition = function(object) {
+#             cols <- as(object[,"color"], "data.frame")$color
+#             return(cols)
+# })
+
+#' @rdname getColors
+setMethod("getColors",
+          signature = "ANY",
+          definition = function(object) {
+            return(NULL)
+})
+
+#' @rdname getColors
+setMethod("getColors",
+          signature = "SpatialPoints",
+          definition = function(object) {
+            cols <- list(object@data$color)
             return(cols)
 })
 
@@ -71,33 +96,33 @@ setMethod("getColors",
 #'
 #'   # Use replacement method
 #'   setColors(ras, n=3) <- c("red", "blue", "green")
-#'   Plot(ras, new=TRUE)
+#'   if (interactive()) Plot(ras, new = TRUE)
 #'
 #'   # Use function method
 #'   ras <- setColors(ras, n=3, c("red", "blue", "yellow"))
-#'   Plot(ras, new=TRUE)
+#'   if (interactive()) Plot(ras, new = TRUE)
 #'
 #'   # Using the wrong number of colors, e.g., here 2 provided,
 #'   # for a raster with 3 values... causes interpolation, which may be surprising
 #'   ras <- setColors(ras, c("red", "blue"))
-#'   Plot(ras, new=TRUE)
+#'   if (interactive()) Plot(ras, new = TRUE)
 #'
 #'   # Real number rasters - interpolation is used
 #'   ras <- raster(matrix(runif(9), ncol=3, nrow=3)) %>%
 #'     setColors(c("red", "yellow")) # interpolates when real numbers, gives warning
-#'   Plot(ras, new=TRUE)
+#'   if (interactive()) Plot(ras, new = TRUE)
 #'
 #'   # Factor rasters, can be contiguous (numerically) or not, in this case not:
 #'   ras <- raster(matrix(sample(c(1,3,6), size=9, replace=TRUE), ncol=3, nrow=3))
 #'   levels(ras) <- data.frame(ID=c(1,3,6), Names=c("red", "purple", "yellow"))
 #'   ras <- setColors(ras, n=3, c("red", "purple", "yellow"))
-#'   Plot(ras, new=TRUE)
+#'   if (interactive()) Plot(ras, new = TRUE)
 #'
 #'   # if a factor rastere, and not enough labels are provided, then a warning
 #'   #   will be given, and colors will be interpolated
 #'   #   The level called purple is not purple, but interpolated betwen red and yellow
 #'   ras <- setColors(ras, c("red", "yellow"))
-#'   Plot(ras, new=TRUE)
+#'   if (interactive()) Plot(ras, new = TRUE)
 setGeneric("setColors<-",
            function(object, ..., n, value) {
              standardGeneric("setColors<-")
@@ -109,8 +134,8 @@ setReplaceMethod(
   "setColors",
   signature("RasterLayer", "numeric", "character"),
   function(object, ..., n, value) {
-    if(is.na(n)) {
-      object <- setColors(object=object, value=value)
+    if (is.na(n)) {
+      object <- setColors(object = object, value = value)
       return(object)
     }
     if (raster::is.factor(object)) {
@@ -141,7 +166,7 @@ setReplaceMethod(
     } else {
       n <- length(value)
     }
-    setColors(object, n=n) <- value
+    setColors(object, n = n) <- value
     if (!is.character(object@legend@colortable)) stop("setColors needs color character values")
     return(object)
 })
@@ -248,11 +273,15 @@ setMethod(
 #'
 #' @rdname makeColorMatrix
 #' @aliases makeColourMatrix
+#'
+#' # @importClassesFrom NetLogoRClasses griddedClasses
+#'
 #' @include plotting-classes.R
 #' @importFrom grDevices colorRampPalette terrain.colors
 #' @importFrom raster minValue getValues sampleRegular is.factor
 #' @importFrom stats na.omit
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
+#'
 #' @docType methods
 #' @author Eliot McIntire
 #'
@@ -260,12 +289,13 @@ setGeneric(".makeColorMatrix",
            function(grobToPlot, zoomExtent, maxpixels, legendRange,
                     cols = NULL, na.color = "#FFFFFF00", zero.color = NULL,
                     skipSample = TRUE) {
-  standardGeneric(".makeColorMatrix")
-})
+             standardGeneric(".makeColorMatrix")
+           })
 
 #' @rdname makeColorMatrix
 setMethod(
   ".makeColorMatrix",
+  #signature = c("griddedClasses", "Extent", "numeric", "ANY"),
   signature = c("Raster", "Extent", "numeric", "ANY"),
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
@@ -409,9 +439,9 @@ setMethod(
     maxzOrig <- maxz
     whichZero <- numeric()
     whichZeroLegend <- numeric()
-    if (!is.null(zero.color)){
-      whichZero <- which(z==0)
-      whichZeroLegend <- which(seq(minz, maxz, length.out=nValues)==0)
+    if (!is.null(zero.color)) {
+      whichZero <- which(z == 0)
+      whichZeroLegend <- which(seq(minz, maxz, length.out = nValues) == 0)
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues

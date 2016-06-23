@@ -163,7 +163,7 @@ fireSpreadBurn <- function(sim) {
                   directions = 8,
                   iterations = params(sim)$fireSpread$its,
                   plot.it = FALSE,
-                  mapID = TRUE)
+                  id = TRUE)
   names(Fires) <- "Fires"
   setColors(Fires) <- c("white", rev(heat.colors(9)))
   landscapes$Fires <- Fires
@@ -178,7 +178,7 @@ fireSpreadStats <- function(sim) {
 
   landscapes <- sim[[globals(sim)$stackName]]
 
-  sim[[globals(sim)$burnStats]] <- c(npix, length(which(values(landscapes$Fires)>0)))
+  sim[[globals(sim)$burnStats]] <- c(npix, length(which(values(landscapes$Fires) > 0)))
 
   return(invisible(sim))
 }

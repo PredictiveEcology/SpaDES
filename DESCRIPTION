@@ -10,9 +10,9 @@ Description: Easily implement a variety of simulation models, with a focus on
     visualize raster and other maps. The suggested package `fastshp` can be
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
-URL: https://github.com/PredictiveEcology/SpaDES
-Version: 1.1.4
-Date: 2016-04-20
+URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/SpaDES
+Version: 1.1.5
+Date: 2016-06-23
 Authors@R: c(
     person(c("Alex", "M"), "Chubaty", email="alexander.chubaty@canada.ca",
     role=c("aut", "cre")),
@@ -56,7 +56,6 @@ Imports:
     grDevices,
     grid,
     gridBase,
-    gtools,
     httr,
     igraph,
     lazyeval,
@@ -67,8 +66,8 @@ Imports:
     RandomFields,
     raster,
     RColorBrewer,
-    secr,
     shiny,
+    snow,
     stats,
     sp,
     stringi,
@@ -95,6 +94,7 @@ Collate:
     'simulation.R'
     'load.R'
     'mapReduce.R'
+    'mergeRaster.R'
     'module-dependencies-methods.R'
     'moduleMetadata.R'
     'module-repository.R'

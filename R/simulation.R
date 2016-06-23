@@ -159,7 +159,7 @@ setMethod(
 #'
 #' @note
 #' The user can opt to run a simpler simInit call without inputs, outputs, and times.
-#' These can be added later with the accessor methods (See last example). These are not required for initializing the
+#' These can be added later with the accessor methods (See example). These are not required for initializing the
 #' simulation via simInit. \code{modules}, \code{paths}, \code{params}, and \code{objects}
 #' are all needed for initialization.
 #'
@@ -175,7 +175,11 @@ setMethod(
 #' Example: a module named "caribou" will be sourced form the file
 #' \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).
 #'
-#' @param objects An optional list of data objects to be passed into the simList.
+#' @param objects (optional) A vector of object names (naming objects
+#'                that are in the \code{.GlobalEnv}), or
+#'                a named list of data objects to be
+#'                passed into the simList. These objects will be accessible
+#'                from the simList as a normal list, e.g,. \code{mySim$obj}.
 #'
 #' @param paths  An optional named list with up to 4 named elements,
 #' \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
@@ -208,7 +212,6 @@ setMethod(
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
-#' @importFrom gtools smartbind
 #' @export
 #' @docType methods
 #' @rdname simInit
@@ -245,48 +248,50 @@ setMethod(
 #'  outSim <- spades(mySim)
 #'
 #' # A little more complicated with inputs and outputs
-#'  mapPath <- system.file("maps", package = "SpaDES")
-#'  mySim <- simInit(
-#'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
-#'    params = list(
-#'      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
-#'    ),
-#'    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
-#'    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-#'                 outputPath = tempdir()),
-#'    inputs = data.frame(
-#'      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
-#'      functions = "raster",
-#'      package = "raster",
-#'      loadTime = 3,
-#'      stringsAsFactors = FALSE),
-#'    outputs = data.frame(
-#'      expand.grid(objectName = c("caribou","landscape"),
-#'      saveTime = 1:2,
-#'      stringsAsFactors = FALSE))
-#'  )
+#' if (require(rgdal)) {
+#'    mapPath <- system.file("maps", package = "SpaDES")
+#'    mySim <- simInit(
+#'      times = list(start = 0.0, end = 2.0, timeunit = "year"),
+#'      params = list(
+#'        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'      ),
+#'      modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+#'                   outputPath = tempdir()),
+#'      inputs = data.frame(
+#'        files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+#'        functions = "raster",
+#'        package = "raster",
+#'        loadTime = 0,
+#'        stringsAsFactors = FALSE),
+#'      outputs = data.frame(
+#'        expand.grid(objectName = c("caribou","landscape"),
+#'        saveTime = 1:2,
+#'        stringsAsFactors = FALSE))
+#'    )
 #'
-#'  # Use accessors for inputs, outputs, times
-#'  mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread",
-#'                                   "caribouMovement"),
-#'                    params = list(.globals = list(stackName = "landscape",
-#'                                                  burnStats = "nPixelsBurned")),
-#'                    paths = list(modulePath = system.file("sampleModules",
-#'                                                          package = "SpaDES"),
-#'                                 outputPath = tempdir()))
-#'  # add by accessor: note need current in times() accessor
-#'  times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
-#'  inputs(mySim2) <- data.frame(
-#'      files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
-#'      functions = "raster",
-#'      package = "raster",
-#'      loadTime = 3,
-#'      stringsAsFactors = FALSE)
-#'  outputs(mySim2) <- data.frame(
-#'      expand.grid(objectName = c("caribou","landscape"),
-#'      saveTime = 1:2,
-#'      stringsAsFactors = FALSE))
-#'  all.equal(mySim, mySim2) # TRUE
+#'    # Use accessors for inputs, outputs, times
+#'    mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread",
+#'                                     "caribouMovement"),
+#'                      params = list(.globals = list(stackName = "landscape",
+#'                                                    burnStats = "nPixelsBurned")),
+#'                      paths = list(modulePath = system.file("sampleModules",
+#'                                                            package = "SpaDES"),
+#'                                   outputPath = tempdir()))
+#'    # add by accessor: note need current in times() accessor
+#'    times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
+#'    inputs(mySim2) <- data.frame(
+#'        files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+#'        functions = "raster",
+#'        package = "raster",
+#'        loadTime = 3,
+#'        stringsAsFactors = FALSE)
+#'    outputs(mySim2) <- data.frame(
+#'        expand.grid(objectName = c("caribou","landscape"),
+#'        saveTime = 1:2,
+#'        stringsAsFactors = FALSE))
+#'    all.equal(mySim, mySim2) # TRUE
+#'   }
 #' }
 #'
 # igraph exports %>% from magrittr
@@ -432,9 +437,32 @@ setMethod(
       stop("There was a problem loading some modules.")
     }
 
+    if (NROW(inputs)) {
+      inputs <- .fillInputRows(inputs, startTime = start(sim))
+    }
+
+    if (length(objects)) {
+      if (is.list(objects)) {
+        if (length(names(objects)) == length(objects)) {
+          objs(sim) <- objects
+        } else {
+          stop(paste("objects must be a character vector of object names",
+               "to retrieve from the .GlobalEnv, or a named list of",
+               "objects"))
+        }
+      } else {
+        newInputs <- data.frame(
+          objectName = names(objects),
+          loadTime = as.numeric(time(sim, "seconds")),
+          stringsAsFactors = FALSE) %>%
+          .fillInputRows(startTime = start(sim))
+        inputs(sim) <- newInputs
+      }
+    }
+
     # load files in the filelist
-    if (length(inputs)) {
-      inputs(sim) <- inputs
+    if (NROW(inputs)) {
+      inputs(sim) <- rbind(inputs(sim), inputs)
       if (NROW(
         events(sim)[moduleName == "load" & eventType == "inputs" &
                     eventTime == start(sim)]
@@ -454,22 +482,6 @@ setMethod(
     # check the parameters supplied by the user
     checkParams(sim, core, dotParams, modulePath(sim))
 
-    if (length(objects)) {
-      list2env(objects, envir = envir(sim))
-      newInputs <- data.frame(
-        file = NA_character_,
-        fun = NA_character_,
-        package = NA_character_,
-        objectName = names(objects),
-        loadTime = as.numeric(time(sim, "seconds")),
-        loaded = TRUE,
-        stringsAsFactors = FALSE)
-      if (NROW(inputs)) {
-        inputs(sim) <- smartbind(inputs(sim), newInputs)
-      } else {
-        inputs(sim) <- newInputs
-      }
-    }
 
     # keep session info for debugging & checkpointing
     sim$.sessionInfo <- sessionInfo()
@@ -491,15 +503,17 @@ setMethod(
     # find the simInit call that was responsible for this, get the objects
     #   in the environment of the parents of that call, and pass them to new
     #   environment.
-    scalls <- sys.calls()
-    grep1 <- grep(as.character(scalls), pattern = "simInit")
-    grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
-      tryCatch(
-        is(parse(text = x), "expression"),
-        error = function(y) { NA })
-    })], na.rm = TRUE)-1, 1)
-    # Convert character strings to their objects
-    li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+    # scalls <- sys.calls()
+    # grep1 <- grep(as.character(scalls), pattern = "simInit")
+    # grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+    #   tryCatch(
+    #     is(parse(text = x), "expression"),
+    #     error = function(y) { NA })
+    # })], na.rm = TRUE)-1, 1)
+    # # Convert character strings to their objects
+    # li$objects <- lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+    li$objects <- .findObjects(objects)
+    #li$objects <- lapply(objects, dynGet)
     names(li$objects) <- objects
     sim <- do.call("simInit", args = li)
 
@@ -839,11 +853,29 @@ setMethod(
 #' @param debug Optional logical flag determines whether sim debug info
 #'              will be printed (default is \code{debug=FALSE}).
 #'
+#' @param progress Logical (TRUE or FALSE show a graphical progress bar),
+#'                 character ("graphical", "text") or numeric indicating
+#'                 the number of update intervals to show in a graphical progress bar.
+#'
+#' @param cache Logical. If TRUE, then the spades call will be cached. This means that
+#'              if the call is made again with the same simList, then spades will return
+#'              the return value from the previous run of that exact same simList. Default
+#'              FALSE. See Details.
+#'
 #' @param .plotInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
 #'                                  parameter for all modules. See Details.
 #'
 #' @param .saveInitialTime Numeric. Temporarily override the \code{.plotInitialTime}
 #'                                  parameter for all modules. See Details.
+#'
+#' @param notOlderThan Date. Passed to SpaDES::cache to update the cache. Default is
+#'                     NULL, meaning don't update the cache. If \code{Sys.time()} is provided
+#'                     then, it will force a recache. Ignored if \code{cache} is FALSE.
+#'
+#' @param ... Any. Can be used to make a unique cache identity, such as "replicate = 1". This
+#'            will be included in the SpaDES::cache call, so will be unique and thus
+#'            spades will not use a cached copy as long
+#'            as anything passed in ... is unique, i.e., not cached previously.
 #'
 #' @return Invisibly returns the modified \code{simList} object.
 #'
@@ -862,6 +894,14 @@ setMethod(
 #' module did not use \code{.plotInitialTime} or \code{.saveInitialTime}, then
 #' these arguments will not do anything.
 #'
+#' If \code{cache} is TRUE, this allows for a seamless way to "save" results
+#' of a simulation. The  user does not have to intentionally do any saving manually.
+#' Instead, upon a call to \code{spades} in which the simList is identical,
+#' the function will simply return the result that would have come if it had
+#' been rerun. Use this with caution, as it will return exactly the result from
+#' a previous run, even if there is stochasticity internally. Caching is only
+#' based on the input simList. See also \code{experiment} for the same mechanism,
+#' but it can be used with replication.
 #'
 #' @note The debug option is primarily intended to facilitate building simulation
 #' models by the user. Will print additional outputs informing the user of updates
@@ -870,6 +910,7 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname spades
+#' @seealso \code{\link{experiment}} for using replication with \code{spades}.
 #'
 #' @author Alex Chubaty
 #'
@@ -890,21 +931,35 @@ setMethod(
 #'  # Can turn off plotting, and inspect the output simList instead
 #'  out <- spades(mySim, .plotInitialTime = NA) # much faster
 #'  completed(out) # shows completed events
+#'
+#'  # use cache -- simInit should generally be rerun each time a spades call is made
+#'  #   to guarantee that it is identical. Here, run spades call twice, first
+#'  #   time to establish cache, second time to return cached result
+#'  for(i in 1:2) {
+#'    mySim <- simInit(
+#'      times = list(start = 0.0, end = 2.0, timeunit = "year"),
+#'      params = list(
+#'        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+#'      ),
+#'      modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+#'      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#'    )
+#'    print(system.time(out <- spades(mySim, cache = TRUE)))
+#'  }
 #' }
 #'
-setGeneric("spades", function(sim, debug, .plotInitialTime, .saveInitialTime) {
+setGeneric("spades", function(sim, debug = FALSE, progress = NA,
+                              cache, .plotInitialTime = NULL,
+                              .saveInitialTime = NULL, notOlderThan, ...) {
     standardGeneric("spades")
 })
 
 #' @rdname spades
 setMethod(
   "spades",
-  signature(sim = "simList", debug = "logical", .plotInitialTime = "ANY",
-            .saveInitialTime = "ANY"),
-  definition = function(sim, debug, .plotInitialTime, .saveInitialTime) {
-
-    if (missing(.plotInitialTime)) .plotInitialTime = NULL
-    if (missing(.saveInitialTime)) .saveInitialTime = NULL
+  signature(sim = "simList", cache = "missing"),
+  definition = function(sim, debug, progress, cache, .plotInitialTime,
+                        .saveInitialTime, ...) {
 
     if (!is.null(.plotInitialTime)) {
       if (!is.numeric(.plotInitialTime)) .plotInitialTime <- as.numeric(.plotInitialTime)
@@ -927,6 +982,25 @@ setMethod(
       params(sim) <- paramsLocal
     }
 
+    if (!is.na(progress)) {
+      if (isTRUE(progress)) {
+        progress <- "graphical"
+      }
+      if (is.numeric(progress)) {
+        params(sim)$.progress$interval <- (end(sim, "second") - start(sim, "second"))/progress
+        progress <- "graphical"
+      }
+
+      if (!is.na(pmatch(progress, "graphical"))) {
+        params(sim)$.progress$type <- "graphical"
+      } else if (!is.na(pmatch(progress , "text"))) {
+        params(sim)$.progress$type <- "text"
+      }
+
+      if (!is.na(params(sim)$.progress$type) && is.na(params(sim)$.progress$interval)) {
+        params(sim)$.progress$interval <- NULL
+      }
+    }
     while (time(sim, "second") <= end(sim, "second")) {
 
       sim <- doEvent(sim, debug)  # process the next event
@@ -942,16 +1016,28 @@ setMethod(
 })
 
 #' @rdname spades
-setMethod("spades",
-          signature(sim = "simList", debug = "missing",
-                    .plotInitialTime = "ANY", .saveInitialTime = "ANY"),
-          definition = function(sim, .plotInitialTime, .saveInitialTime) {
-            stopifnot(class(sim) == "simList")
+setMethod(
+  "spades",
+  signature(cache = "logical"),
+  definition = function(sim, debug, progress, cache,
+                        .plotInitialTime, .saveInitialTime,
+                        notOlderThan, ...) {
+    stopifnot(class(sim) == "simList")
 
-            if (missing(.plotInitialTime)) .plotInitialTime = NULL
-            if (missing(.saveInitialTime)) .saveInitialTime = NULL
+    if (missing(notOlderThan)) notOlderThan <- NULL
 
-            return(spades(sim, debug = FALSE, .plotInitialTime = .plotInitialTime ,
-                          .saveInitialTime = .saveInitialTime))
+    if (cache) {
+      if (is(try(archivist::showLocalRepo(paths(sim)$cachePath), silent = TRUE), "try-error"))
+        archivist::createLocalRepo(paths(sim)$cachePath)
+
+      return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
+                           debug = debug, progress = progress,
+                           .plotInitialTime = .plotInitialTime,
+                           .saveInitialTime = .saveInitialTime,
+                           notOlderThan = notOlderThan, ...))
+    } else {
+      return(spades(sim, debug = debug, progress = progress,
+                    .plotInitialTime = .plotInitialTime ,
+                    .saveInitialTime = .saveInitialTime))
+    }
 })
-

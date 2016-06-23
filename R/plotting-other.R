@@ -332,7 +332,8 @@ clickCoordinates <- function(n = 1) {
 #'
 #' @param ... Additional arguments passed to \code{\link{newPlot}}.
 #'
-#' @return Opens a new plot device on the screen.
+#' @return Opens a new plot device on the screen. Invisibly returns the
+#' device number selected.
 #'
 #' @export
 #' @include plotting-classes.R
@@ -358,6 +359,7 @@ dev <- function(x, ...) {
   }
   if (is.null(dev.list())) newPlot(...)
   while (dev.set(x) < x) newPlot(...)
+  return(invisible(dev.cur()))
 }
 
 ################################################################################

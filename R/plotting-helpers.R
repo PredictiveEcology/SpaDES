@@ -31,50 +31,6 @@ setMethod(
   }
 )
 
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialPolygons",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialLines",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "SpatialPoints",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "gg",
-  definition = function(x) {
-    return(1L)
-  }
-)
-
-#' @rdname nlayers
-setMethod(
-  "nlayers",
-  signature = "histogram",
-  definition = function(x) {
-    return(1L)
-  }
-)
 
 #' @rdname nlayers
 setMethod(
@@ -88,7 +44,7 @@ setMethod(
 #' @rdname nlayers
 setMethod(
   "nlayers",
-  signature = "igraph",
+  signature = "ANY",
   definition = function(x) {
     return(1L)
   }
@@ -128,27 +84,7 @@ setMethod(
 #' @rdname layerNames
 setMethod(
   "layerNames",
-  signature = "SpatialPoints",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "SpatialPolygons",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "SpatialLines",
+  signature = "ANY",
   definition = function(object) {
     return("")
   }
@@ -161,26 +97,6 @@ setMethod(
   signature = "Raster",
   definition = function(object) {
     names(object)
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "gg",
-  definition = function(object) {
-    return("")
-  }
-)
-
-#' @export
-#' @rdname layerNames
-setMethod(
-  "layerNames",
-  signature = "histogram",
-  definition = function(object) {
-    return("")
   }
 )
 
@@ -497,29 +413,26 @@ setMethod(
 #' @examples
 #' library(sp)
 #' # Make 2 objects
-#' caribou1 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
-#' caribou2 <- SpatialPoints(cbind(x=stats::runif(10, -50, 50), y=stats::runif(10, -50, 50)))
+#' caribou1 <- SpatialPoints(cbind(x = stats::runif(10, -50, 50), y = stats::runif(10, -50, 50)))
+#' caribou2 <- SpatialPoints(cbind(x = stats::runif(10, -50, 50), y = stats::runif(10, -50, 50)))
 #'
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' Plot(caribouTraj, new=TRUE, length=0.1)
+#' if (interactive()) Plot(caribouTraj, new = TRUE, length = 0.1)
 #'
 #' # or  to a previous Plot
 #' \dontrun{
 #' filelist <- data.frame(files =
-#'      dir(file.path(find.package("SpaDES",
-#'                                 lib.loc=getOption("devtools.path"),
-#'                                 quiet=FALSE),
-#'                   "maps"),
-#'         full.names=TRUE, pattern= "tif"),
-#'      functions="rasterToMemory",
-#'      packages="SpaDES")
+#'      dir(file.path(find.package("SpaDES", quiet = FALSE), "maps"),
+#'          full.names = TRUE, pattern = "tif"),
+#'      functions = "rasterToMemory",
+#'      packages = "SpaDES")
 #'
 #' # Load files to memory (using rasterToMemory)
-#' sim1 <- loadFiles(filelist=filelist)
-#'
-#' Plot(sim1$DEM, new=TRUE)
+#' sim1 <- loadFiles(filelist = filelist)
 #' caribouTraj <- makeLines(caribou1, caribou2)
-#' Plot(caribouTraj, addTo="sim1$DEM", length=0.1)
+#'
+#' Plot(sim1$DEM, new = TRUE)
+#' Plot(caribouTraj, addTo = "sim1$DEM", length = 0.1)
 #' }
 #'
 setGeneric("makeLines", function(from, to) {
@@ -644,11 +557,11 @@ setMethod(
 
 
       # if the XYZ of `get(x = XYZ)` is the same as an evaluated version of XYZ
-#       if (identical(
-#         tmpParseTxt3,
-#       parseTxt[[3]])) {
-#         lastOneDone = TRUE
-#       }
+      #       if (identical(
+      #         tmpParseTxt3,
+      #       parseTxt[[3]])) {
+      #         lastOneDone = TRUE
+      #       }
       lastOneDone <- TRUE
       parseTxt[[3]] <- tmpParseTxt3
     }
@@ -672,9 +585,9 @@ setMethod(
     # if evaluating the parsed text is a character,
     # then this is likely then name we want to keep:
     isChar <- tryCatch(
-        is(eval(elems[[i]], envir = eminus1), "character"),
-        error = function(x) { FALSE }
-      )
+      is(eval(elems[[i]], envir = eminus1), "character"),
+      error = function(x) { FALSE }
+    )
     if (isChar) {
       elems[[i]] <- as.name(eval(elems[[i]], envir = eminus1))
     }
@@ -682,13 +595,13 @@ setMethod(
     i = i + 1
   }
 
-#   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
-#     exists(deparse(parseTxt), envir = x, inherits = FALSE)))] %>%
-#     .[[length(.)]]
+  #   envs <- append(.GlobalEnv, sys.frames())[c(TRUE, sapply(sys.frames(), function(x)
+  #     exists(deparse(parseTxt), envir = x, inherits = FALSE)))] %>%
+  #     .[[length(.)]]
   envs <- append(.GlobalEnv, sys.frames()) %>%
     .[c(TRUE, sapply(sys.frames(), function(x) {
       exists(deparse(parseTxt), envir = x, inherits = FALSE)
-      }))] %>%
+    }))] %>%
     .[[length(.)]]
 
   inGlobal <- identical(envs, .GlobalEnv)
@@ -718,7 +631,7 @@ setMethod(
                    toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     } else { # If it is NOT a simList.
       changeObjEnv(paste(sapply(rev(elems), deparse), collapse = "$"),
-                 fromEnv = envs, toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
+                   fromEnv = envs, toEnv = .spadesEnv[[paste0("dev", dev.cur())]])
     }
   }
 
@@ -757,8 +670,8 @@ setMethod(
 #' @author Eliot McIntire
 #'
 objectNames <- function(calledFrom = "Plot",
-                         argClass = ".spadesPlotObjects",
-                         argName = "") {
+                        argClass = ".spadesPlotObjects",
+                        argName = "") {
   scalls <- sys.calls()
   # Extract from the sys.calls only the function "calledFrom"
   frameCalledFrom <- which(sapply(scalls, function(x) {
@@ -770,13 +683,12 @@ objectNames <- function(calledFrom = "Plot",
   if (nchar(argName) == 0) {
     callNamedArgs <- as.character(substitute(list(...), env = e))[-1]
   } else {
-  #  callNamedArgs <- as.character(substitute(parse(text = argName)))[-1]
+    #  callNamedArgs <- as.character(substitute(parse(text = argName)))[-1]
     callNamedArgs <- as.character(substitute(parse(text = sim), env = e))[-1]
   }
   objs <- lapply(callNamedArgs, .parseArgs, e, eminus1)
   return(objs)
 }
-
 
 #' Importing some grid functions
 #'

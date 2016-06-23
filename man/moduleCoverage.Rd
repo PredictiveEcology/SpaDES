@@ -43,7 +43,7 @@ To accurately test your module, the test filename must follw the format
 }
 \examples{
 \dontrun{
- library(igraph)
+ library(igraph) # for \%>\%
  library(SpaDES)
  tmpdir <- file.path(tempdir(), "coverage")
  modulePath <- file.path(tmpdir, "Modules") \%>\% checkPath(create = TRUE)

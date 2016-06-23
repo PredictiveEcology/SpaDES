@@ -14,7 +14,8 @@ non-RStudio plotting device}
 \item{...}{Additional arguments passed to \code{\link{newPlot}}.}
 }
 \value{
-Opens a new plot device on the screen.
+Opens a new plot device on the screen. Invisibly returns the
+device number selected.
 }
 \description{
 Switch to an existing plot device, or if not already open,

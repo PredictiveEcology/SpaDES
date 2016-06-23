@@ -299,9 +299,18 @@ setReplaceMethod("objs",
                  signature = "simList",
                  function(x, value) {
                    if (is.list(value)) {
-                     lapply(names(value), function(z) {
-                       x@.envir[[z]] <- value[[z]]
-                     })
+
+                     list2env(value, envir = envir(x))
+                     newInputs <- data.frame(
+                       objectName = names(value),
+                       loadTime = as.numeric(time(x, "seconds")),
+                       loaded = TRUE,
+                       stringsAsFactors = FALSE) %>% .fillInputRows(startTime = start(x))
+                     inputs(x) <- rbind(inputs(x), newInputs)
+
+                    # lapply(names(value), function(z) {
+                    #   x@.envir[[z]] <- value[[z]]
+                    # })
                    } else {
                      stop("must provide a named list.")
                    }
@@ -873,7 +882,7 @@ setReplaceMethod("progressType",
 #'
 #' @param object A \code{simList} simulation object.
 #'
-#' @param value The object to be stored at the slot.
+#' @param value The object to be stored at the slot. See Details.
 #'
 #' @return Returns or sets the value(s) of the \code{input} or \code{output} slots
 #' in the \code{simList} object.
@@ -896,12 +905,17 @@ setReplaceMethod("progressType",
 #' @aliases simList-accessors-inout
 #' @rdname simList-accessors-inout
 #' @examples
+#' #######################
+#' # inputs
+#' #######################
+#'
+#' # Start with a basic empty simList
 #' sim <- simInit()
 #'
-#' # inputs
-#'
 #' test <- 1:10
-#' tmpFile <- file.path(tempdir(), "test.rds")
+#' library(igraph) # for %>%
+#' tmpdir <- file.path(tempdir(), "inputs") %>% checkPath(create = TRUE)
+#' tmpFile <- file.path(tmpdir, "test.rds")
 #' saveRDS(test, file=tmpFile)
 #' inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 #' inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
@@ -916,36 +930,38 @@ setReplaceMethod("progressType",
 #' # next: objectNames are taken from the filenames (without the extension)
 #' # This will load all 5 tifs in the SpaDES sample directory, using
 #' #   the raster fuction in the raster package, all at time = 0
-#' sim <- simInit(
-#'    inputs = data.frame(
-#'      files = allTifs,
-#'      functions = "raster",
-#'      package = "raster",
-#'      loadTime = 0,
-#'      stringsAsFactors = FALSE)
-#'    )
+#' if (require("rgdal", quietly = TRUE)) {
+#'   sim <- simInit(
+#'     inputs = data.frame(
+#'       files = allTifs,
+#'       functions = "raster",
+#'       package = "raster",
+#'       loadTime = 0,
+#'       stringsAsFactors = FALSE)
+#'     )
 #'
-#' ##############################
-#' #A fully described inputs object, including arguments:
-#' files = dir(system.file("maps", package = "SpaDES"),
-#'             full.names = TRUE, pattern = "tif")
-#' # arguments must be a list of lists. This may require I() to keep it as a list
-#' #   once it gets coerced into the data.frame.
-#' arguments = I(rep(list(native = TRUE), length(files)))
-#' filelist = data.frame(
-#'    objectName = paste0("Maps",1:5),
-#'    files = files,
-#'    functions = "raster::raster",
-#'    arguments = arguments,
-#'    loadTime = 0,
-#'    intervals = c(rep(NA, length(files)-1), 10)
-#' )
-#' inputs(sim) <- filelist
-#' spades(sim)
+#'   ##############################
+#'   #A fully described inputs object, including arguments:
+#'   files = dir(system.file("maps", package = "SpaDES"),
+#'               full.names = TRUE, pattern = "tif")
+#'   # arguments must be a list of lists. This may require I() to keep it as a list
+#'   #   once it gets coerced into the data.frame.
+#'   arguments = I(rep(list(native = TRUE), length(files)))
+#'   filelist = data.frame(
+#'      objectName = paste0("Maps",1:5),
+#'      files = files,
+#'      functions = "raster::raster",
+#'      arguments = arguments,
+#'      loadTime = 0,
+#'      intervals = c(rep(NA, length(files)-1), 10)
+#'   )
+#'   inputs(sim) <- filelist
+#'   spades(sim)
+#' }
 #'
 #'
 #' # Clean up after
-#' file.remove(tmpFile)
+#' unlink(tmpdir, recursive = TRUE)
 setGeneric("inputs", function(object) {
   standardGeneric("inputs")
 })
@@ -959,13 +975,15 @@ setMethod("inputs",
             simUnit <- timeunit(object)
             loadTimeUnit <- attr(object@inputs$loadTime, "unit")
             if (is.null(loadTimeUnit)) loadTimeUnit <- simUnit
-            out <- if (is.na(pmatch(loadTimeUnit, simUnit)) & (length(object@inputs$loadTime)>0)) {
-              #note the above line captures empty loadTime,
+            out <- if (is.na(pmatch(loadTimeUnit, simUnit)) &
+                       (length(object@inputs$loadTime) > 0)) {
+              # note the above line captures empty loadTime,
               # whereas is.na does not
               if (any(!is.na(object@inputs$loadTime))) {
                 if (!is.null(object@inputs$loadTime)) {
                   obj <- data.table::copy(object@inputs) # don't change original object
-                  obj[,loadTime:=convertTimeunit(loadTime, unit, envir(object))]
+                  set(obj, , j = "loadTime", convertTimeunit(obj$loadTime, obj$unit, envir(object)))
+                  #obj[, loadTime := convertTimeunit(loadTime, unit, envir(object))]
                   obj[]
                 }
               } else {
@@ -993,7 +1011,7 @@ setReplaceMethod(
   "inputs",
   signature = ".simList",
   function(object, value) {
-   if (length(value)>0) {
+   if (length(value) > 0) {
      whFactors <- sapply(value, function(x) is.factor(x))
      if (any(whFactors)) {
        value[,whFactors] <- sapply(value[,whFactors], as.character)
@@ -1027,7 +1045,7 @@ setReplaceMethod(
      # Deal with file names
      # 2 things: 1. if relative, concatenate inputPath
      #           2. if absolute, don't use inputPath
-   if (NROW(value)>0) {
+   if (NROW(value) > 0) {
      object@inputs[is.na(object@inputs$file), "file"] <- NA
 
      # If a filename is provided, determine if it is absolute path, if so,
@@ -1038,14 +1056,24 @@ setReplaceMethod(
 
      if (!all(names(object@inputs) %in% .fileTableInCols)) {
        stop(paste("input table can only have columns named",
-                  paste(.fileTableInCols, collapse=", ")))
+                  paste(.fileTableInCols, collapse = ", ")))
      }
      if (any(is.na(object@inputs[, "loaded"]))) {
        if (!all(is.na(object@inputs[, "loadTime"]))) {
-         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"] %>%
-           min(., na.rm = TRUE)
+         newTime <- object@inputs[is.na(object@inputs$loaded), "loadTime"]
          attributes(newTime)$unit <- timeunit(object)
-         object <- scheduleEvent(object, newTime, "load", "inputs", .first())
+         for (nT in newTime){
+           attributes(nT)$unit <- timeunit(object)
+           object <- scheduleEvent(object, nT, "load", "inputs", .first())
+         }
+         toRemove <- duplicated(rbindlist(list(current(object), events(object))),
+                                by = c("eventTime", "moduleName", "eventType"))
+         if (any(toRemove)) {
+           if (NROW(current(object)) > 0)
+             toRemove <- toRemove[-seq_len(NROW(current(object)))]
+           events(object) <- events(object)[!toRemove]
+         }
+
        } else {
          object@inputs[is.na(object@inputs$loadTime), "loadTime"] <-
            time(object, "seconds")
@@ -1113,10 +1141,13 @@ setReplaceMethod(
 #' @name outputs
 #' @rdname simList-accessors-inout
 #' @examples
+#'
 #' #######################
 #' # outputs
-#' tmpdir <- file.path(tempdir(), "")
-#' startFiles <- dir(tmpdir, full.names=TRUE)
+#' #######################
+#'
+#' library(igraph) # for %>%
+#' tmpdir <- file.path(tempdir(), "outputs") %>% checkPath(create = TRUE)
 #' tmpFile <- file.path(tmpdir, "temp.rds")
 #' tempObj <- 1:10
 #'
@@ -1161,29 +1192,27 @@ setReplaceMethod(
 #' .saveFileExtensions()
 #'
 #' library(raster)
-#' ras <- raster(ncol=4, nrow=5)
-#' ras[] <- 1:20
+#' if (require(rgdal)) {
+#'   ras <- raster(ncol=4, nrow=5)
+#'   ras[] <- 1:20
 #'
-#' sim <- simInit(objects=c("ras"),
-#'   paths=list(outputPath=tmpdir))
-#' outputs(sim) = data.frame(
-#'      file="test",
-#'      fun = "writeRaster",
-#'      package = "raster",
-#'      objectName = "ras",
-#'      stringsAsFactors = FALSE)
+#'   sim <- simInit(objects=c("ras"),
+#'     paths=list(outputPath=tmpdir))
+#'   outputs(sim) = data.frame(
+#'        file="test",
+#'        fun = "writeRaster",
+#'        package = "raster",
+#'        objectName = "ras",
+#'        stringsAsFactors = FALSE)
 #'
-#' outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
-#' simOut <- spades(sim)
-#' outputs(simOut)
-#' newRas <- raster(dir(tmpdir, full.name=TRUE, pattern=".tif"))
-#' all.equal(newRas, ras) # Should be TRUE
-#'
-#' # since write.csv has a default of adding a column, x, with rownames, must add additional
-#' #   argument for 6th row in data.frame (corresponding to the write.csv function)
+#'   outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
+#'   simOut <- spades(sim)
+#'   outputs(simOut)
+#'   newRas <- raster(dir(tmpdir, full.name=TRUE, pattern=".tif"))
+#'   all.equal(newRas, ras) # Should be TRUE
+#' }
 #' # Clean up after
-#' endFiles <- dir(tmpdir, full.names=TRUE)
-#' file.remove(endFiles[!(endFiles %in% startFiles)])
+#' unlink(tmpdir, recursive = TRUE)
 setGeneric("outputs", function(object) {
   standardGeneric("outputs")
 })
@@ -1266,8 +1295,8 @@ setReplaceMethod(
                    object@outputs$file[!isAbsolutePath(object@outputs$file)])
 
        # If there is no function provided, then use saveRDS, from package base
-       object@outputs[is.na(object@outputs$fun),"fun"] <- "saveRDS"
-       object@outputs[is.na(object@outputs$package),"package"] <- "base"
+       object@outputs[is.na(object@outputs$fun), "fun"] <- "saveRDS"
+       object@outputs[is.na(object@outputs$package), "package"] <- "base"
 
        # file extension stuff
        fileExts <- .saveFileExtensions()
@@ -1281,7 +1310,7 @@ setReplaceMethod(
        # then don't postpend again
        txtTimeA <- paste0(attr(object@outputs[, "saveTime"], "unit"))
        txtTimeB <- paddedFloatToChar(
-         object@outputs[,"saveTime"],
+         object@outputs[, "saveTime"],
          ceiling(log10(end(object, timeunit(object)) + 1))
        )
        # Add time unit and saveTime to filename, without stripping extension
@@ -1605,8 +1634,8 @@ setReplaceMethod("outputPath",
                  signature = ".simList",
                  function(object, value) {
                    object@paths$outputPath <- unname(unlist(value))
-                   checkPath(object@paths$outputPath, create=TRUE)
-                   if (NROW(outputs(object))>0) {
+                   checkPath(object@paths$outputPath, create = TRUE)
+                   if (NROW(outputs(object)) > 0) {
                      if ("saved" %in% colnames(outputs(object))) {
                        notYetSaved <- !outputs(object)$saved | is.na(outputs(object)$saved)
                        outputs(object)$file[notYetSaved] <-
@@ -1925,7 +1954,7 @@ setGeneric("start", function(x, unit, ...) {
 #' @rdname simList-accessors-times
 setMethod(
   "start",
-  signature = c(".simList","missing"),
+  signature = c(".simList", "missing"),
   definition = function(x) {
     mUnit <- .callingFrameTimeunit(x)
     if (is.null(mUnit)) {
@@ -1939,7 +1968,7 @@ setMethod(
 #' @rdname simList-accessors-times
 setMethod(
   "start",
-  signature = c(".simList","character"),
+  signature = c(".simList", "character"),
   definition = function(x, unit) {
     if (!is.na(unit)) {
       if (is.na(pmatch("second", unit))) {
@@ -2183,7 +2212,8 @@ setMethod(
   signature = c(".simList", "character"),
   definition = function(object, unit) {
 
-    out <- if (is.na(pmatch("second", unit)) & (length(object@events$eventTime)>0)) {
+    out <- if (is.na(pmatch("second", unit)) &
+               (length(object@events$eventTime) > 0)) {
       #note the above line captures empty eventTime,
       # whereas is.na does not
       if (any(!is.na(object@events$eventTime))) {
@@ -2752,8 +2782,12 @@ setMethod(
 #' @rdname fillInputRows
 .fillInputRows <- function(inputDF, startTime) {
 
+  factorCols <- sapply(inputDF, is.factor)
+  if (any(factorCols)) {
+    inputDF[,factorCols] <- sapply(inputDF[,factorCols], as.character)
+  }
   fileTable <- .fileTableInCols
-  needRenameArgs <- grepl(names(inputDF), pattern="arg[s]?$")
+  needRenameArgs <- grepl(names(inputDF), pattern = "arg[s]?$")
   if (any(needRenameArgs)) {
     colnames(inputDF)[needRenameArgs] <-
       .fileTableInCols[pmatch("arg", .fileTableInCols)]
@@ -2767,17 +2801,17 @@ setMethod(
   }
 
   if (any(is.na(inputDF[, "loadTime"]))) {
-    inputDF[is.na(inputDF$loadTime),"loadTime"] <- startTime
+    inputDF[is.na(inputDF$loadTime), "loadTime"] <- startTime
   }
 
   if (any(is.na(inputDF[, "objectName"]))) {
-    inputDF[is.na(inputDF$objectName),"objectName"] <- fileName(inputDF[is.na(inputDF$objectName),"file"])
+    inputDF[is.na(inputDF$objectName), "objectName"] <- fileName(inputDF[is.na(inputDF$objectName), "file"])
   }
 
   # correct those for which a specific function is supplied in filelistDT$fun
   usesSemiColon <- grep(inputDF[, "fun"], pattern = "::")
 
-  if (length(usesSemiColon)>0) {
+  if (length(usesSemiColon) > 0) {
     loadFun <- inputDF$fun[usesSemiColon]
     splitPackFun <- strsplit(split = "::", loadFun)
     inputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])
@@ -2827,13 +2861,13 @@ setMethod(
     outputDF[,.fileTableOutCols[is.na(columns)]] <- NA
   }
   if (any(is.na(outputDF[, "saveTime"]))) {
-    outputDF[is.na(outputDF$saveTime),"saveTime"] <- endTime
+    outputDF[is.na(outputDF$saveTime), "saveTime"] <- endTime
   }
 
   # correct those for which a specific function is supplied in filelistDT$fun
   usesSemiColon <- grep(outputDF[, "fun"], pattern = "::")
 
-  if (length(usesSemiColon)>0) {
+  if (length(usesSemiColon) > 0) {
     loadFun <- outputDF$fun[usesSemiColon]
     splitPackFun <- strsplit(split = "::", loadFun)
     outputDF$package[usesSemiColon] <- sapply(splitPackFun, function(x) x[1])

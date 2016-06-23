@@ -37,7 +37,11 @@ should correspond to the R source file from which the module is loaded.
 Example: a module named "caribou" will be sourced form the file
 \file{caribou.R}, located at the specified \code{modulePath(simList)} (see below).}
 
-\item{objects}{An optional list of data objects to be passed into the simList.}
+\item{objects}{(optional) A vector of object names (naming objects
+that are in the \code{.GlobalEnv}), or
+a named list of data objects to be
+passed into the simList. These objects will be accessible
+from the simList as a normal list, e.g,. \code{mySim$obj}.}
 
 \item{paths}{An optional named list with up to 4 named elements,
 \code{modulePath}, \code{inputPath}, \code{outputPath}, and \code{cachePath}.
@@ -101,7 +105,7 @@ default is current working directory.
 }
 \note{
 The user can opt to run a simpler simInit call without inputs, outputs, and times.
-These can be added later with the accessor methods (See last example). These are not required for initializing the
+These can be added later with the accessor methods (See example). These are not required for initializing the
 simulation via simInit. \code{modules}, \code{paths}, \code{params}, and \code{objects}
 are all needed for initialization.
 }
@@ -133,48 +137,50 @@ are all needed for initialization.
  outSim <- spades(mySim)
 
 # A little more complicated with inputs and outputs
- mapPath <- system.file("maps", package = "SpaDES")
- mySim <- simInit(
-   times = list(start = 0.0, end = 2.0, timeunit = "year"),
-   params = list(
-     .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
-   ),
-   modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
-   paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                outputPath = tempdir()),
-   inputs = data.frame(
-     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
-     functions = "raster",
-     package = "raster",
-     loadTime = 3,
-     stringsAsFactors = FALSE),
-   outputs = data.frame(
-     expand.grid(objectName = c("caribou","landscape"),
-     saveTime = 1:2,
-     stringsAsFactors = FALSE))
- )
+if (require(rgdal)) {
+   mapPath <- system.file("maps", package = "SpaDES")
+   mySim <- simInit(
+     times = list(start = 0.0, end = 2.0, timeunit = "year"),
+     params = list(
+       .globals = list(stackName = "landscape", burnStats = "nPixelsBurned")
+     ),
+     modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+     paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                  outputPath = tempdir()),
+     inputs = data.frame(
+       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+       functions = "raster",
+       package = "raster",
+       loadTime = 0,
+       stringsAsFactors = FALSE),
+     outputs = data.frame(
+       expand.grid(objectName = c("caribou","landscape"),
+       saveTime = 1:2,
+       stringsAsFactors = FALSE))
+   )
 
- # Use accessors for inputs, outputs, times
- mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread",
-                                  "caribouMovement"),
-                   params = list(.globals = list(stackName = "landscape",
-                                                 burnStats = "nPixelsBurned")),
-                   paths = list(modulePath = system.file("sampleModules",
-                                                         package = "SpaDES"),
-                                outputPath = tempdir()))
- # add by accessor: note need current in times() accessor
- times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
- inputs(mySim2) <- data.frame(
-     files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
-     functions = "raster",
-     package = "raster",
-     loadTime = 3,
-     stringsAsFactors = FALSE)
- outputs(mySim2) <- data.frame(
-     expand.grid(objectName = c("caribou","landscape"),
-     saveTime = 1:2,
-     stringsAsFactors = FALSE))
- all.equal(mySim, mySim2) # TRUE
+   # Use accessors for inputs, outputs, times
+   mySim2 <- simInit(modules = list("randomLandscapes", "fireSpread",
+                                    "caribouMovement"),
+                     params = list(.globals = list(stackName = "landscape",
+                                                   burnStats = "nPixelsBurned")),
+                     paths = list(modulePath = system.file("sampleModules",
+                                                           package = "SpaDES"),
+                                  outputPath = tempdir()))
+   # add by accessor: note need current in times() accessor
+   times(mySim2) <- list(current=0, start = 0.0, end = 2.0, timeunit = "year")
+   inputs(mySim2) <- data.frame(
+       files = dir(file.path(mapPath), full.names = TRUE, pattern = "tif")[1:2],
+       functions = "raster",
+       package = "raster",
+       loadTime = 3,
+       stringsAsFactors = FALSE)
+   outputs(mySim2) <- data.frame(
+       expand.grid(objectName = c("caribou","landscape"),
+       saveTime = 1:2,
+       stringsAsFactors = FALSE))
+   all.equal(mySim, mySim2) # TRUE
+  }
 }
 
 }

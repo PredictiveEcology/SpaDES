@@ -5,58 +5,43 @@
 \alias{randomPolygons}
 \title{randomPolygons}
 \usage{
-randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1), p = 0.1,
-  A = 0.3, speedup = 1, numTypes = 1, minpatch = 2, ...)
+randomPolygons(ras = raster(extent(0, 15, 0, 15), res = 1), numTypes = 2,
+  ...)
 }
 \arguments{
 \item{ras}{A raster that whose extent will be used for the randomPolygons}
-
-\item{p}{Numeric vector. Parameter to control fragmentation.
-If this is a vector, then there will be a polygon map produced
-with length(p) unique levels.}
-
-\item{A}{Numeric vector. Parameter for expected proportion of habitat.
-If this is a vector, then there will be a polygon map produced
-with \code{length(A)} unique levels.}
-
-\item{speedup}{An index of how much faster than normal to generate maps.
-This is achieved by aggregating then disagregating, so
-that the resulting raster is the same extent as \code{ras}.}
 
 \item{numTypes}{Numeric value. The number of unique polygon types to use.
 This will be overridden by \code{p}, \code{A} or
 \code{minpatch}, if any of these are vectors.}
 
-\item{minpatch}{Numeric vector. Integer minimum size of patch.
-If this is a vector, there will be a polygon map produced
-with \code{length(A)} unique levels.}
-
-\item{...}{Additional arguments to \code{\link{randomHabitat}}.}
+\item{...}{Other arguments passed to spread. No known uses currently.}
 }
 \value{
 A map of extent \code{ext} with random polygons.
 }
 \description{
-Produces a raster of with random polygons of varying parameters, using the
-Modified Random Cluster algorithm of Saura and Martinez-Millan (2000).
-}
-\details{
-This is a wrapper for the \code{\link[secr]{randomHabitat}} function in the
-\code{secr} package.
-The two main additions are the \code{speedup} argument which allows for
-faster map generation for large rasters and addition of multiple unique
-polygon values, using code drawn from
-\url{http://www.guru-gis.net/generate-a-random-landscape/}.
+Produces a raster of with random polygons. These are built with the
+\code{\link{spread}} function internally.
 }
 \examples{
-r1 <- randomPolygons(p = c(0.1, 0.3, 0.5), A = 0.3)
-Plot(r1, cols = c("white", "dark green", "blue", "dark red"), new = TRUE)
+Ras <- randomPolygons(numTypes = 5)
+if (interactive()) Plot(Ras, cols = c("yellow", "dark green", "blue", "dark red"), new = TRUE)
+
+library(raster)
+# more complex patterning, with a range of patch sizes
+a = randomPolygons(numTypes = 400, raster(extent(0, 50, 0, 50), res = 1))
+a[a<320] <- 0
+a[a>=320] <- 1
+aHist <- hist(table(getValues(clump(a, directions = 4))), plot = FALSE)
+if (interactive()) Plot(a, aHist, new = TRUE)
 
 }
 \references{
-Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a modified random clusters method. Landscape Ecology, 15, 661--678.
+Saura, S. and Martinez-Millan, J. (2000) Landscape patterns simulation with a
+modified random clusters method. Landscape Ecology, 15, 661--678.
 }
 \seealso{
-\code{\link{randomHabitat}} and \code{\link{raster}}
+\code{\link{spread}} and \code{\link{raster}}
 }
 

@@ -18,9 +18,9 @@ test_that("downloadModule downloads and unzips a single module", {
   f_expected <- c("citation.bib", "CHECKSUMS.txt", "LICENSE",
                   "README.txt", "test.R", "test.Rmd")
 
-  expect_more_than(length(f), 0)
-  expect_more_than(length(file.path(tmpdir)), 0)
-  expect_more_than(length(file.path(tmpdir, m)), 0)
+  expect_gt(length(f), 0)
+  expect_gt(length(file.path(tmpdir)), 0)
+  expect_gt(length(file.path(tmpdir, m)), 0)
   expect_equal(f, f_expected)
 })
 
@@ -87,9 +87,12 @@ test_that("downloadData downloads and unzips module data", {
 
   # if files are there with correct names, but wrong content
   library(raster); on.exit(detach("package:raster"), add = TRUE)
-  ras <- raster(file.path(datadir, filenames[2]))
-  ras[4] <- maxValue(ras) + 1
-  writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
-  downloadData(m, tmpdir, quiet = TRUE)
-  expect_true(all(file.exists(file.path(datadir, filenames))))
+  if (require(rgdal, quietly = TRUE)) {
+    on.exit(detach("package:rgdal"), add = TRUE)
+    ras <- raster(file.path(datadir, filenames[2]))
+    ras[4] <- maxValue(ras) + 1
+    writeRaster(ras, filename = file.path(datadir, filenames[2]), overwrite = TRUE)
+    downloadData(m, tmpdir, quiet = TRUE)
+    expect_true(all(file.exists(file.path(datadir, filenames))))
+  }
 })

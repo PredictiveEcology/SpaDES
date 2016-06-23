@@ -201,7 +201,7 @@ and are currently written at the top of the module's \code{.R} file.
 }
 }
 
-\section{2.2 Spatial spreading}{
+\section{2.2 Spatial spreading/distances methods}{
 
 
 Spatial contagion is a key phenomenon for spatially explicit simulation models. Contagion can
@@ -210,8 +210,10 @@ with these:
 
 \tabular{ll}{
   \code{\link{spread}} \tab Contagious cellular automata\cr
+  \code{\link{rings}} \tab Identify rings around focal cells (e.g., buffers and donuts)\cr
   \code{\link{adj}} \tab An optimized (i.e., faster) version of \code{\link[raster]{adjacent}}\cr
   \code{\link{cir}} \tab Identify pixels in a circle around a \code{\link[sp:SpatialPoints-class]{SpatialPoints*}} object\cr
+  \code{\link{distanceFromEachPoint}} \tab Fast calculation of distance surfaces\cr
 }
 }
 

@@ -109,7 +109,7 @@ doEvent.load <- function(sim, eventTime, eventType, debug = FALSE) {
 #' )
 #' sim1 <- loadFiles(filelist = filelist)
 #' clearPlot()
-#' Plot(sim1$DEM)
+#' if (interactive()) Plot(sim1$DEM)
 #'
 #' # Second, more sophisticated. All maps loaded at time = 0, and the last one is reloaded
 #' #  at time = 10 and 20 (via "intervals").
@@ -151,10 +151,10 @@ setMethod(
     #Whether or not intervals for loading files are defined
 
     if (NROW(inputs(sim)) != 0) {
-      inputs(sim) <- .fillInputRows(inputs(sim))
+      inputs(sim) <- .fillInputRows(inputs(sim), start(sim))
       filelist <- inputs(sim) # does not create a copy - because data.table ... this is a pointer
 
-      curTime <- time(sim, "seconds")
+      curTime <- time(sim, timeunit(sim))
       arguments <- inputArgs(sim)
       # Check if arguments is a named list; the name may be concatenated
       # with the "arguments", separated by a ".". This will extract that.
@@ -183,38 +183,60 @@ setMethod(
           #y <- which(cur)[x]
           nam = names(arguments[y])
 
-          if (!is.null(nam)) {
-            argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
-            names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
-          } else {
-            argument <- list(filelist[y,"file"])
-            names(argument) <- names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1]
-          }
+          if (is.na(filelist$file[y])) { # i.e., only for objects
+            objList <- list()
+            if (exists(filelist$objectName[y])) {
+              objList <- list(get(filelist$objectName[y]))
+              names(objList) <- filelist$objectName[y]
+            } else {
+              objList2 <- .findObjects(filelist$objectName[y])
+              #objList <- lapply(filelist$objectName[y], dynGet)
+              #browser(expr=!isTRUE(all.equal(objList, objList2)))
+              names(objList) <- filelist$objectName[y]
+            }
+            if (length(objList) > 0) {
+              list2env(objList, envir = envir(sim))
+              filelist[y, "loaded"] <- TRUE
+              message(filelist[y, "objectName"], " loaded into simList")
+            } else {
+              message("Can't find object '", filelist$objectName[y], "'. ",
+                      "To correctly transfer it to the simList, it should be ",
+                      "in the search path.")
+            }
+          } else { # for files
+            if (!is.null(nam)) {
+              argument <- list(unname(unlist(arguments[y])), filelist[y,"file"])
+              names(argument) <- c(nam, names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1])
+            } else {
+              argument <- list(filelist[y,"file"])
+              names(argument) <- names(formals(getFromNamespace(loadFun[y], loadPackage[y])))[1]
+            }
 
-          # The actual load call
-          if (identical(loadFun[y], "load")) {
-            do.call(getFromNamespace(loadFun[y], loadPackage[y]),
-                    args = argument, envir = envir(sim))
+            # The actual load call
+            if (identical(loadFun[y], "load")) {
+              do.call(getFromNamespace(loadFun[y], loadPackage[y]),
+                      args = argument, envir = envir(sim))
 
-          } else {
-            sim[[filelist[y, "objectName"]]] <- do.call(getFromNamespace(loadFun[y], loadPackage[y]),
-                                                        args = argument)
-          }
-          filelist[y, "loaded"] <- TRUE
+            } else {
+              sim[[filelist[y, "objectName"]]] <- do.call(getFromNamespace(loadFun[y], loadPackage[y]),
+                                                          args = argument)
+            }
+            filelist[y, "loaded"] <- TRUE
 
-          if (loadFun[y] == "raster") {
-            message(paste0(
-              filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
-              "(inMemory=", inMemory(sim[[filelist[y, "objectName"]]]), ")",
-              ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
-                     paste("\n  at time", filelist[y, "loadTime"]),"")
-            ))
-          } else {
-            message(paste0(
-              filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
-              ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
-                     paste("\n   at time", filelist[y, "loadTime"]), "")
-            ))
+            if (loadFun[y] == "raster") {
+              message(paste0(
+                filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
+                "(inMemory=", inMemory(sim[[filelist[y, "objectName"]]]), ")",
+                ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
+                       paste("\n  at time", filelist[y, "loadTime"]),"")
+              ))
+            } else {
+              message(paste0(
+                filelist[y, "objectName"], " read from ", filelist[y, "file"], " using ", loadFun[y],
+                ifelse(filelist[y, "loadTime"] != start(sim, "seconds"),
+                       paste("\n   at time", filelist[y, "loadTime"]), "")
+              ))
+            }
           }
         } # end y
         # add new rows of files to load based on filelistDT$Interval
@@ -238,7 +260,7 @@ setMethod(
       }
     }
     return(invisible(sim))
-  })
+})
 
 #' @rdname loadFiles
 setMethod("loadFiles",
@@ -249,14 +271,14 @@ setMethod("loadFiles",
                            inputs = filelist,
                            modules = list(), ...)
             return(invisible(sim))
-          })
+})
 
 #' @rdname loadFiles
 setMethod("loadFiles",
           signature(sim = "missing", filelist = "missing"),
           definition = function(...) {
             message("no files loaded because sim and filelist are empty")
-          })
+})
 
 #######################################################
 #' Read raster to memory

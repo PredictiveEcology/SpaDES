@@ -36,7 +36,7 @@ if (getRversion() >= "3.1.0") {
 #' library(data.table)
 #' library(raster)
 #' Ras <- raster(extent(0,15,0,15), res=1)
-#' fullRas <- randomPolygons(Ras, numTypes=5, speedup=1, p=0.3)
+#' fullRas <- randomPolygons(Ras, numTypes=2)
 #' names(fullRas) <- "mapcodeAll"
 #' uniqueComms <- unique(fullRas)
 #' reducedDT <- data.table(mapcodeAll=uniqueComms,
@@ -50,12 +50,12 @@ if (getRversion() >= "3.1.0") {
 #'
 #' communities <- rasterizeReduced(reducedDT, fullRas, "communities")
 #' setColors(communities) <- c("blue", "orange", "red")
-#' Plot(biomass, communities, fullRas, new=TRUE)
-rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRaster), ...) {
+#' if (interactive()) Plot(biomass, communities, fullRas, new = TRUE)
+rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode = names(fullRaster), ...) {
 
   reduced <- data.table(reduced)
   if (!is.null(key(reduced))) {
-    if (key(reduced)!=mapcode) {
+    if (key(reduced) != mapcode) {
       setkeyv(reduced, mapcode)
     }
   } else {
@@ -69,8 +69,8 @@ rasterizeReduced <- function(reduced, fullRaster, plotCol, mapcode=names(fullRas
 #       setkeyv(fullRasterVals, mapcode)
 #     }
 #   } else {
-    setkeyv(fullRasterVals, mapcode)
-#  }
+  setkeyv(fullRasterVals, mapcode)
+  #  }
 
   BsumVec <- reduced[fullRasterVals]
   BsumVec[is.na(get(plotCol)), c(plotCol) := NA]

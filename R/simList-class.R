@@ -26,7 +26,7 @@ setMethod(
       arguments = I(list()), intervals = numeric(0), stringsAsFactors = FALSE
     )
     return(ft)
-  })
+})
 
 #' @rdname fileTable
 .fileTableInCols <- colnames(.fileTableIn())
@@ -47,7 +47,7 @@ setMethod(
       arguments = I(list()), stringsAsFactors = FALSE
     )
     return(ft)
-  })
+})
 
 #' @rdname fileTable
 .fileTableOutCols <- colnames(.fileTableOut())
@@ -176,7 +176,7 @@ setClass(
         stop("simulation end time cannot be before start time.")
       }
     }
-  })
+})
 
 ################################################################################
 #' @inheritParams .simList
@@ -250,7 +250,7 @@ setAs(from = "simList", to = "simList_", def = function(from) {
 #' @rdname initialize-method
 setMethod("initialize",
           signature(.Object = "simList"),
-          definition=function(.Object) {
+          definition = function(.Object) {
             .Object@.envir <- new.env(parent = .GlobalEnv)
             return(.Object)
-          })
+})

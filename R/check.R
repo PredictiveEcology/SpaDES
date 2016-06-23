@@ -192,7 +192,7 @@ setMethod(
 
       globalsFound <- unique(globalsFound)
       notFound <- setdiff(names(globalParams), globalsFound)
-      if (length(notFound)>0) {
+      if (length(notFound) > 0) {
         allFound <- FALSE
         message("Global parameter(s) not used in any module: ",
                 paste(notFound, collapse = ", "), ".")
@@ -218,8 +218,8 @@ setMethod(
           sort(.) %>%
           gsub("\\$", "", .)
 
-        if (length(moduleParams)>0) {
-          if (length(globalParams)>0) {
+        if (length(moduleParams) > 0) {
+          if (length(globalParams) > 0) {
             for (i in 1:length(moduleParams)) {
               mP <- moduleParams[i]
               if (mP %in% names(globalParams)) {
@@ -241,10 +241,10 @@ setMethod(
           unique(.) %>%
           sort(.)
 
-        if (length(moduleParams)>0) {
+        if (length(moduleParams) > 0) {
           # which params does the user supply to simInit?
           userParams <- sort(unlist(names(params[[uM]])))
-          if (length(userParams)>0) {
+          if (length(userParams) > 0) {
             for (i in 1:length(moduleParams)) {
               mP <- moduleParams[i]
               if (!(mP %in% userParams)) {
@@ -258,7 +258,7 @@ setMethod(
 
         globalsFound <- unique(globalsFound)
         notFound <- setdiff(globalsFound, names(globalParams))
-        if (length(notFound)>0) {
+        if (length(notFound) > 0) {
           allFound <- FALSE
           message(paste(
             "The following global parameters are used in module", uM,

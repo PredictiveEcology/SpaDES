@@ -146,6 +146,24 @@ checkpointLoad <- function(file) {
 #' @docType methods
 #' @rdname cache
 #' @author Eliot McIntire
+#' @examples
+#' \dontrun{
+#' times <- list(start=0, end=10)
+#' params <- list(dummy = 1)
+#' mySim <- simInit(times = times, params = params)
+#' if (require(archivist)) {
+#'   archivist::createLocalRepo(paths(mySim)$cachePath)
+#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
+#'
+#'   # will be cached now, to be sure inputs are identical,
+#'   #   mySim should be put back to original state
+#'   mySim <- simInit(times = times)
+#'   system.time(outSim <- cache(paths(mySim)$cachePath, spades, sim = mySim))
+#'   # compare
+#'   system.time(outSim2 <- spades(mySim))
+#' }
+#' }
+#'
 setGeneric("cache", signature = "...",
            function(cacheRepo = NULL, FUN, ..., notOlderThan = NULL) {
   archivist::cache(cacheRepo, FUN, ..., notOlderThan)
@@ -157,14 +175,14 @@ setMethod(
   "cache",
   definition = function(cacheRepo, FUN, ..., notOlderThan) {
     tmpl <- list(...)
+    if (missing(notOlderThan)) notOlderThan <- NULL
     # These three lines added to original version of cache in archive package
     wh <- which(sapply(tmpl, function(x) is(x, "simList")))
     whFun <- which(sapply(tmpl, function(x) is.function(x)))
     tmpl$.FUN <- format(FUN) # This is changed to allow copying between computers
-    if (length(wh) > 0)
-      tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
-    if (length(whFun) > 0)
-      tmpl[whFun] <- lapply(tmpl[whFun], format)
+    if (length(wh) > 0) tmpl[wh] <- lapply(tmpl[wh], makeDigestible)
+    if (length(whFun) > 0) tmpl[whFun] <- lapply(tmpl[whFun], format)
+    if (!is.na(tmpl$progress)) tmpl$progress <- NULL
 
     outputHash <- digest::digest(tmpl)
     localTags <- showLocalRepo(cacheRepo, "tags")
@@ -172,20 +190,39 @@ setMethod(
                             paste0("cacheId:", outputHash), , drop = FALSE]
     if (nrow(isInRepo) > 0) {
       lastEntry <- max(isInRepo$createdDate)
+      lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
-        lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
-        return(loadFromLocalRepo(isInRepo$artifact[lastOne],
-                                 repoDir = cacheRepo, value = TRUE))
+        #if(!is.null(tmpl$replicate))
+        #  warning(paste("replicate",tmpl$replicate,"was cached previously; returning cached value"))
+        out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
+                                 repoDir = cacheRepo, value = TRUE)
+        #out <- as(out, "simList")
+        return(out)
       }
+      if ((notOlderThan >= lastEntry)) { # flush it if notOlderThan is violated
+        rmFromLocalRepo(isInRepo$artifact[lastOne], repoDir = cacheRepo)
+      }
+
     }
     output <- do.call(FUN, list(...))
     attr(output, "tags") <- paste0("cacheId:", outputHash)
     attr(output, "call") <- ""
-    saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
-               archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE)
+
+    written <- FALSE
+    while (!written) {
+      saved <- try(saveToRepo(output, repoDir = cacheRepo, archiveData = TRUE,
+                 archiveSessionInfo = FALSE,
+                 archiveMiniature = FALSE, rememberName = FALSE, silent = TRUE),
+                 silent = TRUE)
+      written <- if (is(saved, "try-error")) {
+        Sys.sleep(0.05)
+        FALSE
+      } else {
+        TRUE
+      }
+    }
     output
-  }
-)
+})
 
 ################################################################################
 #' Remove any reference to environments in a \code{simList}
@@ -232,12 +269,23 @@ setMethod(
         if (!is(obj, "function")) {
           if (is(obj, "Raster")) {
             # convert Rasters in the simList to some of their metadata.
-            dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
-            if (nchar(obj@file@name) > 0) {
-              # if the Raster is on disk, has the first 1e6 characters;
-              # uses SpaDES:::digest on the file
-              dig <- append(dig, digest(file = obj@file@name, length = 1e6))
+            if (is(obj, "RasterStack") | is(obj, "RasterBrick")) {
+              dig <- list(dim(obj), res(obj), crs(obj), extent(obj),
+                          lapply(obj@layers, function(yy) yy@data))
+              if (nchar(obj@filename) > 0) {
+                # if the Raster is on disk, has the first 1e6 characters;
+                # uses SpaDES:::digest on the file
+                dig <- append(dig, digest(file = obj@filename, length = 1e6))
+              }
+            } else {
+              dig <- list(dim(obj), res(obj), crs(obj), extent(obj), obj@data)
+              if (nchar(obj@file@name) > 0) {
+                # if the Raster is on disk, has the first 1e6 characters;
+                # uses SpaDES:::digest on the file
+                dig <- append(dig, digest(file = obj@file@name, length = 1e6))
+              }
             }
+
             dig <- digest::digest(dig)
           } else {
             # convert functions in the simList to their digest.
@@ -272,7 +320,7 @@ setMethod(
     # Sort the params and .list with dots first, to allow Linux and Windows to be compatible
     simList@params <- lapply(simList@params, function(x) sortDotsFirst(x))
 
-    simList
+    return(simList)
 })
 
 
@@ -310,6 +358,4 @@ setMethod(
     md5hashInBackpack[toRemove] %>%
       sapply(., rmFromLocalRepo, repoDir = repoDir)
     return(invisible(md5hashInBackpack[toRemove]))
-  }
-)
-
+})

@@ -104,3 +104,30 @@ setMethod(
     return(out)
 })
 
+#' Find objects if passed as character strings
+#'
+#' Objects are passed into simList via \code{simInit} call or \code{objects(simList)}
+#' assignment. This function is an internal helper to find those objects from their
+#' environments by searching the call stack.
+#'
+#' @param objects A character vector of object names
+#' @param functionCall A character string identifying the function name to be
+#' searched in the call stack. Default is "simInit"
+#'
+#' @docType methods
+#' @rdname findObjects
+#' @name findObjects
+#' @author Eliot McIntire
+.findObjects <- function(objects, functionCall = "simInit") {
+  scalls <- sys.calls()
+  grep1 <- grep(as.character(scalls), pattern = functionCall)
+  grep1 <- pmax(min(grep1[sapply(scalls[grep1], function(x) {
+    tryCatch(
+      is(parse(text = x), "expression"),
+      error = function(y) { NA })
+  })], na.rm = TRUE)-1, 1)
+  # Convert character strings to their objects
+  lapply(objects, function(x) get(x, envir = sys.frames()[[grep1]]))
+}
+
+

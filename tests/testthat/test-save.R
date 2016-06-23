@@ -59,7 +59,8 @@ test_that("saving files does not work correctly", {
 
 
 test_that("saving csv files does not work correctly", {
-   savePath <- file.path(tempdir(), "test_save")
+   library(igraph)
+   savePath <- file.path(tempdir(), "test_save") %>% checkPath(create = TRUE)
    on.exit(unlink(savePath, recursive = TRUE))
 
    tempObj <- 1:10

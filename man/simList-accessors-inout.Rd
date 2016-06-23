@@ -56,7 +56,7 @@ outputArgs(object) <- value
 \arguments{
 \item{object}{A \code{simList} simulation object.}
 
-\item{value}{The object to be stored at the slot.}
+\item{value}{The object to be stored at the slot. See Details.}
 }
 \value{
 Returns or sets the value(s) of the \code{input} or \code{output} slots
@@ -166,12 +166,17 @@ rules of recycling for each \code{fun}.\cr
 See the modules vignette for more details (\code{browseVignettes("SpaDES")}).
 }
 \examples{
+#######################
+# inputs
+#######################
+
+# Start with a basic empty simList
 sim <- simInit()
 
-# inputs
-
 test <- 1:10
-tmpFile <- file.path(tempdir(), "test.rds")
+library(igraph) # for \%>\%
+tmpdir <- file.path(tempdir(), "inputs") \%>\% checkPath(create = TRUE)
+tmpFile <- file.path(tmpdir, "test.rds")
 saveRDS(test, file=tmpFile)
 inputs(sim) <- data.frame(file = tmpFile) # using only required column, "file"
 inputs(sim) # see that it is not yet loaded, but when it is scheduled to be loaded
@@ -186,40 +191,45 @@ allTifs <- dir(system.file("maps", package = "SpaDES"),
 # next: objectNames are taken from the filenames (without the extension)
 # This will load all 5 tifs in the SpaDES sample directory, using
 #   the raster fuction in the raster package, all at time = 0
-sim <- simInit(
-   inputs = data.frame(
-     files = allTifs,
-     functions = "raster",
-     package = "raster",
-     loadTime = 0,
-     stringsAsFactors = FALSE)
-   )
+if (require("rgdal", quietly = TRUE)) {
+  sim <- simInit(
+    inputs = data.frame(
+      files = allTifs,
+      functions = "raster",
+      package = "raster",
+      loadTime = 0,
+      stringsAsFactors = FALSE)
+    )
 
-##############################
-#A fully described inputs object, including arguments:
-files = dir(system.file("maps", package = "SpaDES"),
-            full.names = TRUE, pattern = "tif")
-# arguments must be a list of lists. This may require I() to keep it as a list
-#   once it gets coerced into the data.frame.
-arguments = I(rep(list(native = TRUE), length(files)))
-filelist = data.frame(
-   objectName = paste0("Maps",1:5),
-   files = files,
-   functions = "raster::raster",
-   arguments = arguments,
-   loadTime = 0,
-   intervals = c(rep(NA, length(files)-1), 10)
-)
-inputs(sim) <- filelist
-spades(sim)
+  ##############################
+  #A fully described inputs object, including arguments:
+  files = dir(system.file("maps", package = "SpaDES"),
+              full.names = TRUE, pattern = "tif")
+  # arguments must be a list of lists. This may require I() to keep it as a list
+  #   once it gets coerced into the data.frame.
+  arguments = I(rep(list(native = TRUE), length(files)))
+  filelist = data.frame(
+     objectName = paste0("Maps",1:5),
+     files = files,
+     functions = "raster::raster",
+     arguments = arguments,
+     loadTime = 0,
+     intervals = c(rep(NA, length(files)-1), 10)
+  )
+  inputs(sim) <- filelist
+  spades(sim)
+}
 
 
 # Clean up after
-file.remove(tmpFile)
+unlink(tmpdir, recursive = TRUE)
+
 #######################
 # outputs
-tmpdir <- file.path(tempdir(), "")
-startFiles <- dir(tmpdir, full.names=TRUE)
+#######################
+
+library(igraph) # for \%>\%
+tmpdir <- file.path(tempdir(), "outputs") \%>\% checkPath(create = TRUE)
 tmpFile <- file.path(tmpdir, "temp.rds")
 tempObj <- 1:10
 
@@ -264,29 +274,27 @@ newObj
 .saveFileExtensions()
 
 library(raster)
-ras <- raster(ncol=4, nrow=5)
-ras[] <- 1:20
+if (require(rgdal)) {
+  ras <- raster(ncol=4, nrow=5)
+  ras[] <- 1:20
 
-sim <- simInit(objects=c("ras"),
-  paths=list(outputPath=tmpdir))
-outputs(sim) = data.frame(
-     file="test",
-     fun = "writeRaster",
-     package = "raster",
-     objectName = "ras",
-     stringsAsFactors = FALSE)
+  sim <- simInit(objects=c("ras"),
+    paths=list(outputPath=tmpdir))
+  outputs(sim) = data.frame(
+       file="test",
+       fun = "writeRaster",
+       package = "raster",
+       objectName = "ras",
+       stringsAsFactors = FALSE)
 
-outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
-simOut <- spades(sim)
-outputs(simOut)
-newRas <- raster(dir(tmpdir, full.name=TRUE, pattern=".tif"))
-all.equal(newRas, ras) # Should be TRUE
-
-# since write.csv has a default of adding a column, x, with rownames, must add additional
-#   argument for 6th row in data.frame (corresponding to the write.csv function)
+  outputArgs(sim)[[1]] <- list(format="GTiff") # see ?raster::writeFormats
+  simOut <- spades(sim)
+  outputs(simOut)
+  newRas <- raster(dir(tmpdir, full.name=TRUE, pattern=".tif"))
+  all.equal(newRas, ras) # Should be TRUE
+}
 # Clean up after
-endFiles <- dir(tmpdir, full.names=TRUE)
-file.remove(endFiles[!(endFiles \%in\% startFiles)])
+unlink(tmpdir, recursive = TRUE)
 }
 \seealso{
 \code{\link{simList-class}},

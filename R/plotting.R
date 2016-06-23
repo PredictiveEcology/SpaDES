@@ -39,7 +39,7 @@ setGeneric(".makeSpadesPlot", function(plotObjects, plotArgs, whichSpadesPlottab
 setMethod(
   ".makeSpadesPlot",
   signature = c(plotObjects = "list", plotArgs = "list"),
-  definition = function(plotObjects, plotArgs, ...) {
+  definition = function(plotObjects, plotArgs, whichSpadesPlottables, ...) {
     isSpatialObjects <- sapply(plotObjects, function(x) {
       is(x, "spatialObjects")
     })
@@ -143,8 +143,7 @@ setMethod(
 
     names(newPlots@spadesGrobList) <- lN
     return(newPlots)
-  }
-)
+})
 
 #' @rdname makeSpadesPlot
 setMethod(
@@ -154,8 +153,7 @@ setMethod(
     plotArgs <- formals("Plot")[-1]
     newPlots <- .makeSpadesPlot(plotObjects, plotArgs, ...)
     return(newPlots)
-  }
-)
+})
 
 #' @rdname makeSpadesPlot
 setMethod(
@@ -169,8 +167,7 @@ setMethod(
       return(spadesGrobList)
     })
     return(newPlots)
-  }
-)
+})
 
 ################################################################################
 #' Merge two SpaDES Plot objects
@@ -298,8 +295,7 @@ setMethod(
         isBaseLayer = isBaseLayer, isNewPlot = isNewPlot
       )
     )
-  }
-)
+})
 
 #' @rdname updateSpadesPlot
 setMethod(
@@ -414,8 +410,7 @@ setMethod(
       ds = ds
     )
     return(out)
-  }
-)
+})
 
 ################################################################################
 #' Plot spatial grobs (using \code{grid} package)
@@ -481,144 +476,31 @@ setMethod(
 #'                subsampled. The vertices are already subsampled by default to
 #'                make plotting faster.
 #'
+#' @param vp      whole viewport tree of SpaDESGrob
+#'
+#' @param name    Character string of name of object being plotted.
+#'
 #' @param ...     Additional arguments. None currently implemented.
 #'
 #' @docType methods
 #' @rdname plotGrob
+#'
 #' @importFrom data.table data.table ':='
 #' @importFrom raster extent pointDistance xmin xmax ymin ymax
+#'
 #' @importFrom sp proj4string
 #' @importFrom grid gpar gTree gList rasterGrob textGrob grid.draw
 #' @importFrom grDevices as.raster
 #'
 #' @author Eliot McIntire
-# package grid is imported in spade-package.R
-# igraph exports %>% from magrittr
 setGeneric(".plotGrob", function(grobToPlot, col = NULL, real = FALSE,
                                  size = unit(5, "points"), minv, maxv,
                                  legend = TRUE, legendText = NULL,
                                  length = NULL,
                                  gp = gpar(), gpText = gpar(), pch = 19,
-                                 speedup = 1, ...) {
+                                 speedup = 1, name = character(), vp = list(), ...) {
   standardGeneric(".plotGrob")
 })
-
-#' @rdname plotGrob
-setMethod(
-  ".plotGrob",
-  signature = c("matrix"),
-  definition = function(grobToPlot, col, real, size, minv, maxv,
-                        legend, legendText, gp, gpText, pch, ...) {
-    pr <- if (real) {
-      pretty(range(minv, maxv))
-    } else {
-      if (!is.null(legendText)) {
-        if (NCOL(legendText) > 1) { # means it was a factor
-          if (identical(legendText$ID, 1:NROW(legendText))) {
-            unique(round(pretty(range(minv, maxv), n = length(levels(legendText[, 2])))))
-          } else {
-            legendText$contigValue <- 1:NROW(legendText)
-            legendText$contigValue
-          }
-        } else {
-          unique(round(pretty(range(minv, maxv), n = length(legendText))))
-        }
-      } else {
-        unique(round(pretty(range(minv, maxv))))
-      }
-    }
-
-    pr <- pr[pr <= maxv & pr >= minv]
-    if (length(pr) == 0) pr <- seq(minv, maxv, by = 2)
-    #maxNumCols = 100
-    maxcol <- length(col)
-    mincol <- 2
-
-    gpText$cex <- gpText$cex * 0.6
-    if (length(gpText) == 0)
-      gpText <- gpar(col = "black", cex = 0.6)
-
-    rastGrob <- gTree(
-      grobToPlot = grobToPlot, pr = pr, col = col,
-      children = gList(
-        rasterGrob(
-          as.raster(grobToPlot),
-          interpolate = FALSE,
-          name = "raster"
-        ),
-        if (legend) {
-          if (NCOL(legendText) > 1) {
-            # for factors
-            colForLegend <- col[rev(legendText$ID + 1)]
-          } else {
-            colForLegend <- col[(maxcol):mincol]
-          }
-          rasterGrob(
-            as.raster(colForLegend),
-            x = 1.04, y = 0.5,
-            height = 0.5, width = 0.03,
-            interpolate = FALSE,
-            name = "legend"
-          )
-        },
-        if (legend) {
-          txt <- if (is.null(legendText)) {
-            pr
-          } else {
-            legendIndex <- pr - min(pr) + 1
-            if (NCOL(legendText) > 1){ # for factor legends
-              legendText[legendIndex, 2]
-            } else {
-              legendText[legendIndex]
-            }
-          }
-          textGrob(
-            txt,
-            x = 1.08,
-            y = if (!real) {
-              if (NCOL(legendText) > 1) { # factors
-                maxv <- NROW(legendText)
-              }
-              ((pr - minv) / ((maxv + 1) - minv)) / 2 + 0.25 + 1 /
-                (diff(range(minv, maxv)) + 1) / 4
-            } else {
-              ((pr - minv) / ((maxv) - minv)) / 2 + 0.25
-            },
-            gp = gpText,
-            just = "left", check.overlap =
-              TRUE,
-            name = "legendText"
-          )
-        }
-      ),
-      gp = gp, cl = "plotRast"
-    )
-    grid.draw(rastGrob)
-    return(invisible(rastGrob))
-  }
-)
-
-# @rdname plotGrob
-# setMethod(
-#   ".plotGrob",
-#   signature = c("SpatialPoints"),
-#   definition = function(grobToPlot, col, size,
-#                         legend, gp = gpar(), pch, ...) {
-#     pntGrob <- gTree(
-#       grobToPlot = grobToPlot,
-#       children = gList(
-#         pointsGrob(
-#           x = coordinates(grobToPlot)[,1], y = coordinates(grobToPlot)[,2],
-#           pch = pch, size = size
-#         )
-#       ),
-#       gp = gp,
-#       cl = "plotPoint"
-#     )
-#     grid.draw(pntGrob)
-#     return(invisible(pntGrob))
-#   }
-# )
 
 ############## SpatialPoints - thin
 #' @rdname plotGrob
@@ -627,7 +509,7 @@ setMethod(
   ".plotGrob",
   signature = c("SpatialPoints"),
   definition = function(grobToPlot, col, size,
-                        legend, gp = gpar(), pch, speedup, ...) {
+                        legend, gp = gpar(), pch, speedup, name, vp, ...) {
     speedupScale <- 40
     speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
       pointDistance(
@@ -693,8 +575,116 @@ setMethod(
     )
     grid.draw(pntGrob)
     return(invisible(pntGrob))
-  }
-)
+})
+
+#' @rdname plotGrob
+setMethod(
+  ".plotGrob",
+  signature = c("matrix"),
+  definition = function(grobToPlot, col, real, size, minv, maxv,
+                        legend, legendText, gp, gpText, pch, name, vp, ...) {
+    pr <- if (real) {
+      pretty(range(minv, maxv))
+    } else {
+      if (!is.null(legendText)) {
+        if (NCOL(legendText) > 1) { # means it was a factor
+          if (identical(legendText$ID, 1:NROW(legendText))) {
+            unique(round(pretty(range(minv, maxv), n = length(levels(legendText[, 2])))))
+          } else {
+            legendText$contigValue <- 1:NROW(legendText)
+            legendText$contigValue
+          }
+        } else {
+          unique(round(pretty(range(minv, maxv), n = length(legendText))))
+        }
+      } else {
+        unique(round(pretty(range(minv, maxv))))
+      }
+    }
+
+    pr <- pr[pr <= maxv & pr >= minv]
+    if (length(pr) == 0) pr <- seq(minv, maxv, by = 2)
+    #maxNumCols = 100
+    maxcol <- length(col)
+    mincol <- 2
+
+    gpText$cex <- gpText$cex * 0.6
+    if (length(gpText) == 0)
+      gpText <- gpar(col = "black", cex = 0.6)
+
+    rastGrob <- gTree(
+      grobToPlot = grobToPlot, pr = pr, col = col,
+      children = gList(
+        rasterGrob(
+          as.raster(grobToPlot),
+          interpolate = FALSE,
+          name = "raster"
+        )),
+      gp = gp, cl = "plotRast")
+    grid.draw(rastGrob)
+
+    #seekViewport(paste0("outer",name))
+    rastGrob2 <- gTree(
+      grobToPlot = grobToPlot, pr = pr, col = col,
+      children = gList(
+        rasterGrob(
+          as.raster(grobToPlot),
+          interpolate = FALSE,
+          name = "raster"
+        ),
+        if (legend) {
+          if (NCOL(legendText) > 1) {
+            # for factors
+            colForLegend <- col[rev(legendText$ID + 1)]
+          } else {
+            colForLegend <- col[(maxcol):mincol]
+          }
+          rasterGrob(#vp = vp[[1]][[2]][[paste0("outer",name)]],
+            as.raster(colForLegend),
+            x = 1.04, y = 0.5,
+            height = 0.5, width = 0.03,
+            interpolate = FALSE,
+            name = "legend"
+          )
+        },
+        if (legend) {
+          txt <- if (is.null(legendText)) {
+            pr
+          } else {
+            legendIndex <- pr - min(pr) + 1
+            if (NCOL(legendText) > 1) { # for factor legends
+              legendText[legendIndex, 2]
+            } else {
+              legendText[legendIndex]
+            }
+          }
+          textGrob(
+            txt, #vp = vp[[1]][[2]][[paste0("outer",name)]],
+            x = 1.08,
+            y = if (!real) {
+              if (NCOL(legendText) > 1) { # factors
+                maxv <- NROW(legendText)
+              }
+              ((pr - minv) / ((maxv + 1) - minv)) / 2 + 0.25 + 1 /
+                (diff(range(minv, maxv)) + 1) / 4
+            } else {
+              ((pr - minv) / ((maxv) - minv)) / 2 + 0.25
+            },
+            gp = gpText,
+            just = "left", check.overlap =
+              TRUE,
+            name = "legendText"
+          )
+        }
+      ),
+      gp = gp, cl = "plotRast2"
+    )
+
+    seekViewport(paste0("outer", name))
+    grid.draw(rastGrob2)
+
+    return(invisible(rastGrob))
+})
 
 ################################################################################
 #' @rdname plotGrob
@@ -703,7 +693,7 @@ setMethod(
   ".plotGrob",
   signature = c("SpatialPolygons"),
   definition = function(grobToPlot, col, size,
-                        legend, gp = gpar(), pch, speedup, ...) {
+                        legend, gp = gpar(), pch, speedup, name, vp, ...) {
     speedupScale = if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
       pointDistance(
         p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
@@ -725,8 +715,7 @@ setMethod(
     hole <- lapply(1:length(grobToPlot), function(x) {
       lapply(grobToPlot@polygons[[x]]@Polygons, function(x)
         x@hole)
-    }) %>%
-      unlist
+    }) %>% unlist()
 
     ord <- grobToPlot@plotOrder
 
@@ -735,7 +724,7 @@ setMethod(
     })
 
     xyOrd.l <- lapply(ord, function(i) {
-        xy[[i]][ordInner[[i]]]
+      xy[[i]][ordInner[[i]]]
     })
 
     # idLength <- data.table(V1=unlist(lapply(xyOrd.l, function(i) lapply(i, length)))/2)
@@ -804,29 +793,28 @@ setMethod(
   ".plotGrob",
   signature = c("SpatialLines"),
   definition = function(grobToPlot, col, size,
-                        legend, length, gp = gpar(), pch, speedup, ...) {
+                        legend, length, gp = gpar(), pch, speedup, name, vp, ...) {
     speedupScale <- if (grepl(proj4string(grobToPlot), pattern = "longlat")) {
-        pointDistance(
-          p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
-          p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
-          lonlat = TRUE
-        ) / 1.2e10
-      } else {
-        max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
-            xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) / 2.4e4
-      }
+      pointDistance(
+        p1 = c(xmax(extent(grobToPlot)), ymax(extent(grobToPlot))),
+        p2 = c(xmin(extent(grobToPlot)), ymin(extent(grobToPlot))),
+        lonlat = TRUE
+      ) / 1.2e10
+    } else {
+      max(ymax(extent(grobToPlot)) - ymin(extent(grobToPlot)),
+          xmax(extent(grobToPlot)) - xmin(extent(grobToPlot))) / 2.4e4
+    }
 
     # For speed of plotting
-    xy <- lapply(1:length(grobToPlot),
-                 function(i) {
-                   grobToPlot@lines[[i]]@Lines[[1]]@coords
-                 })
+    xy <- lapply(1:length(grobToPlot), function(i) {
+      grobToPlot@lines[[i]]@Lines[[1]]@coords
+    })
     idLength <- unlist(lapply(xy, length)) / 2
     xy <- do.call(rbind,xy)
 
     if (NROW(xy) > 1e3) {
       # thin if fewer than 1000 pts
-      if (speedup>0.1) {
+      if (speedup > 0.1) {
 
         if (requireNamespace("fastshp", quietly = TRUE)) {
           thinned <- fastshp::thin(xy[, 1], xy[, 2],
@@ -969,10 +957,12 @@ setMethod(
 #' @param newArr  Logical indicating whether this function will create a
 #'                completely new viewport. Default \code{FALSE}.
 #'
+#' # @importFrom NetLogoRClasses extent
+#'
 #' @author Eliot McIntire
 #' @include plotting-classes.R
 #' @importFrom grid viewport vpTree vpList
-#' @importFrom raster xmin xmax ymin ymax
+#' @importFrom raster xmin xmax ymin ymax extent
 #' @rdname makeViewports
 #'
 .makeViewports <- function(sPlot, newArr = FALSE) {
@@ -990,14 +980,14 @@ setMethod(
         }
       } else {
         # for non spatial objects
-        extent(c(xmin=0, xmax=1, ymin=0, ymax=1))
+        extent(c(xmin = 0, xmax = 1, ymin = 0, ymax = 1))
       }
     }))
   }))
 
   columns <- arr@columns
   rows <- arr@rows
-  topVp <- viewport(
+  topVp <- viewport(#clip = "on",
     layout = grid.layout(
       nrow = rows * 3 + 2,
       ncol = columns * 3 + 2,
@@ -1012,19 +1002,18 @@ setMethod(
 
   # This is the biggest of the extents, and is used in .makeLayout
   #  Need to replicate it here because all plots are scaled to this
-  biggestDims <-
-    apply(do.call(rbind,sapply(1:length(sgl), function(x) {
-      lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
-        if (z == TRUE) {
-          # for spatial objects
-          apply(bbox(extents[[x]]),1,function(y)
-            diff(range(y)))
-        } else {
-          # for non spatial objects
-          c(xmin = 0, xmax = 1, ymin = 0, ymax = 1)
-        }
-      })
-    })), 2, max)
+  biggestDims <- apply(do.call(rbind, sapply(1:length(sgl), function(x) {
+    lapply(sgl[[x]][[1]]@isSpatialObjects, function(z) {
+      if (z == TRUE) {
+        # for spatial objects
+        apply(bbox(extents[[x]]),1,function(y)
+          diff(range(y)))
+      } else {
+        # for non spatial objects
+        c(xmin = 0, xmax = 1, ymin = 0, ymax = 1)
+      }
+    })
+  })), 2, max)
 
   for (extentInd in 1:length(extents)) {
     posInd <- match(nam[extentInd], names(sgl))
@@ -1068,7 +1057,7 @@ setMethod(
       addY <- extents[[extentInd]]@ymin * 0.05
     }
     # end equal scale
-    plotVps[[extentInd]] <- viewport(
+    plotVps[[nam[extentInd]]] <- viewport(clip = "on",
       name = nam[extentInd],
       layout.pos.col = lpc,
       layout.pos.row = lpr,
@@ -1077,6 +1066,17 @@ setMethod(
       yscale = c(extents[[extentInd]]@ymin - addY, extents[[extentInd]]@ymax +
                    addY)
     )
+    #if(sgl[[1]][[1]]@plotArgs$axes) {
+      plotVps[[paste0("outer",nam[extentInd])]] <- viewport(#clip = "on",
+        name = paste0("outer",nam[extentInd]),
+        layout.pos.col = lpc,
+        layout.pos.row = lpr,
+        xscale = c(extents[[extentInd]]@xmin - addX, extents[[extentInd]]@xmax +
+                     addX),
+        yscale = c(extents[[extentInd]]@ymin - addY, extents[[extentInd]]@ymax +
+                     addY)
+      )
+    #}
   }
 
   if (newArr) {
@@ -1262,8 +1262,11 @@ setMethod(
 #' \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 #' \code{\link{ggplot}}, \code{\link{dev}}
 #'
+#' # @importClassesFrom NetLogoRClasses griddedClasses
+#'
 #' @rdname Plot
 #' @export
+#'
 #' @importFrom gridBase gridFIG
 #' @importFrom ggplot2 ggplot
 #' @importFrom raster crop is.factor
@@ -1323,42 +1326,47 @@ setMethod(
 #'    ncol=4, nrow=3))
 #' # needs to have a data.frame with ID as first column - see ?raster::ratify
 #' levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
-#' Plot(ras, new=T)
+#' if (interactive()) Plot(ras, new=TRUE)
 #'
 #' # Arbitrary values for factors
 #' levels <- c(1,2,7)
 #' ras <- raster(matrix(sample(levels, size=12, replace=TRUE),
 #'    ncol=4, nrow=3))
 #' levels(ras) <- data.frame(ID=levels, Name=sample(LETTERS,3))
-#' Plot(ras, new=T)
-#' \notrun{
-#' dev(2)
-#' }
-#' Plot(landscape, new = TRUE)
 #'
-#' # Can overplot, using addTo
-#' Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
-#'
-#' # can add a plot to the plotting window
-#' Plot(caribou, new = FALSE)
-#'
-#' # Can add two maps with same name, if one is in a stack; they are given
-#' #  unique names based on object name
-#' Plot(landscape, caribou, mySim$DEM)
-#'
-#' # can mix stacks, rasters, SpatialPoint*
-#' Plot(landscape, habitatQuality2, caribou)
-#'
-#' # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
-#' Plot(landscape, caribou)
-#' Plot(habitatQuality2, new = FALSE)
+#' # SpatialPolygons
 #' Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
-#' Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
+#' Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
 #' Srs1 = Polygons(list(Sr1), "s1")
 #' Srs2 = Polygons(list(Sr2), "s2")
 #' SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
-#' Plot(SpP)
-#' Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
+#'
+#' if (interactive()) {
+#'   Plot(ras, new = TRUE)
+#'
+#'   # dev(2)
+#'
+#'   Plot(landscape, new = TRUE)
+#'
+#'   # Can overplot, using addTo
+#'   Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
+#'
+#'   # can add a plot to the plotting window
+#'   Plot(caribou, new = FALSE)
+#'
+#'   # Can add two maps with same name, if one is in a stack; they are given
+#'   #  unique names based on object name
+#'   Plot(landscape, caribou, mySim$DEM)
+#'
+#'   # can mix stacks, rasters, SpatialPoint*
+#'   Plot(landscape, habitatQuality2, caribou)
+#'
+#'   # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
+#'   Plot(landscape, caribou)
+#'   Plot(habitatQuality2, new = FALSE)
+#'   Plot(SpP)
+#'   Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
+#' }
 #'
 #' }
 #'
@@ -1395,12 +1403,14 @@ setMethod(
 
     scalls <- sys.calls()
     # Section 1 # Determine object names that were passed and layer names of each
-    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls)
+    isDoCall <- grepl("do.call", scalls) & grepl("Plot", scalls) & !grepl("test_that", scalls) # This testthat is a work around
+                        # A test_that call can be very long, with many function calls, including Plot and do.call, even if
+                        #  they don't have anything to do with each other
     dots <- list(...)
-#    if(any(grepl(pattern="col", names(dots)))) {
-#      usedCol <- dots$col
-      #cols <- dots$col
-#    }
+
+    # Determine where the objects are located; they could be .GlobalEnv, simList, or any other place.
+    #  We need to know exactly where they are, so that they can be replotted later, if needed for
+    #  rearranging
     if (any(isDoCall)) {
       whFrame <- grep(scalls, pattern = "^do.call")
       plotFrame <- sys.frame(whFrame - 1)
@@ -1458,7 +1468,7 @@ setMethod(
       stop("Not a plottable object")
     }
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
-    if (any(grepl(pattern = "col", names(nonPlotArgs)))){
+    if (any(grepl(pattern = "col", names(nonPlotArgs)))) {
       nonPlotArgs$col <- NULL
     }
 
@@ -1662,8 +1672,8 @@ setMethod(
               )
             }
 
-
             if (is(grobToPlot, "Raster")) {
+            #if (is(grobToPlot, "griddedClasses")) {
               # Rasters may be zoomed into and subsampled and have unique legend
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
                                    sGrob@plotArgs$legendRange, takeFromPlotObj,
@@ -1679,14 +1689,13 @@ setMethod(
                 updated$curr@spadesGrobList[[subPlots]][[spadesGrobCounter]]@plotArgs$legendRange <-
                   c(zMat$minz, zMat$maxz)
               }
-
             } else if (is(grobToPlot, "SpatialPoints")) {
               if (!is.null(sGrob@plotArgs$zoomExtent)) {
                 grobToPlot <- crop(grobToPlot,sGrob@plotArgs$zoomExtent)
               }
               # This handles SpatialPointsDataFrames with column "color"
-              if (any(grepl(pattern = "color", names(grobToPlot))) & is.null(cols))
-                sGrob@plotArgs$cols <- grobToPlot@data$color
+              if (any(grepl(pattern = "color", colnames(grobToPlot))) & is.null(cols))
+                sGrob@plotArgs$cols <- getColors(grobToPlot)#@data$color
 
               zMat <- list(z = grobToPlot, minz = 0, maxz = 0,
                            cols = sGrob@plotArgs$cols, real = FALSE)
@@ -1786,6 +1795,7 @@ setMethod(
                 real = zMat$real,
                 minv = zMat$minz, maxv = zMat$maxz,
                 pch = sGrob@plotArgs$pch, name = subPlots,
+                vp = vps,
                 legend = sGrob@plotArgs$legend * isBaseSubPlot *
                   isReplot |
                   sGrob@plotArgs$legend * isBaseSubPlot *
@@ -1795,8 +1805,7 @@ setMethod(
                 gpText = sGrob@plotArgs$gpText,
                 speedup = sGrob@plotArgs$speedup,
                 length = sGrob@plotArgs$length
-              ) %>%
-                append(., nonPlotArgs)
+              ) %>% append(., nonPlotArgs)
 
               do.call(.plotGrob, args = plotGrobCall)
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
@@ -1807,13 +1816,19 @@ setMethod(
                 )
               }
 
-              if (xaxis * isBaseSubPlot * isReplot |
-                  xaxis * isBaseSubPlot * isNewPlot) {
-                grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
-              }
-              if (yaxis * isBaseSubPlot * isReplot |
-                  yaxis * isBaseSubPlot * isNewPlot) {
-                grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
+              if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot) {
+                if (xaxis * isBaseSubPlot * isReplot |
+                    xaxis * isBaseSubPlot * isNewPlot) {
+                  b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                  grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
+                  a <- try(seekViewport(subPlots, recording = FALSE))
+                }
+                if (yaxis * isBaseSubPlot * isReplot |
+                    yaxis * isBaseSubPlot * isNewPlot) {
+                  b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                  grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
+                  a <- try(seekViewport(subPlots, recording = FALSE))
+                }
               }
             } #gg vs histogram vs spatialObject
         } # needPlot
@@ -1824,7 +1839,6 @@ setMethod(
     .assignSpaDES(paste0("spadesPlot", dev.cur()), updated$curr)
     return(invisible(updated$curr))
 })
-
 
 #' @rdname Plot
 #' @export
@@ -1949,7 +1963,9 @@ setMethod(
 # igraph exports %>% from magrittr
 .prepareRaster <- function(grobToPlot, zoomExtent, legendRange,
                            takeFromPlotObj, arr, speedup, newArr) {
-  if (is.null(zoomExtent)) {
+
+
+    if (is.null(zoomExtent)) {
     zoom <- extent(grobToPlot)
     npixels <- ncell(grobToPlot)
   } else {

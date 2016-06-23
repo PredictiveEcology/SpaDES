@@ -254,42 +254,47 @@ ras <- raster(matrix(sample(1:4, size=12, replace=TRUE),
    ncol=4, nrow=3))
 # needs to have a data.frame with ID as first column - see ?raster::ratify
 levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
-Plot(ras, new=T)
+if (interactive()) Plot(ras, new=TRUE)
 
 # Arbitrary values for factors
 levels <- c(1,2,7)
 ras <- raster(matrix(sample(levels, size=12, replace=TRUE),
    ncol=4, nrow=3))
 levels(ras) <- data.frame(ID=levels, Name=sample(LETTERS,3))
-Plot(ras, new=T)
-\\notrun{
-dev(2)
-}
-Plot(landscape, new = TRUE)
 
-# Can overplot, using addTo
-Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
-
-# can add a plot to the plotting window
-Plot(caribou, new = FALSE)
-
-# Can add two maps with same name, if one is in a stack; they are given
-#  unique names based on object name
-Plot(landscape, caribou, mySim$DEM)
-
-# can mix stacks, rasters, SpatialPoint*
-Plot(landscape, habitatQuality2, caribou)
-
-# can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
-Plot(landscape, caribou)
-Plot(habitatQuality2, new = FALSE)
+# SpatialPolygons
 Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)
-Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20-50)
+Sr2 = Polygon(cbind(c(5, 4, 2, 5), c(2, 3, 2, 2))*20 - 50)
 Srs1 = Polygons(list(Sr1), "s1")
 Srs2 = Polygons(list(Sr2), "s2")
 SpP = SpatialPolygons(list(Srs1, Srs2), 1:2)
-Plot(SpP)
-Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
+
+if (interactive()) {
+  Plot(ras, new = TRUE)
+
+  # dev(2)
+
+  Plot(landscape, new = TRUE)
+
+  # Can overplot, using addTo
+  Plot(caribou, addTo = "landscape$forestAge", size = 4, axes = FALSE)
+
+  # can add a plot to the plotting window
+  Plot(caribou, new = FALSE)
+
+  # Can add two maps with same name, if one is in a stack; they are given
+  #  unique names based on object name
+  Plot(landscape, caribou, mySim$DEM)
+
+  # can mix stacks, rasters, SpatialPoint*
+  Plot(landscape, habitatQuality2, caribou)
+
+  # can mix stacks, rasters, SpatialPoint*, and SpatialPolygons*
+  Plot(landscape, caribou)
+  Plot(habitatQuality2, new = FALSE)
+  Plot(SpP)
+  Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
+}
 
 }
 
@@ -303,5 +308,7 @@ Eliot McIntire
 \code{\link{clearPlot}}, \code{\link{gpar}}, \code{\link{raster}},
 \code{\link{par}}, \code{\link{SpatialPolygons}}, \code{\link{grid.polyline}},
 \code{\link{ggplot}}, \code{\link{dev}}
+
+# @importClassesFrom NetLogoRClasses griddedClasses
 }
 

@@ -3,13 +3,19 @@
 \docType{methods}
 \name{getColors}
 \alias{getColors}
+\alias{getColors,ANY-method}
 \alias{getColors,Raster-method}
+\alias{getColors,SpatialPoints-method}
 \alias{getColours}
 \title{Get colours for plotting Raster* objects.}
 \usage{
 getColors(object)
 
 \S4method{getColors}{Raster}(object)
+
+\S4method{getColors}{ANY}(object)
+
+\S4method{getColors}{SpatialPoints}(object)
 }
 \arguments{
 \item{object}{A \code{Raster*} object.}
@@ -22,6 +28,8 @@ Get colours for plotting Raster* objects.
 }
 \author{
 Alex Chubaty
+
+#@importClassesFrom NetLogoRClasses agentMatrix
 }
 \seealso{
 \code{\link{setColors<-}},

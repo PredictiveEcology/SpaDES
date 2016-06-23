@@ -327,7 +327,8 @@ setMethod(
   signature = c(module = "character", path = "character", quiet = "missing"),
   definition = function(module, path) {
     downloadData(module = module, path = path, quiet = FALSE)
-  })
+})
+
 ################################################################################
 #' Calculate the hashes of multiple files
 #'

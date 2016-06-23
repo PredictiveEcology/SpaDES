@@ -94,23 +94,26 @@ numAgents <- function(N, probInit) {
 #' @examples
 #' library(dplyr)
 #' library(raster)
-#' map <- raster(xmn=0, xmx=10, ymn=0, ymx=10, val=0, res=1)
-#' map <- gaussMap(map, scale=1, var = 4, speedup=1)
-#' pr <- probInit(map, p=(map/maxValue(map))^2)
+#' map <- raster(xmn = 0, xmx = 10, ymn = 0, ymx = 10, val = 0, res = 1)
+#' map <- gaussMap(map, scale = 1, var = 4, speedup = 1)
+#' pr <- probInit(map, p = (map/maxValue(map))^2)
 #' agents <- initiateAgents(map, 100, pr)
-#' Plot(map, new=TRUE)
-#' Plot(agents, addTo="map")
+#' if (interactive()) {
+#'   Plot(map, new = TRUE)
+#'   Plot(agents, addTo = "map")
+#' }
 #'
 #' # If producing a Raster, then the number of points produced can't be more than
 #' # the number of pixels:
-#' agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints=FALSE)
-#' Plot(agentsRas)
+#' agentsRas <- initiateAgents(map, 30, pr, asSpatialPoints = FALSE)
+#' if (interactive()) Plot(agentsRas)
 #'
 #' # Check that the agents are more often at the higher probability areas based on pr
 #' out <- data.frame(stats::na.omit(crosstab(agentsRas, map)), table(round(map[]))) %>%
 #'    dplyr::mutate(selectionRatio = Freq/Freq.1) %>%
 #'    dplyr::select(-Var1, -Var1.1) %>%
 #'    dplyr::rename(Present = Freq, Avail = Freq.1, Type = Var2)
+#' out
 #'
 setGeneric("initiateAgents",
           function(map, numAgents, probInit, asSpatialPoints = TRUE, indices) {
@@ -193,16 +196,16 @@ setMethod(
 #' @rdname SELESagentLocation
 #' @author Eliot McIntire
 agentLocation <- function(map) {
-    if (length(grep(pattern = "Raster", class(map))) == 1) {
-        map[map == 0] <- NA
-    } else if (length(grep(pattern = "SpatialPoints", class(map))) == 1) {
-        map
-    } else if (!is.na(pmatch("SpatialPolygons", class(map)))) {
-        map
-    } else {
-        stop("only raster, Spatialpoints or SpatialPolygons implemented")
-    }
-    return(map)
+  if (length(grep(pattern = "Raster", class(map))) == 1) {
+    map[map == 0] <- NA
+  } else if (length(grep(pattern = "SpatialPoints", class(map))) == 1) {
+    map
+  } else if (!is.na(pmatch("SpatialPolygons", class(map)))) {
+    map
+  } else {
+    stop("only raster, Spatialpoints or SpatialPolygons implemented")
+  }
+  return(map)
 }
 
 ##############################################################
@@ -256,9 +259,9 @@ probInit <- function(map, p = NULL, absolute = NULL) {
     p <- rep(p, length.out = ncell(map))
     probInit <- setValues(probInit, p/(sum(p)*(1 - absolute) + 1*(absolute)))
 
-  } else if (is(p,"RasterLayer")) {
+  } else if (is(p, "RasterLayer")) {
     probInit <- p/(cellStats(p, sum)*(1 - absolute) + 1*(absolute))
-  } else if (is(map,"SpatialPolygonsDataFrame")) {
+  } else if (is(map, "SpatialPolygonsDataFrame")) {
     probInit <- p/sum(p)
   } else {
     stop("Error initializing probability map: bad inputs")

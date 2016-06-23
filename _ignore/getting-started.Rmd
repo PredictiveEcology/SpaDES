@@ -63,17 +63,17 @@ landscape[["Fires"]] <- spread(landscape[["percentPine"]],
                                mapID = TRUE)
 setColors(landscape$Fires) <- brewer.pal(8, "Reds")[5:8]
 
-Plot(landscape[["Fires"]], new=TRUE)
+Plot(landscape[["Fires"]], new = TRUE)
 fireSizes <- getValues(landscape[["Fires"]])
-ggHist <- qplot(fireSizes[fireSizes>0])
+ggHist <- qplot(fireSizes[fireSizes > 0])
 Plot(ggHist)
 ```
 
 ```{r fire-overlaid, eval=TRUE, echo=TRUE, fig=TRUE}
 # Show the burning more strongly over abundant pine
 percentPine <- landscape$percentPine
-Plot(percentPine, new=TRUE)
-Plot(landscape[["Fires"]], addTo="percentPine", legend=FALSE, title=FALSE)
+Plot(percentPine, new = TRUE)
+Plot(landscape[["Fires"]], addTo = "percentPine", legend = FALSE, title = FALSE)
 ```
 
 We can see that the fires tend to be in the Pines because we made it that way, using an arbitrary weighting with pine abundance:
@@ -93,10 +93,10 @@ Sure enough, there are more fires as the abundance of pine goes up, as seen by t
 **Impact some of the forest**
 
 ```{r fire-impacts-maps, eval=TRUE, echo=TRUE, fig=TRUE}
-landscape[["forestAge"]][landscape[["Fires"]]>0] <- 0
-landscape[["habitatQuality"]][landscape[["Fires"]]>0] <- 0.1
-landscape[["percentPine"]][landscape[["Fires"]]>0] <- 0
-Plot(landscape, new=TRUE)
+landscape[["forestAge"]][landscape[["Fires"]] > 0] <- 0
+landscape[["habitatQuality"]][landscape[["Fires"]] > 0] <- 0.1
+landscape[["percentPine"]][landscape[["Fires"]] > 0] <- 0
+Plot(landscape, new = TRUE)
 ```
 
 To model point agents (mobile *e.g.*, animals, or non-mobile, *e.g.*, plants), use a `SpatialPointsDataFrame` containing additional columns for storing agents' previous `n` positions.

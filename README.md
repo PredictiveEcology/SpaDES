@@ -17,10 +17,17 @@ Building packages from source requires the appropriate development libraries for
 The suggested package `fastshp` can be installed with:
 
 ```r
-install.packages("fastshp", repos="http://rforge.net", type="source")
+install.packages("fastshp", repos = "http://rforge.net", type = "source")
 ```
 
-### Current stable release [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=master) [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](https://cran.r-project.org/package=SpaDES) [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](https://cran.r-project.org/package=SpaDES) [![DOI](https://zenodo.org/badge/17892/PredictiveEcology/SpaDES.svg)](https://zenodo.org/badge/latestdoi/17892/PredictiveEcology/SpaDES)
+### Current stable release
+
+[![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=master)](https://travis-ci.org/PredictiveEcology/SpaDES)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/PredictiveEcology/SpaDES?branch=master&svg=true)](https://ci.appveyor.com/project/achubaty/SpaDES)
+[![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES/badge.svg?branch=master)](https://coveralls.io/github/PredictiveEcology/SpaDES?branch=master)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/SpaDES)](https://cran.r-project.org/package=SpaDES)
+[![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/SpaDES)](https://cran.r-project.org/package=SpaDES)
+[![DOI](https://zenodo.org/badge/17892/PredictiveEcology/SpaDES.svg)](https://zenodo.org/badge/latestdoi/17892/PredictiveEcology/SpaDES)
 
 **Install from CRAN:**
 
@@ -36,14 +43,18 @@ library("devtools")
 install_github("PredictiveEcology/SpaDES") # stable
 ```
 
-### Development version (unstable) [![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES) [![Coverage Status](https://coveralls.io/repos/PredictiveEcology/SpaDES/badge.svg?branch=development)](https://coveralls.io/r/PredictiveEcology/SpaDES?branch=development)
+### Development version (unstable)
+
+[![Build Status](https://travis-ci.org/PredictiveEcology/SpaDES.svg?branch=development)](https://travis-ci.org/PredictiveEcology/SpaDES)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/PredictiveEcology/SpaDES?branch=development&svg=true)](https://ci.appveyor.com/project/achubaty/SpaDES)
+[![Coverage Status](https://coveralls.io/repos/github/PredictiveEcology/SpaDES/badge.svg?branch=development)](https://coveralls.io/github/PredictiveEcology/SpaDES?branch=development)
 
 **Install from GitHub:**
 
 ```r
 #install.packages("devtools")
 library("devtools")
-install_github("PredictiveEcology/SpaDES", ref="development") # unstable
+install_github("PredictiveEcology/SpaDES", ref = "development") # unstable
 ```
 
 ## Getting started
@@ -66,4 +77,4 @@ Contact us via the package GitHub site: [https://github.com/PredictiveEcology/Sp
 
 -----
 
-Copyright (C) 2015 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
+Copyright (C) 2016 Her Majesty the Queen in Right of Canada, as represented by the Minister of Natural Resources Canada
