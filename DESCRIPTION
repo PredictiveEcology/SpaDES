@@ -36,6 +36,7 @@ Suggests:
     png,
     rgdal,
     rmarkdown,
+    snow,
     tcltk,
     testthat,
     tkrplot
@@ -67,7 +68,6 @@ Imports:
     raster,
     RColorBrewer,
     shiny,
-    snow,
     stats,
     sp,
     stringi,
