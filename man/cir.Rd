@@ -115,8 +115,8 @@ library(sp)
 Ras <- raster(extent(0, 15, 0, 15), res = 1)
 Ras[] <- 0
 middleCircle <- cir(Ras)
-Ras[middleCircle[,"indices"]] <- 1
-circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
+Ras[middleCircle[, "indices"]] <- 1
+circlePoints <- SpatialPoints(middleCircle[,c("x", "y")])
 if (interactive()) {
   Plot(Ras, new=TRUE)
   Plot(circlePoints, addTo = "Ras")
@@ -158,7 +158,7 @@ cirs2 <- rings(hab, loci, maxRadius = radius, minRadius=radius-1, returnIndices 
 # Plot both
 ras1 <- raster(hab)
 ras1[] <- 0
-ras1[cirs[,"indices"]] <- cirs[,"id"]
+ras1[cirs[, "indices"]] <- cirs[, "id"]
 
 ras2 <- raster(hab)
 ras2[] <- 0
