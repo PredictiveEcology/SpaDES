@@ -209,7 +209,7 @@ adj.raw <- function(x = NULL, cells, directions = 8, sort = FALSE, pairs = TRUE,
               ((adj[, "from"] %% numCol + adj[, "to"] %% numCol) == 1))# | #right & left edge cells, with neighbours wrapped
           , keepCols, drop = FALSE]
         if (match.adjacent) {
-          adj <- unique(adj[,"to"])
+          adj <- unique(adj[, "to"])
         }
         return(adj)
       }
@@ -405,8 +405,8 @@ adj <- compiler::cmpfun(adj.raw)
 #' Ras <- raster(extent(0, 15, 0, 15), res = 1)
 #' Ras[] <- 0
 #' middleCircle <- cir(Ras)
-#' Ras[middleCircle[,"indices"]] <- 1
-#' circlePoints <- SpatialPoints(middleCircle[,c("x","y")])
+#' Ras[middleCircle[, "indices"]] <- 1
+#' circlePoints <- SpatialPoints(middleCircle[,c("x", "y")])
 #' if (interactive()) {
 #'   Plot(Ras, new=TRUE)
 #'   Plot(circlePoints, addTo = "Ras")
@@ -448,7 +448,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' # Plot both
 #' ras1 <- raster(hab)
 #' ras1[] <- 0
-#' ras1[cirs[,"indices"]] <- cirs[,"id"]
+#' ras1[cirs[, "indices"]] <- cirs[, "id"]
 #'
 #' ras2 <- raster(hab)
 #' ras2[] <- 0
@@ -542,7 +542,7 @@ setMethod(
                         returnAngles, returnIndices, closest, simplify) {
   ### adapted from createCircle of the package PlotRegionHighlighter
 
-  if (!all(c("x","y") %in% colnames(coords) )) {
+  if (!all(c("x", "y") %in% colnames(coords) )) {
     stop("coords must have columns named x and y")
   }
 
@@ -620,8 +620,8 @@ setMethod(
         id <- 1
       }
     } else {
-      id <- rep(coords[,"id"], times=nAngles)
-      #id <- coords[,"id"]
+      id <- rep(coords[, "id"], times = nAngles)
+      #id <- coords[, "id"]
     }
 
     # create vector of radius for the number of points that will be done for each individual circle
@@ -663,7 +663,7 @@ setMethod(
   }
   rm(id, indices, rads, angles, x, y)
 
-  if (includeBehavior=="excludePixels" | returnDistances | closest) { # only need to calculate distances
+  if (includeBehavior == "excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
     maxRad <- maxRadius[NROW(maxRadius)]
     minRad <- maxRadius[1]
@@ -671,60 +671,62 @@ setMethod(
                           #   distances. Don't waste resources on calculating all distances
       MAT2 <- MAT
     } else {
-      MAT2 <- MAT[MAT[,"rads"]>=(maxRad-0.71) | MAT[,"rads"]<=(minRad+0.71),] # 0.71 is the sqrt of 1, so keep
+      MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),] # 0.71 is the sqrt of 1, so keep
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
-    xyC <- xyFromCell(landscape, MAT2[,"indices"]);
-    a <- cbind(id=MAT2[,"id"], rads=MAT2[,"rads"], angles=MAT2[,"angles"], x=xyC[,"x"],
-               y = xyC[,"y"], to=MAT2[,"indices"])
+    xyC <- xyFromCell(landscape, MAT2[, "indices"]);
+    a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
+               x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
 
     b <- cbind(coords, id=1:NROW(coords))
 
-    colnames(b)[1:2] <- c("x","y")
-    d <- distanceFromEachPoint(b,a)
+    colnames(b)[1:2] <- c("x", "y")
+    d <- distanceFromEachPoint(b, a)
 
-    if (closest){
-      d <- d[order(d[,"rads"]),]
-      dups <- duplicated(d[,"to"])
+    if (closest) {
+      d <- d[order(d[, "rads"]),]
+      dups <- duplicated(d[, "to"])
       d <- d[!dups,]
 
     }
 
-    if (includeBehavior=="excludePixels")
-      d <- d[d[, "dists"] %<=% maxRad & d[, "dists"] %>=% minRad,,drop=FALSE]
+    if (includeBehavior == "excludePixels")
+      d <- d[d[, "dists"] %<=% maxRad & d[, "dists"] %>=% minRad, , drop = FALSE]
 
-    colnames(d)[which(colnames(d)=="to")] <- "indices"
+    colnames(d)[which(colnames(d) == "to")] <- "indices"
     if (!returnDistances)
-      d <- d[,-which(colnames(d)=="dists")]
+      d <- d[, -which(colnames(d) == "dists")]
 
     if (!returnAngles) {
-      d <- d[,-which(colnames(d)=="angles")]
-      MAT <- MAT[,-which(colnames(MAT)=="angles")]
-    }
-    if (returnDistances) {
-      MAT <- d[,c("id","indices","dists", "x","y"),drop=FALSE]
-    } else if (closest) {
-      MAT <- d[,c("id","indices","x","y"),drop=FALSE]
-    } else {
-      MATinterior <- MAT[MAT[,"rads"]<(maxRad-0.71) & MAT[,"rads"]>(minRad+0.71),,drop=FALSE]
-      MAT <- rbind(d[,colnames(MATinterior),drop=FALSE], MATinterior)
-      MAT <- MAT[,-which(colnames(MAT)=="rads"),drop=FALSE]
+      d <- d[, -which(colnames(d) == "angles")]
+      MAT <- MAT[, -which(colnames(MAT) == "angles")]
     }
 
+    if (returnDistances) {
+      wh <- na.omit(match("rads", colnames(d)))
+      if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE] #c("id", "indices", "dists", "x", "y")
+    } else if (closest) {
+      wh <- na.omit(match(c("rads", "dists"), colnames(d)))
+      if (length(wh) > 0) MAT <- d[, -wh, drop = FALSE] #c("id", "indices", "x", "y")
+    } else {
+      MATinterior <- MAT[MAT[, "rads"] < (maxRad - 0.71) & MAT[, "rads"] > (minRad + 0.71), , drop = FALSE]
+      MAT <- rbind(d[, colnames(MATinterior), drop = FALSE], MATinterior)
+      MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
+    }
   } else {
     if (!returnAngles) {
-      MAT <- MAT[,-which(colnames(MAT)=="angles")]
+      MAT <- MAT[, -which(colnames(MAT) == "angles")]
     }
-    MAT <- MAT[,-which(colnames(MAT)=="rads"),drop=FALSE]
+    MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
   }
   if (!returnIndices) {
     ras <- raster(landscape)
     ras[] <- 0
     if (!allowOverlap) {
       if (!returnDistances) {
-        ras[MAT[,"indices"]] <- MAT[,"id"]
+        ras[MAT[, "indices"]] <- MAT[, "id"]
       } else {
-        ras[MAT[,"indices"]] <- MAT[,"dists"]
+        ras[MAT[, "indices"]] <- MAT[, "dists"]
       }
     } else {
       MAT <- data.table(MAT, key = "indices")
