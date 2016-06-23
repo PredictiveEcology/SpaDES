@@ -197,7 +197,7 @@ setMethod(
       lastOne <- order(isInRepo$createdDate, decreasing = TRUE)[1]
       if (is.null(notOlderThan) || (notOlderThan < lastEntry)) {
         #if(!is.null(tmpl$replicate))
-        #  message(paste("replicate",tmpl$replicate,"was cached previously; returning cached value"))
+        #  warning(paste("replicate",tmpl$replicate,"was cached previously; returning cached value"))
         out <- loadFromLocalRepo(isInRepo$artifact[lastOne],
                                  repoDir = cacheRepo, value = TRUE)
         #out <- as(out, "simList")
