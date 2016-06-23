@@ -20,10 +20,12 @@ y1 <- splitRaster(r, nx, ny, c(10, 10), path = file.path(tmpdir, "y1"))
 y2 <- splitRaster(r, nx, ny, c(0.5, 0.5), path = file.path(tmpdir, "y2"))
 
 # parallel cropping
-n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
-beginCluster(n)
-y3 <- splitRaster(r, nx, ny, c(0.7, 0.7), path = file.path(tmpdir, "y3"))
-endCluster()
+if (interactive()) {
+  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+  beginCluster(n)
+  y3 <- splitRaster(r, nx, ny, c(0.7, 0.7), path = file.path(tmpdir, "y3"))
+  endCluster()
+}
 
 # the original raster:
 if (interactive()) plot(r) # may require a call to `dev()` if using RStudio
