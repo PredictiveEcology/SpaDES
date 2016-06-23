@@ -701,10 +701,15 @@ setMethod(
       d <- d[,-which(colnames(d)=="angles")]
       MAT <- MAT[,-which(colnames(MAT)=="angles")]
     }
+
     if (returnDistances) {
-      MAT <- d[,c("id","indices","dists", "x","y"),drop=FALSE]
+      wh <- na.omit(match("rads", colnames(d)))
+      if(length(wh)>0)
+        MAT <- d[,-wh,drop=FALSE] #c("id","indices","dists", "x","y")
     } else if (closest) {
-      MAT <- d[,c("id","indices","x","y"),drop=FALSE]
+      wh <- na.omit(match(c("rads","dists"), colnames(d)))
+      if(length(wh)>0)
+        MAT <- d[,-wh,drop=FALSE] #c("id","indices","x","y")
     } else {
       MATinterior <- MAT[MAT[,"rads"]<(maxRad-0.71) & MAT[,"rads"]>(minRad+0.71),,drop=FALSE]
       MAT <- rbind(d[,colnames(MATinterior),drop=FALSE], MATinterior)
