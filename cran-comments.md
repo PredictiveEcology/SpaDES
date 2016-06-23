@@ -19,8 +19,8 @@ We have also made several other improvements and bug fixes (see NEWS).
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-05-31 r70688)
-* Windows              (appveyor), R 3.4.0 (2016-06-21 r70813)
-* Windows           (win-builder), R 3.4.0 (2016-05-31 r70688)
+* Windows              (appveyor), R 3.4.0 (2016-06-22 r70818)
+* Windows           (win-builder), R 3.4.0 (2016-06-22 r70818)
 
 ## R CMD check results
 
