@@ -615,17 +615,16 @@ setMethod(
         sim_[[replaceObjName]] <- objects[[factorialExp[ind, "object"]]]
       }
 
-      if (list(...)$cache) {
-
+      dots <- list(...)
+      if (is.null(dots$cache)) dots$cache <- FALSE
+      if (dots$cache) {
         if (is(try(archivist::showLocalRepo(paths(sim_)$cachePath), silent = TRUE), "try-error"))
           archivist::createLocalRepo(paths(sim_)$cachePath)
-        sim3 <- (SpaDES::cache(paths(sim_)$cachePath, spades, sim = sim_,
-                               progress = NA, debug = FALSE,
-                               notOlderThan = notOlderThan, replicate = ind, ...))
+        sim3 <- (SpaDES::cache(cacheRepo = paths(sim_)$cachePath, spades, sim = sim_,
+                               progress = NA, debug = FALSE, replicate = ind, ...))
       } else {
         sim3 <- spades(sim_, ...)
       }
-
       return(list(sim3, experimentDF))
     }
 

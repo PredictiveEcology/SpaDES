@@ -1030,10 +1030,10 @@ setMethod("spades",
                 archivist::createLocalRepo(paths(sim)$cachePath)
 
               return(SpaDES::cache(paths(sim)$cachePath, spades, sim = sim,
-                            debug = debug, progress = progress,
-                          .plotInitialTime = .plotInitialTime ,
-                          .saveInitialTime = .saveInitialTime,
-                          notOlderThan = notOlderThan))
+                                   debug = debug, progress = progress,
+                                   .plotInitialTime = .plotInitialTime,
+                                   .saveInitialTime = .saveInitialTime,
+                                   notOlderThan = notOlderThan, ...))
             } else {
               return(spades(sim, debug = debug, progress = progress,
                             .plotInitialTime = .plotInitialTime ,

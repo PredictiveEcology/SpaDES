@@ -19,7 +19,7 @@ test_that("Plot 1 is not error-free", {
   names(habitatQuality87654) <- "habitatQuality87654"
   landscape87654 <- raster::stack(DEM87654, habitatQuality87654)
   caribou87654 <- sp::SpatialPoints(
-    coords = cbind(x = stats::run if (1e1, 0, 10), y = stats::run if (1e1, 0, 10))
+    coords = cbind(x = stats::runif(1e1, 0, 10), y = stats::runif(1e1, 0, 10))
   )
 
   # If any rearrangements are required, Plot searches for objects in Global Env
@@ -142,7 +142,7 @@ test_that("Plot 1 is not error-free", {
   expect_silent(Plot(DEM87654, visualSqueeze = 0.2, new = TRUE))
   # test speedup
   caribou87 <- sp::SpatialPoints(
-    coords = cbind(x = stats::run if (1.1e3, 0, 10), y = stats::run if (1e1, 0, 10))
+    coords = cbind(x = stats::runif(1.1e3, 0, 10), y = stats::runif(1e1, 0, 10))
   )
    if (suppressWarnings(require(fastshp))) {
     expect_silent(Plot(caribou87, speedup = 10, new = TRUE))
