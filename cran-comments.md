@@ -1,6 +1,6 @@
 ## Updated release
 
-This is a maintenance release to fix a bug associated with the forthcoming `dplyr` update.
+This is a maintenance release to fix a bug associated with the recent `dplyr` update.
 We have also made several other improvements and bug fixes (see NEWS).
 
 ## Test environments
