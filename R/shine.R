@@ -57,7 +57,7 @@
 #' # if the user wants to see the events go by, which can help with debugging:
 #' shine(mySim, debug=TRUE)
 #' }
-setGeneric("shine", function(sim, title="SpaDES App", debug=FALSE, ...) {
+setGeneric("shine", function(sim, title = "SpaDES App", debug = FALSE, ...) {
   standardGeneric("shine")
 })
 
@@ -65,7 +65,7 @@ setGeneric("shine", function(sim, title="SpaDES App", debug=FALSE, ...) {
 #' @rdname shine
 setMethod(
   "shine",
-  signature= signature(sim = "simList"),
+  signature = signature(sim = "simList"),
   definition = function(sim, title, debug, ...) {
 
   # Keep a copy of input simList so Reset button works
@@ -91,7 +91,7 @@ setMethod(
         uiOutput("moduleTabs")
       ),
       mainPanel(
-        tabsetPanel(id="topTabsetPanel",
+        tabsetPanel(id = "topTabsetPanel",
           tabPanel("Preview", plotOutput("spadesPlot", height = "800px")),
           tabPanel("Module diagram", uiOutput("moduleDiagramUI")),
           tabPanel("Object diagram", uiOutput("objectDiagramUI")),
@@ -99,7 +99,6 @@ setMethod(
           tabPanel("Object browser", uiOutput("objectBrowserUI")),
           tabPanel("Inputs loaded", uiOutput("inputObjectsUI"))
         )
-
       )
     )
   )
@@ -148,8 +147,8 @@ setMethod(
                 min = params(sim)[[kLocal]][[i]]*0.5,
                 max = params(sim)[[kLocal]][[i]]*2,
                 value = params(sim)[[kLocal]][[i]],
-                step =(params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
-                sep="")
+                step = (params(sim)[[kLocal]][[i]]*2 - params(sim)[[kLocal]][[i]]*0.5)/10,
+                sep = "")
             } else if (is.logical(Params[[i]])) {
               checkboxInput(
                 inputId = paste0(kLocal, "$", i),
@@ -266,7 +265,7 @@ setMethod(
           } else {
             objectDiagram(sim)
           }
-      })
+    })
 
     output$objectDiagramUI <- renderUI({
       if (v$time <= start(sim)) {
