@@ -46,6 +46,7 @@ setMethod("dyears",
 })
 
 yearsInSeconds <- as.numeric(dyears(1)) # 31557600L
+attributes(yearsInSeconds)$unit = "second"
 
 
 #' @inheritParams dyears
@@ -133,10 +134,16 @@ setMethod("dNA",
             duration(0)
 })
 
+secondsInSeconds <- as.numeric(1)
 hoursInSeconds <- as.numeric(dhour(1))    # 3600L
 daysInSeconds <- as.numeric(dday(1))      # 86400L
 weeksInSeconds <- as.numeric(dweek(1))    # 606876.92307692
 monthsInSeconds <- as.numeric(dmonth(1))  # 2629800L
+attributes(secondsInSeconds)$unit = "second"
+attributes(hoursInSeconds)$unit = "second"
+attributes(daysInSeconds)$unit = "second"
+attributes(weeksInSeconds)$unit = "second"
+attributes(monthsInSeconds)$unit = "second"
 
 ################################################################################
 #' Convert time units
@@ -183,8 +190,8 @@ setMethod(
 
     if (!is.na(unit)) {
       out <- switch(unit,
-                    second = 1,
-                    seconds = 1,
+                    second = secondsInSeconds,
+                    seconds = secondsInSeconds,
                     hour = hoursInSeconds,
                     hours = hoursInSeconds,
                     day = daysInSeconds,
@@ -207,7 +214,7 @@ setMethod(
         out <- as.numeric(get(paste0("d", unit), envir = envir)(1))
       }
     }
-    attributes(out)$unit = "second"
+    #attributes(out)$unit = "second"
     return(out)
 })
 
@@ -275,7 +282,12 @@ setMethod(
 
         # if timeUnit is same as unit, skip calculations
         if (!stri_detect_fixed(unit, pattern = timeUnit)) {
-          time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
+          if(timeUnit=="second")
+            time <- time * 1 / inSeconds(unit, envir)
+          else if(unit=="second")
+            time <- time * inSeconds(timeUnit, envir) / 1
+          else 
+            time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
           attr(time, "unit") <- unit
         }
       } else { # if timeunit is NA
