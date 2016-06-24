@@ -31,12 +31,12 @@ setGeneric(".emptyEventList", function(eventTime, moduleName, eventType, eventPr
 
 #' @rdname emptyEventList
 #' @importFrom data.table data.table
-.emptyEventListDT <- data.table(eventTime = numeric(0L), moduleName = character(0L),
+.emptyEventListDT <- data.table(eventTime = integer(0L), moduleName = character(0L),
                                 eventType = character(0L), eventPriority = numeric(0L))
 
 #' @rdname emptyEventList
 #' @importFrom data.table data.table
-.singleEventListDT <- data.table(eventTime = numeric(1L), moduleName = character(1L),
+.singleEventListDT <- data.table(eventTime = integer(1L), moduleName = character(1L),
                                  eventType = character(1L), eventPriority = numeric(1L))
 
 #' @rdname emptyEventList
@@ -48,7 +48,7 @@ setMethod(
   definition = function(eventTime, moduleName, eventType, eventPriority) {
     # This is faster than direct call to new data.table
     eeldt <- data.table::copy(.singleEventListDT)
-    data.table::set(eeldt, , "eventTime", eventTime)
+    data.table::set(eeldt, , "eventTime", as.integer(eventTime))
     data.table::set(eeldt, , "moduleName", moduleName)
     data.table::set(eeldt, , "eventType", eventType)
     data.table::set(eeldt, , "eventPriority", eventPriority)
