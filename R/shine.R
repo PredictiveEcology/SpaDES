@@ -314,7 +314,7 @@ setMethod(
     })
 
     observeEvent(input$simTimes, {
-      time(sim, timeunit(sim)) <<- input$simTimes
+      time(sim) <<- input$simTimes
     })
 
     # the time slider must update if stepping through with buttons
