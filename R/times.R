@@ -268,7 +268,10 @@ setMethod(
     if (is.na(pmatch("second", unit)) | is.na(pmatch("second", timeUnit))) {
       if (!is.na(timeUnit) & !is.na(unit)) {
         # confirm that units are useable by SpaDES
-        checkTimeunit(c(timeUnit, unit), envir)
+        #  This has been commented out, because it is too slow to check every time
+        #  This should be checked at defineMetadata stage, rather than every
+        #  time time(sim) is used.
+        #checkTimeunit(c(timeUnit, unit), envir)
 
         # if timeUnit is same as unit, skip calculations
         if (!stri_detect_fixed(unit, pattern = timeUnit)) {
