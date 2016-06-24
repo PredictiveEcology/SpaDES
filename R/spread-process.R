@@ -708,7 +708,7 @@ setMethod(
         d <- rbind(spreads, potentials)
 
         #faster alternative to tapply, but cumbersome
-        ids <- unique(d[,"id"])
+        ids <- as.integer(unique(d[,"id"]))
         d <- do.call(rbind, lapply(ids, function(id) {
           cbind(d[d[, "id"] == id, , drop = FALSE],
                 duplicated = duplicated(d[d[, "id"] == id,"indices"]))
