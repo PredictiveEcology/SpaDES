@@ -15,6 +15,7 @@ version 1.1.5
 * improve `splitRaster` (#276, #284)
 * new function `mergeRaster` (#282, #283)
 * changed and performance boost to `randomPolygons` (uses `spread` internally now)
+* minor performance enhancements
 * many more and improved unit tests
 
 version 1.1.4
