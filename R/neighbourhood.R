@@ -617,10 +617,10 @@ setMethod(
       if (moreThanOne) {
         id <- rep.int(seqNumInd, times = nAngles)
       } else {
-        id <- 1
+        id <- 1L
       }
     } else {
-      id <- rep(coords[, "id"], times = nAngles)
+      id <- as.integer(rep(coords[, "id"], times = nAngles))
       #id <- coords[, "id"]
     }
 

@@ -685,7 +685,7 @@ setMethod(
         current(sim) <- .emptyEventListNA
       } else {
         # update current simulated time and event
-        time(sim) <- end(sim) + 1
+        time(sim) <- end(sim, "seconds") + 1
       }
     }
     return(invisible(sim))

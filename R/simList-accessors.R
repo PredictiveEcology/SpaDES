@@ -2119,6 +2119,11 @@ setReplaceMethod(
 #' This is different from \code{timeunit} because it is not necessarily
 #' associated with a \code{spades} call.
 #'
+#' In many cases, the "simpler" use of each of these functions may be slower
+#' computationally. For instance, it is much faster to use \code{time(sim, "year")}
+#' than \code{time(sim)}. So as a module developer, it is advantageous to
+#' write out the longer one, minimizing the looking up that R must do.
+#'
 #' @include simList-class.R
 #' @export
 #' @docType methods
