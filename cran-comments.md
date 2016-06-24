@@ -19,8 +19,8 @@ We have also made several other improvements and bug fixes (see NEWS).
 
 ### Development R version
 * Debian:testing (rocker/r-devel), R 3.4.0 (2016-05-31 r70688)
-* Windows              (appveyor), R 3.4.0 (2016-06-22 r70818)
-* Windows           (win-builder), R 3.4.0 (2016-06-22 r70818)
+* Windows              (appveyor), R 3.4.0 (2016-06-23 r70828)
+* Windows           (win-builder), R 3.4.0 (2016-06-24 r70828)
 
 ## R CMD check results
 
@@ -47,7 +47,7 @@ There were 2 NOTEs:
 
     c. We suggest the `snow` package can be use for creating clusters on Linux (required when using `raster::beginCluster()`).
     
-            Uses the superceded package: 'snow'
+            Uses the superseded package: 'snow'
     
 2. As noted above, we provide instructions for the user to install the suggested `fastshp` package.
 
