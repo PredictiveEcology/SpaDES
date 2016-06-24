@@ -30,13 +30,31 @@ setGeneric(".emptyEventList", function(eventTime, moduleName, eventType, eventPr
 })
 
 #' @rdname emptyEventList
+#' @importFrom data.table data.table
+.emptyEventListDT <- data.table(eventTime = numeric(0L), moduleName = character(0L),
+                                eventType = character(0L), eventPriority = numeric(0L))
+
+#' @rdname emptyEventList
+#' @importFrom data.table data.table
+.singleEventListDT <- data.table(eventTime = numeric(1L), moduleName = character(1L),
+                                 eventType = character(1L), eventPriority = numeric(1L))
+
+#' @rdname emptyEventList
+#' @importFrom data.table set copy
 setMethod(
   ".emptyEventList",
   signature(eventTime = "numeric", moduleName = "character",
             eventType = "character", eventPriority = "numeric"),
   definition = function(eventTime, moduleName, eventType, eventPriority) {
-    data.table(eventTime = eventTime, moduleName = moduleName,
-               eventType = eventType, eventPriority = eventPriority)
+    # This is faster than direct call to new data.table
+    eeldt <- data.table::copy(.singleEventListDT)
+    data.table::set(eeldt, , "eventTime", eventTime)
+    data.table::set(eeldt, , "moduleName", moduleName)
+    data.table::set(eeldt, , "eventType", eventType)
+    data.table::set(eeldt, , "eventPriority", eventPriority)
+    # data.table(eventTime = eventTime, moduleName = moduleName,
+    #           eventType = eventType, eventPriority = eventPriority)
+    eeldt
     # don't set key because it is set later when used
 })
 
@@ -46,9 +64,10 @@ setMethod(
   signature(eventTime = "missing", moduleName = "missing",
             eventType = "missing", eventPriority = "missing"),
   definition = function() {
-    data.table(eventTime = numeric(0L), moduleName = character(0L),
-               eventType = character(0L), eventPriority = numeric(0L))
-    # don't set key because it is set later when used
+    #browser()
+    data.table::copy(.emptyEventListDT)
+    #data.table(eventTime = numeric(0L), moduleName = character(0L),
+    #           eventType = character(0L), eventPriority = numeric(0L))
 })
 
 #' @rdname emptyEventList
@@ -59,6 +78,7 @@ setMethod(
 
 #' @rdname emptyEventList
 .emptyEventListNA <- .emptyEventList(NA_integer_, NA_character_, NA_character_, NA_integer_)
+
 
 ################################################################################
 #' Default (empty) metadata
