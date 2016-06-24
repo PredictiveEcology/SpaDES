@@ -69,7 +69,7 @@ doEvent.checkpoint = function(sim, eventTime, eventType, debug = FALSE) {
       .checkpointSave(sim, checkpointFile)
 
       # schedule the next save
-      timeNextSave <- time(sim) + checkpointInterval(sim)
+      timeNextSave <- time(sim, timeunit(sim)) + checkpointInterval(sim)
       sim <- scheduleEvent(sim, timeNextSave, "checkpoint", "save", .last())
     }
   } else {

@@ -171,9 +171,9 @@ setMethod(
             params(sim)[[m]][[i]] <- input[[paste0(m, "$", i)]]
         }
       }
-      end(sim) <- pmin(endTime, time(sim) + 1)
+      end(sim) <- pmin(endTime, time(sim, timeunit(sim)) + 1)
       if (is.null(v$stop)) {v$stop = "go"}
-      if ((time(sim) < endTime) & (v$stop != "stop")) invalidateLater(0)
+      if ((time(sim, timeunit(sim)) < endTime) & (v$stop != "stop")) invalidateLater(0)
       sim <<- spades(sim, debug = debug) # Run spades
     }
 
@@ -188,7 +188,7 @@ setMethod(
           }
         }
       }
-      end(sim) <- time(sim) + input$Steps
+      end(sim) <- time(sim, timeunit(sim)) + input$Steps
       sim <<- spades(sim, debug = debug)
     })
 
@@ -202,7 +202,7 @@ setMethod(
       }
     })
 
-    v <- reactiveValues(data = NULL, time = time(sim), end = end(sim), sliderUsed = FALSE)
+    v <- reactiveValues(data = NULL, time = time(sim, timeunit(sim)), end = end(sim, timeunit(sim)), sliderUsed = FALSE)
 
     # Button clicks
     observeEvent(input$oneTimestepSpaDESButton, {
@@ -244,8 +244,8 @@ setMethod(
       } else if (v$data == "reset") {
         simReset()
       }
-      v$time <- time(sim)
-      if (time(sim) >= endTime) {
+      v$time <- time(sim, timeunit(sim))
+      if (time(sim, timeunit(sim)) >= endTime) {
         v$end <- end(sim)
       }
       v$sliderUsed <- FALSE
@@ -315,7 +315,7 @@ setMethod(
     })
 
     observeEvent(input$simTimes, {
-      time(sim) <<- input$simTimes
+      time(sim, timeunit(sim)) <<- input$simTimes
     })
 
     # the time slider must update if stepping through with buttons

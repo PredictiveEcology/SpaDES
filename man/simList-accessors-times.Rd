@@ -150,6 +150,11 @@ can be placed anywhere in the search path or in a module.
 modules used in a simulation.
 This is different from \code{timeunit} because it is not necessarily
 associated with a \code{spades} call.
+
+In many cases, the "simpler" use of each of these functions may be slower
+computationally. For instance, it is much faster to use \code{time(sim, "year")}
+than \code{time(sim)}. So as a module developer, it is advantageous to
+write out the longer one, minimizing the looking up that R must do.
 }
 \author{
 Alex Chubaty and Eliot McIntire

@@ -6,12 +6,18 @@
 \alias{.emptyEventList,missing,missing,missing,missing-method}
 \alias{.emptyEventList,numeric,character,character,numeric-method}
 \alias{.emptyEventListCols}
+\alias{.emptyEventListDT}
 \alias{.emptyEventListNA}
 \alias{.emptyEventListObj}
+\alias{.singleEventListDT}
 \title{Blank (template) event list}
-\format{An object of class \code{character} of length 4.}
+\format{An object of class \code{data.table} (inherits from \code{data.frame}) with 0 rows and 4 columns.}
 \usage{
 .emptyEventList(eventTime, moduleName, eventType, eventPriority)
+
+.emptyEventListDT
+
+.singleEventListDT
 
 \S4method{.emptyEventList}{numeric,character,character,numeric}(eventTime,
   moduleName, eventType, eventPriority)
