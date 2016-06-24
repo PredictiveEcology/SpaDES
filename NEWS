@@ -1,6 +1,6 @@
 Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
-version 1.1.5
+version 1.2.0
 =============
 * fix bug associated with forthcoming `dplyr` update
 * remove `gtools` and `secr` from Imports
