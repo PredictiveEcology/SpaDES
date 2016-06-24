@@ -75,6 +75,6 @@ notifications:
    to:
      - alex.chubaty@gmail.com
      - eliot.mcintire@canada.ca
-   subject: 'r-appveyor build {{status}}'
+   subject: 'SpaDES: r-appveyor build {{status}}'
    message: "https://ci.appveyor.com/project/achubaty/SpaDES"
    on_build_status_changed: true
