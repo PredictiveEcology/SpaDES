@@ -1360,12 +1360,9 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
                                   distFn = function(x) 1/(1+x), ...) {
   matched <- FALSE
-  #nrowFrom <- NROW(from)
   if ("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
-  } #else if (nrowFrom>1) {
-    #ids <- seq_len(nrowFrom)
-  #}
+  }
   if ("id" %in% colnames(to)) {
     matched <- TRUE
   }
@@ -1380,6 +1377,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
     land <- "landscape" %in% forms
     listArgs <- if(land) list(landscape = landscape[]) else NULL
+    listArgs <- if(length(list(...))>0) append(listArgs, list(...))
     xDist <- "x" %in% forms
   }
   if (!matched) {
@@ -1388,8 +1386,6 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         out <- lapply(seq_len(NROW(from)), function(k) {
           out <- .pointDistance(from = from[k, , drop = FALSE], to = to, angles = angles,
                                 maxDistance = maxDistance)
-          #if(returnID)
-          #  cbind(out, id=ids[k])
         })
         out <- do.call(rbind, out)
       } else {
@@ -1409,9 +1405,6 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
           }
 
           names(listArgs) <- forms
-          #browser(expr=k==62)
-          #browser(expr=any(is.na(cumVal)))
-          #distFn <- function(landscape, from, k, x) landscape[cellFromXY(landscape, from[k,])] / (1 + x)
           cumVal[indices] <- do.call(cumulativeFn, args =
                                        list(cumVal[indices],
                                             do.call(distFn, args = listArgs)

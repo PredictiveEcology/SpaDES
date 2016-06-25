@@ -102,6 +102,7 @@ N <- 15
 cells <- sample(ncell(ras), N)
 coords <- xyFromCell(ras, cells)
 distFn <- function(landscape, fromCell, x) landscape[fromCell] / (1 + x)
+distFn <- function(ras, fromCell, x) ras[fromCell] / (1 + x)
 b <- Sys.time()
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
                landscape = rp, distFn = distFn, cumulativeFn = `+`)
