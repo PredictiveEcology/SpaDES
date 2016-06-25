@@ -713,6 +713,9 @@ setMethod(
     if (!returnAngles) {
       d <- d[, -which(colnames(d) == "angles")]
       MAT <- MAT[, -which(colnames(MAT) == "angles")]
+    } else {
+      d[,"angles"] <- (pi/2 - d[,"angles"]) %% (2*pi)# convert to geographic
+      MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
     }
 
     if (returnDistances) {
@@ -729,6 +732,8 @@ setMethod(
   } else {
     if (!returnAngles) {
       MAT <- MAT[, -which(colnames(MAT) == "angles")]
+    } else {
+      MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
     }
     MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
   }
@@ -936,7 +941,9 @@ setMethod(
 #' @param stopRule A function. If the spokes are to stop based on some feature of the
 #'                 \code{landscape}. See examples.
 #'
-#' @return A matrix containing columns id, angles, x, y, indices, and dists.
+#' @return A matrix containing columns id, angles, x, y, indices, dists, and
+#' stop, indicating if it was a cell that caused a spoke
+#' to stop going outwards.
 #'
 #' @export
 #' @docType methods
@@ -945,28 +952,33 @@ setMethod(
 #' @examples
 #' library(raster)
 #' library(sp)
-#' Ras <- raster(extent(0,5000,0,5000), res = 100, val = 0)
+#' Ras <- raster(extent(0,10,0,10), res = 1, val = 0)
 #' rp <- randomPolygons(Ras, numTypes = 20)
+#' seed <- sample(1e6,1)
+#' set.seed(seed)
 #' if(interactive())
 #'   Plot(rp, new=TRUE)
 #' angles <- seq(0,pi*2,length.out = 17)
 #' angles <- angles[-length(angles)]
-#' N <- 2
-#' coords <- SpatialPoints(cbind(x = sample(ncol(Ras),N), y = sample(nrow(Ras),N)))
+#' N <- 1
+#' loci <- sample(ncell(rp), N)
+#' coords <- SpatialPoints(xyFromCell(rp, loci))
 #' stopRule <- function(landscape) landscape < 3
 #' d2 <- spokes(rp, coords = coords, stopRule = stopRule,
-#'              minRadius = 0, maxRadius = 50, returnAngles = TRUE, returnDistances = TRUE,
+#'              minRadius = 0, maxRadius = 13, returnAngles = TRUE, returnDistances = TRUE,
 #'              allowOverlap = TRUE, angles = angles, returnIndices = TRUE)
 #'
 #' rasB <- raster(Ras)
 #' rasB[] <- 0
 #' rasB[d2[,"indices"]] <- 1
 #' if(interactive()) {
+#'   # can plot it as raster or spatial points
+#'   # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
 #'   if(NROW(d2)>0) {
 #'     sp1 <- SpatialPoints(d2[,c("x",'y')])
-#'     Plot(sp1, addTo="rp", pch = 19, size = 1)
+#'     Plot(sp1, addTo="rp", pch = 19, size = 1, speedup=0.1)
 #'   }
-#'   Plot(coords, addTo="rp", pch = 19, size = 4, cols = "blue")
+#'   Plot(coords, addTo="rp", pch = 19, size = 4, cols = "blue", speedup=0.1)
 #' }
 setGeneric("spokes", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
@@ -986,30 +998,36 @@ setMethod(
                         stopRule,
                         includeBehavior, returnDistances, angles, returnAngles, returnIndices
                         ) {
-  aCir = cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius, returnAngles = TRUE, returnDistances = TRUE,
-         allowOverlap = TRUE, allowDuplicates = TRUE,
-         angles = angles, returnIndices = TRUE)
+  aCir = cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius,
+             returnAngles = TRUE, returnDistances = TRUE,
+             allowOverlap = allowOverlap, allowDuplicates = TRUE,
+             angles = angles, returnIndices = returnIndices)
 
+  landscapeRas <- landscape
   landscape <- landscape[aCir[,"indices"]]
 
-  a <- cbind(aCir, stop = do.call(stopRule, args = list(landscape=landscape)))
+  a <- cbind(aCir,
+             stop = do.call(stopRule,
+                            args = list(landscape=landscape)))
   a <- cbind(a, stopDist = a[,"stop"]*a[,"dists"])
-  a[a[,"stop"] %==% 0,"stopDist"] <- max(a[,"dists"])
+  a[a[,"stop"] %==% 0,"stopDist"] <- maxRadius #
 
-  #browser()
-  d <- lapply(sort(unique(a[,"id"])), function(id) {
+  sortedUniqAngles <- sort(unique(a[,"angles"]))
+  dxx <- lapply(sort(unique(a[,"id"])), function(id) {
     aID <- a[a[,"id"]==id,, drop = FALSE]
-    d1 <- lapply(sort(unique(aID[,"angles"])), function(x) {
-      b <- tapply(aID[,"stopDist"], aID[,"angles"], min, na.rm= TRUE)
-      if(any(b==0)) b[] <- 0
-      a1 <- aID[aID[,"angles"]==x ,,drop=FALSE]
-      a1[a1[,"dists"] < b[names(b)==x],,drop=FALSE]
+    b <- tapply(aID[,"stopDist"], aID[,"angles"], min, na.rm= TRUE)
+    d1 <- lapply(sortedUniqAngles, function(x) {
+      a1 <- aID[aID[,"angles"] %==% x ,,drop=FALSE]
+      if(includeBehavior=="excludePixels")
+        a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+      else
+        a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x],,drop=FALSE]
     })
     do.call(rbind,d1)
   })
-  d2 <- do.call(rbind,d)
-  whDrop <- match(c("stop", "stopDist"), colnames(d2))
-  d2[,-whDrop,drop=FALSE]
+  d2xx <- do.call(rbind,dxx)
+  whDrop <- match(c("stopDist"), colnames(d2xx))
+  d2xx[,-whDrop,drop=FALSE]
 
 })
 

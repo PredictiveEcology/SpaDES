@@ -1270,8 +1270,10 @@ setMethod(
 #'                    this distance. Using this will keep memory use down.
 #' @param cumulativeFn A function that can be used to incrementally accumulate values in each \code{to}
 #'                     location, as the function iterates through each \code{from}. See Details.
-#' @param distFn A function, of "x", to convert the distance in cells to some other set of units
-#'               that will be accumulated by the \code{cumulativeFn}. See Details.
+#' @param distFn A function. This can be a function of landscape, fromCells, toCells, and
+#'               dist. If cumulativeFn is supplied, then this will be used to convert
+#'               the distances to some other set of units
+#'               that will be accumulated by the \code{cumulativeFn}. See Details and examples.
 #'
 #' @rdname distances
 #' @export
@@ -1331,10 +1333,11 @@ setMethod(
 #'
 #' all(idwRaster[] == distRas[]) # TRUE
 #'
-#' # A more complex example of cumulative, weighted sums
-#' ras <- raster(extent(0,340, 0,340), res = 1, val = 0)
+#' # A more complex example of cumulative inverse distance sums, weighted by the value
+#' #  of the origin cell
+#' ras <- raster(extent(0,34, 0,34), res = 1, val = 0)
 #' rp <- randomPolygons(ras, numTypes = 10) ^ 2
-#' N <- 1000
+#' N <- 15
 #' cells <- sample(ncell(ras), N)
 #' coords <- xyFromCell(ras, cells)
 #' distFn <- function(landscape, fromCell, x) landscape[fromCell] / (1 + x)
@@ -1343,7 +1346,13 @@ setMethod(
 #'                landscape = rp, distFn = distFn, cumulativeFn = `+`)
 #' idwRaster <- raster(ras)
 #' idwRaster[] <- dists1[,"val"]
-#' if (interactive()) Plot(rp, idwRaster, new=TRUE)
+#' if (interactive()) {
+#'   Plot(rp, idwRaster, new=TRUE)
+#'   sp1 <- SpatialPoints(coords)
+#'   Plot(sp1, addTo="rp")
+#'   Plot(sp1, addTo="idwRaster")
+#' }
+#'
 #' a <- Sys.time()
 #' print(a-b)
 #'

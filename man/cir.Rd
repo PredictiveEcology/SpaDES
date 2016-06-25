@@ -128,7 +128,7 @@ Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(Ras, agent, maxRadius = 3, simplify = TRUE)
+cirs <- cir(Ras, agent, maxRadius = 15000, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0

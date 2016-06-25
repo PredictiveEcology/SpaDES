@@ -228,7 +228,8 @@ fastest, sometimes dramatically so.
                       radius reached, and then the event will stop. This is
                       vectorized, and if length is >1, it will be matched
                       in the order of \code{loci}\cr
-  \code{stopRule} \tab This is a function that can use "landscape", "id", "cells", or any
+  \code{stopRule} \tab This is a func
+  tion that can use "landscape", "id", "cells", or any
                       named vector passed into \code{spread} in the \code{...}. This
                       can take on relatively complex functions. Passing in, say, a Raster
                       Layer to \code{spread} can access the individual values on that
