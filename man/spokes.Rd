@@ -10,11 +10,13 @@ spokes(landscape, coords, loci, maxRadius = ncol(landscape)/4,
   minRadius = maxRadius, allowOverlap = TRUE, stopRule = NULL,
   includeBehavior = "includePixels", returnDistances = FALSE,
   angles = NA_real_, nAngles = NA_real_, returnAngles = FALSE,
-  returnIndices = TRUE)
+  returnIndices = TRUE, ...)
 
 \S4method{spokes}{RasterLayer,SpatialPoints,missing}(landscape, coords, loci,
-  maxRadius, minRadius = maxRadius, allowOverlap, stopRule, includeBehavior,
-  returnDistances, angles, returnAngles, returnIndices)
+  maxRadius = ncol(landscape)/4, minRadius = maxRadius,
+  allowOverlap = TRUE, stopRule = NULL, includeBehavior = "includePixels",
+  returnDistances = FALSE, angles = NA_real_, nAngles = NA_real_,
+  returnAngles = FALSE, returnIndices = TRUE, ...)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
@@ -38,8 +40,10 @@ then this will create a buffer or donut or ring.}
 
 \item{allowOverlap}{Logical. Should duplicates across id be removed or kept. Default TRUE.}
 
-\item{stopRule}{A function. If the spokes are to stop based on some feature of the
-\code{landscape}. See examples.}
+\item{stopRule}{A function. If the spokes are to stop. This can be a function
+of \code{landscape}, fromCell, toCell, x (distance from coords cell),
+or any other named argument passed into the ... of this function.
+See examples.}
 
 \item{includeBehavior}{Character string. Currently accepts only "includePixels", the default,
 and "excludePixels". See details.}
@@ -61,9 +65,16 @@ FALSE.}
 \item{returnIndices}{Logical. Should the function return a data.table with
 indices and values of successful spread events, or
 return a raster with values. See Details.}
+
+\item{...}{Objects to be used by stopRule function. See examples.}
 }
 \value{
-A matrix containing columns id, angles, x, y, indices, and dists.
+A matrix containing columns id (representing the row numbers of \code{coords}),
+angles (from \code{coords} to each point along the spokes), x and y coordinates
+of each point along the spokes, the corresponding indices on the \code{landscape}
+Raster, dists (the distances between each \code{coords} and each point along the
+spokes), and stop, indicating if it was a point that caused a spoke
+to stop going outwards due to \code{stopRule}.
 }
 \description{
 This is a generalized version of a notion of a viewshed. The main difference
@@ -72,8 +83,10 @@ is that there can be many "viewpoints".
 \examples{
 library(raster)
 library(sp)
-Ras <- raster(extent(0,50,0,50), res = 1, val = 0)
-rp <- randomPolygons(Ras, numTypes = 20)
+Ras <- raster(extent(0,10,0,10), res = 1, val = 0)
+rp <- randomPolygons(Ras, numTypes = 10)
+seed <- sample(1e6,1)
+set.seed(seed)
 if(interactive())
   Plot(rp, new=TRUE)
 angles <- seq(0,pi*2,length.out = 17)
@@ -86,15 +99,19 @@ d2 <- spokes(rp, coords = coords, stopRule = stopRule,
              minRadius = 0, maxRadius = 50, returnAngles = TRUE, returnDistances = TRUE,
              allowOverlap = TRUE, angles = angles, returnIndices = TRUE)
 
+# Assign values to the "patches" that were in the viewshed of a ray
 rasB <- raster(Ras)
 rasB[] <- 0
-rasB[d2[,"indices"]] <- 1
+rasB[d2[d2[,"stop"]==1,"indices"]] <- 1
+Plot(rasB, addTo="rp", zero.color = "transparent", cols = "red")
 if(interactive()) {
+  # can plot it as raster or spatial points
+  # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
   if(NROW(d2)>0) {
     sp1 <- SpatialPoints(d2[,c("x",'y')])
-    Plot(sp1, addTo="rp", pch = 19, size = 1)
+    Plot(sp1, addTo="rp", pch = 19, size = 5, speedup=0.1)
   }
-  Plot(coords, addTo="rp", pch = 19, size = 4, cols = "blue")
+  Plot(coords, addTo="rp", pch = 19, size = 6, cols = "blue", speedup=0.1)
 }
 }
 \author{

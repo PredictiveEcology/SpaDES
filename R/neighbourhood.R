@@ -938,12 +938,18 @@ setMethod(
 #' is that there can be many "viewpoints".
 #'
 #' @inheritParams cir
-#' @param stopRule A function. If the spokes are to stop based on some feature of the
-#'                 \code{landscape}. See examples.
+#' @param stopRule A function. If the spokes are to stop. This can be a function
+#'                 of \code{landscape}, fromCell, toCell, x (distance from coords cell),
+#'                 or any other named argument passed into the ... of this function.
+#'                 See examples.
+#' @param ... Objects to be used by stopRule function. See examples.
 #'
-#' @return A matrix containing columns id, angles, x, y, indices, dists, and
-#' stop, indicating if it was a cell that caused a spoke
-#' to stop going outwards.
+#' @return A matrix containing columns id (representing the row numbers of \code{coords}),
+#' angles (from \code{coords} to each point along the spokes), x and y coordinates
+#' of each point along the spokes, the corresponding indices on the \code{landscape}
+#' Raster, dists (the distances between each \code{coords} and each point along the
+#' spokes), and stop, indicating if it was a point that caused a spoke
+#' to stop going outwards due to \code{stopRule}.
 #'
 #' @export
 #' @docType methods
@@ -953,39 +959,41 @@ setMethod(
 #' library(raster)
 #' library(sp)
 #' Ras <- raster(extent(0,10,0,10), res = 1, val = 0)
-#' rp <- randomPolygons(Ras, numTypes = 20)
+#' rp <- randomPolygons(Ras, numTypes = 10)
 #' seed <- sample(1e6,1)
 #' set.seed(seed)
 #' if(interactive())
 #'   Plot(rp, new=TRUE)
 #' angles <- seq(0,pi*2,length.out = 17)
 #' angles <- angles[-length(angles)]
-#' N <- 1
+#' N <- 2
 #' loci <- sample(ncell(rp), N)
 #' coords <- SpatialPoints(xyFromCell(rp, loci))
 #' stopRule <- function(landscape) landscape < 3
 #' d2 <- spokes(rp, coords = coords, stopRule = stopRule,
-#'              minRadius = 0, maxRadius = 13, returnAngles = TRUE, returnDistances = TRUE,
+#'              minRadius = 0, maxRadius = 50, returnAngles = TRUE, returnDistances = TRUE,
 #'              allowOverlap = TRUE, angles = angles, returnIndices = TRUE)
 #'
+#' # Assign values to the "patches" that were in the viewshed of a ray
 #' rasB <- raster(Ras)
 #' rasB[] <- 0
-#' rasB[d2[,"indices"]] <- 1
+#' rasB[d2[d2[,"stop"]==1,"indices"]] <- 1
+#' Plot(rasB, addTo="rp", zero.color = "transparent", cols = "red")
 #' if(interactive()) {
 #'   # can plot it as raster or spatial points
 #'   # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
 #'   if(NROW(d2)>0) {
 #'     sp1 <- SpatialPoints(d2[,c("x",'y')])
-#'     Plot(sp1, addTo="rp", pch = 19, size = 1, speedup=0.1)
+#'     Plot(sp1, addTo="rp", pch = 19, size = 5, speedup=0.1)
 #'   }
-#'   Plot(coords, addTo="rp", pch = 19, size = 4, cols = "blue", speedup=0.1)
+#'   Plot(coords, addTo="rp", pch = 19, size = 6, cols = "blue", speedup=0.1)
 #' }
 setGeneric("spokes", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
                            allowOverlap = TRUE, stopRule = NULL,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            angles = NA_real_, nAngles = NA_real_,
-                           returnAngles = FALSE, returnIndices = TRUE) {
+                           returnAngles = FALSE, returnIndices = TRUE, ...) {
   standardGeneric("spokes")
 })
 
@@ -996,38 +1004,53 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         stopRule,
-                        includeBehavior, returnDistances, angles, returnAngles, returnIndices
+                        includeBehavior, returnDistances, angles,
+                        returnAngles, returnIndices, ...
                         ) {
   aCir = cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius,
              returnAngles = TRUE, returnDistances = TRUE,
              allowOverlap = allowOverlap, allowDuplicates = TRUE,
              angles = angles, returnIndices = returnIndices)
 
-  landscapeRas <- landscape
-  landscape <- landscape[aCir[,"indices"]]
 
-  a <- cbind(aCir,
-             stop = do.call(stopRule,
-                            args = list(landscape=landscape)))
-  a <- cbind(a, stopDist = a[,"stop"]*a[,"dists"])
-  a[a[,"stop"] %==% 0,"stopDist"] <- maxRadius #
+  if(!is.null(stopRule)) {
 
-  sortedUniqAngles <- sort(unique(a[,"angles"]))
-  dxx <- lapply(sort(unique(a[,"id"])), function(id) {
-    aID <- a[a[,"id"]==id,, drop = FALSE]
-    b <- tapply(aID[,"stopDist"], aID[,"angles"], min, na.rm= TRUE)
-    d1 <- lapply(sortedUniqAngles, function(x) {
-      a1 <- aID[aID[,"angles"] %==% x ,,drop=FALSE]
-      if(includeBehavior=="excludePixels")
-        a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x],,drop=FALSE]
-      else
-        a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+    forms <- names(formals(stopRule))
+    fromC <- "fromCell" %in% forms
+    if(fromC) fromCell <- cellFromXY(landscape, coordinates(coords))
+    toC <- "toCell" %in% forms
+    if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
+    land <- "landscape" %in% forms
+    listArgs <- if(land) list(landscape = landscape[aCir[,"indices"]]) else NULL
+    if(length(list(...))>0) listArgs <- append(listArgs, list(...))
+    xDist <- "x" %in% forms
+
+    #landscape <- landscape[aCir[,"indices"]]
+
+    a <- cbind(aCir,
+               stop = do.call(stopRule,
+                              args = listArgs))
+    a <- cbind(a, stopDist = a[,"stop"]*a[,"dists"])
+    a[a[,"stop"] %==% 0,"stopDist"] <- maxRadius #
+
+    sortedUniqAngles <- sort(unique(a[,"angles"]))
+    dxx <- lapply(sort(unique(a[,"id"])), function(id) {
+      aID <- a[a[,"id"]==id,, drop = FALSE]
+      b <- tapply(aID[,"stopDist"], aID[,"angles"], min, na.rm= TRUE)
+      d1 <- lapply(sortedUniqAngles, function(x) {
+        a1 <- aID[aID[,"angles"] %==% x ,,drop=FALSE]
+        if(includeBehavior=="excludePixels")
+          a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+        else
+          a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+      })
+      do.call(rbind,d1)
     })
-    do.call(rbind,d1)
-  })
-  d2xx <- do.call(rbind,dxx)
-  whDrop <- match(c("stopDist"), colnames(d2xx))
-  d2xx[,-whDrop,drop=FALSE]
+    d2xx <- do.call(rbind,dxx)
+    whDrop <- match(c("stopDist"), colnames(d2xx))
+    d2xx[,-whDrop,drop=FALSE]
+  }
+
 
 })
 
