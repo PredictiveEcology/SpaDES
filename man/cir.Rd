@@ -10,28 +10,29 @@
 \title{Identify pixels in a circle or ring (donut) around an object.}
 \usage{
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
-  minRadius = maxRadius, allowOverlap = TRUE,
+  minRadius = maxRadius, allowOverlap = TRUE, allowDuplicates = TRUE,
   includeBehavior = "includePixels", returnDistances = FALSE,
   angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
   closest = FALSE, simplify = TRUE)
 
 \S4method{cir}{RasterLayer,SpatialPoints,missing}(landscape, coords, maxRadius,
-  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  angles, returnAngles, returnIndices, closest, simplify)
+  minRadius = maxRadius, allowOverlap, allowDuplicates, includeBehavior,
+  returnDistances, angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,numeric}(landscape, loci, maxRadius,
-  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  angles, returnAngles, returnIndices, closest, simplify)
+  minRadius = maxRadius, allowOverlap, allowDuplicates, includeBehavior,
+  returnDistances, angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,missing}(landscape, loci, maxRadius,
-  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  angles, returnAngles, returnIndices, closest, simplify)
+  minRadius = maxRadius, allowOverlap, allowDuplicates, includeBehavior,
+  returnDistances, angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
   maxRadius = ncol(landscape)/4, minRadius = maxRadius,
-  allowOverlap = TRUE, includeBehavior = "includePixels",
-  returnDistances = FALSE, angles = NA_real_, returnAngles = FALSE,
-  returnIndices = TRUE, closest = FALSE, simplify = TRUE)
+  allowOverlap = TRUE, allowDuplicates = TRUE,
+  includeBehavior = "includePixels", returnDistances = FALSE,
+  angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
+  closest = FALSE, simplify = TRUE)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
