@@ -340,6 +340,11 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @param allowOverlap Logical. Should duplicates across id be removed or kept. Default TRUE.
 #'
+#' @param allowDuplicates Logical. Should duplicates within id be removed or kept. Default FALSE.
+#'                        This is useful if the actual x, y coordinates are desired, rather
+#'                        than the cell indices. This will increase the size of the returned
+#'                        object.
+#'
 #' @param includeBehavior Character string. Currently accepts only "includePixels", the default,
 #'                        and "excludePixels". See details.
 #'
@@ -942,6 +947,10 @@ setMethod(
 #'                 of \code{landscape}, fromCell, toCell, x (distance from coords cell),
 #'                 or any other named argument passed into the ... of this function.
 #'                 See examples.
+#' @param nAngles Numeric, length one. Alternative to angles. If provided, the function
+#'                will create a sequence of angles from 0 to 2*pi, with a length
+#'                \code{nAngles}, and not including 2*pi. Will not be used if
+#'                angles is provided, and will show warning of both are given.
 #' @param ... Objects to be used by stopRule function. See examples.
 #'
 #' @return A matrix containing columns id (representing the row numbers of \code{coords}),
@@ -954,6 +963,7 @@ setMethod(
 #' @export
 #' @docType methods
 #' @rdname spokes
+#' @importFrom fpCompare %<<%
 #' @author Eliot McIntire
 #' @examples
 #' library(raster)
@@ -1004,9 +1014,18 @@ setMethod(
   signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
                         stopRule,
-                        includeBehavior, returnDistances, angles,
+                        includeBehavior, returnDistances, angles, nAngles,
                         returnAngles, returnIndices, ...
                         ) {
+  if(!missing(nAngles)) {
+    if(missing(angles)) {
+    angles <- seq(0,pi*2,length.out = 17)
+    angles <- angles[-length(angles)]
+    } else {
+      warning("Both angles and nAngles are provided. Using angles only.")
+    }
+  }
+
   aCir = cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius,
              returnAngles = TRUE, returnDistances = TRUE,
              allowOverlap = allowOverlap, allowDuplicates = TRUE,

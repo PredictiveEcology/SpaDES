@@ -1274,6 +1274,7 @@ setMethod(
 #'               dist. If cumulativeFn is supplied, then this will be used to convert
 #'               the distances to some other set of units
 #'               that will be accumulated by the \code{cumulativeFn}. See Details and examples.
+#' @param ... Any additional objects needed for \code{distFn}.
 #'
 #' @rdname distances
 #' @export
