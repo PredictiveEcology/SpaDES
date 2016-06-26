@@ -1378,7 +1378,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
     land <- "landscape" %in% forms
     listArgs <- if(land) list(landscape = landscape[]) else NULL
-    listArgs <- if(length(list(...))>0) append(listArgs, list(...))
+    if(length(list(...))>0) listArgs <- append(listArgs, list(...))
     xDist <- "x" %in% forms
   }
   if (!matched) {

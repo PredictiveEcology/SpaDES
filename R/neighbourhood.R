@@ -422,7 +422,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' N <- 2
 #' agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-#' cirs <- cir(Ras, agent, maxRadius = 15000, simplify = TRUE)
+#' cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
@@ -497,6 +497,7 @@ setMethod(
                         allowDuplicates, includeBehavior, returnDistances, angles,
                         returnAngles, returnIndices, closest, simplify) {
     coords <- coordinates(coords)
+
     cir(landscape, coords, maxRadius = maxRadius, minRadius = minRadius,
         allowOverlap = allowOverlap, allowDuplicates = allowDuplicates,
         includeBehavior = includeBehavior,
@@ -673,7 +674,7 @@ setMethod(
     }
     MAT <- na.omit(MAT)
   }
-  rm(id, indices, rads, angles, x, y)
+  rm(id, indices, rads, x, y)
 
   if (includeBehavior == "excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
@@ -686,15 +687,16 @@ setMethod(
       MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),] # 0.71 is the sqrt of 1, so keep
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
-    if(all(!is.na(angles))) {
+
+#    if(all(!is.na(angles))) {
       a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
                  x = MAT2[, "x"], y = MAT2[, "y"], to = MAT2[, "indices"])
 
-    } else {
-      xyC <- xyFromCell(landscape, MAT2[, "indices"]);
-      a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
-                 x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
-    }
+#    } else {
+#      xyC <- xyFromCell(landscape, MAT2[, "indices"]);
+#      a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
+#                 x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
+#    }
 
     b <- cbind(coords, id=1:NROW(coords))
 

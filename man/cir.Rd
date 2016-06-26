@@ -56,6 +56,11 @@ then this will create a buffer or donut or ring.}
 
 \item{allowOverlap}{Logical. Should duplicates across id be removed or kept. Default TRUE.}
 
+\item{allowDuplicates}{Logical. Should duplicates within id be removed or kept. Default FALSE.
+This is useful if the actual x, y coordinates are desired, rather
+than the cell indices. This will increase the size of the returned
+object.}
+
 \item{includeBehavior}{Character string. Currently accepts only "includePixels", the default,
 and "excludePixels". See details.}
 
@@ -128,7 +133,7 @@ Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(Ras, agent, maxRadius = 15000, simplify = TRUE)
+cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0

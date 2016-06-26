@@ -57,6 +57,11 @@ FALSE, which is faster.}
 "spokes" outward from coords. Default is NA, meaning, use internally
 derived angles that will "fill" the circle.}
 
+\item{nAngles}{Numeric, length one. Alternative to angles. If provided, the function
+will create a sequence of angles from 0 to 2*pi, with a length
+\code{nAngles}, and not including 2*pi. Will not be used if
+angles is provided, and will show warning of both are given.}
+
 \item{returnAngles}{Logical. If TRUE, then a column will be added to the returned
 data.table that reports the angle from \code{coords} to every
 point that was in the circle/donut surrounding \code{coords}. Default

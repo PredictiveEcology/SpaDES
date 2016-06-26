@@ -37,6 +37,8 @@ location, as the function iterates through each \code{from}. See Details.}
 dist. If cumulativeFn is supplied, then this will be used to convert
 the distances to some other set of units
 that will be accumulated by the \code{cumulativeFn}. See Details and examples.}
+
+\item{...}{Any additional objects needed for \code{distFn}.}
 }
 \value{
 A sorted matrix on \code{id} with same number of rows as \code{to},
