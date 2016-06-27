@@ -480,7 +480,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 setGeneric("cir", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
-                           allowOverlap = TRUE, allowDuplicates = TRUE,
+                           allowOverlap = TRUE, allowDuplicates = FALSE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            angles = NA_real_,
                            returnAngles = FALSE, returnIndices = TRUE,
@@ -556,6 +556,7 @@ setMethod(
   if (!all(c("x", "y") %in% colnames(coords) )) {
     stop("coords must have columns named x and y")
   }
+  suppliedAngles <- if(all(!is.na(angles))) TRUE else FALSE
 
   scaleRaster <- res(landscape)
   if (scaleRaster[1] != scaleRaster[2]) {
@@ -570,7 +571,7 @@ setMethod(
 
   moreThanOne <- NROW(coords) > 1
 
-  if (all(!is.na(angles))) { # if provided with angles, then problem is easier
+  if (suppliedAngles) { # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
     maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
     numAngles <- length(angles)
@@ -676,6 +677,7 @@ setMethod(
   }
   rm(id, indices, rads, x, y)
 
+  #browser()
   if (includeBehavior == "excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
     maxRad <- maxRadius[NROW(maxRadius)]
@@ -688,15 +690,15 @@ setMethod(
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
 
-#    if(all(!is.na(angles))) {
+    if(suppliedAngles) {
       a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
                  x = MAT2[, "x"], y = MAT2[, "y"], to = MAT2[, "indices"])
 
-#    } else {
-#      xyC <- xyFromCell(landscape, MAT2[, "indices"]);
-#      a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
-#                 x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
-#    }
+    } else {
+      xyC <- xyFromCell(landscape, MAT2[, "indices"]);
+      a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
+                 x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
+    }
 
     b <- cbind(coords, id=1:NROW(coords))
 
@@ -739,9 +741,9 @@ setMethod(
   } else {
     if (!returnAngles) {
       MAT <- MAT[, -which(colnames(MAT) == "angles")]
-    } else {
-      MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
-    }
+    } #else {
+      #MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
+    #}
     MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
   }
   if (!returnIndices) {

@@ -599,7 +599,8 @@ test_that("rings and cir", {
                                           y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5))
 
   loci <- cellFromXY(hab, coordinates(caribou)[1,])
-  cirs <- data.table(cir(hab, caribou[1,], maxRadius = radius*1.5001, minRadius = radius, simplify = TRUE,
+  cirs <- data.table(cir(hab, caribou[1,], maxRadius = radius*1.5001, minRadius = radius,
+                         simplify = TRUE, allowOverlap = TRUE,
                          includeBehavior = "excludePixels", returnDistances = TRUE))
   cirs2 <- rings(hab, loci, minRadius = radius, maxRadius = radius*1.5001, allowOverlap = TRUE, returnIndices = TRUE,
                  includeBehavior = "includeRing")

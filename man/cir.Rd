@@ -10,7 +10,7 @@
 \title{Identify pixels in a circle or ring (donut) around an object.}
 \usage{
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
-  minRadius = maxRadius, allowOverlap = TRUE, allowDuplicates = TRUE,
+  minRadius = maxRadius, allowOverlap = TRUE, allowDuplicates = FALSE,
   includeBehavior = "includePixels", returnDistances = FALSE,
   angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
   closest = FALSE, simplify = TRUE)
@@ -29,7 +29,7 @@ cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
 
 \S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
   maxRadius = ncol(landscape)/4, minRadius = maxRadius,
-  allowOverlap = TRUE, allowDuplicates = TRUE,
+  allowOverlap = TRUE, allowDuplicates = FALSE,
   includeBehavior = "includePixels", returnDistances = FALSE,
   angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
   closest = FALSE, simplify = TRUE)
