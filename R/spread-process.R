@@ -69,7 +69,8 @@ if (getRversion() >= "3.1.0") {
 #'                       radius reached, and then the event will stop. This is
 #'                       vectorized, and if length is >1, it will be matched
 #'                       in the order of \code{loci}\cr
-#'   \code{stopRule} \tab This is a function that can use "landscape", "id", "cells", or any
+#'   \code{stopRule} \tab This is a func
+#'   tion that can use "landscape", "id", "cells", or any
 #'                       named vector passed into \code{spread} in the \code{...}. This
 #'                       can take on relatively complex functions. Passing in, say, a Raster
 #'                       Layer to \code{spread} can access the individual values on that
@@ -1269,8 +1270,11 @@ setMethod(
 #'                    this distance. Using this will keep memory use down.
 #' @param cumulativeFn A function that can be used to incrementally accumulate values in each \code{to}
 #'                     location, as the function iterates through each \code{from}. See Details.
-#' @param distFn A function, of "x", to convert the distance in cells to some other set of units
-#'               that will be accumulated by the \code{cumulativeFn}. See Details.
+#' @param distFn A function. This can be a function of landscape, fromCells, toCells, and
+#'               dist. If cumulativeFn is supplied, then this will be used to convert
+#'               the distances to some other set of units
+#'               that will be accumulated by the \code{cumulativeFn}. See Details and examples.
+#' @param ... Any additional objects needed for \code{distFn}.
 #'
 #' @rdname distances
 #' @export
@@ -1280,8 +1284,8 @@ setMethod(
 #' For instance, if \code{maxDistance} is relatively small compared to the number of cells
 #' in the \code{landscape}, then \code{\link{cir}} will likely be faster. If a minimum
 #' distance from all cells in the \code{landscape} to any cell in \code{from}, then
-#' \code{distanceFromPoints} will be fastest. This function scales best when all \code{to}
-#' is many or all cells (which is default).
+#' \code{distanceFromPoints} will be fastest. This function scales best when there are
+#' many \code{to} points or all cells are used \code{to = NULL} (which is default).
 #'
 #' @details
 #'
@@ -1330,21 +1334,52 @@ setMethod(
 #'
 #' all(idwRaster[] == distRas[]) # TRUE
 #'
+#' # A more complex example of cumulative inverse distance sums, weighted by the value
+#' #  of the origin cell
+#' ras <- raster(extent(0,34, 0,34), res = 1, val = 0)
+#' rp <- randomPolygons(ras, numTypes = 10) ^ 2
+#' N <- 15
+#' cells <- sample(ncell(ras), N)
+#' coords <- xyFromCell(ras, cells)
+#' distFn <- function(landscape, fromCell, x) landscape[fromCell] / (1 + x)
+#' b <- Sys.time()
+#' dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+#'                landscape = rp, distFn = distFn, cumulativeFn = `+`)
+#' idwRaster <- raster(ras)
+#' idwRaster[] <- dists1[,"val"]
+#' if (interactive()) {
+#'   Plot(rp, idwRaster, new=TRUE)
+#'   sp1 <- SpatialPoints(coords)
+#'   Plot(sp1, addTo="rp")
+#'   Plot(sp1, addTo="idwRaster")
+#' }
+#'
+#' a <- Sys.time()
+#' print(a-b)
+#'
 distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
-                                  distFn = function(x) 1/(1+x)) {
+                                  distFn = function(x) 1/(1+x), ...) {
   matched <- FALSE
-  #nrowFrom <- NROW(from)
   if ("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
-  } #else if (nrowFrom>1) {
-    #ids <- seq_len(nrowFrom)
-  #}
+  }
   if ("id" %in% colnames(to)) {
     matched <- TRUE
   }
   if (is.null(to)) {
     to <- xyFromCell(landscape, 1:ncell(landscape))
+  }
+  if(!is.null(cumulativeFn)) {
+    forms <- names(formals(distFn))
+    fromC <- "fromCell" %in% forms
+    if(fromC) fromCell <- cellFromXY(landscape, from[,c("x","y")])
+    toC <- "toCell" %in% forms
+    if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
+    land <- "landscape" %in% forms
+    listArgs <- if(land) list(landscape = landscape[]) else NULL
+    if(length(list(...))>0) listArgs <- append(listArgs, list(...))
+    xDist <- "x" %in% forms
   }
   if (!matched) {
     if (NROW(from) > 1) {
@@ -1352,8 +1387,6 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         out <- lapply(seq_len(NROW(from)), function(k) {
           out <- .pointDistance(from = from[k, , drop = FALSE], to = to, angles = angles,
                                 maxDistance = maxDistance)
-          #if(returnID)
-          #  cbind(out, id=ids[k])
         })
         out <- do.call(rbind, out)
       } else {
@@ -1362,8 +1395,24 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
           out <- .pointDistance(from = from[k, , drop = FALSE], to = to, angles = angles,
                                 maxDistance = maxDistance)
           indices <- cellFromXY(landscape, out[,c("x","y")])
-          cumVal[indices] <- do.call(cumulativeFn, args = list(cumVal[indices], do.call(distFn, args = list(x = out[, "dists"]))))
+          if(k == 1) {
+            if(fromC) listArgs <- append(listArgs, list(fromCell = fromCell[k]))
+            if(toC) listArgs <- append(listArgs, list(toCell = toCell[indices]))
+            if(xDist) listArgs <- append(listArgs, list(x = out[, "dists"]))
+          } else {
+            if(fromC) listArgs[["fromCell"]] <- fromCell[k]
+            if(toC) listArgs[["toCell"]] <- toCell[indices]
+            if(xDist) listArgs[["x"]] <- out[, "dists"]
+          }
+
+          names(listArgs) <- forms
+          cumVal[indices] <- do.call(cumulativeFn, args =
+                                       list(cumVal[indices],
+                                            do.call(distFn, args = listArgs)
+                                            ))
         }
+        #browser()
+
         out <- cbind(to, val = cumVal)
       }
     } else {

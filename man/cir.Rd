@@ -10,28 +10,29 @@
 \title{Identify pixels in a circle or ring (donut) around an object.}
 \usage{
 cir(landscape, coords, loci, maxRadius = ncol(landscape)/4,
-  minRadius = maxRadius, allowOverlap = TRUE,
+  minRadius = maxRadius, allowOverlap = TRUE, allowDuplicates = FALSE,
   includeBehavior = "includePixels", returnDistances = FALSE,
   angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
   closest = FALSE, simplify = TRUE)
 
 \S4method{cir}{RasterLayer,SpatialPoints,missing}(landscape, coords, maxRadius,
-  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  angles, returnAngles, returnIndices, closest, simplify)
+  minRadius = maxRadius, allowOverlap, allowDuplicates, includeBehavior,
+  returnDistances, angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,numeric}(landscape, loci, maxRadius,
-  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  angles, returnAngles, returnIndices, closest, simplify)
+  minRadius = maxRadius, allowOverlap, allowDuplicates, includeBehavior,
+  returnDistances, angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,missing,missing}(landscape, loci, maxRadius,
-  minRadius = maxRadius, allowOverlap, includeBehavior, returnDistances,
-  angles, returnAngles, returnIndices, closest, simplify)
+  minRadius = maxRadius, allowOverlap, allowDuplicates, includeBehavior,
+  returnDistances, angles, returnAngles, returnIndices, closest, simplify)
 
 \S4method{cir}{RasterLayer,matrix,missing}(landscape, coords, loci,
   maxRadius = ncol(landscape)/4, minRadius = maxRadius,
-  allowOverlap = TRUE, includeBehavior = "includePixels",
-  returnDistances = FALSE, angles = NA_real_, returnAngles = FALSE,
-  returnIndices = TRUE, closest = FALSE, simplify = TRUE)
+  allowOverlap = TRUE, allowDuplicates = FALSE,
+  includeBehavior = "includePixels", returnDistances = FALSE,
+  angles = NA_real_, returnAngles = FALSE, returnIndices = TRUE,
+  closest = FALSE, simplify = TRUE)
 }
 \arguments{
 \item{landscape}{Raster on which the circles are built.}
@@ -54,6 +55,11 @@ by the narrow ring at that exact radius. If smaller than \code{maxRadius},
 then this will create a buffer or donut or ring.}
 
 \item{allowOverlap}{Logical. Should duplicates across id be removed or kept. Default TRUE.}
+
+\item{allowDuplicates}{Logical. Should duplicates within id be removed or kept. Default FALSE.
+This is useful if the actual x, y coordinates are desired, rather
+than the cell indices. This will increase the size of the returned
+object.}
 
 \item{includeBehavior}{Character string. Currently accepts only "includePixels", the default,
 and "excludePixels". See details.}
@@ -127,7 +133,7 @@ Ras <- randomPolygons(Ras, numTypes = 4)
 N <- 2
 agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-cirs <- cir(Ras, agent, maxRadius = 3, simplify = TRUE)
+cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
 cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 cirsRas <- raster(Ras)
 cirsRas[] <- 0
