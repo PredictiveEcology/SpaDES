@@ -8,7 +8,7 @@
 \usage{
 distanceFromEachPoint(from, to = NULL, landscape, angles = NA_real_,
   maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(x) 1/(1 +
-  x))
+  x), ...)
 
 .pointDistance(from, to, angles = NA, maxDistance = NA_real_)
 }
@@ -33,8 +33,12 @@ this distance. Using this will keep memory use down.}
 \item{cumulativeFn}{A function that can be used to incrementally accumulate values in each \code{to}
 location, as the function iterates through each \code{from}. See Details.}
 
-\item{distFn}{A function, of "x", to convert the distance in cells to some other set of units
-that will be accumulated by the \code{cumulativeFn}. See Details.}
+\item{distFn}{A function. This can be a function of landscape, fromCells, toCells, and
+dist. If cumulativeFn is supplied, then this will be used to convert
+the distances to some other set of units
+that will be accumulated by the \code{cumulativeFn}. See Details and examples.}
+
+\item{...}{Any additional objects needed for \code{distFn}.}
 }
 \value{
 A sorted matrix on \code{id} with same number of rows as \code{to},
@@ -92,6 +96,29 @@ if (interactive()) Plot(idwRaster)
 
 all(idwRaster[] == distRas[]) # TRUE
 
+# A more complex example of cumulative inverse distance sums, weighted by the value
+#  of the origin cell
+ras <- raster(extent(0,34, 0,34), res = 1, val = 0)
+rp <- randomPolygons(ras, numTypes = 10) ^ 2
+N <- 15
+cells <- sample(ncell(ras), N)
+coords <- xyFromCell(ras, cells)
+distFn <- function(landscape, fromCell, x) landscape[fromCell] / (1 + x)
+b <- Sys.time()
+dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+               landscape = rp, distFn = distFn, cumulativeFn = `+`)
+idwRaster <- raster(ras)
+idwRaster[] <- dists1[,"val"]
+if (interactive()) {
+  Plot(rp, idwRaster, new=TRUE)
+  sp1 <- SpatialPoints(coords)
+  Plot(sp1, addTo="rp")
+  Plot(sp1, addTo="idwRaster")
+}
+
+a <- Sys.time()
+print(a-b)
+
 }
 \seealso{
 \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
@@ -100,7 +127,7 @@ But each has different primary use cases. Each is also faster under different co
 For instance, if \code{maxDistance} is relatively small compared to the number of cells
 in the \code{landscape}, then \code{\link{cir}} will likely be faster. If a minimum
 distance from all cells in the \code{landscape} to any cell in \code{from}, then
-\code{distanceFromPoints} will be fastest. This function scales best when all \code{to}
-is many or all cells (which is default).
+\code{distanceFromPoints} will be fastest. This function scales best when there are
+many \code{to} points or all cells are used \code{to = NULL} (which is default).
 }
 

@@ -340,6 +340,11 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 #' @param allowOverlap Logical. Should duplicates across id be removed or kept. Default TRUE.
 #'
+#' @param allowDuplicates Logical. Should duplicates within id be removed or kept. Default FALSE.
+#'                        This is useful if the actual x, y coordinates are desired, rather
+#'                        than the cell indices. This will increase the size of the returned
+#'                        object.
+#'
 #' @param includeBehavior Character string. Currently accepts only "includePixels", the default,
 #'                        and "excludePixels". See details.
 #'
@@ -417,7 +422,7 @@ adj <- compiler::cmpfun(adj.raw)
 #' N <- 2
 #' agent <- SpatialPoints(coords = cbind(x = stats::runif(N, xmin(Ras), xmax(Ras)),
 #'                                         y = stats::runif(N, xmin(Ras), xmax(Ras))))
-#' cirs <- cir(Ras, agent, maxRadius = 3, simplify = TRUE)
+#' cirs <- cir(Ras, agent, maxRadius = 15, simplify = TRUE)
 #' cirsSP <- SpatialPoints(coords = cirs[, c("x", "y")])
 #' cirsRas <- raster(Ras)
 #' cirsRas[] <- 0
@@ -475,7 +480,7 @@ adj <- compiler::cmpfun(adj.raw)
 #'
 setGeneric("cir", function(landscape, coords, loci,
                            maxRadius = ncol(landscape)/4, minRadius = maxRadius,
-                           allowOverlap = TRUE,
+                           allowOverlap = TRUE, allowDuplicates = FALSE,
                            includeBehavior = "includePixels", returnDistances = FALSE,
                            angles = NA_real_,
                            returnAngles = FALSE, returnIndices = TRUE,
@@ -489,11 +494,13 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
   definition = function(landscape, coords, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, angles, returnAngles, returnIndices,
-                        closest, simplify) {
+                        allowDuplicates, includeBehavior, returnDistances, angles,
+                        returnAngles, returnIndices, closest, simplify) {
     coords <- coordinates(coords)
+
     cir(landscape, coords, maxRadius = maxRadius, minRadius = minRadius,
-        allowOverlap = allowOverlap, includeBehavior = includeBehavior,
+        allowOverlap = allowOverlap, allowDuplicates = allowDuplicates,
+        includeBehavior = includeBehavior,
         returnDistances = returnDistances, angles = angles, returnAngles = returnAngles,
         returnIndices = returnIndices,
         closest = closest, simplify = simplify)
@@ -505,11 +512,13 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "missing", loci = "numeric"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, angles, returnAngles, returnIndices,
+                        allowDuplicates, includeBehavior, returnDistances,
+                        angles, returnAngles, returnIndices,
                         closest, simplify) {
     coords <- xyFromCell(landscape, loci)
     cir(landscape, coords = coords, maxRadius = maxRadius, minRadius = minRadius,
-        allowOverlap = allowOverlap, includeBehavior = includeBehavior,
+        allowOverlap = allowOverlap, allowDuplicates = allowDuplicates,
+        includeBehavior = includeBehavior,
         returnDistances = returnDistances, angles = angles, returnAngles = returnAngles,
         returnIndices = returnIndices, closest = closest, simplify = simplify)
 })
@@ -520,13 +529,15 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "missing", loci = "missing"),
   definition = function(landscape, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, angles, returnAngles, returnIndices,
+                        allowDuplicates, includeBehavior, returnDistances, angles,
+                        returnAngles, returnIndices,
                         closest, simplify) {
     ncells <- ncell(landscape)
     middleCell <- if (identical(ncells/2, floor(ncells/2))) ncells/2 - ncol(landscape)/2 else round(ncells/2)
     coords <- xyFromCell(landscape, middleCell)
     cir(landscape, coords = coords, maxRadius = maxRadius, minRadius = minRadius,
-        allowOverlap = allowOverlap, includeBehavior = includeBehavior,
+        allowOverlap = allowOverlap, allowDuplicates = allowDuplicates,
+        includeBehavior = includeBehavior,
         returnDistances = returnDistances, angles = angles, returnAngles = returnAngles,
         returnIndices = returnIndices,
         closest = closest, simplify = simplify)
@@ -538,13 +549,14 @@ setMethod(
   "cir",
   signature(landscape = "RasterLayer", coords = "matrix", loci = "missing"),
   definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
-                        includeBehavior, returnDistances, angles,
+                        allowDuplicates, includeBehavior, returnDistances, angles,
                         returnAngles, returnIndices, closest, simplify) {
   ### adapted from createCircle of the package PlotRegionHighlighter
 
   if (!all(c("x", "y") %in% colnames(coords) )) {
     stop("coords must have columns named x and y")
   }
+  suppliedAngles <- if(all(!is.na(angles))) TRUE else FALSE
 
   scaleRaster <- res(landscape)
   if (scaleRaster[1] != scaleRaster[2]) {
@@ -559,7 +571,7 @@ setMethod(
 
   moreThanOne <- NROW(coords) > 1
 
-  if (all(!is.na(angles))) { # if provided with angles, then problem is easier
+  if (suppliedAngles) { # if provided with angles, then problem is easier
     seqNumInd <- seq_len(NROW(coords))
     maxRadius <- c(seq(minRadius, maxRadius, by = max(0.68, 0.75 - maxRadius/3e3)), maxRadius)
     numAngles <- length(angles)
@@ -650,19 +662,22 @@ setMethod(
   if (moreThanOne & allowOverlap & !closest) {
     MAT <- data.table(id, indices, rads, angles, x = x, y = y)
     setkeyv(MAT, c("id", "indices"))
-    MAT <- unique(MAT)
+    if(!allowDuplicates) {
+      MAT <- unique(MAT)
+    }
     MAT <- na.omit(MAT)
     MAT <- as.matrix(MAT)
   } else {
     MAT <- cbind(id, rads, angles, x, y, indices)
-    if (!closest) {
+    if (!closest & !allowDuplicates) {
       notDups <- !duplicated(indices)
       MAT <- MAT[notDups,,drop=FALSE]
     }
     MAT <- na.omit(MAT)
   }
-  rm(id, indices, rads, angles, x, y)
+  rm(id, indices, rads, x, y)
 
+  #browser()
   if (includeBehavior == "excludePixels" | returnDistances | closest) { # only need to calculate distances
                                                             #   for these two cases
     maxRad <- maxRadius[NROW(maxRadius)]
@@ -674,9 +689,16 @@ setMethod(
       MAT2 <- MAT[MAT[, "rads"] >= (maxRad - 0.71) | MAT[, "rads"] <= (minRad + 0.71),] # 0.71 is the sqrt of 1, so keep
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
-    xyC <- xyFromCell(landscape, MAT2[, "indices"]);
-    a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
-               x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
+
+    if(suppliedAngles) {
+      a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
+                 x = MAT2[, "x"], y = MAT2[, "y"], to = MAT2[, "indices"])
+
+    } else {
+      xyC <- xyFromCell(landscape, MAT2[, "indices"]);
+      a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
+                 x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
+    }
 
     b <- cbind(coords, id=1:NROW(coords))
 
@@ -700,6 +722,9 @@ setMethod(
     if (!returnAngles) {
       d <- d[, -which(colnames(d) == "angles")]
       MAT <- MAT[, -which(colnames(MAT) == "angles")]
+    } else {
+      d[,"angles"] <- (pi/2 - d[,"angles"]) %% (2*pi)# convert to geographic
+      MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
     }
 
     if (returnDistances) {
@@ -716,7 +741,9 @@ setMethod(
   } else {
     if (!returnAngles) {
       MAT <- MAT[, -which(colnames(MAT) == "angles")]
-    }
+    } #else {
+      #MAT[,"angles"] <- pi/2 -  MAT[,"angles"] %% (2*pi)# convert to geographic
+    #}
     MAT <- MAT[, -which(colnames(MAT) == "rads"), drop = FALSE]
   }
   if (!returnIndices) {
@@ -911,3 +938,142 @@ setMethod(
       stop("Must use either a bbox, Raster*, or Extent for 'bounds'")
     }
 })
+
+
+###############################################################################
+#' Identify outward radiating spokes from initial points
+#'
+#' This is a generalized version of a notion of a viewshed. The main difference
+#' is that there can be many "viewpoints".
+#'
+#' @inheritParams cir
+#' @param stopRule A function. If the spokes are to stop. This can be a function
+#'                 of \code{landscape}, fromCell, toCell, x (distance from coords cell),
+#'                 or any other named argument passed into the ... of this function.
+#'                 See examples.
+#' @param nAngles Numeric, length one. Alternative to angles. If provided, the function
+#'                will create a sequence of angles from 0 to 2*pi, with a length
+#'                \code{nAngles}, and not including 2*pi. Will not be used if
+#'                angles is provided, and will show warning of both are given.
+#' @param ... Objects to be used by stopRule function. See examples.
+#'
+#' @return A matrix containing columns id (representing the row numbers of \code{coords}),
+#' angles (from \code{coords} to each point along the spokes), x and y coordinates
+#' of each point along the spokes, the corresponding indices on the \code{landscape}
+#' Raster, dists (the distances between each \code{coords} and each point along the
+#' spokes), and stop, indicating if it was a point that caused a spoke
+#' to stop going outwards due to \code{stopRule}.
+#'
+#' @export
+#' @docType methods
+#' @rdname spokes
+#' @importFrom fpCompare %<<%
+#' @author Eliot McIntire
+#' @examples
+#' library(raster)
+#' library(sp)
+#' Ras <- raster(extent(0,10,0,10), res = 1, val = 0)
+#' rp <- randomPolygons(Ras, numTypes = 10)
+#' seed <- sample(1e6,1)
+#' set.seed(seed)
+#' if(interactive())
+#'   Plot(rp, new=TRUE)
+#' angles <- seq(0,pi*2,length.out = 17)
+#' angles <- angles[-length(angles)]
+#' N <- 2
+#' loci <- sample(ncell(rp), N)
+#' coords <- SpatialPoints(xyFromCell(rp, loci))
+#' stopRule <- function(landscape) landscape < 3
+#' d2 <- spokes(rp, coords = coords, stopRule = stopRule,
+#'              minRadius = 0, maxRadius = 50, returnAngles = TRUE, returnDistances = TRUE,
+#'              allowOverlap = TRUE, angles = angles, returnIndices = TRUE)
+#'
+#' # Assign values to the "patches" that were in the viewshed of a ray
+#' rasB <- raster(Ras)
+#' rasB[] <- 0
+#' rasB[d2[d2[,"stop"]==1,"indices"]] <- 1
+#' Plot(rasB, addTo="rp", zero.color = "transparent", cols = "red")
+#' if(interactive()) {
+#'   # can plot it as raster or spatial points
+#'   # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
+#'   if(NROW(d2)>0) {
+#'     sp1 <- SpatialPoints(d2[,c("x",'y')])
+#'     Plot(sp1, addTo="rp", pch = 19, size = 5, speedup=0.1)
+#'   }
+#'   Plot(coords, addTo="rp", pch = 19, size = 6, cols = "blue", speedup=0.1)
+#' }
+setGeneric("spokes", function(landscape, coords, loci,
+                           maxRadius = ncol(landscape)/4, minRadius = maxRadius,
+                           allowOverlap = TRUE, stopRule = NULL,
+                           includeBehavior = "includePixels", returnDistances = FALSE,
+                           angles = NA_real_, nAngles = NA_real_,
+                           returnAngles = FALSE, returnIndices = TRUE, ...) {
+  standardGeneric("spokes")
+})
+
+#' @export
+#' @rdname spokes
+setMethod(
+  "spokes",
+  signature(landscape = "RasterLayer", coords = "SpatialPoints", loci = "missing"),
+  definition = function(landscape, coords, loci, maxRadius, minRadius = maxRadius, allowOverlap,
+                        stopRule,
+                        includeBehavior, returnDistances, angles, nAngles,
+                        returnAngles, returnIndices, ...
+                        ) {
+  if(!missing(nAngles)) {
+    if(missing(angles)) {
+    angles <- seq(0,pi*2,length.out = 17)
+    angles <- angles[-length(angles)]
+    } else {
+      warning("Both angles and nAngles are provided. Using angles only.")
+    }
+  }
+
+  aCir = cir(landscape, coords = coords, minRadius = minRadius, maxRadius = maxRadius,
+             returnAngles = TRUE, returnDistances = TRUE,
+             allowOverlap = allowOverlap, allowDuplicates = TRUE,
+             angles = angles, returnIndices = returnIndices)
+
+
+  if(!is.null(stopRule)) {
+
+    forms <- names(formals(stopRule))
+    fromC <- "fromCell" %in% forms
+    if(fromC) fromCell <- cellFromXY(landscape, coordinates(coords))
+    toC <- "toCell" %in% forms
+    if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
+    land <- "landscape" %in% forms
+    listArgs <- if(land) list(landscape = landscape[aCir[,"indices"]]) else NULL
+    if(length(list(...))>0) listArgs <- append(listArgs, list(...))
+    xDist <- "x" %in% forms
+
+    #landscape <- landscape[aCir[,"indices"]]
+
+    a <- cbind(aCir,
+               stop = do.call(stopRule,
+                              args = listArgs))
+    a <- cbind(a, stopDist = a[,"stop"]*a[,"dists"])
+    a[a[,"stop"] %==% 0,"stopDist"] <- maxRadius #
+
+    sortedUniqAngles <- sort(unique(a[,"angles"]))
+    dxx <- lapply(sort(unique(a[,"id"])), function(id) {
+      aID <- a[a[,"id"]==id,, drop = FALSE]
+      b <- tapply(aID[,"stopDist"], aID[,"angles"], min, na.rm= TRUE)
+      d1 <- lapply(sortedUniqAngles, function(x) {
+        a1 <- aID[aID[,"angles"] %==% x ,,drop=FALSE]
+        if(includeBehavior=="excludePixels")
+          a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+        else
+          a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+      })
+      do.call(rbind,d1)
+    })
+    d2xx <- do.call(rbind,dxx)
+    whDrop <- match(c("stopDist"), colnames(d2xx))
+    d2xx[,-whDrop,drop=FALSE]
+  }
+
+
+})
+
