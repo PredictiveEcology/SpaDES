@@ -57,7 +57,7 @@ has the potential to use a lot of memory if there are a lot of \code{from} and \
 }
 \details{
 This function is cluster aware. If there is a cluster running, it will use it. To start a cluster
-use \code{\link[raster]{beginCluster(N)}}, with N being the number of cores to use. See examples in
+use \code{\link[raster]{beginCluster}}, with N being the number of cores to use. See examples in
 \code{\link{experiment}}.
 
 
