@@ -28,7 +28,7 @@ if (getRversion() >= "3.1.0") {
 #'
 #' @seealso \code{\link{RFsimulate}} and \code{\link{extent}}
 #'
-#' @importFrom RandomFields RFoptions
+#' @importFrom RandomFieldsUtils RFoptions
 #' @importFrom RandomFields RFsimulate
 #' @importFrom RandomFields RMexp
 #' @importFrom RandomFields round
