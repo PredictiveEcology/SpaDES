@@ -1408,8 +1408,8 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
           cumVal <- rep_len(0, NROW(to))
 
-          for (k in seq_len(NROW(from[[x]]))) {
-            out <- .pointDistance(from = from[[x]][k, , drop = FALSE], to = to, angles = angles,
+          for (k in seq_len(NROW(from))) {
+            out <- .pointDistance(from = from[k, , drop = FALSE], to = to, angles = angles,
                                   maxDistance = maxDistance)
             indices <- cellFromXY(landscape, out[,c("x","y")])
             if(k == 1) {
@@ -1437,27 +1437,27 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
           on.exit(if (!is.null(cl)) returnCluster())
         }
 
-        outerCumFunArgs <- list(landscape = landscape, from = from, to = to, angles = angles,
+        outerCumFunArgs <- list(landscape = landscape, to = to, angles = angles,
                           maxDistance= maxDistance, distFnArgs = distFnArgs,
                           fromC = fromC, toC = toC, xDist = xDist, cumulativeFn = cumulativeFn,
                           distFn = distFn)
 
         parFunFun <- function(x) { # this is a slightly tweaked version of outerCumFun, doing all calls
-          do.call(outerCumFun, append(list(x = x), outerCumFunArgs))
+          do.call(outerCumFun, append(list(x = x, from = fromList[[x]]), outerCumFunArgs))
         }
 
         if (!is.null(cl)) {
           parFun <- "clusterApply"
           seqLen <- seq_len(min(NROW(from), length(cl)))
           inds <- seq.int(NROW(from))[rep(seq_along(cl), length.out=NROW(from))]
-          outerCumFunArgs$from <- lapply(seqLen, function(ind) {
-            outerCumFunArgs$from[inds==ind,,drop=FALSE]
+          fromList <- lapply(seqLen, function(ind) {
+            from[inds==ind,,drop=FALSE]
             })
           parFunArgs <- list(cl = cl, x = seqLen , fun = parFunFun)
 
         } else {
           parFun <- "lapply"
-          outerCumFunArgs$from <- list(outerCumFunArgs$from)
+          fromList <- list(from)
           parFunArgs <- list(X = 1, FUN = parFunFun)
         }
 
