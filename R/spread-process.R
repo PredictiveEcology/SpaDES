@@ -1280,6 +1280,7 @@ setMethod(
 #'               that will be accumulated by the \code{cumulativeFn}. See Details and examples.
 #' @param ... Any additional objects needed for \code{distFn}.
 #'
+#' @inheritParams splitRaster
 #' @rdname distances
 #' @export
 #' @seealso \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
@@ -1349,10 +1350,12 @@ setMethod(
 #' coords <- xyFromCell(ras, cells)
 #' distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
 #' b <- Sys.time()
+#' # beginCluster(3) # can do parallel
 #' dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
 #'                landscape = rp, distFn = distFn, cumulativeFn = `+`)
 #' a <- Sys.time()
 #' print(a-b)
+#' # endCluster() # can do parallel
 #' idwRaster <- raster(ras)
 #' idwRaster[] <- dists1[,"val"]
 #' if (interactive()) {
@@ -1365,7 +1368,7 @@ setMethod(
 #'
 distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
-                                  distFn = function(dist) 1/(1+dist), ...) {
+                                  distFn = function(dist) 1/(1+dist), cl, ...) {
   matched <- FALSE
   if ("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
@@ -1429,8 +1432,10 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
           return(cumVal)
         }
 
-        cl <- tryCatch(getCluster(), error = function(x) NULL)
-        on.exit(if (!is.null(cl)) returnCluster())
+        if(missing(cl)) {
+          cl <- tryCatch(getCluster(), error = function(x) NULL)
+          on.exit(if (!is.null(cl)) returnCluster())
+        }
 
         outerCumFunArgs <- list(landscape = landscape, from = from, to = to, angles = angles,
                           maxDistance= maxDistance, distFnArgs = distFnArgs,

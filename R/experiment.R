@@ -3,7 +3,8 @@
 #'
 #' This is essentially a wrapper around the \code{spades} call that allows for multiple
 #' calls to spades. This function will use a single processor, or multiple processors if
-#' \code{\link[raster]{beginCluster}} has been run first.
+#' \code{\link[raster]{beginCluster}} has been run first or a cluster objects is passed
+#' in the \code{cl} argument (gives more control to user).
 #'
 #' Generally, there are 2 reasons to do this: replication and varying simulation inputs
 #' to accomplish some sort of simulation experiment. This function deals with both of these
@@ -53,6 +54,7 @@
 #'            all. See details.
 #'
 #' @inheritParams spades
+#' @inheritParams splitRaster
 #' @details
 #' This function requires a complete simList: this simList will form the basis of the
 #' modifications as passed by params, modules, inputs, and objects.
@@ -399,7 +401,7 @@ setGeneric(
   function(sim, replicates = 1, params, modules, objects = list(), inputs,
            dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
            experimentFile = "experiment.RData", clearSimEnv = FALSE, notOlderThan,
-           ...) {
+           cl, ...) {
     standardGeneric("experiment")
 })
 
@@ -409,7 +411,7 @@ setMethod(
   signature(sim = "simList"),
   definition = function(sim, replicates, params, modules, objects, inputs,
                         dirPrefix, substrLength, saveExperiment,
-                        experimentFile, clearSimEnv, notOlderThan, ...) {
+                        experimentFile, clearSimEnv, notOlderThan, cl, ...) {
 
     if (missing(params)) params <- list()
     if (missing(modules)) modules <- list(unlist(SpaDES::modules(sim)[-(1:4)]))
@@ -418,8 +420,13 @@ setMethod(
       objects <- unlist(objects, recursive = FALSE)
     }
 
-    cl <- tryCatch(getCluster(), error = function(x) NULL)
-    on.exit(if (!is.null(cl)) returnCluster())
+    if(missing(cl)) {
+      cl <- tryCatch(getCluster(), error = function(x) NULL)
+      on.exit(if (!is.null(cl)) returnCluster())
+    }
+
+    # cl <- tryCatch(getCluster(), error = function(x) NULL)
+    # on.exit(if (!is.null(cl)) returnCluster())
 
     #if (length(modules) == 0) modules <- list(modules(sim)[-(1:4)])
     factorialExpList <- lapply(seq_along(modules), function(x) {

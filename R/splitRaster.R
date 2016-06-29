@@ -25,6 +25,10 @@
 #' @param path    Character specifying the directory to which the split tiles will be saved.
 #'                If missing, the function creates a subfolder in the current working directory
 #'                based on the raster's name (i.e., using \code{names(x)}).
+#' @param cl      A cluster object. Optional. This would generally be created using
+#'                parallel::makeCluster or equivalent. This is an alternative way, instead
+#'                of beginCluster(), to use parallelism for this function, allowing for
+#'                more control over cluster use.
 #'
 #' @return A list (length \code{nx*ny}) of cropped raster tiles.
 #'
@@ -41,7 +45,7 @@
 #'
 #' @example inst/examples/example_splitRaster.R
 #'
-setGeneric("splitRaster", function(r, nx, ny, buffer, path) {
+setGeneric("splitRaster", function(r, nx, ny, buffer, path, cl) {
   standardGeneric("splitRaster")
 })
 
@@ -51,8 +55,13 @@ setMethod(
   "splitRaster",
   signature = signature(r = "RasterLayer", nx = "integer", ny = "integer",
                         buffer = "numeric", path = "character"),
-  definition = function(r, nx, ny, buffer, path) {
+  definition = function(r, nx, ny, buffer, path, cl) {
     checkPath(path, create = TRUE)
+
+    if(missing(cl)) {
+      cl <- tryCatch(getCluster(), error = function(x) NULL)
+      on.exit(if (!is.null(cl)) returnCluster())
+    }
 
     if (length(buffer) > 2) {
       warning("buffer contains more than 2 elements - only the first two will be used.")
@@ -81,8 +90,8 @@ setMethod(
       }
     }
 
-    cl <- tryCatch(getCluster(), error = function(e) NULL)
-    on.exit(if (!is.null(cl)) returnCluster())
+    #cl <- tryCatch(getCluster(), error = function(e) NULL)
+    #on.exit(if (!is.null(cl)) returnCluster())
 
     croppy <- function(i, e, r, path) {
       filename <- file.path(path, paste0(names(r), "_tile", i, ".grd"))

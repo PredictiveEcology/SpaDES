@@ -8,7 +8,7 @@
 \usage{
 distanceFromEachPoint(from, to = NULL, landscape, angles = NA_real_,
   maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(dist)
-  1/(1 + dist), ...)
+  1/(1 + dist), cl, ...)
 
 .pointDistance(from, to, angles = NA, maxDistance = NA_real_)
 }
@@ -37,6 +37,11 @@ location, as the function iterates through each \code{from}. See Details.}
 dist. If cumulativeFn is supplied, then this will be used to convert
 the distances to some other set of units
 that will be accumulated by the \code{cumulativeFn}. See Details and examples.}
+
+\item{cl}{A cluster object. Optional. This would generally be created using
+parallel::makeCluster or equivalent. This is an alternative way, instead
+of beginCluster(), to use parallelism for this function, allowing for
+more control over cluster use.}
 
 \item{...}{Any additional objects needed for \code{distFn}.}
 }

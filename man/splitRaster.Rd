@@ -14,10 +14,10 @@
 \alias{splitRaster,RasterLayer,numeric,numeric,numeric,missing-method}
 \title{Split a RasterLayer into multiple tiles}
 \usage{
-splitRaster(r, nx, ny, buffer, path)
+splitRaster(r, nx, ny, buffer, path, cl)
 
 \S4method{splitRaster}{RasterLayer,integer,integer,numeric,character}(r, nx, ny,
-  buffer, path)
+  buffer, path, cl)
 
 \S4method{splitRaster}{RasterLayer,numeric,numeric,integer,character}(r, nx, ny,
   buffer, path)
@@ -58,6 +58,11 @@ Default is \code{c(0, 0)}, which means no buffer.}
 \item{path}{Character specifying the directory to which the split tiles will be saved.
 If missing, the function creates a subfolder in the current working directory
 based on the raster's name (i.e., using \code{names(x)}).}
+
+\item{cl}{A cluster object. Optional. This would generally be created using
+parallel::makeCluster or equivalent. This is an alternative way, instead
+of beginCluster(), to use parallelism for this function, allowing for
+more control over cluster use.}
 }
 \value{
 A list (length \code{nx*ny}) of cropped raster tiles.
