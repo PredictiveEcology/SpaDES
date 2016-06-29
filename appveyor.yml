@@ -43,7 +43,7 @@ clone_depth: 5
 
 build_script:
   - travis-tool.sh install_deps
-  - travis-tool.sh r_install htmltools
+  - travis-tool.sh r_install htmltools htmlwidgets
 
 test_script:
   - travis-tool.sh run_tests
