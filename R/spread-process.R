@@ -1256,6 +1256,10 @@ setMethod(
 #' use down, but with the consequences that there will be a maximum distance returned. This function
 #' has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 #'
+#' This function is cluster aware. If there is a cluster running, it will use it. To start a cluster
+#' use \code{\link[raster]{beginCluster}}, with N being the number of cores to use. See examples in
+#' \code{\link{experiment}}.
+#'
 #' @param from matrix with 2 or 3 columns, x and y, representing x and y coordinates of "from" cell,
 #'             and optional "id" which will be matched with "id" from \code{to}
 #' @param to matrix with 2  or 3 columns (or optionally more, all of which will be returned),
@@ -1276,6 +1280,7 @@ setMethod(
 #'               that will be accumulated by the \code{cumulativeFn}. See Details and examples.
 #' @param ... Any additional objects needed for \code{distFn}.
 #'
+#' @inheritParams splitRaster
 #' @rdname distances
 #' @export
 #' @seealso \code{\link{rings}}, \code{\link{cir}}, \code{\link[raster]{distanceFromPoints}},
@@ -1311,6 +1316,8 @@ setMethod(
 #' @return A sorted matrix on \code{id} with same number of rows as \code{to},
 #'         but with one extra column, \code{"dists"}
 #'         indicating the distance between from and to.
+#' @importFrom raster getCluster returnCluster
+#' @importFrom parallel clusterApply
 #' @examples
 #' library(raster)
 #' N <- 2
@@ -1341,10 +1348,14 @@ setMethod(
 #' N <- 15
 #' cells <- sample(ncell(ras), N)
 #' coords <- xyFromCell(ras, cells)
-#' distFn <- function(landscape, fromCell, x) landscape[fromCell] / (1 + x)
+#' distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
 #' b <- Sys.time()
+#' # beginCluster(3) # can do parallel
 #' dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
 #'                landscape = rp, distFn = distFn, cumulativeFn = `+`)
+#' a <- Sys.time()
+#' print(a-b)
+#' # endCluster() # can do parallel
 #' idwRaster <- raster(ras)
 #' idwRaster[] <- dists1[,"val"]
 #' if (interactive()) {
@@ -1354,12 +1365,10 @@ setMethod(
 #'   Plot(sp1, addTo="idwRaster")
 #' }
 #'
-#' a <- Sys.time()
-#' print(a-b)
 #'
 distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                   maxDistance = NA_real_, cumulativeFn = NULL,
-                                  distFn = function(x) 1/(1+x), ...) {
+                                  distFn = function(dist) 1/(1+dist), cl, ...) {
   matched <- FALSE
   if ("id" %in% colnames(from)) {
     ids <- unique(from[,"id"])
@@ -1377,9 +1386,9 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
     toC <- "toCell" %in% forms
     if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
     land <- "landscape" %in% forms
-    listArgs <- if(land) list(landscape = landscape[]) else NULL
-    if(length(list(...))>0) listArgs <- append(listArgs, list(...))
-    xDist <- "x" %in% forms
+    distFnArgs <- if(land) list(landscape = landscape[]) else NULL
+    if(length(list(...))>0) distFnArgs <- append(distFnArgs, list(...))
+    xDist <- "dist" %in% forms
   }
   if (!matched) {
     if (NROW(from) > 1) {
@@ -1390,28 +1399,80 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         })
         out <- do.call(rbind, out)
       } else {
-        cumVal <- rep_len(0, NROW(to))
-        for (k in seq_len(NROW(from))) {
-          out <- .pointDistance(from = from[k, , drop = FALSE], to = to, angles = angles,
-                                maxDistance = maxDistance)
-          indices <- cellFromXY(landscape, out[,c("x","y")])
-          if(k == 1) {
-            if(fromC) listArgs <- append(listArgs, list(fromCell = fromCell[k]))
-            if(toC) listArgs <- append(listArgs, list(toCell = toCell[indices]))
-            if(xDist) listArgs <- append(listArgs, list(x = out[, "dists"]))
-          } else {
-            if(fromC) listArgs[["fromCell"]] <- fromCell[k]
-            if(toC) listArgs[["toCell"]] <- toCell[indices]
-            if(xDist) listArgs[["x"]] <- out[, "dists"]
+
+        # if there is a cluster, then there are two levels of cumulative function... inside each
+        #  cluster and outside, or "within and between clusters". This is the outer one.
+        #  The inner one is the one defined by the user argument
+        outerCumFun <- function(x, landscape, from, to, angles, maxDistance, distFnArgs,
+                                fromC, toC, xDist, cumulativeFn, distFn) {
+
+          cumVal <- rep_len(0, NROW(to))
+
+          for (k in seq_len(NROW(from[[x]]))) {
+            out <- .pointDistance(from = from[[x]][k, , drop = FALSE], to = to, angles = angles,
+                                  maxDistance = maxDistance)
+            indices <- cellFromXY(landscape, out[,c("x","y")])
+            if(k == 1) {
+              if(fromC) distFnArgs <- append(distFnArgs, list(fromCell = fromCell[k]))
+              if(toC) distFnArgs <- append(distFnArgs, list(toCell = toCell[indices]))
+              if(xDist) distFnArgs <- append(distFnArgs, list(dist = out[, "dists",drop=FALSE]))
+            } else {
+              if(fromC) distFnArgs[["fromCell"]] <- fromCell[k]
+              if(toC) distFnArgs[["toCell"]] <- toCell[indices]
+              if(xDist) distFnArgs[["dist"]] <- out[, "dists"]
+            }
+
+            names(distFnArgs) <- forms
+            # call inner cumulative function
+            cumVal[indices] <- do.call(cumulativeFn, args =
+                                         list(cumVal[indices],
+                                              do.call(distFn, args = distFnArgs)
+                                         ))
+          }
+          return(cumVal)
+        }
+
+        if(missing(cl)) {
+          cl <- tryCatch(getCluster(), error = function(x) NULL)
+          on.exit(if (!is.null(cl)) returnCluster())
+        }
+
+        outerCumFunArgs <- list(landscape = landscape, from = from, to = to, angles = angles,
+                          maxDistance= maxDistance, distFnArgs = distFnArgs,
+                          fromC = fromC, toC = toC, xDist = xDist, cumulativeFn = cumulativeFn,
+                          distFn = distFn)
+
+        parFunFun <- function(x) { # this is a slightly tweaked version of outerCumFun, doing all calls
+          do.call(outerCumFun, append(list(x = x), outerCumFunArgs))
+        }
+
+        if (!is.null(cl)) {
+          parFun <- "clusterApply"
+          seqLen <- seq_len(min(NROW(from), length(cl)))
+          inds <- seq.int(NROW(from))[rep(seq_along(cl), length.out=NROW(from))]
+          outerCumFunArgs$from <- lapply(seqLen, function(ind) {
+            outerCumFunArgs$from[inds==ind,,drop=FALSE]
+            })
+          parFunArgs <- list(cl = cl, x = seqLen , fun = parFunFun)
+
+        } else {
+          parFun <- "lapply"
+          outerCumFunArgs$from <- list(outerCumFunArgs$from)
+          parFunArgs <- list(X = 1, FUN = parFunFun)
+        }
+
+        # The actual call
+        cumVal <- do.call(get(parFun), args = parFunArgs)
+
+        # must cumulativeFn the separate cluster results
+        if(length(cumVal)>1) {
+          while(is.list(cumVal)) {
+            cumVal <- do.call(cumulativeFn, cumVal[1:2])
           }
 
-          names(listArgs) <- forms
-          cumVal[indices] <- do.call(cumulativeFn, args =
-                                       list(cumVal[indices],
-                                            do.call(distFn, args = listArgs)
-                                            ))
+        } else {
+          cumVal <- cumVal[[1]]
         }
-        #browser()
 
         out <- cbind(to, val = cumVal)
       }

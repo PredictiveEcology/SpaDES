@@ -65,6 +65,7 @@ Imports:
     parallel,
     R.utils,
     RandomFields,
+    RandomFieldsUtils,
     raster,
     RColorBrewer,
     shiny,

@@ -9,12 +9,12 @@
 experiment(sim, replicates = 1, params, modules, objects = list(), inputs,
   dirPrefix = "simNum", substrLength = 3, saveExperiment = TRUE,
   experimentFile = "experiment.RData", clearSimEnv = FALSE, notOlderThan,
-  ...)
+  cl, ...)
 
 \S4method{experiment}{simList}(sim, replicates = 1, params, modules,
   objects = list(), inputs, dirPrefix = "simNum", substrLength = 3,
   saveExperiment = TRUE, experimentFile = "experiment.RData",
-  clearSimEnv = FALSE, notOlderThan, ...)
+  clearSimEnv = FALSE, notOlderThan, cl, ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -56,6 +56,11 @@ Default FALSE.}
 NULL, meaning don't update the cache. If \code{Sys.time()} is provided
 then, it will force a recache. Ignored if \code{cache} is FALSE.}
 
+\item{cl}{A cluster object. Optional. This would generally be created using
+parallel::makeCluster or equivalent. This is an alternative way, instead
+of beginCluster(), to use parallelism for this function, allowing for
+more control over cluster use.}
+
 \item{...}{Passed to \code{spades}. Specifically, \code{debug}, \code{.plotInitialTime},
 \code{.saveInitialTime}, \code{cache} and/or \code{notOlderThan}. Caching
 is still experimental. It is tested to work under some conditions, but not
@@ -75,7 +80,8 @@ normal \code{\link{spades}} call, using \code{outputs} like, say, \code{outputs(
 \description{
 This is essentially a wrapper around the \code{spades} call that allows for multiple
 calls to spades. This function will use a single processor, or multiple processors if
-\code{\link[raster]{beginCluster}} has been run first.
+\code{\link[raster]{beginCluster}} has been run first or a cluster objects is passed
+in the \code{cl} argument (gives more control to user).
 }
 \details{
 Generally, there are 2 reasons to do this: replication and varying simulation inputs

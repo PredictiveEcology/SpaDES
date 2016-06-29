@@ -7,8 +7,8 @@
 \title{Calculate distances and directions between many points and many grid cells}
 \usage{
 distanceFromEachPoint(from, to = NULL, landscape, angles = NA_real_,
-  maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(x) 1/(1 +
-  x), ...)
+  maxDistance = NA_real_, cumulativeFn = NULL, distFn = function(dist)
+  1/(1 + dist), cl, ...)
 
 .pointDistance(from, to, angles = NA, maxDistance = NA_real_)
 }
@@ -38,6 +38,11 @@ dist. If cumulativeFn is supplied, then this will be used to convert
 the distances to some other set of units
 that will be accumulated by the \code{cumulativeFn}. See Details and examples.}
 
+\item{cl}{A cluster object. Optional. This would generally be created using
+parallel::makeCluster or equivalent. This is an alternative way, instead
+of beginCluster(), to use parallelism for this function, allowing for
+more control over cluster use.}
+
 \item{...}{Any additional objects needed for \code{distFn}.}
 }
 \value{
@@ -56,6 +61,12 @@ use down, but with the consequences that there will be a maximum distance return
 has the potential to use a lot of memory if there are a lot of \code{from} and \code{to} points.
 }
 \details{
+This function is cluster aware. If there is a cluster running, it will use it. To start a cluster
+use \code{\link[raster]{beginCluster}}, with N being the number of cores to use. See examples in
+\code{\link{experiment}}.
+
+
+
 If the user requires an id (indicating the from cell for each to cell) to be returned with
 the fuction, the user must add an identifier to the \code{from} matrix, such as "id".
 Otherwise, the function will only return the coordinates and distances.
@@ -103,10 +114,12 @@ rp <- randomPolygons(ras, numTypes = 10) ^ 2
 N <- 15
 cells <- sample(ncell(ras), N)
 coords <- xyFromCell(ras, cells)
-distFn <- function(landscape, fromCell, x) landscape[fromCell] / (1 + x)
+distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
 b <- Sys.time()
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
                landscape = rp, distFn = distFn, cumulativeFn = `+`)
+a <- Sys.time()
+print(a-b)
 idwRaster <- raster(ras)
 idwRaster[] <- dists1[,"val"]
 if (interactive()) {
@@ -116,8 +129,6 @@ if (interactive()) {
   Plot(sp1, addTo="idwRaster")
 }
 
-a <- Sys.time()
-print(a-b)
 
 }
 \seealso{
