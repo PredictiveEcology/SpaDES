@@ -1446,7 +1446,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
         parFunFun <- function(x) { # this is a slightly tweaked version of outerCumFun, doing all calls
           do.call(outerCumFun, append(list(x = x, from = fromList[[x]],
-                                           fromCell = fromCellList[[x]]), outerCumFunArgs))
+                                          if(fromC) fromCell = fromCellList[[x]]), outerCumFunArgs))
         }
 
         if (!is.null(cl)) {
@@ -1456,18 +1456,18 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
           inds <- rep(seq_along(cl), length.out=NROW(from))
           #inds <- sort(rep(seq_along(cl), length.out=NROW(from))) # for testing
           fromList <- lapply(seqLen, function(ind) {
-            from[inds==ind,,drop=FALSE]
+              from[inds==ind,,drop=FALSE]
             })
-          fromCellList <- lapply(seqLen, function(ind) {
-            fromCell[inds==ind]
-          })
+          if(fromC) fromCellList <- lapply(seqLen, function(ind) {
+                      fromCell[inds==ind]
+                    })
           parFunArgs <- list(cl = cl, x = seqLen , fun = parFunFun)
           # parFunArgs <- list(X = seqLen , FUN = parFunFun) # for testing
 
         } else {
           parFun <- "lapply"
           fromList <- list(from)
-          fromCellList <- list(fromCell)
+          if(fromC) fromCellList <- list(fromCell)
           parFunArgs <- list(X = 1, FUN = parFunFun)
         }
 
