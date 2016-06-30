@@ -152,52 +152,54 @@ test_that("experiment does not work correctly", {
 })
 
 test_that("parallel does not work with experiment function", {
-  skip("Can't automatically test parallel processing - Run Manually")
-  library(raster)
-  library(magrittr)
-  library(dplyr)
-  tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
-  on.exit({
-    detach("package:raster")
-    detach("package:magrittr")
-    detach("package:dplyr")
-    unlink(tmpdir, recursive = TRUE)
-  })
+  if(interactive()) {
+    #skip("Can't automatically test parallel processing - Run Manually")
+    library(raster)
+    library(magrittr)
+    library(dplyr)
+    tmpdir <- file.path(tempdir(), "testParallel") %>% checkPath(create = TRUE)
+    on.exit({
+      detach("package:raster")
+      detach("package:magrittr")
+      detach("package:dplyr")
+      unlink(tmpdir, recursive = TRUE)
+    })
 
-  # Example of changing parameter values
-  mySimFull <- simInit(
-    times = list(start = 0.0, end = 2.0, timeunit = "year"),
-    params = list(
-      .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
-      # Turn off interactive plotting
-      fireSpread = list(.plotInitialTime = NA),
-      caribouMovement = list(.plotInitialTime = NA),
-      randomLandscapes = list(.plotInitialTime = NA)
-    ),
-    modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
-    paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
-                 outputPath = tmpdir),
-    # Save final state of landscape and caribou
-    outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
-  )
+    # Example of changing parameter values
+    mySimFull <- simInit(
+      times = list(start = 0.0, end = 2.0, timeunit = "year"),
+      params = list(
+        .globals = list(stackName = "landscape", burnStats = "nPixelsBurned"),
+        # Turn off interactive plotting
+        fireSpread = list(.plotInitialTime = NA),
+        caribouMovement = list(.plotInitialTime = NA),
+        randomLandscapes = list(.plotInitialTime = NA)
+      ),
+      modules = list("randomLandscapes", "fireSpread", "caribouMovement"),
+      paths = list(modulePath = system.file("sampleModules", package = "SpaDES"),
+                   outputPath = tmpdir),
+      # Save final state of landscape and caribou
+      outputs = data.frame(objectName = c("landscape", "caribou"), stringsAsFactors = FALSE)
+    )
 
 
-  # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
-  #    and 2 levels of 1 param in caribouMovement)
-  caribouNums <- c(100, 1000)
-  experimentParams <- list(
-    fireSpread = list(spreadprob = c(0.2), nFires = c(20, 10)),
-    caribouMovement = list(N = caribouNums)
-  )
+    # Create an experiment - here, 2 x 2 x 2 (2 levels of 2 params in fireSpread,
+    #    and 2 levels of 1 param in caribouMovement)
+    caribouNums <- c(100, 1000)
+    experimentParams <- list(
+      fireSpread = list(spreadprob = c(0.2), nFires = c(20, 10)),
+      caribouMovement = list(N = caribouNums)
+    )
 
-  set.seed(2343)
-  seqTime <- system.time(simsSeq <- experiment(mySimFull, params = experimentParams))
+    set.seed(2343)
+    seqTime <- system.time(simsSeq <- experiment(mySimFull, params = experimentParams))
 
-  n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
-  beginCluster(n)
-  set.seed(2343)
-  parTime <- system.time(simsPar <- experiment(mySimFull, params = experimentParams))
-  endCluster()
-  expect_equal(attr(simsPar, "experiment"), attr(simsSeq, "experiment"))
-  expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
+    n <- pmin(parallel::detectCores(), 4) # use up to 4 cores
+    beginCluster(n)
+    set.seed(2343)
+    parTime <- system.time(simsPar <- experiment(mySimFull, params = experimentParams))
+    endCluster()
+    expect_equal(attr(simsPar, "experiment"), attr(simsSeq, "experiment"))
+    expect_gt(as.numeric(seqTime)[3], as.numeric(parTime)[3])
+  }
 })
