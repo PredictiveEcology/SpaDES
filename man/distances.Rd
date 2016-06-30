@@ -116,10 +116,12 @@ cells <- sample(ncell(ras), N)
 coords <- xyFromCell(ras, cells)
 distFn <- function(landscape, fromCell, dist) landscape[fromCell] / (1 + dist)
 b <- Sys.time()
+# beginCluster(3) # can do parallel
 dists1 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
                landscape = rp, distFn = distFn, cumulativeFn = `+`)
 a <- Sys.time()
 print(a-b)
+# endCluster() # can do parallel
 idwRaster <- raster(ras)
 idwRaster[] <- dists1[,"val"]
 if (interactive()) {
