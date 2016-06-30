@@ -152,7 +152,7 @@ test_that("experiment does not work correctly", {
 })
 
 test_that("parallel does not work with experiment function", {
-  if(interactive()) {
+  if (interactive()) {
     #skip("Can't automatically test parallel processing - Run Manually")
     library(raster)
     library(magrittr)

@@ -140,7 +140,7 @@ test_that("splitRaster works in parallel", {
   skip_on_cran()
   skip_on_travis()
   skip_on_appveyor()
-  if(interactive()) {
+  if (interactive()) {
   #skip("parallel usage of splitRaster must be run manually")
 
     library(raster)

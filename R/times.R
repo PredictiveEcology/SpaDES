@@ -282,11 +282,11 @@ setMethod(
 
         # if timeUnit is same as unit, skip calculations
         if (!stri_detect_fixed(unit, pattern = timeUnit)) {
-          if(timeUnit=="second")
+          if (timeUnit=="second")
             time <- time * 1 / inSeconds(unit, envir)
-          else if(unit=="second")
+          else if (unit=="second")
             time <- time * inSeconds(timeUnit, envir) / 1
-          else 
+          else
             time <- time * inSeconds(timeUnit, envir) / inSeconds(unit, envir)
           attr(time, "unit") <- unit
         }

@@ -58,7 +58,7 @@ setMethod(
   definition = function(r, nx, ny, buffer, path, cl) {
     checkPath(path, create = TRUE)
 
-    if(missing(cl)) {
+    if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
       on.exit(if (!is.null(cl)) returnCluster())
     }

@@ -556,7 +556,7 @@ setMethod(
   if (!all(c("x", "y") %in% colnames(coords) )) {
     stop("coords must have columns named x and y")
   }
-  suppliedAngles <- if(all(!is.na(angles))) TRUE else FALSE
+  suppliedAngles <- if (all(!is.na(angles))) TRUE else FALSE
 
   scaleRaster <- res(landscape)
   if (scaleRaster[1] != scaleRaster[2]) {
@@ -662,7 +662,7 @@ setMethod(
   if (moreThanOne & allowOverlap & !closest) {
     MAT <- data.table(id, indices, rads, angles, x = x, y = y)
     setkeyv(MAT, c("id", "indices"))
-    if(!allowDuplicates) {
+    if (!allowDuplicates) {
       MAT <- unique(MAT)
     }
     MAT <- na.omit(MAT)
@@ -671,7 +671,7 @@ setMethod(
     MAT <- cbind(id, rads, angles, x, y, indices)
     if (!closest & !allowDuplicates) {
       notDups <- !duplicated(indices)
-      MAT <- MAT[notDups,,drop=FALSE]
+      MAT <- MAT[notDups, , drop = FALSE]
     }
     MAT <- na.omit(MAT)
   }
@@ -690,7 +690,7 @@ setMethod(
     }                                                                         #  only pixels that are in
                                                                               #  inner or outer ring of pixels
 
-    if(suppliedAngles) {
+    if (suppliedAngles) {
       a <- cbind(id = MAT2[, "id"], rads = MAT2[, "rads"], angles = MAT2[, "angles"],
                  x = MAT2[, "x"], y = MAT2[, "y"], to = MAT2[, "indices"])
 
@@ -700,7 +700,7 @@ setMethod(
                  x = xyC[, "x"], y = xyC[, "y"], to = MAT2[, "indices"])
     }
 
-    b <- cbind(coords, id=1:NROW(coords))
+    b <- cbind(coords, id = 1:NROW(coords))
 
     colnames(b)[1:2] <- c("x", "y")
     d <- distanceFromEachPoint(b, a)
@@ -976,8 +976,7 @@ setMethod(
 #' rp <- randomPolygons(Ras, numTypes = 10)
 #' seed <- sample(1e6,1)
 #' set.seed(seed)
-#' if(interactive())
-#'   Plot(rp, new=TRUE)
+#' if (interactive()) Plot(rp, new = TRUE)
 #' angles <- seq(0,pi*2,length.out = 17)
 #' angles <- angles[-length(angles)]
 #' N <- 2
@@ -991,9 +990,9 @@ setMethod(
 #' # Assign values to the "patches" that were in the viewshed of a ray
 #' rasB <- raster(Ras)
 #' rasB[] <- 0
-#' rasB[d2[d2[,"stop"]==1,"indices"]] <- 1
-#' Plot(rasB, addTo="rp", zero.color = "transparent", cols = "red")
-#' if(interactive()) {
+#' rasB[d2[d2[, "stop"] == 1,"indices"]] <- 1
+#' Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "red")
+#' if (interactive()) {
 #'   # can plot it as raster or spatial points
 #'   # Plot(rasB, addTo = "rp", zero.color = "transparent", cols = "black")
 #'   if(NROW(d2)>0) {
@@ -1021,8 +1020,8 @@ setMethod(
                         includeBehavior, returnDistances, angles, nAngles,
                         returnAngles, returnIndices, ...
                         ) {
-  if(!missing(nAngles)) {
-    if(missing(angles)) {
+  if (!missing(nAngles)) {
+    if (missing(angles)) {
     angles <- seq(0,pi*2,length.out = 17)
     angles <- angles[-length(angles)]
     } else {
@@ -1035,45 +1034,39 @@ setMethod(
              allowOverlap = allowOverlap, allowDuplicates = TRUE,
              angles = angles, returnIndices = returnIndices)
 
-
-  if(!is.null(stopRule)) {
-
+  if (!is.null(stopRule)) {
     forms <- names(formals(stopRule))
     fromC <- "fromCell" %in% forms
-    if(fromC) fromCell <- cellFromXY(landscape, coordinates(coords))
+    if (fromC) fromCell <- cellFromXY(landscape, coordinates(coords))
     toC <- "toCell" %in% forms
-    if(toC) toCell <- cellFromXY(landscape, to[,c("x","y")])
+    if (toC) toCell <- cellFromXY(landscape, to[,c("x", "y")])
     land <- "landscape" %in% forms
-    listArgs <- if(land) list(landscape = landscape[aCir[,"indices"]]) else NULL
-    if(length(list(...))>0) listArgs <- append(listArgs, list(...))
+    listArgs <- if (land) list(landscape = landscape[aCir[, "indices"]]) else NULL
+    if (length(list(...)) > 0) listArgs <- append(listArgs, list(...))
     xDist <- "x" %in% forms
 
     #landscape <- landscape[aCir[,"indices"]]
 
-    a <- cbind(aCir,
-               stop = do.call(stopRule,
-                              args = listArgs))
-    a <- cbind(a, stopDist = a[,"stop"]*a[,"dists"])
+    a <- cbind(aCir, stop = do.call(stopRule, args = listArgs))
+    a <- cbind(a, stopDist = a[, "stop"]*a[,"dists"])
     a[a[,"stop"] %==% 0,"stopDist"] <- maxRadius #
 
     sortedUniqAngles <- sort(unique(a[,"angles"]))
     dxx <- lapply(sort(unique(a[,"id"])), function(id) {
-      aID <- a[a[,"id"]==id,, drop = FALSE]
-      b <- tapply(aID[,"stopDist"], aID[,"angles"], min, na.rm= TRUE)
+      aID <- a[a[, "id"] == id,, drop = FALSE]
+      b <- tapply(aID[, "stopDist"], aID[, "angles"], min, na.rm = TRUE)
       d1 <- lapply(sortedUniqAngles, function(x) {
-        a1 <- aID[aID[,"angles"] %==% x ,,drop=FALSE]
-        if(includeBehavior=="excludePixels")
-          a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+        a1 <- aID[aID[, "angles"] %==% x , , drop = FALSE]
+        if (includeBehavior == "excludePixels")
+          a1[a1[,"dists"] %<<% b[as.numeric(names(b)) %==% x], , drop = FALSE]
         else
-          a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x],,drop=FALSE]
+          a1[a1[,"dists"] %<=% b[as.numeric(names(b)) %==% x], , drop = FALSE]
       })
       do.call(rbind,d1)
     })
     d2xx <- do.call(rbind,dxx)
     whDrop <- match(c("stopDist"), colnames(d2xx))
-    d2xx[,-whDrop,drop=FALSE]
+    d2xx[, -whDrop, drop = FALSE]
   }
-
-
 })
 

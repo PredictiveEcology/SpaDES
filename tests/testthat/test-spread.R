@@ -1119,7 +1119,11 @@ test_that("cir angles arg doesn't work", {
   })
 
 test_that("multiple core version of distanceFromEachPoints does not work correctly", {
-  if(interactive()) {
+  skip_on_cran()
+  skip_on_travis()
+  skip_on_appveyor()
+
+  if (interactive()) {
     require(raster)
     require(parallel)
 
@@ -1132,16 +1136,17 @@ test_that("multiple core version of distanceFromEachPoints does not work correct
     dfep <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`)
     system.time({cl1 <- makeCluster(1, rscript_args = "--vanilla --no-environ")
        clusterEvalQ(cl1, {library(SpaDES)})})
-    system.time(dfepCluster <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`,
-                                  cl = cl1))
+    system.time(dfepCluster <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+                                                     landscape = hab, cumulativeFn = `+`,
+                                                     cl = cl1))
     stopCluster(cl1)
     expect_true(all.equal(dfep, dfepCluster))
     system.time({beginCluster(1)})
-    system.time(dfepCluster2 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`,
-                                         cl = cl1))
+    system.time(dfepCluster2 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE],
+                                                      landscape = hab, cumulativeFn = `+`,
+                                                      cl = cl1))
     endCluster()
     expect_true(all.equal(dfep, dfepCluster2))
-
   }
 })
 

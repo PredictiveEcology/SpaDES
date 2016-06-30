@@ -420,7 +420,7 @@ setMethod(
       objects <- unlist(objects, recursive = FALSE)
     }
 
-    if(missing(cl)) {
+    if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
       on.exit(if (!is.null(cl)) returnCluster())
     }
