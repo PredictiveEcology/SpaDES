@@ -1403,7 +1403,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         # if there is a cluster, then there are two levels of cumulative function... inside each
         #  cluster and outside, or "within and between clusters". This is the outer one.
         #  The inner one is the one defined by the user argument
-        outerCumFun <- function(x, landscape, from, to, angles, maxDistance, distFnArgs,
+        outerCumFun <- function(x, from, fromCell, landscape, to, angles, maxDistance, distFnArgs,
                                 fromC, toC, xDist, cumulativeFn, distFn) {
 
           cumVal <- rep_len(0, NROW(to))
@@ -1429,7 +1429,9 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                                               do.call(distFn, args = distFnArgs)
                                          ))
           }
+
           return(cumVal)
+
         }
 
         if(missing(cl)) {
@@ -1443,21 +1445,29 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
                           distFn = distFn)
 
         parFunFun <- function(x) { # this is a slightly tweaked version of outerCumFun, doing all calls
-          do.call(outerCumFun, append(list(x = x, from = fromList[[x]]), outerCumFunArgs))
+          do.call(outerCumFun, append(list(x = x, from = fromList[[x]],
+                                           fromCell = fromCellList[[x]]), outerCumFunArgs))
         }
 
         if (!is.null(cl)) {
           parFun <- "clusterApply"
+          #parFun <- "lapply" # for testing
           seqLen <- seq_len(min(NROW(from), length(cl)))
-          inds <- seq.int(NROW(from))[rep(seq_along(cl), length.out=NROW(from))]
+          inds <- rep(seq_along(cl), length.out=NROW(from))
+          #inds <- sort(rep(seq_along(cl), length.out=NROW(from))) # for testing
           fromList <- lapply(seqLen, function(ind) {
             from[inds==ind,,drop=FALSE]
             })
+          fromCellList <- lapply(seqLen, function(ind) {
+            fromCell[inds==ind]
+          })
           parFunArgs <- list(cl = cl, x = seqLen , fun = parFunFun)
+          # parFunArgs <- list(X = seqLen , FUN = parFunFun) # for testing
 
         } else {
           parFun <- "lapply"
           fromList <- list(from)
+          fromCellList <- list(fromCell)
           parFunArgs <- list(X = 1, FUN = parFunFun)
         }
 
@@ -1465,14 +1475,13 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
         cumVal <- do.call(get(parFun), args = parFunArgs)
 
         # must cumulativeFn the separate cluster results
-        if(length(cumVal)>1) {
-          while(is.list(cumVal)) {
-            cumVal <- do.call(cumulativeFn, cumVal[1:2])
-          }
-
-        } else {
-          cumVal <- cumVal[[1]]
+        while(length(cumVal)>1) {
+            cumVal[[2]] <- do.call(cumulativeFn, cumVal[1:2])
+            cumVal[[1]] <- NULL
         }
+
+        cumVal <- cumVal[[1]]
+
 
         out <- cbind(to, val = cumVal)
       }
