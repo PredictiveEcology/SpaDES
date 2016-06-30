@@ -689,6 +689,7 @@ test_that("distanceFromPoints does not work correctly", {
   dfep <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`)
   expect_true(sum(idw-dfep[, "val"]) %==% 0)
 
+
   skip("this is currently only benchmarking")
 
   library(microbenchmark)
@@ -1064,6 +1065,7 @@ test_that("wrap does not work correctly", {
                "When X is a matrix, it must have 2 columns, x and y,")
 
 })
+
 test_that("cir angles arg doesn't work", {
 
   require(raster)
@@ -1115,3 +1117,31 @@ test_that("cir angles arg doesn't work", {
                                 maxRadius = 3, minRadius = 0, returnIndices = TRUE,
                                 allowOverlap = TRUE, returnAngles = TRUE)
   })
+
+test_that("multiple core version of distanceFromEachPoints does not work correctly", {
+  if(interactive()) {
+    require(raster)
+    require(parallel)
+
+    hab <- randomPolygons(raster(extent(0, 1e2, 0, 1e2)), res = 1)
+
+    # evaluate cumulativeFn
+    N <- 50
+    coords <- cbind(x = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5,
+                    y = round(stats::runif(N, xmin(hab), xmax(hab))) + 0.5)
+    dfep <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`)
+    system.time({cl1 <- makeCluster(1, rscript_args = "--vanilla --no-environ")
+       clusterEvalQ(cl1, {library(SpaDES)})})
+    system.time(dfepCluster <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`,
+                                  cl = cl1))
+    stopCluster(cl1)
+    expect_true(all.equal(dfep, dfepCluster))
+    system.time({beginCluster(1)})
+    system.time(dfepCluster2 <- distanceFromEachPoint(coords[, c("x", "y"), drop = FALSE], landscape = hab, cumulativeFn = `+`,
+                                         cl = cl1))
+    endCluster()
+    expect_true(all.equal(dfep, dfepCluster2))
+
+  }
+})
+
