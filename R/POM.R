@@ -3,24 +3,29 @@
 #'
 #'
 #' @inheritParams spades
-#' @params objFn An objective function to be passed into DEoptim
-#' @params cl A cluster object, likely from parallel::makeCluster
+#' @inheritParams splitRaster
+#' @param objFn An objective function to be passed into
+#'              \code{optimizer}
+#' @param optimizer The function to use to optimize. Default is
+#'                  DEoptim
+#' @param ... All objects needed in objFn
 #'
-#' @return A .
+#' @return The values for parameters used in objFn that minimize
+#' the objFn.
 #'
-#' @seealso \code{\link{spades}},
-#' \code{\link{times}}, \code{\link{params}}, \code{\link{objs}}, \code{\link{paths}},
-#' \code{\link{modules}}, \code{\link{inputs}}, \code{\link{outputs}}
+#' @seealso \code{\link{spades}}, \code{\link[parallel]{makeCluster}},
+#' \code{\link{simInit}}
 #'
 #' @include module-dependencies-class.R
+#' @include helpers.R
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
 #' @export
 #' @docType methods
-#' @rdname simInit
+#' @rdname POM
 #'
-#' @author Alex Chubaty and Eliot McIntire
+#' @author Eliot McIntire
 #'
 #' @references Matloff, N. (2011). The Art of R Programming (ch. 7.8.3). San Fransisco, CA: No Starch Press, Inc.. Retrieved from \url{https://www.nostarch.com/artofr.htm}
 #'
@@ -68,11 +73,11 @@ setGeneric(
     standardGeneric("POM")
   })
 
-#' @rdname simInit
+#' @rdname POM
 setMethod(
   "POM",
   signature(sim = "simList", objFn = "function"),
-  definition = function(simList, objFn, optimizer, cl, ...) {
+  definition = function(sim, objFn, cl, optimizer, ...) {
 
     stop("this is a stub")
   })

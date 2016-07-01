@@ -10,7 +10,8 @@ Description: Easily implement a variety of simulation models, with a focus on
     visualize raster and other maps. The suggested package `fastshp` can be
     installed with `install.packages("fastshp", repos="http://rforge.net",
     type="source")`.
-URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/SpaDES
+URL: http://spades.predictiveecology.org, https://github.com/PredictiveEcology/
+    SpaDES
 Version: 1.2.0.9000
 Date: 2016-06-24
 Authors@R: c(
@@ -74,23 +75,23 @@ Imports:
     stringi,
     stringr,
     utils
-Remotes:
-    s-u/fastshp,
+Remotes: s-u/fastshp,
     MangoTheCat/visualTest
 License: GPL-3
 VignetteBuilder: knitr, rmarkdown
 BugReports: https://github.com/PredictiveEcology/SpaDES/issues
 ByteCompile: yes
 Collate:
-    'agent.R'
-    'SELES.R'
+    'priority.R'
+    'environment.R'
     'misc-methods.R'
     'module-dependencies-class.R'
     'helpers.R'
     'simList-class.R'
+    'POM.R'
+    'agent.R'
+    'SELES.R'
     'check.R'
-    'priority.R'
-    'environment.R'
     'checkpoint.R'
     'copy.R'
     'experiment.R'
