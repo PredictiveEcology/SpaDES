@@ -3,12 +3,13 @@
 \docType{methods}
 \name{POM}
 \alias{POM}
-\alias{POM,simList,function-method}
+\alias{POM,simList-method}
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
-POM(sim, objFn, cl, optimizer = "DEoptim", ...)
+POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", ...)
 
-\S4method{POM}{simList,`function`}(sim, objFn, cl, optimizer = "DEoptim", ...)
+\S4method{POM}{simList}(sim, params, objects, objFn, cl,
+  optimizer = "DEoptim", ...)
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}

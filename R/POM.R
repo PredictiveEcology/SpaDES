@@ -32,6 +32,7 @@
 #' @examples
 #' \dontrun{
 #'  set.seed(52461)
+#'  library(parallel)
 #'  mySim <- simInit(
 #'    times = list(start = 0.0, end = 2.0, timeunit = "year"),
 #'    params = list(
@@ -44,41 +45,95 @@
 #'  )
 #'  out <- spades(copy(mySim), .plotInitialTime = NA)
 #'  fireData <- out$landscape$Fires
+#'
+#'  cl <- makeCluster(3)
+#'  POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
+#'      cl = cl)
 #'  Plot(fireData, new=TRUE)
 #'
-#'
-#'  library(parallel)
-#'  library(DEoptim)
-#'  objFn <- function(spreadProb, fireMap, simList) {
-#'     params(mySim)$fireSpread$spreadprob = spreadProb
-#'     out <- spades(copy(simList), .plotInitialTime = NA)
-#'     abs(cellStats(fireMap - out$landscape$Fires, "sum"))
-#'  }
-#'  cl <- makeCluster(6)
-#'  clusterExport(cl, c("mySim", "fireData"))
-#'  clusterEvalQ(cl, {
-#'  library(SpaDES)
-#'  library(RColorBrewer)
-#'  library(raster)
-#'  })
-#'  output <- DEoptim(objFn, lower = 0.10, upper = 0.26, simList = mySim, fireMap = fireData,
-#'      control=list(parallelType=3, itermax = 10), cl = cl)
+#'  fireData <- out$landscape$Fires
+#'  N <- length(out$caribou)
+#'  POM(mySim, c("spreadprob", "N"),
+#'     list(fireData = "landscape$Fires",
+#'          N = function(caribou) length(caribou)),
+#'      cl = cl)
 #'  stopCluster(cl)
 #'
 #'  )
 #'  }
 setGeneric(
   "POM",
-  function(sim, objFn, cl, optimizer = "DEoptim", ...) {
+  function(sim, params, objects, objFn, cl, optimizer = "DEoptim", ...) {
     standardGeneric("POM")
   })
 
 #' @rdname POM
 setMethod(
   "POM",
-  signature(sim = "simList", objFn = "function"),
-  definition = function(sim, objFn, cl, optimizer, ...) {
+  signature(sim = "simList", params = "character", objects = "ANY"),
+  definition = function(sim, params, objects, objFn, cl, optimizer, ...) {
 
-    stop("this is a stub")
+    if (missing(cl)) {
+      cl <- tryCatch(getCluster(), error = function(x) NULL)
+      on.exit(if (!is.null(cl)) returnCluster())
+    }
+    paramNames <- lapply(SpaDES::params(sim), names)
+    whParams <- lapply(paramNames, function(pn) match(params, pn))
+    whModules <- unlist(lapply(whParams, function(mod) any(!is.na(mod))))
+
+    whParamsByMod <- unlist(lapply(whParams, na.omit))
+    #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
+
+    if(missing(objFn)) {
+      objFn <- function(p, objects, simList, whModules, whParams, whParamsByMod) {
+        whP <- 0
+        for(wh in seq_along(whParamsByMod)) {
+          whP <- whP + 1
+          params(simList)[[names(whParamsByMod)[wh]]][[whParamsByMod[wh]]] <-
+            p[whP]
+        }
+
+        out <- spades(SpaDES::copy(simList), .plotInitialTime = NA)
+
+        obs <- lapply(objects, function(objs) {
+          if(is.function(objs)) {
+            dat <- mget(names(formals(objs)), envir = envir(simList))
+            do.call(objs, dat)
+          } else {
+            eval(parse(text = objs[[1]])[[1]], envir=envir(simList))
+          }
+        })
+
+        objectiveRes <- unlist(lapply(seq_along(obs), function(x) {
+          if(is(obs[[x]], "Raster")) {
+            newRas <- obs[[x]] - get(names(obs)[[x]])
+            val <- scale(getValues(newRas))
+
+          } else {
+            val <- (obs[[x]] - get(names(obs)[[x]]))/max(obs[[x]],get(names(obs)[[x]]))
+          }
+        }))
+        sum(objectiveRes)
+    } }
+
+    if(!is.null(cl)) {
+      clusterExport(cl, c("sim", names(objects)), envir = sys.frame(1))
+      clusterEvalQ(cl, {
+        library(SpaDES)
+        library(RColorBrewer)
+        library(raster)
+      })
+    }
+
+
+    lowerRange <- c(0.1, 50)
+    upperRange <- c(0.26, 200)
+    output <- DEoptim(objFn, lower = lowerRange, upper = upperRange,
+                      simList = sim, objects = objects,
+                      whModules = whModules, whParams = whParams,
+                      whParamsByMod = whParamsByMod)#,
+        #control=list(parallelType=3, itermax = 1), cl = cl)
+    if(!is.null(cl)) stopCluster(cl)
+
   })
 
