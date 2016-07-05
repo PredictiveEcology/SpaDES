@@ -46,6 +46,7 @@ Imports:
     chron,
     CircStats,
     data.table,
+    DEoptim,
     DiagrammeR (>= 0.8.2),
     digest,
     dplyr,

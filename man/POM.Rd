@@ -3,13 +3,14 @@
 \docType{methods}
 \name{POM}
 \alias{POM}
-\alias{POM,simList-method}
+\alias{POM,simList,character-method}
 \title{Use Pattern Oriented Modeling to fit unknown parameters}
 \usage{
-POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", ...)
+POM(sim, params, objects, objFn, cl, optimizer = "DEoptim", ...,
+  objFnCompare = "MAD")
 
-\S4method{POM}{simList}(sim, params, objects, objFn, cl,
-  optimizer = "DEoptim", ...)
+\S4method{POM}{simList,character}(sim, params, objects, objFn, cl,
+  optimizer = "DEoptim", ..., objFnCompare = "MAD")
 }
 \arguments{
 \item{sim}{A \code{simList} simulation object, generally produced by \code{simInit}.}
@@ -26,6 +27,10 @@ more control over cluster use.}
 DEoptim}
 
 \item{...}{All objects needed in objFn}
+
+\item{objFnCompare}{Character string. Either, "MAD" or "RMSE" indicating that inside the objective
+function, data and prediction will be compared by Mean Absolute Deviation or
+Root Mean Squared Error. Default is "MAD".}
 }
 \value{
 The values for parameters used in objFn that minimize
@@ -37,6 +42,7 @@ Use Pattern Oriented Modeling to fit unknown parameters
 \examples{
 \dontrun{
  set.seed(52461)
+ library(parallel)
  mySim <- simInit(
    times = list(start = 0.0, end = 2.0, timeunit = "year"),
    params = list(
@@ -51,23 +57,15 @@ Use Pattern Oriented Modeling to fit unknown parameters
  fireData <- out$landscape$Fires
  Plot(fireData, new=TRUE)
 
-
- library(parallel)
- library(DEoptim)
- objFn <- function(spreadProb, fireMap, simList) {
-    params(mySim)$fireSpread$spreadprob = spreadProb
-    out <- spades(copy(simList), .plotInitialTime = NA)
-    abs(cellStats(fireMap - out$landscape$Fires, "sum"))
- }
  cl <- makeCluster(6)
- clusterExport(cl, c("mySim", "fireData"))
- clusterEvalQ(cl, {
- library(SpaDES)
- library(RColorBrewer)
- library(raster)
- })
- output <- DEoptim(objFn, lower = 0.10, upper = 0.26, simList = mySim, fireMap = fireData,
-     control=list(parallelType=3, itermax = 10), cl = cl)
+ POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
+     cl = cl)
+
+ N <- length(out$caribou)
+ POM(mySim, c("spreadprob", "N"),
+    list(fireData = "landscape$Fires",
+         N = function(caribou) length(caribou)),
+     cl = cl)
  stopCluster(cl)
 
  )

@@ -312,6 +312,7 @@ setMethod(
     paths <- lapply(paths, checkPath, create = TRUE)
     modulesLoaded <- list()
 
+    browser()
     if (length(names(objects)) != length(objects)) {
       stop("Please pass a named list or character vector of object names whose values",
            "can be found in the parent frame of the simInit call")

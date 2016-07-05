@@ -10,6 +10,10 @@
 #'                  DEoptim
 #' @param ... All objects needed in objFn
 #'
+#' @param objFnCompare Character string. Either, "MAD" or "RMSE" indicating that inside the objective
+#'                     function, data and prediction will be compared by Mean Absolute Deviation or
+#'                     Root Mean Squared Error. Default is "MAD".
+#'
 #' @return The values for parameters used in objFn that minimize
 #' the objFn.
 #'
@@ -21,6 +25,7 @@
 #' @include simList-class.R
 #' @include environment.R
 #' @include priority.R
+#' @importFrom DEoptim DEoptim DEoptim.control
 #' @export
 #' @docType methods
 #' @rdname POM
@@ -45,13 +50,12 @@
 #'  )
 #'  out <- spades(copy(mySim), .plotInitialTime = NA)
 #'  fireData <- out$landscape$Fires
-#'
-#'  cl <- makeCluster(3)
-#'  POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
-#'      cl = cl)
 #'  Plot(fireData, new=TRUE)
 #'
-#'  fireData <- out$landscape$Fires
+#'  cl <- makeCluster(6)
+#'  POM(mySim, "spreadprob", list(fireData = "landscape$Fires"),
+#'      cl = cl)
+#'
 #'  N <- length(out$caribou)
 #'  POM(mySim, c("spreadprob", "N"),
 #'     list(fireData = "landscape$Fires",
@@ -63,7 +67,7 @@
 #'  }
 setGeneric(
   "POM",
-  function(sim, params, objects, objFn, cl, optimizer = "DEoptim", ...) {
+  function(sim, params, objects, objFn, cl, optimizer = "DEoptim", ..., objFnCompare = "MAD") {
     standardGeneric("POM")
   })
 
@@ -71,7 +75,7 @@ setGeneric(
 setMethod(
   "POM",
   signature(sim = "simList", params = "character", objects = "ANY"),
-  definition = function(sim, params, objects, objFn, cl, optimizer, ...) {
+  definition = function(sim, params, objects, objFn, cl, optimizer, ..., objFnCompare) {
 
 
     if (missing(cl)) {
@@ -88,8 +92,11 @@ setMethod(
     whParamsByMod <- unlist(lapply(whParams, na.omit))
     #whParamsList1 <- match(params, unlist(lapply(SpaDES::params(sim), names)))
 
+    range01 <- function(x, ...){(x - min(x, ...)) / (max(x, ...) - min(x, ...))}
+
     if(missing(objFn)) {
       objFn <- function(p, objects, simList, whModules, whParams, whParamsByMod) {
+        browser()
         whP <- 0
         for(wh in seq_along(whParamsByMod)) {
           whP <- whP + 1
@@ -99,7 +106,7 @@ setMethod(
 
         out <- spades(SpaDES::copy(simList), .plotInitialTime = NA)
 
-        obs <- lapply(objects, function(objs) {
+        outputObjects <- lapply(objects, function(objs) {
           if(is.function(objs)) {
             dat <- mget(names(formals(objs)), envir = envir(out))
             do.call(objs, dat)
@@ -108,15 +115,24 @@ setMethod(
           }
         })
 
-        objectiveRes <- unlist(lapply(seq_along(obs), function(x) {
-          if(is(obs[[x]], "Raster")) {
-            newRas <- abs(obs[[x]] - get(names(obs)[[x]]))
-            val <- (getValues(newRas) - minValue(newRas))/(maxValue(newRas) - minValue(newRas))
-            mean(val)
-
+        objectiveRes <- unlist(lapply(seq_along(outputObjects), function(x) {
+          if(is(outputObjects[[x]], "Raster")) {
+            outObj <- getValues(outputObjects[[x]])
+            dataObj <- getValues(get(names(outputObjects)[[x]]))
           } else {
-            val <- mean((obs[[x]] - get(names(obs)[[x]]))/max(obs[[x]],get(names(obs)[[x]])))
+            outObj <- outputObjects[[x]]
+            dataObj <- get(names(outputObjects)[[x]])
           }
+
+          browser()
+          if(objFnCompare=="MAD") {
+            mean(abs(range01(outObj - dataObj)))
+          } else if(objFnCompare=="RMSE"){
+            sqrt(mean((outObj - dataObj)^2))
+          } else {
+            stop("objFnCompare must be either MAD or RMSE, see help")
+          }
+
         }))
         sum(objectiveRes)
     } }
