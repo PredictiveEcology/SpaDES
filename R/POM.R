@@ -134,9 +134,12 @@ setMethod(
                           whModules = whModules, whParams = whParams,
                           whParamsByMod = whParamsByMod)
     if(!is.null(cl)) {
-      do.call(DEoptim.control, list(parallelType=3))
-      deoptimArgs <- append(deoptimArgs, list(cl = cl))
+      #do.call(DEoptim.control, list(parallelType=3))
+      deoptimArgs <- append(deoptimArgs,
+                            list(control = DEoptim.control(parallelType=3),
+                                                cl = cl))
     }
+    browser()
     output <- do.call(DEoptim, deoptimArgs)
     # output <- DEoptim(objFn, lower = lowerRange, upper = upperRange,
     #                   simList = sim, objects = objects,
