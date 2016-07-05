@@ -97,20 +97,21 @@ setMethod(
 
         obs <- lapply(objects, function(objs) {
           if(is.function(objs)) {
-            dat <- mget(names(formals(objs)), envir = envir(simList))
+            dat <- mget(names(formals(objs)), envir = envir(out))
             do.call(objs, dat)
           } else {
-            eval(parse(text = objs[[1]])[[1]], envir=envir(simList))
+            eval(parse(text = objs[[1]])[[1]], envir = envir(out))
           }
         })
 
         objectiveRes <- unlist(lapply(seq_along(obs), function(x) {
           if(is(obs[[x]], "Raster")) {
-            newRas <- obs[[x]] - get(names(obs)[[x]])
-            val <- scale(getValues(newRas))
+            newRas <- abs(obs[[x]] - get(names(obs)[[x]]))
+            val <- (getValues(newRas) - minValue(newRas))/(maxValue(newRas) - minValue(newRas))
+            mean(val)
 
           } else {
-            val <- (obs[[x]] - get(names(obs)[[x]]))/max(obs[[x]],get(names(obs)[[x]]))
+            val <- mean((obs[[x]] - get(names(obs)[[x]]))/max(obs[[x]],get(names(obs)[[x]])))
           }
         }))
         sum(objectiveRes)
@@ -128,11 +129,19 @@ setMethod(
 
     lowerRange <- c(0.1, 50)
     upperRange <- c(0.26, 200)
-    output <- DEoptim(objFn, lower = lowerRange, upper = upperRange,
-                      simList = sim, objects = objects,
-                      whModules = whModules, whParams = whParams,
-                      whParamsByMod = whParamsByMod)#,
-        #control=list(parallelType=3, itermax = 1), cl = cl)
+    deoptimArgs <- list(fn = objFn, lower = lowerRange, upper = upperRange,
+                          simList = sim, objects = objects,
+                          whModules = whModules, whParams = whParams,
+                          whParamsByMod = whParamsByMod)
+    if(!is.null(cl)) {
+      do.call(DEoptim.control, list(parallelType=3))
+      deoptimArgs <- append(deoptimArgs, list(cl = cl))
+    }
+    output <- do.call(DEoptim, deoptimArgs)
+    # output <- DEoptim(objFn, lower = lowerRange, upper = upperRange,
+    #                   simList = sim, objects = objects,
+    #                   whModules = whModules, whParams = whParams,
+    #                   whParamsByMod = whParamsByMod, cl = cl)
     if(!is.null(cl)) stopCluster(cl)
 
   })
