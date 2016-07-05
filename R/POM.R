@@ -73,9 +73,13 @@ setMethod(
   signature(sim = "simList", params = "character", objects = "ANY"),
   definition = function(sim, params, objects, objFn, cl, optimizer, ...) {
 
+
     if (missing(cl)) {
       cl <- tryCatch(getCluster(), error = function(x) NULL)
       on.exit(if (!is.null(cl)) returnCluster())
+      clProvided <- FALSE
+    } else {
+      clProvided <- TRUE
     }
     paramNames <- lapply(SpaDES::params(sim), names)
     whParams <- lapply(paramNames, function(pn) match(params, pn))
@@ -139,13 +143,8 @@ setMethod(
                             list(control = DEoptim.control(parallelType=3),
                                                 cl = cl))
     }
-    browser()
     output <- do.call(DEoptim, deoptimArgs)
-    # output <- DEoptim(objFn, lower = lowerRange, upper = upperRange,
-    #                   simList = sim, objects = objects,
-    #                   whModules = whModules, whParams = whParams,
-    #                   whParamsByMod = whParamsByMod, cl = cl)
-    if(!is.null(cl)) stopCluster(cl)
+    if(!clProvided) stopCluster(cl)
 
   })
 
