@@ -658,8 +658,12 @@ setGeneric("parameters", function(object) {
 setMethod("parameters",
           signature = ".simList",
           definition = function(object) {
-            return(lapply(depends(object)@dependencies,
-                          function(x) x@parameters))
+            browser()
+            tmp <- lapply(depends(object)@dependencies,
+                          function(x) {
+                            lapply(seq_len(NROW(x@parameters)), function(y)
+                            x@parameters[y,-1])})
+            return(tmp)
           })
 
 

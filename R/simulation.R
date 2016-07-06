@@ -92,7 +92,6 @@ setMethod(
         eval(parse(text = tt), envir = environment())
       })
 
-      browser()
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
@@ -110,7 +109,8 @@ setMethod(
       }
     }
 
-    browser()
+    names(depends(sim)@dependencies) <- unlist(modules)
+
     modules(sim) <- if (length(parent_ids)) {
         append_attr(modules, all_children)[-parent_ids]
       } else {
