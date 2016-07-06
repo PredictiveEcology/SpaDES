@@ -14,6 +14,8 @@
 \alias{globals,.simList-method}
 \alias{globals<-}
 \alias{globals<-,.simList-method}
+\alias{parameters}
+\alias{parameters,.simList-method}
 \alias{params}
 \alias{params,.simList-method}
 \alias{params<-}
@@ -44,6 +46,10 @@ globals(object)
 globals(object) <- value
 
 \S4method{globals}{.simList}(object) <- value
+
+parameters(object)
+
+\S4method{parameters}{.simList}(object)
 
 checkpointFile(object)
 

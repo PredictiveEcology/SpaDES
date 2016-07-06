@@ -644,6 +644,29 @@ setReplaceMethod("globals",
 
 ################################################################################
 #' @inheritParams params
+#' @include simList-class.R
+#' @export
+#' @docType methods
+#' @rdname simList-accessors-params
+#'
+setGeneric("parameters", function(object) {
+  standardGeneric("parameters")
+})
+
+#' @export
+#' @rdname simList-accessors-params
+setMethod("parameters",
+          signature = ".simList",
+          definition = function(object) {
+            return(lapply(depends(object)@dependencies,
+                          function(x) x@parameters))
+          })
+
+
+
+
+################################################################################
+#' @inheritParams params
 #' @export
 #' @include simList-class.R
 #' @docType methods

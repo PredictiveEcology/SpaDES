@@ -92,6 +92,7 @@ setMethod(
         eval(parse(text = tt), envir = environment())
       })
 
+      browser()
       # evaluate the rest of the parsed file
       eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
@@ -109,6 +110,7 @@ setMethod(
       }
     }
 
+    browser()
     modules(sim) <- if (length(parent_ids)) {
         append_attr(modules, all_children)[-parent_ids]
       } else {
@@ -312,7 +314,6 @@ setMethod(
     paths <- lapply(paths, checkPath, create = TRUE)
     modulesLoaded <- list()
 
-    browser()
     if (length(names(objects)) != length(objects)) {
       stop("Please pass a named list or character vector of object names whose values",
            "can be found in the parent frame of the simInit call")
