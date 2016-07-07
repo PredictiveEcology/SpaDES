@@ -74,6 +74,11 @@ setMethod(
       parsedFile <- parse(filename)
       defineModuleItem <- grepl(pattern = "defineModule", parsedFile)
 
+      # evaluate all but defintModule function. By doing it first,
+      #  user can use variables in the module as part of parameters
+      #  or inputs
+      eval(parsedFile[!defineModuleItem], envir = envir(sim))
+
       # evaluate only the 'defineModule' function of parsedFile
       sim <- eval(parsedFile[defineModuleItem])
 
@@ -91,9 +96,6 @@ setMethod(
           )
         eval(parse(text = tt), envir = environment())
       })
-
-      # evaluate the rest of the parsed file
-      eval(parsedFile[!defineModuleItem], envir = envir(sim))
 
       # update parse status of the module
       attributes(modules[[j]]) <- list(parsed = TRUE)
