@@ -34,7 +34,11 @@ setMethod(
     suppressWarnings(
       try(rm(list = paste0("spadesPlot", dev), envir = .spadesEnv))
     )
+
     if (removeData) {
+      suppressWarnings(
+        try(rm(list = paste0("basePlots_", dev), envir = .spadesEnv))
+      )
       suppressWarnings(
         try(rm(list = ls(.spadesEnv[[paste0("dev", dev)]]),
                envir = .spadesEnv[[paste0("dev", dev)]]), silent = TRUE)
@@ -53,7 +57,7 @@ setMethod(
 setMethod("clearPlot",
           signature = c("numeric", "missing"),
           definition = function(dev) {
-            clearPlot(dev, removeData = FALSE)
+            clearPlot(dev, removeData = TRUE)
 })
 
 #' @export
@@ -69,7 +73,7 @@ setMethod("clearPlot",
 setMethod("clearPlot",
           signature = c("missing","missing"),
           definition =  function(dev, removeData) {
-            clearPlot(dev.cur(), removeData = FALSE)
+            clearPlot(dev.cur(), removeData = TRUE)
 })
 
 ################################################################################

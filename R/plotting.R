@@ -1469,28 +1469,68 @@ setMethod(
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
 
-    canPlot <- if (!is.null(names(whichSpadesPlottables))) {
-      whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
-    } else {
-      whichSpadesPlottables
-    }
+    if(any(!whichSpadesPlottables)) { ## if not a .spadesPlottables then it is a pass to plot or points
+      if(!exists(paste0("basePlots_",dev.cur()), envir=.spadesEnv))
+        .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
+      plotObjs <- list(list(list(...)))
+      mc <- match.call(plot.default, call("plot.default", quote(...)))
 
-    if (!all(canPlot)) {
-      if ((sum(canPlot) - length(grep(pattern = "col", names(canPlot)))) > 0) {
-        # don't message if col is passed
-        message(paste(
-          "Plot can only plot objects of class .spadesPlottables.",
-          "Use 'showClass(\".spadesPlottables\")' to see current available",
-          "classes"
-        ))
+      basePlotDots <- list()
+      for(i in names(mc)[-1])
+        basePlotDots[[i]] <- eval(mc[[i]])
+
+      if(is.null(addTo)) {
+        addTo <- "basePlot1"
       }
+      plotArgs$addTo <- addTo
+
+      if(addTo %in% ls(.getSpaDES(paste0("basePlots_",dev.cur()))))
+        plotObjsName <- paste0(addTo, "_", length(ls(.getSpaDES(paste0("basePlots_",dev.cur()))))+1)
+      else
+        plotObjsName <- addTo
+      names(plotObjs) <- plotObjsName
+
+      #if(exists(addTo, envir = .getSpaDES(paste0("basePlots_",dev.cur())))) {
+      #  tmp <- get(addTo, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
+      #  xynames <- names(tmp) %in% c("x","y")
+      #  tmp[names(basePlotDots)] <- lapply(names(tmp)[xynames], function(wh) {
+      #    if(!is.null(basePlotDots[[wh]])) {
+      #      c(tmp[[wh]], basePlotDots[[wh]])
+      #    } else {
+      #      stop("Added plot must have of same type (e.g., both x and y) as previous one")
+      #    }
+      #  })
+      #  assign(addTo, tmp, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
+      #} else {
+      assign(plotObjsName, basePlotDots, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
+      #}
+
+      objFrame <- .getSpaDES(paste0("basePlots_",dev.cur()))
+
+    } else {
+
+      canPlot <- if (!is.null(names(whichSpadesPlottables))) {
+        whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
+      } else {
+        whichSpadesPlottables
+      }
+
+      if (!all(canPlot)) {
+        if ((sum(canPlot) - length(grep(pattern = "col", names(canPlot)))) > 0) {
+          # don't message if col is passed
+          message(paste(
+            "Plot can only plot objects of class .spadesPlottables.",
+            "Use 'showClass(\".spadesPlottables\")' to see current available",
+            "classes"
+          ))
+        }
+      }
+      plotObjs <- dotObjs[whichSpadesPlottables]
     }
 
-    plotObjs <- dotObjs[whichSpadesPlottables]
-
-    if (length(plotObjs) == 0) {
-      stop("Not a plottable object")
-    }
+    #if (length(plotObjs) == 0) { # Allow all types
+    #  stop("Not a plottable object")
+    #}
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
     if (any(grepl(pattern = "col", names(nonPlotArgs)))) {
       nonPlotArgs$col <- NULL
@@ -1504,10 +1544,10 @@ setMethod(
           ),
         error = function(x) { FALSE }
       )) {
-        message(paste(
-          "Plot called with 'addTo' argument specified, but that layer does",
-          "not exist. Plotting object on its own plot."
-        ))
+        #message(paste(
+        #  "Plot called with 'addTo' argument specified, but that layer does",
+        #  "not exist. Plotting object on its own plot."
+        #))
         plotArgs$addTo <- NULL
       }
     }
@@ -1515,6 +1555,7 @@ setMethod(
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
+
     newSpadesPlots <- .makeSpadesPlot(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame
     )
@@ -1741,7 +1782,31 @@ setMethod(
                            cols = sGrob@plotArgs$cols, real = FALSE)
             }
 
-            if (is(grobToPlot, "gg")) {
+          if (is(grobToPlot, "list")) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
+            # Because base plotting is not set up to overplot,
+            # must plot a white rectangle
+            par(fig = gridFIG())
+            if(spadesGrobCounter==1) {
+              grid.rect(gp = gpar(fill = "white", col = "white"))
+              suppressWarnings(par(new = TRUE))
+              #suppressWarnings(do.call(plot, append(basePlotDots, plotArgs)))
+              suppressWarnings(do.call(plot, args = append(grobToPlot, sGrob@plotArgs)))
+            } else {
+              suppressWarnings(do.call(points, args = append(grobToPlot, sGrob@plotArgs)))
+              #do.call(points, args = grobToPlot)
+            }
+
+            if (title * isBaseSubPlot * isReplot |
+                title * isBaseSubPlot * isNewPlot) {
+              suppressWarnings(par(new = TRUE))
+              mtextArgs <-
+                append(list(
+                  text = subPlots, side = 3, line = 4, xpd = TRUE
+                ),
+                sGrob@plotArgs$gpText)
+              do.call(mtext, args = mtextArgs)
+            }
+          } else if (is(grobToPlot, "gg")) {
               print(grobToPlot, vp = subPlots)
               a <- try(seekViewport(subPlots, recording = FALSE))
               if (is(a, "try-error")) {
