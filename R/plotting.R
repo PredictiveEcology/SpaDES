@@ -1264,7 +1264,7 @@ setMethod(
 #'            Default NULL, meaning
 #'            let Plot function do it automatically.
 #'
-#' @param arr A character vector of length equal to number of plot objects.
+#' @param main A character vector of length equal to number of plot objects.
 #'            This will give a different main title to the plot(s). Default is
 #'            NULL which makes the title the same as the object name.
 #'            This should be used
