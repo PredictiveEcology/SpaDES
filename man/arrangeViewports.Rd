@@ -6,12 +6,17 @@
 \alias{.arrangeViewports,.spadesPlot-method}
 \title{Determine optimal plotting arrangement of plot objects}
 \usage{
-.arrangeViewports(sPlot)
+.arrangeViewports(sPlot, arr = NULL)
 
-\S4method{.arrangeViewports}{.spadesPlot}(sPlot)
+\S4method{.arrangeViewports}{.spadesPlot}(sPlot, arr = NULL)
 }
 \arguments{
 \item{sPlot}{A \code{.spadesPlot} object.}
+
+\item{arr}{A vector of length 2 indicating a desired arrangement of plot
+areas indicating number of rows, number of columns.
+Default NULL, meaning
+let Plot function do it automatically.}
 }
 \description{
 Internal function. Assesses the device geometry, the map geometry, and the

@@ -1264,6 +1264,14 @@ setMethod(
 #'            Default NULL, meaning
 #'            let Plot function do it automatically.
 #'
+#' @param arr A character vector of length equal to number of plot objects.
+#'            This will give a different main title to the plot(s). Default is
+#'            NULL which makes the title the same as the object name.
+#'            This should be used
+#'            with caution because it means that the title does not uniquely
+#'            identify which plot will be plotted in the same location in future
+#'            Plot calls.
+#'
 #' @return Invisibly returns the \code{.spadesPlot} class object.
 #' If this is assigned to an object, say \code{obj}, then this can be plotted
 #' again with \code{Plot(obj)}.
@@ -1395,7 +1403,7 @@ setGeneric(
            speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
            visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
            legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-           zero.color = NULL, length = NULL, arr = NULL) {
+           zero.color = NULL, length = NULL, arr = NULL, main = NULL) {
     standardGeneric("Plot")
 })
 
@@ -1407,7 +1415,7 @@ setMethod(
   definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup,
                         size, cols, zoomExtent, visualSqueeze, legend,
                         legendRange, legendText, pch, title, na.color,
-                        zero.color, length, arr) {
+                        zero.color, length, arr, main) {
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
 
@@ -1806,6 +1814,13 @@ setMethod(
                 sGrob@plotArgs$legendTxt <- NULL
               }
 
+              if(!is.null(main)) {
+                if(length(main) != length(names(spadesSubPlots))) {
+                  stop("main argument must be same length as number of plots")
+                }
+                sGrob@plotArgs$main <- main[match(subPlots, names(spadesSubPlots))]
+              }
+
               plotGrobCall <- list(
                 zMat$z, col = zMat$cols,
                 size = unit(sGrob@plotArgs$size, "points"),
@@ -1828,7 +1843,7 @@ setMethod(
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 grid.text(
-                  subPlots, name = "title", y = 1.08, vjust = 0.5,
+                  sGrob@plotArgs$main, name = "title", y = 1.08, vjust = 0.5,
                   gp = sGrob@plotArgs$gpText
                 )
               }

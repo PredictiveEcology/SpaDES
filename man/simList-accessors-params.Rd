@@ -45,6 +45,10 @@ globals(object) <- value
 
 \S4method{globals}{.simList}(object) <- value
 
+parameters(object, asDF = FALSE)
+
+\S4method{parameters}{.simList}(object, asDF = FALSE)
+
 checkpointFile(object)
 
 \S4method{checkpointFile}{.simList}(object)
@@ -81,6 +85,11 @@ progressType(object) <- value
 \item{object}{A \code{simList} simulation object.}
 
 \item{value}{The object to be stored at the slot.}
+
+\item{asDF}{Logical. For \code{parameters}, if TRUE, this will produce a single
+data.frame of all model parameters. If FALSE, then it will return
+a data.frame with 1 row for each parameter within nested lists,
+with the same structure as \code{params}.}
 }
 \value{
 Returns or sets the value of the slot from the \code{simList} object.
@@ -102,6 +111,10 @@ Advanced use
    \code{progressType} \tab \code{.progress} \tab Type of graphical progress bar used. (advanced)\cr
    \code{progressInterval} \tab \code{.progress} \tab Interval for the progress bar. (advanced)\cr
 }
+
+\code{parameters} has the same nested list structure as \code{params},
+but it returns all columns associated with the parameter, including min and max
+values.
 }
 \details{
 Currently, only get and set methods are defined. Subset methods are not.
@@ -114,6 +127,11 @@ These both can get set by passing a
 simInit call. See examples
 }
 \examples{
+modules = list("randomLandscapes")
+paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+mySim <- simInit(modules = modules, paths = paths)
+parameters(mySim)
+
 \dontrun{
 mySim <- simInit(times=list(start=0.0, end=100.0),
                  params=list(.globals=list(stackName="landscape"),
