@@ -110,19 +110,19 @@ areas indicating number of rows, number of columns.
 Default NULL, meaning
 let Plot function do it automatically.}
 
-\item{toDev}{Numeric. Which device should the new rePlot be plotted to.
-Default is current device.}
-
-\item{fromDev}{Numeric. Which device should the replot information be taken from.
-Default is current device}
-
-\item{arr}{A character vector of length equal to number of plot objects.
+\item{main}{A character vector of length equal to number of plot objects.
 This will give a different main title to the plot(s). Default is
 NULL which makes the title the same as the object name.
 This should be used
 with caution because it means that the title does not uniquely
 identify which plot will be plotted in the same location in future
 Plot calls.}
+
+\item{toDev}{Numeric. Which device should the new rePlot be plotted to.
+Default is current device.}
+
+\item{fromDev}{Numeric. Which device should the replot information be taken from.
+Default is current device}
 }
 \value{
 Invisibly returns the \code{.spadesPlot} class object.
