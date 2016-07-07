@@ -327,6 +327,7 @@ setMethod(
 #' the Plot functions to plot them efficiently.
 #'
 #' @param sPlot A \code{.spadesPlot} object.
+#' @inheritParams Plot
 #'
 #' @rdname arrangeViewports
 #' @include plotting-classes.R
@@ -336,7 +337,7 @@ setMethod(
 #' @author Eliot McIntire
 #' @docType methods
 # igraph exports %>% from magrittr
-setGeneric(".arrangeViewports", function(sPlot) {
+setGeneric(".arrangeViewports", function(sPlot, arr=NULL) {
   standardGeneric(".arrangeViewports")
 })
 
@@ -345,7 +346,11 @@ setGeneric(".arrangeViewports", function(sPlot) {
 setMethod(
   ".arrangeViewports",
   signature = c(".spadesPlot"),
-  definition = function(sPlot) {
+  definition = function(sPlot, arr) {
+
+    ds <- dev.size()
+    ds.ratio <- ds[1] / ds[2]
+
     sgl <- sPlot@spadesGrobList
 
     dimx <- apply(do.call(
@@ -372,34 +377,37 @@ setMethod(
         })
       })), 2, max)
 
-    nPlots <- length(sgl)
-    names <- names(sgl)
-
-    if (dev.cur() == 1) {
-      dev.new(height = 8, width = 10)
-    }
-
-    ds <- dev.size()
-    ds.ratio <- ds[1] / ds[2]
-
     dimensionRatio <- dimx[1] / dimx[2]
 
     ds.dimensionRatio <- ds.ratio / dimensionRatio
+    if(is.null(arr)) {
 
-    col.by.row <- data.frame(matrix(ncol = 2, nrow = nPlots))
+      nPlots <- length(sgl)
+      names <- names(sgl)
 
-    col.by.row[, 1] <- ceiling(nPlots / (1:nPlots))
-    col.by.row[, 2] <- ceiling(nPlots / col.by.row[, 1])
+      if (dev.cur() == 1) {
+        dev.new(height = 8, width = 10)
+      }
 
-    # wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
-    # rewritten for clarity/brevity with pipes below
-    wh.best <- apply(col.by.row, 1, function(x) { x[1] / x[2] }) %>%
-      `-`(., ds.dimensionRatio) %>%
-      abs %>%
-      which.min
 
-    columns <- col.by.row[wh.best, 1]
-    rows <- col.by.row[wh.best, 2]
+      col.by.row <- data.frame(matrix(ncol = 2, nrow = nPlots))
+
+      col.by.row[, 1] <- ceiling(nPlots / (1:nPlots))
+      col.by.row[, 2] <- ceiling(nPlots / col.by.row[, 1])
+
+      # wh.best <- which.min(abs(apply(col.by.row, 1, function(x) { x[1]/x[2] }) - ds.dimensionRatio))
+      # rewritten for clarity/brevity with pipes below
+      wh.best <- apply(col.by.row, 1, function(x) { x[1] / x[2] }) %>%
+        `-`(., ds.dimensionRatio) %>%
+        abs %>%
+        which.min
+
+      columns <- col.by.row[wh.best, 1]
+      rows <- col.by.row[wh.best, 2]
+    } else {
+      columns <- arr[2]
+      rows <- arr[1]
+    }
 
     actual.ratio <- columns / rows
 
@@ -1251,6 +1259,19 @@ setMethod(
 #'
 #' @param length Numeric. Optional length, in inches, of the arrow head.
 #'
+#' @param arr A vector of length 2 indicating a desired arrangement of plot
+#'            areas indicating number of rows, number of columns.
+#'            Default NULL, meaning
+#'            let Plot function do it automatically.
+#'
+#' @param main A character vector of length equal to number of plot objects.
+#'            This will give a different main title to the plot(s). Default is
+#'            NULL which makes the title the same as the object name.
+#'            This should be used
+#'            with caution because it means that the title does not uniquely
+#'            identify which plot will be plotted in the same location in future
+#'            Plot calls.
+#'
 #' @return Invisibly returns the \code{.spadesPlot} class object.
 #' If this is assigned to an object, say \code{obj}, then this can be plotted
 #' again with \code{Plot(obj)}.
@@ -1366,6 +1387,9 @@ setMethod(
 #'   Plot(habitatQuality2, new = FALSE)
 #'   Plot(SpP)
 #'   Plot(SpP, addTo = "landscape$forestCover", gp = gpar(lwd = 2))
+#'
+#'   # provide arrangement, NumRow, NumCol
+#'   Plot(SpP, arr = c(1,4), new=TRUE)
 #' }
 #'
 #' }
@@ -1379,7 +1403,7 @@ setGeneric(
            speedup = 1, size = 5, cols = NULL, zoomExtent = NULL,
            visualSqueeze = NULL, legend = TRUE, legendRange = NULL,
            legendText = NULL, pch = 19, title = TRUE, na.color = "#FFFFFF00",
-           zero.color = NULL, length = NULL) {
+           zero.color = NULL, length = NULL, arr = NULL, main = NULL) {
     standardGeneric("Plot")
 })
 
@@ -1391,7 +1415,7 @@ setMethod(
   definition = function(..., new, addTo, gp, gpText, gpAxis, axes, speedup,
                         size, cols, zoomExtent, visualSqueeze, legend,
                         legendRange, legendText, pch, title, na.color,
-                        zero.color, length) {
+                        zero.color, length, arr, main) {
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
 
@@ -1544,6 +1568,7 @@ setMethod(
       newArr <- TRUE
     }
 
+
     # Section 2 # Optimal Layout and viewport making
     # Create optimal layout, given the objects to be plotted, whether legend and axes are to be
     #  plotted, and visualSqueeze
@@ -1551,7 +1576,7 @@ setMethod(
       if (is.null(visualSqueeze)) {
         visualSqueeze <- 0.75
       }
-      updated$curr@arr <- .arrangeViewports(updated$curr)
+      updated$curr@arr <- .arrangeViewports(updated$curr, arr = arr)
       updated$curr@arr@layout <- .makeLayout(
         updated$curr@arr, sapply(visualSqueeze, max), sapply(legend,any),
         sapply(axes, function(x) { !any(x == TRUE) })
@@ -1789,6 +1814,13 @@ setMethod(
                 sGrob@plotArgs$legendTxt <- NULL
               }
 
+              if(!is.null(main)) {
+                if(length(main) != length(names(spadesSubPlots))) {
+                  stop("main argument must be same length as number of plots")
+                }
+                sGrob@plotArgs$main <- main[match(subPlots, names(spadesSubPlots))]
+              }
+
               plotGrobCall <- list(
                 zMat$z, col = zMat$cols,
                 size = unit(sGrob@plotArgs$size, "points"),
@@ -1811,7 +1843,7 @@ setMethod(
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 grid.text(
-                  subPlots, name = "title", y = 1.08, vjust = 0.5,
+                  sGrob@plotArgs$main, name = "title", y = 1.08, vjust = 0.5,
                   gp = sGrob@plotArgs$gpText
                 )
               }
