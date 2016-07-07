@@ -503,9 +503,10 @@ setMethod(
     z <- z + 1 # for the NAs
     z[is.na(z)] <- 1 # max(1, minz)
 
+    
     if (raster::is.factor(grobToPlot) & !is.null(colTable)) {
-      cols <- rep(na.color,max(factorValues))
-      cols[factorValues] <- colTable
+      cols <- rep(na.color,length(factorValues)) # changed from max to length to accommodate zeros or factors not starting at 1
+      cols[factorValues-min(factorValues)+1] <- colTable
     }
     if (length(whichZeroLegend)) {
       cols[whichZeroLegend] <- zero.color

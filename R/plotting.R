@@ -596,7 +596,7 @@ setMethod(
     } else {
       if (!is.null(legendText)) {
         if (NCOL(legendText) > 1) { # means it was a factor
-          if (identical(legendText$ID, 1:NROW(legendText))) {
+          if (all(diff(legendText$ID)==1)) { # check to see if contiguous
             unique(round(pretty(range(minv, maxv), n = length(levels(legendText[, 2])))))
           } else {
             legendText$contigValue <- 1:NROW(legendText)
@@ -643,7 +643,7 @@ setMethod(
         if (legend) {
           if (NCOL(legendText) > 1) {
             # for factors
-            colForLegend <- col[rev(legendText$ID + 1)]
+            colForLegend <- col[rev(legendText$ID - min(legendText$ID) + 2)]
           } else {
             colForLegend <- col[(maxcol):mincol]
           }
@@ -671,7 +671,7 @@ setMethod(
             x = 1.08,
             y = if (!real) {
               if (NCOL(legendText) > 1) { # factors
-                maxv <- NROW(legendText)
+                maxv <- legendText$ID[NROW(legendText)]
               }
               ((pr - minv) / ((maxv + 1) - minv)) / 2 + 0.25 + 1 /
                 (diff(range(minv, maxv)) + 1) / 4
@@ -1689,7 +1689,7 @@ setMethod(
               )
             }
 
-            if (is(grobToPlot, "Raster")) {
+          if (is(grobToPlot, "Raster")) {
             #if (is(grobToPlot, "griddedClasses")) {
               # Rasters may be zoomed into and subsampled and have unique legend
               pR <- .prepareRaster(grobToPlot, sGrob@plotArgs$zoomExtent,
