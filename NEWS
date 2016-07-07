@@ -2,6 +2,7 @@ Known issues: https://github.com/PredictiveEcology/SpaDES/issues
 
 version 1.2.0.9000
 ==================
+* add arr argument to Plot, allowing passing of arrangement
 * add `RandomFieldsUtils` to Imports
 * add explicit `cl` arg to parallel aware functions, for more control
 
