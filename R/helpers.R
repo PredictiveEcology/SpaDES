@@ -48,7 +48,8 @@ setMethod(
   definition = function(eventTime, moduleName, eventType, eventPriority) {
     # This is faster than direct call to new data.table
     eeldt <- data.table::copy(.singleEventListDT)
-    data.table::set(eeldt, , "eventTime", as.integer(eventTime))
+    #browser()
+    data.table::set(eeldt, , "eventTime", eventTime)
     data.table::set(eeldt, , "moduleName", moduleName)
     data.table::set(eeldt, , "eventType", eventType)
     data.table::set(eeldt, , "eventPriority", eventPriority)
