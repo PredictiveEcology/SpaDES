@@ -643,13 +643,27 @@ setReplaceMethod("globals",
 })
 
 ################################################################################
+#' \code{parameters} has the same nested list structure as \code{params},
+#' but it returns all columns associated with the parameter, including min and max
+#' values.
+#'
 #' @inheritParams params
+#' @param asDF Logical. For \code{parameters}, if TRUE, this will produce a single
+#'                 data.frame of all model parameters. If FALSE, then it will return
+#'                 a data.frame with 1 row for each parameter within nested lists,
+#'                 with the same structure as \code{params}.
+#'
 #' @include simList-class.R
 #' @export
 #' @docType methods
 #' @rdname simList-accessors-params
+#' @examples
+#' modules = list("randomLandscapes")
+#' paths = list(modulePath = system.file("sampleModules", package = "SpaDES"))
+#' mySim <- simInit(modules = modules, paths = paths)
+#' parameters(mySim)
 #'
-setGeneric("parameters", function(object) {
+setGeneric("parameters", function(object, asDF = FALSE) {
   standardGeneric("parameters")
 })
 
@@ -657,12 +671,24 @@ setGeneric("parameters", function(object) {
 #' @rdname simList-accessors-params
 setMethod("parameters",
           signature = ".simList",
-          definition = function(object) {
-            browser()
-            tmp <- lapply(depends(object)@dependencies,
-                          function(x) {
-                            lapply(seq_len(NROW(x@parameters)), function(y)
-                            x@parameters[y,-1])})
+          definition = function(object, asDF) {
+            if(any(!unlist(lapply(depends(object)@dependencies, is.null)))) {
+              if(asDF) {
+                tmp <- lapply(depends(object)@dependencies,
+                              function(x) {
+                                out <- x@parameters})
+                tmp <- do.call(rbind, tmp)
+              } else {
+                tmp <- lapply(depends(object)@dependencies,
+                              function(x) {
+                                out <- lapply(seq_len(NROW(x@parameters)),
+                                              function(y) x@parameters[y,-1])
+                                names(out) <- x@parameters$paramName
+                                out})
+              }
+            } else {
+              tmp <- NULL
+            }
             return(tmp)
           })
 
