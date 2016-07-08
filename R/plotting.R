@@ -1720,30 +1720,30 @@ setMethod(
 
           grobToPlot <- .identifyGrobToPlot(sGrob, plotObjs, takeFromPlotObj)
 
-            if (!is(sGrob@plotArgs$gpText, "gpar")) {
-              sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
-            }
-            if (!is(sGrob@plotArgs$gpAxis, "gpar")) {
-              sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
-            }
-            if (!is(sGrob@plotArgs$gp, "gpar")) {
-              sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
-            }
+          if (!is(sGrob@plotArgs$gpText, "gpar")) {
+            sGrob@plotArgs$gpText <- as(sGrob@plotArgs$gpText, "gpar")
+          }
+          if (!is(sGrob@plotArgs$gpAxis, "gpar")) {
+            sGrob@plotArgs$gpAxis <- as(sGrob@plotArgs$gpAxis, "gpar")
+          }
+          if (!is(sGrob@plotArgs$gp, "gpar")) {
+            sGrob@plotArgs$gp <- as(sGrob@plotArgs$gp, "gpar")
+          }
 
-            if (is.null(sGrob@plotArgs$gpText$cex)) {
-              # pipe won't work here :S
-              sGrob@plotArgs$gpText$cex <- max(
-                0.6,
-                min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
-              )
-            }
-            if (is.null(sGrob@plotArgs$gpAxis$cex)) {
-              # pipe won't work here :S
-              sGrob@plotArgs$gpAxis$cex <- max(
-                0.6,
-                min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
-              )
-            }
+          if (is.null(sGrob@plotArgs$gpText$cex)) {
+            # pipe won't work here :S
+            sGrob@plotArgs$gpText$cex <- max(
+              0.6,
+              min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
+            )
+          }
+          if (is.null(sGrob@plotArgs$gpAxis$cex)) {
+            # pipe won't work here :S
+            sGrob@plotArgs$gpAxis$cex <- max(
+              0.6,
+              min(1.2, sqrt(prod(arr@ds)/prod(arr@columns, arr@rows))*0.3)
+            )
+          }
 
           if (is(grobToPlot, "Raster")) {
             #if (is(grobToPlot, "griddedClasses")) {
@@ -1793,13 +1793,19 @@ setMethod(
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
             par(fig = gridFIG())
+            sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+            args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
+                                                "zoomExtent", "gpText", "speedup", "size",
+                        "cols", "visualSqueeze", "legend", "legendRange", "legendText",
+                        "zero.color", "length", "arr", "na.color", "title", "axes"))]
+            args_plot1 <- append(args_plot1, list(axes = isTRUE(axes)))
             if(spadesGrobCounter==1) {
               grid.rect(gp = gpar(fill = "white", col = "white"))
               suppressWarnings(par(new = TRUE))
               #suppressWarnings(do.call(plot, append(basePlotDots, plotArgs)))
-              suppressWarnings(do.call(plot, args = append(grobToPlot, sGrob@plotArgs)))
+              suppressWarnings(do.call(plot, args = args_plot1))
             } else {
-              suppressWarnings(do.call(points, args = append(grobToPlot, sGrob@plotArgs)))
+              suppressWarnings(do.call(points, args = args_plot1))
               #do.call(points, args = grobToPlot)
             }
 
@@ -1813,6 +1819,34 @@ setMethod(
                 sGrob@plotArgs$gpText)
               do.call(mtext, args = mtextArgs)
             }
+
+            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(axes) ) {
+              if(xaxis | yaxis) {
+                axesArgs <- append(list(side = 1), sGrob@plotArgs$gpText)
+                axesArgs <- append(sGrob@plotArgs, axesArgs)
+                axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
+                                                            "lty", "lwd", "lwd.ticks", "col", "col.ticks", "hadj", "padj")]
+              }
+
+              if (xaxis * isBaseSubPlot * isReplot |
+                  xaxis * isBaseSubPlot * isNewPlot) {
+
+                axesArgsX <- append(list(side=1), axesArgs)
+                do.call(axis, args = axesArgsX)
+                #b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                #grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
+                #a <- try(seekViewport(subPlots, recording = FALSE))
+              }
+              if (yaxis * isBaseSubPlot * isReplot |
+                  yaxis * isBaseSubPlot * isNewPlot) {
+                axesArgsY <- append(list(side=2), axesArgs)
+                do.call(axis, args = axesArgsY)
+                # b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                # grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
+                # a <- try(seekViewport(subPlots, recording = FALSE))
+              }
+            }
+
           } else if (is(grobToPlot, "gg")) {
               print(grobToPlot, vp = subPlots)
               a <- try(seekViewport(subPlots, recording = FALSE))
