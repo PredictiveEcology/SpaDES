@@ -1102,7 +1102,9 @@ setMethod(
 #' This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 #' \code{SpatialPolygons*}, and any combination of those.
 #' It can also handle \code{ggplot2} objects or \code{base::histogram} objects
-#' via call to \code{exHist <- hist(1:10, plot = FALSE)}.
+#' via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
+#' arguments as if it were a call to \code{\code[base]{plot}}. In this latter
+#' case, the user should be explicit about naming the plot area using \code{addTo}.
 #' Customization of the \code{ggplot2} elements can be done as a normal
 #' \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
 #'
@@ -1390,6 +1392,11 @@ setMethod(
 #'
 #'   # provide arrangement, NumRow, NumCol
 #'   Plot(SpP, arr = c(1,4), new=TRUE)
+#'
+#'   # example base plot
+#'   Plot(1:10, 1:10, addTo = "test", new=TRUE) # if there is no "test" then it will make it
+#'   Plot(4,5, pch=22, col = "blue", addTo = "test") # if there is no "test" then it will make it
+#'
 #' }
 #'
 #' }
