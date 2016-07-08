@@ -1786,6 +1786,13 @@ setMethod(
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
             par(fig = gridFIG())
+            browser()
+            sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+            args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
+                                                "zoomExtent", "gpText", "speedup", "size",
+                        "cols", "visualSqueeze", "legend", "legendRange", "legendText",
+                        "zero.color", "length", "arr", "na.color", "title"))]
+            #args_plot1 <- append(args_plot1, list(axes = isTRUE(sGrob@plotArgs$axes))) # convert axes from TRUE, FALSE or "L" to TRUE or FALSE
             if(spadesGrobCounter==1) {
               grid.rect(gp = gpar(fill = "white", col = "white"))
               suppressWarnings(par(new = TRUE))
@@ -1806,6 +1813,35 @@ setMethod(
                 sGrob@plotArgs$gpText)
               do.call(mtext, args = mtextArgs)
             }
+
+            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(sGrob@plotArgs$axes) ) {
+              browser()
+              if(xaxis | yaxis) {
+                axesArgs <- append(list(side = 1), sGrob@plotArgs$gpText)
+                axesArgs <- append(sGrob@plotArgs, axesArgs)
+                axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
+                                                            "lty", "lwd", "lwd.ticks", "col", "col.ticks", "hadj", "padj")]
+              }
+
+              if (xaxis * isBaseSubPlot * isReplot |
+                  xaxis * isBaseSubPlot * isNewPlot) {
+
+                axesArgsX <- append(list(side=1), axesArgs)
+                do.call(axis, args = axesArgsX)
+                #b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                #grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
+                #a <- try(seekViewport(subPlots, recording = FALSE))
+              }
+              if (yaxis * isBaseSubPlot * isReplot |
+                  yaxis * isBaseSubPlot * isNewPlot) {
+                axesArgsY <- append(list(side=2), axesArgs)
+                do.call(axis, args = axesArgsY)
+                # b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                # grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
+                # a <- try(seekViewport(subPlots, recording = FALSE))
+              }
+            }
+
           } else if (is(grobToPlot, "gg")) {
               print(grobToPlot, vp = subPlots)
               a <- try(seekViewport(subPlots, recording = FALSE))
