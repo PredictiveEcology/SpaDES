@@ -1786,14 +1786,16 @@ setMethod(
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
             par(fig = gridFIG())
+            args_plot <- append(grobToPlot, sGrob@plotArgs)
+            args_plot <- args_plot[!(names(args_plot) %in% c("gpAxis", "zero.color", "length", "arr", "addTo", "na.color",
+                                                          "legendText","legend", "visualSqueeze", "zoomExtent",
+                                                          "cols", "size", "speedup"))]
             if(spadesGrobCounter==1) {
               grid.rect(gp = gpar(fill = "white", col = "white"))
               suppressWarnings(par(new = TRUE))
-              #suppressWarnings(do.call(plot, append(basePlotDots, plotArgs)))
-              suppressWarnings(do.call(plot, args = append(grobToPlot, sGrob@plotArgs)))
+              suppressWarnings(do.call(plot, args = args_plot))
             } else {
-              suppressWarnings(do.call(points, args = append(grobToPlot, sGrob@plotArgs)))
-              #do.call(points, args = grobToPlot)
+              suppressWarnings(do.call(points, args = args_plot))
             }
 
             if (title * isBaseSubPlot * isReplot |
