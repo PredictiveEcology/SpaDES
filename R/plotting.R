@@ -1264,7 +1264,7 @@ setMethod(
 #'            Default NULL, meaning
 #'            let Plot function do it automatically.
 #'
-#' @param arr A character vector of length equal to number of plot objects.
+#' @param main A character vector of length equal to number of plot objects.
 #'            This will give a different main title to the plot(s). Default is
 #'            NULL which makes the title the same as the object name.
 #'            This should be used
@@ -1469,28 +1469,68 @@ setMethod(
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
 
-    canPlot <- if (!is.null(names(whichSpadesPlottables))) {
-      whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
-    } else {
-      whichSpadesPlottables
-    }
+    if(any(!whichSpadesPlottables)) { ## if not a .spadesPlottables then it is a pass to plot or points
+      if(!exists(paste0("basePlots_",dev.cur()), envir=.spadesEnv))
+        .assignSpaDES(paste0("basePlots_",dev.cur()), new.env(hash = FALSE, parent = .spadesEnv))
+      plotObjs <- list(list(list(...)))
+      mc <- match.call(plot.default, call("plot.default", quote(...)))
 
-    if (!all(canPlot)) {
-      if ((sum(canPlot) - length(grep(pattern = "col", names(canPlot)))) > 0) {
-        # don't message if col is passed
-        message(paste(
-          "Plot can only plot objects of class .spadesPlottables.",
-          "Use 'showClass(\".spadesPlottables\")' to see current available",
-          "classes"
-        ))
+      basePlotDots <- list()
+      for(i in names(mc)[-1])
+        basePlotDots[[i]] <- eval(mc[[i]])
+
+      if(is.null(addTo)) {
+        addTo <- "basePlot1"
       }
+      plotArgs$addTo <- addTo
+
+      if(addTo %in% ls(.getSpaDES(paste0("basePlots_",dev.cur()))))
+        plotObjsName <- paste0(addTo, "_", length(ls(.getSpaDES(paste0("basePlots_",dev.cur()))))+1)
+      else
+        plotObjsName <- addTo
+      names(plotObjs) <- plotObjsName
+
+      #if(exists(addTo, envir = .getSpaDES(paste0("basePlots_",dev.cur())))) {
+      #  tmp <- get(addTo, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
+      #  xynames <- names(tmp) %in% c("x","y")
+      #  tmp[names(basePlotDots)] <- lapply(names(tmp)[xynames], function(wh) {
+      #    if(!is.null(basePlotDots[[wh]])) {
+      #      c(tmp[[wh]], basePlotDots[[wh]])
+      #    } else {
+      #      stop("Added plot must have of same type (e.g., both x and y) as previous one")
+      #    }
+      #  })
+      #  assign(addTo, tmp, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
+      #} else {
+      assign(plotObjsName, basePlotDots, envir = .getSpaDES(paste0("basePlots_",dev.cur())))
+      #}
+
+      objFrame <- .getSpaDES(paste0("basePlots_",dev.cur()))
+
+    } else {
+
+      canPlot <- if (!is.null(names(whichSpadesPlottables))) {
+        whichSpadesPlottables[names(whichSpadesPlottables) != "env"]
+      } else {
+        whichSpadesPlottables
+      }
+
+      if (!all(canPlot)) {
+        if ((sum(canPlot) - length(grep(pattern = "col", names(canPlot)))) > 0) {
+          # don't message if col is passed
+          message(paste(
+            "Plot can only plot objects of class .spadesPlottables.",
+            "Use 'showClass(\".spadesPlottables\")' to see current available",
+            "classes"
+          ))
+        }
+      }
+      plotObjs <- dotObjs[whichSpadesPlottables]
     }
 
-    plotObjs <- dotObjs[whichSpadesPlottables]
-
-    if (length(plotObjs) == 0) {
-      stop("Not a plottable object")
-    }
+    #if (length(plotObjs) == 0) { # Allow all types
+    #  stop("Not a plottable object")
+    #}
     nonPlotArgs <- dotObjs[!whichSpadesPlottables]
     if (any(grepl(pattern = "col", names(nonPlotArgs)))) {
       nonPlotArgs$col <- NULL
@@ -1504,10 +1544,10 @@ setMethod(
           ),
         error = function(x) { FALSE }
       )) {
-        message(paste(
-          "Plot called with 'addTo' argument specified, but that layer does",
-          "not exist. Plotting object on its own plot."
-        ))
+        #message(paste(
+        #  "Plot called with 'addTo' argument specified, but that layer does",
+        #  "not exist. Plotting object on its own plot."
+        #))
         plotArgs$addTo <- NULL
       }
     }
@@ -1515,6 +1555,7 @@ setMethod(
     # Create a .spadesPlot object from the plotObjs and plotArgs
 
     isSpadesPlot <- sapply(plotObjs, function(x) { is(x, ".spadesPlot") })
+
     newSpadesPlots <- .makeSpadesPlot(
       plotObjs, plotArgs, whichSpadesPlottables, env = objFrame
     )
@@ -1741,7 +1782,67 @@ setMethod(
                            cols = sGrob@plotArgs$cols, real = FALSE)
             }
 
-            if (is(grobToPlot, "gg")) {
+          if (is(grobToPlot, "list")) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
+            # Because base plotting is not set up to overplot,
+            # must plot a white rectangle
+            par(fig = gridFIG())
+            browser()
+            sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+            args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
+                                                "zoomExtent", "gpText", "speedup", "size",
+                        "cols", "visualSqueeze", "legend", "legendRange", "legendText",
+                        "zero.color", "length", "arr", "na.color", "title"))]
+            #args_plot1 <- append(args_plot1, list(axes = isTRUE(sGrob@plotArgs$axes))) # convert axes from TRUE, FALSE or "L" to TRUE or FALSE
+            if(spadesGrobCounter==1) {
+              grid.rect(gp = gpar(fill = "white", col = "white"))
+              suppressWarnings(par(new = TRUE))
+              #suppressWarnings(do.call(plot, append(basePlotDots, plotArgs)))
+              suppressWarnings(do.call(plot, args = append(grobToPlot, sGrob@plotArgs)))
+            } else {
+              suppressWarnings(do.call(points, args = append(grobToPlot, sGrob@plotArgs)))
+              #do.call(points, args = grobToPlot)
+            }
+
+            if (title * isBaseSubPlot * isReplot |
+                title * isBaseSubPlot * isNewPlot) {
+              suppressWarnings(par(new = TRUE))
+              mtextArgs <-
+                append(list(
+                  text = subPlots, side = 3, line = 4, xpd = TRUE
+                ),
+                sGrob@plotArgs$gpText)
+              do.call(mtext, args = mtextArgs)
+            }
+
+            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(sGrob@plotArgs$axes) ) {
+              browser()
+              if(xaxis | yaxis) {
+                axesArgs <- append(list(side = 1), sGrob@plotArgs$gpText)
+                axesArgs <- append(sGrob@plotArgs, axesArgs)
+                axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
+                                                            "lty", "lwd", "lwd.ticks", "col", "col.ticks", "hadj", "padj")]
+              }
+
+              if (xaxis * isBaseSubPlot * isReplot |
+                  xaxis * isBaseSubPlot * isNewPlot) {
+
+                axesArgsX <- append(list(side=1), axesArgs)
+                do.call(axis, args = axesArgsX)
+                #b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                #grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
+                #a <- try(seekViewport(subPlots, recording = FALSE))
+              }
+              if (yaxis * isBaseSubPlot * isReplot |
+                  yaxis * isBaseSubPlot * isNewPlot) {
+                axesArgsY <- append(list(side=2), axesArgs)
+                do.call(axis, args = axesArgsY)
+                # b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+                # grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
+                # a <- try(seekViewport(subPlots, recording = FALSE))
+              }
+            }
+
+          } else if (is(grobToPlot, "gg")) {
               print(grobToPlot, vp = subPlots)
               a <- try(seekViewport(subPlots, recording = FALSE))
               if (is(a, "try-error")) {
