@@ -1191,10 +1191,13 @@ setMethod(
 #' @param ... A combination of \code{spatialObjects} or some non-spatial objects.
 #'            See details.
 #'
-#' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a
+#' @param new Logical. If \code{TRUE}, then the previous named plot area is wiped
+#'            and a
 #'            new one made; if \code{FALSE}, then the \code{...} plots will be
 #'            added to the current device, adding or rearranging the plot layout
-#'            as necessary. Default is \code{FALSE}.
+#'            as necessary. Default is \code{FALSE}. This only works currently if
+#'            there is only one object being plotted in a given Plot call. See
+#'            \code{clearPlot} to clear the whole plotting device.
 #'
 #' @param addTo Character vector, with same length as \code{...}.
 #'              This is for overplotting, when the overplot is not to occur on
@@ -1426,7 +1429,6 @@ setMethod(
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
 
-    browser()
     news <- sapply(new, function(x) x)
     if (length(ls(.spadesEnv)) <= sum(news)) {
       clearPlot(dev.cur())
@@ -1471,11 +1473,11 @@ setMethod(
       objFrame <- plotFrame
     }
 
-    if (all(sapply(plotArgs$new, function(x) x))) {
-      clearPlot(dev.cur())
-      new <- TRUE # This is necessary in a do.call case where the arguments aren't clear
-      plotArgs$new <- TRUE # for future calls
-    }
+    # if (all(sapply(plotArgs$new, function(x) x))) {
+    #   clearPlot(dev.cur())
+    #   new <- TRUE # This is necessary in a do.call case where the arguments aren't clear
+    #   plotArgs$new <- TRUE # for future calls
+    # }
 
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
@@ -1793,6 +1795,19 @@ setMethod(
                            cols = sGrob@plotArgs$cols, real = FALSE)
             }
 
+          if(sGrob@plotArgs$new) {
+            seekViewport(paste0("outer",subPlots))
+            grid.rect(x = 0, width = unit(1.2, "npc"),
+                      #height = unit(1.2, "npc"),
+                      #y = unit(0.7, "npc"),
+                      gp = gpar(fill = "white", col = "white"), just = "left")
+            seekViewport(subPlots)
+            sGrob@plotArgs$new <- FALSE
+            wipe <- TRUE
+          } else {
+            wipe <- FALSE
+          }
+
           if (is(grobToPlot, "list")) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
@@ -1805,14 +1820,13 @@ setMethod(
                         "cols", "visualSqueeze", "legend", "legendRange", "legendText",
                       "zero.color", "length", "arr", "na.color", "title"))]
             args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
-            browser()
-            if(sGrob@plotArgs$new) {
-              grid.rect(gp = gpar(fill = "white", col = "white"))
-              sGrob@plotArgs$new <- FALSE
-              wipe <- TRUE
-            } else {
-              wipe <- FALSE
-            }
+            # if(sGrob@plotArgs$new) {
+            #   grid.rect(gp = gpar(fill = "white", col = "white"))
+            #   sGrob@plotArgs$new <- FALSE
+            #   wipe <- TRUE
+            # } else {
+            #   wipe <- FALSE
+            # }
             if(spadesGrobCounter==1 | wipe) {
               suppressWarnings(par(new = TRUE))
               suppressWarnings(do.call(plot, args = args_plot1))
@@ -1884,6 +1898,7 @@ setMethod(
               par(fig = gridFIG())
               suppressWarnings(par(new = TRUE))
               plotCall <- list(grobToPlot)
+
               do.call(plot, args = plotCall)
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
@@ -1948,7 +1963,7 @@ setMethod(
                 legend = sGrob@plotArgs$legend * isBaseSubPlot *
                   isReplot |
                   sGrob@plotArgs$legend * isBaseSubPlot *
-                  isNewPlot,
+                  isNewPlot | wipe,
                 legendText = sGrob@plotArgs$legendTxt,
                 gp = sGrob@plotArgs$gp,
                 gpText = sGrob@plotArgs$gpText,
@@ -1956,7 +1971,6 @@ setMethod(
                 length = sGrob@plotArgs$length
               ) %>% append(., nonPlotArgs)
 
-              browser()
               do.call(.plotGrob, args = plotGrobCall)
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {

@@ -35,10 +35,13 @@ rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 \item{...}{A combination of \code{spatialObjects} or some non-spatial objects.
 See details.}
 
-\item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a
+\item{new}{Logical. If \code{TRUE}, then the previous named plot area is wiped
+and a
 new one made; if \code{FALSE}, then the \code{...} plots will be
 added to the current device, adding or rearranging the plot layout
-as necessary. Default is \code{FALSE}.}
+as necessary. Default is \code{FALSE}. This only works currently if
+there is only one object being plotted in a given Plot call. See
+\code{clearPlot} to clear the whole plotting device.}
 
 \item{addTo}{Character vector, with same length as \code{...}.
 This is for overplotting, when the overplot is not to occur on
