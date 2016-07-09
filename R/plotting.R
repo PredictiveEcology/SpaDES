@@ -1678,7 +1678,7 @@ setMethod(
 
           # Check that the extents are equal.
           # If not, then x and y axes are written where necessary.
-          if (axes == "L") {
+          if (sGrob@plotArgs$axes== "L") {
             if (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
                 arr@extents[max(
                   which(
@@ -1696,10 +1696,10 @@ setMethod(
               xaxis <- TRUE
             }
           } else {
-            xaxis <- axes
+            xaxis <- sGrob@plotArgs$axes
           }
 
-          if (axes == "L") {
+          if (sGrob@plotArgs$axes== "L") {
             if (arr@extents[whPlotFrame][[1]] ==
                 arr@extents[(ceiling(whPlotFrame / arr@columns) - 1) *
                             arr@columns + 1][[1]]) {
@@ -1712,7 +1712,7 @@ setMethod(
               yaxis <- TRUE
             }
           } else {
-            yaxis <- axes
+            yaxis <- sGrob@plotArgs$axes
           }
 
           takeFromPlotObj <- !(sGrob@plotName %in%
@@ -1793,12 +1793,14 @@ setMethod(
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
             par(fig = gridFIG())
-            sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+
+            #sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+            sGrob@plotArgs[names(grobToPlot)] <- grobToPlot
             args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
                                                 "zoomExtent", "gpText", "speedup", "size",
                         "cols", "visualSqueeze", "legend", "legendRange", "legendText",
-                        "zero.color", "length", "arr", "na.color", "title", "axes"))]
-            args_plot1 <- append(args_plot1, list(axes = isTRUE(axes)))
+                      "zero.color", "length", "arr", "na.color", "title"))]
+            args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
             if(spadesGrobCounter==1) {
               grid.rect(gp = gpar(fill = "white", col = "white"))
               suppressWarnings(par(new = TRUE))
@@ -1809,21 +1811,21 @@ setMethod(
               #do.call(points, args = grobToPlot)
             }
 
-            if (title * isBaseSubPlot * isReplot |
-                title * isBaseSubPlot * isNewPlot) {
+            if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
               suppressWarnings(par(new = TRUE))
               mtextArgs <-
                 append(list(
-                  text = subPlots, side = 3, line = 4, xpd = TRUE
+                  text = sGrob@plotName, side = 3, line = 4, xpd = TRUE
                 ),
                 sGrob@plotArgs$gpText)
               do.call(mtext, args = mtextArgs)
             }
 
-            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(axes) ) {
+            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(sGrob@plotArgs$axes) ) {
               if(xaxis | yaxis) {
-                axesArgs <- append(list(side = 1), sGrob@plotArgs$gpText)
-                axesArgs <- append(sGrob@plotArgs, axesArgs)
+                axesArgs <- sGrob@plotArgs
+                axesArgs$side <- 1
                 axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
                                                             "lty", "lwd", "lwd.ticks", "col", "col.ticks", "hadj", "padj")]
               }
@@ -1859,10 +1861,10 @@ setMethod(
                   )
                 )
               }
-              if (title * isBaseSubPlot * isReplot |
-                  title * isBaseSubPlot * isNewPlot) {
+              if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                  sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 grid.text(
-                  subPlots, name = "title", y = 1.08, vjust = 0.5,
+                  sGrob@plotName, name = "title", y = 1.08, vjust = 0.5,
                   gp = sGrob@plotArgs$gpText
                 )
               }
@@ -1874,12 +1876,12 @@ setMethod(
               suppressWarnings(par(new = TRUE))
               plotCall <- list(grobToPlot)
               do.call(plot, args = plotCall)
-              if (title * isBaseSubPlot * isReplot |
-                  title * isBaseSubPlot * isNewPlot) {
+              if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                  sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 suppressWarnings(par(new = TRUE))
                 mtextArgs <-
                   append(list(
-                    text = subPlots, side = 3, line = 4, xpd = TRUE
+                    text = sGrob@plotName, side = 3, line = 4, xpd = TRUE
                   ),
                   sGrob@plotArgs$gpText)
                 do.call(mtext, args = mtextArgs)
@@ -1892,12 +1894,12 @@ setMethod(
               suppressWarnings(par(new = TRUE))
               plotCall <- append(list(x = grobToPlot), nonPlotArgs)
               do.call(plot, args = plotCall)
-              if (title * isBaseSubPlot * isReplot |
-                  title * isBaseSubPlot * isNewPlot) {
+              if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                  sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 suppressWarnings(par(new = TRUE))
                 mtextArgs <-
                   append(list(
-                    text = subPlots, side = 3, line = 4, xpd = TRUE
+                    text = sGrob@plotName, side = 3, line = 4, xpd = TRUE
                   ),
                   sGrob@plotArgs$gpText)
                 do.call(mtext, args = mtextArgs)
@@ -1949,7 +1951,7 @@ setMethod(
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 grid.text(
-                  sGrob@plotArgs$main, name = "title", y = 1.08, vjust = 0.5,
+                  sGrob@plotName, name = "title", y = 1.08, vjust = 0.5,
                   gp = sGrob@plotArgs$gpText
                 )
               }
