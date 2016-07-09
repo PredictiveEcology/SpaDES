@@ -1423,10 +1423,19 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
             names(distFnArgs) <- forms
             # call inner cumulative function
+            if(length(indices)<ncell(landscape)) {
+              cumVal <- do.call(cumulativeFn, args =
+                                           list(cumVal,
+                                                do.call(distFn, args = distFnArgs)
+                                           ))
+
+            } else {
+
             cumVal[indices] <- do.call(cumulativeFn, args =
                                          list(cumVal[indices],
                                               do.call(distFn, args = distFnArgs)
                                          ))
+            }
           }
           return(cumVal)
         }
@@ -1455,6 +1464,7 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
           fromList <- lapply(seqLen, function(ind) {
               from[inds == ind, , drop = FALSE]
           })
+
           if (fromC) fromCellList <- lapply(seqLen, function(ind) {
                       fromCell[inds == ind]
           })
@@ -1478,7 +1488,11 @@ distanceFromEachPoint <- function(from, to = NULL, landscape, angles = NA_real_,
 
         cumVal <- cumVal[[1]]
 
-        out <- cbind(to, val = cumVal)
+        if(is.null(to)) {
+          out <- cbind(to, val = cumVal)
+        } else {
+          out <- cbind(to, val = cumVal[!is.na(cumVal)])
+        }
       }
     } else {
       out <- .pointDistance(from = from, to = to, angles = angles, maxDistance = maxDistance)
