@@ -1103,7 +1103,7 @@ setMethod(
 #' \code{SpatialPolygons*}, and any combination of those.
 #' It can also handle \code{ggplot2} objects or \code{base::histogram} objects
 #' via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
-#' arguments as if it were a call to \code{\code[base]{plot}}. In this latter
+#' arguments as if it were a call to \code{\link[base]{plot}}. In this latter
 #' case, the user should be explicit about naming the plot area using \code{addTo}.
 #' Customization of the \code{ggplot2} elements can be done as a normal
 #' \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
@@ -1426,7 +1426,11 @@ setMethod(
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
 
-    if (all(sapply(new, function(x) x))) { clearPlot(dev.cur()) }
+    browser()
+    news <- sapply(new, function(x) x)
+    if (length(ls(.spadesEnv)) <= sum(news)) {
+      clearPlot(dev.cur())
+    }
 
     # this covers the case where R thinks that there is nothing, but
     #  there may in fact be something.
@@ -1801,14 +1805,19 @@ setMethod(
                         "cols", "visualSqueeze", "legend", "legendRange", "legendText",
                       "zero.color", "length", "arr", "na.color", "title"))]
             args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
-            if(spadesGrobCounter==1) {
+            browser()
+            if(sGrob@plotArgs$new) {
               grid.rect(gp = gpar(fill = "white", col = "white"))
+              sGrob@plotArgs$new <- FALSE
+              wipe <- TRUE
+            } else {
+              wipe <- FALSE
+            }
+            if(spadesGrobCounter==1 | wipe) {
               suppressWarnings(par(new = TRUE))
-              #suppressWarnings(do.call(plot, append(basePlotDots, plotArgs)))
               suppressWarnings(do.call(plot, args = args_plot1))
             } else {
               suppressWarnings(do.call(points, args = args_plot1))
-              #do.call(points, args = grobToPlot)
             }
 
             if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
@@ -1947,6 +1956,7 @@ setMethod(
                 length = sGrob@plotArgs$length
               ) %>% append(., nonPlotArgs)
 
+              browser()
               do.call(.plotGrob, args = plotGrobCall)
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
