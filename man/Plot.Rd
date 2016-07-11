@@ -35,10 +35,13 @@ rePlot(toDev = dev.cur(), fromDev = dev.cur(), ...)
 \item{...}{A combination of \code{spatialObjects} or some non-spatial objects.
 See details.}
 
-\item{new}{Logical. If \code{TRUE}, then the previous plot is wiped and a
+\item{new}{Logical. If \code{TRUE}, then the previous named plot area is wiped
+and a
 new one made; if \code{FALSE}, then the \code{...} plots will be
 added to the current device, adding or rearranging the plot layout
-as necessary. Default is \code{FALSE}.}
+as necessary. Default is \code{FALSE}. This only works currently if
+there is only one object being plotted in a given Plot call. See
+\code{clearPlot} to clear the whole plotting device.}
 
 \item{addTo}{Character vector, with same length as \code{...}.
 This is for overplotting, when the overplot is not to occur on
@@ -137,7 +140,9 @@ The main plotting function accompanying \code{SpaDES}.
 This can take objects of type \code{Raster*}, \code{SpatialPoints*},
 \code{SpatialPolygons*}, and any combination of those.
 It can also handle \code{ggplot2} objects or \code{base::histogram} objects
-via call to \code{exHist <- hist(1:10, plot = FALSE)}.
+via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
+arguments as if it were a call to \code{\link[base]{plot}}. In this latter
+case, the user should be explicit about naming the plot area using \code{addTo}.
 Customization of the \code{ggplot2} elements can be done as a normal
 \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
 
@@ -311,6 +316,11 @@ if (interactive()) {
 
   # provide arrangement, NumRow, NumCol
   Plot(SpP, arr = c(1,4), new=TRUE)
+
+  # example base plot
+  Plot(1:10, 1:10, addTo = "test", new=TRUE) # if there is no "test" then it will make it
+  Plot(4,5, pch=22, col = "blue", addTo = "test") # if there is no "test" then it will make it
+
 }
 
 }

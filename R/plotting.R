@@ -1103,7 +1103,7 @@ setMethod(
 #' \code{SpatialPolygons*}, and any combination of those.
 #' It can also handle \code{ggplot2} objects or \code{base::histogram} objects
 #' via call to \code{exHist <- hist(1:10, plot = FALSE)}. It can also take
-#' arguments as if it were a call to \code{\code[base]{plot}}. In this latter
+#' arguments as if it were a call to \code{\link[base]{plot}}. In this latter
 #' case, the user should be explicit about naming the plot area using \code{addTo}.
 #' Customization of the \code{ggplot2} elements can be done as a normal
 #' \code{ggplot2} plot, then added with \code{Plot(ggplotObject)}.
@@ -1191,10 +1191,13 @@ setMethod(
 #' @param ... A combination of \code{spatialObjects} or some non-spatial objects.
 #'            See details.
 #'
-#' @param new Logical. If \code{TRUE}, then the previous plot is wiped and a
+#' @param new Logical. If \code{TRUE}, then the previous named plot area is wiped
+#'            and a
 #'            new one made; if \code{FALSE}, then the \code{...} plots will be
 #'            added to the current device, adding or rearranging the plot layout
-#'            as necessary. Default is \code{FALSE}.
+#'            as necessary. Default is \code{FALSE}. This only works currently if
+#'            there is only one object being plotted in a given Plot call. See
+#'            \code{clearPlot} to clear the whole plotting device.
 #'
 #' @param addTo Character vector, with same length as \code{...}.
 #'              This is for overplotting, when the overplot is not to occur on
@@ -1426,7 +1429,10 @@ setMethod(
     # Section 1 - extract object names, and determine which ones need plotting,
     # which ones need replotting etc.
 
-    if (all(sapply(new, function(x) x))) { clearPlot(dev.cur()) }
+    news <- sapply(new, function(x) x)
+    if (length(ls(.spadesEnv)) <= sum(news)) {
+      clearPlot(dev.cur())
+    }
 
     # this covers the case where R thinks that there is nothing, but
     #  there may in fact be something.
@@ -1467,11 +1473,11 @@ setMethod(
       objFrame <- plotFrame
     }
 
-    if (all(sapply(plotArgs$new, function(x) x))) {
-      clearPlot(dev.cur())
-      new <- TRUE # This is necessary in a do.call case where the arguments aren't clear
-      plotArgs$new <- TRUE # for future calls
-    }
+    # if (all(sapply(plotArgs$new, function(x) x))) {
+    #   clearPlot(dev.cur())
+    #   new <- TRUE # This is necessary in a do.call case where the arguments aren't clear
+    #   plotArgs$new <- TRUE # for future calls
+    # }
 
     whichSpadesPlottables <- sapply(dotObjs, function(x) {
       is(x, ".spadesPlottables") })
@@ -1678,7 +1684,7 @@ setMethod(
 
           # Check that the extents are equal.
           # If not, then x and y axes are written where necessary.
-          if (axes == "L") {
+          if (sGrob@plotArgs$axes== "L") {
             if (arr@extents[(whPlotFrame - 1) %% arr@columns + 1][[1]] ==
                 arr@extents[max(
                   which(
@@ -1696,10 +1702,10 @@ setMethod(
               xaxis <- TRUE
             }
           } else {
-            xaxis <- axes
+            xaxis <- sGrob@plotArgs$axes
           }
 
-          if (axes == "L") {
+          if (sGrob@plotArgs$axes== "L") {
             if (arr@extents[whPlotFrame][[1]] ==
                 arr@extents[(ceiling(whPlotFrame / arr@columns) - 1) *
                             arr@columns + 1][[1]]) {
@@ -1712,7 +1718,7 @@ setMethod(
               yaxis <- TRUE
             }
           } else {
-            yaxis <- axes
+            yaxis <- sGrob@plotArgs$axes
           }
 
           takeFromPlotObj <- !(sGrob@plotName %in%
@@ -1789,41 +1795,60 @@ setMethod(
                            cols = sGrob@plotArgs$cols, real = FALSE)
             }
 
+          if(sGrob@plotArgs$new) {
+            seekViewport(paste0("outer",subPlots))
+            grid.rect(x = 0, width = unit(1.2, "npc"),
+                      #height = unit(1.2, "npc"),
+                      #y = unit(0.7, "npc"),
+                      gp = gpar(fill = "white", col = "white"), just = "left")
+            seekViewport(subPlots)
+            sGrob@plotArgs$new <- FALSE
+            wipe <- TRUE
+          } else {
+            wipe <- FALSE
+          }
+
           if (is(grobToPlot, "list")) {  # THis is for base plot calls... the grobToPlot is a call i.e,. a name
             # Because base plotting is not set up to overplot,
             # must plot a white rectangle
             par(fig = gridFIG())
-            sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+
+            #sGrob@plotArgs <- append(grobToPlot, sGrob@plotArgs) # update the saved object
+            sGrob@plotArgs[names(grobToPlot)] <- grobToPlot
             args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
                                                 "zoomExtent", "gpText", "speedup", "size",
                         "cols", "visualSqueeze", "legend", "legendRange", "legendText",
-                        "zero.color", "length", "arr", "na.color", "title", "axes"))]
-            args_plot1 <- append(args_plot1, list(axes = isTRUE(axes)))
-            if(spadesGrobCounter==1) {
-              grid.rect(gp = gpar(fill = "white", col = "white"))
+                      "zero.color", "length", "arr", "na.color", "title"))]
+            args_plot1$axes <- isTRUE(sGrob@plotArgs$axes)
+            # if(sGrob@plotArgs$new) {
+            #   grid.rect(gp = gpar(fill = "white", col = "white"))
+            #   sGrob@plotArgs$new <- FALSE
+            #   wipe <- TRUE
+            # } else {
+            #   wipe <- FALSE
+            # }
+            if(spadesGrobCounter==1 | wipe) {
               suppressWarnings(par(new = TRUE))
-              #suppressWarnings(do.call(plot, append(basePlotDots, plotArgs)))
               suppressWarnings(do.call(plot, args = args_plot1))
             } else {
               suppressWarnings(do.call(points, args = args_plot1))
-              #do.call(points, args = grobToPlot)
             }
 
-            if (title * isBaseSubPlot * isReplot |
-                title * isBaseSubPlot * isNewPlot) {
+            if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
               suppressWarnings(par(new = TRUE))
               mtextArgs <-
                 append(list(
-                  text = subPlots, side = 3, line = 4, xpd = TRUE
+                  text = sGrob@plotName, side = 3, line = 4, xpd = TRUE
                 ),
                 sGrob@plotArgs$gpText)
               do.call(mtext, args = mtextArgs)
             }
 
-            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(axes) ) {
+            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot * !isTRUE(sGrob@plotArgs$axes) ) {
               if(xaxis | yaxis) {
-                axesArgs <- append(list(side = 1), sGrob@plotArgs$gpText)
-                axesArgs <- append(sGrob@plotArgs, axesArgs)
+                axesArgs <- sGrob@plotArgs
+                axesArgs$side <- 1
                 axesArgs <- axesArgs[names(axesArgs) %in% c("at", "labels", "tick", "line", "pos", "outer", "font",
                                                             "lty", "lwd", "lwd.ticks", "col", "col.ticks", "hadj", "padj")]
               }
@@ -1859,10 +1884,10 @@ setMethod(
                   )
                 )
               }
-              if (title * isBaseSubPlot * isReplot |
-                  title * isBaseSubPlot * isNewPlot) {
+              if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                  sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 grid.text(
-                  subPlots, name = "title", y = 1.08, vjust = 0.5,
+                  sGrob@plotName, name = "title", y = 1.08, vjust = 0.5,
                   gp = sGrob@plotArgs$gpText
                 )
               }
@@ -1873,13 +1898,14 @@ setMethod(
               par(fig = gridFIG())
               suppressWarnings(par(new = TRUE))
               plotCall <- list(grobToPlot)
+
               do.call(plot, args = plotCall)
-              if (title * isBaseSubPlot * isReplot |
-                  title * isBaseSubPlot * isNewPlot) {
+              if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                  sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 suppressWarnings(par(new = TRUE))
                 mtextArgs <-
                   append(list(
-                    text = subPlots, side = 3, line = 4, xpd = TRUE
+                    text = sGrob@plotName, side = 3, line = 4, xpd = TRUE
                   ),
                   sGrob@plotArgs$gpText)
                 do.call(mtext, args = mtextArgs)
@@ -1892,12 +1918,12 @@ setMethod(
               suppressWarnings(par(new = TRUE))
               plotCall <- append(list(x = grobToPlot), nonPlotArgs)
               do.call(plot, args = plotCall)
-              if (title * isBaseSubPlot * isReplot |
-                  title * isBaseSubPlot * isNewPlot) {
+              if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
+                  sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 suppressWarnings(par(new = TRUE))
                 mtextArgs <-
                   append(list(
-                    text = subPlots, side = 3, line = 4, xpd = TRUE
+                    text = sGrob@plotName, side = 3, line = 4, xpd = TRUE
                   ),
                   sGrob@plotArgs$gpText)
                 do.call(mtext, args = mtextArgs)
@@ -1937,7 +1963,7 @@ setMethod(
                 legend = sGrob@plotArgs$legend * isBaseSubPlot *
                   isReplot |
                   sGrob@plotArgs$legend * isBaseSubPlot *
-                  isNewPlot,
+                  isNewPlot | wipe,
                 legendText = sGrob@plotArgs$legendTxt,
                 gp = sGrob@plotArgs$gp,
                 gpText = sGrob@plotArgs$gpText,
@@ -1949,7 +1975,7 @@ setMethod(
               if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
                   sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
                 grid.text(
-                  sGrob@plotArgs$main, name = "title", y = 1.08, vjust = 0.5,
+                  sGrob@plotName, name = "title", y = 1.08, vjust = 0.5,
                   gp = sGrob@plotArgs$gpText
                 )
               }
