@@ -14,6 +14,10 @@
 #' @param removeData Logical indicating whether any data that was stored in the
 #' \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.
 #'
+#' @param force Logical. Sometimes the graphics state cannot be fixed by a simple
+#'              clearPlot(). If TRUE, this will close the device and reopen the same
+#'              device number.
+#'
 #' @export
 #' @importFrom grDevices dev.cur
 #' @importFrom grid grid.newpage
@@ -21,7 +25,7 @@
 #' @rdname clearPlot
 #' @include plotting-classes.R
 #' @author Eliot McIntire
-setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE) {
+setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE, force = FALSE) {
   standardGeneric("clearPlot")
 })
 
@@ -29,8 +33,9 @@ setGeneric("clearPlot", function(dev = dev.cur(), removeData = TRUE) {
 #' @rdname clearPlot
 setMethod(
   "clearPlot",
-  signature = c("numeric", "logical"),
-  definition = function(dev, removeData) {
+  signature = c("numeric", "logical", "ANY"),
+  definition = function(dev, removeData, force) {
+
     suppressWarnings(
       try(rm(list = paste0("spadesPlot", dev), envir = .spadesEnv))
     )
@@ -44,6 +49,12 @@ setMethod(
                envir = .spadesEnv[[paste0("dev", dev)]]), silent = TRUE)
       )
     }
+    if(force) {
+      dc <- dev.cur()
+      dev.off()
+      dev(dc)
+      return(invisible())
+    }
     devActive <- dev.cur()
     if (devActive == 1) { return(invisible()) }
     dev(dev)
@@ -55,25 +66,25 @@ setMethod(
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature = c("numeric", "missing"),
-          definition = function(dev) {
-            clearPlot(dev, removeData = TRUE)
+          signature = c("numeric", "missing", "ANY"),
+          definition = function(dev, force) {
+            clearPlot(dev, removeData = TRUE, force = force)
 })
 
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
-          signature = c("missing","logical"),
-          definition =  function(removeData) {
-            clearPlot(dev = dev.cur(), removeData = removeData)
+          signature = c("missing","logical", "ANY"),
+          definition =  function(removeData, force) {
+            clearPlot(dev = dev.cur(), removeData = removeData, force = force)
 })
 
 #' @export
 #' @rdname clearPlot
 setMethod("clearPlot",
           signature = c("missing","missing"),
-          definition =  function(dev, removeData) {
-            clearPlot(dev.cur(), removeData = TRUE)
+          definition =  function(dev, removeData, force) {
+            clearPlot(dev.cur(), removeData = TRUE, force = force)
 })
 
 ################################################################################
