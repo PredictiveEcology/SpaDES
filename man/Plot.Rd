@@ -269,17 +269,22 @@ caribou <- cbind(x = stats::runif (1e2, -50, 50), y = stats::runif (1e2, -50, 50
   SpatialPoints(coords = .)
 
 # use factor raster to give legends as character strings
-ras <- raster(matrix(sample(1:4, size=12, replace=TRUE),
-   ncol=4, nrow=3))
+ras <- raster(extent(0,3,0,4), vals = sample(1:4, size=12, replace=TRUE), res = 1)
 # needs to have a data.frame with ID as first column - see ?raster::ratify
 levels(ras) <- data.frame(ID=1:4, Name=paste0("Level",1:4))
 if (interactive()) Plot(ras, new=TRUE)
 
-# Arbitrary values for factors
-levels <- c(1,2,7)
-ras <- raster(matrix(sample(levels, size=12, replace=TRUE),
-   ncol=4, nrow=3))
-levels(ras) <- data.frame(ID=levels, Name=sample(LETTERS,3))
+# Arbitrary values for factors, including zero and not all levels represented in raster
+levs <- c(0:5,7:12)
+ras <- raster(extent(0,3,0,2), vals = c(1,1,3,5,8,9), res = 1)
+levels(ras) <- data.frame(ID=levs, Name=LETTERS[c(1:3,8:16)])
+if (interactive()) Plot(ras, new=TRUE)
+
+# Arbitrary values for factors, including zero and not all levels represented in raster
+levs <- c(0:5,7:23)
+ras <- raster(extent(0,3,0,2), vals = c(1,1,3,5,8,9), res = 1)
+levels(ras) <- data.frame(ID=levs, Name=LETTERS[1:23])
+if (interactive()) Plot(ras, new=TRUE)
 
 # SpatialPolygons
 Sr1 = Polygon(cbind(c(2, 4, 4, 1, 2), c(2, 3, 5, 4, 2))*20-50)

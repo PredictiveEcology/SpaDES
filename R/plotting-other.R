@@ -139,6 +139,7 @@ setMethod("clearPlot",
 #'
 #' @export
 #' @include plotting-classes.R
+#' @importFrom raster is.factor factorValues
 #' @docType methods
 #' @author Eliot McIntire
 #' @rdname spadesMouseClicks
@@ -149,23 +150,19 @@ clickValues <- function(n = 1) {
   objNames <- sapply(objLay, function(x) { x[1] })
   layNames <- sapply(objLay, function(x) { x[2] })
   for (i in 1:n) {
+    ras1 <- eval(parse(text = objNames[i]), envir = coords$envir[[i]])
     if (!is.na(layNames[i])) {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text = objNames[i]),
-             envir = coords$envir[[i]])[[layNames[i]]][cellFromXY(
-               eval(parse(text = objNames[i]),
-                    envir = coords$envir[[i]])[[layNames[i]]],
-               coords$coords[i,1:2])]
+        ras1[[layNames[i]]][cellFromXY(ras1[[layNames[i]]], coords$coords[i,1:2])]
       })
     } else {
       coords$coords$value <- sapply(seq_len(n), function(i) {
-        eval(parse(text = objNames[i]),
-             envir = coords$envir[[i]])[cellFromXY(
-               eval(parse(text = objNames[i]),
-                    envir = coords$envir[[i]]),
-               coords$coords[i,1:2])]
+        ras1[cellFromXY(ras1,coords$coords[i,1:2])]
       })
     }
+  }
+  if(raster::is.factor(ras1)) {
+    coords$coords$value <- factorValues(ras1, coords$coords$value)$Name
   }
   return(coords$coords)
 }

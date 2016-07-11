@@ -616,3 +616,46 @@ test_that("setColors is not error-free", {
       .Names = c("ras1", "ras2", "ras3"))
   ))
 })
+
+
+test_that("Plot with base is not error-free", {
+  if(interactive()) {
+    library(raster)
+    library(ggplot2)
+
+    tmpdir <- file.path(tempdir(), "test_Plot1") %>% checkPath(create = TRUE)
+    for(arr in list(NULL, c(2,3))) {
+      ras <- raster(extent(0,40, 0,20), vals = sample(1:800), res = 1)
+      aTime <- Sys.time()
+      clearPlot()
+      if(is.null(arr)) {
+        Plot(ras)
+      } else {
+        Plot(ras, arr = arr)
+      }
+      Plot(rnorm(10), ylab = "hist")
+      Plot(rnorm(10), addTo = "hist", ylab = "test")
+      a <- hist(rnorm(10), plot = FALSE)
+      Plot(a, addTo = "histogram", axes = "L", col = "#33EEAA33", xlim = c(-3,3))
+      a <- hist(rnorm(100), plot = FALSE)
+      Plot(a, addTo = "histogram", axes = FALSE, col = paste0("#1133FF","33"), xlim = c(-3,3), xlab = "", ylab = "")
+      ras2 <- raster(ras)
+      ras2[] <- sample(1:8)
+      Plot(ras2)
+      gg1 <- qplot(1:10)
+      Plot(gg1)
+      Plot(rnorm(10), ylab = "hist", new=TRUE)
+      Plot(ras2)
+      Plot(rnorm(10), ylab = "hist")
+      ras <- ras^2
+      Plot(ras, new = TRUE, cols = "Reds")
+      Plot(rnorm(10), ylab = "hist", new=TRUE, addTo = "hist")
+      Plot(ras, new = TRUE, cols = "Reds", addTo = "ras2")
+      Plot(ras, cols = "Reds", addTo = "ras2")
+      bTime <- Sys.time()
+      print(bTime - aTime)
+    }
+
+  }
+
+})

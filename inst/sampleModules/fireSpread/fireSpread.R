@@ -102,7 +102,8 @@ doEvent.fireSpread <- function(sim, eventTime, eventType, debug = FALSE) {
         Fires = c("white", rev(heat.colors(9)))
       )
 
-    Plot(sim[[globals(sim)$stackName]], new = TRUE,
+    clearPlot()
+    Plot(sim[[globals(sim)$stackName]],
          legendRange = list(0:maxValue(sim[[globals(sim)$stackName]]$DEM), 0:100, c(0,1), 0:100, 0:10))
 
     # schedule the next event

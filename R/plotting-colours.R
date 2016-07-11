@@ -278,7 +278,7 @@ setMethod(
 #'
 #' @include plotting-classes.R
 #' @importFrom grDevices colorRampPalette terrain.colors
-#' @importFrom raster minValue getValues sampleRegular is.factor
+#' @importFrom raster minValue getValues sampleRegular is.factor levels
 #' @importFrom stats na.omit
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
 #'
@@ -300,6 +300,7 @@ setMethod(
   definition = function(grobToPlot, zoomExtent, maxpixels, legendRange,
                         cols, na.color, zero.color, skipSample = TRUE) {
     zoom <- zoomExtent
+    isFac <- (raster::is.factor(grobToPlot))
     # It is 5x faster to access the min and max from the Raster than to
     # calculate it, but it is also often wrong... it is only metadata
     # on the raster, so it is possible that it is incorrect.
@@ -316,7 +317,7 @@ setMethod(
         cols <- colorTable
       }
     }
-    z <- getValues(grobToPlot)
+  z <- getValues(grobToPlot)
 
     # If minValue is defined, then use it, otherwise, calculate them.
     #  This is different than maxz because of the sampleRegular.
@@ -325,6 +326,7 @@ setMethod(
     #  so, use the metadata version of minValue, but use the max(z) to
     #  accomodate cases where there are too many legend values for the
     # number of raster values.
+  #if(!raster::is.factor(grobToPlot)) {
     if (any(is.na(legendRange))) {
       if (!exists("minz")) {
         minz <- suppressWarnings(min(z, na.rm = TRUE))
@@ -345,6 +347,11 @@ setMethod(
       maxz <- max(legendRange)
     }
 
+  #} else {
+    #minz <- 1
+    #maxz <- NROW(raster::levels(grobToPlot)[[1]])
+  #}
+
     real <- any(na.omit(z) %% 1 != 0) # Test for real values or not
 
     # Deal with colors - This gets all combinations, real vs. integers,
@@ -352,11 +359,16 @@ setMethod(
     #  too many numbers
     maxNumCols <- 100
 
-    if (any(is.na(legendRange))) {
-      nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+    if(isFac) {
+      facLevs <- raster::levels(grobToPlot)[[1]]
+      nValues <- NROW(facLevs)
     } else {
-      #realRange <- any(legendRange %% 1 != 0) # Test for real values or not
-      nValues <- ifelse(real, maxNumCols + 1, length(seq(legendRange[1], legendRange[length(legendRange)])))
+      if (any(is.na(legendRange))) {
+        nValues <- ifelse(real, maxNumCols + 1, maxz - minz + 1)
+      } else {
+        #realRange <- any(legendRange %% 1 != 0) # Test for real values or not
+        nValues <- ifelse(real, maxNumCols + 1, length(seq(legendRange[1], legendRange[length(legendRange)])))
+      }
     }
 
     colTable <- NULL
@@ -366,13 +378,13 @@ setMethod(
         colTable <- getColors(grobToPlot)[[1]]
         lenColTable <- length(colTable)
 
-        cols <- if ((nValues > lenColTable) & !raster::is.factor(grobToPlot)) {
+        cols <- if ((nValues > lenColTable) & !isFac) {
           # not enough colors, use colorRamp
           colorRampPalette(colTable)(nValues)
-        } else if ( (nValues <= lenColTable) | raster::is.factor(grobToPlot) ) {
+        } else if ( (nValues <= lenColTable) | isFac ) {
           # one more color than needed:
           #   assume bottom is NA
-          if (raster::is.factor(grobToPlot)) {
+          if (isFac) {
             factorValues <- grobToPlot@data@attributes[[1]][,1] %>%
               unique() %>% na.omit() %>% sort()
             if (length(factorValues) == length(colTable)) {
@@ -445,19 +457,23 @@ setMethod(
     }
 
     # Here, rescale so it is between 0 and maxNumCols or nValues
-    if (real) {#& (maxz <= maxNumCols) ) {
-      z <- maxNumCols / (maxz - minz) * (z - minz)
-      if (length(whichZero)) {
-        zeroValue <- maxNumCols / (maxz - minz) * (0 - minz)
-      }
-      # rescale so the minimum is 1, not <1:
-      #z <- z + (((maxNumCols / maxz * minz) < 1) *
-      #            (-(maxNumCols / maxz * minz) + 1))
+    if(isFac){
+      z <- match(z, facLevs$ID)
     } else {
-      # rescale so that the minimum is 1, not <1:
-      z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
-      if (length(whichZero)) {
-        zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
+      if (real) {#& (maxz <= maxNumCols) ) {
+        z <- maxNumCols / (maxz - minz) * (z - minz)
+        if (length(whichZero)) {
+          zeroValue <- maxNumCols / (maxz - minz) * (0 - minz)
+        }
+        # rescale so the minimum is 1, not <1:
+        #z <- z + (((maxNumCols / maxz * minz) < 1) *
+        #            (-(maxNumCols / maxz * minz) + 1))
+      } else {
+        # rescale so that the minimum is 1, not <1:
+        z <- (nValues - 1) /  (maxz - minz) * (z - minz) + 1
+        if (length(whichZero)) {
+          zeroValue <- (nValues - 1) / (maxz - minz) * (0 - minz) + 1
+        }
       }
     }
     minz <- suppressWarnings(min(z, na.rm = TRUE))
@@ -494,17 +510,18 @@ setMethod(
 
     # if range of values is not within the legend range, then give them NA
     if (minz < 0) z[z < 0] <- 0
-    if (real) {
-      if (maxz > maxNumCols) z[z > maxNumCols] <- 0
-    } else {
-      if (maxz > nValues) z[z > nValues] <- 0
+    if(!isFac) {
+      if (real) {
+        if (maxz > maxNumCols) z[z > maxNumCols] <- 0
+      } else {
+        if (maxz > nValues) z[z > nValues] <- 0
+      }
     }
 
     z <- z + 1 # for the NAs
     z[is.na(z)] <- 1 # max(1, minz)
 
-    
-    if (raster::is.factor(grobToPlot) & !is.null(colTable)) {
+    if (isFac & !is.null(colTable)) {
       cols <- rep(na.color,length(factorValues)) # changed from max to length to accommodate zeros or factors not starting at 1
       cols[factorValues-min(factorValues)+1] <- colTable
     }

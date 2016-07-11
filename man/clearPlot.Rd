@@ -9,21 +9,27 @@
 \alias{clearPlot,numeric,missing-method}
 \title{Clear plotting device}
 \usage{
-clearPlot(dev = dev.cur(), removeData = TRUE)
+clearPlot(dev = dev.cur(), removeData = TRUE, force = FALSE)
 
-\S4method{clearPlot}{numeric,logical}(dev = dev.cur(), removeData = TRUE)
+\S4method{clearPlot}{numeric,logical}(dev = dev.cur(), removeData = TRUE,
+  force = FALSE)
 
-\S4method{clearPlot}{numeric,missing}(dev)
+\S4method{clearPlot}{numeric,missing}(dev, force)
 
-\S4method{clearPlot}{missing,logical}(removeData)
+\S4method{clearPlot}{missing,logical}(removeData, force)
 
-\S4method{clearPlot}{missing,missing}(dev = dev.cur(), removeData = TRUE)
+\S4method{clearPlot}{missing,missing}(dev = dev.cur(), removeData = TRUE,
+  force = FALSE)
 }
 \arguments{
 \item{dev}{Numeric. Device number to clear.}
 
 \item{removeData}{Logical indicating whether any data that was stored in the
 \code{.spadesEnv} should also be removed; i.e., not just the plot window wiped.}
+
+\item{force}{Logical. Sometimes the graphics state cannot be fixed by a simple
+clearPlot(). If TRUE, this will close the device and reopen the same
+device number.}
 }
 \description{
 Under some conditions, a device and its metadata need to be cleared manually.
