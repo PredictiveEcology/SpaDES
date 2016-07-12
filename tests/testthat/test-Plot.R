@@ -663,9 +663,16 @@ test_that("Plot with base is not error-free", {
     a <- rnorm(1e2)
     b <- rnorm(1e2)
     Plot(a, axes = TRUE, addTo = "first", visualSqueeze = 0.6)
-    Plot(a, b, axes = TRUE, addTo = "second")
-    Plot(1:10, axes = TRUE, addTo = "third")
-    Plot(1:10, 1:10, axes = TRUE, addTo = "fourth")
+    Plot(a, b, axes = TRUE, addTo = "second", visualSqueeze = 0.6)
+    Plot(1:10, axes = TRUE, addTo = "third", visualSqueeze = 0.6)
+    Plot(1:10, 1:10, axes = TRUE, addTo = "fourth", visualSqueeze = 0.6,
+         main = "test4", title = FALSE)
+    Plot(ras)
+
+    clearPlot()
+    Plot(ras,  title = "test", new=TRUE)
+    Plot(ras2,  addTo = "ras", cols = "Reds")
+    Plot(ras,  addTo = "ras", cols = "Blues")
 
   }
 

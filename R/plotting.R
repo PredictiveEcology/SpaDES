@@ -1891,7 +1891,7 @@ setMethod(
 
             #}
 
-            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot  | wipe ) {
+            if (isBaseSubPlot & isReplot | isBaseSubPlot & isNewPlot  | wipe ) {
               if(xaxis | yaxis) {
                 axesArgs <- sGrob@plotArgs
                 axesArgs$side <- 1
@@ -1899,14 +1899,14 @@ setMethod(
                                                             "lty", "lwd", "lwd.ticks", "col.ticks", "hadj", "padj")]
               }
 
-              if (xaxis * isBaseSubPlot * isReplot |
-                  xaxis * isBaseSubPlot * isNewPlot | xaxis*wipe) {
+              if (xaxis & isBaseSubPlot & isReplot |
+                  xaxis & isBaseSubPlot & isNewPlot | xaxis & wipe) {
 
                 axesArgsX <- append(list(side=1), axesArgs)
                 do.call(axis, args = axesArgsX)
               }
-              if (yaxis * isBaseSubPlot * isReplot |
-                  yaxis * isBaseSubPlot * isNewPlot | yaxis*wipe) {
+              if (yaxis & isBaseSubPlot & isReplot |
+                  yaxis & isBaseSubPlot & isNewPlot | yaxis & wipe) {
                 axesArgsY <- append(list(side=2), axesArgs)
                 do.call(axis, args = axesArgsY)
               }
@@ -1953,7 +1953,7 @@ setMethod(
               if(length(main) != length(names(spadesSubPlots))) {
                 stop("main argument must be same length as number of plots")
               }
-              sGrob@plotArgs$main <- main[match(subPlots, names(spadesSubPlots))]
+              sGrob@plotArgs$title <- main[match(subPlots, names(spadesSubPlots))]
             }
 
             plotGrobCall <- list(
@@ -1963,9 +1963,9 @@ setMethod(
               minv = zMat$minz, maxv = zMat$maxz,
               pch = sGrob@plotArgs$pch, name = subPlots,
               vp = vps,
-              legend = sGrob@plotArgs$legend * isBaseSubPlot *
+              legend = sGrob@plotArgs$legend  &  isBaseSubPlot &
                 isReplot |
-                sGrob@plotArgs$legend * isBaseSubPlot *
+                sGrob@plotArgs$legend & isBaseSubPlot &
                 isNewPlot | wipe,
               legendText = sGrob@plotArgs$legendTxt,
               gp = sGrob@plotArgs$gp,
@@ -1976,33 +1976,34 @@ setMethod(
 
             do.call(.plotGrob, args = plotGrobCall)
 
-            if (isBaseSubPlot * isReplot | isBaseSubPlot * isNewPlot) {
-              if (xaxis * isBaseSubPlot * isReplot |
-                  xaxis * isBaseSubPlot * isNewPlot) {
+            if (isBaseSubPlot & isReplot | isBaseSubPlot & isNewPlot) {
+              if (xaxis & isBaseSubPlot & isReplot |
+                  xaxis & isBaseSubPlot & isNewPlot) {
                 b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
                 grid.xaxis(name = "xaxis", gp = sGrob@plotArgs$gpAxis)
                 a <- try(seekViewport(subPlots, recording = FALSE))
               }
-              if (yaxis * isBaseSubPlot * isReplot |
-                  yaxis * isBaseSubPlot * isNewPlot) {
+              if (yaxis & isBaseSubPlot & isReplot |
+                  yaxis & isBaseSubPlot & isNewPlot) {
                 b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
                 grid.yaxis(name = "yaxis", gp = sGrob@plotArgs$gpAxis)
                 a <- try(seekViewport(subPlots, recording = FALSE))
               }
             }
           } #gg vs histogram vs spatialObject
+
           # print Title on plot
-          if (sGrob@plotArgs$title * isBaseSubPlot * isReplot |
-              sGrob@plotArgs$title * isBaseSubPlot * isNewPlot) {
+          if (!identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & isReplot |
+              !identical(FALSE, sGrob@plotArgs$title) & isBaseSubPlot & isNewPlot) {
             b <- try(seekViewport(paste0("outer",subPlots), recording = FALSE))
+            plotName <- if(isTRUE(sGrob@plotArgs$title)) sGrob@plotName else sGrob@plotArgs$title
             grid.text(
-              sGrob@plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
+              plotName, name = "title", y = 1.08-is.list(grobToPlot)*0.02, vjust = 0.5, # tweak... not good practice. Should find original reason why this is not same y for rasters and all others
               gp = sGrob@plotArgs$gpText
             )
             a <- try(seekViewport(subPlots, recording = FALSE))
 
           }
-
 
         } # needPlot
         updated$isNewPlot[[subPlots]][[spadesGrobCounter]] <- FALSE
