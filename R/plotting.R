@@ -1412,8 +1412,11 @@ setMethod(
 #'   Plot(SpP, arr = c(1,4), new=TRUE)
 #'
 #'   # example base plot
+#'   clearPlot()
 #'   Plot(1:10, 1:10, addTo = "test", new=TRUE) # if there is no "test" then it will make it
 #'   Plot(4,5, pch=22, col = "blue", addTo = "test") # if there is no "test" then it will make it
+#'   obj1 <- rnorm(1e2)
+#'   Plot(obj1, axes = "L")
 #'
 #' }
 #'
@@ -1844,16 +1847,16 @@ setMethod(
               }
 
               # plot y and x axes should use deparse(substitute(...)) names
-              if(length(sGrob@plotArgs$axisLabels)==1) {
-
-                if(yaxis) {
+              if(!identical(FALSE,sGrob@plotArgs$axes)) {
+                if(length(sGrob@plotArgs$axisLabels)==1) {
                   sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[1]
+                } else {
+                  sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
+                  sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
                 }
               } else {
-                # if(any(unlabelled))
-                #   axisLabels <- c("x","y")[xAndY][unlabelled]
-                if(xaxis) sGrob@plotArgs$xlab <- sGrob@plotArgs$axisLabels[1]
-                if(yaxis) sGrob@plotArgs$ylab <- sGrob@plotArgs$axisLabels[2]
+                sGrob@plotArgs$xlab <- ""
+                sGrob@plotArgs$ylab <- ""
               }
 
               args_plot1 <- sGrob@plotArgs[!(names(sGrob@plotArgs) %in% c("new", "addTo", "gp", "gpAxis",
@@ -1864,10 +1867,10 @@ setMethod(
               makeSpaceForAxes <- as.numeric(
                 !identical(FALSE, spadesSubPlots[[subPlots]][[1]]@plotArgs$axes)
                 )
-              par(plt = c(0.13 + makeSpaceForAxes * 0.1, # left
+              par(plt = c(0.18 + makeSpaceForAxes * 0.05, # left
                           0.95,                          # right
-                          0.2 + makeSpaceForAxes * 0.1, # bottom
-                          0.87))                         # top
+                          0.25 + makeSpaceForAxes * 0.05, # bottom
+                          0.9))                         # top
 
 
               if(spadesGrobCounter==1 | wipe ) { #| isHist) {
