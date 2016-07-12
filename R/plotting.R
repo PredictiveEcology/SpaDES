@@ -2063,7 +2063,7 @@ rePlot <- function(toDev = dev.cur(), fromDev = dev.cur(), ...) {
   if (exists(paste0("spadesPlot", fromDev),envir = .spadesEnv)) {
     currSpadesPlots <- .getSpaDES(paste0("spadesPlot", dev.cur()))
     dev(toDev)
-    Plot(currSpadesPlots$curr, new = TRUE, ...)
+    suppressWarnings(Plot(currSpadesPlots$curr, new = TRUE, ...))
   } else {
     stop(
       paste(
